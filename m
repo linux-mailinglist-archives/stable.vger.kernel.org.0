@@ -2,134 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDC12653456
-	for <lists+stable@lfdr.de>; Wed, 21 Dec 2022 17:50:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0B4C653463
+	for <lists+stable@lfdr.de>; Wed, 21 Dec 2022 17:55:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233952AbiLUQuj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Dec 2022 11:50:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42810 "EHLO
+        id S230144AbiLUQzL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Dec 2022 11:55:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230330AbiLUQui (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Dec 2022 11:50:38 -0500
-Received: from out2.migadu.com (out2.migadu.com [IPv6:2001:41d0:2:aacc::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07EDA24BD6;
-        Wed, 21 Dec 2022 08:50:36 -0800 (PST)
-Date:   Wed, 21 Dec 2022 16:50:30 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-        t=1671641435;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Xdjf8bxiYHpI/EXjIs05wPVvAMrqG6J7dZ0Cm96qYYk=;
-        b=qxoDmMVkSPwg3Qz24+AUYA0y6lpWSkYf2PUOZNWsPkHLlkZmsiNsyWI3G8/uHbGwAMUeUA
-        JQf9aZ5PKPis0vEWtlTS1mvtDL3/dB8Hvl3yvja4684hiQ4Ws8MJp3lzApIvYoozbbHiux
-        QIczvU9G9oZOR1c6d/2ickYaol8Yw5A=
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From:   Oliver Upton <oliver.upton@linux.dev>
-To:     Marc Zyngier <maz@kernel.org>
-Cc:     kvmarm@lists.cs.columbia.edu, kvmarm@lists.linux.dev,
-        kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        James Morse <james.morse@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Will Deacon <will@kernel.org>,
-        Quentin Perret <qperret@google.com>, stable@vger.kernel.org
-Subject: Re: [PATCH 1/3] KVM: arm64: Fix S1PTW handling on RO memslots
-Message-ID: <Y6M5Vh+EGOhkR5hd@google.com>
-References: <20221220200923.1532710-1-maz@kernel.org>
- <20221220200923.1532710-2-maz@kernel.org>
- <Y6IteDoK406o9pM+@google.com>
- <86pmcdaylx.wl-maz@kernel.org>
+        with ESMTP id S234352AbiLUQzJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Dec 2022 11:55:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B605A24970;
+        Wed, 21 Dec 2022 08:55:08 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6F0D8B81BD8;
+        Wed, 21 Dec 2022 16:55:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7072FC433EF;
+        Wed, 21 Dec 2022 16:55:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1671641706;
+        bh=zMIpGrndxPG0VEHLYWt8z7uKeKf9TUU5w/6EAiB+aZw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Eianol1tYawt1zTiKlhnsq5SMhytQ6uJ1aq2nBVfBBe81rYx7be3Q5utJKdlve0Ue
+         sF6HqQrjAxbxsiOJ6+zGl64kSGsM6p/8LE9iVwsbu5oMeliEr+DyCdBYW3hbhsgfp2
+         E7kT+p8G2c9QJ3DwzKVuyOzIv8XVV7W+mF5hoBY8=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 5.10.161
+Date:   Wed, 21 Dec 2022 17:55:01 +0100
+Message-Id: <167164170215084@kroah.com>
+X-Mailer: git-send-email 2.39.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <86pmcdaylx.wl-maz@kernel.org>
-X-Migadu-Flow: FLOW_OUT
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 21, 2022 at 09:35:06AM +0000, Marc Zyngier wrote:
+I'm announcing the release of the 5.10.161 kernel.
 
-[...]
+All users of the 5.10 kernel series must upgrade.
 
-> > > +	if (kvm_vcpu_abt_iss1tw(vcpu)) {
-> > > +		/*
-> > > +		 * Only a permission fault on a S1PTW should be
-> > > +		 * considered as a write. Otherwise, page tables baked
-> > > +		 * in a read-only memslot will result in an exception
-> > > +		 * being delivered in the guest.
-> > 
-> > Somewhat of a tangent, but:
-> > 
-> > Aren't we somewhat unaligned with the KVM UAPI by injecting an
-> > exception in this case? I know we've been doing it for a while, but it
-> > flies in the face of the rules outlined in the
-> > KVM_SET_USER_MEMORY_REGION documentation.
-> 
-> That's an interesting point, and I certainly haven't considered that
-> for faults introduced by page table walks.
-> 
-> I'm not sure what userspace can do with that though. The problem is
-> that this is a write for which we don't have useful data: although we
-> know it is a page-table walker access, we don't know what it was about
-> to write. The instruction that caused the write is meaningless (it
-> could either be a load, a store, or an instruction fetch). How do you
-> populate the data[] field then?
-> 
-> If anything, this is closer to KVM_EXIT_ARM_NISV, for which we give
-> userspace the full ESR and ask it to sort it out. I doubt it will be
-> able to, but hey, maybe it is worth a shot. This would need to be a
-> different exit reason though, as NISV is explicitly for non-memslot
-> stuff.
-> 
-> In any case, the documentation for KVM_SET_USER_MEMORY_REGION needs to
-> reflect the fact that KVM_EXIT_MMIO cannot represent a fault due to a
-> S1 PTW.
+The updated 5.10.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.10.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-Oh I completely agree with you here. I probably should have said before,
-I think the exit would be useless anyway. Getting the documentation in
-line with the intended behavior seems to be the best fix.
+thanks,
 
-> >
-> > > +		 * The drawback is that we end-up fauling twice if the
-> > 
-> > typo: s/fauling/faulting/
-> > 
-> > > +		 * guest is using any of HW AF/DB: a translation fault
-> > > +		 * to map the page containing the PT (read only at
-> > > +		 * first), then a permission fault to allow the flags
-> > > +		 * to be set.
-> > > +		 */
-> > > +		switch (kvm_vcpu_trap_get_fault_type(vcpu)) {
-> > > +		case ESR_ELx_FSC_PERM:
-> > > +			return true;
-> > > +		default:
-> > > +			return false;
-> > > +		}
-> > > +	}
-> > >  
-> > >  	if (kvm_vcpu_trap_is_iabt(vcpu))
-> > >  		return false;
-> > > -- 
-> > > 2.34.1
-> > > 
-> > 
-> > Besides the changelog/comment suggestions, the patch looks good to me.
-> > 
-> > Reviewed-by: Oliver Upton <oliver.upton@linux.dev>
-> 
-> Thanks for the quick review! I'll wait a bit before respinning the
-> series, as I'd like to get closure on the UAPI point you have raised.
+greg k-h
 
-I'm satisfied if you are :)
+------------
 
---
-Thanks,
-Oliver
+ Makefile                                  |    2 
+ drivers/hid/hid-ids.h                     |    2 
+ drivers/hid/hid-ite.c                     |   26 +++++++++-
+ drivers/hid/hid-uclogic-core.c            |    1 
+ drivers/net/ethernet/intel/igb/igb_main.c |    2 
+ drivers/net/loopback.c                    |    2 
+ drivers/usb/gadget/function/f_uvc.c       |    5 +
+ drivers/usb/host/xhci-pci.c               |    4 +
+ drivers/usb/serial/cp210x.c               |    2 
+ drivers/usb/serial/f81232.c               |   12 ++--
+ drivers/usb/serial/f81534.c               |   12 ++--
+ drivers/usb/serial/option.c               |    3 +
+ fs/udf/inode.c                            |   76 +++++++++++++-----------------
+ fs/udf/truncate.c                         |   48 +++++-------------
+ net/bluetooth/l2cap_core.c                |    3 -
+ 15 files changed, 106 insertions(+), 94 deletions(-)
+
+Bruno Thomsen (1):
+      USB: serial: cp210x: add Kamstrup RF sniffer PIDs
+
+Duke Xin (1):
+      USB: serial: option: add Quectel EM05-G modem
+
+Greg Kroah-Hartman (1):
+      Linux 5.10.161
+
+Hans de Goede (3):
+      HID: ite: Add support for Acer S1002 keyboard-dock
+      HID: ite: Enable QUIRK_TOUCHPAD_ON_OFF_REPORT on Acer Aspire Switch 10E
+      HID: ite: Enable QUIRK_TOUCHPAD_ON_OFF_REPORT on Acer Aspire Switch V 10
+
+Jan Kara (4):
+      udf: Discard preallocation before extending file with a hole
+      udf: Fix preallocation discarding at indirect extent boundary
+      udf: Do not bother looking for prealloc extents if i_lenExtents matches i_size
+      udf: Fix extending file within last block
+
+Johan Hovold (2):
+      USB: serial: f81232: fix division by zero on line-speed change
+      USB: serial: f81534: fix division by zero on line-speed change
+
+José Expósito (1):
+      HID: uclogic: Add HID_QUIRK_HIDINPUT_FORCE quirk
+
+Rasmus Villemoes (1):
+      net: loopback: use NET_NAME_PREDICTABLE for name_assign_type
+
+Reka Norman (1):
+      xhci: Apply XHCI_RESET_TO_DEFAULT quirk to ADL-N
+
+Sungwoo Kim (1):
+      Bluetooth: L2CAP: Fix u8 overflow
+
+Szymon Heidrich (1):
+      usb: gadget: uvc: Prevent buffer overflow in setup handler
+
+Tony Nguyen (1):
+      igb: Initialize mailbox message for VF reset
+
