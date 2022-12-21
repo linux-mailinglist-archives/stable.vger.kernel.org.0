@@ -2,115 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6E726532AC
-	for <lists+stable@lfdr.de>; Wed, 21 Dec 2022 15:50:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04FFB6533C0
+	for <lists+stable@lfdr.de>; Wed, 21 Dec 2022 17:04:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231986AbiLUOud (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Dec 2022 09:50:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39474 "EHLO
+        id S231422AbiLUQEc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Dec 2022 11:04:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231801AbiLUOu3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Dec 2022 09:50:29 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C61523BD0;
-        Wed, 21 Dec 2022 06:50:28 -0800 (PST)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BLEh5K7027729;
-        Wed, 21 Dec 2022 14:50:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : content-type : mime-version :
- content-transfer-encoding; s=pp1;
- bh=vw003GsQEmfzDs0RM0b6cXPgeY6dEyRVpRQn6K2HK5w=;
- b=f5oN/eMU5lnUvK5iLTOUWFKWjgPUeAGqo7T8mC3gJB3P6kUPanzdu5iPKkna3thlvntQ
- mujttboLadBFG4iZQUdAkiC8fXr76ceGXG5/OzJYgBap4oXYntL8MyOEE7N8HHNspSC3
- AnMKaoJiUfwKIpdwHfyHmLZdnCplKOZdM+GfUORZwPAWENntlKbZ9aIgFu7TDDBUoUYl
- ebp/SR5ejywsTBh5exeBBrlOeimVWf6Xt+BtOMX2gmaxaWIwgqwDlFWL8Aq3SGWqgy5K
- XPcsEEfM+u0Kx1uMCDrLKuHI8XldPuD9yI7VP2983AwX2gEpgk3LcHjyRRFE8QKxt+ps Pg== 
-Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3mm45a09wc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 21 Dec 2022 14:50:12 +0000
-Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
-        by ppma02wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BLDMclC010167;
-        Wed, 21 Dec 2022 14:50:11 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([9.208.129.116])
-        by ppma02wdc.us.ibm.com (PPS) with ESMTPS id 3mh6yv3qay-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 21 Dec 2022 14:50:11 +0000
-Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-        by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BLEoAiB39715268
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 21 Dec 2022 14:50:10 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1E5935805A;
-        Wed, 21 Dec 2022 14:50:10 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7EDA558060;
-        Wed, 21 Dec 2022 14:50:09 +0000 (GMT)
-Received: from sig-9-65-212-99.ibm.com (unknown [9.65.212.99])
-        by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 21 Dec 2022 14:50:09 +0000 (GMT)
-Message-ID: <c946a51ca8b059d1526af1078473e62c58edc357.camel@linux.ibm.com>
-Subject: Stable backport request
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     stable@vger.kernel.org
-Cc:     linux-integrity <linux-integrity@vger.kernel.org>,
-        "Guozihua (Scott)" <guozihua@huawei.com>,
-        Tyler Hicks <tyhicks@linux.microsoft.com>
-Date:   Wed, 21 Dec 2022 09:50:09 -0500
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: fSDgYpVMDgLffpKlFPnjqQMkHzxWNxT8
-X-Proofpoint-ORIG-GUID: fSDgYpVMDgLffpKlFPnjqQMkHzxWNxT8
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-12-21_07,2022-12-21_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- suspectscore=0 adultscore=0 impostorscore=0 priorityscore=1501
- malwarescore=0 mlxscore=0 phishscore=0 bulkscore=0 clxscore=1011
- spamscore=0 mlxlogscore=999 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2212070000 definitions=main-2212210120
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S230336AbiLUQEb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Dec 2022 11:04:31 -0500
+Received: from mail-oo1-xc2d.google.com (mail-oo1-xc2d.google.com [IPv6:2607:f8b0:4864:20::c2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7413311445
+        for <stable@vger.kernel.org>; Wed, 21 Dec 2022 08:04:28 -0800 (PST)
+Received: by mail-oo1-xc2d.google.com with SMTP id y194-20020a4a45cb000000b004a08494e4b6so2465987ooa.7
+        for <stable@vger.kernel.org>; Wed, 21 Dec 2022 08:04:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxtx.org; s=google;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=HJmsn58xKPbGHiKrj82Ko5wI0bke7L5N3g2n349swQQ=;
+        b=VKZh8Z+o5HVhAYyL+Km4C+pZUd+tLLpykKq2K/NWLT0ihGl9RzIOi5JSJAcyYXbrbr
+         t5eUzkVG7RqeD9P5pckYLyBQYGRLG36GEjIUPTJJqHneXFr3ZcS4nkHwNvOCqJO44CHj
+         sbXsoUOqo6DrXBuRI1E4Kj/ceWeGFfg+MFf/U=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=HJmsn58xKPbGHiKrj82Ko5wI0bke7L5N3g2n349swQQ=;
+        b=1FvhgRfaQOw8MFfj8gdPGGioagMUX+/Ak3W9vZ0Ru2KdYXSpxYdXN6cmWS8e6q392B
+         Y6hHMoGI4vlzDudDo++CDJxA8QPOIpfcX9YHuhGuUmDosEnNz2Ln4DPToY+foW8qHVEl
+         RBHWvzVSNutVXFkPZIBzDo/wTb8nXEwnSpEGiZP669g0Dlnu1txVcaALW6TcShMXjU7n
+         iBbLw3KKIufxlx4fMvT3KT0GHOPGebUTavCoK6yN7R3mDpF6dmfrFkPrvS0OwjEpzGm0
+         2bbHGMz/UJxTg82XqJKd6KaS43PokgYwPYKX8eNESjvlrh4Ve+PHWU46MYkyvZk2p40w
+         tM6w==
+X-Gm-Message-State: AFqh2kqIHEUhHcfeGEipqhEMl7uMSW7yBXeM0YatjevVLfBKaMnx0GaT
+        oOJMMT8OnLE9l/aL0if/kWB0gg==
+X-Google-Smtp-Source: AMrXdXvFCPfGpZRQD5dV4PjhY/izAVNd9gTVAqDtT3zxjxX8W42bImEfLYj6CVX1qzV+cfy5caAGYg==
+X-Received: by 2002:a4a:43:0:b0:49f:8720:d5b2 with SMTP id 64-20020a4a0043000000b0049f8720d5b2mr1070027ooh.8.1671638667751;
+        Wed, 21 Dec 2022 08:04:27 -0800 (PST)
+Received: from fedora64.linuxtx.org (99-47-93-78.lightspeed.rcsntx.sbcglobal.net. [99.47.93.78])
+        by smtp.gmail.com with ESMTPSA id a11-20020a4ab10b000000b0049fb39100a5sm6205846ooo.37.2022.12.21.08.04.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Dec 2022 08:04:27 -0800 (PST)
+Sender: Justin Forbes <jmforbes@linuxtx.org>
+Date:   Wed, 21 Dec 2022 10:04:25 -0600
+From:   Justin Forbes <jforbes@fedoraproject.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 6.0 00/28] 6.0.15-rc1 review
+Message-ID: <Y6MuiZJZ/6wLsXpu@fedora64.linuxtx.org>
+References: <20221219182944.179389009@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221219182944.179389009@linuxfoundation.org>
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Stable team,
+On Mon, Dec 19, 2022 at 08:22:47PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.0.15 release.
+> There are 28 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 21 Dec 2022 18:29:31 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.15-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Please backport these upstream commits to stable kernels:
-- c7423dbdbc9e ("ima: Handle -ESTALE returned by
-ima_filter_rule_match()"
+Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
+s390x, x86_64), and boot tested x86_64. No regressions noted.
 
-Dependency on:
-- d57378d3aa4d ("ima: Simplify ima_lsm_copy_rule")
-
-Known minor merge conflicts:
-- Commit: 65603435599f ("ima: Fix trivial typos in the comments") fixed
-"refrences" spelling, causes a merge conflict.
-- Commit 28073eb09c5a ("ima: Fix fall-through warnings for Clang") adds
-a "break;" before "default:", causes a merge conflict.
-
-Simplifies backporting to linux-5.4.y:
-- 465aee77aae8 ("ima: Free the entire rule when deleting a list of
-rules")
-  except for the line "kfree(entry->keyrings);" - introduced in 5.6.y.
-- 39e5993d0d45 ("ima: Shallow copy the args_p member of
-ima_rule_entry.lsm elements")
-- b8867eedcf76 ("ima: Rename internal filter rule functions")
-- f60c826d0318 ("ima: Use kmemdup rather than kmalloc+memcpy")
-
-A patch for kernels prior to commit b16942455193 ("ima: use the lsm
-policy
-update notifier") will be posted separately.
-
-thanks,
-
-Mimi
-
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
