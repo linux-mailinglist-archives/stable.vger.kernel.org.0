@@ -2,1178 +2,1273 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 985FC6534A5
-	for <lists+stable@lfdr.de>; Wed, 21 Dec 2022 18:11:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2542E6534B3
+	for <lists+stable@lfdr.de>; Wed, 21 Dec 2022 18:12:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234565AbiLURKO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Dec 2022 12:10:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52266 "EHLO
+        id S234747AbiLURME (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Dec 2022 12:12:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230286AbiLURKM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Dec 2022 12:10:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 016291903D;
-        Wed, 21 Dec 2022 09:10:10 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 82C7B6179B;
-        Wed, 21 Dec 2022 17:10:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 682FBC433EF;
-        Wed, 21 Dec 2022 17:10:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671642608;
-        bh=2gnAbLwNk4P24/qRZtvnPwU/X00gCj/BVSs/QA2oOHs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IHYKluMnldFCN5rgjtHokU+B9RQD1Z6zlNVaaT4c03qJJsTXFVIsskyUy1RZJS6Ks
-         I7Yw6iYexnF3mvti2WK3HbmjRxJ/uMOjDUr+KJaENgpNFCOfI4zGvho4MN5gxkb0QW
-         thMmWwVvex+eZ2PXMvqI9D2wO8sMhZ81lVvnY8qE=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org
-Cc:     lwn@lwn.net, jslaby@suse.cz,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 6.1.1
-Date:   Wed, 21 Dec 2022 18:09:57 +0100
-Message-Id: <167164258118717@kroah.com>
-X-Mailer: git-send-email 2.39.0
-In-Reply-To: <1671642581139108@kroah.com>
-References: <1671642581139108@kroah.com>
+        with ESMTP id S234734AbiLURLj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Dec 2022 12:11:39 -0500
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4620CDEBB
+        for <stable@vger.kernel.org>; Wed, 21 Dec 2022 09:11:36 -0800 (PST)
+Received: by mail-pj1-x102a.google.com with SMTP id u5so16353848pjy.5
+        for <stable@vger.kernel.org>; Wed, 21 Dec 2022 09:11:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=w5brvJnemBrydyodA2QHnnSsNehEirj6/RTTGlKEAqQ=;
+        b=bP4CvBYiNChMOwQ9cfQFm+pe+TRNhD0FePzXaDCnlWGKZs4jwQGuTGOT9QXLLUJh+g
+         UscCz0tQ6QccH1yDTi88gKlgEU/FysnUt+wPy44ZCmruBI8uug8+t5IOJuY2wJlpO8Sx
+         qAUE++ljVDFIiDD+39gYj7Q+edko+wZ8r4kBpHkTdb+BMTF2Ovpqkvj0NrMWGfEb9p5u
+         sdNockwZmQoUI6PdrJZGltHbcQcjD0oDlugWSA7170LPJd3LxE6taxgUu1Rx6iGBxVwa
+         2DWOKJ+RwjvrYNkbxg6e4PFuLOL6FB+dxMN1VS9HUXc1lStyWMHgVCdmwO8Mr7AckxB4
+         spgQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=w5brvJnemBrydyodA2QHnnSsNehEirj6/RTTGlKEAqQ=;
+        b=kz6sEjjMJH32TafhZ6Bznov5Gj77MqiOHaI6eJO2T7chUshvx2b4VzfuLVgE/mcWXZ
+         ltxRhmyI51p5ABfZdQULppTDAZzqUzHc+B/rcFFFtDO7cf6Iz/bxdsU+AoKqsDcrSHt9
+         vAILpKEtCldw+c3+Sgd99Mu+ECHUZY+ikAnhxOMVbmtiC1vCWLoAxlYmxslLeVpz01T3
+         WMDoRsbRuR/Yp4ce4zNDHleRY2of8zXGhSj1vlDnS9TXy6iUAclD6vXJI0WwC+INxjEm
+         I+iXrH/lJETT2rVuyFanBhBW+DXpRLI/N1qUJ54/tjR11/7TryF+WxK0kRe+Dbaj86EZ
+         1+nA==
+X-Gm-Message-State: AFqh2kq3C1p4e9XvMrMApvrCHT92B+cIKHXMy/GXx0sg1DWkhmIYvaeF
+        sjiaay5hfC5FksE/8r0SaQb1POxEsmHV9leOxiE=
+X-Google-Smtp-Source: AMrXdXveTWMmb1Gm+PyByu5uMah8DG7oazKjRG8kemdU4ie1n/TRNzOP16sEn7y3/UtCcAKyiNQqow==
+X-Received: by 2002:a17:90a:f2c3:b0:223:cad2:8c78 with SMTP id gt3-20020a17090af2c300b00223cad28c78mr2851887pjb.13.1671642694675;
+        Wed, 21 Dec 2022 09:11:34 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id i92-20020a17090a3de500b00219e38b42f5sm1638246pjc.26.2022.12.21.09.11.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Dec 2022 09:11:34 -0800 (PST)
+Message-ID: <63a33e46.170a0220.37a17.31b8@mx.google.com>
+Date:   Wed, 21 Dec 2022 09:11:34 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.302-22-g062361363011
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Report-Type: build
+Subject: stable-rc/queue/4.14 build: 195 builds: 2 failed, 193 passed,
+ 36 warnings (v4.14.302-22-g062361363011)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Documentation/security/keys/trusted-encrypted.rst b/Documentation/security/keys/trusted-encrypted.rst
-index 0bfb4c339748..9bc9db8ec651 100644
---- a/Documentation/security/keys/trusted-encrypted.rst
-+++ b/Documentation/security/keys/trusted-encrypted.rst
-@@ -350,7 +350,8 @@ Load an encrypted key "evm" from saved blob::
- 
- Instantiate an encrypted key "evm" using user-provided decrypted data::
- 
--    $ keyctl add encrypted evm "new default user:kmk 32 `cat evm_decrypted_data.blob`" @u
-+    $ evmkey=$(dd if=/dev/urandom bs=1 count=32 | xxd -c32 -p)
-+    $ keyctl add encrypted evm "new default user:kmk 32 $evmkey" @u
-     794890253
- 
-     $ keyctl print 794890253
-diff --git a/Makefile b/Makefile
-index 997b67722292..7307ae6c2ef7 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 6
- PATCHLEVEL = 1
--SUBLEVEL = 0
-+SUBLEVEL = 1
- EXTRAVERSION =
- NAME = Hurr durr I'ma ninja sloth
- 
-diff --git a/arch/mips/include/asm/mach-ralink/mt7621.h b/arch/mips/include/asm/mach-ralink/mt7621.h
-index 6bbf082dd149..79d5bb0e06d6 100644
---- a/arch/mips/include/asm/mach-ralink/mt7621.h
-+++ b/arch/mips/include/asm/mach-ralink/mt7621.h
-@@ -7,10 +7,12 @@
- #ifndef _MT7621_REGS_H_
- #define _MT7621_REGS_H_
- 
-+#define IOMEM(x)			((void __iomem *)(KSEG1ADDR(x)))
-+
- #define MT7621_PALMBUS_BASE		0x1C000000
- #define MT7621_PALMBUS_SIZE		0x03FFFFFF
- 
--#define MT7621_SYSC_BASE		0x1E000000
-+#define MT7621_SYSC_BASE		IOMEM(0x1E000000)
- 
- #define SYSC_REG_CHIP_NAME0		0x00
- #define SYSC_REG_CHIP_NAME1		0x04
-diff --git a/arch/mips/ralink/mt7621.c b/arch/mips/ralink/mt7621.c
-index fb0565bc34fd..bbf5811afbf2 100644
---- a/arch/mips/ralink/mt7621.c
-+++ b/arch/mips/ralink/mt7621.c
-@@ -25,6 +25,7 @@
- #define MT7621_MEM_TEST_PATTERN         0xaa5555aa
- 
- static u32 detect_magic __initdata;
-+static struct ralink_soc_info *soc_info_ptr;
- 
- int pcibios_root_bridge_prepare(struct pci_host_bridge *bridge)
- {
-@@ -97,41 +98,83 @@ void __init ralink_of_remap(void)
- 		panic("Failed to remap core resources");
- }
- 
--static void soc_dev_init(struct ralink_soc_info *soc_info, u32 rev)
-+static unsigned int __init mt7621_get_soc_name0(void)
-+{
-+	return __raw_readl(MT7621_SYSC_BASE + SYSC_REG_CHIP_NAME0);
-+}
-+
-+static unsigned int __init mt7621_get_soc_name1(void)
-+{
-+	return __raw_readl(MT7621_SYSC_BASE + SYSC_REG_CHIP_NAME1);
-+}
-+
-+static bool __init mt7621_soc_valid(void)
-+{
-+	if (mt7621_get_soc_name0() == MT7621_CHIP_NAME0 &&
-+			mt7621_get_soc_name1() == MT7621_CHIP_NAME1)
-+		return true;
-+	else
-+		return false;
-+}
-+
-+static const char __init *mt7621_get_soc_id(void)
-+{
-+	if (mt7621_soc_valid())
-+		return "MT7621";
-+	else
-+		return "invalid";
-+}
-+
-+static unsigned int __init mt7621_get_soc_rev(void)
-+{
-+	return __raw_readl(MT7621_SYSC_BASE + SYSC_REG_CHIP_REV);
-+}
-+
-+static unsigned int __init mt7621_get_soc_ver(void)
-+{
-+	return (mt7621_get_soc_rev() >> CHIP_REV_VER_SHIFT) & CHIP_REV_VER_MASK;
-+}
-+
-+static unsigned int __init mt7621_get_soc_eco(void)
-+{
-+	return (mt7621_get_soc_rev() & CHIP_REV_ECO_MASK);
-+}
-+
-+static const char __init *mt7621_get_soc_revision(void)
-+{
-+	if (mt7621_get_soc_rev() == 1 && mt7621_get_soc_eco() == 1)
-+		return "E2";
-+	else
-+		return "E1";
-+}
-+
-+static int __init mt7621_soc_dev_init(void)
- {
- 	struct soc_device *soc_dev;
- 	struct soc_device_attribute *soc_dev_attr;
- 
- 	soc_dev_attr = kzalloc(sizeof(*soc_dev_attr), GFP_KERNEL);
- 	if (!soc_dev_attr)
--		return;
-+		return -ENOMEM;
- 
- 	soc_dev_attr->soc_id = "mt7621";
- 	soc_dev_attr->family = "Ralink";
-+	soc_dev_attr->revision = mt7621_get_soc_revision();
- 
--	if (((rev >> CHIP_REV_VER_SHIFT) & CHIP_REV_VER_MASK) == 1 &&
--	    (rev & CHIP_REV_ECO_MASK) == 1)
--		soc_dev_attr->revision = "E2";
--	else
--		soc_dev_attr->revision = "E1";
--
--	soc_dev_attr->data = soc_info;
-+	soc_dev_attr->data = soc_info_ptr;
- 
- 	soc_dev = soc_device_register(soc_dev_attr);
- 	if (IS_ERR(soc_dev)) {
- 		kfree(soc_dev_attr);
--		return;
-+		return PTR_ERR(soc_dev);
- 	}
-+
-+	return 0;
- }
-+device_initcall(mt7621_soc_dev_init);
- 
- void __init prom_soc_init(struct ralink_soc_info *soc_info)
- {
--	void __iomem *sysc = (void __iomem *) KSEG1ADDR(MT7621_SYSC_BASE);
--	unsigned char *name = NULL;
--	u32 n0;
--	u32 n1;
--	u32 rev;
--
- 	/* Early detection of CMP support */
- 	mips_cm_probe();
- 	mips_cpc_probe();
-@@ -154,27 +197,23 @@ void __init prom_soc_init(struct ralink_soc_info *soc_info)
- 		__sync();
- 	}
- 
--	n0 = __raw_readl(sysc + SYSC_REG_CHIP_NAME0);
--	n1 = __raw_readl(sysc + SYSC_REG_CHIP_NAME1);
--
--	if (n0 == MT7621_CHIP_NAME0 && n1 == MT7621_CHIP_NAME1) {
--		name = "MT7621";
-+	if (mt7621_soc_valid())
- 		soc_info->compatible = "mediatek,mt7621-soc";
--	} else {
--		panic("mt7621: unknown SoC, n0:%08x n1:%08x\n", n0, n1);
--	}
-+	else
-+		panic("mt7621: unknown SoC, n0:%08x n1:%08x\n",
-+				mt7621_get_soc_name0(),
-+				mt7621_get_soc_name1());
- 	ralink_soc = MT762X_SOC_MT7621AT;
--	rev = __raw_readl(sysc + SYSC_REG_CHIP_REV);
- 
- 	snprintf(soc_info->sys_type, RAMIPS_SYS_TYPE_LEN,
- 		"MediaTek %s ver:%u eco:%u",
--		name,
--		(rev >> CHIP_REV_VER_SHIFT) & CHIP_REV_VER_MASK,
--		(rev & CHIP_REV_ECO_MASK));
-+		mt7621_get_soc_id(),
-+		mt7621_get_soc_ver(),
-+		mt7621_get_soc_eco());
- 
- 	soc_info->mem_detect = mt7621_memory_detect;
- 
--	soc_dev_init(soc_info, rev);
-+	soc_info_ptr = soc_info;
- 
- 	if (!register_cps_smp_ops())
- 		return;
-diff --git a/arch/x86/entry/vdso/vdso.lds.S b/arch/x86/entry/vdso/vdso.lds.S
-index 4bf48462fca7..e8c60ae7a7c8 100644
---- a/arch/x86/entry/vdso/vdso.lds.S
-+++ b/arch/x86/entry/vdso/vdso.lds.S
-@@ -27,7 +27,9 @@ VERSION {
- 		__vdso_time;
- 		clock_getres;
- 		__vdso_clock_getres;
-+#ifdef CONFIG_X86_SGX
- 		__vdso_sgx_enter_enclave;
-+#endif
- 	local: *;
- 	};
- }
-diff --git a/drivers/irqchip/irq-ls-extirq.c b/drivers/irqchip/irq-ls-extirq.c
-index d8d48b1f7c29..139f26b0a6ef 100644
---- a/drivers/irqchip/irq-ls-extirq.c
-+++ b/drivers/irqchip/irq-ls-extirq.c
-@@ -203,7 +203,7 @@ ls_extirq_of_init(struct device_node *node, struct device_node *parent)
- 	if (ret)
- 		goto err_parse_map;
- 
--	priv->big_endian = of_device_is_big_endian(parent);
-+	priv->big_endian = of_device_is_big_endian(node->parent);
- 	priv->is_ls1021a_or_ls1043a = of_device_is_compatible(node, "fsl,ls1021a-extirq") ||
- 				      of_device_is_compatible(node, "fsl,ls1043a-extirq");
- 	raw_spin_lock_init(&priv->lock);
-diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
-index f8e32833226c..473158c09f1d 100644
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -7521,7 +7521,7 @@ static void igb_vf_reset_msg(struct igb_adapter *adapter, u32 vf)
- {
- 	struct e1000_hw *hw = &adapter->hw;
- 	unsigned char *vf_mac = adapter->vf_data[vf].vf_mac_addresses;
--	u32 reg, msgbuf[3];
-+	u32 reg, msgbuf[3] = {};
- 	u8 *addr = (u8 *)(&msgbuf[1]);
- 
- 	/* process all the same items cleared in a function level reset */
-diff --git a/drivers/pci/controller/pcie-mt7621.c b/drivers/pci/controller/pcie-mt7621.c
-index 4bd1abf26008..ee7aad09d627 100644
---- a/drivers/pci/controller/pcie-mt7621.c
-+++ b/drivers/pci/controller/pcie-mt7621.c
-@@ -466,7 +466,8 @@ static int mt7621_pcie_register_host(struct pci_host_bridge *host)
- }
- 
- static const struct soc_device_attribute mt7621_pcie_quirks_match[] = {
--	{ .soc_id = "mt7621", .revision = "E2" }
-+	{ .soc_id = "mt7621", .revision = "E2" },
-+	{ /* sentinel */ }
- };
- 
- static int mt7621_pcie_probe(struct platform_device *pdev)
-diff --git a/drivers/staging/r8188eu/core/rtw_led.c b/drivers/staging/r8188eu/core/rtw_led.c
-index 1e316e6358ea..48c5db69929c 100644
---- a/drivers/staging/r8188eu/core/rtw_led.c
-+++ b/drivers/staging/r8188eu/core/rtw_led.c
-@@ -32,40 +32,19 @@ static void ResetLedStatus(struct led_priv *pLed)
- 
- static void SwLedOn(struct adapter *padapter, struct led_priv *pLed)
- {
--	u8	LedCfg;
--	int res;
--
- 	if (padapter->bDriverStopped)
- 		return;
- 
--	res = rtw_read8(padapter, REG_LEDCFG2, &LedCfg);
--	if (res)
--		return;
--
--	rtw_write8(padapter, REG_LEDCFG2, (LedCfg & 0xf0) | BIT(5) | BIT(6)); /*  SW control led0 on. */
-+	rtw_write8(padapter, REG_LEDCFG2, BIT(5)); /*  SW control led0 on. */
- 	pLed->bLedOn = true;
- }
- 
- static void SwLedOff(struct adapter *padapter, struct led_priv *pLed)
- {
--	u8	LedCfg;
--	int res;
--
- 	if (padapter->bDriverStopped)
- 		goto exit;
- 
--	res = rtw_read8(padapter, REG_LEDCFG2, &LedCfg);/* 0x4E */
--	if (res)
--		goto exit;
--
--	LedCfg &= 0x90; /*  Set to software control. */
--	rtw_write8(padapter, REG_LEDCFG2, (LedCfg | BIT(3)));
--	res = rtw_read8(padapter, REG_MAC_PINMUX_CFG, &LedCfg);
--	if (res)
--		goto exit;
--
--	LedCfg &= 0xFE;
--	rtw_write8(padapter, REG_MAC_PINMUX_CFG, LedCfg);
-+	rtw_write8(padapter, REG_LEDCFG2, BIT(5) | BIT(3));
- exit:
- 	pLed->bLedOn = false;
- }
-diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
-index fb14511b1e10..89c9ab2b19f8 100644
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -45,7 +45,7 @@
- #define PCI_DEVICE_ID_INTEL_ADLN		0x465e
- #define PCI_DEVICE_ID_INTEL_ADLN_PCH		0x54ee
- #define PCI_DEVICE_ID_INTEL_ADLS		0x7ae1
--#define PCI_DEVICE_ID_INTEL_RPL			0x460e
-+#define PCI_DEVICE_ID_INTEL_RPL			0xa70e
- #define PCI_DEVICE_ID_INTEL_RPLS		0x7a61
- #define PCI_DEVICE_ID_INTEL_MTLP		0x7ec1
- #define PCI_DEVICE_ID_INTEL_MTL			0x7e7e
-diff --git a/drivers/usb/gadget/function/f_uvc.c b/drivers/usb/gadget/function/f_uvc.c
-index 6e196e06181e..4419b7972e78 100644
---- a/drivers/usb/gadget/function/f_uvc.c
-+++ b/drivers/usb/gadget/function/f_uvc.c
-@@ -216,8 +216,9 @@ uvc_function_ep0_complete(struct usb_ep *ep, struct usb_request *req)
- 
- 		memset(&v4l2_event, 0, sizeof(v4l2_event));
- 		v4l2_event.type = UVC_EVENT_DATA;
--		uvc_event->data.length = req->actual;
--		memcpy(&uvc_event->data.data, req->buf, req->actual);
-+		uvc_event->data.length = min_t(unsigned int, req->actual,
-+			sizeof(uvc_event->data.data));
-+		memcpy(&uvc_event->data.data, req->buf, uvc_event->data.length);
- 		v4l2_event_queue(&uvc->vdev, &v4l2_event);
- 	}
- }
-diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
-index 7bccbe50bab1..f98cf30a3c1a 100644
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -59,6 +59,7 @@
- #define PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI		0x9a13
- #define PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI		0x1138
- #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI		0x51ed
-+#define PCI_DEVICE_ID_INTEL_ALDER_LAKE_N_PCH_XHCI	0x54ed
- 
- #define PCI_DEVICE_ID_AMD_RENOIR_XHCI			0x1639
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_4			0x43b9
-@@ -246,7 +247,8 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
- 		xhci->quirks |= XHCI_MISSING_CAS;
- 
- 	if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
--	    pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI)
-+	    (pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI ||
-+	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_N_PCH_XHCI))
- 		xhci->quirks |= XHCI_RESET_TO_DEFAULT;
- 
- 	if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
-diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index 3bcec419f463..f6fb23620e87 100644
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -195,6 +195,8 @@ static const struct usb_device_id id_table[] = {
- 	{ USB_DEVICE(0x16DC, 0x0015) }, /* W-IE-NE-R Plein & Baus GmbH CML Control, Monitoring and Data Logger */
- 	{ USB_DEVICE(0x17A8, 0x0001) }, /* Kamstrup Optical Eye/3-wire */
- 	{ USB_DEVICE(0x17A8, 0x0005) }, /* Kamstrup M-Bus Master MultiPort 250D */
-+	{ USB_DEVICE(0x17A8, 0x0011) }, /* Kamstrup 444 MHz RF sniffer */
-+	{ USB_DEVICE(0x17A8, 0x0013) }, /* Kamstrup 870 MHz RF sniffer */
- 	{ USB_DEVICE(0x17A8, 0x0101) }, /* Kamstrup 868 MHz wM-Bus C-Mode Meter Reader (Int Ant) */
- 	{ USB_DEVICE(0x17A8, 0x0102) }, /* Kamstrup 868 MHz wM-Bus C-Mode Meter Reader (Ext Ant) */
- 	{ USB_DEVICE(0x17F4, 0xAAAA) }, /* Wavesense Jazz blood glucose meter */
-diff --git a/drivers/usb/serial/f81232.c b/drivers/usb/serial/f81232.c
-index 2dd58cd9f0cc..891fb1fe69df 100644
---- a/drivers/usb/serial/f81232.c
-+++ b/drivers/usb/serial/f81232.c
-@@ -130,9 +130,6 @@ static u8 const clock_table[] = { F81232_CLK_1_846_MHZ, F81232_CLK_14_77_MHZ,
- 
- static int calc_baud_divisor(speed_t baudrate, speed_t clockrate)
- {
--	if (!baudrate)
--		return 0;
--
- 	return DIV_ROUND_CLOSEST(clockrate, baudrate);
- }
- 
-@@ -498,9 +495,14 @@ static void f81232_set_baudrate(struct tty_struct *tty,
- 	speed_t baud_list[] = { baudrate, old_baudrate, F81232_DEF_BAUDRATE };
- 
- 	for (i = 0; i < ARRAY_SIZE(baud_list); ++i) {
--		idx = f81232_find_clk(baud_list[i]);
-+		baudrate = baud_list[i];
-+		if (baudrate == 0) {
-+			tty_encode_baud_rate(tty, 0, 0);
-+			return;
-+		}
-+
-+		idx = f81232_find_clk(baudrate);
- 		if (idx >= 0) {
--			baudrate = baud_list[i];
- 			tty_encode_baud_rate(tty, baudrate, baudrate);
- 			break;
- 		}
-diff --git a/drivers/usb/serial/f81534.c b/drivers/usb/serial/f81534.c
-index ddfcd72eb0ae..4083ae961be4 100644
---- a/drivers/usb/serial/f81534.c
-+++ b/drivers/usb/serial/f81534.c
-@@ -536,9 +536,6 @@ static int f81534_submit_writer(struct usb_serial_port *port, gfp_t mem_flags)
- 
- static u32 f81534_calc_baud_divisor(u32 baudrate, u32 clockrate)
- {
--	if (!baudrate)
--		return 0;
--
- 	/* Round to nearest divisor */
- 	return DIV_ROUND_CLOSEST(clockrate, baudrate);
- }
-@@ -568,9 +565,14 @@ static int f81534_set_port_config(struct usb_serial_port *port,
- 	u32 baud_list[] = {baudrate, old_baudrate, F81534_DEFAULT_BAUD_RATE};
- 
- 	for (i = 0; i < ARRAY_SIZE(baud_list); ++i) {
--		idx = f81534_find_clk(baud_list[i]);
-+		baudrate = baud_list[i];
-+		if (baudrate == 0) {
-+			tty_encode_baud_rate(tty, 0, 0);
-+			return 0;
-+		}
-+
-+		idx = f81534_find_clk(baudrate);
- 		if (idx >= 0) {
--			baudrate = baud_list[i];
- 			tty_encode_baud_rate(tty, baudrate, baudrate);
- 			break;
- 		}
-diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
-index c3b7f1d98e78..dee79c7d82d5 100644
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -255,6 +255,7 @@ static void option_instat_callback(struct urb *urb);
- #define QUECTEL_PRODUCT_EP06			0x0306
- #define QUECTEL_PRODUCT_EM05G			0x030a
- #define QUECTEL_PRODUCT_EM060K			0x030b
-+#define QUECTEL_PRODUCT_EM05G_SG		0x0311
- #define QUECTEL_PRODUCT_EM12			0x0512
- #define QUECTEL_PRODUCT_RM500Q			0x0800
- #define QUECTEL_PRODUCT_RM520N			0x0801
-@@ -1160,6 +1161,8 @@ static const struct usb_device_id option_ids[] = {
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0, 0) },
- 	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G, 0xff),
- 	  .driver_info = RSVD(6) | ZLP },
-+	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G_SG, 0xff),
-+	  .driver_info = RSVD(6) | ZLP },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM060K, 0xff, 0x00, 0x40) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM060K, 0xff, 0xff, 0x30) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM060K, 0xff, 0xff, 0x40) },
-diff --git a/drivers/usb/typec/ucsi/ucsi.c b/drivers/usb/typec/ucsi/ucsi.c
-index a7987fc764cc..eabe519013e7 100644
---- a/drivers/usb/typec/ucsi/ucsi.c
-+++ b/drivers/usb/typec/ucsi/ucsi.c
-@@ -1270,8 +1270,9 @@ static int ucsi_init(struct ucsi *ucsi)
- 	return ret;
- }
- 
--int ucsi_resume(struct ucsi *ucsi)
-+static void ucsi_resume_work(struct work_struct *work)
- {
-+	struct ucsi *ucsi = container_of(work, struct ucsi, resume_work);
- 	struct ucsi_connector *con;
- 	u64 command;
- 	int ret;
-@@ -1279,15 +1280,21 @@ int ucsi_resume(struct ucsi *ucsi)
- 	/* Restore UCSI notification enable mask after system resume */
- 	command = UCSI_SET_NOTIFICATION_ENABLE | ucsi->ntfy;
- 	ret = ucsi_send_command(ucsi, command, NULL, 0);
--	if (ret < 0)
--		return ret;
-+	if (ret < 0) {
-+		dev_err(ucsi->dev, "failed to re-enable notifications (%d)\n", ret);
-+		return;
-+	}
- 
- 	for (con = ucsi->connector; con->port; con++) {
- 		mutex_lock(&con->lock);
--		ucsi_check_connection(con);
-+		ucsi_partner_task(con, ucsi_check_connection, 1, 0);
- 		mutex_unlock(&con->lock);
- 	}
-+}
- 
-+int ucsi_resume(struct ucsi *ucsi)
-+{
-+	queue_work(system_long_wq, &ucsi->resume_work);
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(ucsi_resume);
-@@ -1347,6 +1354,7 @@ struct ucsi *ucsi_create(struct device *dev, const struct ucsi_operations *ops)
- 	if (!ucsi)
- 		return ERR_PTR(-ENOMEM);
- 
-+	INIT_WORK(&ucsi->resume_work, ucsi_resume_work);
- 	INIT_DELAYED_WORK(&ucsi->work, ucsi_init_work);
- 	mutex_init(&ucsi->ppm_lock);
- 	ucsi->dev = dev;
-@@ -1401,6 +1409,7 @@ void ucsi_unregister(struct ucsi *ucsi)
- 
- 	/* Make sure that we are not in the middle of driver initialization */
- 	cancel_delayed_work_sync(&ucsi->work);
-+	cancel_work_sync(&ucsi->resume_work);
- 
- 	/* Disable notifications */
- 	ucsi->ops->async_write(ucsi, UCSI_CONTROL, &cmd, sizeof(cmd));
-diff --git a/drivers/usb/typec/ucsi/ucsi.h b/drivers/usb/typec/ucsi/ucsi.h
-index 8eb391e3e592..c968474ee547 100644
---- a/drivers/usb/typec/ucsi/ucsi.h
-+++ b/drivers/usb/typec/ucsi/ucsi.h
-@@ -287,6 +287,7 @@ struct ucsi {
- 	struct ucsi_capability cap;
- 	struct ucsi_connector *connector;
- 
-+	struct work_struct resume_work;
- 	struct delayed_work work;
- 	int work_count;
- #define UCSI_ROLE_SWITCH_RETRY_PER_HZ	10
-diff --git a/fs/cifs/cifsglob.h b/fs/cifs/cifsglob.h
-index 1420acf987f0..157d3c0e3cc7 100644
---- a/fs/cifs/cifsglob.h
-+++ b/fs/cifs/cifsglob.h
-@@ -13,6 +13,8 @@
- #include <linux/in6.h>
- #include <linux/inet.h>
- #include <linux/slab.h>
-+#include <linux/scatterlist.h>
-+#include <linux/mm.h>
- #include <linux/mempool.h>
- #include <linux/workqueue.h>
- #include <linux/utsname.h>
-@@ -2137,4 +2139,70 @@ static inline void move_cifs_info_to_smb2(struct smb2_file_all_info *dst, const
- 	dst->FileNameLength = src->FileNameLength;
- }
- 
-+static inline unsigned int cifs_get_num_sgs(const struct smb_rqst *rqst,
-+					    int num_rqst,
-+					    const u8 *sig)
-+{
-+	unsigned int len, skip;
-+	unsigned int nents = 0;
-+	unsigned long addr;
-+	int i, j;
-+
-+	/* Assumes the first rqst has a transform header as the first iov.
-+	 * I.e.
-+	 * rqst[0].rq_iov[0]  is transform header
-+	 * rqst[0].rq_iov[1+] data to be encrypted/decrypted
-+	 * rqst[1+].rq_iov[0+] data to be encrypted/decrypted
-+	 */
-+	for (i = 0; i < num_rqst; i++) {
-+		/*
-+		 * The first rqst has a transform header where the
-+		 * first 20 bytes are not part of the encrypted blob.
-+		 */
-+		for (j = 0; j < rqst[i].rq_nvec; j++) {
-+			struct kvec *iov = &rqst[i].rq_iov[j];
-+
-+			skip = (i == 0) && (j == 0) ? 20 : 0;
-+			addr = (unsigned long)iov->iov_base + skip;
-+			if (unlikely(is_vmalloc_addr((void *)addr))) {
-+				len = iov->iov_len - skip;
-+				nents += DIV_ROUND_UP(offset_in_page(addr) + len,
-+						      PAGE_SIZE);
-+			} else {
-+				nents++;
-+			}
-+		}
-+		nents += rqst[i].rq_npages;
-+	}
-+	nents += DIV_ROUND_UP(offset_in_page(sig) + SMB2_SIGNATURE_SIZE, PAGE_SIZE);
-+	return nents;
-+}
-+
-+/* We can not use the normal sg_set_buf() as we will sometimes pass a
-+ * stack object as buf.
-+ */
-+static inline struct scatterlist *cifs_sg_set_buf(struct scatterlist *sg,
-+						  const void *buf,
-+						  unsigned int buflen)
-+{
-+	unsigned long addr = (unsigned long)buf;
-+	unsigned int off = offset_in_page(addr);
-+
-+	addr &= PAGE_MASK;
-+	if (unlikely(is_vmalloc_addr((void *)addr))) {
-+		do {
-+			unsigned int len = min_t(unsigned int, buflen, PAGE_SIZE - off);
-+
-+			sg_set_page(sg++, vmalloc_to_page((void *)addr), len, off);
-+
-+			off = 0;
-+			addr += PAGE_SIZE;
-+			buflen -= len;
-+		} while (buflen);
-+	} else {
-+		sg_set_page(sg++, virt_to_page(addr), buflen, off);
-+	}
-+	return sg;
-+}
-+
- #endif	/* _CIFS_GLOB_H */
-diff --git a/fs/cifs/cifsproto.h b/fs/cifs/cifsproto.h
-index 83e83d8beabb..eb1a0de9dd55 100644
---- a/fs/cifs/cifsproto.h
-+++ b/fs/cifs/cifsproto.h
-@@ -600,8 +600,8 @@ int setup_aio_ctx_iter(struct cifs_aio_ctx *ctx, struct iov_iter *iter, int rw);
- int cifs_alloc_hash(const char *name, struct shash_desc **sdesc);
- void cifs_free_hash(struct shash_desc **sdesc);
- 
--extern void rqst_page_get_length(struct smb_rqst *rqst, unsigned int page,
--				unsigned int *len, unsigned int *offset);
-+void rqst_page_get_length(const struct smb_rqst *rqst, unsigned int page,
-+			  unsigned int *len, unsigned int *offset);
- struct cifs_chan *
- cifs_ses_find_chan(struct cifs_ses *ses, struct TCP_Server_Info *server);
- int cifs_try_adding_channels(struct cifs_sb_info *cifs_sb, struct cifs_ses *ses);
-diff --git a/fs/cifs/misc.c b/fs/cifs/misc.c
-index 3e68d8208cf5..1cbecd64d697 100644
---- a/fs/cifs/misc.c
-+++ b/fs/cifs/misc.c
-@@ -1136,8 +1136,8 @@ cifs_free_hash(struct shash_desc **sdesc)
-  * @len: Where to store the length for this page:
-  * @offset: Where to store the offset for this page
-  */
--void rqst_page_get_length(struct smb_rqst *rqst, unsigned int page,
--				unsigned int *len, unsigned int *offset)
-+void rqst_page_get_length(const struct smb_rqst *rqst, unsigned int page,
-+			  unsigned int *len, unsigned int *offset)
- {
- 	*len = rqst->rq_pagesz;
- 	*offset = (page == 0) ? rqst->rq_offset : 0;
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index bfaafd02fb1f..b24e68b5ccd6 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -4204,69 +4204,82 @@ fill_transform_hdr(struct smb2_transform_hdr *tr_hdr, unsigned int orig_len,
- 	memcpy(&tr_hdr->SessionId, &shdr->SessionId, 8);
- }
- 
--/* We can not use the normal sg_set_buf() as we will sometimes pass a
-- * stack object as buf.
-- */
--static inline void smb2_sg_set_buf(struct scatterlist *sg, const void *buf,
--				   unsigned int buflen)
-+static void *smb2_aead_req_alloc(struct crypto_aead *tfm, const struct smb_rqst *rqst,
-+				 int num_rqst, const u8 *sig, u8 **iv,
-+				 struct aead_request **req, struct scatterlist **sgl,
-+				 unsigned int *num_sgs)
- {
--	void *addr;
--	/*
--	 * VMAP_STACK (at least) puts stack into the vmalloc address space
--	 */
--	if (is_vmalloc_addr(buf))
--		addr = vmalloc_to_page(buf);
--	else
--		addr = virt_to_page(buf);
--	sg_set_page(sg, addr, buflen, offset_in_page(buf));
-+	unsigned int req_size = sizeof(**req) + crypto_aead_reqsize(tfm);
-+	unsigned int iv_size = crypto_aead_ivsize(tfm);
-+	unsigned int len;
-+	u8 *p;
-+
-+	*num_sgs = cifs_get_num_sgs(rqst, num_rqst, sig);
-+
-+	len = iv_size;
-+	len += crypto_aead_alignmask(tfm) & ~(crypto_tfm_ctx_alignment() - 1);
-+	len = ALIGN(len, crypto_tfm_ctx_alignment());
-+	len += req_size;
-+	len = ALIGN(len, __alignof__(struct scatterlist));
-+	len += *num_sgs * sizeof(**sgl);
-+
-+	p = kmalloc(len, GFP_ATOMIC);
-+	if (!p)
-+		return NULL;
-+
-+	*iv = (u8 *)PTR_ALIGN(p, crypto_aead_alignmask(tfm) + 1);
-+	*req = (struct aead_request *)PTR_ALIGN(*iv + iv_size,
-+						crypto_tfm_ctx_alignment());
-+	*sgl = (struct scatterlist *)PTR_ALIGN((u8 *)*req + req_size,
-+					       __alignof__(struct scatterlist));
-+	return p;
- }
- 
--/* Assumes the first rqst has a transform header as the first iov.
-- * I.e.
-- * rqst[0].rq_iov[0]  is transform header
-- * rqst[0].rq_iov[1+] data to be encrypted/decrypted
-- * rqst[1+].rq_iov[0+] data to be encrypted/decrypted
-- */
--static struct scatterlist *
--init_sg(int num_rqst, struct smb_rqst *rqst, u8 *sign)
-+static void *smb2_get_aead_req(struct crypto_aead *tfm, const struct smb_rqst *rqst,
-+			       int num_rqst, const u8 *sig, u8 **iv,
-+			       struct aead_request **req, struct scatterlist **sgl)
- {
--	unsigned int sg_len;
-+	unsigned int off, len, skip;
- 	struct scatterlist *sg;
--	unsigned int i;
--	unsigned int j;
--	unsigned int idx = 0;
--	int skip;
--
--	sg_len = 1;
--	for (i = 0; i < num_rqst; i++)
--		sg_len += rqst[i].rq_nvec + rqst[i].rq_npages;
-+	unsigned int num_sgs;
-+	unsigned long addr;
-+	int i, j;
-+	void *p;
- 
--	sg = kmalloc_array(sg_len, sizeof(struct scatterlist), GFP_KERNEL);
--	if (!sg)
-+	p = smb2_aead_req_alloc(tfm, rqst, num_rqst, sig, iv, req, sgl, &num_sgs);
-+	if (!p)
- 		return NULL;
- 
--	sg_init_table(sg, sg_len);
-+	sg_init_table(*sgl, num_sgs);
-+	sg = *sgl;
-+
-+	/* Assumes the first rqst has a transform header as the first iov.
-+	 * I.e.
-+	 * rqst[0].rq_iov[0]  is transform header
-+	 * rqst[0].rq_iov[1+] data to be encrypted/decrypted
-+	 * rqst[1+].rq_iov[0+] data to be encrypted/decrypted
-+	 */
- 	for (i = 0; i < num_rqst; i++) {
-+		/*
-+		 * The first rqst has a transform header where the
-+		 * first 20 bytes are not part of the encrypted blob.
-+		 */
- 		for (j = 0; j < rqst[i].rq_nvec; j++) {
--			/*
--			 * The first rqst has a transform header where the
--			 * first 20 bytes are not part of the encrypted blob
--			 */
--			skip = (i == 0) && (j == 0) ? 20 : 0;
--			smb2_sg_set_buf(&sg[idx++],
--					rqst[i].rq_iov[j].iov_base + skip,
--					rqst[i].rq_iov[j].iov_len - skip);
--			}
-+			struct kvec *iov = &rqst[i].rq_iov[j];
- 
-+			skip = (i == 0) && (j == 0) ? 20 : 0;
-+			addr = (unsigned long)iov->iov_base + skip;
-+			len = iov->iov_len - skip;
-+			sg = cifs_sg_set_buf(sg, (void *)addr, len);
-+		}
- 		for (j = 0; j < rqst[i].rq_npages; j++) {
--			unsigned int len, offset;
--
--			rqst_page_get_length(&rqst[i], j, &len, &offset);
--			sg_set_page(&sg[idx++], rqst[i].rq_pages[j], len, offset);
-+			rqst_page_get_length(&rqst[i], j, &len, &off);
-+			sg_set_page(sg++, rqst[i].rq_pages[j], len, off);
- 		}
- 	}
--	smb2_sg_set_buf(&sg[idx], sign, SMB2_SIGNATURE_SIZE);
--	return sg;
-+	cifs_sg_set_buf(sg, sig, SMB2_SIGNATURE_SIZE);
-+
-+	return p;
- }
- 
- static int
-@@ -4314,11 +4327,11 @@ crypt_message(struct TCP_Server_Info *server, int num_rqst,
- 	u8 sign[SMB2_SIGNATURE_SIZE] = {};
- 	u8 key[SMB3_ENC_DEC_KEY_SIZE];
- 	struct aead_request *req;
--	char *iv;
--	unsigned int iv_len;
-+	u8 *iv;
- 	DECLARE_CRYPTO_WAIT(wait);
- 	struct crypto_aead *tfm;
- 	unsigned int crypt_len = le32_to_cpu(tr_hdr->OriginalMessageSize);
-+	void *creq;
- 
- 	rc = smb2_get_enc_key(server, le64_to_cpu(tr_hdr->SessionId), enc, key);
- 	if (rc) {
-@@ -4352,32 +4365,15 @@ crypt_message(struct TCP_Server_Info *server, int num_rqst,
- 		return rc;
- 	}
- 
--	req = aead_request_alloc(tfm, GFP_KERNEL);
--	if (!req) {
--		cifs_server_dbg(VFS, "%s: Failed to alloc aead request\n", __func__);
-+	creq = smb2_get_aead_req(tfm, rqst, num_rqst, sign, &iv, &req, &sg);
-+	if (unlikely(!creq))
- 		return -ENOMEM;
--	}
- 
- 	if (!enc) {
- 		memcpy(sign, &tr_hdr->Signature, SMB2_SIGNATURE_SIZE);
- 		crypt_len += SMB2_SIGNATURE_SIZE;
- 	}
- 
--	sg = init_sg(num_rqst, rqst, sign);
--	if (!sg) {
--		cifs_server_dbg(VFS, "%s: Failed to init sg\n", __func__);
--		rc = -ENOMEM;
--		goto free_req;
--	}
--
--	iv_len = crypto_aead_ivsize(tfm);
--	iv = kzalloc(iv_len, GFP_KERNEL);
--	if (!iv) {
--		cifs_server_dbg(VFS, "%s: Failed to alloc iv\n", __func__);
--		rc = -ENOMEM;
--		goto free_sg;
--	}
--
- 	if ((server->cipher_type == SMB2_ENCRYPTION_AES128_GCM) ||
- 	    (server->cipher_type == SMB2_ENCRYPTION_AES256_GCM))
- 		memcpy(iv, (char *)tr_hdr->Nonce, SMB3_AES_GCM_NONCE);
-@@ -4386,6 +4382,7 @@ crypt_message(struct TCP_Server_Info *server, int num_rqst,
- 		memcpy(iv + 1, (char *)tr_hdr->Nonce, SMB3_AES_CCM_NONCE);
- 	}
- 
-+	aead_request_set_tfm(req, tfm);
- 	aead_request_set_crypt(req, sg, sg, crypt_len, iv);
- 	aead_request_set_ad(req, assoc_data_len);
- 
-@@ -4398,11 +4395,7 @@ crypt_message(struct TCP_Server_Info *server, int num_rqst,
- 	if (!rc && enc)
- 		memcpy(&tr_hdr->Signature, sign, SMB2_SIGNATURE_SIZE);
- 
--	kfree_sensitive(iv);
--free_sg:
--	kfree_sensitive(sg);
--free_req:
--	kfree_sensitive(req);
-+	kfree_sensitive(creq);
- 	return rc;
- }
- 
-diff --git a/fs/udf/inode.c b/fs/udf/inode.c
-index dce6ae9ae306..f713d108f21d 100644
---- a/fs/udf/inode.c
-+++ b/fs/udf/inode.c
-@@ -439,6 +439,12 @@ static int udf_get_block(struct inode *inode, sector_t block,
- 		iinfo->i_next_alloc_goal++;
- 	}
- 
-+	/*
-+	 * Block beyond EOF and prealloc extents? Just discard preallocation
-+	 * as it is not useful and complicates things.
-+	 */
-+	if (((loff_t)block) << inode->i_blkbits > iinfo->i_lenExtents)
-+		udf_discard_prealloc(inode);
- 	udf_clear_extent_cache(inode);
- 	phys = inode_getblk(inode, block, &err, &new);
- 	if (!phys)
-@@ -488,8 +494,6 @@ static int udf_do_extend_file(struct inode *inode,
- 	uint32_t add;
- 	int count = 0, fake = !(last_ext->extLength & UDF_EXTENT_LENGTH_MASK);
- 	struct super_block *sb = inode->i_sb;
--	struct kernel_lb_addr prealloc_loc = {};
--	uint32_t prealloc_len = 0;
- 	struct udf_inode_info *iinfo;
- 	int err;
- 
-@@ -510,19 +514,6 @@ static int udf_do_extend_file(struct inode *inode,
- 			~(sb->s_blocksize - 1);
- 	}
- 
--	/* Last extent are just preallocated blocks? */
--	if ((last_ext->extLength & UDF_EXTENT_FLAG_MASK) ==
--						EXT_NOT_RECORDED_ALLOCATED) {
--		/* Save the extent so that we can reattach it to the end */
--		prealloc_loc = last_ext->extLocation;
--		prealloc_len = last_ext->extLength;
--		/* Mark the extent as a hole */
--		last_ext->extLength = EXT_NOT_RECORDED_NOT_ALLOCATED |
--			(last_ext->extLength & UDF_EXTENT_LENGTH_MASK);
--		last_ext->extLocation.logicalBlockNum = 0;
--		last_ext->extLocation.partitionReferenceNum = 0;
--	}
--
- 	/* Can we merge with the previous extent? */
- 	if ((last_ext->extLength & UDF_EXTENT_FLAG_MASK) ==
- 					EXT_NOT_RECORDED_NOT_ALLOCATED) {
-@@ -550,7 +541,7 @@ static int udf_do_extend_file(struct inode *inode,
- 		 * more extents, we may need to enter possible following
- 		 * empty indirect extent.
- 		 */
--		if (new_block_bytes || prealloc_len)
-+		if (new_block_bytes)
- 			udf_next_aext(inode, last_pos, &tmploc, &tmplen, 0);
- 	}
- 
-@@ -584,17 +575,6 @@ static int udf_do_extend_file(struct inode *inode,
- 	}
- 
- out:
--	/* Do we have some preallocated blocks saved? */
--	if (prealloc_len) {
--		err = udf_add_aext(inode, last_pos, &prealloc_loc,
--				   prealloc_len, 1);
--		if (err)
--			return err;
--		last_ext->extLocation = prealloc_loc;
--		last_ext->extLength = prealloc_len;
--		count++;
--	}
--
- 	/* last_pos should point to the last written extent... */
- 	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_SHORT)
- 		last_pos->offset -= sizeof(struct short_ad);
-@@ -610,13 +590,17 @@ static int udf_do_extend_file(struct inode *inode,
- static void udf_do_extend_final_block(struct inode *inode,
- 				      struct extent_position *last_pos,
- 				      struct kernel_long_ad *last_ext,
--				      uint32_t final_block_len)
-+				      uint32_t new_elen)
- {
--	struct super_block *sb = inode->i_sb;
- 	uint32_t added_bytes;
- 
--	added_bytes = final_block_len -
--		      (last_ext->extLength & (sb->s_blocksize - 1));
-+	/*
-+	 * Extent already large enough? It may be already rounded up to block
-+	 * size...
-+	 */
-+	if (new_elen <= (last_ext->extLength & UDF_EXTENT_LENGTH_MASK))
-+		return;
-+	added_bytes = (last_ext->extLength & UDF_EXTENT_LENGTH_MASK) - new_elen;
- 	last_ext->extLength += added_bytes;
- 	UDF_I(inode)->i_lenExtents += added_bytes;
- 
-@@ -633,12 +617,12 @@ static int udf_extend_file(struct inode *inode, loff_t newsize)
- 	int8_t etype;
- 	struct super_block *sb = inode->i_sb;
- 	sector_t first_block = newsize >> sb->s_blocksize_bits, offset;
--	unsigned long partial_final_block;
-+	loff_t new_elen;
- 	int adsize;
- 	struct udf_inode_info *iinfo = UDF_I(inode);
- 	struct kernel_long_ad extent;
- 	int err = 0;
--	int within_final_block;
-+	bool within_last_ext;
- 
- 	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_SHORT)
- 		adsize = sizeof(struct short_ad);
-@@ -647,8 +631,17 @@ static int udf_extend_file(struct inode *inode, loff_t newsize)
- 	else
- 		BUG();
- 
-+	/*
-+	 * When creating hole in file, just don't bother with preserving
-+	 * preallocation. It likely won't be very useful anyway.
-+	 */
-+	udf_discard_prealloc(inode);
-+
- 	etype = inode_bmap(inode, first_block, &epos, &eloc, &elen, &offset);
--	within_final_block = (etype != -1);
-+	within_last_ext = (etype != -1);
-+	/* We don't expect extents past EOF... */
-+	WARN_ON_ONCE(within_last_ext &&
-+		     elen > ((loff_t)offset + 1) << inode->i_blkbits);
- 
- 	if ((!epos.bh && epos.offset == udf_file_entry_alloc_offset(inode)) ||
- 	    (epos.bh && epos.offset == sizeof(struct allocExtDesc))) {
-@@ -664,19 +657,17 @@ static int udf_extend_file(struct inode *inode, loff_t newsize)
- 		extent.extLength |= etype << 30;
- 	}
- 
--	partial_final_block = newsize & (sb->s_blocksize - 1);
-+	new_elen = ((loff_t)offset << inode->i_blkbits) |
-+					(newsize & (sb->s_blocksize - 1));
- 
- 	/* File has extent covering the new size (could happen when extending
- 	 * inside a block)?
- 	 */
--	if (within_final_block) {
-+	if (within_last_ext) {
- 		/* Extending file within the last file block */
--		udf_do_extend_final_block(inode, &epos, &extent,
--					  partial_final_block);
-+		udf_do_extend_final_block(inode, &epos, &extent, new_elen);
- 	} else {
--		loff_t add = ((loff_t)offset << sb->s_blocksize_bits) |
--			     partial_final_block;
--		err = udf_do_extend_file(inode, &epos, &extent, add);
-+		err = udf_do_extend_file(inode, &epos, &extent, new_elen);
- 	}
- 
- 	if (err < 0)
-@@ -777,10 +768,11 @@ static sector_t inode_getblk(struct inode *inode, sector_t block,
- 		goto out_free;
- 	}
- 
--	/* Are we beyond EOF? */
-+	/* Are we beyond EOF and preallocated extent? */
- 	if (etype == -1) {
- 		int ret;
- 		loff_t hole_len;
-+
- 		isBeyondEOF = true;
- 		if (count) {
- 			if (c)
-diff --git a/fs/udf/truncate.c b/fs/udf/truncate.c
-index 532cda99644e..036ebd892b85 100644
---- a/fs/udf/truncate.c
-+++ b/fs/udf/truncate.c
-@@ -120,60 +120,42 @@ void udf_truncate_tail_extent(struct inode *inode)
- 
- void udf_discard_prealloc(struct inode *inode)
- {
--	struct extent_position epos = { NULL, 0, {0, 0} };
-+	struct extent_position epos = {};
-+	struct extent_position prev_epos = {};
- 	struct kernel_lb_addr eloc;
- 	uint32_t elen;
- 	uint64_t lbcount = 0;
- 	int8_t etype = -1, netype;
--	int adsize;
- 	struct udf_inode_info *iinfo = UDF_I(inode);
-+	int bsize = 1 << inode->i_blkbits;
- 
- 	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_IN_ICB ||
--	    inode->i_size == iinfo->i_lenExtents)
-+	    ALIGN(inode->i_size, bsize) == ALIGN(iinfo->i_lenExtents, bsize))
- 		return;
- 
--	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_SHORT)
--		adsize = sizeof(struct short_ad);
--	else if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_LONG)
--		adsize = sizeof(struct long_ad);
--	else
--		adsize = 0;
--
- 	epos.block = iinfo->i_location;
- 
- 	/* Find the last extent in the file */
--	while ((netype = udf_next_aext(inode, &epos, &eloc, &elen, 1)) != -1) {
--		etype = netype;
-+	while ((netype = udf_next_aext(inode, &epos, &eloc, &elen, 0)) != -1) {
-+		brelse(prev_epos.bh);
-+		prev_epos = epos;
-+		if (prev_epos.bh)
-+			get_bh(prev_epos.bh);
-+
-+		etype = udf_next_aext(inode, &epos, &eloc, &elen, 1);
- 		lbcount += elen;
- 	}
- 	if (etype == (EXT_NOT_RECORDED_ALLOCATED >> 30)) {
--		epos.offset -= adsize;
- 		lbcount -= elen;
--		extent_trunc(inode, &epos, &eloc, etype, elen, 0);
--		if (!epos.bh) {
--			iinfo->i_lenAlloc =
--				epos.offset -
--				udf_file_entry_alloc_offset(inode);
--			mark_inode_dirty(inode);
--		} else {
--			struct allocExtDesc *aed =
--				(struct allocExtDesc *)(epos.bh->b_data);
--			aed->lengthAllocDescs =
--				cpu_to_le32(epos.offset -
--					    sizeof(struct allocExtDesc));
--			if (!UDF_QUERY_FLAG(inode->i_sb, UDF_FLAG_STRICT) ||
--			    UDF_SB(inode->i_sb)->s_udfrev >= 0x0201)
--				udf_update_tag(epos.bh->b_data, epos.offset);
--			else
--				udf_update_tag(epos.bh->b_data,
--					       sizeof(struct allocExtDesc));
--			mark_buffer_dirty_inode(epos.bh, inode);
--		}
-+		udf_delete_aext(inode, prev_epos);
-+		udf_free_blocks(inode->i_sb, inode, &eloc, 0,
-+				DIV_ROUND_UP(elen, 1 << inode->i_blkbits));
- 	}
- 	/* This inode entry is in-memory only and thus we don't have to mark
- 	 * the inode dirty */
- 	iinfo->i_lenExtents = lbcount;
- 	brelse(epos.bh);
-+	brelse(prev_epos.bh);
- }
- 
- static void udf_update_alloc_ext_desc(struct inode *inode,
-diff --git a/security/keys/encrypted-keys/encrypted.c b/security/keys/encrypted-keys/encrypted.c
-index e05cfc2e49ae..1e313982af02 100644
---- a/security/keys/encrypted-keys/encrypted.c
-+++ b/security/keys/encrypted-keys/encrypted.c
-@@ -627,7 +627,7 @@ static struct encrypted_key_payload *encrypted_key_alloc(struct key *key,
- 			pr_err("encrypted key: instantiation of keys using provided decrypted data is disabled since CONFIG_USER_DECRYPTED_DATA is set to false\n");
- 			return ERR_PTR(-EINVAL);
- 		}
--		if (strlen(decrypted_data) != decrypted_datalen) {
-+		if (strlen(decrypted_data) != decrypted_datalen * 2) {
- 			pr_err("encrypted key: decrypted data provided does not match decrypted data length provided\n");
- 			return ERR_PTR(-EINVAL);
- 		}
-@@ -791,8 +791,8 @@ static int encrypted_init(struct encrypted_key_payload *epayload,
- 		ret = encrypted_key_decrypt(epayload, format, hex_encoded_iv);
- 	} else if (decrypted_data) {
- 		get_random_bytes(epayload->iv, ivsize);
--		memcpy(epayload->decrypted_data, decrypted_data,
--				   epayload->decrypted_datalen);
-+		ret = hex2bin(epayload->decrypted_data, decrypted_data,
-+			      epayload->decrypted_datalen);
- 	} else {
- 		get_random_bytes(epayload->iv, ivsize);
- 		get_random_bytes(epayload->decrypted_data, epayload->decrypted_datalen);
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index e5c036385666..cf7c825078dc 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -9354,6 +9354,8 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	 SND_PCI_QUIRK(0x103c, 0x8abb, "HP ZBook Firefly 14 G9", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8ad1, "HP EliteBook 840 14 inch G9 Notebook PC", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8ad2, "HP EliteBook 860 16 inch G9 Notebook PC", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
-+	SND_PCI_QUIRK(0x103c, 0x8b5d, "HP", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
-+	SND_PCI_QUIRK(0x103c, 0x8b5e, "HP", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
- 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x103f, "ASUS TX300", ALC282_FIXUP_ASUS_TX300),
- 	SND_PCI_QUIRK(0x1043, 0x106d, "Asus K53BE", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
-diff --git a/tools/lib/bpf/btf_dump.c b/tools/lib/bpf/btf_dump.c
-index 4221f73a74d0..3937f66c7f8d 100644
---- a/tools/lib/bpf/btf_dump.c
-+++ b/tools/lib/bpf/btf_dump.c
-@@ -1963,7 +1963,7 @@ static int btf_dump_struct_data(struct btf_dump *d,
- {
- 	const struct btf_member *m = btf_members(t);
- 	__u16 n = btf_vlen(t);
--	int i, err;
-+	int i, err = 0;
- 
- 	/* note that we increment depth before calling btf_dump_print() below;
- 	 * this is intentional.  btf_dump_data_newline() will not print a
+stable-rc/queue/4.14 build: 195 builds: 2 failed, 193 passed, 36 warnings (=
+v4.14.302-22-g062361363011)
+
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
+4/kernel/v4.14.302-22-g062361363011/
+
+Tree: stable-rc
+Branch: queue/4.14
+Git Describe: v4.14.302-22-g062361363011
+Git Commit: 0623613630117ddb1f63d5cdd2259d83df1a26f0
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 6 unique architectures
+
+Build Failures Detected:
+
+mips:
+    ip27_defconfig: (gcc-10) FAIL
+    ip28_defconfig: (gcc-10) FAIL
+
+Warnings Detected:
+
+arc:
+
+arm64:
+
+arm:
+    efm32_defconfig (gcc-10): 1 warning
+    lpc18xx_defconfig (gcc-10): 1 warning
+    mini2440_defconfig (gcc-10): 1 warning
+    mps2_defconfig (gcc-10): 1 warning
+    omap1_defconfig (gcc-10): 1 warning
+    s3c2410_defconfig (gcc-10): 1 warning
+    stm32_defconfig (gcc-10): 1 warning
+
+i386:
+    allnoconfig (gcc-10): 3 warnings
+    i386_defconfig (gcc-10): 3 warnings
+    tinyconfig (gcc-10): 3 warnings
+
+mips:
+    malta_qemu_32r6_defconfig (gcc-10): 1 warning
+    mtx1_defconfig (gcc-10): 3 warnings
+
+x86_64:
+    allnoconfig (gcc-10): 4 warnings
+    tinyconfig (gcc-10): 4 warnings
+    x86_64_defconfig (gcc-10): 4 warnings
+    x86_64_defconfig+x86-chromebook (gcc-10): 4 warnings
+
+
+Warnings summary:
+
+    7    ld: warning: creating DT_TEXTREL in a PIE
+    4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
+d-only section `.head.text'
+    4    arch/x86/entry/entry_64.S:1672: Warning: no instruction mnemonic s=
+uffix given and no register operands; using default for `sysret'
+    4    arch/arm/mm/nommu.c:382:12: warning: assignment to =E2=80=98void *=
+=E2=80=99 from =E2=80=98phys_addr_t=E2=80=99 {aka =E2=80=98unsigned int=E2=
+=80=99} makes pointer from integer without a cast [-Wint-conversion]
+    4    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h=
+' differs from latest kernel version at 'arch/x86/include/asm/insn.h'
+    3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
+d-only section `.head.text'
+    3    arch/x86/entry/entry_32.S:480: Warning: no instruction mnemonic su=
+ffix given and no register operands; using default for `btr'
+    2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
+741824 invokes undefined behavior [-Waggressive-loop-optimizations]
+    2    drivers/tty/serial/samsung.c:1790:34: warning: array =E2=80=98s3c2=
+4xx_uart_dt_match=E2=80=99 assumed to have one element
+    1    {standard input}:30: Warning: macro instruction expanded into mult=
+iple instructions
+    1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
+741824 invokes undefined behavior [-Waggressive-loop-optimizations]
+    1    drivers/gpio/gpio-omap.c:1152:34: warning: array =E2=80=98omap_gpi=
+o_match=E2=80=99 assumed to have one element
+
+Section mismatches summary:
+
+    13   WARNING: modpost: Found 1 section mismatch(es).
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+acs5k_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+acs5k_tiny_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+    arch/x86/entry/entry_64.S:1672: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section =
+mismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:480: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x2xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warn=
+ings, 0 section mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ebsa110_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/arm/mm/nommu.c:382:12: warning: assignment to =E2=80=98void *=E2=
+=80=99 from =E2=80=98phys_addr_t=E2=80=99 {aka =E2=80=98unsigned int=E2=80=
+=99} makes pointer from integer without a cast [-Wint-conversion]
+
+---------------------------------------------------------------------------=
+-----
+em_x270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:480: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+iop13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop33x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+ks8695_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+lasat_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    arch/arm/mm/nommu.c:382:12: warning: assignment to =E2=80=98void *=E2=
+=80=99 from =E2=80=98phys_addr_t=E2=80=99 {aka =E2=80=98unsigned int=E2=80=
+=99} makes pointer from integer without a cast [-Wint-conversion]
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
+gs, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warnin=
+g, 0 section mismatches
+
+Warnings:
+    {standard input}:30: Warning: macro instruction expanded into multiple =
+instructions
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+markeins_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    drivers/tty/serial/samsung.c:1790:34: warning: array =E2=80=98s3c24xx_u=
+art_dt_match=E2=80=99 assumed to have one element
+
+---------------------------------------------------------------------------=
+-----
+mips_paravirt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    arch/arm/mm/nommu.c:382:12: warning: assignment to =E2=80=98void *=E2=
+=80=99 from =E2=80=98phys_addr_t=E2=80=99 {aka =E2=80=98unsigned int=E2=80=
+=99} makes pointer from integer without a cast [-Wint-conversion]
+
+---------------------------------------------------------------------------=
+-----
+msp71xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+netx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc950_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc960_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/gpio/gpio-omap.c:1152:34: warning: array =E2=80=98omap_gpio_mat=
+ch=E2=80=99 assumed to have one element
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+omega2p_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+pnx8335_stb225_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+raumfeld_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/tty/serial/samsung.c:1790:34: warning: array =E2=80=98s3c24xx_u=
+art_dt_match=E2=80=99 assumed to have one element
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/arm/mm/nommu.c:382:12: warning: assignment to =E2=80=98void *=E2=
+=80=99 from =E2=80=98phys_addr_t=E2=80=99 {aka =E2=80=98unsigned int=E2=80=
+=99} makes pointer from integer without a cast [-Wint-conversion]
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+tango4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
+ismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:480: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
+ mismatches
+
+Warnings:
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+    arch/x86/entry/entry_64.S:1672: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+    arch/x86/entry/entry_64.S:1672: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
+4 warnings, 0 section mismatches
+
+Warnings:
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+    arch/x86/entry/entry_64.S:1672: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+xilfpga_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---
+For more info write to <info@kernelci.org>
