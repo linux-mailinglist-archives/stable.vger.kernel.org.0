@@ -2,97 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04FFB6533C0
-	for <lists+stable@lfdr.de>; Wed, 21 Dec 2022 17:04:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A08E06533D0
+	for <lists+stable@lfdr.de>; Wed, 21 Dec 2022 17:12:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231422AbiLUQEc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Dec 2022 11:04:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50744 "EHLO
+        id S233812AbiLUQMa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Dec 2022 11:12:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230336AbiLUQEb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Dec 2022 11:04:31 -0500
-Received: from mail-oo1-xc2d.google.com (mail-oo1-xc2d.google.com [IPv6:2607:f8b0:4864:20::c2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7413311445
-        for <stable@vger.kernel.org>; Wed, 21 Dec 2022 08:04:28 -0800 (PST)
-Received: by mail-oo1-xc2d.google.com with SMTP id y194-20020a4a45cb000000b004a08494e4b6so2465987ooa.7
-        for <stable@vger.kernel.org>; Wed, 21 Dec 2022 08:04:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxtx.org; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=HJmsn58xKPbGHiKrj82Ko5wI0bke7L5N3g2n349swQQ=;
-        b=VKZh8Z+o5HVhAYyL+Km4C+pZUd+tLLpykKq2K/NWLT0ihGl9RzIOi5JSJAcyYXbrbr
-         t5eUzkVG7RqeD9P5pckYLyBQYGRLG36GEjIUPTJJqHneXFr3ZcS4nkHwNvOCqJO44CHj
-         sbXsoUOqo6DrXBuRI1E4Kj/ceWeGFfg+MFf/U=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=HJmsn58xKPbGHiKrj82Ko5wI0bke7L5N3g2n349swQQ=;
-        b=1FvhgRfaQOw8MFfj8gdPGGioagMUX+/Ak3W9vZ0Ru2KdYXSpxYdXN6cmWS8e6q392B
-         Y6hHMoGI4vlzDudDo++CDJxA8QPOIpfcX9YHuhGuUmDosEnNz2Ln4DPToY+foW8qHVEl
-         RBHWvzVSNutVXFkPZIBzDo/wTb8nXEwnSpEGiZP669g0Dlnu1txVcaALW6TcShMXjU7n
-         iBbLw3KKIufxlx4fMvT3KT0GHOPGebUTavCoK6yN7R3mDpF6dmfrFkPrvS0OwjEpzGm0
-         2bbHGMz/UJxTg82XqJKd6KaS43PokgYwPYKX8eNESjvlrh4Ve+PHWU46MYkyvZk2p40w
-         tM6w==
-X-Gm-Message-State: AFqh2kqIHEUhHcfeGEipqhEMl7uMSW7yBXeM0YatjevVLfBKaMnx0GaT
-        oOJMMT8OnLE9l/aL0if/kWB0gg==
-X-Google-Smtp-Source: AMrXdXvFCPfGpZRQD5dV4PjhY/izAVNd9gTVAqDtT3zxjxX8W42bImEfLYj6CVX1qzV+cfy5caAGYg==
-X-Received: by 2002:a4a:43:0:b0:49f:8720:d5b2 with SMTP id 64-20020a4a0043000000b0049f8720d5b2mr1070027ooh.8.1671638667751;
-        Wed, 21 Dec 2022 08:04:27 -0800 (PST)
-Received: from fedora64.linuxtx.org (99-47-93-78.lightspeed.rcsntx.sbcglobal.net. [99.47.93.78])
-        by smtp.gmail.com with ESMTPSA id a11-20020a4ab10b000000b0049fb39100a5sm6205846ooo.37.2022.12.21.08.04.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Dec 2022 08:04:27 -0800 (PST)
-Sender: Justin Forbes <jmforbes@linuxtx.org>
-Date:   Wed, 21 Dec 2022 10:04:25 -0600
-From:   Justin Forbes <jforbes@fedoraproject.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        with ESMTP id S233234AbiLUQMO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Dec 2022 11:12:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CCBA205E8;
+        Wed, 21 Dec 2022 08:12:09 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BAB73B81B97;
+        Wed, 21 Dec 2022 16:12:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D61CDC433EF;
+        Wed, 21 Dec 2022 16:12:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1671639126;
+        bh=hMWOzJQfGrw2VL5wnUwgg7mMwK3iZwR3rvS7osSgTt0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Iprb43Ps2hq4dF7WNEy32ZrQBxFf4DPgGbQiRk2liWNRucM2WQ8AxSEMjs4EsINTP
+         8EZyveHceJ7MeIWBzWW0tGAivl6bt2iqcXB/iWKaTHFd37vL8/Ghfw7yvmpXIOrMCc
+         z31B5tiz66mfKYdRZBazgafXZbugQEJY9Q5Wc778=
+Date:   Wed, 21 Dec 2022 17:12:03 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
 Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
         linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.0 00/28] 6.0.15-rc1 review
-Message-ID: <Y6MuiZJZ/6wLsXpu@fedora64.linuxtx.org>
-References: <20221219182944.179389009@linuxfoundation.org>
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 6.1 00/25] 6.1.1-rc1 review
+Message-ID: <Y6MwU0kvczAkzT6C@kroah.com>
+References: <20221219182943.395169070@linuxfoundation.org>
+ <20221220150049.GE3748047@roeck-us.net>
+ <Y6HQfwEnw75iajYr@kroah.com>
+ <20221220161135.GA1983195@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221219182944.179389009@linuxfoundation.org>
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
-        autolearn_force=no version=3.4.6
+In-Reply-To: <20221220161135.GA1983195@roeck-us.net>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 19, 2022 at 08:22:47PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.15 release.
-> There are 28 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, Dec 20, 2022 at 08:11:35AM -0800, Guenter Roeck wrote:
+> On Tue, Dec 20, 2022 at 04:10:55PM +0100, Greg Kroah-Hartman wrote:
+> > On Tue, Dec 20, 2022 at 07:00:49AM -0800, Guenter Roeck wrote:
+> > > On Mon, Dec 19, 2022 at 08:22:39PM +0100, Greg Kroah-Hartman wrote:
+> > > > This is the start of the stable review cycle for the 6.1.1 release.
+> > > > There are 25 patches in this series, all will be posted as a response
+> > > > to this one.  If anyone has any issues with these being applied, please
+> > > > let me know.
+> > > > 
+> > > > Responses should be made by Wed, 21 Dec 2022 18:29:31 +0000.
+> > > > Anything received after that time might be too late.
+> > > > 
+> > > 
+> > > Build results:
+> > > 	total: 155 pass: 155 fail: 0
+> > > Qemu test results:
+> > > 	total: 500 pass: 498 fail: 2
+> > > Failed tests:
+> > > 	arm:xilinx-zynq-a9:multi_v7_defconfig:usb0:mem128:net,default:zynq-zc702:rootfs
+> > > 	arm:xilinx-zynq-a9:multi_v7_defconfig:usb0:mem128:zynq-zed:rootfs
+> > > 
+> > > The failure bisects to commit e013ba1e4e12 ("usb: ulpi: defer ulpi_register on
+> > > ulpi_read_id timeout") and is inherited from mainline. Reverting the offending
+> > > patch fixes the problem.
+> > 
+> > Odd, yet that same commit works just fine on 6.0 and 5.15 and 5.10?  I
+> > hadn't had any reports of this being an issue on Linus's tree either,
+> > did I miss those?
+> > 
 > 
-> Responses should be made by Wed, 21 Dec 2022 18:29:31 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.15-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+> I testbed has a bad hair day. The reports for the other branches are wrong.
+> I restarted the tests and expect them to fail there as well. Sorry for that.
 
-Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
-s390x, x86_64), and boot tested x86_64. No regressions noted.
+No worries, I've deleted this patch from all branches now, thanks.
 
-Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
+greg k-h
