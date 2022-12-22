@@ -2,97 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C467D654171
-	for <lists+stable@lfdr.de>; Thu, 22 Dec 2022 14:01:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41634654175
+	for <lists+stable@lfdr.de>; Thu, 22 Dec 2022 14:02:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235191AbiLVNBm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Dec 2022 08:01:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42316 "EHLO
+        id S235346AbiLVNCO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Dec 2022 08:02:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235143AbiLVNBl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Dec 2022 08:01:41 -0500
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 857BFDF7F
-        for <stable@vger.kernel.org>; Thu, 22 Dec 2022 05:01:36 -0800 (PST)
-Received: by mail-ej1-x62c.google.com with SMTP id qk9so4758833ejc.3
-        for <stable@vger.kernel.org>; Thu, 22 Dec 2022 05:01:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Rbavzlc4Bw8Z/v5DZKRqyI5fqrkF3zyQ0FpajSOg87A=;
-        b=KeN3qk5ceYjn02YPthf1HZfHYDiCir/vsa+yOfoenxeY0JoHuM2ClXD71AtesBuJYI
-         dz9m3oUWVKFMWpJjDU/ictBRy8x+TIyo3Z9BEnzL3dyjpMKRQ0gZsScP6vHrphV9aTku
-         7Rm3KjZsGW2DCR1AeFcbWoG+x7g9O4uxSHoFtHJ8j/Vnkd20XI6QrqWaY3q83sz2rAMd
-         g5VWiOh9Pu7x8BTlvqqyypOv8mGtY/jRupWJkpcTRB7iNGvDAEOsZhuyKXNiyI0BAl+e
-         fzEFQH3cfPk0o2ex6bYFEAz6ssztO6Wl9pS+4WviRWv5OGM6phszlD6k6hyXI7DLmM/t
-         Kl6g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Rbavzlc4Bw8Z/v5DZKRqyI5fqrkF3zyQ0FpajSOg87A=;
-        b=F16X0LUfpwBGSeuPJUXkHPxm6H0zkWiEr2QD1ryvKhehOgg3vxv16r50f73w0VQmcK
-         1ocoCbC5Sx1cNMn5R4eohWBwBY5FZUZ9i5FGQgs0jed8r/13W5/9k1KvFc+dEfkblOoA
-         GF8o8I5M5vyD61n1vfP3qkW3mmtwtbgH8IfgwjUQsg1MMg0BWJTourwxPqmWq7Op464s
-         27szrwEEOJgLW09+D51rE7PROqHFHhcKsYTi65UawfzlsrPSo5HVXuFkuz/yKTxlsjUs
-         SakTBwPwXUTpMXgNotndpGOXFIRnpb4cWheqzrdCPTJU2ETWncfzB2h+/YpZ53jfBkpX
-         +OUg==
-X-Gm-Message-State: AFqh2koF8X5uIUWmOOxR9GvAr67LTv9+Df+Nk1emWGHEwF8A+huOcLL3
-        EFut2R9vMkz0Vgy7BUoV5IKHyg==
-X-Google-Smtp-Source: AMrXdXt5QMW8Cdt06g0rbKV7kERm4JFQIJXzEHfozhef4SE14EbEjp4wGwpJ0RxuX5M9GkZVqCp79w==
-X-Received: by 2002:a17:907:8b11:b0:81b:fbff:a7cc with SMTP id sz17-20020a1709078b1100b0081bfbffa7ccmr4710225ejc.18.1671714095071;
-        Thu, 22 Dec 2022 05:01:35 -0800 (PST)
-Received: from [192.168.0.104] ([82.77.81.131])
-        by smtp.gmail.com with ESMTPSA id j18-20020a1709066dd200b0080345493023sm217542ejt.167.2022.12.22.05.01.33
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 22 Dec 2022 05:01:34 -0800 (PST)
-Message-ID: <5fe3c17b-44c3-1e1a-9ac5-1db8766120f4@linaro.org>
-Date:   Thu, 22 Dec 2022 15:01:32 +0200
+        with ESMTP id S235386AbiLVNCM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Dec 2022 08:02:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13D9C2793D;
+        Thu, 22 Dec 2022 05:02:11 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1896B81D11;
+        Thu, 22 Dec 2022 13:02:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BD1FC43392;
+        Thu, 22 Dec 2022 13:02:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1671714128;
+        bh=+il+SxtPaF4c4xhIERSlV2b3ebbMTBDe+tDbOlWavI0=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=LjgSe3GSP0mW8adQgzLeMLPnwVygpphDdWa+BPcD1ECfJRmzzdQJjvMPGXRjo9Udq
+         8yC8XbmXvUuAjZyXWQt1cDBVqNrCk8WX8GP+xSa96IS49fN/H9ezA/DTkcBx4BWAHS
+         u+SkG8R7qYRHRwXJ0j/L8lq6qVVnBUetpboBeWYbQ6eNlBnWZcT9BrcJKJKEfOrEoN
+         67gMnoIyBGXwnc6x0TVUrg+4KWDVsbQag6/LVhpsuks5bQqbBHaGZGs4bF+XwciDqB
+         wcskYfV+uiM4ggb7efsnRqFMETthrIyjUj8AoO7eIlbFZaRLh8wi5E8D0a58vfJJyv
+         2s4JEZ0af1Y0A==
+Received: by mail-lf1-f52.google.com with SMTP id b3so2649612lfv.2;
+        Thu, 22 Dec 2022 05:02:08 -0800 (PST)
+X-Gm-Message-State: AFqh2kpeltGF4sH3pX66moV/qJM4WSna7++XnxxDmLBm+r7VorD39Dsa
+        ZVuOHT9CxNBYqnn4YbLnBncGzcH8crTUdZ1f4/Y=
+X-Google-Smtp-Source: AMrXdXs/FbXEMKkikcQh2g0G6KKTqaNtxuHVOptoJqHyWe59cAaGZyR/wktYEyC/Z4h8imqHqegrkCH7cW9DCXyG+z0=
+X-Received: by 2002:ac2:5d4e:0:b0:4b5:964d:49a4 with SMTP id
+ w14-20020ac25d4e000000b004b5964d49a4mr572665lfd.637.1671714126548; Thu, 22
+ Dec 2022 05:02:06 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: [PATCH] Documentation: stable: Add rule on what kind of patches
- are accepted
-Content-Language: en-US
-To:     Bagas Sanjaya <bagasdotme@gmail.com>, gregkh@linuxfoundation.org,
-        sashal@kernel.org, corbet@lwn.net
-Cc:     stable@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, joneslee@google.com
-References: <20221222091658.1975240-1-tudor.ambarus@linaro.org>
- <4fbc9e89-24af-9d59-dab0-73925ac94df1@gmail.com>
-From:   Tudor Ambarus <tudor.ambarus@linaro.org>
-In-Reply-To: <4fbc9e89-24af-9d59-dab0-73925ac94df1@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+References: <20221220200923.1532710-1-maz@kernel.org> <20221220200923.1532710-2-maz@kernel.org>
+In-Reply-To: <20221220200923.1532710-2-maz@kernel.org>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Thu, 22 Dec 2022 14:01:55 +0100
+X-Gmail-Original-Message-ID: <CAMj1kXE57xTzkmdhQzxOBSePVzUCS5GW7PAVvx+iF+3UHv0OrA@mail.gmail.com>
+Message-ID: <CAMj1kXE57xTzkmdhQzxOBSePVzUCS5GW7PAVvx+iF+3UHv0OrA@mail.gmail.com>
+Subject: Re: [PATCH 1/3] KVM: arm64: Fix S1PTW handling on RO memslots
+To:     Marc Zyngier <maz@kernel.org>
+Cc:     kvmarm@lists.cs.columbia.edu, kvmarm@lists.linux.dev,
+        kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        James Morse <james.morse@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Oliver Upton <oliver.upton@linux.dev>,
+        Will Deacon <will@kernel.org>,
+        Quentin Perret <qperret@google.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Tue, 20 Dec 2022 at 21:09, Marc Zyngier <maz@kernel.org> wrote:
+>
+> A recent development on the EFI front has resulted in guests having
+> their page tables baked in the firmware binary, and mapped into
+> the IPA space as part as a read-only memslot.
+>
+> Not only this is legitimate, but it also results in added security,
+> so thumbs up. However, this clashes mildly with our handling of a S1PTW
+> as a write to correctly handle AF/DB updates to the S1 PTs, and results
+> in the guest taking an abort it won't recover from (the PTs mapping the
+> vectors will suffer freom the same problem...).
+>
+> So clearly our handling is... wrong.
+>
+> Instead, switch to a two-pronged approach:
+>
+> - On S1PTW translation fault, handle the fault as a read
+>
+> - On S1PTW permission fault, handle the fault as a write
+>
+> This is of no consequence to SW that *writes* to its PTs (the write
+> will trigger a non-S1PTW fault), and SW that uses RO PTs will not
+> use AF/DB anyway, as that'd be wrong.
+>
+> Only in the case described in c4ad98e4b72c ("KVM: arm64: Assume write
+> fault on S1PTW permission fault on instruction fetch") do we end-up
+> with two back-to-back faults (page being evicted and faulted back).
+> I don't think this is a case worth optimising for.
+>
+> Fixes: c4ad98e4b72c ("KVM: arm64: Assume write fault on S1PTW permission fault on instruction fetch")
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> Cc: stable@vger.kernel.org
 
-On 22.12.2022 14:56, Bagas Sanjaya wrote:
-> On 12/22/22 16:16, Tudor Ambarus wrote:
->> The list of rules on what kind of patches are accepted, and which ones
->> are not into the “-stable” tree, did not mention anything about new
->> features and let the reader use its own judgement. One may be under the
->> impression that new features are not accepted at all, but that's not true:
->> new features are not accepted unless they fix a reported problem.
->> Update documentation with missing rule.
->>
-> 
-> Are there any other examples of problems that can "only" be solved by
-> introducing new features? Or new huge features that are virtually
-> harder to backport?
-> 
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
 
-Here's an example:
-https://lore.kernel.org/linux-kernel/20221222083545.1972489-1-tudor.ambarus@linaro.org/
+I have tested this patch on my TX2 with one of the EFI builds in
+question, and everything works as before (I never observed the issue
+itself)
+
+Regression-tested-by: Ard Biesheuvel <ardb@kernel.org>
+
+For the record, the EFI build in question targets QEMU/mach-virt and
+switches to a set of read-only page tables in emulated NOR flash
+straight out of reset, so it can create and populate the real page
+tables with MMU and caches enabled. EFI does not use virtual memory or
+paging so managing access flags or dirty bits in hardware is unlikely
+to add any value, and it is not being used at the moment. And given
+that this is emulated NOR flash, any ordinary write to it tears down
+the r/o memslot altogether, and kicks the NOR flash emulation in QEMU
+into programming mode, which is fully based on MMIO emulation and does
+not use a memslot at all. IOW, even if we could figure out what store
+the PTW was attempting to do, it is always going to be rejected since
+the r/o page tables can only be modified by 'programming' the NOR
+flash sector.
+
+
+> ---
+>  arch/arm64/include/asm/kvm_emulate.h | 22 ++++++++++++++++++++--
+>  1 file changed, 20 insertions(+), 2 deletions(-)
+>
+> diff --git a/arch/arm64/include/asm/kvm_emulate.h b/arch/arm64/include/asm/kvm_emulate.h
+> index 9bdba47f7e14..fd6ad8b21f85 100644
+> --- a/arch/arm64/include/asm/kvm_emulate.h
+> +++ b/arch/arm64/include/asm/kvm_emulate.h
+> @@ -373,8 +373,26 @@ static __always_inline int kvm_vcpu_sys_get_rt(struct kvm_vcpu *vcpu)
+>
+>  static inline bool kvm_is_write_fault(struct kvm_vcpu *vcpu)
+>  {
+> -       if (kvm_vcpu_abt_iss1tw(vcpu))
+> -               return true;
+> +       if (kvm_vcpu_abt_iss1tw(vcpu)) {
+> +               /*
+> +                * Only a permission fault on a S1PTW should be
+> +                * considered as a write. Otherwise, page tables baked
+> +                * in a read-only memslot will result in an exception
+> +                * being delivered in the guest.
+> +                *
+> +                * The drawback is that we end-up fauling twice if the
+> +                * guest is using any of HW AF/DB: a translation fault
+> +                * to map the page containing the PT (read only at
+> +                * first), then a permission fault to allow the flags
+> +                * to be set.
+> +                */
+> +               switch (kvm_vcpu_trap_get_fault_type(vcpu)) {
+> +               case ESR_ELx_FSC_PERM:
+> +                       return true;
+> +               default:
+> +                       return false;
+> +               }
+> +       }
+>
+>         if (kvm_vcpu_trap_is_iabt(vcpu))
+>                 return false;
+> --
+> 2.34.1
+>
