@@ -2,194 +2,386 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30400653D3B
-	for <lists+stable@lfdr.de>; Thu, 22 Dec 2022 10:02:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E2C5653D4E
+	for <lists+stable@lfdr.de>; Thu, 22 Dec 2022 10:10:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231221AbiLVJCR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Dec 2022 04:02:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37160 "EHLO
+        id S235003AbiLVJKO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Dec 2022 04:10:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229682AbiLVJCR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Dec 2022 04:02:17 -0500
-X-Greylist: delayed 61 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 22 Dec 2022 01:02:16 PST
-Received: from h1.cmg1.smtp.forpsi.com (h1.cmg1.smtp.forpsi.com [81.2.195.162])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 592FA201B4
-        for <stable@vger.kernel.org>; Thu, 22 Dec 2022 01:02:16 -0800 (PST)
-Received: from lenoch ([91.218.190.200])
-        by cmgsmtp with ESMTPSA
-        id 8HRupBMVhPm6C8HRwps7dc; Thu, 22 Dec 2022 10:01:13 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=triops.cz; s=f2019;
-        t=1671699673; bh=qge3kDbkiWyV4yHzI7E+c0ZfjS1KW8bVG8zEvpOWOd0=;
-        h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-        b=I8sIdEt4zgseAOWO1uZpTg4s5AR8McQeqDXwwZJS3svKg1Nzt6Dgwkk+AFwy2wZLW
-         B2y9df9/XZI9xNlVACIv7IjvTbWWQ5zg3YJR7DC6pt1GtIW5E4++0tfearsd/cPTIE
-         sSGQLkjcJ3aWhB2JFTGl/UoO1etNrwtlO24g3G1zDRGmmOFGVsBTDsOpITIqV0C4K3
-         AE1SmYgJx5CdynP/o2t9aKPER84egcDTbx9EM6HkxfDG6a7rqFRGYzveu/UfSnws8W
-         wKTtDxSuNV8GRnrbVUeUVDpvs81lrgOzH2Ao9d8rdALNGrPYK9Dlxukx3ku8pe3ufb
-         6fWzO3fsNA41A==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=triops.cz; s=f2019;
-        t=1671699673; bh=qge3kDbkiWyV4yHzI7E+c0ZfjS1KW8bVG8zEvpOWOd0=;
-        h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-        b=I8sIdEt4zgseAOWO1uZpTg4s5AR8McQeqDXwwZJS3svKg1Nzt6Dgwkk+AFwy2wZLW
-         B2y9df9/XZI9xNlVACIv7IjvTbWWQ5zg3YJR7DC6pt1GtIW5E4++0tfearsd/cPTIE
-         sSGQLkjcJ3aWhB2JFTGl/UoO1etNrwtlO24g3G1zDRGmmOFGVsBTDsOpITIqV0C4K3
-         AE1SmYgJx5CdynP/o2t9aKPER84egcDTbx9EM6HkxfDG6a7rqFRGYzveu/UfSnws8W
-         wKTtDxSuNV8GRnrbVUeUVDpvs81lrgOzH2Ao9d8rdALNGrPYK9Dlxukx3ku8pe3ufb
-         6fWzO3fsNA41A==
-Date:   Thu, 22 Dec 2022 10:01:10 +0100
-From:   Ladislav Michl <oss-lists@triops.cz>
-To:     Jimmy Hu <hhhuuu@google.com>
-Cc:     mathias.nyman@intel.com, gregkh@linuxfoundation.org,
-        badhri@google.com, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2] usb: xhci: Check endpoint is valid before
- dereferencing it
-Message-ID: <Y6Qc1p4saGFTdh9n@lenoch>
-References: <20221222072912.1843384-1-hhhuuu@google.com>
+        with ESMTP id S235029AbiLVJKL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Dec 2022 04:10:11 -0500
+Received: from mx0a-0014ca01.pphosted.com (mx0b-0014ca01.pphosted.com [208.86.201.193])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 142F7218AE;
+        Thu, 22 Dec 2022 01:10:07 -0800 (PST)
+Received: from pps.filterd (m0042333.ppops.net [127.0.0.1])
+        by mx0b-0014ca01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BM5jlBa009021;
+        Thu, 22 Dec 2022 01:09:57 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cadence.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-transfer-encoding :
+ content-type; s=proofpoint;
+ bh=cSuiH3NV3hyDesH21pZK5xDXV4kQ+sp6Tvknwim7ZWY=;
+ b=VSSsPin5AWnwjdfBLB3w/BfZ6NzzlRbivejSRP2CR9g8Irq6IaDOyyK5KBqec0mOU3NN
+ RtNkpvfKILiYK/VUaGVY8vQJBwauniHloVBeeA/pZFUpWxe15gbrO6HfiiRSxV6JYQzj
+ 1YthJRhJkXm7/UkHKsEfOVvPBv/vxvyyewF2ZiLlg3zqdeF8AHX78Is1FaVHk84P6nzu
+ 6otOrWEzgCWpIYCS2ya2AO8sUTE4cHPH/Bob5/Bt4p5Q1uzNicWAYmSila3XS+jBj+GV
+ HlKxmELn2EhaCrhKH0xm8ffs/pnNP/c5VMhAnzIfxZc7d+LHIfeM3u5l/qnhaNzQ9ufz 9A== 
+Received: from nam11-dm6-obe.outbound.protection.outlook.com (mail-dm6nam11lp2174.outbound.protection.outlook.com [104.47.57.174])
+        by mx0b-0014ca01.pphosted.com (PPS) with ESMTPS id 3mjxkjc1xc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 22 Dec 2022 01:09:57 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=PzfooUH9M1DGS2HG+gxz4MTBypPnWjXZdYFnTF5uCu0JpTS7HXHEzwXqWKv9CBbBxpQT2+GR1AjE0c3kTCUKS0ZJz+NBI3AX4ReX78/atF03vQm/zYa0UJ+3djTZjzdQrMMbSBB5RVU/PPqjXXKr+6544VbP1AtDkOHKJ7RwMVIWsG6jpXo3u6hcnwYHtIwS9UmNfMGR7jaejtXaixXNKNRCP1sasdMS1orrv7KpOMoNQK7NNVQBh7idNCHlS1QqBrOT8t0DHu9u6N+BkM3W0lR3PRF1n9eT427RasBwArSjEt7NsH86HiAYL2nHyH42nJHJPn9cXWsQTub6EYn8nA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=cSuiH3NV3hyDesH21pZK5xDXV4kQ+sp6Tvknwim7ZWY=;
+ b=lTIIjG5ftIDq0Rh6AmTwUyqFGVKiHqh0utLpskKtiN4ypewvVkA8mmVtY0IQuNex6nPJFTiULxSbiHR9iQ94+tu4/CyxcHdqfhU7sN4YYBX0qGpPoe7v+3madvkT82q1eekPn3+9Z/1CwYycR1uJhTxqE8NgOilrNd+URhp8M6x8MNmnTp2CIGDY1DS42qAhS8Ahe56l4KPtSiTmOrfm9DUweOsxX6Jg8309WJxqlwGDTBqspwDa++J+eDkylNbC1jQad+g+7B5R74Ln6RAw+91MUNSoPlCJiCYHd0BfLkc0bggg2uBjW4/C3nYjhlFcnsvK2JvR36M1VrSEJBKC3g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 158.140.1.147) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=cadence.com;
+ dmarc=pass (p=none sp=none pct=100) action=none header.from=cadence.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cadence.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=cSuiH3NV3hyDesH21pZK5xDXV4kQ+sp6Tvknwim7ZWY=;
+ b=IQdjY8QjYNLV5q7g5cbLU9uES4TrrTIK2T/Lg3kjyXBMq3H2cU0zawc8rs3Iz3ibgb1FpbcUniicHhHvkYANzODTy76vyQ6vfhA4qhaSextAR6/XP7nLkH79AU0u4i06A7d3B9BymyHTwSgZNKBkT36x8IfPRVGpOycxFpQQEWY=
+Received: from MW4PR03CA0355.namprd03.prod.outlook.com (2603:10b6:303:dc::30)
+ by BYAPR07MB5909.namprd07.prod.outlook.com (2603:10b6:a03:12f::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5924.16; Thu, 22 Dec
+ 2022 09:09:53 +0000
+Received: from MW2NAM12FT047.eop-nam12.prod.protection.outlook.com
+ (2603:10b6:303:dc:cafe::8e) by MW4PR03CA0355.outlook.office365.com
+ (2603:10b6:303:dc::30) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5924.21 via Frontend
+ Transport; Thu, 22 Dec 2022 09:09:53 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 158.140.1.147)
+ smtp.mailfrom=cadence.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=cadence.com;
+Received-SPF: Pass (protection.outlook.com: domain of cadence.com designates
+ 158.140.1.147 as permitted sender) receiver=protection.outlook.com;
+ client-ip=158.140.1.147; helo=sjmaillnx1.cadence.com; pr=C
+Received: from sjmaillnx1.cadence.com (158.140.1.147) by
+ MW2NAM12FT047.mail.protection.outlook.com (10.13.180.173) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5966.7 via Frontend Transport; Thu, 22 Dec 2022 09:09:53 +0000
+Received: from maileu5.global.cadence.com (eudvw-maileu5.cadence.com [10.160.110.202])
+        by sjmaillnx1.cadence.com (8.14.4/8.14.4) with ESMTP id 2BM99n7F011857
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 22 Dec 2022 01:09:50 -0800
+Received: from maileu5.global.cadence.com (10.160.110.202) by
+ maileu5.global.cadence.com (10.160.110.202) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Thu, 22 Dec 2022 10:09:48 +0100
+Received: from eu-cn02.cadence.com (10.160.89.185) by
+ maileu5.global.cadence.com (10.160.110.202) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24 via Frontend Transport; Thu, 22 Dec 2022 10:09:48 +0100
+Received: from eu-cn02.cadence.com (localhost.localdomain [127.0.0.1])
+        by eu-cn02.cadence.com (8.14.7/8.14.7) with ESMTP id 2BM99m15145295;
+        Thu, 22 Dec 2022 04:09:48 -0500
+Received: (from pawell@localhost)
+        by eu-cn02.cadence.com (8.14.7/8.14.7/Submit) id 2BM99lcp145284;
+        Thu, 22 Dec 2022 04:09:47 -0500
+From:   Pawel Laszczak <pawell@cadence.com>
+To:     <peter.chen@kernel.org>
+CC:     <gregkh@linuxfoundation.org>, <linux-usb@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        Pawel Laszczak <pawell@cadence.com>, <stable@vger.kernel.org>
+Subject: [PATCH] usb: cdnsp: : add scatter gather support for ISOC endpoint
+Date:   Thu, 22 Dec 2022 04:09:34 -0500
+Message-ID: <20221222090934.145140-1-pawell@cadence.com>
+X-Mailer: git-send-email 2.30.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221222072912.1843384-1-hhhuuu@google.com>
-X-CMAE-Envelope: MS4wfNO5x+DpKZwbW3lurs1sQhgUPIy+dj7ucKhBRqyEPreFzT3p9wNPofvA00eN4H/tcs8ydYqz5iIEZ71vt1eLaXu0WWa/enj7rgwRjpowbQt2RTSa3Ues
- YGtWSsfYnpDSy+qitDo63FZ4CZjII3PYG6Pv4eoe0rtqB5dAFjzyc9tzUV/gv/aLhyKMSHlEI9nu4VvOVSBXUzYfBoZddAHy6tTFgsAVuuMCtOEtugRzHHWb
- QtBPQOwXUE9r0Qk7Wu5eL84fyhZ2yHdCrTWu/hNks9USiAlyByN8mik3s1efnXAfyv5dYr//CPwcdkLbP+Ohjwn3V1paC5gJHPs/AFXwAIwBn/m2x+YaOyhH
- aJ786keQe8H+mjR+sDWirXH+eeTEiQ==
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
-        SPF_NONE autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-CrossPremisesHeadersFilteredBySendConnector: maileu5.global.cadence.com
+X-OrganizationHeadersPreserved: maileu5.global.cadence.com
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MW2NAM12FT047:EE_|BYAPR07MB5909:EE_
+X-MS-Office365-Filtering-Correlation-Id: 1206d009-23f3-4946-3b7d-08dae3fc4984
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: dWSl7E1381joVqNYw3yDE/ZvkbvFUbPmygXOXlwe5B6tKKW4JzExKofI0TBfBDtu+Nm9Qd5xXhTss/La7aJMB36t+lC6Nw9a/7P71bNk4fs3jJ7HBvWKKRDJzDEK1om/and+Y3BamDbc2k3virKQDBjLelwV+mF/4n+WQvA+GGxskMQxvMOJfOrE9syB6YtOVCLkbE5JSuPFH/mclQSwXuZFrB1+kpJcQ/7I7SAg5Dg+d3EdLXneHVQAVtojBFOGRuDhaMdzProadKZmoy+XgB1Dhy++BlYW5wwlU73aA8hP63wOlWTgfbmUiYWfkszJWbbak2FOLyulOjr1Qg8oAXnr/TPFZz4/Lf7ONK/HUk9TKQWrvEDvoVa/IG44pijq83WdLsQpYCU5MQd6wazyAhtZZah6tLB75Zevg42TYO8ZbXEURyfd5OKfROgYHR+8kYvUm9C91JzPZzt4dC3RkU49/K6mFuyylhlgSzgBj0G5hOtGZw4mwszttMkDyhDTHIxLrQHN7NQLymSWk5zME8Z2qCN7NHrZRadgTcBKp6O19cU6IuIDREjJ+jgRhab0/2FiyUjHHXEQUJXQzjhanLfl8l6GMiwFTYCNf1UFMdkWlBnLNgMkIGNhljLLAInbhnd0wP/5XHB1PvI1qpAL7oTR3KLk7T1fPfSSmecZKDEsKpcUJmv9dqiPNtY/DSiht2QIzDVjlQY2obCYrZg6zrKRiI/OT489UhSwuPClJUw1rEnua020c7SuE5dz+Mnn
+X-Forefront-Antispam-Report: CIP:158.140.1.147;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:sjmaillnx1.cadence.com;PTR:unknown.Cadence.COM;CAT:NONE;SFS:(13230022)(4636009)(39860400002)(346002)(396003)(376002)(136003)(36092001)(451199015)(46966006)(36840700001)(40470700004)(8676002)(34020700004)(4326008)(36756003)(82310400005)(70586007)(70206006)(5660300002)(8936002)(41300700001)(478600001)(40460700003)(6666004)(86362001)(26005)(54906003)(42186006)(6916009)(83380400001)(316002)(1076003)(426003)(336012)(47076005)(2616005)(82740400003)(186003)(356005)(7636003)(36860700001)(40480700001)(2906002);DIR:OUT;SFP:1101;
+X-OriginatorOrg: cadence.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Dec 2022 09:09:53.0544
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1206d009-23f3-4946-3b7d-08dae3fc4984
+X-MS-Exchange-CrossTenant-Id: d36035c5-6ce6-4662-a3dc-e762e61ae4c9
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=d36035c5-6ce6-4662-a3dc-e762e61ae4c9;Ip=[158.140.1.147];Helo=[sjmaillnx1.cadence.com]
+X-MS-Exchange-CrossTenant-AuthSource: MW2NAM12FT047.eop-nam12.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR07MB5909
+X-Proofpoint-ORIG-GUID: J399LHw07xAOgMC3OqvXSDz02gAFIHhR
+X-Proofpoint-GUID: J399LHw07xAOgMC3OqvXSDz02gAFIHhR
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-12-22_03,2022-12-21_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_check_notspam policy=outbound_check score=0 clxscore=1011
+ bulkscore=0 suspectscore=0 spamscore=0 mlxscore=0 lowpriorityscore=0
+ priorityscore=1501 impostorscore=0 mlxlogscore=999 malwarescore=0
+ adultscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2212220080
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 22, 2022 at 07:29:12AM +0000, Jimmy Hu wrote:
-> When the host controller is not responding, all URBs queued to all
-> endpoints need to be killed. This can cause a kernel panic if we
-> dereference an invalid endpoint.
-> 
-> Fix this by using xhci_get_virt_ep() helper to find the endpoint and
-> checking if the endpoint is valid before dereferencing it.
-> 
-> [233311.853271] xhci-hcd xhci-hcd.1.auto: xHCI host controller not responding, assume dead
-> [233311.853393] Unable to handle kernel NULL pointer dereference at virtual address 00000000000000e8
-> 
-> [233311.853964] pc : xhci_hc_died+0x10c/0x270
-> [233311.853971] lr : xhci_hc_died+0x1ac/0x270
-> 
-> [233311.854077] Call trace:
-> [233311.854085]  xhci_hc_died+0x10c/0x270
-> [233311.854093]  xhci_stop_endpoint_command_watchdog+0x100/0x1a4
-> [233311.854105]  call_timer_fn+0x50/0x2d4
-> [233311.854112]  expire_timers+0xac/0x2e4
-> [233311.854118]  run_timer_softirq+0x300/0xabc
-> [233311.854127]  __do_softirq+0x148/0x528
-> [233311.854135]  irq_exit+0x194/0x1a8
-> [233311.854143]  __handle_domain_irq+0x164/0x1d0
-> [233311.854149]  gic_handle_irq.22273+0x10c/0x188
-> [233311.854156]  el1_irq+0xfc/0x1a8
-> [233311.854175]  lpm_cpuidle_enter+0x25c/0x418 [msm_pm]
-> [233311.854185]  cpuidle_enter_state+0x1f0/0x764
-> [233311.854194]  do_idle+0x594/0x6ac
-> [233311.854201]  cpu_startup_entry+0x7c/0x80
-> [233311.854209]  secondary_start_kernel+0x170/0x198
-> 
-> Fixes: 50e8725e7c42 ("xhci: Refactor command watchdog and fix split string.")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Jimmy Hu <hhhuuu@google.com>
-> ---
->  drivers/usb/host/xhci-ring.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
-> index ddc30037f9ce..f5b0e1ce22af 100644
-> --- a/drivers/usb/host/xhci-ring.c
-> +++ b/drivers/usb/host/xhci-ring.c
-> @@ -1169,7 +1169,10 @@ static void xhci_kill_endpoint_urbs(struct xhci_hcd *xhci,
->  	struct xhci_virt_ep *ep;
->  	struct xhci_ring *ring;
->  
-> -	ep = &xhci->devs[slot_id]->eps[ep_index];
-> +	ep = xhci_get_virt_ep(xhci, slot_id, ep_index);
-> +	if (!ep)
-> +		return;
-> +
+Patch implements scatter gather support for isochronous endpoint.
+This fix is forced by 'commit e81e7f9a0eb9
+("usb: gadget: uvc: add scatter gather support")'.
+After this fix CDNSP driver stop working with UVC class.
 
-xhci_get_virt_ep also adds check for slot_id == 0. It changes behaviour,
-do we really want to skip that slot? Original code went from 0 to
-MAX_HC_SLOTS-1.
+cc: <stable@vger.kernel.org>
+Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+---
+ drivers/usb/cdns3/cdnsp-gadget.c |   2 +-
+ drivers/usb/cdns3/cdnsp-gadget.h |   4 +-
+ drivers/usb/cdns3/cdnsp-ring.c   | 110 +++++++++++++++++--------------
+ 3 files changed, 63 insertions(+), 53 deletions(-)
 
-It seems to be off by one to me. Am I missing anything?
-Also, what about passing ep directly to xhci_kill_endpoint_urbs
-and do the check in xhci_hc_died? Not even compile tested:
-
-diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
-index ddc30037f9ce..5dac483c562a 100644
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -1162,14 +1162,12 @@ static void xhci_kill_ring_urbs(struct xhci_hcd *xhci, struct xhci_ring *ring)
+diff --git a/drivers/usb/cdns3/cdnsp-gadget.c b/drivers/usb/cdns3/cdnsp-gadget.c
+index a8640516c895..e81dca0e62a8 100644
+--- a/drivers/usb/cdns3/cdnsp-gadget.c
++++ b/drivers/usb/cdns3/cdnsp-gadget.c
+@@ -382,7 +382,7 @@ int cdnsp_ep_enqueue(struct cdnsp_ep *pep, struct cdnsp_request *preq)
+ 		ret = cdnsp_queue_bulk_tx(pdev, preq);
+ 		break;
+ 	case USB_ENDPOINT_XFER_ISOC:
+-		ret = cdnsp_queue_isoc_tx_prepare(pdev, preq);
++		ret = cdnsp_queue_isoc_tx(pdev, preq);
+ 	}
+ 
+ 	if (ret)
+diff --git a/drivers/usb/cdns3/cdnsp-gadget.h b/drivers/usb/cdns3/cdnsp-gadget.h
+index f740fa6089d8..e1b5801fdddf 100644
+--- a/drivers/usb/cdns3/cdnsp-gadget.h
++++ b/drivers/usb/cdns3/cdnsp-gadget.h
+@@ -1532,8 +1532,8 @@ void cdnsp_queue_stop_endpoint(struct cdnsp_device *pdev,
+ 			       unsigned int ep_index);
+ int cdnsp_queue_ctrl_tx(struct cdnsp_device *pdev, struct cdnsp_request *preq);
+ int cdnsp_queue_bulk_tx(struct cdnsp_device *pdev, struct cdnsp_request *preq);
+-int cdnsp_queue_isoc_tx_prepare(struct cdnsp_device *pdev,
+-				struct cdnsp_request *preq);
++int cdnsp_queue_isoc_tx(struct cdnsp_device *pdev,
++			struct cdnsp_request *preq);
+ void cdnsp_queue_configure_endpoint(struct cdnsp_device *pdev,
+ 				    dma_addr_t in_ctx_ptr);
+ void cdnsp_queue_reset_ep(struct cdnsp_device *pdev, unsigned int ep_index);
+diff --git a/drivers/usb/cdns3/cdnsp-ring.c b/drivers/usb/cdns3/cdnsp-ring.c
+index b23e543b3a3d..07f6068342d4 100644
+--- a/drivers/usb/cdns3/cdnsp-ring.c
++++ b/drivers/usb/cdns3/cdnsp-ring.c
+@@ -1333,6 +1333,20 @@ static int cdnsp_handle_tx_event(struct cdnsp_device *pdev,
+ 					 ep_ring->dequeue, td->last_trb,
+ 					 ep_trb_dma);
+ 
++		desc = td->preq->pep->endpoint.desc;
++
++		if (ep_seg) {
++			ep_trb = &ep_seg->trbs[(ep_trb_dma - ep_seg->dma)
++					       / sizeof(*ep_trb)];
++
++			trace_cdnsp_handle_transfer(ep_ring,
++					(struct cdnsp_generic_trb *)ep_trb);
++
++			if (pep->skip && usb_endpoint_xfer_isoc(desc) &&
++			    td->last_trb != ep_trb)
++				return -EAGAIN;
++		}
++
+ 		/*
+ 		 * Skip the Force Stopped Event. The event_trb(ep_trb_dma)
+ 		 * of FSE is not in the current TD pointed by ep_ring->dequeue
+@@ -1347,7 +1361,6 @@ static int cdnsp_handle_tx_event(struct cdnsp_device *pdev,
+ 			goto cleanup;
+ 		}
+ 
+-		desc = td->preq->pep->endpoint.desc;
+ 		if (!ep_seg) {
+ 			if (!pep->skip || !usb_endpoint_xfer_isoc(desc)) {
+ 				/* Something is busted, give up! */
+@@ -1374,12 +1387,6 @@ static int cdnsp_handle_tx_event(struct cdnsp_device *pdev,
+ 			goto cleanup;
+ 		}
+ 
+-		ep_trb = &ep_seg->trbs[(ep_trb_dma - ep_seg->dma)
+-				       / sizeof(*ep_trb)];
+-
+-		trace_cdnsp_handle_transfer(ep_ring,
+-					    (struct cdnsp_generic_trb *)ep_trb);
+-
+ 		if (cdnsp_trb_is_noop(ep_trb))
+ 			goto cleanup;
+ 
+@@ -1726,11 +1733,6 @@ static unsigned int count_sg_trbs_needed(struct cdnsp_request *preq)
+ 	return num_trbs;
  }
  
- static void xhci_kill_endpoint_urbs(struct xhci_hcd *xhci,
--		int slot_id, int ep_index)
-+		struct xhci_virt_ep *ep)
+-static unsigned int count_isoc_trbs_needed(struct cdnsp_request *preq)
+-{
+-	return cdnsp_count_trbs(preq->request.dma, preq->request.length);
+-}
+-
+ static void cdnsp_check_trb_math(struct cdnsp_request *preq, int running_total)
  {
- 	struct xhci_td *cur_td;
- 	struct xhci_td *tmp;
--	struct xhci_virt_ep *ep;
- 	struct xhci_ring *ring;
+ 	if (running_total != preq->request.length)
+@@ -2192,28 +2194,48 @@ static unsigned int
+ }
  
--	ep = &xhci->devs[slot_id]->eps[ep_index];
- 	if ((ep->ep_state & EP_HAS_STREAMS) ||
- 			(ep->ep_state & EP_GETTING_NO_STREAMS)) {
- 		int stream_id;
-@@ -1180,18 +1178,12 @@ static void xhci_kill_endpoint_urbs(struct xhci_hcd *xhci,
- 			if (!ring)
- 				continue;
+ /* Queue function isoc transfer */
+-static int cdnsp_queue_isoc_tx(struct cdnsp_device *pdev,
+-			       struct cdnsp_request *preq)
++int cdnsp_queue_isoc_tx(struct cdnsp_device *pdev,
++			struct cdnsp_request *preq)
+ {
+-	int trb_buff_len, td_len, td_remain_len, ret;
++	unsigned int trb_buff_len, td_len, td_remain_len, block_len;
+ 	unsigned int burst_count, last_burst_pkt;
+ 	unsigned int total_pkt_count, max_pkt;
+ 	struct cdnsp_generic_trb *start_trb;
++	struct scatterlist *sg = NULL;
+ 	bool more_trbs_coming = true;
+ 	struct cdnsp_ring *ep_ring;
++	unsigned int num_sgs = 0;
+ 	int running_total = 0;
+ 	u32 field, length_field;
++	u64 addr, send_addr;
+ 	int start_cycle;
+ 	int trbs_per_td;
+-	u64 addr;
+-	int i;
++	int i, sent_len, ret;
  
--			xhci_dbg_trace(xhci, trace_xhci_dbg_cancel_urb,
--					"Killing URBs for slot ID %u, ep index %u, stream %u",
--					slot_id, ep_index, stream_id);
- 			xhci_kill_ring_urbs(xhci, ring);
+ 	ep_ring = preq->pep->ring;
++
++	td_len = preq->request.length;
++
++	if (preq->request.num_sgs) {
++		num_sgs = preq->request.num_sgs;
++		sg = preq->request.sg;
++		addr = (u64)sg_dma_address(sg);
++		block_len = sg_dma_len(sg);
++		trbs_per_td = count_sg_trbs_needed(preq);
++	} else {
++		addr = (u64)preq->request.dma;
++		block_len = td_len;
++		trbs_per_td = count_trbs_needed(preq);
++	}
++
++	ret = cdnsp_prepare_transfer(pdev, preq, trbs_per_td);
++	if (ret)
++		return ret;
++
+ 	start_trb = &ep_ring->enqueue->generic;
+ 	start_cycle = ep_ring->cycle_state;
+-	td_len = preq->request.length;
+-	addr = (u64)preq->request.dma;
+ 	td_remain_len = td_len;
++	send_addr = addr;
+ 
+ 	max_pkt = usb_endpoint_maxp(preq->pep->endpoint.desc);
+ 	total_pkt_count = DIV_ROUND_UP(td_len, max_pkt);
+@@ -2225,11 +2247,6 @@ static int cdnsp_queue_isoc_tx(struct cdnsp_device *pdev,
+ 	burst_count = cdnsp_get_burst_count(pdev, preq, total_pkt_count);
+ 	last_burst_pkt = cdnsp_get_last_burst_packet_count(pdev, preq,
+ 							   total_pkt_count);
+-	trbs_per_td = count_isoc_trbs_needed(preq);
+-
+-	ret = cdnsp_prepare_transfer(pdev, preq, trbs_per_td);
+-	if (ret)
+-		goto cleanup;
+ 
+ 	/*
+ 	 * Set isoc specific data for the first TRB in a TD.
+@@ -2248,6 +2265,7 @@ static int cdnsp_queue_isoc_tx(struct cdnsp_device *pdev,
+ 
+ 		/* Calculate TRB length. */
+ 		trb_buff_len = TRB_BUFF_LEN_UP_TO_BOUNDARY(addr);
++		trb_buff_len = min(trb_buff_len, block_len);
+ 		if (trb_buff_len > td_remain_len)
+ 			trb_buff_len = td_remain_len;
+ 
+@@ -2256,7 +2274,8 @@ static int cdnsp_queue_isoc_tx(struct cdnsp_device *pdev,
+ 					       trb_buff_len, td_len, preq,
+ 					       more_trbs_coming, 0);
+ 
+-		length_field = TRB_LEN(trb_buff_len) | TRB_INTR_TARGET(0);
++		length_field = TRB_LEN(trb_buff_len) | TRB_TD_SIZE(remainder) |
++			TRB_INTR_TARGET(0);
+ 
+ 		/* Only first TRB is isoc, overwrite otherwise. */
+ 		if (i) {
+@@ -2281,12 +2300,27 @@ static int cdnsp_queue_isoc_tx(struct cdnsp_device *pdev,
  		}
- 	} else {
- 		ring = ep->ring;
- 		if (!ring)
- 			return;
--		xhci_dbg_trace(xhci, trace_xhci_dbg_cancel_urb,
--				"Killing URBs for slot ID %u, ep index %u",
--				slot_id, ep_index);
- 		xhci_kill_ring_urbs(xhci, ring);
- 	}
  
-@@ -1217,6 +1209,7 @@ static void xhci_kill_endpoint_urbs(struct xhci_hcd *xhci,
- void xhci_hc_died(struct xhci_hcd *xhci)
- {
- 	int i, j;
-+	struct xhci_virt_ep *ep;
+ 		cdnsp_queue_trb(pdev, ep_ring, more_trbs_coming,
+-				lower_32_bits(addr), upper_32_bits(addr),
++				lower_32_bits(send_addr), upper_32_bits(send_addr),
+ 				length_field, field);
  
- 	if (xhci->xhc_state & XHCI_STATE_DYING)
- 		return;
-@@ -1227,11 +1220,14 @@ void xhci_hc_died(struct xhci_hcd *xhci)
- 	xhci_cleanup_command_queue(xhci);
- 
- 	/* return any pending urbs, remove may be waiting for them */
--	for (i = 0; i <= HCS_MAX_SLOTS(xhci->hcs_params1); i++) {
-+	for (i = 0; i < HCS_MAX_SLOTS(xhci->hcs_params1); i++) {
- 		if (!xhci->devs[i])
- 			continue;
--		for (j = 0; j < 31; j++)
--			xhci_kill_endpoint_urbs(xhci, i, j);
-+		for (j = 0; j < EP_CTX_PER_DEV; j++) {
-+			ep = &xhci->devs[i]->eps[j];
-+			if (ep)
-+				xhci_kill_endpoint_urbs(xhci, ep);
+ 		running_total += trb_buff_len;
+ 		addr += trb_buff_len;
+ 		td_remain_len -= trb_buff_len;
++
++		sent_len = trb_buff_len;
++		while (sg && sent_len >= block_len) {
++			/* New sg entry */
++			--num_sgs;
++			sent_len -= block_len;
++			if (num_sgs != 0) {
++				sg = sg_next(sg);
++				block_len = sg_dma_len(sg);
++				addr = (u64)sg_dma_address(sg);
++				addr += sent_len;
++			}
 +		}
++		block_len -= sent_len;
++		send_addr = addr;
  	}
  
- 	/* inform usb core hc died if PCI remove isn't already handling it */
->  	if ((ep->ep_state & EP_HAS_STREAMS) ||
->  			(ep->ep_state & EP_GETTING_NO_STREAMS)) {
->  		int stream_id;
-> -- 
-> 2.39.0.314.g84b9a713c41-goog
+ 	/* Check TD length */
+@@ -2324,30 +2358,6 @@ static int cdnsp_queue_isoc_tx(struct cdnsp_device *pdev,
+ 	return ret;
+ }
+ 
+-int cdnsp_queue_isoc_tx_prepare(struct cdnsp_device *pdev,
+-				struct cdnsp_request *preq)
+-{
+-	struct cdnsp_ring *ep_ring;
+-	u32 ep_state;
+-	int num_trbs;
+-	int ret;
+-
+-	ep_ring = preq->pep->ring;
+-	ep_state = GET_EP_CTX_STATE(preq->pep->out_ctx);
+-	num_trbs = count_isoc_trbs_needed(preq);
+-
+-	/*
+-	 * Check the ring to guarantee there is enough room for the whole
+-	 * request. Do not insert any td of the USB Request to the ring if the
+-	 * check failed.
+-	 */
+-	ret = cdnsp_prepare_ring(pdev, ep_ring, ep_state, num_trbs, GFP_ATOMIC);
+-	if (ret)
+-		return ret;
+-
+-	return cdnsp_queue_isoc_tx(pdev, preq);
+-}
+-
+ /****		Command Ring Operations		****/
+ /*
+  * Generic function for queuing a command TRB on the command ring.
+-- 
+2.25.1
+
