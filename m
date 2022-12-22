@@ -2,101 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C8636546F4
-	for <lists+stable@lfdr.de>; Thu, 22 Dec 2022 21:01:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C26D4654708
+	for <lists+stable@lfdr.de>; Thu, 22 Dec 2022 21:17:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229548AbiLVUBf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Dec 2022 15:01:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43090 "EHLO
+        id S235519AbiLVURM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Dec 2022 15:17:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229504AbiLVUBe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Dec 2022 15:01:34 -0500
-Received: from mail-io1-xd36.google.com (mail-io1-xd36.google.com [IPv6:2607:f8b0:4864:20::d36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41B8918343
-        for <stable@vger.kernel.org>; Thu, 22 Dec 2022 12:01:32 -0800 (PST)
-Received: by mail-io1-xd36.google.com with SMTP id 3so1522143iou.12
-        for <stable@vger.kernel.org>; Thu, 22 Dec 2022 12:01:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=DcIP7sVO2A0wryRpupzUPWQywPt7sc4xyWCvZop1t1s=;
-        b=Ci6XUSjI37v7lXKUr/R1xvMBpl4oOdnD7zfSDs58fCZm7eLt4i4PwYNQ9K5JrqMwHY
-         yElRIBj8bTcTPTD5jlXdlCu+10UJ+m6umZOJKvaxYbiPaCJXhF72T3HfYI9BZJ0nkh2P
-         O64nxapZPgBOosihJdNN498viCLMaxmLrKnpVX2Gql5R5658wpDwR7dY6e2OsmbdgGrA
-         2WUoa3KoWRsUzSDR3xqD8sMH5HtTx3fpdjRekcxUjlXOrwYYaTPEM8Eoy6V1cEQ9bxSI
-         a6Y//2mIxv3FCPdFEIte3MG5AMfaF8brLTsU2hfkPG/3giuFKftG0aMdYn03xqo1xV+m
-         JFgQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=DcIP7sVO2A0wryRpupzUPWQywPt7sc4xyWCvZop1t1s=;
-        b=rKQiptpE03J6LWCjOIkszmmIXqQwQCN9Bl5Fce+ByPziG2D/FgnPrFNMotvRGNEoNP
-         e58uQX4gYAVRDLqDhE+254uCzyoF5YV9JFmeaOCXjHSwqXY68Kbamqr1e3r3UzNux95H
-         L83oKxiXZRKwsdMOro4fNZS1MO1HDZRctby09WBR8CGH4ryy9yII0PmRdKrRRSubz9lp
-         EakVqrcoj+JwfPJqF+Mcx2iGQF4LmMx9WLzQPco9GpYajh3oanY1fZDAgtxdjxHsjoq7
-         E2oUXjkCevDYNI0Hhbwy2/Lddla00XyGXr5lPWc/+tJboMDsi4VrsJd/1XLvHa/6f7be
-         euUw==
-X-Gm-Message-State: AFqh2kqs4hnVFT8iQ30jtKaZ4/oKYUmlKHL3Rw9h3CiOSIk2vbiNw5Ai
-        r75Ifa9uz2XpNKw3P1tBJ4J50p6QNfhIwRBv+2U=
-X-Google-Smtp-Source: AMrXdXtCNQ2HTuXUDmf5gZ6REuWIRfDco24qRtlf+J2s02WU2Znuc/9sqHZmhWcmkGELcPg5lf1UgomcT1Gtddal2r4=
-X-Received: by 2002:a02:a60c:0:b0:38a:9373:c48b with SMTP id
- c12-20020a02a60c000000b0038a9373c48bmr562974jam.216.1671739291630; Thu, 22
- Dec 2022 12:01:31 -0800 (PST)
+        with ESMTP id S235503AbiLVURJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Dec 2022 15:17:09 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC532FD06
+        for <stable@vger.kernel.org>; Thu, 22 Dec 2022 12:16:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1671740183;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=e6xBxYFAMVlhbpKMfEQCPQ1Pgjllc4ppXfabrgMIyFA=;
+        b=HSyYNCEd1J/M/RcuSuKVjzyVXHDmpwK9+gEUKl+NK8P2b1IVzXRdUuYlGRVOYR1VUBGZqV
+        RUYbXOFjX57LQQmt8zR8i+0HaFbs5z+dXKoSC2f9mCH5PSInav0mnieA+BDF4NysM6KbGh
+        5zcg1i1zOt7ay+j2YdQRPT1SCwznK9s=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-572-xbPFMbCcPDWhbwxhLollgw-1; Thu, 22 Dec 2022 15:16:17 -0500
+X-MC-Unique: xbPFMbCcPDWhbwxhLollgw-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id DF6398533AE;
+        Thu, 22 Dec 2022 20:16:16 +0000 (UTC)
+Received: from [10.22.33.48] (unknown [10.22.33.48])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 1DBB8492B00;
+        Thu, 22 Dec 2022 20:16:16 +0000 (UTC)
+Message-ID: <0b70f4c8-55ce-a5cd-cab7-7dfe70e60e99@redhat.com>
+Date:   Thu, 22 Dec 2022 15:16:15 -0500
 MIME-Version: 1.0
-Received: by 2002:a05:6638:3395:0:0:0:0 with HTTP; Thu, 22 Dec 2022 12:01:31
- -0800 (PST)
-Reply-To: Mrschantal1985@proton.me
-From:   Mrs chanta R <af222334@gmail.com>
-Date:   Thu, 22 Dec 2022 20:01:31 +0000
-Message-ID: <CAA5aZeK2k+rkpSiu58NKzz-qEcFNrgiZrO8hjHBSPSEf8KvdoQ@mail.gmail.com>
-Subject: Greetings, I am Mrs. Chantal. I got your contact information from a
- reputable business/professional directory.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=7.1 required=5.0 tests=ADVANCE_FEE_3_NEW_MONEY,
-        BAYES_50,DEAR_FRIEND,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,
-        DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,LOTS_OF_MONEY,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_HK_NAME_FM_MR_MRS,
-        UNDISC_MONEY autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5246]
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [af222334[at]gmail.com]
-        * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:d36 listed in]
-        [list.dnswl.org]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [af222334[at]gmail.com]
-        *  2.6 DEAR_FRIEND BODY: Dear Friend? That's not very dear!
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        *  0.0 LOTS_OF_MONEY Huge... sums of money
-        *  0.0 T_HK_NAME_FM_MR_MRS No description available.
-        *  2.4 UNDISC_MONEY Undisclosed recipients + money/fraud signs
-        *  1.2 ADVANCE_FEE_3_NEW_MONEY Advance Fee fraud and lots of money
-X-Spam-Level: *******
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.0
+Subject: Re: [PATCH-tip v2] sched: Fix use-after-free bug in
+ dup_user_cpus_ptr()
+Content-Language: en-US
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     Ingo Molnar <mingo@redhat.com>, Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Phil Auld <pauld@redhat.com>,
+        Wenjie Li <wenjieli@qti.qualcomm.com>,
+        =?UTF-8?B?RGF2aWQgV2FuZyDnjovmoIc=?= <wangbiao3@xiaomi.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20221205164832.2151247-1-longman@redhat.com>
+ <Y6SxNwUn7/4/8IQa@hirez.programming.kicks-ass.net>
+From:   Waiman Long <longman@redhat.com>
+In-Reply-To: <Y6SxNwUn7/4/8IQa@hirez.programming.kicks-ass.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.10
+X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear friend
 
-I have a business proposal worth the sum of 6 million dollars, Kindly
-notify me if interested.
+On 12/22/22 14:34, Peter Zijlstra wrote:
+> On Mon, Dec 05, 2022 at 11:48:32AM -0500, Waiman Long wrote:
+>> Since commit 07ec77a1d4e8 ("sched: Allow task CPU affinity to be
+>> restricted on asymmetric systems"), the setting and clearing of
+>> user_cpus_ptr are done under pi_lock for arm64 architecture. However,
+>> dup_user_cpus_ptr() accesses user_cpus_ptr without any lock
+>> protection. When racing with the clearing of user_cpus_ptr in
+>> __set_cpus_allowed_ptr_locked(), it can lead to user-after-free and
+>> double-free in arm64 kernel.
+> How? the task cannot be in migrate_enable() and fork() at the same time,
+> no?
+>
+I believe a task A can call sched_setaffinity() to modify the cpu 
+affinity of a different task, say B, which can be under fork() at the 
+same time. So we need to use the pi_lock to synchronize the access of 
+user_cpus_ptr to avoid the kind of race that can cause double-free.
 
-Thanks
-Mrs Chantel
+Cheers,
+Longman
+
