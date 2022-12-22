@@ -2,100 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68E80653CC4
-	for <lists+stable@lfdr.de>; Thu, 22 Dec 2022 09:07:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53F0E653D06
+	for <lists+stable@lfdr.de>; Thu, 22 Dec 2022 09:36:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229630AbiLVIH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Dec 2022 03:07:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49798 "EHLO
+        id S235107AbiLVIgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Dec 2022 03:36:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229567AbiLVIHZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Dec 2022 03:07:25 -0500
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3B1D18B2E;
-        Thu, 22 Dec 2022 00:07:24 -0800 (PST)
-Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1p8Gbq-0005kI-JY; Thu, 22 Dec 2022 09:07:22 +0100
-Message-ID: <918e41dd-e5ea-9dc5-e6d4-5d524f317d18@leemhuis.info>
-Date:   Thu, 22 Dec 2022 09:07:21 +0100
+        with ESMTP id S234965AbiLVIgF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Dec 2022 03:36:05 -0500
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEABC20BF5
+        for <stable@vger.kernel.org>; Thu, 22 Dec 2022 00:36:02 -0800 (PST)
+Received: by mail-ej1-x631.google.com with SMTP id x22so3182517ejs.11
+        for <stable@vger.kernel.org>; Thu, 22 Dec 2022 00:36:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=TOfc7EGG83O/xS/Uaar9/uexk/8D+4jXs6c0U4ftxC0=;
+        b=gfHxNAQcIb72vXPpnCGJHdtH5YsR+5yf953FvOjGAhWm3ROz2AVyy9CDJBLeNf0Xsf
+         g9Eh9BgzRGBI33iFH5EZMV1EyIo7qyQnOzqYxqpf0Gjth3XeVsWoNbJNSN2vNy6sOFuW
+         Wsug4Breu+GJr9uWJSgyuWFyAkODYy3I0LhGAhQx8d/XTHDWTyujMAqRk8IKCo3XupVR
+         EtXTA5QFtT71L7oUN1XfeOIi1qNPuI4Ftw7zc5iri5clz6gloEaAgmrsnTwzIJpV7zKC
+         Y4ovHaf0puufxFDIxFt9QIkeiNIL/eHaZGlBfSNoMU4eDIyvuDDHx7q4G0Acjva9LNJa
+         JpOA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=TOfc7EGG83O/xS/Uaar9/uexk/8D+4jXs6c0U4ftxC0=;
+        b=mwTobPKmhIJVKEI/tBykGvGeKeOxYXnx0fy8nuYQUxrfUpKnNMorMqG/MI4RwpSV+V
+         EWV/yGIWk1jWABzVDEMk+2pKxMgBkBnoSaeLzdjhZVByXB2zaGqcr0MZPrSEg5Cz4PsX
+         PogHEQlmT7qH51L+nfAZ8+vp0TCILZ0HC0+TKTktMO58bqeO09NyRol8HG7DJmhVfl/1
+         tOmivNNS8/fvNZToGsoofAzRXqsltHe2f1O1JHaIk1QbmyZR/nC94HAHWGmxOSgIewH4
+         zGxqPaSodDDUtRQTNRXyJ6gSTKtOQ6kqr0OCLIbyp2sk0j6y/GoZcF7CZMPxgV0onT6j
+         etRQ==
+X-Gm-Message-State: AFqh2koTyT9Ct8uHdjenf8IqNjlNBISDDEH4fbgumUDGF5JUUyZF8nKo
+        Oejngg14peQm881Aug7IAb/vLhBKZs4YqGZi
+X-Google-Smtp-Source: AMrXdXufKakRH5nGU5aUpV3tx6ejjMjOfwfADHcgGBq0LAtF8x6ieGOMYJpFB7vOGDLs3YVRR2cQ7Q==
+X-Received: by 2002:a17:907:80ce:b0:7c1:26b9:c556 with SMTP id io14-20020a17090780ce00b007c126b9c556mr4429988ejc.15.1671698161125;
+        Thu, 22 Dec 2022 00:36:01 -0800 (PST)
+Received: from alba.. ([82.77.81.131])
+        by smtp.gmail.com with ESMTPSA id t16-20020a1709060c5000b007c14ae38a80sm7987721ejf.122.2022.12.22.00.35.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 Dec 2022 00:36:00 -0800 (PST)
+From:   Tudor Ambarus <tudor.ambarus@linaro.org>
+To:     stable@vger.kernel.org
+Cc:     willemdebruijn.kernel@gmail.com, mst@redhat.com,
+        jasowang@redhat.com, edumazet@google.com,
+        virtualization@lists.linux-foundation.org, davem@davemloft.net,
+        kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org,
+        willemb@google.com, syzkaller@googlegroups.com,
+        liuhangbin@gmail.com, linux-kernel@vger.kernel.org,
+        joneslee@google.com, Tudor Ambarus <tudor.ambarus@linaro.org>
+Subject: [PATCH 0/2] net/af_packet: Fix kernel BUG in __skb_gso_segment
+Date:   Thu, 22 Dec 2022 10:35:43 +0200
+Message-Id: <20221222083545.1972489-1-tudor.ambarus@linaro.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.1
-Subject: Re: [PATCH 6.1 00/25] 6.1.1-rc1 review
-Content-Language: en-US, de-DE
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        akpm@linux-foundation.org, Vlastimil Babka <vbabka@suse.cz>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>
-References: <20221219182943.395169070@linuxfoundation.org>
- <20221220150049.GE3748047@roeck-us.net> <Y6HQfwEnw75iajYr@kroah.com>
- <20221220161135.GA1983195@roeck-us.net>
- <e3b06c93-1985-a958-871a-bfd73646c38a@kernel.org>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-In-Reply-To: <e3b06c93-1985-a958-871a-bfd73646c38a@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1671696445;fb6d1a39;
-X-HE-SMSGID: 1p8Gbq-0005kI-JY
-X-Spam-Status: No, score=-3.0 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 21.12.22 07:34, Jiri Slaby wrote:
-> On 20. 12. 22, 17:11, Guenter Roeck wrote:
->> You probably didn't see any reports on mainline because I didn't report
->> the issue there yet. There are so many failures in mainline that it is
->> a bit difficult to keep up.
-> 
-> Just heads up, these are breakages in 6.1 known to me:
-> 
-> an io_uring 32bit test crashes the kernel:
-> https://lore.kernel.org/all/c80c1e3f-800b-dc49-f2f5-acc8ceb34d51@gmail.com/
-> 
-> Fixed in io_uring tree.
+The series is intended for stable@vger.kernel.org # 5.4+
 
-Just BTW: afaics the fix is now in mainline as 990a4de57e44
+Syzkaller reported the following bug on linux-5.{4, 10, 15}.y:
+https://syzkaller.appspot.com/bug?id=ce5575575f074c33ff80d104f5baee26f22e95f5
 
-> bind() of previously bound port no longer fails:
-> https://lore.kernel.org/all/6b971a4e-c7d8-411e-1f92-fda29b5b2fb9@kernel.org/
-> 
-> No fix available and revert close to impossible.
+The upstream commit that introduces this bug is:
+1ed1d5921139 ("net: skip virtio_net_hdr_set_proto if protocol already set")
 
-Also just BTW: fix posted yesterday.
+Upstream fixes the bug with the following commits, one of which introduces
+new support:
+e9d3f80935b6 ("net/af_packet: make sure to pull mac header")
+dfed913e8b55 ("net/af_packet: add VLAN support for AF_PACKET SOCK_RAW GSO") 
 
-> And most important, mremap() is broken in 6.1, so mostly everything
-> fails in some random way:
-> https://lore.kernel.org/all/20221216163227.24648-1-vbabka@suse.cz/T/#u
-> 
-> Fixed in -mm.
+The additional logic and risk backported seems manageable.
 
-That one seems to fix an annoying issue many people might run into (at
-least it looks like it to my untrained eyes), which is the reason why I
-write this mail.
+The blammed commit introduces a kernel BUG in __skb_gso_segment for
+AF_PACKET SOCK_RAW GSO VLAN tagged packets. What happens is that
+virtio_net_hdr_set_proto() exists early as skb->protocol is already set to
+ETH_P_ALL. Then in packet_parse_headers() skb->protocol is set to
+ETH_P_8021AD, but neither the network header position is adjusted, nor the
+mac header is pulled. Thus when we get to validate the xmit skb and enter
+skb_mac_gso_segment(), skb->mac_len has value 14, but vlan_depth gets
+updated to 18 after skb_network_protocol() is called. This causes the
+BUG_ON from __skb_pull(skb, vlan_depth) to be hit, as the mac header has
+not been pulled yet.
 
-Andrew moved that fix from mm-hotfixes-unstable to mm-hotfixes-stable
-yesterday and I assume he'll send it to Linus pretty soon now to ensure
-it makes it into -rc1, so that the stable team can pick it up. It might
-be a bad season to ask this, but that made me wonder:
+The fixes from upstream backported cleanly without conflicts. I updated
+the commit message of the first patch to describe the problem encountered,
+and added Cc, Fixes, Reported-by and Tested-by tags. For the second patch
+I just added Cc to stable indicating the versions to be fixed, and added
+my Tested and Signed-off-by tags.
 
-Should that patch have progressed quicker? And if so: how to make that
-happen when a similar situation arises in the future? Should somebody
-(the developer of the patch? me?) kindly ask the maintainer in question
-to sent the fix straight to Linus once it spend 1 or 2 days in next?
+I tested the patches on linux-5.{4, 10, 15}.y.
 
-It's not the first time that I see something like this, that's why I'm
-wondering if I should do something in such situations.
+Eric Dumazet (1):
+  net/af_packet: make sure to pull mac header
 
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+Hangbin Liu (1):
+  net/af_packet: add VLAN support for AF_PACKET SOCK_RAW GSO
+
+ net/packet/af_packet.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
+
+-- 
+2.34.1
+
