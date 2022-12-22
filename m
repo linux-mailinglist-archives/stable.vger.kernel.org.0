@@ -2,95 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C26D4654708
-	for <lists+stable@lfdr.de>; Thu, 22 Dec 2022 21:17:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ACC265478B
+	for <lists+stable@lfdr.de>; Thu, 22 Dec 2022 21:53:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235519AbiLVURM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Dec 2022 15:17:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46198 "EHLO
+        id S229627AbiLVUxP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Dec 2022 15:53:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235503AbiLVURJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Dec 2022 15:17:09 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC532FD06
-        for <stable@vger.kernel.org>; Thu, 22 Dec 2022 12:16:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1671740183;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=e6xBxYFAMVlhbpKMfEQCPQ1Pgjllc4ppXfabrgMIyFA=;
-        b=HSyYNCEd1J/M/RcuSuKVjzyVXHDmpwK9+gEUKl+NK8P2b1IVzXRdUuYlGRVOYR1VUBGZqV
-        RUYbXOFjX57LQQmt8zR8i+0HaFbs5z+dXKoSC2f9mCH5PSInav0mnieA+BDF4NysM6KbGh
-        5zcg1i1zOt7ay+j2YdQRPT1SCwznK9s=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-572-xbPFMbCcPDWhbwxhLollgw-1; Thu, 22 Dec 2022 15:16:17 -0500
-X-MC-Unique: xbPFMbCcPDWhbwxhLollgw-1
-Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id DF6398533AE;
-        Thu, 22 Dec 2022 20:16:16 +0000 (UTC)
-Received: from [10.22.33.48] (unknown [10.22.33.48])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 1DBB8492B00;
-        Thu, 22 Dec 2022 20:16:16 +0000 (UTC)
-Message-ID: <0b70f4c8-55ce-a5cd-cab7-7dfe70e60e99@redhat.com>
-Date:   Thu, 22 Dec 2022 15:16:15 -0500
+        with ESMTP id S229582AbiLVUxO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Dec 2022 15:53:14 -0500
+Received: from mailfilter02-out40.webhostingserver.nl (mailfilter02-out40.webhostingserver.nl [195.211.72.22])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF2431C93E
+        for <stable@vger.kernel.org>; Thu, 22 Dec 2022 12:53:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=exalondelft.nl; s=whs1;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc:to:from:
+         from;
+        bh=5qhayPKhfBfDxM0F+uRbZ4HQENiaq8XOO7xJH6gBv6g=;
+        b=QSDzSMyXiXkIT2XfNUMGCDngq1KffMLlXc/Vp5DTxhMGzp0uElrvLombgdcXDnmtic8SteS08kZP9
+         KShbF2USqJxxLOTuhx/DdwrqCGEQ+7mdHjJpn/n7UsDDCOLsZY5w40bFP1JuNzgrudZTRYey7vVTuf
+         dpRtP7Kq+/SU7GdiUxJLlwUl13e0MozJF5Qw1Ygy/qe0ZFx8zXgrdaRvnYUyg84X/hm97fAeNDNplu
+         DcBaM5LCQhbV8ZR1SULHNcsLzTH8BvKIR/i72+w5iYBR4bbHsvT3H7J79BPGAqF9+MsjBahgolP9f9
+         3002f32NF29DFRCwshAqU1mHtlTxwHQ==
+X-Halon-ID: a4057b1d-823a-11ed-ac07-001a4a4cb922
+Received: from s198.webhostingserver.nl (s198.webhostingserver.nl [141.138.168.154])
+        by mailfilter02.webhostingserver.nl (Halon) with ESMTPSA
+        id a4057b1d-823a-11ed-ac07-001a4a4cb922;
+        Thu, 22 Dec 2022 21:53:09 +0100 (CET)
+Received: from 2a02-a466-68ed-1-86df-abe6-f3ae-663d.fixed6.kpn.net ([2a02:a466:68ed:1:86df:abe6:f3ae:663d] helo=delfion.fritz.box)
+        by s198.webhostingserver.nl with esmtpa (Exim 4.96)
+        (envelope-from <ftoth@exalondelft.nl>)
+        id 1p8SYu-00Gils-2c;
+        Thu, 22 Dec 2022 21:53:08 +0100
+From:   Ferry Toth <ftoth@exalondelft.nl>
+To:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sean Anderson <sean.anderson@seco.com>,
+        Liu Shixin <liushixin2@huawei.com>,
+        Ferry Toth <fntoth@gmail.com>,
+        Andrey Smirnov <andrew.smirnov@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Ferry Toth <ftoth@exalondelft.nl>,
+        Guenter Roeck <linux@roeck-us.net>, stable@vger.kernel.org
+Subject: [PATCH v2 1/1] Revert "usb: ulpi: defer ulpi_register on ulpi_read_id timeout"
+Date:   Thu, 22 Dec 2022 21:53:02 +0100
+Message-Id: <20221222205302.45761-1-ftoth@exalondelft.nl>
+X-Mailer: git-send-email 2.37.2
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [PATCH-tip v2] sched: Fix use-after-free bug in
- dup_user_cpus_ptr()
-Content-Language: en-US
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Ingo Molnar <mingo@redhat.com>, Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Phil Auld <pauld@redhat.com>,
-        Wenjie Li <wenjieli@qti.qualcomm.com>,
-        =?UTF-8?B?RGF2aWQgV2FuZyDnjovmoIc=?= <wangbiao3@xiaomi.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20221205164832.2151247-1-longman@redhat.com>
- <Y6SxNwUn7/4/8IQa@hirez.programming.kicks-ass.net>
-From:   Waiman Long <longman@redhat.com>
-In-Reply-To: <Y6SxNwUn7/4/8IQa@hirez.programming.kicks-ass.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.10
-X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This reverts commit 8a7b31d545d3a15f0e6f5984ae16f0ca4fd76aac.
 
-On 12/22/22 14:34, Peter Zijlstra wrote:
-> On Mon, Dec 05, 2022 at 11:48:32AM -0500, Waiman Long wrote:
->> Since commit 07ec77a1d4e8 ("sched: Allow task CPU affinity to be
->> restricted on asymmetric systems"), the setting and clearing of
->> user_cpus_ptr are done under pi_lock for arm64 architecture. However,
->> dup_user_cpus_ptr() accesses user_cpus_ptr without any lock
->> protection. When racing with the clearing of user_cpus_ptr in
->> __set_cpus_allowed_ptr_locked(), it can lead to user-after-free and
->> double-free in arm64 kernel.
-> How? the task cannot be in migrate_enable() and fork() at the same time,
-> no?
->
-I believe a task A can call sched_setaffinity() to modify the cpu 
-affinity of a different task, say B, which can be under fork() at the 
-same time. So we need to use the pi_lock to synchronize the access of 
-user_cpus_ptr to avoid the kind of race that can cause double-free.
+This patch results in some qemu test failures, specifically xilinx-zynq-a9
+machine and zynq-zc702 as well as zynq-zed devicetree files, when trying
+to boot from USB drive.
 
-Cheers,
-Longman
+Fixes: 8a7b31d545d3 ("usb: ulpi: defer ulpi_register on ulpi_read_id timeout")
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/lkml/20221220194334.GA942039@roeck-us.net/
+Signed-off-by: Ferry Toth <ftoth@exalondelft.nl>
+---
+ drivers/usb/common/ulpi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/usb/common/ulpi.c b/drivers/usb/common/ulpi.c
+index 60e8174686a1..d7c8461976ce 100644
+--- a/drivers/usb/common/ulpi.c
++++ b/drivers/usb/common/ulpi.c
+@@ -207,7 +207,7 @@ static int ulpi_read_id(struct ulpi *ulpi)
+ 	/* Test the interface */
+ 	ret = ulpi_write(ulpi, ULPI_SCRATCH, 0xaa);
+ 	if (ret < 0)
+-		return ret;
++		goto err;
+ 
+ 	ret = ulpi_read(ulpi, ULPI_SCRATCH);
+ 	if (ret < 0)
+-- 
+2.37.2
 
