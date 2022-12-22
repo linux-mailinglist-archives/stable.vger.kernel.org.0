@@ -2,209 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0201C653EB2
-	for <lists+stable@lfdr.de>; Thu, 22 Dec 2022 12:08:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA576653F32
+	for <lists+stable@lfdr.de>; Thu, 22 Dec 2022 12:44:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229742AbiLVLHx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Dec 2022 06:07:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55458 "EHLO
+        id S235299AbiLVLoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Dec 2022 06:44:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235361AbiLVLHt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Dec 2022 06:07:49 -0500
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C254BF019;
-        Thu, 22 Dec 2022 03:07:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1671707267; x=1703243267;
-  h=message-id:date:mime-version:to:cc:references:from:
-   subject:in-reply-to:content-transfer-encoding;
-  bh=PzxNWDti1cf66pFXSYkQzqiTjHe4km403foTbIRPRcE=;
-  b=mCKUYJxRcyIXzIt1sHFstmUcJDhyl04Q/aGwQEFY/CC/LAlcI82M/4OI
-   dzRNh5DyzKLCSs+WPAcjMTD04R8ttiQt72BOKWlt9wTuKwMip3jN73ltt
-   womYfWvneha/UB2gG4f3TPLuYjwRuey2RSIvqt03wu/SxpJChj5e3v4Ij
-   NGCcu0wPzu5KzTEDLAYdGuIai/z2pvv7Iv//QzI7bUhKaXIhM4QKH9W/a
-   chRU6Cln+Wwdgfc+97+0d7ZkqT8yuL2kBB3VohphHppdQf9YTxIKA48Lt
-   a1+spTEi3XWESPzpi1vZz+7H17xoj6LeR2aXMsDnTeIVnGkpAvPf1cNRq
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10568"; a="303535009"
-X-IronPort-AV: E=Sophos;i="5.96,265,1665471600"; 
-   d="scan'208";a="303535009"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Dec 2022 03:07:28 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10568"; a="629491068"
-X-IronPort-AV: E=Sophos;i="5.96,265,1665471600"; 
-   d="scan'208";a="629491068"
-Received: from mattu-haswell.fi.intel.com (HELO [10.237.72.199]) ([10.237.72.199])
-  by orsmga006.jf.intel.com with ESMTP; 22 Dec 2022 03:07:25 -0800
-Message-ID: <23fe0fe3-f330-b58e-c366-3ac5bd80fe22@linux.intel.com>
-Date:   Thu, 22 Dec 2022 13:08:47 +0200
+        with ESMTP id S235169AbiLVLoY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Dec 2022 06:44:24 -0500
+Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEEE928773
+        for <stable@vger.kernel.org>; Thu, 22 Dec 2022 03:44:22 -0800 (PST)
+Received: by mail-lf1-x12d.google.com with SMTP id x11so2408195lfn.0
+        for <stable@vger.kernel.org>; Thu, 22 Dec 2022 03:44:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=rasmusvillemoes.dk; s=google;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=9ygg8cCj0qz0zed9Ni0rRxDgu3BA1WKymtQ3VddGBok=;
+        b=R2GQaW0Q5fBX6ixCUYu9m2260sTsoElZxWpPz8LVGXEtZ++6ZCiu7BNJ7EfjBk8p8m
+         rUVWo0Ywxvpv5q1W3iZtSz3VvzYYISXJF6zQvvfsbnjGkZvYNzHB4whtCFZVkCfAwNtj
+         lt9LZ9AM0Ir9/2TEVK+VoF7Nr7Ug0ga5SgYs8=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=9ygg8cCj0qz0zed9Ni0rRxDgu3BA1WKymtQ3VddGBok=;
+        b=fYX/UuQrbn5+ghKhgGwyqea4zOjid0RhJAWkEptZI3VM1plDg97F67YwDWrubMFYWz
+         C9DvPoWVGi4lD5Mq5/rUZadoaWWzLadDl/Cg69ZKMlnHYhq6O92WI1pnHq4a9LrymtME
+         Q01kZeL59tH4sSIqua6o9UDgnDAI5CxU7T6v9LVWNTtLjlvtxnH/S8PAsnsN2wz9I1hg
+         2ZmwBhU56EJ63AGpJXk5+r/Y9Pppc5B+i/KG6coEdkykNHB8O79W9SKD/ZvlYfpa+XGb
+         9cgNxXWLGwUTnj4VtpmaOnLPtWV2582QBC2mTwWyonr0qMR6uODiHkeH2EucyfED1F9S
+         MrCA==
+X-Gm-Message-State: AFqh2koVyPxq1UZSnEhknQAvqmkdD70c9HzFUGjpZ6nrLJeCYcwgEVDe
+        X/gyzoVbBKX+/SiyW1fd/ckH3w==
+X-Google-Smtp-Source: AMrXdXt/Mh5V7Dzux6VZN/xlxRFgwiC+Jy35qwoh4IhMypGqbPz1by2hx5aixOUZqItwr5wXuxhnqA==
+X-Received: by 2002:a05:6512:4005:b0:4b5:9183:5ad0 with SMTP id br5-20020a056512400500b004b591835ad0mr3110798lfb.63.1671709461328;
+        Thu, 22 Dec 2022 03:44:21 -0800 (PST)
+Received: from prevas-ravi.prevas.se ([81.216.59.226])
+        by smtp.gmail.com with ESMTPSA id c18-20020ac25f72000000b004a2386b8cf5sm43072lfc.215.2022.12.22.03.44.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 Dec 2022 03:44:20 -0800 (PST)
+From:   Rasmus Villemoes <linux@rasmusvillemoes.dk>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Lukas Wunner <lukas@wunner.de>,
+        Dominique Martinet <dominique.martinet@atmark-techno.com>,
+        Daisuke Mizobuchi <mizo@atmark-techno.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Cc:     linux-serial@vger.kernel.org, stable@vger.kernel.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Subject: [PATCH 5.15.y v2] serial: fixup backport of "serial: Deassert Transmit Enable on probe in driver-specific way"
+Date:   Thu, 22 Dec 2022 12:44:14 +0100
+Message-Id: <20221222114414.1886632-1-linux@rasmusvillemoes.dk>
+X-Mailer: git-send-email 2.37.2
+In-Reply-To: <20221220102316.1280393-1-linux@rasmusvillemoes.dk>
+References: <20221220102316.1280393-1-linux@rasmusvillemoes.dk>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Firefox/102.0 Thunderbird/102.4.2
-Content-Language: en-US
-To:     Ladislav Michl <oss-lists@triops.cz>, Jimmy Hu <hhhuuu@google.com>
-Cc:     mathias.nyman@intel.com, gregkh@linuxfoundation.org,
-        badhri@google.com, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20221222072912.1843384-1-hhhuuu@google.com>
- <Y6Qc1p4saGFTdh9n@lenoch>
-From:   Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: Re: [PATCH v2] usb: xhci: Check endpoint is valid before
- dereferencing it
-In-Reply-To: <Y6Qc1p4saGFTdh9n@lenoch>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 22.12.2022 11.01, Ladislav Michl wrote:
-> On Thu, Dec 22, 2022 at 07:29:12AM +0000, Jimmy Hu wrote:
->> When the host controller is not responding, all URBs queued to all
->> endpoints need to be killed. This can cause a kernel panic if we
->> dereference an invalid endpoint.
->>
->> Fix this by using xhci_get_virt_ep() helper to find the endpoint and
->> checking if the endpoint is valid before dereferencing it.
->>
->> [233311.853271] xhci-hcd xhci-hcd.1.auto: xHCI host controller not responding, assume dead
->> [233311.853393] Unable to handle kernel NULL pointer dereference at virtual address 00000000000000e8
->>
->> [233311.853964] pc : xhci_hc_died+0x10c/0x270
->> [233311.853971] lr : xhci_hc_died+0x1ac/0x270
->>
->> [233311.854077] Call trace:
->> [233311.854085]  xhci_hc_died+0x10c/0x270
->> [233311.854093]  xhci_stop_endpoint_command_watchdog+0x100/0x1a4
->> [233311.854105]  call_timer_fn+0x50/0x2d4
->> [233311.854112]  expire_timers+0xac/0x2e4
->> [233311.854118]  run_timer_softirq+0x300/0xabc
->> [233311.854127]  __do_softirq+0x148/0x528
->> [233311.854135]  irq_exit+0x194/0x1a8
->> [233311.854143]  __handle_domain_irq+0x164/0x1d0
->> [233311.854149]  gic_handle_irq.22273+0x10c/0x188
->> [233311.854156]  el1_irq+0xfc/0x1a8
->> [233311.854175]  lpm_cpuidle_enter+0x25c/0x418 [msm_pm]
->> [233311.854185]  cpuidle_enter_state+0x1f0/0x764
->> [233311.854194]  do_idle+0x594/0x6ac
->> [233311.854201]  cpu_startup_entry+0x7c/0x80
->> [233311.854209]  secondary_start_kernel+0x170/0x198
->>
->> Fixes: 50e8725e7c42 ("xhci: Refactor command watchdog and fix split string.")
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Jimmy Hu <hhhuuu@google.com>
->> ---
->>   drivers/usb/host/xhci-ring.c | 5 ++++-
->>   1 file changed, 4 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
->> index ddc30037f9ce..f5b0e1ce22af 100644
->> --- a/drivers/usb/host/xhci-ring.c
->> +++ b/drivers/usb/host/xhci-ring.c
->> @@ -1169,7 +1169,10 @@ static void xhci_kill_endpoint_urbs(struct xhci_hcd *xhci,
->>   	struct xhci_virt_ep *ep;
->>   	struct xhci_ring *ring;
->>   
->> -	ep = &xhci->devs[slot_id]->eps[ep_index];
->> +	ep = xhci_get_virt_ep(xhci, slot_id, ep_index);
->> +	if (!ep)
->> +		return;
->> +
-> 
-> xhci_get_virt_ep also adds check for slot_id == 0. It changes behaviour,
-> do we really want to skip that slot? Original code went from 0 to
-> MAX_HC_SLOTS-1.
-> 
-> It seems to be off by one to me. Am I missing anything?
+When 7c7f9bc986e6 ("serial: Deassert Transmit Enable on probe in
+driver-specific way") got backported to 5.15.y, there known as
+b079d3775237, some hunks were accidentally left out.
 
-slot_id 0 is always invalid, so this is a good change.
+In fsl_lpuart.c, this amounts to uart_remove_one_port() being called
+in an error path despite uart_add_one_port() not having been called.
 
+In serial_core.c, it is possible that the omission in
+uart_suspend_port() is harmless, but the backport did have the
+corresponding hunk in uart_resume_port(), it runs counter to the
+original commit's intention of
 
-> Also, what about passing ep directly to xhci_kill_endpoint_urbs
-> and do the check in xhci_hc_died? Not even compile tested:
+  Skip any invocation of ->set_mctrl() if RS485 is enabled.
 
-passing ep to a function named kill_endpoint_urbs() sound like the
-right thing to do, but as a generic change.
+and it's certainly better to be aligned with upstream.
 
-I think its a good idea to first do a targeted fix for this null pointer
-issue that we can send to stable fist.
+Fixes: b079d3775237 ("serial: Deassert Transmit Enable on probe in driver-specific way")
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+---
 
+v2: Also amend uart_suspend_port(), update commit log accordingly.
 
-> 
-> diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
-> index ddc30037f9ce..5dac483c562a 100644
-> --- a/drivers/usb/host/xhci-ring.c
-> +++ b/drivers/usb/host/xhci-ring.c
-> @@ -1162,14 +1162,12 @@ static void xhci_kill_ring_urbs(struct xhci_hcd *xhci, struct xhci_ring *ring)
->   }
->   
->   static void xhci_kill_endpoint_urbs(struct xhci_hcd *xhci,
-> -		int slot_id, int ep_index)
-> +		struct xhci_virt_ep *ep)
->   {
->   	struct xhci_td *cur_td;
->   	struct xhci_td *tmp;
-> -	struct xhci_virt_ep *ep;
->   	struct xhci_ring *ring;
->   
-> -	ep = &xhci->devs[slot_id]->eps[ep_index];
->   	if ((ep->ep_state & EP_HAS_STREAMS) ||
->   			(ep->ep_state & EP_GETTING_NO_STREAMS)) {
->   		int stream_id;
-> @@ -1180,18 +1178,12 @@ static void xhci_kill_endpoint_urbs(struct xhci_hcd *xhci,
->   			if (!ring)
->   				continue;
->   
-> -			xhci_dbg_trace(xhci, trace_xhci_dbg_cancel_urb,
-> -					"Killing URBs for slot ID %u, ep index %u, stream %u",
-> -					slot_id, ep_index, stream_id);
->   			xhci_kill_ring_urbs(xhci, ring);
->   		}
->   	} else {
->   		ring = ep->ring;
->   		if (!ring)
->   			return;
-> -		xhci_dbg_trace(xhci, trace_xhci_dbg_cancel_urb,
-> -				"Killing URBs for slot ID %u, ep index %u",
-> -				slot_id, ep_index);
->   		xhci_kill_ring_urbs(xhci, ring);
->   	}
->   
-> @@ -1217,6 +1209,7 @@ static void xhci_kill_endpoint_urbs(struct xhci_hcd *xhci,
->   void xhci_hc_died(struct xhci_hcd *xhci)
->   {
->   	int i, j;
-> +	struct xhci_virt_ep *ep;
->   
->   	if (xhci->xhc_state & XHCI_STATE_DYING)
->   		return;
-> @@ -1227,11 +1220,14 @@ void xhci_hc_died(struct xhci_hcd *xhci)
->   	xhci_cleanup_command_queue(xhci);
->   
->   	/* return any pending urbs, remove may be waiting for them */
-> -	for (i = 0; i <= HCS_MAX_SLOTS(xhci->hcs_params1); i++) {
-> +	for (i = 0; i < HCS_MAX_SLOTS(xhci->hcs_params1); i++) {
->   		if (!xhci->devs[i])
->   			continue;
-> -		for (j = 0; j < 31; j++)
-> -			xhci_kill_endpoint_urbs(xhci, i, j);
-> +		for (j = 0; j < EP_CTX_PER_DEV; j++) {
-> +			ep = &xhci->devs[i]->eps[j];
-> +			if (ep)
-> +				xhci_kill_endpoint_urbs(xhci, ep);
-> +		}
+ drivers/tty/serial/fsl_lpuart.c  | 2 +-
+ drivers/tty/serial/serial_core.c | 3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-This does loop a bit more than the existing code.
-With this change its always HCS_MAX_SLOTS * EP_CTX_PER_DEV.
-Previously best case was just HCS_MAX_SLOTS.
+diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+index 595430aedc0d..fc311df9f1c9 100644
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -2784,9 +2784,9 @@ static int lpuart_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+ failed_irq_request:
+-failed_get_rs485:
+ 	uart_remove_one_port(&lpuart_reg, &sport->port);
+ failed_attach_port:
++failed_get_rs485:
+ failed_reset:
+ 	lpuart_disable_clks(sport);
+ 	return ret;
+diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
+index 5f8f0a90ce55..45b721abaa2f 100644
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -2225,7 +2225,8 @@ int uart_suspend_port(struct uart_driver *drv, struct uart_port *uport)
+ 
+ 		spin_lock_irq(&uport->lock);
+ 		ops->stop_tx(uport);
+-		ops->set_mctrl(uport, 0);
++		if (!(uport->rs485.flags & SER_RS485_ENABLED))
++			ops->set_mctrl(uport, 0);
+ 		ops->stop_rx(uport);
+ 		spin_unlock_irq(&uport->lock);
+ 
 
--Mathias
-
+base-commit: 5827ddaf4534c52d31dd464679a186b41810ef76
+-- 
+2.37.2
 
