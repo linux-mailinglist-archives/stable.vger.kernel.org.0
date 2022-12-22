@@ -2,83 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EF90653A7D
-	for <lists+stable@lfdr.de>; Thu, 22 Dec 2022 03:10:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4EEF653A97
+	for <lists+stable@lfdr.de>; Thu, 22 Dec 2022 03:26:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234796AbiLVCKW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Dec 2022 21:10:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39724 "EHLO
+        id S234943AbiLVC0v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Dec 2022 21:26:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229620AbiLVCKV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Dec 2022 21:10:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB2EB23BC5;
-        Wed, 21 Dec 2022 18:10:19 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 403C9B81CF8;
-        Thu, 22 Dec 2022 02:10:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id D1126C433EF;
-        Thu, 22 Dec 2022 02:10:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671675016;
-        bh=zLPTjpHnlmdiiF4PoDKn+FJXCzmyZxTnoHs6+gtn7u0=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=B2TZeZGe9NlFPiEQ2obQDBbk/ncU1ZEgje4gnNRkgS/QAyTiEwURhJsllzrt3omL7
-         Eoomxt7GG+ppZBfpe6qiJGmbm2qejbqfI984z6VSsTa3VaLFf9qtbOL7YoySZK/HSD
-         A0O5zwN/Tpqt/EdsXeX+3fwxoil9BVA+xF3cytn1A5AhPdFN83k4Jv8DkiJmE5FtXX
-         UCyJ6Hwch7lGGwmtKBmHgR8aAql2wr9buLFH4cfV9z+svSpzvafcezN8l+Qt7R+GdR
-         xXpP9ChALT5lZWEwP52ExeQzm2LcmOc/pJl8ymOiQ6YO+QVRlv0BtEf3nv0+pKbAb2
-         XIEgaeN+dFfIQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id B81A3C41622;
-        Thu, 22 Dec 2022 02:10:16 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229928AbiLVC0u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Dec 2022 21:26:50 -0500
+Received: from mail-io1-xd2a.google.com (mail-io1-xd2a.google.com [IPv6:2607:f8b0:4864:20::d2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D44E65FB
+        for <stable@vger.kernel.org>; Wed, 21 Dec 2022 18:26:49 -0800 (PST)
+Received: by mail-io1-xd2a.google.com with SMTP id i83so349997ioa.11
+        for <stable@vger.kernel.org>; Wed, 21 Dec 2022 18:26:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=t6eb2QLxGLA5nQWox1Il1mb2LunPDzmdoel/IXxPIUE=;
+        b=lqFalmTuR89YV96zutl+2zViNboGd6NP7NUPn24Jfc7wEe13OpK7k5Yxw9oFR1VCVJ
+         EjwSUfnQ3groAx71Zed974hxE8G6xpMMpnyHXDlfog3zBI2HFPe66EEt37PzVnkEgs2p
+         VSfhsC/OWfr7Kuu7VUfS5etJaDVBJXAEoMcyc=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=t6eb2QLxGLA5nQWox1Il1mb2LunPDzmdoel/IXxPIUE=;
+        b=TY8g+DfgsXNXWikUxM3AQ6fxAks75WJEEIWT/ghmBCbD2XRWqbQCZ2+r8R91dG1CGW
+         9jaKtsUVIfBBDm7i1rpjGAGybUc8KM06q5IKTo7VCXSsZvfjK7z8VM0yiBJpuE5te4C7
+         7doKkgJJ/RcGmEAosBcbN2jXNqucyhQTdRnZs8OM+oXRRYUj6EN3oJdC34TGNB7ntMsE
+         ZzwOmHtqrbqLN92Nl9xZcZ5AC6zMQmq0tM42pxK0TSVARCMR4kOTN5nzBinOb5fP2dTr
+         chVU37+YkiIafYcebUXsEXdZlHOuWYfGsLwjfDI7nn+fIhEiBAunRfLthpPoHBBridVu
+         a+Rw==
+X-Gm-Message-State: AFqh2kpurKPHqLBdJ4mFgOPjPwXSdvc1dyWpmg5sJJRQK03/uhHui4TM
+        TVfOHkZQpv4yHhBqU2gtTId07Q==
+X-Google-Smtp-Source: AMrXdXuJdoc6h1EjuJLY3ZLbT/1BvUU+55g84Ob7FJSai4KIMVeLOP7kr2txXkL2JF10O5AQfLYhIA==
+X-Received: by 2002:a5d:9347:0:b0:6de:acb8:636d with SMTP id i7-20020a5d9347000000b006deacb8636dmr2382046ioo.19.1671676008773;
+        Wed, 21 Dec 2022 18:26:48 -0800 (PST)
+Received: from localhost (30.23.70.34.bc.googleusercontent.com. [34.70.23.30])
+        by smtp.gmail.com with UTF8SMTPSA id i1-20020a056602134100b006a129b10229sm6812507iov.31.2022.12.21.18.26.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 21 Dec 2022 18:26:48 -0800 (PST)
+From:   Matthias Kaehlcke <mka@chromium.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+        Stefan Wahren <stefan.wahren@i2se.com>, stable@vger.kernel.org,
+        Douglas Anderson <dianders@chromium.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Ravi Chandra Sadineni <ravisadineni@chromium.org>
+Subject: [PATCH v2 1/2] usb: misc: onboard_usb_hub: Don't create platform devices for DT nodes without 'vdd-supply'
+Date:   Thu, 22 Dec 2022 02:26:44 +0000
+Message-Id: <20221222022605.v2.1.If5e7ec83b1782e4dffa6ea759416a27326c8231d@changeid>
+X-Mailer: git-send-email 2.39.0.314.g84b9a713c41-goog
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net ] vmxnet3: correctly report csum_level for encapsulated
- packet
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <167167501675.18442.7142485680991762483.git-patchwork-notify@kernel.org>
-Date:   Thu, 22 Dec 2022 02:10:16 +0000
-References: <20221220202556.24421-1-doshir@vmware.com>
-In-Reply-To: <20221220202556.24421-1-doshir@vmware.com>
-To:     Ronak Doshi <doshir@vmware.com>
-Cc:     netdev@vger.kernel.org, stable@vger.kernel.org,
-        pv-drivers@vmware.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, linux-kernel@vger.kernel.org
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
+The primary task of the onboard_usb_hub driver is to control the
+power of an onboard USB hub. The driver gets the regulator from the
+device tree property "vdd-supply" of the hub's DT node. Some boards
+have device tree nodes for USB hubs supported by this driver, but
+don't specify a "vdd-supply". This is not an error per se, it just
+means that the onboard hub driver can't be used for these hubs, so
+don't create platform devices for such nodes.
 
-This patch was applied to netdev/net.git (master)
-by Jakub Kicinski <kuba@kernel.org>:
+This change doesn't completely fix the reported regression. It
+should fix it for the RPi 3 B Plus and boards with similar hub
+configurations (compatible DT nodes without "vdd-supply"), boards
+that actually use the onboard hub driver could still be impacted
+by the race conditions discussed in that thread. Not creating the
+platform devices for nodes without "vdd-supply" is the right
+thing to do, independently from the race condition, which will
+be fixed in future patch.
 
-On Tue, 20 Dec 2022 12:25:55 -0800 you wrote:
-> Commit dacce2be3312 ("vmxnet3: add geneve and vxlan tunnel offload
-> support") added support for encapsulation offload. However, the
-> pathc did not report correctly the csum_level for encapsulated packet.
-> 
-> This patch fixes this issue by reporting correct csum level for the
-> encapsulated packet.
-> 
-> [...]
+Fixes: 8bc063641ceb ("usb: misc: Add onboard_usb_hub driver")
+Link: https://lore.kernel.org/r/d04bcc45-3471-4417-b30b-5cf9880d785d@i2se.com/
+Reported-by: Stefan Wahren <stefan.wahren@i2se.com>
+Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+---
 
-Here is the summary with links:
-  - [net] vmxnet3: correctly report csum_level for encapsulated packet
-    https://git.kernel.org/netdev/net/c/3d8f2c4269d0
+Changes in v2:
+- don't create platform devices when "vdd-supply" is missing,
+  rather than returning an error from _find_onboard_hub()
+- check for "vdd-supply" not "vdd" (Johan)
+- updated subject and commit message
+- added 'Link' tag (regzbot)
 
-You are awesome, thank you!
+ drivers/usb/misc/onboard_usb_hub_pdevs.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/drivers/usb/misc/onboard_usb_hub_pdevs.c b/drivers/usb/misc/onboard_usb_hub_pdevs.c
+index ed22a18f4ab7..8cea53b0907e 100644
+--- a/drivers/usb/misc/onboard_usb_hub_pdevs.c
++++ b/drivers/usb/misc/onboard_usb_hub_pdevs.c
+@@ -101,6 +101,19 @@ void onboard_hub_create_pdevs(struct usb_device *parent_hub, struct list_head *p
+ 			}
+ 		}
+ 
++		/*
++		 * The primary task of the onboard_usb_hub driver is to control
++		 * the power of an USB onboard hub. Some boards have device tree
++		 * nodes for USB hubs supported by this driver, but don't
++		 * specify a "vdd-supply", which is needed by the driver. This is
++		 * not a DT error per se, it just means that the onboard hub
++		 * driver can't be used with these nodes, so don't create a
++		 * a platform device for such a node.
++		 */
++		if (!of_get_property(np, "vdd-supply", NULL) &&
++		    !of_get_property(npc, "vdd-supply", NULL))
++			goto node_put;
++
+ 		pdev = of_platform_device_create(np, NULL, &parent_hub->dev);
+ 		if (!pdev) {
+ 			dev_err(&parent_hub->dev,
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.39.0.314.g84b9a713c41-goog
 
