@@ -2,48 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D77C653BD8
-	for <lists+stable@lfdr.de>; Thu, 22 Dec 2022 06:50:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58BC0653BF4
+	for <lists+stable@lfdr.de>; Thu, 22 Dec 2022 07:01:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234888AbiLVFuU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Dec 2022 00:50:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41502 "EHLO
+        id S229567AbiLVGBR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Dec 2022 01:01:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229531AbiLVFuR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Dec 2022 00:50:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A5581903A;
-        Wed, 21 Dec 2022 21:50:16 -0800 (PST)
+        with ESMTP id S231161AbiLVGBQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Dec 2022 01:01:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99D2F11A1F;
+        Wed, 21 Dec 2022 22:01:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D0118B81C5E;
-        Thu, 22 Dec 2022 05:50:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DA59C433D2;
-        Thu, 22 Dec 2022 05:50:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 30D60619C0;
+        Thu, 22 Dec 2022 06:01:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6D3BC433D2;
+        Thu, 22 Dec 2022 06:01:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671688213;
-        bh=5V9ED/JzaBt/cMkwYVq6/4E5hG05GxzX6B4YQYjwXzw=;
+        s=korg; t=1671688874;
+        bh=ybjHvhL/1jq6BZd3kBdQpE/ZJ8FrY0TIzuOINUpC9qY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=tVeiZ3HALwW9t+ntmd5NVcNRnVkxw5qx+2tHRM36o6Z1QXqiQzz9cgKfEDqEJI74b
-         hx3+eD5kpwOHjGNX3/aFWK0Q3dmLOYdQf/IdMhwSyA1IhWzHAu8W+T+miZzbz7g/VT
-         MolxtRPzf/UjgaZNJ7XlewjspUQE9ByQsXywpXj4=
-Date:   Thu, 22 Dec 2022 06:50:11 +0100
+        b=Px5TOGyQ4CMon3fdusADeVf25TIJzrJTaDMfgbMj7feJGc2aCGm6h8S6N+2zd95SX
+         S3y+s3sqIH+Vv/Wpwfl5k7pfGHx9zBUr5aGBdcN3K7eB7t/JjF+zXj+EFedovP9xW2
+         qTQ9Z3tTYOrCzc3Yqid3w4a/FvO8XOspqwRGfbeI=
+Date:   Thu, 22 Dec 2022 07:01:11 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Matthias Kaehlcke <mka@chromium.org>
-Cc:     linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-        Stefan Wahren <stefan.wahren@i2se.com>, stable@vger.kernel.org,
-        Douglas Anderson <dianders@chromium.org>,
-        Ravi Chandra Sadineni <ravisadineni@chromium.org>
-Subject: Re: [PATCH v2 2/2] usb: misc: onboard_hub: Fail silently when there
- is no platform device
-Message-ID: <Y6PwE6ukJFW0Skry@kroah.com>
-References: <20221222022605.v2.1.If5e7ec83b1782e4dffa6ea759416a27326c8231d@changeid>
- <20221222022605.v2.2.I0c5ce35d591fa1f405f213c444522585be5601f0@changeid>
+To:     Tom Saeger <tom.saeger@oracle.com>
+Cc:     stable@vger.kernel.org, linux-kbuild@vger.kernel.org,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michal Marek <michal.lkml@markovi.net>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: Re: [PATCH 5.15 5.10 5.4 v2] kbuild: fix Build ID if
+ CONFIG_MODVERSIONS
+Message-ID: <Y6Pyp+7Udn6x/UVg@kroah.com>
+References: <3df32572ec7016e783d37e185f88495831671f5d.1671143628.git.tom.saeger@oracle.com>
+ <Y6M090tsVRIBNlNG@kroah.com>
+ <20221221205210.6oolnwkzqo2d6q5h@oracle.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221222022605.v2.2.I0c5ce35d591fa1f405f213c444522585be5601f0@changeid>
+In-Reply-To: <20221221205210.6oolnwkzqo2d6q5h@oracle.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -53,37 +56,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 22, 2022 at 02:26:45AM +0000, Matthias Kaehlcke wrote:
-> Some boards with an onboard USB hub supported by the onboard_hub
-> driver have a device tree node for the hub, but the node doesn't
-> specify all properties needed by the driver (which is not a DT
-> error per se). For such a hub no onboard_hub platform device is
-> created. However the USB portion of the onboard hub driver still
-> probes and uses _find_onboard_hub() to find the platform device
-> that corresponds to the hub. If the DT node of the hub doesn't
-> have an associated platform device the function looks for a
-> "peer-hub" node (to get the platform device from there), if
-> that doesn't exist either it logs an error and returns -EINVAL.
+On Wed, Dec 21, 2022 at 02:52:10PM -0600, Tom Saeger wrote:
+> On Wed, Dec 21, 2022 at 05:31:51PM +0100, Greg Kroah-Hartman wrote:
+> > On Thu, Dec 15, 2022 at 04:18:18PM -0700, Tom Saeger wrote:
+> > > Backport of:
+> > > commit 0d362be5b142 ("Makefile: link with -z noexecstack --no-warn-rwx-segments")
+> > > breaks arm64 Build ID when CONFIG_MODVERSIONS=y for all kernels
+> > > from: commit e4484a495586 ("Merge tag 'kbuild-fixes-v5.0' of git://git.kernel.org/pub/scm/linux/kernel/git/masahiroy/linux-kbuild")
+> > > until: commit df202b452fe6 ("Merge tag 'kbuild-v5.19' of git://git.kernel.org/pub/scm/linux/kernel/git/masahiroy/linux-kbuild")
+> > > 
+> > > Linus's tree doesn't have this issue since 0d362be5b142 was merged
+> > > after df202b452fe6 which included:
+> > > commit 7b4537199a4a ("kbuild: link symbol CRCs at final link, removing CONFIG_MODULE_REL_CRCS")
+> > 
+> > Why can't we add this one instead of a custom change?
 > 
-> The absence of a platform device is expected in some
-> configurations, so drop the error log and fail silently with
-> -ENODEV.
-> 
-> Fixes: 8bc063641ceb ("usb: misc: Add onboard_usb_hub driver")
-> Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
-> ---
-> 
-> Changes in v2:
-> - patch added to the series
-> 
->  drivers/usb/misc/onboard_usb_hub.c | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
+> I quickly abandoned that route - there are too many dependencies.
 
-<formletter>
+How many?  Why?  Whenever we add a "this is not upstream" patch, 90% of
+the time it is incorrect and causes problems (merge issues included.)
+So please please please let's try to keep in sync with what is in
+Linus's tree.
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+thanks,
 
-</formletter>
+greg k-h
