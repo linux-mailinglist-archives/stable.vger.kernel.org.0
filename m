@@ -2,154 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 288FC654CF9
-	for <lists+stable@lfdr.de>; Fri, 23 Dec 2022 08:47:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B429654D2E
+	for <lists+stable@lfdr.de>; Fri, 23 Dec 2022 09:04:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229656AbiLWHrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Dec 2022 02:47:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39480 "EHLO
+        id S230060AbiLWIEy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Dec 2022 03:04:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229506AbiLWHrI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 02:47:08 -0500
-Received: from sender4-op-o16.zoho.com (sender4-op-o16.zoho.com [136.143.188.16])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB1A825EA8;
-        Thu, 22 Dec 2022 23:47:06 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1671781611; cv=none; 
-        d=zohomail.com; s=zohoarc; 
-        b=WAmnG/7WmBojD5yX/BMhJvXhQP81hfEKSP6Bz+Ki3Tr1FisxiO0jZXfXvuyNae8hXIW4kbhLZdMeEt2TXQmLxnJw69ZimeiorMXRBd59rWNl14NMLIHBUZwgosrRQ1jQJ9xq+lIjkOQ+nx9//il/FWw/EqWM1peXWMdzWmmq02E=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-        t=1671781611; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
-        bh=OPemjbTg3A1NAV8ZaqaXhvWUyc8aIggBEADkKRR9l40=; 
-        b=DdicahY5LwXcRCIviVf8bCRVTGEzwGsuOKgQJQANy5AzOUVwSe8QG+I3RRb0df+9LoUiY03EO+aB9rvJXdrrXUP4iQ4QhYqGIq77DjpTYPo3FRxrOh7dqMensaoekocLNaRZCnm5M7MmsGBWJd9/sbP97uRAHtvIzhKY0O2NwZU=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-        dkim=pass  header.i=icenowy.me;
-        spf=pass  smtp.mailfrom=uwu@icenowy.me;
-        dmarc=pass header.from=<uwu@icenowy.me>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1671781611;
-        s=zmail; d=icenowy.me; i=uwu@icenowy.me;
-        h=Message-ID:Subject:Subject:From:From:To:To:Cc:Cc:Date:Date:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:MIME-Version:Message-Id:Reply-To;
-        bh=OPemjbTg3A1NAV8ZaqaXhvWUyc8aIggBEADkKRR9l40=;
-        b=V9DGAhl5Ovyl2TN1MqS2IxkBaHNh9hec2F5INe5PdvTAWx3TWrwpc3EKlLRHTfmq
-        sOxMSTsSwvAZ+FMb4AptqhZZqsTlUnEPIScXFOeucCF4i7m+aEIIF2e2Xo3yzvjpq8D
-        JaDObqqylLueTLy1YXfhyxUNgDRgOJElEBa55hoQ=
-Received: from edelgard.fodlan.icenowy.me (120.85.98.209 [120.85.98.209]) by mx.zohomail.com
-        with SMTPS id 167178160951175.93162783383423; Thu, 22 Dec 2022 23:46:49 -0800 (PST)
-Message-ID: <aa9fdfc04c3b6a3bba688bac244a157242faab82.camel@icenowy.me>
-Subject: Re: [PATCH v2 1/2] usb: misc: onboard_usb_hub: Don't create
- platform devices for DT nodes without 'vdd-supply'
-From:   Icenowy Zheng <uwu@icenowy.me>
-To:     Doug Anderson <dianders@chromium.org>,
-        Matthias Kaehlcke <mka@chromium.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-        Stefan Wahren <stefan.wahren@i2se.com>, stable@vger.kernel.org,
-        Ravi Chandra Sadineni <ravisadineni@chromium.org>,
-        Alexander Stein <alexander.stein@ew.tq-group.com>
-Date:   Fri, 23 Dec 2022 15:46:45 +0800
-In-Reply-To: <CAD=FV=XNxZ3iDYAAqKWqDVLihJ63Du4L7kDdKO55avR9nghc5A@mail.gmail.com>
-References: <20221222022605.v2.1.If5e7ec83b1782e4dffa6ea759416a27326c8231d@changeid>
-         <CAD=FV=XNxZ3iDYAAqKWqDVLihJ63Du4L7kDdKO55avR9nghc5A@mail.gmail.com>
-Organization: Anthon Open-Source Community
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.44.4 
+        with ESMTP id S229630AbiLWIEx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 03:04:53 -0500
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14F0832BA7;
+        Fri, 23 Dec 2022 00:04:50 -0800 (PST)
+Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.57])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4Ndfnl1fNLz16LkF;
+        Fri, 23 Dec 2022 16:03:39 +0800 (CST)
+Received: from [10.67.110.173] (10.67.110.173) by
+ dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.34; Fri, 23 Dec 2022 16:04:48 +0800
+Message-ID: <caa37e22-fed4-e3f1-d956-620e9c5ad648@huawei.com>
+Date:   Fri, 23 Dec 2022 16:04:48 +0800
 MIME-Version: 1.0
-X-ZohoMailClient: External
-X-Spam-Status: No, score=0.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_BL_SPAMCOP_NET,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        URIBL_BLACK autolearn=no autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.2
+Subject: Re: [RFC] IMA LSM based rule race condition issue on 4.19 LTS
+Content-Language: en-US
+From:   "Guozihua (Scott)" <guozihua@huawei.com>
+To:     Mimi Zohar <zohar@linux.ibm.com>, Paul Moore <paul@paul-moore.com>
+CC:     <dmitry.kasatkin@gmail.com>, <sds@tycho.nsa.gov>,
+        <eparis@parisplace.org>, Greg KH <gregkh@linuxfoundation.org>,
+        <sashal@kernel.org>, <selinux@vger.kernel.org>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        <stable@vger.kernel.org>, luhuaxin <luhuaxin1@huawei.com>
+References: <389334fe-6e12-96b2-6ce9-9f0e8fcb85bf@huawei.com>
+ <efd4ce83299a10b02b1c04cc94934b8d51969e1c.camel@linux.ibm.com>
+ <6a5bc829-b788-5742-cbfc-dba348065dbe@huawei.com>
+ <566721e9e8d639c82d841edef4d11d30a4d29694.camel@linux.ibm.com>
+ <fffb29b7-a1ac-33fb-6aca-989e5567f565@huawei.com>
+ <40cf70a96d2adbff1c0646d3372f131413989854.camel@linux.ibm.com>
+ <a63d5d4b-d7a9-fdcb-2b90-b5e2a974ca4c@huawei.com>
+ <757bc525f7d3fe6db5f3ee1f86de2f4d02d8286b.camel@linux.ibm.com>
+ <CAHC9VhR2mfaVjXz3sBzbkBamt8nE-9aV+jSOs9jH1ESnKvDrvw@mail.gmail.com>
+ <fc11076f-1760-edf3-c0e4-8f58d5e0335c@huawei.com>
+ <CAHC9VhT0SRWMi2gQKaBPOj1owqUh-24O9L2DyOZ8JDgEr+ZQiQ@mail.gmail.com>
+ <381efcb7-604f-7f89-e950-efc142350417@huawei.com>
+ <6348a26f165c27c562db48eb39b04417cbe1380c.camel@linux.ibm.com>
+ <944ea86a-2e6b-ce95-a6cb-fcf6b30ad78b@huawei.com>
+ <578081a5-9ddd-b9bd-002d-f4f14bee79a3@huawei.com>
+In-Reply-To: <578081a5-9ddd-b9bd-002d-f4f14bee79a3@huawei.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.67.110.173]
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ dggpemm500024.china.huawei.com (7.185.36.203)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-5.3 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-=E5=9C=A8 2022-12-22=E6=98=9F=E6=9C=9F=E5=9B=9B=E7=9A=84 11:26 -0800=EF=BC=
-=8CDoug Anderson=E5=86=99=E9=81=93=EF=BC=9A
-> Hi,
->=20
-> On Wed, Dec 21, 2022 at 6:26 PM Matthias Kaehlcke <mka@chromium.org>
-> wrote:
-> >=20
-> > The primary task of the onboard_usb_hub driver is to control the
-> > power of an onboard USB hub. The driver gets the regulator from the
-> > device tree property "vdd-supply" of the hub's DT node. Some boards
-> > have device tree nodes for USB hubs supported by this driver, but
-> > don't specify a "vdd-supply". This is not an error per se, it just
-> > means that the onboard hub driver can't be used for these hubs, so
-> > don't create platform devices for such nodes.
-> >=20
-> > This change doesn't completely fix the reported regression. It
-> > should fix it for the RPi 3 B Plus and boards with similar hub
-> > configurations (compatible DT nodes without "vdd-supply"), boards
-> > that actually use the onboard hub driver could still be impacted
-> > by the race conditions discussed in that thread. Not creating the
-> > platform devices for nodes without "vdd-supply" is the right
-> > thing to do, independently from the race condition, which will
-> > be fixed in future patch.
-> >=20
-> > Fixes: 8bc063641ceb ("usb: misc: Add onboard_usb_hub driver")
-> > Link:
-> > https://lore.kernel.org/r/d04bcc45-3471-4417-b30b-5cf9880d785d@i2se.com=
-/
-> > Reported-by: Stefan Wahren <stefan.wahren@i2se.com>
-> > Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
-> > ---
-> >=20
-> > Changes in v2:
-> > - don't create platform devices when "vdd-supply" is missing,
-> > =C2=A0 rather than returning an error from _find_onboard_hub()
-> > - check for "vdd-supply" not "vdd" (Johan)
-> > - updated subject and commit message
-> > - added 'Link' tag (regzbot)
-> >=20
-> > =C2=A0drivers/usb/misc/onboard_usb_hub_pdevs.c | 13 +++++++++++++
-> > =C2=A01 file changed, 13 insertions(+)
->=20
-> I'm a tad bit skeptical.
->=20
-> It somehow feels a bit too much like "inside knowledge" to add this
-> here. I guess the "onboard_usb_hub_pdevs.c" is already pretty
-> entangled with "onboard_usb_hub.c", but I'd rather the "pdevs" file
-> keep the absolute minimum amount of stuff in it and all of the
-> details
-> be in the other file.
->=20
-> If this was the only issue though, I'd be tempted to let it slide. As
-> it is, I'm kinda worried that your patch will break Alexander Stein,
-> who should have been CCed (I've CCed him now) or Icenowy Zheng (also
-> CCed now). I believe those folks are using the USB hub driver
-> primarily to drive a reset GPIO. Looking at the example in the
-> bindings for one of them (genesys,gl850g.yaml), I even see that the
-> reset-gpio is specified but not a vdd-supply. I think you'll break
-> that?
+On 2022/12/21 18:51, Guozihua (Scott) wrote:
+> On 2022/12/20 9:11, Guozihua (Scott) wrote:
+>> On 2022/12/19 21:11, Mimi Zohar wrote:
+>>> On Mon, 2022-12-19 at 15:10 +0800, Guozihua (Scott) wrote:
+>>>> On 2022/12/16 11:04, Paul Moore wrote:
+>>>>> On Thu, Dec 15, 2022 at 9:36 PM Guozihua (Scott) <guozihua@huawei.com> wrote:
+>>>>>> On 2022/12/16 5:04, Paul Moore wrote:
+>>>>>
+>>>>> ...
+>>>>>
+>>>>>>> How bad is the backport really?  Perhaps it is worth doing it to see
+>>>>>>> what it looks like?
+>>>>>>>
+>>>>>> It might not be that bad, I'll try to post a version next Monday.
+>>>>>
+>>>>> Thanks for giving it a shot.
+>>>>>
+>>>> When I am trying a partial backport of b16942455193 ("ima: use the lsm
+>>>> policy update notifier"), I took a closer look into it and if we rip off
+>>>> the RCU and the notifier part, there would be a potential UAF issue when
+>>>> multiple processes are calling ima_lsm_update_rule() and
+>>>> ima_match_rules() at the same time. ima_lsm_update_rule() would free the
+>>>> old rule if the new rule is successfully copied and initialized, leading
+>>>> to ima_match_rules() accessing a freed rule.
+>>>>
+>>>> To reserve the mainline solution, we would have to either introduce RCU
+>>>> for rule access, which would work better with notifier mechanism or the
+>>>> same rule would be updated multiple times, or we would have to introduce
+>>>> a lock for LSM based rule update.
+>>>
+>>> Even with the RCU changes, the rules will be updated multiple times. 
+>>> With your "ima: Handle -ESTALE returned by ima_filter_rule_match()"
+>>> patch, upstream makes a single local copy of the rule to avoid updating
+>>> it multiple times.  Without the notifier, it's updating all the rules.
+>> That's true. However, in the mainline solution, we are only making a
+>> local copy of the rule. In 4.19, because of the lazy update mechanism,
+>> we are replacing the rule on the rule list multiple times and is trying
+>> to free the original rule.
+>>>
+>>> Perhaps an atomic variable to detect if the rules are already being
+>>> updated would suffice.  If the atomic variable is set, make a single
+>>> local copy of the rule.
+>> That should do it. I'll send a patch set soon.
+>>
+> Including Huaxin Lu in the loop. Sorry for forgotten about it for quite
+> some time.
+> 
+> I tried the backported solution, it seems that it's causing RCU stall.
+> It seems on 4.19.y IMA is already accessing rules through RCU. Still
+> debugging it.
+It seems that after the backport, a NULL pointer deference pops out.
+I'll have to look into it.
 
-Well technically in my final DT a regulator is included (to have the
-Vbus enabled when enabling the hub), however I am still against this
-patch, because the driver should work w/o vdd-supply (or w/o reset-
-gpios), and changing this behavior is a DT binding stability breakage.
-
-In addition the kernel never fails because of a lacking regulator
-unless explicitly forbid dummy regulators.
-
-BTW USB is a discoverable bus, and if a hub do not need special
-handlement, it just does not need to appear in the DT, thus no onboard
-hub DT node.
-
->=20
-> In general, it feels like it should actually be fine to create the
-> USB
-> hub driver even if vdd isn't supplied. Sure, it won't do a lot, but
-> it
-> shouldn't actively hurt anything. You'll just be turning off and on
-> bogus regulators and burning a few CPU cycles. I guess the problem is
-> some race condition that you talk about in the commit message. I'd
-> rather see that fixed... That being said, if we want to be more
-> efficient and not burn CPU cycles and memory in Stefan Wahren's case,
-> maybe the USB hub driver itself could return a canonical error value
-> from its probe when it detects that it has no useful job and then
-> "onboard_usb_hub_pdevs" could just silently bail out?
-
-I agree.
+-- 
+Best
+GUO Zihua
 
