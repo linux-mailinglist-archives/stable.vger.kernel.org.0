@@ -2,103 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32761655084
-	for <lists+stable@lfdr.de>; Fri, 23 Dec 2022 13:42:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A2D0655125
+	for <lists+stable@lfdr.de>; Fri, 23 Dec 2022 15:01:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236287AbiLWMl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Dec 2022 07:41:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51392 "EHLO
+        id S235673AbiLWOBG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Dec 2022 09:01:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236401AbiLWMlb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 07:41:31 -0500
-Received: from factor-ts.ru (mail.factor-ts.ru [194.154.76.132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BDF23B419
-        for <stable@vger.kernel.org>; Fri, 23 Dec 2022 04:41:14 -0800 (PST)
-Received: from localhost.localdomain (unknown [89.23.32.60])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        with ESMTP id S229625AbiLWOBF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 09:01:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CE6F6300;
+        Fri, 23 Dec 2022 06:01:03 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by factor-ts.ru (Postfix) with ESMTPSA id 29B645EF1319;
-        Fri, 23 Dec 2022 15:34:26 +0300 (MSK)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=factor-ts.ru; s=555;
-        t=1671798866; bh=a0RwqdTbWjf1b0gaYHGDT6knqvCVKW14bBvv1WhGNos=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=CcKddo/fOm0FwchdLmT6zckhlWnwOS0eiIa8khNK2HXjcr7TkhINYl9eEnDpMkaiQ
-         Q8PvkqFMlhI768NoDeZBlxQ2v3gw9xXrf5aE6c+4k2ds15LSESyC5vXGDSXVomTUws
-         PehJaq+Ie4Lfiwf85yIb07LClrJRHNys+Cy5WkF4=
-From:   Semyon Verchenko <semverchenko@factor-ts.ru>
-To:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Semyon Verchenko <semverchenko@factor-ts.ru>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        lvc-project@linuxtesting.org, Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.10 2/2] wifi: rtlwifi: 8192de: correct checking of IQK reload
-Date:   Fri, 23 Dec 2022 15:34:16 +0300
-Message-Id: <20221223123416.71557-3-semverchenko@factor-ts.ru>
-In-Reply-To: <20221223123416.71557-1-semverchenko@factor-ts.ru>
-References: <20221223123416.71557-1-semverchenko@factor-ts.ru>
+        by ams.source.kernel.org (Postfix) with ESMTPS id 087B0B81F79;
+        Fri, 23 Dec 2022 14:01:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0253C433EF;
+        Fri, 23 Dec 2022 14:01:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1671804060;
+        bh=AJ6hHUXccdAnIHM+TsMt4CJZeVcaFow5vwyGrPBRFhE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=LUZztam9jZfDWWYubVcqtjHZEtiebuyncHyEL2rqdaxgiyJDv90q7RWXmOBJPR/qs
+         euWOMpLmkhrNdJv3nxm2GyHiStAzBe2xsD4AAx7gKiqLEfv25c5G613PpEjFtfsRnu
+         zgBFoDnVDeqtHsKnhdXT32pjZDZBH5CKKhoRq1nUBaF5M6oA1pccRJVhoROrfbnEFX
+         pF2HNBb0alV4jXC4feUr+Kn1/J/Q+qxVkU5zXz4Iv6blp6i3dajOGVYrLtnNcBjJtf
+         sSjA3xwU/o2Be/uhxlhwZ8DV/b0hN7GzEO7CbczGqitD+8A12Klb1dcSTENBaGa3F6
+         IRM3SRxVaTi3A==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1p8icU-0000ES-KX; Fri, 23 Dec 2022 15:01:54 +0100
+Date:   Fri, 23 Dec 2022 15:01:54 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Matthias Kaehlcke <mka@chromium.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+        Stefan Wahren <stefan.wahren@i2se.com>, stable@vger.kernel.org,
+        Douglas Anderson <dianders@chromium.org>,
+        Ravi Chandra Sadineni <ravisadineni@chromium.org>
+Subject: Re: [PATCH v2 1/2] usb: misc: onboard_usb_hub: Don't create platform
+ devices for DT nodes without 'vdd-supply'
+Message-ID: <Y6W00vQm3jfLflUJ@hovoldconsulting.com>
+References: <20221222022605.v2.1.If5e7ec83b1782e4dffa6ea759416a27326c8231d@changeid>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-MailScanner-ID: 29B645EF1319.A0E3F
-X-MailScanner: Found to be clean
-X-MailScanner-From: semverchenko@factor-ts.ru
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221222022605.v2.1.If5e7ec83b1782e4dffa6ea759416a27326c8231d@changeid>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ping-Ke Shih <pkshih@realtek.com>
+On Thu, Dec 22, 2022 at 02:26:44AM +0000, Matthias Kaehlcke wrote:
+> The primary task of the onboard_usb_hub driver is to control the
+> power of an onboard USB hub. The driver gets the regulator from the
+> device tree property "vdd-supply" of the hub's DT node. Some boards
+> have device tree nodes for USB hubs supported by this driver, but
+> don't specify a "vdd-supply". This is not an error per se, it just
+> means that the onboard hub driver can't be used for these hubs, so
+> don't create platform devices for such nodes.
+> 
+> This change doesn't completely fix the reported regression. It
+> should fix it for the RPi 3 B Plus and boards with similar hub
+> configurations (compatible DT nodes without "vdd-supply"), boards
+> that actually use the onboard hub driver could still be impacted
+> by the race conditions discussed in that thread. Not creating the
+> platform devices for nodes without "vdd-supply" is the right
+> thing to do, independently from the race condition, which will
+> be fixed in future patch.
+> 
+> Fixes: 8bc063641ceb ("usb: misc: Add onboard_usb_hub driver")
+> Link: https://lore.kernel.org/r/d04bcc45-3471-4417-b30b-5cf9880d785d@i2se.com/
+> Reported-by: Stefan Wahren <stefan.wahren@i2se.com>
+> Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+> ---
+> 
+> Changes in v2:
+> - don't create platform devices when "vdd-supply" is missing,
+>   rather than returning an error from _find_onboard_hub()
+> - check for "vdd-supply" not "vdd" (Johan)
 
-commit 93fbc1ebd978cf408ef5765e9c1630fce9a8621b upstream
+Please try to remember to CC people providing feedback on your patches.
 
-Since IQK could spend time, we make a cache of IQK result matrix that looks
-like iqk_matrix[channel_idx].val[x][y], and we can reload the matrix if we
-have made a cache. To determine a cache is made, we check
-iqk_matrix[channel_idx].val[0][0].
+> - updated subject and commit message
+> - added 'Link' tag (regzbot)
+> 
+>  drivers/usb/misc/onboard_usb_hub_pdevs.c | 13 +++++++++++++
+>  1 file changed, 13 insertions(+)
+> 
+> diff --git a/drivers/usb/misc/onboard_usb_hub_pdevs.c b/drivers/usb/misc/onboard_usb_hub_pdevs.c
+> index ed22a18f4ab7..8cea53b0907e 100644
+> --- a/drivers/usb/misc/onboard_usb_hub_pdevs.c
+> +++ b/drivers/usb/misc/onboard_usb_hub_pdevs.c
+> @@ -101,6 +101,19 @@ void onboard_hub_create_pdevs(struct usb_device *parent_hub, struct list_head *p
+>  			}
+>  		}
+>  
+> +		/*
+> +		 * The primary task of the onboard_usb_hub driver is to control
+> +		 * the power of an USB onboard hub. Some boards have device tree
+> +		 * nodes for USB hubs supported by this driver, but don't
+> +		 * specify a "vdd-supply", which is needed by the driver. This is
+> +		 * not a DT error per se, it just means that the onboard hub
+> +		 * driver can't be used with these nodes, so don't create a
+> +		 * a platform device for such a node.
+> +		 */
+> +		if (!of_get_property(np, "vdd-supply", NULL) &&
+> +		    !of_get_property(npc, "vdd-supply", NULL))
+> +			goto node_put;
 
-The initial commit 7274a8c22980 ("rtlwifi: rtl8192de: Merge phy routines")
-make a mistake that checks incorrect iqk_matrix[channel_idx].val[0] that
-is always true, and this mistake is found by commit ee3db469dd31
-("wifi: rtlwifi: remove always-true condition pointed out by GCC 12"), so
-I recall the vendor driver to find fix and apply the correctness.
+So as I mentioned elsewhere, this doesn't look right. It is the
+responsibility of the platform driver to manage its resources and it may
+not even need a supply.
 
-Fixes: 7274a8c22980 ("rtlwifi: rtl8192de: Merge phy routines")
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Signed-off-by: Semyon Verchenko <semverchenko@factor-ts.ru>
-Link: https://lore.kernel.org/r/20220801113345.42016-1-pkshih@realtek.com
----
- drivers/net/wireless/realtek/rtlwifi/rtl8192de/phy.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+I see now that you have already matched on the compatible property above
+so that you only create the platform device for the devices that (may)
+need it. 
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/phy.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/phy.c
-index d8a57e96a92f..d3027f8fbd38 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/phy.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/phy.c
-@@ -2385,11 +2385,10 @@ void rtl92d_phy_reload_iqk_setting(struct ieee80211_hw *hw, u8 channel)
- 			rtl_dbg(rtlpriv, COMP_SCAN, DBG_LOUD,
- 				"Just Read IQK Matrix reg for channel:%d....\n",
- 				channel);
--			_rtl92d_phy_patha_fill_iqk_matrix(hw, true,
--					rtlphy->iqk_matrix[
--					indexforchannel].value,	0,
--					(rtlphy->iqk_matrix[
--					indexforchannel].value[0][2] == 0));
-+			if (rtlphy->iqk_matrix[indexforchannel].value[0][0] != 0)
-+				_rtl92d_phy_patha_fill_iqk_matrix(hw, true,
-+					rtlphy->iqk_matrix[indexforchannel].value, 0,
-+					rtlphy->iqk_matrix[indexforchannel].value[0][2] == 0);
- 			if (IS_92D_SINGLEPHY(rtlhal->version)) {
- 				if ((rtlphy->iqk_matrix[
- 					indexforchannel].value[0][4] != 0)
--- 
-2.38.1
+It seems the assumptions that this driver was written under needs to be
+revisited.
 
+> +
+>  		pdev = of_platform_device_create(np, NULL, &parent_hub->dev);
+>  		if (!pdev) {
+>  			dev_err(&parent_hub->dev,
+
+Johan
