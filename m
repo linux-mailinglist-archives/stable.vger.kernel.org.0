@@ -2,114 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DEBA654B1B
-	for <lists+stable@lfdr.de>; Fri, 23 Dec 2022 03:31:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A498654BF2
+	for <lists+stable@lfdr.de>; Fri, 23 Dec 2022 05:22:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229704AbiLWCb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Dec 2022 21:31:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39706 "EHLO
+        id S229783AbiLWEWO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Dec 2022 23:22:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229582AbiLWCbZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Dec 2022 21:31:25 -0500
-X-Greylist: delayed 599 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 22 Dec 2022 18:31:24 PST
-Received: from gw.atmark-techno.com (gw.atmark-techno.com [13.115.124.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BBB715814
-        for <stable@vger.kernel.org>; Thu, 22 Dec 2022 18:31:24 -0800 (PST)
-Received: from gw.atmark-techno.com (localhost [127.0.0.1])
-        by gw.atmark-techno.com (Postfix) with ESMTP id 76D0660110
-        for <stable@vger.kernel.org>; Fri, 23 Dec 2022 11:12:38 +0900 (JST)
-Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com [209.85.214.197])
-        by gw.atmark-techno.com (Postfix) with ESMTPS id CEAAE6010E
-        for <stable@vger.kernel.org>; Fri, 23 Dec 2022 11:12:37 +0900 (JST)
-Received: by mail-pl1-f197.google.com with SMTP id f8-20020a170902ce8800b00190c6518e21so2514846plg.1
-        for <stable@vger.kernel.org>; Thu, 22 Dec 2022 18:12:37 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=93cLn+LRIp8cfyEt0hoEq4b5MzTpiSYxIJZ4bO6Vpug=;
-        b=tNChOflLP1A/sTCREYOLvauEmGlXFsLVXL2GOf2WOWDW3ncIt2P2rl4CLegnlL58de
-         AuAwbEyNSyW23S0yx7CDvJf0n4wcbAbRZGxWnmhcGFbv0mMJ0WYhCv5J1S2FC6JYCN5T
-         7vcKLe1Vp0kr4qVFOoJjSdaGnz88zgAB/JGqiHES930gXF034G7TrtI264vokO2bIdIH
-         klP9VFkT9QS9Qgq3ukQ9yNLXmD3ySi4c3YVHSZ/b2Vcy5u4KoGYbkKY274jEeisRFDJL
-         nUW9apGpjBAbu8mqvNrojousoNo6AXdkFUtttXdsq7G25DdgDpDSxow/7IMoYejgnnfW
-         epXw==
-X-Gm-Message-State: AFqh2kpeBA6ugH68nHCYwEf5CmpL9dX02HqQatsKkxu7M20FsjG2sd7u
-        WAQ6RR+x36UA+Di6/+A1+TqaDxl2gB3LfvjgutmAiiCKlsna9NZfSVSFj9LSeyAY0FqIAj0Da7x
-        iRAmxCazTvJCKy8bf+NDq
-X-Received: by 2002:aa7:921a:0:b0:576:de1:cd32 with SMTP id 26-20020aa7921a000000b005760de1cd32mr8819370pfo.0.1671761556919;
-        Thu, 22 Dec 2022 18:12:36 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXv5NY5kv2b2FMEzQtFveGRj3mudS9rZ8bcNHH4p882FhazY117d677Z8wksF8JVTkfXujOgdA==
-X-Received: by 2002:aa7:921a:0:b0:576:de1:cd32 with SMTP id 26-20020aa7921a000000b005760de1cd32mr8819357pfo.0.1671761556648;
-        Thu, 22 Dec 2022 18:12:36 -0800 (PST)
-Received: from pc-zest.atmarktech (76.125.194.35.bc.googleusercontent.com. [35.194.125.76])
-        by smtp.gmail.com with ESMTPSA id y18-20020aa79432000000b00577617c05ecsm1320774pfo.130.2022.12.22.18.12.35
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 22 Dec 2022 18:12:36 -0800 (PST)
-Received: from martinet by pc-zest.atmarktech with local (Exim 4.96)
-        (envelope-from <martinet@pc-zest>)
-        id 1p8XY2-00GpKT-2P;
-        Fri, 23 Dec 2022 11:12:34 +0900
-Date:   Fri, 23 Dec 2022 11:12:24 +0900
-From:   Dominique Martinet <dominique.martinet@atmark-techno.com>
-To:     Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Lukas Wunner <lukas@wunner.de>,
-        Daisuke Mizobuchi <mizo@atmark-techno.com>,
-        Ilpo =?utf-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>,
-        linux-serial@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.15.y v2] serial: fixup backport of "serial: Deassert
- Transmit Enable on probe in driver-specific way"
-Message-ID: <Y6UOiAt+o7425bRa@atmark-techno.com>
-References: <20221220102316.1280393-1-linux@rasmusvillemoes.dk>
- <20221222114414.1886632-1-linux@rasmusvillemoes.dk>
+        with ESMTP id S229549AbiLWEWM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Dec 2022 23:22:12 -0500
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25C34201B4;
+        Thu, 22 Dec 2022 20:22:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1671769332; x=1703305332;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=TGsft6eGoWyuHs8y1eP8FVvpAbbkc9Q7zlt+87+msuw=;
+  b=mpI6zDva3jBnwMW40ZKC2k811RkJ7KFtkTW3f3PcwOUKtYn+VxKqMOUs
+   DYu33YBwDw+wQ1W7hTbykEeTpkvMhQcWYiADZd0rgzDGFXepguTlQjVzH
+   qMh32SaILNUpv8/rpEgKZPTgNxS5Jvtu2ccVKgyNvWZLkav0qnUR2qLml
+   7hvlFvM7k/vl/WmgVdZx5gMgsr/Uz4wZnvA99dgve21cUeabEOEDIkRJT
+   9bQfc0IRFPsnNw8ndlAU6Wfx6oUwSdLqymwlB6B/Vkf1bWm0ptmh/VzEl
+   mIWNDxm7BgH3IJBFrTod32qC95EHme4t3YncW8xgOB6UhSFq8K7LrtQP3
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10569"; a="303743151"
+X-IronPort-AV: E=Sophos;i="5.96,267,1665471600"; 
+   d="scan'208";a="303743151"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Dec 2022 20:22:11 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10569"; a="794355987"
+X-IronPort-AV: E=Sophos;i="5.96,267,1665471600"; 
+   d="scan'208";a="794355987"
+Received: from uhpatel-desk4.jf.intel.com ([10.23.15.157])
+  by fmsmga001.fm.intel.com with ESMTP; 22 Dec 2022 20:22:10 -0800
+From:   Utkarsh Patel <utkarsh.h.patel@intel.com>
+To:     mika.westerberg@linux.intel.com, michael.jamet@intel.com,
+        andreas.noever@gmail.com, YehezkelShB@gmail.com,
+        linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+Cc:     rajmohan.mani@intel.com, Utkarsh Patel <utkarsh.h.patel@intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2] thunderbolt: Do not report errors if on-board retimers are found
+Date:   Thu, 22 Dec 2022 20:22:46 -0800
+Message-Id: <20221223042246.3355450-1-utkarsh.h.patel@intel.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20221222114414.1886632-1-linux@rasmusvillemoes.dk>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Rasmus Villemoes wrote on Thu, Dec 22, 2022 at 12:44:14PM +0100:
-> When 7c7f9bc986e6 ("serial: Deassert Transmit Enable on probe in
-> driver-specific way") got backported to 5.15.y, there known as
-> b079d3775237, some hunks were accidentally left out.
-> 
-> In fsl_lpuart.c, this amounts to uart_remove_one_port() being called
-> in an error path despite uart_add_one_port() not having been called.
-> 
-> In serial_core.c, it is possible that the omission in
-> uart_suspend_port() is harmless, but the backport did have the
-> corresponding hunk in uart_resume_port(), it runs counter to the
-> original commit's intention of
-> 
->   Skip any invocation of ->set_mctrl() if RS485 is enabled.
-> 
-> and it's certainly better to be aligned with upstream.
-> 
-> Fixes: b079d3775237 ("serial: Deassert Transmit Enable on probe in driver-specific way")
-> Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+tb_retimer_scan() returns error even when on-board retimers are found.
 
-Thank you!
-I've confirmed both hunks are part of the original patch; I'm not quite
-sure why we missed them...
+Fixes: 1e56c88adecc ("thunderbolt: Runtime resume USB4 port when retimers are scanned")
+Cc: stable@vger.kernel.org
+Signed-off-by: Utkarsh Patel <utkarsh.h.patel@intel.com>
+---
+Changes in V2:
+1. Removed extra line between the Fixes tag and signed-off.
+2. Added the tag for stable tree.
+---
 
-Reviewed-by: Dominique MARTINET <dominique.martinet@atmark-techno.com>
+ drivers/thunderbolt/retimer.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-
-This doesn't apply cleanly to 5.10 because 5.10 did not get
-401fb66a3 ("fsl_lpuart: Don't enable interrupts too early") backported,
-I think it makes sense to take as well so I'll send a backport of these
-two patches for 5.10
-
+diff --git a/drivers/thunderbolt/retimer.c b/drivers/thunderbolt/retimer.c
+index 81252e31014a..6ebe7a2886ec 100644
+--- a/drivers/thunderbolt/retimer.c
++++ b/drivers/thunderbolt/retimer.c
+@@ -471,10 +471,9 @@ int tb_retimer_scan(struct tb_port *port, bool add)
+ 			break;
+ 	}
+ 
+-	if (!last_idx) {
+-		ret = 0;
++	ret = 0;
++	if (!last_idx)
+ 		goto out;
+-	}
+ 
+ 	/* Add on-board retimers if they do not exist already */
+ 	for (i = 1; i <= last_idx; i++) {
 -- 
-Dominique
-
+2.25.1
 
