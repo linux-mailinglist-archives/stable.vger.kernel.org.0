@@ -2,101 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F98E654F16
-	for <lists+stable@lfdr.de>; Fri, 23 Dec 2022 11:18:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC7B8654FB3
+	for <lists+stable@lfdr.de>; Fri, 23 Dec 2022 12:28:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235330AbiLWKSH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Dec 2022 05:18:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49354 "EHLO
+        id S235897AbiLWL2G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Dec 2022 06:28:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229613AbiLWKSG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 05:18:06 -0500
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76E7E1C13D
-        for <stable@vger.kernel.org>; Fri, 23 Dec 2022 02:18:04 -0800 (PST)
-Received: by mail-ej1-x635.google.com with SMTP id fc4so10973836ejc.12
-        for <stable@vger.kernel.org>; Fri, 23 Dec 2022 02:18:04 -0800 (PST)
+        with ESMTP id S235667AbiLWL2F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 06:28:05 -0500
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75D0D6332
+        for <stable@vger.kernel.org>; Fri, 23 Dec 2022 03:28:03 -0800 (PST)
+Received: by mail-ej1-x634.google.com with SMTP id gh17so11438187ejb.6
+        for <stable@vger.kernel.org>; Fri, 23 Dec 2022 03:28:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ngCL7hahwZSsIfTtiiMR9j9qyJmBd48ja7/DveYVn3g=;
-        b=M9g/XdGbkQnk/GL71Vi5wc/SKmyFFVpEpDAiLAhoCVByjlBPnTuFY8kTJHLhfSYUnr
-         RiMzu39csem7+Gei3N1fWhs6dWHNYqNU+7Tn3QPgcYa2VKEHH/qL8BvUAjCu8DFt/zak
-         BLNqRuUDRuESIDt+yaBhfhtL9WZlVZZ//wISdF1NijyM6+lvU7mJyRah0/FJOWH4mEEg
-         TPeN4kRY/Hwi9FnYmSMIMn2lhWB6crY8Zw1Zz5muLlm7qDl27GpV7dYsOOoEROvTZDyC
-         vBhdQg/st/yJW+bFXF5jgBx7puIAUW+bAPhgJYdeCbwbeJgV67EYJiqoTZKzPfsDwywB
-         kRfQ==
+        d=rammhold-de.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=lFeknuNwkrG7RSqHcx+1XNwP++s/iRA1VEaVxTgmg4g=;
+        b=hBbGx/sx0Xtj3qyO2DnwolsWWeXvKKEA29FnQw2uFnuLWUqZyGEpIfLpeWpV5eFEyH
+         HnvlBU4V1TXDCd5xvURIoA5VkDtmPHJRz7lpADizpMIQVg13g9TmNN0ynsnj2dvANv0r
+         lFdto2x+Zx78dAFxjFeyokkwCapQ6p9krN0nzxWGqRkR+aOZIs+jlLlVPEKT4goFw2VS
+         fOO+zEEeKYzFog9V1fNbWRx9i9doTd966dDU8OLs5Wwci0rCIOQbCLQIdpcOGYzvG41i
+         n70HL3EZVXV998EVqgv/IBFVODy3wTN1a0neae1iRlrsQHoAZf09UrrBMPIc6oVlTV0a
+         dwAA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ngCL7hahwZSsIfTtiiMR9j9qyJmBd48ja7/DveYVn3g=;
-        b=oC1aSvGpe8GbSyy2i7/cAyjP/CR9wRJ52bvym3qZpyF3dvfJvnYBo9g/SzkmguLqfX
-         XS4WQXUPguoQkvjzqckjROmvCWmeQLvlIungYMvZGClfC8H7kJmsHo17WDkvxqp/ETSm
-         sYiEf2aRzjmW2ZaCXiNFDwvn+f8PZWU/sz8Vk6HUv8WF8CtTtMCgD3LohVUYs+RLxwYK
-         +2clkyCil3Q8INmkAn+xSBYN2si0qJ3b0YQtgyTYOM9ZZAlYBvmIcagVjCDI2ofY/Fy6
-         13BMIxrxuRLDsUbpDRPjqAp2rYDTeWukSNDSF5+7s07KggBZfULNpEaFCJf283e1X+nk
-         /ckg==
-X-Gm-Message-State: AFqh2kp9tq2Y3nHqAcp2wWyNLc3FYJyDYe6551p+b0up5WpEOlQ5JRTu
-        KpTCzOAA87lZtV2Ij1FB0X4D1zcTKE0by10FxEg=
-X-Google-Smtp-Source: AMrXdXsjfrQxT9DlU4UJnZ8FTKK1aY1ab4mPfKxAoUOxtwi1P/61WK6rIs87fGwg+b7TGOts+f68Uxubpo0MMjs3l/Q=
-X-Received: by 2002:a17:906:848f:b0:7ad:79c0:5482 with SMTP id
- m15-20020a170906848f00b007ad79c05482mr489039ejx.730.1671790682966; Fri, 23
- Dec 2022 02:18:02 -0800 (PST)
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=lFeknuNwkrG7RSqHcx+1XNwP++s/iRA1VEaVxTgmg4g=;
+        b=O9VOeOZZs94yVmSA8jUC3/wy/Pj+o/6t5CCUTv4VpHB4PuGd5/EABxKJgLSFO4Bu90
+         MEC3TK1aq/i+g6EKumajms0qPATYCVN1T/H9w+J3izpastdCJR3kNfgNOogX7AsGDF0v
+         cQ3ZYfZlcUrdsVgg3NB14Agy/BuG06RDlWpw8Zdb5+/XlLNYVJEFiQM54/RmITp3fTXD
+         eE5VDqKDaVqdGPY4JqX9/1Rj056OGadfV6elNiOAKH63HpNoD+VwOkS77u7QIuLle0JA
+         HmfHmiuTYzOoqB4i5nnwdwF3UPkR9jx7CQ0MKAK1I0Yq8NpKhVFwLmam8YYMxCH/Elon
+         JWgQ==
+X-Gm-Message-State: AFqh2kp0T0qQ0yf5T9GO0wYxR9sSTeIZGeEmwJZJutENLcNSXzwTpp2n
+        Fh/5K4ob3NuFKjmj1HDerNuCng==
+X-Google-Smtp-Source: AMrXdXvezyb09TyK7KItP1R8P9rE/8Gjzwdr9cT8Z3YJHnqevqYEgHk0QLQW1O9Ph7jpPT2nb1ImMA==
+X-Received: by 2002:a17:906:5048:b0:7c0:b770:df94 with SMTP id e8-20020a170906504800b007c0b770df94mr7701482ejk.63.1671794881943;
+        Fri, 23 Dec 2022 03:28:01 -0800 (PST)
+Received: from localhost ([2a00:e67:3f2:a:a55e:fcc9:ef69:52ff])
+        by smtp.gmail.com with ESMTPSA id q9-20020a170906770900b0078ddb518a90sm1267202ejm.223.2022.12.23.03.28.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 23 Dec 2022 03:28:00 -0800 (PST)
+From:   andreas@rammhold.de
+To:     John Crispin <john@phrozen.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Frank Rowand <frowand.list@gmail.com>
+Cc:     Andreas Rammhold <andreas@rammhold.de>, stable@vger.kernel.org,
+        Rob Herring <robh@kernel.org>, linux-mips@vger.kernel.org,
+        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+Subject: [PATCH] of/fdt: run soc memory setup when early_init_dt_scan_memory fails
+Date:   Fri, 23 Dec 2022 12:27:47 +0100
+Message-Id: <20221223112748.2935235-1-andreas@rammhold.de>
+X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
-Received: by 2002:a05:7412:d187:b0:8f:b2fd:24a7 with HTTP; Fri, 23 Dec 2022
- 02:18:02 -0800 (PST)
-Reply-To: hitnodeby23@yahoo.com
-From:   Hinda Itno Deby <robertaryeetey55@gmail.com>
-Date:   Fri, 23 Dec 2022 02:18:02 -0800
-Message-ID: <CAJgYoLxVRQoGO0mNoM4H-gAUrDVK+xsRtp5kBgzB_mU+S8U_Aw@mail.gmail.com>
-Subject: Compilment of the season
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=7.8 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM,UNDISC_MONEY,
-        URG_BIZ autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2a00:1450:4864:20:0:0:0:635 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5000]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [robertaryeetey55[at]gmail.com]
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [robertaryeetey55[at]gmail.com]
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [hitnodeby23[at]yahoo.com]
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        *  0.6 URG_BIZ Contains urgent matter
-        *  2.7 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-        *  2.4 UNDISC_MONEY Undisclosed recipients + money/fraud signs
-X-Spam-Level: *******
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-My name is Hinda Itno Deby Please I want us to discuss Urgent Business
-Proposal, if you are interested kindly reply to me so i can give you
-all the details.
- Thanks and God Bless You.
-Ms Hinda Itno Deby
+From: Andreas Rammhold <andreas@rammhold.de>
+
+If memory has been found early_init_dt_scan_memory now returns 1. If
+it hasn't found any memory it will return 0, allowing other memory
+setup mechanisms to carry on.
+
+Previously early_init_dt_scan_memory always returned 0 without
+distinguishing between any kind of memory setup being done or not. Any
+code path after the early_init_dt_scan memory call in the ramips
+plat_mem_setup code wouldn't be executed anymore. Making
+early_init_dt_scan_memory the only way to initialize the memory.
+
+Some boards, including my mt7621 based Cudy X6 board, depend on memory
+initialization being done via the soc_info.mem_detect function
+pointer. Those wouldn't be able to obtain memory and panic the kernel
+during early bootup with the message "early_init_dt_alloc_memory_arch:
+Failed to allocate 12416 bytes align=0x40".
+
+Fixes: 1f012283e936 ("of/fdt: Rework early_init_dt_scan_memory() to call directly")
+Cc: stable@vger.kernel.org
+Signed-off-by: Andreas Rammhold <andreas@rammhold.de>
+---
+ arch/mips/ralink/of.c | 2 +-
+ drivers/of/fdt.c      | 6 ++++--
+ 2 files changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/arch/mips/ralink/of.c b/arch/mips/ralink/of.c
+index ea8072acf8d94..6873b02634219 100644
+--- a/arch/mips/ralink/of.c
++++ b/arch/mips/ralink/of.c
+@@ -63,7 +63,7 @@ void __init plat_mem_setup(void)
+ 	dtb = get_fdt();
+ 	__dt_setup_arch(dtb);
+ 
+-	if (!early_init_dt_scan_memory())
++	if (early_init_dt_scan_memory())
+ 		return;
+ 
+ 	if (soc_info.mem_detect)
+diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
+index 7b571a6316397..4f88e8bbdd279 100644
+--- a/drivers/of/fdt.c
++++ b/drivers/of/fdt.c
+@@ -1099,7 +1099,7 @@ u64 __init dt_mem_next_cell(int s, const __be32 **cellp)
+  */
+ int __init early_init_dt_scan_memory(void)
+ {
+-	int node;
++	int node, found_memory = 0;
+ 	const void *fdt = initial_boot_params;
+ 
+ 	fdt_for_each_subnode(node, fdt, 0) {
+@@ -1139,6 +1139,8 @@ int __init early_init_dt_scan_memory(void)
+ 
+ 			early_init_dt_add_memory_arch(base, size);
+ 
++			found_memory = 1;
++
+ 			if (!hotpluggable)
+ 				continue;
+ 
+@@ -1147,7 +1149,7 @@ int __init early_init_dt_scan_memory(void)
+ 					base, base + size);
+ 		}
+ 	}
+-	return 0;
++	return found_memory;
+ }
+ 
+ int __init early_init_dt_scan_chosen(char *cmdline)
+-- 
+2.38.1
+
