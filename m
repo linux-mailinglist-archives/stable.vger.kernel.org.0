@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04642655725
-	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 02:32:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08D5A655733
+	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 02:32:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233401AbiLXBcd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Dec 2022 20:32:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56684 "EHLO
+        id S233096AbiLXBcz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Dec 2022 20:32:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236566AbiLXBbl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 20:31:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57AF1B3A;
-        Fri, 23 Dec 2022 17:30:43 -0800 (PST)
+        with ESMTP id S236606AbiLXBcM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 20:32:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C55418FCB;
+        Fri, 23 Dec 2022 17:30:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55CF261FAA;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 50768B8213E;
+        Sat, 24 Dec 2022 01:30:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32B60C433F0;
         Sat, 24 Dec 2022 01:30:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 795F2C433D2;
-        Sat, 24 Dec 2022 01:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671845427;
-        bh=4vG+/W/uFwo1EbehRw344z6Ae4IfvCK60GDYogsD2vM=;
+        s=k20201202; t=1671845429;
+        bh=S+ByuJReLSBwV8oQbXlzNTKSMaLurKG1gsu/vl1k3uU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XTeOfYJX83Re6XdLdGuMPJh3aumXZYCwqzlAcPbzuP2cn7PG6M8iKvDqf956L7vTQ
-         UqVGG1/9k9Fi2l3aZnRfI0kj+2hYoGz/jQQ6NYIObVNetZkKwrvNjFiwpdTqwWE210
-         AP6pXl9bCcyob0P2RxYGHqCs/tdJZ+BWDWDEcmBRZp+vxkVMRynFqxc7gZQ/pGmMB9
-         XP0lrOSZe+z8HtyM9BUW6yU28p8RM8rkDJywRPtqM6THsTmhEVkWejLtSeLZAFWRBG
-         uoVE9HZE1ts5XC6Dyk+aXheXBxv4p6n09D5cn9Sa2ZmtnA9sNmx1CZkbT2jeDE7Lic
-         A0I2ub9ji4Kmw==
+        b=m1HvdLD1imcmenCw7PyWyme3EYabQaMHEW0QvEgckTzZ8l15eucUWfsSbLwqML8H1
+         EAwZjNj+Lltn4R66z9yPHIcx+DdbbZVbYEBIkICF0Di+jxcH7AdbH94wA35PGLu1Cz
+         qD7Ug6ultnlfwoOaDDiRqUAHMBp+RUWUjlMDl4kyZfvmKV2EsUlD+s2UeCUezyjsGL
+         jWdOOWSDe7pu34evFwItfDmYv5ROTlxUmY/zSD4k3/5RXrJpLhu5G5Qrb9XBeMopmL
+         cZX7UxBO3uaKArzXdfyTowHyot9vsZkbP7tEO96gjDVXEpkzlY4bcKl6gk5cve/NNa
+         6mubE7LFSjHAQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, mathias.nyman@intel.com,
-        evgreen@chromium.org, yj84.jang@samsung.com,
-        stern@rowland.harvard.edu, bhelgaas@google.com,
-        heikki.krogerus@linux.intel.com, christophe.leroy@csgroup.eu,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 21/26] xhci: disable U3 suspended ports in S4 hibernate poweroff_late stage
-Date:   Fri, 23 Dec 2022 20:29:25 -0500
-Message-Id: <20221224012930.392358-21-sashal@kernel.org>
+Cc:     =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@linux.intel.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, robert.moore@intel.com,
+        linux-acpi@vger.kernel.org, devel@acpica.org
+Subject: [PATCH AUTOSEL 6.1 22/26] ACPICA: Fix operand resolution
+Date:   Fri, 23 Dec 2022 20:29:26 -0500
+Message-Id: <20221224012930.392358-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221224012930.392358-1-sashal@kernel.org>
 References: <20221224012930.392358-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,153 +59,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
 
-[ Upstream commit c3bbacd61baace2f4fbab17012c3d149df2d50f1 ]
+[ Upstream commit 7dfb216eda99bbfc2a8c3b03d2eec63314f52b3c ]
 
-Disable U3 suspended ports in hibernate S4 poweroff_late for systems
-with XHCI_RESET_TO_DEFAULT quirk, if wakeup is not enabled.
+In our tests we get UBSAN warning coming from ACPI parser. This is
+caused by trying to resolve operands when there is none.
 
-This reduces the number of self-powered usb devices from surviving in
-U3 suspended state into next reboot.
+[    0.000000] Linux version 5.15.0-rc3chromeavsrel1.0.184+ (root@...) (gcc (Ubuntu 10.3.0-1ubuntu1~20.04) 10.3.0, GNU ld (GNU Binutils for Ubuntu) 2.34) #1 SMP PREEMPT Sat Oct 16 00:08:27 UTC 2021
+...
+[ 14.719508] ================================================================================
+[ 14.719551] UBSAN: array-index-out-of-bounds in /.../linux/drivers/acpi/acpica/dswexec.c:401:12
+[ 14.719594] index -1 is out of range for type 'acpi_operand_object *[9]'
+[ 14.719621] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.15.0-rc3chromeavsrel1.0.184+ #1
+[ 14.719657] Hardware name: Intel Corp. Geminilake/GLK RVP2 LP4SD (07), BIOS GELKRVPA.X64.0214.B50.2009111159 09/11/2020
+[ 14.719694] Call Trace:
+[ 14.719712] dump_stack_lvl+0x38/0x49
+[ 14.719749] dump_stack+0x10/0x12
+[ 14.719775] ubsan_epilogue+0x9/0x45
+[ 14.719801] __ubsan_handle_out_of_bounds.cold+0x44/0x49
+[ 14.719835] acpi_ds_exec_end_op+0x1d7/0x6b5
+[ 14.719870] acpi_ps_parse_loop+0x942/0xb34
+...
 
-Bootloader/firmware on these systems can't handle usb ports in U3, and
-will timeout, causing extra delay during reboot/restore from S4.
+Problem happens because WalkState->NumOperands is 0 and it is used when
+trying to access into operands table. Actual code is:
+WalkState->Operands [WalkState->NumOperands -1]
+which causes out of bound access. Improve the check before above access
+to check if ACPI opcode should have any arguments (operands) at all.
 
-Add pci_poweroff_late() callback to struct usb_hcd to get this done at
-the correct stage in hibernate.
-
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20221130091944.2171610-5-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://github.com/acpica/acpica/pull/745
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/hcd-pci.c  | 13 ++++++++++
- drivers/usb/host/xhci-pci.c | 52 +++++++++++++++++++++++++++++++++++++
- include/linux/usb/hcd.h     |  3 +++
- 3 files changed, 68 insertions(+)
+ drivers/acpi/acpica/dswexec.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/core/hcd-pci.c b/drivers/usb/core/hcd-pci.c
-index 9b77f49b3560..ab2f3737764e 100644
---- a/drivers/usb/core/hcd-pci.c
-+++ b/drivers/usb/core/hcd-pci.c
-@@ -558,6 +558,17 @@ static int hcd_pci_suspend_noirq(struct device *dev)
- 	return retval;
- }
+diff --git a/drivers/acpi/acpica/dswexec.c b/drivers/acpi/acpica/dswexec.c
+index e8ad41387f84..b082eb942a0f 100644
+--- a/drivers/acpi/acpica/dswexec.c
++++ b/drivers/acpi/acpica/dswexec.c
+@@ -389,9 +389,11 @@ acpi_status acpi_ds_exec_end_op(struct acpi_walk_state *walk_state)
  
-+static int hcd_pci_poweroff_late(struct device *dev)
-+{
-+	struct pci_dev		*pci_dev = to_pci_dev(dev);
-+	struct usb_hcd		*hcd = pci_get_drvdata(pci_dev);
-+
-+	if (hcd->driver->pci_poweroff_late && !HCD_DEAD(hcd))
-+		return hcd->driver->pci_poweroff_late(hcd, device_may_wakeup(dev));
-+
-+	return 0;
-+}
-+
- static int hcd_pci_resume_noirq(struct device *dev)
- {
- 	powermac_set_asic(to_pci_dev(dev), 1);
-@@ -578,6 +589,7 @@ static int hcd_pci_restore(struct device *dev)
+ 		/*
+ 		 * All opcodes require operand resolution, with the only exceptions
+-		 * being the object_type and size_of operators.
++		 * being the object_type and size_of operators as well as opcodes that
++		 * take no arguments.
+ 		 */
+-		if (!(walk_state->op_info->flags & AML_NO_OPERAND_RESOLVE)) {
++		if (!(walk_state->op_info->flags & AML_NO_OPERAND_RESOLVE) &&
++		    (walk_state->op_info->flags & AML_HAS_ARGS)) {
  
- #define hcd_pci_suspend		NULL
- #define hcd_pci_suspend_noirq	NULL
-+#define hcd_pci_poweroff_late	NULL
- #define hcd_pci_resume_noirq	NULL
- #define hcd_pci_resume		NULL
- #define hcd_pci_restore		NULL
-@@ -615,6 +627,7 @@ const struct dev_pm_ops usb_hcd_pci_pm_ops = {
- 	.thaw_noirq	= NULL,
- 	.thaw		= hcd_pci_resume,
- 	.poweroff	= hcd_pci_suspend,
-+	.poweroff_late	= hcd_pci_poweroff_late,
- 	.poweroff_noirq	= hcd_pci_suspend_noirq,
- 	.restore_noirq	= hcd_pci_resume_noirq,
- 	.restore	= hcd_pci_restore,
-diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
-index 7bccbe50bab1..f8100aa2f5d0 100644
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -620,6 +620,57 @@ static int xhci_pci_resume(struct usb_hcd *hcd, bool hibernated)
- 	return retval;
- }
- 
-+static int xhci_pci_poweroff_late(struct usb_hcd *hcd, bool do_wakeup)
-+{
-+	struct xhci_hcd		*xhci = hcd_to_xhci(hcd);
-+	struct xhci_port	*port;
-+	struct usb_device	*udev;
-+	unsigned int		slot_id;
-+	u32			portsc;
-+	int			i;
-+
-+	/*
-+	 * Systems with XHCI_RESET_TO_DEFAULT quirk have boot firmware that
-+	 * cause significant boot delay if usb ports are in suspended U3 state
-+	 * during boot. Some USB devices survive in U3 state over S4 hibernate
-+	 *
-+	 * Disable ports that are in U3 if remote wake is not enabled for either
-+	 * host controller or connected device
-+	 */
-+
-+	if (!(xhci->quirks & XHCI_RESET_TO_DEFAULT))
-+		return 0;
-+
-+	for (i = 0; i < HCS_MAX_PORTS(xhci->hcs_params1); i++) {
-+		port = &xhci->hw_ports[i];
-+		portsc = readl(port->addr);
-+
-+		if ((portsc & PORT_PLS_MASK) != XDEV_U3)
-+			continue;
-+
-+		slot_id = xhci_find_slot_id_by_port(port->rhub->hcd, xhci,
-+						    port->hcd_portnum + 1);
-+		if (!slot_id || !xhci->devs[slot_id]) {
-+			xhci_err(xhci, "No dev for slot_id %d for port %d-%d in U3\n",
-+				 slot_id, port->rhub->hcd->self.busnum, port->hcd_portnum + 1);
-+			continue;
-+		}
-+
-+		udev = xhci->devs[slot_id]->udev;
-+
-+		/* if wakeup is enabled then don't disable the port */
-+		if (udev->do_remote_wakeup && do_wakeup)
-+			continue;
-+
-+		xhci_dbg(xhci, "port %d-%d in U3 without wakeup, disable it\n",
-+			 port->rhub->hcd->self.busnum, port->hcd_portnum + 1);
-+		portsc = xhci_port_state_to_neutral(portsc);
-+		writel(portsc | PORT_PE, port->addr);
-+	}
-+
-+	return 0;
-+}
-+
- static void xhci_pci_shutdown(struct usb_hcd *hcd)
- {
- 	struct xhci_hcd		*xhci = hcd_to_xhci(hcd);
-@@ -686,6 +737,7 @@ static int __init xhci_pci_init(void)
- #ifdef CONFIG_PM
- 	xhci_pci_hc_driver.pci_suspend = xhci_pci_suspend;
- 	xhci_pci_hc_driver.pci_resume = xhci_pci_resume;
-+	xhci_pci_hc_driver.pci_poweroff_late = xhci_pci_poweroff_late;
- 	xhci_pci_hc_driver.shutdown = xhci_pci_shutdown;
- #endif
- 	return pci_register_driver(&xhci_pci_driver);
-diff --git a/include/linux/usb/hcd.h b/include/linux/usb/hcd.h
-index 78cd566ee238..b51c07111729 100644
---- a/include/linux/usb/hcd.h
-+++ b/include/linux/usb/hcd.h
-@@ -269,6 +269,9 @@ struct hc_driver {
- 	/* called after entering D0 (etc), before resuming the hub */
- 	int	(*pci_resume)(struct usb_hcd *hcd, bool hibernated);
- 
-+	/* called just before hibernate final D3 state, allows host to poweroff parts */
-+	int	(*pci_poweroff_late)(struct usb_hcd *hcd, bool do_wakeup);
-+
- 	/* cleanly make HCD stop writing memory and doing I/O */
- 	void	(*stop) (struct usb_hcd *hcd);
+ 			/* Resolve all operands */
  
 -- 
 2.35.1
