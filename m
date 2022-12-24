@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DF8B655912
+	by mail.lfdr.de (Postfix) with ESMTP id EEBC2655914
 	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 09:12:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230200AbiLXIMS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Dec 2022 03:12:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55812 "EHLO
+        id S230312AbiLXIMV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Dec 2022 03:12:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230061AbiLXIMQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 24 Dec 2022 03:12:16 -0500
-Received: from mail-pg1-x54a.google.com (mail-pg1-x54a.google.com [IPv6:2607:f8b0:4864:20::54a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D642BDF3A
-        for <stable@vger.kernel.org>; Sat, 24 Dec 2022 00:12:15 -0800 (PST)
-Received: by mail-pg1-x54a.google.com with SMTP id 191-20020a6306c8000000b0049699771579so1254480pgg.3
-        for <stable@vger.kernel.org>; Sat, 24 Dec 2022 00:12:15 -0800 (PST)
+        with ESMTP id S230303AbiLXIMU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 24 Dec 2022 03:12:20 -0500
+Received: from mail-pj1-x1049.google.com (mail-pj1-x1049.google.com [IPv6:2607:f8b0:4864:20::1049])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7683D13B
+        for <stable@vger.kernel.org>; Sat, 24 Dec 2022 00:12:18 -0800 (PST)
+Received: by mail-pj1-x1049.google.com with SMTP id il11-20020a17090b164b00b00219a4366109so6196099pjb.0
+        for <stable@vger.kernel.org>; Sat, 24 Dec 2022 00:12:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=CLNnJd70ppyA/NycQ0X3RpMhQCUPbfoR/CeGZ2SECtc=;
-        b=KvJVzUtz4kTrA5zSMYZsEaF5rzMBMjUkNdUpmskBApF6t9+qSaYHK35X8ZMt7v36Va
-         TiOrYOTKQS+jN5D9i7C+qkRZ3j0fulIHp72+Uc328W/QtqOseEMLXqvEfy9tf6Jemgg9
-         aR2dN1MvkwRKrALxrMBa50w7wHDzxmZbGJTXfWY8snWJ7yZO81TKhba1pp1Z1GyYVyZv
-         25si/eIHF48gJEGGDDO/Pw24iQWOgduzQY6FY2yGjdRJvQkhz7YR3+LsX5BkI0vnYkJy
-         6+p6ss7S7BcyxnCJFmie3egThN21Rwq7OUUrgGzL2zr/81XUjihHEiiq8Uy1h/y6s6kt
-         yKmA==
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=ItQBUrV0EvZiYOjtPn9RtcHJwdM5uCOC63vNEO/Cgn4=;
+        b=IQNrJhCRWbch37b0zxiQ63klwB/GGCz0T3Ti+BnTbJFnWDAuKxZuxygKiPLeM+O0AR
+         w/T2lFf+mrPfJE/QEm2dA04gLVnrUB0sjvh4mOGQ0L26Qki+z+qwi+gk41DAtyORCPyd
+         xTjFieSO7GBH4ut5SB0J3jEXfQ7FMh3pxSwPoz/OHCGFw8TSmZKZxwP/JCiLOnektegW
+         Vmxhwp1NU8QaK6s+ZiVaZ0vSUG4se+Ch/6vOTg54/jZg8pz+Dwnszf0rzMCW3udUjA4S
+         5zQdWNFo64+OlvLPScP5CEMif/f89OuQZi8ioPTgb23fkNwP4zciNWW7SJXWpZ/mQDF8
+         0MUQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=CLNnJd70ppyA/NycQ0X3RpMhQCUPbfoR/CeGZ2SECtc=;
-        b=B6HuJ47cOVQ84nREtAarmrVZzf0wholJfvvRc/XNYIsW6tL4UtYkvmupK2UTTrJGOu
-         y1Tq1beUalEYNsDrEme1/QwW6gQwLY6CuIexx8XEIFb96wESyYZSWWhJoAnvAShNJDvu
-         c8ymJJkPiS3fhQRbTObm8DRFJZcLG9+lgF9UZlZVrltjVsvxWbOOWx+lrNDJT16t6TkH
-         OLG8PPmR7LZGMn/uklUFzid5BIj4sRpgYJb+uvuwDZBZPMQVfAE5R80AhjNYPyZqoNRN
-         j/Ui/o+Fs8UxmZitnJhSKd960K7Pg9ZspT6ReCBJmeWfXx2ZZCG3+xPueF93PbZxd60x
-         62TQ==
-X-Gm-Message-State: AFqh2koL+DAOBitCAXoululGJR0C6TJI5H4Wxbo8YVw/HJQzNSLamwRB
-        2rXyBvtgx49lkG+u2sXfwBteZ7VJltq8
-X-Google-Smtp-Source: AMrXdXvlobVQR1nR7URHxL5LDAGlAhiApaUyxcnX2240pREAOBx3+kodfs1Ymkh1gJJFeZfRR/8gHJLc9Tyc
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ItQBUrV0EvZiYOjtPn9RtcHJwdM5uCOC63vNEO/Cgn4=;
+        b=QuPjdfiawsY/fHw+lHnXEB3QEXcvbQ0D/UJDE1zwRq5Dyt3kurFu5Ds72Cep2r0Knz
+         iKUBPDcgg0vX0/2d60Mx/nWSGvXymR21fz5nYHszrBWJHrrG9bDyhkFtAhNcJKmIeckP
+         hD4LPDwm4nzqW/QwrMGCeT5Y5jfRa8Ni/XXEoCQGMJWuZSJsy65/tt+eSU6RGg+nImHz
+         w4l57GMEhixHSsDyvHBQg2MkXWLMXyMPXRzro7ZuRCk0Bal4/SacUcbHIn/j0VCDQ8PQ
+         7YYGDVhDbxI+iTgyL/clj5N03vcnhWuBWjzwMDyjJlaBKFQM34fElVtN7GuChKZ4cowM
+         rGEQ==
+X-Gm-Message-State: AFqh2kqheNFq1Rh2BkIfJIF+AWXBTnkJ5RxxZNqEc7V0EjUXDbHOrbCw
+        AnEn+K6HgCkaUMjZQnNWCQ5wZK9Asd5K
+X-Google-Smtp-Source: AMrXdXsO97Tf6V+s4D4bpX/S6mjRj56+jxyaaHemqoaz8G5Nwc8Bqz8Sa7QxAErbsdzR57ehavEIxWJ9q3OD
 X-Received: from zokeefe3.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:1b6])
- (user=zokeefe job=sendgmr) by 2002:a17:902:ce06:b0:188:fd3f:cb06 with SMTP id
- k6-20020a170902ce0600b00188fd3fcb06mr614142plg.23.1671869535430; Sat, 24 Dec
- 2022 00:12:15 -0800 (PST)
-Date:   Sat, 24 Dec 2022 00:12:02 -0800
+ (user=zokeefe job=sendgmr) by 2002:a17:902:c10a:b0:189:cf7a:b564 with SMTP id
+ 10-20020a170902c10a00b00189cf7ab564mr893175pli.8.1671869538392; Sat, 24 Dec
+ 2022 00:12:18 -0800 (PST)
+Date:   Sat, 24 Dec 2022 00:12:03 -0800
+In-Reply-To: <20221224081203.3193960-1-zokeefe@google.com>
 Mime-Version: 1.0
+References: <20221224081203.3193960-1-zokeefe@google.com>
 X-Mailer: git-send-email 2.39.0.314.g84b9a713c41-goog
-Message-ID: <20221224081203.3193960-1-zokeefe@google.com>
-Subject: [PATCH v2 1/2] mm/MADV_COLLAPSE: don't expand collapse when vm_end is
- past requested end
+Message-ID: <20221224081203.3193960-2-zokeefe@google.com>
+Subject: [PATCH v2 2/2] mm/shmem: restore SHMEM_HUGE_DENY precedence over MADV_COLLAPSE
 From:   "Zach O'Keefe" <zokeefe@google.com>
 To:     linux-mm@kvack.org
 Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
@@ -69,66 +70,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-MADV_COLLAPSE acts on one hugepage-aligned/sized region at a time, until
-it has collapsed all eligible memory contained within the bounds
-supplied by the user.
+SHMEM_HUGE_DENY is for emergency use by the admin, to disable allocation
+of shmem huge pages if, for example, a dangerous bug is found in their
+usage: see "deny" in Documentation/mm/transhuge.rst.  An app using
+madvise(,,MADV_COLLAPSE) should not be allowed to override it: restore
+its precedence over shmem_huge_force.
 
-At the top of each hugepage iteration we (re)lock mmap_lock and
-(re)validate the VMA for eligibility and update variables that might
-have changed while mmap_lock was dropped.  One thing that might occur,
-is that the VMA could be resized, and as such, we refetch vma->vm_end
-to make sure we don't collapse past the end of the VMA's new end.
+Restore SHMEM_HUGE_DENY precedence over MADV_COLLAPSE.
 
-However, it's possible that when refetching vma>vm_end that we expand the
-region acted on by MADV_COLLAPSE if vma->vm_end is greater than size+len
-supplied by the user.
-
-The consequence here is that we may attempt to collapse more memory than
-requested, possibly yielding either "too much success" or "false
-failure" user-visible results.  An example of the former is if we
-MADV_COLLAPSE the first 4MiB of a 2TiB mmap()'d file, the incorrect
-refetch would cause the operation to block for much longer than
-anticipated as we attempt to collapse the entire TiB region.  An example
-of the latter is that applying MADV_COLLPSE to a 4MiB file mapped to the
-start of a 6MiB VMA will successfully collapse the first 4MiB, then
-incorrectly attempt to collapse the last hugepage-aligned/sized region
--- fail (since readahead/page cache lookup will fail) -- and report a
-failure to the user.
-
-Don't expand the acted-on region when refetching vma->vm_end.
-
-Fixes: 4d24de9425f7 ("mm: MADV_COLLAPSE: refetch vm_end after reacquiring mmap_lock")
-Reported-by: Hugh Dickins <hughd@google.com>
+Fixes: 7c6c6cc4d3a2 ("mm/shmem: add flag to enforce shmem THP in hugepage_vma_check()")
+Suggested-by: Hugh Dickins <hughd@google.com>
 Signed-off-by: Zach O'Keefe <zokeefe@google.com>
 Cc: Yang Shi <shy828301@gmail.com>
 ---
-v1->v2 : Updated changelog to make clear what user-visible issues this
-	 patch addresses, as well makes the case for backporting (Andrew
-	 Morton).
+v1->v2: Update changelog, and add note explaining rationale for
+	backporting  (Andrew Morton).
 
-While there aren't any stability risks, without this patch there exist
-trivial examples where MADV_COLLAPSE won't work; as such, this should be
-backported to stable 6.1.X to make MADV_COLLAPSE dependable in such
-cases.
-
-v1: https://lore.kernel.org/linux-mm/CAAa6QmRx_b2UCJWE2XZ3=3c3-_N3R4cDGX6Wm4OT7qhFC6U_SQ@mail.gmail.com/T/#m6c91da3cdbd9b1d1ebb29d415962deb158a2c658
+Request to backport this to 6.1.X stable.  We'd like SHMEM_HUGE_DENY to
+take precedence over MADV_COLLAPSE.  If we make this change later, it
+will be a userspace API change.  As such, 6.1 cannot be allowed to
+continue as-is, and we should fix up the code there.
 ---
- mm/khugepaged.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/shmem.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index 5cb401aa2b9d..b4d2ec0a94ed 100644
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -2649,7 +2649,7 @@ int madvise_collapse(struct vm_area_struct *vma, struct vm_area_struct **prev,
- 				goto out_nolock;
- 			}
+diff --git a/mm/shmem.c b/mm/shmem.c
+index c301487be5fb..0005ab2c29af 100644
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -478,12 +478,10 @@ bool shmem_is_huge(struct vm_area_struct *vma, struct inode *inode,
+ 	if (vma && ((vma->vm_flags & VM_NOHUGEPAGE) ||
+ 	    test_bit(MMF_DISABLE_THP, &vma->vm_mm->flags)))
+ 		return false;
+-	if (shmem_huge_force)
+-		return true;
+-	if (shmem_huge == SHMEM_HUGE_FORCE)
+-		return true;
+ 	if (shmem_huge == SHMEM_HUGE_DENY)
+ 		return false;
++	if (shmem_huge_force || shmem_huge == SHMEM_HUGE_FORCE)
++		return true;
  
--			hend = vma->vm_end & HPAGE_PMD_MASK;
-+			hend = min(hend, vma->vm_end & HPAGE_PMD_MASK);
- 		}
- 		mmap_assert_locked(mm);
- 		memset(cc->node_load, 0, sizeof(cc->node_load));
+ 	switch (SHMEM_SB(inode->i_sb)->huge) {
+ 	case SHMEM_HUGE_ALWAYS:
 -- 
 2.39.0.314.g84b9a713c41-goog
 
