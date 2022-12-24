@@ -2,137 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A22236559F0
-	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 12:29:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 471296559F4
+	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 12:33:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231137AbiLXL3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Dec 2022 06:29:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33324 "EHLO
+        id S230022AbiLXLdA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Dec 2022 06:33:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230527AbiLXL3P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 24 Dec 2022 06:29:15 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D487B7C1
-        for <stable@vger.kernel.org>; Sat, 24 Dec 2022 03:28:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1671881306;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=JQfHFluJStqMAVjm8YivW74tDU05oCwMWLpLFH2ZJDA=;
-        b=Ev8e0IWDkSQYTZBaUuHWdlrI4gE78ofg54ksHStDyy0WFNPauRtYSJdjn0NeCAFXzi1DRr
-        xZH7f51gdIILBbLvTLacjwX4YhBe8F+pt7NLhdW8Kqh5u6GlILjjuc9Vi+gbtmVQ73svnM
-        KtAzYGqKnVI/XftZMYKsbUSUiRUkIQA=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-7-_9QAGh8kNXS6rImW_3z4xQ-1; Sat, 24 Dec 2022 06:28:25 -0500
-X-MC-Unique: _9QAGh8kNXS6rImW_3z4xQ-1
-Received: by mail-wm1-f70.google.com with SMTP id fl12-20020a05600c0b8c00b003d96f0a7f36so2072976wmb.1
-        for <stable@vger.kernel.org>; Sat, 24 Dec 2022 03:28:24 -0800 (PST)
+        with ESMTP id S229507AbiLXLdA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 24 Dec 2022 06:33:00 -0500
+Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 037DE645D
+        for <stable@vger.kernel.org>; Sat, 24 Dec 2022 03:32:58 -0800 (PST)
+Received: by mail-oi1-x22c.google.com with SMTP id c129so6728795oia.0
+        for <stable@vger.kernel.org>; Sat, 24 Dec 2022 03:32:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=Y7XukgsAlfYiKI+yuvdwyFpb/FGCy9p+ybfvm0wRi4Y=;
+        b=gNqkFFJ7+213+zzUXwDOSlZ77G8npiJRY/hleBihsc6f38z7jvLC4b+a5hedZEUoVR
+         gGlfahA0doIZFgUBpK1/wbYLKUrGd+lrnIWCIZZkel/ly8HElCuitCtyvJz3JLr/e2Ia
+         qFsvspJoYQgudxnWXDFM8Tb3DyoSddgakmbUqU7T6afgPpppzMm4EsD/U/nOyu+3VzWG
+         z/DXpmSfheg6+kQJi1atk79g6wgc2W8zEIn/64hhawUbSgSjJZxR9wtmdEOE3iadyrNX
+         EIiaAUIW6Um99pCBBBxlod9jmOb+i9wC5SmmEx8jWphLN1HFUPjwClAhEDP+b2rijIZ7
+         RPxQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JQfHFluJStqMAVjm8YivW74tDU05oCwMWLpLFH2ZJDA=;
-        b=pnrXG+Icz+DAeYX6h1VL+1t9CRVEQRYsrs1vNLluJJoA5iXWmxOQN9hmuv5qGdxNyQ
-         dghTI7IakttcfRBhbZE6sfLI0xv9zbKs5MtkgmH2B/tdaxkT2QnqrFuapR1K3vq519Mh
-         e6vmqxfboIpxXb0C5bW2Z9PY9dETqbuhxPremTPZn1909xMtDD5ALIU/ogabATN829V0
-         6Q3ooogL1IY/T/imViTG3thfIuw9tvNK2K3MhboaWqK/AO0H9Kiz17MUHshrVIDw5hWZ
-         pb8AG5vq/FskQOhbNoaq+Vluo+ZcQy4pJyYLIM5pQ9+WdlmZ1c3/0prfs2uAgbg3fw9v
-         +ioA==
-X-Gm-Message-State: AFqh2kqTfzmbNv/pngdnvjhBXDlJ5hg0ICrsEf5X1eVv0r17PDQGF3TN
-        wPuypn7vZ2Ms6qM8Tcbf8lUP8Rg5/WgXaYN28uNKsHVaZ59VIeniZ+j5P8t76AjwovffitBnbpM
-        pjy1Rr4Tba5oydhyR
-X-Received: by 2002:a5d:49c3:0:b0:232:be5c:ec4a with SMTP id t3-20020a5d49c3000000b00232be5cec4amr11351867wrs.6.1671881304020;
-        Sat, 24 Dec 2022 03:28:24 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXuzqzQuZiVw3dHitCdMvuaTddTiExV1+yb8w1dPWupnmnSH1RzpFeJq4F8DeQJZG9fQQBe56g==
-X-Received: by 2002:a5d:49c3:0:b0:232:be5c:ec4a with SMTP id t3-20020a5d49c3000000b00232be5cec4amr11351824wrs.6.1671881303791;
-        Sat, 24 Dec 2022 03:28:23 -0800 (PST)
-Received: from redhat.com ([2.52.27.62])
-        by smtp.gmail.com with ESMTPSA id h6-20020a056000000600b002423dc3b1a9sm5127678wrx.52.2022.12.24.03.28.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 24 Dec 2022 03:28:22 -0800 (PST)
-Date:   Sat, 24 Dec 2022 06:28:15 -0500
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        almasrymina@google.com, alvaro.karsz@solid-run.com,
-        anders.roxell@linaro.org, angus.chen@jaguarmicro.com,
-        bobby.eshleman@bytedance.com, colin.i.king@gmail.com,
-        dave@stgolabs.net, dengshaomin@cdjrlc.com, dmitry.fomichev@wdc.com,
-        elic@nvidia.com, eperezma@redhat.com, gautam.dawar@xilinx.com,
-        harshit.m.mogalapalli@oracle.com, jasowang@redhat.com,
-        leiyang@redhat.com, lingshan.zhu@intel.com, lkft@linaro.org,
-        lulu@redhat.com, m.szyprowski@samsung.com, nathan@kernel.org,
-        pabeni@redhat.com, pizhenwei@bytedance.com, rafaelmendsr@gmail.com,
-        ricardo.canuelo@collabora.com, ruanjinjie@huawei.com,
-        sammler@google.com, set_pte_at@outlook.com, sfr@canb.auug.org.au,
-        sgarzare@redhat.com, shaoqin.huang@intel.com,
-        si-wei.liu@oracle.com, stable@vger.kernel.org, stefanha@gmail.com,
-        sunnanyong@huawei.com, wangjianli@cdjrlc.com,
-        wangrong68@huawei.com, weiyongjun1@huawei.com,
-        xuanzhuo@linux.alibaba.com, yuancan@huawei.com
-Subject: Re: [GIT PULL] virtio,vhost,vdpa: features, fixes, cleanups
-Message-ID: <20221224061932-mutt-send-email-mst@kernel.org>
-References: <20221222144343-mutt-send-email-mst@kernel.org>
- <CAHk-=wi6Gkr7hJz20+xD=pBuTrseccVgNR9ajU7=Bqbrdk1t4g@mail.gmail.com>
- <20221223172549-mutt-send-email-mst@kernel.org>
- <CAHk-=whpdP7X+L8RtGsonthr7Ffug=FhR+TrFe3JUyb5-zaYCA@mail.gmail.com>
- <20221224003445-mutt-send-email-mst@kernel.org>
- <CAHk-=wh_cyzZgYp1pL8MDA6sioB1RndQ_fref=9V+vm9faE7fg@mail.gmail.com>
+        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Y7XukgsAlfYiKI+yuvdwyFpb/FGCy9p+ybfvm0wRi4Y=;
+        b=PJ9FKySzd+qgAC/PSPyAnG1LKZtdGe4AYSKPEcI+E1/taeREDOEIr4YXdQDY+4wERt
+         alWX5UYKZ+B1vyhwHghehpEKAntrkKIDM+u4mCcCO1kdKh+FRVNvL2QGn0kFV9nfcTnS
+         AbsE037Aefm7nOKOP0rH/wat8NznKUW1GATL2MCw1aSU4enkoPRrHtxEpYS01rQ8E/Ot
+         j8WVLgz2EyGH0oeWsnxx9ZeOJHP4TtDjDh0fCYAxdeNOM8PsDbiTH8Rp8Cib9gxpUaDA
+         J7Fo5rq8zAlr+9JWR1OejfTGFijgI8Md8wHFtqYBanW63QHTF8oq3H024skSINSsJZuy
+         6+uA==
+X-Gm-Message-State: AFqh2kpq7jLyxuS3TnlKFINvH3+QbP1qXUtvHJXeAAjinxJkpSICOvtV
+        5JkTmbRMZVL1wX8QzYDsDEdFJ3BT9EsuMGhsXcc=
+X-Google-Smtp-Source: AMrXdXsOy6vxrlDXONSQr5nIsKezkJhOf+8TgDlzxt95fLu2AK3xjYsBhiLBMGBZ/evZAJlYH2a2ESHFmZik0Ungr7c=
+X-Received: by 2002:a05:6808:4385:b0:35e:694c:49ea with SMTP id
+ dz5-20020a056808438500b0035e694c49eamr484166oib.78.1671881577315; Sat, 24 Dec
+ 2022 03:32:57 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wh_cyzZgYp1pL8MDA6sioB1RndQ_fref=9V+vm9faE7fg@mail.gmail.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Received: by 2002:a05:6358:3a01:b0:dc:5408:456e with HTTP; Sat, 24 Dec 2022
+ 03:32:56 -0800 (PST)
+Reply-To: ab8111977@gmail.com
+From:   MS NADAGE LASSOU <nadagalassou3@gmail.com>
+Date:   Sat, 24 Dec 2022 12:32:56 +0100
+Message-ID: <CAAPPVT12EAsyGQCTaga=Db19+mmXNZph1yTE=xnqXWMcA5WFog@mail.gmail.com>
+Subject: REPLY FOR DETAILS.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: Yes, score=5.3 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,SUBJ_ALL_CAPS,UNDISC_FREEM
+        autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2607:f8b0:4864:20:0:0:0:22c listed in]
+        [list.dnswl.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.4998]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [ab8111977[at]gmail.com]
+        *  0.5 SUBJ_ALL_CAPS Subject is all capitals
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [nadagalassou3[at]gmail.com]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [nadagalassou3[at]gmail.com]
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        *  2.7 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 23, 2022 at 10:10:30PM -0800, Linus Torvalds wrote:
-> On Fri, Dec 23, 2022 at 9:35 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > They were in  next-20221220 though.
-> 
-> So, perfect for the *next* merge window.
-> 
-> Do you understand what the word "next" means? We don't call it
-> "linux-this", do we?
-> 
-> This is not a new rule. Things are supposed to be ready *before* the
-> merge window (that's what makes it "next", get it?).
-> 
-> I will also point you to to
-> 
->   https://lore.kernel.org/lkml/CAHk-=wj_HcgFZNyZHTLJ7qC2613zphKDtLh6ndciwopZRfH0aQ@mail.gmail.com/
-> 
-> where I'm being pretty damn clear about things.
-> 
-> And before you start bleating about "I needed more heads up", never
-> mind that this isn't even a new rule, and never mind what that "next"
-> word means, let me just point to the 6.1-rc6 notice too:
-> 
->   https://lore.kernel.org/lkml/CAHk-=wgUZwX8Sbb8Zvm7FxWVfX6CGuE7x+E16VKoqL7Ok9vv7g@mail.gmail.com/
-> 
-> and if the meaning of "next" has eluded you all these years, maybe it
-> was high time you learnt. Hmm?
-> 
->               Linus
+Greetings.
 
-Yea I really screwed up with this one. High time I learned that "no
-fallout from testing" most likely does not mean "no bugs" but instead
-"you forgot to push to next". Putting procedures in place now to
-check automatically.
-
-
--- 
-MST
-
+I am Ms Nadage Lassou,I have important business discussIon with you
+for our benefit.
+Thanks for your time and =C2=A0Attention.
+Regards.
+Ms Nadage Lassou
