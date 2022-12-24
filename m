@@ -2,146 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F6A0655A33
-	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 14:10:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C85E9655A3D
+	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 14:32:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230343AbiLXNKB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Dec 2022 08:10:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49656 "EHLO
+        id S230491AbiLXNcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Dec 2022 08:32:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229507AbiLXNKA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 24 Dec 2022 08:10:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C1E2BC2F;
-        Sat, 24 Dec 2022 05:09:56 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 990DF60AD9;
-        Sat, 24 Dec 2022 13:09:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBFE8C433F0;
-        Sat, 24 Dec 2022 13:09:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671887395;
-        bh=1KAD3La7ae36+389O+98UCvX9OlY6/zJI9OrSau1bJE=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=Glwxh4vHrRtMXdFRp2W8FakdI2s4AoO1Ic0njgIusQMZtyKupJUvbtTqWYmCt8Olg
-         DpKTBXKR4DISv+bdMbneVMksD2AjcM1ZtvWUvP7cwj7MSTA5Wj/rtm4QpzLb6JAWnN
-         Uxwm1ggmug4Nkqj/FMH0fb9U1Y7jR0ot1avKpA7AfK9uraXPFVCa8svudffWWGC9uj
-         H0Zo0EJUnWeE4TYp3T6O7QCT82UOnhtrxf0l/OHzqIHrG47mgEQd6JxaqKCfhsWmM9
-         eQcgYnFabGqEmWyhLwTeaXZ01FXPDufFwC4WC4Osx/YmzKHIc0lzQ4HSFObWFwndA+
-         SrhFJXJSxTxnw==
-Received: by mail-lf1-f50.google.com with SMTP id p36so10326141lfa.12;
-        Sat, 24 Dec 2022 05:09:54 -0800 (PST)
-X-Gm-Message-State: AFqh2koL0MSuevuzTfVqTF3cgVTwafiHnoyRr9vjbed2vCpKoHXll6hZ
-        g6S7t7WEpDgDCO6cM0oh5FiIW0Xwl60YCC85jwk=
-X-Google-Smtp-Source: AMrXdXsrYvZLeJidxouIlemfUek/dfoOHZis6FsZAm0Ua3lh36yDaSUDGPVSKz3CZBVcXeLzD4BqCZxMP6aPSvrBga4=
-X-Received: by 2002:ac2:5dfa:0:b0:4b7:3a0:45d2 with SMTP id
- z26-20020ac25dfa000000b004b703a045d2mr647494lfq.228.1671887392928; Sat, 24
- Dec 2022 05:09:52 -0800 (PST)
+        with ESMTP id S229503AbiLXNcH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 24 Dec 2022 08:32:07 -0500
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C147CB874;
+        Sat, 24 Dec 2022 05:32:05 -0800 (PST)
+Received: by mail-pj1-x1036.google.com with SMTP id gv5-20020a17090b11c500b00223f01c73c3so9384340pjb.0;
+        Sat, 24 Dec 2022 05:32:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ezbgi7pFZDSI5daM/rTTeMIyWE+f6CFg+hkqxOhS5a8=;
+        b=IyPBkh5/wfZylagV2DGKZke+JEXbgYVmRWlpgW8zvnOKQp2RSHyA7e27SxdTtOBWX9
+         /oBwuHUOHGRHuIcYkrCX/3j0ptHg8zM0rOMfBuua0xfCTvJXMw5YU177KfTPV3S5nhXc
+         JH4jSbGdkdnBo0WOa4EhIQdieIGontdarhWUMuu0T62nsyVTGcW4FDQRfdGP4kq0vJBg
+         XY5bg8sajJj/liKHKQ5vs758KTw3ig2FKatZSA2uhgB5IzpERzpXBkjAvHV2ee5/8gbQ
+         LooEHm/8LtNSeTGQLVpmk61H0HoPi8NbIOZnib8Mpe3gFqPsWASP8PZWgBqP6qMuFnYs
+         Uw0w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Ezbgi7pFZDSI5daM/rTTeMIyWE+f6CFg+hkqxOhS5a8=;
+        b=m2zsJDrWElZP6MrQozjbznRNGoFB8Rw6l7wqHj6pnvx1TBH3zBMwfZifKaTd94/mkv
+         UHL0ASLatw+BRJhpYF96x4JDAhvXxeJtFWGhAHWv3Vn+ntPhPrgJhaaTwb12ZtD5UZUQ
+         pjuvCuHtK5eX4bZ+YdI+ar9fE/y/LYFKXNqjHMyQBknipLa1/OeGHkpoCrWV9r5rMjfH
+         sTAAgodgYlCPP5+p2N/Ei/SSU6nx8kqbOUpani7OteBzDIplrRAX7+UbyTShkHV/ZLMG
+         bCs0qShr4vARfBWhZyAhppP7i6cRY2IFLM9EAEYDkV6gokpnYDsDkqQkj195wy4wbx89
+         Zf+A==
+X-Gm-Message-State: AFqh2kol+h5ceZZeydUZSlvo3m1wcm9PwLuK8TqLROgXQ/t3lIGu9DRf
+        5R/LxXFLeVomongLAJ3ajtQ=
+X-Google-Smtp-Source: AMrXdXt2hDH2u5l4yIySVrZgomRZt8gsNdAeHJBMgH/eQy2sFsOU7TsXEF/cAdwORulNuohnOz3IDw==
+X-Received: by 2002:a05:6a20:8e0b:b0:ad:a0c2:53ee with SMTP id y11-20020a056a208e0b00b000ada0c253eemr21432585pzj.12.1671888725153;
+        Sat, 24 Dec 2022 05:32:05 -0800 (PST)
+Received: from localhost.localdomain ([47.242.114.172])
+        by smtp.gmail.com with ESMTPSA id k24-20020a63f018000000b00478fbfd5276sm3716301pgh.15.2022.12.24.05.32.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 24 Dec 2022 05:32:04 -0800 (PST)
+From:   Chuang Wang <nashuiliang@gmail.com>
+Cc:     Chuang Wang <nashuiliang@gmail.com>, stable@vger.kernel.org,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <martin.lau@linux.dev>,
+        Song Liu <song@kernel.org>, Yonghong Song <yhs@fb.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] bpf: Fix panic due to wrong pageattr of im->image
+Date:   Sat, 24 Dec 2022 21:31:46 +0800
+Message-Id: <20221224133146.780578-1-nashuiliang@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <20221220200923.1532710-1-maz@kernel.org> <20221220200923.1532710-2-maz@kernel.org>
- <CAMj1kXE57xTzkmdhQzxOBSePVzUCS5GW7PAVvx+iF+3UHv0OrA@mail.gmail.com> <877cyhf113.wl-maz@kernel.org>
-In-Reply-To: <877cyhf113.wl-maz@kernel.org>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Sat, 24 Dec 2022 14:09:41 +0100
-X-Gmail-Original-Message-ID: <CAMj1kXFiiSr+8wgCYZ5iZme6HV1_=dRaiNcjgkEitPcu6u3VBQ@mail.gmail.com>
-Message-ID: <CAMj1kXFiiSr+8wgCYZ5iZme6HV1_=dRaiNcjgkEitPcu6u3VBQ@mail.gmail.com>
-Subject: Re: [PATCH 1/3] KVM: arm64: Fix S1PTW handling on RO memslots
-To:     Marc Zyngier <maz@kernel.org>
-Cc:     kvmarm@lists.cs.columbia.edu, kvmarm@lists.linux.dev,
-        kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        James Morse <james.morse@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Oliver Upton <oliver.upton@linux.dev>,
-        Will Deacon <will@kernel.org>,
-        Quentin Perret <qperret@google.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 24 Dec 2022 at 13:19, Marc Zyngier <maz@kernel.org> wrote:
->
-> On Thu, 22 Dec 2022 13:01:55 +0000,
-> Ard Biesheuvel <ardb@kernel.org> wrote:
-> >
-> > On Tue, 20 Dec 2022 at 21:09, Marc Zyngier <maz@kernel.org> wrote:
-> > >
-> > > A recent development on the EFI front has resulted in guests having
-> > > their page tables baked in the firmware binary, and mapped into
-> > > the IPA space as part as a read-only memslot.
-> > >
-> > > Not only this is legitimate, but it also results in added security,
-> > > so thumbs up. However, this clashes mildly with our handling of a S1PTW
-> > > as a write to correctly handle AF/DB updates to the S1 PTs, and results
-> > > in the guest taking an abort it won't recover from (the PTs mapping the
-> > > vectors will suffer freom the same problem...).
-> > >
-> > > So clearly our handling is... wrong.
-> > >
-> > > Instead, switch to a two-pronged approach:
-> > >
-> > > - On S1PTW translation fault, handle the fault as a read
-> > >
-> > > - On S1PTW permission fault, handle the fault as a write
-> > >
-> > > This is of no consequence to SW that *writes* to its PTs (the write
-> > > will trigger a non-S1PTW fault), and SW that uses RO PTs will not
-> > > use AF/DB anyway, as that'd be wrong.
-> > >
-> > > Only in the case described in c4ad98e4b72c ("KVM: arm64: Assume write
-> > > fault on S1PTW permission fault on instruction fetch") do we end-up
-> > > with two back-to-back faults (page being evicted and faulted back).
-> > > I don't think this is a case worth optimising for.
-> > >
-> > > Fixes: c4ad98e4b72c ("KVM: arm64: Assume write fault on S1PTW permission fault on instruction fetch")
-> > > Signed-off-by: Marc Zyngier <maz@kernel.org>
-> > > Cc: stable@vger.kernel.org
-> >
-> > Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-> >
-> > I have tested this patch on my TX2 with one of the EFI builds in
-> > question, and everything works as before (I never observed the issue
-> > itself)
->
-> If you get the chance, could you try with non-4kB page sizes? Here, I
-> could only reproduce it with 16kB pages. It was firing like clockwork
-> on Cortex-A55 with that.
->
+In the scenario where livepatch and kretfunc coexist, the pageattr of
+im->image is rox after arch_prepare_bpf_trampoline in
+bpf_trampoline_update, and then modify_fentry or register_fentry returns
+-EAGAIN from bpf_tramp_ftrace_ops_func, the BPF_TRAMP_F_ORIG_STACK flag
+will be configured, and arch_prepare_bpf_trampoline will be re-executed.
 
-I'll try on 64k but I don't have access to a 16k capable machine that
-runs KVM atm (I'm still enjoying working wifi and GPU etc on my M1
-Macbook Air)
+At this time, because the pageattr of im->image is rox,
+arch_prepare_bpf_trampoline will read and write im->image, which causes
+a fault. as follows:
 
-> >
-> > Regression-tested-by: Ard Biesheuvel <ardb@kernel.org>
-> >
-> > For the record, the EFI build in question targets QEMU/mach-virt and
-> > switches to a set of read-only page tables in emulated NOR flash
-> > straight out of reset, so it can create and populate the real page
-> > tables with MMU and caches enabled. EFI does not use virtual memory or
-> > paging so managing access flags or dirty bits in hardware is unlikely
-> > to add any value, and it is not being used at the moment. And given
-> > that this is emulated NOR flash, any ordinary write to it tears down
-> > the r/o memslot altogether, and kicks the NOR flash emulation in QEMU
-> > into programming mode, which is fully based on MMIO emulation and does
-> > not use a memslot at all. IOW, even if we could figure out what store
-> > the PTW was attempting to do, it is always going to be rejected since
-> > the r/o page tables can only be modified by 'programming' the NOR
-> > flash sector.
->
-> Indeed, and this would be a pretty dodgy setup anyway.
->
-> Thanks for having had a look,
->
->         M.
->
-> --
-> Without deviation from the norm, progress is not possible.
+  insmod livepatch-sample.ko    # samples/livepatch/livepatch-sample.c
+  bpftrace -e 'kretfunc:cmdline_proc_show {}'
+
+BUG: unable to handle page fault for address: ffffffffa0206000
+PGD 322d067 P4D 322d067 PUD 322e063 PMD 1297e067 PTE d428061
+Oops: 0003 [#1] PREEMPT SMP PTI
+CPU: 2 PID: 270 Comm: bpftrace Tainted: G            E K    6.1.0 #5
+RIP: 0010:arch_prepare_bpf_trampoline+0xed/0x8c0
+RSP: 0018:ffffc90001083ad8 EFLAGS: 00010202
+RAX: ffffffffa0206000 RBX: 0000000000000020 RCX: 0000000000000000
+RDX: ffffffffa0206001 RSI: ffffffffa0206000 RDI: 0000000000000030
+RBP: ffffc90001083b70 R08: 0000000000000066 R09: ffff88800f51b400
+R10: 000000002e72c6e5 R11: 00000000d0a15080 R12: ffff8880110a68c8
+R13: 0000000000000000 R14: ffff88800f51b400 R15: ffffffff814fec10
+FS:  00007f87bc0dc780(0000) GS:ffff88803e600000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffa0206000 CR3: 0000000010b70000 CR4: 00000000000006e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+<TASK>
+ bpf_trampoline_update+0x25a/0x6b0
+ __bpf_trampoline_link_prog+0x101/0x240
+ bpf_trampoline_link_prog+0x2d/0x50
+ bpf_tracing_prog_attach+0x24c/0x530
+ bpf_raw_tp_link_attach+0x73/0x1d0
+ __sys_bpf+0x100e/0x2570
+ __x64_sys_bpf+0x1c/0x30
+ do_syscall_64+0x5b/0x80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+With this patch, when modify_fentry or register_fentry returns -EAGAIN
+from bpf_tramp_ftrace_ops_func, the pageattr of im->image will be reset
+to nx+rw.
+
+Cc: stable@vger.kernel.org
+Fixes: 00963a2e75a8 ("bpf: Support bpf_trampoline on functions with IPMODIFY (e.g. livepatch)")
+Signed-off-by: Chuang Wang <nashuiliang@gmail.com>
+---
+ kernel/bpf/trampoline.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/kernel/bpf/trampoline.c b/kernel/bpf/trampoline.c
+index 11f5ec0b8016..d0ed7d6f5eec 100644
+--- a/kernel/bpf/trampoline.c
++++ b/kernel/bpf/trampoline.c
+@@ -488,6 +488,10 @@ static int bpf_trampoline_update(struct bpf_trampoline *tr, bool lock_direct_mut
+ 		/* reset fops->func and fops->trampoline for re-register */
+ 		tr->fops->func = NULL;
+ 		tr->fops->trampoline = 0;
++
++		/* reset im->image memory attr for arch_prepare_bpf_trampoline */
++		set_memory_nx((long)im->image, 1);
++		set_memory_rw((long)im->image, 1);
+ 		goto again;
+ 	}
+ #endif
+-- 
+2.37.2
+
