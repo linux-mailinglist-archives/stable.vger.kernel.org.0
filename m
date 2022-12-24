@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4015C6557A0
-	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 02:38:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9DA165579F
+	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 02:38:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236926AbiLXBiB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Dec 2022 20:38:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42860 "EHLO
+        id S236914AbiLXBh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Dec 2022 20:37:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237007AbiLXBhT (ORCPT
+        with ESMTP id S237009AbiLXBhT (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 20:37:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 763653B433;
-        Fri, 23 Dec 2022 17:32:26 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BC6C30565;
+        Fri, 23 Dec 2022 17:32:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 905C8B821B6;
-        Sat, 24 Dec 2022 01:32:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11021C433D2;
-        Sat, 24 Dec 2022 01:32:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B24561FB2;
+        Sat, 24 Dec 2022 01:32:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85C70C433EF;
+        Sat, 24 Dec 2022 01:32:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671845534;
-        bh=LCnqaDhLRYuSm3SpDgSeOwsyVzE+9qlPqgOMK3H5XyU=;
+        s=k20201202; t=1671845538;
+        bh=6TyQgOIqeWc/tcvrGWSqaaJPjIxEWLMhCHKc7pD5//Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nDSX7iA832BIEjJZK1/a+/dViFUCWW+zL7y/Oc5U/AvY4/K5jMjbuSDv4QJcoVNdf
-         5qzn0stlhx0oWAzveDnDe4F/lBPMBOuk1/uL7AcNRF0PYgnnxaQWq8lxV3Tkl1IPxW
-         8GNjsMEOiFkpAPlxI5SbQIPOMngPnQbTufXqjrBTNum7EkW7llJDFHnr6c9p2NE/4x
-         9SYFM4Yujbahb/oP8arZpKnNdCmvOEMEFT+AAMdnk9OcmtdbtfTcl6eO2T1bD39HPt
-         vLbq5PC/g4c3wCKO9xsPwarMUmUat6fgZGbjoFOSqUQSssk6PE/hlyNoyznKLjJvd1
-         XzzokKLVIOGAg==
+        b=HSV0ktQChYEl3wLii5gUoal1TrBYl5MVOeMq8nxcbVNFArUNOqU8Ozuc2c76p0VIL
+         eUXcb9cTF042xEkHNDLgPR+ee8qvlz+zOyh9QpdjjSTbQd9E3cz/HMbB6s4qnMjr0Y
+         szGmOGBvWPXst+HFG+RATD/DYDFaNfETJP3qiZ+8BqJtYFk0qftdh4begaOqAY58Q9
+         6lUaxQerfjxBZ1HXh8GwL/a6w+8l8TbQ6LbKIRCq+8VW32Cji7BK3iwGQUoP9LPwIF
+         Tu5NHK+jA6B8eDxrQYAH3cOXznCM5rvqC79ZiSDubp4+fgRh4wlIK0sNczZE0kPmhT
+         Lcv4OEjZLY9MQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Henry Tian <tianxiaofeng@bytedance.com>,
-        Lei YU <yulei.sh@bytedance.com>,
-        Neal Liu <neal_liu@aspeedtech.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+Cc:     Sascha Hauer <s.hauer@pengutronix.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, joel@jms.id.au,
-        jakobkoschel@gmail.com, linux-usb@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.10 03/11] usb: gadget: aspeed: fix buffer overflow
-Date:   Fri, 23 Dec 2022 20:31:53 -0500
-Message-Id: <20221224013202.393372-3-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, posteuca@mutex.one,
+        wsa+renesas@sang-engineering.com, yang.lee@linux.alibaba.com,
+        richard.leitner@skidata.com, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 04/11] usb: gadget: u_ether: Do not make UDC parent of the net device
+Date:   Fri, 23 Dec 2022 20:31:54 -0500
+Message-Id: <20221224013202.393372-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221224013202.393372-1-sashal@kernel.org>
 References: <20221224013202.393372-1-sashal@kernel.org>
@@ -60,103 +57,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Henry Tian <tianxiaofeng@bytedance.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-[ Upstream commit 83045e19feae937c425248824d1dc0fc95583842 ]
+[ Upstream commit 321b59870f850a10dbb211ecd2bd87b41497ea6f ]
 
-In ast_vhub_epn_handle_ack() when the received data length exceeds the
-buffer, it does not check the case and just copies to req.buf and cause
-a buffer overflow, kernel oops on this case.
+The UDC is not a suitable parent of the net device as the UDC can
+change or vanish during the lifecycle of the ethernet gadget. This
+can be illustrated with the following:
 
-This issue could be reproduced on a BMC with an OS that enables the
-lan over USB:
-1. In OS, enable the usb eth dev, verify it pings the BMC OK;
-2. In OS, set the usb dev mtu to 2000. (Default is 1500);
-3. In OS, ping the BMC with `-s 2000` argument.
+mkdir -p /sys/kernel/config/usb_gadget/mygadget
+cd /sys/kernel/config/usb_gadget/mygadget
+mkdir -p configs/c.1/strings/0x409
+echo "C1:Composite Device" > configs/c.1/strings/0x409/configuration
+mkdir -p functions/ecm.usb0
+ln -s functions/ecm.usb0 configs/c.1/
+echo "dummy_udc.0" > UDC
+rmmod dummy_hcd
 
-The BMC kernel will get oops with below logs:
+The 'rmmod' removes the UDC from the just created gadget, leaving
+the still existing net device with a no longer existing parent.
 
-    skbuff: skb_over_panic: text:8058e098 len:2048 put:2048 head:84c678a0 data:84c678c2 tail:0x84c680c2 end:0x84c67f00 dev:usb0
-    ------------[ cut here ]------------
-    kernel BUG at net/core/skbuff.c:113!
-    Internal error: Oops - BUG: 0 [#1] ARM
-    CPU: 0 PID: 0 Comm: swapper Not tainted 5.15.69-c9fb275-dirty-d1e579a #1
-    Hardware name: Generic DT based system
-    PC is at skb_panic+0x60/0x6c
-    LR is at irq_work_queue+0x6c/0x94
+Accessing the ethernet device with commands like:
 
-Fix the issue by checking the length and set `-EOVERFLOW`.
+ip --details link show usb0
 
-Tested: Verify the BMC kernel does not get oops in the above case, and
-the usb ethernet gets RX packets errors instead.
+will result in a KASAN splat:
 
-Signed-off-by: Lei YU <yulei.sh@bytedance.com>
-Signed-off-by: Henry Tian <tianxiaofeng@bytedance.com>
-Reviewed-by: Neal Liu <neal_liu@aspeedtech.com>
-Acked-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Link: https://lore.kernel.org/r/20221024094853.2877441-1-yulei.sh@bytedance.com
+==================================================================
+BUG: KASAN: use-after-free in if_nlmsg_size+0x3e8/0x528
+Read of size 4 at addr c5c84754 by task ip/357
+
+CPU: 3 PID: 357 Comm: ip Not tainted 6.1.0-rc3-00013-gd14953726b24-dirty #324
+Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+ unwind_backtrace from show_stack+0x10/0x14
+ show_stack from dump_stack_lvl+0x58/0x70
+ dump_stack_lvl from print_report+0x134/0x4d4
+ print_report from kasan_report+0x78/0x10c
+ kasan_report from if_nlmsg_size+0x3e8/0x528
+ if_nlmsg_size from rtnl_getlink+0x2b4/0x4d0
+ rtnl_getlink from rtnetlink_rcv_msg+0x1f4/0x674
+ rtnetlink_rcv_msg from netlink_rcv_skb+0xb4/0x1f8
+ netlink_rcv_skb from netlink_unicast+0x294/0x478
+ netlink_unicast from netlink_sendmsg+0x328/0x640
+ netlink_sendmsg from ____sys_sendmsg+0x2a4/0x3b4
+ ____sys_sendmsg from ___sys_sendmsg+0xc8/0x12c
+ ___sys_sendmsg from sys_sendmsg+0xa0/0x120
+ sys_sendmsg from ret_fast_syscall+0x0/0x1c
+
+Solve this by not setting the parent of the ethernet device.
+
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Link: https://lore.kernel.org/r/20221104131031.850850-2-s.hauer@pengutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/aspeed-vhub/core.c |  2 +-
- drivers/usb/gadget/udc/aspeed-vhub/epn.c  | 16 ++++++++++++----
- 2 files changed, 13 insertions(+), 5 deletions(-)
+ drivers/usb/gadget/function/u_ether.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/aspeed-vhub/core.c b/drivers/usb/gadget/udc/aspeed-vhub/core.c
-index d11d3d14313f..9cd5e792dbf7 100644
---- a/drivers/usb/gadget/udc/aspeed-vhub/core.c
-+++ b/drivers/usb/gadget/udc/aspeed-vhub/core.c
-@@ -42,7 +42,7 @@ void ast_vhub_done(struct ast_vhub_ep *ep, struct ast_vhub_req *req,
+diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
+index 64ef97ab9274..0a8a0119cabb 100644
+--- a/drivers/usb/gadget/function/u_ether.c
++++ b/drivers/usb/gadget/function/u_ether.c
+@@ -795,7 +795,6 @@ struct eth_dev *gether_setup_name(struct usb_gadget *g,
+ 	net->max_mtu = GETHER_MAX_MTU_SIZE;
  
- 	list_del_init(&req->queue);
+ 	dev->gadget = g;
+-	SET_NETDEV_DEV(net, &g->dev);
+ 	SET_NETDEV_DEVTYPE(net, &gadget_type);
  
--	if (req->req.status == -EINPROGRESS)
-+	if ((req->req.status == -EINPROGRESS) ||  (status == -EOVERFLOW))
- 		req->req.status = status;
+ 	status = register_netdev(net);
+@@ -869,8 +868,6 @@ int gether_register_netdev(struct net_device *net)
+ 	struct usb_gadget *g;
+ 	int status;
  
- 	if (req->req.dma) {
-diff --git a/drivers/usb/gadget/udc/aspeed-vhub/epn.c b/drivers/usb/gadget/udc/aspeed-vhub/epn.c
-index cb164c615e6f..934fa026832b 100644
---- a/drivers/usb/gadget/udc/aspeed-vhub/epn.c
-+++ b/drivers/usb/gadget/udc/aspeed-vhub/epn.c
-@@ -89,6 +89,7 @@ static void ast_vhub_epn_handle_ack(struct ast_vhub_ep *ep)
- {
- 	struct ast_vhub_req *req;
- 	unsigned int len;
-+	int status = 0;
- 	u32 stat;
+-	if (!net->dev.parent)
+-		return -EINVAL;
+ 	dev = netdev_priv(net);
+ 	g = dev->gadget;
  
- 	/* Read EP status */
-@@ -124,9 +125,15 @@ static void ast_vhub_epn_handle_ack(struct ast_vhub_ep *ep)
- 	len = VHUB_EP_DMA_TX_SIZE(stat);
+@@ -901,7 +898,6 @@ void gether_set_gadget(struct net_device *net, struct usb_gadget *g)
  
- 	/* If not using DMA, copy data out if needed */
--	if (!req->req.dma && !ep->epn.is_in && len)
--		memcpy(req->req.buf + req->req.actual, ep->buf, len);
--
-+	if (!req->req.dma && !ep->epn.is_in && len) {
-+		if (req->req.actual + len > req->req.length) {
-+			req->last_desc = 1;
-+			status = -EOVERFLOW;
-+			goto done;
-+		} else {
-+			memcpy(req->req.buf + req->req.actual, ep->buf, len);
-+		}
-+	}
- 	/* Adjust size */
- 	req->req.actual += len;
- 
-@@ -134,9 +141,10 @@ static void ast_vhub_epn_handle_ack(struct ast_vhub_ep *ep)
- 	if (len < ep->ep.maxpacket)
- 		req->last_desc = 1;
- 
-+done:
- 	/* That's it ? complete the request and pick a new one */
- 	if (req->last_desc >= 0) {
--		ast_vhub_done(ep, req, 0);
-+		ast_vhub_done(ep, req, status);
- 		req = list_first_entry_or_null(&ep->queue, struct ast_vhub_req,
- 					       queue);
+ 	dev = netdev_priv(net);
+ 	dev->gadget = g;
+-	SET_NETDEV_DEV(net, &g->dev);
+ }
+ EXPORT_SYMBOL_GPL(gether_set_gadget);
  
 -- 
 2.35.1
