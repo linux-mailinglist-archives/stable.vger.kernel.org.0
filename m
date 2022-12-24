@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1A83655762
+	by mail.lfdr.de (Postfix) with ESMTP id A6976655761
 	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 02:34:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236624AbiLXBea (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Dec 2022 20:34:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57534 "EHLO
+        id S236777AbiLXBe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Dec 2022 20:34:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236691AbiLXBd3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 20:33:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACF6D379F1;
+        with ESMTP id S236689AbiLXBd2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 20:33:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACEFB379EF;
         Fri, 23 Dec 2022 17:31:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B2AFB821B6;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E0E7A61FA3;
         Sat, 24 Dec 2022 01:31:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D451C433F0;
-        Sat, 24 Dec 2022 01:31:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C58CC433D2;
+        Sat, 24 Dec 2022 01:31:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671845482;
-        bh=S+ByuJReLSBwV8oQbXlzNTKSMaLurKG1gsu/vl1k3uU=;
+        s=k20201202; t=1671845483;
+        bh=LGNqtuSIQ2sa068rG6exeuPBkG6eWEpHMY9HQSZqgHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sijGCIf5fYMJu0qA3WIWxLYXIOnQ4WxyScTOe/fUnHXhMG+I7P8oqFl0jVgX8mgkd
-         a1oXxNdz8gcCDRV2gjx1G4ADVdIIDJ0XMLuKAQ63vQ4tuDQIQVYk94CdpvU+k30yns
-         XFbGmxM9nMCS/sHOVU2YSsSu1TalBEAQrWgaG1MoDxcarTqXHprjcgRCUo2GrwB0sn
-         zPruCLDuU96Q5OGaiHFm7ZRaahWq4RQzUfjzew6FB5k7Zh+Z1g5VSuRBhazoXFQFxZ
-         89hJQJ2iluyd8WrazkdKWL6nOXeDdHnMwLvN+KBKrnikUR0/wG1l3MVrube0cxIHwC
-         WH6D4xQjtmH+g==
+        b=V9WsBAJEGEatSWl+F9w41aUcKHQTtIzzlYt06hzqgvVyK4rX+2gmUVHGWYE8kA5ox
+         4bY/fqszbWxryRasnhJe0igGVhshhaFS5VC8l//pRXYReKpUdWrwGpPK1RA5oysVM+
+         8dtC7WSgd8gU7fjcmt7dRz0ruvpHfooA1Jxv0LYeRfIMQGy/iKhf68As9uwXmtWct4
+         xL/NQLKnB0WOSM65JCpEf2oiCB0P3qgvtFWpkU/Uj8po6RQZlYwjvQfQHbMyNAZ7NE
+         9ON1E6vSLIn3dwAAX30pX9rlVnbJXiotEM6ui2od9MC9k53Ox9WmBftxrxqSlEgObN
+         CFDyjSMKORC5g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, robert.moore@intel.com,
-        linux-acpi@vger.kernel.org, devel@acpica.org
-Subject: [PATCH AUTOSEL 6.0 14/18] ACPICA: Fix operand resolution
-Date:   Fri, 23 Dec 2022 20:30:30 -0500
-Message-Id: <20221224013034.392810-14-sashal@kernel.org>
+Cc:     Marios Makassikis <mmakassikis@freebox.fr>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, sfrench@samba.org,
+        linux-cifs@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 15/18] ksmbd: Fix resource leak in smb2_lock()
+Date:   Fri, 23 Dec 2022 20:30:31 -0500
+Message-Id: <20221224013034.392810-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221224013034.392810-1-sashal@kernel.org>
 References: <20221224013034.392810-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,62 +57,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+From: Marios Makassikis <mmakassikis@freebox.fr>
 
-[ Upstream commit 7dfb216eda99bbfc2a8c3b03d2eec63314f52b3c ]
+[ Upstream commit 01f6c61bae3d658058ee6322af77acea26a5ee3a ]
 
-In our tests we get UBSAN warning coming from ACPI parser. This is
-caused by trying to resolve operands when there is none.
+"flock" is leaked if an error happens before smb2_lock_init(), as the
+lock is not added to the lock_list to be cleaned up.
 
-[    0.000000] Linux version 5.15.0-rc3chromeavsrel1.0.184+ (root@...) (gcc (Ubuntu 10.3.0-1ubuntu1~20.04) 10.3.0, GNU ld (GNU Binutils for Ubuntu) 2.34) #1 SMP PREEMPT Sat Oct 16 00:08:27 UTC 2021
-...
-[ 14.719508] ================================================================================
-[ 14.719551] UBSAN: array-index-out-of-bounds in /.../linux/drivers/acpi/acpica/dswexec.c:401:12
-[ 14.719594] index -1 is out of range for type 'acpi_operand_object *[9]'
-[ 14.719621] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.15.0-rc3chromeavsrel1.0.184+ #1
-[ 14.719657] Hardware name: Intel Corp. Geminilake/GLK RVP2 LP4SD (07), BIOS GELKRVPA.X64.0214.B50.2009111159 09/11/2020
-[ 14.719694] Call Trace:
-[ 14.719712] dump_stack_lvl+0x38/0x49
-[ 14.719749] dump_stack+0x10/0x12
-[ 14.719775] ubsan_epilogue+0x9/0x45
-[ 14.719801] __ubsan_handle_out_of_bounds.cold+0x44/0x49
-[ 14.719835] acpi_ds_exec_end_op+0x1d7/0x6b5
-[ 14.719870] acpi_ps_parse_loop+0x942/0xb34
-...
-
-Problem happens because WalkState->NumOperands is 0 and it is used when
-trying to access into operands table. Actual code is:
-WalkState->Operands [WalkState->NumOperands -1]
-which causes out of bound access. Improve the check before above access
-to check if ACPI opcode should have any arguments (operands) at all.
-
-Link: https://github.com/acpica/acpica/pull/745
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Marios Makassikis <mmakassikis@freebox.fr>
+Acked-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/dswexec.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/ksmbd/smb2pdu.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/acpi/acpica/dswexec.c b/drivers/acpi/acpica/dswexec.c
-index e8ad41387f84..b082eb942a0f 100644
---- a/drivers/acpi/acpica/dswexec.c
-+++ b/drivers/acpi/acpica/dswexec.c
-@@ -389,9 +389,11 @@ acpi_status acpi_ds_exec_end_op(struct acpi_walk_state *walk_state)
+diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
+index 7a9497a7b0a3..4e6e55714f4b 100644
+--- a/fs/ksmbd/smb2pdu.c
++++ b/fs/ksmbd/smb2pdu.c
+@@ -6835,6 +6835,7 @@ int smb2_lock(struct ksmbd_work *work)
+ 		if (lock_start > U64_MAX - lock_length) {
+ 			pr_err("Invalid lock range requested\n");
+ 			rsp->hdr.Status = STATUS_INVALID_LOCK_RANGE;
++			locks_free_lock(flock);
+ 			goto out;
+ 		}
  
- 		/*
- 		 * All opcodes require operand resolution, with the only exceptions
--		 * being the object_type and size_of operators.
-+		 * being the object_type and size_of operators as well as opcodes that
-+		 * take no arguments.
- 		 */
--		if (!(walk_state->op_info->flags & AML_NO_OPERAND_RESOLVE)) {
-+		if (!(walk_state->op_info->flags & AML_NO_OPERAND_RESOLVE) &&
-+		    (walk_state->op_info->flags & AML_HAS_ARGS)) {
+@@ -6854,6 +6855,7 @@ int smb2_lock(struct ksmbd_work *work)
+ 				    "the end offset(%llx) is smaller than the start offset(%llx)\n",
+ 				    flock->fl_end, flock->fl_start);
+ 			rsp->hdr.Status = STATUS_INVALID_LOCK_RANGE;
++			locks_free_lock(flock);
+ 			goto out;
+ 		}
  
- 			/* Resolve all operands */
- 
+@@ -6865,6 +6867,7 @@ int smb2_lock(struct ksmbd_work *work)
+ 				    flock->fl_type != F_UNLCK) {
+ 					pr_err("conflict two locks in one request\n");
+ 					err = -EINVAL;
++					locks_free_lock(flock);
+ 					goto out;
+ 				}
+ 			}
+@@ -6873,6 +6876,7 @@ int smb2_lock(struct ksmbd_work *work)
+ 		smb_lock = smb2_lock_init(flock, cmd, flags, &lock_list);
+ 		if (!smb_lock) {
+ 			err = -EINVAL;
++			locks_free_lock(flock);
+ 			goto out;
+ 		}
+ 	}
 -- 
 2.35.1
 
