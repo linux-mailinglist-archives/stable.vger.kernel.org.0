@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CD2E655769
+	by mail.lfdr.de (Postfix) with ESMTP id 935DE65576A
 	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 02:34:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236695AbiLXBem (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S236539AbiLXBem (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 23 Dec 2022 20:34:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57542 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236694AbiLXBda (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 20:33:30 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21FC644955;
+        with ESMTP id S236696AbiLXBdb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 20:33:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C65B14495E;
         Fri, 23 Dec 2022 17:31:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7570FCE1D03;
-        Sat, 24 Dec 2022 01:31:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09764C433F2;
-        Sat, 24 Dec 2022 01:31:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 79756B821B8;
+        Sat, 24 Dec 2022 01:31:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36B3DC433D2;
+        Sat, 24 Dec 2022 01:31:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671845485;
-        bh=VY/PYsvOAgiJvESvvnWu6D66FvhPePyAUeKQYJWQohU=;
+        s=k20201202; t=1671845487;
+        bh=whuEc7Qx9JkUEXPRLKgBTUSOZX0jlCTtJVNvBKyVWh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Va1F7d6QrsULvpM/JlaS8myA6Q3aZ0auXqclrsuERgWcPlCDZAIUwxKazuO3YLA+0
-         VzySC/WgR8HW964hIEazSmhI7HkpmulXXsKUqeGusbZ0qajszBpi+lpkl5hzM2sVY1
-         HoVM5ADQVYY0Qbvl2p6aJqDT4UHCiLZ1dFi+V/fSwpmqi8huhhYs2oI+FXyvxiuBru
-         1AiiWjAzD+bipbyrn1TsF5Rc85bUBt1QPRXbQULliWwS+hG4MtFZdy+AIxSU8ZrfyN
-         W1ppuArg3EFV/6Z+42Vllu4vFKpatraRaYPgHPS+237t9SESsHvhqBB0du3g3QyHBY
-         NBmciRWQXnakQ==
+        b=nR7e4zUpH3PnVDllOwRWEe21DWQNLMKIIcnLMQRR84yA3N77is3/IVjoUp9vsWYCl
+         pCViw5stBLpaeqKuKM7Mp7VvzxQYYC5jIQUxuZe3QwxjU4viRryN1H4uz3qd6uwb/e
+         flvC/vF2ggDULXBpgcD5TG0iQ2bdDA24Imho5WpLcHb6ZqP3T1yY3PZs0TQhs03itm
+         MM+t+qg+Z/PhB/GqAYD+z5ZkC6F1gurnKLBPYSz6/Rj5PqWjcIBPHWZEmi0ayJjh3D
+         YMk5SRD6fIK4AR41kItFZe5JDVgOLEOz+VqNsaW4PT0VkrZRtykYwtQc0afayUimxk
+         aa/gneY73oBLQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yuezhang Mo <Yuezhang.Mo@sony.com>,
-        Sungjong Seo <sj1557.seo@samsung.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 17/18] exfat: fix overflow in sector and cluster conversion
-Date:   Fri, 23 Dec 2022 20:30:33 -0500
-Message-Id: <20221224013034.392810-17-sashal@kernel.org>
+Cc:     Dongliang Mu <dzm91@hust.edu.cn>,
+        syzkaller <syzkaller@googlegroups.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
+        steve.glendinning@shawell.net, linux-fbdev@vger.kernel.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 6.0 18/18] fbdev: smscufx: fix error handling code in ufx_usb_probe
+Date:   Fri, 23 Dec 2022 20:30:34 -0500
+Message-Id: <20221224013034.392810-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221224013034.392810-1-sashal@kernel.org>
 References: <20221224013034.392810-1-sashal@kernel.org>
@@ -56,36 +57,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuezhang Mo <Yuezhang.Mo@sony.com>
+From: Dongliang Mu <dzm91@hust.edu.cn>
 
-[ Upstream commit 40306b4d1ba25970dafd53432e8daa5d591ebd99 ]
+[ Upstream commit b76449ee75e21acfe9fa4c653d8598f191ed7d68 ]
 
-According to the exFAT specification, there are at most 2^32-11
-clusters in a volume. so using 'int' is not enough for cluster
-index, the return value type of exfat_sector_to_cluster() should
-be 'unsigned int'.
+The current error handling code in ufx_usb_probe have many unmatching
+issues, e.g., missing ufx_free_usb_list, destroy_modedb label should
+only include framebuffer_release, fb_dealloc_cmap only matches
+fb_alloc_cmap.
 
-Signed-off-by: Yuezhang Mo <Yuezhang.Mo@sony.com>
-Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+My local syzkaller reports a memory leak bug:
+
+memory leak in ufx_usb_probe
+
+BUG: memory leak
+unreferenced object 0xffff88802f879580 (size 128):
+  comm "kworker/0:7", pid 17416, jiffies 4295067474 (age 46.710s)
+  hex dump (first 32 bytes):
+    80 21 7c 2e 80 88 ff ff 18 d0 d0 0c 80 88 ff ff  .!|.............
+    00 d0 d0 0c 80 88 ff ff e0 ff ff ff 0f 00 00 00  ................
+  backtrace:
+    [<ffffffff814c99a0>] kmalloc_trace+0x20/0x90 mm/slab_common.c:1045
+    [<ffffffff824d219c>] kmalloc include/linux/slab.h:553 [inline]
+    [<ffffffff824d219c>] kzalloc include/linux/slab.h:689 [inline]
+    [<ffffffff824d219c>] ufx_alloc_urb_list drivers/video/fbdev/smscufx.c:1873 [inline]
+    [<ffffffff824d219c>] ufx_usb_probe+0x11c/0x15a0 drivers/video/fbdev/smscufx.c:1655
+    [<ffffffff82d17927>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
+    [<ffffffff82712f0d>] call_driver_probe drivers/base/dd.c:560 [inline]
+    [<ffffffff82712f0d>] really_probe+0x12d/0x390 drivers/base/dd.c:639
+    [<ffffffff8271322f>] __driver_probe_device+0xbf/0x140 drivers/base/dd.c:778
+    [<ffffffff827132da>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:808
+    [<ffffffff82713c27>] __device_attach_driver+0xf7/0x150 drivers/base/dd.c:936
+    [<ffffffff82710137>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
+    [<ffffffff827136b5>] __device_attach+0x105/0x2d0 drivers/base/dd.c:1008
+    [<ffffffff82711d36>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:487
+    [<ffffffff8270e242>] device_add+0x642/0xdc0 drivers/base/core.c:3517
+    [<ffffffff82d14d5f>] usb_set_configuration+0x8ef/0xb80 drivers/usb/core/message.c:2170
+    [<ffffffff82d2576c>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
+    [<ffffffff82d16ffc>] usb_probe_device+0x5c/0x140 drivers/usb/core/driver.c:293
+    [<ffffffff82712f0d>] call_driver_probe drivers/base/dd.c:560 [inline]
+    [<ffffffff82712f0d>] really_probe+0x12d/0x390 drivers/base/dd.c:639
+    [<ffffffff8271322f>] __driver_probe_device+0xbf/0x140 drivers/base/dd.c:778
+
+Fix this bug by rewriting the error handling code in ufx_usb_probe.
+
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Tested-by: Dongliang Mu <dzm91@hust.edu.cn>
+Signed-off-by: Dongliang Mu <dzm91@hust.edu.cn>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/exfat/exfat_fs.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/video/fbdev/smscufx.c | 46 +++++++++++++++++++++++------------
+ 1 file changed, 31 insertions(+), 15 deletions(-)
 
-diff --git a/fs/exfat/exfat_fs.h b/fs/exfat/exfat_fs.h
-index a8f8eee4937c..7f6b1d5bceab 100644
---- a/fs/exfat/exfat_fs.h
-+++ b/fs/exfat/exfat_fs.h
-@@ -375,7 +375,7 @@ static inline sector_t exfat_cluster_to_sector(struct exfat_sb_info *sbi,
- 		sbi->data_start_sector;
+diff --git a/drivers/video/fbdev/smscufx.c b/drivers/video/fbdev/smscufx.c
+index 9343b7a4ac89..2ad6e98ce10d 100644
+--- a/drivers/video/fbdev/smscufx.c
++++ b/drivers/video/fbdev/smscufx.c
+@@ -1622,7 +1622,7 @@ static int ufx_usb_probe(struct usb_interface *interface,
+ 	struct usb_device *usbdev;
+ 	struct ufx_data *dev;
+ 	struct fb_info *info;
+-	int retval;
++	int retval = -ENOMEM;
+ 	u32 id_rev, fpga_rev;
+ 
+ 	/* usb initialization */
+@@ -1654,15 +1654,17 @@ static int ufx_usb_probe(struct usb_interface *interface,
+ 
+ 	if (!ufx_alloc_urb_list(dev, WRITES_IN_FLIGHT, MAX_TRANSFER)) {
+ 		dev_err(dev->gdev, "ufx_alloc_urb_list failed\n");
+-		goto e_nomem;
++		goto put_ref;
+ 	}
+ 
+ 	/* We don't register a new USB class. Our client interface is fbdev */
+ 
+ 	/* allocates framebuffer driver structure, not framebuffer memory */
+ 	info = framebuffer_alloc(0, &usbdev->dev);
+-	if (!info)
+-		goto e_nomem;
++	if (!info) {
++		dev_err(dev->gdev, "framebuffer_alloc failed\n");
++		goto free_urb_list;
++	}
+ 
+ 	dev->info = info;
+ 	info->par = dev;
+@@ -1705,22 +1707,34 @@ static int ufx_usb_probe(struct usb_interface *interface,
+ 	check_warn_goto_error(retval, "unable to find common mode for display and adapter");
+ 
+ 	retval = ufx_reg_set_bits(dev, 0x4000, 0x00000001);
+-	check_warn_goto_error(retval, "error %d enabling graphics engine", retval);
++	if (retval < 0) {
++		dev_err(dev->gdev, "error %d enabling graphics engine", retval);
++		goto setup_modes;
++	}
+ 
+ 	/* ready to begin using device */
+ 	atomic_set(&dev->usb_active, 1);
+ 
+ 	dev_dbg(dev->gdev, "checking var");
+ 	retval = ufx_ops_check_var(&info->var, info);
+-	check_warn_goto_error(retval, "error %d ufx_ops_check_var", retval);
++	if (retval < 0) {
++		dev_err(dev->gdev, "error %d ufx_ops_check_var", retval);
++		goto reset_active;
++	}
+ 
+ 	dev_dbg(dev->gdev, "setting par");
+ 	retval = ufx_ops_set_par(info);
+-	check_warn_goto_error(retval, "error %d ufx_ops_set_par", retval);
++	if (retval < 0) {
++		dev_err(dev->gdev, "error %d ufx_ops_set_par", retval);
++		goto reset_active;
++	}
+ 
+ 	dev_dbg(dev->gdev, "registering framebuffer");
+ 	retval = register_framebuffer(info);
+-	check_warn_goto_error(retval, "error %d register_framebuffer", retval);
++	if (retval < 0) {
++		dev_err(dev->gdev, "error %d register_framebuffer", retval);
++		goto reset_active;
++	}
+ 
+ 	dev_info(dev->gdev, "SMSC UDX USB device /dev/fb%d attached. %dx%d resolution."
+ 		" Using %dK framebuffer memory\n", info->node,
+@@ -1728,21 +1742,23 @@ static int ufx_usb_probe(struct usb_interface *interface,
+ 
+ 	return 0;
+ 
+-error:
+-	fb_dealloc_cmap(&info->cmap);
+-destroy_modedb:
++reset_active:
++	atomic_set(&dev->usb_active, 0);
++setup_modes:
+ 	fb_destroy_modedb(info->monspecs.modedb);
+ 	vfree(info->screen_base);
+ 	fb_destroy_modelist(&info->modelist);
++error:
++	fb_dealloc_cmap(&info->cmap);
++destroy_modedb:
+ 	framebuffer_release(info);
++free_urb_list:
++	if (dev->urbs.count > 0)
++		ufx_free_urb_list(dev);
+ put_ref:
+ 	kref_put(&dev->kref, ufx_free); /* ref for framebuffer */
+ 	kref_put(&dev->kref, ufx_free); /* last ref from kref_init */
+ 	return retval;
+-
+-e_nomem:
+-	retval = -ENOMEM;
+-	goto put_ref;
  }
  
--static inline int exfat_sector_to_cluster(struct exfat_sb_info *sbi,
-+static inline unsigned int exfat_sector_to_cluster(struct exfat_sb_info *sbi,
- 		sector_t sec)
- {
- 	return ((sec - sbi->data_start_sector) >> sbi->sect_per_clus_bits) +
+ static void ufx_usb_disconnect(struct usb_interface *interface)
 -- 
 2.35.1
 
