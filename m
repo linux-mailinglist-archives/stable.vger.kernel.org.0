@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 752DC6556FD
-	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 02:30:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B470655700
+	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 02:31:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233473AbiLXBaX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Dec 2022 20:30:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56450 "EHLO
+        id S236509AbiLXBbB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Dec 2022 20:31:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233110AbiLXBaM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 20:30:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 498BB303EF;
-        Fri, 23 Dec 2022 17:29:49 -0800 (PST)
+        with ESMTP id S233581AbiLXBa3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 20:30:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 098BD33CD5;
+        Fri, 23 Dec 2022 17:29:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A7E3461EF2;
-        Sat, 24 Dec 2022 01:29:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CD4AC433D2;
-        Sat, 24 Dec 2022 01:29:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 57E8261FAF;
+        Sat, 24 Dec 2022 01:29:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 163DFC433F0;
+        Sat, 24 Dec 2022 01:29:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671845388;
-        bh=yhAsCnMpSe0yrSsfBSquApu+txfPROhEnZBNH66SbzM=;
+        s=k20201202; t=1671845398;
+        bh=Ur0Axn7Nd7A0DBrX+5qd4SeAYEYwdYo/EbiPefPXJXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TA03fHt8MGy9xP+a+ZXqKAONe/7uKn8HctjcmZVsdxj28ZgjWsLcHhY0DZRwUS6iI
-         4K21SKDpZXcV+FfueXU70yhM9iGtPTYjTMf5IhsZPaElWaym+0V/U69aht3BHfc99U
-         t9dTBCJQ7ZaAdbTPiYtbgP3CInWQxr0eFmsPxdaYY/04nkjh1d0ExRAIiKgSg2TnAU
-         rhtUkT5Ybi/knRNwkEkem2KG3GWNBxYOV/Wkxh+hW27/0R7LMhoJ7CSajoa8u726Fj
-         8/cRXCZsxwkasScV2kmCcwjHaJoq4kf2D7Pa7uFFUhM9TFxlxSGNF5S+8Fn+Yz/v2n
-         z2Sq8v4DRHiHw==
+        b=Tu4F08/eNlWXGyAMw3lDjHhQPU0n7KWmr2RdegQN9SOKyAZ8f3V3/206Dk+rOpK5d
+         T1G1m9OTu02pju7WYMzhGDyuxEucHZZCy6mo/paFS0N9xc0ydwwAxppkW794CzMjJy
+         mftnQ+SoxEiFdL0B992q+8kKjKJ1GHWIYRVpOT+6S48AB0buPqc3qAcBUG40xemGxr
+         sFsCrBBXis2kkhVg91aOwfEMPdEH2E4qtBKZPMmtKNHj0OSpvPq/2VwNtG3YuGdPeu
+         iUNuEEi6TdYnNOV6exEifPb5uUnijT/ZlqM0AMDKGDNxqzk+AnNJ9P+ZX0/Sz2Xq1V
+         VUh704qEbid3w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alan Stern <stern@rowland.harvard.edu>,
-        "Artem S . Tashkinov" <aros@gmx.com>,
+Cc:     Ray Chi <raychi@google.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 09/26] USB: core: Change configuration warnings to notices
-Date:   Fri, 23 Dec 2022 20:29:13 -0500
-Message-Id: <20221224012930.392358-9-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, m.grzeschik@pengutronix.de,
+        rafael.j.wysocki@intel.com, heikki.krogerus@linux.intel.com,
+        mathias.nyman@linux.intel.com, mka@chromium.org,
+        mailhol.vincent@wanadoo.fr, Bhuvanesh_Surachari@mentor.com,
+        andriy.shevchenko@linux.intel.com, fmdefrancesco@gmail.com,
+        christophe.jaillet@wanadoo.fr, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 10/26] usb: core: stop USB enumeration if too many retries
+Date:   Fri, 23 Dec 2022 20:29:14 -0500
+Message-Id: <20221224012930.392358-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221224012930.392358-1-sashal@kernel.org>
 References: <20221224012930.392358-1-sashal@kernel.org>
@@ -56,397 +61,219 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Ray Chi <raychi@google.com>
 
-[ Upstream commit 7a09c1269702db8eccb6f718da2b00173e1e0034 ]
+[ Upstream commit 430d57f53eb1cdbf9ba9bbd397317912b3cd2de5 ]
 
-It has been pointed out that the kernel log messages warning about
-problems in USB configuration and related descriptors are vexing for
-users.  The warning log level has a fairly high priority, but the user
-can do nothing to fix the underlying errors in the device's firmware.
+When a broken USB accessory connects to a USB host, usbcore might
+keep doing enumeration retries. If the host has a watchdog mechanism,
+the kernel panic will happen on the host.
 
-To reduce the amount of useless information produced by tools that
-filter high-priority log messages, we can change these warnings to
-notices, i.e., change dev_warn() to dev_notice().  The same holds for
-a few messages that currently use dev_err(): Unless they indicate a
-failure that might make a device unusable (such as inability to
-transfer a config descriptor), change them to dev_notice() also.
+This patch provides an attribute early_stop to limit the numbers of retries
+for each port of a hub. If a port was marked with early_stop attribute,
+unsuccessful connection attempts will fail quickly. In addition, if an
+early_stop port has failed to initialize, it will ignore all future
+connection events until early_stop attribute is clear.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216630
-Suggested-by: Artem S. Tashkinov <aros@gmx.com>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/Y2KzPx0h6z1jXCuN@rowland.harvard.edu
+Signed-off-by: Ray Chi <raychi@google.com>
+Reviewed-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20221107072754.3336357-1-raychi@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/config.c | 82 +++++++++++++++++++--------------------
- 1 file changed, 41 insertions(+), 41 deletions(-)
+ Documentation/ABI/testing/sysfs-bus-usb | 11 +++++
+ drivers/usb/core/hub.c                  | 60 +++++++++++++++++++++++++
+ drivers/usb/core/hub.h                  |  4 ++
+ drivers/usb/core/port.c                 | 27 +++++++++++
+ 4 files changed, 102 insertions(+)
 
-diff --git a/drivers/usb/core/config.c b/drivers/usb/core/config.c
-index 48bc8a4814ac..725b8dbcfe5f 100644
---- a/drivers/usb/core/config.c
-+++ b/drivers/usb/core/config.c
-@@ -61,7 +61,7 @@ static void usb_parse_ssp_isoc_endpoint_companion(struct device *ddev,
- 	desc = (struct usb_ssp_isoc_ep_comp_descriptor *) buffer;
- 	if (desc->bDescriptorType != USB_DT_SSP_ISOC_ENDPOINT_COMP ||
- 	    size < USB_DT_SSP_ISOC_EP_COMP_SIZE) {
--		dev_warn(ddev, "Invalid SuperSpeedPlus isoc endpoint companion"
-+		dev_notice(ddev, "Invalid SuperSpeedPlus isoc endpoint companion"
- 			 "for config %d interface %d altsetting %d ep %d.\n",
- 			 cfgno, inum, asnum, ep->desc.bEndpointAddress);
+diff --git a/Documentation/ABI/testing/sysfs-bus-usb b/Documentation/ABI/testing/sysfs-bus-usb
+index 568103d3376e..545c2dd97ed0 100644
+--- a/Documentation/ABI/testing/sysfs-bus-usb
++++ b/Documentation/ABI/testing/sysfs-bus-usb
+@@ -264,6 +264,17 @@ Description:
+ 		attached to the port will not be detected, initialized,
+ 		or enumerated.
+ 
++What:		/sys/bus/usb/devices/.../<hub_interface>/port<X>/early_stop
++Date:		Sep 2022
++Contact:	Ray Chi <raychi@google.com>
++Description:
++		Some USB hosts have some watchdog mechanisms so that the device
++		may enter ramdump if it takes a long time during port initialization.
++		This attribute allows each port just has two attempts so that the
++		port initialization will be failed quickly. In addition, if a port
++		which is marked with early_stop has failed to initialize, it will ignore
++		all future connections until this attribute is clear.
++
+ What:		/sys/bus/usb/devices/.../power/usb2_lpm_l1_timeout
+ Date:		May 2013
+ Contact:	Mathias Nyman <mathias.nyman@linux.intel.com>
+diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+index bbab424b0d55..77e73fc8d673 100644
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -3081,6 +3081,48 @@ static int hub_port_reset(struct usb_hub *hub, int port1,
+ 	return status;
+ }
+ 
++/*
++ * hub_port_stop_enumerate - stop USB enumeration or ignore port events
++ * @hub: target hub
++ * @port1: port num of the port
++ * @retries: port retries number of hub_port_init()
++ *
++ * Return:
++ *    true: ignore port actions/events or give up connection attempts.
++ *    false: keep original behavior.
++ *
++ * This function will be based on retries to check whether the port which is
++ * marked with early_stop attribute would stop enumeration or ignore events.
++ *
++ * Note:
++ * This function didn't change anything if early_stop is not set, and it will
++ * prevent all connection attempts when early_stop is set and the attempts of
++ * the port are more than 1.
++ */
++static bool hub_port_stop_enumerate(struct usb_hub *hub, int port1, int retries)
++{
++	struct usb_port *port_dev = hub->ports[port1 - 1];
++
++	if (port_dev->early_stop) {
++		if (port_dev->ignore_event)
++			return true;
++
++		/*
++		 * We want unsuccessful attempts to fail quickly.
++		 * Since some devices may need one failure during
++		 * port initialization, we allow two tries but no
++		 * more.
++		 */
++		if (retries < 2)
++			return false;
++
++		port_dev->ignore_event = 1;
++	} else
++		port_dev->ignore_event = 0;
++
++	return port_dev->ignore_event;
++}
++
+ /* Check if a port is power on */
+ int usb_port_is_power_on(struct usb_hub *hub, unsigned int portstatus)
+ {
+@@ -4796,6 +4838,11 @@ hub_port_init(struct usb_hub *hub, struct usb_device *udev, int port1,
+ 	do_new_scheme = use_new_scheme(udev, retry_counter, port_dev);
+ 
+ 	for (retries = 0; retries < GET_DESCRIPTOR_TRIES; (++retries, msleep(100))) {
++		if (hub_port_stop_enumerate(hub, port1, retries)) {
++			retval = -ENODEV;
++			break;
++		}
++
+ 		if (do_new_scheme) {
+ 			struct usb_device_descriptor *buf;
+ 			int r = 0;
+@@ -5246,6 +5293,11 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
+ 	status = 0;
+ 
+ 	for (i = 0; i < PORT_INIT_TRIES; i++) {
++		if (hub_port_stop_enumerate(hub, port1, i)) {
++			status = -ENODEV;
++			break;
++		}
++
+ 		usb_lock_port(port_dev);
+ 		mutex_lock(hcd->address0_mutex);
+ 		retry_locked = true;
+@@ -5614,6 +5666,10 @@ static void port_event(struct usb_hub *hub, int port1)
+ 	if (!pm_runtime_active(&port_dev->dev))
  		return;
-@@ -83,7 +83,7 @@ static void usb_parse_ss_endpoint_companion(struct device *ddev, int cfgno,
  
- 	if (desc->bDescriptorType != USB_DT_SS_ENDPOINT_COMP ||
- 			size < USB_DT_SS_EP_COMP_SIZE) {
--		dev_warn(ddev, "No SuperSpeed endpoint companion for config %d "
-+		dev_notice(ddev, "No SuperSpeed endpoint companion for config %d "
- 				" interface %d altsetting %d ep %d: "
- 				"using minimum values\n",
- 				cfgno, inum, asnum, ep->desc.bEndpointAddress);
-@@ -109,13 +109,13 @@ static void usb_parse_ss_endpoint_companion(struct device *ddev, int cfgno,
++	/* skip port actions if ignore_event and early_stop are true */
++	if (port_dev->ignore_event && port_dev->early_stop)
++		return;
++
+ 	if (hub_handle_remote_wakeup(hub, port1, portstatus, portchange))
+ 		connect_change = 1;
  
- 	/* Check the various values */
- 	if (usb_endpoint_xfer_control(&ep->desc) && desc->bMaxBurst != 0) {
--		dev_warn(ddev, "Control endpoint with bMaxBurst = %d in "
-+		dev_notice(ddev, "Control endpoint with bMaxBurst = %d in "
- 				"config %d interface %d altsetting %d ep %d: "
- 				"setting to zero\n", desc->bMaxBurst,
- 				cfgno, inum, asnum, ep->desc.bEndpointAddress);
- 		ep->ss_ep_comp.bMaxBurst = 0;
- 	} else if (desc->bMaxBurst > 15) {
--		dev_warn(ddev, "Endpoint with bMaxBurst = %d in "
-+		dev_notice(ddev, "Endpoint with bMaxBurst = %d in "
- 				"config %d interface %d altsetting %d ep %d: "
- 				"setting to 15\n", desc->bMaxBurst,
- 				cfgno, inum, asnum, ep->desc.bEndpointAddress);
-@@ -125,7 +125,7 @@ static void usb_parse_ss_endpoint_companion(struct device *ddev, int cfgno,
- 	if ((usb_endpoint_xfer_control(&ep->desc) ||
- 			usb_endpoint_xfer_int(&ep->desc)) &&
- 				desc->bmAttributes != 0) {
--		dev_warn(ddev, "%s endpoint with bmAttributes = %d in "
-+		dev_notice(ddev, "%s endpoint with bmAttributes = %d in "
- 				"config %d interface %d altsetting %d ep %d: "
- 				"setting to zero\n",
- 				usb_endpoint_xfer_control(&ep->desc) ? "Control" : "Bulk",
-@@ -134,7 +134,7 @@ static void usb_parse_ss_endpoint_companion(struct device *ddev, int cfgno,
- 		ep->ss_ep_comp.bmAttributes = 0;
- 	} else if (usb_endpoint_xfer_bulk(&ep->desc) &&
- 			desc->bmAttributes > 16) {
--		dev_warn(ddev, "Bulk endpoint with more than 65536 streams in "
-+		dev_notice(ddev, "Bulk endpoint with more than 65536 streams in "
- 				"config %d interface %d altsetting %d ep %d: "
- 				"setting to max\n",
- 				cfgno, inum, asnum, ep->desc.bEndpointAddress);
-@@ -142,7 +142,7 @@ static void usb_parse_ss_endpoint_companion(struct device *ddev, int cfgno,
- 	} else if (usb_endpoint_xfer_isoc(&ep->desc) &&
- 		   !USB_SS_SSP_ISOC_COMP(desc->bmAttributes) &&
- 		   USB_SS_MULT(desc->bmAttributes) > 3) {
--		dev_warn(ddev, "Isoc endpoint has Mult of %d in "
-+		dev_notice(ddev, "Isoc endpoint has Mult of %d in "
- 				"config %d interface %d altsetting %d ep %d: "
- 				"setting to 3\n",
- 				USB_SS_MULT(desc->bmAttributes),
-@@ -160,7 +160,7 @@ static void usb_parse_ss_endpoint_companion(struct device *ddev, int cfgno,
- 	else
- 		max_tx = 999999;
- 	if (le16_to_cpu(desc->wBytesPerInterval) > max_tx) {
--		dev_warn(ddev, "%s endpoint with wBytesPerInterval of %d in "
-+		dev_notice(ddev, "%s endpoint with wBytesPerInterval of %d in "
- 				"config %d interface %d altsetting %d ep %d: "
- 				"setting to %d\n",
- 				usb_endpoint_xfer_isoc(&ep->desc) ? "Isoc" : "Int",
-@@ -273,7 +273,7 @@ static int usb_parse_endpoint(struct device *ddev, int cfgno,
- 	else if (d->bLength >= USB_DT_ENDPOINT_SIZE)
- 		n = USB_DT_ENDPOINT_SIZE;
- 	else {
--		dev_warn(ddev, "config %d interface %d altsetting %d has an "
-+		dev_notice(ddev, "config %d interface %d altsetting %d has an "
- 		    "invalid endpoint descriptor of length %d, skipping\n",
- 		    cfgno, inum, asnum, d->bLength);
- 		goto skip_to_next_endpoint_or_interface_descriptor;
-@@ -281,7 +281,7 @@ static int usb_parse_endpoint(struct device *ddev, int cfgno,
+@@ -5927,6 +5983,10 @@ static int usb_reset_and_verify_device(struct usb_device *udev)
+ 	mutex_lock(hcd->address0_mutex);
  
- 	i = d->bEndpointAddress & ~USB_ENDPOINT_DIR_MASK;
- 	if (i >= 16 || i == 0) {
--		dev_warn(ddev, "config %d interface %d altsetting %d has an "
-+		dev_notice(ddev, "config %d interface %d altsetting %d has an "
- 		    "invalid endpoint with address 0x%X, skipping\n",
- 		    cfgno, inum, asnum, d->bEndpointAddress);
- 		goto skip_to_next_endpoint_or_interface_descriptor;
-@@ -293,7 +293,7 @@ static int usb_parse_endpoint(struct device *ddev, int cfgno,
+ 	for (i = 0; i < PORT_INIT_TRIES; ++i) {
++		if (hub_port_stop_enumerate(parent_hub, port1, i)) {
++			ret = -ENODEV;
++			break;
++		}
  
- 	/* Check for duplicate endpoint addresses */
- 	if (config_endpoint_is_duplicate(config, inum, asnum, d)) {
--		dev_warn(ddev, "config %d interface %d altsetting %d has a duplicate endpoint with address 0x%X, skipping\n",
-+		dev_notice(ddev, "config %d interface %d altsetting %d has a duplicate endpoint with address 0x%X, skipping\n",
- 				cfgno, inum, asnum, d->bEndpointAddress);
- 		goto skip_to_next_endpoint_or_interface_descriptor;
- 	}
-@@ -301,7 +301,7 @@ static int usb_parse_endpoint(struct device *ddev, int cfgno,
- 	/* Ignore some endpoints */
- 	if (udev->quirks & USB_QUIRK_ENDPOINT_IGNORE) {
- 		if (usb_endpoint_is_ignored(udev, ifp, d)) {
--			dev_warn(ddev, "config %d interface %d altsetting %d has an ignored endpoint with address 0x%X, skipping\n",
-+			dev_notice(ddev, "config %d interface %d altsetting %d has an ignored endpoint with address 0x%X, skipping\n",
- 					cfgno, inum, asnum,
- 					d->bEndpointAddress);
- 			goto skip_to_next_endpoint_or_interface_descriptor;
-@@ -378,7 +378,7 @@ static int usb_parse_endpoint(struct device *ddev, int cfgno,
- 		}
- 	}
- 	if (d->bInterval < i || d->bInterval > j) {
--		dev_warn(ddev, "config %d interface %d altsetting %d "
-+		dev_notice(ddev, "config %d interface %d altsetting %d "
- 		    "endpoint 0x%X has an invalid bInterval %d, "
- 		    "changing to %d\n",
- 		    cfgno, inum, asnum,
-@@ -391,7 +391,7 @@ static int usb_parse_endpoint(struct device *ddev, int cfgno,
- 	 * them usable, we will try treating them as Interrupt endpoints.
- 	 */
- 	if (udev->speed == USB_SPEED_LOW && usb_endpoint_xfer_bulk(d)) {
--		dev_warn(ddev, "config %d interface %d altsetting %d "
-+		dev_notice(ddev, "config %d interface %d altsetting %d "
- 		    "endpoint 0x%X is Bulk; changing to Interrupt\n",
- 		    cfgno, inum, asnum, d->bEndpointAddress);
- 		endpoint->desc.bmAttributes = USB_ENDPOINT_XFER_INT;
-@@ -408,7 +408,7 @@ static int usb_parse_endpoint(struct device *ddev, int cfgno,
- 	 */
- 	maxp = le16_to_cpu(endpoint->desc.wMaxPacketSize);
- 	if (maxp == 0 && !(usb_endpoint_xfer_isoc(d) && asnum == 0)) {
--		dev_warn(ddev, "config %d interface %d altsetting %d endpoint 0x%X has invalid wMaxPacketSize 0\n",
-+		dev_notice(ddev, "config %d interface %d altsetting %d endpoint 0x%X has invalid wMaxPacketSize 0\n",
- 		    cfgno, inum, asnum, d->bEndpointAddress);
- 	}
+ 		/* ep0 maxpacket size may change; let the HCD know about it.
+ 		 * Other endpoints will be handled by re-enumeration. */
+diff --git a/drivers/usb/core/hub.h b/drivers/usb/core/hub.h
+index b2925856b4cb..e23833562e4f 100644
+--- a/drivers/usb/core/hub.h
++++ b/drivers/usb/core/hub.h
+@@ -90,6 +90,8 @@ struct usb_hub {
+  * @is_superspeed cache super-speed status
+  * @usb3_lpm_u1_permit: whether USB3 U1 LPM is permitted.
+  * @usb3_lpm_u2_permit: whether USB3 U2 LPM is permitted.
++ * @early_stop: whether port initialization will be stopped earlier.
++ * @ignore_event: whether events of the port are ignored.
+  */
+ struct usb_port {
+ 	struct usb_device *child;
+@@ -103,6 +105,8 @@ struct usb_port {
+ 	u32 over_current_count;
+ 	u8 portnum;
+ 	u32 quirks;
++	unsigned int early_stop:1;
++	unsigned int ignore_event:1;
+ 	unsigned int is_superspeed:1;
+ 	unsigned int usb3_lpm_u1_permit:1;
+ 	unsigned int usb3_lpm_u2_permit:1;
+diff --git a/drivers/usb/core/port.c b/drivers/usb/core/port.c
+index 38c1a4f4fdea..126da9408359 100644
+--- a/drivers/usb/core/port.c
++++ b/drivers/usb/core/port.c
+@@ -17,6 +17,32 @@ static int usb_port_block_power_off;
  
-@@ -439,7 +439,7 @@ static int usb_parse_endpoint(struct device *ddev, int cfgno,
- 	j = maxpacket_maxes[usb_endpoint_type(&endpoint->desc)];
+ static const struct attribute_group *port_dev_group[];
  
- 	if (maxp > j) {
--		dev_warn(ddev, "config %d interface %d altsetting %d endpoint 0x%X has invalid maxpacket %d, setting to %d\n",
-+		dev_notice(ddev, "config %d interface %d altsetting %d endpoint 0x%X has invalid maxpacket %d, setting to %d\n",
- 		    cfgno, inum, asnum, d->bEndpointAddress, maxp, j);
- 		maxp = j;
- 		endpoint->desc.wMaxPacketSize = cpu_to_le16(i | maxp);
-@@ -452,7 +452,7 @@ static int usb_parse_endpoint(struct device *ddev, int cfgno,
- 	 */
- 	if (udev->speed == USB_SPEED_HIGH && usb_endpoint_xfer_bulk(d)) {
- 		if (maxp != 512)
--			dev_warn(ddev, "config %d interface %d altsetting %d "
-+			dev_notice(ddev, "config %d interface %d altsetting %d "
- 				"bulk endpoint 0x%X has invalid maxpacket %d\n",
- 				cfgno, inum, asnum, d->bEndpointAddress,
- 				maxp);
-@@ -533,7 +533,7 @@ static int usb_parse_interface(struct device *ddev, int cfgno,
- 	      i < intfc->num_altsetting;
- 	     (++i, ++alt)) {
- 		if (alt->desc.bAlternateSetting == asnum) {
--			dev_warn(ddev, "Duplicate descriptor for config %d "
-+			dev_notice(ddev, "Duplicate descriptor for config %d "
- 			    "interface %d altsetting %d, skipping\n",
- 			    cfgno, inum, asnum);
- 			goto skip_to_next_interface_descriptor;
-@@ -559,7 +559,7 @@ static int usb_parse_interface(struct device *ddev, int cfgno,
- 	num_ep = num_ep_orig = alt->desc.bNumEndpoints;
- 	alt->desc.bNumEndpoints = 0;		/* Use as a counter */
- 	if (num_ep > USB_MAXENDPOINTS) {
--		dev_warn(ddev, "too many endpoints for config %d interface %d "
-+		dev_notice(ddev, "too many endpoints for config %d interface %d "
- 		    "altsetting %d: %d, using maximum allowed: %d\n",
- 		    cfgno, inum, asnum, num_ep, USB_MAXENDPOINTS);
- 		num_ep = USB_MAXENDPOINTS;
-@@ -590,7 +590,7 @@ static int usb_parse_interface(struct device *ddev, int cfgno,
- 	}
- 
- 	if (n != num_ep_orig)
--		dev_warn(ddev, "config %d interface %d altsetting %d has %d "
-+		dev_notice(ddev, "config %d interface %d altsetting %d has %d "
- 		    "endpoint descriptor%s, different from the interface "
- 		    "descriptor's value: %d\n",
- 		    cfgno, inum, asnum, n, plural(n), num_ep_orig);
-@@ -625,7 +625,7 @@ static int usb_parse_configuration(struct usb_device *dev, int cfgidx,
- 	if (config->desc.bDescriptorType != USB_DT_CONFIG ||
- 	    config->desc.bLength < USB_DT_CONFIG_SIZE ||
- 	    config->desc.bLength > size) {
--		dev_err(ddev, "invalid descriptor for config index %d: "
-+		dev_notice(ddev, "invalid descriptor for config index %d: "
- 		    "type = 0x%X, length = %d\n", cfgidx,
- 		    config->desc.bDescriptorType, config->desc.bLength);
- 		return -EINVAL;
-@@ -636,7 +636,7 @@ static int usb_parse_configuration(struct usb_device *dev, int cfgidx,
- 	size -= config->desc.bLength;
- 
- 	if (nintf > USB_MAXINTERFACES) {
--		dev_warn(ddev, "config %d has too many interfaces: %d, "
-+		dev_notice(ddev, "config %d has too many interfaces: %d, "
- 		    "using maximum allowed: %d\n",
- 		    cfgno, nintf, USB_MAXINTERFACES);
- 		nintf = USB_MAXINTERFACES;
-@@ -650,7 +650,7 @@ static int usb_parse_configuration(struct usb_device *dev, int cfgidx,
- 	     (buffer2 += header->bLength, size2 -= header->bLength)) {
- 
- 		if (size2 < sizeof(struct usb_descriptor_header)) {
--			dev_warn(ddev, "config %d descriptor has %d excess "
-+			dev_notice(ddev, "config %d descriptor has %d excess "
- 			    "byte%s, ignoring\n",
- 			    cfgno, size2, plural(size2));
- 			break;
-@@ -658,7 +658,7 @@ static int usb_parse_configuration(struct usb_device *dev, int cfgidx,
- 
- 		header = (struct usb_descriptor_header *) buffer2;
- 		if ((header->bLength > size2) || (header->bLength < 2)) {
--			dev_warn(ddev, "config %d has an invalid descriptor "
-+			dev_notice(ddev, "config %d has an invalid descriptor "
- 			    "of length %d, skipping remainder of the config\n",
- 			    cfgno, header->bLength);
- 			break;
-@@ -670,7 +670,7 @@ static int usb_parse_configuration(struct usb_device *dev, int cfgidx,
- 
- 			d = (struct usb_interface_descriptor *) header;
- 			if (d->bLength < USB_DT_INTERFACE_SIZE) {
--				dev_warn(ddev, "config %d has an invalid "
-+				dev_notice(ddev, "config %d has an invalid "
- 				    "interface descriptor of length %d, "
- 				    "skipping\n", cfgno, d->bLength);
- 				continue;
-@@ -680,7 +680,7 @@ static int usb_parse_configuration(struct usb_device *dev, int cfgidx,
- 
- 			if ((dev->quirks & USB_QUIRK_HONOR_BNUMINTERFACES) &&
- 			    n >= nintf_orig) {
--				dev_warn(ddev, "config %d has more interface "
-+				dev_notice(ddev, "config %d has more interface "
- 				    "descriptors, than it declares in "
- 				    "bNumInterfaces, ignoring interface "
- 				    "number: %d\n", cfgno, inum);
-@@ -688,7 +688,7 @@ static int usb_parse_configuration(struct usb_device *dev, int cfgidx,
- 			}
- 
- 			if (inum >= nintf_orig)
--				dev_warn(ddev, "config %d has an invalid "
-+				dev_notice(ddev, "config %d has an invalid "
- 				    "interface number: %d but max is %d\n",
- 				    cfgno, inum, nintf_orig - 1);
- 
-@@ -713,14 +713,14 @@ static int usb_parse_configuration(struct usb_device *dev, int cfgidx,
- 
- 			d = (struct usb_interface_assoc_descriptor *)header;
- 			if (d->bLength < USB_DT_INTERFACE_ASSOCIATION_SIZE) {
--				dev_warn(ddev,
-+				dev_notice(ddev,
- 					 "config %d has an invalid interface association descriptor of length %d, skipping\n",
- 					 cfgno, d->bLength);
- 				continue;
- 			}
- 
- 			if (iad_num == USB_MAXIADS) {
--				dev_warn(ddev, "found more Interface "
-+				dev_notice(ddev, "found more Interface "
- 					       "Association Descriptors "
- 					       "than allocated for in "
- 					       "configuration %d\n", cfgno);
-@@ -731,7 +731,7 @@ static int usb_parse_configuration(struct usb_device *dev, int cfgidx,
- 
- 		} else if (header->bDescriptorType == USB_DT_DEVICE ||
- 			    header->bDescriptorType == USB_DT_CONFIG)
--			dev_warn(ddev, "config %d contains an unexpected "
-+			dev_notice(ddev, "config %d contains an unexpected "
- 			    "descriptor of type 0x%X, skipping\n",
- 			    cfgno, header->bDescriptorType);
- 
-@@ -740,11 +740,11 @@ static int usb_parse_configuration(struct usb_device *dev, int cfgidx,
- 	config->desc.wTotalLength = cpu_to_le16(buffer2 - buffer0);
- 
- 	if (n != nintf)
--		dev_warn(ddev, "config %d has %d interface%s, different from "
-+		dev_notice(ddev, "config %d has %d interface%s, different from "
- 		    "the descriptor's value: %d\n",
- 		    cfgno, n, plural(n), nintf_orig);
- 	else if (n == 0)
--		dev_warn(ddev, "config %d has no interfaces?\n", cfgno);
-+		dev_notice(ddev, "config %d has no interfaces?\n", cfgno);
- 	config->desc.bNumInterfaces = nintf = n;
- 
- 	/* Check for missing interface numbers */
-@@ -754,7 +754,7 @@ static int usb_parse_configuration(struct usb_device *dev, int cfgidx,
- 				break;
- 		}
- 		if (j >= nintf)
--			dev_warn(ddev, "config %d has no interface number "
-+			dev_notice(ddev, "config %d has no interface number "
- 			    "%d\n", cfgno, i);
- 	}
- 
-@@ -762,7 +762,7 @@ static int usb_parse_configuration(struct usb_device *dev, int cfgidx,
- 	for (i = 0; i < nintf; ++i) {
- 		j = nalts[i];
- 		if (j > USB_MAXALTSETTING) {
--			dev_warn(ddev, "too many alternate settings for "
-+			dev_notice(ddev, "too many alternate settings for "
- 			    "config %d interface %d: %d, "
- 			    "using maximum allowed: %d\n",
- 			    cfgno, inums[i], j, USB_MAXALTSETTING);
-@@ -811,7 +811,7 @@ static int usb_parse_configuration(struct usb_device *dev, int cfgidx,
- 					break;
- 			}
- 			if (n >= intfc->num_altsetting)
--				dev_warn(ddev, "config %d interface %d has no "
-+				dev_notice(ddev, "config %d interface %d has no "
- 				    "altsetting %d\n", cfgno, inums[i], j);
- 		}
- 	}
-@@ -868,7 +868,7 @@ int usb_get_configuration(struct usb_device *dev)
- 	int result;
- 
- 	if (ncfg > USB_MAXCONFIG) {
--		dev_warn(ddev, "too many configurations: %d, "
-+		dev_notice(ddev, "too many configurations: %d, "
- 		    "using maximum allowed: %d\n", ncfg, USB_MAXCONFIG);
- 		dev->descriptor.bNumConfigurations = ncfg = USB_MAXCONFIG;
- 	}
-@@ -902,7 +902,7 @@ int usb_get_configuration(struct usb_device *dev)
- 			    "descriptor/%s: %d\n", cfgno, "start", result);
- 			if (result != -EPIPE)
- 				goto err;
--			dev_err(ddev, "chopping to %d config(s)\n", cfgno);
-+			dev_notice(ddev, "chopping to %d config(s)\n", cfgno);
- 			dev->descriptor.bNumConfigurations = cfgno;
- 			break;
- 		} else if (result < 4) {
-@@ -934,7 +934,7 @@ int usb_get_configuration(struct usb_device *dev)
- 			goto err;
- 		}
- 		if (result < length) {
--			dev_warn(ddev, "config index %d descriptor too short "
-+			dev_notice(ddev, "config index %d descriptor too short "
- 			    "(expected %i, got %i)\n", cfgno, length, result);
- 			length = result;
- 		}
-@@ -993,7 +993,7 @@ int usb_get_bos_descriptor(struct usb_device *dev)
- 	/* Get BOS descriptor */
- 	ret = usb_get_descriptor(dev, USB_DT_BOS, 0, bos, USB_DT_BOS_SIZE);
- 	if (ret < USB_DT_BOS_SIZE || bos->bLength < USB_DT_BOS_SIZE) {
--		dev_err(ddev, "unable to get BOS descriptor or descriptor too short\n");
-+		dev_notice(ddev, "unable to get BOS descriptor or descriptor too short\n");
- 		if (ret >= 0)
- 			ret = -ENOMSG;
- 		kfree(bos);
-@@ -1021,7 +1021,7 @@ int usb_get_bos_descriptor(struct usb_device *dev)
- 
- 	ret = usb_get_descriptor(dev, USB_DT_BOS, 0, buffer, total_len);
- 	if (ret < total_len) {
--		dev_err(ddev, "unable to get BOS descriptor set\n");
-+		dev_notice(ddev, "unable to get BOS descriptor set\n");
- 		if (ret >= 0)
- 			ret = -ENOMSG;
- 		goto err;
-@@ -1046,7 +1046,7 @@ int usb_get_bos_descriptor(struct usb_device *dev)
- 		}
- 
- 		if (cap->bDescriptorType != USB_DT_DEVICE_CAPABILITY) {
--			dev_warn(ddev, "descriptor type invalid, skip\n");
-+			dev_notice(ddev, "descriptor type invalid, skip\n");
- 			continue;
- 		}
++static ssize_t early_stop_show(struct device *dev,
++			    struct device_attribute *attr, char *buf)
++{
++	struct usb_port *port_dev = to_usb_port(dev);
++
++	return sysfs_emit(buf, "%s\n", port_dev->early_stop ? "yes" : "no");
++}
++
++static ssize_t early_stop_store(struct device *dev, struct device_attribute *attr,
++				const char *buf, size_t count)
++{
++	struct usb_port *port_dev = to_usb_port(dev);
++	bool value;
++
++	if (kstrtobool(buf, &value))
++		return -EINVAL;
++
++	if (value)
++		port_dev->early_stop = 1;
++	else
++		port_dev->early_stop = 0;
++
++	return count;
++}
++static DEVICE_ATTR_RW(early_stop);
++
+ static ssize_t disable_show(struct device *dev,
+ 			      struct device_attribute *attr, char *buf)
+ {
+@@ -236,6 +262,7 @@ static struct attribute *port_dev_attrs[] = {
+ 	&dev_attr_quirks.attr,
+ 	&dev_attr_over_current_count.attr,
+ 	&dev_attr_disable.attr,
++	&dev_attr_early_stop.attr,
+ 	NULL,
+ };
  
 -- 
 2.35.1
