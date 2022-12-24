@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98681655747
-	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 02:33:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D725965574F
+	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 02:33:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236693AbiLXBda (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Dec 2022 20:33:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56454 "EHLO
+        id S233485AbiLXBdh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Dec 2022 20:33:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236432AbiLXBcb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 20:32:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E978C193D4;
-        Fri, 23 Dec 2022 17:31:07 -0800 (PST)
+        with ESMTP id S236267AbiLXBcd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 20:32:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80B5B220EE;
+        Fri, 23 Dec 2022 17:31:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 585E1B8213E;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F3BBB61FA3;
         Sat, 24 Dec 2022 01:31:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E80FC433EF;
-        Sat, 24 Dec 2022 01:31:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99A9CC433F0;
+        Sat, 24 Dec 2022 01:31:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671845466;
-        bh=/489chSvrSehPDPnwlYEg6/lHXpA0t+YpsTDC9zquKE=;
+        s=k20201202; t=1671845467;
+        bh=q+tZE9wQPv6WvHJsaIuC+jJOEkR+mGJaWDXaMBaY0I0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qXxmHkMlm8QCvlc94jwpwNMNtqnRvGBrJn/XUz4hzmVYxYmGrXhdjs6uQYJl/+NeF
-         E5GHMTOPy0umeGMM7T9C/p6SlocpjV2nWkRcnmzs3KLP2gw2nCJL1WRCHRgu00amzf
-         KzMv0BBx8Wql1s789H1C2bRAewu/z5ug1zmkmfVLy/uE9V9P9DucsaH9SBHGHFvxXI
-         3pOw+B1BwvokvyIw2BmBLOuo79M1qnDktZBVYLMeefexLc/oSGLNoqgw1rTRHPplRu
-         8NoaDzHyPSQKQ+DW02/tfxscGkpwLb8LsWMw94A1e/yskli0+NngPhwLqxaqoJ6jMK
-         8EJW+2lEBhqDw==
+        b=nmxoPV3GngERRuYXXlolLqnapIU/Gj3ncztg9W1E6tu7cT0AYz1piCKQSGP/71MMJ
+         2IPuoFEYI0dyyvR49t5ybTjVNJqR7yzla9Xo9JJLlnB0wFiVssTs0eFdS8oDyOtHe6
+         YAB9yo50cToSTfmZ8o7eRGXpss/NuMRbLpFMO5hdqzGuxCm0FQ86Y9I6Jvc6KZ6lqb
+         JwRlYZlfcM0nRZ9hJdnTVsQMdqyYbbldOMrriIzX5XswaE97c1ATCvm9QSorl13C+S
+         jKn3iaC8cHJY5w5AvKeiJ/lhCwm7IEz73FjPxF/UoESk5HLk4WU2ladYFWI8HoiR2n
+         cBuc/+JPtO9IA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sascha Hauer <s.hauer@pengutronix.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 06/18] usb: gadget: f_ecm: Always set current gadget in ecm_bind()
-Date:   Fri, 23 Dec 2022 20:30:22 -0500
-Message-Id: <20221224013034.392810-6-sashal@kernel.org>
+Cc:     Shang XiaoJing <shangxiaojing@huawei.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, viro@zeniv.linux.org.uk,
+        linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 07/18] chardev: Fix potential memory leak when cdev_add() failed
+Date:   Fri, 23 Dec 2022 20:30:23 -0500
+Message-Id: <20221224013034.392810-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221224013034.392810-1-sashal@kernel.org>
 References: <20221224013034.392810-1-sashal@kernel.org>
@@ -55,96 +56,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sascha Hauer <s.hauer@pengutronix.de>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit d65e6b6e884a38360fc1cadf8ff31858151da57f ]
+[ Upstream commit 4634c973096a64662a24d9914c47cebc2a8b72f4 ]
 
-The gadget may change over bind/unbind cycles, so set it each time during
-bind, not only the first time. Without it we get a use-after-free with
-the following example:
+Some init function of cdev(like comedi) will call kobject_set_name()
+before cdev_add(), but won't free the cdev.kobj.name or put the ref cnt
+of cdev.kobj when cdev_add() failed. As the result, cdev.kobj.name will
+be leaked.
 
-cd /sys/kernel/config/usb_gadget/; mkdir -p mygadget; cd mygadget
-mkdir -p configs/c.1/strings/0x409
-echo "C1:Composite Device" > configs/c.1/strings/0x409/configuration
-mkdir -p functions/ecm.usb0
-ln -s functions/ecm.usb0 configs/c.1/
-rmmod dummy_hcd
-modprobe dummy_hcd
+Free the name of kobject in cdev_add() fail path to prevent memleak. With
+this fix, the callers don't need to care about freeing the name of
+kobject if cdev_add() fails.
 
-KASAN will complain shortly after the 'modprobe':
+unreferenced object 0xffff8881000fa8c0 (size 8):
+  comm "modprobe", pid 239, jiffies 4294905173 (age 51.308s)
+  hex dump (first 8 bytes):
+    63 6f 6d 65 64 69 00 ff                          comedi..
+  backtrace:
+    [<000000005f9878f7>] __kmalloc_node_track_caller+0x4c/0x1c0
+    [<000000000fd70302>] kstrdup+0x3f/0x70
+    [<000000009428bc33>] kstrdup_const+0x46/0x60
+    [<00000000ed50d9de>] kvasprintf_const+0xdb/0xf0
+    [<00000000b2766964>] kobject_set_name_vargs+0x3c/0xe0
+    [<00000000f2424ef7>] kobject_set_name+0x62/0x90
+    [<000000005d5a125b>] 0xffffffffa0013098
+    [<00000000f331e663>] do_one_initcall+0x7a/0x380
+    [<00000000aa7bac96>] do_init_module+0x5c/0x230
+    [<000000005fd72335>] load_module+0x227d/0x2420
+    [<00000000ad550cf1>] __do_sys_finit_module+0xd5/0x140
+    [<00000000069a60c5>] do_syscall_64+0x3f/0x90
+    [<00000000c5e0d521>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-usb 2-1: New USB device found, idVendor=0000, idProduct=0000, bcdDevice= 6.01
-usb 2-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
-==================================================================
-BUG: KASAN: use-after-free in gether_connect+0xb8/0x30c
-Read of size 4 at addr cbef170c by task swapper/3/0
-
-CPU: 3 PID: 0 Comm: swapper/3 Not tainted 6.1.0-rc3-00014-g41ff012f50cb-dirty #322
-Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
- unwind_backtrace from show_stack+0x10/0x14
- show_stack from dump_stack_lvl+0x58/0x70
- dump_stack_lvl from print_report+0x134/0x4d4
- print_report from kasan_report+0x78/0x10c
- kasan_report from gether_connect+0xb8/0x30c
- gether_connect from ecm_set_alt+0x124/0x254
- ecm_set_alt from composite_setup+0xb98/0x2b18
- composite_setup from configfs_composite_setup+0x80/0x98
- configfs_composite_setup from dummy_timer+0x8f0/0x14a0 [dummy_hcd]
- ...
-
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Link: https://lore.kernel.org/r/20221104131031.850850-3-s.hauer@pengutronix.de
+Suggested-by: Greg KH <gregkh@linuxfoundation.org>
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Link: https://lore.kernel.org/r/20221102072659.23671-1-shangxiaojing@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_ecm.c | 22 +++++++++-------------
- 1 file changed, 9 insertions(+), 13 deletions(-)
+ fs/char_dev.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/f_ecm.c b/drivers/usb/gadget/function/f_ecm.c
-index ffe2486fce71..a7ab30e603e2 100644
---- a/drivers/usb/gadget/function/f_ecm.c
-+++ b/drivers/usb/gadget/function/f_ecm.c
-@@ -685,7 +685,7 @@ ecm_bind(struct usb_configuration *c, struct usb_function *f)
- 	struct usb_composite_dev *cdev = c->cdev;
- 	struct f_ecm		*ecm = func_to_ecm(f);
- 	struct usb_string	*us;
--	int			status;
-+	int			status = 0;
- 	struct usb_ep		*ep;
+diff --git a/fs/char_dev.c b/fs/char_dev.c
+index ba0ded7842a7..340e4543b24a 100644
+--- a/fs/char_dev.c
++++ b/fs/char_dev.c
+@@ -483,17 +483,24 @@ int cdev_add(struct cdev *p, dev_t dev, unsigned count)
+ 	p->dev = dev;
+ 	p->count = count;
  
- 	struct f_ecm_opts	*ecm_opts;
-@@ -695,23 +695,19 @@ ecm_bind(struct usb_configuration *c, struct usb_function *f)
+-	if (WARN_ON(dev == WHITEOUT_DEV))
+-		return -EBUSY;
++	if (WARN_ON(dev == WHITEOUT_DEV)) {
++		error = -EBUSY;
++		goto err;
++	}
  
- 	ecm_opts = container_of(f->fi, struct f_ecm_opts, func_inst);
+ 	error = kobj_map(cdev_map, dev, count, NULL,
+ 			 exact_match, exact_lock, p);
+ 	if (error)
+-		return error;
++		goto err;
  
--	/*
--	 * in drivers/usb/gadget/configfs.c:configfs_composite_bind()
--	 * configurations are bound in sequence with list_for_each_entry,
--	 * in each configuration its functions are bound in sequence
--	 * with list_for_each_entry, so we assume no race condition
--	 * with regard to ecm_opts->bound access
--	 */
-+	mutex_lock(&ecm_opts->lock);
+ 	kobject_get(p->kobj.parent);
+ 
+ 	return 0;
 +
-+	gether_set_gadget(ecm_opts->net, cdev->gadget);
-+
- 	if (!ecm_opts->bound) {
--		mutex_lock(&ecm_opts->lock);
--		gether_set_gadget(ecm_opts->net, cdev->gadget);
- 		status = gether_register_netdev(ecm_opts->net);
--		mutex_unlock(&ecm_opts->lock);
--		if (status)
--			return status;
- 		ecm_opts->bound = true;
- 	}
++err:
++	kfree_const(p->kobj.name);
++	p->kobj.name = NULL;
++	return error;
+ }
  
-+	mutex_unlock(&ecm_opts->lock);
-+	if (status)
-+		return status;
-+
- 	ecm_string_defs[1].s = ecm->ethaddr;
- 
- 	us = usb_gstrings_attach(cdev, ecm_strings,
+ /**
 -- 
 2.35.1
 
