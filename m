@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6762E655712
-	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 02:31:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A14AD655715
+	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 02:31:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236570AbiLXBbm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Dec 2022 20:31:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57728 "EHLO
+        id S236458AbiLXBbp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Dec 2022 20:31:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236323AbiLXBbT (ORCPT
+        with ESMTP id S236454AbiLXBbT (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 20:31:19 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8DDE303D8;
-        Fri, 23 Dec 2022 17:30:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E3903054C;
+        Fri, 23 Dec 2022 17:30:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BEE3CB821B7;
-        Sat, 24 Dec 2022 01:30:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD721C433D2;
-        Sat, 24 Dec 2022 01:30:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E7CCCB80A26;
+        Sat, 24 Dec 2022 01:30:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00DD7C433EF;
+        Sat, 24 Dec 2022 01:30:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671845416;
-        bh=v05YtagQilWYyBP35pywbT1fDrboLNZJRHlRDODJlk4=;
+        s=k20201202; t=1671845417;
+        bh=kZIdz+kwK19u4X7Jpo86YBXa80e8UIlL96mj+VX3Z3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ISmv5U9W4oy3sqvO8OiKy1iB5Zq69uSjJ36Ih7GnbZUTWrV5QJStOPIUzHxojLv9s
-         saGM526IzA9XSlXRz3PrZcc6khGbqF2lifvNa5lXueeybsaSl7ZdMjqiUsmxyLivMz
-         OkOU1Iu8hotPT/Kptc/lM2K+zjafa+TCjrr3XOtcqYIC0/Enjmtk+Rreny+/9iqavE
-         C1rc0lTqww3s6s0IgbT0qJzQfK7eufDCJosO0l+VVkuzriE5EdjPV90EnY3yccis3W
-         xfL8WFM0PsWZPFAX1wA38mEAUmb5/m+l4RzI+3vTh4zuYvF777MmE2Zas4YEe6f12W
-         0mBPz73Sqx4Xw==
+        b=A9UGPOZAuRNRBxO91xeruQc7BkfMZyXtvswDZCurZM+Ay7GzITpUxBy2P0Jmb3Do0
+         sc7pOFXV+Hu0DYsfIM4iRcGk80bRuh5kuScGbjIQp6isJaCxcrpN2W7tRVhkz/CqOa
+         /bIM6MudLgBVavuBl+lZm20J+OrYr7F5N+vw4q+M9V/gpfEK3ae5BzALvxTczHtJYR
+         ClMGkb1X0NyE8stH3Qoph6AsFsBzf7LbJi2AdYNnVCEjbrpYLoCRuY8EsWn6iqZ33R
+         lTdXm+BCMsLCLEMjP2XllCnrWKQrgYWqPrcT10eWw+JMQ+5I0g1QuB4xY2qrrehLka
+         HZ/7i968zWQbg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shuah Khan <skhan@linuxfoundation.org>,
+Cc:     Eli Billauer <eli.billauer@gmail.com>,
+        Hyunwoo Kim <imv4bel@gmail.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, valentina.manea.m@gmail.com,
-        shuah@kernel.org, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 16/26] usb/usbip: Fix v_recv_cmd_submit() to use PIPE_BULK define
-Date:   Fri, 23 Dec 2022 20:29:20 -0500
-Message-Id: <20221224012930.392358-16-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 17/26] char: xillybus: Prevent use-after-free due to race condition
+Date:   Fri, 23 Dec 2022 20:29:21 -0500
+Message-Id: <20221224012930.392358-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221224012930.392358-1-sashal@kernel.org>
 References: <20221224012930.392358-1-sashal@kernel.org>
@@ -56,44 +57,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Eli Billauer <eli.billauer@gmail.com>
 
-[ Upstream commit dd65a243a915ca319ed5fee9161a168c836fa2f2 ]
+[ Upstream commit 282a4b71816b6076029017a7bab3a9dcee12a920 ]
 
-Fix v_recv_cmd_submit() to use PIPE_BULK define instead of hard coded
-values. This also fixes the following signed integer overflow error
-reported by cppcheck. This is not an issue since pipe is unsigned int.
-However, this change improves the code to use proper define.
+The driver for XillyUSB devices maintains a kref reference count on each
+xillyusb_dev structure, which represents a physical device. This reference
+count reaches zero when the device has been disconnected and there are no
+open file descriptors that are related to the device. When this occurs,
+kref_put() calls cleanup_dev(), which clears up the device's data,
+including the structure itself.
 
-drivers/usb/usbip/vudc_rx.c:152:26: error: Signed integer overflow for expression '3<<30'. [integerOverflow]
- urb_p->urb->pipe &= ~(3 << 30);
+However, when xillyusb_open() is called, this reference count becomes
+tricky: This function needs to obtain the xillyusb_dev structure that
+relates to the inode's major and minor (as there can be several such).
+xillybus_find_inode() (which is defined in xillybus_class.c) is called
+for this purpose. xillybus_find_inode() holds a mutex that is global in
+xillybus_class.c to protect the list of devices, and releases this
+mutex before returning. As a result, nothing protects the xillyusb_dev's
+reference counter from being decremented to zero before xillyusb_open()
+increments it on its own behalf. Hence the structure can be freed
+due to a rare race condition.
 
-In addition, add a build time check for PIPE_BULK != 3 as the code path
-depends on PIPE_BULK = 3.
+To solve this, a mutex is added. It is locked by xillyusb_open() before
+the call to xillybus_find_inode() and is released only after the kref
+counter has been incremented on behalf of the newly opened inode. This
+protects the kref reference counters of all xillyusb_dev structs from
+being decremented by xillyusb_disconnect() during this time segment, as
+the call to kref_put() in this function is done with the same lock held.
 
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20221110194738.38514-1-skhan@linuxfoundation.org
+There is no need to hold the lock on other calls to kref_put(), because
+if xillybus_find_inode() finds a struct, xillyusb_disconnect() has not
+made the call to remove it, and hence not made its call to kref_put(),
+which takes place afterwards. Hence preventing xillyusb_disconnect's
+call to kref_put() is enough to ensure that the reference doesn't reach
+zero before it's incremented by xillyusb_open().
+
+It would have been more natural to increment the reference count in
+xillybus_find_inode() of course, however this function is also called by
+Xillybus' driver for PCIe / OF, which registers a completely different
+structure. Therefore, xillybus_find_inode() treats these structures as
+void pointers, and accordingly can't make any changes.
+
+Reported-by: Hyunwoo Kim <imv4bel@gmail.com>
+Suggested-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Eli Billauer <eli.billauer@gmail.com>
+Link: https://lore.kernel.org/r/20221030094209.65916-1-eli.billauer@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/usbip/vudc_rx.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/char/xillybus/xillyusb.c | 22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/usbip/vudc_rx.c b/drivers/usb/usbip/vudc_rx.c
-index d4a2f30a7580..51bb70837b90 100644
---- a/drivers/usb/usbip/vudc_rx.c
-+++ b/drivers/usb/usbip/vudc_rx.c
-@@ -149,7 +149,9 @@ static int v_recv_cmd_submit(struct vudc *udc,
- 	urb_p->urb->status = -EINPROGRESS;
+diff --git a/drivers/char/xillybus/xillyusb.c b/drivers/char/xillybus/xillyusb.c
+index 39bcbfd908b4..5a5afa14ca8c 100644
+--- a/drivers/char/xillybus/xillyusb.c
++++ b/drivers/char/xillybus/xillyusb.c
+@@ -184,6 +184,14 @@ struct xillyusb_dev {
+ 	struct mutex process_in_mutex; /* synchronize wakeup_all() */
+ };
  
- 	/* FIXME: more pipe setup to please usbip_common */
--	urb_p->urb->pipe &= ~(3 << 30);
-+	BUILD_BUG_ON_MSG(PIPE_BULK != 3, "PIPE_* doesn't range from 0 to 3");
++/*
++ * kref_mutex is used in xillyusb_open() to prevent the xillyusb_dev
++ * struct from being freed during the gap between being found by
++ * xillybus_find_inode() and having its reference count incremented.
++ */
 +
-+	urb_p->urb->pipe &= ~(PIPE_BULK << 30);
- 	switch (urb_p->ep->type) {
- 	case USB_ENDPOINT_XFER_BULK:
- 		urb_p->urb->pipe |= (PIPE_BULK << 30);
++static DEFINE_MUTEX(kref_mutex);
++
+ /* FPGA to host opcodes */
+ enum {
+ 	OPCODE_DATA = 0,
+@@ -1237,9 +1245,16 @@ static int xillyusb_open(struct inode *inode, struct file *filp)
+ 	int rc;
+ 	int index;
+ 
++	mutex_lock(&kref_mutex);
++
+ 	rc = xillybus_find_inode(inode, (void **)&xdev, &index);
+-	if (rc)
++	if (rc) {
++		mutex_unlock(&kref_mutex);
+ 		return rc;
++	}
++
++	kref_get(&xdev->kref);
++	mutex_unlock(&kref_mutex);
+ 
+ 	chan = &xdev->channels[index];
+ 	filp->private_data = chan;
+@@ -1275,8 +1290,6 @@ static int xillyusb_open(struct inode *inode, struct file *filp)
+ 	    ((filp->f_mode & FMODE_WRITE) && chan->open_for_write))
+ 		goto unmutex_fail;
+ 
+-	kref_get(&xdev->kref);
+-
+ 	if (filp->f_mode & FMODE_READ)
+ 		chan->open_for_read = 1;
+ 
+@@ -1413,6 +1426,7 @@ static int xillyusb_open(struct inode *inode, struct file *filp)
+ 	return rc;
+ 
+ unmutex_fail:
++	kref_put(&xdev->kref, cleanup_dev);
+ 	mutex_unlock(&chan->lock);
+ 	return rc;
+ }
+@@ -2227,7 +2241,9 @@ static void xillyusb_disconnect(struct usb_interface *interface)
+ 
+ 	xdev->dev = NULL;
+ 
++	mutex_lock(&kref_mutex);
+ 	kref_put(&xdev->kref, cleanup_dev);
++	mutex_unlock(&kref_mutex);
+ }
+ 
+ static struct usb_driver xillyusb_driver = {
 -- 
 2.35.1
 
