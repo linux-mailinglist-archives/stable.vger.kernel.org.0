@@ -2,51 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C2FA6557D7
-	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 02:41:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B95D6557E5
+	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 02:43:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236491AbiLXBlh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Dec 2022 20:41:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44120 "EHLO
+        id S236955AbiLXBmz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Dec 2022 20:42:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236904AbiLXBlE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 20:41:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0B0C56D61;
-        Fri, 23 Dec 2022 17:33:26 -0800 (PST)
+        with ESMTP id S236980AbiLXBl0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 20:41:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A2A056D53;
+        Fri, 23 Dec 2022 17:33:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD02561FB4;
-        Sat, 24 Dec 2022 01:33:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51685C433F1;
-        Sat, 24 Dec 2022 01:33:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 44DB9B820E5;
+        Sat, 24 Dec 2022 01:33:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B13AC433EF;
+        Sat, 24 Dec 2022 01:33:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671845605;
-        bh=Yj7ZYMN5FNIlUcGPnZVSmxeHYb7iT43lSxTAESNJdtw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nLGx3SquzK9/z7ZN96uX0eM14f7EqcMArCy9cKrMVbgJ+I/hI5fH1uYXTwsphEb8s
-         vviUDgWBdKClUX5Z/LSo/SRlrz5+T0j8YmdVipsk7n1yQVBB9DV+UYPP2uyjrAp9aM
-         yzPx5d03xqoNxbpbVpYWihqietibQ87CUbJPrBfZxLbNNoDmNcrDggQi/4utKCGJxy
-         8GWct+23gojo+5JJd0e1O53mxdw2KXDX41Uc9YEab3CXs4+yKsqemS3eYDKSNphbLP
-         HxGqCtxkWMelLBFfENqIteCCFoEF1ccOQc1/wmpGDDY+gPEUjEKHbHk3iRpoKLCfdT
-         CVQHc3pDOdumA==
+        s=k20201202; t=1671845608;
+        bh=EIgCMWs3Tz5uekwn3iU4tEYdtc23dIfLykia0lhVXxE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=cbm3k12OAvAgKrD0zrZHJe49YXvEo+7DcOOkdRH/As5uPf5qsS7N6Y2itpXh4xjdM
+         RsCvKgaPPYyjsjpKTq6DH3PUY3zEuFL4kD3T8dYNqtRAyn3ZGoJ9jeUOq/w9hkjQvj
+         bOCt2qLG9RPbPJTPEAgP/fQYrV2VfVhGVx64tzJ1VPK8TCyXHmyPeeJtY8B/zjOzTg
+         XQQ2FXsCngHRhORbNVLXC1EbmUT/mPsf4mZcI/4agM1YV/OfSCk/rFAEltZniORJBW
+         CKwGxYSzgTyh2Hq65sZ8nfeoEs3eFkLb/28sHl3y01fR/XqwcJKQwKE2jFejWAoDfg
+         nIbJEZMP2Vy9w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, robert.moore@intel.com,
-        linux-acpi@vger.kernel.org, devel@acpica.org
-Subject: [PATCH AUTOSEL 4.14 4/4] ACPICA: Fix operand resolution
-Date:   Fri, 23 Dec 2022 20:33:15 -0500
-Message-Id: <20221224013315.393820-4-sashal@kernel.org>
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        Luben Tuikov <luben.tuikov@amd.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 1/4] kset: fix memory leak when kset_register() returns error
+Date:   Fri, 23 Dec 2022 20:33:22 -0500
+Message-Id: <20221224013325.393931-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221224013315.393820-1-sashal@kernel.org>
-References: <20221224013315.393820-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,62 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 7dfb216eda99bbfc2a8c3b03d2eec63314f52b3c ]
+[ Upstream commit 1662cea4623f75d8251adf07370bbaa958f0355d ]
 
-In our tests we get UBSAN warning coming from ACPI parser. This is
-caused by trying to resolve operands when there is none.
+Inject fault while loading module, kset_register() may fail.
+If it fails, the kset.kobj.name allocated by kobject_set_name()
+which must be called before a call to kset_register() may be
+leaked, since refcount of kobj was set in kset_init().
 
-[    0.000000] Linux version 5.15.0-rc3chromeavsrel1.0.184+ (root@...) (gcc (Ubuntu 10.3.0-1ubuntu1~20.04) 10.3.0, GNU ld (GNU Binutils for Ubuntu) 2.34) #1 SMP PREEMPT Sat Oct 16 00:08:27 UTC 2021
-...
-[ 14.719508] ================================================================================
-[ 14.719551] UBSAN: array-index-out-of-bounds in /.../linux/drivers/acpi/acpica/dswexec.c:401:12
-[ 14.719594] index -1 is out of range for type 'acpi_operand_object *[9]'
-[ 14.719621] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.15.0-rc3chromeavsrel1.0.184+ #1
-[ 14.719657] Hardware name: Intel Corp. Geminilake/GLK RVP2 LP4SD (07), BIOS GELKRVPA.X64.0214.B50.2009111159 09/11/2020
-[ 14.719694] Call Trace:
-[ 14.719712] dump_stack_lvl+0x38/0x49
-[ 14.719749] dump_stack+0x10/0x12
-[ 14.719775] ubsan_epilogue+0x9/0x45
-[ 14.719801] __ubsan_handle_out_of_bounds.cold+0x44/0x49
-[ 14.719835] acpi_ds_exec_end_op+0x1d7/0x6b5
-[ 14.719870] acpi_ps_parse_loop+0x942/0xb34
-...
+To mitigate this, we free the name in kset_register() when an
+error is encountered, i.e. when kset_register() returns an error.
 
-Problem happens because WalkState->NumOperands is 0 and it is used when
-trying to access into operands table. Actual code is:
-WalkState->Operands [WalkState->NumOperands -1]
-which causes out of bound access. Improve the check before above access
-to check if ACPI opcode should have any arguments (operands) at all.
+A kset may be embedded in a larger structure which may be dynamically
+allocated in callers, it needs to be freed in ktype.release() or error
+path in callers, in this case, we can not call kset_put() in kset_register(),
+or it will cause double free, so just call kfree_const() to free the
+name and set it to NULL to avoid accessing bad pointer in callers.
 
-Link: https://github.com/acpica/acpica/pull/745
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+With this fix, the callers don't need care about freeing the name
+and may call kset_put() if kset_register() fails.
+
+Suggested-by: Luben Tuikov <luben.tuikov@amd.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: <luben.tuikov@amd.com>
+Link: https://lore.kernel.org/r/20221025071549.1280528-1-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/dswexec.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ lib/kobject.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/acpica/dswexec.c b/drivers/acpi/acpica/dswexec.c
-index 20d7744b06ae..755f248908e7 100644
---- a/drivers/acpi/acpica/dswexec.c
-+++ b/drivers/acpi/acpica/dswexec.c
-@@ -416,9 +416,11 @@ acpi_status acpi_ds_exec_end_op(struct acpi_walk_state *walk_state)
+diff --git a/lib/kobject.c b/lib/kobject.c
+index bbbb067de8ec..be01d49abb62 100644
+--- a/lib/kobject.c
++++ b/lib/kobject.c
+@@ -806,6 +806,9 @@ EXPORT_SYMBOL_GPL(kobj_sysfs_ops);
+ /**
+  * kset_register - initialize and add a kset.
+  * @k: kset.
++ *
++ * NOTE: On error, the kset.kobj.name allocated by() kobj_set_name()
++ * is freed, it can not be used any more.
+  */
+ int kset_register(struct kset *k)
+ {
+@@ -816,8 +819,12 @@ int kset_register(struct kset *k)
  
- 		/*
- 		 * All opcodes require operand resolution, with the only exceptions
--		 * being the object_type and size_of operators.
-+		 * being the object_type and size_of operators as well as opcodes that
-+		 * take no arguments.
- 		 */
--		if (!(walk_state->op_info->flags & AML_NO_OPERAND_RESOLVE)) {
-+		if (!(walk_state->op_info->flags & AML_NO_OPERAND_RESOLVE) &&
-+		    (walk_state->op_info->flags & AML_HAS_ARGS)) {
- 
- 			/* Resolve all operands */
- 
+ 	kset_init(k);
+ 	err = kobject_add_internal(&k->kobj);
+-	if (err)
++	if (err) {
++		kfree_const(k->kobj.name);
++		/* Set it to NULL to avoid accessing bad pointer in callers. */
++		k->kobj.name = NULL;
+ 		return err;
++	}
+ 	kobject_uevent(&k->kobj, KOBJ_ADD);
+ 	return 0;
+ }
 -- 
 2.35.1
 
