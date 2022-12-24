@@ -2,51 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECA236557B1
-	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 02:39:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE3D16557B8
+	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 02:39:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236945AbiLXBjH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Dec 2022 20:39:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40112 "EHLO
+        id S236983AbiLXBjW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Dec 2022 20:39:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236816AbiLXBi3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 20:38:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEEA9537D4;
-        Fri, 23 Dec 2022 17:32:47 -0800 (PST)
+        with ESMTP id S236848AbiLXBij (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 20:38:39 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4659E537E7;
+        Fri, 23 Dec 2022 17:32:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 373B3B821C1;
-        Sat, 24 Dec 2022 01:32:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 194DFC433F1;
-        Sat, 24 Dec 2022 01:32:29 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E523CCE1D02;
+        Sat, 24 Dec 2022 01:32:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78193C433D2;
+        Sat, 24 Dec 2022 01:32:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671845550;
-        bh=xFg87balPSY2qJAFUvMt6o0gIq153l7PSxtM3XNl8d8=;
+        s=k20201202; t=1671845551;
+        bh=CuK5PUG57Iq76Bn6VOr/oG2+8tyxt7rEJGgFkOme8dQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bvEZJsfZ1O2778JL479nd9VcsA+P0pFncIeOiYaMThTf2BUpuqGDLVvmNuTUrOCOR
-         LRAlb1TuJTrDYBAhIK7t/F0FHLMVrsPDFJY43Ntu0xoq46iYjscOYO8xEVIs3H1Vmd
-         /3tR8NvjGp2heOa7KbiJpqXZMX1DlsZ32ZXD3un8Jm6wBHujFB+zu+Rv1uf7J4w/Fq
-         SCvOFGQPfw8VRLewMtIVz9T6iJrZ6Hf2lrmAro1eyczq2e+o2gTjiNNhGz9q77Y417
-         cS17GNo/syw9wMz0llHSPQ8UM6L6eWC9+TDlATMhyQ3nVbCpS/WfwaZzJaKYErpwoP
-         9gV9wBeQzatTQ==
+        b=WMNR53kKQaY9DSgBYoIPpgr6hX/6h8Rjn9jT/voTkWLQjlSBA2U/y/wMYw62L6NzM
+         pCXOSr9B8perqN0XO72MVvrZMRR0DkizaO8ZFJaoXrLPPlI66kBeR30GJoJO1Id2oa
+         LWMEqOg8cjV+FTdPljL8UGf0fAPEkrwth2EwN4T3FUc9++QNvseA/kzkLzERk6WDMH
+         ywXJ215ROWzEQV1vvLY8OHlhDFav0lY2ssLH7seMLWJq/jNknVAwf/ArLweJ9/tway
+         t7ZCNcntEx8+BM+hl6cPNgTFdL473r4YohOS+UDwq8f6l6QGvOai6TB065NQetq/B0
+         x2oEECkKAMsrA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, robert.moore@intel.com,
-        linux-acpi@vger.kernel.org, devel@acpica.org
-Subject: [PATCH AUTOSEL 5.10 09/11] ACPICA: Fix operand resolution
-Date:   Fri, 23 Dec 2022 20:31:59 -0500
-Message-Id: <20221224013202.393372-9-sashal@kernel.org>
+Cc:     Yuezhang Mo <Yuezhang.Mo@sony.com>,
+        Sungjong Seo <sj1557.seo@samsung.com>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 10/11] exfat: fix overflow in sector and cluster conversion
+Date:   Fri, 23 Dec 2022 20:32:00 -0500
+Message-Id: <20221224013202.393372-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221224013202.393372-1-sashal@kernel.org>
 References: <20221224013202.393372-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,62 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+From: Yuezhang Mo <Yuezhang.Mo@sony.com>
 
-[ Upstream commit 7dfb216eda99bbfc2a8c3b03d2eec63314f52b3c ]
+[ Upstream commit 40306b4d1ba25970dafd53432e8daa5d591ebd99 ]
 
-In our tests we get UBSAN warning coming from ACPI parser. This is
-caused by trying to resolve operands when there is none.
+According to the exFAT specification, there are at most 2^32-11
+clusters in a volume. so using 'int' is not enough for cluster
+index, the return value type of exfat_sector_to_cluster() should
+be 'unsigned int'.
 
-[    0.000000] Linux version 5.15.0-rc3chromeavsrel1.0.184+ (root@...) (gcc (Ubuntu 10.3.0-1ubuntu1~20.04) 10.3.0, GNU ld (GNU Binutils for Ubuntu) 2.34) #1 SMP PREEMPT Sat Oct 16 00:08:27 UTC 2021
-...
-[ 14.719508] ================================================================================
-[ 14.719551] UBSAN: array-index-out-of-bounds in /.../linux/drivers/acpi/acpica/dswexec.c:401:12
-[ 14.719594] index -1 is out of range for type 'acpi_operand_object *[9]'
-[ 14.719621] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.15.0-rc3chromeavsrel1.0.184+ #1
-[ 14.719657] Hardware name: Intel Corp. Geminilake/GLK RVP2 LP4SD (07), BIOS GELKRVPA.X64.0214.B50.2009111159 09/11/2020
-[ 14.719694] Call Trace:
-[ 14.719712] dump_stack_lvl+0x38/0x49
-[ 14.719749] dump_stack+0x10/0x12
-[ 14.719775] ubsan_epilogue+0x9/0x45
-[ 14.719801] __ubsan_handle_out_of_bounds.cold+0x44/0x49
-[ 14.719835] acpi_ds_exec_end_op+0x1d7/0x6b5
-[ 14.719870] acpi_ps_parse_loop+0x942/0xb34
-...
-
-Problem happens because WalkState->NumOperands is 0 and it is used when
-trying to access into operands table. Actual code is:
-WalkState->Operands [WalkState->NumOperands -1]
-which causes out of bound access. Improve the check before above access
-to check if ACPI opcode should have any arguments (operands) at all.
-
-Link: https://github.com/acpica/acpica/pull/745
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Yuezhang Mo <Yuezhang.Mo@sony.com>
+Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/dswexec.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/exfat/exfat_fs.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/acpica/dswexec.c b/drivers/acpi/acpica/dswexec.c
-index 1d4f8c81028c..f4ef1f895c63 100644
---- a/drivers/acpi/acpica/dswexec.c
-+++ b/drivers/acpi/acpica/dswexec.c
-@@ -389,9 +389,11 @@ acpi_status acpi_ds_exec_end_op(struct acpi_walk_state *walk_state)
+diff --git a/fs/exfat/exfat_fs.h b/fs/exfat/exfat_fs.h
+index 0d139c7d150d..5c5ddd4e3a2f 100644
+--- a/fs/exfat/exfat_fs.h
++++ b/fs/exfat/exfat_fs.h
+@@ -373,7 +373,7 @@ static inline sector_t exfat_cluster_to_sector(struct exfat_sb_info *sbi,
+ 		sbi->data_start_sector;
+ }
  
- 		/*
- 		 * All opcodes require operand resolution, with the only exceptions
--		 * being the object_type and size_of operators.
-+		 * being the object_type and size_of operators as well as opcodes that
-+		 * take no arguments.
- 		 */
--		if (!(walk_state->op_info->flags & AML_NO_OPERAND_RESOLVE)) {
-+		if (!(walk_state->op_info->flags & AML_NO_OPERAND_RESOLVE) &&
-+		    (walk_state->op_info->flags & AML_HAS_ARGS)) {
- 
- 			/* Resolve all operands */
- 
+-static inline int exfat_sector_to_cluster(struct exfat_sb_info *sbi,
++static inline unsigned int exfat_sector_to_cluster(struct exfat_sb_info *sbi,
+ 		sector_t sec)
+ {
+ 	return ((sec - sbi->data_start_sector) >> sbi->sect_per_clus_bits) +
 -- 
 2.35.1
 
