@@ -2,48 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DDB76557DC
-	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 02:42:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 643626557EC
+	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 02:43:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236726AbiLXBmv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Dec 2022 20:42:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51186 "EHLO
+        id S236991AbiLXBnB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Dec 2022 20:43:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237075AbiLXBl6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 20:41:58 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 263C556D7C;
-        Fri, 23 Dec 2022 17:33:49 -0800 (PST)
+        with ESMTP id S236807AbiLXBlc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Dec 2022 20:41:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 162B234D1C;
+        Fri, 23 Dec 2022 17:33:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9794ECE1D03;
-        Sat, 24 Dec 2022 01:33:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E081C433F0;
-        Sat, 24 Dec 2022 01:33:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6A0DDB8219E;
+        Sat, 24 Dec 2022 01:33:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57A1CC4339B;
+        Sat, 24 Dec 2022 01:33:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671845612;
-        bh=a5WBbi6MJo+w2IIzowc3UGampdUoFPDmqlBd9eh11Vk=;
+        s=k20201202; t=1671845614;
+        bh=QcWYKj1utazOEPNnGTzSEphIiv7c+oCQiv7Dxz3MowI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N73qg9Xqefki2WugkQ0NVBpxIG+fhVY0kNw0NwaEjUrCTY0nUeNVnPnCRb9iqADgB
-         e5lUI2zlXB03jJ+AAo3biATFVA2QfLzXpZgc57pcE+HYZYRDDbsPUYUrUyCSDnpIvS
-         RtVfoWCgIxzCccigK/1ctWk/+xqwlPNlpiCBYn/e3y5N8bFOcbq5ioCKGk4cl++Wrw
-         KfVFgqAJ1HUUdGQwhy6ujmBz7xXIHcRCY+mhAeoOcxQN3s9cOBooH14zmKWzeiTDxK
-         JNg+cS7j4z8tIirRTCqYmNTXvteqxKx/PqLuTgSvEL8O7AvJ7eqpIlBtuw99wW9Bhj
-         yK/SC6RkcIc3g==
+        b=OyAI4dJLFC/IycVYpaHzomuEZ8nIEi42yZfuj42kk9hCN7DLZlD3GCoecxMiPzzed
+         iBI/cJCwK81h3lJx4Vsok6W23avbCyMcnjDnws2zBJzvcnGyXw4MKqXFWztkRiDf4Y
+         noyGZzbdbCsuCj9dgBqchY2NSIa/UUinln22h0iuB9SkXzOoAxuOokS5d9ZoOsGJLM
+         VaTsT0/O1x4fmtdodWz6yWhWIv3Nd3hYjQco23IiioyhkQJguhQJ7cdmVBm1TTzzwL
+         3oZyLJGuIGeiJL/enRoNU1sVEyMOFOPLWfpNKiq/FUTDasLKsA0BYvnZXA3CsD4Mv8
+         IPpVK1u4zw+rQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shuah Khan <skhan@linuxfoundation.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, valentina.manea.m@gmail.com,
-        shuah@kernel.org, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 3/4] usb/usbip: Fix v_recv_cmd_submit() to use PIPE_BULK define
-Date:   Fri, 23 Dec 2022 20:33:24 -0500
-Message-Id: <20221224013325.393931-3-sashal@kernel.org>
+Cc:     =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@linux.intel.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, robert.moore@intel.com,
+        linux-acpi@vger.kernel.org, devel@acpica.org
+Subject: [PATCH AUTOSEL 4.9 4/4] ACPICA: Fix operand resolution
+Date:   Fri, 23 Dec 2022 20:33:25 -0500
+Message-Id: <20221224013325.393931-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221224013325.393931-1-sashal@kernel.org>
 References: <20221224013325.393931-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -56,44 +59,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
 
-[ Upstream commit dd65a243a915ca319ed5fee9161a168c836fa2f2 ]
+[ Upstream commit 7dfb216eda99bbfc2a8c3b03d2eec63314f52b3c ]
 
-Fix v_recv_cmd_submit() to use PIPE_BULK define instead of hard coded
-values. This also fixes the following signed integer overflow error
-reported by cppcheck. This is not an issue since pipe is unsigned int.
-However, this change improves the code to use proper define.
+In our tests we get UBSAN warning coming from ACPI parser. This is
+caused by trying to resolve operands when there is none.
 
-drivers/usb/usbip/vudc_rx.c:152:26: error: Signed integer overflow for expression '3<<30'. [integerOverflow]
- urb_p->urb->pipe &= ~(3 << 30);
+[    0.000000] Linux version 5.15.0-rc3chromeavsrel1.0.184+ (root@...) (gcc (Ubuntu 10.3.0-1ubuntu1~20.04) 10.3.0, GNU ld (GNU Binutils for Ubuntu) 2.34) #1 SMP PREEMPT Sat Oct 16 00:08:27 UTC 2021
+...
+[ 14.719508] ================================================================================
+[ 14.719551] UBSAN: array-index-out-of-bounds in /.../linux/drivers/acpi/acpica/dswexec.c:401:12
+[ 14.719594] index -1 is out of range for type 'acpi_operand_object *[9]'
+[ 14.719621] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.15.0-rc3chromeavsrel1.0.184+ #1
+[ 14.719657] Hardware name: Intel Corp. Geminilake/GLK RVP2 LP4SD (07), BIOS GELKRVPA.X64.0214.B50.2009111159 09/11/2020
+[ 14.719694] Call Trace:
+[ 14.719712] dump_stack_lvl+0x38/0x49
+[ 14.719749] dump_stack+0x10/0x12
+[ 14.719775] ubsan_epilogue+0x9/0x45
+[ 14.719801] __ubsan_handle_out_of_bounds.cold+0x44/0x49
+[ 14.719835] acpi_ds_exec_end_op+0x1d7/0x6b5
+[ 14.719870] acpi_ps_parse_loop+0x942/0xb34
+...
 
-In addition, add a build time check for PIPE_BULK != 3 as the code path
-depends on PIPE_BULK = 3.
+Problem happens because WalkState->NumOperands is 0 and it is used when
+trying to access into operands table. Actual code is:
+WalkState->Operands [WalkState->NumOperands -1]
+which causes out of bound access. Improve the check before above access
+to check if ACPI opcode should have any arguments (operands) at all.
 
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20221110194738.38514-1-skhan@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://github.com/acpica/acpica/pull/745
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/usbip/vudc_rx.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/acpi/acpica/dswexec.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/usbip/vudc_rx.c b/drivers/usb/usbip/vudc_rx.c
-index d020e72b3122..7c5d09ee3ef8 100644
---- a/drivers/usb/usbip/vudc_rx.c
-+++ b/drivers/usb/usbip/vudc_rx.c
-@@ -161,7 +161,9 @@ static int v_recv_cmd_submit(struct vudc *udc,
- 	urb_p->urb->status = -EINPROGRESS;
+diff --git a/drivers/acpi/acpica/dswexec.c b/drivers/acpi/acpica/dswexec.c
+index 438597cf6cc5..7ddaa5ef9b3f 100644
+--- a/drivers/acpi/acpica/dswexec.c
++++ b/drivers/acpi/acpica/dswexec.c
+@@ -416,9 +416,11 @@ acpi_status acpi_ds_exec_end_op(struct acpi_walk_state *walk_state)
  
- 	/* FIXME: more pipe setup to please usbip_common */
--	urb_p->urb->pipe &= ~(3 << 30);
-+	BUILD_BUG_ON_MSG(PIPE_BULK != 3, "PIPE_* doesn't range from 0 to 3");
-+
-+	urb_p->urb->pipe &= ~(PIPE_BULK << 30);
- 	switch (urb_p->ep->type) {
- 	case USB_ENDPOINT_XFER_BULK:
- 		urb_p->urb->pipe |= (PIPE_BULK << 30);
+ 		/*
+ 		 * All opcodes require operand resolution, with the only exceptions
+-		 * being the object_type and size_of operators.
++		 * being the object_type and size_of operators as well as opcodes that
++		 * take no arguments.
+ 		 */
+-		if (!(walk_state->op_info->flags & AML_NO_OPERAND_RESOLVE)) {
++		if (!(walk_state->op_info->flags & AML_NO_OPERAND_RESOLVE) &&
++		    (walk_state->op_info->flags & AML_HAS_ARGS)) {
+ 
+ 			/* Resolve all operands */
+ 
 -- 
 2.35.1
 
