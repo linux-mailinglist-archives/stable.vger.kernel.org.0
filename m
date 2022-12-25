@@ -2,44 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCE0A655E06
-	for <lists+stable@lfdr.de>; Sun, 25 Dec 2022 19:50:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5B3E655E1F
+	for <lists+stable@lfdr.de>; Sun, 25 Dec 2022 20:03:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229540AbiLYSum (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 25 Dec 2022 13:50:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54400 "EHLO
+        id S229540AbiLYTDX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 25 Dec 2022 14:03:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229445AbiLYSul (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 25 Dec 2022 13:50:41 -0500
-X-Greylist: delayed 376 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 25 Dec 2022 10:50:37 PST
-Received: from forward106j.mail.yandex.net (forward106j.mail.yandex.net [IPv6:2a02:6b8:0:801:2::109])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0B805F8F
-        for <stable@vger.kernel.org>; Sun, 25 Dec 2022 10:50:37 -0800 (PST)
-Received: from myt6-265321db07ea.qloud-c.yandex.net (myt6-265321db07ea.qloud-c.yandex.net [IPv6:2a02:6b8:c12:2626:0:640:2653:21db])
-        by forward106j.mail.yandex.net (Yandex) with ESMTP id 76DB56BD6705
-        for <stable@vger.kernel.org>; Sun, 25 Dec 2022 21:44:17 +0300 (MSK)
-Received: by myt6-265321db07ea.qloud-c.yandex.net (smtp/Yandex) with ESMTPSA id GiSr2aLYTa61-G13bQTT6;
-        Sun, 25 Dec 2022 21:44:17 +0300
+        with ESMTP id S229445AbiLYTDW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 25 Dec 2022 14:03:22 -0500
+X-Greylist: delayed 470 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 25 Dec 2022 11:03:20 PST
+Received: from forward104o.mail.yandex.net (forward104o.mail.yandex.net [37.140.190.179])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C30D710E4;
+        Sun, 25 Dec 2022 11:03:20 -0800 (PST)
+Received: from iva2-656890eaceb5.qloud-c.yandex.net (iva2-656890eaceb5.qloud-c.yandex.net [IPv6:2a02:6b8:c0c:6902:0:640:6568:90ea])
+        by forward104o.mail.yandex.net (Yandex) with ESMTP id 3FF3965D364D;
+        Sun, 25 Dec 2022 21:55:28 +0300 (MSK)
+Received: by iva2-656890eaceb5.qloud-c.yandex.net (smtp/Yandex) with ESMTPSA id PtSiBVLYnSw1-ulrl9j4Y;
+        Sun, 25 Dec 2022 21:55:27 +0300
 X-Yandex-Fwd: 1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=skif-web.ru; s=mail; t=1671993857;
-        bh=57RG2ny8VEgiTEiaXTSlnGZT9WHOmyYX4POl7/rqtcc=;
-        h=Message-Id:Date:Cc:Subject:To:From;
-        b=CABEqi6vHe2ENvChM8mmwwIEwjIRV+g/LRuq1fxKQ1gn7maLzz7ViQobb5n8hpwH9
-         MO9OaIMJgHmpqhk7Zk8IOCY8YwDYgm7jxc/h+tSyfQiZ2FjE6NfYAJrOJtrFEONFFf
-         azc24ejmP8TKu+Tdh6aRfH3YTwj0I5X6bVZr52ZI=
-Authentication-Results: myt6-265321db07ea.qloud-c.yandex.net; dkim=pass header.i=@skif-web.ru
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=skif-web.ru; s=mail; t=1671994527;
+        bh=iy4Od4RVHqYXYNH+uE4Skx6pnQbptFi0CvgCUrJzDyU=;
+        h=Message-Id:Date:In-Reply-To:Cc:Subject:References:To:From;
+        b=cce3df4d7VmoYXdrsOIu7YTdL0tcUTTQphxLJY1ocSMGEwsSMh2CInXYMUWe/9MCL
+         TzR7Tk2hAl5E5r1FTH5AqPAGnAi14fwmXMINmfUguLnZtGS6vXbKNE/3OfYp0063QJ
+         w8jiktL+fpKnBGq22vs25hjaaD91gaNSZBRPKAI4=
+Authentication-Results: iva2-656890eaceb5.qloud-c.yandex.net; dkim=pass header.i=@skif-web.ru
 From:   Alexey Lukyanchuk <skif@skif-web.ru>
-To:     nikita.shubin@maquefel.me
-Cc:     Alexey Lukyanchuk <skif@skif-web.ru>, stable@vger.kernel.org
-Subject: [PATCH] drm/i915/: dell wyse 3040 shutdown fix
-Date:   Sun, 25 Dec 2022 21:44:13 +0300
-Message-Id: <20221225184413.146916-1-skif@skif-web.ru>
+To:     tvrtko.ursulin@linux.intel.com
+Cc:     Alexey Lukyanchuk <skif@skif-web.ru>, stable@vger.kernel.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v2] drm/i915: dell wyse 3040 shutdown fix
+Date:   Sun, 25 Dec 2022 21:55:08 +0300
+Message-Id: <20221225185507.149677-1-skif@skif-web.ru>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20221225184413.146916-1-skif@skif-web.ru>
+References: <20221225184413.146916-1-skif@skif-web.ru>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NO_DNS_FOR_FROM,SPF_HELO_NONE,
-        T_SPF_PERMERROR autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-0.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NO_DNS_FOR_FROM,
+        RCVD_IN_MSPIKE_H2,RCVD_IN_VALIDITY_RPBL,SPF_HELO_NONE,T_SPF_PERMERROR
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -49,12 +60,11 @@ X-Mailing-List: stable@vger.kernel.org
 dell wyse 3040 doesn't peform poweroff properly, but instead remains in 
 turned power on state. Additional mutex_lock and 
 intel_crtc_wait_for_next_vblank 
-in drivers/gpu/drm/i915/display/intel_crtc.c from 
-feature 6.2 kernel resolve this trouble
+feature 6.2 kernel resolve this trouble.
 
 cc: stable@vger.kernel.org
 original commit Link: https://patchwork.freedesktop.org/patch/508926/
-fixes: 
+fixes: fe0f1e3bfdfeb53e18f1206aea4f40b9bd1f291c
 Signed-off-by: Alexey Lukyanchuk <skif@skif-web.ru>
 ---
 I got some troubles with this device (dell wyse 3040) since kernel 5.11
