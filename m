@@ -2,116 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0CA4655B6E
-	for <lists+stable@lfdr.de>; Sat, 24 Dec 2022 23:18:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CCFA655C41
+	for <lists+stable@lfdr.de>; Sun, 25 Dec 2022 04:34:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230147AbiLXWSz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Dec 2022 17:18:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33698 "EHLO
+        id S230203AbiLYDeD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Dec 2022 22:34:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230019AbiLXWSx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 24 Dec 2022 17:18:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E4689FFD;
-        Sat, 24 Dec 2022 14:18:51 -0800 (PST)
+        with ESMTP id S229441AbiLYDeC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 24 Dec 2022 22:34:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1408895A5;
+        Sat, 24 Dec 2022 19:33:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 34D4A60B0D;
-        Sat, 24 Dec 2022 22:18:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84F2CC433EF;
-        Sat, 24 Dec 2022 22:18:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1671920330;
-        bh=a8sbHrjzFWKIpszR2VatqyiutB7CKA6Flq4QIUvYTNE=;
-        h=Date:To:From:Subject:From;
-        b=qPENd+LUIaI2kB1KD062h0zuoIaK3Fs7rVTf/zUDRsZzmI5cFCIdeEoBIVPv5JSPK
-         T4Iq8r7fZ2GGPm9uBfwINtf7qajMcySVK7O91W4vvgcMIrrWDXDjCQ1m38fC/RJk2N
-         dbMecYpGAWyNGKSOE6CvbOuZLiHt1I37GIzS1lkc=
-Date:   Sat, 24 Dec 2022 14:18:49 -0800
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        shy828301@gmail.com, hughd@google.com, zokeefe@google.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-shmem-restore-shmem_huge_deny-precedence-over-madv_collapse.patch added to mm-hotfixes-unstable branch
-Message-Id: <20221224221850.84F2CC433EF@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        by ams.source.kernel.org (Postfix) with ESMTPS id AF676B803F2;
+        Sun, 25 Dec 2022 03:33:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23FB0C433EF;
+        Sun, 25 Dec 2022 03:33:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1671939236;
+        bh=HBs48LNTjteYim6wGJgPGSaGT7qA/LzlKBR3O8bHfls=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=jtDumGesS6zPX7w7WZPcPtT9aQpJ0Wf/p4LZ5LMUQq7BKFDyf8Mx4Kx/gFXhel7u1
+         z+HQQETjQ6xeG5nYSoHtMEzwcZxoPOXgYNnezzrE+D+W9g+HVuh2tKIBJqK9eZZyle
+         yFlOu7MRBMIqIU3UiVAZHujhfdLej1Aivbo7TomFhwNqc41uhp+5gYn2vNRPFBvgcA
+         0E/E5xcrODfgxk8pa4QPkKLxliIHXETYKgzy1aL9HcY+VWB7vwN2U3/dn+5mVD3Ctw
+         XtkhDrdcl0KZSSTr8PIJHDg0+uWZNFdp7MdT0VPnGZddHWHUVmmTGtJwPzo1FS3f3v
+         h5Pb3hLVW+SsA==
+Date:   Sat, 24 Dec 2022 22:33:54 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     Tyler Hicks <code@tyhicks.com>, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
+        kvm@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Gavin Shan <gshan@redhat.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Karolina Drobnik <karolinadrobnik@gmail.com>,
+        Mike Rapoport <rppt@kernel.org>
+Subject: Re: [PATCH 5.15 0/2] Fix kvm selftest build failures in linux-5.15.y
+Message-ID: <Y6fEohBcwosOVKch@sashalap>
+References: <20221223000958.729256-1-code@tyhicks.com>
+ <d0519826-79ae-38b4-5ec2-04c7e0874ef6@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <d0519826-79ae-38b4-5ec2-04c7e0874ef6@redhat.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Dec 23, 2022 at 05:45:44PM +0100, Paolo Bonzini wrote:
+>On 12/23/22 01:09, Tyler Hicks wrote:
+>>From: "Tyler Hicks" <code@tyhicks.com>
+>>
+>>The backport of commit 05c2224d4b04 ("KVM: selftests: Fix number of
+>>pages for memory slot in memslot_modification_stress_test") broke the
+>>build of the KVM selftest memslot_modification_stress_test.c source file
+>>in two ways:
+>>
+>>- Incorrectly assumed that max_t() was defined despite commit
+>>   5cf67a6051ea ("tools/include: Add _RET_IP_ and math definitions to
+>>   kernel.h") not being present
+>>- Incorrectly assumed that kvm_vm struct members could be directly
+>>   accessed despite b530eba14c70 ("KVM: selftests: Get rid of
+>>   kvm_util_internal.h") not being present
+>>
+>>Backport the first commit, as it is simple enough. Work around the lack
+>>of the second commit by using the accessors to get to the kvm_vm struct
+>>members.
+>>
+>>Note that the linux-6.0.y backport of commit 05c2224d4b04 ("KVM:
+>>selftests: Fix number of pages for memory slot in
+>>memslot_modification_stress_test") is fine because the two prerequisite
+>>commits, mentioned above, are both present in v6.0.
+>>
+>>Tyler
+>>
+>>Karolina Drobnik (1):
+>>   tools/include: Add _RET_IP_ and math definitions to kernel.h
+>>
+>>Tyler Hicks (Microsoft) (1):
+>>   KVM: selftests: Fix build regression by using accessor function
+>>
+>>  tools/include/linux/kernel.h                                | 6 ++++++
+>>  .../selftests/kvm/memslot_modification_stress_test.c        | 2 +-
+>>  2 files changed, 7 insertions(+), 1 deletion(-)
+>>
+>
+>Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+>
 
-The patch titled
-     Subject: mm/shmem: restore SHMEM_HUGE_DENY precedence over MADV_COLLAPSE
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     mm-shmem-restore-shmem_huge_deny-precedence-over-madv_collapse.patch
+Queued up, thanks!
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-shmem-restore-shmem_huge_deny-precedence-over-madv_collapse.patch
-
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: "Zach O'Keefe" <zokeefe@google.com>
-Subject: mm/shmem: restore SHMEM_HUGE_DENY precedence over MADV_COLLAPSE
-Date: Sat, 24 Dec 2022 00:20:35 -0800
-
-SHMEM_HUGE_DENY is for emergency use by the admin, to disable allocation
-of shmem huge pages if, for example, a dangerous bug is found in their
-usage: see "deny" in Documentation/mm/transhuge.rst.  An app using
-madvise(,,MADV_COLLAPSE) should not be allowed to override it: restore its
-precedence over shmem_huge_force.
-
-Restore SHMEM_HUGE_DENY precedence over MADV_COLLAPSE.
-
-Link: https://lkml.kernel.org/r/20221224082035.3197140-2-zokeefe@google.com
-Fixes: 7c6c6cc4d3a2 ("mm/shmem: add flag to enforce shmem THP in hugepage_vma_check()")
-Signed-off-by: Zach O'Keefe <zokeefe@google.com>
-Suggested-by: Hugh Dickins <hughd@google.com>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
-
---- a/mm/shmem.c~mm-shmem-restore-shmem_huge_deny-precedence-over-madv_collapse
-+++ a/mm/shmem.c
-@@ -478,12 +478,10 @@ bool shmem_is_huge(struct vm_area_struct
- 	if (vma && ((vma->vm_flags & VM_NOHUGEPAGE) ||
- 	    test_bit(MMF_DISABLE_THP, &vma->vm_mm->flags)))
- 		return false;
--	if (shmem_huge_force)
--		return true;
--	if (shmem_huge == SHMEM_HUGE_FORCE)
--		return true;
- 	if (shmem_huge == SHMEM_HUGE_DENY)
- 		return false;
-+	if (shmem_huge_force || shmem_huge == SHMEM_HUGE_FORCE)
-+		return true;
- 
- 	switch (SHMEM_SB(inode->i_sb)->huge) {
- 	case SHMEM_HUGE_ALWAYS:
-_
-
-Patches currently in -mm which might be from zokeefe@google.com are
-
-mm-madv_collapse-dont-expand-collapse-when-vm_end-is-past-requested-end.patch
-mm-shmem-restore-shmem_huge_deny-precedence-over-madv_collapse.patch
-
+-- 
+Thanks,
+Sasha
