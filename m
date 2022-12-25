@@ -2,63 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 750F7655D5F
-	for <lists+stable@lfdr.de>; Sun, 25 Dec 2022 15:20:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B04A0655D66
+	for <lists+stable@lfdr.de>; Sun, 25 Dec 2022 15:46:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229631AbiLYOUB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 25 Dec 2022 09:20:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53922 "EHLO
+        id S229649AbiLYOql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 25 Dec 2022 09:46:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230121AbiLYOT7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 25 Dec 2022 09:19:59 -0500
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68D691120
-        for <stable@vger.kernel.org>; Sun, 25 Dec 2022 06:19:57 -0800 (PST)
-Received: by mail-pl1-x636.google.com with SMTP id 19so1936425plo.12
-        for <stable@vger.kernel.org>; Sun, 25 Dec 2022 06:19:57 -0800 (PST)
+        with ESMTP id S229489AbiLYOqk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 25 Dec 2022 09:46:40 -0500
+Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2779E5E
+        for <stable@vger.kernel.org>; Sun, 25 Dec 2022 06:46:37 -0800 (PST)
+Received: by mail-pf1-x42c.google.com with SMTP id w26so6023483pfj.6
+        for <stable@vger.kernel.org>; Sun, 25 Dec 2022 06:46:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=WxFhMjpLTUPx95z5CCuchh2SX4O+JDMEsHwaFayS360=;
-        b=SGP84uWV275kiAqGnaOkplBNYHwkrHvbrGtVBu8qq7rZo9yp0aQpX2E8bww39s4Osa
-         8u1CtmUnE2380B3ACeSfBb70FCDmBwkhVtZn7pK/gJJdCxdU1AcDKewtMQ1XAhKWMqE4
-         5TvRH5tV9QY7A/peoe1v7chZvvMqEVXXct4RZMsP0kiNkHtgsfpoYClkKtq20afmv9M1
-         eHysHD4oSnfpqGmU3LTIRfrsP68hUnzI84Rn7rhr9/RgOAKT+1FE0f2xXqtz2p7daRXC
-         uRnZyLrv3DGc26g0BRB5TE8/WgHkDA/rvHIjYNEJuqDuOPckFc4NqkP/7qHmmsmoQihh
-         8lLw==
+        bh=t660ykuwMEMfYOIfev9CjwLvrlBbdLgCdZNoDmquFfI=;
+        b=DvjkaDB1iQcZWLyGfT4mfqVh9npZg0mc7S1eA1f1LQd7/JEUDh/qJJnqcFZoqlWrcu
+         8EUPANlPt24i4ZjuLYhtZybQe0DFyXVhpfg6dQ036d+UJ3jXBscTQI4miijMRZigHhZ5
+         KZNSASg4LnwjaRn+OSKcsIrQnKzaxl2A4iGYMTzpeLYuI1AmOk48YefnpvlOctKaUS7K
+         hBZCBgIartSf6yysSMatdD7kb0qwbKelMq3jpAxJztl7cgwe6nGV+80FBf58DhHcoW9f
+         1shDK3jfqORfBrn9vqd9GYiCulkW6sexIjrHOv4FIcaFwy9sWuqY7rgExgGcFHjlJeFB
+         FpzQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=WxFhMjpLTUPx95z5CCuchh2SX4O+JDMEsHwaFayS360=;
-        b=iY/3rnqFQ08PgTpWxqZtapK0WE/bS6KfYR23wE8P0yupCmruh3nQIYdntje6L6lulH
-         czDzqh76M82X2gS0IpkvNV5Kv+8xP0FkqzTmcW32Hx3RWkG3A9yjsz0ocMhUw3JPm2q3
-         32x/dT8GXUdgsmaDnoxQ0K805oh4synwfaoVS/VAbLImOv79p48t0GL/3kVdgdWkLbOr
-         v0XcMP4Ylp7I6CROpHk2FqYgDbg+9sUZdJzONb36qn03RfZa4Mo7ICJ8TwtiWUlsT3iX
-         kTJAi8xVdHt8kTpBi479xhM3IlfexM97hxJPYNYlffM25rtPX/+qemKacJpb9wORFJRc
-         tlLA==
-X-Gm-Message-State: AFqh2kqzeJ7B+6cWLTdZIyz7xon3abghpSdPsHJoUV8MMoyo/G0+nijF
-        RS+M3xCRkRPUfdn7Fpqoo4VvCsN4vtltkopSM48=
-X-Google-Smtp-Source: AMrXdXs8Z2/NPdcdHTH0a49yprj2LKd9dKlE2uaSKzwIez8Hcj9B2v1eip1CBOQFC5qphznySZNn5A==
-X-Received: by 2002:a17:902:e48d:b0:191:4464:6456 with SMTP id i13-20020a170902e48d00b0019144646456mr18242090ple.3.1671977996006;
-        Sun, 25 Dec 2022 06:19:56 -0800 (PST)
+        bh=t660ykuwMEMfYOIfev9CjwLvrlBbdLgCdZNoDmquFfI=;
+        b=QSifE0jSC3jlxABqAcgmNllzLKNPMIdzqMxOqwqNPi5y3YSs+HmtuYRRyJmvZH1oUi
+         LWWSjZo4V7yKDfkCSVki8Q9wQb4+ZH8NZ6m/x1+BxclahdC92rrlDgkFqisaQrTls9a1
+         i833O/bbI8khsQB/G9dOCFJ/DZOPiutcT8qnRmb6rqBovTpK5WQhPx8lUoaLLmoy9+1D
+         vrcO0OqrA4AmylFURFIPYL32p/KZsrQw6jf3gwuuQRIRQQAnkNWLyGvJvyKqBHzuBM+/
+         liaY+n4MxOHcOj+7fv6FkYiZRa6VLlrLWf0Dgc9bHq+JidsKam37IEB/ozUU1212oItV
+         n5RQ==
+X-Gm-Message-State: AFqh2kr+rYS0Yl0/CDln5O+CDgLB8uzkRuuBwArYTC6HaEf7x2IflJDT
+        LUU0RbZjE2g3klD1x6Q32JRM2nNFatIueaVx3EM=
+X-Google-Smtp-Source: AMrXdXtoFhbTYxSVxFxCaSk39v2Hin/PnZED4YG0tIHxJtYmUTSKSWxOBhufFiXJM6Rsrf+y3jf71Q==
+X-Received: by 2002:aa7:843c:0:b0:578:128b:3a3f with SMTP id q28-20020aa7843c000000b00578128b3a3fmr17883727pfn.15.1671979596632;
+        Sun, 25 Dec 2022 06:46:36 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id n2-20020a170902e54200b001887e30b9ddsm5382911plf.257.2022.12.25.06.19.55
+        by smtp.gmail.com with ESMTPSA id m27-20020a62a21b000000b0057fdaff3fa0sm5572256pff.15.2022.12.25.06.46.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 25 Dec 2022 06:19:55 -0800 (PST)
-Message-ID: <63a85c0b.170a0220.a66f6.98d6@mx.google.com>
-Date:   Sun, 25 Dec 2022 06:19:55 -0800 (PST)
+        Sun, 25 Dec 2022 06:46:36 -0800 (PST)
+Message-ID: <63a8624c.620a0220.91319.9f3e@mx.google.com>
+Date:   Sun, 25 Dec 2022 06:46:36 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.336-211-g2ab30a431b98
+X-Kernelci-Kernel: v4.14.302-251-g5eafcfadd0e1
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.9
+X-Kernelci-Branch: queue/4.14
 X-Kernelci-Report-Type: build
-Subject: stable-rc/queue/4.9 build: 187 builds: 2 failed, 185 passed,
- 38 warnings (v4.9.336-211-g2ab30a431b98)
+Subject: stable-rc/queue/4.14 build: 195 builds: 2 failed, 193 passed,
+ 43 warnings (v4.14.302-251-g5eafcfadd0e1)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -71,16 +71,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 build: 187 builds: 2 failed, 185 passed, 38 warnings (v=
-4.9.336-211-g2ab30a431b98)
+stable-rc/queue/4.14 build: 195 builds: 2 failed, 193 passed, 43 warnings (=
+v4.14.302-251-g5eafcfadd0e1)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.9=
-/kernel/v4.9.336-211-g2ab30a431b98/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
+4/kernel/v4.14.302-251-g5eafcfadd0e1/
 
 Tree: stable-rc
-Branch: queue/4.9
-Git Describe: v4.9.336-211-g2ab30a431b98
-Git Commit: 2ab30a431b98aa3d91c85f62d45a3c335d077520
+Branch: queue/4.14
+Git Describe: v4.14.302-251-g5eafcfadd0e1
+Git Commit: 5eafcfadd0e1210afd19e989f6ef787438b8f741
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 6 unique architectures
@@ -96,14 +96,21 @@ Warnings Detected:
 arc:
 
 arm64:
+    defconfig (gcc-10): 1 warning
+    defconfig+arm64-chromebook (gcc-10): 1 warning
 
 arm:
+    bcm2835_defconfig (gcc-10): 1 warning
+    efm32_defconfig (gcc-10): 1 warning
     imx_v6_v7_defconfig (gcc-10): 1 warning
+    lpc18xx_defconfig (gcc-10): 1 warning
     mini2440_defconfig (gcc-10): 1 warning
+    mps2_defconfig (gcc-10): 1 warning
     multi_v7_defconfig (gcc-10): 1 warning
     omap1_defconfig (gcc-10): 1 warning
     pxa_defconfig (gcc-10): 1 warning
     s3c2410_defconfig (gcc-10): 1 warning
+    stm32_defconfig (gcc-10): 1 warning
     tegra_defconfig (gcc-10): 1 warning
 
 i386:
@@ -112,43 +119,49 @@ i386:
     tinyconfig (gcc-10): 3 warnings
 
 mips:
+    malta_qemu_32r6_defconfig (gcc-10): 1 warning
     mtx1_defconfig (gcc-10): 3 warnings
 
 x86_64:
-    allnoconfig (gcc-10): 5 warnings
+    allnoconfig (gcc-10): 4 warnings
     tinyconfig (gcc-10): 4 warnings
-    x86_64_defconfig (gcc-10): 5 warnings
-    x86_64_defconfig+x86-chromebook (gcc-10): 5 warnings
+    x86_64_defconfig (gcc-10): 4 warnings
+    x86_64_defconfig+x86-chromebook (gcc-10): 4 warnings
 
 
 Warnings summary:
 
     7    ld: warning: creating DT_TEXTREL in a PIE
-    7    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic su=
-ffix given and no register operands; using default for `btr'
-    4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
-d-only section `.head.text'
-    4    include/linux/stddef.h:7:14: warning: returning =E2=80=98void *=E2=
+    7    include/linux/stddef.h:8:14: warning: returning =E2=80=98void *=E2=
 =80=99 from a function with return type =E2=80=98int=E2=80=99 makes integer=
  from pointer without a cast [-Wint-conversion]
-    4    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic s=
+    4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
+d-only section `.head.text'
+    4    arch/x86/entry/entry_64.S:1672: Warning: no instruction mnemonic s=
 uffix given and no register operands; using default for `sysret'
+    4    arch/arm/mm/nommu.c:382:12: warning: assignment to =E2=80=98void *=
+=E2=80=99 from =E2=80=98phys_addr_t=E2=80=99 {aka =E2=80=98unsigned int=E2=
+=80=99} makes pointer from integer without a cast [-Wint-conversion]
+    4    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h=
+' differs from latest kernel version at 'arch/x86/include/asm/insn.h'
     3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
 d-only section `.head.text'
-    3    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic su=
+    3    arch/x86/entry/entry_32.S:480: Warning: no instruction mnemonic su=
 ffix given and no register operands; using default for `btr'
     2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
 741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    2    drivers/tty/serial/samsung.c:1782:34: warning: array =E2=80=98s3c2=
+    2    drivers/tty/serial/samsung.c:1790:34: warning: array =E2=80=98s3c2=
 4xx_uart_dt_match=E2=80=99 assumed to have one element
+    1    {standard input}:30: Warning: macro instruction expanded into mult=
+iple instructions
     1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
 741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    1    drivers/gpio/gpio-omap.c:1135:34: warning: array =E2=80=98omap_gpi=
+    1    drivers/gpio/gpio-omap.c:1152:34: warning: array =E2=80=98omap_gpi=
 o_match=E2=80=99 assumed to have one element
 
 Section mismatches summary:
 
-    15   WARNING: modpost: Found 1 section mismatch(es).
+    13   WARNING: modpost: Found 1 section mismatch(es).
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -156,6 +169,11 @@ Section mismatches summary:
 =3D=3D=3D=3D=3D
 
 Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -179,16 +197,14 @@ ismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 sectio=
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sectio=
 n mismatches
 
 Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+    arch/x86/entry/entry_64.S:1672: Warning: no instruction mnemonic suffix=
  given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
@@ -199,7 +215,7 @@ allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section =
 mismatches
 
 Warnings:
-    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
+    arch/x86/entry/entry_32.S:480: Warning: no instruction mnemonic suffix =
 given and no register operands; using default for `btr'
     ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
 y section `.head.text'
@@ -267,8 +283,13 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    include/linux/stddef.h:8:14: warning: returning =E2=80=98void *=E2=80=
+=99 from a function with return type =E2=80=98int=E2=80=99 makes integer fr=
+om pointer without a cast [-Wint-conversion]
 
 ---------------------------------------------------------------------------=
 -----
@@ -290,16 +311,10 @@ tion mismatches
 bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
 
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
 ---------------------------------------------------------------------------=
 -----
 bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -373,16 +388,26 @@ decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 
 ---------------------------------------------------------------------------=
 -----
-defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
+smatches
+
+Warnings:
+    include/linux/stddef.h:8:14: warning: returning =E2=80=98void *=E2=80=
+=99 from a function with return type =E2=80=98int=E2=80=99 makes integer fr=
+om pointer without a cast [-Wint-conversion]
 
 Section mismatches:
     WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
-defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warn=
-ings, 0 section mismatches
+defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 1 warn=
+ing, 0 section mismatches
+
+Warnings:
+    include/linux/stddef.h:8:14: warning: returning =E2=80=98void *=E2=80=
+=99 from a function with return type =E2=80=98int=E2=80=99 makes integer fr=
+om pointer without a cast [-Wint-conversion]
 
 Section mismatches:
     WARNING: modpost: Found 1 section mismatch(es).
@@ -404,8 +429,13 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-efm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+efm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/arm/mm/nommu.c:382:12: warning: assignment to =E2=80=98void *=E2=
+=80=99 from =E2=80=98phys_addr_t=E2=80=99 {aka =E2=80=98unsigned int=E2=80=
+=99} makes pointer from integer without a cast [-Wint-conversion]
 
 ---------------------------------------------------------------------------=
 -----
@@ -447,6 +477,11 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
+gemini_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
 gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
@@ -467,7 +502,22 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+haps_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
 hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
 ---------------------------------------------------------------------------=
@@ -476,7 +526,7 @@ i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
 on mismatches
 
 Warnings:
-    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
+    arch/x86/entry/entry_32.S:480: Warning: no instruction mnemonic suffix =
 given and no register operands; using default for `btr'
     ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
 y section `.head.text'
@@ -498,7 +548,7 @@ imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
 ction mismatches
 
 Warnings:
-    include/linux/stddef.h:7:14: warning: returning =E2=80=98void *=E2=80=
+    include/linux/stddef.h:8:14: warning: returning =E2=80=98void *=E2=80=
 =99 from a function with return type =E2=80=98int=E2=80=99 makes integer fr=
 om pointer without a cast [-Wint-conversion]
 
@@ -607,8 +657,13 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-lpc18xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+lpc18xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    arch/arm/mm/nommu.c:382:12: warning: assignment to =E2=80=98void *=E2=
+=80=99 from =E2=80=98phys_addr_t=E2=80=99 {aka =E2=80=98unsigned int=E2=80=
+=99} makes pointer from integer without a cast [-Wint-conversion]
 
 ---------------------------------------------------------------------------=
 -----
@@ -652,8 +707,12 @@ gs, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
-gs, 0 section mismatches
+malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warnin=
+g, 0 section mismatches
+
+Warnings:
+    {standard input}:30: Warning: macro instruction expanded into multiple =
+instructions
 
 ---------------------------------------------------------------------------=
 -----
@@ -691,7 +750,7 @@ mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
 tion mismatches
 
 Warnings:
-    drivers/tty/serial/samsung.c:1782:34: warning: array =E2=80=98s3c24xx_u=
+    drivers/tty/serial/samsung.c:1790:34: warning: array =E2=80=98s3c24xx_u=
 art_dt_match=E2=80=99 assumed to have one element
 
 ---------------------------------------------------------------------------=
@@ -706,13 +765,23 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
+moxart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
 mpc30x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    arch/arm/mm/nommu.c:382:12: warning: assignment to =E2=80=98void *=E2=
+=80=99 from =E2=80=98phys_addr_t=E2=80=99 {aka =E2=80=98unsigned int=E2=80=
+=99} makes pointer from integer without a cast [-Wint-conversion]
 
 ---------------------------------------------------------------------------=
 -----
@@ -751,7 +820,7 @@ multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
 tion mismatches
 
 Warnings:
-    include/linux/stddef.h:7:14: warning: returning =E2=80=98void *=E2=80=
+    include/linux/stddef.h:8:14: warning: returning =E2=80=98void *=E2=80=
 =99 from a function with return type =E2=80=98int=E2=80=99 makes integer fr=
 om pointer without a cast [-Wint-conversion]
 
@@ -847,13 +916,18 @@ omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
 n mismatches
 
 Warnings:
-    drivers/gpio/gpio-omap.c:1135:34: warning: array =E2=80=98omap_gpio_mat=
+    drivers/gpio/gpio-omap.c:1152:34: warning: array =E2=80=98omap_gpio_mat=
 ch=E2=80=99 assumed to have one element
 
 ---------------------------------------------------------------------------=
 -----
 omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+omega2p_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -873,6 +947,11 @@ ion mismatches
 ---------------------------------------------------------------------------=
 -----
 pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
 ---------------------------------------------------------------------------=
@@ -916,7 +995,7 @@ pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
 mismatches
 
 Warnings:
-    include/linux/stddef.h:7:14: warning: returning =E2=80=98void *=E2=80=
+    include/linux/stddef.h:8:14: warning: returning =E2=80=98void *=E2=80=
 =99 from a function with return type =E2=80=98int=E2=80=99 makes integer fr=
 om pointer without a cast [-Wint-conversion]
 
@@ -966,7 +1045,7 @@ s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
 Warnings:
-    drivers/tty/serial/samsung.c:1782:34: warning: array =E2=80=98s3c24xx_u=
+    drivers/tty/serial/samsung.c:1790:34: warning: array =E2=80=98s3c24xx_u=
 art_dt_match=E2=80=99 assumed to have one element
 
 ---------------------------------------------------------------------------=
@@ -1043,13 +1122,23 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-stm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+stm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/arm/mm/nommu.c:382:12: warning: assignment to =E2=80=98void *=E2=
+=80=99 from =E2=80=98phys_addr_t=E2=80=99 {aka =E2=80=98unsigned int=E2=80=
+=99} makes pointer from integer without a cast [-Wint-conversion]
 
 ---------------------------------------------------------------------------=
 -----
 sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
+
+---------------------------------------------------------------------------=
+-----
+tango4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1077,9 +1166,35 @@ tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
 n mismatches
 
 Warnings:
-    include/linux/stddef.h:7:14: warning: returning =E2=80=98void *=E2=80=
+    include/linux/stddef.h:8:14: warning: returning =E2=80=98void *=E2=80=
 =99 from a function with return type =E2=80=98int=E2=80=99 makes integer fr=
 om pointer without a cast [-Wint-conversion]
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
+ismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:480: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
+ mismatches
+
+Warnings:
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+    arch/x86/entry/entry_64.S:1672: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
@@ -1090,32 +1205,6 @@ smatches
 -----
 tinyconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
- mismatches
-
-Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
-ismatches
-
-Warnings:
-    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
@@ -1160,13 +1249,13 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vf610m4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+viper_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-viper_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+vocore2_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1180,16 +1269,14 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 s=
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 s=
 ection mismatches
 
 Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+    arch/x86/entry/entry_64.S:1672: Warning: no instruction mnemonic suffix=
  given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
@@ -1197,15 +1284,13 @@ y section `.head.text'
 ---------------------------------------------------------------------------=
 -----
 x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
-5 warnings, 0 section mismatches
+4 warnings, 0 section mismatches
 
 Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+    arch/x86/entry/entry_64.S:1672: Warning: no instruction mnemonic suffix=
  given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
@@ -1219,16 +1304,6 @@ n mismatches
 -----
 xilfpga_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
-
----------------------------------------------------------------------------=
------
-zebu_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-zebu_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
 
 ---------------------------------------------------------------------------=
 -----
