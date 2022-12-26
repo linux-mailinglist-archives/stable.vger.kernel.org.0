@@ -2,72 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23134656300
-	for <lists+stable@lfdr.de>; Mon, 26 Dec 2022 15:07:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00F40656484
+	for <lists+stable@lfdr.de>; Mon, 26 Dec 2022 19:11:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229595AbiLZOHB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Dec 2022 09:07:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37406 "EHLO
+        id S229614AbiLZSLT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Dec 2022 13:11:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229533AbiLZOHA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Dec 2022 09:07:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B47410A
-        for <stable@vger.kernel.org>; Mon, 26 Dec 2022 06:06:58 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80E83B80BE7
-        for <stable@vger.kernel.org>; Mon, 26 Dec 2022 14:06:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35433C433EF;
-        Mon, 26 Dec 2022 14:06:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672063616;
-        bh=Vp1Gxgy8aLvVN6RcBm+WX5OTFGMNl28teaDAmCl1qbI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=tn6D7Pm8bTOWSB3Z821BU6g9RhR6NhaVobt3L3y/CHiWg2UIbi2w0qkIkqFtGrtUn
-         FgXf7Yi2+aX6InDx28AXg2m68o3RELhHE9XZ/3lmPgiQtr5QQshBi9jOLMZh117/Qm
-         Lqr2bH9CHVBtfvdSQkxTZkQCMGtEUMhwkxQb0j2wlhrMBvNJIv8vU69fjl4Utztfsl
-         lYgJlMKZBN3PvZzOsUOv1FIzcAGnUhpx7wnke+W7zUxhZEbbPKf+wKWXTFrAR+3w4t
-         7O/qfp2F0fHtFbGnOPPsw6Ds/DqWkz+sdK31hoKWLDqXt4wLpMRujxDrner/QLROep
-         uCe9GBfZGC6yQ==
-Date:   Mon, 26 Dec 2022 15:06:47 +0100
-From:   Pratyush Yadav <pratyush@kernel.org>
-To:     tkuw584924@gmail.com
-Cc:     linux-mtd@lists.infradead.org, tudor.ambarus@linaro.org,
-        michael@walle.cc, miquel.raynal@bootlin.com, richard@nod.at,
-        vigneshr@ti.com, Bacem.Daassi@infineon.com,
-        Takahiro Kuwano <Takahiro.Kuwano@infineon.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2 1/3] mtd: spi-nor: sfdp: Fix index value for SCCR
- dwords
-Message-ID: <20221226140647.ahnw4ag55ctp3kal@yadavpratyush.com>
-References: <cover.1672026365.git.Takahiro.Kuwano@infineon.com>
- <d8a2a77c2c95cf776e7dcae6392d29fdcf5d6307.1672026365.git.Takahiro.Kuwano@infineon.com>
+        with ESMTP id S231422AbiLZSLQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Dec 2022 13:11:16 -0500
+Received: from exchange.fintech.ru (e10edge.fintech.ru [195.54.195.159])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C1B3C2F;
+        Mon, 26 Dec 2022 10:11:13 -0800 (PST)
+Received: from Ex16-01.fintech.ru (10.0.10.18) by exchange.fintech.ru
+ (195.54.195.169) with Microsoft SMTP Server (TLS) id 14.3.498.0; Mon, 26 Dec
+ 2022 21:09:56 +0300
+Received: from localhost (10.0.253.157) by Ex16-01.fintech.ru (10.0.10.18)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2242.4; Mon, 26 Dec
+ 2022 21:09:56 +0300
+From:   Nikita Zhandarovich <n.zhandarovich@fintech.ru>
+To:     <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Nikita Zhandarovich <n.zhandarovich@fintech.ru>,
+        =?UTF-8?q?Dima=C2=B7Chumak=C2=B7?= <dchumak@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, <netdev@vger.kernel.org>,
+        <linux-rdma@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <lvc-project@linuxtesting.org>
+Subject: [PATCH 5.10 0/1] net/mlx5e: Fix nullptr in mlx5e_tc_add_fdb_flow()
+Date:   Mon, 26 Dec 2022 10:09:49 -0800
+Message-ID: <20221226180950.86129-1-n.zhandarovich@fintech.ru>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d8a2a77c2c95cf776e7dcae6392d29fdcf5d6307.1672026365.git.Takahiro.Kuwano@infineon.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.0.253.157]
+X-ClientProxiedBy: Ex16-01.fintech.ru (10.0.10.18) To Ex16-01.fintech.ru
+ (10.0.10.18)
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 26/12/22 01:01PM, tkuw584924@gmail.com wrote:
-> From: Takahiro Kuwano <Takahiro.Kuwano@infineon.com>
-> 
-> Array index for SCCR 22th DOWRD should be 21.
-> 
-> Fixes: 981a8d60e01f ("mtd: spi-nor: Parse SFDP SCCR Map")
-> Signed-off-by: Takahiro Kuwano <Takahiro.Kuwano@infineon.com>
-> Reviewed-by: Michael Walle <michael@walle.cc>
+The result of __dev_get_by_index() is not checked for NULL, which then
+passed to mlx5e_attach_encap() and gets dereferenced.
 
-Reviewed-by: Pratyush Yadav <pratyush@kernel.org>
+This patch backports commit <fe7738e> to correct the issue in 5.10 branch.
 
--- 
-Regards,
-Pratyush Yadav
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
