@@ -2,64 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 482DE65624B
-	for <lists+stable@lfdr.de>; Mon, 26 Dec 2022 12:57:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23134656300
+	for <lists+stable@lfdr.de>; Mon, 26 Dec 2022 15:07:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229683AbiLZL5r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Dec 2022 06:57:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36464 "EHLO
+        id S229595AbiLZOHB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Dec 2022 09:07:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229569AbiLZL5r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Dec 2022 06:57:47 -0500
-X-Greylist: delayed 444 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 26 Dec 2022 03:57:46 PST
-Received: from serv15.avernis.de (serv15.avernis.de [176.9.89.163])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75A0925FA
-        for <stable@vger.kernel.org>; Mon, 26 Dec 2022 03:57:46 -0800 (PST)
-Received: from webmail.serv15.avernis.de (ip6-localhost [IPv6:::1])
-        by serv15.avernis.de (Postfix) with ESMTPSA id A8407BDE8929;
-        Mon, 26 Dec 2022 12:50:15 +0100 (CET)
-MIME-Version: 1.0
-Date:   Mon, 26 Dec 2022 11:50:15 +0000
-From:   Andreas Ziegler <br015@umbiko.net>
-To:     Slade Watkins <srw@sladewatkins.net>
-Cc:     Daniel Bristot de Oliveira <bristot@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        linux-trace-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        with ESMTP id S229533AbiLZOHA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Dec 2022 09:07:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B47410A
+        for <stable@vger.kernel.org>; Mon, 26 Dec 2022 06:06:58 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 80E83B80BE7
+        for <stable@vger.kernel.org>; Mon, 26 Dec 2022 14:06:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35433C433EF;
+        Mon, 26 Dec 2022 14:06:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1672063616;
+        bh=Vp1Gxgy8aLvVN6RcBm+WX5OTFGMNl28teaDAmCl1qbI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=tn6D7Pm8bTOWSB3Z821BU6g9RhR6NhaVobt3L3y/CHiWg2UIbi2w0qkIkqFtGrtUn
+         FgXf7Yi2+aX6InDx28AXg2m68o3RELhHE9XZ/3lmPgiQtr5QQshBi9jOLMZh117/Qm
+         Lqr2bH9CHVBtfvdSQkxTZkQCMGtEUMhwkxQb0j2wlhrMBvNJIv8vU69fjl4Utztfsl
+         lYgJlMKZBN3PvZzOsUOv1FIzcAGnUhpx7wnke+W7zUxhZEbbPKf+wKWXTFrAR+3w4t
+         7O/qfp2F0fHtFbGnOPPsw6Ds/DqWkz+sdK31hoKWLDqXt4wLpMRujxDrner/QLROep
+         uCe9GBfZGC6yQ==
+Date:   Mon, 26 Dec 2022 15:06:47 +0100
+From:   Pratyush Yadav <pratyush@kernel.org>
+To:     tkuw584924@gmail.com
+Cc:     linux-mtd@lists.infradead.org, tudor.ambarus@linaro.org,
+        michael@walle.cc, miquel.raynal@bootlin.com, richard@nod.at,
+        vigneshr@ti.com, Bacem.Daassi@infineon.com,
+        Takahiro Kuwano <Takahiro.Kuwano@infineon.com>,
         stable@vger.kernel.org
-Subject: Re: rtla osnoise hist: average duration is always zero
-In-Reply-To: <CA+pv=HO1mvnN5XZHkWDjWr=NJHJZxjcstiY4qtJGJ6mfsqPfQw@mail.gmail.com>
-References: <d7bb31547e9bbf6684801a7bbd857810@umbiko.net>
- <CA+pv=HO1mvnN5XZHkWDjWr=NJHJZxjcstiY4qtJGJ6mfsqPfQw@mail.gmail.com>
-Message-ID: <a900f403176c0e806051efc0f34f2912@umbiko.net>
-X-Sender: br015@umbiko.net
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-X-Virus-Scanned: clamav-milter 0.103.7 at serv15.avernis.de
-X-Virus-Status: Clean
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Subject: Re: [PATCH v2 1/3] mtd: spi-nor: sfdp: Fix index value for SCCR
+ dwords
+Message-ID: <20221226140647.ahnw4ag55ctp3kal@yadavpratyush.com>
+References: <cover.1672026365.git.Takahiro.Kuwano@infineon.com>
+ <d8a2a77c2c95cf776e7dcae6392d29fdcf5d6307.1672026365.git.Takahiro.Kuwano@infineon.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d8a2a77c2c95cf776e7dcae6392d29fdcf5d6307.1672026365.git.Takahiro.Kuwano@infineon.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022-12-24 21:17, Slade Watkins wrote:
-> On Sat, Dec 24, 2022 at 7:48 AM Andreas Ziegler <br015@umbiko.net> 
-> wrote:
->> 
->> -- Observed in, but not limited to, Linux 6.1.1
+On 26/12/22 01:01PM, tkuw584924@gmail.com wrote:
+> From: Takahiro Kuwano <Takahiro.Kuwano@infineon.com>
 > 
-> Wait, "but not limited to"? What does that mean? Are there more
-> versions affected?
+> Array index for SCCR 22th DOWRD should be 21.
+> 
+> Fixes: 981a8d60e01f ("mtd: spi-nor: Parse SFDP SCCR Map")
+> Signed-off-by: Takahiro Kuwano <Takahiro.Kuwano@infineon.com>
+> Reviewed-by: Michael Walle <michael@walle.cc>
 
-This was meant to indicate that the bug is not a regression; it can be 
-found in every release since introduction in 5.17. Currently affected 
-are 6.1.y and 6.0.y kernel trees.
+Reviewed-by: Pratyush Yadav <pratyush@kernel.org>
 
+-- 
 Regards,
-Andreas
-
-> -- Slade
+Pratyush Yadav
