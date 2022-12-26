@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D23E655F78
-	for <lists+stable@lfdr.de>; Mon, 26 Dec 2022 04:32:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45DE8655F8C
+	for <lists+stable@lfdr.de>; Mon, 26 Dec 2022 04:41:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231438AbiLZDce (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 25 Dec 2022 22:32:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45400 "EHLO
+        id S231371AbiLZDle (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 25 Dec 2022 22:41:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229543AbiLZDcc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 25 Dec 2022 22:32:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A3142625;
-        Sun, 25 Dec 2022 19:32:30 -0800 (PST)
+        with ESMTP id S229999AbiLZDld (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 25 Dec 2022 22:41:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FFC1DE6;
+        Sun, 25 Dec 2022 19:41:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 48A0E60C60;
-        Mon, 26 Dec 2022 03:32:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 9CEBDC433F0;
-        Mon, 26 Dec 2022 03:32:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2068560C6E;
+        Mon, 26 Dec 2022 03:41:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 7A737C433F0;
+        Mon, 26 Dec 2022 03:41:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672025549;
-        bh=a47xJUGD7vrt0AjZ0kNeUKKiGBj+wuGGktZD5yVgTGM=;
+        s=k20201202; t=1672026091;
+        bh=ZSlkkJLLxbJ0+GMqD8986Fnf7w6C4j9KYioAc8sZBaE=;
         h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=s7qY7fnmqvhX+qBopdA4LtP8nYj9W8CKN4UnD0kqJ01xb2c7of6uImV+y2i67yl0d
-         I0cCUMZlh7KFkzinx3kLpWfMpaXQgwavt9XcDXN0LXKU9NNN5y9QOrnNm/a9qmuyMV
-         BvD532wgiQxHeRFcXiu8vneXZ43O2EmiegVphJpDHQpc8dLpnSLT7YXK5IlsiWXpqs
-         CPg6JWXZwwYgl38D2qQc2eGz77tg36Y7WPbUa/6w0FBP+eca1cZwCWOwQurkR8oThV
-         VvU20oZ0seUG0BLe7KPszFFSPP8wF95oI2RUhn3psVuysIpuEA0OEalDZphtdwxrw9
-         2nBVHEsq1g7Xw==
+        b=L34Zt5NoDXQqbBpZ1Z0RVBWl02XgiQmqnnEi8wKlW/wuW3Et0NTUIWXooD+T0N20x
+         VvrghjGwliRb7M1TK510HW6o4kIifLM0a7sqLQrSovVob+gjyHZMYGjaFebfkdQAqu
+         0OnX0kkYirSKAZS6gatDDvJxu/qIgqeojZ4Wb7eTAVdtU8/P7oQXBu9dp23DrcYJuJ
+         02LrjAkfGQwDGxw3qdCtsviqaz/5gzaKJe7+3gl+NdIcw483AzwAjddFB2766qvA9x
+         Jy7YmsXxBGYuAyTuFSrymYAqMzvg08GBSnfWYm6VfdGsaMjwG2y4z3NW0azsDbfbwa
+         r4HIjfe6qSPeQ==
 Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 7CA0EE50D66;
-        Mon, 26 Dec 2022 03:32:29 +0000 (UTC)
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 5FB24F82DEC;
+        Mon, 26 Dec 2022 03:41:31 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Subject: Re: [PATCH] firmware: coreboot: Register bus in module init
 From:   patchwork-bot+chrome-platform@kernel.org
-Message-Id: <167202554950.9518.17220967657026708606.git-patchwork-notify@kernel.org>
-Date:   Mon, 26 Dec 2022 03:32:29 +0000
+Message-Id: <167202609138.9518.12964660345062034201.git-patchwork-notify@kernel.org>
+Date:   Mon, 26 Dec 2022 03:41:31 +0000
 References: <20221019180934.1.If29e167d8a4771b0bf4a39c89c6946ed764817b9@changeid>
 In-Reply-To: <20221019180934.1.If29e167d8a4771b0bf4a39c89c6946ed764817b9@changeid>
 To:     Brian Norris <briannorris@chromium.org>
@@ -59,7 +59,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 Hello:
 
-This patch was applied to chrome-platform/linux.git (for-kernelci)
+This patch was applied to chrome-platform/linux.git (for-next)
 by Greg Kroah-Hartman <gregkh@linuxfoundation.org>:
 
 On Wed, 19 Oct 2022 18:10:53 -0700 you wrote:
