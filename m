@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF6BA656EE0
-	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:35:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F9AC656EE5
+	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:36:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232503AbiL0Uf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Dec 2022 15:35:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38066 "EHLO
+        id S232435AbiL0UgC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Dec 2022 15:36:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232385AbiL0Ud4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:33:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5344CDF3A;
-        Tue, 27 Dec 2022 12:33:42 -0800 (PST)
+        with ESMTP id S232450AbiL0UeC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:34:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AC6ADE88;
+        Tue, 27 Dec 2022 12:33:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E460E61242;
-        Tue, 27 Dec 2022 20:33:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BBB8C433F1;
-        Tue, 27 Dec 2022 20:33:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1492CB811F9;
+        Tue, 27 Dec 2022 20:33:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03E57C433EF;
+        Tue, 27 Dec 2022 20:33:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672173221;
-        bh=0a85H3fOwkJQ++l5XFa8+Xd4w8JAtMLyiMUpiFWaY58=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZlXffcrLw807qy8izWBVAFvuton/DaxUjKFGyyHyQ9fJqdEwK9cZ8bx7IKGVbfkt4
-         YXXja4vvs4TTe3fRYGLCrnlt6iEacWrZqf8PppviKJuD5HhJlMqLAK/JnhOu7ffK0Q
-         B5D16JvLZ19bSgouV+ntLgvRwoM9UVt1eQfdNS5w0PkzGYyJAhDtDRfF0cezHA8Oqt
-         XUelKdZjII6bqMNRwayAtiGgDKu1A5kTJlX2NTRQ0Ix8ZxDOvhyRQ8yqM5lodS7GS4
-         we+c7aSf1ZNgiYyw86tgmQVcCum55hOJbVkoY0SUXzw+HHOUhe2IKqmfDTK/wgojwT
-         N1E9QZLZ/jt0A==
+        s=k20201202; t=1672173224;
+        bh=WOpWFmLLWI+lA2gvQHVwy13qZ8bNfgo+s9kU+89teFo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=SxXmHB6mZHXsU+N952ESsmO8Kgp6+qurOSM5YK63VBO2xAqgsyyRXTJJl97HjuX3T
+         VeDR03saB9t0N4qz6yuBjlYYE+OV6NrdFyDCPOgtDNjyGEjD1eLyCBni/NWiXUryL5
+         N/AU2rwrK15Lj9YnpFJ2pFJ52UKsNTQAK34IuZJK3SrnfMkJLfyLs1+quOivGtIpt3
+         Nq//YzG8MCnZ7FCKyQXvr54PHewrrKZtdKB4eR4vCOsTJCzBUcOMXfPVkHp91GOoTE
+         YenTJzF8UC9U020vXctGTi5LsQz13KFAfCelTBcEDGmkKNLNA0TsJRVvSJCsfTS1Ii
+         VB3N2LhudqoLQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Terry Junge <linuxhid@cosmicgizmosystems.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        jikos@kernel.org, benjamin.tissoires@redhat.com,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 28/28] HID: plantronics: Additional PIDs for double volume key presses quirk
-Date:   Tue, 27 Dec 2022 15:32:49 -0500
-Message-Id: <20221227203249.1213526-28-sashal@kernel.org>
+Cc:     edward lo <edward.lo@ambergroup.io>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        Sasha Levin <sashal@kernel.org>, ntfs3@lists.linux.dev
+Subject: [PATCH AUTOSEL 6.0 01/27] fs/ntfs3: Validate BOOT record_size
+Date:   Tue, 27 Dec 2022 15:33:16 -0500
+Message-Id: <20221227203342.1213918-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221227203249.1213526-1-sashal@kernel.org>
-References: <20221227203249.1213526-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,79 +53,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Terry Junge <linuxhid@cosmicgizmosystems.com>
+From: edward lo <edward.lo@ambergroup.io>
 
-[ Upstream commit 3d57f36c89d8ba32b2c312f397a37fd1a2dc7cfc ]
+[ Upstream commit 0b66046266690454dc04e6307bcff4a5605b42a1 ]
 
-I no longer work for Plantronics (aka Poly, aka HP) and do not have
-access to the headsets in order to test. However, as noted by Maxim,
-the other 32xx models that share the same base code set as the 3220
-would need the same quirk. This patch adds the PIDs for the rest of
-the Blackwire 32XX product family that require the quirk.
+When the NTFS BOOT record_size field < 0, it represents a
+shift value. However, there is no sanity check on the shift result
+and the sbi->record_bits calculation through blksize_bits() assumes
+the size always > 256, which could lead to NPD while mounting a
+malformed NTFS image.
 
-Plantronics Blackwire 3210 Series (047f:c055)
-Plantronics Blackwire 3215 Series (047f:c057)
-Plantronics Blackwire 3225 Series (047f:c058)
+[  318.675159] BUG: kernel NULL pointer dereference, address: 0000000000000158
+[  318.675682] #PF: supervisor read access in kernel mode
+[  318.675869] #PF: error_code(0x0000) - not-present page
+[  318.676246] PGD 0 P4D 0
+[  318.676502] Oops: 0000 [#1] PREEMPT SMP NOPTI
+[  318.676934] CPU: 0 PID: 259 Comm: mount Not tainted 5.19.0 #5
+[  318.677289] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+[  318.678136] RIP: 0010:ni_find_attr+0x2d/0x1c0
+[  318.678656] Code: 89 ca 4d 89 c7 41 56 41 55 41 54 41 89 cc 55 48 89 fd 53 48 89 d3 48 83 ec 20 65 48 8b 04 25 28 00 00 00 48 89 44 24 180
+[  318.679848] RSP: 0018:ffffa6c8c0297bd8 EFLAGS: 00000246
+[  318.680104] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000080
+[  318.680790] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+[  318.681679] RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+[  318.682577] R10: 0000000000000000 R11: 0000000000000005 R12: 0000000000000080
+[  318.683015] R13: ffff8d5582e68400 R14: 0000000000000100 R15: 0000000000000000
+[  318.683618] FS:  00007fd9e1c81e40(0000) GS:ffff8d55fdc00000(0000) knlGS:0000000000000000
+[  318.684280] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  318.684651] CR2: 0000000000000158 CR3: 0000000002e1a000 CR4: 00000000000006f0
+[  318.685623] Call Trace:
+[  318.686607]  <TASK>
+[  318.686872]  ? ntfs_alloc_inode+0x1a/0x60
+[  318.687235]  attr_load_runs_vcn+0x2b/0xa0
+[  318.687468]  mi_read+0xbb/0x250
+[  318.687576]  ntfs_iget5+0x114/0xd90
+[  318.687750]  ntfs_fill_super+0x588/0x11b0
+[  318.687953]  ? put_ntfs+0x130/0x130
+[  318.688065]  ? snprintf+0x49/0x70
+[  318.688164]  ? put_ntfs+0x130/0x130
+[  318.688256]  get_tree_bdev+0x16a/0x260
+[  318.688407]  vfs_get_tree+0x20/0xb0
+[  318.688519]  path_mount+0x2dc/0x9b0
+[  318.688877]  do_mount+0x74/0x90
+[  318.689142]  __x64_sys_mount+0x89/0xd0
+[  318.689636]  do_syscall_64+0x3b/0x90
+[  318.689998]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[  318.690318] RIP: 0033:0x7fd9e133c48a
+[  318.690687] Code: 48 8b 0d 11 fa 2a 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 008
+[  318.691357] RSP: 002b:00007ffd374406c8 EFLAGS: 00000202 ORIG_RAX: 00000000000000a5
+[  318.691632] RAX: ffffffffffffffda RBX: 0000564d0b051080 RCX: 00007fd9e133c48a
+[  318.691920] RDX: 0000564d0b051280 RSI: 0000564d0b051300 RDI: 0000564d0b0596a0
+[  318.692123] RBP: 0000000000000000 R08: 0000564d0b0512a0 R09: 0000000000000020
+[  318.692349] R10: 00000000c0ed0000 R11: 0000000000000202 R12: 0000564d0b0596a0
+[  318.692673] R13: 0000564d0b051280 R14: 0000000000000000 R15: 00000000ffffffff
+[  318.693007]  </TASK>
+[  318.693271] Modules linked in:
+[  318.693614] CR2: 0000000000000158
+[  318.694446] ---[ end trace 0000000000000000 ]---
+[  318.694779] RIP: 0010:ni_find_attr+0x2d/0x1c0
+[  318.694952] Code: 89 ca 4d 89 c7 41 56 41 55 41 54 41 89 cc 55 48 89 fd 53 48 89 d3 48 83 ec 20 65 48 8b 04 25 28 00 00 00 48 89 44 24 180
+[  318.696042] RSP: 0018:ffffa6c8c0297bd8 EFLAGS: 00000246
+[  318.696531] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000080
+[  318.698114] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+[  318.699286] RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+[  318.699795] R10: 0000000000000000 R11: 0000000000000005 R12: 0000000000000080
+[  318.700236] R13: ffff8d5582e68400 R14: 0000000000000100 R15: 0000000000000000
+[  318.700973] FS:  00007fd9e1c81e40(0000) GS:ffff8d55fdc00000(0000) knlGS:0000000000000000
+[  318.701688] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  318.702190] CR2: 0000000000000158 CR3: 0000000002e1a000 CR4: 00000000000006f0
+[  318.726510] mount (259) used greatest stack depth: 13320 bytes left
 
-Quote from previous patch by Maxim Mikityanskiy
-Plantronics Blackwire 3220 Series (047f:c056) sends HID reports twice
-for each volume key press. This patch adds a quirk to hid-plantronics
-for this product ID, which will ignore the second volume key press if
-it happens within 5 ms from the last one that was handled.
+This patch adds a sanity check.
 
-The patch was tested on the mentioned model only, it shouldn't affect
-other models, however, this quirk might be needed for them too.
-Auto-repeat (when a key is held pressed) is not affected, because the
-rate is about 3 times per second, which is far less frequent than once
-in 5 ms.
-End quote
-
-Signed-off-by: Terry Junge <linuxhid@cosmicgizmosystems.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: edward lo <edward.lo@ambergroup.io>
+Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h         | 3 +++
- drivers/hid/hid-plantronics.c | 9 +++++++++
- 2 files changed, 12 insertions(+)
+ fs/ntfs3/super.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 8f58c3c1bec3..e27fb27a36bf 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -995,7 +995,10 @@
- #define USB_DEVICE_ID_ORTEK_IHOME_IMAC_A210S	0x8003
+diff --git a/fs/ntfs3/super.c b/fs/ntfs3/super.c
+index 47012c9bf505..d998cb083d95 100644
+--- a/fs/ntfs3/super.c
++++ b/fs/ntfs3/super.c
+@@ -789,7 +789,7 @@ static int ntfs_init_from_boot(struct super_block *sb, u32 sector_size,
+ 						 : (u32)boot->record_size
+ 							   << sbi->cluster_bits;
  
- #define USB_VENDOR_ID_PLANTRONICS	0x047f
-+#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3210_SERIES	0xc055
- #define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES	0xc056
-+#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3215_SERIES	0xc057
-+#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3225_SERIES	0xc058
+-	if (record_size > MAXIMUM_BYTES_PER_MFT)
++	if (record_size > MAXIMUM_BYTES_PER_MFT || record_size < SECTOR_SIZE)
+ 		goto out;
  
- #define USB_VENDOR_ID_PANASONIC		0x04da
- #define USB_DEVICE_ID_PANABOARD_UBT780	0x1044
-diff --git a/drivers/hid/hid-plantronics.c b/drivers/hid/hid-plantronics.c
-index e81b7cec2d12..3d414ae194ac 100644
---- a/drivers/hid/hid-plantronics.c
-+++ b/drivers/hid/hid-plantronics.c
-@@ -198,9 +198,18 @@ static int plantronics_probe(struct hid_device *hdev,
- }
- 
- static const struct hid_device_id plantronics_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
-+					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3210_SERIES),
-+		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
- 					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES),
- 		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
-+					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3215_SERIES),
-+		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
-+					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3225_SERIES),
-+		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS, HID_ANY_ID) },
- 	{ }
- };
+ 	sbi->record_bits = blksize_bits(record_size);
 -- 
 2.35.1
 
