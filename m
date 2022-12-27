@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07B00656EFE
-	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:37:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1463A656F03
+	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:37:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232036AbiL0UhS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Dec 2022 15:37:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37856 "EHLO
+        id S232461AbiL0Uh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Dec 2022 15:37:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232387AbiL0Uf5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:35:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA44CDF6F;
-        Tue, 27 Dec 2022 12:34:09 -0800 (PST)
+        with ESMTP id S232427AbiL0UgB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:36:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBDD7DF89;
+        Tue, 27 Dec 2022 12:34:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7AD30B811F9;
-        Tue, 27 Dec 2022 20:34:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87736C433D2;
-        Tue, 27 Dec 2022 20:34:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 91947B811FE;
+        Tue, 27 Dec 2022 20:34:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC400C433F0;
+        Tue, 27 Dec 2022 20:34:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672173247;
-        bh=rI6R7y2PesWCHbqBzXxTOdib5qkgoi3AQAfKoyr5yAs=;
+        s=k20201202; t=1672173248;
+        bh=IjhfH3J1WRtIaQ/yEXBvv4S9dLxKy2P2jmU/NjuRMZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IsdNZ/A2jdwUWyjCwps3e5KXGtQGrmDleG2pCjYSRRx40h4gJRr8caCDWqgBMbv+X
-         vOonvpGM/Y5lwGBPAHGitGWpntJl7RH5pMe25zPbztgHLtsDuAtstHCrFAXp+euLTG
-         3cVc/zHXw66nHl1nyC9OEcw6CCua8AmmZb9eXSx0Iu34Nlb+F6y0Y3qJDs3iX4+rKi
-         jSEwS2dbRuEV61Wz3mpxhbfjGkeQk380df+xEdO4eOOXUrK3DZCdYr69ZKtNzsR2Fr
-         mGWH4JS68JFrT9k4z74RU0C3HvFZcs25QQlimyt7somyMftUVAzF1DGRxJNg62vbsf
-         dQZrO5k2o4C5Q==
+        b=KN02jh/fGof2hmtL/edcvjbElOTHjo3Pj6PYXhHldZYFAPcrSCVG+etcFmoYsdPcL
+         5ZfMHiBc3w5q9YMtTw6bS6/Nq24iD2ieel9shUgV3ILB6B3aMNp0W3qqEAi8NLfx0W
+         FcnTbP96yI5Q3x4am8/Hlrqzt7rU0NA1mZeptvSZ0NrPbMs+mCq8Rt+go2trei02t+
+         bsHEM5E9eVKiocNSK0kLk2vbt1SDQ/Nu1VhZ3WQWc4Fm9nNtpcFk7nrukImHvt6o/o
+         /AA7nRQYGw0bCYFLoXkNkGo8ZHCYDlHeVhq4vnPwPalJH1G/A4WWmyGXyv6Ncm89e8
+         FG7Je0pS7iVvA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        syzot <syzbot+33f3faaa0c08744f7d40@syzkaller.appspotmail.com>,
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
         Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
         Sasha Levin <sashal@kernel.org>, ntfs3@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.0 16/27] fs/ntfs3: Use __GFP_NOWARN allocation at ntfs_fill_super()
-Date:   Tue, 27 Dec 2022 15:33:31 -0500
-Message-Id: <20221227203342.1213918-16-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.0 17/27] fs/ntfs3: Delete duplicate condition in ntfs_read_mft()
+Date:   Tue, 27 Dec 2022 15:33:32 -0500
+Message-Id: <20221227203342.1213918-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221227203342.1213918-1-sashal@kernel.org>
 References: <20221227203342.1213918-1-sashal@kernel.org>
@@ -56,37 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 59bfd7a483da36bd202532a3d9ea1f14f3bf3aaf ]
+[ Upstream commit 658015167a8432b88f5d032e9d85d8fd50e5bf2c ]
 
-syzbot is reporting too large allocation at ntfs_fill_super() [1], for a
-crafted filesystem can contain bogus inode->i_size. Add __GFP_NOWARN in
-order to avoid too large allocation warning, than exhausting memory by
-using kvmalloc().
+There were two patches which addressed the same bug and added the same
+condition:
 
-Link: https://syzkaller.appspot.com/bug?extid=33f3faaa0c08744f7d40 [1]
-Reported-by: syzot <syzbot+33f3faaa0c08744f7d40@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+commit 6db620863f85 ("fs/ntfs3: Validate data run offset")
+commit 887bfc546097 ("fs/ntfs3: Fix slab-out-of-bounds read in run_unpack")
+
+Delete one condition.
+
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/super.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ntfs3/inode.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/fs/ntfs3/super.c b/fs/ntfs3/super.c
-index 0c8dd4ff5d7a..bc6a41d254ba 100644
---- a/fs/ntfs3/super.c
-+++ b/fs/ntfs3/super.c
-@@ -1141,7 +1141,7 @@ static int ntfs_fill_super(struct super_block *sb, struct fs_context *fc)
- 		goto put_inode_out;
- 	}
- 	bytes = inode->i_size;
--	sbi->def_table = t = kmalloc(bytes, GFP_NOFS);
-+	sbi->def_table = t = kmalloc(bytes, GFP_NOFS | __GFP_NOWARN);
- 	if (!t) {
- 		err = -ENOMEM;
- 		goto put_inode_out;
+diff --git a/fs/ntfs3/inode.c b/fs/ntfs3/inode.c
+index ba2005c12ee3..471ea4d813ad 100644
+--- a/fs/ntfs3/inode.c
++++ b/fs/ntfs3/inode.c
+@@ -374,12 +374,6 @@ static struct inode *ntfs_read_mft(struct inode *inode,
+ 
+ 	t64 = le64_to_cpu(attr->nres.svcn);
+ 
+-	/* offset to packed runs is out-of-bounds */
+-	if (roff > asize) {
+-		err = -EINVAL;
+-		goto out;
+-	}
+-
+ 	err = run_unpack_ex(run, sbi, ino, t64, le64_to_cpu(attr->nres.evcn),
+ 			    t64, Add2Ptr(attr, roff), asize - roff);
+ 	if (err < 0)
 -- 
 2.35.1
 
