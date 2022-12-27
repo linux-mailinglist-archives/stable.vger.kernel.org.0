@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59C92656F7E
-	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:46:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59A8F656F87
+	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:47:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232605AbiL0UqF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Dec 2022 15:46:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59850 "EHLO
+        id S232419AbiL0Ur0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Dec 2022 15:47:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233060AbiL0Uov (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:44:51 -0500
+        with ESMTP id S233095AbiL0Uq5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:46:57 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46EFD10FFB;
-        Tue, 27 Dec 2022 12:36:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3F0811A3F;
+        Tue, 27 Dec 2022 12:37:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1C767B811F9;
-        Tue, 27 Dec 2022 20:36:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A582AC433D2;
-        Tue, 27 Dec 2022 20:36:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E6018B81168;
+        Tue, 27 Dec 2022 20:36:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9533EC433D2;
+        Tue, 27 Dec 2022 20:36:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672173376;
-        bh=YcNszxDIHDfNYezIV4KXhECUM/QOS3imZTJXrMuXo14=;
+        s=k20201202; t=1672173383;
+        bh=wMZe9mZpDXi/cwETCn9flDrxwZLG6uKTH+VqjOmaa/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GzUPyxD4ObwIja6t5rYzIcrm/fSkasyEOK7wJIjiVIykZhhjy38UPVB1/gXj0N0Fa
-         Y7eE8mFee8fC43YGeBwz+MY6bZq5HqFN6RLvoBruY2c4B5hzH4Pbo2Vesf6E4jH2Ek
-         e85MsZlk/DO9T7+kiG245orJxalczU692KWZ3/PFjWNkdixGrMa3U1kST48d2kVQ4S
-         L7MotANOad5tm6CYuZRSKLJXrB/DNlVrMNdtcNBOjjir1kV2sgN8U2Hh3GhAPZyDwu
-         EkJdlwS6jSPAx1+z7uZcL1fCachec1/rvKpAn7lPr0zJoSx/YosAIqvG9BqMLphy/r
-         fasQ8eZK7aySA==
+        b=tbkvUupnj5tuSoVCC27gMK1sQ9Q/6lMivVq0dSdABqu15Fv2hf07447CqUViKKnuE
+         XxMEQu1eGkaoPTCLwMD0fR+DOSC1jyeP26WPmRMrKtd/ID0zhtYyjWtjWwYioKujBg
+         HE8EGhnw2qT82MCdQ7VVT9ZUPYCibpP4ZzwS8K5S8Vvj33fmVr9p5wJOhxB8PEwR5Q
+         /HGGQwd3Us5q8ROjFticK6RM2od3cGep9xZjmS706uewsznsCXC8paCDCKfDhokVKl
+         4LF5Ts1MbVFFzv0ixv2bnaBqsbtnqLeCicPgUtJsnYNsDHSMz2mfygk4zFhlFvPvSj
+         dsTejAqWBg49A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Lynch <nathanl@linux.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Andrew Donnellan <ajd@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, ldufour@linux.ibm.com,
-        christophe.leroy@csgroup.eu, sourabhjain@linux.ibm.com,
-        paulus@ozlabs.org, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.14 2/4] powerpc/rtas: avoid scheduling in rtas_os_term()
-Date:   Tue, 27 Dec 2022 15:36:07 -0500
-Message-Id: <20221227203611.1214818-2-sashal@kernel.org>
+Cc:     Marc Zyngier <maz@kernel.org>, Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, mpe@ellerman.id.au,
+        christophe.leroy@csgroup.eu, windhl@126.com, Julia.Lawall@inria.fr,
+        joel@jms.id.au, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 3/4] powerpc/msi: Fix deassociation of MSI descriptors
+Date:   Tue, 27 Dec 2022 15:36:08 -0500
+Message-Id: <20221227203611.1214818-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221227203611.1214818-1-sashal@kernel.org>
 References: <20221227203611.1214818-1-sashal@kernel.org>
@@ -59,65 +56,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 6c606e57eecc37d6b36d732b1ff7e55b7dc32dd4 ]
+[ Upstream commit 4545c6a3d6ba71747eaa984c338ddd745e56e23f ]
 
-It's unsafe to use rtas_busy_delay() to handle a busy status from
-the ibm,os-term RTAS function in rtas_os_term():
+Since 2f2940d16823 ("genirq/msi: Remove filter from
+msi_free_descs_free_range()"), the core MSI code relies on the
+msi_desc->irq field to have been cleared before the descriptor
+can be freed, as it indicates that there is no association with
+a device anymore.
 
-Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
-BUG: sleeping function called from invalid context at arch/powerpc/kernel/rtas.c:618
-in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 1, name: swapper/0
-preempt_count: 2, expected: 0
-CPU: 7 PID: 1 Comm: swapper/0 Tainted: G      D            6.0.0-rc5-02182-gf8553a572277-dirty #9
-Call Trace:
-[c000000007b8f000] [c000000001337110] dump_stack_lvl+0xb4/0x110 (unreliable)
-[c000000007b8f040] [c0000000002440e4] __might_resched+0x394/0x3c0
-[c000000007b8f0e0] [c00000000004f680] rtas_busy_delay+0x120/0x1b0
-[c000000007b8f100] [c000000000052d04] rtas_os_term+0xb8/0xf4
-[c000000007b8f180] [c0000000001150fc] pseries_panic+0x50/0x68
-[c000000007b8f1f0] [c000000000036354] ppc_panic_platform_handler+0x34/0x50
-[c000000007b8f210] [c0000000002303c4] notifier_call_chain+0xd4/0x1c0
-[c000000007b8f2b0] [c0000000002306cc] atomic_notifier_call_chain+0xac/0x1c0
-[c000000007b8f2f0] [c0000000001d62b8] panic+0x228/0x4d0
-[c000000007b8f390] [c0000000001e573c] do_exit+0x140c/0x1420
-[c000000007b8f480] [c0000000001e586c] make_task_dead+0xdc/0x200
+The irq domain code provides this guarantee, and so does s390,
+which is one of the two architectures not using irq domains for
+MSIs.
 
-Use rtas_busy_delay_time() instead, which signals without side effects
-whether to attempt the ibm,os-term RTAS call again.
+Powerpc, however, is missing this particular requirements,
+leading in a splat and leaked MSI descriptors.
 
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20221118150751.469393-5-nathanl@linux.ibm.com
+Adding the now required irq reset to the handful of powerpc backends
+that implement MSIs fixes that particular problem.
+
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/70dab88e-6119-0c12-7c6a-61bcbe239f66@roeck-us.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/rtas.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/powerpc/platforms/4xx/hsta_msi.c  | 1 +
+ arch/powerpc/platforms/cell/axon_msi.c | 1 +
+ arch/powerpc/platforms/pasemi/msi.c    | 1 +
+ arch/powerpc/sysdev/fsl_msi.c          | 1 +
+ arch/powerpc/sysdev/mpic_u3msi.c       | 1 +
+ 5 files changed, 5 insertions(+)
 
-diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
-index 914d71879536..5d84b412b2fd 100644
---- a/arch/powerpc/kernel/rtas.c
-+++ b/arch/powerpc/kernel/rtas.c
-@@ -733,10 +733,15 @@ void rtas_os_term(char *str)
+diff --git a/arch/powerpc/platforms/4xx/hsta_msi.c b/arch/powerpc/platforms/4xx/hsta_msi.c
+index 9926ad67af76..ac5fbb2492aa 100644
+--- a/arch/powerpc/platforms/4xx/hsta_msi.c
++++ b/arch/powerpc/platforms/4xx/hsta_msi.c
+@@ -121,6 +121,7 @@ static void hsta_teardown_msi_irqs(struct pci_dev *dev)
+ 		msi_bitmap_free_hwirqs(&ppc4xx_hsta_msi.bmp, irq, 1);
+ 		pr_debug("%s: Teardown IRQ %u (index %u)\n", __func__,
+ 			 entry->irq, irq);
++		entry->irq = 0;
+ 	}
+ }
  
- 	snprintf(rtas_os_term_buf, 2048, "OS panic: %s", str);
+diff --git a/arch/powerpc/platforms/cell/axon_msi.c b/arch/powerpc/platforms/cell/axon_msi.c
+index e98b61c06a81..1c889a9e1a4f 100644
+--- a/arch/powerpc/platforms/cell/axon_msi.c
++++ b/arch/powerpc/platforms/cell/axon_msi.c
+@@ -299,6 +299,7 @@ static void axon_msi_teardown_msi_irqs(struct pci_dev *dev)
  
-+	/*
-+	 * Keep calling as long as RTAS returns a "try again" status,
-+	 * but don't use rtas_busy_delay(), which potentially
-+	 * schedules.
-+	 */
- 	do {
- 		status = rtas_call(ibm_os_term_token, 1, 1, NULL,
- 				   __pa(rtas_os_term_buf));
--	} while (rtas_busy_delay(status));
-+	} while (rtas_busy_delay_time(status));
+ 		irq_set_msi_desc(entry->irq, NULL);
+ 		irq_dispose_mapping(entry->irq);
++		entry->irq = 0;
+ 	}
+ }
  
- 	if (status != 0)
- 		printk(KERN_EMERG "ibm,os-term call failed %d\n", status);
+diff --git a/arch/powerpc/platforms/pasemi/msi.c b/arch/powerpc/platforms/pasemi/msi.c
+index d9cd510c8865..6e54377663db 100644
+--- a/arch/powerpc/platforms/pasemi/msi.c
++++ b/arch/powerpc/platforms/pasemi/msi.c
+@@ -74,6 +74,7 @@ static void pasemi_msi_teardown_msi_irqs(struct pci_dev *pdev)
+ 		hwirq = virq_to_hw(entry->irq);
+ 		irq_set_msi_desc(entry->irq, NULL);
+ 		irq_dispose_mapping(entry->irq);
++		entry->irq = 0;
+ 		msi_bitmap_free_hwirqs(&msi_mpic->msi_bitmap, hwirq, ALLOC_CHUNK);
+ 	}
+ 
+diff --git a/arch/powerpc/sysdev/fsl_msi.c b/arch/powerpc/sysdev/fsl_msi.c
+index d43d3d1b27ed..83c6ea6a82e0 100644
+--- a/arch/powerpc/sysdev/fsl_msi.c
++++ b/arch/powerpc/sysdev/fsl_msi.c
+@@ -137,6 +137,7 @@ static void fsl_teardown_msi_irqs(struct pci_dev *pdev)
+ 		msi_data = irq_get_chip_data(entry->irq);
+ 		irq_set_msi_desc(entry->irq, NULL);
+ 		irq_dispose_mapping(entry->irq);
++		entry->irq = 0;
+ 		msi_bitmap_free_hwirqs(&msi_data->bitmap, hwirq, 1);
+ 	}
+ 
+diff --git a/arch/powerpc/sysdev/mpic_u3msi.c b/arch/powerpc/sysdev/mpic_u3msi.c
+index cfc1c57d760f..26db91c8feff 100644
+--- a/arch/powerpc/sysdev/mpic_u3msi.c
++++ b/arch/powerpc/sysdev/mpic_u3msi.c
+@@ -116,6 +116,7 @@ static void u3msi_teardown_msi_irqs(struct pci_dev *pdev)
+ 		hwirq = virq_to_hw(entry->irq);
+ 		irq_set_msi_desc(entry->irq, NULL);
+ 		irq_dispose_mapping(entry->irq);
++		entry->irq = 0;
+ 		msi_bitmap_free_hwirqs(&msi_mpic->msi_bitmap, hwirq, 1);
+ 	}
+ 
 -- 
 2.35.1
 
