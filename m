@@ -2,48 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7BEF656F5D
+	by mail.lfdr.de (Postfix) with ESMTP id 5D180656F5C
 	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:42:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232676AbiL0Um1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Dec 2022 15:42:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49344 "EHLO
+        id S232689AbiL0Um2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Dec 2022 15:42:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232874AbiL0UlY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:41:24 -0500
+        with ESMTP id S232579AbiL0Ulp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:41:45 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E7E1FD3C;
-        Tue, 27 Dec 2022 12:35:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CD89EE1D;
+        Tue, 27 Dec 2022 12:35:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A9E76123D;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D27186123C;
+        Tue, 27 Dec 2022 20:35:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55DC9C433F2;
         Tue, 27 Dec 2022 20:35:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD273C433D2;
-        Tue, 27 Dec 2022 20:35:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672173328;
-        bh=7wQl5/oWT1LEhstKllgC6D1gj33l6pQNUMUP8MBxe44=;
+        s=k20201202; t=1672173330;
+        bh=veC60ZZIxlv7xmN1vv6FVX95uUYCp0YvFsG6iTaE4ME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uLqZs9VNs0HtuG3urM0sTUFx6OeklyOcGPpSa4vSqZuaTvTOFixt9wioBQ4Z/Go1T
-         ApsxTaLKXX8jJcinBCygvVxKkTMXUuHifHQfK7A012R7DfRN+eAgdyC86qspsCgN4q
-         qctlyheHE+R5GqfMgv+IsB8W0rIlGGkEyUWGn1gM10l2QwHnhgxtje/90TU+X2Wam5
-         HnXEp5T1BWgfoFlNbHZqYFIlnZNIXhHLMwmdcw3azV+sP6d3nZbuBseCESw20Z/6VH
-         YWWh2+5kh6Mxm2oao4Lu0j8lRSlxuG4wfgNja1zQVKUlSnyqA6pHg65vVd0M7jLWw4
-         0DK9e9tWPVq1Q==
+        b=awjEeXOeh0FyLBHIl5F4nYlUCPJWVcupEU0DDdRN20HIiCqD9ZN7/1yF/koq+4+ic
+         ZP7pMzlCrItjBhwTA+LxBSQLP2FbYUDF8rCN2xlvXO+PXjrLFBZx18EeeBVMLtaShv
+         CPRMdr8k4p3orFsr3P3XLJEn86XxDck6HlqdADIJlsU95W1umE1av1lS5UKuZB8O9t
+         XminZIobchrl1rAHEqGwVfmuOZIadsOKlCJ4mgP5hqvRr9DVfXYiXSteeYLQomRh43
+         pZH043IJOrzPlZz63Rz7g1PoV4ouUDOMC+no1aqoRVciLZjvJABXv3sz5HQG8sNvPt
+         uajA33nwdS5Cw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Zyngier <maz@kernel.org>, Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>, mpe@ellerman.id.au,
-        christophe.leroy@csgroup.eu, windhl@126.com, Julia.Lawall@inria.fr,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.10 5/7] powerpc/msi: Fix deassociation of MSI descriptors
-Date:   Tue, 27 Dec 2022 15:35:08 -0500
-Message-Id: <20221227203512.1214527-5-sashal@kernel.org>
+Cc:     =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Akito <the@akito.ooo>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
+        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 6/7] HID: multitouch: fix Asus ExpertBook P2 P2451FA trackpoint
+Date:   Tue, 27 Dec 2022 15:35:09 -0500
+Message-Id: <20221227203512.1214527-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221227203512.1214527-1-sashal@kernel.org>
 References: <20221227203512.1214527-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -56,98 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: José Expósito <jose.exposito89@gmail.com>
 
-[ Upstream commit 4545c6a3d6ba71747eaa984c338ddd745e56e23f ]
+[ Upstream commit 4eab1c2fe06c98a4dff258dd64800b6986c101e9 ]
 
-Since 2f2940d16823 ("genirq/msi: Remove filter from
-msi_free_descs_free_range()"), the core MSI code relies on the
-msi_desc->irq field to have been cleared before the descriptor
-can be freed, as it indicates that there is no association with
-a device anymore.
+The HID descriptor of this device contains two mouse collections, one
+for mouse emulation and the other for the trackpoint.
 
-The irq domain code provides this guarantee, and so does s390,
-which is one of the two architectures not using irq domains for
-MSIs.
+Both collections get merged and, because the first one defines X and Y,
+the movemenent events reported by the trackpoint collection are
+ignored.
 
-Powerpc, however, is missing this particular requirements,
-leading in a splat and leaked MSI descriptors.
+Set the MT_CLS_WIN_8_FORCE_MULTI_INPUT class for this device to be able
+to receive its reports.
 
-Adding the now required irq reset to the handful of powerpc backends
-that implement MSIs fixes that particular problem.
+This fix is similar to/based on commit 40d5bb87377a ("HID: multitouch:
+enable multi-input as a quirk for some devices").
 
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/70dab88e-6119-0c12-7c6a-61bcbe239f66@roeck-us.net
+Link: https://gitlab.freedesktop.org/libinput/libinput/-/issues/825
+Reported-by: Akito <the@akito.ooo>
+Tested-by: Akito <the@akito.ooo>
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/4xx/hsta_msi.c  | 1 +
- arch/powerpc/platforms/cell/axon_msi.c | 1 +
- arch/powerpc/platforms/pasemi/msi.c    | 1 +
- arch/powerpc/sysdev/fsl_msi.c          | 1 +
- arch/powerpc/sysdev/mpic_u3msi.c       | 1 +
- 5 files changed, 5 insertions(+)
+ drivers/hid/hid-multitouch.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/powerpc/platforms/4xx/hsta_msi.c b/arch/powerpc/platforms/4xx/hsta_msi.c
-index c950fed43b32..4f65bd0cf111 100644
---- a/arch/powerpc/platforms/4xx/hsta_msi.c
-+++ b/arch/powerpc/platforms/4xx/hsta_msi.c
-@@ -117,6 +117,7 @@ static void hsta_teardown_msi_irqs(struct pci_dev *dev)
- 		msi_bitmap_free_hwirqs(&ppc4xx_hsta_msi.bmp, irq, 1);
- 		pr_debug("%s: Teardown IRQ %u (index %u)\n", __func__,
- 			 entry->irq, irq);
-+		entry->irq = 0;
- 	}
- }
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index a78ce16d4782..ea8c52f0aa78 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1912,6 +1912,10 @@ static const struct hid_device_id mt_devices[] = {
+ 		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
+ 			USB_VENDOR_ID_ELAN, 0x313a) },
  
-diff --git a/arch/powerpc/platforms/cell/axon_msi.c b/arch/powerpc/platforms/cell/axon_msi.c
-index ffbc7d2e9464..9f77dde61f31 100644
---- a/arch/powerpc/platforms/cell/axon_msi.c
-+++ b/arch/powerpc/platforms/cell/axon_msi.c
-@@ -295,6 +295,7 @@ static void axon_msi_teardown_msi_irqs(struct pci_dev *dev)
- 
- 		irq_set_msi_desc(entry->irq, NULL);
- 		irq_dispose_mapping(entry->irq);
-+		entry->irq = 0;
- 	}
- }
- 
-diff --git a/arch/powerpc/platforms/pasemi/msi.c b/arch/powerpc/platforms/pasemi/msi.c
-index d38944a1e258..76393c158ada 100644
---- a/arch/powerpc/platforms/pasemi/msi.c
-+++ b/arch/powerpc/platforms/pasemi/msi.c
-@@ -69,6 +69,7 @@ static void pasemi_msi_teardown_msi_irqs(struct pci_dev *pdev)
- 		hwirq = virq_to_hw(entry->irq);
- 		irq_set_msi_desc(entry->irq, NULL);
- 		irq_dispose_mapping(entry->irq);
-+		entry->irq = 0;
- 		msi_bitmap_free_hwirqs(&msi_mpic->msi_bitmap, hwirq, ALLOC_CHUNK);
- 	}
- 
-diff --git a/arch/powerpc/sysdev/fsl_msi.c b/arch/powerpc/sysdev/fsl_msi.c
-index d276c5e96445..5c3f3173638e 100644
---- a/arch/powerpc/sysdev/fsl_msi.c
-+++ b/arch/powerpc/sysdev/fsl_msi.c
-@@ -132,6 +132,7 @@ static void fsl_teardown_msi_irqs(struct pci_dev *pdev)
- 		msi_data = irq_get_chip_data(entry->irq);
- 		irq_set_msi_desc(entry->irq, NULL);
- 		irq_dispose_mapping(entry->irq);
-+		entry->irq = 0;
- 		msi_bitmap_free_hwirqs(&msi_data->bitmap, hwirq, 1);
- 	}
- 
-diff --git a/arch/powerpc/sysdev/mpic_u3msi.c b/arch/powerpc/sysdev/mpic_u3msi.c
-index 3861023d378a..43686c82e483 100644
---- a/arch/powerpc/sysdev/mpic_u3msi.c
-+++ b/arch/powerpc/sysdev/mpic_u3msi.c
-@@ -111,6 +111,7 @@ static void u3msi_teardown_msi_irqs(struct pci_dev *pdev)
- 		hwirq = virq_to_hw(entry->irq);
- 		irq_set_msi_desc(entry->irq, NULL);
- 		irq_dispose_mapping(entry->irq);
-+		entry->irq = 0;
- 		msi_bitmap_free_hwirqs(&msi_mpic->msi_bitmap, hwirq, 1);
- 	}
- 
++	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
++		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
++			USB_VENDOR_ID_ELAN, 0x3148) },
++
+ 	/* Elitegroup panel */
+ 	{ .driver_data = MT_CLS_SERIAL,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_ELITEGROUP,
 -- 
 2.35.1
 
