@@ -2,50 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A877656ECD
-	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:34:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FCD7656EC8
+	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:34:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232220AbiL0UeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Dec 2022 15:34:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38432 "EHLO
+        id S232195AbiL0UeM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Dec 2022 15:34:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231842AbiL0Udc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:33:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DB0ADEDE;
-        Tue, 27 Dec 2022 12:33:31 -0800 (PST)
+        with ESMTP id S231835AbiL0Udb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:33:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD0F3DED4;
+        Tue, 27 Dec 2022 12:33:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D93BCB81200;
-        Tue, 27 Dec 2022 20:33:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 157B1C433F1;
-        Tue, 27 Dec 2022 20:33:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 70ACF6123B;
+        Tue, 27 Dec 2022 20:33:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0304AC433F0;
+        Tue, 27 Dec 2022 20:33:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672173208;
-        bh=ox2BEnfMPBNYHHyGMIa+nrsHjfNFzw5LZfghfX3ovzY=;
+        s=k20201202; t=1672173209;
+        bh=Nk3jaQ6ju/z4RcNdUSiRE2Pmybk1zYp+x8kUZcuNn3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jeDPFF1HpVhx6lTX2g0zx4lK56eL6YJWpFxslBUWpQhYqpfox8j+7MBYCf66xFhW0
-         G7/pNDg+MK1dopDXrkyUa5QgtzWaCDZ50gTEbXXpbf1HwdFpknh9agsAIeCFn3Rm+j
-         JKP8ztrk+0/D8GmCb3Z5HYfuQ/CWIcFsX3/Jq1R6NE9zsHopH6SJOH9cyPN8IB6A/Y
-         FNheE9WnE0tVvbLmnQrKiifyq1esP8XVa37cRsSxzW1q9FQtYipK+pSbeBTA41Dn/U
-         mJlNtjsejsJmsnGo3jAiy1+eyEpZzpovbLVA32eL9OHymlGdT9Ji33N8rSUHkFDkT0
-         O+0m6Q8eMnhDA==
+        b=cmFZfxQa7nz8xqEZxT0BNYsdy3UoVZx5c3/Kn+ryxUwCkua/zvBQzitiX10KXeiCM
+         kv0IikwZ11a7NDdoV0NCWzlZasJ1u+s3HLbCmnrREhDN+mXib2mcEqZKEZ8SjpEVRF
+         sfA2wEWhM9+VEkIZOWMNEWv80jD/Xuqk7fWvQfDs4Vy1wWAxf9HHEFKYvTiGV8Xh1B
+         Y96B16L72b1fKPo4MwJZyGN1CG0PwRbChe2gMe1unQ9eZPHetu8iKq/MdxWftxUDfd
+         QSldCsoF+B76jhBqogLGcBnzOV/T8kjQlBl1ZfQvJjZdBw9LmEqLg7mARliuJ1wIyL
+         8CsKc63bV5vvQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        kernel test robot <lkp@intel.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Daniel Palmer <daniel@thingy.jp>,
-        Romain Perier <romain.perier@gmail.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>, nathan@kernel.org,
-        ndesaulniers@google.com, llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.1 23/28] rtc: msc313: Fix function prototype mismatch in msc313_rtc_probe()
-Date:   Tue, 27 Dec 2022 15:32:44 -0500
-Message-Id: <20221227203249.1213526-23-sashal@kernel.org>
+Cc:     Dai Ngo <dai.ngo@oracle.com>, Xingyuan Mo <hdthky0@gmail.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, jlayton@kernel.org,
+        linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 24/28] NFSD: fix use-after-free in __nfs42_ssc_open()
+Date:   Tue, 27 Dec 2022 15:32:45 -0500
+Message-Id: <20221227203249.1213526-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221227203249.1213526-1-sashal@kernel.org>
 References: <20221227203249.1213526-1-sashal@kernel.org>
@@ -62,71 +56,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Dai Ngo <dai.ngo@oracle.com>
 
-[ Upstream commit 21b8a1dd56a163825e5749b303858fb902ebf198 ]
+[ Upstream commit 75333d48f92256a0dec91dbf07835e804fc411c0 ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed.
+Problem caused by source's vfsmount being unmounted but remains
+on the delayed unmount list. This happens when nfs42_ssc_open()
+return errors.
 
-msc313_rtc_probe() was passing clk_disable_unprepare() directly, which
-did not have matching prototypes for devm_add_action_or_reset()'s
-callback argument. Refactor to use devm_clk_get_enabled() instead.
+Fixed by removing nfsd4_interssc_connect(), leave the vfsmount
+for the laundromat to unmount when idle time expires.
 
-This was found as a result of Clang's new -Wcast-function-type-strict
-flag, which is more sensitive than the simpler -Wcast-function-type,
-which only checks for type width mismatches.
+We don't need to call nfs_do_sb_deactive when nfs42_ssc_open
+return errors since the file was not opened so nfs_server->active
+was not incremented. Same as in nfsd4_copy, if we fail to
+launch nfsd4_do_async_copy thread then there's no need to
+call nfs_do_sb_deactive
 
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/202211041527.HD8TLSE1-lkp@intel.com
-Suggested-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc: Daniel Palmer <daniel@thingy.jp>
-Cc: Romain Perier <romain.perier@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-rtc@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Daniel Palmer <daniel@thingy.jp>
-Tested-by: Daniel Palmer <daniel@thingy.jp>
-Link: https://lore.kernel.org/r/20221202184525.gonna.423-kees@kernel.org
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Reported-by: Xingyuan Mo <hdthky0@gmail.com>
+Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
+Tested-by: Xingyuan Mo <hdthky0@gmail.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-msc313.c | 12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+ fs/nfsd/nfs4proc.c | 20 +++++---------------
+ 1 file changed, 5 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/rtc/rtc-msc313.c b/drivers/rtc/rtc-msc313.c
-index f3fde013c4b8..8d7737e0e2e0 100644
---- a/drivers/rtc/rtc-msc313.c
-+++ b/drivers/rtc/rtc-msc313.c
-@@ -212,22 +212,12 @@ static int msc313_rtc_probe(struct platform_device *pdev)
- 		return ret;
- 	}
+diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
+index 8beb2bc4c328..b79ee65ae016 100644
+--- a/fs/nfsd/nfs4proc.c
++++ b/fs/nfsd/nfs4proc.c
+@@ -1463,13 +1463,6 @@ nfsd4_interssc_connect(struct nl4_server *nss, struct svc_rqst *rqstp,
+ 	return status;
+ }
  
--	clk = devm_clk_get(dev, NULL);
-+	clk = devm_clk_get_enabled(dev, NULL);
- 	if (IS_ERR(clk)) {
- 		dev_err(dev, "No input reference clock\n");
- 		return PTR_ERR(clk);
- 	}
+-static void
+-nfsd4_interssc_disconnect(struct vfsmount *ss_mnt)
+-{
+-	nfs_do_sb_deactive(ss_mnt->mnt_sb);
+-	mntput(ss_mnt);
+-}
+-
+ /*
+  * Verify COPY destination stateid.
+  *
+@@ -1572,11 +1565,6 @@ nfsd4_cleanup_inter_ssc(struct vfsmount *ss_mnt, struct file *filp,
+ {
+ }
  
--	ret = clk_prepare_enable(clk);
--	if (ret) {
--		dev_err(dev, "Failed to enable the reference clock, %d\n", ret);
--		return ret;
--	}
+-static void
+-nfsd4_interssc_disconnect(struct vfsmount *ss_mnt)
+-{
+-}
 -
--	ret = devm_add_action_or_reset(dev, (void (*) (void *))clk_disable_unprepare, clk);
--	if (ret)
--		return ret;
--
- 	rate = clk_get_rate(clk);
- 	writew(rate & 0xFFFF, priv->rtc_base + REG_RTC_FREQ_CW_L);
- 	writew((rate >> 16) & 0xFFFF, priv->rtc_base + REG_RTC_FREQ_CW_H);
+ static struct file *nfs42_ssc_open(struct vfsmount *ss_mnt,
+ 				   struct nfs_fh *src_fh,
+ 				   nfs4_stateid *stateid)
+@@ -1771,7 +1759,7 @@ static int nfsd4_do_async_copy(void *data)
+ 			default:
+ 				nfserr = nfserr_offload_denied;
+ 			}
+-			nfsd4_interssc_disconnect(copy->ss_mnt);
++			/* ss_mnt will be unmounted by the laundromat */
+ 			goto do_callback;
+ 		}
+ 		nfserr = nfsd4_do_copy(copy, filp, copy->nf_dst->nf_file,
+@@ -1852,8 +1840,10 @@ nfsd4_copy(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
+ 	if (async_copy)
+ 		cleanup_async_copy(async_copy);
+ 	status = nfserrno(-ENOMEM);
+-	if (nfsd4_ssc_is_inter(copy))
+-		nfsd4_interssc_disconnect(copy->ss_mnt);
++	/*
++	 * source's vfsmount of inter-copy will be unmounted
++	 * by the laundromat
++	 */
+ 	goto out;
+ }
+ 
 -- 
 2.35.1
 
