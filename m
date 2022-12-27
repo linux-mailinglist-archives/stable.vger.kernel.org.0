@@ -2,118 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E9BD656A1D
-	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 12:56:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E46AF656A3E
+	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 12:59:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230072AbiL0L44 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Dec 2022 06:56:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42108 "EHLO
+        id S232081AbiL0L72 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Dec 2022 06:59:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229679AbiL0L4c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 06:56:32 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E26762191;
-        Tue, 27 Dec 2022 03:56:28 -0800 (PST)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BRAug9p015465;
-        Tue, 27 Dec 2022 11:56:19 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=D8Dmx1UxuS+JHTxv5lC60zrzyi7pxK0+1j1ZUQBGI+s=;
- b=cZIyMnbgRM8ill5SmM3x9C23RqRUDIWzIjD6q8bV1hMzjZAY0V9PqJtqhjxe67C1hS83
- ivw1VylxITSIC0UwRmlSf74w+n4sSzNm7gwR7iUoTcksb35S9hvnah5xgS9NwHt6RWHz
- 7IIvZ/J19rLpm/oqpGJUiuey6HP/xS2iMqfrHLRrHrjljmtnl2+yMz8VdZ3/09cPNMms
- tDkfr/hE9K4j1UYvvP/z8jrjB00QTu6xlfiTaEQ2x6sDgj1hVpVwamgazpidzFNDlE9d
- CChx/DB4f8coDrsdQj/2CroC4dUdWXxN68w3V2edxhOaS3yzMFbsm/b+m6D0C1OVu/Qh Yw== 
-Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mqyd9gwpa-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Dec 2022 11:56:19 +0000
-Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
-        by ppma04wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BRBIBda013133;
-        Tue, 27 Dec 2022 11:56:18 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([9.208.130.99])
-        by ppma04wdc.us.ibm.com (PPS) with ESMTPS id 3mns27rumj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Dec 2022 11:56:17 +0000
-Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-        by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BRBuHOC31326674
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 27 Dec 2022 11:56:17 GMT
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EAA6B58054;
-        Tue, 27 Dec 2022 11:56:16 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E03D858058;
-        Tue, 27 Dec 2022 11:56:15 +0000 (GMT)
-Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.23.56])
-        by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 27 Dec 2022 11:56:15 +0000 (GMT)
-Message-ID: <d65e2d46bf41e3d58c0fa18bd274faf20dadb523.camel@linux.ibm.com>
-Subject: Re: [PATCH 2/2] ima: Handle -ESTALE returned by
- ima_filter_rule_match()
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        GUO Zihua <guozihua@huawei.com>
-Cc:     stable@vger.kernel.org, paul@paul-moore.com,
-        linux-integrity@vger.kernel.org, luhuaxin1@huawei.com
-Date:   Tue, 27 Dec 2022 06:56:15 -0500
-In-Reply-To: <Y6qgqO/LJ/wHUk5x@kroah.com>
-References: <20221227014729.4799-1-guozihua@huawei.com>
-         <20221227014729.4799-3-guozihua@huawei.com> <Y6qgqO/LJ/wHUk5x@kroah.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
+        with ESMTP id S231967AbiL0L64 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 06:58:56 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB22DAE5A;
+        Tue, 27 Dec 2022 03:58:55 -0800 (PST)
+Date:   Tue, 27 Dec 2022 11:58:53 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1672142334;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=G9KGHKGvEmHY8m6mMHbHyYBd5mnPoViFa4gD7Us+W8E=;
+        b=ZjzsFz30JcHNNKitODN5AzpHyFp1DhFvc08uWV/qUacYyMhxX0fknUB3nKSdZbUMQ9tHnX
+        iPI0f7nhlXbXmDQ82laEvgvPX/v8wqvCza6nP4gdJ5HjA066oVzJ9Zl055rvz08CLN9WvV
+        QkgzDlduiT//fmEcC/mpQKwAX+HIQiJxt2Gdf6CrvcF08kHt07EMSwWHe/C71xZEK1VOPn
+        qOCKGc9j3YA4jRyqfo+H829XHJq8mTFxhofdJR1bcUgcHYJ2fInIbS7c+fIi5A5jXoUkKC
+        rhrq7NbwvBS2qIztydIHMf6QSMVkX2nnSOAx5WGZMo08Iw5/wQV99yLDLV4b2A==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1672142334;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=G9KGHKGvEmHY8m6mMHbHyYBd5mnPoViFa4gD7Us+W8E=;
+        b=bmtwC+3Li5Q08No3N7rc54fF5SO6AJli3YYN8Aeuym7b+dHnrVq5FL71xaqjUKzT1ejJKP
+        +mdaDqZiH1KiW6Dw==
+From:   "tip-bot2 for Mathieu Desnoyers" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: locking/urgent] futex: Fix futex_waitv() hrtimer debug object
+ leak on kcalloc error
+Cc:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Davidlohr Bueso <dave@stgolabs.net>, stable@vger.kernel.org,
+        stable@vger.kernel.org, #@tip-bot2.tec.linutronix.de,
+        v5.16+@tip-bot2.tec.linutronix.de, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20221214222008.200393-1-mathieu.desnoyers@efficios.com>
+References: <20221214222008.200393-1-mathieu.desnoyers@efficios.com>
+MIME-Version: 1.0
+Message-ID: <167214233380.4906.7703534432069912531.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: pS52XCwEjMORToRoUGn0RngLWm0ogdc-
-X-Proofpoint-ORIG-GUID: pS52XCwEjMORToRoUGn0RngLWm0ogdc-
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-12-27_08,2022-12-27_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- mlxlogscore=999 suspectscore=0 phishscore=0 priorityscore=1501
- lowpriorityscore=0 impostorscore=0 mlxscore=0 clxscore=1011 spamscore=0
- adultscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2212270091
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2022-12-27 at 08:37 +0100, Greg KH wrote:
-> On Tue, Dec 27, 2022 at 09:47:29AM +0800, GUO Zihua wrote:
-> > [ Upstream commit c7423dbdbc9ecef7fff5239d144cad4b9887f4de ]
-> 
-> For obvious reasons we can not only take this patch (from 6.2-rc1) into
-> 4.19.y as that would cause people who upgrade from 4.19.y to a newer
-> stable kernel to have a regression.
-> 
-> Please submit backports for all stable kernels if you wish to see this
-> in older ones to prevent problems like this from happening.
+The following commit has been merged into the locking/urgent branch of tip:
 
-Sasha has already queued the original commit and the dependencies for
-the 6.1, 6.0, and 5.15 stable kernels.  Those kernels all had the
-call_lsm_notifier() to call_blocking_lsm_notifier() change.  Prior to
-5.3, the change to the blocking notifier would need to be backported as
-well.  This version of the backport still needs to be reviewed.
+Commit-ID:     94cd8fa09f5f1ebdd4e90964b08b7f2cc4b36c43
+Gitweb:        https://git.kernel.org/tip/94cd8fa09f5f1ebdd4e90964b08b7f2cc4b36c43
+Author:        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+AuthorDate:    Wed, 14 Dec 2022 17:20:08 -05:00
+Committer:     Peter Zijlstra <peterz@infradead.org>
+CommitterDate: Tue, 27 Dec 2022 12:52:02 +01:00
 
-thanks,
+futex: Fix futex_waitv() hrtimer debug object leak on kcalloc error
 
-Mimi
+In a scenario where kcalloc() fails to allocate memory, the futex_waitv
+system call immediately returns -ENOMEM without invoking
+destroy_hrtimer_on_stack(). When CONFIG_DEBUG_OBJECTS_TIMERS=y, this
+results in leaking a timer debug object.
 
-> 
-> But also, why are you still on 4.19.y?  What is wrong with 5.4.y at this
-> point in time?  If we dropped support for 4.19.y in January, what would
-> that cause to happen for your systems?
-> 
-> thanks,
-> 
-> greg k-h
-> 
+Fixes: bf69bad38cf6 ("futex: Implement sys_futex_waitv()")
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Davidlohr Bueso <dave@stgolabs.net>
+Cc: stable@vger.kernel.org
+Cc: stable@vger.kernel.org # v5.16+
+Link: https://lore.kernel.org/r/20221214222008.200393-1-mathieu.desnoyers@efficios.com
+---
+ kernel/futex/syscalls.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
+diff --git a/kernel/futex/syscalls.c b/kernel/futex/syscalls.c
+index 086a22d..a807407 100644
+--- a/kernel/futex/syscalls.c
++++ b/kernel/futex/syscalls.c
+@@ -286,19 +286,22 @@ SYSCALL_DEFINE5(futex_waitv, struct futex_waitv __user *, waiters,
+ 	}
+ 
+ 	futexv = kcalloc(nr_futexes, sizeof(*futexv), GFP_KERNEL);
+-	if (!futexv)
+-		return -ENOMEM;
++	if (!futexv) {
++		ret = -ENOMEM;
++		goto destroy_timer;
++	}
+ 
+ 	ret = futex_parse_waitv(futexv, waiters, nr_futexes);
+ 	if (!ret)
+ 		ret = futex_wait_multiple(futexv, nr_futexes, timeout ? &to : NULL);
+ 
++	kfree(futexv);
++
++destroy_timer:
+ 	if (timeout) {
+ 		hrtimer_cancel(&to.timer);
+ 		destroy_hrtimer_on_stack(&to.timer);
+ 	}
+-
+-	kfree(futexv);
+ 	return ret;
+ }
+ 
