@@ -2,50 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09921656F12
-	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:39:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED002656F19
+	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:39:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232604AbiL0UjH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Dec 2022 15:39:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38168 "EHLO
+        id S232347AbiL0UjL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Dec 2022 15:39:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232674AbiL0Uhp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:37:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B1B8E00A;
-        Tue, 27 Dec 2022 12:34:22 -0800 (PST)
+        with ESMTP id S232266AbiL0UiY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:38:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E120E099;
+        Tue, 27 Dec 2022 12:34:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ADDE0B811FB;
-        Tue, 27 Dec 2022 20:34:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0EFFC433F1;
-        Tue, 27 Dec 2022 20:34:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CB8E06123B;
+        Tue, 27 Dec 2022 20:34:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAF69C433F2;
+        Tue, 27 Dec 2022 20:34:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672173260;
-        bh=ox2BEnfMPBNYHHyGMIa+nrsHjfNFzw5LZfghfX3ovzY=;
+        s=k20201202; t=1672173262;
+        bh=Wm82mcz0e6ebaGdyvWMP+jh49P0bE1bsWiNWLYfcrF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iS3gr8U4yU0nJuwimMLUwYxyX179WdPRfWSfBScwDXtdisc80plDwPw2f4HHqqQJR
-         wIeTo0y6lG1s/Gzxg+EL8PBRlYGWrz1W5f8gYWJxAu7rZnxyEtTSsXeLjg2iptxV2j
-         IOFr1CZ1bmHjSGJusOOyFwhg6VKBz6rg/pnAVl5vS6Q8e5LPumvk6lj2nHnupJxJVO
-         7jmxEX9BHbvOHnNbLXI18L3kUzdTveZoxoNjVLwAfuuoVLuh6Pt7+h8g53mrswiPGP
-         d3wKZHhSdbmsyaJH98CjDqYl2E+XIge+ZpOHE6jU/ENG2Ft/ZFYHuAv1iMP5xOux6l
-         IHI77OCnOx8Mw==
+        b=banj49NilK1A3SL6Wo+jZbhAOTzOpRepYeJaO2aOofQipnGJ5tEQgoWrEB6HouCjK
+         0JHXucWk1mZQDvhx+GP3jyvdcBUW5HNKKR/9UXS50Fbek4eRdbJ7Cy4wUfoG3xVosj
+         PBW3RIb1WX2AIauIh2o1MvtE4qD9Z/QgjdNSi9/OYQgQXdwKB4hwoSbMWEGGK5wJuD
+         qYZWMkk7u2rUSFRvmP1gzM5qr8XSLu3q1fc0HAGf5xpTfyQNeYC+/1KKjd7HJ1ewpg
+         moTTSr9fkHoUQ+oCTn1v5NvmbhYl3lC6S/7zsq/+uQCTD6YIobqYzS/5PvTB7tVBpR
+         Y59YXL201+flw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        kernel test robot <lkp@intel.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Daniel Palmer <daniel@thingy.jp>,
-        Romain Perier <romain.perier@gmail.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>, nathan@kernel.org,
-        ndesaulniers@google.com, llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.0 23/27] rtc: msc313: Fix function prototype mismatch in msc313_rtc_probe()
-Date:   Tue, 27 Dec 2022 15:33:38 -0500
-Message-Id: <20221227203342.1213918-23-sashal@kernel.org>
+Cc:     wuqiang <wuqiang.matt@bytedance.com>,
+        Solar Designer <solar@openwall.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, rostedt@goodmis.org,
+        naveen.n.rao@linux.ibm.com, anil.s.keshavamurthy@intel.com,
+        davem@davemloft.net, corbet@lwn.net, linux-doc@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 24/27] kprobes: kretprobe events missing on 2-core KVM guest
+Date:   Tue, 27 Dec 2022 15:33:39 -0500
+Message-Id: <20221227203342.1213918-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221227203342.1213918-1-sashal@kernel.org>
 References: <20221227203342.1213918-1-sashal@kernel.org>
@@ -62,71 +58,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: wuqiang <wuqiang.matt@bytedance.com>
 
-[ Upstream commit 21b8a1dd56a163825e5749b303858fb902ebf198 ]
+[ Upstream commit 3b7ddab8a19aefc768f345fd3782af35b4a68d9b ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed.
+Default value of maxactive is set as num_possible_cpus() for nonpreemptable
+systems. For a 2-core system, only 2 kretprobe instances would be allocated
+in default, then these 2 instances for execve kretprobe are very likely to
+be used up with a pipelined command.
 
-msc313_rtc_probe() was passing clk_disable_unprepare() directly, which
-did not have matching prototypes for devm_add_action_or_reset()'s
-callback argument. Refactor to use devm_clk_get_enabled() instead.
+Here's the testcase: a shell script was added to crontab, and the content
+of the script is:
 
-This was found as a result of Clang's new -Wcast-function-type-strict
-flag, which is more sensitive than the simpler -Wcast-function-type,
-which only checks for type width mismatches.
+  #!/bin/sh
+  do_something_magic `tr -dc a-z < /dev/urandom | head -c 10`
 
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/202211041527.HD8TLSE1-lkp@intel.com
-Suggested-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc: Daniel Palmer <daniel@thingy.jp>
-Cc: Romain Perier <romain.perier@gmail.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-rtc@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Daniel Palmer <daniel@thingy.jp>
-Tested-by: Daniel Palmer <daniel@thingy.jp>
-Link: https://lore.kernel.org/r/20221202184525.gonna.423-kees@kernel.org
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+cron will trigger a series of program executions (4 times every hour). Then
+events loss would be noticed normally after 3-4 hours of testings.
+
+The issue is caused by a burst of series of execve requests. The best number
+of kretprobe instances could be different case by case, and should be user's
+duty to determine, but num_possible_cpus() as the default value is inadequate
+especially for systems with small number of cpus.
+
+This patch enables the logic for preemption as default, thus increases the
+minimum of maxactive to 10 for nonpreemptable systems.
+
+Link: https://lore.kernel.org/all/20221110081502.492289-1-wuqiang.matt@bytedance.com/
+
+Signed-off-by: wuqiang <wuqiang.matt@bytedance.com>
+Reviewed-by: Solar Designer <solar@openwall.com>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-msc313.c | 12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+ Documentation/trace/kprobes.rst | 3 +--
+ kernel/kprobes.c                | 8 ++------
+ 2 files changed, 3 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/rtc/rtc-msc313.c b/drivers/rtc/rtc-msc313.c
-index f3fde013c4b8..8d7737e0e2e0 100644
---- a/drivers/rtc/rtc-msc313.c
-+++ b/drivers/rtc/rtc-msc313.c
-@@ -212,22 +212,12 @@ static int msc313_rtc_probe(struct platform_device *pdev)
- 		return ret;
- 	}
+diff --git a/Documentation/trace/kprobes.rst b/Documentation/trace/kprobes.rst
+index f318bceda1e6..97d086b23ce8 100644
+--- a/Documentation/trace/kprobes.rst
++++ b/Documentation/trace/kprobes.rst
+@@ -131,8 +131,7 @@ For example, if the function is non-recursive and is called with a
+ spinlock held, maxactive = 1 should be enough.  If the function is
+ non-recursive and can never relinquish the CPU (e.g., via a semaphore
+ or preemption), NR_CPUS should be enough.  If maxactive <= 0, it is
+-set to a default value.  If CONFIG_PREEMPT is enabled, the default
+-is max(10, 2*NR_CPUS).  Otherwise, the default is NR_CPUS.
++set to a default value: max(10, 2*NR_CPUS).
  
--	clk = devm_clk_get(dev, NULL);
-+	clk = devm_clk_get_enabled(dev, NULL);
- 	if (IS_ERR(clk)) {
- 		dev_err(dev, "No input reference clock\n");
- 		return PTR_ERR(clk);
- 	}
+ It's not a disaster if you set maxactive too low; you'll just miss
+ some probes.  In the kretprobe struct, the nmissed field is set to
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index 6d2a8623ec7b..f2413aae1aba 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -2209,13 +2209,9 @@ int register_kretprobe(struct kretprobe *rp)
+ 	rp->kp.post_handler = NULL;
  
--	ret = clk_prepare_enable(clk);
--	if (ret) {
--		dev_err(dev, "Failed to enable the reference clock, %d\n", ret);
--		return ret;
+ 	/* Pre-allocate memory for max kretprobe instances */
+-	if (rp->maxactive <= 0) {
+-#ifdef CONFIG_PREEMPTION
++	if (rp->maxactive <= 0)
+ 		rp->maxactive = max_t(unsigned int, 10, 2*num_possible_cpus());
+-#else
+-		rp->maxactive = num_possible_cpus();
+-#endif
 -	}
--
--	ret = devm_add_action_or_reset(dev, (void (*) (void *))clk_disable_unprepare, clk);
--	if (ret)
--		return ret;
--
- 	rate = clk_get_rate(clk);
- 	writew(rate & 0xFFFF, priv->rtc_base + REG_RTC_FREQ_CW_L);
- 	writew((rate >> 16) & 0xFFFF, priv->rtc_base + REG_RTC_FREQ_CW_H);
++
+ #ifdef CONFIG_KRETPROBE_ON_RETHOOK
+ 	rp->rh = rethook_alloc((void *)rp, kretprobe_rethook_handler);
+ 	if (!rp->rh)
 -- 
 2.35.1
 
