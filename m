@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3BB6656F8B
-	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:47:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3103C656F92
+	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:48:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232813AbiL0Ur3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Dec 2022 15:47:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60110 "EHLO
+        id S232172AbiL0Ur6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Dec 2022 15:47:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232852AbiL0UqP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:46:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14A201182B;
-        Tue, 27 Dec 2022 12:37:13 -0800 (PST)
+        with ESMTP id S232571AbiL0Ur0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:47:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6976610B63;
+        Tue, 27 Dec 2022 12:37:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E2C726123D;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03140B81200;
+        Tue, 27 Dec 2022 20:36:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB44CC433F0;
         Tue, 27 Dec 2022 20:36:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C954C433D2;
-        Tue, 27 Dec 2022 20:36:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672173396;
-        bh=4DbaLyjK+L8FjEtEwqJJcQ0TUOVDi51mZo3PubrDSKA=;
+        s=k20201202; t=1672173397;
+        bh=7GAhUVPk5YI7ewRGZ86uAAGhaY7+K7QbOHgacS5sfoc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AKGlMheghJpXKstyhtDdD9z+xCD3BqE3omDO4cK7BJ+f5lEajsQzkrVKczPb8wrhF
-         SCrixB50afzhVB7+EYRnhUkIa9fJz/1p9tGpJ035Wb3159DR7Qp0y6lggl1nlNblWX
-         Hfmp5yg2HBzj733mZosq4vnr78/+og30AkJOvdH3WlKUdFJ+SWRvGeDexS7TL6tAYj
-         eb4wcVu9BtTBNXyYtzAsREe+wbMv1MLq9wmdU2skQr1YUZinCTqx78goMzQ8Y+UUx3
-         cjugNpRmQO2wyn0DRZJpym4Gb/7M78fMyLUyTpY368Ro0djH8FtyvTfkYYC5vW7JlK
-         7XkoeD/tbFXpw==
+        b=StZcyexodOX4htY5pObw5VH/s6BrU3jvtnGNS33AwnFGk7L2hYvxh/COk++Dzr/eK
+         Wc24f67ui3nzvi41i49jLpSfRWuQ9QOOS6kv01a4HlBfsVlxxIfsjaNbX9T0mWze6E
+         hGsUxfWB7bTGe7PfvzrcUpYTB9Am1uW25H9bZ9twB5is018CLRV86+UJlKSBFTOZ34
+         RTw68FPxLigmGhSWhlaGaGf2Xqh07aBEHT6usiFS6KVJs09dqM/wI1Qa68gO2wcFeK
+         Qy4b4KvKyu3Tp1fAiB9e4MGm0bMF+kQeZkWYCmI0qHBL1t/26GWO2kPpquTcYU/9po
+         9R3G5d0nKyCDg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Zyngier <maz@kernel.org>, Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>, mpe@ellerman.id.au,
-        christophe.leroy@csgroup.eu, windhl@126.com, Julia.Lawall@inria.fr,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.9 2/3] powerpc/msi: Fix deassociation of MSI descriptors
-Date:   Tue, 27 Dec 2022 15:36:24 -0500
-Message-Id: <20221227203626.1214890-2-sashal@kernel.org>
+Cc:     Terry Junge <linuxhid@cosmicgizmosystems.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        jikos@kernel.org, benjamin.tissoires@redhat.com,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 3/3] HID: plantronics: Additional PIDs for double volume key presses quirk
+Date:   Tue, 27 Dec 2022 15:36:25 -0500
+Message-Id: <20221227203626.1214890-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221227203626.1214890-1-sashal@kernel.org>
 References: <20221227203626.1214890-1-sashal@kernel.org>
@@ -56,98 +56,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Terry Junge <linuxhid@cosmicgizmosystems.com>
 
-[ Upstream commit 4545c6a3d6ba71747eaa984c338ddd745e56e23f ]
+[ Upstream commit 3d57f36c89d8ba32b2c312f397a37fd1a2dc7cfc ]
 
-Since 2f2940d16823 ("genirq/msi: Remove filter from
-msi_free_descs_free_range()"), the core MSI code relies on the
-msi_desc->irq field to have been cleared before the descriptor
-can be freed, as it indicates that there is no association with
-a device anymore.
+I no longer work for Plantronics (aka Poly, aka HP) and do not have
+access to the headsets in order to test. However, as noted by Maxim,
+the other 32xx models that share the same base code set as the 3220
+would need the same quirk. This patch adds the PIDs for the rest of
+the Blackwire 32XX product family that require the quirk.
 
-The irq domain code provides this guarantee, and so does s390,
-which is one of the two architectures not using irq domains for
-MSIs.
+Plantronics Blackwire 3210 Series (047f:c055)
+Plantronics Blackwire 3215 Series (047f:c057)
+Plantronics Blackwire 3225 Series (047f:c058)
 
-Powerpc, however, is missing this particular requirements,
-leading in a splat and leaked MSI descriptors.
+Quote from previous patch by Maxim Mikityanskiy
+Plantronics Blackwire 3220 Series (047f:c056) sends HID reports twice
+for each volume key press. This patch adds a quirk to hid-plantronics
+for this product ID, which will ignore the second volume key press if
+it happens within 5 ms from the last one that was handled.
 
-Adding the now required irq reset to the handful of powerpc backends
-that implement MSIs fixes that particular problem.
+The patch was tested on the mentioned model only, it shouldn't affect
+other models, however, this quirk might be needed for them too.
+Auto-repeat (when a key is held pressed) is not affected, because the
+rate is about 3 times per second, which is far less frequent than once
+in 5 ms.
+End quote
 
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/70dab88e-6119-0c12-7c6a-61bcbe239f66@roeck-us.net
+Signed-off-by: Terry Junge <linuxhid@cosmicgizmosystems.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/cell/axon_msi.c | 1 +
- arch/powerpc/platforms/pasemi/msi.c    | 1 +
- arch/powerpc/sysdev/fsl_msi.c          | 1 +
- arch/powerpc/sysdev/mpic_u3msi.c       | 1 +
- arch/powerpc/sysdev/ppc4xx_hsta_msi.c  | 1 +
- 5 files changed, 5 insertions(+)
+ drivers/hid/hid-ids.h         | 3 +++
+ drivers/hid/hid-plantronics.c | 9 +++++++++
+ 2 files changed, 12 insertions(+)
 
-diff --git a/arch/powerpc/platforms/cell/axon_msi.c b/arch/powerpc/platforms/cell/axon_msi.c
-index 8b55c5f19d4c..f78dc043f370 100644
---- a/arch/powerpc/platforms/cell/axon_msi.c
-+++ b/arch/powerpc/platforms/cell/axon_msi.c
-@@ -298,6 +298,7 @@ static void axon_msi_teardown_msi_irqs(struct pci_dev *dev)
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 1f641870d860..4d69551dbc52 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -816,7 +816,10 @@
+ #define USB_DEVICE_ID_ORTEK_WKB2000	0x2000
  
- 		irq_set_msi_desc(entry->irq, NULL);
- 		irq_dispose_mapping(entry->irq);
-+		entry->irq = 0;
- 	}
+ #define USB_VENDOR_ID_PLANTRONICS	0x047f
++#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3210_SERIES	0xc055
+ #define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES	0xc056
++#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3215_SERIES	0xc057
++#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3225_SERIES	0xc058
+ 
+ #define USB_VENDOR_ID_PANASONIC		0x04da
+ #define USB_DEVICE_ID_PANABOARD_UBT780	0x1044
+diff --git a/drivers/hid/hid-plantronics.c b/drivers/hid/hid-plantronics.c
+index 460711c1124a..3b75cadd543f 100644
+--- a/drivers/hid/hid-plantronics.c
++++ b/drivers/hid/hid-plantronics.c
+@@ -201,9 +201,18 @@ static int plantronics_probe(struct hid_device *hdev,
  }
  
-diff --git a/arch/powerpc/platforms/pasemi/msi.c b/arch/powerpc/platforms/pasemi/msi.c
-index d9cd510c8865..6e54377663db 100644
---- a/arch/powerpc/platforms/pasemi/msi.c
-+++ b/arch/powerpc/platforms/pasemi/msi.c
-@@ -74,6 +74,7 @@ static void pasemi_msi_teardown_msi_irqs(struct pci_dev *pdev)
- 		hwirq = virq_to_hw(entry->irq);
- 		irq_set_msi_desc(entry->irq, NULL);
- 		irq_dispose_mapping(entry->irq);
-+		entry->irq = 0;
- 		msi_bitmap_free_hwirqs(&msi_mpic->msi_bitmap, hwirq, ALLOC_CHUNK);
- 	}
- 
-diff --git a/arch/powerpc/sysdev/fsl_msi.c b/arch/powerpc/sysdev/fsl_msi.c
-index 8a244828782e..aa9dd3a92f2a 100644
---- a/arch/powerpc/sysdev/fsl_msi.c
-+++ b/arch/powerpc/sysdev/fsl_msi.c
-@@ -137,6 +137,7 @@ static void fsl_teardown_msi_irqs(struct pci_dev *pdev)
- 		msi_data = irq_get_chip_data(entry->irq);
- 		irq_set_msi_desc(entry->irq, NULL);
- 		irq_dispose_mapping(entry->irq);
-+		entry->irq = 0;
- 		msi_bitmap_free_hwirqs(&msi_data->bitmap, hwirq, 1);
- 	}
- 
-diff --git a/arch/powerpc/sysdev/mpic_u3msi.c b/arch/powerpc/sysdev/mpic_u3msi.c
-index cfc1c57d760f..26db91c8feff 100644
---- a/arch/powerpc/sysdev/mpic_u3msi.c
-+++ b/arch/powerpc/sysdev/mpic_u3msi.c
-@@ -116,6 +116,7 @@ static void u3msi_teardown_msi_irqs(struct pci_dev *pdev)
- 		hwirq = virq_to_hw(entry->irq);
- 		irq_set_msi_desc(entry->irq, NULL);
- 		irq_dispose_mapping(entry->irq);
-+		entry->irq = 0;
- 		msi_bitmap_free_hwirqs(&msi_mpic->msi_bitmap, hwirq, 1);
- 	}
- 
-diff --git a/arch/powerpc/sysdev/ppc4xx_hsta_msi.c b/arch/powerpc/sysdev/ppc4xx_hsta_msi.c
-index 9926ad67af76..ac5fbb2492aa 100644
---- a/arch/powerpc/sysdev/ppc4xx_hsta_msi.c
-+++ b/arch/powerpc/sysdev/ppc4xx_hsta_msi.c
-@@ -121,6 +121,7 @@ static void hsta_teardown_msi_irqs(struct pci_dev *dev)
- 		msi_bitmap_free_hwirqs(&ppc4xx_hsta_msi.bmp, irq, 1);
- 		pr_debug("%s: Teardown IRQ %u (index %u)\n", __func__,
- 			 entry->irq, irq);
-+		entry->irq = 0;
- 	}
- }
- 
+ static const struct hid_device_id plantronics_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
++					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3210_SERIES),
++		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
+ 					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES),
+ 		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
++					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3215_SERIES),
++		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
++					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3225_SERIES),
++		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS, HID_ANY_ID) },
+ 	{ }
+ };
 -- 
 2.35.1
 
