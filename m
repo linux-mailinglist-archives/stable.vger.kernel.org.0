@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3EEC656EAE
+	by mail.lfdr.de (Postfix) with ESMTP id 6A65B656EAD
 	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:34:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231960AbiL0Udf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Dec 2022 15:33:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37854 "EHLO
+        id S229809AbiL0Udd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Dec 2022 15:33:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231967AbiL0UdH (ORCPT
+        with ESMTP id S231966AbiL0UdH (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:33:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0E5EDE91;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81ECE65E1;
         Tue, 27 Dec 2022 12:33:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92313B8109A;
-        Tue, 27 Dec 2022 20:33:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 995CDC433EF;
-        Tue, 27 Dec 2022 20:32:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EDE461237;
+        Tue, 27 Dec 2022 20:33:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B90D2C433F0;
+        Tue, 27 Dec 2022 20:32:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672173179;
-        bh=AzYtmp2fkoQNA7/n4WrUDcidxEgongtkT4EJvlZE/CY=;
+        s=k20201202; t=1672173180;
+        bh=mu54Xusiy5/W9RAjGszJFENqdsjPf3EFwtWsBKZipx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IOYV53hUJm7vZc/WF/99lDhPUbUgKtirSVj2kNAiZMZ1dRR30ATIJ7EjtFXgIWSuS
-         G+ZufBf4kvXk8Yc2XS4XZwjJK9vMkzNceT8CASAJjEGyI0Hm7jaDlMJxXOmQAamk7R
-         ekZk9QvXXhw0OcVZFmDKHRnBLvN8GGQ1t3cl41LcLaLLvZK1T75kHGn3gGZTTsaKEI
-         XxLzind/Trpyb0dPjZcorz4uk/+HLrz7tcvJ1v10dkE6cwagkYVrpKlOS+dHykUQgZ
-         WCUzdYHExkTOKG+JcMbsBVAJG7ajfBKPu/kGh4PFM4ZBl5gMvGLCJoBlSquzR0wahq
-         eoFQ+goQwb5lw==
+        b=gEpJSVuFRqrjYGuZwal9EwJfdkUrxT31fM2AqnIREp5c547tXrvG9YUDWZpie37s9
+         tB/Fh/CCzAXZrHsSefY5To68Kn7+fRhALJKvXXn1W16msXIMQvygTSD4cMTMwBkU2L
+         DDOBTnL2120yQfxH65beGN/dDxVW40Ld8ahXdBjiwxUZMd16KMkoILTXdXrpfNH4iG
+         Eohf+ao+GD3BcHIxqfwn0UpeAR51Nox58D+7OZK2cjlSgq0YNyyw74XF7YV6Z1ruhh
+         pt5AiFSdIUx9Z30bihBVUq06n5fMUAyNObGtQeUhcwy/G8pN68ppR6Rx7lpcuLOJzH
+         dtgHBviX7Mq+A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Edward Lo <edward.lo@ambergroup.io>,
         Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
         Sasha Levin <sashal@kernel.org>, ntfs3@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.1 07/28] fs/ntfs3: Validate attribute name offset
-Date:   Tue, 27 Dec 2022 15:32:28 -0500
-Message-Id: <20221227203249.1213526-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 08/28] fs/ntfs3: Validate buffer length while parsing index
+Date:   Tue, 27 Dec 2022 15:32:29 -0500
+Message-Id: <20221227203249.1213526-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221227203249.1213526-1-sashal@kernel.org>
 References: <20221227203249.1213526-1-sashal@kernel.org>
@@ -57,111 +57,157 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Edward Lo <edward.lo@ambergroup.io>
 
-[ Upstream commit 4f1dc7d9756e66f3f876839ea174df2e656b7f79 ]
+[ Upstream commit 4d42ecda239cc13738d6fd84d098a32e67b368b9 ]
 
-Although the attribute name length is checked before comparing it to
-some common names (e.g., $I30), the offset isn't. This adds a sanity
-check for the attribute name offset, guarantee the validity and prevent
-possible out-of-bound memory accesses.
+indx_read is called when we have some NTFS directory operations that
+need more information from the index buffers. This adds a sanity check
+to make sure the returned index buffer length is legit, or we may have
+some out-of-bound memory accesses.
 
-[  191.720056] BUG: unable to handle page fault for address: ffffebde00000008
-[  191.721060] #PF: supervisor read access in kernel mode
-[  191.721586] #PF: error_code(0x0000) - not-present page
-[  191.722079] PGD 0 P4D 0
-[  191.722571] Oops: 0000 [#1] PREEMPT SMP KASAN NOPTI
-[  191.723179] CPU: 0 PID: 244 Comm: mount Not tainted 6.0.0-rc4 #28
-[  191.723749] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-[  191.724832] RIP: 0010:kfree+0x56/0x3b0
-[  191.725870] Code: 80 48 01 d8 0f 82 65 03 00 00 48 c7 c2 00 00 00 80 48 2b 15 2c 06 dd 01 48 01 d0 48 c1 e8 0c 48 c1 e0 06 48 03 05 0a 069
-[  191.727375] RSP: 0018:ffff8880076f7878 EFLAGS: 00000286
-[  191.727897] RAX: ffffebde00000000 RBX: 0000000000000040 RCX: ffffffff8528d5b9
-[  191.728531] RDX: 0000777f80000000 RSI: ffffffff8522d49c RDI: 0000000000000040
-[  191.729183] RBP: ffff8880076f78a0 R08: 0000000000000000 R09: 0000000000000000
-[  191.729628] R10: ffff888008949fd8 R11: ffffed10011293fd R12: 0000000000000040
-[  191.730158] R13: ffff888008949f98 R14: ffff888008949ec0 R15: ffff888008949fb0
-[  191.730645] FS:  00007f3520cd7e40(0000) GS:ffff88805ba00000(0000) knlGS:0000000000000000
-[  191.731328] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  191.731667] CR2: ffffebde00000008 CR3: 0000000009704000 CR4: 00000000000006f0
-[  191.732568] Call Trace:
-[  191.733231]  <TASK>
-[  191.733860]  kvfree+0x2c/0x40
-[  191.734632]  ni_clear+0x180/0x290
-[  191.735085]  ntfs_evict_inode+0x45/0x70
-[  191.735495]  evict+0x199/0x280
-[  191.735996]  iput.part.0+0x286/0x320
-[  191.736438]  iput+0x32/0x50
-[  191.736811]  iget_failed+0x23/0x30
-[  191.737270]  ntfs_iget5+0x337/0x1890
-[  191.737629]  ? ntfs_clear_mft_tail+0x20/0x260
-[  191.738201]  ? ntfs_get_block_bmap+0x70/0x70
-[  191.738482]  ? ntfs_objid_init+0xf6/0x140
-[  191.738779]  ? ntfs_reparse_init+0x140/0x140
-[  191.739266]  ntfs_fill_super+0x121b/0x1b50
-[  191.739623]  ? put_ntfs+0x1d0/0x1d0
-[  191.739984]  ? asm_sysvec_apic_timer_interrupt+0x1b/0x20
-[  191.740466]  ? put_ntfs+0x1d0/0x1d0
-[  191.740787]  ? sb_set_blocksize+0x6a/0x80
-[  191.741272]  get_tree_bdev+0x232/0x370
-[  191.741829]  ? put_ntfs+0x1d0/0x1d0
-[  191.742669]  ntfs_fs_get_tree+0x15/0x20
-[  191.743132]  vfs_get_tree+0x4c/0x130
-[  191.743457]  path_mount+0x654/0xfe0
-[  191.743938]  ? putname+0x80/0xa0
-[  191.744271]  ? finish_automount+0x2e0/0x2e0
-[  191.744582]  ? putname+0x80/0xa0
-[  191.745053]  ? kmem_cache_free+0x1c4/0x440
-[  191.745403]  ? putname+0x80/0xa0
-[  191.745616]  do_mount+0xd6/0xf0
-[  191.745887]  ? path_mount+0xfe0/0xfe0
-[  191.746287]  ? __kasan_check_write+0x14/0x20
-[  191.746582]  __x64_sys_mount+0xca/0x110
-[  191.746850]  do_syscall_64+0x3b/0x90
-[  191.747122]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[  191.747517] RIP: 0033:0x7f351fee948a
-[  191.748332] Code: 48 8b 0d 11 fa 2a 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 008
-[  191.749341] RSP: 002b:00007ffd51cf3af8 EFLAGS: 00000202 ORIG_RAX: 00000000000000a5
-[  191.749960] RAX: ffffffffffffffda RBX: 000055b903733060 RCX: 00007f351fee948a
-[  191.750589] RDX: 000055b903733260 RSI: 000055b9037332e0 RDI: 000055b90373bce0
-[  191.751115] RBP: 0000000000000000 R08: 000055b903733280 R09: 0000000000000020
-[  191.751537] R10: 00000000c0ed0000 R11: 0000000000000202 R12: 000055b90373bce0
-[  191.751946] R13: 000055b903733260 R14: 0000000000000000 R15: 00000000ffffffff
-[  191.752519]  </TASK>
-[  191.752782] Modules linked in:
-[  191.753785] CR2: ffffebde00000008
-[  191.754937] ---[ end trace 0000000000000000 ]---
-[  191.755429] RIP: 0010:kfree+0x56/0x3b0
-[  191.755725] Code: 80 48 01 d8 0f 82 65 03 00 00 48 c7 c2 00 00 00 80 48 2b 15 2c 06 dd 01 48 01 d0 48 c1 e8 0c 48 c1 e0 06 48 03 05 0a 069
-[  191.756744] RSP: 0018:ffff8880076f7878 EFLAGS: 00000286
-[  191.757218] RAX: ffffebde00000000 RBX: 0000000000000040 RCX: ffffffff8528d5b9
-[  191.757580] RDX: 0000777f80000000 RSI: ffffffff8522d49c RDI: 0000000000000040
-[  191.758016] RBP: ffff8880076f78a0 R08: 0000000000000000 R09: 0000000000000000
-[  191.758570] R10: ffff888008949fd8 R11: ffffed10011293fd R12: 0000000000000040
-[  191.758957] R13: ffff888008949f98 R14: ffff888008949ec0 R15: ffff888008949fb0
-[  191.759317] FS:  00007f3520cd7e40(0000) GS:ffff88805ba00000(0000) knlGS:0000000000000000
-[  191.759711] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  191.760118] CR2: ffffebde00000008 CR3: 0000000009704000 CR4: 00000000000006f0
+[  560.897595] BUG: KASAN: slab-out-of-bounds in hdr_find_e.isra.0+0x10c/0x320
+[  560.898321] Read of size 2 at addr ffff888009497238 by task exp/245
+[  560.898760]
+[  560.899129] CPU: 0 PID: 245 Comm: exp Not tainted 6.0.0-rc6 #37
+[  560.899505] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+[  560.900170] Call Trace:
+[  560.900407]  <TASK>
+[  560.900732]  dump_stack_lvl+0x49/0x63
+[  560.901108]  print_report.cold+0xf5/0x689
+[  560.901395]  ? hdr_find_e.isra.0+0x10c/0x320
+[  560.901716]  kasan_report+0xa7/0x130
+[  560.901950]  ? hdr_find_e.isra.0+0x10c/0x320
+[  560.902208]  __asan_load2+0x68/0x90
+[  560.902427]  hdr_find_e.isra.0+0x10c/0x320
+[  560.902846]  ? cmp_uints+0xe0/0xe0
+[  560.903363]  ? cmp_sdh+0x90/0x90
+[  560.903883]  ? ntfs_bread_run+0x190/0x190
+[  560.904196]  ? rwsem_down_read_slowpath+0x750/0x750
+[  560.904969]  ? ntfs_fix_post_read+0xe0/0x130
+[  560.905259]  ? __kasan_check_write+0x14/0x20
+[  560.905599]  ? up_read+0x1a/0x90
+[  560.905853]  ? indx_read+0x22c/0x380
+[  560.906096]  indx_find+0x2ef/0x470
+[  560.906352]  ? indx_find_buffer+0x2d0/0x2d0
+[  560.906692]  ? __kasan_kmalloc+0x88/0xb0
+[  560.906977]  dir_search_u+0x196/0x2f0
+[  560.907220]  ? ntfs_nls_to_utf16+0x450/0x450
+[  560.907464]  ? __kasan_check_write+0x14/0x20
+[  560.907747]  ? mutex_lock+0x8f/0xe0
+[  560.907970]  ? __mutex_lock_slowpath+0x20/0x20
+[  560.908214]  ? kmem_cache_alloc+0x143/0x4b0
+[  560.908459]  ntfs_lookup+0xe0/0x100
+[  560.908788]  __lookup_slow+0x116/0x220
+[  560.909050]  ? lookup_fast+0x1b0/0x1b0
+[  560.909309]  ? lookup_fast+0x13f/0x1b0
+[  560.909601]  walk_component+0x187/0x230
+[  560.909944]  link_path_walk.part.0+0x3f0/0x660
+[  560.910285]  ? handle_lookup_down+0x90/0x90
+[  560.910618]  ? path_init+0x642/0x6e0
+[  560.911084]  ? percpu_counter_add_batch+0x6e/0xf0
+[  560.912559]  ? __alloc_file+0x114/0x170
+[  560.913008]  path_openat+0x19c/0x1d10
+[  560.913419]  ? getname_flags+0x73/0x2b0
+[  560.913815]  ? kasan_save_stack+0x3a/0x50
+[  560.914125]  ? kasan_save_stack+0x26/0x50
+[  560.914542]  ? __kasan_slab_alloc+0x6d/0x90
+[  560.914924]  ? kmem_cache_alloc+0x143/0x4b0
+[  560.915339]  ? getname_flags+0x73/0x2b0
+[  560.915647]  ? getname+0x12/0x20
+[  560.916114]  ? __x64_sys_open+0x4c/0x60
+[  560.916460]  ? path_lookupat.isra.0+0x230/0x230
+[  560.916867]  ? __isolate_free_page+0x2e0/0x2e0
+[  560.917194]  do_filp_open+0x15c/0x1f0
+[  560.917448]  ? may_open_dev+0x60/0x60
+[  560.917696]  ? expand_files+0xa4/0x3a0
+[  560.917923]  ? __kasan_check_write+0x14/0x20
+[  560.918185]  ? _raw_spin_lock+0x88/0xdb
+[  560.918409]  ? _raw_spin_lock_irqsave+0x100/0x100
+[  560.918783]  ? _find_next_bit+0x4a/0x130
+[  560.919026]  ? _raw_spin_unlock+0x19/0x40
+[  560.919276]  ? alloc_fd+0x14b/0x2d0
+[  560.919635]  do_sys_openat2+0x32a/0x4b0
+[  560.920035]  ? file_open_root+0x230/0x230
+[  560.920336]  ? __rcu_read_unlock+0x5b/0x280
+[  560.920813]  do_sys_open+0x99/0xf0
+[  560.921208]  ? filp_open+0x60/0x60
+[  560.921482]  ? exit_to_user_mode_prepare+0x49/0x180
+[  560.921867]  __x64_sys_open+0x4c/0x60
+[  560.922128]  do_syscall_64+0x3b/0x90
+[  560.922369]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[  560.923030] RIP: 0033:0x7f7dff2e4469
+[  560.923681] Code: 00 f3 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 088
+[  560.924451] RSP: 002b:00007ffd41a210b8 EFLAGS: 00000206 ORIG_RAX: 0000000000000002
+[  560.925168] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f7dff2e4469
+[  560.925655] RDX: 0000000000000000 RSI: 0000000000000002 RDI: 00007ffd41a211f0
+[  560.926085] RBP: 00007ffd41a252a0 R08: 00007f7dff60fba0 R09: 00007ffd41a25388
+[  560.926405] R10: 0000000000400b80 R11: 0000000000000206 R12: 00000000004004e0
+[  560.926867] R13: 00007ffd41a25380 R14: 0000000000000000 R15: 0000000000000000
+[  560.927241]  </TASK>
+[  560.927491]
+[  560.927755] Allocated by task 245:
+[  560.928409]  kasan_save_stack+0x26/0x50
+[  560.929271]  __kasan_kmalloc+0x88/0xb0
+[  560.929778]  __kmalloc+0x192/0x320
+[  560.930023]  indx_read+0x249/0x380
+[  560.930224]  indx_find+0x2a2/0x470
+[  560.930695]  dir_search_u+0x196/0x2f0
+[  560.930892]  ntfs_lookup+0xe0/0x100
+[  560.931115]  __lookup_slow+0x116/0x220
+[  560.931323]  walk_component+0x187/0x230
+[  560.931570]  link_path_walk.part.0+0x3f0/0x660
+[  560.931791]  path_openat+0x19c/0x1d10
+[  560.932008]  do_filp_open+0x15c/0x1f0
+[  560.932226]  do_sys_openat2+0x32a/0x4b0
+[  560.932413]  do_sys_open+0x99/0xf0
+[  560.932709]  __x64_sys_open+0x4c/0x60
+[  560.933417]  do_syscall_64+0x3b/0x90
+[  560.933776]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[  560.934235]
+[  560.934486] The buggy address belongs to the object at ffff888009497000
+[  560.934486]  which belongs to the cache kmalloc-512 of size 512
+[  560.935239] The buggy address is located 56 bytes to the right of
+[  560.935239]  512-byte region [ffff888009497000, ffff888009497200)
+[  560.936153]
+[  560.937326] The buggy address belongs to the physical page:
+[  560.938228] page:0000000062a3dfae refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x9496
+[  560.939616] head:0000000062a3dfae order:1 compound_mapcount:0 compound_pincount:0
+[  560.940219] flags: 0xfffffc0010200(slab|head|node=0|zone=1|lastcpupid=0x1fffff)
+[  560.942702] raw: 000fffffc0010200 ffffea0000164f80 dead000000000005 ffff888001041c80
+[  560.943932] raw: 0000000000000000 0000000080080008 00000001ffffffff 0000000000000000
+[  560.944568] page dumped because: kasan: bad access detected
+[  560.945735]
+[  560.946112] Memory state around the buggy address:
+[  560.946870]  ffff888009497100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  560.947242]  ffff888009497180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  560.947611] >ffff888009497200: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  560.947915]                                         ^
+[  560.948249]  ffff888009497280: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  560.948687]  ffff888009497300: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
 
 Signed-off-by: Edward Lo <edward.lo@ambergroup.io>
 Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/inode.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/ntfs3/index.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/fs/ntfs3/inode.c b/fs/ntfs3/inode.c
-index b0bc9dee2e2b..c18bedaf228d 100644
---- a/fs/ntfs3/inode.c
-+++ b/fs/ntfs3/inode.c
-@@ -129,6 +129,9 @@ static struct inode *ntfs_read_mft(struct inode *inode,
- 	rsize = attr->non_res ? 0 : le32_to_cpu(attr->res.data_size);
- 	asize = le32_to_cpu(attr->size);
+diff --git a/fs/ntfs3/index.c b/fs/ntfs3/index.c
+index 440328147e7e..c27b4fe57513 100644
+--- a/fs/ntfs3/index.c
++++ b/fs/ntfs3/index.c
+@@ -1017,6 +1017,12 @@ int indx_read(struct ntfs_index *indx, struct ntfs_inode *ni, CLST vbn,
+ 		err = 0;
+ 	}
  
-+	if (le16_to_cpu(attr->name_off) + attr->name_len > asize)
++	/* check for index header length */
++	if (offsetof(struct INDEX_BUFFER, ihdr) + ib->ihdr.used > bytes) {
++		err = -EINVAL;
 +		goto out;
++	}
 +
- 	switch (attr->type) {
- 	case ATTR_STD:
- 		if (attr->non_res ||
+ 	in->index = ib;
+ 	*node = in;
+ 
 -- 
 2.35.1
 
