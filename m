@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94DCD656ECE
-	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:34:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37025656EDF
+	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:35:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232224AbiL0UeS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Dec 2022 15:34:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37984 "EHLO
+        id S232023AbiL0Uf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Dec 2022 15:35:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230114AbiL0Udq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:33:46 -0500
+        with ESMTP id S232372AbiL0Udy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:33:54 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3E74DEC6;
-        Tue, 27 Dec 2022 12:33:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E0F4DE8E;
+        Tue, 27 Dec 2022 12:33:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D8A86B811F8;
-        Tue, 27 Dec 2022 20:33:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E1ADC433A0;
-        Tue, 27 Dec 2022 20:33:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0DD69B811F8;
+        Tue, 27 Dec 2022 20:33:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80428C433EF;
+        Tue, 27 Dec 2022 20:33:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672173211;
-        bh=h8V0wNLRTzMR6CwLsnCeF+if27/1odhhAs39sK6Of6M=;
+        s=k20201202; t=1672173218;
+        bh=w1m0A+D7VYsEtmMcIKkAH13aq+/9M4sOnL3xuTJdQyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=joqHUzPvR7+YfhqP3i0nPuEWfJ9bh9vnsITrwXXpl+lcxpBizo3hhtltxOE/jtt9c
-         vk0h8BzhKKPLhAZL0J8HOUJ4T01kSKO4EuGg3Ap/zQba7tSntZbmVOCXE2AMRpZfvQ
-         DhVlEG20dyO3ganCZN/gqZjvkJfxCCWMFTXCkama0drOQGqrws6hKORZ4PoVYL0q78
-         S+V0XcsTICpr4qvJFrjIBtEJcbDt6/0JmWZWza4P4QqKaaKKTcBh1arwLWuB184AKS
-         R/PYxTC3RtMhWjoeqwFW8geGkAoRc2qYtTCOwQqTxtk9Z+nTbPRK452A27RpPaz2Mh
-         hQZUe/1eBuZfA==
+        b=QhxtH1MTDv8L6B3qWRVnz27e1ZtJ+t+vlUj1+bPUZBB8aa63wRbqhr6tFCdK/oz1/
+         LmogeUOgcnUTGSM41MKg7H3wooUYndwtcDmFhDWJ6JSF2/HPJlw99H4k5KNv/dpuWR
+         nccxdbA2EtbeVWaOC89RUNaF45hUye8iRvQOG9ccdCe10vPGeD7bnZ9gFfLFWA3SlX
+         Na0brjmC/RNzJUmY4j+ZPhU02p2DGQKhbA5dgHdIOHkwTBi7li/gP+9OWSnLhQs0Ex
+         ivd+TFVckvMUgEops6jVActuWpZY+NXSVAz+lwpc95hovsEbE7zc87xJq1RuyrajLj
+         SuLonoE+yDyBw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     wuqiang <wuqiang.matt@bytedance.com>,
-        Solar Designer <solar@openwall.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, naveen.n.rao@linux.ibm.com,
-        anil.s.keshavamurthy@intel.com, davem@davemloft.net,
-        rostedt@goodmis.org, corbet@lwn.net, linux-doc@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 25/28] kprobes: kretprobe events missing on 2-core KVM guest
-Date:   Tue, 27 Dec 2022 15:32:46 -0500
-Message-Id: <20221227203249.1213526-25-sashal@kernel.org>
+Cc:     Marc Zyngier <maz@kernel.org>, Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, mpe@ellerman.id.au,
+        christophe.leroy@csgroup.eu, windhl@126.com, joel@jms.id.au,
+        Julia.Lawall@inria.fr, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 6.1 26/28] powerpc/msi: Fix deassociation of MSI descriptors
+Date:   Tue, 27 Dec 2022 15:32:47 -0500
+Message-Id: <20221227203249.1213526-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221227203249.1213526-1-sashal@kernel.org>
 References: <20221227203249.1213526-1-sashal@kernel.org>
@@ -58,78 +56,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: wuqiang <wuqiang.matt@bytedance.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 3b7ddab8a19aefc768f345fd3782af35b4a68d9b ]
+[ Upstream commit 4545c6a3d6ba71747eaa984c338ddd745e56e23f ]
 
-Default value of maxactive is set as num_possible_cpus() for nonpreemptable
-systems. For a 2-core system, only 2 kretprobe instances would be allocated
-in default, then these 2 instances for execve kretprobe are very likely to
-be used up with a pipelined command.
+Since 2f2940d16823 ("genirq/msi: Remove filter from
+msi_free_descs_free_range()"), the core MSI code relies on the
+msi_desc->irq field to have been cleared before the descriptor
+can be freed, as it indicates that there is no association with
+a device anymore.
 
-Here's the testcase: a shell script was added to crontab, and the content
-of the script is:
+The irq domain code provides this guarantee, and so does s390,
+which is one of the two architectures not using irq domains for
+MSIs.
 
-  #!/bin/sh
-  do_something_magic `tr -dc a-z < /dev/urandom | head -c 10`
+Powerpc, however, is missing this particular requirements,
+leading in a splat and leaked MSI descriptors.
 
-cron will trigger a series of program executions (4 times every hour). Then
-events loss would be noticed normally after 3-4 hours of testings.
+Adding the now required irq reset to the handful of powerpc backends
+that implement MSIs fixes that particular problem.
 
-The issue is caused by a burst of series of execve requests. The best number
-of kretprobe instances could be different case by case, and should be user's
-duty to determine, but num_possible_cpus() as the default value is inadequate
-especially for systems with small number of cpus.
-
-This patch enables the logic for preemption as default, thus increases the
-minimum of maxactive to 10 for nonpreemptable systems.
-
-Link: https://lore.kernel.org/all/20221110081502.492289-1-wuqiang.matt@bytedance.com/
-
-Signed-off-by: wuqiang <wuqiang.matt@bytedance.com>
-Reviewed-by: Solar Designer <solar@openwall.com>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/70dab88e-6119-0c12-7c6a-61bcbe239f66@roeck-us.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/trace/kprobes.rst | 3 +--
- kernel/kprobes.c                | 8 ++------
- 2 files changed, 3 insertions(+), 8 deletions(-)
+ arch/powerpc/platforms/4xx/hsta_msi.c  | 1 +
+ arch/powerpc/platforms/cell/axon_msi.c | 1 +
+ arch/powerpc/platforms/pasemi/msi.c    | 1 +
+ arch/powerpc/sysdev/fsl_msi.c          | 1 +
+ arch/powerpc/sysdev/mpic_u3msi.c       | 1 +
+ 5 files changed, 5 insertions(+)
 
-diff --git a/Documentation/trace/kprobes.rst b/Documentation/trace/kprobes.rst
-index 48cf778a2468..fc7ce76eab65 100644
---- a/Documentation/trace/kprobes.rst
-+++ b/Documentation/trace/kprobes.rst
-@@ -131,8 +131,7 @@ For example, if the function is non-recursive and is called with a
- spinlock held, maxactive = 1 should be enough.  If the function is
- non-recursive and can never relinquish the CPU (e.g., via a semaphore
- or preemption), NR_CPUS should be enough.  If maxactive <= 0, it is
--set to a default value.  If CONFIG_PREEMPT is enabled, the default
--is max(10, 2*NR_CPUS).  Otherwise, the default is NR_CPUS.
-+set to a default value: max(10, 2*NR_CPUS).
+diff --git a/arch/powerpc/platforms/4xx/hsta_msi.c b/arch/powerpc/platforms/4xx/hsta_msi.c
+index d4f7fff1fc87..e11b57a62b05 100644
+--- a/arch/powerpc/platforms/4xx/hsta_msi.c
++++ b/arch/powerpc/platforms/4xx/hsta_msi.c
+@@ -115,6 +115,7 @@ static void hsta_teardown_msi_irqs(struct pci_dev *dev)
+ 		msi_bitmap_free_hwirqs(&ppc4xx_hsta_msi.bmp, irq, 1);
+ 		pr_debug("%s: Teardown IRQ %u (index %u)\n", __func__,
+ 			 entry->irq, irq);
++		entry->irq = 0;
+ 	}
+ }
  
- It's not a disaster if you set maxactive too low; you'll just miss
- some probes.  In the kretprobe struct, the nmissed field is set to
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index 3050631e528d..95a456d3149e 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -2213,13 +2213,9 @@ int register_kretprobe(struct kretprobe *rp)
- 	rp->kp.post_handler = NULL;
+diff --git a/arch/powerpc/platforms/cell/axon_msi.c b/arch/powerpc/platforms/cell/axon_msi.c
+index 5b012abca773..0c11aad896c7 100644
+--- a/arch/powerpc/platforms/cell/axon_msi.c
++++ b/arch/powerpc/platforms/cell/axon_msi.c
+@@ -289,6 +289,7 @@ static void axon_msi_teardown_msi_irqs(struct pci_dev *dev)
+ 	msi_for_each_desc(entry, &dev->dev, MSI_DESC_ASSOCIATED) {
+ 		irq_set_msi_desc(entry->irq, NULL);
+ 		irq_dispose_mapping(entry->irq);
++		entry->irq = 0;
+ 	}
+ }
  
- 	/* Pre-allocate memory for max kretprobe instances */
--	if (rp->maxactive <= 0) {
--#ifdef CONFIG_PREEMPTION
-+	if (rp->maxactive <= 0)
- 		rp->maxactive = max_t(unsigned int, 10, 2*num_possible_cpus());
--#else
--		rp->maxactive = num_possible_cpus();
--#endif
--	}
-+
- #ifdef CONFIG_KRETPROBE_ON_RETHOOK
- 	rp->rh = rethook_alloc((void *)rp, kretprobe_rethook_handler);
- 	if (!rp->rh)
+diff --git a/arch/powerpc/platforms/pasemi/msi.c b/arch/powerpc/platforms/pasemi/msi.c
+index dc1846660005..166c97fff16d 100644
+--- a/arch/powerpc/platforms/pasemi/msi.c
++++ b/arch/powerpc/platforms/pasemi/msi.c
+@@ -66,6 +66,7 @@ static void pasemi_msi_teardown_msi_irqs(struct pci_dev *pdev)
+ 		hwirq = virq_to_hw(entry->irq);
+ 		irq_set_msi_desc(entry->irq, NULL);
+ 		irq_dispose_mapping(entry->irq);
++		entry->irq = 0;
+ 		msi_bitmap_free_hwirqs(&msi_mpic->msi_bitmap, hwirq, ALLOC_CHUNK);
+ 	}
+ }
+diff --git a/arch/powerpc/sysdev/fsl_msi.c b/arch/powerpc/sysdev/fsl_msi.c
+index 73c2d70706c0..57978a44d55b 100644
+--- a/arch/powerpc/sysdev/fsl_msi.c
++++ b/arch/powerpc/sysdev/fsl_msi.c
+@@ -132,6 +132,7 @@ static void fsl_teardown_msi_irqs(struct pci_dev *pdev)
+ 		msi_data = irq_get_chip_data(entry->irq);
+ 		irq_set_msi_desc(entry->irq, NULL);
+ 		irq_dispose_mapping(entry->irq);
++		entry->irq = 0;
+ 		msi_bitmap_free_hwirqs(&msi_data->bitmap, hwirq, 1);
+ 	}
+ }
+diff --git a/arch/powerpc/sysdev/mpic_u3msi.c b/arch/powerpc/sysdev/mpic_u3msi.c
+index 1d8cfdfdf115..492cb03c0b62 100644
+--- a/arch/powerpc/sysdev/mpic_u3msi.c
++++ b/arch/powerpc/sysdev/mpic_u3msi.c
+@@ -108,6 +108,7 @@ static void u3msi_teardown_msi_irqs(struct pci_dev *pdev)
+ 		hwirq = virq_to_hw(entry->irq);
+ 		irq_set_msi_desc(entry->irq, NULL);
+ 		irq_dispose_mapping(entry->irq);
++		entry->irq = 0;
+ 		msi_bitmap_free_hwirqs(&msi_mpic->msi_bitmap, hwirq, 1);
+ 	}
+ }
 -- 
 2.35.1
 
