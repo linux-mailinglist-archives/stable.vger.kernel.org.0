@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0CD7656F32
-	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:40:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B93C2656F27
+	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:39:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232758AbiL0Ujk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Dec 2022 15:39:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49102 "EHLO
+        id S232718AbiL0UjW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Dec 2022 15:39:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232756AbiL0Uir (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:38:47 -0500
+        with ESMTP id S232738AbiL0Uin (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:38:43 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CD53DEAF;
-        Tue, 27 Dec 2022 12:34:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B6B4DE91;
+        Tue, 27 Dec 2022 12:34:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD29CB81203;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1B4CBB811FC;
+        Tue, 27 Dec 2022 20:34:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BAF3C433D2;
         Tue, 27 Dec 2022 20:34:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB528C433F2;
-        Tue, 27 Dec 2022 20:34:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672173285;
-        bh=OsWpM7VMqAeoAF4eCneiyqb1FOaCm6d8gpiZhGJ7kpI=;
+        s=k20201202; t=1672173286;
+        bh=zp9hBJ4Hep3iwBhTIDpziJKNFI9Nbe8EI9NLNmjLiFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=neJDhL3GVgHZlQTYR81+M1dZ/pZ15oi68xwcZrJKQut76dG7VyPGVW5mfMLn3MxGq
-         T6wCrv+sfbM9hkjS4mQStvsUCuWjKkzGX6sckW9yQYv8DqOSnP+M6oMuHmMysloUCy
-         3Nyym0Vb9uEvl/VihHhB0V49OGs8HRn0Z4g522+UzeE+xp122m3E07W5xuwjLdV+Ql
-         QuWFeEG2Qu+/yPBuoOwm68Zy7ZUdQyT8AJ8EQaB0I+ooWC4UStVjJpnn8JXUJUBmx8
-         jIH1h1khpPidd9rZ/TpLkDlJyf5HX/CO5fdIzTRIsMlZbxDq0BY/ITkZptMChZ52qM
-         T7hV3jq4XhEbg==
+        b=kgUq244yjubUM3PkiRexAQssSA8+xX1soA7wd2qL9+rPcoF3zz5PnnY86qL4fqIkx
+         PCISTk5uCaEFgWYqY0m5ELUMCqkBRiewrv4lRPotN8/o38QzDhUYWZI9Idc7ttNDci
+         U2cRQqkrk9QF9Y62erjka2gd2lgQy1F5PcliyFVcTEjEEvsa3TRFLnSdsyspDB/uR6
+         Mz3Xqh8FHc9yYnRg5JstCQexR5Wfv01qs9js7i92aSsIigs2GJyrs5MVReeebRf7n2
+         ddxn959RKjselC9sSvQRnTH0HmgpPIyP2+fdw3UNeuBOlAuQIvNIyrXwLh33ZNklZE
+         apmoiwSh8UXbQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Edward Lo <edward.lo@ambergroup.io>,
+Cc:     Hawkins Jiawei <yin31149@gmail.com>,
+        syzbot+8d6fbb27a6aded64b25b@syzkaller.appspotmail.com,
         Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
-        Sasha Levin <sashal@kernel.org>, ntfs3@lists.linux.dev,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 09/22] fs/ntfs3: Validate resident attribute name
-Date:   Tue, 27 Dec 2022 15:34:19 -0500
-Message-Id: <20221227203433.1214255-9-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, ntfs3@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.15 10/22] fs/ntfs3: Fix slab-out-of-bounds read in run_unpack
+Date:   Tue, 27 Dec 2022 15:34:20 -0500
+Message-Id: <20221227203433.1214255-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221227203433.1214255-1-sashal@kernel.org>
 References: <20221227203433.1214255-1-sashal@kernel.org>
@@ -56,171 +56,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edward Lo <edward.lo@ambergroup.io>
+From: Hawkins Jiawei <yin31149@gmail.com>
 
-[ Upstream commit 54e45702b648b7c0000e90b3e9b890e367e16ea8 ]
+[ Upstream commit 887bfc546097fbe8071dac13b2fef73b77920899 ]
 
-Though we already have some sanity checks while enumerating attributes,
-resident attribute names aren't included. This patch checks the resident
-attribute names are in the valid ranges.
+Syzkaller reports slab-out-of-bounds bug as follows:
+==================================================================
+BUG: KASAN: slab-out-of-bounds in run_unpack+0x8b7/0x970 fs/ntfs3/run.c:944
+Read of size 1 at addr ffff88801bbdff02 by task syz-executor131/3611
 
-[  259.209031] BUG: KASAN: slab-out-of-bounds in ni_create_attr_list+0x1e1/0x850
-[  259.210770] Write of size 426 at addr ffff88800632f2b2 by task exp/255
-[  259.211551]
-[  259.212035] CPU: 0 PID: 255 Comm: exp Not tainted 6.0.0-rc6 #37
-[  259.212955] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-[  259.214387] Call Trace:
-[  259.214640]  <TASK>
-[  259.214895]  dump_stack_lvl+0x49/0x63
-[  259.215284]  print_report.cold+0xf5/0x689
-[  259.215565]  ? kasan_poison+0x3c/0x50
-[  259.215778]  ? kasan_unpoison+0x28/0x60
-[  259.215991]  ? ni_create_attr_list+0x1e1/0x850
-[  259.216270]  kasan_report+0xa7/0x130
-[  259.216481]  ? ni_create_attr_list+0x1e1/0x850
-[  259.216719]  kasan_check_range+0x15a/0x1d0
-[  259.216939]  memcpy+0x3c/0x70
-[  259.217136]  ni_create_attr_list+0x1e1/0x850
-[  259.217945]  ? __rcu_read_unlock+0x5b/0x280
-[  259.218384]  ? ni_remove_attr+0x2e0/0x2e0
-[  259.218712]  ? kernel_text_address+0xcf/0xe0
-[  259.219064]  ? __kernel_text_address+0x12/0x40
-[  259.219434]  ? arch_stack_walk+0x9e/0xf0
-[  259.219668]  ? __this_cpu_preempt_check+0x13/0x20
-[  259.219904]  ? sysvec_apic_timer_interrupt+0x57/0xc0
-[  259.220140]  ? asm_sysvec_apic_timer_interrupt+0x1b/0x20
-[  259.220561]  ni_ins_attr_ext+0x52c/0x5c0
-[  259.220984]  ? ni_create_attr_list+0x850/0x850
-[  259.221532]  ? run_deallocate+0x120/0x120
-[  259.221972]  ? vfs_setxattr+0x128/0x300
-[  259.222688]  ? setxattr+0x126/0x140
-[  259.222921]  ? path_setxattr+0x164/0x180
-[  259.223431]  ? __x64_sys_setxattr+0x6d/0x80
-[  259.223828]  ? entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[  259.224417]  ? mi_find_attr+0x3c/0xf0
-[  259.224772]  ni_insert_attr+0x1ba/0x420
-[  259.225216]  ? ni_ins_attr_ext+0x5c0/0x5c0
-[  259.225504]  ? ntfs_read_ea+0x119/0x450
-[  259.225775]  ni_insert_resident+0xc0/0x1c0
-[  259.226316]  ? ni_insert_nonresident+0x400/0x400
-[  259.227001]  ? __kasan_kmalloc+0x88/0xb0
-[  259.227468]  ? __kmalloc+0x192/0x320
-[  259.227773]  ntfs_set_ea+0x6bf/0xb30
-[  259.228216]  ? ftrace_graph_ret_addr+0x2a/0xb0
-[  259.228494]  ? entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[  259.228838]  ? ntfs_read_ea+0x450/0x450
-[  259.229098]  ? is_bpf_text_address+0x24/0x40
-[  259.229418]  ? kernel_text_address+0xcf/0xe0
-[  259.229681]  ? __kernel_text_address+0x12/0x40
-[  259.229948]  ? unwind_get_return_address+0x3a/0x60
-[  259.230271]  ? write_profile+0x270/0x270
-[  259.230537]  ? arch_stack_walk+0x9e/0xf0
-[  259.230836]  ntfs_setxattr+0x114/0x5c0
-[  259.231099]  ? ntfs_set_acl_ex+0x2e0/0x2e0
-[  259.231529]  ? evm_protected_xattr_common+0x6d/0x100
-[  259.231817]  ? posix_xattr_acl+0x13/0x80
-[  259.232073]  ? evm_protect_xattr+0x1f7/0x440
-[  259.232351]  __vfs_setxattr+0xda/0x120
-[  259.232635]  ? xattr_resolve_name+0x180/0x180
-[  259.232912]  __vfs_setxattr_noperm+0x93/0x300
-[  259.233219]  __vfs_setxattr_locked+0x141/0x160
-[  259.233492]  ? kasan_poison+0x3c/0x50
-[  259.233744]  vfs_setxattr+0x128/0x300
-[  259.234002]  ? __vfs_setxattr_locked+0x160/0x160
-[  259.234837]  do_setxattr+0xb8/0x170
-[  259.235567]  ? vmemdup_user+0x53/0x90
-[  259.236212]  setxattr+0x126/0x140
-[  259.236491]  ? do_setxattr+0x170/0x170
-[  259.236791]  ? debug_smp_processor_id+0x17/0x20
-[  259.237232]  ? kasan_quarantine_put+0x57/0x180
-[  259.237605]  ? putname+0x80/0xa0
-[  259.237870]  ? __kasan_slab_free+0x11c/0x1b0
-[  259.238234]  ? putname+0x80/0xa0
-[  259.238500]  ? preempt_count_sub+0x18/0xc0
-[  259.238775]  ? __mnt_want_write+0xaa/0x100
-[  259.238990]  ? mnt_want_write+0x8b/0x150
-[  259.239290]  path_setxattr+0x164/0x180
-[  259.239605]  ? setxattr+0x140/0x140
-[  259.239849]  ? debug_smp_processor_id+0x17/0x20
-[  259.240174]  ? fpregs_assert_state_consistent+0x67/0x80
-[  259.240411]  __x64_sys_setxattr+0x6d/0x80
-[  259.240715]  do_syscall_64+0x3b/0x90
-[  259.240934]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[  259.241697] RIP: 0033:0x7fc6b26e4469
-[  259.242647] Code: 00 f3 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 088
-[  259.244512] RSP: 002b:00007ffc3c7841f8 EFLAGS: 00000217 ORIG_RAX: 00000000000000bc
-[  259.245086] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fc6b26e4469
-[  259.246025] RDX: 00007ffc3c784380 RSI: 00007ffc3c7842e0 RDI: 00007ffc3c784238
-[  259.246961] RBP: 00007ffc3c788410 R08: 0000000000000001 R09: 00007ffc3c7884f8
-[  259.247775] R10: 000000000000007f R11: 0000000000000217 R12: 00000000004004e0
-[  259.248534] R13: 00007ffc3c7884f0 R14: 0000000000000000 R15: 0000000000000000
-[  259.249368]  </TASK>
-[  259.249644]
-[  259.249888] Allocated by task 255:
-[  259.250283]  kasan_save_stack+0x26/0x50
-[  259.250957]  __kasan_kmalloc+0x88/0xb0
-[  259.251826]  __kmalloc+0x192/0x320
-[  259.252745]  ni_create_attr_list+0x11e/0x850
-[  259.253298]  ni_ins_attr_ext+0x52c/0x5c0
-[  259.253685]  ni_insert_attr+0x1ba/0x420
-[  259.253974]  ni_insert_resident+0xc0/0x1c0
-[  259.254311]  ntfs_set_ea+0x6bf/0xb30
-[  259.254629]  ntfs_setxattr+0x114/0x5c0
-[  259.254859]  __vfs_setxattr+0xda/0x120
-[  259.255155]  __vfs_setxattr_noperm+0x93/0x300
-[  259.255445]  __vfs_setxattr_locked+0x141/0x160
-[  259.255862]  vfs_setxattr+0x128/0x300
-[  259.256251]  do_setxattr+0xb8/0x170
-[  259.256522]  setxattr+0x126/0x140
-[  259.256911]  path_setxattr+0x164/0x180
-[  259.257308]  __x64_sys_setxattr+0x6d/0x80
-[  259.257637]  do_syscall_64+0x3b/0x90
-[  259.257970]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[  259.258550]
-[  259.258772] The buggy address belongs to the object at ffff88800632f000
-[  259.258772]  which belongs to the cache kmalloc-1k of size 1024
-[  259.260190] The buggy address is located 690 bytes inside of
-[  259.260190]  1024-byte region [ffff88800632f000, ffff88800632f400)
-[  259.261412]
-[  259.261743] The buggy address belongs to the physical page:
-[  259.262354] page:0000000081e8cac9 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x632c
-[  259.263722] head:0000000081e8cac9 order:2 compound_mapcount:0 compound_pincount:0
-[  259.264284] flags: 0xfffffc0010200(slab|head|node=0|zone=1|lastcpupid=0x1fffff)
-[  259.265312] raw: 000fffffc0010200 ffffea0000060d00 dead000000000004 ffff888001041dc0
-[  259.265772] raw: 0000000000000000 0000000080080008 00000001ffffffff 0000000000000000
-[  259.266305] page dumped because: kasan: bad access detected
-[  259.266588]
-[  259.266728] Memory state around the buggy address:
-[  259.267225]  ffff88800632f300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[  259.267841]  ffff88800632f380: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[  259.269111] >ffff88800632f400: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[  259.269626]                    ^
-[  259.270162]  ffff88800632f480: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[  259.270810]  ffff88800632f500: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[...]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+ print_address_description mm/kasan/report.c:317 [inline]
+ print_report.cold+0x2ba/0x719 mm/kasan/report.c:433
+ kasan_report+0xb1/0x1e0 mm/kasan/report.c:495
+ run_unpack+0x8b7/0x970 fs/ntfs3/run.c:944
+ run_unpack_ex+0xb0/0x7c0 fs/ntfs3/run.c:1057
+ ntfs_read_mft fs/ntfs3/inode.c:368 [inline]
+ ntfs_iget5+0xc20/0x3280 fs/ntfs3/inode.c:501
+ ntfs_loadlog_and_replay+0x124/0x5d0 fs/ntfs3/fsntfs.c:272
+ ntfs_fill_super+0x1eff/0x37f0 fs/ntfs3/super.c:1018
+ get_tree_bdev+0x440/0x760 fs/super.c:1323
+ vfs_get_tree+0x89/0x2f0 fs/super.c:1530
+ do_new_mount fs/namespace.c:3040 [inline]
+ path_mount+0x1326/0x1e20 fs/namespace.c:3370
+ do_mount fs/namespace.c:3383 [inline]
+ __do_sys_mount fs/namespace.c:3591 [inline]
+ __se_sys_mount fs/namespace.c:3568 [inline]
+ __x64_sys_mount+0x27f/0x300 fs/namespace.c:3568
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ [...]
+ </TASK>
 
-Signed-off-by: Edward Lo <edward.lo@ambergroup.io>
+The buggy address belongs to the physical page:
+page:ffffea00006ef600 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x1bbd8
+head:ffffea00006ef600 order:3 compound_mapcount:0 compound_pincount:0
+flags: 0xfff00000010200(slab|head|node=0|zone=1|lastcpupid=0x7ff)
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff88801bbdfe00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88801bbdfe80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88801bbdff00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+                   ^
+ ffff88801bbdff80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88801bbe0000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+==================================================================
+
+Kernel will tries to read record and parse MFT from disk in
+ntfs_read_mft().
+
+Yet the problem is that during enumerating attributes in record,
+kernel doesn't check whether run_off field loading from the disk
+is a valid value.
+
+To be more specific, if attr->nres.run_off is larger than attr->size,
+kernel will passes an invalid argument run_buf_size in
+run_unpack_ex(), which having an integer overflow. Then this invalid
+argument will triggers the slab-out-of-bounds Read bug as above.
+
+This patch solves it by adding the sanity check between
+the offset to packed runs and attribute size.
+
+link: https://lore.kernel.org/all/0000000000009145fc05e94bd5c3@google.com/#t
+Reported-and-tested-by: syzbot+8d6fbb27a6aded64b25b@syzkaller.appspotmail.com
+Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
 Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/record.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/ntfs3/inode.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/fs/ntfs3/record.c b/fs/ntfs3/record.c
-index 30751fd618df..fd342da398be 100644
---- a/fs/ntfs3/record.c
-+++ b/fs/ntfs3/record.c
-@@ -265,6 +265,11 @@ struct ATTRIB *mi_enum_attr(struct mft_inode *mi, struct ATTRIB *attr)
- 		if (t16 + t32 > asize)
- 			return NULL;
- 
-+		if (attr->name_len &&
-+		    le16_to_cpu(attr->name_off) + sizeof(short) * attr->name_len > t16) {
-+			return NULL;
-+		}
-+
- 		return attr;
+diff --git a/fs/ntfs3/inode.c b/fs/ntfs3/inode.c
+index 66afa3db753a..00fd368e7b4a 100644
+--- a/fs/ntfs3/inode.c
++++ b/fs/ntfs3/inode.c
+@@ -373,6 +373,13 @@ static struct inode *ntfs_read_mft(struct inode *inode,
  	}
  
+ 	t64 = le64_to_cpu(attr->nres.svcn);
++
++	/* offset to packed runs is out-of-bounds */
++	if (roff > asize) {
++		err = -EINVAL;
++		goto out;
++	}
++
+ 	err = run_unpack_ex(run, sbi, ino, t64, le64_to_cpu(attr->nres.evcn),
+ 			    t64, Add2Ptr(attr, roff), asize - roff);
+ 	if (err < 0)
 -- 
 2.35.1
 
