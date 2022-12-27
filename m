@@ -2,49 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DBC7656F1A
-	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:39:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B775656F1D
+	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:39:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232475AbiL0UjM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Dec 2022 15:39:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48088 "EHLO
+        id S232568AbiL0UjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Dec 2022 15:39:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232526AbiL0Ui0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:38:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41C57E0A7;
-        Tue, 27 Dec 2022 12:34:37 -0800 (PST)
+        with ESMTP id S232238AbiL0Uig (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:38:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62068E09F;
+        Tue, 27 Dec 2022 12:34:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D75F61242;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 898A7B81200;
+        Tue, 27 Dec 2022 20:34:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57816C433F1;
         Tue, 27 Dec 2022 20:34:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDD07C433F2;
-        Tue, 27 Dec 2022 20:34:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672173270;
-        bh=AbnPlA2rxyD6/fEDBrUH2gyFaqCrUGv4i5hDuU+QrME=;
+        s=k20201202; t=1672173272;
+        bh=HcNlw0sV985CkL9RCLbDX+ViHmJfJ7nheAEoEtu/r8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HKuCfSsIZF5afqAYEVMh3GK32fCG26J+0qQoEco4/oGsgt5QJ9lkd6+/6A71pFrE9
-         s1o3jR42lkZPliadWs8gBe9g5LCVHWDpJxqwa89H78y9dZNxPsrVN4OoaMG+AkK7d/
-         26CGO0Z/eSnDVqW/pE/S1hZH6gjtZtGGm/E1ruGAlyfJig8bAAO+zSD3ay1VfZ+1a/
-         NnESyNHDLfTbTDap50v8CmbzQGFrJBAAXDJHxNeFIPBSxPY4NhizRl0m2Vc+4LIf8v
-         t+3jkbZ0vAJzBvSDIQtO3COkKZ8KYj6ozAmm63TAeGYLP+nGXLZWjlP46TyotsAWHY
-         ziArlarR5fusw==
+        b=NTgBGtVp7ypqpm2gpQ9zWJZsZe3Z/CkgWvFplwKV99FuFHfPE18CpaV0yYBdbQIn2
+         1t+YmUJyoBlw4hTA3TUt8nkn4JkSJV15/9hSbwidCtXGNtePF8t9V28ffi1ozKkKdd
+         1ORgMhcDHiuiP6Iq1zqhJlFrg9ZBEosz/neGvC/JiA5EkokE++fkG4jzYXi1qoEz60
+         i+UYN6k+p3c9IACw9zeEGvfQ2tI35TH4zhsJFQGC1mteyNdaJ5/znfPuMkIO7EWWFb
+         pAGxj1Xh3HEEE57PlIC2orbj7gjzE+gofXqYZeVskZG59C9PEdR2aCtS4ayPiSF12d
+         bgD3fVOghMNmA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Akito <the@akito.ooo>, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
-        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 26/27] HID: multitouch: fix Asus ExpertBook P2 P2451FA trackpoint
-Date:   Tue, 27 Dec 2022 15:33:41 -0500
-Message-Id: <20221227203342.1213918-26-sashal@kernel.org>
+Cc:     Terry Junge <linuxhid@cosmicgizmosystems.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        jikos@kernel.org, benjamin.tissoires@redhat.com,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 27/27] HID: plantronics: Additional PIDs for double volume key presses quirk
+Date:   Tue, 27 Dec 2022 15:33:42 -0500
+Message-Id: <20221227203342.1213918-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221227203342.1213918-1-sashal@kernel.org>
 References: <20221227203342.1213918-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -57,48 +56,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Terry Junge <linuxhid@cosmicgizmosystems.com>
 
-[ Upstream commit 4eab1c2fe06c98a4dff258dd64800b6986c101e9 ]
+[ Upstream commit 3d57f36c89d8ba32b2c312f397a37fd1a2dc7cfc ]
 
-The HID descriptor of this device contains two mouse collections, one
-for mouse emulation and the other for the trackpoint.
+I no longer work for Plantronics (aka Poly, aka HP) and do not have
+access to the headsets in order to test. However, as noted by Maxim,
+the other 32xx models that share the same base code set as the 3220
+would need the same quirk. This patch adds the PIDs for the rest of
+the Blackwire 32XX product family that require the quirk.
 
-Both collections get merged and, because the first one defines X and Y,
-the movemenent events reported by the trackpoint collection are
-ignored.
+Plantronics Blackwire 3210 Series (047f:c055)
+Plantronics Blackwire 3215 Series (047f:c057)
+Plantronics Blackwire 3225 Series (047f:c058)
 
-Set the MT_CLS_WIN_8_FORCE_MULTI_INPUT class for this device to be able
-to receive its reports.
+Quote from previous patch by Maxim Mikityanskiy
+Plantronics Blackwire 3220 Series (047f:c056) sends HID reports twice
+for each volume key press. This patch adds a quirk to hid-plantronics
+for this product ID, which will ignore the second volume key press if
+it happens within 5 ms from the last one that was handled.
 
-This fix is similar to/based on commit 40d5bb87377a ("HID: multitouch:
-enable multi-input as a quirk for some devices").
+The patch was tested on the mentioned model only, it shouldn't affect
+other models, however, this quirk might be needed for them too.
+Auto-repeat (when a key is held pressed) is not affected, because the
+rate is about 3 times per second, which is far less frequent than once
+in 5 ms.
+End quote
 
-Link: https://gitlab.freedesktop.org/libinput/libinput/-/issues/825
-Reported-by: Akito <the@akito.ooo>
-Tested-by: Akito <the@akito.ooo>
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Signed-off-by: Terry Junge <linuxhid@cosmicgizmosystems.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-multitouch.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/hid/hid-ids.h         | 3 +++
+ drivers/hid/hid-plantronics.c | 9 +++++++++
+ 2 files changed, 12 insertions(+)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 91a4d3fc30e0..372cbdd223e0 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1967,6 +1967,10 @@ static const struct hid_device_id mt_devices[] = {
- 		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
- 			USB_VENDOR_ID_ELAN, 0x313a) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 86e754b9400f..5680543e97fd 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -995,7 +995,10 @@
+ #define USB_DEVICE_ID_ORTEK_IHOME_IMAC_A210S	0x8003
  
-+	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
-+		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
-+			USB_VENDOR_ID_ELAN, 0x3148) },
-+
- 	/* Elitegroup panel */
- 	{ .driver_data = MT_CLS_SERIAL,
- 		MT_USB_DEVICE(USB_VENDOR_ID_ELITEGROUP,
+ #define USB_VENDOR_ID_PLANTRONICS	0x047f
++#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3210_SERIES	0xc055
+ #define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES	0xc056
++#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3215_SERIES	0xc057
++#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3225_SERIES	0xc058
+ 
+ #define USB_VENDOR_ID_PANASONIC		0x04da
+ #define USB_DEVICE_ID_PANABOARD_UBT780	0x1044
+diff --git a/drivers/hid/hid-plantronics.c b/drivers/hid/hid-plantronics.c
+index e81b7cec2d12..3d414ae194ac 100644
+--- a/drivers/hid/hid-plantronics.c
++++ b/drivers/hid/hid-plantronics.c
+@@ -198,9 +198,18 @@ static int plantronics_probe(struct hid_device *hdev,
+ }
+ 
+ static const struct hid_device_id plantronics_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
++					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3210_SERIES),
++		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
+ 					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES),
+ 		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
++					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3215_SERIES),
++		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
++					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3225_SERIES),
++		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS, HID_ANY_ID) },
+ 	{ }
+ };
 -- 
 2.35.1
 
