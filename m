@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B892656F34
-	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:40:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DFCC656F36
+	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:40:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232176AbiL0Ujl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Dec 2022 15:39:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49116 "EHLO
+        id S232238AbiL0Ujn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Dec 2022 15:39:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232760AbiL0Uis (ORCPT
+        with ESMTP id S232761AbiL0Uis (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:38:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 177BDE0EE;
-        Tue, 27 Dec 2022 12:34:59 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 482A5E0F2;
+        Tue, 27 Dec 2022 12:35:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 76EAE61245;
-        Tue, 27 Dec 2022 20:34:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 243FAC433EF;
-        Tue, 27 Dec 2022 20:34:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF9E2B81205;
+        Tue, 27 Dec 2022 20:34:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2A42C433F0;
+        Tue, 27 Dec 2022 20:34:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672173294;
-        bh=KB6jqn8qsIcdbhOJCjkqiFPAQA6Jfudm4TH68sK+m7g=;
+        s=k20201202; t=1672173297;
+        bh=3I7fmxbm/cx2u+JTRWhC6nJXk8u2W3w/nJcKD/U/wwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ToVfKN+wBn0tzlqoU0z1P9s2tNbmimCbuM5lGuKAcKc9gonvjXUyfu62jvTS64wzQ
-         bSowN1CSZqpBa0TG3bBIlgh5rJYPVVu5tqEZHwDnE274lSz/3qTMZN+Rk1zTLgXcq3
-         6AzX1j/zPBEbL3oSzGm9PwtRwhX/uQJDjRz5Ph1Ed/FkiU0INNAlubM7YEVKif5KLL
-         wx23csvRpERHkk4o7nYIp0N5ukOZOzXlDGtRKNRqcMANO8mUbLg8lUGhsLjVT8yDf6
-         MvBkfoRXf2C8EZZfYNaiPN3NMI4dcOdF3dLxAYHDpR0c7Qu5cINS6hsl6ld9P8aWuS
-         xHAUDzQ9rcreA==
+        b=U8Ij+Iv2d1nIBFxngjdtubnI+2ejXwv7yCQX7m/8fP6NWVdzs2ZukBXzey7M8vy5u
+         +UIHW16y5sxqkjdzq4NzRo9+4XS0gBSmG7CFKpxcXhg1cvFO+iJ0FTb3ZHtLO0R5xZ
+         mdvKEMR1MHou6ER5EU0LQ4CLE2RZKYn3JFhxl+k/XxBemd+3nIQsapfpiuU/54ciiM
+         +nPWNDhHQsvEMRVwWiaHYL0rcj6QTI8Z0Qk0Pgo6i4+PjFiSTtgOW432VBPr7WQsdQ
+         hILmdeLNr7GfX0t2LEjr0OGMyCVzdztHAyk5FCC6yH0vO1tuE6F9yMBcBIZg5MP444
+         +ZlGrkHwfuA7A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "Naveen N . Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
+Cc:     Nathan Lynch <nathanl@linux.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.15 17/22] objtool: Fix SEGFAULT
-Date:   Tue, 27 Dec 2022 15:34:27 -0500
-Message-Id: <20221227203433.1214255-17-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, ldufour@linux.ibm.com,
+        paulus@ozlabs.org, sourabhjain@linux.ibm.com,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.15 18/22] powerpc/rtas: avoid device tree lookups in rtas_os_term()
+Date:   Tue, 27 Dec 2022 15:34:28 -0500
+Message-Id: <20221227203433.1214255-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221227203433.1214255-1-sashal@kernel.org>
 References: <20221227203433.1214255-1-sashal@kernel.org>
@@ -58,38 +59,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Nathan Lynch <nathanl@linux.ibm.com>
 
-[ Upstream commit efb11fdb3e1a9f694fa12b70b21e69e55ec59c36 ]
+[ Upstream commit ed2213bfb192ab51f09f12e9b49b5d482c6493f3 ]
 
-find_insn() will return NULL in case of failure. Check insn in order
-to avoid a kernel Oops for NULL pointer dereference.
+rtas_os_term() is called during panic. Its behavior depends on a couple
+of conditions in the /rtas node of the device tree, the traversal of
+which entails locking and local IRQ state changes. If the kernel panics
+while devtree_lock is held, rtas_os_term() as currently written could
+hang.
 
-Tested-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Reviewed-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Acked-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Instead of discovering the relevant characteristics at panic time,
+cache them in file-static variables at boot. Note the lookup for
+"ibm,extended-os-term" is converted to of_property_read_bool() since it
+is a boolean property, not an RTAS function token.
+
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
+[mpe: Incorporate suggested change from Nick]
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20221114175754.1131267-9-sv@linux.ibm.com
+Link: https://lore.kernel.org/r/20221118150751.469393-4-nathanl@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/check.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/kernel/rtas.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 72e5d23f1ad8..e27c73295c41 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -197,7 +197,7 @@ static bool __dead_end_function(struct objtool_file *file, struct symbol *func,
- 		return false;
+diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
+index 7834ce3aa7f1..4d8de49c9d4b 100644
+--- a/arch/powerpc/kernel/rtas.c
++++ b/arch/powerpc/kernel/rtas.c
+@@ -788,6 +788,7 @@ void __noreturn rtas_halt(void)
  
- 	insn = find_insn(file, func->sec, func->offset);
--	if (!insn->func)
-+	if (!insn || !insn->func)
- 		return false;
+ /* Must be in the RMO region, so we place it here */
+ static char rtas_os_term_buf[2048];
++static s32 ibm_os_term_token = RTAS_UNKNOWN_SERVICE;
  
- 	func_for_each_insn(file, func, insn) {
+ void rtas_os_term(char *str)
+ {
+@@ -799,14 +800,13 @@ void rtas_os_term(char *str)
+ 	 * this property may terminate the partition which we want to avoid
+ 	 * since it interferes with panic_timeout.
+ 	 */
+-	if (RTAS_UNKNOWN_SERVICE == rtas_token("ibm,os-term") ||
+-	    RTAS_UNKNOWN_SERVICE == rtas_token("ibm,extended-os-term"))
++	if (ibm_os_term_token == RTAS_UNKNOWN_SERVICE)
+ 		return;
+ 
+ 	snprintf(rtas_os_term_buf, 2048, "OS panic: %s", str);
+ 
+ 	do {
+-		status = rtas_call(rtas_token("ibm,os-term"), 1, 1, NULL,
++		status = rtas_call(ibm_os_term_token, 1, 1, NULL,
+ 				   __pa(rtas_os_term_buf));
+ 	} while (rtas_busy_delay(status));
+ 
+@@ -1167,6 +1167,13 @@ void __init rtas_initialize(void)
+ 	no_entry = of_property_read_u32(rtas.dev, "linux,rtas-entry", &entry);
+ 	rtas.entry = no_entry ? rtas.base : entry;
+ 
++	/*
++	 * Discover these now to avoid device tree lookups in the
++	 * panic path.
++	 */
++	if (of_property_read_bool(rtas.dev, "ibm,extended-os-term"))
++		ibm_os_term_token = rtas_token("ibm,os-term");
++
+ 	/* If RTAS was found, allocate the RMO buffer for it and look for
+ 	 * the stop-self token if any
+ 	 */
 -- 
 2.35.1
 
