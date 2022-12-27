@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DFCC656F36
-	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:40:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A92E8656F2F
+	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:40:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232238AbiL0Ujn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Dec 2022 15:39:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49134 "EHLO
+        id S232902AbiL0Ujj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Dec 2022 15:39:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232761AbiL0Uis (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:38:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 482A5E0F2;
-        Tue, 27 Dec 2022 12:35:00 -0800 (PST)
+        with ESMTP id S232752AbiL0Uir (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:38:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DE69E09D;
+        Tue, 27 Dec 2022 12:35:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EF9E2B81205;
-        Tue, 27 Dec 2022 20:34:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2A42C433F0;
-        Tue, 27 Dec 2022 20:34:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2A2CB8120C;
+        Tue, 27 Dec 2022 20:35:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 641D8C433F0;
+        Tue, 27 Dec 2022 20:34:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672173297;
-        bh=3I7fmxbm/cx2u+JTRWhC6nJXk8u2W3w/nJcKD/U/wwU=;
+        s=k20201202; t=1672173300;
+        bh=KnDS1BVOknLNuoQGhao08i9PIKGQwdQu69r5olA8MEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U8Ij+Iv2d1nIBFxngjdtubnI+2ejXwv7yCQX7m/8fP6NWVdzs2ZukBXzey7M8vy5u
-         +UIHW16y5sxqkjdzq4NzRo9+4XS0gBSmG7CFKpxcXhg1cvFO+iJ0FTb3ZHtLO0R5xZ
-         mdvKEMR1MHou6ER5EU0LQ4CLE2RZKYn3JFhxl+k/XxBemd+3nIQsapfpiuU/54ciiM
-         +nPWNDhHQsvEMRVwWiaHYL0rcj6QTI8Z0Qk0Pgo6i4+PjFiSTtgOW432VBPr7WQsdQ
-         hILmdeLNr7GfX0t2LEjr0OGMyCVzdztHAyk5FCC6yH0vO1tuE6F9yMBcBIZg5MP444
-         +ZlGrkHwfuA7A==
+        b=ZNdhATvo4qEw2+iri1MqR1AkihPLeJ/fEaugIps4oSRjzRpoD8DgBivIUyhBzN9Kn
+         3MzpydcEyhfMESpOQyVE9PZef4s5rRUviP1FtbQEH+c/m3cZCczkU6TBd53B+cIPyR
+         02cEHvQ5D12iupCKFkx5g+6kSbgTmcXGEV0PmdsQr4Ghp6y0HNtgll4BXncnanv7f/
+         i3EqC2ismORqbmNvZCF/ZU48g4/ABUHsAjCUbVJVirH0CsaD/7YVAzQkyMKEiDBpgS
+         afrAmLx5sgJI0+2YndbCjDKqs12nAHpfB843J7o79o+ShHveUGhyXWDAY45I1iTOWO
+         EaXfhAdDWGxDg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Nathan Lynch <nathanl@linux.ibm.com>,
@@ -38,11 +38,10 @@ Cc:     Nathan Lynch <nathanl@linux.ibm.com>,
         Andrew Donnellan <ajd@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>, ldufour@linux.ibm.com,
-        paulus@ozlabs.org, sourabhjain@linux.ibm.com,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.15 18/22] powerpc/rtas: avoid device tree lookups in rtas_os_term()
-Date:   Tue, 27 Dec 2022 15:34:28 -0500
-Message-Id: <20221227203433.1214255-18-sashal@kernel.org>
+        sourabhjain@linux.ibm.com, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.15 19/22] powerpc/rtas: avoid scheduling in rtas_os_term()
+Date:   Tue, 27 Dec 2022 15:34:29 -0500
+Message-Id: <20221227203433.1214255-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221227203433.1214255-1-sashal@kernel.org>
 References: <20221227203433.1214255-1-sashal@kernel.org>
@@ -61,73 +60,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Lynch <nathanl@linux.ibm.com>
 
-[ Upstream commit ed2213bfb192ab51f09f12e9b49b5d482c6493f3 ]
+[ Upstream commit 6c606e57eecc37d6b36d732b1ff7e55b7dc32dd4 ]
 
-rtas_os_term() is called during panic. Its behavior depends on a couple
-of conditions in the /rtas node of the device tree, the traversal of
-which entails locking and local IRQ state changes. If the kernel panics
-while devtree_lock is held, rtas_os_term() as currently written could
-hang.
+It's unsafe to use rtas_busy_delay() to handle a busy status from
+the ibm,os-term RTAS function in rtas_os_term():
 
-Instead of discovering the relevant characteristics at panic time,
-cache them in file-static variables at boot. Note the lookup for
-"ibm,extended-os-term" is converted to of_property_read_bool() since it
-is a boolean property, not an RTAS function token.
+Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
+BUG: sleeping function called from invalid context at arch/powerpc/kernel/rtas.c:618
+in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 1, name: swapper/0
+preempt_count: 2, expected: 0
+CPU: 7 PID: 1 Comm: swapper/0 Tainted: G      D            6.0.0-rc5-02182-gf8553a572277-dirty #9
+Call Trace:
+[c000000007b8f000] [c000000001337110] dump_stack_lvl+0xb4/0x110 (unreliable)
+[c000000007b8f040] [c0000000002440e4] __might_resched+0x394/0x3c0
+[c000000007b8f0e0] [c00000000004f680] rtas_busy_delay+0x120/0x1b0
+[c000000007b8f100] [c000000000052d04] rtas_os_term+0xb8/0xf4
+[c000000007b8f180] [c0000000001150fc] pseries_panic+0x50/0x68
+[c000000007b8f1f0] [c000000000036354] ppc_panic_platform_handler+0x34/0x50
+[c000000007b8f210] [c0000000002303c4] notifier_call_chain+0xd4/0x1c0
+[c000000007b8f2b0] [c0000000002306cc] atomic_notifier_call_chain+0xac/0x1c0
+[c000000007b8f2f0] [c0000000001d62b8] panic+0x228/0x4d0
+[c000000007b8f390] [c0000000001e573c] do_exit+0x140c/0x1420
+[c000000007b8f480] [c0000000001e586c] make_task_dead+0xdc/0x200
+
+Use rtas_busy_delay_time() instead, which signals without side effects
+whether to attempt the ibm,os-term RTAS call again.
 
 Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
 Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
 Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
-[mpe: Incorporate suggested change from Nick]
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20221118150751.469393-4-nathanl@linux.ibm.com
+Link: https://lore.kernel.org/r/20221118150751.469393-5-nathanl@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/rtas.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ arch/powerpc/kernel/rtas.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
-index 7834ce3aa7f1..4d8de49c9d4b 100644
+index 4d8de49c9d4b..2dae702e7a5a 100644
 --- a/arch/powerpc/kernel/rtas.c
 +++ b/arch/powerpc/kernel/rtas.c
-@@ -788,6 +788,7 @@ void __noreturn rtas_halt(void)
- 
- /* Must be in the RMO region, so we place it here */
- static char rtas_os_term_buf[2048];
-+static s32 ibm_os_term_token = RTAS_UNKNOWN_SERVICE;
- 
- void rtas_os_term(char *str)
- {
-@@ -799,14 +800,13 @@ void rtas_os_term(char *str)
- 	 * this property may terminate the partition which we want to avoid
- 	 * since it interferes with panic_timeout.
- 	 */
--	if (RTAS_UNKNOWN_SERVICE == rtas_token("ibm,os-term") ||
--	    RTAS_UNKNOWN_SERVICE == rtas_token("ibm,extended-os-term"))
-+	if (ibm_os_term_token == RTAS_UNKNOWN_SERVICE)
- 		return;
+@@ -805,10 +805,15 @@ void rtas_os_term(char *str)
  
  	snprintf(rtas_os_term_buf, 2048, "OS panic: %s", str);
  
- 	do {
--		status = rtas_call(rtas_token("ibm,os-term"), 1, 1, NULL,
-+		status = rtas_call(ibm_os_term_token, 1, 1, NULL,
- 				   __pa(rtas_os_term_buf));
- 	} while (rtas_busy_delay(status));
- 
-@@ -1167,6 +1167,13 @@ void __init rtas_initialize(void)
- 	no_entry = of_property_read_u32(rtas.dev, "linux,rtas-entry", &entry);
- 	rtas.entry = no_entry ? rtas.base : entry;
- 
 +	/*
-+	 * Discover these now to avoid device tree lookups in the
-+	 * panic path.
++	 * Keep calling as long as RTAS returns a "try again" status,
++	 * but don't use rtas_busy_delay(), which potentially
++	 * schedules.
 +	 */
-+	if (of_property_read_bool(rtas.dev, "ibm,extended-os-term"))
-+		ibm_os_term_token = rtas_token("ibm,os-term");
-+
- 	/* If RTAS was found, allocate the RMO buffer for it and look for
- 	 * the stop-self token if any
- 	 */
+ 	do {
+ 		status = rtas_call(ibm_os_term_token, 1, 1, NULL,
+ 				   __pa(rtas_os_term_buf));
+-	} while (rtas_busy_delay(status));
++	} while (rtas_busy_delay_time(status));
+ 
+ 	if (status != 0)
+ 		printk(KERN_EMERG "ibm,os-term call failed %d\n", status);
 -- 
 2.35.1
 
