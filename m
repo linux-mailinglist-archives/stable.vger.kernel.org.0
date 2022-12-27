@@ -2,246 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B6AA656E9E
-	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:26:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24CB7656EA2
+	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:32:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230114AbiL0UZp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Dec 2022 15:25:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36082 "EHLO
+        id S229602AbiL0Ucy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Dec 2022 15:32:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229788AbiL0UZ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:25:29 -0500
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDCE7C7F
-        for <stable@vger.kernel.org>; Tue, 27 Dec 2022 12:25:28 -0800 (PST)
-Received: by mail-pg1-x530.google.com with SMTP id q68so1905947pgq.9
-        for <stable@vger.kernel.org>; Tue, 27 Dec 2022 12:25:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=WScp8TOET4FtjvWrLNetxx1C3N9IwgvU3L7QRgQUsoM=;
-        b=5f7c8OGEQnW4PyYIgo9ZVZ7f3W6Up9o/z3AiT+nXqQh7tAGEKlSmH9pxU4o6U8hjQ6
-         2JCfGQljXXf9xLHCN2VcVERtMvbRveZqEwtWUK3qHxcvtW0uIQx2H2VeUBLxbY1On0MC
-         ReeBTzxhfbr7IZMuQhgXyKQpOZ97EyIuL9AV/SHOgHQwTu89Z6aH7yccAhHV/go6awdT
-         VHOwSyL/eTlgoIUyKqetpDBl3c3qx4bmmGETwq8jxlDdCcRHoSQ9WYSfMaKt5yYpItjN
-         hmbRePllCu0GNFX+Q7MgqXEN33/OKv7aQrTKiHdYyjWkWbQUJVMxJk1tGNlqUMPh9tmH
-         rqXQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=WScp8TOET4FtjvWrLNetxx1C3N9IwgvU3L7QRgQUsoM=;
-        b=GbYd/YdM9ptyN7+loWorysN/DbscjCC0y7C8FvbCtWp+RuGHiRXD1XXY4sjCveFF3b
-         aDJK1ulA0IAQin4M8w99TwrIK596iMhHgvXzj0iWbAFVmvdouj2+/EU8OwP3t47zguiu
-         aNBdLJ/JF2+htEgm4iBhgJZwzl+rWWOTUyr7p09sFl/ysIpOby1MgXyag3v5NZejD6Ni
-         5Zv+WYncw3zgBR4dXM1RlldyDOWp3Lc4ETbsegceCwDAmgSqweZxo5+NF85zRAOxaseH
-         YzCR5CXzvybEgslklCdw+PQAHzADli50JfeeIbhM88zD38BItDSXMmYUil0Oebfse0MU
-         HgMQ==
-X-Gm-Message-State: AFqh2krNtukHjX5BpuzD2LPEz/QnVAajmrr3YDRGuT0cweQJP28Muhde
-        FJUrJ3xEUdGy4xcODziLcx9BSnlJKlFBNCbtNGU=
-X-Google-Smtp-Source: AMrXdXt8CYqkqBl4po81jigziHJHwhYl1gLAaTQEm4Xj+tt6bGxmW6JBaoW8baEnHg1oUi8DfHXV9w==
-X-Received: by 2002:aa7:8284:0:b0:580:e549:559e with SMTP id s4-20020aa78284000000b00580e549559emr10495467pfm.17.1672172728068;
-        Tue, 27 Dec 2022 12:25:28 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g130-20020a625288000000b0056c2e497b02sm9243335pfb.173.2022.12.27.12.25.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Dec 2022 12:25:27 -0800 (PST)
-Message-ID: <63ab54b7.620a0220.a7290.0717@mx.google.com>
-Date:   Tue, 27 Dec 2022 12:25:27 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229502AbiL0Ucy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:32:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 583D265CA;
+        Tue, 27 Dec 2022 12:32:53 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E35FB61035;
+        Tue, 27 Dec 2022 20:32:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 923DCC433F0;
+        Tue, 27 Dec 2022 20:32:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1672173172;
+        bh=WOpWFmLLWI+lA2gvQHVwy13qZ8bNfgo+s9kU+89teFo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=QlYRW4Cou4mx4WDHaagvJAWdHHr1h+lLl/QRR5cOYNI3mf+V/MNcaWvo/dMlsn5xK
+         IMrtD0W+Yvk8v5Pb5D8adLvz7a1pbS7ywVc7Hg/KQNCWmV2A9xgeBvq4o9DcKvMM9+
+         SRf9q5XP66PWt7TNhdAVDdevKrchPToQ+3ievis67I5nY6WC1eb2sKioTd/T3nygp6
+         tpHaycdfOkT4SjaqCpYeSlpiiFRgOZomiUB3u4/4rK6mwQ9FjQulbeCSqzfCeOsvGw
+         Xe/1rBhGKybxlS/BtG0aN1Uy3+ZPoHKk5TQ3be/7nPeXXMRie12KILFwtT+tZZ/8Db
+         W7MKaWmPKBzUw==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     edward lo <edward.lo@ambergroup.io>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        Sasha Levin <sashal@kernel.org>, ntfs3@lists.linux.dev
+Subject: [PATCH AUTOSEL 6.1 01/28] fs/ntfs3: Validate BOOT record_size
+Date:   Tue, 27 Dec 2022 15:32:22 -0500
+Message-Id: <20221227203249.1213526-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.228-444-g51f90a04ce8e
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.4 baseline: 110 runs,
- 4 regressions (v5.4.228-444-g51f90a04ce8e)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 110 runs, 4 regressions (v5.4.228-444-g51f90a=
-04ce8e)
+From: edward lo <edward.lo@ambergroup.io>
 
-Regressions Summary
--------------------
+[ Upstream commit 0b66046266690454dc04e6307bcff4a5605b42a1 ]
 
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
+When the NTFS BOOT record_size field < 0, it represents a
+shift value. However, there is no sanity check on the shift result
+and the sbi->record_bits calculation through blksize_bits() assumes
+the size always > 256, which could lead to NPD while mounting a
+malformed NTFS image.
 
-qemu_arm64-virt-gicv2      | arm64 | lab-collabora | gcc-10   | defconfig |=
- 1          =
+[  318.675159] BUG: kernel NULL pointer dereference, address: 0000000000000158
+[  318.675682] #PF: supervisor read access in kernel mode
+[  318.675869] #PF: error_code(0x0000) - not-present page
+[  318.676246] PGD 0 P4D 0
+[  318.676502] Oops: 0000 [#1] PREEMPT SMP NOPTI
+[  318.676934] CPU: 0 PID: 259 Comm: mount Not tainted 5.19.0 #5
+[  318.677289] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+[  318.678136] RIP: 0010:ni_find_attr+0x2d/0x1c0
+[  318.678656] Code: 89 ca 4d 89 c7 41 56 41 55 41 54 41 89 cc 55 48 89 fd 53 48 89 d3 48 83 ec 20 65 48 8b 04 25 28 00 00 00 48 89 44 24 180
+[  318.679848] RSP: 0018:ffffa6c8c0297bd8 EFLAGS: 00000246
+[  318.680104] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000080
+[  318.680790] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+[  318.681679] RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+[  318.682577] R10: 0000000000000000 R11: 0000000000000005 R12: 0000000000000080
+[  318.683015] R13: ffff8d5582e68400 R14: 0000000000000100 R15: 0000000000000000
+[  318.683618] FS:  00007fd9e1c81e40(0000) GS:ffff8d55fdc00000(0000) knlGS:0000000000000000
+[  318.684280] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  318.684651] CR2: 0000000000000158 CR3: 0000000002e1a000 CR4: 00000000000006f0
+[  318.685623] Call Trace:
+[  318.686607]  <TASK>
+[  318.686872]  ? ntfs_alloc_inode+0x1a/0x60
+[  318.687235]  attr_load_runs_vcn+0x2b/0xa0
+[  318.687468]  mi_read+0xbb/0x250
+[  318.687576]  ntfs_iget5+0x114/0xd90
+[  318.687750]  ntfs_fill_super+0x588/0x11b0
+[  318.687953]  ? put_ntfs+0x130/0x130
+[  318.688065]  ? snprintf+0x49/0x70
+[  318.688164]  ? put_ntfs+0x130/0x130
+[  318.688256]  get_tree_bdev+0x16a/0x260
+[  318.688407]  vfs_get_tree+0x20/0xb0
+[  318.688519]  path_mount+0x2dc/0x9b0
+[  318.688877]  do_mount+0x74/0x90
+[  318.689142]  __x64_sys_mount+0x89/0xd0
+[  318.689636]  do_syscall_64+0x3b/0x90
+[  318.689998]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[  318.690318] RIP: 0033:0x7fd9e133c48a
+[  318.690687] Code: 48 8b 0d 11 fa 2a 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 008
+[  318.691357] RSP: 002b:00007ffd374406c8 EFLAGS: 00000202 ORIG_RAX: 00000000000000a5
+[  318.691632] RAX: ffffffffffffffda RBX: 0000564d0b051080 RCX: 00007fd9e133c48a
+[  318.691920] RDX: 0000564d0b051280 RSI: 0000564d0b051300 RDI: 0000564d0b0596a0
+[  318.692123] RBP: 0000000000000000 R08: 0000564d0b0512a0 R09: 0000000000000020
+[  318.692349] R10: 00000000c0ed0000 R11: 0000000000000202 R12: 0000564d0b0596a0
+[  318.692673] R13: 0000564d0b051280 R14: 0000000000000000 R15: 00000000ffffffff
+[  318.693007]  </TASK>
+[  318.693271] Modules linked in:
+[  318.693614] CR2: 0000000000000158
+[  318.694446] ---[ end trace 0000000000000000 ]---
+[  318.694779] RIP: 0010:ni_find_attr+0x2d/0x1c0
+[  318.694952] Code: 89 ca 4d 89 c7 41 56 41 55 41 54 41 89 cc 55 48 89 fd 53 48 89 d3 48 83 ec 20 65 48 8b 04 25 28 00 00 00 48 89 44 24 180
+[  318.696042] RSP: 0018:ffffa6c8c0297bd8 EFLAGS: 00000246
+[  318.696531] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000080
+[  318.698114] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+[  318.699286] RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+[  318.699795] R10: 0000000000000000 R11: 0000000000000005 R12: 0000000000000080
+[  318.700236] R13: ffff8d5582e68400 R14: 0000000000000100 R15: 0000000000000000
+[  318.700973] FS:  00007fd9e1c81e40(0000) GS:ffff8d55fdc00000(0000) knlGS:0000000000000000
+[  318.701688] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  318.702190] CR2: 0000000000000158 CR3: 0000000002e1a000 CR4: 00000000000006f0
+[  318.726510] mount (259) used greatest stack depth: 13320 bytes left
 
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
+This patch adds a sanity check.
 
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-collabora | gcc-10   | defconfig |=
- 1          =
+Signed-off-by: edward lo <edward.lo@ambergroup.io>
+Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ fs/ntfs3/super.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/fs/ntfs3/super.c b/fs/ntfs3/super.c
+index 47012c9bf505..d998cb083d95 100644
+--- a/fs/ntfs3/super.c
++++ b/fs/ntfs3/super.c
+@@ -789,7 +789,7 @@ static int ntfs_init_from_boot(struct super_block *sb, u32 sector_size,
+ 						 : (u32)boot->record_size
+ 							   << sbi->cluster_bits;
+ 
+-	if (record_size > MAXIMUM_BYTES_PER_MFT)
++	if (record_size > MAXIMUM_BYTES_PER_MFT || record_size < SECTOR_SIZE)
+ 		goto out;
+ 
+ 	sbi->record_bits = blksize_bits(record_size);
+-- 
+2.35.1
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.228-444-g51f90a04ce8e/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.228-444-g51f90a04ce8e
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      51f90a04ce8e9b7b064acf401a2cbc4a5d641189 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63ab28500bd74b39b84eee26
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.228-4=
-44-g51f90a04ce8e/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vir=
-t-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.228-4=
-44-g51f90a04ce8e/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vir=
-t-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221216.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63ab28500bd74b39b84ee=
-e27
-        failing since 154 days (last pass: v5.4.180-77-g7de29e82b9db, first=
- fail: v5.4.207-73-ga2480f1b1dda1) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv2      | arm64 | lab-collabora | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63ab2112320cf9b2de4eee2d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.228-4=
-44-g51f90a04ce8e/arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64-v=
-irt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.228-4=
-44-g51f90a04ce8e/arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64-v=
-irt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221216.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63ab2112320cf9b2de4ee=
-e2e
-        failing since 154 days (last pass: v5.4.180-77-g7de29e82b9db, first=
- fail: v5.4.207-73-ga2480f1b1dda1) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63ab2828fa81b3c5284eee2b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.228-4=
-44-g51f90a04ce8e/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vir=
-t-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.228-4=
-44-g51f90a04ce8e/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vir=
-t-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221216.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63ab2828fa81b3c5284ee=
-e2c
-        failing since 154 days (last pass: v5.4.180-77-g7de29e82b9db, first=
- fail: v5.4.207-73-ga2480f1b1dda1) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-collabora | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63ab210f32b743618c4eee21
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.228-4=
-44-g51f90a04ce8e/arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64-v=
-irt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.228-4=
-44-g51f90a04ce8e/arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64-v=
-irt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221216.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63ab210f32b743618c4ee=
-e22
-        failing since 154 days (last pass: v5.4.180-77-g7de29e82b9db, first=
- fail: v5.4.207-73-ga2480f1b1dda1) =
-
- =20
