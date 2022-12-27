@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ADB0656F64
+	by mail.lfdr.de (Postfix) with ESMTP id EB8BF656F65
 	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:44:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232967AbiL0Una (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Dec 2022 15:43:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48390 "EHLO
+        id S231426AbiL0Unb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Dec 2022 15:43:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233101AbiL0UmQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:42:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C161EFAFD;
-        Tue, 27 Dec 2022 12:35:47 -0800 (PST)
+        with ESMTP id S233108AbiL0UmR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:42:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3649FCD7;
+        Tue, 27 Dec 2022 12:35:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64882B811F8;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DBFE261237;
         Tue, 27 Dec 2022 20:35:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CACFEC433D2;
-        Tue, 27 Dec 2022 20:35:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84BCFC433EF;
+        Tue, 27 Dec 2022 20:35:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672173337;
-        bh=MRh8kTH2dR84X/EXK5i8pkL8gkLplyIlQtPEVNwWOvQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Ir6/OEcnNxR8rMuvp2PH7sPYagG/n7sJyYHn9dNkmkWAnHCPkRV7IE+0GrHuRpIKC
-         DSe5LsnI1DuRWxRbO1T5ymMmSq/X1/RM5LoMVWSbqRV2NRUKty4x2ExtyXN4XFHKU3
-         vSqrmtz3izqIsOZLQAgNPOQCZIHfP1aUCKH+t1DqbEdNPieh9d3pOAUjFw3f38EofP
-         PLZgF5N4YgFJtBGHvwyAl3rO5jQ6r+JE8b8JjQua01Hfhx1o2pBbe4I84+yuF38rV1
-         HEEzwU5rf2l41YPLcAPKPC5rZL875LeLex+rmHMs7AyHdPnKqBbh/nvMGS/wdJdtCg
-         g9rdxFu7JH0hA==
+        s=k20201202; t=1672173338;
+        bh=MJeq5eQ4fUfbLkecCB1iu+hdC7ESIAwkHUedRxC6MlI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=U16quylvTiSxiAkUpGAtQ28Lp/dH1HTlYPuYWA2wdRhp+w3GM/BUc2LprT137uHIj
+         iYPGl95WYw8k5NQIUdA/xC81304N9dFShtByjpcmxulsfNe0ly+eegaOcHPROJIqgt
+         YnA7GHfR8QSCyvwI3gqiU/DlFo1WDtp3O6u23Dhp15P+hH39nlWvaq2lHjveCKu2nv
+         VkLqO3vmidb9MJNz2l66AZ0FA6Wtcb5wPzajpRZaCGEPFT8BdVdz7avetom7cTtLAF
+         SYOPfvb7x8WNZdmxn7lZq9ogvWca4wHZrtL2KL+SwzZB1mpbFqDH6jv+na4qMlPejU
+         kPb65R0fIQHcQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andre Przywara <andre.przywara@arm.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        kishon@kernel.org, wens@csie.org, jernej.skrabec@gmail.com,
-        wsa+renesas@sang-engineering.com, linux-phy@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.4 1/7] phy: sun4i-usb: Add support for the H616 USB PHY
-Date:   Tue, 27 Dec 2022 15:35:26 -0500
-Message-Id: <20221227203534.1214640-1-sashal@kernel.org>
+Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "Naveen N . Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 2/7] objtool: Fix SEGFAULT
+Date:   Tue, 27 Dec 2022 15:35:27 -0500
+Message-Id: <20221227203534.1214640-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221227203534.1214640-1-sashal@kernel.org>
+References: <20221227203534.1214640-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,57 +58,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 0f607406525d25019dd9c498bcc0b42734fc59d5 ]
+[ Upstream commit efb11fdb3e1a9f694fa12b70b21e69e55ec59c36 ]
 
-The USB PHY used in the Allwinner H616 SoC inherits some traits from its
-various predecessors: it has four full PHYs like the H3, needs some
-extra bits to be set like the H6, and puts SIDDQ on a different bit like
-the A100. Plus it needs this weird PHY2 quirk.
+find_insn() will return NULL in case of failure. Check insn in order
+to avoid a kernel Oops for NULL pointer dereference.
 
-Name all those properties in a new config struct and assign a new
-compatible name to it.
-
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Reviewed-by: Samuel Holland <samuel@sholland.org>
-Link: https://lore.kernel.org/r/20221031111358.3387297-5-andre.przywara@arm.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Tested-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Reviewed-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Acked-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20221114175754.1131267-9-sv@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/allwinner/phy-sun4i-usb.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ tools/objtool/check.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/phy/allwinner/phy-sun4i-usb.c b/drivers/phy/allwinner/phy-sun4i-usb.c
-index e5842e48a5e0..22938be176e7 100644
---- a/drivers/phy/allwinner/phy-sun4i-usb.c
-+++ b/drivers/phy/allwinner/phy-sun4i-usb.c
-@@ -973,6 +973,17 @@ static const struct sun4i_usb_phy_cfg sun50i_h6_cfg = {
- 	.missing_phys = BIT(1) | BIT(2),
- };
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index bae6b261481d..ccf5580442d2 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -162,7 +162,7 @@ static bool __dead_end_function(struct objtool_file *file, struct symbol *func,
+ 		return false;
  
-+static const struct sun4i_usb_phy_cfg sun50i_h616_cfg = {
-+	.num_phys = 4,
-+	.type = sun50i_h6_phy,
-+	.disc_thresh = 3,
-+	.phyctl_offset = REG_PHYCTL_A33,
-+	.dedicated_clocks = true,
-+	.phy0_dual_route = true,
-+	.hci_phy_ctl_clear = PHY_CTL_SIDDQ,
-+	.needs_phy2_siddq = true,
-+};
-+
- static const struct of_device_id sun4i_usb_phy_of_match[] = {
- 	{ .compatible = "allwinner,sun4i-a10-usb-phy", .data = &sun4i_a10_cfg },
- 	{ .compatible = "allwinner,sun5i-a13-usb-phy", .data = &sun5i_a13_cfg },
-@@ -987,6 +998,7 @@ static const struct of_device_id sun4i_usb_phy_of_match[] = {
- 	{ .compatible = "allwinner,sun50i-a64-usb-phy",
- 	  .data = &sun50i_a64_cfg},
- 	{ .compatible = "allwinner,sun50i-h6-usb-phy", .data = &sun50i_h6_cfg },
-+	{ .compatible = "allwinner,sun50i-h616-usb-phy", .data = &sun50i_h616_cfg },
- 	{ },
- };
- MODULE_DEVICE_TABLE(of, sun4i_usb_phy_of_match);
+ 	insn = find_insn(file, func->sec, func->offset);
+-	if (!insn->func)
++	if (!insn || !insn->func)
+ 		return false;
+ 
+ 	func_for_each_insn_all(file, func, insn) {
 -- 
 2.35.1
 
