@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4AD8656EC6
-	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:34:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA12C656EC9
+	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:34:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231775AbiL0UeK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232190AbiL0UeK (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 27 Dec 2022 15:34:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38354 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232263AbiL0UdW (ORCPT
+        with ESMTP id S232262AbiL0UdW (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:33:22 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74D97CE29;
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 856FCD108;
         Tue, 27 Dec 2022 12:33:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A6A02CE103B;
-        Tue, 27 Dec 2022 20:33:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14C60C433F1;
-        Tue, 27 Dec 2022 20:33:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 30DE5B81168;
+        Tue, 27 Dec 2022 20:33:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31CB1C433F0;
+        Tue, 27 Dec 2022 20:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672173197;
-        bh=qeWTeD/XppDAMiiK9eXDs2xY/co0C3oVOYqMqTPGd3Q=;
+        s=k20201202; t=1672173199;
+        bh=3xOSEwOyxwJ+hft19cSXmSxTG/2pV8h7lk1oDOwu+c0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=foDesreOFqyA5p332JWYiij0tb72THHUzmK3Ff8UNZmKvsoi7+J5qU2VBLclO+RD/
-         QS24DhjDt1vYLOYexh7e2wg8GLMbxhIGH7bl5ugxTtIwgsMszw+9texB0R2YKSmj5g
-         A9YmoXmgVwLqb/IRUIwTS4JGZdUdR/mRL2mDfkCnETlCu4lLVkA6HWqcCsIErylNkW
-         zbwoqgsHFKTIGNym+rEFP3i81fUhOyGmN9V1gWEzGUpdZ6H2dWbscNYrsqRoF3mRMV
-         GMcNXdOu8g1Q+liSk06uCxJ0ZXWhiq8wnAmFT6GQ7exLFTqlO1pzsa1727S0aNzwNO
-         ibSpvabWJxMYA==
+        b=d95tDLpL8euCovGvqccDnp+d2bnOWIOJ87t35KmJN1JXXl7QHCYUEGmqpp1ctT09u
+         GS4Nd3mP4kL1X53c7V/2FFlwM9XSIgxRcomlc732hno6IWQs1rtnG81BJNOYarWc3a
+         /17l2Ks4WFc0RBK5Quu+9tBHGGEjmrdJHVlwr4QhIg19urliM2dSrdVDcsSFCZx8+C
+         MWKm+8N8qCkgaYX+pJLoDQrFgBoM72o7T76l44/F6bVQikgrvRlbp0SFMf/39T7Guh
+         npwsTw1FpV/ge6raNY22m8OaPpQJ6rlHbg+7nCL6Horet7semNdqFv0Q/L+euX1Mfr
+         RnKmBHBCYYw5Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yin Xiujiang <yinxiujiang@kylinos.cn>,
-        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
-        Sasha Levin <sashal@kernel.org>, ntfs3@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.1 18/28] fs/ntfs3: Fix slab-out-of-bounds in r_page
-Date:   Tue, 27 Dec 2022 15:32:39 -0500
-Message-Id: <20221227203249.1213526-18-sashal@kernel.org>
+Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "Naveen N . Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 19/28] objtool: Fix SEGFAULT
+Date:   Tue, 27 Dec 2022 15:32:40 -0500
+Message-Id: <20221227203249.1213526-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221227203249.1213526-1-sashal@kernel.org>
 References: <20221227203249.1213526-1-sashal@kernel.org>
@@ -55,97 +58,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yin Xiujiang <yinxiujiang@kylinos.cn>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit ecfbd57cf9c5ca225184ae266ce44ae473792132 ]
+[ Upstream commit efb11fdb3e1a9f694fa12b70b21e69e55ec59c36 ]
 
-When PAGE_SIZE is 64K, if read_log_page is called by log_read_rst for
-the first time, the size of *buffer would be equal to
-DefaultLogPageSize(4K).But for *buffer operations like memcpy,
-if the memory area size(n) which being assigned to buffer is larger
-than 4K (log->page_size(64K) or bytes(64K-page_off)), it will cause
-an out of boundary error.
- Call trace:
-  [...]
-  kasan_report+0x44/0x130
-  check_memory_region+0xf8/0x1a0
-  memcpy+0xc8/0x100
-  ntfs_read_run_nb+0x20c/0x460
-  read_log_page+0xd0/0x1f4
-  log_read_rst+0x110/0x75c
-  log_replay+0x1e8/0x4aa0
-  ntfs_loadlog_and_replay+0x290/0x2d0
-  ntfs_fill_super+0x508/0xec0
-  get_tree_bdev+0x1fc/0x34c
-  [...]
+find_insn() will return NULL in case of failure. Check insn in order
+to avoid a kernel Oops for NULL pointer dereference.
 
-Fix this by setting variable r_page to NULL in log_read_rst.
-
-Signed-off-by: Yin Xiujiang <yinxiujiang@kylinos.cn>
-Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+Tested-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Reviewed-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Acked-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20221114175754.1131267-9-sv@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/fslog.c | 26 ++------------------------
- 1 file changed, 2 insertions(+), 24 deletions(-)
+ tools/objtool/check.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ntfs3/fslog.c b/fs/ntfs3/fslog.c
-index a85f5411aa74..c662d2a51907 100644
---- a/fs/ntfs3/fslog.c
-+++ b/fs/ntfs3/fslog.c
-@@ -1132,7 +1132,7 @@ static int read_log_page(struct ntfs_log *log, u32 vbo,
- 		return -EINVAL;
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index 43ec14c29a60..8427af808221 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -207,7 +207,7 @@ static bool __dead_end_function(struct objtool_file *file, struct symbol *func,
+ 		return false;
  
- 	if (!*buffer) {
--		to_free = kmalloc(bytes, GFP_NOFS);
-+		to_free = kmalloc(log->page_size, GFP_NOFS);
- 		if (!to_free)
- 			return -ENOMEM;
- 		*buffer = to_free;
-@@ -1180,10 +1180,7 @@ static int log_read_rst(struct ntfs_log *log, u32 l_size, bool first,
- 			struct restart_info *info)
- {
- 	u32 skip, vbo;
--	struct RESTART_HDR *r_page = kmalloc(DefaultLogPageSize, GFP_NOFS);
--
--	if (!r_page)
--		return -ENOMEM;
-+	struct RESTART_HDR *r_page = NULL;
+ 	insn = find_insn(file, func->sec, func->offset);
+-	if (!insn->func)
++	if (!insn || !insn->func)
+ 		return false;
  
- 	/* Determine which restart area we are looking for. */
- 	if (first) {
-@@ -1197,7 +1194,6 @@ static int log_read_rst(struct ntfs_log *log, u32 l_size, bool first,
- 	/* Loop continuously until we succeed. */
- 	for (; vbo < l_size; vbo = 2 * vbo + skip, skip = 0) {
- 		bool usa_error;
--		u32 sys_page_size;
- 		bool brst, bchk;
- 		struct RESTART_AREA *ra;
- 
-@@ -1251,24 +1247,6 @@ static int log_read_rst(struct ntfs_log *log, u32 l_size, bool first,
- 			goto check_result;
- 		}
- 
--		/* Read the entire restart area. */
--		sys_page_size = le32_to_cpu(r_page->sys_page_size);
--		if (DefaultLogPageSize != sys_page_size) {
--			kfree(r_page);
--			r_page = kzalloc(sys_page_size, GFP_NOFS);
--			if (!r_page)
--				return -ENOMEM;
--
--			if (read_log_page(log, vbo,
--					  (struct RECORD_PAGE_HDR **)&r_page,
--					  &usa_error)) {
--				/* Ignore any errors. */
--				kfree(r_page);
--				r_page = NULL;
--				continue;
--			}
--		}
--
- 		if (is_client_area_valid(r_page, usa_error)) {
- 			info->valid_page = true;
- 			ra = Add2Ptr(r_page, le16_to_cpu(r_page->ra_off));
+ 	func_for_each_insn(file, func, insn) {
 -- 
 2.35.1
 
