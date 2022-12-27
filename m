@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B09C5656EBF
-	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:34:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5A26656EC2
+	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:34:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231913AbiL0UeE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Dec 2022 15:34:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38166 "EHLO
+        id S231945AbiL0UeG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Dec 2022 15:34:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232210AbiL0UdT (ORCPT
+        with ESMTP id S232217AbiL0UdT (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:33:19 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51629CE3C;
-        Tue, 27 Dec 2022 12:33:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AAD2DEA2;
+        Tue, 27 Dec 2022 12:33:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D774461035;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0993761242;
+        Tue, 27 Dec 2022 20:33:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAE44C433F0;
         Tue, 27 Dec 2022 20:33:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99381C433EF;
-        Tue, 27 Dec 2022 20:33:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672173193;
-        bh=DoZgocSswo2oFd5OrhlfE+vmBGIwJURjPYMLTpkZIJM=;
+        s=k20201202; t=1672173194;
+        bh=Z2C5CMxQAa4njOHE+aJsyDCe4itEyCpQG5gEsMBDQiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lrYwNDjHaPF+FHVveaCH6c+5bU4+OQsOd73HewhU61fX7L/xmnixrMBctk6HYheNp
-         eEvojBuuswQPrQpG4HHRhAqoELu4Z2l1yt91K6W64/88G0nlINwf+m4jH6TL5EiVsJ
-         fT+JnwGQ+oi713JkSg6x8vIGJLeut66AXS+dmmqhgThkrLdnfoYXrFYS3IrKXyjYa7
-         sDCb1qB9TBPvk3Q22XYn0b5wb25fiBlsa7DnT8HdFiV+Nknaroe6gKwMxtQ/S8b7wZ
-         hsyAuS7PcCi/DMj75VKyWieNqSrbcyD9R13F5uILJhwkQRQMa4V9q0Q2rGhIq53gOE
-         Y7wr/3zdFYFGg==
+        b=j/oIk/SyZsIHujTTlbVpA24vougQjZJmqbR20m2ISmuhN6m5c2QhicZJdq5Ms30qx
+         RLfWC06wl9VT09H3ej6+BheKp7cbQdCfMBgc4K9L1Ej/EkchT+8d3ZIRXUgD2AtwJv
+         l9xpry2mKMfWuRGlpe1+jQ/5Y+aAs2dulwKzquJHeLBUQ2ljEp25t4cJvHFKEqG6XN
+         K4uLnvbuuiqI9VCZL/GVoV/LNpyxchvlALhMpc0N/KOqw6iwcYaeEqmylEWvUtQdty
+         1hlmZ7aTYfLEl+wUR+WATxwNB+1gZdVL8semHxk+he6d/UEhwgPzkrI6HtE2QpFHu3
+         Fkk1nrSpETNfA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Edward Lo <edward.lo@ambergroup.io>,
+Cc:     Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        syzot <syzbot+fa4648a5446460b7b963@syzkaller.appspotmail.com>,
         Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
         Sasha Levin <sashal@kernel.org>, ntfs3@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.1 14/28] fs/ntfs3: Validate index root when initialize NTFS security
-Date:   Tue, 27 Dec 2022 15:32:35 -0500
-Message-Id: <20221227203249.1213526-14-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 15/28] fs/ntfs3: Use __GFP_NOWARN allocation at wnd_init()
+Date:   Tue, 27 Dec 2022 15:32:36 -0500
+Message-Id: <20221227203249.1213526-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221227203249.1213526-1-sashal@kernel.org>
 References: <20221227203249.1213526-1-sashal@kernel.org>
@@ -55,133 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edward Lo <edward.lo@ambergroup.io>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit bfcdbae0523bd95eb75a739ffb6221a37109881e ]
+[ Upstream commit 0d0f659bf713662fabed973f9996b8f23c59ca51 ]
 
-This enhances the sanity check for $SDH and $SII while initializing NTFS
-security, guarantees these index root are legit.
+syzbot is reporting too large allocation at wnd_init() [1], for a crafted
+filesystem can become wnd->nwnd close to UINT_MAX. Add __GFP_NOWARN in
+order to avoid too large allocation warning, than exhausting memory by
+using kvcalloc().
 
-[  162.459513] BUG: KASAN: use-after-free in hdr_find_e.isra.0+0x10c/0x320
-[  162.460176] Read of size 2 at addr ffff8880037bca99 by task mount/243
-[  162.460851]
-[  162.461252] CPU: 0 PID: 243 Comm: mount Not tainted 6.0.0-rc7 #42
-[  162.461744] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-[  162.462609] Call Trace:
-[  162.462954]  <TASK>
-[  162.463276]  dump_stack_lvl+0x49/0x63
-[  162.463822]  print_report.cold+0xf5/0x689
-[  162.464608]  ? unwind_get_return_address+0x3a/0x60
-[  162.465766]  ? hdr_find_e.isra.0+0x10c/0x320
-[  162.466975]  kasan_report+0xa7/0x130
-[  162.467506]  ? _raw_spin_lock_irq+0xc0/0xf0
-[  162.467998]  ? hdr_find_e.isra.0+0x10c/0x320
-[  162.468536]  __asan_load2+0x68/0x90
-[  162.468923]  hdr_find_e.isra.0+0x10c/0x320
-[  162.469282]  ? cmp_uints+0xe0/0xe0
-[  162.469557]  ? cmp_sdh+0x90/0x90
-[  162.469864]  ? ni_find_attr+0x214/0x300
-[  162.470217]  ? ni_load_mi+0x80/0x80
-[  162.470479]  ? entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[  162.470931]  ? ntfs_bread_run+0x190/0x190
-[  162.471307]  ? indx_get_root+0xe4/0x190
-[  162.471556]  ? indx_get_root+0x140/0x190
-[  162.471833]  ? indx_init+0x1e0/0x1e0
-[  162.472069]  ? fnd_clear+0x115/0x140
-[  162.472363]  ? _raw_spin_lock_irqsave+0x100/0x100
-[  162.472731]  indx_find+0x184/0x470
-[  162.473461]  ? sysvec_apic_timer_interrupt+0x57/0xc0
-[  162.474429]  ? indx_find_buffer+0x2d0/0x2d0
-[  162.474704]  ? do_syscall_64+0x3b/0x90
-[  162.474962]  dir_search_u+0x196/0x2f0
-[  162.475381]  ? ntfs_nls_to_utf16+0x450/0x450
-[  162.475661]  ? ntfs_security_init+0x3d6/0x440
-[  162.475906]  ? is_sd_valid+0x180/0x180
-[  162.476191]  ntfs_extend_init+0x13f/0x2c0
-[  162.476496]  ? ntfs_fix_post_read+0x130/0x130
-[  162.476861]  ? iput.part.0+0x286/0x320
-[  162.477325]  ntfs_fill_super+0x11e0/0x1b50
-[  162.477709]  ? put_ntfs+0x1d0/0x1d0
-[  162.477970]  ? vsprintf+0x20/0x20
-[  162.478258]  ? set_blocksize+0x95/0x150
-[  162.478538]  get_tree_bdev+0x232/0x370
-[  162.478789]  ? put_ntfs+0x1d0/0x1d0
-[  162.479038]  ntfs_fs_get_tree+0x15/0x20
-[  162.479374]  vfs_get_tree+0x4c/0x130
-[  162.479729]  path_mount+0x654/0xfe0
-[  162.480124]  ? putname+0x80/0xa0
-[  162.480484]  ? finish_automount+0x2e0/0x2e0
-[  162.480894]  ? putname+0x80/0xa0
-[  162.481467]  ? kmem_cache_free+0x1c4/0x440
-[  162.482280]  ? putname+0x80/0xa0
-[  162.482714]  do_mount+0xd6/0xf0
-[  162.483264]  ? path_mount+0xfe0/0xfe0
-[  162.484782]  ? __kasan_check_write+0x14/0x20
-[  162.485593]  __x64_sys_mount+0xca/0x110
-[  162.486024]  do_syscall_64+0x3b/0x90
-[  162.486543]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[  162.487141] RIP: 0033:0x7f9d374e948a
-[  162.488324] Code: 48 8b 0d 11 fa 2a 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 008
-[  162.489728] RSP: 002b:00007ffe30e73d18 EFLAGS: 00000206 ORIG_RAX: 00000000000000a5
-[  162.490971] RAX: ffffffffffffffda RBX: 0000561cdb43a060 RCX: 00007f9d374e948a
-[  162.491669] RDX: 0000561cdb43a260 RSI: 0000561cdb43a2e0 RDI: 0000561cdb442af0
-[  162.492050] RBP: 0000000000000000 R08: 0000561cdb43a280 R09: 0000000000000020
-[  162.492459] R10: 00000000c0ed0000 R11: 0000000000000206 R12: 0000561cdb442af0
-[  162.493183] R13: 0000561cdb43a260 R14: 0000000000000000 R15: 00000000ffffffff
-[  162.493644]  </TASK>
-[  162.493908]
-[  162.494214] The buggy address belongs to the physical page:
-[  162.494761] page:000000003e38a3d5 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x37bc
-[  162.496064] flags: 0xfffffc0000000(node=0|zone=1|lastcpupid=0x1fffff)
-[  162.497278] raw: 000fffffc0000000 ffffea00000df1c8 ffffea00000df008 0000000000000000
-[  162.498928] raw: 0000000000000000 0000000000240000 00000000ffffffff 0000000000000000
-[  162.500542] page dumped because: kasan: bad access detected
-[  162.501057]
-[  162.501242] Memory state around the buggy address:
-[  162.502230]  ffff8880037bc980: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-[  162.502977]  ffff8880037bca00: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-[  162.503522] >ffff8880037bca80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-[  162.503963]                             ^
-[  162.504370]  ffff8880037bcb00: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-[  162.504766]  ffff8880037bcb80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-
-Signed-off-by: Edward Lo <edward.lo@ambergroup.io>
+Link: https://syzkaller.appspot.com/bug?extid=fa4648a5446460b7b963 [1]
+Reported-by: syzot <syzbot+fa4648a5446460b7b963@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/fsntfs.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ fs/ntfs3/bitmap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ntfs3/fsntfs.c b/fs/ntfs3/fsntfs.c
-index 4ed15f64b17f..b6e22bcb929b 100644
---- a/fs/ntfs3/fsntfs.c
-+++ b/fs/ntfs3/fsntfs.c
-@@ -1849,9 +1849,10 @@ int ntfs_security_init(struct ntfs_sb_info *sbi)
- 		goto out;
- 	}
+diff --git a/fs/ntfs3/bitmap.c b/fs/ntfs3/bitmap.c
+index e92bbd754365..8d5d8cf4902f 100644
+--- a/fs/ntfs3/bitmap.c
++++ b/fs/ntfs3/bitmap.c
+@@ -661,7 +661,7 @@ int wnd_init(struct wnd_bitmap *wnd, struct super_block *sb, size_t nbits)
+ 	if (!wnd->bits_last)
+ 		wnd->bits_last = wbits;
  
--	root_sdh = resident_data(attr);
-+	root_sdh = resident_data_ex(attr, sizeof(struct INDEX_ROOT));
- 	if (root_sdh->type != ATTR_ZERO ||
--	    root_sdh->rule != NTFS_COLLATION_TYPE_SECURITY_HASH) {
-+	    root_sdh->rule != NTFS_COLLATION_TYPE_SECURITY_HASH ||
-+	    offsetof(struct INDEX_ROOT, ihdr) + root_sdh->ihdr.used > attr->res.data_size) {
- 		err = -EINVAL;
- 		goto out;
- 	}
-@@ -1867,9 +1868,10 @@ int ntfs_security_init(struct ntfs_sb_info *sbi)
- 		goto out;
- 	}
+-	wnd->free_bits = kcalloc(wnd->nwnd, sizeof(u16), GFP_NOFS);
++	wnd->free_bits = kcalloc(wnd->nwnd, sizeof(u16), GFP_NOFS | __GFP_NOWARN);
+ 	if (!wnd->free_bits)
+ 		return -ENOMEM;
  
--	root_sii = resident_data(attr);
-+	root_sii = resident_data_ex(attr, sizeof(struct INDEX_ROOT));
- 	if (root_sii->type != ATTR_ZERO ||
--	    root_sii->rule != NTFS_COLLATION_TYPE_UINT) {
-+	    root_sii->rule != NTFS_COLLATION_TYPE_UINT ||
-+	    offsetof(struct INDEX_ROOT, ihdr) + root_sii->ihdr.used > attr->res.data_size) {
- 		err = -EINVAL;
- 		goto out;
- 	}
 -- 
 2.35.1
 
