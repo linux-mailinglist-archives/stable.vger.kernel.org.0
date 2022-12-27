@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C77E656EE6
-	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:36:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED32D656EEE
+	for <lists+stable@lfdr.de>; Tue, 27 Dec 2022 21:36:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232521AbiL0UgC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Dec 2022 15:36:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38032 "EHLO
+        id S232237AbiL0UgR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Dec 2022 15:36:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232446AbiL0UeB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:34:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D905CDF5B;
-        Tue, 27 Dec 2022 12:33:46 -0800 (PST)
+        with ESMTP id S229608AbiL0UeO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 15:34:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA7BED10E;
+        Tue, 27 Dec 2022 12:33:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6914961237;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7EE87B811F8;
+        Tue, 27 Dec 2022 20:33:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B6CFC43392;
         Tue, 27 Dec 2022 20:33:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E8EFC433F1;
-        Tue, 27 Dec 2022 20:33:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672173225;
-        bh=R0xzDaJAIYhuOOYsXD73fbY4k7O8EkfwaraLfqDWu+o=;
+        s=k20201202; t=1672173227;
+        bh=KAt6EnUcnTGHRWClgXKe+Jj0DU2VlSiFGrq1ovX+Pkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=COIF8bkN6LKgDp1FMm21k2Ctx37M8t3dy7Ksycae/IvDMhf0PcpbdybPEDrA6lzPP
-         ZoIFMPpt8SvxLBixccfV5g10YhJG0bVo8TdRJ1oUiCwPYILPqnn3jjg0aAH3/4kq/V
-         l5l72BP7ROvO82nBcD+hCHwe1opeEsC33Q8dN7xus1u52m+JRATEb610T4yBbtTt/6
-         b1cShu5C9fC3bY+y9hgub00qF/9XLgHyeQO24whT1NiGwG6Cnp6FFLdsMmiTLKtvYl
-         iAkjqchUFvccYRpCXJTWXJh22BXbtF2lY5bLOOHXp10b+M63scWHS0L5Lq9y/36kNB
-         Hm5YADUY6F34g==
+        b=GVE9YJ6jKObaoKAXzi2H5NRW58wMU3W2rMVYIPd7GX9j0bGKfd/Dq+i4TQpWNmuT/
+         h4RqHjyCOVztL0GUC2usDojAa3hNKF0iushhXAYI7quUN++aR00OTxlK2HwkexilAN
+         Uj1Pz7zhCQKSE9WhYLHAkJwnZG8w3tNuH5LtwdMxfX6pzBaC7cFujAxCbE+ZGBO6pi
+         WkiuuIiomvVlnGVGdXWTRW2fHZF8mAQQ385f4gHe+qV56ixNR7DZJtNcaQh1rFs+Gw
+         g/r4O027Mok76JdQTAQSpdBU8aG+WU7mEJES/j2axOkkCwvd4/gy8pht57B8Wcjzf3
+         jD2ZHETLeYYWA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     edward lo <edward.lo@ambergroup.io>,
+Cc:     Edward Lo <edward.lo@ambergroup.io>,
         Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
         Sasha Levin <sashal@kernel.org>, ntfs3@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.0 02/27] fs/ntfs3: Add overflow check for attribute size
-Date:   Tue, 27 Dec 2022 15:33:17 -0500
-Message-Id: <20221227203342.1213918-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.0 03/27] fs/ntfs3: Validate data run offset
+Date:   Tue, 27 Dec 2022 15:33:18 -0500
+Message-Id: <20221227203342.1213918-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221227203342.1213918-1-sashal@kernel.org>
 References: <20221227203342.1213918-1-sashal@kernel.org>
@@ -55,100 +55,218 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: edward lo <edward.lo@ambergroup.io>
+From: Edward Lo <edward.lo@ambergroup.io>
 
-[ Upstream commit e19c6277652efba203af4ecd8eed4bd30a0054c9 ]
+[ Upstream commit 6db620863f8528ed9a9aa5ad323b26554a17881d ]
 
-The offset addition could overflow and pass the used size check given an
-attribute with very large size (e.g., 0xffffff7f) while parsing MFT
-attributes. This could lead to out-of-bound memory R/W if we try to
-access the next attribute derived by Add2Ptr(attr, asize)
+This adds sanity checks for data run offset. We should make sure data
+run offset is legit before trying to unpack them, otherwise we may
+encounter use-after-free or some unexpected memory access behaviors.
 
-[   32.963847] BUG: unable to handle page fault for address: ffff956a83c76067
-[   32.964301] #PF: supervisor read access in kernel mode
-[   32.964526] #PF: error_code(0x0000) - not-present page
-[   32.964893] PGD 4dc01067 P4D 4dc01067 PUD 0
-[   32.965316] Oops: 0000 [#1] PREEMPT SMP NOPTI
-[   32.965727] CPU: 0 PID: 243 Comm: mount Not tainted 5.19.0+ #6
-[   32.966050] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-[   32.966628] RIP: 0010:mi_enum_attr+0x44/0x110
-[   32.967239] Code: 89 f0 48 29 c8 48 89 c1 39 c7 0f 86 94 00 00 00 8b 56 04 83 fa 17 0f 86 88 00 00 00 89 d0 01 ca 48 01 f0 8d 4a 08 39 f9a
-[   32.968101] RSP: 0018:ffffba15c06a7c38 EFLAGS: 00000283
-[   32.968364] RAX: ffff956a83c76067 RBX: ffff956983c76050 RCX: 000000000000006f
-[   32.968651] RDX: 0000000000000067 RSI: ffff956983c760e8 RDI: 00000000000001c8
-[   32.968963] RBP: ffffba15c06a7c38 R08: 0000000000000064 R09: 00000000ffffff7f
-[   32.969249] R10: 0000000000000007 R11: ffff956983c760e8 R12: ffff95698225e000
-[   32.969870] R13: 0000000000000000 R14: ffffba15c06a7cd8 R15: ffff95698225e170
-[   32.970655] FS:  00007fdab8189e40(0000) GS:ffff9569fdc00000(0000) knlGS:0000000000000000
-[   32.971098] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   32.971378] CR2: ffff956a83c76067 CR3: 0000000002c58000 CR4: 00000000000006f0
-[   32.972098] Call Trace:
-[   32.972842]  <TASK>
-[   32.973341]  ni_enum_attr_ex+0xda/0xf0
-[   32.974087]  ntfs_iget5+0x1db/0xde0
-[   32.974386]  ? slab_post_alloc_hook+0x53/0x270
-[   32.974778]  ? ntfs_fill_super+0x4c7/0x12a0
-[   32.975115]  ntfs_fill_super+0x5d6/0x12a0
-[   32.975336]  get_tree_bdev+0x175/0x270
-[   32.975709]  ? put_ntfs+0x150/0x150
-[   32.975956]  ntfs_fs_get_tree+0x15/0x20
-[   32.976191]  vfs_get_tree+0x2a/0xc0
-[   32.976374]  ? capable+0x19/0x20
-[   32.976572]  path_mount+0x484/0xaa0
-[   32.977025]  ? putname+0x57/0x70
-[   32.977380]  do_mount+0x80/0xa0
-[   32.977555]  __x64_sys_mount+0x8b/0xe0
-[   32.978105]  do_syscall_64+0x3b/0x90
-[   32.978830]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[   32.979311] RIP: 0033:0x7fdab72e948a
-[   32.980015] Code: 48 8b 0d 11 fa 2a 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 008
-[   32.981251] RSP: 002b:00007ffd15b87588 EFLAGS: 00000206 ORIG_RAX: 00000000000000a5
-[   32.981832] RAX: ffffffffffffffda RBX: 0000557de0aaf060 RCX: 00007fdab72e948a
-[   32.982234] RDX: 0000557de0aaf260 RSI: 0000557de0aaf2e0 RDI: 0000557de0ab7ce0
-[   32.982714] RBP: 0000000000000000 R08: 0000557de0aaf280 R09: 0000000000000020
-[   32.983046] R10: 00000000c0ed0000 R11: 0000000000000206 R12: 0000557de0ab7ce0
-[   32.983494] R13: 0000557de0aaf260 R14: 0000000000000000 R15: 00000000ffffffff
-[   32.984094]  </TASK>
-[   32.984352] Modules linked in:
-[   32.984753] CR2: ffff956a83c76067
-[   32.985911] ---[ end trace 0000000000000000 ]---
-[   32.986555] RIP: 0010:mi_enum_attr+0x44/0x110
-[   32.987217] Code: 89 f0 48 29 c8 48 89 c1 39 c7 0f 86 94 00 00 00 8b 56 04 83 fa 17 0f 86 88 00 00 00 89 d0 01 ca 48 01 f0 8d 4a 08 39 f9a
-[   32.988232] RSP: 0018:ffffba15c06a7c38 EFLAGS: 00000283
-[   32.988532] RAX: ffff956a83c76067 RBX: ffff956983c76050 RCX: 000000000000006f
-[   32.988916] RDX: 0000000000000067 RSI: ffff956983c760e8 RDI: 00000000000001c8
-[   32.989356] RBP: ffffba15c06a7c38 R08: 0000000000000064 R09: 00000000ffffff7f
-[   32.989994] R10: 0000000000000007 R11: ffff956983c760e8 R12: ffff95698225e000
-[   32.990415] R13: 0000000000000000 R14: ffffba15c06a7cd8 R15: ffff95698225e170
-[   32.991011] FS:  00007fdab8189e40(0000) GS:ffff9569fdc00000(0000) knlGS:0000000000000000
-[   32.991524] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   32.991936] CR2: ffff956a83c76067 CR3: 0000000002c58000 CR4: 00000000000006f0
+[   82.940342] BUG: KASAN: use-after-free in run_unpack+0x2e3/0x570
+[   82.941180] Read of size 1 at addr ffff888008a8487f by task mount/240
+[   82.941670]
+[   82.942069] CPU: 0 PID: 240 Comm: mount Not tainted 5.19.0+ #15
+[   82.942482] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+[   82.943720] Call Trace:
+[   82.944204]  <TASK>
+[   82.944471]  dump_stack_lvl+0x49/0x63
+[   82.944908]  print_report.cold+0xf5/0x67b
+[   82.945141]  ? __wait_on_bit+0x106/0x120
+[   82.945750]  ? run_unpack+0x2e3/0x570
+[   82.946626]  kasan_report+0xa7/0x120
+[   82.947046]  ? run_unpack+0x2e3/0x570
+[   82.947280]  __asan_load1+0x51/0x60
+[   82.947483]  run_unpack+0x2e3/0x570
+[   82.947709]  ? memcpy+0x4e/0x70
+[   82.947927]  ? run_pack+0x7a0/0x7a0
+[   82.948158]  run_unpack_ex+0xad/0x3f0
+[   82.948399]  ? mi_enum_attr+0x14a/0x200
+[   82.948717]  ? run_unpack+0x570/0x570
+[   82.949072]  ? ni_enum_attr_ex+0x1b2/0x1c0
+[   82.949332]  ? ni_fname_type.part.0+0xd0/0xd0
+[   82.949611]  ? mi_read+0x262/0x2c0
+[   82.949970]  ? ntfs_cmp_names_cpu+0x125/0x180
+[   82.950249]  ntfs_iget5+0x632/0x1870
+[   82.950621]  ? ntfs_get_block_bmap+0x70/0x70
+[   82.951192]  ? evict+0x223/0x280
+[   82.951525]  ? iput.part.0+0x286/0x320
+[   82.951969]  ntfs_fill_super+0x1321/0x1e20
+[   82.952436]  ? put_ntfs+0x1d0/0x1d0
+[   82.952822]  ? vsprintf+0x20/0x20
+[   82.953188]  ? mutex_unlock+0x81/0xd0
+[   82.953379]  ? set_blocksize+0x95/0x150
+[   82.954001]  get_tree_bdev+0x232/0x370
+[   82.954438]  ? put_ntfs+0x1d0/0x1d0
+[   82.954700]  ntfs_fs_get_tree+0x15/0x20
+[   82.955049]  vfs_get_tree+0x4c/0x130
+[   82.955292]  path_mount+0x645/0xfd0
+[   82.955615]  ? putname+0x80/0xa0
+[   82.955955]  ? finish_automount+0x2e0/0x2e0
+[   82.956310]  ? kmem_cache_free+0x110/0x390
+[   82.956723]  ? putname+0x80/0xa0
+[   82.957023]  do_mount+0xd6/0xf0
+[   82.957411]  ? path_mount+0xfd0/0xfd0
+[   82.957638]  ? __kasan_check_write+0x14/0x20
+[   82.957948]  __x64_sys_mount+0xca/0x110
+[   82.958310]  do_syscall_64+0x3b/0x90
+[   82.958719]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[   82.959341] RIP: 0033:0x7fd0d1ce948a
+[   82.960193] Code: 48 8b 0d 11 fa 2a 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 008
+[   82.961532] RSP: 002b:00007ffe59ff69a8 EFLAGS: 00000202 ORIG_RAX: 00000000000000a5
+[   82.962527] RAX: ffffffffffffffda RBX: 0000564dcc107060 RCX: 00007fd0d1ce948a
+[   82.963266] RDX: 0000564dcc107260 RSI: 0000564dcc1072e0 RDI: 0000564dcc10fce0
+[   82.963686] RBP: 0000000000000000 R08: 0000564dcc107280 R09: 0000000000000020
+[   82.964272] R10: 00000000c0ed0000 R11: 0000000000000202 R12: 0000564dcc10fce0
+[   82.964785] R13: 0000564dcc107260 R14: 0000000000000000 R15: 00000000ffffffff
 
-This patch adds an overflow check
-
-Signed-off-by: edward lo <edward.lo@ambergroup.io>
+Signed-off-by: Edward Lo <edward.lo@ambergroup.io>
 Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/record.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/ntfs3/attrib.c   | 13 +++++++++++++
+ fs/ntfs3/attrlist.c |  5 +++++
+ fs/ntfs3/frecord.c  | 14 ++++++++++++++
+ fs/ntfs3/fslog.c    |  9 +++++++++
+ fs/ntfs3/inode.c    |  5 +++++
+ 5 files changed, 46 insertions(+)
 
-diff --git a/fs/ntfs3/record.c b/fs/ntfs3/record.c
-index 7d2fac5ee215..9f81944441ae 100644
---- a/fs/ntfs3/record.c
-+++ b/fs/ntfs3/record.c
-@@ -220,6 +220,11 @@ struct ATTRIB *mi_enum_attr(struct mft_inode *mi, struct ATTRIB *attr)
- 			return NULL;
- 		}
+diff --git a/fs/ntfs3/attrib.c b/fs/ntfs3/attrib.c
+index 71f870d497ae..0d354560d323 100644
+--- a/fs/ntfs3/attrib.c
++++ b/fs/ntfs3/attrib.c
+@@ -101,6 +101,10 @@ static int attr_load_runs(struct ATTRIB *attr, struct ntfs_inode *ni,
  
-+		if (off + asize < off) {
-+			/* overflow check */
-+			return NULL;
+ 	asize = le32_to_cpu(attr->size);
+ 	run_off = le16_to_cpu(attr->nres.run_off);
++
++	if (run_off > asize)
++		return -EINVAL;
++
+ 	err = run_unpack_ex(run, ni->mi.sbi, ni->mi.rno, svcn, evcn,
+ 			    vcn ? *vcn : svcn, Add2Ptr(attr, run_off),
+ 			    asize - run_off);
+@@ -1232,6 +1236,10 @@ int attr_load_runs_vcn(struct ntfs_inode *ni, enum ATTR_TYPE type,
+ 	}
+ 
+ 	ro = le16_to_cpu(attr->nres.run_off);
++
++	if (ro > le32_to_cpu(attr->size))
++		return -EINVAL;
++
+ 	err = run_unpack_ex(run, ni->mi.sbi, ni->mi.rno, svcn, evcn, svcn,
+ 			    Add2Ptr(attr, ro), le32_to_cpu(attr->size) - ro);
+ 	if (err < 0)
+@@ -1901,6 +1909,11 @@ int attr_collapse_range(struct ntfs_inode *ni, u64 vbo, u64 bytes)
+ 			u16 le_sz;
+ 			u16 roff = le16_to_cpu(attr->nres.run_off);
+ 
++			if (roff > le32_to_cpu(attr->size)) {
++				err = -EINVAL;
++				goto out;
++			}
++
+ 			run_unpack_ex(RUN_DEALLOCATE, sbi, ni->mi.rno, svcn,
+ 				      evcn1 - 1, svcn, Add2Ptr(attr, roff),
+ 				      le32_to_cpu(attr->size) - roff);
+diff --git a/fs/ntfs3/attrlist.c b/fs/ntfs3/attrlist.c
+index bad6d8a849a2..c0c6bcbc8c05 100644
+--- a/fs/ntfs3/attrlist.c
++++ b/fs/ntfs3/attrlist.c
+@@ -68,6 +68,11 @@ int ntfs_load_attr_list(struct ntfs_inode *ni, struct ATTRIB *attr)
+ 
+ 		run_init(&ni->attr_list.run);
+ 
++		if (run_off > le32_to_cpu(attr->size)) {
++			err = -EINVAL;
++			goto out;
 +		}
 +
- 		attr = Add2Ptr(attr, asize);
- 		off += asize;
- 	}
+ 		err = run_unpack_ex(&ni->attr_list.run, ni->mi.sbi, ni->mi.rno,
+ 				    0, le64_to_cpu(attr->nres.evcn), 0,
+ 				    Add2Ptr(attr, run_off),
+diff --git a/fs/ntfs3/frecord.c b/fs/ntfs3/frecord.c
+index 381a38a06ec2..b1b476fb7229 100644
+--- a/fs/ntfs3/frecord.c
++++ b/fs/ntfs3/frecord.c
+@@ -568,6 +568,12 @@ static int ni_repack(struct ntfs_inode *ni)
+ 		}
+ 
+ 		roff = le16_to_cpu(attr->nres.run_off);
++
++		if (roff > le32_to_cpu(attr->size)) {
++			err = -EINVAL;
++			break;
++		}
++
+ 		err = run_unpack(&run, sbi, ni->mi.rno, svcn, evcn, svcn,
+ 				 Add2Ptr(attr, roff),
+ 				 le32_to_cpu(attr->size) - roff);
+@@ -1589,6 +1595,9 @@ int ni_delete_all(struct ntfs_inode *ni)
+ 		asize = le32_to_cpu(attr->size);
+ 		roff = le16_to_cpu(attr->nres.run_off);
+ 
++		if (roff > asize)
++			return -EINVAL;
++
+ 		/* run==1 means unpack and deallocate. */
+ 		run_unpack_ex(RUN_DEALLOCATE, sbi, ni->mi.rno, svcn, evcn, svcn,
+ 			      Add2Ptr(attr, roff), asize - roff);
+@@ -2291,6 +2300,11 @@ int ni_decompress_file(struct ntfs_inode *ni)
+ 		asize = le32_to_cpu(attr->size);
+ 		roff = le16_to_cpu(attr->nres.run_off);
+ 
++		if (roff > asize) {
++			err = -EINVAL;
++			goto out;
++		}
++
+ 		/*run==1  Means unpack and deallocate. */
+ 		run_unpack_ex(RUN_DEALLOCATE, sbi, ni->mi.rno, svcn, evcn, svcn,
+ 			      Add2Ptr(attr, roff), asize - roff);
+diff --git a/fs/ntfs3/fslog.c b/fs/ntfs3/fslog.c
+index e7c494005122..138050b1aa93 100644
+--- a/fs/ntfs3/fslog.c
++++ b/fs/ntfs3/fslog.c
+@@ -2727,6 +2727,9 @@ static inline bool check_attr(const struct MFT_REC *rec,
+ 			return false;
+ 		}
+ 
++		if (run_off > asize)
++			return false;
++
+ 		if (run_unpack(NULL, sbi, 0, svcn, evcn, svcn,
+ 			       Add2Ptr(attr, run_off), asize - run_off) < 0) {
+ 			return false;
+@@ -4771,6 +4774,12 @@ int log_replay(struct ntfs_inode *ni, bool *initialized)
+ 		u16 roff = le16_to_cpu(attr->nres.run_off);
+ 		CLST svcn = le64_to_cpu(attr->nres.svcn);
+ 
++		if (roff > t32) {
++			kfree(oa->attr);
++			oa->attr = NULL;
++			goto fake_attr;
++		}
++
+ 		err = run_unpack(&oa->run0, sbi, inode->i_ino, svcn,
+ 				 le64_to_cpu(attr->nres.evcn), svcn,
+ 				 Add2Ptr(attr, roff), t32 - roff);
+diff --git a/fs/ntfs3/inode.c b/fs/ntfs3/inode.c
+index 26a76ebfe58f..3f5e3ca099c7 100644
+--- a/fs/ntfs3/inode.c
++++ b/fs/ntfs3/inode.c
+@@ -364,6 +364,11 @@ static struct inode *ntfs_read_mft(struct inode *inode,
+ attr_unpack_run:
+ 	roff = le16_to_cpu(attr->nres.run_off);
+ 
++	if (roff > asize) {
++		err = -EINVAL;
++		goto out;
++	}
++
+ 	t64 = le64_to_cpu(attr->nres.svcn);
+ 	err = run_unpack_ex(run, sbi, ino, t64, le64_to_cpu(attr->nres.evcn),
+ 			    t64, Add2Ptr(attr, roff), asize - roff);
 -- 
 2.35.1
 
