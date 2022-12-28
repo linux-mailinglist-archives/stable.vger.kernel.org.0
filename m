@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA475657ED0
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:57:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6212C657861
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:49:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234203AbiL1P5x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:57:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45198 "EHLO
+        id S233069AbiL1Ot6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:49:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232644AbiL1P5w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:57:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 311F018390
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:57:52 -0800 (PST)
+        with ESMTP id S233066AbiL1Ot5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:49:57 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 543D0B41
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:49:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BDA67B8172B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:57:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 121CAC433D2;
-        Wed, 28 Dec 2022 15:57:48 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9F189CE1355
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:49:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93A72C433D2;
+        Wed, 28 Dec 2022 14:49:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243069;
-        bh=rkLBp7T6HCTqky4JiL2uDPw+MUHvb3s2k95hlO4iD8E=;
+        s=korg; t=1672238992;
+        bh=ZETYinfxwxS2BbSNxY2mp97gjw2ozDAQpHkuGR4y3UI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pmjVj7GLcgM/DhmyDEbf+EcdGD5Wl8BcOBhXBLHo2kvOL5WTRsVV1YEttT3pL85Yy
-         yGl8o7DMRSifBUrkJCwNDatgxgz6ivS0FXV9iS+Rq7ORFhOp7ar/aiJgUY7CZ+HoQw
-         DRVb2HpizGKBqdim/GXmCQpYdAQLmhGig4mawuvw=
+        b=G2ZqxYQxB5JrdIUraaCP4kIhdDjQVWi2YYF1DXf3IT5wNCiGXLoUGFFlO+gSPWKI3
+         0wg1aqCweZYV4ybmgwKubTEwnPWSiVY509mnMzk1gmT3MS509t1SAF26gMb/uO3U7Y
+         X29BZ/fLvgZnvPxOBHIydHPN9Xeo8O5LaCd5BmQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Chen Hui <judy.chenhui@huawei.com>,
+        Sibi Sankar <quic_sibis@quicinc.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0448/1146] bonding: uninitialized variable in bond_miimon_inspect()
+Subject: [PATCH 5.15 080/731] cpufreq: qcom-hw: Fix memory leak in qcom_cpufreq_hw_read_lut()
 Date:   Wed, 28 Dec 2022 15:33:07 +0100
-Message-Id: <20221228144342.349636334@linuxfoundation.org>
+Message-Id: <20221228144258.870360468@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Chen Hui <judy.chenhui@huawei.com>
 
-[ Upstream commit e5214f363dabca240446272dac54d404501ad5e5 ]
+[ Upstream commit 9901c21bcaf2f01fe5078f750d624f4ddfa8f81b ]
 
-The "ignore_updelay" variable needs to be initialized to false.
+If "cpu_dev" fails to get opp table in qcom_cpufreq_hw_read_lut(),
+the program will return, resulting in "table" resource is not released.
 
-Fixes: f8a65ab2f3ff ("bonding: fix link recovery in mode 2 when updelay is nonzero")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Link: https://lore.kernel.org/r/Y4SWJlh3ohJ6EPTL@kili
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 51c843cf77bb ("cpufreq: qcom: Update the bandwidth levels on frequency change")
+Signed-off-by: Chen Hui <judy.chenhui@huawei.com>
+Reviewed-by: Sibi Sankar <quic_sibis@quicinc.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/cpufreq/qcom-cpufreq-hw.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index c527f8b37ae6..29d0a6493b1b 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -2531,10 +2531,10 @@ static int bond_slave_info_query(struct net_device *bond_dev, struct ifslave *in
- /* called with rcu_read_lock() */
- static int bond_miimon_inspect(struct bonding *bond)
- {
-+	bool ignore_updelay = false;
- 	int link_state, commit = 0;
- 	struct list_head *iter;
- 	struct slave *slave;
--	bool ignore_updelay;
- 
- 	if (BOND_MODE(bond) == BOND_MODE_ACTIVEBACKUP) {
- 		ignore_updelay = !rcu_dereference(bond->curr_active_slave);
+diff --git a/drivers/cpufreq/qcom-cpufreq-hw.c b/drivers/cpufreq/qcom-cpufreq-hw.c
+index bb2f59fd0de4..bbcba2c38e85 100644
+--- a/drivers/cpufreq/qcom-cpufreq-hw.c
++++ b/drivers/cpufreq/qcom-cpufreq-hw.c
+@@ -177,6 +177,7 @@ static int qcom_cpufreq_hw_read_lut(struct device *cpu_dev,
+ 		}
+ 	} else if (ret != -ENODEV) {
+ 		dev_err(cpu_dev, "Invalid opp table in device tree\n");
++		kfree(table);
+ 		return ret;
+ 	} else {
+ 		policy->fast_switch_possible = true;
 -- 
 2.35.1
 
