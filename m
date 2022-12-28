@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75296658293
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:38:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17519658295
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:38:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235097AbiL1Qij (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:38:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53780 "EHLO
+        id S231936AbiL1Qik (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:38:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234970AbiL1Qh1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:37:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27CF51AF29
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:33:35 -0800 (PST)
+        with ESMTP id S234813AbiL1Qhj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:37:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C40A61B1FB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:33:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BB017B8171E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:33:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CDF6C433D2;
-        Wed, 28 Dec 2022 16:33:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6126C61562
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:33:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 764CEC433D2;
+        Wed, 28 Dec 2022 16:33:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245212;
-        bh=hqklUwmjkTXDO1IOOdvqx5vqdKWCEci0sybVNl62Y4M=;
+        s=korg; t=1672245217;
+        bh=vN7+nw468i9Uj88enQI+sxQT378K1ipRLkWW1xecTQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wWD7U3u+ECFL4HkL5WmEWDH5TauCf11BqS7xJvYJI4ky4/G643jeAJrDYCUJff+yk
-         oIZvJ0WnmWITDdILk6lIIs7fnEhGKavz4TXAKlBdg10uMG7b+Xlm77KpzypZjErGup
-         r4ZsPpVpo7avn6fQ6r/5Q8YC59waLdsfM90XXJIM=
+        b=l6aGkDIH5zk249MDcRba4VzgimjrFub3Jn86dE4OBroayRtRT8opGCigsX9UuBaPn
+         QxbHHXPDh4xGwQvXb4O5yZIzw+PnS6ZU4gkBamS+75JfaKaUpJzIcppVl8ffRZBf5G
+         ZY+2uC9XqCjw6m0xNf475Z3o/6VycgEAqhxwjoSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
+        patches@lists.linux.dev, Al Cooper <alcooperx@gmail.com>,
+        Justin Chen <justinpopo6@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0816/1146] phy: qcom-qmp-usb: fix sc8280xp PCS_USB offset
-Date:   Wed, 28 Dec 2022 15:39:15 +0100
-Message-Id: <20221228144352.316471530@linuxfoundation.org>
+Subject: [PATCH 6.1 0817/1146] phy: usb: s2 WoL wakeup_count not incremented for USB->Eth devices
+Date:   Wed, 28 Dec 2022 15:39:16 +0100
+Message-Id: <20221228144352.343745896@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -54,41 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Al Cooper <alcooperx@gmail.com>
 
-[ Upstream commit 4c6b3af3906d0c59497d3bfb07760f3a082b4150 ]
+[ Upstream commit f7fc5b7090372fc4dd7798c874635ca41b8ba733 ]
 
-The PCS_USB register block lives at an offset of 0x1000 from the PCS
-region on SC8280XP so add the missing offset to avoid corrupting
-unrelated registers on runtime suspend.
+The PHY's "wakeup_count" is not incrementing when waking from
+WoL. The wakeup count can be found in sysfs at:
+/sys/bus/platform/devices/rdb/*.usb-phy/power/wakeup_count.
+The problem is that the system wakup event handler was being passed
+the wrong "device" by the PHY driver.
 
-Note that the current binding is broken as it does not describe the
-PCS_USB region and the PCS register size does not cover PCS_USB and the
-regions in between. As Linux currently maps full pages, simply adding
-the offset to driver works until the binding has been fixed.
-
-Fixes: c0c7769cdae2 ("phy: qcom-qmp: Add SC8280XP USB3 UNI phy")
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20221028160435.26948-2-johan+linaro@kernel.org
+Fixes: f1c0db40a3ad ("phy: usb: Add "wake on" functionality")
+Signed-off-by: Al Cooper <alcooperx@gmail.com>
+Signed-off-by: Justin Chen <justinpopo6@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/1665005418-15807-3-git-send-email-justinpopo6@gmail.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/qualcomm/phy-qcom-qmp-usb.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/phy/broadcom/phy-brcm-usb.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/phy/qualcomm/phy-qcom-qmp-usb.c b/drivers/phy/qualcomm/phy-qcom-qmp-usb.c
-index 4960ebe674ec..f0ba35bb73c1 100644
---- a/drivers/phy/qualcomm/phy-qcom-qmp-usb.c
-+++ b/drivers/phy/qualcomm/phy-qcom-qmp-usb.c
-@@ -1695,6 +1695,7 @@ static const struct qmp_phy_cfg sc8280xp_usb3_uniphy_cfg = {
- 	.vreg_list		= qmp_phy_vreg_l,
- 	.num_vregs		= ARRAY_SIZE(qmp_phy_vreg_l),
- 	.regs			= qmp_v4_usb3phy_regs_layout,
-+	.pcs_usb_offset		= 0x1000,
- };
+diff --git a/drivers/phy/broadcom/phy-brcm-usb.c b/drivers/phy/broadcom/phy-brcm-usb.c
+index 2cb3779fcdf8..c0c3ab9b2a15 100644
+--- a/drivers/phy/broadcom/phy-brcm-usb.c
++++ b/drivers/phy/broadcom/phy-brcm-usb.c
+@@ -102,9 +102,9 @@ static int brcm_pm_notifier(struct notifier_block *notifier,
  
- static const struct qmp_phy_cfg qmp_v3_usb3_uniphy_cfg = {
+ static irqreturn_t brcm_usb_phy_wake_isr(int irq, void *dev_id)
+ {
+-	struct phy *gphy = dev_id;
++	struct device *dev = dev_id;
+ 
+-	pm_wakeup_event(&gphy->dev, 0);
++	pm_wakeup_event(dev, 0);
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -451,7 +451,7 @@ static int brcm_usb_phy_dvr_init(struct platform_device *pdev,
+ 	if (priv->wake_irq >= 0) {
+ 		err = devm_request_irq(dev, priv->wake_irq,
+ 				       brcm_usb_phy_wake_isr, 0,
+-				       dev_name(dev), gphy);
++				       dev_name(dev), dev);
+ 		if (err < 0)
+ 			return err;
+ 		device_set_wakeup_capable(dev, 1);
 -- 
 2.35.1
 
