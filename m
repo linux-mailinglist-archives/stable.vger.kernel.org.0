@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD3156578E2
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:55:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E4A9657EE5
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:58:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233243AbiL1Ozc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:55:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42334 "EHLO
+        id S232931AbiL1P65 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:58:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233328AbiL1OzR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:55:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33972D93
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:55:16 -0800 (PST)
+        with ESMTP id S232950AbiL1P64 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:58:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5CB618B2E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:58:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6778B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:55:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6374DC433EF;
-        Wed, 28 Dec 2022 14:55:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4FC7CB8172B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:58:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A12E8C433D2;
+        Wed, 28 Dec 2022 15:58:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239313;
-        bh=4ACBcbDJ6Ctcg/srlEdFd2WrfFh78XgoTZQLLlxPVTQ=;
+        s=korg; t=1672243133;
+        bh=VKQfryT/iuoKXEWGlNMPXyOdVpScYOSuy2mBU3Mz0TY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OtXC0PSaHYNFABYVONKk7/qvBoyTCVls2beE9LnSF5v69poO8GQjo77MOLl8RSgGZ
-         tb5zc03+nG77hmcjRU+LKUf90iSmzBpun9Kox6HIUV3wGn5a+Hjo8VbEcisA6jVBmg
-         wOxn4JXcgTxMMkpS23Ou0M4VJMxK6PfJanwfkRHA=
+        b=N/kQb1ZSKy3ynxPGigA1hi+BsLAjk0V5D4Sb+1FnkkPw2krJm5P9vJ2WkBq3Rnxeg
+         IgpSUg9YEv9f8fOJBTvQJgaxrc/THbX5O7D6sa3zuv/rKIJNjb0iTlEmworLiOhIPp
+         EFsVe2fuTMT62y+iAyN7o/+x6dfTz4/akNs/ERag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 174/731] spi: Update reference to struct spi_controller
+Subject: [PATCH 6.0 0493/1073] mmc: mmci: fix return value check of mmc_add_host()
 Date:   Wed, 28 Dec 2022 15:34:41 +0100
-Message-Id: <20221228144301.608283678@linuxfoundation.org>
+Message-Id: <20221228144341.424735892@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit bf585ccee22faf469d82727cf375868105b362f7 ]
+[ Upstream commit b38a20f29a49ae04d23750d104b25400b792b98c ]
 
-struct spi_master has been renamed to struct spi_controller. Update the
-reference in spi.rst to make it clickable again.
+mmc_add_host() may return error, if we ignore its return value,
+it will lead two issues:
+1. The memory that allocated in mmc_alloc_host() is leaked.
+2. In the remove() path, mmc_remove_host() will be called to
+   delete device, but it's not added yet, it will lead a kernel
+   crash because of null-ptr-deref in device_del().
 
-Fixes: 8caab75fd2c2 ("spi: Generalize SPI "master" to "controller"")
-Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
-Link: https://lore.kernel.org/r/20221101173252.1069294-1-j.neuschaefer@gmx.net
-Signed-off-by: Mark Brown <broonie@kernel.org>
+So fix this by checking the return value and goto error path which
+will call mmc_free_host().
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221109133539.3275664-1-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/driver-api/spi.rst | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mmc/host/mmci.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/driver-api/spi.rst b/Documentation/driver-api/spi.rst
-index f64cb666498a..f28887045049 100644
---- a/Documentation/driver-api/spi.rst
-+++ b/Documentation/driver-api/spi.rst
-@@ -25,8 +25,8 @@ hardware, which may be as simple as a set of GPIO pins or as complex as
- a pair of FIFOs connected to dual DMA engines on the other side of the
- SPI shift register (maximizing throughput). Such drivers bridge between
- whatever bus they sit on (often the platform bus) and SPI, and expose
--the SPI side of their device as a :c:type:`struct spi_master
--<spi_master>`. SPI devices are children of that master,
-+the SPI side of their device as a :c:type:`struct spi_controller
-+<spi_controller>`. SPI devices are children of that master,
- represented as a :c:type:`struct spi_device <spi_device>` and
- manufactured from :c:type:`struct spi_board_info
- <spi_board_info>` descriptors which are usually provided by
+diff --git a/drivers/mmc/host/mmci.c b/drivers/mmc/host/mmci.c
+index 012aa85489d8..b9e5dfe74e5c 100644
+--- a/drivers/mmc/host/mmci.c
++++ b/drivers/mmc/host/mmci.c
+@@ -2256,7 +2256,9 @@ static int mmci_probe(struct amba_device *dev,
+ 	pm_runtime_set_autosuspend_delay(&dev->dev, 50);
+ 	pm_runtime_use_autosuspend(&dev->dev);
+ 
+-	mmc_add_host(mmc);
++	ret = mmc_add_host(mmc);
++	if (ret)
++		goto clk_disable;
+ 
+ 	pm_runtime_put(&dev->dev);
+ 	return 0;
 -- 
 2.35.1
 
