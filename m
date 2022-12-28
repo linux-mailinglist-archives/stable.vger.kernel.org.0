@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F363658043
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:16:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C74C8658060
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:17:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234501AbiL1QQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:16:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59864 "EHLO
+        id S233193AbiL1QRf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:17:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234508AbiL1QQB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:16:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B91A1A823
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:13:18 -0800 (PST)
+        with ESMTP id S234528AbiL1QQf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:16:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4464C1AA0C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:14:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38C666156E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:13:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C61CC433D2;
-        Wed, 28 Dec 2022 16:13:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F2752B81886
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:14:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A445C433EF;
+        Wed, 28 Dec 2022 16:14:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243997;
-        bh=D2nGL7fs+XPP1YjAsf8TRYWowaxa1PIxTxY2oyNpFV0=;
+        s=korg; t=1672244056;
+        bh=lV8BVZtD0eHnwAEuUs7Ehw9QERV+KVmNiw3i/+e3R00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LBAwZStgjMR7Xuil5UBd9PbuslBUmOlDYzwqhJvq8fZtG4p91e7MIoSkJ+IePNlKY
-         mBi3b805HY/Noel0DjH7c980fnhqb4IEZUyu6C4Gu9Ydu5FpHvq0F1LSbvk9h68aLH
-         7I8S4PHXK0ov/XUhOI+kbpb5YM21QcQGDvols6xc=
+        b=miQmdBmIzDBrz9iD2udUQvKriOnFobNXquSzkrvjSjnkIJABGINMQiWX7s/y9VtAg
+         sOj+fppO35Ltl5NtMTjOZ/ILw+UPyFPBXaBiRx8nmdJS1L/91XhiMMY87BR2cB4iNU
+         HNNc/0uWb0pStAYmYuFQmTMevzh4OvQkvOWbgzDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,11 +35,11 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Serge Semin <Sergey.Semin@baikalelectronics.ru>,
         Lorenzo Pieralisi <lpieralisi@kernel.org>,
         Rob Herring <robh@kernel.org>,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0611/1073] dt-bindings: imx6q-pcie: Fix clock names for imx6sx and imx8mq
-Date:   Wed, 28 Dec 2022 15:36:39 +0100
-Message-Id: <20221228144344.640953013@linuxfoundation.org>
+Subject: [PATCH 6.0 0612/1073] dt-bindings: visconti-pcie: Fix interrupts array max constraints
+Date:   Wed, 28 Dec 2022 15:36:40 +0100
+Message-Id: <20221228144344.667886524@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -58,98 +58,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit b8a83e600bdde93e7da41ea3204b2b3832a3c99b ]
+[ Upstream commit 4cf4b9b70ab2785461190c08a3542d2d74c28b46 ]
 
-Originally as it was defined the legacy bindings the pcie_inbound_axi and
-pcie_aux clock names were supposed to be used in the fsl,imx6sx-pcie and
-fsl,imx8mq-pcie devices respectively. But the bindings conversion has been
-incorrectly so now the fourth clock name is defined as "pcie_inbound_axi
-for imx6sx-pcie, pcie_aux for imx8mq-pcie", which is completely wrong.
-Let's fix that by conditionally apply the clock-names constraints based on
-the compatible string content.
+In accordance with the way the device DT-node is actually defined in
+arch/arm64/boot/dts/toshiba/tmpv7708.dtsi and the way the device is probed
+by the DW PCIe driver there are two IRQs it actually has. It's MSI IRQ the
+DT-bindings lack. Let's extend the interrupts property constraints then
+and fix the schema example so one would be acceptable by the actual device
+DT-bindings.
 
-Link: https://lore.kernel.org/r/20221113191301.5526-2-Sergey.Semin@baikalelectronics.ru
-Fixes: 751ca492f131 ("dt-bindings: PCI: imx6: convert the imx pcie controller to dtschema")
+Link: https://lore.kernel.org/r/20221113191301.5526-3-Sergey.Semin@baikalelectronics.ru
+Fixes: 17c1b16340f0 ("dt-bindings: pci: Add DT binding for Toshiba Visconti PCIe controller")
 Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Acked-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Acked-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../bindings/pci/fsl,imx6q-pcie.yaml          | 46 +++++++++++++++++--
- 1 file changed, 42 insertions(+), 4 deletions(-)
+ .../devicetree/bindings/pci/toshiba,visconti-pcie.yaml     | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/pci/fsl,imx6q-pcie.yaml b/Documentation/devicetree/bindings/pci/fsl,imx6q-pcie.yaml
-index 376e739bcad4..49b4f7a32e71 100644
---- a/Documentation/devicetree/bindings/pci/fsl,imx6q-pcie.yaml
-+++ b/Documentation/devicetree/bindings/pci/fsl,imx6q-pcie.yaml
-@@ -14,9 +14,6 @@ description: |+
-   This PCIe host controller is based on the Synopsys DesignWare PCIe IP
-   and thus inherits all the common properties defined in snps,dw-pcie.yaml.
+diff --git a/Documentation/devicetree/bindings/pci/toshiba,visconti-pcie.yaml b/Documentation/devicetree/bindings/pci/toshiba,visconti-pcie.yaml
+index 30b6396d83c8..aea0e2bcdd77 100644
+--- a/Documentation/devicetree/bindings/pci/toshiba,visconti-pcie.yaml
++++ b/Documentation/devicetree/bindings/pci/toshiba,visconti-pcie.yaml
+@@ -36,7 +36,7 @@ properties:
+       - const: mpu
  
--allOf:
--  - $ref: /schemas/pci/snps,dw-pcie.yaml#
--
- properties:
-   compatible:
-     enum:
-@@ -61,7 +58,7 @@ properties:
-       - const: pcie
-       - const: pcie_bus
-       - const: pcie_phy
--      - const: pcie_inbound_axi for imx6sx-pcie, pcie_aux for imx8mq-pcie
-+      - enum: [ pcie_inbound_axi, pcie_aux ]
+   interrupts:
+-    maxItems: 1
++    maxItems: 2
  
-   num-lanes:
-     const: 1
-@@ -175,6 +172,47 @@ required:
-   - clocks
-   - clock-names
- 
-+allOf:
-+  - $ref: /schemas/pci/snps,dw-pcie.yaml#
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            const: fsl,imx6sx-pcie
-+    then:
-+      properties:
-+        clock-names:
-+          items:
-+            - {}
-+            - {}
-+            - {}
-+            - const: pcie_inbound_axi
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            const: fsl,imx8mq-pcie
-+    then:
-+      properties:
-+        clock-names:
-+          items:
-+            - {}
-+            - {}
-+            - {}
-+            - const: pcie_aux
-+  - if:
-+      properties:
-+        compatible:
-+          not:
-+            contains:
-+              enum:
-+                - fsl,imx6sx-pcie
-+                - fsl,imx8mq-pcie
-+    then:
-+      properties:
-+        clock-names:
-+          maxItems: 3
-+
- unevaluatedProperties: false
- 
- examples:
+   clocks:
+     items:
+@@ -94,8 +94,9 @@ examples:
+             #interrupt-cells = <1>;
+             ranges = <0x81000000 0 0x40000000 0 0x40000000 0 0x00010000>,
+                      <0x82000000 0 0x50000000 0 0x50000000 0 0x20000000>;
+-            interrupts = <GIC_SPI 215 IRQ_TYPE_LEVEL_HIGH>;
+-            interrupt-names = "intr";
++            interrupts = <GIC_SPI 211 IRQ_TYPE_LEVEL_HIGH>,
++                         <GIC_SPI 215 IRQ_TYPE_LEVEL_HIGH>;
++            interrupt-names = "msi", "intr";
+             interrupt-map-mask = <0 0 0 7>;
+             interrupt-map =
+                 <0 0 0 1 &gic GIC_SPI 215 IRQ_TYPE_LEVEL_HIGH
 -- 
 2.35.1
 
