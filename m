@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99323657987
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:02:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 972C8657FDC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:11:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233434AbiL1PCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:02:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49130 "EHLO
+        id S234485AbiL1QLB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:11:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233455AbiL1PCX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:02:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC9C712097
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:01:59 -0800 (PST)
+        with ESMTP id S234567AbiL1QKb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:10:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 794271AA00
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:09:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66BBFB81710
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:01:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8707C433D2;
-        Wed, 28 Dec 2022 15:01:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E267961579
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:08:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00AB0C433EF;
+        Wed, 28 Dec 2022 16:08:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239717;
-        bh=l1bysOw6NrWjJjnsTbcRQktRrXpUHoGc7pNnnLvvdHA=;
+        s=korg; t=1672243739;
+        bh=b0mLw23YEEGO5QtvlzuDhKg7RuVactZgpj4TokLm3RE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yvjeonZ36+FR1CttcNZ67Ma8ReNZCbHun9+/XeKpRNmeySl8NFzOd6YWfSdmp3eWK
-         tAKKg3DcLDReyrDGjxctLRucS4JCPyTlJ7+ITAuX05G38yARvhhbC1PYNPHnigkO1V
-         LWH49haRc2yHxj5YrU0Z5Er9UJfT5O6f9oXv4Tc0=
+        b=zbDVnAxHdNcHfFS4Oc+WTatsrPiyZK1YMqyVUa2tBrg1BKxRz3SJC4uP59vkG7suy
+         PObpAhdbawAkrCkDbYEtnm+kJhP9eWNPWd7oq5wMZtReKE6HUeGJZBDTYN+tXsBEif
+         XoDrxcLGz0W1oml1CrNmPsMGDlz6FSYmjo4kWPuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pengcheng Yang <yangpc@wangsu.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
+        patches@lists.linux.dev, Dongdong Zhang <zhangdongdong1@oppo.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 261/731] bpf, sockmap: Fix repeated calls to sock_put() when msg has more_data
+Subject: [PATCH 6.0 0580/1073] f2fs: fix normal discard process
 Date:   Wed, 28 Dec 2022 15:36:08 +0100
-Message-Id: <20221228144304.127942138@linuxfoundation.org>
+Message-Id: <20221228144343.803060388@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pengcheng Yang <yangpc@wangsu.com>
+From: Dongdong Zhang <zhangdongdong1@oppo.com>
 
-[ Upstream commit 7a9841ca025275b5b0edfb0b618934abb6ceec15 ]
+[ Upstream commit b5f1a218ae5e4339130d6e733f0e63d623e09a2c ]
 
-In tcp_bpf_send_verdict() redirection, the eval variable is assigned to
-__SK_REDIRECT after the apply_bytes data is sent, if msg has more_data,
-sock_put() will be called multiple times.
+In the DPOLICY_BG mode, there is a conflict between
+the two conditions "i + 1 < dpolicy->granularity" and
+"i < DEFAULT_DISCARD_GRANULARITY". If i = 15, the first
+condition is false, it will enter the second condition
+and dispatch all small granularity discards in function
+ __issue_discard_cmd_orderly. The restrictive effect
+of the first condition to small discards will be
+invalidated. These two conditions should align.
 
-We should reset the eval variable to __SK_NONE every time more_data
-starts.
-
-This causes:
-
-IPv4: Attempt to release TCP socket in state 1 00000000b4c925d7
-------------[ cut here ]------------
-refcount_t: addition on 0; use-after-free.
-WARNING: CPU: 5 PID: 4482 at lib/refcount.c:25 refcount_warn_saturate+0x7d/0x110
-Modules linked in:
-CPU: 5 PID: 4482 Comm: sockhash_bypass Kdump: loaded Not tainted 6.0.0 #1
-Hardware name: Red Hat KVM, BIOS 1.11.0-2.el7 04/01/2014
-Call Trace:
- <TASK>
- __tcp_transmit_skb+0xa1b/0xb90
- ? __alloc_skb+0x8c/0x1a0
- ? __kmalloc_node_track_caller+0x184/0x320
- tcp_write_xmit+0x22a/0x1110
- __tcp_push_pending_frames+0x32/0xf0
- do_tcp_sendpages+0x62d/0x640
- tcp_bpf_push+0xae/0x2c0
- tcp_bpf_sendmsg_redir+0x260/0x410
- ? preempt_count_add+0x70/0xa0
- tcp_bpf_send_verdict+0x386/0x4b0
- tcp_bpf_sendmsg+0x21b/0x3b0
- sock_sendmsg+0x58/0x70
- __sys_sendto+0xfa/0x170
- ? xfd_validate_state+0x1d/0x80
- ? switch_fpu_return+0x59/0xe0
- __x64_sys_sendto+0x24/0x30
- do_syscall_64+0x37/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Fixes: cd9733f5d75c ("tcp_bpf: Fix one concurrency problem in the tcp_bpf_send_verdict function")
-Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/1669718441-2654-2-git-send-email-yangpc@wangsu.com
+Fixes: 20ee4382322c ("f2fs: issue small discard by LBA order")
+Signed-off-by: Dongdong Zhang <zhangdongdong1@oppo.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_bpf.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/f2fs/segment.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
-index 5194c6870273..a38db402994d 100644
---- a/net/ipv4/tcp_bpf.c
-+++ b/net/ipv4/tcp_bpf.c
-@@ -280,7 +280,7 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
- 	bool cork = false, enospc = sk_msg_full(msg);
- 	struct sock *sk_redir;
- 	u32 tosend, origsize, sent, delta = 0;
--	u32 eval = __SK_NONE;
-+	u32 eval;
- 	int ret;
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index 10d8bc81cff7..27690f757913 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -1449,7 +1449,7 @@ static int __issue_discard_cmd(struct f2fs_sb_info *sbi,
+ 		if (i + 1 < dpolicy->granularity)
+ 			break;
  
- more_data:
-@@ -311,6 +311,7 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
- 	tosend = msg->sg.size;
- 	if (psock->apply_bytes && psock->apply_bytes < tosend)
- 		tosend = psock->apply_bytes;
-+	eval = __SK_NONE;
+-		if (i < DEFAULT_DISCARD_GRANULARITY && dpolicy->ordered)
++		if (i + 1 < DEFAULT_DISCARD_GRANULARITY && dpolicy->ordered)
+ 			return __issue_discard_cmd_orderly(sbi, dpolicy);
  
- 	switch (psock->eval) {
- 	case __SK_PASS:
+ 		pend_list = &dcc->pend_list[i];
 -- 
 2.35.1
 
