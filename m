@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C78C657DF6
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:48:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BB52657F14
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:01:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234071AbiL1Psl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:48:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36624 "EHLO
+        id S233024AbiL1QA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:00:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234080AbiL1Psd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:48:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BE5318390
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:48:32 -0800 (PST)
+        with ESMTP id S234274AbiL1QAw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:00:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DA35235
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:00:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D3C35B81732
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:48:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34AC1C433D2;
-        Wed, 28 Dec 2022 15:48:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DA6BD61567
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:00:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E91AEC433D2;
+        Wed, 28 Dec 2022 16:00:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242509;
-        bh=A4grCHYkvKB4uATlfMPV9R11Sw+LzLAckFqjEiTKo8o=;
+        s=korg; t=1672243249;
+        bh=6SQ70RZccRw/EhbzPjDFSwlXxLAY5Ne+GUKkdIONBpY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hSv8QOs0XtPNh7/6ierwL0t+fVHL8N77YPNZKnJJEDGEmGCyxiL9kW++S5T1jt5up
-         NGXaM0dsosZOZiKctRT/6LGBW8eXkUEkqVmuOVX6cHYxuESNzTErO/hza6Lh9qlKUx
-         pIeBe527ossOmNIvXGhzVCiJc6ShzL8WLocnRJOk=
+        b=GvAfRsdFHW3Na2b4Gsyr/eKYzWiTUJydFx01azHq5MQ5ynPYZTrMalsLZGlDVU1kH
+         oe8E17v9CeZ4qti/Xo4Vdghb+mcuv8ADpw//+FrQydITMLW9pKFMOZbjYMqX661Gjl
+         EgZVGc/1+PcXqq3OiUcoXfj+E7RqV5Yz6vG8No8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ricardo Ribalda <ribalda@chromium.org>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Douglas Anderson <dianders@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0418/1073] ASoC: mediatek: mt8173: Enable IRQ when pdata is ready
+Subject: [PATCH 6.1 0467/1146] clk: qcom: lpass-sc7180: Fix pm_runtime usage
 Date:   Wed, 28 Dec 2022 15:33:26 +0100
-Message-Id: <20221228144339.375751997@linuxfoundation.org>
+Message-Id: <20221228144342.870412963@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,69 +54,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 4cbb264d4e9136acab2c8fd39e39ab1b1402b84b ]
+[ Upstream commit ff1ccf59eaffd192efe21f7de9fb0c130faf1b1b ]
 
-If the device does not come straight from reset, we might receive an IRQ
-before we are ready to handle it.
+The sc7180 lpass clock controller's pm_runtime usage wasn't broken
+quite as spectacularly as the sc7280's pm_runtime usage, but it was
+still broken. Putting some printouts in at boot showed me this (with
+serial console enabled, which makes the prints slow and thus changes
+timing):
+  [    3.109951] DOUG: my_pm_clk_resume, usage=1
+  [    3.114767] DOUG: my_pm_clk_resume, usage=1
+  [    3.664443] DOUG: my_pm_clk_suspend, usage=0
+  [    3.897566] DOUG: my_pm_clk_suspend, usage=0
+  [    3.910137] DOUG: my_pm_clk_resume, usage=1
+  [    3.923217] DOUG: my_pm_clk_resume, usage=0
+  [    4.440116] DOUG: my_pm_clk_suspend, usage=-1
+  [    4.444982] DOUG: my_pm_clk_suspend, usage=0
+  [   14.170501] DOUG: my_pm_clk_resume, usage=1
+  [   14.176245] DOUG: my_pm_clk_resume, usage=0
 
-Fixes:
+...or this w/out serial console:
+  [    0.556139] DOUG: my_pm_clk_resume, usage=1
+  [    0.556279] DOUG: my_pm_clk_resume, usage=1
+  [    1.058422] DOUG: my_pm_clk_suspend, usage=-1
+  [    1.058464] DOUG: my_pm_clk_suspend, usage=0
+  [    1.186250] DOUG: my_pm_clk_resume, usage=1
+  [    1.186292] DOUG: my_pm_clk_resume, usage=0
+  [    1.731536] DOUG: my_pm_clk_suspend, usage=-1
+  [    1.731557] DOUG: my_pm_clk_suspend, usage=0
+  [   10.288910] DOUG: my_pm_clk_resume, usage=1
+  [   10.289496] DOUG: my_pm_clk_resume, usage=0
 
-[    2.334737] Unable to handle kernel read from unreadable memory at virtual address 00000000000001e4
-[    2.522601] Call trace:
-[    2.525040]  regmap_read+0x1c/0x80
-[    2.528434]  mt8173_afe_irq_handler+0x40/0xf0
-...
-[    2.598921]  start_kernel+0x338/0x42c
+It seems to be doing roughly the right sequence of calls, but just
+like with sc7280 this is more by luck than anything. Having a usage of
+-1 is just not OK.
 
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Fixes: ee0bcaff109f ("ASoC: mediatek: Add AFE platform driver")
-Link: https://lore.kernel.org/r/20221128-mt8173-afe-v1-0-70728221628f@chromium.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Let's fix this like we did with sc7280.
+
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Fixes: ce8c195e652f ("clk: qcom: lpasscc: Introduce pm autosuspend for SC7180")
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221104064055.2.I49b25b9bda9430fc7ea21e5a708ca5a0aced2798@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt8173/mt8173-afe-pcm.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/clk/qcom/lpasscorecc-sc7180.c | 24 ++++++++++++++++--------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
 
-diff --git a/sound/soc/mediatek/mt8173/mt8173-afe-pcm.c b/sound/soc/mediatek/mt8173/mt8173-afe-pcm.c
-index dcaeeeb8aac7..bc155dd937e0 100644
---- a/sound/soc/mediatek/mt8173/mt8173-afe-pcm.c
-+++ b/sound/soc/mediatek/mt8173/mt8173-afe-pcm.c
-@@ -1070,16 +1070,6 @@ static int mt8173_afe_pcm_dev_probe(struct platform_device *pdev)
+diff --git a/drivers/clk/qcom/lpasscorecc-sc7180.c b/drivers/clk/qcom/lpasscorecc-sc7180.c
+index ac09b7b840ab..a5731994cbed 100644
+--- a/drivers/clk/qcom/lpasscorecc-sc7180.c
++++ b/drivers/clk/qcom/lpasscorecc-sc7180.c
+@@ -356,7 +356,7 @@ static const struct qcom_cc_desc lpass_audio_hm_sc7180_desc = {
+ 	.num_gdscs = ARRAY_SIZE(lpass_audio_hm_sc7180_gdscs),
+ };
  
- 	afe->dev = &pdev->dev;
+-static int lpass_create_pm_clks(struct platform_device *pdev)
++static int lpass_setup_runtime_pm(struct platform_device *pdev)
+ {
+ 	int ret;
  
--	irq_id = platform_get_irq(pdev, 0);
--	if (irq_id <= 0)
--		return irq_id < 0 ? irq_id : -ENXIO;
--	ret = devm_request_irq(afe->dev, irq_id, mt8173_afe_irq_handler,
--			       0, "Afe_ISR_Handle", (void *)afe);
--	if (ret) {
--		dev_err(afe->dev, "could not request_irq\n");
--		return ret;
--	}
--
- 	afe->base_addr = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(afe->base_addr))
- 		return PTR_ERR(afe->base_addr);
-@@ -1185,6 +1175,16 @@ static int mt8173_afe_pcm_dev_probe(struct platform_device *pdev)
+@@ -375,7 +375,7 @@ static int lpass_create_pm_clks(struct platform_device *pdev)
+ 	if (ret < 0)
+ 		dev_err(&pdev->dev, "failed to acquire iface clock\n");
+ 
+-	return ret;
++	return pm_runtime_resume_and_get(&pdev->dev);
+ }
+ 
+ static int lpass_core_cc_sc7180_probe(struct platform_device *pdev)
+@@ -384,7 +384,7 @@ static int lpass_core_cc_sc7180_probe(struct platform_device *pdev)
+ 	struct regmap *regmap;
+ 	int ret;
+ 
+-	ret = lpass_create_pm_clks(pdev);
++	ret = lpass_setup_runtime_pm(pdev);
  	if (ret)
- 		goto err_cleanup_components;
+ 		return ret;
  
-+	irq_id = platform_get_irq(pdev, 0);
-+	if (irq_id <= 0)
-+		return irq_id < 0 ? irq_id : -ENXIO;
-+	ret = devm_request_irq(afe->dev, irq_id, mt8173_afe_irq_handler,
-+			       0, "Afe_ISR_Handle", (void *)afe);
-+	if (ret) {
-+		dev_err(afe->dev, "could not request_irq\n");
-+		goto err_pm_disable;
+@@ -392,12 +392,14 @@ static int lpass_core_cc_sc7180_probe(struct platform_device *pdev)
+ 	desc = &lpass_audio_hm_sc7180_desc;
+ 	ret = qcom_cc_probe_by_index(pdev, 1, desc);
+ 	if (ret)
+-		return ret;
++		goto exit;
+ 
+ 	lpass_core_cc_sc7180_regmap_config.name = "lpass_core_cc";
+ 	regmap = qcom_cc_map(pdev, &lpass_core_cc_sc7180_desc);
+-	if (IS_ERR(regmap))
+-		return PTR_ERR(regmap);
++	if (IS_ERR(regmap)) {
++		ret = PTR_ERR(regmap);
++		goto exit;
 +	}
-+
- 	dev_info(&pdev->dev, "MT8173 AFE driver initialized.\n");
- 	return 0;
  
+ 	/*
+ 	 * Keep the CLK always-ON
+@@ -415,6 +417,7 @@ static int lpass_core_cc_sc7180_probe(struct platform_device *pdev)
+ 	ret = qcom_cc_really_probe(pdev, &lpass_core_cc_sc7180_desc, regmap);
+ 
+ 	pm_runtime_mark_last_busy(&pdev->dev);
++exit:
+ 	pm_runtime_put_autosuspend(&pdev->dev);
+ 
+ 	return ret;
+@@ -425,14 +428,19 @@ static int lpass_hm_core_probe(struct platform_device *pdev)
+ 	const struct qcom_cc_desc *desc;
+ 	int ret;
+ 
+-	ret = lpass_create_pm_clks(pdev);
++	ret = lpass_setup_runtime_pm(pdev);
+ 	if (ret)
+ 		return ret;
+ 
+ 	lpass_core_cc_sc7180_regmap_config.name = "lpass_hm_core";
+ 	desc = &lpass_core_hm_sc7180_desc;
+ 
+-	return qcom_cc_probe_by_index(pdev, 0, desc);
++	ret = qcom_cc_probe_by_index(pdev, 0, desc);
++
++	pm_runtime_mark_last_busy(&pdev->dev);
++	pm_runtime_put_autosuspend(&pdev->dev);
++
++	return ret;
+ }
+ 
+ static const struct of_device_id lpass_hm_sc7180_match_table[] = {
 -- 
 2.35.1
 
