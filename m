@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 488506583DB
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:53:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92B8C65849B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:59:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235188AbiL1Qwy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:52:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45012 "EHLO
+        id S235214AbiL1Q7A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:59:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235203AbiL1Qwa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:52:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEF681DDC9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:46:58 -0800 (PST)
+        with ESMTP id S235356AbiL1Q6T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:58:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3A0620342
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:54:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44431B81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:46:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 953A9C433D2;
-        Wed, 28 Dec 2022 16:46:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90F9AB8171E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:54:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02BBFC433EF;
+        Wed, 28 Dec 2022 16:54:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246015;
-        bh=hbVt091vWRGVnI7WXqqR6j61ab9tdP0C8v5IAWhC4Mg=;
+        s=korg; t=1672246465;
+        bh=r1Tr7Ex1lfuWB1lk5cCRThE2qppV0fzq6eYgqDGwVGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0c4KxRdh/PYJ/jw+cMuHlCbNp50xDA3/WBV+0hb+w3P3ex0CAHuPxtA6Y8K+KUMCo
-         1qvUnCOvBY9LCyd8LnTkg5acX2XSLFbQDeuqZBKBvfQdp/cY8w2sMazPrsSnaLvhIH
-         yGFPoKHZMSDnAg2BV52Pyn8kptn9B6V9D99JrHW0=
+        b=C1K/uGjRk8SwivjVzgwfXu3iMJPTqczwPWGnT3EoZxxMmVqxCNFcQEHMcXcJy4C4h
+         j0A6RRmhEt5isOLGTP2cbfiMPYG3IOlHCTRPl0hp9OW5yavkLXZiXQC2sqehs2L0DY
+         MTEShdfEDlnd5dQglQCcGBEb9qIb0Ce2sozmPtFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0998/1073] ALSA: hda: add snd_hdac_stop_streams() helper
+        patches@lists.linux.dev, Sven Peter <sven@svenpeter.dev>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 1047/1146] Bluetooth: Add quirk to disable extended scanning
 Date:   Wed, 28 Dec 2022 15:43:06 +0100
-Message-Id: <20221228144355.240325825@linuxfoundation.org>
+Message-Id: <20221228144358.762922328@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,89 +53,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Sven Peter <sven@svenpeter.dev>
 
-[ Upstream commit 24ad3835a6db4f8857975effa6bf47730371a5ff ]
+[ Upstream commit 392fca352c7a95e2828d49e7500e26d0c87ca265 ]
 
-Minor code reuse, no functionality change.
+Broadcom 4377 controllers found in Apple x86 Macs with the T2 chip
+claim to support extended scanning when querying supported states,
 
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220919121041.43463-6-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Stable-dep-of: 171107237246 ("ASoC: Intel: Skylake: Fix driver hang during shutdown")
+< HCI Command: LE Read Supported St.. (0x08|0x001c) plen 0
+> HCI Event: Command Complete (0x0e) plen 12
+      LE Read Supported States (0x08|0x001c) ncmd 1
+        Status: Success (0x00)
+        States: 0x000003ffffffffff
+[...]
+          LE Set Extended Scan Parameters (Octet 37 - Bit 5)
+          LE Set Extended Scan Enable (Octet 37 - Bit 6)
+[...]
+
+, but then fail to actually implement the extended scanning:
+
+< HCI Command: LE Set Extended Sca.. (0x08|0x0041) plen 8
+        Own address type: Random (0x01)
+        Filter policy: Accept all advertisement (0x00)
+        PHYs: 0x01
+        Entry 0: LE 1M
+          Type: Active (0x01)
+          Interval: 11.250 msec (0x0012)
+          Window: 11.250 msec (0x0012)
+> HCI Event: Command Complete (0x0e) plen 4
+      LE Set Extended Scan Parameters (0x08|0x0041) ncmd 1
+        Status: Unknown HCI Command (0x01)
+
+Signed-off-by: Sven Peter <sven@svenpeter.dev>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/hdaudio.h        |  1 +
- sound/hda/hdac_stream.c        | 17 ++++++++++++++---
- sound/pci/hda/hda_controller.c |  4 +---
- 3 files changed, 16 insertions(+), 6 deletions(-)
+ include/net/bluetooth/hci.h      | 10 ++++++++++
+ include/net/bluetooth/hci_core.h |  4 +++-
+ 2 files changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/include/sound/hdaudio.h b/include/sound/hdaudio.h
-index 797bf67a164d..ceaa7b7cfdc3 100644
---- a/include/sound/hdaudio.h
-+++ b/include/sound/hdaudio.h
-@@ -562,6 +562,7 @@ int snd_hdac_stream_set_params(struct hdac_stream *azx_dev,
- void snd_hdac_stream_start(struct hdac_stream *azx_dev, bool fresh_start);
- void snd_hdac_stream_clear(struct hdac_stream *azx_dev);
- void snd_hdac_stream_stop(struct hdac_stream *azx_dev);
-+void snd_hdac_stop_streams(struct hdac_bus *bus);
- void snd_hdac_stop_streams_and_chip(struct hdac_bus *bus);
- void snd_hdac_stream_reset(struct hdac_stream *azx_dev);
- void snd_hdac_stream_sync_trigger(struct hdac_stream *azx_dev, bool set,
-diff --git a/sound/hda/hdac_stream.c b/sound/hda/hdac_stream.c
-index f3582012d22f..eea22cf72aef 100644
---- a/sound/hda/hdac_stream.c
-+++ b/sound/hda/hdac_stream.c
-@@ -142,17 +142,28 @@ void snd_hdac_stream_stop(struct hdac_stream *azx_dev)
- }
- EXPORT_SYMBOL_GPL(snd_hdac_stream_stop);
- 
-+/**
-+ * snd_hdac_stop_streams - stop all streams
-+ * @bus: HD-audio core bus
-+ */
-+void snd_hdac_stop_streams(struct hdac_bus *bus)
-+{
-+	struct hdac_stream *stream;
+diff --git a/include/net/bluetooth/hci.h b/include/net/bluetooth/hci.h
+index 684f1cd28730..d8abeac2fc1e 100644
+--- a/include/net/bluetooth/hci.h
++++ b/include/net/bluetooth/hci.h
+@@ -274,6 +274,16 @@ enum {
+ 	 * during the hdev->setup vendor callback.
+ 	 */
+ 	HCI_QUIRK_BROKEN_ENHANCED_SETUP_SYNC_CONN,
 +
-+	list_for_each_entry(stream, &bus->stream_list, list)
-+		snd_hdac_stream_stop(stream);
-+}
-+EXPORT_SYMBOL_GPL(snd_hdac_stop_streams);
++	/*
++	 * When this quirk is set, the HCI_OP_LE_SET_EXT_SCAN_ENABLE command is
++	 * disabled. This is required for some Broadcom controllers which
++	 * erroneously claim to support extended scanning.
++	 *
++	 * This quirk can be set before hci_register_dev is called or
++	 * during the hdev->setup vendor callback.
++	 */
++	HCI_QUIRK_BROKEN_EXT_SCAN,
+ };
+ 
+ /* HCI device flags */
+diff --git a/include/net/bluetooth/hci_core.h b/include/net/bluetooth/hci_core.h
+index c54bc71254af..3cd00be0fcd2 100644
+--- a/include/net/bluetooth/hci_core.h
++++ b/include/net/bluetooth/hci_core.h
+@@ -1689,7 +1689,9 @@ void hci_conn_del_sysfs(struct hci_conn *conn);
+ 
+ /* Use ext scanning if set ext scan param and ext scan enable is supported */
+ #define use_ext_scan(dev) (((dev)->commands[37] & 0x20) && \
+-			   ((dev)->commands[37] & 0x40))
++			   ((dev)->commands[37] & 0x40) && \
++			   !test_bit(HCI_QUIRK_BROKEN_EXT_SCAN, &(dev)->quirks))
 +
- /**
-  * snd_hdac_stop_streams_and_chip - stop all streams and chip if running
-  * @bus: HD-audio core bus
-  */
- void snd_hdac_stop_streams_and_chip(struct hdac_bus *bus)
- {
--	struct hdac_stream *stream;
- 
- 	if (bus->chip_init) {
--		list_for_each_entry(stream, &bus->stream_list, list)
--			snd_hdac_stream_stop(stream);
-+		snd_hdac_stop_streams(bus);
- 		snd_hdac_bus_stop_chip(bus);
- 	}
- }
-diff --git a/sound/pci/hda/hda_controller.c b/sound/pci/hda/hda_controller.c
-index 75dcb14ff20a..0ff286b7b66b 100644
---- a/sound/pci/hda/hda_controller.c
-+++ b/sound/pci/hda/hda_controller.c
-@@ -1033,10 +1033,8 @@ EXPORT_SYMBOL_GPL(azx_init_chip);
- void azx_stop_all_streams(struct azx *chip)
- {
- 	struct hdac_bus *bus = azx_bus(chip);
--	struct hdac_stream *s;
- 
--	list_for_each_entry(s, &bus->stream_list, list)
--		snd_hdac_stream_stop(s);
-+	snd_hdac_stop_streams(bus);
- }
- EXPORT_SYMBOL_GPL(azx_stop_all_streams);
+ /* Use ext create connection if command is supported */
+ #define use_ext_conn(dev) ((dev)->commands[37] & 0x80)
  
 -- 
 2.35.1
