@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE54A657BD7
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:27:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7830657AC1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:14:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233387AbiL1P0n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:26:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43966 "EHLO
+        id S232845AbiL1POr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:14:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233848AbiL1PZs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:25:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 065E5B61
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:25:44 -0800 (PST)
+        with ESMTP id S232871AbiL1POb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:14:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4243913E39
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:14:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63ADE6156E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:25:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75AD1C433D2;
-        Wed, 28 Dec 2022 15:25:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D5D15B81647
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:14:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5446EC433D2;
+        Wed, 28 Dec 2022 15:14:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241143;
-        bh=fVSjJaNKR0aJWETif8l37jwbfBwN3cYR/5VXZm1Pi1k=;
+        s=korg; t=1672240467;
+        bh=tm0898h3WOXG6oC8J3n1LMoBFSGJE7ZJ/sWPjZclCxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LVMEfUXy07JXT14ayIxHfTNb+0irxV9JWBu6OPYUpraQ5+2MCFNdS5G7V8DXpB+ic
-         U/TYRdg9SkygqrNtWnOzyb6EnpHfpXJ5FDx1qJRm1O28lNM4kM/nNBabS2c3oYwuVo
-         OJ7/IhKNn5sY6LHDjffksUzMShrAPaTHWhMzJ6hc=
+        b=XIGqxiD4UxqJh4/6L0JlfZmzuf30n35scd3lXgbOmHLIJaVKrGBIiHoQ78HHhT6DT
+         qz4YkpxYlvUad1khGkiXdR5GBkI4uzh47LTnV0RWBq4JwBy3TTKCmY3CllwXsSQNpd
+         aamqdQyw1ue9gOOcn7nzGMKkAYWeM8qv2iao9tQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shung-Hsi Yu <shung-hsi.yu@suse.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        patches@lists.linux.dev,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0212/1146] libbpf: Deal with section with no data gracefully
-Date:   Wed, 28 Dec 2022 15:29:11 +0100
-Message-Id: <20221228144335.905462353@linuxfoundation.org>
+Subject: [PATCH 6.0 0164/1073] xen/privcmd: Fix a possible warning in privcmd_ioctl_mmap_resource()
+Date:   Wed, 28 Dec 2022 15:29:12 +0100
+Message-Id: <20221228144332.471103748@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shung-Hsi Yu <shung-hsi.yu@suse.com>
+From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 
-[ Upstream commit 35a855509e6ee3442477c8ebc6827b5b5d32a7b5 ]
+[ Upstream commit 8b997b2bb2c53b76a6db6c195930e9ab8e4b0c79 ]
 
-ELF section data pointer returned by libelf may be NULL (if section has
-SHT_NOBITS), so null check section data pointer before attempting to
-copy license and kversion section.
+As 'kdata.num' is user-controlled data, if user tries to allocate
+memory larger than(>=) MAX_ORDER, then kcalloc() will fail, it
+creates a stack trace and messes up dmesg with a warning.
 
-Fixes: cb1e5e961991 ("bpf tools: Collect version and license from ELF sections")
-Signed-off-by: Shung-Hsi Yu <shung-hsi.yu@suse.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20221012022353.7350-3-shung-hsi.yu@suse.com
+Call trace:
+-> privcmd_ioctl
+--> privcmd_ioctl_mmap_resource
+
+Add __GFP_NOWARN in order to avoid too large allocation warning.
+This is detected by static analysis using smatch.
+
+Fixes: 3ad0876554ca ("xen/privcmd: add IOCTL_PRIVCMD_MMAP_RESOURCE")
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20221126050745.778967-1-harshit.m.mogalapalli@oracle.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/xen/privcmd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-index b7fac0df2612..a0d3cc39ea73 100644
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -1408,6 +1408,10 @@ static int bpf_object__check_endianness(struct bpf_object *obj)
- static int
- bpf_object__init_license(struct bpf_object *obj, void *data, size_t size)
- {
-+	if (!data) {
-+		pr_warn("invalid license section in %s\n", obj->path);
-+		return -LIBBPF_ERRNO__FORMAT;
-+	}
- 	/* libbpf_strlcpy() only copies first N - 1 bytes, so size + 1 won't
- 	 * go over allowed ELF data section buffer
- 	 */
-@@ -1421,7 +1425,7 @@ bpf_object__init_kversion(struct bpf_object *obj, void *data, size_t size)
- {
- 	__u32 kver;
- 
--	if (size != sizeof(kver)) {
-+	if (!data || size != sizeof(kver)) {
- 		pr_warn("invalid kver section in %s\n", obj->path);
- 		return -LIBBPF_ERRNO__FORMAT;
+diff --git a/drivers/xen/privcmd.c b/drivers/xen/privcmd.c
+index e88e8f6f0a33..719c5d1dda27 100644
+--- a/drivers/xen/privcmd.c
++++ b/drivers/xen/privcmd.c
+@@ -760,7 +760,7 @@ static long privcmd_ioctl_mmap_resource(struct file *file,
+ 		goto out;
  	}
+ 
+-	pfns = kcalloc(kdata.num, sizeof(*pfns), GFP_KERNEL);
++	pfns = kcalloc(kdata.num, sizeof(*pfns), GFP_KERNEL | __GFP_NOWARN);
+ 	if (!pfns) {
+ 		rc = -ENOMEM;
+ 		goto out;
 -- 
 2.35.1
 
