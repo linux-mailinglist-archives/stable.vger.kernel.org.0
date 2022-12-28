@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AECC6580D8
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:22:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF45E6579D7
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:05:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234593AbiL1QV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:21:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36706 "EHLO
+        id S233509AbiL1PFV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:05:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234692AbiL1QVA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:21:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BCA618B32
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:18:53 -0800 (PST)
+        with ESMTP id S233523AbiL1PFV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:05:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29D4913D4B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:05:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CC69C61577
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:18:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF027C433D2;
-        Wed, 28 Dec 2022 16:18:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC6D5B816D9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:05:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30D70C433EF;
+        Wed, 28 Dec 2022 15:05:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244332;
-        bh=qtRNaFWP/S9246Vt70Ya97ShjkPQZHDyDmVB5FtagRA=;
+        s=korg; t=1672239917;
+        bh=MdlhajfASTJ3FivlaMwMVyPAbLwpoGu9hwUtZuiH/OM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TV8B0Omea9IsuzLKdN8LjrJbR8Ir4gC+Gcoxp47hvUd1M7+5rqY1XFFUh5Xn3j2oG
-         l2P4+N87iz469azOZfi2u96YThmtZ528xyF7j6jFCYS9+XPe/xDR8oekIkIhNirhhe
-         bONHBMHuLHeyNUknDMq97u71rURRzve3GzMr7VIk=
+        b=HlwQeNM32yU60E/Z4Lsa6HNabHyxgZY2i3t8+YLeN8DnFd1QCOQiID3W3PULWMXhh
+         a+M9IMYOW4xXcqDc8k1JmPEfDcezru3+3B8CIkidLr9P8xFMtthf1nwtgFbnnesjcG
+         yq9ov7ETLYArSz5Mb83FlsJBzKZN1dCfOQTVPg1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Liu Shixin <liushixin2@huawei.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0652/1146] scsi: scsi_debug: Fix possible name leak in sdebug_add_host_helper()
-Date:   Wed, 28 Dec 2022 15:36:31 +0100
-Message-Id: <20221228144347.868450863@linuxfoundation.org>
+Subject: [PATCH 5.15 285/731] media: saa7164: fix missing pci_disable_device()
+Date:   Wed, 28 Dec 2022 15:36:32 +0100
+Message-Id: <20221228144304.833161606@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Liu Shixin <liushixin2@huawei.com>
 
-[ Upstream commit e6d773f93a49e0eda88a903a2a6542ca83380eb1 ]
+[ Upstream commit 57fb35d7542384cac8f198cd1c927540ad38b61a ]
 
-Afer commit 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id
-string array"), the name of device is allocated dynamically, it needs be
-freed when device_register() returns error.
+Add missing pci_disable_device() in the error path in saa7164_initdev().
 
-As comment of device_register() says, one should use put_device() to give
-up the reference in the error path. Fix this by calling put_device(), then
-the name can be freed in kobject_cleanup(), and sdbg_host is freed in
-sdebug_release_adapter().
-
-When the device release is not set, it means the device is not initialized.
-We can not call put_device() in this case. Use kfree() to free memory.
-
-Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221112131010.3757845-1-yangyingliang@huawei.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 443c1228d505 ("V4L/DVB (12923): SAA7164: Add support for the NXP SAA7164 silicon")
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_debug.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/media/pci/saa7164/saa7164-core.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
-index 20e64b7d3f7b..b77035ddc944 100644
---- a/drivers/scsi/scsi_debug.c
-+++ b/drivers/scsi/scsi_debug.c
-@@ -7340,7 +7340,10 @@ static int sdebug_add_host_helper(int per_host_idx)
- 		kfree(sdbg_devinfo->zstate);
- 		kfree(sdbg_devinfo);
+diff --git a/drivers/media/pci/saa7164/saa7164-core.c b/drivers/media/pci/saa7164/saa7164-core.c
+index 7973ae42873a..c10997e2271d 100644
+--- a/drivers/media/pci/saa7164/saa7164-core.c
++++ b/drivers/media/pci/saa7164/saa7164-core.c
+@@ -1259,7 +1259,7 @@ static int saa7164_initdev(struct pci_dev *pci_dev,
+ 
+ 	if (saa7164_dev_setup(dev) < 0) {
+ 		err = -EINVAL;
+-		goto fail_free;
++		goto fail_dev;
  	}
--	kfree(sdbg_host);
-+	if (sdbg_host->dev.release)
-+		put_device(&sdbg_host->dev);
-+	else
-+		kfree(sdbg_host);
- 	pr_warn("%s: failed, errno=%d\n", __func__, -error);
- 	return error;
- }
+ 
+ 	/* print pci info */
+@@ -1427,6 +1427,8 @@ static int saa7164_initdev(struct pci_dev *pci_dev,
+ 
+ fail_irq:
+ 	saa7164_dev_unregister(dev);
++fail_dev:
++	pci_disable_device(pci_dev);
+ fail_free:
+ 	v4l2_device_unregister(&dev->v4l2_dev);
+ 	kfree(dev);
 -- 
 2.35.1
 
