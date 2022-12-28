@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5418658345
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:46:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A159865840C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:54:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233802AbiL1QpL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:45:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33736 "EHLO
+        id S235216AbiL1Qx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:53:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234374AbiL1Qok (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F3181CB34
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:40:37 -0800 (PST)
+        with ESMTP id S235227AbiL1QxC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:53:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA9D6F02D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:48:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA59FB816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:40:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EEB1C433EF;
-        Wed, 28 Dec 2022 16:40:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4803861541
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:48:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B863C433D2;
+        Wed, 28 Dec 2022 16:48:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245634;
-        bh=yreuj1Pmw8nwCm3ADVtacDriCMOlBPDxspsHT79iAJ0=;
+        s=korg; t=1672246090;
+        bh=cKcs5UaNh9wdeK8ZKEnxZS5PGWlb87e1zZzIcQ7tstg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZvezIWEo9i/d8P687vpQjU8XVZOE/jaeObXTKz0kFwnJLuBOGE2hH0cuJeGdThJcc
-         U8iAImyzYUv4pXSeC0OvpyZ+UeEbVHPtc+PvEM844bCqq4WXISUdqsF7zkmZkO6Uak
-         SqSOGP9l8uxcGCnaB0V9rQSx/przi1yqrwNhzltM=
+        b=Liej2QjeJO2Dgqk8OaqKVx8ZP48oVIV6wSV1ChOwKI99dkDiTCID8M/n3L6XRCL7o
+         uNGXhsQFi92cEh0X13gULbPWUsxehr1p4+LYJpjBYRaNFK9nWhYZYsskjXxx10HQUL
+         rvABnnJ5SfijXiENjWz7XkPc3iDpXOQ7on804awc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mia Kanashi <chad@redpilled.dev>,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0929/1073] HID: input: do not query XP-PEN Deco LW battery
-Date:   Wed, 28 Dec 2022 15:41:57 +0100
-Message-Id: <20221228144353.260902381@linuxfoundation.org>
+        patches@lists.linux.dev, Harry Wentland <harry.wentland@amd.com>,
+        Hamza Mahfooz <hamza.mahfooz@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0979/1146] Revert "drm/amd/display: Limit max DSC target bpp for specific monitors"
+Date:   Wed, 28 Dec 2022 15:41:58 +0100
+Message-Id: <20221228144356.950891131@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Hamza Mahfooz <hamza.mahfooz@amd.com>
 
-[ Upstream commit 037c1aaeb96fe5f778026f4c1ef28b26cf600bfa ]
+[ Upstream commit 6803dfd3a69ccb318772463a86e40929fd4fbac7 ]
 
-The XP-PEN Deco LW drawing tablet can be connected by USB cable or using
-a USB Bluetooth dongle. When it is connected using the dongle, there
-might be a small delay until the tablet is paired with the dongle.
+This reverts commit 55eea8ef98641f6e1e1c202bd3a49a57c1dd4059.
 
-Fetching the device battery during this delay results in random battery
-percentage values.
+This quirk is now handled in the DRM core, so we can drop all of
+the internal code that was added to handle it.
 
-Add a quirk to avoid actively querying the battery percentage and wait
-for the device to report it on its own.
-
-Reported-by: Mia Kanashi <chad@redpilled.dev>
-Tested-by: Mia Kanashi <chad@redpilled.dev>
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Hamza Mahfooz <hamza.mahfooz@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-input.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ .../amd/display/amdgpu_dm/amdgpu_dm_helpers.c | 35 -------------------
+ 1 file changed, 35 deletions(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 859aeb07542e..d728a94c642e 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -340,6 +340,7 @@ static enum power_supply_property hidinput_battery_props[] = {
- #define HID_BATTERY_QUIRK_PERCENT	(1 << 0) /* always reports percent */
- #define HID_BATTERY_QUIRK_FEATURE	(1 << 1) /* ask for feature report */
- #define HID_BATTERY_QUIRK_IGNORE	(1 << 2) /* completely ignore the battery */
-+#define HID_BATTERY_QUIRK_AVOID_QUERY	(1 << 3) /* do not query the battery */
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c
+index f0b01c8dc4a6..f72c013d3a5b 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c
+@@ -42,39 +42,6 @@
+ #include "dm_helpers.h"
+ #include "ddc_service_types.h"
  
- static const struct hid_device_id hid_battery_quirks[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
-@@ -373,6 +374,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
- 	  HID_BATTERY_QUIRK_IGNORE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ASUS_UX550VE_TOUCHSCREEN),
- 	  HID_BATTERY_QUIRK_IGNORE },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE, USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L),
-+	  HID_BATTERY_QUIRK_AVOID_QUERY },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_ENVY_X360_15),
- 	  HID_BATTERY_QUIRK_IGNORE },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_ENVY_X360_15T_DR100),
-@@ -554,6 +557,9 @@ static int hidinput_setup_battery(struct hid_device *dev, unsigned report_type,
- 	dev->battery_avoid_query = report_type == HID_INPUT_REPORT &&
- 				   field->physical == HID_DG_STYLUS;
+-struct monitor_patch_info {
+-	unsigned int manufacturer_id;
+-	unsigned int product_id;
+-	void (*patch_func)(struct dc_edid_caps *edid_caps, unsigned int param);
+-	unsigned int patch_param;
+-};
+-static void set_max_dsc_bpp_limit(struct dc_edid_caps *edid_caps, unsigned int param);
+-
+-static const struct monitor_patch_info monitor_patch_table[] = {
+-{0x6D1E, 0x5BBF, set_max_dsc_bpp_limit, 15},
+-{0x6D1E, 0x5B9A, set_max_dsc_bpp_limit, 15},
+-};
+-
+-static void set_max_dsc_bpp_limit(struct dc_edid_caps *edid_caps, unsigned int param)
+-{
+-	if (edid_caps)
+-		edid_caps->panel_patch.max_dsc_target_bpp_limit = param;
+-}
+-
+-static int amdgpu_dm_patch_edid_caps(struct dc_edid_caps *edid_caps)
+-{
+-	int i, ret = 0;
+-
+-	for (i = 0; i < ARRAY_SIZE(monitor_patch_table); i++)
+-		if ((edid_caps->manufacturer_id == monitor_patch_table[i].manufacturer_id)
+-			&&  (edid_caps->product_id == monitor_patch_table[i].product_id)) {
+-			monitor_patch_table[i].patch_func(edid_caps, monitor_patch_table[i].patch_param);
+-			ret++;
+-		}
+-
+-	return ret;
+-}
+-
+ /* dm_helpers_parse_edid_caps
+  *
+  * Parse edid caps
+@@ -149,8 +116,6 @@ enum dc_edid_status dm_helpers_parse_edid_caps(
+ 	kfree(sads);
+ 	kfree(sadb);
  
-+	if (quirks & HID_BATTERY_QUIRK_AVOID_QUERY)
-+		dev->battery_avoid_query = true;
-+
- 	dev->battery = power_supply_register(&dev->dev, psy_desc, &psy_cfg);
- 	if (IS_ERR(dev->battery)) {
- 		error = PTR_ERR(dev->battery);
+-	amdgpu_dm_patch_edid_caps(edid_caps);
+-
+ 	return result;
+ }
+ 
 -- 
 2.35.1
 
