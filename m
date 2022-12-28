@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44EAE657985
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:02:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDD96657AA3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:14:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233426AbiL1PCs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:02:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48726 "EHLO
+        id S229989AbiL1POE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:14:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233453AbiL1PCW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:02:22 -0500
+        with ESMTP id S233174AbiL1PN0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:13:26 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F68B13D17
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:01:55 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D0A613E31
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:13:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B8A961365
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:01:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E4AAC433D2;
-        Wed, 28 Dec 2022 15:01:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CDFEE61544
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:13:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE8E5C433EF;
+        Wed, 28 Dec 2022 15:13:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239714;
-        bh=+e4kKoYMfsgLA0QIIilo188036g+bAIfSq9Ae03fcaw=;
+        s=korg; t=1672240388;
+        bh=udMDw423tMPoLJhSl+vO+UtqlbZFbxkuHR+1iAEP2tM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u3TTUHHGxVS5DLe7sZgb/754DyAmZFvYSg9iTeGxs6rgxrueWt+UCFyXpQRTSiis2
-         Ni562vnIpruf3vwzouK9BSZrlV8B5gPS68tvFcEHQXvGEeSiZsANi7e70oox7CFlRj
-         Zbgc5Mhb5O6T4BpP66uXBWKgpUqwSt11kIGEGkXA=
+        b=DaUcrifuHWgWjlwriy9+LnO+oF9MSWzwhnUBvx+reTME/zc0ds6s1//XUhSzsS5ID
+         kVC5pDm2Y4sgpdIpz4bSA9sqjDQ/qS7ATupPUiNhXYop27c+6uw2rGUgviLB1GapeW
+         HRQSnAj3gJfZCBL6k9/8ZPyMFd17OhPiwzPiWTWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
+        patches@lists.linux.dev, Hao Lee <haolee.swjtu@gmail.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Suren Baghdasaryan <surenb@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0067/1073] arm64: dts: mediatek: pumpkin-common: Fix devicetree warnings
+Subject: [PATCH 6.1 0116/1146] sched/psi: Fix possible missing or delayed pending event
 Date:   Wed, 28 Dec 2022 15:27:35 +0100
-Message-Id: <20221228144329.907804859@linuxfoundation.org>
+Message-Id: <20221228144333.308334203@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Hao Lee <haolee.swjtu@gmail.com>
 
-[ Upstream commit 509438336ce75c8b4e6ce8e8d507dc77d0783bdd ]
+[ Upstream commit e38f89af6a13e895805febd3a329a13ab7e66fa4 ]
 
-Fix the pinctrl submodes and optee node to remove unneeded unit address,
-fixing all unit_address_vs_reg warnings.
+When a pending event exists and growth is less than the threshold, the
+current logic is to skip this trigger without generating event. However,
+from e6df4ead85d9 ("psi: fix possible trigger missing in the window"),
+our purpose is to generate event as long as pending event exists and the
+rate meets the limit, no matter what growth is.
+This patch handles this case properly.
 
-Fixes: 9983822c8cf9 ("arm64: dts: mediatek: add pumpkin board dts")
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20221013152212.416661-8-angelogioacchino.delregno@collabora.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Fixes: e6df4ead85d9 ("psi: fix possible trigger missing in the window")
+Signed-off-by: Hao Lee <haolee.swjtu@gmail.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Suren Baghdasaryan <surenb@google.com>
+Link: https://lore.kernel.org/r/20220919072356.GA29069@haolee.io
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/sched/psi.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi b/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
-index 8ee1529683a3..ec8dfb3d1c6d 100644
---- a/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
-@@ -17,7 +17,7 @@ chosen {
- 	};
+diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
+index ee2ecc081422..7f40d87e8f50 100644
+--- a/kernel/sched/psi.c
++++ b/kernel/sched/psi.c
+@@ -539,10 +539,12 @@ static u64 update_triggers(struct psi_group *group, u64 now)
  
- 	firmware {
--		optee: optee@4fd00000 {
-+		optee: optee {
- 			compatible = "linaro,optee-tz";
- 			method = "smc";
- 		};
-@@ -209,7 +209,7 @@ pins_cmd_dat {
- 		};
- 	};
+ 			/* Calculate growth since last update */
+ 			growth = window_update(&t->win, now, total[t->state]);
+-			if (growth < t->threshold)
+-				continue;
++			if (!t->pending_event) {
++				if (growth < t->threshold)
++					continue;
  
--	i2c0_pins_a: i2c0@0 {
-+	i2c0_pins_a: i2c0 {
- 		pins1 {
- 			pinmux = <MT8516_PIN_58_SDA0__FUNC_SDA0_0>,
- 				 <MT8516_PIN_59_SCL0__FUNC_SCL0_0>;
-@@ -217,7 +217,7 @@ pins1 {
- 		};
- 	};
- 
--	i2c2_pins_a: i2c2@0 {
-+	i2c2_pins_a: i2c2 {
- 		pins1 {
- 			pinmux = <MT8516_PIN_60_SDA2__FUNC_SDA2_0>,
- 				 <MT8516_PIN_61_SCL2__FUNC_SCL2_0>;
+-			t->pending_event = true;
++				t->pending_event = true;
++			}
+ 		}
+ 		/* Limit event signaling to once per window */
+ 		if (now < t->last_event_time + t->win.size)
 -- 
 2.35.1
 
