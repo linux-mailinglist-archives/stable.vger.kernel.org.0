@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D56565846A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A1826583AF
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:50:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235341AbiL1Q5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:57:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45852 "EHLO
+        id S232875AbiL1QuA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:50:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235299AbiL1Q4j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:56:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3F861DA5E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:52:42 -0800 (PST)
+        with ESMTP id S235165AbiL1Qtf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:49:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E8491EEE8
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:45:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C20DB8188B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:52:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94176C433EF;
-        Wed, 28 Dec 2022 16:52:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1BE861541
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:44:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7F9BC433D2;
+        Wed, 28 Dec 2022 16:44:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246360;
-        bh=2z+F95vK9xmILr9GtTPCrdh3zuzMsw/9bsWbAfXOKuc=;
+        s=korg; t=1672245899;
+        bh=V1iZjnY+Fu3/ryfiijjX5kukUbPZuFNdU84KcYkm+K4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zOJcclOYYdu5GayZ7hVK2xjXze76M5TkL6+m+F0p0vIIEcXw6S+4PuMVxRJhNVyOH
-         /ZdFgoyDNJayz1ojQ6Ar75E1YVNENvsczerrCmPZ5aHoLZ2JPSHdyfl/7IYVbzks//
-         vfl1bxTVOG/0uAQsbZuGRss+pdzPR1GN5zxrN8Tg=
+        b=h/G9zy2Lo5ayum8U1bnySTAYV4O3Iq7a1K04if+wDtpirWyBWkcyXmIwc5nDCsoOE
+         0YQXCsiQgvGvRQ3fVVhv0jyvkDyNYsX3MxjvbzO7blvovL/A5mbvxpKvszAdJhTzgO
+         XcjOfBGA3WqxL0dRMV8w5Ebx9JxAj4lhkd7+uH0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ye Bin <yebin10@huawei.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        patches@lists.linux.dev, Sven Peter <sven@svenpeter.dev>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1026/1146] blk-mq: fix possible memleak when register hctx failed
+Subject: [PATCH 6.0 0977/1073] Bluetooth: Add quirk to disable MWS Transport Configuration
 Date:   Wed, 28 Dec 2022 15:42:45 +0100
-Message-Id: <20221228144358.232095452@linuxfoundation.org>
+Message-Id: <20221228144354.611474083@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,84 +53,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Sven Peter <sven@svenpeter.dev>
 
-[ Upstream commit 4b7a21c57b14fbcd0e1729150189e5933f5088e9 ]
+[ Upstream commit ffcb0a445ec2d5753751437706aa0a7ea8351099 ]
 
-There's issue as follows when do fault injection test:
-unreferenced object 0xffff888132a9f400 (size 512):
-  comm "insmod", pid 308021, jiffies 4324277909 (age 509.733s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 08 f4 a9 32 81 88 ff ff  ...........2....
-    08 f4 a9 32 81 88 ff ff 00 00 00 00 00 00 00 00  ...2............
-  backtrace:
-    [<00000000e8952bb4>] kmalloc_node_trace+0x22/0xa0
-    [<00000000f9980e0f>] blk_mq_alloc_and_init_hctx+0x3f1/0x7e0
-    [<000000002e719efa>] blk_mq_realloc_hw_ctxs+0x1e6/0x230
-    [<000000004f1fda40>] blk_mq_init_allocated_queue+0x27e/0x910
-    [<00000000287123ec>] __blk_mq_alloc_disk+0x67/0xf0
-    [<00000000a2a34657>] 0xffffffffa2ad310f
-    [<00000000b173f718>] 0xffffffffa2af824a
-    [<0000000095a1dabb>] do_one_initcall+0x87/0x2a0
-    [<00000000f32fdf93>] do_init_module+0xdf/0x320
-    [<00000000cbe8541e>] load_module+0x3006/0x3390
-    [<0000000069ed1bdb>] __do_sys_finit_module+0x113/0x1b0
-    [<00000000a1a29ae8>] do_syscall_64+0x35/0x80
-    [<000000009cd878b0>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+Broadcom 4378/4387 controllers found in Apple Silicon Macs claim to
+support getting MWS Transport Layer Configuration,
 
-Fault injection context as follows:
- kobject_add
- blk_mq_register_hctx
- blk_mq_sysfs_register
- blk_register_queue
- device_add_disk
- null_add_dev.part.0 [null_blk]
+< HCI Command: Read Local Supported... (0x04|0x0002) plen 0
+> HCI Event: Command Complete (0x0e) plen 68
+      Read Local Supported Commands (0x04|0x0002) ncmd 1
+        Status: Success (0x00)
+[...]
+          Get MWS Transport Layer Configuration (Octet 30 - Bit 3)]
+[...]
 
-As 'blk_mq_register_hctx' may already add some objects when failed halfway,
-but there isn't do fallback, caller don't know which objects add failed.
-To solve above issue just do fallback when add objects failed halfway in
-'blk_mq_register_hctx'.
+, but then don't actually allow the required command:
 
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20221117022940.873959-1-yebin@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> HCI Event: Command Complete (0x0e) plen 15
+      Get MWS Transport Layer Configuration (0x05|0x000c) ncmd 1
+        Status: Command Disallowed (0x0c)
+        Number of transports: 0
+        Baud rate list: 0 entries
+        00 00 00 00 00 00 00 00 00 00
+
+Signed-off-by: Sven Peter <sven@svenpeter.dev>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq-sysfs.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ include/net/bluetooth/hci.h      | 10 ++++++++++
+ include/net/bluetooth/hci_core.h |  3 +++
+ net/bluetooth/hci_sync.c         |  2 +-
+ 3 files changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/block/blk-mq-sysfs.c b/block/blk-mq-sysfs.c
-index 93997d297d42..4515288fbe35 100644
---- a/block/blk-mq-sysfs.c
-+++ b/block/blk-mq-sysfs.c
-@@ -185,7 +185,7 @@ static int blk_mq_register_hctx(struct blk_mq_hw_ctx *hctx)
+diff --git a/include/net/bluetooth/hci.h b/include/net/bluetooth/hci.h
+index 78c55b69919d..dd455ce06770 100644
+--- a/include/net/bluetooth/hci.h
++++ b/include/net/bluetooth/hci.h
+@@ -284,6 +284,16 @@ enum {
+ 	 * during the hdev->setup vendor callback.
+ 	 */
+ 	HCI_QUIRK_BROKEN_EXT_SCAN,
++
++	/*
++	 * When this quirk is set, the HCI_OP_GET_MWS_TRANSPORT_CONFIG command is
++	 * disabled. This is required for some Broadcom controllers which
++	 * erroneously claim to support MWS Transport Layer Configuration.
++	 *
++	 * This quirk can be set before hci_register_dev is called or
++	 * during the hdev->setup vendor callback.
++	 */
++	HCI_QUIRK_BROKEN_MWS_TRANSPORT_CONFIG,
+ };
+ 
+ /* HCI device flags */
+diff --git a/include/net/bluetooth/hci_core.h b/include/net/bluetooth/hci_core.h
+index 29d1254f9856..6afb4771ce35 100644
+--- a/include/net/bluetooth/hci_core.h
++++ b/include/net/bluetooth/hci_core.h
+@@ -1711,6 +1711,9 @@ void hci_conn_del_sysfs(struct hci_conn *conn);
+ 	((dev)->le_features[3] & HCI_LE_CIS_PERIPHERAL)
+ #define bis_capable(dev) ((dev)->le_features[3] & HCI_LE_ISO_BROADCASTER)
+ 
++#define mws_transport_config_capable(dev) (((dev)->commands[30] & 0x08) && \
++	(!test_bit(HCI_QUIRK_BROKEN_MWS_TRANSPORT_CONFIG, &(dev)->quirks)))
++
+ /* ----- HCI protocols ----- */
+ #define HCI_PROTO_DEFER             0x01
+ 
+diff --git a/net/bluetooth/hci_sync.c b/net/bluetooth/hci_sync.c
+index a5e89e1b5452..117537f3e7ad 100644
+--- a/net/bluetooth/hci_sync.c
++++ b/net/bluetooth/hci_sync.c
+@@ -3940,7 +3940,7 @@ static int hci_read_local_pairing_opts_sync(struct hci_dev *hdev)
+ /* Get MWS transport configuration if the HCI command is supported */
+ static int hci_get_mws_transport_config_sync(struct hci_dev *hdev)
  {
- 	struct request_queue *q = hctx->queue;
- 	struct blk_mq_ctx *ctx;
--	int i, ret;
-+	int i, j, ret;
- 
- 	if (!hctx->nr_ctx)
+-	if (!(hdev->commands[30] & 0x08))
++	if (!mws_transport_config_capable(hdev))
  		return 0;
-@@ -197,9 +197,16 @@ static int blk_mq_register_hctx(struct blk_mq_hw_ctx *hctx)
- 	hctx_for_each_ctx(hctx, ctx, i) {
- 		ret = kobject_add(&ctx->kobj, &hctx->kobj, "cpu%u", ctx->cpu);
- 		if (ret)
--			break;
-+			goto out;
- 	}
  
-+	return 0;
-+out:
-+	hctx_for_each_ctx(hctx, ctx, j) {
-+		if (j < i)
-+			kobject_del(&ctx->kobj);
-+	}
-+	kobject_del(&hctx->kobj);
- 	return ret;
- }
- 
+ 	return __hci_cmd_sync_status(hdev, HCI_OP_GET_MWS_TRANSPORT_CONFIG,
 -- 
 2.35.1
 
