@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC689657E88
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:54:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95CBC65838E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:48:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233677AbiL1Pyn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:54:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42246 "EHLO
+        id S235103AbiL1Qsk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:48:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233662AbiL1Pym (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:54:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40136186B4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:54:41 -0800 (PST)
+        with ESMTP id S235043AbiL1QsN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:48:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B267C1A061
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:43:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED317B8172B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:54:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B72AC433A1;
-        Wed, 28 Dec 2022 15:54:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 52377B816F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:43:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA0BAC433D2;
+        Wed, 28 Dec 2022 16:43:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242878;
-        bh=2GkK5YJnqS2K8+x4XjShdS4yf6xmc9uTVGnxYH8807A=;
+        s=korg; t=1672245822;
+        bh=PgHIFLQWykNcvhfe3hMDbewZPgLYAPZ6EwtqGZ1sCkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s5dClnYfAmleN249qXbSUm2WHIPdAKk5su941OizIgfBkoRnpYpPRwnz5YbgmyTS/
-         V3f1yW++QaZFz2ee5Hl+gjG49s1u3s0liw1uY1JRGM5k3Qmz1AAkA/b66hWYy9SxON
-         CsghlacUSVvBJlpnYx3QTM3wAa3XYcEmfei0NxhE=
+        b=KjinSAIhvQ9QASLOZi3pxaeIVf6wbSC3KX6hCEqGKa/OfUDG2bS+GovxQigk1S0mV
+         VlOXVhYgw6g1FvHUVs+glbL+cnqlzOFekNrTkffyqiDnp2YMQzB2VFj0i1DaAwgZKf
+         Yk/LKEBqXynRo844eZk+L1ybmB1xw/ogwYWgBBW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sami Tolvanen <samitolvanen@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Rui Zhang <zr.zhang@vivo.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 645/731] drm/amdgpu: Fix type of second parameter in odn_edit_dpm_table() callback
+Subject: [PATCH 6.0 0964/1073] regulator: core: fix use_count leakage when handling boot-on
 Date:   Wed, 28 Dec 2022 15:42:32 +0100
-Message-Id: <20221228144315.209768724@linuxfoundation.org>
+Message-Id: <20221228144354.230955969@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,75 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Rui Zhang <zr.zhang@vivo.com>
 
-[ Upstream commit e4d0ef752081e7aa6ffb7ccac11c499c732a2e05 ]
+[ Upstream commit 0591b14ce0398125439c759f889647369aa616a0 ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed. A
-proposed warning in clang aims to catch these at compile time, which
-reveals:
+I found a use_count leakage towards supply regulator of rdev with
+boot-on option.
 
-  drivers/gpu/drm/amd/amdgpu/../pm/swsmu/amdgpu_smu.c:3008:29: error: incompatible function pointer types initializing 'int (*)(void *, uint32_t, long *, uint32_t)' (aka 'int (*)(void *, unsigned int, long *, unsigned int)') with an expression of type 'int (void *, enum PP_OD_DPM_TABLE_COMMAND, long *, uint32_t)' (aka 'int (void *, enum PP_OD_DPM_TABLE_COMMAND, long *, unsigned int)') [-Werror,-Wincompatible-function-pointer-types-strict]
-          .odn_edit_dpm_table      = smu_od_edit_dpm_table,
-                                     ^~~~~~~~~~~~~~~~~~~~~
-  1 error generated.
+┌───────────────────┐           ┌───────────────────┐
+│  regulator_dev A  │           │  regulator_dev B  │
+│     (boot-on)     │           │     (boot-on)     │
+│    use_count=0    │◀──supply──│    use_count=1    │
+│                   │           │                   │
+└───────────────────┘           └───────────────────┘
 
-There are only two implementations of ->odn_edit_dpm_table() in 'struct
-amd_pm_funcs': smu_od_edit_dpm_table() and pp_odn_edit_dpm_table(). One
-has a second parameter type of 'enum PP_OD_DPM_TABLE_COMMAND' and the
-other uses 'u32'. Ultimately, smu_od_edit_dpm_table() calls
-->od_edit_dpm_table() from 'struct pptable_funcs' and
-pp_odn_edit_dpm_table() calls ->odn_edit_dpm_table() from 'struct
-pp_hwmgr_func', which both have a second parameter type of 'enum
-PP_OD_DPM_TABLE_COMMAND'.
+In case of rdev(A) configured with `regulator-boot-on', the use_count
+of supplying regulator(B) will increment inside
+regulator_enable(rdev->supply).
 
-Update the type parameter in both the prototype in 'struct amd_pm_funcs'
-and pp_odn_edit_dpm_table() to 'enum PP_OD_DPM_TABLE_COMMAND', which
-cleans up the warning.
+Thus, B will acts like always-on, and further balanced
+regulator_enable/disable cannot actually disable it anymore.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1750
-Reported-by: Sami Tolvanen <samitolvanen@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+However, B was also configured with `regulator-boot-on', we wish it
+could be disabled afterwards.
+
+Signed-off-by: Rui Zhang <zr.zhang@vivo.com>
+Link: https://lore.kernel.org/r/20221201033806.2567812-1-zr.zhang@vivo.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/include/kgd_pp_interface.h   | 3 ++-
- drivers/gpu/drm/amd/pm/powerplay/amd_powerplay.c | 3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/regulator/core.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/include/kgd_pp_interface.h b/drivers/gpu/drm/amd/include/kgd_pp_interface.h
-index bac15c466733..6e27c8b16391 100644
---- a/drivers/gpu/drm/amd/include/kgd_pp_interface.h
-+++ b/drivers/gpu/drm/amd/include/kgd_pp_interface.h
-@@ -341,7 +341,8 @@ struct amd_pm_funcs {
- 	int (*get_power_profile_mode)(void *handle, char *buf);
- 	int (*set_power_profile_mode)(void *handle, long *input, uint32_t size);
- 	int (*set_fine_grain_clk_vol)(void *handle, uint32_t type, long *input, uint32_t size);
--	int (*odn_edit_dpm_table)(void *handle, uint32_t type, long *input, uint32_t size);
-+	int (*odn_edit_dpm_table)(void *handle, enum PP_OD_DPM_TABLE_COMMAND type,
-+				  long *input, uint32_t size);
- 	int (*set_mp1_state)(void *handle, enum pp_mp1_state mp1_state);
- 	int (*smu_i2c_bus_access)(void *handle, bool acquire);
- 	int (*gfx_state_change_set)(void *handle, uint32_t state);
-diff --git a/drivers/gpu/drm/amd/pm/powerplay/amd_powerplay.c b/drivers/gpu/drm/amd/pm/powerplay/amd_powerplay.c
-index 321215003643..0f5930e797bd 100644
---- a/drivers/gpu/drm/amd/pm/powerplay/amd_powerplay.c
-+++ b/drivers/gpu/drm/amd/pm/powerplay/amd_powerplay.c
-@@ -924,7 +924,8 @@ static int pp_set_fine_grain_clk_vol(void *handle, uint32_t type, long *input, u
- 	return hwmgr->hwmgr_func->set_fine_grain_clk_vol(hwmgr, type, input, size);
- }
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index 4a93154bb574..1c1710d367d3 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -1578,7 +1578,13 @@ static int set_machine_constraints(struct regulator_dev *rdev)
+ 		if (rdev->supply_name && !rdev->supply)
+ 			return -EPROBE_DEFER;
  
--static int pp_odn_edit_dpm_table(void *handle, uint32_t type, long *input, uint32_t size)
-+static int pp_odn_edit_dpm_table(void *handle, enum PP_OD_DPM_TABLE_COMMAND type,
-+				 long *input, uint32_t size)
- {
- 	struct pp_hwmgr *hwmgr = handle;
- 
+-		if (rdev->supply) {
++		/* If supplying regulator has already been enabled,
++		 * it's not intended to have use_count increment
++		 * when rdev is only boot-on.
++		 */
++		if (rdev->supply &&
++		    (rdev->constraints->always_on ||
++		     !regulator_is_enabled(rdev->supply))) {
+ 			ret = regulator_enable(rdev->supply);
+ 			if (ret < 0) {
+ 				_regulator_put(rdev->supply);
 -- 
 2.35.1
 
