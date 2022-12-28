@@ -2,53 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25072657C6E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:32:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29BD0657B61
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:20:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233409AbiL1Pc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:32:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49268 "EHLO
+        id S233540AbiL1PU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:20:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233914AbiL1PcW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:32:22 -0500
+        with ESMTP id S233526AbiL1PUy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:20:54 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7049716499
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:32:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F70AB9B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:20:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FEB26154D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:32:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECD97C433D2;
-        Wed, 28 Dec 2022 15:32:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C56C61544
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:20:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 322B1C433EF;
+        Wed, 28 Dec 2022 15:20:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241538;
-        bh=b9X5IFxFF1R1HawGE5EI6JB3BOuD//HUdimcdaGpaE4=;
+        s=korg; t=1672240852;
+        bh=QXRs9cy1VSHV67JP2WA2HF8wuo12XqBoOATJGQpR0tA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lx5CPt4OPlv7kFBINCljzL50Q0ADYPQdm+ote+b5SjdXfBbfQ7SxDMcORf8xsQVo3
-         MO4S3kCxIyuYzfrXy6w+Gf+ia4gLAuDcDD+Y1xDIGJMgDu+q+cY+wP81T9sPcyIy85
-         5nw2PD+4z+PNS6eqxXl6mckDk5EkvSla6HwgSmUE=
+        b=clTIGVUFpC3nxYq4bUEYpBNy7FEuKz6PAzYVk2tEQ3AWOEZ4GRyoJX3lauRlWazVT
+         gFE5HkbPstPo4Uvc6TLFlZt1I217+v8TA+I4ihAbSXcjJBY4MDxohSSTNVP3RxD2Gl
+         DOqDAfVrv/Qu5bdEYSprOudHG3fX0alVUXbHQ328=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Alan Previn <alan.previn.teres.alexis@intel.com>,
-        Matthew Brost <matthew.brost@intel.com>,
-        Lucas De Marchi <lucas.demarchi@intel.com>,
-        John Harrison <John.C.Harrison@Intel.com>,
-        Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>,
-        Balasubramani Vivekanandan <balasubramani.vivekanandan@intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Chris Wilson <chris.p.wilson@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0258/1146] drm/i915/guc: Fix GuC error capture sizing estimation and reporting
-Date:   Wed, 28 Dec 2022 15:29:57 +0100
-Message-Id: <20221228144337.144278746@linuxfoundation.org>
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Marek Vasut <marex@denx.de>,
+        Kieran Bingham <kieran.bingham@ideasonboard.com>,
+        Liu Ying <victor.liu@nxp.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0210/1073] drm: lcdif: Switch to limited range for RGB to YUV conversion
+Date:   Wed, 28 Dec 2022 15:29:58 +0100
+Message-Id: <20221228144333.723225565@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,147 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Previn <alan.previn.teres.alexis@intel.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit befb231d5de2773f6c6f6cf918234e2e709110a5 ]
+[ Upstream commit ec39dee8b25229a646271815cc86a8fc865525cf ]
 
-During GuC error capture initialization, we estimate the amount of size
-we need for the error-capture-region of the shared GuC-log-buffer.
-This calculation was incorrect so fix that. With the fixed calculation
-we can reduce the allocation of error-capture region from 4MB to 1MB
-(see note2 below for reasoning). Additionally, switch from drm_notice to
-drm_debug for the 3X spare size check since that would be impossible to
-hit without redesigning gpu_coredump framework to hold multiple captures.
+Up to and including v1.3, HDMI supported limited quantization range only
+for YCbCr. HDMI v1.4 introduced selectable quantization ranges, but this
+feature isn't supported in the dw-hdmi driver that is used in
+conjunction with the LCDIF in the i.MX8MP. The HDMI YCbCr output is thus
+always advertised in the AVI infoframe as limited range.
 
-NOTE1: Even for 1x the min size estimation case, actually running out
-of space is a corner case because it can only occur if all engine
-instances get reset all at once and i915 isn't able extract the capture
-data fast enough within G2H handler worker.
+The LCDIF driver, on the other hand, configures the CSC to produce full
+range YCbCr. This mismatch results in loss of details and incorrect
+colours. Fix it by switching to limited range YCbCr.
 
-NOTE2: With the corrected calculation, a DG2 part required ~77K and a PVC
-required ~115K (1X min-est-size that is calculated as one-shot all-engine-
-reset scenario).
+The coefficients are copied from drivers/media/platforms/nxp/imx-pxp.c
+for coherency, as the hardware is most likely identical.
 
-Fixes: d7c15d76a554 ("drm/i915/guc: Check sizing of guc_capture output")
-Cc: Alan Previn <alan.previn.teres.alexis@intel.com>
-Cc: Matthew Brost <matthew.brost@intel.com>
-Cc: Lucas De Marchi <lucas.demarchi@intel.com>
-Cc: John Harrison <John.C.Harrison@Intel.com>
-Cc: Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>
-Cc: Balasubramani Vivekanandan <balasubramani.vivekanandan@intel.com>
-Cc: Matt Roper <matthew.d.roper@intel.com>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Chris Wilson <chris.p.wilson@intel.com>
-Signed-off-by: Alan Previn <alan.previn.teres.alexis@intel.com>
-Reviewed-by: John Harrison <John.C.Harrison@Intel.com>
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221026060506.1007830-2-alan.previn.teres.alexis@intel.com
+Fixes: 9db35bb349a0 ("drm: lcdif: Add support for i.MX8MP LCDIF variant")
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Marek Vasut <marex@denx.de>
+Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
+Reviewed-by: Liu Ying <victor.liu@nxp.com>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220930083955.31580-4-laurent.pinchart@ideasonboard.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/i915/gt/uc/intel_guc_capture.c    | 29 ++++++++++++-------
- drivers/gpu/drm/i915/gt/uc/intel_guc_log.c    |  6 ++--
- 2 files changed, 21 insertions(+), 14 deletions(-)
+ drivers/gpu/drm/mxsfb/lcdif_kms.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
-index 006bb17140d4..2b75b2d53383 100644
---- a/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
-+++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
-@@ -555,8 +555,9 @@ guc_capture_getlistsize(struct intel_guc *guc, u32 owner, u32 type, u32 classid,
- 	if (!num_regs)
- 		return -ENODATA;
+diff --git a/drivers/gpu/drm/mxsfb/lcdif_kms.c b/drivers/gpu/drm/mxsfb/lcdif_kms.c
+index 1bec1279c8b5..11f881554f74 100644
+--- a/drivers/gpu/drm/mxsfb/lcdif_kms.c
++++ b/drivers/gpu/drm/mxsfb/lcdif_kms.c
+@@ -53,16 +53,22 @@ static void lcdif_set_formats(struct lcdif_drm_private *lcdif,
+ 		writel(DISP_PARA_LINE_PATTERN_UYVY_H,
+ 		       lcdif->base + LCDC_V8_DISP_PARA);
  
--	*size = PAGE_ALIGN((sizeof(struct guc_debug_capture_list)) +
--			   (num_regs * sizeof(struct guc_mmio_reg)));
-+	if (size)
-+		*size = PAGE_ALIGN((sizeof(struct guc_debug_capture_list)) +
-+				   (num_regs * sizeof(struct guc_mmio_reg)));
- 
- 	return 0;
- }
-@@ -666,7 +667,7 @@ guc_capture_output_min_size_est(struct intel_guc *guc)
- 	struct intel_gt *gt = guc_to_gt(guc);
- 	struct intel_engine_cs *engine;
- 	enum intel_engine_id id;
--	int worst_min_size = 0, num_regs = 0;
-+	int worst_min_size = 0;
- 	size_t tmp = 0;
- 
- 	if (!guc->capture)
-@@ -688,20 +689,18 @@ guc_capture_output_min_size_est(struct intel_guc *guc)
- 					 (3 * sizeof(struct guc_state_capture_header_t));
- 
- 		if (!guc_capture_getlistsize(guc, 0, GUC_CAPTURE_LIST_TYPE_GLOBAL, 0, &tmp, true))
--			num_regs += tmp;
-+			worst_min_size += tmp;
- 
- 		if (!guc_capture_getlistsize(guc, 0, GUC_CAPTURE_LIST_TYPE_ENGINE_CLASS,
- 					     engine->class, &tmp, true)) {
--			num_regs += tmp;
-+			worst_min_size += tmp;
- 		}
- 		if (!guc_capture_getlistsize(guc, 0, GUC_CAPTURE_LIST_TYPE_ENGINE_INSTANCE,
- 					     engine->class, &tmp, true)) {
--			num_regs += tmp;
-+			worst_min_size += tmp;
- 		}
- 	}
- 
--	worst_min_size += (num_regs * sizeof(struct guc_mmio_reg));
--
- 	return worst_min_size;
- }
- 
-@@ -718,15 +717,23 @@ static void check_guc_capture_size(struct intel_guc *guc)
- 	int spare_size = min_size * GUC_CAPTURE_OVERBUFFER_MULTIPLIER;
- 	u32 buffer_size = intel_guc_log_section_size_capture(&guc->log);
- 
-+	/*
-+	 * NOTE: min_size is much smaller than the capture region allocation (DG2: <80K vs 1MB)
-+	 * Additionally, its based on space needed to fit all engines getting reset at once
-+	 * within the same G2H handler task slot. This is very unlikely. However, if GuC really
-+	 * does run out of space for whatever reason, we will see an separate warning message
-+	 * when processing the G2H event capture-notification, search for:
-+	 * INTEL_GUC_STATE_CAPTURE_EVENT_STATUS_NOSPACE.
-+	 */
- 	if (min_size < 0)
- 		drm_warn(&i915->drm, "Failed to calculate GuC error state capture buffer minimum size: %d!\n",
- 			 min_size);
- 	else if (min_size > buffer_size)
--		drm_warn(&i915->drm, "GuC error state capture buffer is too small: %d < %d\n",
-+		drm_warn(&i915->drm, "GuC error state capture buffer maybe small: %d < %d\n",
- 			 buffer_size, min_size);
- 	else if (spare_size > buffer_size)
--		drm_notice(&i915->drm, "GuC error state capture buffer maybe too small: %d < %d (min = %d)\n",
--			   buffer_size, spare_size, min_size);
-+		drm_dbg(&i915->drm, "GuC error state capture buffer lacks spare size: %d < %d (min = %d)\n",
-+			buffer_size, spare_size, min_size);
- }
- 
- /*
-diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_log.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_log.c
-index 55d3ef93e86f..68331c538b0a 100644
---- a/drivers/gpu/drm/i915/gt/uc/intel_guc_log.c
-+++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_log.c
-@@ -16,15 +16,15 @@
- #if defined(CONFIG_DRM_I915_DEBUG_GUC)
- #define GUC_LOG_DEFAULT_CRASH_BUFFER_SIZE	SZ_2M
- #define GUC_LOG_DEFAULT_DEBUG_BUFFER_SIZE	SZ_16M
--#define GUC_LOG_DEFAULT_CAPTURE_BUFFER_SIZE	SZ_4M
-+#define GUC_LOG_DEFAULT_CAPTURE_BUFFER_SIZE	SZ_1M
- #elif defined(CONFIG_DRM_I915_DEBUG_GEM)
- #define GUC_LOG_DEFAULT_CRASH_BUFFER_SIZE	SZ_1M
- #define GUC_LOG_DEFAULT_DEBUG_BUFFER_SIZE	SZ_2M
--#define GUC_LOG_DEFAULT_CAPTURE_BUFFER_SIZE	SZ_4M
-+#define GUC_LOG_DEFAULT_CAPTURE_BUFFER_SIZE	SZ_1M
- #else
- #define GUC_LOG_DEFAULT_CRASH_BUFFER_SIZE	SZ_8K
- #define GUC_LOG_DEFAULT_DEBUG_BUFFER_SIZE	SZ_64K
--#define GUC_LOG_DEFAULT_CAPTURE_BUFFER_SIZE	SZ_2M
-+#define GUC_LOG_DEFAULT_CAPTURE_BUFFER_SIZE	SZ_1M
- #endif
- 
- static void guc_log_copy_debuglogs_for_relay(struct intel_guc_log *log);
+-		/* CSC: BT.601 Full Range RGB to YCbCr coefficients. */
+-		writel(CSC0_COEF0_A2(0x096) | CSC0_COEF0_A1(0x04c),
++		/*
++		 * CSC: BT.601 Limited Range RGB to YCbCr coefficients.
++		 *
++		 * |Y |   | 0.2568  0.5041  0.0979|   |R|   |16 |
++		 * |Cb| = |-0.1482 -0.2910  0.4392| * |G| + |128|
++		 * |Cr|   | 0.4392  0.4392 -0.3678|   |B|   |128|
++		 */
++		writel(CSC0_COEF0_A2(0x081) | CSC0_COEF0_A1(0x041),
+ 		       lcdif->base + LCDC_V8_CSC0_COEF0);
+-		writel(CSC0_COEF1_B1(0x7d5) | CSC0_COEF1_A3(0x01d),
++		writel(CSC0_COEF1_B1(0x7db) | CSC0_COEF1_A3(0x019),
+ 		       lcdif->base + LCDC_V8_CSC0_COEF1);
+-		writel(CSC0_COEF2_B3(0x080) | CSC0_COEF2_B2(0x7ac),
++		writel(CSC0_COEF2_B3(0x070) | CSC0_COEF2_B2(0x7b6),
+ 		       lcdif->base + LCDC_V8_CSC0_COEF2);
+-		writel(CSC0_COEF3_C2(0x795) | CSC0_COEF3_C1(0x080),
++		writel(CSC0_COEF3_C2(0x7a2) | CSC0_COEF3_C1(0x070),
+ 		       lcdif->base + LCDC_V8_CSC0_COEF3);
+-		writel(CSC0_COEF4_D1(0x000) | CSC0_COEF4_C3(0x7ec),
++		writel(CSC0_COEF4_D1(0x010) | CSC0_COEF4_C3(0x7ee),
+ 		       lcdif->base + LCDC_V8_CSC0_COEF4);
+ 		writel(CSC0_COEF5_D3(0x080) | CSC0_COEF5_D2(0x080),
+ 		       lcdif->base + LCDC_V8_CSC0_COEF5);
 -- 
 2.35.1
 
