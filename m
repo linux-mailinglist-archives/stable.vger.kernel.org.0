@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF9B6657866
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:50:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C778657868
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:50:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233082AbiL1OuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:50:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37756 "EHLO
+        id S233073AbiL1OuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:50:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233077AbiL1OuH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:50:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B8733AB
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:50:07 -0800 (PST)
+        with ESMTP id S233101AbiL1OuM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:50:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81D3911C1F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:50:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CCDF76154C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:50:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD7B7C433EF;
-        Wed, 28 Dec 2022 14:50:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 12272B8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:50:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BFFBC433EF;
+        Wed, 28 Dec 2022 14:50:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239006;
-        bh=4FC6jk3ntqI5H7ME6PgtFQUY/Yig9Gf7EsmELbq0Vfw=;
+        s=korg; t=1672239008;
+        bh=35wUNQA3z0odziUalHmDpCk9+LKaQ4zeghy4IUYunuw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bK9zdArEHYY5LYl3ARDq2K3dGknPIw6Q6/rTqPKRL+ri9o+kBHq4mb3k73VNvvYUS
-         o00t+1xhc64/Dsu9iSFX5qeVCgT6Js0Y4fVgWN0AcPmnCiearbrCiloULNMO4Z0GQh
-         5dP9iRn4fqr0DAXaP1le6SghMFIXs5/QF67c7g3c=
+        b=Z54z3eHwK/Sky2VTQfUQ9g8tEpbZci1mQZ1xEBOYGmDVx0gDiqlAuxvCh43sP9Pog
+         H/vtPDW5bsk6gCLLeSn01mFGaS9dd6od/Jw+f0Na1bZL9YSkc9kZ7g/35UkY0vQ+Kg
+         jTAAukoKCwZ5Pk8klal9u+Lb2+rRpih7VZTlUR4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Kan Liang <kan.liang@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 093/731] perf/x86/intel/uncore: Fix reference count leak in sad_cfg_iio_topology()
-Date:   Wed, 28 Dec 2022 15:33:20 +0100
-Message-Id: <20221228144259.246211107@linuxfoundation.org>
+Subject: [PATCH 5.15 094/731] perf/x86/intel/uncore: Fix reference count leak in hswep_has_limit_sbox()
+Date:   Wed, 28 Dec 2022 15:33:21 +0100
+Message-Id: <20221228144259.275400669@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
 References: <20221228144256.536395940@linuxfoundation.org>
@@ -57,39 +57,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit c508eb042d9739bf9473526f53303721b70e9100 ]
+[ Upstream commit 1ff9dd6e7071a561f803135c1d684b13c7a7d01d ]
 
 pci_get_device() will increase the reference count for the returned
-pci_dev, and also decrease the reference count for the input parameter
-*from* if it is not NULL.
+'dev'. We need to call pci_dev_put() to decrease the reference count.
+Since 'dev' is only used in pci_read_config_dword(), let's add
+pci_dev_put() right after it.
 
-If we break the loop in sad_cfg_iio_topology() with 'dev' not NULL. We
-need to call pci_dev_put() to decrease the reference count. Since
-pci_dev_put() can handle the NULL input parameter, we can just add one
-pci_dev_put() right before 'return ret'.
-
-Fixes: c1777be3646b ("perf/x86/intel/uncore: Enable I/O stacks to IIO PMON mapping on SNR")
+Fixes: 9d480158ee86 ("perf/x86/intel/uncore: Remove uncore extra PCI dev HSWEP_PCI_PCU_3")
 Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-Link: https://lore.kernel.org/r/20221118063137.121512-2-wangxiongfeng2@huawei.com
+Link: https://lore.kernel.org/r/20221118063137.121512-3-wangxiongfeng2@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/uncore_snbep.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/events/intel/uncore_snbep.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index ed869443efb2..76fedc8e12dd 100644
+index 76fedc8e12dd..f5d89d06c66a 100644
 --- a/arch/x86/events/intel/uncore_snbep.c
 +++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -4492,6 +4492,8 @@ static int sad_cfg_iio_topology(struct intel_uncore_type *type, u8 *sad_pmon_map
- 		type->topology = NULL;
- 	}
+@@ -2891,6 +2891,7 @@ static bool hswep_has_limit_sbox(unsigned int device)
+ 		return false;
  
+ 	pci_read_config_dword(dev, HSWEP_PCU_CAPID4_OFFET, &capid4);
 +	pci_dev_put(dev);
-+
- 	return ret;
- }
+ 	if (!hswep_get_chop(capid4))
+ 		return true;
  
 -- 
 2.35.1
