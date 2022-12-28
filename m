@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1681165814E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:27:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50220658046
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:16:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232981AbiL1Q1S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:27:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46012 "EHLO
+        id S234452AbiL1QQd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:16:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234680AbiL1Q00 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:26:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 317DE1C934
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:22:58 -0800 (PST)
+        with ESMTP id S234528AbiL1QQI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:16:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6388319C33
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:13:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C59B86157B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:22:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4B43C433D2;
-        Wed, 28 Dec 2022 16:22:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01A1CB8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:13:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B0B9C433D2;
+        Wed, 28 Dec 2022 16:13:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244577;
-        bh=BjqH3xmJbkBB968RtFhygLTCvU7XxDnjI0w1+HtpK2s=;
+        s=korg; t=1672244005;
+        bh=/NlQ00/LR5XlA2MbDUa67/WFKNqh5ldcsIfdZ3E2JnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O3iTO7WqYywY6A7kGr8bLfebe2OK3zXe3x7aaaImHQy9y08xCf5N3by1OeNJcH7wO
-         yk1uSHYSJ/PMQGrxmbE6LxsQ+dIs7ixvE7E1eDxVjJYE/tuHUzqV09RXEaBIiKVI98
-         WkHIWGC4RlCEd3P/BmJEmQL+X/MN+lBCLbxpwx3M=
+        b=WuyZ/mK43l4B97PoR/NqJ8p+ygMIktC3gw18iEbSqo/wR3U7RYxkcoICMbniAPhNn
+         HJsfsxK7e2juqOiIQosrJWdJTKxRU9KxPqpk8XLs4UQ6YEUV8NXQKIpOW9u7is8lDe
+         f+wHmz2N2V8SGq1qXSuApzeAASrB4ATgLeBgQbXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Heiko Stuebner <heiko@sntech.de>,
-        Samuel Holland <samuel@sholland.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        patches@lists.linux.dev, Jie Zhan <zhanjie9@hisilicon.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0679/1146] riscv: Fix crash during early errata patching
+Subject: [PATCH 6.0 0630/1073] scsi: hisi_sas: Fix SATA devices missing issue during I_T nexus reset
 Date:   Wed, 28 Dec 2022 15:36:58 +0100
-Message-Id: <20221228144348.587791457@linuxfoundation.org>
+Message-Id: <20221228144345.153489765@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +53,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Jie Zhan <zhanjie9@hisilicon.com>
 
-[ Upstream commit 0c49688174f5347c3f8012e84c0ffa0d2b2890c8 ]
+[ Upstream commit 3c2673a09cf1181318c07b7dbc1bc532ba3d33e3 ]
 
-The patch function for the T-Head PBMT errata calls __pa_symbol() before
-relocation. This crashes when CONFIG_DEBUG_VIRTUAL is enabled, because
-__pa_symbol() forwards to __phys_addr_symbol(), and __phys_addr_symbol()
-checks against the absolute kernel start/end address.
+SATA devices on an expander may be removed and not be found again when I_T
+nexus reset and revalidation are processed simultaneously.
 
-Fix this by checking against the kernel map instead of a symbol address.
+The issue comes from:
 
-Fixes: a35707c3d850 ("riscv: add memory-type errata for T-Head")
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Tested-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Link: https://lore.kernel.org/r/20221126060920.65009-1-samuel@sholland.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+ - Revalidation can remove SATA devices in link reset, e.g. in
+   hisi_sas_clear_nexus_ha().
+
+ - However, hisi_sas_debug_I_T_nexus_reset() polls the state of a SATA
+   device on an expander after sending link_reset, where it calls:
+    hisi_sas_debug_I_T_nexus_reset
+     sas_ata_wait_after_reset
+      ata_wait_after_reset
+       ata_wait_ready
+        smp_ata_check_ready
+         sas_ex_phy_discover
+          sas_ex_phy_discover_helper
+           sas_set_ex_phy
+
+   The ex_phy's change count is updated in sas_set_ex_phy(), so SATA
+   devices after a link reset may not be found later through revalidation.
+
+A similar issue was reported in:
+commit 0f3fce5cc77e ("[SCSI] libsas: fix ata_eh clobbering ex_phys via
+smp_ata_check_ready")
+commit 87c8331fcf72 ("[SCSI] libsas: prevent domain rediscovery competing
+with ata error handling").
+
+To address this issue, in hisi_sas_debug_I_T_nexus_reset(), we now call
+smp_ata_check_ready_type() that only polls the device type while not
+updating the ex_phy's data of libsas.
+
+Fixes: 71453bd9d1bf ("scsi: hisi_sas: Use sas_ata_wait_after_reset() in IT nexus reset")
+Signed-off-by: Jie Zhan <zhanjie9@hisilicon.com>
+Link: https://lore.kernel.org/r/20221118083714.4034612-5-zhanjie9@hisilicon.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/mm/physaddr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/riscv/mm/physaddr.c b/arch/riscv/mm/physaddr.c
-index 19cf25a74ee2..9b18bda74154 100644
---- a/arch/riscv/mm/physaddr.c
-+++ b/arch/riscv/mm/physaddr.c
-@@ -22,7 +22,7 @@ EXPORT_SYMBOL(__virt_to_phys);
- phys_addr_t __phys_addr_symbol(unsigned long x)
- {
- 	unsigned long kernel_start = kernel_map.virt_addr;
--	unsigned long kernel_end = (unsigned long)_end;
-+	unsigned long kernel_end = kernel_start + kernel_map.size;
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index 33af5b8dede2..f4f9e5abee76 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -1701,13 +1701,15 @@ static int hisi_sas_debug_I_T_nexus_reset(struct domain_device *device)
+ 		return rc;
+ 	}
  
- 	/*
- 	 * Boundary checking aginst the kernel image mapping.
++	/* Remote phy */
+ 	if (rc)
+ 		return rc;
+ 
+-	/* Remote phy */
+ 	if (dev_is_sata(device)) {
+-		rc = sas_ata_wait_after_reset(device,
+-					HISI_SAS_WAIT_PHYUP_TIMEOUT);
++		struct ata_link *link = &device->sata_dev.ap->link;
++
++		rc = ata_wait_after_reset(link, HISI_SAS_WAIT_PHYUP_TIMEOUT,
++					  smp_ata_check_ready_type);
+ 	} else {
+ 		msleep(2000);
+ 	}
 -- 
 2.35.1
 
