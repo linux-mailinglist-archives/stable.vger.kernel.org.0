@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D61DB65824A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:34:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 649AD658328
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234835AbiL1Qe1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:34:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51074 "EHLO
+        id S235006AbiL1Qod (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:44:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234910AbiL1QeE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:34:04 -0500
+        with ESMTP id S233617AbiL1QoI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:08 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4458D1C934
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:31:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 981B21C135
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:39:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D387C61576
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:31:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAF46C433D2;
-        Wed, 28 Dec 2022 16:31:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 31A4D61577
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:39:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43877C433F0;
+        Wed, 28 Dec 2022 16:39:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245085;
+        s=korg; t=1672245553;
         bh=cjIJxS9k4HTen9XfVR+HlMZWIPloiFETeSCexC526SQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xmS0UPOzeBzuRWshvEK7+tUA3dZ2gaRfs1cqclRm8tM7xJX6++trgIPJMLth0PlYw
-         h/fBayssRKcruY2NU5b7LOH2mCbHnX0kK/dyQkaLh8U0k0jISLfmaHBERheNVGlWRK
-         FDA/hKB3fJDktr6C7SN3JqEXuly22zaPzt3lvYuI=
+        b=rM5cRZMIfa68OS+7AozAxOtx1IhHHDbU9koqQtFEmpvSzIsPoMjxGp3qXlIEgPj81
+         M9HpyJyuQTMy6QPEmfccoov3JkZDWWg7svjlwFN4QGgcRgeITak5OtobKSrBs/bDi/
+         M03gDb0Bkrxy++JkBtbBCMjm2x1vKrqbfd388i90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
         Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0830/1073] mfd: qcom_rpm: Fix an error handling path in qcom_rpm_probe()
-Date:   Wed, 28 Dec 2022 15:40:18 +0100
-Message-Id: <20221228144350.560236395@linuxfoundation.org>
+Subject: [PATCH 6.1 0880/1146] mfd: qcom_rpm: Fix an error handling path in qcom_rpm_probe()
+Date:   Wed, 28 Dec 2022 15:40:19 +0100
+Message-Id: <20221228144354.065503612@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
