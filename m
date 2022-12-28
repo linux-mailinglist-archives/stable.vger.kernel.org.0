@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DCF4657D5D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:42:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57FDB657E77
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:53:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233260AbiL1Pml (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:42:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58184 "EHLO
+        id S234139AbiL1Px4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:53:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233568AbiL1PmX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:42:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF94C1648D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:42:21 -0800 (PST)
+        with ESMTP id S234126AbiL1Pxy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:53:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA04015F29
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:53:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5958D6155E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:42:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FD14C433D2;
-        Wed, 28 Dec 2022 15:42:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A3957B8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:53:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18556C433D2;
+        Wed, 28 Dec 2022 15:53:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242140;
-        bh=/aSOXQAJeiMzlBd22jGkYJcM9R+JGnV9U3LrwlbBwO8=;
+        s=korg; t=1672242831;
+        bh=i4kn/bkOE2FWuqdT+xmrCUi/bo4Ef6WDtqiFk35+D7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oxPMOqeVeR+GACiB4xxAgQDe19bSUN5R0MfsSp91GDrMkE9Bwnze9MXAun3ZpZgki
-         ZU1YPUbb0WGojR/RzReTAb8UtYPLaUIZqZ/mwVBKhnORsYn3QUeDRjk4h2J1sNNArf
-         zvK8OtZ3K0jIzAN9E2A6memTMgHGPFz1iCOlixp4=
+        b=rweTbBBIdR+6FQHZkfGcyh28rFuanjuDH53xlEpSzG2iDO3Y7hin+SBX9jhR4tF8k
+         uIsT1Wd0FSRKhsnGq5DmUMQJRYswtbAT4twAgzqK9b7w8dnKJ+JsxdyDnmm131H9D5
+         2Ml6kYLZvbU/+P1U5ZSKauIpE5bwOba50iWQgmT4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0372/1073] mtd: core: Fix refcount error in del_mtd_device()
+Subject: [PATCH 6.1 0421/1146] drm/msm/mdp5: fix reading hw revision on db410c platform
 Date:   Wed, 28 Dec 2022 15:32:40 +0100
-Message-Id: <20221228144338.107672013@linuxfoundation.org>
+Message-Id: <20221228144341.610082955@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,92 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 56570bdad5e31c5c538cd6efff5c4510256e1bb4 ]
+[ Upstream commit 5d8c0417ea62fed3cec7f5daed06a20477efeb39 ]
 
-del_mtd_device() will call of_node_put() to mtd_get_of_node(mtd), which
-is mtd->dev.of_node. However, memset(&mtd->dev, 0) is called before
-of_node_put(). As the result, of_node_put() won't do anything in
-del_mtd_device(), and causes the refcount leak.
+Since the commit commit c6122688f265 ("drm/msm/mdp5: stop overriding
+drvdata") reading the MDP5 hw revision on db410c will crash the board
+as the MDSS_GDSC is not enabled. Revert a part of the offending commit
+(moving rpm enablement) and set priv->kms earlier. This make it possible
+to use pm_runtime_get_sync() during read_mdp_hw_revision(), which will
+power up both the MDP5 and MDSS devices.
 
-del_mtd_device()
-    memset(&mtd->dev, 0, sizeof(mtd->dev) # clear mtd->dev
-    of_node_put()
-        mtd_get_of_node(mtd) # mtd->dev is cleared, can't locate of_node
-                             # of_node_put(NULL) won't do anything
-
-Fix the error by caching the pointer of the device_node.
-
-OF: ERROR: memory leak, expected refcount 1 instead of 2,
-of_node_get()/of_node_put() unbalanced - destroy cset entry: attach
-overlay node /spi/spi-sram@0
-CPU: 3 PID: 275 Comm: python3 Tainted: G N 6.1.0-rc3+ #54
-    0d8a1edddf51f172ff5226989a7565c6313b08e2
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org 04/01/2014
-Call Trace:
-<TASK>
-    dump_stack_lvl+0x67/0x83
-    kobject_get+0x155/0x160
-    of_node_get+0x1f/0x30
-    of_fwnode_get+0x43/0x70
-    fwnode_handle_get+0x54/0x80
-    fwnode_get_nth_parent+0xc9/0xe0
-    fwnode_full_name_string+0x3f/0xa0
-    device_node_string+0x30f/0x750
-    pointer+0x598/0x7a0
-    vsnprintf+0x62d/0x9b0
-    ...
-    cfs_overlay_release+0x30/0x90
-    config_item_release+0xbe/0x1a0
-    config_item_put+0x5e/0x80
-    configfs_rmdir+0x3bd/0x540
-    vfs_rmdir+0x18c/0x320
-    do_rmdir+0x198/0x330
-    __x64_sys_rmdir+0x2c/0x40
-    do_syscall_64+0x37/0x90
-    entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Fixes: 00596576a051 ("mtd: core: clear out unregistered devices a bit more")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-[<miquel.raynal@bootlin.com>: Light reword of the commit log]
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20221119063915.11108-1-shangxiaojing@huawei.com
+Fixes: c6122688f265 ("drm/msm/mdp5: stop overriding drvdata")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/512985/
+Link: https://lore.kernel.org/r/20221125000213.252115-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/mtdcore.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/mtd/mtdcore.c b/drivers/mtd/mtdcore.c
-index 37050c551880..c14196bbf008 100644
---- a/drivers/mtd/mtdcore.c
-+++ b/drivers/mtd/mtdcore.c
-@@ -776,6 +776,7 @@ int del_mtd_device(struct mtd_info *mtd)
- {
- 	int ret;
- 	struct mtd_notifier *not;
-+	struct device_node *mtd_of_node;
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
+index b46f983f2b46..29ae5c9613f3 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
+@@ -519,10 +519,9 @@ static void read_mdp_hw_revision(struct mdp5_kms *mdp5_kms,
+ 	struct device *dev = &mdp5_kms->pdev->dev;
+ 	u32 version;
  
- 	mutex_lock(&mtd_table_mutex);
+-	/* Manually enable the MDP5, as pm runtime isn't usable yet. */
+-	mdp5_enable(mdp5_kms);
++	pm_runtime_get_sync(dev);
+ 	version = mdp5_read(mdp5_kms, REG_MDP5_HW_VERSION);
+-	mdp5_disable(mdp5_kms);
++	pm_runtime_put_sync(dev);
  
-@@ -794,6 +795,7 @@ int del_mtd_device(struct mtd_info *mtd)
- 		       mtd->index, mtd->name, mtd->usecount);
- 		ret = -EBUSY;
- 	} else {
-+		mtd_of_node = mtd_get_of_node(mtd);
- 		debugfs_remove_recursive(mtd->dbg.dfs_dir);
+ 	*major = FIELD(version, MDP5_HW_VERSION_MAJOR);
+ 	*minor = FIELD(version, MDP5_HW_VERSION_MINOR);
+@@ -839,6 +838,12 @@ static int mdp5_init(struct platform_device *pdev, struct drm_device *dev)
+ 	 */
+ 	clk_set_rate(mdp5_kms->core_clk, 200000000);
  
- 		/* Try to remove the NVMEM provider */
-@@ -805,7 +807,7 @@ int del_mtd_device(struct mtd_info *mtd)
- 		memset(&mtd->dev, 0, sizeof(mtd->dev));
++	/* set uninit-ed kms */
++	priv->kms = &mdp5_kms->base.base;
++
++	pm_runtime_enable(&pdev->dev);
++	mdp5_kms->rpm_enabled = true;
++
+ 	read_mdp_hw_revision(mdp5_kms, &major, &minor);
  
- 		idr_remove(&mtd_idr, mtd->index);
--		of_node_put(mtd_get_of_node(mtd));
-+		of_node_put(mtd_of_node);
+ 	mdp5_kms->cfg = mdp5_cfg_init(mdp5_kms, major, minor);
+@@ -887,12 +892,6 @@ static int mdp5_init(struct platform_device *pdev, struct drm_device *dev)
+ 	if (ret)
+ 		goto fail;
  
- 		module_put(THIS_MODULE);
- 		ret = 0;
+-	/* set uninit-ed kms */
+-	priv->kms = &mdp5_kms->base.base;
+-
+-	pm_runtime_enable(&pdev->dev);
+-	mdp5_kms->rpm_enabled = true;
+-
+ 	return 0;
+ fail:
+ 	if (mdp5_kms)
 -- 
 2.35.1
 
