@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 423D965780E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:47:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 847BE657CC6
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:35:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233045AbiL1Orj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:47:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35944 "EHLO
+        id S233877AbiL1Pfy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:35:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233000AbiL1Or0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:47:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1422C11A19
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:46:30 -0800 (PST)
+        with ESMTP id S233883AbiL1Pfx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:35:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3828A10FFC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:35:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A71DBB81719
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:46:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8B41C433D2;
-        Wed, 28 Dec 2022 14:46:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CB2A961553
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:35:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E106CC433D2;
+        Wed, 28 Dec 2022 15:35:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238787;
-        bh=2KGlZJUfR3G6XbfvZYIweZFRS46cvv0PW9WCq3/6RVM=;
+        s=korg; t=1672241751;
+        bh=j63kxRJw3hF1ULdmPYa1KQ/4pfa/wnh2PWXETgS8TdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DcI2T3KOBWNGmqgU9wItBy7NZgAvhy0/qQCM2dX9twNSRs8eBGw7RRsEG4etp5Wg/
-         K8buSQ0IJPvqWIj0aTu/fNtWiR0EHi6fLOqdgGuLtGq892C47AI3QVbUhbbhQazD02
-         TxaQ95Qc9wtz8Ibk0U9LFEpx1hqvd/z8U2uQtTD8=
+        b=u7Tr5pe2x0pf53dQQbt57MrtPEWE0dA7muAM7KAheTWpUlhW5nrMQ70ZzwlLiFIV1
+         RJjEQKK77DJf/+/N4tTZFB4du73mDymS0OxzmP0zD3IOlizF+vuh99D11cUxMCZHTU
+         KRwH8HYZmKsC6zz10IIXKo0szoJKDe1QIEYlJ3tY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 004/731] arm64: dts: qcom: sm8250-sony-xperia-edo: fix touchscreen bias-disable
+Subject: [PATCH 6.0 0323/1073] amdgpu/pm: prevent array underflow in vega20_odn_edit_dpm_table()
 Date:   Wed, 28 Dec 2022 15:31:51 +0100
-Message-Id: <20221228144256.665854938@linuxfoundation.org>
+Message-Id: <20221228144336.781205363@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Dan Carpenter <error27@gmail.com>
 
-[ Upstream commit 7ff4a646fae3697b039c6b684786a1e309e8445c ]
+[ Upstream commit d27252b5706e51188aed7647126e44dcf9e940c1 ]
 
-The property to disable bias is "bias-disable".
+In the PP_OD_EDIT_VDDC_CURVE case the "input_index" variable is capped at
+2 but not checked for negative values so it results in an out of bounds
+read.  This value comes from the user via sysfs.
 
-Fixes: e76c7e1f15fe ("arm64: dts: qcom: sm8250-edo: Add Samsung touchscreen")
-Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20220930192954.242546-3-krzysztof.kozlowski@linaro.org
+Fixes: d5bf26539494 ("drm/amd/powerplay: added vega20 overdrive support V3")
+Signed-off-by: Dan Carpenter <error27@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sm8250-sony-xperia-edo.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega20_hwmgr.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm8250-sony-xperia-edo.dtsi b/arch/arm64/boot/dts/qcom/sm8250-sony-xperia-edo.dtsi
-index b15d085db05a..effbd6a9c989 100644
---- a/arch/arm64/boot/dts/qcom/sm8250-sony-xperia-edo.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm8250-sony-xperia-edo.dtsi
-@@ -591,7 +591,7 @@ ts_int_default: ts-int-default {
- 		pins = "gpio39";
- 		function = "gpio";
- 		drive-strength = <2>;
--		bias-disabled;
-+		bias-disable;
- 		input-enable;
- 	};
+diff --git a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega20_hwmgr.c b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega20_hwmgr.c
+index 97b3ad369046..b30684c84e20 100644
+--- a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega20_hwmgr.c
++++ b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega20_hwmgr.c
+@@ -2961,7 +2961,8 @@ static int vega20_odn_edit_dpm_table(struct pp_hwmgr *hwmgr,
+ 			data->od8_settings.od8_settings_array;
+ 	OverDriveTable_t *od_table =
+ 			&(data->smc_state_table.overdrive_table);
+-	int32_t input_index, input_clk, input_vol, i;
++	int32_t input_clk, input_vol, i;
++	uint32_t input_index;
+ 	int od8_id;
+ 	int ret;
  
 -- 
 2.35.1
