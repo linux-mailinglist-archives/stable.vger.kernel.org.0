@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD5456581EE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:32:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 448DF657C3A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:30:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234801AbiL1QcY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:32:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51410 "EHLO
+        id S233407AbiL1PaS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:30:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234805AbiL1Qb7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:31:59 -0500
+        with ESMTP id S233791AbiL1PaP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:30:15 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 852D11C115
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:28:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1B4415827
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:30:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 22B4D6157C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:28:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A068C433F0;
-        Wed, 28 Dec 2022 16:28:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 320F76155C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:30:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 442ACC433EF;
+        Wed, 28 Dec 2022 15:30:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244911;
-        bh=G055uY/meV+DqhxG130QFU03OlY69H+Ho95cldxHKkg=;
+        s=korg; t=1672241413;
+        bh=S6iJRfMbIHxe5GQye2Z4sJxdn416QZ+RRMMYLtoRXPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W1Eg9iDDJTn2y7Gh/osLaEzkrn97XG8uaIzJVxv3cyDj5XM3oVWTbC0+drAz0nP7t
-         KtVYNyguZB4Won2n08XtIid4i0Fs8j0TSTHshRivHYIjOePRKx53RKNutla/JRfFJK
-         JBkmBRS4582YUJu2Nmu5emGkKugFk4P9osJyKGUU=
+        b=JjkctPd0G4wkb2LNUjhATnG5G55LLUmLVbqhHPpuwL+lDBF5rSTX0Gt7Kejkh8PrN
+         tjPROsIVhvr7cei0QVSmh94vspQyFPhlJhnp3J1ACJ9M7C7oaIDmZ2bCYXG3nZc7zx
+         oYFfVaLr0pn8HYM4CYX93AkpEaPDwnSxVqrVNMak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        Andrew Donnellan <ajd@linux.ibm.com>,
-        Frederic Barrat <fbarrat@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        patches@lists.linux.dev,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Yang Shen <shenyang39@huawei.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0798/1073] cxl: Fix refcount leak in cxl_calc_capp_routing
+Subject: [PATCH 5.15 479/731] coresight: trbe: remove cpuhp instance node before remove cpuhp state
 Date:   Wed, 28 Dec 2022 15:39:46 +0100
-Message-Id: <20221228144349.685115347@linuxfoundation.org>
+Message-Id: <20221228144310.436876422@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Yang Shen <shenyang39@huawei.com>
 
-[ Upstream commit 1d09697ff22908ae487fc8c4fbde1811732be523 ]
+[ Upstream commit 20ee8c223f792947378196307d8e707c9cdc2d61 ]
 
-of_get_next_parent() returns a node pointer with refcount incremented,
-we should use of_node_put() on it when not need anymore.
-This function only calls of_node_put() in normal path,
-missing it in the error path.
-Add missing of_node_put() to avoid refcount leak.
+cpuhp_state_add_instance() and cpuhp_state_remove_instance() should
+be used in pairs. Or there will lead to the warn on
+cpuhp_remove_multi_state() since the cpuhp_step list is not empty.
 
-Fixes: f24be42aab37 ("cxl: Add psl9 specific code")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Acked-by: Andrew Donnellan <ajd@linux.ibm.com>
-Acked-by: Frederic Barrat <fbarrat@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220605060038.62217-1-linmq006@gmail.com
+The following is the error log with 'rmmod coresight-trbe':
+Error: Removing state 215 which has instances left.
+Call trace:
+  __cpuhp_remove_state_cpuslocked+0x144/0x160
+  __cpuhp_remove_state+0xac/0x100
+  arm_trbe_device_remove+0x2c/0x60 [coresight_trbe]
+  platform_remove+0x34/0x70
+  device_remove+0x54/0x90
+  device_release_driver_internal+0x1e4/0x250
+  driver_detach+0x5c/0xb0
+  bus_remove_driver+0x64/0xc0
+  driver_unregister+0x3c/0x70
+  platform_driver_unregister+0x20/0x30
+  arm_trbe_exit+0x1c/0x658 [coresight_trbe]
+  __arm64_sys_delete_module+0x1ac/0x24c
+  invoke_syscall+0x50/0x120
+  el0_svc_common.constprop.0+0x58/0x1a0
+  do_el0_svc+0x38/0xd0
+  el0_svc+0x2c/0xc0
+  el0t_64_sync_handler+0x1ac/0x1b0
+  el0t_64_sync+0x19c/0x1a0
+ ---[ end trace 0000000000000000 ]---
+
+Fixes: 3fbf7f011f24 ("coresight: sink: Add TRBE driver")
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Signed-off-by: Yang Shen <shenyang39@huawei.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Link: https://lore.kernel.org/r/20221122090355.23533-1-shenyang39@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/cxl/pci.c | 1 +
+ drivers/hwtracing/coresight/coresight-trbe.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/misc/cxl/pci.c b/drivers/misc/cxl/pci.c
-index 6d495d641c95..0ff944860dda 100644
---- a/drivers/misc/cxl/pci.c
-+++ b/drivers/misc/cxl/pci.c
-@@ -387,6 +387,7 @@ int cxl_calc_capp_routing(struct pci_dev *dev, u64 *chipid,
- 	rc = get_phb_index(np, phb_index);
- 	if (rc) {
- 		pr_err("cxl: invalid phb index\n");
-+		of_node_put(np);
- 		return rc;
- 	}
+diff --git a/drivers/hwtracing/coresight/coresight-trbe.c b/drivers/hwtracing/coresight/coresight-trbe.c
+index 7dddb85b9059..fac63d092c7b 100644
+--- a/drivers/hwtracing/coresight/coresight-trbe.c
++++ b/drivers/hwtracing/coresight/coresight-trbe.c
+@@ -1030,6 +1030,7 @@ static int arm_trbe_probe_cpuhp(struct trbe_drvdata *drvdata)
+ 
+ static void arm_trbe_remove_cpuhp(struct trbe_drvdata *drvdata)
+ {
++	cpuhp_state_remove_instance(drvdata->trbe_online, &drvdata->hotplug_node);
+ 	cpuhp_remove_multi_state(drvdata->trbe_online);
+ }
  
 -- 
 2.35.1
