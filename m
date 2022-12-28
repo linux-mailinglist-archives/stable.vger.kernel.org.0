@@ -2,69 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 260AB6571AF
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 02:42:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF2B96571BB
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 02:47:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229475AbiL1Bmh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Dec 2022 20:42:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33874 "EHLO
+        id S230151AbiL1Brh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Dec 2022 20:47:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231835AbiL1Bmg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 20:42:36 -0500
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5292ED2FC
-        for <stable@vger.kernel.org>; Tue, 27 Dec 2022 17:42:33 -0800 (PST)
-Received: by mail-pl1-x62d.google.com with SMTP id 17so14809644pll.0
-        for <stable@vger.kernel.org>; Tue, 27 Dec 2022 17:42:33 -0800 (PST)
+        with ESMTP id S232527AbiL1Br2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Dec 2022 20:47:28 -0500
+Received: from mail-qv1-xf2a.google.com (mail-qv1-xf2a.google.com [IPv6:2607:f8b0:4864:20::f2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1027AE37
+        for <stable@vger.kernel.org>; Tue, 27 Dec 2022 17:47:27 -0800 (PST)
+Received: by mail-qv1-xf2a.google.com with SMTP id t13so4302160qvp.9
+        for <stable@vger.kernel.org>; Tue, 27 Dec 2022 17:47:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=g6bjfzIsOTMHvB0nO+i4beQ5Ky8CnGEgnwaSzt1eO1w=;
-        b=glOWut5AkVu+Koo4rLs/qj4V37l+tRBeeir9MhYk/NSQOecfiGnY5wdlQVhTcZrTjl
-         GHhTA+wX6oXi5gfQU3nn+ds7IngrXKA68BHyKgIUgHCPZYmcCbE4h3q/oZ481oEsAbfD
-         w/vISmmDIZovcR4wwChoJXpZEojz43H/3Db0CDOSKL4d72S/qmu/LGW3lMt20Uhedqaw
-         VydHS0bk9ivcinxJqaEofKrCBVciq0W+koKRjaF3GdyWwni1hTH42OqwWS1qUgDHIdtx
-         8RdToxei/XMKx+t+1LedFahihjM4mTRB4h2e5Y8MkjL39pZm/CDltsLXQFAMsRtzwmlj
-         L2zw==
+        d=joelfernandes.org; s=google;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=1TCs/qBg8Q1qIz5e/XHdhZF1/2FzgwoG8hNaOrTUD/M=;
+        b=i76tlqGmQ1t8wKOwqLtH6zQYUPAqJeshJoSE9nDbg/SVrFwYkSD0RfkB/Jv91tQ2PX
+         9sjvB4GWXEO828yxszkfrJiSX3GctzFBJQbmwkf4KLpkgDv9EY1+WyltW8a0wGYI8o/c
+         ERWWP1A7nYowtaYyTT8wQhijxt2qMk68eM65A=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=g6bjfzIsOTMHvB0nO+i4beQ5Ky8CnGEgnwaSzt1eO1w=;
-        b=y+HS3yg40z0IuEfIkVF23voWOYy4cQwGrUGaz/e0+A2yf2Et3IU1YuZr+G2SKzpMM+
-         DhN3JfEC/Mxsc59Jk7kpWijs4aQt6pFD/I708++s5QIDANoRZzCTA718ve8lyHkYgIL/
-         WYfPi5zDpgGtca/pKBYQtXr3kNoaSoTi4lO8QWw5ycPRGTOVgk+D5uYoMA02bVX5LNDL
-         vag/tO9t+a/q//GBBiEVIJmYuDeDsxARTHx5TLNyXcabVuEmX98/3VDgTyq2SaF/n/H+
-         NE5Opuyki/Dj6WFSN0FnNPhOFQTaK1kRDsm0WCjPiuHTHJTdnQoK86Xd82Zp1d5DvLFd
-         TMqQ==
-X-Gm-Message-State: AFqh2krsDBKwOeC+1SeN0PoLW6vcLr7mUqih5QuFx8i4bYFdz1WCI1/s
-        YgZk9sLZwO8rqHn2gL20sI1d8w==
-X-Google-Smtp-Source: AMrXdXujpU46wTD3VGXU6Bxn51go3JRMyXI0wVeypnzw7aT4SiYD2PY577jSNi33KXhieOTRpVmxYw==
-X-Received: by 2002:a05:6a20:7f59:b0:ac:af5c:2970 with SMTP id e25-20020a056a207f5900b000acaf5c2970mr1637909pzk.3.1672191752691;
-        Tue, 27 Dec 2022 17:42:32 -0800 (PST)
-Received: from [2620:15c:29:203:93f7:84:3b7b:8294] ([2620:15c:29:203:93f7:84:3b7b:8294])
-        by smtp.gmail.com with ESMTPSA id n8-20020a654cc8000000b00478dad38eacsm8545514pgt.38.2022.12.27.17.42.31
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=1TCs/qBg8Q1qIz5e/XHdhZF1/2FzgwoG8hNaOrTUD/M=;
+        b=gWbZpsdaeH6AbfZ0UptA3EuLsW6EvauTRga/P3kuXMOU1+iffAwCFnGnVQa9NmMle+
+         xp6mM1dy9GlUdg3fpj3/DD+NKB+SOqCSCY2s5JGBqKDlUOUN154Y9tZGlVYwN0S5Tpw7
+         yOqEK1Zuqpbt3Dz+BRFEmjPusAfpMKAfcz2PXnSFzx3OXehbGnE+1IJqxf8hWDI5u0Z9
+         uYt6lS66KW3siHfYg/N1+7PkqguCqgj2uzKY/eN7w/YhLbcu0V5HW5ELLTIe7VR4vou2
+         smOfJzN8rMLyiVVuCBxX06pHnX6mIak2BJty7SrI/4Qh80r9O9hHRMHNM2pUIQFFyxi6
+         OqIA==
+X-Gm-Message-State: AFqh2koP9/qGW+sGlnCB8TRgs9KK+DodC3YLwp21Vwp8KRLJ8WT1hmUU
+        UGpRVYjccja5gW8ZTVUmSeIEr2ocePnyI+E/jPg=
+X-Google-Smtp-Source: AMrXdXt2RiBXhrh7vPY2IawoK71sRupbOB97Ni9BUo+cqTsusl9lmKRGlChE88iIlKqrVyPw8808tw==
+X-Received: by 2002:a0c:e98e:0:b0:4c7:8c96:d2ca with SMTP id z14-20020a0ce98e000000b004c78c96d2camr24898024qvn.15.1672192045515;
+        Tue, 27 Dec 2022 17:47:25 -0800 (PST)
+Received: from localhost (228.221.150.34.bc.googleusercontent.com. [34.150.221.228])
+        by smtp.gmail.com with ESMTPSA id b5-20020a05620a04e500b006fab416015csm10332387qkh.25.2022.12.27.17.47.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Dec 2022 17:42:31 -0800 (PST)
-Date:   Tue, 27 Dec 2022 17:42:31 -0800 (PST)
-From:   David Rientjes <rientjes@google.com>
-To:     Herbert Xu <herbert@gondor.apana.org.au>
-cc:     Peter Gonda <pgonda@google.com>, Andy Nguyen <theflow@google.com>,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-crypto@vger.kernel.org, John Allen <john.allen@amd.com>,
-        "Thomas . Lendacky" <thomas.lendacky@amd.com>
-Subject: Re: [PATCH] crypto: ccp - Limit memory allocation in SEV_GET_ID2
- ioctl
-In-Reply-To: <Y5rxd6ZVBqFCBOUT@gondor.apana.org.au>
-Message-ID: <762d33dc-b5fd-d1ef-848c-7de3a6695557@google.com>
-References: <20221214202046.719598-1-pgonda@google.com> <Y5rxd6ZVBqFCBOUT@gondor.apana.org.au>
+        Tue, 27 Dec 2022 17:47:24 -0800 (PST)
+Date:   Wed, 28 Dec 2022 01:47:24 +0000
+From:   Joel Fernandes <joel@joelfernandes.org>
+To:     stable@vger.kernel.org
+Cc:     paulmck@kernel.org, rcu@vger.kernel.org
+Subject: Please apply to v5.15 stable: 96017bf90397 ("rcu-tasks: Simplify
+ trc_read_check_handler() atomic operations")
+Message-ID: <Y6ugLOSaqylFlRjZ@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,WEIRD_PORT autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -72,22 +64,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 15 Dec 2022, Herbert Xu wrote:
+Hello,
 
-> On Wed, Dec 14, 2022 at 12:20:46PM -0800, Peter Gonda wrote:
-> > Currently userspace can ask for any uint32 size allocation for the
-> > SEV_GET_ID2. Limit this allocation size to the max physically
-> > contiguously allocation: MAX_ORDER.
-> 
-> This is just to silence the alloc_pages warning, right? If so
-> how about adding __GFP_NOWARN instead?
-> 
+Please apply 96017bf90397 ("rcu-tasks: Simplify trc_read_check_handler()
+atomic operations") to the stable v5.15 stable kernel. It made it in v5.16.
 
-The goal was to be more explicit about that, but setting __GFP_NOWARN 
-would result in the same functional behavior.  If we're to go that route, 
-it would likely be best to add a comment about the limitation.
+I confirmed the patch fixes the following splat which happens twice on TRACE02:
 
-That said, if AMD would prefer this to be an EINVAL instead of a ENOMEM by 
-introducing a more formal limitation on the length that can be used, that 
-would be preferred so that we don't need to rely on the page allocator's 
-max length to enforce this arbitrarily.
+[  765.941351] WARNING: CPU: 0 PID: 80 at kernel/rcu/tasks.h:895 trc_read_check_handler+0x61/0xe0
+[  765.949880] Modules linked in:
+[  765.953006] CPU: 0 PID: 80 Comm: rcu_torture_rea Not tainted 5.15.86-rc1+ #25
+[  765.959982] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1 04/01/2014
+[  765.967964] RIP: 0010:trc_read_check_handler+0x61/0xe0
+[  765.973050] Code: 01 00 89 c0 48 03 2c c5 80 f8 a5 ae c6 45 00 00 [..]
+[  765.991768] RSP: 0000:ffffa64ac0003fb0 EFLAGS: 00010047
+[  765.997042] RAX: ffffffffad4f8610 RBX: ffffa26b41bd3000 RCX: ffffa26b5f4ac8c0
+[  766.004418] RDX: 0000000000000000 RSI: ffffffffae978121 RDI: ffffa26b41bd3000
+[  766.011502] RBP: ffffa26b41bd6000 R08: ffffa26b41bd3000 R09: 0000000000000000
+[  766.018778] R10: 0000000000000000 R11: ffffa64ac0003ff8 R12: 0000000000000000
+[  766.025943] R13: ffffa26b5f4ac8c0 R14: 0000000000000000 R15: 0000000000000000
+[  766.034383] FS:  0000000000000000(0000) GS:ffffa26b5f400000(0000) knlGS:0000000000000000
+[  766.042925] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  766.048775] CR2: 0000000000000000 CR3: 0000000001924000 CR4: 00000000000006f0
+[  766.055991] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  766.063135] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  766.070711] Call Trace:
+[  766.073515]  <IRQ>
+[  766.075807]  flush_smp_call_function_queue+0xec/0x1a0
+[  766.081087]  __sysvec_call_function_single+0x3e/0x1d0
+[  766.086466]  sysvec_call_function_single+0x89/0xc0
+[  766.091431]  </IRQ>
+[  766.093713]  <TASK>
+[  766.095930]  asm_sysvec_call_function_single+0x16/0x20
+
+Full kernel logs:
+http://box.joelfernandes.org:9080/job/rcutorture_stable/job/Linux%20Stable%20RC%205.15/lastFailedBuild/artifact/tools/testing/selftests/rcutorture/res/2022.12.27-20.43.34/TRACE02/console.log
+
+Cheers,
+
+ - Joel
+
