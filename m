@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2C16657D4C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:42:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BF7A657D50
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:42:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233970AbiL1PmG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:42:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58518 "EHLO
+        id S233563AbiL1PmU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:42:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233967AbiL1Plo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:41:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A0DA17436
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:41:38 -0800 (PST)
+        with ESMTP id S233537AbiL1PmA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:42:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 379C317411
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:41:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 18E486155E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:41:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D591C433EF;
-        Wed, 28 Dec 2022 15:41:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0F1BB81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:41:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F810C433D2;
+        Wed, 28 Dec 2022 15:41:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242097;
-        bh=RYc/kThGKmz4l+8HTPcND0yU5YHMcBhLtKlKASwdUPg=;
+        s=korg; t=1672242105;
+        bh=SClkrmNjl9BiacFl33xQGVQVYpd8Ndhx0npwfmRUNmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ya8XTS7MHt1WSfnjffs8Z3mrSx3GWBR/0f8pjOazqh6LC4yz+7WzMU2feyuR8XcYX
-         aPmBDMQqkcM019Qig3brzhGLeJYUjsVOzSCUukOfyCvBXLdmtEl/CtQ3qqy5Vl2cSL
-         HCbgPHQfLULz49swGtCsIn0bHgdZTO4/CoJpmB2Y=
+        b=Gy/BTj83YOSLS3DJGBVtPlHFgpMvArjPkCMH3zWO21nLOyqbg+CM1Fx2DesVsxEss
+         AMX+qXplpYULjMeDNJ7qbWM1XUOYgRxFyxAYzBm0NfuLt4BAUgpL0s59oy39SRdTaI
+         SK5DeL36239AshQLnaemrZ5jOFby+A64njUDE508=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Evan Quan <evan.quan@amd.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev,
+        Alan Previn <alan.previn.teres.alexis@intel.com>,
+        Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>,
+        Lucas De Marchi <lucas.demarchi@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0367/1073] drm/amdgpu: fix pci device refcount leak
-Date:   Wed, 28 Dec 2022 15:32:35 +0100
-Message-Id: <20221228144337.972158829@linuxfoundation.org>
+Subject: [PATCH 6.0 0368/1073] drm/i915/guc: make default_lists const data
+Date:   Wed, 28 Dec 2022 15:32:36 +0100
+Message-Id: <20221228144337.999409317@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -54,56 +57,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Jani Nikula <jani.nikula@intel.com>
 
-[ Upstream commit b85e285e3d6352b02947fc1b72303673dfacb0aa ]
+[ Upstream commit dfa5e6ef3ccefff9fa8a70d9f5fa6ef6244aa312 ]
 
-As comment of pci_get_domain_bus_and_slot() says, it returns
-a pci device with refcount increment, when finish using it,
-the caller must decrement the reference count by calling
-pci_dev_put().
+The default_lists array should be in rodata.
 
-So before returning from amdgpu_device_resume|suspend_display_audio(),
-pci_dev_put() is called to avoid refcount leak.
-
-Fixes: 3f12acc8d6d4 ("drm/amdgpu: put the audio codec into suspend state before gpu reset V3")
-Reviewed-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: dce2bd542337 ("drm/i915/guc: Add Gen9 registers for GuC error state capture.")
+Cc: Alan Previn <alan.previn.teres.alexis@intel.com>
+Cc: Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>
+Cc: Lucas De Marchi <lucas.demarchi@intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Reviewed-by: Lucas De Marchi <lucas.demarchi@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221122141616.3469214-1-jani.nikula@intel.com
+(cherry picked from commit 8b7f7a9b10b704ba7d73199ff0f01354e0bad7a5)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index e0c960cc1d2e..f04e698e631c 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -5004,6 +5004,8 @@ static void amdgpu_device_resume_display_audio(struct amdgpu_device *adev)
- 		pm_runtime_enable(&(p->dev));
- 		pm_runtime_resume(&(p->dev));
+diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
+index 34e72675b7e4..4c51888fd78b 100644
+--- a/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
++++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
+@@ -165,7 +165,7 @@ static const struct __guc_mmio_reg_descr empty_regs_list[] = {
  	}
-+
-+	pci_dev_put(p);
- }
  
- static int amdgpu_device_suspend_display_audio(struct amdgpu_device *adev)
-@@ -5042,6 +5044,7 @@ static int amdgpu_device_suspend_display_audio(struct amdgpu_device *adev)
- 
- 		if (expires < ktime_get_mono_fast_ns()) {
- 			dev_warn(adev->dev, "failed to suspend display audio\n");
-+			pci_dev_put(p);
- 			/* TODO: abort the succeeding gpu reset? */
- 			return -ETIMEDOUT;
- 		}
-@@ -5049,6 +5052,7 @@ static int amdgpu_device_suspend_display_audio(struct amdgpu_device *adev)
- 
- 	pm_runtime_disable(&(p->dev));
- 
-+	pci_dev_put(p);
- 	return 0;
- }
- 
+ /* List of lists */
+-static struct __guc_mmio_reg_descr_group default_lists[] = {
++static const struct __guc_mmio_reg_descr_group default_lists[] = {
+ 	MAKE_REGLIST(default_global_regs, PF, GLOBAL, 0),
+ 	MAKE_REGLIST(default_rc_class_regs, PF, ENGINE_CLASS, GUC_RENDER_CLASS),
+ 	MAKE_REGLIST(xe_lpd_rc_inst_regs, PF, ENGINE_INSTANCE, GUC_RENDER_CLASS),
 -- 
 2.35.1
 
