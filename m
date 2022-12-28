@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06BEF657CCE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:36:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1304657819
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233495AbiL1PgP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:36:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53886 "EHLO
+        id S232924AbiL1OsD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:48:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233896AbiL1PgL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:36:11 -0500
+        with ESMTP id S233044AbiL1Orh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:47:37 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3DAE140C3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:36:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E94C31209A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:46:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E68A61542
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:36:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DA98C43392;
-        Wed, 28 Dec 2022 15:36:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 887EF6154C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:46:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98A6FC433D2;
+        Wed, 28 Dec 2022 14:46:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241769;
-        bh=p3hXWRPPoNXR2E4sAcA79WuzPSZuZfPAYqk43Ikyg1o=;
+        s=korg; t=1672238813;
+        bh=5JZHmcmcfT7DwKMbrzGvZFxRQEpKQM7s9md3eNOtSYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kEBvPM0OH9zilJBji1Fn6oCIJdbB0luiWiz9vjUpkDNb/5nVpX9Cf67SGtTEp68Oq
-         PCBhjt7b4MR5MpozDOJVfZzStTdxZVDEycTE10ZMm8KBVNixIO441uz9tZhqTQYKsO
-         Vh38slUfQq3KjuNfr/QpX6gRzP2XUx6TVnRJ/lcc=
+        b=SNJSrM2mMPGa4SNKAbDEKRLXYkc6rwFCUg73WLiSz1AqA4wT494tBBDSA9c3/81Su
+         ms4tjf0mdmGYDuAEEPmaEwvfXkpBzmBCURI8pt6BVl1ikf1SttAPZAW5E0IgrGk4OE
+         ypfBEj13Mt2Dcck5Jm1bPFdwl/wyxGNWZ3+5gHKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0325/1073] wifi: rtw89: Fix some error handling path in rtw89_core_sta_assoc()
-Date:   Wed, 28 Dec 2022 15:31:53 +0100
-Message-Id: <20221228144336.835358121@linuxfoundation.org>
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 007/731] arm64: dts: qcom: msm8996: fix GPU OPP table
+Date:   Wed, 28 Dec 2022 15:31:54 +0100
+Message-Id: <20221228144256.752675111@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 81c0b8928437ddfe87b0024c5bd817bc331d8524 ]
+[ Upstream commit 0d440d811e6e2f37093e54db55bc27fe66678170 ]
 
-'ret' is not updated after a function call in rtw89_core_sta_assoc().
-This prevent error handling from working.
+Fix Adreno OPP table according to the msm-3.18. Enable 624 MHz for the
+speed bin 3 and 560 MHz for bins 2 and 3.
 
-Add the missing assignment.
-
-Fixes: e3ec7017f6a2 ("rtw89: add Realtek 802.11ax driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Acked-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/7b1d82594635e4406d3438f33d8da29eaa056c5a.1668354547.git.christophe.jaillet@wanadoo.fr
+Fixes: 69cc3114ab0f ("arm64: dts: Add Adreno GPU definitions")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20220724140421.1933004-7-dmitry.baryshkov@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw89/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/msm8996.dtsi | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw89/core.c b/drivers/net/wireless/realtek/rtw89/core.c
-index 8b338e5ce364..732015228bd3 100644
---- a/drivers/net/wireless/realtek/rtw89/core.c
-+++ b/drivers/net/wireless/realtek/rtw89/core.c
-@@ -2500,7 +2500,7 @@ int rtw89_core_sta_assoc(struct rtw89_dev *rtwdev,
- 	}
+diff --git a/arch/arm64/boot/dts/qcom/msm8996.dtsi b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+index 032c6cd635e2..70187fd03a26 100644
+--- a/arch/arm64/boot/dts/qcom/msm8996.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+@@ -995,17 +995,17 @@ gpu_opp_table: opp-table {
+ 				compatible  ="operating-points-v2";
  
- 	/* update cam aid mac_id net_type */
--	rtw89_fw_h2c_cam(rtwdev, rtwvif, rtwsta, NULL);
-+	ret = rtw89_fw_h2c_cam(rtwdev, rtwvif, rtwsta, NULL);
- 	if (ret) {
- 		rtw89_warn(rtwdev, "failed to send h2c cam\n");
- 		return ret;
+ 				/*
+-				 * 624Mhz and 560Mhz are only available on speed
+-				 * bin (1 << 0). All the rest are available on
+-				 * all bins of the hardware
++				 * 624Mhz is only available on speed bins 0 and 3.
++				 * 560Mhz is only available on speed bins 0, 2 and 3.
++				 * All the rest are available on all bins of the hardware.
+ 				 */
+ 				opp-624000000 {
+ 					opp-hz = /bits/ 64 <624000000>;
+-					opp-supported-hw = <0x01>;
++					opp-supported-hw = <0x09>;
+ 				};
+ 				opp-560000000 {
+ 					opp-hz = /bits/ 64 <560000000>;
+-					opp-supported-hw = <0x01>;
++					opp-supported-hw = <0x0d>;
+ 				};
+ 				opp-510000000 {
+ 					opp-hz = /bits/ 64 <510000000>;
 -- 
 2.35.1
 
