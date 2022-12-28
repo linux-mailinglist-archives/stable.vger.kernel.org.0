@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1962D6580DA
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:22:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E19D16581B5
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:31:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234619AbiL1QVa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:21:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42454 "EHLO
+        id S234740AbiL1QbR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:31:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234693AbiL1QVA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:21:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E479F18B25
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:18:55 -0800 (PST)
+        with ESMTP id S234773AbiL1QbA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:31:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59A121CB12
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:27:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F49F61576
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:18:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ED44C433EF;
-        Wed, 28 Dec 2022 16:18:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EC12AB816F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:27:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 637F6C433EF;
+        Wed, 28 Dec 2022 16:26:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244334;
-        bh=8zCJVnbkmkAnQE7pr6b8EkU6OWgNcZvsbNpngBmFC5w=;
+        s=korg; t=1672244819;
+        bh=AneIGNGeTxm7Ds+h80KjUti9WNHwRciL5L8MSXaRuyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NOVMELRlzBeMnGIRNK+b16/cEGq5o81/R6lpGGrMqlQk0Gt6Lw40mSCqpmg2ghPPv
-         vNnJaBv8tNyn07q5LJM2qSnr4bEpAvsa2tQwrwd0r6dpX0NmTLxKFLzu2eOw4Dq/JD
-         YQIRSCUL+mU//+Y+9svEScwojjxc9475e2TKNQms=
+        b=Lu5FXwD59cKLie1UySfe9C7An343IzLVr9n65f4QFhbOvK7izBoD4u28GucEXQqaB
+         POCQX9RygpVTI6HbiLNUj5YhAM03CMhu4zRuDD0nQALdSMRbjIS8ZFzezytb6OXJ9e
+         OzGCDStTIp6lg1XxWSdphyC1/9hAJ88NvxWxSWWs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Andrew Donnellan <ajd@linux.ibm.com>,
-        Frederic Barrat <fbarrat@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0693/1073] misc: ocxl: fix possible name leak in ocxl_file_register_afu()
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0742/1146] i2c: mux: reg: check return value after calling platform_get_resource()
 Date:   Wed, 28 Dec 2022 15:38:01 +0100
-Message-Id: <20221228144346.856012564@linuxfoundation.org>
+Message-Id: <20221228144350.303506238@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,44 +54,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit a4cb1004aeed2ab893a058fad00a5b41a12c4691 ]
+[ Upstream commit 2d47b79d2bd39cc6369eccf94a06568d84c906ae ]
 
-If device_register() returns error in ocxl_file_register_afu(),
-the name allocated by dev_set_name() need be freed. As comment
-of device_register() says, it should use put_device() to give
-up the reference in the error path. So fix this by calling
-put_device(), then the name can be freed in kobject_cleanup(),
-and info is freed in info_release().
+It will cause null-ptr-deref in resource_size(), if platform_get_resource()
+returns NULL, move calling resource_size() after devm_ioremap_resource() that
+will check 'res' to avoid null-ptr-deref.
+And use devm_platform_get_and_ioremap_resource() to simplify code.
 
-Fixes: 75ca758adbaf ("ocxl: Create a clear delineation between ocxl backend & frontend")
+Fixes: b3fdd32799d8 ("i2c: mux: Add register-based mux i2c-mux-reg")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Acked-by: Andrew Donnellan <ajd@linux.ibm.com>
-Acked-by: Frederic Barrat <fbarrat@linux.ibm.com>
-Link: https://lore.kernel.org/r/20221111145929.2429271-1-yangyingliang@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/ocxl/file.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/i2c/muxes/i2c-mux-reg.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/misc/ocxl/file.c b/drivers/misc/ocxl/file.c
-index d46dba2df5a1..452d5777a0e4 100644
---- a/drivers/misc/ocxl/file.c
-+++ b/drivers/misc/ocxl/file.c
-@@ -541,8 +541,11 @@ int ocxl_file_register_afu(struct ocxl_afu *afu)
- 		goto err_put;
+diff --git a/drivers/i2c/muxes/i2c-mux-reg.c b/drivers/i2c/muxes/i2c-mux-reg.c
+index 0e0679f65cf7..30a6de1694e0 100644
+--- a/drivers/i2c/muxes/i2c-mux-reg.c
++++ b/drivers/i2c/muxes/i2c-mux-reg.c
+@@ -183,13 +183,12 @@ static int i2c_mux_reg_probe(struct platform_device *pdev)
+ 	if (!mux->data.reg) {
+ 		dev_info(&pdev->dev,
+ 			"Register not set, using platform resource\n");
+-		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-		mux->data.reg_size = resource_size(res);
+-		mux->data.reg = devm_ioremap_resource(&pdev->dev, res);
++		mux->data.reg = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+ 		if (IS_ERR(mux->data.reg)) {
+ 			ret = PTR_ERR(mux->data.reg);
+ 			goto err_put_parent;
+ 		}
++		mux->data.reg_size = resource_size(res);
+ 	}
  
- 	rc = device_register(&info->dev);
--	if (rc)
--		goto err_put;
-+	if (rc) {
-+		free_minor(info);
-+		put_device(&info->dev);
-+		return rc;
-+	}
- 
- 	rc = ocxl_sysfs_register_afu(info);
- 	if (rc)
+ 	if (mux->data.reg_size != 4 && mux->data.reg_size != 2 &&
 -- 
 2.35.1
 
