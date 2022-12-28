@@ -2,109 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4112F658414
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:54:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E9776584D1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:03:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235208AbiL1Qyk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:54:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45434 "EHLO
+        id S235328AbiL1RDK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:03:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235289AbiL1Qxt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:53:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A869D58
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:49:03 -0800 (PST)
+        with ESMTP id S235364AbiL1RCk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:02:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDB3410FF9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:56:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8070A61541
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:49:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90D6DC433D2;
-        Wed, 28 Dec 2022 16:49:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9A629B8188C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:56:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E46A8C433EF;
+        Wed, 28 Dec 2022 16:56:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246142;
-        bh=00NmHKHRLwzQLMEdhQ7IO6s1VJuatijNqi22o4B2TiE=;
+        s=korg; t=1672246599;
+        bh=uefpNLQQG6P2rtBOBLFYAfyECZaJ2CLTwbyat+ozhDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M4WTPCijG1TH9x2VpZAd/KoXRbvjMiHsaVhV8ZyxOLPyoPz8vZfrmNnOlGshVNDGn
-         /yWxd7VAhGHrV7DMvMIvErGkS53BMpNNL1owx67xqEPWcgQ7OLrXXMNOWZ+bIKPYU9
-         wlk04HzSE/CJ43ifDmqGqP4XhM+O8esRSpOnvGRg=
+        b=tuyRIhSVT3RuyI2bze9fXBFJAnDdTHBvH+3VLAqpdXOdi41lW1mAJiJ6mkUn4YpWY
+         uSBxGcyuMLQFR0+qjZHaepWWLV7MAa234z4wHMcqCltyMnv4o4yNZp5sthDyYOoxtM
+         v2BNUh7AgAuy2qIux0fUxofox/5B4aouCh9O9Udk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        linux-afs@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 1019/1073] afs: Fix lost servers_outstanding count
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 1068/1146] ASoC: mediatek: mt8173-rt5650-rt5514: fix refcount leak in mt8173_rt5650_rt5514_dev_probe()
 Date:   Wed, 28 Dec 2022 15:43:27 +0100
-Message-Id: <20221228144355.864859429@linuxfoundation.org>
+Message-Id: <20221228144359.266437680@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit 36f82c93ee0bd88f1c95a52537906b8178b537f1 ]
+[ Upstream commit 3327d721114c109ba0575f86f8fda3b525404054 ]
 
-The afs_fs_probe_dispatcher() work function is passed a count on
-net->servers_outstanding when it is scheduled (which may come via its
-timer).  This is passed back to the work_item, passed to the timer or
-dropped at the end of the dispatcher function.
+The node returned by of_parse_phandle() with refcount incremented,
+of_node_put() needs be called when finish using it. So add it in the
+error path in mt8173_rt5650_rt5514_dev_probe().
 
-But, at the top of the dispatcher function, there are two checks which
-skip the rest of the function: if the network namespace is being destroyed
-or if there are no fileservers to probe.  These two return paths, however,
-do not drop the count passed to the dispatcher, and so, sometimes, the
-destruction of a network namespace, such as induced by rmmod of the kafs
-module, may get stuck in afs_purge_servers(), waiting for
-net->servers_outstanding to become zero.
-
-Fix this by adding the missing decrements in afs_fs_probe_dispatcher().
-
-Fixes: f6cbb368bcb0 ("afs: Actively poll fileservers to maintain NAT or firewall openings")
-Reported-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Tested-by: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
-Link: https://lore.kernel.org/r/167164544917.2072364.3759519569649459359.stgit@warthog.procyon.org.uk/
+Fixes: 0d1d7a664288 ("ASoC: mediatek: Refine mt8173 driver and change config option")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Link: https://lore.kernel.org/r/1670234664-24246-1-git-send-email-wangyufen@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/fs_probe.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/fs/afs/fs_probe.c b/fs/afs/fs_probe.c
-index 3ac5fcf98d0d..daaf3810cc92 100644
---- a/fs/afs/fs_probe.c
-+++ b/fs/afs/fs_probe.c
-@@ -366,12 +366,15 @@ void afs_fs_probe_dispatcher(struct work_struct *work)
- 	unsigned long nowj, timer_at, poll_at;
- 	bool first_pass = true, set_timer = false;
- 
--	if (!net->live)
-+	if (!net->live) {
-+		afs_dec_servers_outstanding(net);
- 		return;
-+	}
- 
- 	_enter("");
- 
- 	if (list_empty(&net->fs_probe_fast) && list_empty(&net->fs_probe_slow)) {
-+		afs_dec_servers_outstanding(net);
- 		_leave(" [none]");
- 		return;
+diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
+index 12f40c81b101..f803f121659d 100644
+--- a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
++++ b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
+@@ -200,14 +200,16 @@ static int mt8173_rt5650_rt5514_dev_probe(struct platform_device *pdev)
+ 	if (!mt8173_rt5650_rt5514_dais[DAI_LINK_CODEC_I2S].codecs[0].of_node) {
+ 		dev_err(&pdev->dev,
+ 			"Property 'audio-codec' missing or invalid\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto out;
  	}
+ 	mt8173_rt5650_rt5514_dais[DAI_LINK_CODEC_I2S].codecs[1].of_node =
+ 		of_parse_phandle(pdev->dev.of_node, "mediatek,audio-codec", 1);
+ 	if (!mt8173_rt5650_rt5514_dais[DAI_LINK_CODEC_I2S].codecs[1].of_node) {
+ 		dev_err(&pdev->dev,
+ 			"Property 'audio-codec' missing or invalid\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto out;
+ 	}
+ 	mt8173_rt5650_rt5514_codec_conf[0].dlc.of_node =
+ 		mt8173_rt5650_rt5514_dais[DAI_LINK_CODEC_I2S].codecs[1].of_node;
+@@ -216,6 +218,7 @@ static int mt8173_rt5650_rt5514_dev_probe(struct platform_device *pdev)
+ 
+ 	ret = devm_snd_soc_register_card(&pdev->dev, card);
+ 
++out:
+ 	of_node_put(platform_node);
+ 	return ret;
+ }
 -- 
 2.35.1
 
