@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7C4F6583F1
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:53:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 195B5657EE0
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:58:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235148AbiL1Qxg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:53:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43236 "EHLO
+        id S232777AbiL1P6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:58:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232106AbiL1Qwq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:52:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B71631DDF8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:47:32 -0800 (PST)
+        with ESMTP id S234164AbiL1P6h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:58:37 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F334F183B3
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:58:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 541AD60D41
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:47:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 677F2C433D2;
-        Wed, 28 Dec 2022 16:47:31 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 676B2CE1369
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:58:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5844BC433EF;
+        Wed, 28 Dec 2022 15:58:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246051;
-        bh=+fHx5xwYWoNrQ8o+aNkjZ5N9nvTSb0xbIriaqQ8NvX8=;
+        s=korg; t=1672243113;
+        bh=EYBmkEcnndsWfvt7ODrn0GRA9KEwevxS2YF+FZyi1Us=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rZ1HzVu285xvkWePP8Z74EqBL7l2JDoUR0I73Gahu/u9DW8TXnSt907oqHyre1Fyg
-         7jNn7fEsQOFNl6p3O7JL0WDDpTRwqYi5+0/iuD9aZVsBRSj2OWzFwKF4rUdhEm9pK9
-         v4DczNKhKxU1QKGXovxUHndOz02FO9i4R/lavfqc=
+        b=q0/3ocKXhkKxtKH+sFo97fL4RqFPFe3XACeLdZUxhw1M+KmfNfaeAfCnNNuZru8Km
+         dWKM9ZtXWYudTiAYW0ZhezdX19LY4SSwflD3vhIK87mFZRAyVWzevo0D7zkfmi7/sg
+         P5+Mv5W7L3tZn7/rOhDGNlQ4pIcuqkbVkSgzr30U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 1004/1073] ALSA: hda/hdmi: fix i915 silent stream programming flow
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 685/731] hwmon: (jc42) Fix missing unlock on error in jc42_write()
 Date:   Wed, 28 Dec 2022 15:43:12 +0100
-Message-Id: <20221228144355.416002332@linuxfoundation.org>
+Message-Id: <20221228144316.325152690@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,72 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit ada261b690ecd5c2f55f0c51bdf11d852a4561a6 ]
+[ Upstream commit b744db17abf6a2efc2bfa80870cc88e9799a8ccc ]
 
-The i915 display codec may not successfully transition to
-normal audio streaming mode, if the stream id is programmed
-while codec is actively transmitting data. This can happen
-when silent stream is enabled in KAE mode.
+Add the missing unlock before return from function jc42_write()
+in the error handling case.
 
-Fix the issue by implementing a i915 specific programming
-flow, where the silent streaming is temporarily stopped,
-a small delay is applied to ensure display codec becomes
-idle, and then proceed with reprogramming the stream ID.
-
-Fixes: 15175a4f2bbb ("ALSA: hda/hdmi: add keep-alive support for ADL-P and DG2")
-Link: https://gitlab.freedesktop.org/drm/intel/-/issues/7353
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Tested-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Link: https://lore.kernel.org/r/20221209101822.3893675-2-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 37dedaee8bc6 ("hwmon: (jc42) Convert register access and caching to regmap/regcache")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Link: https://lore.kernel.org/r/20221027062931.598247-1-yangyingliang@huawei.com
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_hdmi.c | 28 ++++++++++++++++++++++++++--
- 1 file changed, 26 insertions(+), 2 deletions(-)
+ drivers/hwmon/jc42.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index 287f4f78e7b1..3655584fc37b 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -2963,9 +2963,33 @@ static int i915_hsw_setup_stream(struct hda_codec *codec, hda_nid_t cvt_nid,
- 				 hda_nid_t pin_nid, int dev_id, u32 stream_tag,
- 				 int format)
- {
-+	struct hdmi_spec *spec = codec->spec;
-+	int pin_idx = pin_id_to_pin_index(codec, pin_nid, dev_id);
-+	struct hdmi_spec_per_pin *per_pin;
-+	int res;
-+
-+	if (pin_idx < 0)
-+		per_pin = NULL;
-+	else
-+		per_pin = get_pin(spec, pin_idx);
-+
- 	haswell_verify_D0(codec, cvt_nid, pin_nid);
--	return hdmi_setup_stream(codec, cvt_nid, pin_nid, dev_id,
--				 stream_tag, format);
-+
-+	if (spec->silent_stream_type == SILENT_STREAM_KAE && per_pin && per_pin->silent_stream) {
-+		silent_stream_set_kae(codec, per_pin, false);
-+		/* wait for pending transfers in codec to clear */
-+		usleep_range(100, 200);
-+	}
-+
-+	res = hdmi_setup_stream(codec, cvt_nid, pin_nid, dev_id,
-+				stream_tag, format);
-+
-+	if (spec->silent_stream_type == SILENT_STREAM_KAE && per_pin && per_pin->silent_stream) {
-+		usleep_range(100, 200);
-+		silent_stream_set_kae(codec, per_pin, true);
-+	}
-+
-+	return res;
- }
+diff --git a/drivers/hwmon/jc42.c b/drivers/hwmon/jc42.c
+index 5240bfdfcf2e..52f341d46029 100644
+--- a/drivers/hwmon/jc42.c
++++ b/drivers/hwmon/jc42.c
+@@ -340,7 +340,7 @@ static int jc42_write(struct device *dev, enum hwmon_sensor_types type,
+ 		ret = regmap_read(data->regmap, JC42_REG_TEMP_CRITICAL,
+ 				  &regval);
+ 		if (ret)
+-			return ret;
++			break;
  
- /* pin_cvt_fixup ops override for HSW+ and VLV+ */
+ 		/*
+ 		 * JC42.4 compliant chips only support four hysteresis values.
 -- 
 2.35.1
 
