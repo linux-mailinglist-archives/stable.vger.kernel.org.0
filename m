@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 098D8657E2F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:51:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F1DE658447
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234104AbiL1Pu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:50:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38676 "EHLO
+        id S235256AbiL1Q4f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:56:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234109AbiL1Pu7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:50:59 -0500
+        with ESMTP id S235094AbiL1Qzj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:55:39 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13AFB186B2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:50:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45A341F622
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:50:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9477E61563
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:50:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6FC9C433D2;
-        Wed, 28 Dec 2022 15:50:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D90566156E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:50:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E92CFC433D2;
+        Wed, 28 Dec 2022 16:50:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242657;
-        bh=5+ZQXrFg6ZmJxZDs0YrFxEzV/Yh9SfNFj2b9O/xjFBY=;
+        s=korg; t=1672246236;
+        bh=35qg6hjhsveC4cadPh8VkshppfXL78Z16HjjR3pai2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FTyXxsAZM5+dTf8GPI12G677HSs5hB9GYPWeddc1LHMlcW11YadoJGYx32CjjFb2s
-         sUYeoZcznQdA2Y8RpNA31HuX5d57FZyoFiHOT/X7WZurJERVyrUtuiV7MudITZzsXB
-         RkbvAvOKfd3dQ1QzPOZJSXhjQZLeKetC443gC6lc=
+        b=Zuo3HN9jt5ybD4BRM5kx90UkPhEWsG7zkYVkw/wwzoIixj3bmt6PQoVmRB4vy3GSY
+         bfyuUQ3Pa/wK1g6g7mMSURwAsRrhR67Q8PJcCSfrxyIJdXQKz65HJsJL+UXi+aTvv0
+         S1T1685yhdAza0/E2iKAmJYAejxYlLUoTfaMJDq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ming Qian <ming.qian@nxp.com>,
-        Mirela Rabulea <mirela.rabulea@nxp.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        patches@lists.linux.dev, Alexandra Winter <wintera@linux.ibm.com>,
+        Kees Cook <keescook@chromium.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 630/731] media: imx-jpeg: Disable useless interrupt to avoid kernel panic
+Subject: [PATCH 6.1 0998/1146] s390/netiucv: Fix return type of netiucv_tx()
 Date:   Wed, 28 Dec 2022 15:42:17 +0100
-Message-Id: <20221228144314.788806079@linuxfoundation.org>
+Message-Id: <20221228144357.474918084@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Qian <ming.qian@nxp.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit c3720e65c9013a7b2a5dbb63e6bf6d74a35dd894 ]
+[ Upstream commit 88d86d18d7cf7e9137c95f9d212bb9fff8a1b4be ]
 
-There is a hardware bug that the interrupt STMBUF_HALF may be triggered
-after or when disable interrupt.
-It may led to unexpected kernel panic.
-And interrupt STMBUF_HALF and STMBUF_RTND have no other effect.
-So disable them and the unused interrupts.
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed. A
+proposed warning in clang aims to catch these at compile time, which
+reveals:
 
-meanwhile clear the interrupt status when disable interrupt.
+  drivers/s390/net/netiucv.c:1854:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .ndo_start_xmit         = netiucv_tx,
+                                    ^~~~~~~~~~
 
-Signed-off-by: Ming Qian <ming.qian@nxp.com>
-Reviewed-by: Mirela Rabulea <mirela.rabulea@nxp.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
+'netdev_tx_t', not 'int'. Adjust the return type of netiucv_tx() to
+match the prototype's to resolve the warning and potential CFI failure,
+should s390 select ARCH_SUPPORTS_CFI_CLANG in the future.
+
+Additionally, while in the area, remove a comment block that is no
+longer relevant.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1750
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/imx-jpeg/mxc-jpeg-hw.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/s390/net/netiucv.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/drivers/media/platform/imx-jpeg/mxc-jpeg-hw.c b/drivers/media/platform/imx-jpeg/mxc-jpeg-hw.c
-index 718b7b08f93e..8936d5ce886c 100644
---- a/drivers/media/platform/imx-jpeg/mxc-jpeg-hw.c
-+++ b/drivers/media/platform/imx-jpeg/mxc-jpeg-hw.c
-@@ -76,12 +76,14 @@ void print_wrapper_info(struct device *dev, void __iomem *reg)
- 
- void mxc_jpeg_enable_irq(void __iomem *reg, int slot)
+diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
+index 65aa0a96c21d..66076cada8ae 100644
+--- a/drivers/s390/net/netiucv.c
++++ b/drivers/s390/net/netiucv.c
+@@ -1248,15 +1248,8 @@ static int netiucv_close(struct net_device *dev)
+ /*
+  * Start transmission of a packet.
+  * Called from generic network device layer.
+- *
+- * @param skb Pointer to buffer containing the packet.
+- * @param dev Pointer to interface struct.
+- *
+- * @return 0 if packet consumed, !0 if packet rejected.
+- *         Note: If we return !0, then the packet is free'd by
+- *               the generic network layer.
+  */
+-static int netiucv_tx(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t netiucv_tx(struct sk_buff *skb, struct net_device *dev)
  {
--	writel(0xFFFFFFFF, reg + MXC_SLOT_OFFSET(slot, SLOT_IRQ_EN));
-+	writel(0xFFFFFFFF, reg + MXC_SLOT_OFFSET(slot, SLOT_STATUS));
-+	writel(0xF0C, reg + MXC_SLOT_OFFSET(slot, SLOT_IRQ_EN));
- }
- 
- void mxc_jpeg_disable_irq(void __iomem *reg, int slot)
- {
- 	writel(0x0, reg + MXC_SLOT_OFFSET(slot, SLOT_IRQ_EN));
-+	writel(0xFFFFFFFF, reg + MXC_SLOT_OFFSET(slot, SLOT_STATUS));
- }
- 
- void mxc_jpeg_sw_reset(void __iomem *reg)
+ 	struct netiucv_priv *privptr = netdev_priv(dev);
+ 	int rc;
 -- 
 2.35.1
 
