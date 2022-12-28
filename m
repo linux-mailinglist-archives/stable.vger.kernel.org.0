@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D498F657892
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:52:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F936657E4D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:52:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233125AbiL1Owj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:52:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38974 "EHLO
+        id S233654AbiL1Pwn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:52:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233130AbiL1OwK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:52:10 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84BEF1274B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:51:44 -0800 (PST)
+        with ESMTP id S230413AbiL1Pwa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:52:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 532F418B02
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:52:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D0601CE1355
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:51:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3925C433EF;
-        Wed, 28 Dec 2022 14:51:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5705B817AE
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:52:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AF6EC433D2;
+        Wed, 28 Dec 2022 15:52:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239101;
-        bh=dsKCOMVgNega0a5a9Z/vNNlAAsvl2rzfbIZGODXGg7g=;
+        s=korg; t=1672242746;
+        bh=R3CxguE4AiGyN9EKH54r39uVqSZp7KAAbGfGl79/B0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h738Xb4oACzwFhrksXOlKak8F1FFKdilJhQMpcm00tTtcVvqnd/qwdDYCSOmEo7aF
-         hdQ+kW7HZZR1v8QU06zkh4aIURSzOw5w1T+5xg3VP0KS144HEfYkzO7lW5oc14HCFY
-         NW2vLavc5L0jxFf4XwwecknftiEi99cNwPORR5B0=
+        b=n43dcHnLJBwd9625w9AIATpo+9sMBk8NrjGGlvLY9x/PAqF8NEHDCSA2hA+jzz7Nf
+         kbgmRxAov8mKqix8ft8ueqOn88GtGAePQBooGRt+inFtTjAnHJtpg8QIvRTzVl5Ow7
+         9IaMHJdtpBRSIVovgiZr4oyc68cnHoWhvv6+bycA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Victor Ding <victording@chromium.org>,
-        Prashant Malani <pmalani@chromium.org>,
-        Tzung-Bi Shih <tzungbi@kernel.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 128/731] platform/chrome: cros_ec_typec: zero out stale pointers
+Subject: [PATCH 6.0 0447/1073] regulator: core: fix module refcount leak in set_supply()
 Date:   Wed, 28 Dec 2022 15:33:55 +0100
-Message-Id: <20221228144300.260282157@linuxfoundation.org>
+Message-Id: <20221228144340.171349566@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Victor Ding <victording@chromium.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 9a8aadcf0b459c1257b9477fd6402e1d5952ae07 ]
+[ Upstream commit da46ee19cbd8344d6860816b4827a7ce95764867 ]
 
-`cros_typec_get_switch_handles` allocates four pointers when obtaining
-type-c switch handles. These pointers are all freed if failing to obtain
-any of them; therefore, pointers in `port` become stale. The stale
-pointers eventually cause use-after-free or double free in later code
-paths. Zeroing out all pointer fields after freeing to eliminate these
-stale pointers.
+If create_regulator() fails in set_supply(), the module refcount
+needs be put to keep refcount balanced.
 
-Fixes: f28adb41dab4 ("platform/chrome: cros_ec_typec: Register Type C switches")
-Fixes: 1a8912caba02 ("platform/chrome: cros_ec_typec: Get retimer handle")
-Signed-off-by: Victor Ding <victording@chromium.org>
-Acked-by: Prashant Malani <pmalani@chromium.org>
-Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
-Link: https://lore.kernel.org/r/20221207093924.v2.1.I1864b6a7ee98824118b93677868d22d3750f439b@changeid
+Fixes: e2c09ae7a74d ("regulator: core: Increase refcount for regulator supply's module")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221201122706.4055992-2-yangyingliang@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_ec_typec.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/regulator/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/platform/chrome/cros_ec_typec.c b/drivers/platform/chrome/cros_ec_typec.c
-index d63be2b3d10e..b94abb8f7706 100644
---- a/drivers/platform/chrome/cros_ec_typec.c
-+++ b/drivers/platform/chrome/cros_ec_typec.c
-@@ -157,8 +157,10 @@ static int cros_typec_get_switch_handles(struct cros_typec_port *port,
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index b7e7eec1084e..9b839dced470 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -1622,6 +1622,7 @@ static int set_supply(struct regulator_dev *rdev,
  
- role_sw_err:
- 	typec_switch_put(port->ori_sw);
-+	port->ori_sw = NULL;
- ori_sw_err:
- 	typec_mux_put(port->mux);
-+	port->mux = NULL;
- mux_err:
- 	return -ENODEV;
- }
+ 	rdev->supply = create_regulator(supply_rdev, &rdev->dev, "SUPPLY");
+ 	if (rdev->supply == NULL) {
++		module_put(supply_rdev->owner);
+ 		err = -ENOMEM;
+ 		return err;
+ 	}
 -- 
 2.35.1
 
