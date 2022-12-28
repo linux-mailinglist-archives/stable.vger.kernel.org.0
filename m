@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 216A6658233
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:33:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9655F657C87
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:33:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234792AbiL1Qdk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:33:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53766 "EHLO
+        id S233859AbiL1Pdf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:33:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234795AbiL1QdQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19FFB1AF3E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:30:40 -0800 (PST)
+        with ESMTP id S233860AbiL1PdY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:33:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B79415F2F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:33:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0BE661541
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:30:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B58F9C433F0;
-        Wed, 28 Dec 2022 16:30:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0902561344
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:33:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B069C433D2;
+        Wed, 28 Dec 2022 15:33:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245039;
-        bh=AJI6k/9Bs1e+aX6ppx/bBe1+BG7dZm6i6FA2mQ1gwcI=;
+        s=korg; t=1672241602;
+        bh=dJH4IRPirUbc3Q6hoe3U4DoeCS+chkj0C9JCwqmG9jQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xseF1uUmMFOWUQRDRnwOEEAEEkkJVdcgZOFd53ckY8PbNaq/8ZMwA7NvnteoD/B28
-         SH6tgZq5AXyTdlnlOzXUa1m0sI51ngzllA52ORjFobaPauUu7r7Y0DDEW52NqdQwQC
-         Qd1LSMnoY1hfuWvFx53GZVMV3dJFRBP5gfgaFiB0=
+        b=0xQVWwIHHtUVcMAGXj9EYOzmyjvZW/licMsrJS1RHNzSGtw2D+qSQQIC7w6SScw1b
+         SiNK4l+q1A1jV9PyHp9QA2crwWuO0s+xb8TTV6B+hiRmQZwkMM6OhGtK6wKKbAajnC
+         NJ2aSwRCDikUs8tlpyDwMT76FMp1dt+a96+mHuUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev, Luca Weiss <luca.weiss@fairphone.com>,
+        Amit Kucheria <amitk@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0820/1073] remoteproc: sysmon: fix memory leak in qcom_add_sysmon_subdev()
+Subject: [PATCH 5.15 501/731] thermal/drivers/qcom/temp-alarm: Fix inaccurate warning for gen2
 Date:   Wed, 28 Dec 2022 15:40:08 +0100
-Message-Id: <20221228144350.287030190@linuxfoundation.org>
+Message-Id: <20221228144311.070787407@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Luca Weiss <luca.weiss@fairphone.com>
 
-[ Upstream commit e01ce676aaef3b13d02343d7e70f9637d93a3367 ]
+[ Upstream commit 8763f8acbf8aef22a2321d4c978cd078aa3b8f64 ]
 
-The kfree() should be called when of_irq_get_byname() fails or
-devm_request_threaded_irq() fails in qcom_add_sysmon_subdev(),
-otherwise there will be a memory leak, so add kfree() to fix it.
+On gen2 chips the stage2 threshold is not 140 degC but 125 degC.
 
-Fixes: 027045a6e2b7 ("remoteproc: qcom: Add shutdown-ack irq")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221129105650.1539187-1-cuigaosheng1@huawei.com
+Make the warning message clearer by using this variable and also by
+including the temperature that was checked for.
+
+Fixes: aa92b3310c55 ("thermal/drivers/qcom-spmi-temp-alarm: Add support for GEN2 rev 1 PMIC peripherals")
+Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
+Reviewed-by: Amit Kucheria <amitk@kernel.org>
+Link: https://lore.kernel.org/r/20221020145237.942146-1-luca.weiss@fairphone.com
+Signed-off-by: Daniel Lezcano <daniel.lezcano@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/qcom_sysmon.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/thermal/qcom/qcom-spmi-temp-alarm.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/remoteproc/qcom_sysmon.c b/drivers/remoteproc/qcom_sysmon.c
-index 57dde2a69b9d..15af52f8499e 100644
---- a/drivers/remoteproc/qcom_sysmon.c
-+++ b/drivers/remoteproc/qcom_sysmon.c
-@@ -652,7 +652,9 @@ struct qcom_sysmon *qcom_add_sysmon_subdev(struct rproc *rproc,
- 		if (sysmon->shutdown_irq != -ENODATA) {
- 			dev_err(sysmon->dev,
- 				"failed to retrieve shutdown-ack IRQ\n");
--			return ERR_PTR(sysmon->shutdown_irq);
-+			ret = sysmon->shutdown_irq;
-+			kfree(sysmon);
-+			return ERR_PTR(ret);
- 		}
- 	} else {
- 		ret = devm_request_threaded_irq(sysmon->dev,
-@@ -663,6 +665,7 @@ struct qcom_sysmon *qcom_add_sysmon_subdev(struct rproc *rproc,
- 		if (ret) {
- 			dev_err(sysmon->dev,
- 				"failed to acquire shutdown-ack IRQ\n");
-+			kfree(sysmon);
- 			return ERR_PTR(ret);
- 		}
+diff --git a/drivers/thermal/qcom/qcom-spmi-temp-alarm.c b/drivers/thermal/qcom/qcom-spmi-temp-alarm.c
+index 7419e196dbb0..1037de19873a 100644
+--- a/drivers/thermal/qcom/qcom-spmi-temp-alarm.c
++++ b/drivers/thermal/qcom/qcom-spmi-temp-alarm.c
+@@ -251,7 +251,8 @@ static int qpnp_tm_update_critical_trip_temp(struct qpnp_tm_chip *chip,
+ 			disable_s2_shutdown = true;
+ 		else
+ 			dev_warn(chip->dev,
+-				 "No ADC is configured and critical temperature is above the maximum stage 2 threshold of 140 C! Configuring stage 2 shutdown at 140 C.\n");
++				 "No ADC is configured and critical temperature %d mC is above the maximum stage 2 threshold of %ld mC! Configuring stage 2 shutdown at %ld mC.\n",
++				 temp, stage2_threshold_max, stage2_threshold_max);
  	}
+ 
+ skip:
 -- 
 2.35.1
 
