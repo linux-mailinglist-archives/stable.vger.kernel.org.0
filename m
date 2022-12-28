@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0E83657D64
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:42:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0807F657E7E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:54:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233966AbiL1Pms (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:42:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58256 "EHLO
+        id S233220AbiL1PyN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:54:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233568AbiL1Pmm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:42:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B1D215FFF
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:42:42 -0800 (PST)
+        with ESMTP id S233612AbiL1PyM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:54:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EC8E15F29
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:54:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7AF22B8172A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:42:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E00F7C433EF;
-        Wed, 28 Dec 2022 15:42:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C1E461562
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:54:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EF1FC433D2;
+        Wed, 28 Dec 2022 15:54:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242159;
-        bh=ssPWlDx4KT8OsUyHxJ8zJkILwGZmpHLVwGJDRafDgjI=;
+        s=korg; t=1672242850;
+        bh=O62DbBscuRieN2HTwu4+4z2wGQ/rMFZe4gk8Z8aF/Ms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F9Zk4fNlGlKLSWpLNBkELjwumtHxSIcLzorZjZhGfmGQDaFlZhukP53ixNsqibmEY
-         SfkfFxnYM1OS1VRv4+aThiaowTnjKs3e6qguEHd6xKrranwyK0PClNI6c8FTpVsGVO
-         f0WlWpEJly4d/On0LprRsqZlk/+GNbM3b/oFsohQ=
+        b=YqGdO2vWbufBi35xxIYr7b0mM1od/fAGqy66ffhcgG9kd+OVZH2KHht725804Eqna
+         lg2Teql9NjmOjNgpKXln0cNfaAPefdbwJNK+0J96WLuQklhpp6T75ljOhVcAYtJ29u
+         eiiMnw3v8sV4Jm30StwMm+Qs0/+7IntjaSBj5Bcw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0374/1073] drbd: remove call to memset before free device/resource/connection
+        patches@lists.linux.dev,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0423/1146] NFSv4.2: Always decode the security label
 Date:   Wed, 28 Dec 2022 15:32:42 +0100
-Message-Id: <20221228144338.162481280@linuxfoundation.org>
+Message-Id: <20221228144341.665646171@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,51 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang ShaoBo <bobo.shaobowang@huawei.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 6e7b854e4c1b02dba00760dfa79d8dbf6cce561e ]
+[ Upstream commit c8a62f440229ae7a10874776344dfcc17d860336 ]
 
-This revert c2258ffc56f2 ("drbd: poison free'd device, resource and
-connection structs"), add memset is odd here for debugging, there are
-some methods to accurately show what happened, such as kdump.
+If the server returns a reply that includes a security label, then we
+must decode it whether or not we can store the results.
 
-Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Link: https://lore.kernel.org/r/20221124015817.2729789-2-bobo.shaobowang@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Stable-dep-of: 8692814b77ca ("drbd: destroy workqueue when drbd device was freed")
+Fixes: 1e2f67da8931 ("NFS: Remove the nfs4_label argument from decode_getattr_*() functions")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/drbd/drbd_main.c | 3 ---
- 1 file changed, 3 deletions(-)
+ fs/nfs/nfs4xdr.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
-index 8532b839a343..78cae4e75af1 100644
---- a/drivers/block/drbd/drbd_main.c
-+++ b/drivers/block/drbd/drbd_main.c
-@@ -2217,7 +2217,6 @@ void drbd_destroy_device(struct kref *kref)
- 		kref_put(&peer_device->connection->kref, drbd_destroy_connection);
- 		kfree(peer_device);
- 	}
--	memset(device, 0xfd, sizeof(*device));
- 	kfree(device);
- 	kref_put(&resource->kref, drbd_destroy_resource);
- }
-@@ -2309,7 +2308,6 @@ void drbd_destroy_resource(struct kref *kref)
- 	idr_destroy(&resource->devices);
- 	free_cpumask_var(resource->cpu_mask);
- 	kfree(resource->name);
--	memset(resource, 0xf2, sizeof(*resource));
- 	kfree(resource);
- }
+diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
+index 8c5298e37f0f..9103e022376a 100644
+--- a/fs/nfs/nfs4xdr.c
++++ b/fs/nfs/nfs4xdr.c
+@@ -4755,12 +4755,10 @@ static int decode_getfattr_attrs(struct xdr_stream *xdr, uint32_t *bitmap,
+ 	if (status < 0)
+ 		goto xdr_error;
  
-@@ -2650,7 +2648,6 @@ void drbd_destroy_connection(struct kref *kref)
- 	drbd_free_socket(&connection->data);
- 	kfree(connection->int_dig_in);
- 	kfree(connection->int_dig_vv);
--	memset(connection, 0xfc, sizeof(*connection));
- 	kfree(connection);
- 	kref_put(&resource->kref, drbd_destroy_resource);
- }
+-	if (fattr->label) {
+-		status = decode_attr_security_label(xdr, bitmap, fattr->label);
+-		if (status < 0)
+-			goto xdr_error;
+-		fattr->valid |= status;
+-	}
++	status = decode_attr_security_label(xdr, bitmap, fattr->label);
++	if (status < 0)
++		goto xdr_error;
++	fattr->valid |= status;
+ 
+ xdr_error:
+ 	dprintk("%s: xdr returned %d\n", __func__, -status);
 -- 
 2.35.1
 
