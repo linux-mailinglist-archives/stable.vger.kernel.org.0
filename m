@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64560657DAA
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:45:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C422C657DAC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:45:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234006AbiL1Ppg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:45:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33584 "EHLO
+        id S234011AbiL1Ppq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:45:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234007AbiL1Ppf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:45:35 -0500
+        with ESMTP id S233594AbiL1Ppo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:45:44 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CE4A17883
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:45:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59AF21BA
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:45:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 183456155B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:45:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28BF0C433D2;
-        Wed, 28 Dec 2022 15:45:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E95726154D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:45:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0367BC433EF;
+        Wed, 28 Dec 2022 15:45:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242333;
-        bh=f5v4dRBPbTX41wrvjczmE97GmaFBbIs5KlTm4XalbDw=;
+        s=korg; t=1672242341;
+        bh=wlpB7vzVpR/Jkll+kT2TQvJwvocQjmwKWaqr3cK5FXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0wVvJRbN54ioYF7epF/wTgMpPjMLB/6gU5/PdnLsq0AKLvb0Fanx8RYJTJpGLhibE
-         8N2vc/FpDC8d8GjYSivhs8/68QtHmS+jn2tJWQ9kfUvzDgTE++jC8Kr5VKWxY28RPm
-         DSW4KPwoN+qhRTNk/uEvZURrZ65k0sWXT9fhnrXQ=
+        b=G/4Akcnavhl4HFheDyvM7jHE3wneg4sHKWvJUcgtRv/hwEDyuYhc1vIXvp99XwrGj
+         zJVEnNqZivsgqBO1BuyV6hVcVsLVeNlNnL7pm4NVeI1M8CbtEzZpgcaiR9QanR+wO2
+         L5lnvmryn1ww8zC9zae0hgYuaxqn0KqAXuDnuMeI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,9 +37,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0398/1073] media: mediatek: vcodec: Fix h264 set lat buffer error
-Date:   Wed, 28 Dec 2022 15:33:06 +0100
-Message-Id: <20221228144338.828065873@linuxfoundation.org>
+Subject: [PATCH 6.0 0399/1073] media: mediatek: vcodec: Setting lat buf to lat_list when lat decode error
+Date:   Wed, 28 Dec 2022 15:33:07 +0100
+Message-Id: <20221228144338.855943672@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -58,91 +58,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yunfei Dong <yunfei.dong@mediatek.com>
 
-[ Upstream commit 23d677bd9cdd10323e6d290578bbb0a408f43499 ]
+[ Upstream commit 12ac20d60213a439d1552382d04aabb905e0b784 ]
 
-Will set lat buffer to lat_list two times when lat decode timeout for
-inner racing mode.
+Need to set lat buf to lat_list when lat decode error, or lat buffer will
+be lost.
 
-If core thread can't get frame buffer, need to return error value.
-
-Fixes: 59fba9eed5a7 ("media: mediatek: vcodec: support stateless H.264 decoding for mt8192")
+Fixes: 5d418351ca8f ("media: mediatek: vcodec: support stateless VP9 decoding")
 Signed-off-by: Yunfei Dong <yunfei.dong@mediatek.com>
 Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../vcodec/vdec/vdec_h264_req_multi_if.c      | 28 +++++++++++--------
- 1 file changed, 17 insertions(+), 11 deletions(-)
+ .../mediatek/vcodec/vdec/vdec_vp9_req_lat_if.c    | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/media/platform/mediatek/vcodec/vdec/vdec_h264_req_multi_if.c b/drivers/media/platform/mediatek/vcodec/vdec/vdec_h264_req_multi_if.c
-index 18e048755d11..955b2d0c8f53 100644
---- a/drivers/media/platform/mediatek/vcodec/vdec/vdec_h264_req_multi_if.c
-+++ b/drivers/media/platform/mediatek/vcodec/vdec/vdec_h264_req_multi_if.c
-@@ -471,14 +471,19 @@ static int vdec_h264_slice_core_decode(struct vdec_lat_buf *lat_buf)
- 	       sizeof(share_info->h264_slice_params));
- 
- 	fb = ctx->dev->vdec_pdata->get_cap_buffer(ctx);
--	y_fb_dma = fb ? (u64)fb->base_y.dma_addr : 0;
--	vdec_fb_va = (unsigned long)fb;
-+	if (!fb) {
-+		err = -EBUSY;
-+		mtk_vcodec_err(inst, "fb buffer is NULL");
-+		goto vdec_dec_end;
+diff --git a/drivers/media/platform/mediatek/vcodec/vdec/vdec_vp9_req_lat_if.c b/drivers/media/platform/mediatek/vcodec/vdec/vdec_vp9_req_lat_if.c
+index fb1c36a3592d..cbb6728b8a40 100644
+--- a/drivers/media/platform/mediatek/vcodec/vdec/vdec_vp9_req_lat_if.c
++++ b/drivers/media/platform/mediatek/vcodec/vdec/vdec_vp9_req_lat_if.c
+@@ -2073,21 +2073,23 @@ static int vdec_vp9_slice_lat_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
+ 		return -EBUSY;
+ 	}
+ 	pfc = (struct vdec_vp9_slice_pfc *)lat_buf->private_data;
+-	if (!pfc)
+-		return -EINVAL;
++	if (!pfc) {
++		ret = -EINVAL;
++		goto err_free_fb_out;
 +	}
+ 	vsi = &pfc->vsi;
  
-+	vdec_fb_va = (unsigned long)fb;
-+	y_fb_dma = (u64)fb->base_y.dma_addr;
- 	if (ctx->q_data[MTK_Q_DATA_DST].fmt->num_planes == 1)
- 		c_fb_dma =
- 			y_fb_dma + inst->ctx->picinfo.buf_w * inst->ctx->picinfo.buf_h;
- 	else
--		c_fb_dma = fb ? (u64)fb->base_c.dma_addr : 0;
-+		c_fb_dma = (u64)fb->base_c.dma_addr;
+ 	ret = vdec_vp9_slice_setup_lat(instance, bs, lat_buf, pfc);
+ 	if (ret) {
+ 		mtk_vcodec_err(instance, "Failed to setup VP9 lat ret %d\n", ret);
+-		return ret;
++		goto err_free_fb_out;
+ 	}
+ 	vdec_vp9_slice_vsi_to_remote(vsi, instance->vsi);
  
- 	mtk_vcodec_debug(inst, "[h264-core] y/c addr = 0x%llx 0x%llx", y_fb_dma,
- 			 c_fb_dma);
-@@ -656,7 +661,7 @@ static int vdec_h264_slice_lat_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
- 	err = vpu_dec_start(vpu, data, 2);
- 	if (err) {
- 		mtk_vcodec_debug(inst, "lat decode err: %d", err);
--		goto err_scp_decode;
+ 	ret = vpu_dec_start(&instance->vpu, NULL, 0);
+ 	if (ret) {
+ 		mtk_vcodec_err(instance, "Failed to dec VP9 ret %d\n", ret);
+-		return ret;
 +		goto err_free_fb_out;
  	}
  
- 	share_info->trans_end = inst->ctx->msg_queue.wdma_addr.dma_addr +
-@@ -673,12 +678,17 @@ static int vdec_h264_slice_lat_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
- 	/* wait decoder done interrupt */
- 	timeout = mtk_vcodec_wait_for_done_ctx(inst->ctx, MTK_INST_IRQ_RECEIVED,
- 					       WAIT_INTR_TIMEOUT_MS, MTK_VDEC_LAT0);
-+	if (timeout)
-+		mtk_vcodec_err(inst, "lat decode timeout: pic_%d", inst->slice_dec_num);
- 	inst->vsi->dec.timeout = !!timeout;
- 
- 	err = vpu_dec_end(vpu);
--	if (err == SLICE_HEADER_FULL || timeout || err == TRANS_BUFFER_FULL) {
--		err = -EINVAL;
--		goto err_scp_decode;
-+	if (err == SLICE_HEADER_FULL || err == TRANS_BUFFER_FULL) {
-+		if (!IS_VDEC_INNER_RACING(inst->ctx->dev->dec_capability))
-+			vdec_msg_queue_qbuf(&inst->ctx->msg_queue.lat_ctx, lat_buf);
-+		inst->slice_dec_num++;
-+		mtk_vcodec_err(inst, "lat dec fail: pic_%d err:%d", inst->slice_dec_num, err);
-+		return -EINVAL;
+ 	if (instance->irq) {
+@@ -2107,7 +2109,7 @@ static int vdec_vp9_slice_lat_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
+ 	/* LAT trans full, no more UBE or decode timeout */
+ 	if (ret) {
+ 		mtk_vcodec_err(instance, "VP9 decode error: %d\n", ret);
+-		return ret;
++		goto err_free_fb_out;
  	}
  
- 	share_info->trans_end = inst->ctx->msg_queue.wdma_addr.dma_addr +
-@@ -695,10 +705,6 @@ static int vdec_h264_slice_lat_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
+ 	mtk_vcodec_debug(instance, "lat dma addr: 0x%lx 0x%lx\n",
+@@ -2120,6 +2122,9 @@ static int vdec_vp9_slice_lat_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
+ 	vdec_msg_queue_qbuf(&ctx->dev->msg_queue_core_ctx, lat_buf);
  
- 	inst->slice_dec_num++;
  	return 0;
--
--err_scp_decode:
--	if (!IS_VDEC_INNER_RACING(inst->ctx->dev->dec_capability))
--		vdec_msg_queue_qbuf(&inst->ctx->msg_queue.lat_ctx, lat_buf);
- err_free_fb_out:
- 	vdec_msg_queue_qbuf(&inst->ctx->msg_queue.lat_ctx, lat_buf);
- 	mtk_vcodec_err(inst, "slice dec number: %d err: %d", inst->slice_dec_num, err);
++err_free_fb_out:
++	vdec_msg_queue_qbuf(&ctx->msg_queue.lat_ctx, lat_buf);
++	return ret;
+ }
+ 
+ static int vdec_vp9_slice_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
 -- 
 2.35.1
 
