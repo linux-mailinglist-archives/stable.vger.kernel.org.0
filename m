@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 063EB65794A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:00:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52A6E657964
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:00:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233352AbiL1O74 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:59:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46714 "EHLO
+        id S233445AbiL1PAk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:00:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233365AbiL1O72 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:59:28 -0500
+        with ESMTP id S233428AbiL1PA1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:00:27 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCE59120B8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:59:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D33A412AEF
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:00:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59EC761130
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:59:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E8F3C433EF;
-        Wed, 28 Dec 2022 14:59:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CFB26154C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:00:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51CF3C433D2;
+        Wed, 28 Dec 2022 15:00:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239566;
-        bh=qOWIOEhmVK/i/VqEw80DTsTiRAy5CmRVGEA9eEFOezg=;
+        s=korg; t=1672239624;
+        bh=LePJ2vt1YjtHwGGSiscpXiJIZjF6rgIfetJV+DGwa8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eBvmjLNUOeS1Zmyqxxvh7SttLJWQtWugOJHjRODtvDTUDg2yJQD1FruXmpULQw/GI
-         5vK9JLcV8sIvoxzyzbib7/JSJVSosY9RjlYOm6AsNDYZ37COpD6Ukr81IsRv+Rx3mN
-         WKD8tZHHxYhgeV2+1pDm6MsnFCM8p0hbjgMkdA1g=
+        b=Hc8ch8w0c+4bYaAbHwxiXNiz1n7VgMdhnEsyVdBW1HQ/r0zxQ12Hp9rrCxKyzr6na
+         CNzepL6pe4J8DFM9nFgFEycXIrH3cSBdzHZbvokZQQebw+A3teZdwgbeDZ+ne++z9A
+         XcwwvWdiaiNxWNtuXYvoMYoPKfXiwpgtZfn8Oi2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0004/1146] arm64: dts: qcom: ipq6018-cp01-c1: use BLSPI1 pins
-Date:   Wed, 28 Dec 2022 15:25:43 +0100
-Message-Id: <20221228144330.304652037@linuxfoundation.org>
+Subject: [PATCH 6.1 0005/1146] arm64: dts: qcom: sm8250-sony-xperia-edo: fix touchscreen bias-disable
+Date:   Wed, 28 Dec 2022 15:25:44 +0100
+Message-Id: <20221228144330.330850958@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -57,36 +57,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 4871d3c38893c8a585e3e96364b7fb91cda8322e ]
+[ Upstream commit 7ff4a646fae3697b039c6b684786a1e309e8445c ]
 
-When BLSPI1 (originally SPI0, later renamed in commit f82c48d46852
-("arm64: dts: qcom: ipq6018: correct QUP peripheral labels")) was added,
-the device node lacked respective pin configuration assignment.
+The property to disable bias is "bias-disable".
 
-Fixes: 5bf635621245 ("arm64: dts: ipq6018: Add a few device nodes")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Bjorn Andersson <andersson@kernel.org>
+Fixes: e76c7e1f15fe ("arm64: dts: qcom: sm8250-edo: Add Samsung touchscreen")
 Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221006124659.217540-2-krzysztof.kozlowski@linaro.org
+Link: https://lore.kernel.org/r/20220930192954.242546-3-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/ipq6018-cp01-c1.dts | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/boot/dts/qcom/sm8250-sony-xperia-edo.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/ipq6018-cp01-c1.dts b/arch/arm64/boot/dts/qcom/ipq6018-cp01-c1.dts
-index 1ba2eca33c7b..6a716c83e5f1 100644
---- a/arch/arm64/boot/dts/qcom/ipq6018-cp01-c1.dts
-+++ b/arch/arm64/boot/dts/qcom/ipq6018-cp01-c1.dts
-@@ -37,6 +37,8 @@ &blsp1_i2c3 {
+diff --git a/arch/arm64/boot/dts/qcom/sm8250-sony-xperia-edo.dtsi b/arch/arm64/boot/dts/qcom/sm8250-sony-xperia-edo.dtsi
+index 5428aab3058d..e4769dcfaad7 100644
+--- a/arch/arm64/boot/dts/qcom/sm8250-sony-xperia-edo.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8250-sony-xperia-edo.dtsi
+@@ -619,7 +619,7 @@ ts_int_default: ts-int-default {
+ 		pins = "gpio39";
+ 		function = "gpio";
+ 		drive-strength = <2>;
+-		bias-disabled;
++		bias-disable;
+ 		input-enable;
+ 	};
  
- &blsp1_spi1 {
- 	cs-select = <0>;
-+	pinctrl-0 = <&spi_0_pins>;
-+	pinctrl-names = "default";
- 	status = "okay";
- 
- 	flash@0 {
 -- 
 2.35.1
 
