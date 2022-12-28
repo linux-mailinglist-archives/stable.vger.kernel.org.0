@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 234DA657C09
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:28:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C3C0657D21
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:39:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233422AbiL1P21 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:28:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46252 "EHLO
+        id S233410AbiL1Pjp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:39:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233367AbiL1P2I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:28:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3497914D07
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:28:08 -0800 (PST)
+        with ESMTP id S233929AbiL1Pjo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:39:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97D0E167D9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:39:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D6973B8170E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:28:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 337ECC433D2;
-        Wed, 28 Dec 2022 15:28:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 35B786155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:39:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46547C433D2;
+        Wed, 28 Dec 2022 15:39:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241285;
-        bh=4ACBcbDJ6Ctcg/srlEdFd2WrfFh78XgoTZQLLlxPVTQ=;
+        s=korg; t=1672241982;
+        bh=7OqLrE8VqfaKw/7UH8Ppl+h4W6SzmKut1joDfri5VkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0XMM8yE92A78DExSrDTeIFUCaiKS4qUCcYm4+3Yyu1kOeuFKg0dUHAKQZkLUukFfm
-         lA6y93W8Ll2Sx1BHTFnlzC6Ff9ibyRENfN8e9Ee56TGvnci72iqfs2LXV79UNwkmLb
-         +SzUV/kabkQAWViLkRpKUKIJS5BNu3Tr6VYRvMtY=
+        b=XTl2i3rb55DPRvY8eRX6YmbxhBqVybHQ8ieQI6nRrEXbzfp2qxM2d/24z+oqRGnTA
+         3mz3Kf1oC3My2DVN+IfhcRdVhXlnH/1YTP5tUZq83W3p5zbnWEmIMbirCxU7wFlSkg
+         DGVcFqQ5hftKuY3EKrjvfEDXlHx6K8LlUsO4hrqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        Yassine Oudjana <y.oudjana@protonmail.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0262/1073] spi: Update reference to struct spi_controller
-Date:   Wed, 28 Dec 2022 15:30:50 +0100
-Message-Id: <20221228144335.133041079@linuxfoundation.org>
+Subject: [PATCH 6.1 0312/1146] regmap-irq: Use the new num_config_regs property in regmap_add_irq_chip_fwnode
+Date:   Wed, 28 Dec 2022 15:30:51 +0100
+Message-Id: <20221228144338.628579880@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+From: Yassine Oudjana <y.oudjana@protonmail.com>
 
-[ Upstream commit bf585ccee22faf469d82727cf375868105b362f7 ]
+[ Upstream commit 84498d1fb35de6ab71bdfdb6270a464fb4a0951b ]
 
-struct spi_master has been renamed to struct spi_controller. Update the
-reference in spi.rst to make it clickable again.
+Commit faa87ce9196d ("regmap-irq: Introduce config registers for irq
+types") added the num_config_regs, then commit 9edd4f5aee84 ("regmap-irq:
+Deprecate type registers and virtual registers") suggested to replace
+num_type_reg with it. However, regmap_add_irq_chip_fwnode wasn't modified
+to use the new property. Later on, commit 255a03bb1bb3 ("ASoC: wcd9335:
+Convert irq chip to config regs") removed the old num_type_reg property
+from the WCD9335 driver's struct regmap_irq_chip, causing a null pointer
+dereference in regmap_irq_set_type when it tried to index d->type_buf as
+it was never allocated in regmap_add_irq_chip_fwnode:
 
-Fixes: 8caab75fd2c2 ("spi: Generalize SPI "master" to "controller"")
-Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
-Link: https://lore.kernel.org/r/20221101173252.1069294-1-j.neuschaefer@gmx.net
+[   39.199374] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+
+[   39.200006] Call trace:
+[   39.200014]  regmap_irq_set_type+0x84/0x1c0
+[   39.200026]  __irq_set_trigger+0x60/0x1c0
+[   39.200040]  __setup_irq+0x2f4/0x78c
+[   39.200051]  request_threaded_irq+0xe8/0x1a0
+
+Use num_config_regs in regmap_add_irq_chip_fwnode instead of num_type_reg,
+and fall back to it if num_config_regs isn't defined to maintain backward
+compatibility.
+
+Fixes: faa87ce9196d ("regmap-irq: Introduce config registers for irq types")
+Signed-off-by: Yassine Oudjana <y.oudjana@protonmail.com>
+Link: https://lore.kernel.org/r/20221107202114.823975-1-y.oudjana@protonmail.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/driver-api/spi.rst | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/base/regmap/regmap-irq.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/driver-api/spi.rst b/Documentation/driver-api/spi.rst
-index f64cb666498a..f28887045049 100644
---- a/Documentation/driver-api/spi.rst
-+++ b/Documentation/driver-api/spi.rst
-@@ -25,8 +25,8 @@ hardware, which may be as simple as a set of GPIO pins or as complex as
- a pair of FIFOs connected to dual DMA engines on the other side of the
- SPI shift register (maximizing throughput). Such drivers bridge between
- whatever bus they sit on (often the platform bus) and SPI, and expose
--the SPI side of their device as a :c:type:`struct spi_master
--<spi_master>`. SPI devices are children of that master,
-+the SPI side of their device as a :c:type:`struct spi_controller
-+<spi_controller>`. SPI devices are children of that master,
- represented as a :c:type:`struct spi_device <spi_device>` and
- manufactured from :c:type:`struct spi_board_info
- <spi_board_info>` descriptors which are usually provided by
+diff --git a/drivers/base/regmap/regmap-irq.c b/drivers/base/regmap/regmap-irq.c
+index 4ef9488d05cd..3de89795f584 100644
+--- a/drivers/base/regmap/regmap-irq.c
++++ b/drivers/base/regmap/regmap-irq.c
+@@ -722,6 +722,7 @@ int regmap_add_irq_chip_fwnode(struct fwnode_handle *fwnode,
+ 	int i;
+ 	int ret = -ENOMEM;
+ 	int num_type_reg;
++	int num_regs;
+ 	u32 reg;
+ 
+ 	if (chip->num_regs <= 0)
+@@ -796,14 +797,20 @@ int regmap_add_irq_chip_fwnode(struct fwnode_handle *fwnode,
+ 			goto err_alloc;
+ 	}
+ 
+-	num_type_reg = chip->type_in_mask ? chip->num_regs : chip->num_type_reg;
+-	if (num_type_reg) {
+-		d->type_buf_def = kcalloc(num_type_reg,
++	/*
++	 * Use num_config_regs if defined, otherwise fall back to num_type_reg
++	 * to maintain backward compatibility.
++	 */
++	num_type_reg = chip->num_config_regs ? chip->num_config_regs
++			: chip->num_type_reg;
++	num_regs = chip->type_in_mask ? chip->num_regs : num_type_reg;
++	if (num_regs) {
++		d->type_buf_def = kcalloc(num_regs,
+ 					  sizeof(*d->type_buf_def), GFP_KERNEL);
+ 		if (!d->type_buf_def)
+ 			goto err_alloc;
+ 
+-		d->type_buf = kcalloc(num_type_reg, sizeof(*d->type_buf),
++		d->type_buf = kcalloc(num_regs, sizeof(*d->type_buf),
+ 				      GFP_KERNEL);
+ 		if (!d->type_buf)
+ 			goto err_alloc;
 -- 
 2.35.1
 
