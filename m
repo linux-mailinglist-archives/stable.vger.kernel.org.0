@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC7F1657F11
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:01:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96BA86578CA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:54:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233000AbiL1QAx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:00:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47582 "EHLO
+        id S233181AbiL1OyT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:54:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234262AbiL1QAs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:00:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EC9BF58C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:00:46 -0800 (PST)
+        with ESMTP id S233195AbiL1OyP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:54:15 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09A32245
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:54:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 508C4B8172B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:00:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A67A0C433F2;
-        Wed, 28 Dec 2022 16:00:43 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 552D5CE1355
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:54:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ABB8C433D2;
+        Wed, 28 Dec 2022 14:54:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243244;
-        bh=2R4ahdc6OpnnypdIW+takv9OZGoyvF2uQYGKzLTEcKc=;
+        s=korg; t=1672239250;
+        bh=8jqqNeyT6z/Wx9q0j9tcTsOziCwbYbvVyFdsgjGLxdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dxAVLxbk5mojKZhYVkWVQPvS7NxSffl3/BLQkR2d9jHqruJN8JGinynJiIT2INtWP
-         KFXP8G01oyixNTDEnNUZO6+XXSqcqNb146ILriMXMjDSOKRvl3NA0xrFiSOYd5GLQz
-         0ul1qePVXJQBRjyEUze5d4riDQihl7ybkfDggJyQ=
+        b=zYIcNoZ8lnBNgo5gWYhox4QgHefvGSDRims22ucwwJGz0OQMruhrv+QzbW31FnA3A
+         z3OqN8qS+Rxf8CP9QJ0ZCMveJME7WcjKceno/J/NHPMkT4Bhl9BvU0PJJuSf90B5Ef
+         VD/C5xXNe/A1d2IVhrgKk5m3GhWQm+WouRzhSQio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Bitterblue Smith <rtl8821cerfe2@gmail.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0505/1073] wifi: rtl8xxxu: Fix the channel width reporting
+        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 186/731] mtd: Fix device name leak when register device failed in add_mtd_device()
 Date:   Wed, 28 Dec 2022 15:34:53 +0100
-Message-Id: <20221228144341.758426313@linuxfoundation.org>
+Message-Id: <20221228144301.952282627@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit 76c16af2cb10282274596e21add2c9f0b95c941b ]
+[ Upstream commit 895d68a39481a75c680aa421546931fb11942fa6 ]
 
-The gen 2 chips RTL8192EU and RTL8188FU periodically send the driver
-reports about the TX rate, and the driver passes these reports to
-sta_statistics. The reports from RTL8192EU may or may not include the
-channel width. The reports from RTL8188FU do not include it.
+There is a kmemleak when register device failed:
+  unreferenced object 0xffff888101aab550 (size 8):
+    comm "insmod", pid 3922, jiffies 4295277753 (age 925.408s)
+    hex dump (first 8 bytes):
+      6d 74 64 30 00 88 ff ff                          mtd0....
+    backtrace:
+      [<00000000bde26724>] __kmalloc_node_track_caller+0x4e/0x150
+      [<000000003c32b416>] kvasprintf+0xb0/0x130
+      [<000000001f7a8f15>] kobject_set_name_vargs+0x2f/0xb0
+      [<000000006e781163>] dev_set_name+0xab/0xe0
+      [<00000000e30d0c78>] add_mtd_device+0x4bb/0x700
+      [<00000000f3d34de7>] mtd_device_parse_register+0x2ac/0x3f0
+      [<00000000c0d88488>] 0xffffffffa0238457
+      [<00000000b40d0922>] 0xffffffffa02a008f
+      [<0000000023d17b9d>] do_one_initcall+0x87/0x2a0
+      [<00000000770f6ca6>] do_init_module+0xdf/0x320
+      [<000000007b6768fe>] load_module+0x2f98/0x3330
+      [<00000000346bed5a>] __do_sys_finit_module+0x113/0x1b0
+      [<00000000674c2290>] do_syscall_64+0x35/0x80
+      [<000000004c6a8d97>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-Only access the c2h->ra_report.bw field if the report (skb) is big
-enough.
+If register device failed, should call put_device() to give up the
+reference.
 
-The other problem fixed here is that the code was actually never
-changing the channel width initially reported by
-rtl8xxxu_bss_info_changed because the value of RATE_INFO_BW_20 is 0.
-
-Fixes: 0985d3a410ac ("rtl8xxxu: Feed current txrate information for mac80211")
-Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
-Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/5b41f1ae-72e7-6b7a-2459-b736399a1c40@gmail.com
+Fixes: 1f24b5a8ecbb ("[MTD] driver model updates")
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20221022121352.2534682-1-zhangxiaoxu5@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/mtd/mtdcore.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-index e85c6325199b..955fcf97b9dc 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -5575,7 +5575,6 @@ static void rtl8xxxu_c2hcmd_callback(struct work_struct *work)
- 			rarpt->txrate.flags = 0;
- 			rate = c2h->ra_report.rate;
- 			sgi = c2h->ra_report.sgi;
--			bw = c2h->ra_report.bw;
+diff --git a/drivers/mtd/mtdcore.c b/drivers/mtd/mtdcore.c
+index 61f236e0378a..3abaac109e75 100644
+--- a/drivers/mtd/mtdcore.c
++++ b/drivers/mtd/mtdcore.c
+@@ -671,8 +671,10 @@ int add_mtd_device(struct mtd_info *mtd)
+ 	dev_set_drvdata(&mtd->dev, mtd);
+ 	of_node_get(mtd_get_of_node(mtd));
+ 	error = device_register(&mtd->dev);
+-	if (error)
++	if (error) {
++		put_device(&mtd->dev);
+ 		goto fail_added;
++	}
  
- 			if (rate < DESC_RATE_MCS0) {
- 				rarpt->txrate.legacy =
-@@ -5592,8 +5591,13 @@ static void rtl8xxxu_c2hcmd_callback(struct work_struct *work)
- 						RATE_INFO_FLAGS_SHORT_GI;
- 				}
- 
--				if (bw == RATE_INFO_BW_20)
--					rarpt->txrate.bw |= RATE_INFO_BW_20;
-+				if (skb->len >= offsetofend(typeof(*c2h), ra_report.bw)) {
-+					if (c2h->ra_report.bw == RTL8XXXU_CHANNEL_WIDTH_40)
-+						bw = RATE_INFO_BW_40;
-+					else
-+						bw = RATE_INFO_BW_20;
-+					rarpt->txrate.bw = bw;
-+				}
- 			}
- 			bit_rate = cfg80211_calculate_bitrate(&rarpt->txrate);
- 			rarpt->bit_rate = bit_rate;
+ 	/* Add the nvmem provider */
+ 	error = mtd_nvmem_add(mtd);
 -- 
 2.35.1
 
