@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 461AC6583F4
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:53:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8835F6584A7
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:00:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235167AbiL1Qxj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:53:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45384 "EHLO
+        id S234065AbiL1RAE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:00:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235062AbiL1Qwu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:52:50 -0500
+        with ESMTP id S235424AbiL1Q7W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:59:22 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82C29E97
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:47:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 757DCDF0D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:54:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2335F6157A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:47:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A53DC433D2;
-        Wed, 28 Dec 2022 16:47:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 12A2561582
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:54:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CE60C433D2;
+        Wed, 28 Dec 2022 16:54:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246068;
-        bh=33Nxsyez/4y7EDG2PTwv4Z9oRJ0BnAul9sA32rgGXvo=;
+        s=korg; t=1672246492;
+        bh=cC6PVn5s+FJZaiUsnv2n67Lrx/nqLoNCbE1HweE/1Ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j3VGgitaw1eWMXzJL33E7aEUcQ+aUDje75bpB+3c/7GIcQdqx+7S0a+hbqgxCVUp0
-         xIYejr0MWhZc5e+hHBsdnfSs1wPoGfWfLbecd/vSOuOwO7zEz7XUYx9W13K0fcyclA
-         1+QnhR5CmkpFFUL+4uK9mHmN9N2+CB3/zWEtOnec=
+        b=wq00KTWKCVz1FkkFNkt1iEmBBYBBpnGyJPEsxU1JqFo9D7Ct0gxmzDApWG0d+zLme
+         mZQoFAKWVRkhqK8fFar5KqjNr7h5IdyrqvQjxVlqe3RGXxI6fWA0UGat4ZJY1gEdMJ
+         AeaQVasVmAyGAcByExb/AxddeXQvC5XrAtYw6s3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 1007/1073] ALSA: hda/hdmi: fix stream-id config keep-alive for rt suspend
+        syzbot+a3e6acd85ded5c16a709@syzkaller.appspotmail.com,
+        Hawkins Jiawei <yin31149@gmail.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Ian Kent <raven@themaw.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 1056/1146] hugetlbfs: fix null-ptr-deref in hugetlbfs_parse_param()
 Date:   Wed, 28 Dec 2022 15:43:15 +0100
-Message-Id: <20221228144355.504979497@linuxfoundation.org>
+Message-Id: <20221228144358.979803561@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,174 +58,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Hawkins Jiawei <yin31149@gmail.com>
 
-[ Upstream commit ee0b089d660021792e4ab4dda191b097ce1e964f ]
+[ Upstream commit 26215b7ee923b9251f7bb12c4e5f09dc465d35f2 ]
 
-When the new style KAE keep-alive implementation is used on compatible
-Intel hardware, the clocks are maintained when codec is in D3. The
-generic code in hda_cleanup_all_streams() can however interfere with
-generation of audio samples in this mode, by setting the stream and
-channel ids to zero.
+Syzkaller reports a null-ptr-deref bug as follows:
+======================================================
+KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+RIP: 0010:hugetlbfs_parse_param+0x1dd/0x8e0 fs/hugetlbfs/inode.c:1380
+[...]
+Call Trace:
+ <TASK>
+ vfs_parse_fs_param fs/fs_context.c:148 [inline]
+ vfs_parse_fs_param+0x1f9/0x3c0 fs/fs_context.c:129
+ vfs_parse_fs_string+0xdb/0x170 fs/fs_context.c:191
+ generic_parse_monolithic+0x16f/0x1f0 fs/fs_context.c:231
+ do_new_mount fs/namespace.c:3036 [inline]
+ path_mount+0x12de/0x1e20 fs/namespace.c:3370
+ do_mount fs/namespace.c:3383 [inline]
+ __do_sys_mount fs/namespace.c:3591 [inline]
+ __se_sys_mount fs/namespace.c:3568 [inline]
+ __x64_sys_mount+0x27f/0x300 fs/namespace.c:3568
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ [...]
+ </TASK>
+======================================================
 
-To get full benefit of the keepalive, set the new
-no_stream_clean_at_suspend quirk bit on affected Intel hardware. When
-this bit is set, stream cleanup is skipped in hda_call_codec_suspend().
+According to commit "vfs: parse: deal with zero length string value",
+kernel will set the param->string to null pointer in vfs_parse_fs_string()
+if fs string has zero length.
 
-Special handling is needed for the case when system goes to suspend. The
-stream id programming can be lost in this case. This will also cause
-codec->cvt_setups to be out of sync. Handle this by implementing custom
-suspend/resume handlers. If keep-alive is active for any converter, set
-the quirk flags no_stream_clean_at_suspend and forced_resume. Upon
-resume, keepalive programming is restored if needed.
+Yet the problem is that, hugetlbfs_parse_param() will dereference the
+param->string, without checking whether it is a null pointer.  To be more
+specific, if hugetlbfs_parse_param() parses an illegal mount parameter,
+such as "size=,", kernel will constructs struct fs_parameter with null
+pointer in vfs_parse_fs_string(), then passes this struct fs_parameter to
+hugetlbfs_parse_param(), which triggers the above null-ptr-deref bug.
 
-Fixes: 15175a4f2bbb ("ALSA: hda/hdmi: add keep-alive support for ADL-P and DG2")
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20221209101822.3893675-4-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+This patch solves it by adding sanity check on param->string
+in hugetlbfs_parse_param().
+
+Link: https://lkml.kernel.org/r/20221020231609.4810-1-yin31149@gmail.com
+Reported-by: syzbot+a3e6acd85ded5c16a709@syzkaller.appspotmail.com
+Tested-by: syzbot+a3e6acd85ded5c16a709@syzkaller.appspotmail.com
+  Link: https://lore.kernel.org/all/0000000000005ad00405eb7148c6@google.com/
+Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Hawkins Jiawei <yin31149@gmail.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Ian Kent <raven@themaw.net>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/hda_codec.h  |  1 +
- sound/pci/hda/hda_codec.c  |  3 +-
- sound/pci/hda/patch_hdmi.c | 90 +++++++++++++++++++++++++++++++++++++-
- 3 files changed, 92 insertions(+), 2 deletions(-)
+ fs/hugetlbfs/inode.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/sound/hda_codec.h b/include/sound/hda_codec.h
-index 684e6131737e..ec2a2ba21cc3 100644
---- a/include/sound/hda_codec.h
-+++ b/include/sound/hda_codec.h
-@@ -258,6 +258,7 @@ struct hda_codec {
- 	unsigned int link_down_at_suspend:1; /* link down at runtime suspend */
- 	unsigned int relaxed_resume:1;	/* don't resume forcibly for jack */
- 	unsigned int forced_resume:1; /* forced resume for jack */
-+	unsigned int no_stream_clean_at_suspend:1; /* do not clean streams at suspend */
+diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+index df7772335dc0..8eea709e3659 100644
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -1377,7 +1377,7 @@ static int hugetlbfs_parse_param(struct fs_context *fc, struct fs_parameter *par
  
- #ifdef CONFIG_PM
- 	unsigned long power_on_acct;
-diff --git a/sound/pci/hda/hda_codec.c b/sound/pci/hda/hda_codec.c
-index 384426d7e9dd..c853cba7fc2b 100644
---- a/sound/pci/hda/hda_codec.c
-+++ b/sound/pci/hda/hda_codec.c
-@@ -2893,7 +2893,8 @@ static unsigned int hda_call_codec_suspend(struct hda_codec *codec)
- 	snd_hdac_enter_pm(&codec->core);
- 	if (codec->patch_ops.suspend)
- 		codec->patch_ops.suspend(codec);
--	hda_cleanup_all_streams(codec);
-+	if (!codec->no_stream_clean_at_suspend)
-+		hda_cleanup_all_streams(codec);
- 	state = hda_set_power_state(codec, AC_PWRST_D3);
- 	update_power_acct(codec, true);
- 	snd_hdac_leave_pm(&codec->core);
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index 36df152b63ba..1e44c6b3ecc9 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -2925,6 +2925,88 @@ static void i915_pin_cvt_fixup(struct hda_codec *codec,
- 	}
- }
+ 	case Opt_size:
+ 		/* memparse() will accept a K/M/G without a digit */
+-		if (!isdigit(param->string[0]))
++		if (!param->string || !isdigit(param->string[0]))
+ 			goto bad_val;
+ 		ctx->max_size_opt = memparse(param->string, &rest);
+ 		ctx->max_val_type = SIZE_STD;
+@@ -1387,7 +1387,7 @@ static int hugetlbfs_parse_param(struct fs_context *fc, struct fs_parameter *par
  
-+#ifdef CONFIG_PM
-+static int i915_adlp_hdmi_suspend(struct hda_codec *codec)
-+{
-+	struct hdmi_spec *spec = codec->spec;
-+	bool silent_streams = false;
-+	int pin_idx, res;
-+
-+	res = generic_hdmi_suspend(codec);
-+
-+	for (pin_idx = 0; pin_idx < spec->num_pins; pin_idx++) {
-+		struct hdmi_spec_per_pin *per_pin = get_pin(spec, pin_idx);
-+
-+		if (per_pin->silent_stream) {
-+			silent_streams = true;
-+			break;
-+		}
-+	}
-+
-+	if (silent_streams && spec->silent_stream_type == SILENT_STREAM_KAE) {
-+		/*
-+		 * stream-id should remain programmed when codec goes
-+		 * to runtime suspend
-+		 */
-+		codec->no_stream_clean_at_suspend = 1;
-+
-+		/*
-+		 * the system might go to S3, in which case keep-alive
-+		 * must be reprogrammed upon resume
-+		 */
-+		codec->forced_resume = 1;
-+
-+		codec_dbg(codec, "HDMI: KAE active at suspend\n");
-+	} else {
-+		codec->no_stream_clean_at_suspend = 0;
-+		codec->forced_resume = 0;
-+	}
-+
-+	return res;
-+}
-+
-+static int i915_adlp_hdmi_resume(struct hda_codec *codec)
-+{
-+	struct hdmi_spec *spec = codec->spec;
-+	int pin_idx, res;
-+
-+	res = generic_hdmi_resume(codec);
-+
-+	/* KAE not programmed at suspend, nothing to do here */
-+	if (!codec->no_stream_clean_at_suspend)
-+		return res;
-+
-+	for (pin_idx = 0; pin_idx < spec->num_pins; pin_idx++) {
-+		struct hdmi_spec_per_pin *per_pin = get_pin(spec, pin_idx);
-+
-+		/*
-+		 * If system was in suspend with monitor connected,
-+		 * the codec setting may have been lost. Re-enable
-+		 * keep-alive.
-+		 */
-+		if (per_pin->silent_stream) {
-+			unsigned int param;
-+
-+			param = snd_hda_codec_read(codec, per_pin->cvt_nid, 0,
-+						   AC_VERB_GET_CONV, 0);
-+			if (!param) {
-+				codec_dbg(codec, "HDMI: KAE: restore stream id\n");
-+				silent_stream_enable_i915(codec, per_pin);
-+			}
-+
-+			param = snd_hda_codec_read(codec, per_pin->cvt_nid, 0,
-+						   AC_VERB_GET_DIGI_CONVERT_1, 0);
-+			if (!(param & (AC_DIG3_KAE << 16))) {
-+				codec_dbg(codec, "HDMI: KAE: restore DIG3_KAE\n");
-+				silent_stream_set_kae(codec, per_pin, true);
-+			}
-+		}
-+	}
-+
-+	return res;
-+}
-+#endif
-+
- /* precondition and allocation for Intel codecs */
- static int alloc_intel_hdmi(struct hda_codec *codec)
- {
-@@ -3055,8 +3137,14 @@ static int patch_i915_adlp_hdmi(struct hda_codec *codec)
- 	if (!res) {
- 		spec = codec->spec;
+ 	case Opt_nr_inodes:
+ 		/* memparse() will accept a K/M/G without a digit */
+-		if (!isdigit(param->string[0]))
++		if (!param->string || !isdigit(param->string[0]))
+ 			goto bad_val;
+ 		ctx->nr_inodes = memparse(param->string, &rest);
+ 		return 0;
+@@ -1403,7 +1403,7 @@ static int hugetlbfs_parse_param(struct fs_context *fc, struct fs_parameter *par
  
--		if (spec->silent_stream_type)
-+		if (spec->silent_stream_type) {
- 			spec->silent_stream_type = SILENT_STREAM_KAE;
-+
-+#ifdef CONFIG_PM
-+			codec->patch_ops.resume = i915_adlp_hdmi_resume;
-+			codec->patch_ops.suspend = i915_adlp_hdmi_suspend;
-+#endif
-+		}
- 	}
- 
- 	return res;
+ 	case Opt_min_size:
+ 		/* memparse() will accept a K/M/G without a digit */
+-		if (!isdigit(param->string[0]))
++		if (!param->string || !isdigit(param->string[0]))
+ 			goto bad_val;
+ 		ctx->min_size_opt = memparse(param->string, &rest);
+ 		ctx->min_val_type = SIZE_STD;
 -- 
 2.35.1
 
