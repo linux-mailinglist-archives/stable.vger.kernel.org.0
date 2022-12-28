@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36634657DDD
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:47:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5AF2657865
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:50:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233614AbiL1Prm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:47:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35072 "EHLO
+        id S233076AbiL1OuH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:50:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234087AbiL1PrX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:47:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7F8816594
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:47:22 -0800 (PST)
+        with ESMTP id S233073AbiL1OuF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:50:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66FB511A38
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:50:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A13BB8172E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:47:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE129C433F0;
-        Wed, 28 Dec 2022 15:47:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 040AC61365
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:50:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 174D0C433EF;
+        Wed, 28 Dec 2022 14:50:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242440;
-        bh=6rLIY0V7F5b9HMN8VVnzlwTngztFCkHSMkiGH4bizuU=;
+        s=korg; t=1672239003;
+        bh=AXPXLxh17Tug/qn92KC4ufziprryzeaMVNCXJJh7qCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KGCI0Zu74RcrjjPrtxJx98UFeuERf7QOevDDPqC9qQHC4Fw5G3K1DsMEJYn2lfh60
-         kJuaAxK3ATSvNHG4/z68uzS9B4G70h+qjOVTr6McUbpwhkdFAXIB0XlvZcPveqqtBi
-         X3cETv1rir0m78IPNAoojtMjlfziCwUltTb9MWu8=
+        b=y5yxRLJ9CubfWHOJ+3PY2VVgkEHUIFeBtZEcjN2XuV+z1ypLPWbqTpz/zG45ytotx
+         di7abOAbiUCQs8XbvY8DTlFv62JxQT19qSXpK6OkBzmCIbbI7b5MActJHxfC7tQvbm
+         XE8bi01G969JHGG9cL+G34ifGyqpdiDduclLEahw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0410/1073] NFSv4: Fix a credential leak in _nfs4_discover_trunking()
-Date:   Wed, 28 Dec 2022 15:33:18 +0100
-Message-Id: <20221228144339.156876777@linuxfoundation.org>
+Subject: [PATCH 5.15 092/731] PNP: fix name memory leak in pnp_alloc_dev()
+Date:   Wed, 28 Dec 2022 15:33:19 +0100
+Message-Id: <20221228144259.215707960@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit e83458fce080dc23c25353a1af90bfecf79c7369 ]
+[ Upstream commit 110d7b0325c55ff3620073ba4201845f59e22ebf ]
 
-Fixes: 4f40a5b55446 ("NFSv4: Add an fattr allocation to _nfs4_discover_trunking()")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+After commit 1fa5ae857bb1 ("driver core: get rid of struct device's
+bus_id string array"), the name of device is allocated dynamically,
+move dev_set_name() after pnp_add_id() to avoid memory leak.
+
+Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/pnp/core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 0500da4dab57..f85559bbb422 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -4017,7 +4017,7 @@ static int _nfs4_discover_trunking(struct nfs_server *server,
+diff --git a/drivers/pnp/core.c b/drivers/pnp/core.c
+index 4df5aa6a309c..6a60c5d83383 100644
+--- a/drivers/pnp/core.c
++++ b/drivers/pnp/core.c
+@@ -148,14 +148,14 @@ struct pnp_dev *pnp_alloc_dev(struct pnp_protocol *protocol, int id,
+ 	dev->dev.coherent_dma_mask = dev->dma_mask;
+ 	dev->dev.release = &pnp_release_device;
  
- 	page = alloc_page(GFP_KERNEL);
- 	if (!page)
--		return -ENOMEM;
-+		goto out_put_cred;
- 	locations = kmalloc(sizeof(struct nfs4_fs_locations), GFP_KERNEL);
- 	if (!locations)
- 		goto out_free;
-@@ -4039,6 +4039,8 @@ static int _nfs4_discover_trunking(struct nfs_server *server,
- 	kfree(locations);
- out_free:
- 	__free_page(page);
-+out_put_cred:
-+	put_cred(cred);
- 	return status;
+-	dev_set_name(&dev->dev, "%02x:%02x", dev->protocol->number, dev->number);
+-
+ 	dev_id = pnp_add_id(dev, pnpid);
+ 	if (!dev_id) {
+ 		kfree(dev);
+ 		return NULL;
+ 	}
+ 
++	dev_set_name(&dev->dev, "%02x:%02x", dev->protocol->number, dev->number);
++
+ 	return dev;
  }
  
 -- 
