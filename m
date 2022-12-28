@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32D896581C5
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:31:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF790657B0E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:17:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233303AbiL1Qbt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:31:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50040 "EHLO
+        id S233179AbiL1PRm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:17:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234353AbiL1Qb0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:31:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E1341B9EA
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:27:24 -0800 (PST)
+        with ESMTP id S233175AbiL1PRl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:17:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E92D13E39
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:17:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 27AA06157A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:27:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34CBDC433EF;
-        Wed, 28 Dec 2022 16:27:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0B4EB8172C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:17:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38D97C433EF;
+        Wed, 28 Dec 2022 15:17:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244843;
-        bh=OAkg8yBzNR1H/wYcY1DuipxsW6CHqHV+lKLu1lApOhM=;
+        s=korg; t=1672240657;
+        bh=PcfMU0DyL2GxuhDzcuqKtUnt5H43hy3OifcxGBCv+hQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=19aFRQAI8c6mfR2TZ5a0VFMBug/DuCJ9+lASSo/9XgslpHNERZbtwBPFA6WnyfQe+
-         vTVCTF/hHq7DdhzlSK5PALqTTZ+4762fbAoDwkwb+CX582+KrSEYno3MHPwNxrHkvl
-         3UN+rH6Mn/6qb5rahtO091129J+BikhVcwbwOe+c=
+        b=Ch3VZibaJGX6/Ywa4VaPvDYLw/0S1NRQyNzWO4XPzLJjxSQmhQjtG/0Dd08ZFnLNp
+         xop7Pjl9V+pxlavn1nl9iFJQLbPDu6V6oO3lS0Wr00t7bCgn/zz1NJshJsNCw64fjj
+         u1y6TxEScOJ/psiBorqClo4KfeoQnDCNXzwpqTBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, mhiramat@kernel.org, zanussi@kernel.org,
-        Zheng Yejian <zhengyejian1@huawei.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        patches@lists.linux.dev,
+        syzbot+035a381ea1afb63f098d@syzkaller.appspotmail.com,
+        syzbot+729c925c2d9fc495ddee@syzkaller.appspotmail.com,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0746/1146] tracing/hist: Fix issue of losting command info in error_log
+Subject: [PATCH 5.15 378/731] f2fs: fix to invalidate dcc->f2fs_issue_discard in error path
 Date:   Wed, 28 Dec 2022 15:38:05 +0100
-Message-Id: <20221228144350.409559657@linuxfoundation.org>
+Message-Id: <20221228144307.518864039@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,91 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yejian <zhengyejian1@huawei.com>
+From: Chao Yu <chao@kernel.org>
 
-[ Upstream commit 608c6ed3337850c767ab0dd6c583477922233e29 ]
+[ Upstream commit 91586ce0d39a05f88795aa8814fb99b1387236b3 ]
 
-When input some constructed invalid 'trigger' command, command info
-in 'error_log' are lost [1].
+Syzbot reports a NULL pointer dereference issue as below:
 
-The root cause is that there is a path that event_hist_trigger_parse()
-is recursely called once and 'last_cmd' which save origin command is
-cleared, then later calling of hist_err() will no longer record origin
-command info:
+ __refcount_add include/linux/refcount.h:193 [inline]
+ __refcount_inc include/linux/refcount.h:250 [inline]
+ refcount_inc include/linux/refcount.h:267 [inline]
+ get_task_struct include/linux/sched/task.h:110 [inline]
+ kthread_stop+0x34/0x1c0 kernel/kthread.c:703
+ f2fs_stop_discard_thread+0x3c/0x5c fs/f2fs/segment.c:1638
+ kill_f2fs_super+0x5c/0x194 fs/f2fs/super.c:4522
+ deactivate_locked_super+0x70/0xe8 fs/super.c:332
+ deactivate_super+0xd0/0xd4 fs/super.c:363
+ cleanup_mnt+0x1f8/0x234 fs/namespace.c:1186
+ __cleanup_mnt+0x20/0x30 fs/namespace.c:1193
+ task_work_run+0xc4/0x14c kernel/task_work.c:177
+ exit_task_work include/linux/task_work.h:38 [inline]
+ do_exit+0x26c/0xbe0 kernel/exit.c:795
+ do_group_exit+0x60/0xe8 kernel/exit.c:925
+ __do_sys_exit_group kernel/exit.c:936 [inline]
+ __se_sys_exit_group kernel/exit.c:934 [inline]
+ __wake_up_parent+0x0/0x40 kernel/exit.c:934
+ __invoke_syscall arch/arm64/kernel/syscall.c:38 [inline]
+ invoke_syscall arch/arm64/kernel/syscall.c:52 [inline]
+ el0_svc_common+0x138/0x220 arch/arm64/kernel/syscall.c:142
+ do_el0_svc+0x48/0x164 arch/arm64/kernel/syscall.c:206
+ el0_svc+0x58/0x150 arch/arm64/kernel/entry-common.c:636
+ el0t_64_sync_handler+0x84/0xf0 arch/arm64/kernel/entry-common.c:654
+ el0t_64_sync+0x18c/0x190 arch/arm64/kernel/entry.S:581
 
-  event_hist_trigger_parse() {
-    last_cmd_set()  // <1> 'last_cmd' save origin command here at first
-    create_actions() {
-      onmatch_create() {
-        action_create() {
-          trace_action_create() {
-            trace_action_create_field_var() {
-              create_field_var_hist() {
-                event_hist_trigger_parse() {  // <2> recursely called once
-                  hist_err_clear()  // <3> 'last_cmd' is cleared here
-                }
-                hist_err()  // <4> No longer find origin command!!!
+The root cause of this issue is in error path of f2fs_start_discard_thread(),
+it missed to invalidate dcc->f2fs_issue_discard, later kthread_stop() may
+access invalid pointer.
 
-Since 'glob' is empty string while running into the recurse call, we
-can trickly check it and bypass the call of hist_err_clear() to solve it.
-
-[1]
- # cd /sys/kernel/tracing
- # echo "my_synth_event int v1; int v2; int v3;" >> synthetic_events
- # echo 'hist:keys=pid' >> events/sched/sched_waking/trigger
- # echo "hist:keys=next_pid:onmatch(sched.sched_waking).my_synth_event(\
-pid,pid1)" >> events/sched/sched_switch/trigger
- # cat error_log
-[  8.405018] hist:sched:sched_switch: error: Couldn't find synthetic event
-  Command:
-hist:keys=next_pid:onmatch(sched.sched_waking).my_synth_event(pid,pid1)
-                                                          ^
-[  8.816902] hist:sched:sched_switch: error: Couldn't find field
-  Command:
-hist:keys=next_pid:onmatch(sched.sched_waking).my_synth_event(pid,pid1)
-                          ^
-[  8.816902] hist:sched:sched_switch: error: Couldn't parse field variable
-  Command:
-hist:keys=next_pid:onmatch(sched.sched_waking).my_synth_event(pid,pid1)
-                          ^
-[  8.999880] : error: Couldn't find field
-  Command:
-           ^
-[  8.999880] : error: Couldn't parse field variable
-  Command:
-           ^
-[  8.999880] : error: Couldn't find field
-  Command:
-           ^
-[  8.999880] : error: Couldn't create histogram for field
-  Command:
-           ^
-
-Link: https://lore.kernel.org/linux-trace-kernel/20221207135326.3483216-1-zhengyejian1@huawei.com
-
-Cc: <mhiramat@kernel.org>
-Cc: <zanussi@kernel.org>
-Fixes: f404da6e1d46 ("tracing: Add 'last error' error facility for hist triggers")
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Fixes: 4d67490498ac ("f2fs: Don't create discard thread when device doesn't support realtime discard")
+Reported-by: syzbot+035a381ea1afb63f098d@syzkaller.appspotmail.com
+Reported-by: syzbot+729c925c2d9fc495ddee@syzkaller.appspotmail.com
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events_hist.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/f2fs/segment.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
-index 1c82478e8dff..b6e5724a9ea3 100644
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -6438,7 +6438,7 @@ static int event_hist_trigger_parse(struct event_command *cmd_ops,
- 	if (se)
- 		se->ref++;
-  out:
--	if (ret == 0)
-+	if (ret == 0 && glob[0])
- 		hist_err_clear();
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index af810b2d5d90..28939e3573ea 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -2129,8 +2129,10 @@ int f2fs_start_discard_thread(struct f2fs_sb_info *sbi)
  
- 	return ret;
+ 	dcc->f2fs_issue_discard = kthread_run(issue_discard_thread, sbi,
+ 				"f2fs_discard-%u:%u", MAJOR(dev), MINOR(dev));
+-	if (IS_ERR(dcc->f2fs_issue_discard))
++	if (IS_ERR(dcc->f2fs_issue_discard)) {
+ 		err = PTR_ERR(dcc->f2fs_issue_discard);
++		dcc->f2fs_issue_discard = NULL;
++	}
+ 
+ 	return err;
+ }
 -- 
 2.35.1
 
