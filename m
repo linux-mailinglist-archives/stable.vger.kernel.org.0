@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C11C657CAC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:34:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F15C658257
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:35:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233854AbiL1Pez (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:34:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52610 "EHLO
+        id S234927AbiL1Qes (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:34:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233866AbiL1Pey (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:34:54 -0500
+        with ESMTP id S234949AbiL1QeL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:34:11 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA39916488
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:34:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 925381CB21
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:31:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A00161553
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:34:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61252C433D2;
-        Wed, 28 Dec 2022 15:34:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3202E61562
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:31:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EADAC433D2;
+        Wed, 28 Dec 2022 16:31:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241692;
-        bh=mdITFTjbfwPjSDJMbCZ1ox/jw4uwrTLdaTJS8sxrtvg=;
+        s=korg; t=1672245090;
+        bh=/WL07LK3cI0ugCJwgyw52PX4hwTm7I7iO8famkK5JNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dh5STbX1Q8PxrY3rfyo/mlydkW3o/N5uIxBswA7d6IuPmAkoXG0jgX4Aq1+ArY6L5
-         xgx5kb5Qji/vALDS5W0SFvKiq/qSvFM6ogV2EhPsKQTYrfbejuC/uMmeWW2r3VA3O6
-         AjliXc/XE9hCKDjzUiVVz7YUPCDKeg/VaKcy9iX4=
+        b=CJDGpb1LdFKaGzGieb1lZzJvIsEeTdIzFs1i+ngZ7+Ui/6iMe//p/rKb2S5YV/NRq
+         FX1+wsQ9C7+iIEArGv+/u7h0XjFcQySdZCDoi4Ol3OuRcvQ6nsEAxcH5yI0L7It6Fz
+         VDExE2EWPVotqWQl618/h1gcMyxdbUyRZ8j4zqDM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 512/731] HSI: omap_ssi_core: fix possible memory leak in ssi_probe()
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Guru Das Srinagesh <gurus@codeaurora.org>,
+        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0831/1073] mfd: pm8008: Fix return value check in pm8008_probe()
 Date:   Wed, 28 Dec 2022 15:40:19 +0100
-Message-Id: <20221228144311.387372424@linuxfoundation.org>
+Message-Id: <20221228144350.587244005@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +56,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 1aff514e1d2bd47854dbbdf867970b9d463d4c57 ]
+[ Upstream commit 14f8c55d48e02157519fbcb3a5de557abd8a06e2 ]
 
-If ssi_add_controller() returns error, it should call hsi_put_controller()
-to give up the reference that was set in hsi_alloc_controller(), so that
-it can call hsi_controller_release() to free controller and ports that
-allocated in hsi_alloc_controller().
+In case of error, the function devm_regmap_init_i2c() returns
+ERR_PTR() and never returns NULL. The NULL test in the return
+value check should be replaced with IS_ERR().
 
-Fixes: b209e047bc74 ("HSI: Introduce OMAP SSI driver")
+Fixes: 6b149f3310a4 ("mfd: pm8008: Add driver for QCOM PM8008 PMIC")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Acked-by: Guru Das Srinagesh <gurus@codeaurora.org>
+Signed-off-by: Lee Jones <lee@kernel.org>
+Link: https://lore.kernel.org/r/20221125073626.1868229-1-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hsi/controllers/omap_ssi_core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/mfd/qcom-pm8008.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hsi/controllers/omap_ssi_core.c b/drivers/hsi/controllers/omap_ssi_core.c
-index b23a576ed88a..052cf3e92dd6 100644
---- a/drivers/hsi/controllers/omap_ssi_core.c
-+++ b/drivers/hsi/controllers/omap_ssi_core.c
-@@ -502,8 +502,10 @@ static int ssi_probe(struct platform_device *pd)
- 	platform_set_drvdata(pd, ssi);
+diff --git a/drivers/mfd/qcom-pm8008.c b/drivers/mfd/qcom-pm8008.c
+index 4b8ff947762f..9f3c4a01b4c1 100644
+--- a/drivers/mfd/qcom-pm8008.c
++++ b/drivers/mfd/qcom-pm8008.c
+@@ -215,8 +215,8 @@ static int pm8008_probe(struct i2c_client *client)
  
- 	err = ssi_add_controller(ssi, pd);
--	if (err < 0)
-+	if (err < 0) {
-+		hsi_put_controller(ssi);
- 		goto out1;
-+	}
+ 	dev = &client->dev;
+ 	regmap = devm_regmap_init_i2c(client, &qcom_mfd_regmap_cfg);
+-	if (!regmap)
+-		return -ENODEV;
++	if (IS_ERR(regmap))
++		return PTR_ERR(regmap);
  
- 	pm_runtime_enable(&pd->dev);
+ 	i2c_set_clientdata(client, regmap);
  
 -- 
 2.35.1
