@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70921657A59
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:11:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E15A658135
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233654AbiL1PKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:10:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57458 "EHLO
+        id S229668AbiL1QZt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:25:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233675AbiL1PKK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:10:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AC4E13E0E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:10:09 -0800 (PST)
+        with ESMTP id S234794AbiL1QZ1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:25:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 290D31B7A6
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:22:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CECB56153B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:10:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4CD0C433EF;
-        Wed, 28 Dec 2022 15:10:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C6154B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:22:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24FF6C433D2;
+        Wed, 28 Dec 2022 16:22:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240208;
-        bh=51Rqx1WPVXnS+wf9KH1RZOfJkMtQvR2Y9Ss86ZSmUQk=;
+        s=korg; t=1672244550;
+        bh=ZaakPQZKyvO35D7RON4a46MwSCa404UODUge4SK4ZbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TtGsyde8UG2V97cM/UdVWMVPEGX72kYCCMXIIC2tG/dSPwHnVDYc6MSqaqxS8GI/q
-         dEXxB56MzuYUfrDw7AvqLReG6ff4EZLncpBNne9QwS3x5M6AJ7I1nOvGLPFj2JWAu+
-         kVscDqoV7Bj/aqFzBerXNY4bbtJztt8vSqgz+0Q8=
+        b=vSqLZlD2BFqZ57Ste2j6JlY7UKfFeeObMHyaRrj9jVdcSlvZly/xjVNS2LxDhvusJ
+         M8qaVQaWOdiY6JIlObUgjXp40tX5X1m8KAmBVPysgG1on1S+AiYx0X3qoT3MUnSWH1
+         mz+w+a/9MBhpW55WB5vzx7V+q3OHE4kH54eSNu1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yongqiang Liu <liuyongqiang13@huawei.com>,
-        Jiri Pirko <jiri@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Rafael Mendonca <rafaelmendsr@gmail.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 323/731] net: defxx: Fix missing err handling in dfx_init()
-Date:   Wed, 28 Dec 2022 15:37:10 +0100
-Message-Id: <20221228144305.936334100@linuxfoundation.org>
+Subject: [PATCH 6.1 0692/1146] vfio: platform: Do not pass return buffer to ACPI _RST method
+Date:   Wed, 28 Dec 2022 15:37:11 +0100
+Message-Id: <20221228144348.939395061@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,59 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yongqiang Liu <liuyongqiang13@huawei.com>
+From: Rafael Mendonca <rafaelmendsr@gmail.com>
 
-[ Upstream commit ae18dcdff0f8d7e84cd3fd9f496518b5e72d185d ]
+[ Upstream commit e67e070632a665c932d534b8b800477bb3111449 ]
 
-When eisa_driver_register() or tc_register_driver() failed,
-the modprobe defxx would fail with some err log as follows:
+The ACPI _RST method has no return value, there's no need to pass a return
+buffer to acpi_evaluate_object().
 
- Error: Driver 'defxx' is already registered, aborting...
-
-Fix this issue by adding err hanling in dfx_init().
-
-Fixes: e89a2cfb7d7b5 ("[TC] defxx: TURBOchannel support")
-Signed-off-by: Yongqiang Liu <liuyongqiang13@huawei.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: d30daa33ec1d ("vfio: platform: call _RST method when using ACPI")
+Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+Link: https://lore.kernel.org/r/20221018152825.891032-1-rafaelmendsr@gmail.com
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/fddi/defxx.c | 22 ++++++++++++++++++----
- 1 file changed, 18 insertions(+), 4 deletions(-)
+ drivers/vfio/platform/vfio_platform_common.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/fddi/defxx.c b/drivers/net/fddi/defxx.c
-index 6d1e3f49a3d3..ebf502290e5f 100644
---- a/drivers/net/fddi/defxx.c
-+++ b/drivers/net/fddi/defxx.c
-@@ -3831,10 +3831,24 @@ static int dfx_init(void)
- 	int status;
+diff --git a/drivers/vfio/platform/vfio_platform_common.c b/drivers/vfio/platform/vfio_platform_common.c
+index 55dc4f43c31e..1a0a238ffa35 100644
+--- a/drivers/vfio/platform/vfio_platform_common.c
++++ b/drivers/vfio/platform/vfio_platform_common.c
+@@ -72,12 +72,11 @@ static int vfio_platform_acpi_call_reset(struct vfio_platform_device *vdev,
+ 				  const char **extra_dbg)
+ {
+ #ifdef CONFIG_ACPI
+-	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
+ 	struct device *dev = vdev->device;
+ 	acpi_handle handle = ACPI_HANDLE(dev);
+ 	acpi_status acpi_ret;
  
- 	status = pci_register_driver(&dfx_pci_driver);
--	if (!status)
--		status = eisa_driver_register(&dfx_eisa_driver);
--	if (!status)
--		status = tc_register_driver(&dfx_tc_driver);
-+	if (status)
-+		goto err_pci_register;
-+
-+	status = eisa_driver_register(&dfx_eisa_driver);
-+	if (status)
-+		goto err_eisa_register;
-+
-+	status = tc_register_driver(&dfx_tc_driver);
-+	if (status)
-+		goto err_tc_register;
-+
-+	return 0;
-+
-+err_tc_register:
-+	eisa_driver_unregister(&dfx_eisa_driver);
-+err_eisa_register:
-+	pci_unregister_driver(&dfx_pci_driver);
-+err_pci_register:
- 	return status;
- }
- 
+-	acpi_ret = acpi_evaluate_object(handle, "_RST", NULL, &buffer);
++	acpi_ret = acpi_evaluate_object(handle, "_RST", NULL, NULL);
+ 	if (ACPI_FAILURE(acpi_ret)) {
+ 		if (extra_dbg)
+ 			*extra_dbg = acpi_format_exception(acpi_ret);
 -- 
 2.35.1
 
