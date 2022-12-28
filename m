@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7DE965800B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:13:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A27156580D2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:21:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234521AbiL1QNT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:13:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59838 "EHLO
+        id S233378AbiL1QVY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:21:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234708AbiL1QMa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:12:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9A131A223
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:11:00 -0800 (PST)
+        with ESMTP id S234667AbiL1QUu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:20:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0F3D17040
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:18:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9C6EDB817AC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:10:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E94C1C433D2;
-        Wed, 28 Dec 2022 16:10:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CFFF61562
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:18:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 556A8C433D2;
+        Wed, 28 Dec 2022 16:18:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243858;
-        bh=CEFHAZI9IQgGa18yT9NV81LV/2qCI8eTtWGWC/jGKVM=;
+        s=korg; t=1672244313;
+        bh=nhVLOn9tQ1IgdvyQjuR0l3ISCzx0EW2vFTSi8xyFKEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q4z6N/G5J4Jdte3Cto3lax70w4CWPFyHT9AiDAMZB9CehjodU4ZXa/HXWW71oDNJm
-         XUM469xVsj7ZKH2X2DJsEE9Fe6wV9CvWxIjrezDd4Wvde+1givlz2jLUuGT7VT6x19
-         uWXTfVvmN27A45is6gfTlxhy2xQO5I6oDN2Ld7Hs=
+        b=RSOKBwenDvUo47xKOf8eFQdQqiCe+BjNhZJvW7hAO41hlGr7RM1XNHViwWdmd+K31
+         RaXkJ45hG9GcGlbeVebhY7wKVAhVhRgN8b4AjFxppMBG9Z86e7IT7FnP4Kwnw+uFBM
+         xgHEiBI/wi/cg+735tzD2u9gZG+6KNsfeK7cfEi4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Weili Qian <qianweili@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0600/1073] crypto: hisilicon/qm - add missing pci_dev_put() in q_num_set()
+Subject: [PATCH 6.1 0649/1146] scsi: scsi_debug: Fix a warning in resp_verify()
 Date:   Wed, 28 Dec 2022 15:36:28 +0100
-Message-Id: <20221228144344.342939670@linuxfoundation.org>
+Message-Id: <20221228144347.786242417@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 
-[ Upstream commit cc7710d0d4ebc6998f04035cde4f32c5ddbe9d7f ]
+[ Upstream commit ed0f17b748b20271cb568c7ca0b23b120316a47d ]
 
-pci_get_device() will increase the reference count for the returned
-pci_dev. We need to use pci_dev_put() to decrease the reference count
-before q_num_set() returns.
+As 'vnum' is controlled by user, so if user tries to allocate memory larger
+than(>=) MAX_ORDER, then kcalloc() will fail, it creates a stack trace and
+messes up dmesg with a warning.
 
-Fixes: c8b4b477079d ("crypto: hisilicon - add HiSilicon HPRE accelerator")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Reviewed-by: Weili Qian <qianweili@huawei.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Add __GFP_NOWARN in order to avoid too large allocation warning.  This is
+detected by static analysis using smatch.
+
+Fixes: c3e2fe9222d4 ("scsi: scsi_debug: Implement VERIFY(10), add VERIFY(16)")
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Link: https://lore.kernel.org/r/20221112070031.2121068-1-harshit.m.mogalapalli@oracle.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/hisi_acc_qm.h | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/scsi/scsi_debug.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/hisi_acc_qm.h b/include/linux/hisi_acc_qm.h
-index 851c962ba473..ce0c3ed67a5f 100644
---- a/include/linux/hisi_acc_qm.h
-+++ b/include/linux/hisi_acc_qm.h
-@@ -400,14 +400,14 @@ struct hisi_qp {
- static inline int q_num_set(const char *val, const struct kernel_param *kp,
- 			    unsigned int device)
- {
--	struct pci_dev *pdev = pci_get_device(PCI_VENDOR_ID_HUAWEI,
--					      device, NULL);
-+	struct pci_dev *pdev;
- 	u32 n, q_num;
- 	int ret;
+diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
+index 57b091f1767f..78cfb706a4a7 100644
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -4436,7 +4436,7 @@ static int resp_verify(struct scsi_cmnd *scp, struct sdebug_dev_info *devip)
+ 	if (ret)
+ 		return ret;
  
- 	if (!val)
- 		return -EINVAL;
- 
-+	pdev = pci_get_device(PCI_VENDOR_ID_HUAWEI, device, NULL);
- 	if (!pdev) {
- 		q_num = min_t(u32, QM_QNUM_V1, QM_QNUM_V2);
- 		pr_info("No device found currently, suppose queue number is %u\n",
-@@ -417,6 +417,8 @@ static inline int q_num_set(const char *val, const struct kernel_param *kp,
- 			q_num = QM_QNUM_V1;
- 		else
- 			q_num = QM_QNUM_V2;
-+
-+		pci_dev_put(pdev);
- 	}
- 
- 	ret = kstrtou32(val, 10, &n);
+-	arr = kcalloc(lb_size, vnum, GFP_ATOMIC);
++	arr = kcalloc(lb_size, vnum, GFP_ATOMIC | __GFP_NOWARN);
+ 	if (!arr) {
+ 		mk_sense_buffer(scp, ILLEGAL_REQUEST, INSUFF_RES_ASC,
+ 				INSUFF_RES_ASCQ);
 -- 
 2.35.1
 
