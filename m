@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D6FB657BCE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:26:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81489657CE0
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:37:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233360AbiL1P0K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:26:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43706 "EHLO
+        id S233494AbiL1PhA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:37:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233767AbiL1PZ1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:25:27 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9230E14086
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:25:25 -0800 (PST)
+        with ESMTP id S233906AbiL1Pg7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:36:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B9E3140EE
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:36:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 08D07CE136B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:25:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE323C433D2;
-        Wed, 28 Dec 2022 15:25:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 094D2B81710
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:36:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5633DC433EF;
+        Wed, 28 Dec 2022 15:36:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241122;
-        bh=s30D2pAhz04U+XCQ1T9rDF6lZbMoYUQ0Kx+k0Dx9DjY=;
+        s=korg; t=1672241815;
+        bh=G/PD4AGUbPR3bk8hGVzUX5sR/bCPF6IaOvTccxBu8Lk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AEndYzzK03bBFNFZqsEiijX/VOfYcu9+p0kUU/G2eAX9U6AIqSEHlq8voQx183BzB
-         k3jzVMVppnaZW0Fb5QeNRUljNMm0EuhuhUAnUFchlPgX9dpj5sV9T1xoAgiZ9pggah
-         /VByzAJtAxyLyYkcwUMXrc7gdYZiV9lyCx/uBP/E=
+        b=edVYMCcntldM2jtsKlLbvlLUmNa/e3SEcY8/YUxqU09KwlgaM9TmaBXOjG5HW9UkD
+         2WBYddSKalfjuCDtJslt7BcWYnFKbTqoFVWAXlrLSze7istIuX2q7bc+p2EIEfzz+0
+         /oV0EK8+OSXhEZcbI55Ja2Y+P42CJ6WZYRFacOS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anssi Hannula <anssi.hannula@bitwise.fi>,
-        Jimmy Assarsson <extja@kvaser.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0242/1073] can: kvaser_usb: kvaser_usb_leaf: Rename {leaf,usbcan}_cmd_error_event to {leaf,usbcan}_cmd_can_error_event
-Date:   Wed, 28 Dec 2022 15:30:30 +0100
-Message-Id: <20221228144334.600655718@linuxfoundation.org>
+Subject: [PATCH 6.1 0292/1146] media: platform: exynos4-is: fix return value check in fimc_md_probe()
+Date:   Wed, 28 Dec 2022 15:30:31 +0100
+Message-Id: <20221228144338.070706403@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,133 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jimmy Assarsson <extja@kvaser.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 7ea56128dbf904a3359bcf9289cccdfa3c85c7e8 ]
+[ Upstream commit e38e42c078da4af962d322b97e726dcb2f184e3f ]
 
-Prepare for handling CMD_ERROR_EVENT. Rename struct
-{leaf,usbcan}_cmd_error_event to {leaf,usbcan}_cmd_can_error_event.
+devm_pinctrl_get() may return ERR_PTR(-EPROBE_DEFER), add a minus sign
+to fix it.
 
-Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
-Reported-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Tested-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
-Link: https://lore.kernel.org/all/20221010185237.319219-4-extja@kvaser.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 4163851f7b99 ("[media] s5p-fimc: Use pinctrl API for camera ports configuration")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/can/usb/kvaser_usb/kvaser_usb_leaf.c  | 38 +++++++++----------
- 1 file changed, 19 insertions(+), 19 deletions(-)
+ drivers/media/platform/samsung/exynos4-is/media-dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-index 33ff62cd1729..a1d4ac8d4a08 100644
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-@@ -234,7 +234,7 @@ struct kvaser_cmd_tx_acknowledge_header {
- 	u8 tid;
- } __packed;
- 
--struct leaf_cmd_error_event {
-+struct leaf_cmd_can_error_event {
- 	u8 tid;
- 	u8 flags;
- 	__le16 time[3];
-@@ -246,7 +246,7 @@ struct leaf_cmd_error_event {
- 	u8 error_factor;
- } __packed;
- 
--struct usbcan_cmd_error_event {
-+struct usbcan_cmd_can_error_event {
- 	u8 tid;
- 	u8 padding;
- 	u8 tx_errors_count_ch0;
-@@ -319,7 +319,7 @@ struct kvaser_cmd {
- 			struct leaf_cmd_softinfo softinfo;
- 			struct leaf_cmd_rx_can rx_can;
- 			struct leaf_cmd_chip_state_event chip_state_event;
--			struct leaf_cmd_error_event error_event;
-+			struct leaf_cmd_can_error_event can_error_event;
- 			struct leaf_cmd_log_message log_message;
- 			struct kvaser_cmd_cap_req cap_req;
- 			struct kvaser_cmd_cap_res cap_res;
-@@ -329,7 +329,7 @@ struct kvaser_cmd {
- 			struct usbcan_cmd_softinfo softinfo;
- 			struct usbcan_cmd_rx_can rx_can;
- 			struct usbcan_cmd_chip_state_event chip_state_event;
--			struct usbcan_cmd_error_event error_event;
-+			struct usbcan_cmd_can_error_event can_error_event;
- 		} __packed usbcan;
- 
- 		struct kvaser_cmd_tx_can tx_can;
-@@ -351,7 +351,7 @@ static const u8 kvaser_usb_leaf_cmd_sizes_leaf[] = {
- 	[CMD_RX_EXT_MESSAGE]		= kvaser_fsize(u.leaf.rx_can),
- 	[CMD_LEAF_LOG_MESSAGE]		= kvaser_fsize(u.leaf.log_message),
- 	[CMD_CHIP_STATE_EVENT]		= kvaser_fsize(u.leaf.chip_state_event),
--	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.leaf.error_event),
-+	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.leaf.can_error_event),
- 	[CMD_GET_CAPABILITIES_RESP]	= kvaser_fsize(u.leaf.cap_res),
- 	/* ignored events: */
- 	[CMD_FLUSH_QUEUE_REPLY]		= CMD_SIZE_ANY,
-@@ -366,7 +366,7 @@ static const u8 kvaser_usb_leaf_cmd_sizes_usbcan[] = {
- 	[CMD_RX_STD_MESSAGE]		= kvaser_fsize(u.usbcan.rx_can),
- 	[CMD_RX_EXT_MESSAGE]		= kvaser_fsize(u.usbcan.rx_can),
- 	[CMD_CHIP_STATE_EVENT]		= kvaser_fsize(u.usbcan.chip_state_event),
--	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.usbcan.error_event),
-+	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.usbcan.can_error_event),
- 	/* ignored events: */
- 	[CMD_USBCAN_CLOCK_OVERFLOW_EVENT] = CMD_SIZE_ANY,
- };
-@@ -1132,11 +1132,11 @@ static void kvaser_usb_leaf_usbcan_rx_error(const struct kvaser_usb *dev,
- 
- 	case CMD_CAN_ERROR_EVENT:
- 		es.channel = 0;
--		es.status = cmd->u.usbcan.error_event.status_ch0;
--		es.txerr = cmd->u.usbcan.error_event.tx_errors_count_ch0;
--		es.rxerr = cmd->u.usbcan.error_event.rx_errors_count_ch0;
-+		es.status = cmd->u.usbcan.can_error_event.status_ch0;
-+		es.txerr = cmd->u.usbcan.can_error_event.tx_errors_count_ch0;
-+		es.rxerr = cmd->u.usbcan.can_error_event.rx_errors_count_ch0;
- 		es.usbcan.other_ch_status =
--			cmd->u.usbcan.error_event.status_ch1;
-+			cmd->u.usbcan.can_error_event.status_ch1;
- 		kvaser_usb_leaf_usbcan_conditionally_rx_error(dev, &es);
- 
- 		/* The USBCAN firmware supports up to 2 channels.
-@@ -1144,13 +1144,13 @@ static void kvaser_usb_leaf_usbcan_rx_error(const struct kvaser_usb *dev,
- 		 */
- 		if (dev->nchannels == MAX_USBCAN_NET_DEVICES) {
- 			es.channel = 1;
--			es.status = cmd->u.usbcan.error_event.status_ch1;
-+			es.status = cmd->u.usbcan.can_error_event.status_ch1;
- 			es.txerr =
--				cmd->u.usbcan.error_event.tx_errors_count_ch1;
-+				cmd->u.usbcan.can_error_event.tx_errors_count_ch1;
- 			es.rxerr =
--				cmd->u.usbcan.error_event.rx_errors_count_ch1;
-+				cmd->u.usbcan.can_error_event.rx_errors_count_ch1;
- 			es.usbcan.other_ch_status =
--				cmd->u.usbcan.error_event.status_ch0;
-+				cmd->u.usbcan.can_error_event.status_ch0;
- 			kvaser_usb_leaf_usbcan_conditionally_rx_error(dev, &es);
- 		}
- 		break;
-@@ -1167,11 +1167,11 @@ static void kvaser_usb_leaf_leaf_rx_error(const struct kvaser_usb *dev,
- 
- 	switch (cmd->id) {
- 	case CMD_CAN_ERROR_EVENT:
--		es.channel = cmd->u.leaf.error_event.channel;
--		es.status = cmd->u.leaf.error_event.status;
--		es.txerr = cmd->u.leaf.error_event.tx_errors_count;
--		es.rxerr = cmd->u.leaf.error_event.rx_errors_count;
--		es.leaf.error_factor = cmd->u.leaf.error_event.error_factor;
-+		es.channel = cmd->u.leaf.can_error_event.channel;
-+		es.status = cmd->u.leaf.can_error_event.status;
-+		es.txerr = cmd->u.leaf.can_error_event.tx_errors_count;
-+		es.rxerr = cmd->u.leaf.can_error_event.rx_errors_count;
-+		es.leaf.error_factor = cmd->u.leaf.can_error_event.error_factor;
- 		break;
- 	case CMD_LEAF_LOG_MESSAGE:
- 		es.channel = cmd->u.leaf.log_message.channel;
+diff --git a/drivers/media/platform/samsung/exynos4-is/media-dev.c b/drivers/media/platform/samsung/exynos4-is/media-dev.c
+index 412213b0c384..383a1e0ab912 100644
+--- a/drivers/media/platform/samsung/exynos4-is/media-dev.c
++++ b/drivers/media/platform/samsung/exynos4-is/media-dev.c
+@@ -1472,7 +1472,7 @@ static int fimc_md_probe(struct platform_device *pdev)
+ 	pinctrl = devm_pinctrl_get(dev);
+ 	if (IS_ERR(pinctrl)) {
+ 		ret = PTR_ERR(pinctrl);
+-		if (ret != EPROBE_DEFER)
++		if (ret != -EPROBE_DEFER)
+ 			dev_err(dev, "Failed to get pinctrl: %d\n", ret);
+ 		goto err_clk;
+ 	}
 -- 
 2.35.1
 
