@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBB05658329
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3C1E6581B1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:31:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234831AbiL1QjN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:39:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60810 "EHLO
+        id S234228AbiL1QbF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:31:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233629AbiL1Qil (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:38:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6B141C42D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:34:14 -0800 (PST)
+        with ESMTP id S234639AbiL1Qah (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:30:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 878E61BE94
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:26:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F51DB81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:34:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DF83C433D2;
-        Wed, 28 Dec 2022 16:34:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 519996157A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:26:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64CA8C433D2;
+        Wed, 28 Dec 2022 16:26:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245252;
-        bh=W4IJTgpGPL7R83Cr9e/83msLC0nkUYBio7i30LOLwa0=;
+        s=korg; t=1672244811;
+        bh=xiA8YweXtP5y68sH9U3r4YWn0jZmWZyVPNXq1vaYWaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dVJWLNsXcEYdu0cxJqvOYY9RSm6e+qCZgRVSYRP8kj4KMFS/nFqXrg5g1zpgaWOqo
-         bXjNNqslmRw+tmUCWx+UYGOT5X+QVWvyVOoo0k8NL/OREdzTk9laSU6LMqYX3sDP1X
-         EKC9tJprXOyTUoALQlprbDFqiM6jByz4BWHw4WHw=
+        b=tb1vtQ212AiDj+P69RKMptOzql01b2A9SDHpakruLvoPGQ+BmEA+igBX4OA1I1QfA
+         emSoQDOXDqdTP8JlGsKAZ7nfoncrP28ltsx3XBrS6Fgalx6Wk8FfJGzICZE8sjKRki
+         zt/7FjFVeatHb82fatZy12ocDix0DeOKUO0YEHOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0827/1146] phy: qcom-qmp-pcie: Fix high latency with 4x2 PHY when ASPM is enabled
+        patches@lists.linux.dev, Jon Hunter <jonathanh@nvidia.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0778/1073] pwm: tegra: Improve required rate calculation
 Date:   Wed, 28 Dec 2022 15:39:26 +0100
-Message-Id: <20221228144352.621082628@linuxfoundation.org>
+Message-Id: <20221228144349.143730814@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Jon Hunter <jonathanh@nvidia.com>
 
-[ Upstream commit 9ddcd920f8edfe65c3670fbd0b49db00e1e562fe ]
+[ Upstream commit f271946117dde2ca8741b8138b347b2d68e6ad56 ]
 
-The PCIe QMP 4x2 RC PHY generates high latency when ASPM is enabled. This
-seem to be fixed by clearing the QPHY_V5_20_PCS_PCIE_PRESET_P10_POST
-register of the pcs_misc register space.
+For the case where dev_pm_opp_set_rate() is called to set the PWM clock
+rate, the requested rate is calculated as ...
 
-Fixes: 2c91bf6bf290 ("phy: qcom-qmp: Add SM8450 PCIe1 PHY support")
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Link: https://lore.kernel.org/r/20221102081835.41892-1-manivannan.sadhasivam@linaro.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+ required_clk_rate = (NSEC_PER_SEC / period_ns) << PWM_DUTY_WIDTH;
+
+The above calculation may lead to rounding errors because the
+NSEC_PER_SEC is divided by 'period_ns' before applying the
+PWM_DUTY_WIDTH multiplication factor. For example, if the period is
+45334ns, the above calculation yields a rate of 5646848Hz instead of
+5646976Hz. Fix this by applying the multiplication factor before
+dividing and using the DIV_ROUND_UP macro which yields the expected
+result of 5646976Hz.
+
+Fixes: 1d7796bdb63a ("pwm: tegra: Support dynamic clock frequency configuration")
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/qualcomm/phy-qcom-qmp-pcie.c           | 1 +
- drivers/phy/qualcomm/phy-qcom-qmp-pcs-pcie-v5_20.h | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/pwm/pwm-tegra.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c b/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
-index 3c5c4a4412e0..5a17cda1a6b8 100644
---- a/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
-+++ b/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
-@@ -1308,6 +1308,7 @@ static const struct qmp_phy_init_tbl sm8450_qmp_gen4x2_pcie_pcs_misc_tbl[] = {
- static const struct qmp_phy_init_tbl sm8450_qmp_gen4x2_pcie_rc_pcs_misc_tbl[] = {
- 	QMP_PHY_INIT_CFG(QPHY_V5_20_PCS_PCIE_ENDPOINT_REFCLK_DRIVE, 0xc1),
- 	QMP_PHY_INIT_CFG(QPHY_V5_20_PCS_PCIE_OSC_DTCT_ACTIONS, 0x00),
-+	QMP_PHY_INIT_CFG(QPHY_V5_20_PCS_PCIE_PRESET_P10_POST, 0x00),
- };
+diff --git a/drivers/pwm/pwm-tegra.c b/drivers/pwm/pwm-tegra.c
+index dad9978c9186..b05ea2e8accc 100644
+--- a/drivers/pwm/pwm-tegra.c
++++ b/drivers/pwm/pwm-tegra.c
+@@ -145,8 +145,8 @@ static int tegra_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
+ 		 * source clock rate as required_clk_rate, PWM controller will
+ 		 * be able to configure the requested period.
+ 		 */
+-		required_clk_rate =
+-			(NSEC_PER_SEC / period_ns) << PWM_DUTY_WIDTH;
++		required_clk_rate = DIV_ROUND_UP_ULL(NSEC_PER_SEC << PWM_DUTY_WIDTH,
++						     period_ns);
  
- static const struct qmp_phy_init_tbl sm8450_qmp_gen4x2_pcie_ep_serdes_tbl[] = {
-diff --git a/drivers/phy/qualcomm/phy-qcom-qmp-pcs-pcie-v5_20.h b/drivers/phy/qualcomm/phy-qcom-qmp-pcs-pcie-v5_20.h
-index c9fa90b45475..3d9713d348fe 100644
---- a/drivers/phy/qualcomm/phy-qcom-qmp-pcs-pcie-v5_20.h
-+++ b/drivers/phy/qualcomm/phy-qcom-qmp-pcs-pcie-v5_20.h
-@@ -11,6 +11,7 @@
- #define QPHY_V5_20_PCS_PCIE_OSC_DTCT_MODE2_CONFIG5	0x084
- #define QPHY_V5_20_PCS_PCIE_OSC_DTCT_ACTIONS		0x090
- #define QPHY_V5_20_PCS_PCIE_EQ_CONFIG1			0x0a0
-+#define QPHY_V5_20_PCS_PCIE_PRESET_P10_POST		0x0e0
- #define QPHY_V5_20_PCS_PCIE_G4_EQ_CONFIG5		0x108
- #define QPHY_V5_20_PCS_PCIE_G4_PRE_GAIN			0x15c
- #define QPHY_V5_20_PCS_PCIE_RX_MARGINING_CONFIG3	0x184
+ 		err = dev_pm_opp_set_rate(pc->dev, required_clk_rate);
+ 		if (err < 0)
 -- 
 2.35.1
 
