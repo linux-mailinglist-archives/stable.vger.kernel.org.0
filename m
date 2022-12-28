@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39AF8658224
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:33:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08CA5657BD2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:26:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234862AbiL1QdY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:33:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52346 "EHLO
+        id S233408AbiL1P0O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:26:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234745AbiL1Qc7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:32:59 -0500
+        with ESMTP id S233811AbiL1PZh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:25:37 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12C031ADB2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:30:16 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E1DF14090
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:25:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0A5461568
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:30:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B60D8C433D2;
-        Wed, 28 Dec 2022 16:30:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3976261562
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:25:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48E4CC4339B;
+        Wed, 28 Dec 2022 15:25:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245015;
-        bh=H+NjqY+eCG8tBT/cRDyQh1pMzSYauxs9/AH0P+pMNbY=;
+        s=korg; t=1672241135;
+        bh=H0/2lVufVcgmfCTaHjqj60U5X0v4AH4CRhvow763WYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vfBZG92fyqeOm5xw9wUFavm/7D+47VJehvINbT0pxAnLePbL/kqMHEdqNF5kgvrP6
-         rK7/AGmz/slsm5h8mqMNSTw3vP71M/kBfiY8zZd2c6nQnKtufBt81g4Phja2Cml7LT
-         77I9lNAVKVaoaMdS1JMmyHkfdulJQfc3dg7cIX+w=
+        b=xeiBnnAGaxbmOhB/GPTJWq9OvGzSpN6JdJx/LvlTviSlSSLpJK8wvc264D1asECYU
+         CnKptUZAtM6MI/WPDraxzZ/IiY6o4DuiMLZZg/JQe+P3JIAF2VB/LHXXuWIt8kIi9J
+         Q1ORu0BgW2KjdcgoiDhLdKuBxEV/ohaVu+bBYFAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qiheng Lin <linqiheng@huawei.com>,
-        Chris Morgan <macromorgan@hotmail.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0778/1146] power: supply: Fix refcount leak in rk817_charger_probe
+Subject: [PATCH 5.15 410/731] scsi: efct: Fix possible memleak in efct_device_init()
 Date:   Wed, 28 Dec 2022 15:38:37 +0100
-Message-Id: <20221228144351.279188279@linuxfoundation.org>
+Message-Id: <20221228144308.454204168@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiheng Lin <linqiheng@huawei.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 54c03bfd094fb74f9533a9c28250219afe182382 ]
+[ Upstream commit bb0cd225dd37df1f4a22e36dad59ff33178ecdfc ]
 
-of_get_child_by_name() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+In efct_device_init(), when efct_scsi_reg_fc_transport() fails,
+efct_scsi_tgt_driver_exit() is not called to release memory for
+efct_scsi_tgt_driver_init() and causes memleak:
 
-Fixes: 11cb8da0189b ("power: supply: Add charger driver for Rockchip RK817")
-Signed-off-by: Qiheng Lin <linqiheng@huawei.com>
-Reviewed-by: Chris Morgan <macromorgan@hotmail.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+unreferenced object 0xffff8881020ce000 (size 2048):
+  comm "modprobe", pid 465, jiffies 4294928222 (age 55.872s)
+  backtrace:
+    [<0000000021a1ef1b>] kmalloc_trace+0x27/0x110
+    [<000000004c3ed51c>] target_register_template+0x4fd/0x7b0 [target_core_mod]
+    [<00000000f3393296>] efct_scsi_tgt_driver_init+0x18/0x50 [efct]
+    [<00000000115de533>] 0xffffffffc0d90011
+    [<00000000d608f646>] do_one_initcall+0xd0/0x4e0
+    [<0000000067828cf1>] do_init_module+0x1cc/0x6a0
+    ...
+
+Fixes: 4df84e846624 ("scsi: elx: efct: Driver initialization routines")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Link: https://lore.kernel.org/r/20221111074046.57061-1-chenzhongjin@huawei.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/rk817_charger.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/scsi/elx/efct/efct_driver.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/power/supply/rk817_charger.c b/drivers/power/supply/rk817_charger.c
-index f20a6ac584cc..4f9c1c417916 100644
---- a/drivers/power/supply/rk817_charger.c
-+++ b/drivers/power/supply/rk817_charger.c
-@@ -1060,8 +1060,10 @@ static int rk817_charger_probe(struct platform_device *pdev)
- 		return -ENODEV;
+diff --git a/drivers/scsi/elx/efct/efct_driver.c b/drivers/scsi/elx/efct/efct_driver.c
+index eab68fd9337a..37e1ab96ee5b 100644
+--- a/drivers/scsi/elx/efct/efct_driver.c
++++ b/drivers/scsi/elx/efct/efct_driver.c
+@@ -42,6 +42,7 @@ efct_device_init(void)
  
- 	charger = devm_kzalloc(&pdev->dev, sizeof(*charger), GFP_KERNEL);
--	if (!charger)
-+	if (!charger) {
-+		of_node_put(node);
- 		return -ENOMEM;
-+	}
- 
- 	charger->rk808 = rk808;
- 
+ 	rc = efct_scsi_reg_fc_transport();
+ 	if (rc) {
++		efct_scsi_tgt_driver_exit();
+ 		pr_err("failed to register to FC host\n");
+ 		return rc;
+ 	}
 -- 
 2.35.1
 
