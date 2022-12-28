@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C002657B0B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:17:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC3F76580E2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:22:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233129AbiL1PRe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:17:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36174 "EHLO
+        id S230406AbiL1QWz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:22:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233148AbiL1PRa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:17:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6190013E90
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:17:30 -0800 (PST)
+        with ESMTP id S234735AbiL1QVL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:21:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3F2619C26
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:19:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 014376155A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:17:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14046C433EF;
-        Wed, 28 Dec 2022 15:17:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 911C86157A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:19:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2153C433D2;
+        Wed, 28 Dec 2022 16:19:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240649;
-        bh=MLRtfCooDebbWIHo2dsGHUY0wjpBQIhx4CKbimFIDYw=;
+        s=korg; t=1672244355;
+        bh=WLDGT/GW5tGPQh8LPYl0BLk2g65808iGqEqgj9PR3m0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UQAAIeKQCOfbfu+919pZJQtHgCcYlLF/tgTqQoqcmOGnnMw+auOVZoXXitAFjqHLu
-         J9nxHtiuvFQ0GTuHteYDNOC2WNlEO4Fiqvd7ex81WgyaRLumQ+eFhnNlpKP4eD9nfE
-         3J/JXMWJRQqzdC/Rk3tYui4dqLEjK/qQeB5ShL88=
+        b=u0ciK3WJJmYHj1QuFHlxWU03Z21gLZRyAXytK0qBKlXSaEBGVKUdhxAm1lbwzgvIB
+         2U5GL2qVmh7L4JNiD/Bx4WgWofdq8ysWaGeUDqJBaqvgCfeZbSmM1rWMLiz3uNUjEH
+         Vt7iwEMPkQtLrAeoYLAEhJBXBTnv5HrVR+ZAgfGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        John Johansen <john.johansen@canonical.com>,
+        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
+        Dimitri Sivanich <sivanich@hpe.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 377/731] apparmor: Fix memleak in alloc_ns()
+Subject: [PATCH 6.0 0696/1073] misc: sgi-gru: fix use-after-free error in gru_set_context_option, gru_fault and gru_handle_user_call_os
 Date:   Wed, 28 Dec 2022 15:38:04 +0100
-Message-Id: <20221228144307.490248094@linuxfoundation.org>
+Message-Id: <20221228144346.935955295@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Zheng Wang <zyytlz.wz@163.com>
 
-[ Upstream commit e9e6fa49dbab6d84c676666f3fe7d360497fd65b ]
+[ Upstream commit 643a16a0eb1d6ac23744bb6e90a00fc21148a9dc ]
 
-After changes in commit a1bd627b46d1 ("apparmor: share profile name on
-replacement"), the hname member of struct aa_policy is not valid slab
-object, but a subset of that, it can not be freed by kfree_sensitive(),
-use aa_policy_destroy() to fix it.
+In some bad situation, the gts may be freed gru_check_chiplet_assignment.
+The call chain can be gru_unload_context->gru_free_gru_context->gts_drop
+and kfree finally. However, the caller didn't know if the gts is freed
+or not and use it afterwards. This will trigger a Use after Free bug.
 
-Fixes: a1bd627b46d1 ("apparmor: share profile name on replacement")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Signed-off-by: John Johansen <john.johansen@canonical.com>
+Fix it by introducing a return value to see if it's in error path or not.
+Free the gts in caller if gru_check_chiplet_assignment check failed.
+
+Fixes: 55484c45dbec ("gru: allow users to specify gru chiplet 2")
+Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
+Acked-by: Dimitri Sivanich <sivanich@hpe.com>
+Link: https://lore.kernel.org/r/20221110035033.19498-1-zyytlz.wz@163.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/policy_ns.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/misc/sgi-gru/grufault.c  | 13 +++++++++++--
+ drivers/misc/sgi-gru/grumain.c   | 22 ++++++++++++++++++----
+ drivers/misc/sgi-gru/grutables.h |  2 +-
+ 3 files changed, 30 insertions(+), 7 deletions(-)
 
-diff --git a/security/apparmor/policy_ns.c b/security/apparmor/policy_ns.c
-index 70921d95fb40..53d24cf63893 100644
---- a/security/apparmor/policy_ns.c
-+++ b/security/apparmor/policy_ns.c
-@@ -121,7 +121,7 @@ static struct aa_ns *alloc_ns(const char *prefix, const char *name)
- 	return ns;
+diff --git a/drivers/misc/sgi-gru/grufault.c b/drivers/misc/sgi-gru/grufault.c
+index d7ef61e602ed..b836936e9747 100644
+--- a/drivers/misc/sgi-gru/grufault.c
++++ b/drivers/misc/sgi-gru/grufault.c
+@@ -648,6 +648,7 @@ int gru_handle_user_call_os(unsigned long cb)
+ 	if ((cb & (GRU_HANDLE_STRIDE - 1)) || ucbnum >= GRU_NUM_CB)
+ 		return -EINVAL;
  
- fail_unconfined:
--	kfree_sensitive(ns->base.hname);
-+	aa_policy_destroy(&ns->base);
- fail_ns:
- 	kfree_sensitive(ns);
- 	return NULL;
++again:
+ 	gts = gru_find_lock_gts(cb);
+ 	if (!gts)
+ 		return -EINVAL;
+@@ -656,7 +657,11 @@ int gru_handle_user_call_os(unsigned long cb)
+ 	if (ucbnum >= gts->ts_cbr_au_count * GRU_CBR_AU_SIZE)
+ 		goto exit;
+ 
+-	gru_check_context_placement(gts);
++	if (gru_check_context_placement(gts)) {
++		gru_unlock_gts(gts);
++		gru_unload_context(gts, 1);
++		goto again;
++	}
+ 
+ 	/*
+ 	 * CCH may contain stale data if ts_force_cch_reload is set.
+@@ -874,7 +879,11 @@ int gru_set_context_option(unsigned long arg)
+ 		} else {
+ 			gts->ts_user_blade_id = req.val1;
+ 			gts->ts_user_chiplet_id = req.val0;
+-			gru_check_context_placement(gts);
++			if (gru_check_context_placement(gts)) {
++				gru_unlock_gts(gts);
++				gru_unload_context(gts, 1);
++				return ret;
++			}
+ 		}
+ 		break;
+ 	case sco_gseg_owner:
+diff --git a/drivers/misc/sgi-gru/grumain.c b/drivers/misc/sgi-gru/grumain.c
+index 9afda47efbf2..3a16eb8e03f7 100644
+--- a/drivers/misc/sgi-gru/grumain.c
++++ b/drivers/misc/sgi-gru/grumain.c
+@@ -716,9 +716,10 @@ static int gru_check_chiplet_assignment(struct gru_state *gru,
+  * chiplet. Misassignment can occur if the process migrates to a different
+  * blade or if the user changes the selected blade/chiplet.
+  */
+-void gru_check_context_placement(struct gru_thread_state *gts)
++int gru_check_context_placement(struct gru_thread_state *gts)
+ {
+ 	struct gru_state *gru;
++	int ret = 0;
+ 
+ 	/*
+ 	 * If the current task is the context owner, verify that the
+@@ -726,15 +727,23 @@ void gru_check_context_placement(struct gru_thread_state *gts)
+ 	 * references. Pthread apps use non-owner references to the CBRs.
+ 	 */
+ 	gru = gts->ts_gru;
++	/*
++	 * If gru or gts->ts_tgid_owner isn't initialized properly, return
++	 * success to indicate that the caller does not need to unload the
++	 * gru context.The caller is responsible for their inspection and
++	 * reinitialization if needed.
++	 */
+ 	if (!gru || gts->ts_tgid_owner != current->tgid)
+-		return;
++		return ret;
+ 
+ 	if (!gru_check_chiplet_assignment(gru, gts)) {
+ 		STAT(check_context_unload);
+-		gru_unload_context(gts, 1);
++		ret = -EINVAL;
+ 	} else if (gru_retarget_intr(gts)) {
+ 		STAT(check_context_retarget_intr);
+ 	}
++
++	return ret;
+ }
+ 
+ 
+@@ -934,7 +943,12 @@ vm_fault_t gru_fault(struct vm_fault *vmf)
+ 	mutex_lock(&gts->ts_ctxlock);
+ 	preempt_disable();
+ 
+-	gru_check_context_placement(gts);
++	if (gru_check_context_placement(gts)) {
++		preempt_enable();
++		mutex_unlock(&gts->ts_ctxlock);
++		gru_unload_context(gts, 1);
++		return VM_FAULT_NOPAGE;
++	}
+ 
+ 	if (!gts->ts_gru) {
+ 		STAT(load_user_context);
+diff --git a/drivers/misc/sgi-gru/grutables.h b/drivers/misc/sgi-gru/grutables.h
+index 5efc869fe59a..f4a5a787685f 100644
+--- a/drivers/misc/sgi-gru/grutables.h
++++ b/drivers/misc/sgi-gru/grutables.h
+@@ -632,7 +632,7 @@ extern int gru_user_flush_tlb(unsigned long arg);
+ extern int gru_user_unload_context(unsigned long arg);
+ extern int gru_get_exception_detail(unsigned long arg);
+ extern int gru_set_context_option(unsigned long address);
+-extern void gru_check_context_placement(struct gru_thread_state *gts);
++extern int gru_check_context_placement(struct gru_thread_state *gts);
+ extern int gru_cpu_fault_map_id(void);
+ extern struct vm_area_struct *gru_find_vma(unsigned long vaddr);
+ extern void gru_flush_all_tlb(struct gru_state *gru);
 -- 
 2.35.1
 
