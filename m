@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89724658273
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:37:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44C1B657BB3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:24:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234779AbiL1QgX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:36:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52264 "EHLO
+        id S233336AbiL1PYh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:24:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234735AbiL1QfB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:35:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 033801C10E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:32:14 -0800 (PST)
+        with ESMTP id S233718AbiL1PYf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:24:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DD1B1401C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:24:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9267B61576
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:32:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 964D1C433F0;
-        Wed, 28 Dec 2022 16:32:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 06B78B8170E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:24:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A54BC433D2;
+        Wed, 28 Dec 2022 15:24:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245133;
-        bh=XM4x45EmFMVOn2KKw0Remez/+UuUsoNpzkDIXeCTrp4=;
+        s=korg; t=1672241071;
+        bh=aglx1usQfBM6l0KL+69bpy35bIYjRlMNolD+5Qwgf44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u/i8EW/ZfTpfuoH5emIamQLvzxb1k7U6v+G502f2MYAmvwHhNeATDHSovnV0Bm/fn
-         KcJblgQ6BoKNfW9DVph5qU8GYFVDYVQ+GUI3uvTp4vSReTpMsE3xQTQuhJVQSDeVhP
-         epxBSftcNR2LGfZIp9AvgJT1UgxyiUXY3pgHFCOE=
+        b=DLwnbZJY6GRIb+5nndZ3KR19ABSuK41u+SZlM7LjwNip6HTLQmDpwzGo4EJxBoJEU
+         M+jauYKhNMxXSZXu+ayKOcBQixO7rFatgbpf92F/5ThjXvvk49N7OwnjwiJu3YwYSp
+         Fa843GBJHjHfrvt9brn3T98AsXz9rgCpx9Kd4xAw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0802/1146] phy: qcom-qmp-usb: clean up power-down handling
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 434/731] hwrng: amd - Fix PCI device refcount leak
 Date:   Wed, 28 Dec 2022 15:39:01 +0100
-Message-Id: <20221228144351.933899687@linuxfoundation.org>
+Message-Id: <20221228144309.143440442@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,75 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 645d3d04702401e002928b934b830bd25be9e277 ]
+[ Upstream commit ecadb5b0111ea19fc7c240bb25d424a94471eb7d ]
 
-Always define the POWER_DOWN_CONTROL register instead of falling back to
-the v2 (and v3) offset during power on and power off.
+for_each_pci_dev() is implemented by pci_get_device(). The comment of
+pci_get_device() says that it will increase the reference count for the
+returned pci_dev and also decrease the reference count for the input
+pci_dev @from if it is not NULL.
 
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20221017065013.19647-10-johan+linaro@kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Stable-dep-of: 922adfd59efd ("phy: qcom-qmp-usb: correct registers layout for IPQ8074 USB3 PHY")
+If we break for_each_pci_dev() loop with pdev not NULL, we need to call
+pci_dev_put() to decrease the reference count. Add the missing
+pci_dev_put() for the normal and error path.
+
+Fixes: 96d63c0297cc ("[PATCH] Add AMD HW RNG driver")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/qualcomm/phy-qcom-qmp-usb.c | 20 ++++++--------------
- 1 file changed, 6 insertions(+), 14 deletions(-)
+ drivers/char/hw_random/amd-rng.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/phy/qualcomm/phy-qcom-qmp-usb.c b/drivers/phy/qualcomm/phy-qcom-qmp-usb.c
-index b84c0d4b5754..866955a36315 100644
---- a/drivers/phy/qualcomm/phy-qcom-qmp-usb.c
-+++ b/drivers/phy/qualcomm/phy-qcom-qmp-usb.c
-@@ -126,6 +126,7 @@ static const unsigned int usb3phy_regs_layout[QPHY_LAYOUT_SIZE] = {
- 	[QPHY_PCS_AUTONOMOUS_MODE_CTRL]	= 0x0d4,
- 	[QPHY_PCS_LFPS_RXTERM_IRQ_CLEAR]  = 0x0d8,
- 	[QPHY_PCS_LFPS_RXTERM_IRQ_STATUS] = 0x178,
-+	[QPHY_PCS_POWER_DOWN_CONTROL]	= 0x04,
- };
+diff --git a/drivers/char/hw_random/amd-rng.c b/drivers/char/hw_random/amd-rng.c
+index c22d4184bb61..0555e3838bce 100644
+--- a/drivers/char/hw_random/amd-rng.c
++++ b/drivers/char/hw_random/amd-rng.c
+@@ -143,15 +143,19 @@ static int __init amd_rng_mod_init(void)
+ found:
+ 	err = pci_read_config_dword(pdev, 0x58, &pmbase);
+ 	if (err)
+-		return err;
++		goto put_dev;
  
- static const unsigned int qmp_v3_usb3phy_regs_layout[QPHY_LAYOUT_SIZE] = {
-@@ -135,6 +136,7 @@ static const unsigned int qmp_v3_usb3phy_regs_layout[QPHY_LAYOUT_SIZE] = {
- 	[QPHY_PCS_AUTONOMOUS_MODE_CTRL]	= 0x0d8,
- 	[QPHY_PCS_LFPS_RXTERM_IRQ_CLEAR]  = 0x0dc,
- 	[QPHY_PCS_LFPS_RXTERM_IRQ_STATUS] = 0x170,
-+	[QPHY_PCS_POWER_DOWN_CONTROL]	= 0x04,
- };
+ 	pmbase &= 0x0000FF00;
+-	if (pmbase == 0)
+-		return -EIO;
++	if (pmbase == 0) {
++		err = -EIO;
++		goto put_dev;
++	}
  
- static const unsigned int qmp_v4_usb3phy_regs_layout[QPHY_LAYOUT_SIZE] = {
-@@ -2164,13 +2166,8 @@ static int qmp_usb_init(struct phy *phy)
- 		qphy_clrbits(dp_com, QPHY_V3_DP_COM_SW_RESET, SW_RESET);
- 	}
+ 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+-	if (!priv)
+-		return -ENOMEM;
++	if (!priv) {
++		err = -ENOMEM;
++		goto put_dev;
++	}
  
--	if (cfg->regs[QPHY_PCS_POWER_DOWN_CONTROL])
--		qphy_setbits(pcs,
--			     cfg->regs[QPHY_PCS_POWER_DOWN_CONTROL],
--			     cfg->pwrdn_ctrl);
--	else
--		qphy_setbits(pcs, QPHY_V2_PCS_POWER_DOWN_CONTROL,
--			     cfg->pwrdn_ctrl);
-+	qphy_setbits(pcs, cfg->regs[QPHY_PCS_POWER_DOWN_CONTROL],
-+			cfg->pwrdn_ctrl);
- 
- 	return 0;
- 
-@@ -2277,13 +2274,8 @@ static int qmp_usb_power_off(struct phy *phy)
- 	qphy_clrbits(qphy->pcs, cfg->regs[QPHY_START_CTRL], cfg->start_ctrl);
- 
- 	/* Put PHY into POWER DOWN state: active low */
--	if (cfg->regs[QPHY_PCS_POWER_DOWN_CONTROL]) {
--		qphy_clrbits(qphy->pcs, cfg->regs[QPHY_PCS_POWER_DOWN_CONTROL],
--			     cfg->pwrdn_ctrl);
--	} else {
--		qphy_clrbits(qphy->pcs, QPHY_V2_PCS_POWER_DOWN_CONTROL,
--				cfg->pwrdn_ctrl);
--	}
-+	qphy_clrbits(qphy->pcs, cfg->regs[QPHY_PCS_POWER_DOWN_CONTROL],
-+			cfg->pwrdn_ctrl);
- 
- 	return 0;
+ 	if (!request_region(pmbase + PMBASE_OFFSET, PMBASE_SIZE, DRV_NAME)) {
+ 		dev_err(&pdev->dev, DRV_NAME " region 0x%x already in use!\n",
+@@ -185,6 +189,8 @@ static int __init amd_rng_mod_init(void)
+ 	release_region(pmbase + PMBASE_OFFSET, PMBASE_SIZE);
+ out:
+ 	kfree(priv);
++put_dev:
++	pci_dev_put(pdev);
+ 	return err;
  }
+ 
+@@ -200,6 +206,8 @@ static void __exit amd_rng_mod_exit(void)
+ 
+ 	release_region(priv->pmbase + PMBASE_OFFSET, PMBASE_SIZE);
+ 
++	pci_dev_put(priv->pcidev);
++
+ 	kfree(priv);
+ }
+ 
 -- 
 2.35.1
 
