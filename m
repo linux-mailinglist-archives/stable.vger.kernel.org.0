@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEA996580F4
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:23:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A941658027
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:14:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234682AbiL1QXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:23:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39140 "EHLO
+        id S233122AbiL1QOc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:14:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234906AbiL1QWa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:22:30 -0500
+        with ESMTP id S234468AbiL1QOI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:14:08 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BAAA1A234
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:20:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DDAB1AD9E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:12:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EE110B81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:20:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66EBFC433EF;
-        Wed, 28 Dec 2022 16:20:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CC38BB81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:12:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D6E5C433D2;
+        Wed, 28 Dec 2022 16:12:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244405;
-        bh=1aiuqXzAUbXCXR6zYgO47XOSzuBiFFmc+yBqMG/3uyc=;
+        s=korg; t=1672243922;
+        bh=WWPsSeepMj9dU7XEy/RR7i+5U38bMl9c8y4cnteUs9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z5oSE0PK3p38veq5VK3VkhDgBn6XlDC7zifx4N3ZOlJKVVQjNLKF6Zm4yjBGhC7Wi
-         74cLD5bkOAcFcYKh7VT3kK/OONphF6A9tNFnLjHzoqfjBH1vAjbN8H9SAEsV2d1C5i
-         64uEJo4AZXDBQrEt19GFthQesHLHCt/S2nkOuKQ0=
+        b=l40x8KCAvADSGbVniz/FvSKAZto2VHay5erCZLVct5NnP1I3DooJLEAZsLXPa+JOR
+         CMGG7RTKEmPlWYTIyWMojqk4vpxS+LKOOvwSH+8CvDmO8pNWo0H8K72By8h6mAJV1U
+         KmjO6uc9KWimz/4M7omtWx+epDomJ2s6ACoKzhQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        Mark Greer <mgreer@animalcreek.com>,
+        patches@lists.linux.dev,
+        syzbot+bc05445bc14148d51915@syzkaller.appspotmail.com,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0664/1146] crypto: omap-sham - Use pm_runtime_resume_and_get() in omap_sham_probe()
-Date:   Wed, 28 Dec 2022 15:36:43 +0100
-Message-Id: <20221228144348.187601287@linuxfoundation.org>
+Subject: [PATCH 6.0 0616/1073] padata: Always leave BHs disabled when running ->parallel()
+Date:   Wed, 28 Dec 2022 15:36:44 +0100
+Message-Id: <20221228144344.775069338@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +56,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-[ Upstream commit 7bcceb4c9896b1b672b636ae70fe75110d6bf1ad ]
+[ Upstream commit 34c3a47d20ae55b3600fed733bf96eafe9c500d5 ]
 
-omap_sham_probe() calls pm_runtime_get_sync() and calls
-pm_runtime_put_sync() latter to put usage_counter. However,
-pm_runtime_get_sync() will increment usage_counter even it failed. Fix
-it by replacing it with pm_runtime_resume_and_get() to keep usage
-counter balanced.
+A deadlock can happen when an overloaded system runs ->parallel() in the
+context of the current task:
 
-Fixes: b359f034c8bf ("crypto: omap-sham - Convert to use pm_runtime API")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Acked-by: Mark Greer <mgreer@animalcreek.com>
+    padata_do_parallel
+      ->parallel()
+        pcrypt_aead_enc/dec
+          padata_do_serial
+            spin_lock(&reorder->lock) // BHs still enabled
+              <interrupt>
+                ...
+                  __do_softirq
+                    ...
+                      padata_do_serial
+                        spin_lock(&reorder->lock)
+
+It's a bug for BHs to be on in _do_serial as Steffen points out, so
+ensure they're off in the "current task" case like they are in
+padata_parallel_worker to avoid this situation.
+
+Reported-by: syzbot+bc05445bc14148d51915@syzkaller.appspotmail.com
+Fixes: 4611ce224688 ("padata: allocate work structures for parallel jobs from a pool")
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Acked-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/omap-sham.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/padata.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/omap-sham.c b/drivers/crypto/omap-sham.c
-index 655a7f5a406a..cbeda59c6b19 100644
---- a/drivers/crypto/omap-sham.c
-+++ b/drivers/crypto/omap-sham.c
-@@ -2114,7 +2114,7 @@ static int omap_sham_probe(struct platform_device *pdev)
+diff --git a/kernel/padata.c b/kernel/padata.c
+index e5819bb8bd1d..97f51e0c1776 100644
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -207,14 +207,16 @@ int padata_do_parallel(struct padata_shell *ps,
+ 	pw = padata_work_alloc();
+ 	spin_unlock(&padata_works_lock);
  
- 	pm_runtime_enable(dev);
++	if (!pw) {
++		/* Maximum works limit exceeded, run in the current task. */
++		padata->parallel(padata);
++	}
++
+ 	rcu_read_unlock_bh();
  
--	err = pm_runtime_get_sync(dev);
-+	err = pm_runtime_resume_and_get(dev);
- 	if (err < 0) {
- 		dev_err(dev, "failed to get sync: %d\n", err);
- 		goto err_pm;
+ 	if (pw) {
+ 		padata_work_init(pw, padata_parallel_worker, padata, 0);
+ 		queue_work(pinst->parallel_wq, &pw->pw_work);
+-	} else {
+-		/* Maximum works limit exceeded, run in the current task. */
+-		padata->parallel(padata);
+ 	}
+ 
+ 	return 0;
 -- 
 2.35.1
 
