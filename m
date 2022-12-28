@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB3986578E0
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:55:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 086A5657FDF
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:11:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233227AbiL1Oz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:55:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42778 "EHLO
+        id S234516AbiL1QLS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:11:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233316AbiL1OzL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:55:11 -0500
+        with ESMTP id S234382AbiL1QKq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:10:46 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBDF512AAD
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:55:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 909381AA19
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:09:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 94A3BB8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:55:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0A0AC433F0;
-        Wed, 28 Dec 2022 14:55:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 23884B8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:09:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87468C433EF;
+        Wed, 28 Dec 2022 16:09:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239308;
-        bh=Uzfdm5yFBsdYJxD9ZIaa1o9q2or1/R0r8GVgE3X1HRM=;
+        s=korg; t=1672243749;
+        bh=K1NdaIF9WuIfZBFGBCusO7s4hJb5hIu9q6H26TczivE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jMDanLpD6yOTyWI9Hxf50vPI89xvMf/0+Wsfj31LxsNjzzuNUNAiDeBtGrZaAi/DJ
-         HvE9OylS5dNpChYlVpNTE+Xux93wsYIkOA6oEA7SKC054fo4VFCLHx75EG8BdM6eSi
-         hDJzo7z1+958cTG4J9gKqzpx0EU1k3JmhD8vtFdk=
+        b=S2rHJ/TA9dYqMkE1DUuo7hux+SRr9hrhf1DFiiHrVr/hqM3hZ+5Ir3Of/qRCnGJ3m
+         BymR6LimORFpSlH9FoWT6w/tT/VC89NotboviHu31BZzU4x0t4mKv3z2Mv5KskOrfJ
+         J9I5i88x8pFIqMo955vjw2xhVAU44JZ3kYPk/+R0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 172/731] drm/rockchip: lvds: fix PM usage counter unbalance in poweron
+Subject: [PATCH 6.1 0540/1146] net: emaclite: dont call dev_kfree_skb() under spin_lock_irqsave()
 Date:   Wed, 28 Dec 2022 15:34:39 +0100
-Message-Id: <20221228144301.551156457@linuxfoundation.org>
+Message-Id: <20221228144344.840188783@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,61 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 4dba27f1a14592ac4cf71c3bc1cc1fd05dea8015 ]
+[ Upstream commit d1678bf45f21fa5ae4a456f821858679556ea5f8 ]
 
-pm_runtime_get_sync will increment pm usage counter even it failed.
-Forgetting to putting operation will result in reference leak here.
-We fix it by replacing it with the newest pm_runtime_resume_and_get
-to keep usage counter balanced.
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-Fixes: 34cc0aa25456 ("drm/rockchip: Add support for Rockchip Soc LVDS")
-Fixes: cca1705c3d89 ("drm/rockchip: lvds: Add PX30 support")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220922132107.105419-3-zhangqilong3@huawei.com
+It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
+The difference between them is free reason, dev_kfree_skb_irq() means
+the SKB is dropped in error and dev_consume_skb_irq() means the SKB
+is consumed in normal.
+
+In this case, dev_kfree_skb() is called in xemaclite_tx_timeout() to
+drop the SKB, when tx timeout, so replace it with dev_kfree_skb_irq().
+
+Fixes: bb81b2ddfa19 ("net: add Xilinx emac lite device driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rockchip/rockchip_lvds.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/xilinx/xilinx_emaclite.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/rockchip/rockchip_lvds.c b/drivers/gpu/drm/rockchip/rockchip_lvds.c
-index 551653940e39..2550429df49f 100644
---- a/drivers/gpu/drm/rockchip/rockchip_lvds.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_lvds.c
-@@ -145,7 +145,7 @@ static int rk3288_lvds_poweron(struct rockchip_lvds *lvds)
- 		DRM_DEV_ERROR(lvds->dev, "failed to enable lvds pclk %d\n", ret);
- 		return ret;
+diff --git a/drivers/net/ethernet/xilinx/xilinx_emaclite.c b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
+index a3967f8de417..ad2c30d9a482 100644
+--- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
++++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
+@@ -536,7 +536,7 @@ static void xemaclite_tx_timeout(struct net_device *dev, unsigned int txqueue)
+ 	xemaclite_enable_interrupts(lp);
+ 
+ 	if (lp->deferred_skb) {
+-		dev_kfree_skb(lp->deferred_skb);
++		dev_kfree_skb_irq(lp->deferred_skb);
+ 		lp->deferred_skb = NULL;
+ 		dev->stats.tx_errors++;
  	}
--	ret = pm_runtime_get_sync(lvds->dev);
-+	ret = pm_runtime_resume_and_get(lvds->dev);
- 	if (ret < 0) {
- 		DRM_DEV_ERROR(lvds->dev, "failed to get pm runtime: %d\n", ret);
- 		clk_disable(lvds->pclk);
-@@ -329,16 +329,20 @@ static int px30_lvds_poweron(struct rockchip_lvds *lvds)
- {
- 	int ret;
- 
--	ret = pm_runtime_get_sync(lvds->dev);
-+	ret = pm_runtime_resume_and_get(lvds->dev);
- 	if (ret < 0) {
- 		DRM_DEV_ERROR(lvds->dev, "failed to get pm runtime: %d\n", ret);
- 		return ret;
- 	}
- 
- 	/* Enable LVDS mode */
--	return regmap_update_bits(lvds->grf, PX30_LVDS_GRF_PD_VO_CON1,
-+	ret = regmap_update_bits(lvds->grf, PX30_LVDS_GRF_PD_VO_CON1,
- 				  PX30_LVDS_MODE_EN(1) | PX30_LVDS_P2S_EN(1),
- 				  PX30_LVDS_MODE_EN(1) | PX30_LVDS_P2S_EN(1));
-+	if (ret)
-+		pm_runtime_put(lvds->dev);
-+
-+	return ret;
- }
- 
- static void px30_lvds_poweroff(struct rockchip_lvds *lvds)
 -- 
 2.35.1
 
