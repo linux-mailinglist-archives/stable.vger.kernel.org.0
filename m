@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 150DC657C1B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:28:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D4F76581FA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:32:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233419AbiL1P24 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:28:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46622 "EHLO
+        id S234824AbiL1Qck (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:32:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233605AbiL1P2z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:28:55 -0500
+        with ESMTP id S234721AbiL1QcF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:32:05 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5809714D38
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:28:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C538B11C2F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:28:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5AE661551
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:28:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F35B2C433D2;
-        Wed, 28 Dec 2022 15:28:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 50BD461578
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:28:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51365C433EF;
+        Wed, 28 Dec 2022 16:28:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241333;
-        bh=41plOrEQaanX3DeAZoPV8kY/RXcc+grIgxlQxmVwa24=;
+        s=korg; t=1672244924;
+        bh=LHRr5YCQctroXvfVT+S7VT3cgRyTLnyVCf5Elmpn3+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kWQ4D+PHwHewUMK/8oekTpTgOxo5LAFw9Bg1m7KIQZL7O/tyOF3OoV1n/QwuL1xs/
-         SjaHL2mHnuGCHQXKm/msNf7/b7feuCPnjwc65WXYLFoEOMLymQzlh09Z2KDpKXqXWt
-         8aJSv37JKTslQLjPpow0mCqHLn2ImWD3hM9z8xSY=
+        b=1qsbAh1LHat/xpPaNDQMekxOW/d4vySdDjft8GrBe4yrEmQS2BXyJ+hriD5JtEV9J
+         M57Rm4rHlx9OJMqZH0zQ3Ob9Zl1Wg5zp2H2ehLUNJwECq5Jij226yswUrk1zzxn25s
+         o9ZWcc0WkdZ77XQNb64EKKjxiJn/IfuY9GJKrkaw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrew Donnellan <ajd@linux.ibm.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 467/731] ocxl: fix pci device refcount leak when calling get_function_0()
-Date:   Wed, 28 Dec 2022 15:39:34 +0100
-Message-Id: <20221228144310.085312191@linuxfoundation.org>
+Subject: [PATCH 6.0 0787/1073] rtc: cmos: Eliminate forward declarations of some functions
+Date:   Wed, 28 Dec 2022 15:39:35 +0100
+Message-Id: <20221228144349.388090674@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,85 +56,360 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 27158c72678b39ee01cc01de1aba6b51c71abe2f ]
+[ Upstream commit dca4d3b71c8a09a16951add656711fbd6f5bfbb0 ]
 
-get_function_0() calls pci_get_domain_bus_and_slot(), as comment
-says, it returns a pci device with refcount increment, so after
-using it, pci_dev_put() needs be called.
+Reorder the ACPI-related code before cmos_do_probe() so as to eliminate
+excessive forward declarations of some functions.
 
-Get the device reference when get_function_0() is not called, so
-pci_dev_put() can be called in the error path and callers
-unconditionally. And add comment above get_dvsec_vendor0() to tell
-callers to call pci_dev_put().
+While at it, for consistency, add the inline modifier to the
+definitions of empty stub static funtions and remove it from the
+corresponding definitions of functions with non-empty bodies.
 
-Fixes: 87db7579ebd5 ("ocxl: control via sysfs whether the FPGA is reloaded on a link reset")
-Suggested-by: Andrew Donnellan <ajd@linux.ibm.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Acked-by: Andrew Donnellan <ajd@linux.ibm.com>
-Link: https://lore.kernel.org/r/20221121154339.4088935-1-yangyingliang@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+No intentional functional impact.
+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Zhang Rui <rui.zhang@intel.com>
+Tested-by: Zhang Rui <rui.zhang@intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/13157911.uLZWGnKmhe@kreacher
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Stable-dep-of: 83ebb7b3036d ("rtc: cmos: Disable ACPI RTC event on removal")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/ocxl/config.c | 20 +++++++++++++++++++-
- 1 file changed, 19 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-cmos.c | 304 ++++++++++++++++++++---------------------
+ 1 file changed, 149 insertions(+), 155 deletions(-)
 
-diff --git a/drivers/misc/ocxl/config.c b/drivers/misc/ocxl/config.c
-index a68738f38252..f1f669efe050 100644
---- a/drivers/misc/ocxl/config.c
-+++ b/drivers/misc/ocxl/config.c
-@@ -204,6 +204,18 @@ static int read_dvsec_vendor(struct pci_dev *dev)
- 	return 0;
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 583116994a37..2a21d8281aa6 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -744,8 +744,155 @@ static irqreturn_t cmos_interrupt(int irq, void *p)
+ 		return IRQ_NONE;
  }
  
-+/**
-+ * get_dvsec_vendor0() - Find a related PCI device (function 0)
-+ * @dev: PCI device to match
-+ * @dev0: The PCI device (function 0) found
-+ * @out_pos: The position of PCI device (function 0)
-+ *
-+ * Returns 0 on success, negative on failure.
-+ *
-+ * NOTE: If it's successful, the reference of dev0 is increased,
-+ * so after using it, the callers must call pci_dev_put() to give
-+ * up the reference.
-+ */
- static int get_dvsec_vendor0(struct pci_dev *dev, struct pci_dev **dev0,
- 			     int *out_pos)
- {
-@@ -213,10 +225,14 @@ static int get_dvsec_vendor0(struct pci_dev *dev, struct pci_dev **dev0,
- 		dev = get_function_0(dev);
- 		if (!dev)
- 			return -1;
-+	} else {
-+		dev = pci_dev_get(dev);
- 	}
- 	pos = find_dvsec(dev, OCXL_DVSEC_VENDOR_ID);
--	if (!pos)
-+	if (!pos) {
-+		pci_dev_put(dev);
- 		return -1;
+-static inline void rtc_wake_setup(struct device *dev);
+-static void cmos_wake_setup(struct device *dev);
++#ifdef	CONFIG_ACPI
++
++#include <linux/acpi.h>
++
++static u32 rtc_handler(void *context)
++{
++	struct device *dev = context;
++	struct cmos_rtc *cmos = dev_get_drvdata(dev);
++	unsigned char rtc_control = 0;
++	unsigned char rtc_intr;
++	unsigned long flags;
++
++
++	/*
++	 * Always update rtc irq when ACPI is used as RTC Alarm.
++	 * Or else, ACPI SCI is enabled during suspend/resume only,
++	 * update rtc irq in that case.
++	 */
++	if (cmos_use_acpi_alarm())
++		cmos_interrupt(0, (void *)cmos->rtc);
++	else {
++		/* Fix me: can we use cmos_interrupt() here as well? */
++		spin_lock_irqsave(&rtc_lock, flags);
++		if (cmos_rtc.suspend_ctrl)
++			rtc_control = CMOS_READ(RTC_CONTROL);
++		if (rtc_control & RTC_AIE) {
++			cmos_rtc.suspend_ctrl &= ~RTC_AIE;
++			CMOS_WRITE(rtc_control, RTC_CONTROL);
++			rtc_intr = CMOS_READ(RTC_INTR_FLAGS);
++			rtc_update_irq(cmos->rtc, 1, rtc_intr);
++		}
++		spin_unlock_irqrestore(&rtc_lock, flags);
 +	}
- 	*dev0 = dev;
- 	*out_pos = pos;
- 	return 0;
-@@ -233,6 +249,7 @@ int ocxl_config_get_reset_reload(struct pci_dev *dev, int *val)
++
++	pm_wakeup_hard_event(dev);
++	acpi_clear_event(ACPI_EVENT_RTC);
++	acpi_disable_event(ACPI_EVENT_RTC, 0);
++	return ACPI_INTERRUPT_HANDLED;
++}
++
++static void rtc_wake_setup(struct device *dev)
++{
++	if (acpi_disabled)
++		return;
++
++	acpi_install_fixed_event_handler(ACPI_EVENT_RTC, rtc_handler, dev);
++	/*
++	 * After the RTC handler is installed, the Fixed_RTC event should
++	 * be disabled. Only when the RTC alarm is set will it be enabled.
++	 */
++	acpi_clear_event(ACPI_EVENT_RTC);
++	acpi_disable_event(ACPI_EVENT_RTC, 0);
++}
++
++static void rtc_wake_on(struct device *dev)
++{
++	acpi_clear_event(ACPI_EVENT_RTC);
++	acpi_enable_event(ACPI_EVENT_RTC, 0);
++}
++
++static void rtc_wake_off(struct device *dev)
++{
++	acpi_disable_event(ACPI_EVENT_RTC, 0);
++}
++
++#ifdef CONFIG_X86
++/* Enable use_acpi_alarm mode for Intel platforms no earlier than 2015 */
++static void use_acpi_alarm_quirks(void)
++{
++	if (boot_cpu_data.x86_vendor != X86_VENDOR_INTEL)
++		return;
++
++	if (!is_hpet_enabled())
++		return;
++
++	if (dmi_get_bios_year() < 2015)
++		return;
++
++	use_acpi_alarm = true;
++}
++#else
++static inline void use_acpi_alarm_quirks(void) { }
++#endif
++
++static void cmos_wake_setup(struct device *dev)
++{
++	if (acpi_disabled)
++		return;
++
++	use_acpi_alarm_quirks();
++
++	cmos_rtc.wake_on = rtc_wake_on;
++	cmos_rtc.wake_off = rtc_wake_off;
++
++	/* ACPI tables bug workaround. */
++	if (acpi_gbl_FADT.month_alarm && !acpi_gbl_FADT.day_alarm) {
++		dev_dbg(dev, "bogus FADT month_alarm (%d)\n",
++			acpi_gbl_FADT.month_alarm);
++		acpi_gbl_FADT.month_alarm = 0;
++	}
++
++	cmos_rtc.day_alrm = acpi_gbl_FADT.day_alarm;
++	cmos_rtc.mon_alrm = acpi_gbl_FADT.month_alarm;
++	cmos_rtc.century = acpi_gbl_FADT.century;
++
++	if (acpi_gbl_FADT.flags & ACPI_FADT_S4_RTC_WAKE)
++		dev_info(dev, "RTC can wake from S4\n");
++
++	/* RTC always wakes from S1/S2/S3, and often S4/STD */
++	device_init_wakeup(dev, 1);
++}
++
++static void cmos_check_acpi_rtc_status(struct device *dev,
++					      unsigned char *rtc_control)
++{
++	struct cmos_rtc *cmos = dev_get_drvdata(dev);
++	acpi_event_status rtc_status;
++	acpi_status status;
++
++	if (acpi_gbl_FADT.flags & ACPI_FADT_FIXED_RTC)
++		return;
++
++	status = acpi_get_event_status(ACPI_EVENT_RTC, &rtc_status);
++	if (ACPI_FAILURE(status)) {
++		dev_err(dev, "Could not get RTC status\n");
++	} else if (rtc_status & ACPI_EVENT_FLAG_SET) {
++		unsigned char mask;
++		*rtc_control &= ~RTC_AIE;
++		CMOS_WRITE(*rtc_control, RTC_CONTROL);
++		mask = CMOS_READ(RTC_INTR_FLAGS);
++		rtc_update_irq(cmos->rtc, 1, mask);
++	}
++}
++
++#else /* !CONFIG_ACPI */
++
++static inline void rtc_wake_setup(struct device *dev)
++{
++}
++
++static inline void cmos_wake_setup(struct device *dev)
++{
++}
++
++static inline void cmos_check_acpi_rtc_status(struct device *dev,
++					      unsigned char *rtc_control)
++{
++}
++#endif /* CONFIG_ACPI */
  
- 	pci_read_config_dword(dev0, pos + OCXL_DVSEC_VENDOR_RESET_RELOAD,
- 			      &reset_reload);
-+	pci_dev_put(dev0);
- 	*val = !!(reset_reload & BIT(0));
- 	return 0;
- }
-@@ -254,6 +271,7 @@ int ocxl_config_set_reset_reload(struct pci_dev *dev, int val)
- 		reset_reload &= ~BIT(0);
- 	pci_write_config_dword(dev0, pos + OCXL_DVSEC_VENDOR_RESET_RELOAD,
- 			       reset_reload);
-+	pci_dev_put(dev0);
- 	return 0;
+ #ifdef	CONFIG_PNP
+ #define	INITSECTION
+@@ -1140,9 +1287,6 @@ static void cmos_check_wkalrm(struct device *dev)
+ 	}
  }
  
+-static void cmos_check_acpi_rtc_status(struct device *dev,
+-				       unsigned char *rtc_control);
+-
+ static int __maybe_unused cmos_resume(struct device *dev)
+ {
+ 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
+@@ -1209,156 +1353,6 @@ static SIMPLE_DEV_PM_OPS(cmos_pm_ops, cmos_suspend, cmos_resume);
+  * predate even PNPBIOS should set up platform_bus devices.
+  */
+ 
+-#ifdef	CONFIG_ACPI
+-
+-#include <linux/acpi.h>
+-
+-static u32 rtc_handler(void *context)
+-{
+-	struct device *dev = context;
+-	struct cmos_rtc *cmos = dev_get_drvdata(dev);
+-	unsigned char rtc_control = 0;
+-	unsigned char rtc_intr;
+-	unsigned long flags;
+-
+-
+-	/*
+-	 * Always update rtc irq when ACPI is used as RTC Alarm.
+-	 * Or else, ACPI SCI is enabled during suspend/resume only,
+-	 * update rtc irq in that case.
+-	 */
+-	if (cmos_use_acpi_alarm())
+-		cmos_interrupt(0, (void *)cmos->rtc);
+-	else {
+-		/* Fix me: can we use cmos_interrupt() here as well? */
+-		spin_lock_irqsave(&rtc_lock, flags);
+-		if (cmos_rtc.suspend_ctrl)
+-			rtc_control = CMOS_READ(RTC_CONTROL);
+-		if (rtc_control & RTC_AIE) {
+-			cmos_rtc.suspend_ctrl &= ~RTC_AIE;
+-			CMOS_WRITE(rtc_control, RTC_CONTROL);
+-			rtc_intr = CMOS_READ(RTC_INTR_FLAGS);
+-			rtc_update_irq(cmos->rtc, 1, rtc_intr);
+-		}
+-		spin_unlock_irqrestore(&rtc_lock, flags);
+-	}
+-
+-	pm_wakeup_hard_event(dev);
+-	acpi_clear_event(ACPI_EVENT_RTC);
+-	acpi_disable_event(ACPI_EVENT_RTC, 0);
+-	return ACPI_INTERRUPT_HANDLED;
+-}
+-
+-static inline void rtc_wake_setup(struct device *dev)
+-{
+-	if (acpi_disabled)
+-		return;
+-
+-	acpi_install_fixed_event_handler(ACPI_EVENT_RTC, rtc_handler, dev);
+-	/*
+-	 * After the RTC handler is installed, the Fixed_RTC event should
+-	 * be disabled. Only when the RTC alarm is set will it be enabled.
+-	 */
+-	acpi_clear_event(ACPI_EVENT_RTC);
+-	acpi_disable_event(ACPI_EVENT_RTC, 0);
+-}
+-
+-static void rtc_wake_on(struct device *dev)
+-{
+-	acpi_clear_event(ACPI_EVENT_RTC);
+-	acpi_enable_event(ACPI_EVENT_RTC, 0);
+-}
+-
+-static void rtc_wake_off(struct device *dev)
+-{
+-	acpi_disable_event(ACPI_EVENT_RTC, 0);
+-}
+-
+-#ifdef CONFIG_X86
+-/* Enable use_acpi_alarm mode for Intel platforms no earlier than 2015 */
+-static void use_acpi_alarm_quirks(void)
+-{
+-	if (boot_cpu_data.x86_vendor != X86_VENDOR_INTEL)
+-		return;
+-
+-	if (!is_hpet_enabled())
+-		return;
+-
+-	if (dmi_get_bios_year() < 2015)
+-		return;
+-
+-	use_acpi_alarm = true;
+-}
+-#else
+-static inline void use_acpi_alarm_quirks(void) { }
+-#endif
+-
+-static void cmos_wake_setup(struct device *dev)
+-{
+-	if (acpi_disabled)
+-		return;
+-
+-	use_acpi_alarm_quirks();
+-
+-	cmos_rtc.wake_on = rtc_wake_on;
+-	cmos_rtc.wake_off = rtc_wake_off;
+-
+-	/* ACPI tables bug workaround. */
+-	if (acpi_gbl_FADT.month_alarm && !acpi_gbl_FADT.day_alarm) {
+-		dev_dbg(dev, "bogus FADT month_alarm (%d)\n",
+-			acpi_gbl_FADT.month_alarm);
+-		acpi_gbl_FADT.month_alarm = 0;
+-	}
+-
+-	cmos_rtc.day_alrm = acpi_gbl_FADT.day_alarm;
+-	cmos_rtc.mon_alrm = acpi_gbl_FADT.month_alarm;
+-	cmos_rtc.century = acpi_gbl_FADT.century;
+-
+-	if (acpi_gbl_FADT.flags & ACPI_FADT_S4_RTC_WAKE)
+-		dev_info(dev, "RTC can wake from S4\n");
+-
+-	/* RTC always wakes from S1/S2/S3, and often S4/STD */
+-	device_init_wakeup(dev, 1);
+-}
+-
+-static void cmos_check_acpi_rtc_status(struct device *dev,
+-				       unsigned char *rtc_control)
+-{
+-	struct cmos_rtc *cmos = dev_get_drvdata(dev);
+-	acpi_event_status rtc_status;
+-	acpi_status status;
+-
+-	if (acpi_gbl_FADT.flags & ACPI_FADT_FIXED_RTC)
+-		return;
+-
+-	status = acpi_get_event_status(ACPI_EVENT_RTC, &rtc_status);
+-	if (ACPI_FAILURE(status)) {
+-		dev_err(dev, "Could not get RTC status\n");
+-	} else if (rtc_status & ACPI_EVENT_FLAG_SET) {
+-		unsigned char mask;
+-		*rtc_control &= ~RTC_AIE;
+-		CMOS_WRITE(*rtc_control, RTC_CONTROL);
+-		mask = CMOS_READ(RTC_INTR_FLAGS);
+-		rtc_update_irq(cmos->rtc, 1, mask);
+-	}
+-}
+-
+-#else
+-
+-static void cmos_wake_setup(struct device *dev)
+-{
+-}
+-
+-static void cmos_check_acpi_rtc_status(struct device *dev,
+-				       unsigned char *rtc_control)
+-{
+-}
+-
+-static void rtc_wake_setup(struct device *dev)
+-{
+-}
+-#endif
+-
+ #ifdef	CONFIG_PNP
+ 
+ #include <linux/pnp.h>
 -- 
 2.35.1
 
