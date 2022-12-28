@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C90BC657AC4
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:14:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70D85657BD9
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:27:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233050AbiL1POv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:14:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60012 "EHLO
+        id S233744AbiL1P0q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:26:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233065AbiL1POh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:14:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B925B13E9D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:14:36 -0800 (PST)
+        with ESMTP id S233869AbiL1P0B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:26:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CF4D13F8E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:26:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 58D1261551
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:14:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 710E7C433EF;
-        Wed, 28 Dec 2022 15:14:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 186AD6155C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:26:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A314C433D2;
+        Wed, 28 Dec 2022 15:25:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240475;
-        bh=6rVLKENdfv0mxhhkx6J8QNlfvoBiuXKXQCv4wAUGhDQ=;
+        s=korg; t=1672241159;
+        bh=UVldHqLKx3q/meGvv4NHPJcPuJxemRpYLNiCtT3mBq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=014jgL2vpLtPNzRzzL1NaIegXLSqDxCi2Hn0aLWsrTvHouL5aejIJpTdwYwtJP1Vk
-         cQ1r0r2jaYlLK9gUBtAyylKij5M/Mn6W7/0n9FpnVChEJ4+TVkVTVPd+rHfh0hoGDv
-         PJRC74gbdvuP7tm1lG1Wt7ynCcUEsi4f8ilt5N2Q=
+        b=1axWRSKZ6Pqru8mH6hiQYOXBVMowEDHNsdSPtOmxMknJ/jRVX0ouNz8YMyFoidjEK
+         I0x08Kl5EzCJzW0u06EhRlseONm32PiGg9nTHfkwWY+A3UTP2mKFb4zXUmuofgr/lG
+         YHCAyx9qn3Mj7+uQDD4D6v4ojfY9I2IQi488HVg0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0165/1073] PM: runtime: Do not call __rpm_callback() from rpm_idle()
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Marek Vasut <marex@denx.de>,
+        Kieran Bingham <kieran.bingham@ideasonboard.com>,
+        Liu Ying <victor.liu@nxp.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0214/1146] drm: lcdif: Switch to limited range for RGB to YUV conversion
 Date:   Wed, 28 Dec 2022 15:29:13 +0100
-Message-Id: <20221228144332.497679138@linuxfoundation.org>
+Message-Id: <20221228144335.959272240@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit bc80c2e438dcbfcf748452ec0f7ad5b79ff3ad88 ]
+[ Upstream commit ec39dee8b25229a646271815cc86a8fc865525cf ]
 
-Calling __rpm_callback() from rpm_idle() after adding device links
-support to the former is a clear mistake.
+Up to and including v1.3, HDMI supported limited quantization range only
+for YCbCr. HDMI v1.4 introduced selectable quantization ranges, but this
+feature isn't supported in the dw-hdmi driver that is used in
+conjunction with the LCDIF in the i.MX8MP. The HDMI YCbCr output is thus
+always advertised in the AVI infoframe as limited range.
 
-Not only it causes rpm_idle() to carry out unnecessary actions, but it
-is also against the assumption regarding the stability of PM-runtime
-status across __rpm_callback() invocations, because rpm_suspend() and
-rpm_resume() may run in parallel with __rpm_callback() when it is called
-by rpm_idle() and the device's PM-runtime status can be updated by any
-of them.
+The LCDIF driver, on the other hand, configures the CSC to produce full
+range YCbCr. This mismatch results in loss of details and incorrect
+colours. Fix it by switching to limited range YCbCr.
 
-Fixes: 21d5c57b3726 ("PM / runtime: Use device links")
-Link: https://lore.kernel.org/linux-pm/36aed941-a73e-d937-2721-4f0decd61ce0@quicinc.com
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
+The coefficients are copied from drivers/media/platforms/nxp/imx-pxp.c
+for coherency, as the hardware is most likely identical.
+
+Fixes: 9db35bb349a0 ("drm: lcdif: Add support for i.MX8MP LCDIF variant")
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Marek Vasut <marex@denx.de>
+Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
+Reviewed-by: Liu Ying <victor.liu@nxp.com>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220930083955.31580-4-laurent.pinchart@ideasonboard.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/power/runtime.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/mxsfb/lcdif_kms.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/base/power/runtime.c b/drivers/base/power/runtime.c
-index 997be3ac20a7..d36fb07190bf 100644
---- a/drivers/base/power/runtime.c
-+++ b/drivers/base/power/runtime.c
-@@ -484,7 +484,17 @@ static int rpm_idle(struct device *dev, int rpmflags)
+diff --git a/drivers/gpu/drm/mxsfb/lcdif_kms.c b/drivers/gpu/drm/mxsfb/lcdif_kms.c
+index b1092aab1423..9f212e29059b 100644
+--- a/drivers/gpu/drm/mxsfb/lcdif_kms.c
++++ b/drivers/gpu/drm/mxsfb/lcdif_kms.c
+@@ -52,16 +52,22 @@ static void lcdif_set_formats(struct lcdif_drm_private *lcdif,
+ 		writel(DISP_PARA_LINE_PATTERN_UYVY_H,
+ 		       lcdif->base + LCDC_V8_DISP_PARA);
  
- 	dev->power.idle_notification = true;
- 
--	retval = __rpm_callback(callback, dev);
-+	if (dev->power.irq_safe)
-+		spin_unlock(&dev->power.lock);
-+	else
-+		spin_unlock_irq(&dev->power.lock);
-+
-+	retval = callback(dev);
-+
-+	if (dev->power.irq_safe)
-+		spin_lock(&dev->power.lock);
-+	else
-+		spin_lock_irq(&dev->power.lock);
- 
- 	dev->power.idle_notification = false;
- 	wake_up_all(&dev->power.wait_queue);
+-		/* CSC: BT.601 Full Range RGB to YCbCr coefficients. */
+-		writel(CSC0_COEF0_A2(0x096) | CSC0_COEF0_A1(0x04c),
++		/*
++		 * CSC: BT.601 Limited Range RGB to YCbCr coefficients.
++		 *
++		 * |Y |   | 0.2568  0.5041  0.0979|   |R|   |16 |
++		 * |Cb| = |-0.1482 -0.2910  0.4392| * |G| + |128|
++		 * |Cr|   | 0.4392  0.4392 -0.3678|   |B|   |128|
++		 */
++		writel(CSC0_COEF0_A2(0x081) | CSC0_COEF0_A1(0x041),
+ 		       lcdif->base + LCDC_V8_CSC0_COEF0);
+-		writel(CSC0_COEF1_B1(0x7d5) | CSC0_COEF1_A3(0x01d),
++		writel(CSC0_COEF1_B1(0x7db) | CSC0_COEF1_A3(0x019),
+ 		       lcdif->base + LCDC_V8_CSC0_COEF1);
+-		writel(CSC0_COEF2_B3(0x080) | CSC0_COEF2_B2(0x7ac),
++		writel(CSC0_COEF2_B3(0x070) | CSC0_COEF2_B2(0x7b6),
+ 		       lcdif->base + LCDC_V8_CSC0_COEF2);
+-		writel(CSC0_COEF3_C2(0x795) | CSC0_COEF3_C1(0x080),
++		writel(CSC0_COEF3_C2(0x7a2) | CSC0_COEF3_C1(0x070),
+ 		       lcdif->base + LCDC_V8_CSC0_COEF3);
+-		writel(CSC0_COEF4_D1(0x000) | CSC0_COEF4_C3(0x7ec),
++		writel(CSC0_COEF4_D1(0x010) | CSC0_COEF4_C3(0x7ee),
+ 		       lcdif->base + LCDC_V8_CSC0_COEF4);
+ 		writel(CSC0_COEF5_D3(0x080) | CSC0_COEF5_D2(0x080),
+ 		       lcdif->base + LCDC_V8_CSC0_COEF5);
 -- 
 2.35.1
 
