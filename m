@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F936657E4D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:52:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47576657F68
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:04:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233654AbiL1Pwn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:52:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39088 "EHLO
+        id S233249AbiL1QEh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:04:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230413AbiL1Pwa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:52:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 532F418B02
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:52:29 -0800 (PST)
+        with ESMTP id S234282AbiL1QEb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:04:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D905FF49
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:04:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E5705B817AE
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:52:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AF6EC433D2;
-        Wed, 28 Dec 2022 15:52:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 785076156E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:04:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C3F8C433D2;
+        Wed, 28 Dec 2022 16:04:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242746;
-        bh=R3CxguE4AiGyN9EKH54r39uVqSZp7KAAbGfGl79/B0g=;
+        s=korg; t=1672243469;
+        bh=pIvTbqYetTh7+SYJiQ8FiLsngdD7fn0kVTwx86Wz7hc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n43dcHnLJBwd9625w9AIATpo+9sMBk8NrjGGlvLY9x/PAqF8NEHDCSA2hA+jzz7Nf
-         kbgmRxAov8mKqix8ft8ueqOn88GtGAePQBooGRt+inFtTjAnHJtpg8QIvRTzVl5Ow7
-         9IaMHJdtpBRSIVovgiZr4oyc68cnHoWhvv6+bycA=
+        b=XtTOanJdaxsDsQkxEDV2y5BdKRpy6/Ux+5gOQddu3FLIBcxBj/MK/IhtJR55H+B5B
+         qwMma0k6sfoAzcUtDDyFmUkuXZqhggykouE84W1MMUz+ixLXP5ipWmSGY02gGcWHoV
+         t/uEdE5uU9J5JX1sRjdjIPOG1L3wSRLANIlGZQcs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0447/1073] regulator: core: fix module refcount leak in set_supply()
+Subject: [PATCH 6.1 0496/1146] mmc: moxart: fix return value check of mmc_add_host()
 Date:   Wed, 28 Dec 2022 15:33:55 +0100
-Message-Id: <20221228144340.171349566@linuxfoundation.org>
+Message-Id: <20221228144343.653664297@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,32 +55,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit da46ee19cbd8344d6860816b4827a7ce95764867 ]
+[ Upstream commit 0ca18d09c744fb030ae9bc5836c3e357e0237dea ]
 
-If create_regulator() fails in set_supply(), the module refcount
-needs be put to keep refcount balanced.
+mmc_add_host() may return error, if we ignore its return value, the memory
+that allocated in mmc_alloc_host() will be leaked and it will lead a kernel
+crash because of deleting not added device in the remove path.
 
-Fixes: e2c09ae7a74d ("regulator: core: Increase refcount for regulator supply's module")
+So fix this by checking the return value and goto error path which will call
+mmc_free_host().
+
+Fixes: 1b66e94e6b99 ("mmc: moxart: Add MOXA ART SD/MMC driver")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221201122706.4055992-2-yangyingliang@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20221101063023.1664968-3-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mmc/host/moxart-mmc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index b7e7eec1084e..9b839dced470 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -1622,6 +1622,7 @@ static int set_supply(struct regulator_dev *rdev,
+diff --git a/drivers/mmc/host/moxart-mmc.c b/drivers/mmc/host/moxart-mmc.c
+index dfc3ffd5b1f8..52ed30f2d9f4 100644
+--- a/drivers/mmc/host/moxart-mmc.c
++++ b/drivers/mmc/host/moxart-mmc.c
+@@ -665,7 +665,9 @@ static int moxart_probe(struct platform_device *pdev)
+ 		goto out;
  
- 	rdev->supply = create_regulator(supply_rdev, &rdev->dev, "SUPPLY");
- 	if (rdev->supply == NULL) {
-+		module_put(supply_rdev->owner);
- 		err = -ENOMEM;
- 		return err;
- 	}
+ 	dev_set_drvdata(dev, mmc);
+-	mmc_add_host(mmc);
++	ret = mmc_add_host(mmc);
++	if (ret)
++		goto out;
+ 
+ 	dev_dbg(dev, "IRQ=%d, FIFO is %d bytes\n", irq, host->fifo_width);
+ 
 -- 
 2.35.1
 
