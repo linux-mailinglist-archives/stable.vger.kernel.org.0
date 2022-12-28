@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A41B5657D30
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:40:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F30D26582C6
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:41:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233940AbiL1PkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:40:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57034 "EHLO
+        id S234843AbiL1Ql1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:41:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233121AbiL1PkY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:40:24 -0500
+        with ESMTP id S234871AbiL1QlC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:41:02 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10E34167DF
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:40:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 470541EED3
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:35:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A293061562
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:40:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B97AC433EF;
-        Wed, 28 Dec 2022 15:40:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CCD2761578
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:35:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD8C4C433D2;
+        Wed, 28 Dec 2022 16:35:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242023;
-        bh=lay2NtNrmRw2kZWDmZ2ZRMpRUVc1q6hf+jpHMRQQtmI=;
+        s=korg; t=1672245332;
+        bh=Jt5Ea69AIQHM2qs8qjbq1WgYze72TcqUpD5pY72gEvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L0UVGMmhoyUm3QWNWZzTJsAh0S4DaPKbqeqJUD1c9x748A96FRR1ZafKEM+/1Prhe
-         vyiQOzSWxAmDWRkp8ZLZiEHe4fLz9s4CyQE1WfLa3jxm208mvs2mMlqO7bvmOSoy1I
-         DQrkakfs0Qe/JO5gBD7LdpcstPlythqyHMeI2UUY=
+        b=WBXGTuQTUe2VstWUgbYnn6oN1xIEqypmpbg+DFnQvTSIpAshCY+3ph5B2uArft+Jn
+         bcfjzifpIdVKtsEy66S4Yz1+dlVNyxfG2FpTCrWv23CyyqhLbYpQiaL0myuFriB06R
+         8KTRW7lYBy70aLmad9bwwVjqdgZmFFO2JMoLs5C8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        Andrew Donnellan <ajd@linux.ibm.com>,
-        Frederic Barrat <fbarrat@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        patches@lists.linux.dev,
+        Sean Tranchetti <quic_stranche@quicinc.com>,
+        Subash Abhinov Kasiviswanathan <quic_subashab@quicinc.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 554/731] cxl: Fix refcount leak in cxl_calc_capp_routing
-Date:   Wed, 28 Dec 2022 15:41:01 +0100
-Message-Id: <20221228144312.597136454@linuxfoundation.org>
+Subject: [PATCH 6.0 0874/1073] skbuff: Account for tail adjustment during pull operations
+Date:   Wed, 28 Dec 2022 15:41:02 +0100
+Message-Id: <20221228144351.763736176@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Subash Abhinov Kasiviswanathan <quic_subashab@quicinc.com>
 
-[ Upstream commit 1d09697ff22908ae487fc8c4fbde1811732be523 ]
+[ Upstream commit 2d7afdcbc9d32423f177ee12b7c93783aea338fb ]
 
-of_get_next_parent() returns a node pointer with refcount incremented,
-we should use of_node_put() on it when not need anymore.
-This function only calls of_node_put() in normal path,
-missing it in the error path.
-Add missing of_node_put() to avoid refcount leak.
+Extending the tail can have some unexpected side effects if a program uses
+a helper like BPF_FUNC_skb_pull_data to read partial content beyond the
+head skb headlen when all the skbs in the gso frag_list are linear with no
+head_frag -
 
-Fixes: f24be42aab37 ("cxl: Add psl9 specific code")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Acked-by: Andrew Donnellan <ajd@linux.ibm.com>
-Acked-by: Frederic Barrat <fbarrat@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220605060038.62217-1-linmq006@gmail.com
+  kernel BUG at net/core/skbuff.c:4219!
+  pc : skb_segment+0xcf4/0xd2c
+  lr : skb_segment+0x63c/0xd2c
+  Call trace:
+   skb_segment+0xcf4/0xd2c
+   __udp_gso_segment+0xa4/0x544
+   udp4_ufo_fragment+0x184/0x1c0
+   inet_gso_segment+0x16c/0x3a4
+   skb_mac_gso_segment+0xd4/0x1b0
+   __skb_gso_segment+0xcc/0x12c
+   udp_rcv_segment+0x54/0x16c
+   udp_queue_rcv_skb+0x78/0x144
+   udp_unicast_rcv_skb+0x8c/0xa4
+   __udp4_lib_rcv+0x490/0x68c
+   udp_rcv+0x20/0x30
+   ip_protocol_deliver_rcu+0x1b0/0x33c
+   ip_local_deliver+0xd8/0x1f0
+   ip_rcv+0x98/0x1a4
+   deliver_ptype_list_skb+0x98/0x1ec
+   __netif_receive_skb_core+0x978/0xc60
+
+Fix this by marking these skbs as GSO_DODGY so segmentation can handle
+the tail updates accordingly.
+
+Fixes: 3dcbdb134f32 ("net: gso: Fix skb_segment splat when splitting gso_size mangled skb having linear-headed frag_list")
+Signed-off-by: Sean Tranchetti <quic_stranche@quicinc.com>
+Signed-off-by: Subash Abhinov Kasiviswanathan <quic_subashab@quicinc.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Link: https://lore.kernel.org/r/1671084718-24796-1-git-send-email-quic_subashab@quicinc.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/cxl/pci.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/core/skbuff.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/misc/cxl/pci.c b/drivers/misc/cxl/pci.c
-index 0ac3f4cb88ac..d183836d80e3 100644
---- a/drivers/misc/cxl/pci.c
-+++ b/drivers/misc/cxl/pci.c
-@@ -387,6 +387,7 @@ int cxl_calc_capp_routing(struct pci_dev *dev, u64 *chipid,
- 	rc = get_phb_index(np, phb_index);
- 	if (rc) {
- 		pr_err("cxl: invalid phb index\n");
-+		of_node_put(np);
- 		return rc;
- 	}
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index d9c19ae05fe6..9460998ac6d1 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -2313,6 +2313,9 @@ void *__pskb_pull_tail(struct sk_buff *skb, int delta)
+ 				insp = list;
+ 			} else {
+ 				/* Eaten partially. */
++				if (skb_is_gso(skb) && !list->head_frag &&
++				    skb_headlen(list))
++					skb_shinfo(skb)->gso_type |= SKB_GSO_DODGY;
  
+ 				if (skb_shared(list)) {
+ 					/* Sucks! We need to fork list. :-( */
 -- 
 2.35.1
 
