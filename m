@@ -2,47 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDE7B657B58
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:20:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45E8065820D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:33:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233291AbiL1PUc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:20:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39390 "EHLO
+        id S234825AbiL1Qc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:32:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233301AbiL1PUb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:20:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE8F113FB3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:20:30 -0800 (PST)
+        with ESMTP id S234747AbiL1Qck (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:32:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CD0119C29;
+        Wed, 28 Dec 2022 08:29:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6C71B8170E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:20:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 155D3C433D2;
-        Wed, 28 Dec 2022 15:20:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 18C766157D;
+        Wed, 28 Dec 2022 16:29:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0122FC433EF;
+        Wed, 28 Dec 2022 16:29:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240828;
-        bh=lV8BVZtD0eHnwAEuUs7Ehw9QERV+KVmNiw3i/+e3R00=;
+        s=korg; t=1672244967;
+        bh=KWu0NVls7WoyiEre7IyPlUCRnD11JdYQ1654U7/Rt6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EhzFY9g4BA9Y0wEeymsmFeo3Uu0nIR3zr6CoNUl/QQ539UpwjEDLSz6ivyRd7/nlE
-         J5YGjqU8PFacS86VLSONBaccWBvN34QL4v+KSNKKn22/8Ow6mSaOZNafWRicN1vrhP
-         UE9MomeaYnxZvEeR7fKsb/jFFtfpp/0bSDxbMr+A=
+        b=NvgdjDT5y5BwInHn4B9il2iu8UiH4uG7d/nhceWFHZ0okp2ijX7hu/5ocw0YThA1L
+         MiS1dbb6cJ8q8TJLKA2StVUqyI7Lf8kqc2vHVfc1GZkG65/2XMR0ACZt+0rCToKLUR
+         HCGdJKcgj+ykdzQxOHs6xjyuNWoRoQzYo9CTT7vY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        Rob Herring <robh@kernel.org>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
+        patches@lists.linux.dev, Leo Yan <leo.yan@linaro.org>,
+        Ian Rogers <irogers@google.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        bpf@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 402/731] dt-bindings: visconti-pcie: Fix interrupts array max constraints
+Subject: [PATCH 6.1 0770/1146] perf trace: Return error if a system call doesnt exist
 Date:   Wed, 28 Dec 2022 15:38:29 +0100
-Message-Id: <20221228144308.219933867@linuxfoundation.org>
+Message-Id: <20221228144351.064545148@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,53 +60,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Leo Yan <leo.yan@linaro.org>
 
-[ Upstream commit 4cf4b9b70ab2785461190c08a3542d2d74c28b46 ]
+[ Upstream commit d4223e1776c30b2ce8d0e6eaadcbf696e60fca3c ]
 
-In accordance with the way the device DT-node is actually defined in
-arch/arm64/boot/dts/toshiba/tmpv7708.dtsi and the way the device is probed
-by the DW PCIe driver there are two IRQs it actually has. It's MSI IRQ the
-DT-bindings lack. Let's extend the interrupts property constraints then
-and fix the schema example so one would be acceptable by the actual device
-DT-bindings.
+When a system call is not detected, the reason is either because the
+system call ID is out of scope or failure to find the corresponding path
+in the sysfs, trace__read_syscall_info() returns zero.  Finally, without
+returning an error value it introduces confusion for the caller.
 
-Link: https://lore.kernel.org/r/20221113191301.5526-3-Sergey.Semin@baikalelectronics.ru
-Fixes: 17c1b16340f0 ("dt-bindings: pci: Add DT binding for Toshiba Visconti PCIe controller")
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
-Acked-by: Rob Herring <robh@kernel.org>
-Acked-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+This patch lets the function trace__read_syscall_info() to return
+-EEXIST when a system call doesn't exist.
+
+Fixes: b8b1033fcaa091d8 ("perf trace: Mark syscall ids that are not allocated to avoid unnecessary error messages")
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: bpf@vger.kernel.org
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20221121075237.127706-3-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../devicetree/bindings/pci/toshiba,visconti-pcie.yaml     | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ tools/perf/builtin-trace.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/pci/toshiba,visconti-pcie.yaml b/Documentation/devicetree/bindings/pci/toshiba,visconti-pcie.yaml
-index 30b6396d83c8..aea0e2bcdd77 100644
---- a/Documentation/devicetree/bindings/pci/toshiba,visconti-pcie.yaml
-+++ b/Documentation/devicetree/bindings/pci/toshiba,visconti-pcie.yaml
-@@ -36,7 +36,7 @@ properties:
-       - const: mpu
+diff --git a/tools/perf/builtin-trace.c b/tools/perf/builtin-trace.c
+index d3c757769b96..6bf8feedaf2c 100644
+--- a/tools/perf/builtin-trace.c
++++ b/tools/perf/builtin-trace.c
+@@ -1791,11 +1791,11 @@ static int trace__read_syscall_info(struct trace *trace, int id)
+ #endif
+ 	sc = trace->syscalls.table + id;
+ 	if (sc->nonexistent)
+-		return 0;
++		return -EEXIST;
  
-   interrupts:
--    maxItems: 1
-+    maxItems: 2
+ 	if (name == NULL) {
+ 		sc->nonexistent = true;
+-		return 0;
++		return -EEXIST;
+ 	}
  
-   clocks:
-     items:
-@@ -94,8 +94,9 @@ examples:
-             #interrupt-cells = <1>;
-             ranges = <0x81000000 0 0x40000000 0 0x40000000 0 0x00010000>,
-                      <0x82000000 0 0x50000000 0 0x50000000 0 0x20000000>;
--            interrupts = <GIC_SPI 215 IRQ_TYPE_LEVEL_HIGH>;
--            interrupt-names = "intr";
-+            interrupts = <GIC_SPI 211 IRQ_TYPE_LEVEL_HIGH>,
-+                         <GIC_SPI 215 IRQ_TYPE_LEVEL_HIGH>;
-+            interrupt-names = "msi", "intr";
-             interrupt-map-mask = <0 0 0 7>;
-             interrupt-map =
-                 <0 0 0 1 &gic GIC_SPI 215 IRQ_TYPE_LEVEL_HIGH
+ 	sc->name = name;
 -- 
 2.35.1
 
