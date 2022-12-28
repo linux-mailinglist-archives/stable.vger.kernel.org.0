@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B740F657A13
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:07:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AD7D65790C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:57:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233594AbiL1PHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:07:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55162 "EHLO
+        id S233271AbiL1O5C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:57:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233593AbiL1PHd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:07:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F34413D6D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:07:33 -0800 (PST)
+        with ESMTP id S233284AbiL1O5B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:57:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65B54DB9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:57:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C026A6151F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:07:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA326C433D2;
-        Wed, 28 Dec 2022 15:07:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0203C61544
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:57:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11990C433EF;
+        Wed, 28 Dec 2022 14:56:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240052;
-        bh=C5LCNxx27JrnHNGcVXG8Z8y7QGx76sJN0z+c5Ri6/5s=;
+        s=korg; t=1672239419;
+        bh=SW1YK86OFjuZtv+mCVN6Br7+c68iJykY64MAzTM/VA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C0ggtjPaZ8/nXiER6bp2xwvGwXYYK5CGxtvpUu6bPwWYTa0fYhftCh8zpqHVXWL0A
-         1JwMSOkQLEBI5UIadDFNP9CuRw6kUns/C4nUHqSI3TsIJEXCSTHRCozY2RH56HBEzq
-         XkGC25mYCD9izAZa3uPT5ZKC7MH/WhgYViAMnp+s=
+        b=XTfVyp+g3jDtYM86kby/+YA+JndLWqgJNFmWLCMdBDDUTtnKSBj1XZoDO4ZXpufZg
+         84BVSdRiTDG7CabTEM/xWSaTs2nhFMbRRQLbA1bkMnHDLoTerEWdhqJ1QOc+X1fk7U
+         xHM+uu7RyhCdglwFSReZ9CRFpB7+yDi83P3RCPGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0075/1146] arm64: dts: mt2712-evb: Fix usb vbus regulators unit names
+        patches@lists.linux.dev, Georgi Vlaev <g-vlaev@ti.com>,
+        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0026/1073] firmware: ti_sci: Fix polled mode during system suspend
 Date:   Wed, 28 Dec 2022 15:26:54 +0100
-Message-Id: <20221228144332.188496352@linuxfoundation.org>
+Message-Id: <20221228144328.858565434@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Georgi Vlaev <g-vlaev@ti.com>
 
-[ Upstream commit ec1ae39a8d25cfb067b5459fac7c5b7b9bce6f6a ]
+[ Upstream commit b13b2c3e0e4d0854228b5217fa34e145f3ace8ac ]
 
-Update the names to regulator-usb-p{0-3}-vbus to fix unit_address_vs_reg
-warnings for those.
+Commit b9e8a7d950ff ("firmware: ti_sci: Switch transport to polled
+mode during system suspend") uses read_poll_timeout_atomic() macro
+in ti_sci_do_xfer() to wait for completion when the system is
+suspending. The break condition of the macro is set to "true" which
+will cause it break immediately when evaluated, likely before the
+TISCI xfer is completed, and always return 0. We want to poll here
+until "done_state == true".
 
-Fixes: 1724f4cc5133 ("arm64: dts: Add USB3 related nodes for MT2712")
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20221013152212.416661-7-angelogioacchino.delregno@collabora.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+1) Change the break condition of read_poll_timeout_atomic() to
+the bool variable "done_state".
+
+2) The read_poll_timeout_atomic() returns 0 if the break condition
+is met or -ETIMEDOUT if not. Since our break condition has changed
+to "done_state", we also don't have to check for "!done_state" when
+evaluating the return value.
+
+Fixes: b9e8a7d950ff ("firmware: ti_sci: Switch transport to polled mode during system suspend")
+
+Signed-off-by: Georgi Vlaev <g-vlaev@ti.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Link: https://lore.kernel.org/r/20221021185704.181316-1-g-vlaev@ti.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/mt2712-evb.dts | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/firmware/ti_sci.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt2712-evb.dts b/arch/arm64/boot/dts/mediatek/mt2712-evb.dts
-index 638908773706..d31a194124c9 100644
---- a/arch/arm64/boot/dts/mediatek/mt2712-evb.dts
-+++ b/arch/arm64/boot/dts/mediatek/mt2712-evb.dts
-@@ -50,7 +50,7 @@ extcon_usb1: extcon_iddig1 {
- 		id-gpio = <&pio 14 GPIO_ACTIVE_HIGH>;
- 	};
+diff --git a/drivers/firmware/ti_sci.c b/drivers/firmware/ti_sci.c
+index ebc32bbd9b83..6281e7153b47 100644
+--- a/drivers/firmware/ti_sci.c
++++ b/drivers/firmware/ti_sci.c
+@@ -429,15 +429,14 @@ static inline int ti_sci_do_xfer(struct ti_sci_info *info,
+ 		 * during noirq phase, so we must manually poll the completion.
+ 		 */
+ 		ret = read_poll_timeout_atomic(try_wait_for_completion, done_state,
+-					       true, 1,
++					       done_state, 1,
+ 					       info->desc->max_rx_timeout_ms * 1000,
+ 					       false, &xfer->done);
+ 	}
  
--	usb_p0_vbus: regulator@2 {
-+	usb_p0_vbus: regulator-usb-p0-vbus {
- 		compatible = "regulator-fixed";
- 		regulator-name = "p0_vbus";
- 		regulator-min-microvolt = <5000000>;
-@@ -59,7 +59,7 @@ usb_p0_vbus: regulator@2 {
- 		enable-active-high;
- 	};
+-	if (ret == -ETIMEDOUT || !done_state) {
++	if (ret == -ETIMEDOUT)
+ 		dev_err(dev, "Mbox timedout in resp(caller: %pS)\n",
+ 			(void *)_RET_IP_);
+-	}
  
--	usb_p1_vbus: regulator@3 {
-+	usb_p1_vbus: regulator-usb-p1-vbus {
- 		compatible = "regulator-fixed";
- 		regulator-name = "p1_vbus";
- 		regulator-min-microvolt = <5000000>;
-@@ -68,7 +68,7 @@ usb_p1_vbus: regulator@3 {
- 		enable-active-high;
- 	};
- 
--	usb_p2_vbus: regulator@4 {
-+	usb_p2_vbus: regulator-usb-p2-vbus {
- 		compatible = "regulator-fixed";
- 		regulator-name = "p2_vbus";
- 		regulator-min-microvolt = <5000000>;
-@@ -77,7 +77,7 @@ usb_p2_vbus: regulator@4 {
- 		enable-active-high;
- 	};
- 
--	usb_p3_vbus: regulator@5 {
-+	usb_p3_vbus: regulator-usb-p3-vbus {
- 		compatible = "regulator-fixed";
- 		regulator-name = "p3_vbus";
- 		regulator-min-microvolt = <5000000>;
+ 	/*
+ 	 * NOTE: we might prefer not to need the mailbox ticker to manage the
 -- 
 2.35.1
 
