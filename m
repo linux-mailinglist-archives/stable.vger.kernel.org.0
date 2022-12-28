@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D40D3657A6C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:11:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49D44657950
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:00:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233662AbiL1PLU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:11:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58422 "EHLO
+        id S233368AbiL1PAA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:00:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233180AbiL1PK7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:10:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE6B313E00
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:10:58 -0800 (PST)
+        with ESMTP id S233393AbiL1O7n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:59:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7711611C2F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:59:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F37FB8171F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:10:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01611C433D2;
-        Wed, 28 Dec 2022 15:10:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 284E1B8171A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:59:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FB25C433D2;
+        Wed, 28 Dec 2022 14:59:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240256;
-        bh=5p5XapdduFu5x6RJ/vft6XaAAqGCL1qDdotRGVHZb/Q=;
+        s=korg; t=1672239579;
+        bh=fjc/4DGVZxqMcISWjliLD6wf7N4uSoglUxuDfc+tnw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b7/3c1FP92sTMkXfMB+VZCfxn1RFquY00WNqxc8vjMwEc87X7vTDo4kPXeJUtrH3c
-         UFGbHuHf41lz1HvdtBI2RoyiUcI5E79eq5UzY1Xk7DU97qWeKeA7G+0lq589YtGuco
-         12UpSQfpjrLX6jTtNuWOH7HH9bxFX5fqx1D/73gM=
+        b=DY66JKILVJu8Un4ck3LAVjCiSNXneDYBRz6gu91ElgZP2VcCzrf+QfAhbY0/kwgLD
+         0S7gM84Moo0OH7BdEjukcU0sB1weVm5V01ezTMI/3LK7R9+7sBQIdRALh4qCiBuUSX
+         UdaqKFJ4OCSITEZJa9ZUCbayxGrA6MFYmYgPVbXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eddie James <eajames@linux.ibm.com>,
-        Joel Stanley <joel@jms.id.au>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0101/1146] tpm: Add flag to use default cancellation policy
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0052/1073] perf: arm_dsu: Fix hotplug callback leak in dsu_pmu_init()
 Date:   Wed, 28 Dec 2022 15:27:20 +0100
-Message-Id: <20221228144332.886471322@linuxfoundation.org>
+Message-Id: <20221228144329.524370882@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,86 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddie James <eajames@linux.ibm.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 7bfda9c73fa9710a842a7d6f89b024351c80c19c ]
+[ Upstream commit facafab7611f7b872c6b9eeaff53461ef11f482e ]
 
-The check for cancelled request depends on the VID of the chip, but
-some chips share VID which shouldn't share their cancellation
-behavior. This is the case for the Nuvoton NPCT75X, which should use
-the default cancellation check, not the Winbond one.
-To avoid changing the existing behavior, add a new flag to indicate
-that the chip should use the default cancellation check and set it
-for the I2C TPM2 TIS driver.
+dsu_pmu_init() won't remove the callback added by cpuhp_setup_state_multi()
+when platform_driver_register() failed. Remove the callback by
+cpuhp_remove_multi_state() in fail path.
 
-Fixes: bbc23a07b072 ("tpm: Add tpm_tis_i2c backend for tpm_tis_core")
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Tested-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Similar to the handling of arm_ccn_init() in commit 26242b330093 ("bus:
+arm-ccn: Prevent hotplug callback leak")
+
+Fixes: 7520fa99246d ("perf: ARM DynamIQ Shared Unit PMU support")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Acked-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Link: https://lore.kernel.org/r/20221115070207.32634-2-yuancan@huawei.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/tpm_tis_core.c | 20 ++++++++++++--------
- drivers/char/tpm/tpm_tis_core.h |  1 +
- drivers/char/tpm/tpm_tis_i2c.c  |  1 +
- 3 files changed, 14 insertions(+), 8 deletions(-)
+ drivers/perf/arm_dsu_pmu.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
-index 757623bacfd5..3f98e587b3e8 100644
---- a/drivers/char/tpm/tpm_tis_core.c
-+++ b/drivers/char/tpm/tpm_tis_core.c
-@@ -682,15 +682,19 @@ static bool tpm_tis_req_canceled(struct tpm_chip *chip, u8 status)
- {
- 	struct tpm_tis_data *priv = dev_get_drvdata(&chip->dev);
- 
--	switch (priv->manufacturer_id) {
--	case TPM_VID_WINBOND:
--		return ((status == TPM_STS_VALID) ||
--			(status == (TPM_STS_VALID | TPM_STS_COMMAND_READY)));
--	case TPM_VID_STM:
--		return (status == (TPM_STS_VALID | TPM_STS_COMMAND_READY));
--	default:
--		return (status == TPM_STS_COMMAND_READY);
-+	if (!test_bit(TPM_TIS_DEFAULT_CANCELLATION, &priv->flags)) {
-+		switch (priv->manufacturer_id) {
-+		case TPM_VID_WINBOND:
-+			return ((status == TPM_STS_VALID) ||
-+				(status == (TPM_STS_VALID | TPM_STS_COMMAND_READY)));
-+		case TPM_VID_STM:
-+			return (status == (TPM_STS_VALID | TPM_STS_COMMAND_READY));
-+		default:
-+			break;
-+		}
- 	}
+diff --git a/drivers/perf/arm_dsu_pmu.c b/drivers/perf/arm_dsu_pmu.c
+index a36698a90d2f..54b8ba032c78 100644
+--- a/drivers/perf/arm_dsu_pmu.c
++++ b/drivers/perf/arm_dsu_pmu.c
+@@ -858,7 +858,11 @@ static int __init dsu_pmu_init(void)
+ 	if (ret < 0)
+ 		return ret;
+ 	dsu_pmu_cpuhp_state = ret;
+-	return platform_driver_register(&dsu_pmu_driver);
++	ret = platform_driver_register(&dsu_pmu_driver);
++	if (ret)
++		cpuhp_remove_multi_state(dsu_pmu_cpuhp_state);
 +
-+	return status == TPM_STS_COMMAND_READY;
++	return ret;
  }
  
- static irqreturn_t tis_int_handler(int dummy, void *dev_id)
-diff --git a/drivers/char/tpm/tpm_tis_core.h b/drivers/char/tpm/tpm_tis_core.h
-index 66a5a13cd1df..b68479e0de10 100644
---- a/drivers/char/tpm/tpm_tis_core.h
-+++ b/drivers/char/tpm/tpm_tis_core.h
-@@ -86,6 +86,7 @@ enum tis_defaults {
- enum tpm_tis_flags {
- 	TPM_TIS_ITPM_WORKAROUND		= BIT(0),
- 	TPM_TIS_INVALID_STATUS		= BIT(1),
-+	TPM_TIS_DEFAULT_CANCELLATION	= BIT(2),
- };
- 
- struct tpm_tis_data {
-diff --git a/drivers/char/tpm/tpm_tis_i2c.c b/drivers/char/tpm/tpm_tis_i2c.c
-index 635a69dfcbbd..f3a7251c8e38 100644
---- a/drivers/char/tpm/tpm_tis_i2c.c
-+++ b/drivers/char/tpm/tpm_tis_i2c.c
-@@ -329,6 +329,7 @@ static int tpm_tis_i2c_probe(struct i2c_client *dev,
- 	if (!phy->io_buf)
- 		return -ENOMEM;
- 
-+	set_bit(TPM_TIS_DEFAULT_CANCELLATION, &phy->priv.flags);
- 	phy->i2c_client = dev;
- 
- 	/* must precede all communication with the tpm */
+ static void __exit dsu_pmu_exit(void)
 -- 
 2.35.1
 
