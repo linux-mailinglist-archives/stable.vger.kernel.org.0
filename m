@@ -2,49 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29B166582A4
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:39:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63406657D08
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:38:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234887AbiL1QjP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:39:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60818 "EHLO
+        id S233925AbiL1Pin (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:38:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233658AbiL1Qim (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:38:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 092631AF32
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:34:16 -0800 (PST)
+        with ESMTP id S233060AbiL1Pim (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:38:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 207E8164B9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:38:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CB1761562
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:34:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BCF8C433D2;
-        Wed, 28 Dec 2022 16:34:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CAF44B81710
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:38:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AED9C433D2;
+        Wed, 28 Dec 2022 15:38:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245255;
-        bh=7DQ+aWEuVmEKFzUCe2EFtVoS6lGGaIeCqYfBbFu1CPM=;
+        s=korg; t=1672241918;
+        bh=srbhyofZhUa3gEkfsQwea/xtykDIeRGFFJLXt2xcoOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PHXFZH0Ly2ryvipGspryqIKnsiFcsB5Vau6oGGhvcksnxjqhnS1T8029IGiGnNbse
-         BIuu687jSPxy/mrxJyim3M4NAPEm+DX69jrwGnf5Wk0aEXorCpF8ytXWcEt2qJwlJe
-         PBCnQmZSag1VqVDd1g0/KYAMUuPwQPjC4MvurzlQ=
+        b=LJRiRCxOkMQBkCPgaXcsOVVuaUwZBLPeWZsLgjj4Yaw/1cwDuPQXTfmSVic20JGQU
+         gvp9awUVgDjEpUK6QeWozIBdEkr6Bybisri7HtuakHMDThCpcEPVekb9Pgxa07G9Vz
+         RnGazL51S3QYMCJYUx8o0iGdqraz+jPEqxBZa4Fk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Aravindhan Gunasekaran <aravindhan.gunasekaran@intel.com>,
-        Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>,
-        Malli C <mallikarjuna.chilakala@intel.com>,
-        Naama Meir <naamax.meir@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0861/1073] igc: Enhance Qbv scheduling by using first flag bit
+Subject: [PATCH 5.15 542/731] rtc: cmos: Call cmos_wake_setup() from cmos_do_probe()
 Date:   Wed, 28 Dec 2022 15:40:49 +0100
-Message-Id: <20221228144351.405954048@linuxfoundation.org>
+Message-Id: <20221228144312.252489324@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,429 +56,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit db0b124f02ba68de6517ac303d431af220ccfe9f ]
+[ Upstream commit 508ccdfb86b21da37ad091003a4d4567709d5dfb ]
 
-The I225 hardware has a limitation that packets can only be scheduled
-in the [0, cycle-time] interval. So, scheduling a packet to the start
-of the next cycle doesn't usually work.
+Notice that cmos_wake_setup() is the only user of acpi_rtc_info and it
+can operate on the cmos_rtc variable directly, so it need not set the
+platform_data pointer before cmos_do_probe() is called.  Instead, it
+can be called by cmos_do_probe() in the case when the platform_data
+pointer is not set to implement the default behavior (which is to use
+the FADT information as long as ACPI support is enabled).
 
-To overcome this, we use the Transmit Descriptor first flag to indicates
-that a packet should be the first packet (from a queue) in a cycle
-according to the section 7.5.2.9.3.4 The First Packet on Each QBV Cycle
-in Intel Discrete I225/6 User Manual.
+Modify the code accordingly.
 
-But this only works if there was any packet from that queue during the
-current cycle, to avoid this issue, we issue an empty packet if that's
-not the case. Also require one more descriptor to be available, to take
-into account the empty packet that might be issued.
+While at it, drop a comment that doesn't really match the code it is
+supposed to be describing.
 
-Test Setup:
-
-Talker: Use l2_tai to generate the launchtime into packet load.
-
-Listener: Use timedump.c to compute the delta between packet arrival
-and LaunchTime packet payload.
-
-Test Result:
-
-Before:
-
-1666000610127300000,1666000610127300096,96,621273
-1666000610127400000,1666000610127400192,192,621274
-1666000610127500000,1666000610127500032,32,621275
-1666000610127600000,1666000610127600128,128,621276
-1666000610127700000,1666000610127700224,224,621277
-1666000610127800000,1666000610127800064,64,621278
-1666000610127900000,1666000610127900160,160,621279
-1666000610128000000,1666000610128000000,0,621280
-1666000610128100000,1666000610128100096,96,621281
-1666000610128200000,1666000610128200192,192,621282
-1666000610128300000,1666000610128300032,32,621283
-1666000610128400000,1666000610128301056,-98944,621284
-1666000610128500000,1666000610128302080,-197920,621285
-1666000610128600000,1666000610128302848,-297152,621286
-1666000610128700000,1666000610128303872,-396128,621287
-1666000610128800000,1666000610128304896,-495104,621288
-1666000610128900000,1666000610128305664,-594336,621289
-1666000610129000000,1666000610128306688,-693312,621290
-1666000610129100000,1666000610128307712,-792288,621291
-1666000610129200000,1666000610128308480,-891520,621292
-1666000610129300000,1666000610128309504,-990496,621293
-1666000610129400000,1666000610128310528,-1089472,621294
-1666000610129500000,1666000610128311296,-1188704,621295
-1666000610129600000,1666000610128312320,-1287680,621296
-1666000610129700000,1666000610128313344,-1386656,621297
-1666000610129800000,1666000610128314112,-1485888,621298
-1666000610129900000,1666000610128315136,-1584864,621299
-1666000610130000000,1666000610128316160,-1683840,621300
-1666000610130100000,1666000610128316928,-1783072,621301
-1666000610130200000,1666000610128317952,-1882048,621302
-1666000610130300000,1666000610128318976,-1981024,621303
-1666000610130400000,1666000610128319744,-2080256,621304
-1666000610130500000,1666000610128320768,-2179232,621305
-1666000610130600000,1666000610128321792,-2278208,621306
-1666000610130700000,1666000610128322816,-2377184,621307
-1666000610130800000,1666000610128323584,-2476416,621308
-1666000610130900000,1666000610128324608,-2575392,621309
-1666000610131000000,1666000610128325632,-2674368,621310
-1666000610131100000,1666000610128326400,-2773600,621311
-1666000610131200000,1666000610128327424,-2872576,621312
-1666000610131300000,1666000610128328448,-2971552,621313
-1666000610131400000,1666000610128329216,-3070784,621314
-1666000610131500000,1666000610131500032,32,621315
-1666000610131600000,1666000610131600128,128,621316
-1666000610131700000,1666000610131700224,224,621317
-
-After:
-
-1666073510646200000,1666073510646200064,64,2676462
-1666073510646300000,1666073510646300160,160,2676463
-1666073510646400000,1666073510646400256,256,2676464
-1666073510646500000,1666073510646500096,96,2676465
-1666073510646600000,1666073510646600192,192,2676466
-1666073510646700000,1666073510646700032,32,2676467
-1666073510646800000,1666073510646800128,128,2676468
-1666073510646900000,1666073510646900224,224,2676469
-1666073510647000000,1666073510647000064,64,2676470
-1666073510647100000,1666073510647100160,160,2676471
-1666073510647200000,1666073510647200256,256,2676472
-1666073510647300000,1666073510647300096,96,2676473
-1666073510647400000,1666073510647400192,192,2676474
-1666073510647500000,1666073510647500032,32,2676475
-1666073510647600000,1666073510647600128,128,2676476
-1666073510647700000,1666073510647700224,224,2676477
-1666073510647800000,1666073510647800064,64,2676478
-1666073510647900000,1666073510647900160,160,2676479
-1666073510648000000,1666073510648000000,0,2676480
-1666073510648100000,1666073510648100096,96,2676481
-1666073510648200000,1666073510648200192,192,2676482
-1666073510648300000,1666073510648300032,32,2676483
-1666073510648400000,1666073510648400128,128,2676484
-1666073510648500000,1666073510648500224,224,2676485
-1666073510648600000,1666073510648600064,64,2676486
-1666073510648700000,1666073510648700160,160,2676487
-1666073510648800000,1666073510648800000,0,2676488
-1666073510648900000,1666073510648900096,96,2676489
-1666073510649000000,1666073510649000192,192,2676490
-1666073510649100000,1666073510649100032,32,2676491
-1666073510649200000,1666073510649200128,128,2676492
-1666073510649300000,1666073510649300224,224,2676493
-1666073510649400000,1666073510649400064,64,2676494
-1666073510649500000,1666073510649500160,160,2676495
-1666073510649600000,1666073510649600000,0,2676496
-1666073510649700000,1666073510649700096,96,2676497
-1666073510649800000,1666073510649800192,192,2676498
-1666073510649900000,1666073510649900032,32,2676499
-1666073510650000000,1666073510650000128,128,2676500
-
-Fixes: 82faa9b79950 ("igc: Add support for ETF offloading")
-Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Co-developed-by: Aravindhan Gunasekaran <aravindhan.gunasekaran@intel.com>
-Signed-off-by: Aravindhan Gunasekaran <aravindhan.gunasekaran@intel.com>
-Co-developed-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
-Signed-off-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
-Signed-off-by: Malli C <mallikarjuna.chilakala@intel.com>
-Tested-by: Naama Meir <naamax.meir@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Zhang Rui <rui.zhang@intel.com>
+Tested-by: Zhang Rui <rui.zhang@intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/4803444.31r3eYUQgx@kreacher
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Stable-dep-of: 83ebb7b3036d ("rtc: cmos: Disable ACPI RTC event on removal")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igc/igc.h         |   2 +
- drivers/net/ethernet/intel/igc/igc_defines.h |   2 +
- drivers/net/ethernet/intel/igc/igc_main.c    | 176 ++++++++++++++++---
- 3 files changed, 151 insertions(+), 29 deletions(-)
+ drivers/rtc/rtc-cmos.c | 47 ++++++++++++++++++++----------------------
+ 1 file changed, 22 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/igc/igc.h b/drivers/net/ethernet/intel/igc/igc.h
-index 1e7e7071f64d..66a57636d329 100644
---- a/drivers/net/ethernet/intel/igc/igc.h
-+++ b/drivers/net/ethernet/intel/igc/igc.h
-@@ -94,6 +94,8 @@ struct igc_ring {
- 	u8 queue_index;                 /* logical index of the ring*/
- 	u8 reg_idx;                     /* physical index of the ring */
- 	bool launchtime_enable;         /* true if LaunchTime is enabled */
-+	ktime_t last_tx_cycle;          /* end of the cycle with a launchtime transmission */
-+	ktime_t last_ff_cycle;          /* Last cycle with an active first flag */
- 
- 	u32 start_time;
- 	u32 end_time;
-diff --git a/drivers/net/ethernet/intel/igc/igc_defines.h b/drivers/net/ethernet/intel/igc/igc_defines.h
-index 5c66b97c0cfa..4f2c446ace4d 100644
---- a/drivers/net/ethernet/intel/igc/igc_defines.h
-+++ b/drivers/net/ethernet/intel/igc/igc_defines.h
-@@ -321,6 +321,8 @@
- #define IGC_ADVTXD_L4LEN_SHIFT	8  /* Adv ctxt L4LEN shift */
- #define IGC_ADVTXD_MSS_SHIFT	16 /* Adv ctxt MSS shift */
- 
-+#define IGC_ADVTXD_TSN_CNTX_FIRST	0x00000080
-+
- /* Transmit Control */
- #define IGC_TCTL_EN		0x00000002 /* enable Tx */
- #define IGC_TCTL_PSP		0x00000008 /* pad short packets */
-diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
-index ebff0e04045d..19b7ff201c7d 100644
---- a/drivers/net/ethernet/intel/igc/igc_main.c
-+++ b/drivers/net/ethernet/intel/igc/igc_main.c
-@@ -1000,25 +1000,118 @@ static int igc_write_mc_addr_list(struct net_device *netdev)
- 	return netdev_mc_count(netdev);
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 58cc2bae2f8a..a84262265d6d 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -744,6 +744,8 @@ static irqreturn_t cmos_interrupt(int irq, void *p)
+ 		return IRQ_NONE;
  }
  
--static __le32 igc_tx_launchtime(struct igc_adapter *adapter, ktime_t txtime)
-+static __le32 igc_tx_launchtime(struct igc_ring *ring, ktime_t txtime,
-+				bool *first_flag, bool *insert_empty)
- {
-+	struct igc_adapter *adapter = netdev_priv(ring->netdev);
- 	ktime_t cycle_time = adapter->cycle_time;
- 	ktime_t base_time = adapter->base_time;
-+	ktime_t now = ktime_get_clocktai();
-+	ktime_t baset_est, end_of_cycle;
- 	u32 launchtime;
-+	s64 n;
++static void cmos_wake_setup(struct device *dev);
++
+ #ifdef	CONFIG_PNP
+ #define	INITSECTION
  
--	/* FIXME: when using ETF together with taprio, we may have a
--	 * case where 'delta' is larger than the cycle_time, this may
--	 * cause problems if we don't read the current value of
--	 * IGC_BASET, as the value writen into the launchtime
--	 * descriptor field may be misinterpreted.
-+	n = div64_s64(ktime_sub_ns(now, base_time), cycle_time);
-+
-+	baset_est = ktime_add_ns(base_time, cycle_time * (n));
-+	end_of_cycle = ktime_add_ns(baset_est, cycle_time);
-+
-+	if (ktime_compare(txtime, end_of_cycle) >= 0) {
-+		if (baset_est != ring->last_ff_cycle) {
-+			*first_flag = true;
-+			ring->last_ff_cycle = baset_est;
-+
-+			if (ktime_compare(txtime, ring->last_tx_cycle) > 0)
-+				*insert_empty = true;
-+		}
-+	}
-+
-+	/* Introducing a window at end of cycle on which packets
-+	 * potentially not honor launchtime. Window of 5us chosen
-+	 * considering software update the tail pointer and packets
-+	 * are dma'ed to packet buffer.
- 	 */
--	div_s64_rem(ktime_sub_ns(txtime, base_time), cycle_time, &launchtime);
-+	if ((ktime_sub_ns(end_of_cycle, now) < 5 * NSEC_PER_USEC))
-+		netdev_warn(ring->netdev, "Packet with txtime=%llu may not be honoured\n",
-+			    txtime);
-+
-+	ring->last_tx_cycle = end_of_cycle;
-+
-+	launchtime = ktime_sub_ns(txtime, baset_est);
-+	if (launchtime > 0)
-+		div_s64_rem(launchtime, cycle_time, &launchtime);
-+	else
-+		launchtime = 0;
+@@ -827,19 +829,27 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+ 		if (info->address_space)
+ 			address_space = info->address_space;
  
- 	return cpu_to_le32(launchtime);
- }
+-		if (info->rtc_day_alarm && info->rtc_day_alarm < 128)
+-			cmos_rtc.day_alrm = info->rtc_day_alarm;
+-		if (info->rtc_mon_alarm && info->rtc_mon_alarm < 128)
+-			cmos_rtc.mon_alrm = info->rtc_mon_alarm;
+-		if (info->rtc_century && info->rtc_century < 128)
+-			cmos_rtc.century = info->rtc_century;
++		cmos_rtc.day_alrm = info->rtc_day_alarm;
++		cmos_rtc.mon_alrm = info->rtc_mon_alarm;
++		cmos_rtc.century = info->rtc_century;
  
-+static int igc_init_empty_frame(struct igc_ring *ring,
-+				struct igc_tx_buffer *buffer,
-+				struct sk_buff *skb)
-+{
-+	unsigned int size;
-+	dma_addr_t dma;
-+
-+	size = skb_headlen(skb);
-+
-+	dma = dma_map_single(ring->dev, skb->data, size, DMA_TO_DEVICE);
-+	if (dma_mapping_error(ring->dev, dma)) {
-+		netdev_err_once(ring->netdev, "Failed to map DMA for TX\n");
-+		return -ENOMEM;
-+	}
-+
-+	buffer->skb = skb;
-+	buffer->protocol = 0;
-+	buffer->bytecount = skb->len;
-+	buffer->gso_segs = 1;
-+	buffer->time_stamp = jiffies;
-+	dma_unmap_len_set(buffer, len, skb->len);
-+	dma_unmap_addr_set(buffer, dma, dma);
-+
-+	return 0;
-+}
-+
-+static int igc_init_tx_empty_descriptor(struct igc_ring *ring,
-+					struct sk_buff *skb,
-+					struct igc_tx_buffer *first)
-+{
-+	union igc_adv_tx_desc *desc;
-+	u32 cmd_type, olinfo_status;
-+	int err;
-+
-+	if (!igc_desc_unused(ring))
-+		return -EBUSY;
-+
-+	err = igc_init_empty_frame(ring, first, skb);
-+	if (err)
-+		return err;
-+
-+	cmd_type = IGC_ADVTXD_DTYP_DATA | IGC_ADVTXD_DCMD_DEXT |
-+		   IGC_ADVTXD_DCMD_IFCS | IGC_TXD_DCMD |
-+		   first->bytecount;
-+	olinfo_status = first->bytecount << IGC_ADVTXD_PAYLEN_SHIFT;
-+
-+	desc = IGC_TX_DESC(ring, ring->next_to_use);
-+	desc->read.cmd_type_len = cpu_to_le32(cmd_type);
-+	desc->read.olinfo_status = cpu_to_le32(olinfo_status);
-+	desc->read.buffer_addr = cpu_to_le64(dma_unmap_addr(first, dma));
-+
-+	netdev_tx_sent_queue(txring_txq(ring), skb->len);
-+
-+	first->next_to_watch = desc;
-+
-+	ring->next_to_use++;
-+	if (ring->next_to_use == ring->count)
-+		ring->next_to_use = 0;
-+
-+	return 0;
-+}
-+
-+#define IGC_EMPTY_FRAME_SIZE 60
-+
- static void igc_tx_ctxtdesc(struct igc_ring *tx_ring,
--			    struct igc_tx_buffer *first,
-+			    __le32 launch_time, bool first_flag,
- 			    u32 vlan_macip_lens, u32 type_tucmd,
- 			    u32 mss_l4len_idx)
- {
-@@ -1037,26 +1130,17 @@ static void igc_tx_ctxtdesc(struct igc_ring *tx_ring,
- 	if (test_bit(IGC_RING_FLAG_TX_CTX_IDX, &tx_ring->flags))
- 		mss_l4len_idx |= tx_ring->reg_idx << 4;
- 
-+	if (first_flag)
-+		mss_l4len_idx |= IGC_ADVTXD_TSN_CNTX_FIRST;
-+
- 	context_desc->vlan_macip_lens	= cpu_to_le32(vlan_macip_lens);
- 	context_desc->type_tucmd_mlhl	= cpu_to_le32(type_tucmd);
- 	context_desc->mss_l4len_idx	= cpu_to_le32(mss_l4len_idx);
--
--	/* We assume there is always a valid Tx time available. Invalid times
--	 * should have been handled by the upper layers.
--	 */
--	if (tx_ring->launchtime_enable) {
--		struct igc_adapter *adapter = netdev_priv(tx_ring->netdev);
--		ktime_t txtime = first->skb->tstamp;
--
--		skb_txtime_consumed(first->skb);
--		context_desc->launch_time = igc_tx_launchtime(adapter,
--							      txtime);
--	} else {
--		context_desc->launch_time = 0;
--	}
-+	context_desc->launch_time	= launch_time;
- }
- 
--static void igc_tx_csum(struct igc_ring *tx_ring, struct igc_tx_buffer *first)
-+static void igc_tx_csum(struct igc_ring *tx_ring, struct igc_tx_buffer *first,
-+			__le32 launch_time, bool first_flag)
- {
- 	struct sk_buff *skb = first->skb;
- 	u32 vlan_macip_lens = 0;
-@@ -1096,7 +1180,8 @@ static void igc_tx_csum(struct igc_ring *tx_ring, struct igc_tx_buffer *first)
- 	vlan_macip_lens |= skb_network_offset(skb) << IGC_ADVTXD_MACLEN_SHIFT;
- 	vlan_macip_lens |= first->tx_flags & IGC_TX_FLAGS_VLAN_MASK;
- 
--	igc_tx_ctxtdesc(tx_ring, first, vlan_macip_lens, type_tucmd, 0);
-+	igc_tx_ctxtdesc(tx_ring, launch_time, first_flag,
-+			vlan_macip_lens, type_tucmd, 0);
- }
- 
- static int __igc_maybe_stop_tx(struct igc_ring *tx_ring, const u16 size)
-@@ -1320,6 +1405,7 @@ static int igc_tx_map(struct igc_ring *tx_ring,
- 
- static int igc_tso(struct igc_ring *tx_ring,
- 		   struct igc_tx_buffer *first,
-+		   __le32 launch_time, bool first_flag,
- 		   u8 *hdr_len)
- {
- 	u32 vlan_macip_lens, type_tucmd, mss_l4len_idx;
-@@ -1406,8 +1492,8 @@ static int igc_tso(struct igc_ring *tx_ring,
- 	vlan_macip_lens |= (ip.hdr - skb->data) << IGC_ADVTXD_MACLEN_SHIFT;
- 	vlan_macip_lens |= first->tx_flags & IGC_TX_FLAGS_VLAN_MASK;
- 
--	igc_tx_ctxtdesc(tx_ring, first, vlan_macip_lens,
--			type_tucmd, mss_l4len_idx);
-+	igc_tx_ctxtdesc(tx_ring, launch_time, first_flag,
-+			vlan_macip_lens, type_tucmd, mss_l4len_idx);
- 
- 	return 1;
- }
-@@ -1415,11 +1501,14 @@ static int igc_tso(struct igc_ring *tx_ring,
- static netdev_tx_t igc_xmit_frame_ring(struct sk_buff *skb,
- 				       struct igc_ring *tx_ring)
- {
-+	bool first_flag = false, insert_empty = false;
- 	u16 count = TXD_USE_COUNT(skb_headlen(skb));
- 	__be16 protocol = vlan_get_protocol(skb);
- 	struct igc_tx_buffer *first;
-+	__le32 launch_time = 0;
- 	u32 tx_flags = 0;
- 	unsigned short f;
-+	ktime_t txtime;
- 	u8 hdr_len = 0;
- 	int tso = 0;
- 
-@@ -1433,11 +1522,40 @@ static netdev_tx_t igc_xmit_frame_ring(struct sk_buff *skb,
- 		count += TXD_USE_COUNT(skb_frag_size(
- 						&skb_shinfo(skb)->frags[f]));
- 
--	if (igc_maybe_stop_tx(tx_ring, count + 3)) {
-+	if (igc_maybe_stop_tx(tx_ring, count + 5)) {
- 		/* this is a hard error */
- 		return NETDEV_TX_BUSY;
+ 		if (info->wake_on && info->wake_off) {
+ 			cmos_rtc.wake_on = info->wake_on;
+ 			cmos_rtc.wake_off = info->wake_off;
+ 		}
++	} else {
++		cmos_wake_setup(dev);
  	}
  
-+	if (!tx_ring->launchtime_enable)
-+		goto done;
++	if (cmos_rtc.day_alrm >= 128)
++		cmos_rtc.day_alrm = 0;
 +
-+	txtime = skb->tstamp;
-+	skb->tstamp = ktime_set(0, 0);
-+	launch_time = igc_tx_launchtime(tx_ring, txtime, &first_flag, &insert_empty);
++	if (cmos_rtc.mon_alrm >= 128)
++		cmos_rtc.mon_alrm = 0;
 +
-+	if (insert_empty) {
-+		struct igc_tx_buffer *empty_info;
-+		struct sk_buff *empty;
-+		void *data;
++	if (cmos_rtc.century >= 128)
++		cmos_rtc.century = 0;
 +
-+		empty_info = &tx_ring->tx_buffer_info[tx_ring->next_to_use];
-+		empty = alloc_skb(IGC_EMPTY_FRAME_SIZE, GFP_ATOMIC);
-+		if (!empty)
-+			goto done;
-+
-+		data = skb_put(empty, IGC_EMPTY_FRAME_SIZE);
-+		memset(data, 0, IGC_EMPTY_FRAME_SIZE);
-+
-+		igc_tx_ctxtdesc(tx_ring, 0, false, 0, 0, 0);
-+
-+		if (igc_init_tx_empty_descriptor(tx_ring,
-+						 empty,
-+						 empty_info) < 0)
-+			dev_kfree_skb_any(empty);
-+	}
-+
-+done:
- 	/* record the location of the first descriptor for this packet */
- 	first = &tx_ring->tx_buffer_info[tx_ring->next_to_use];
- 	first->type = IGC_TX_BUFFER_TYPE_SKB;
-@@ -1474,11 +1592,11 @@ static netdev_tx_t igc_xmit_frame_ring(struct sk_buff *skb,
- 	first->tx_flags = tx_flags;
- 	first->protocol = protocol;
+ 	cmos_rtc.dev = dev;
+ 	dev_set_drvdata(dev, &cmos_rtc);
  
--	tso = igc_tso(tx_ring, first, &hdr_len);
-+	tso = igc_tso(tx_ring, first, launch_time, first_flag, &hdr_len);
- 	if (tso < 0)
- 		goto out_drop;
- 	else if (!tso)
--		igc_tx_csum(tx_ring, first);
-+		igc_tx_csum(tx_ring, first, launch_time, first_flag);
+@@ -1275,13 +1285,6 @@ static void use_acpi_alarm_quirks(void)
+ static inline void use_acpi_alarm_quirks(void) { }
+ #endif
  
- 	igc_tx_map(tx_ring, first, hdr_len);
+-/* Every ACPI platform has a mc146818 compatible "cmos rtc".  Here we find
+- * its device node and pass extra config data.  This helps its driver use
+- * capabilities that the now-obsolete mc146818 didn't have, and informs it
+- * that this board's RTC is wakeup-capable (per ACPI spec).
+- */
+-static struct cmos_rtc_board_info acpi_rtc_info;
+-
+ static void cmos_wake_setup(struct device *dev)
+ {
+ 	if (acpi_disabled)
+@@ -1289,26 +1292,23 @@ static void cmos_wake_setup(struct device *dev)
  
+ 	use_acpi_alarm_quirks();
+ 
+-	acpi_rtc_info.wake_on = rtc_wake_on;
+-	acpi_rtc_info.wake_off = rtc_wake_off;
++	cmos_rtc.wake_on = rtc_wake_on;
++	cmos_rtc.wake_off = rtc_wake_off;
+ 
+-	/* workaround bug in some ACPI tables */
++	/* ACPI tables bug workaround. */
+ 	if (acpi_gbl_FADT.month_alarm && !acpi_gbl_FADT.day_alarm) {
+ 		dev_dbg(dev, "bogus FADT month_alarm (%d)\n",
+ 			acpi_gbl_FADT.month_alarm);
+ 		acpi_gbl_FADT.month_alarm = 0;
+ 	}
+ 
+-	acpi_rtc_info.rtc_day_alarm = acpi_gbl_FADT.day_alarm;
+-	acpi_rtc_info.rtc_mon_alarm = acpi_gbl_FADT.month_alarm;
+-	acpi_rtc_info.rtc_century = acpi_gbl_FADT.century;
++	cmos_rtc.day_alrm = acpi_gbl_FADT.day_alarm;
++	cmos_rtc.mon_alrm = acpi_gbl_FADT.month_alarm;
++	cmos_rtc.century = acpi_gbl_FADT.century;
+ 
+-	/* NOTE:  S4_RTC_WAKE is NOT currently useful to Linux */
+ 	if (acpi_gbl_FADT.flags & ACPI_FADT_S4_RTC_WAKE)
+ 		dev_info(dev, "RTC can wake from S4\n");
+ 
+-	dev->platform_data = &acpi_rtc_info;
+-
+ 	/* RTC always wakes from S1/S2/S3, and often S4/STD */
+ 	device_init_wakeup(dev, 1);
+ }
+@@ -1359,8 +1359,6 @@ static int cmos_pnp_probe(struct pnp_dev *pnp, const struct pnp_device_id *id)
+ {
+ 	int irq, ret;
+ 
+-	cmos_wake_setup(&pnp->dev);
+-
+ 	if (pnp_port_start(pnp, 0) == 0x70 && !pnp_irq_valid(pnp, 0)) {
+ 		irq = 0;
+ #ifdef CONFIG_X86
+@@ -1468,7 +1466,6 @@ static int __init cmos_platform_probe(struct platform_device *pdev)
+ 	int irq, ret;
+ 
+ 	cmos_of_init(pdev);
+-	cmos_wake_setup(&pdev->dev);
+ 
+ 	if (RTC_IOMAPPED)
+ 		resource = platform_get_resource(pdev, IORESOURCE_IO, 0);
 -- 
 2.35.1
 
