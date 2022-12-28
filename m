@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCBF1657C92
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:34:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60851657DAE
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:45:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233430AbiL1PeB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:34:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51978 "EHLO
+        id S233595AbiL1Ppt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:45:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233153AbiL1PeA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:34:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D16715F0C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:33:59 -0800 (PST)
+        with ESMTP id S234008AbiL1Pps (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:45:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D048CDF0
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:45:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 162CFB816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:33:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A2D0C433EF;
-        Wed, 28 Dec 2022 15:33:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5D263B8172B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:45:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6EFBC433EF;
+        Wed, 28 Dec 2022 15:45:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241636;
-        bh=HPHPWnoRvPM2PnbXmQYwBAdsBSkzdycET8TZdRqisOU=;
+        s=korg; t=1672242344;
+        bh=DyKGi3evbYPA7Bj7x2CTKvCLQ3TQjbl82UYyKtPm4q0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fJ9u48Eb/17dii7PFnZU1yJz1tw8s8PlYZa05e7ewxbBUKmUOfiGntjGHVIDnefAv
-         ncY1ykA16kQK/2fZAETUf0ZJaITXy8XA57X1QbEChflcEkyIYrpFEpwdZ79YEftvTx
-         R3USSQtndxSlhBW1Y7cm7J2Q9cyCK72K03sqAsBY=
+        b=GMPEcaxzreINAPUizfzy2okVfDWznt2AAjIie58E7q0OIQamof84S/qtd6PspNhiV
+         BpD8zHpMjw5gPCpa8i0DTd1Plf3FTVUPs8gqz9YM6OEmS1faDsmht3qKnkOzg+CcAG
+         jUOs6i22F0SHGWFEYsbCYpxDaLdR2z+DbQP2VtYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Avraham Stern <avraham.stern@intel.com>,
-        Gregory Greenman <gregory.greenman@intel.com>,
+        patches@lists.linux.dev, Lorenzo Bianconi <lorenzo@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0310/1073] wifi: iwlwifi: mei: make sure ownership confirmed message is sent
+Subject: [PATCH 6.1 0359/1146] net: ethernet: mtk_eth_soc: fix RSTCTRL_PPE{0,1} definitions
 Date:   Wed, 28 Dec 2022 15:31:38 +0100
-Message-Id: <20221228144336.426455429@linuxfoundation.org>
+Message-Id: <20221228144339.912782001@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,189 +53,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Avraham Stern <avraham.stern@intel.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 5aa7ce31bd84c2f4f059200f06c537c920cbb458 ]
+[ Upstream commit ef8c373bd91df3cf70596497da0955d218961ead ]
 
-It is possible that CSME will try to take ownership while the driver
-is stopping. In this case, if the CSME takes ownership message arrives
-after the driver started unregistering, the iwl_mei_cache->ops is
-already invalid, so the host will not answer with the ownership
-confirmed message.
-Similarly, if the take ownership message arrived after the mac was
-stopped or when iwl_mvm_up() failed, setting rfkill will not trigger
-sending the confirm message. As a result, CSME will not take
-ownership, which will result in a disconnection.
+Fix RSTCTRL_PPE0 and RSTCTRL_PPE1 register mask definitions for
+MTK_NETSYS_V2.
+Remove duplicated definitions.
 
-Fix it by sending the ownership confirmed message immediately in such
-cases.
-
-Fixes: 2da4366f9e2c ("iwlwifi: mei: add the driver to allow cooperation with CSME")
-Signed-off-by: Avraham Stern <avraham.stern@intel.com>
-Signed-off-by: Gregory Greenman <gregory.greenman@intel.com>
-Link: https://lore.kernel.org/r/20221030191011.b2a4c009e3e6.I7f931b7ee8b168e8ac88b11f23bff98b7ed3cb19@changeid
+Fixes: 160d3a9b1929 ("net: ethernet: mtk_eth_soc: introduce MTK_NETSYS_V2 support")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/intel/iwlwifi/mei/iwl-mei.h  |  7 +++--
- drivers/net/wireless/intel/iwlwifi/mei/main.c | 30 ++++++++++++-------
- drivers/net/wireless/intel/iwlwifi/mvm/fw.c   |  2 ++
- drivers/net/wireless/intel/iwlwifi/mvm/mvm.h  |  4 +--
- drivers/net/wireless/intel/iwlwifi/mvm/ops.c  |  2 +-
- 5 files changed, 29 insertions(+), 16 deletions(-)
+ drivers/net/ethernet/mediatek/mtk_eth_soc.c | 13 +++++++------
+ drivers/net/ethernet/mediatek/mtk_eth_soc.h | 10 +++-------
+ 2 files changed, 10 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mei/iwl-mei.h b/drivers/net/wireless/intel/iwlwifi/mei/iwl-mei.h
-index 67122cfa2292..5409699c9a1f 100644
---- a/drivers/net/wireless/intel/iwlwifi/mei/iwl-mei.h
-+++ b/drivers/net/wireless/intel/iwlwifi/mei/iwl-mei.h
-@@ -446,9 +446,10 @@ void iwl_mei_host_associated(const struct iwl_mei_conn_info *conn_info,
- void iwl_mei_host_disassociated(void);
- 
- /**
-- * iwl_mei_device_down() - must be called when the device is down
-+ * iwl_mei_device_state() - must be called when the device changes up/down state
-+ * @up: true if the device is up, false otherwise.
-  */
--void iwl_mei_device_down(void);
-+void iwl_mei_device_state(bool up);
- 
- #else
- 
-@@ -497,7 +498,7 @@ static inline void iwl_mei_host_associated(const struct iwl_mei_conn_info *conn_
- static inline void iwl_mei_host_disassociated(void)
- {}
- 
--static inline void iwl_mei_device_down(void)
-+static inline void iwl_mei_device_state(bool up)
- {}
- 
- #endif /* CONFIG_IWLMEI */
-diff --git a/drivers/net/wireless/intel/iwlwifi/mei/main.c b/drivers/net/wireless/intel/iwlwifi/mei/main.c
-index 357f14626cf4..90646c54a3c5 100644
---- a/drivers/net/wireless/intel/iwlwifi/mei/main.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mei/main.c
-@@ -147,6 +147,8 @@ struct iwl_mei_filters {
-  *	to send CSME_OWNERSHIP_CONFIRMED when the driver completes its down
-  *	flow.
-  * @link_prot_state: true when we are in link protection PASSIVE
-+ * @device_down: true if the device is down. Used to remember to send
-+ *	CSME_OWNERSHIP_CONFIRMED when the driver is already down.
-  * @csa_throttle_end_wk: used when &csa_throttled is true
-  * @data_q_lock: protects the access to the data queues which are
-  *	accessed without the mutex.
-@@ -167,6 +169,7 @@ struct iwl_mei {
- 	bool csa_throttled;
- 	bool csme_taking_ownership;
- 	bool link_prot_state;
-+	bool device_down;
- 	struct delayed_work csa_throttle_end_wk;
- 	spinlock_t data_q_lock;
- 
-@@ -798,14 +801,18 @@ static void iwl_mei_handle_csme_taking_ownership(struct mei_cl_device *cldev,
- 
- 	mei->got_ownership = false;
- 
--	/*
--	 * Remember to send CSME_OWNERSHIP_CONFIRMED when the wifi driver
--	 * is finished taking the device down.
--	 */
--	mei->csme_taking_ownership = true;
-+	if (iwl_mei_cache.ops && !mei->device_down) {
-+		/*
-+		 * Remember to send CSME_OWNERSHIP_CONFIRMED when the wifi
-+		 * driver is finished taking the device down.
-+		 */
-+		mei->csme_taking_ownership = true;
- 
--	if (iwl_mei_cache.ops)
--		iwl_mei_cache.ops->rfkill(iwl_mei_cache.priv, true);
-+		iwl_mei_cache.ops->rfkill(iwl_mei_cache.priv, true, true);
-+	} else {
-+		iwl_mei_send_sap_msg(cldev,
-+				     SAP_MSG_NOTIF_CSME_OWNERSHIP_CONFIRMED);
-+	}
- }
- 
- static void iwl_mei_handle_nvm(struct mei_cl_device *cldev,
-@@ -1616,7 +1623,7 @@ void iwl_mei_set_netdev(struct net_device *netdev)
- }
- EXPORT_SYMBOL_GPL(iwl_mei_set_netdev);
- 
--void iwl_mei_device_down(void)
-+void iwl_mei_device_state(bool up)
- {
- 	struct iwl_mei *mei;
- 
-@@ -1630,7 +1637,9 @@ void iwl_mei_device_down(void)
- 	if (!mei)
- 		goto out;
- 
--	if (!mei->csme_taking_ownership)
-+	mei->device_down = !up;
-+
-+	if (up || !mei->csme_taking_ownership)
- 		goto out;
- 
- 	iwl_mei_send_sap_msg(mei->cldev,
-@@ -1639,7 +1648,7 @@ void iwl_mei_device_down(void)
- out:
- 	mutex_unlock(&iwl_mei_mutex);
- }
--EXPORT_SYMBOL_GPL(iwl_mei_device_down);
-+EXPORT_SYMBOL_GPL(iwl_mei_device_state);
- 
- int iwl_mei_register(void *priv, const struct iwl_mei_ops *ops)
- {
-@@ -1821,6 +1830,7 @@ static int iwl_mei_probe(struct mei_cl_device *cldev,
- 
- 	mei_cldev_set_drvdata(cldev, mei);
- 	mei->cldev = cldev;
-+	mei->device_down = true;
- 
- 	do {
- 		ret = iwl_mei_alloc_shared_mem(cldev);
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-index f041e77af059..5de34edc51fe 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-@@ -1665,6 +1665,8 @@ int iwl_mvm_up(struct iwl_mvm *mvm)
- 			iwl_rfi_send_config_cmd(mvm, NULL);
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+index 1148e22001c0..864452e4426b 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+@@ -3292,16 +3292,17 @@ static int mtk_hw_init(struct mtk_eth *eth)
+ 		return 0;
  	}
  
-+	iwl_mvm_mei_device_state(mvm, true);
+-	val = RSTCTRL_FE | RSTCTRL_PPE;
+ 	if (MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V2)) {
+ 		regmap_write(eth->ethsys, ETHSYS_FE_RST_CHK_IDLE_EN, 0);
+-
+-		val |= RSTCTRL_ETH;
+-		if (MTK_HAS_CAPS(eth->soc->caps, MTK_RSTCTRL_PPE1))
+-			val |= RSTCTRL_PPE1;
++		val = RSTCTRL_PPE0_V2;
++	} else {
++		val = RSTCTRL_PPE0;
+ 	}
+ 
+-	ethsys_reset(eth, val);
++	if (MTK_HAS_CAPS(eth->soc->caps, MTK_RSTCTRL_PPE1))
++		val |= RSTCTRL_PPE1;
 +
- 	IWL_DEBUG_INFO(mvm, "RT uCode started.\n");
- 	return 0;
-  error:
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-index bf35e130c876..cc71049bd9b3 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-@@ -2201,10 +2201,10 @@ static inline void iwl_mvm_mei_host_disassociated(struct iwl_mvm *mvm)
- 		iwl_mei_host_disassociated();
- }
++	ethsys_reset(eth, RSTCTRL_ETH | RSTCTRL_FE | val);
  
--static inline void iwl_mvm_mei_device_down(struct iwl_mvm *mvm)
-+static inline void iwl_mvm_mei_device_state(struct iwl_mvm *mvm, bool up)
- {
- 	if (mvm->mei_registered)
--		iwl_mei_device_down();
-+		iwl_mei_device_state(up);
- }
+ 	if (MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V2)) {
+ 		regmap_write(eth->ethsys, ETHSYS_FE_RST_CHK_IDLE_EN,
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.h b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+index b52f3b0177ef..9eaca55a106e 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+@@ -447,18 +447,14 @@
+ /* ethernet reset control register */
+ #define ETHSYS_RSTCTRL			0x34
+ #define RSTCTRL_FE			BIT(6)
+-#define RSTCTRL_PPE			BIT(31)
+-#define RSTCTRL_PPE1			BIT(30)
++#define RSTCTRL_PPE0			BIT(31)
++#define RSTCTRL_PPE0_V2			BIT(30)
++#define RSTCTRL_PPE1			BIT(31)
+ #define RSTCTRL_ETH			BIT(23)
  
- static inline void iwl_mvm_mei_set_sw_rfkill_state(struct iwl_mvm *mvm)
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
-index db43c8a83a31..3fec87fb6b7b 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
-@@ -1370,7 +1370,7 @@ void iwl_mvm_stop_device(struct iwl_mvm *mvm)
- 	iwl_trans_stop_device(mvm->trans);
- 	iwl_free_fw_paging(&mvm->fwrt);
- 	iwl_fw_dump_conf_clear(&mvm->fwrt);
--	iwl_mvm_mei_device_down(mvm);
-+	iwl_mvm_mei_device_state(mvm, false);
- }
+ /* ethernet reset check idle register */
+ #define ETHSYS_FE_RST_CHK_IDLE_EN	0x28
  
- static void iwl_op_mode_mvm_stop(struct iwl_op_mode *op_mode)
+-/* ethernet reset control register */
+-#define ETHSYS_RSTCTRL		0x34
+-#define RSTCTRL_FE		BIT(6)
+-#define RSTCTRL_PPE		BIT(31)
+-
+ /* ethernet dma channel agent map */
+ #define ETHSYS_DMA_AG_MAP	0x408
+ #define ETHSYS_DMA_AG_MAP_PDMA	BIT(0)
 -- 
 2.35.1
 
