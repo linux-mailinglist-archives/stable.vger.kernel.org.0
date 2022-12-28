@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D85F657EAC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:56:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8968865784B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:49:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233556AbiL1P43 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:56:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44462 "EHLO
+        id S233023AbiL1OtK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:49:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234167AbiL1P4Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:56:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E92216597
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:56:08 -0800 (PST)
+        with ESMTP id S233017AbiL1OtB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:49:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56210BCA
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:49:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6E24B817B0
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:56:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34962C433D2;
-        Wed, 28 Dec 2022 15:56:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5D9CB8170E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:48:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CC4AC433EF;
+        Wed, 28 Dec 2022 14:48:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242965;
-        bh=TysLWZxsnVb8erUgU7pXb3w5UkFrysFkGEmLXlYnk4s=;
+        s=korg; t=1672238937;
+        bh=MGTY1OAyGLzUliUXdj07izQFLKrbJcZoxgGw0+bdLEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FM9CVDQEDoWeH7w/GrkvMIRETPjXvBh0q044+mo8UqXPT6ISqOLnbnxE/i/u9NStn
-         grFUOVLbIrbwEDSB5JLS5l7zECf+Ejs4pP+6BZ6SKoZOAG4LoFQoitPchUc1pGrjon
-         Wd4SNCvP845QCg3YqEX0L5yGjFOoW0oK4xZFQD9g=
+        b=fECHjBDBNmdrVk6bnZIiZRrIYdY/icw6hPzHznMICH6It7VB9M9NGzghqlTY8Xy10
+         Ixn9BREtHBT2cuFXIFWsZMaU6tbDxK+L+tZdrUrPO6ZzxItBLuXxI2XRWC7OKxgNyp
+         1We/hMIa6IGca+lCJ6d8wUtwoYlzvwTaTYD1yXdk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lijo Lazar <lijo.lazar@amd.com>,
-        Guchun Chen <guchun.chen@amd.com>,
-        Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev,
+        Vincent Donnefort <vincent.donnefort@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0435/1146] drm/amd/pm/smu11: BACO is supported when its in BACO state
+Subject: [PATCH 5.15 067/731] sched/fair: Cleanup task_util and capacity type
 Date:   Wed, 28 Dec 2022 15:32:54 +0100
-Message-Id: <20221228144341.996457193@linuxfoundation.org>
+Message-Id: <20221228144258.495456419@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guchun Chen <guchun.chen@amd.com>
+From: Vincent Donnefort <vincent.donnefort@arm.com>
 
-[ Upstream commit 6dca7efe6e522bf213c7dab691fa580d82f48f74 ]
+[ Upstream commit ef8df9798d469b7c45c66664550e93469749f1e8 ]
 
-Return true early if ASIC is in BACO state already, no need
-to talk to SMU. It can fix the issue that driver was not
-calling BACO exit at all in runtime pm resume, and a timing
-issue leading to a PCI AER error happened eventually.
+task_util and capacity are comparable unsigned long values. There is no
+need for an intermidiate implicit signed cast.
 
-Fixes: 8795e182b02d ("PCI/portdrv: Don't disable AER reporting in get_port_device_capability()")
-Suggested-by: Lijo Lazar <lijo.lazar@amd.com>
-Signed-off-by: Guchun Chen <guchun.chen@amd.com>
-Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
-Reviewed-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Vincent Donnefort <vincent.donnefort@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20211207095755.859972-1-vincent.donnefort@arm.com
+Stable-dep-of: 48d5e9daa8b7 ("sched/uclamp: Fix relationship between uclamp and migration margin")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ kernel/sched/fair.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c
-index 70b560737687..ad5f6a15a1d7 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c
-@@ -1588,6 +1588,10 @@ bool smu_v11_0_baco_is_support(struct smu_context *smu)
- 	if (amdgpu_sriov_vf(smu->adev) || !smu_baco->platform_support)
- 		return false;
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index a853e4e9e3c3..999fcb460dfd 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4120,7 +4120,8 @@ static inline void util_est_update(struct cfs_rq *cfs_rq,
+ 	trace_sched_util_est_se_tp(&p->se);
+ }
  
-+	/* return true if ASIC is in BACO state already */
-+	if (smu_v11_0_baco_get_state(smu) == SMU_BACO_STATE_ENTER)
-+		return true;
-+
- 	/* Arcturus does not support this bit mask */
- 	if (smu_cmn_feature_is_supported(smu, SMU_FEATURE_BACO_BIT) &&
- 	   !smu_cmn_feature_is_enabled(smu, SMU_FEATURE_BACO_BIT))
+-static inline int task_fits_capacity(struct task_struct *p, long capacity)
++static inline int task_fits_capacity(struct task_struct *p,
++				     unsigned long capacity)
+ {
+ 	return fits_capacity(uclamp_task_util(p), capacity);
+ }
+@@ -6398,7 +6399,7 @@ select_idle_capacity(struct task_struct *p, struct sched_domain *sd, int target)
+ 	return best_cpu;
+ }
+ 
+-static inline bool asym_fits_capacity(int task_util, int cpu)
++static inline bool asym_fits_capacity(unsigned long task_util, int cpu)
+ {
+ 	if (static_branch_unlikely(&sched_asym_cpucapacity))
+ 		return fits_capacity(task_util, capacity_of(cpu));
 -- 
 2.35.1
 
