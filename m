@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4795A657CC5
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:35:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1486365826C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:36:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233884AbiL1Pfv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:35:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53584 "EHLO
+        id S234848AbiL1Qfx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:35:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233886AbiL1Pfu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:35:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99E8EE37
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:35:49 -0800 (PST)
+        with ESMTP id S234880AbiL1Qej (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:34:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F7971C113
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:32:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 39E6261553
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:35:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45FFEC433EF;
-        Wed, 28 Dec 2022 15:35:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A15656157F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:32:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF16DC433EF;
+        Wed, 28 Dec 2022 16:32:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241748;
-        bh=qCQ80+QQo12orqyGZ6uPIYTEipujiuUJsbMwyPWVve8=;
+        s=korg; t=1672245125;
+        bh=76D15eRWSUo3DCDBd8ybBfGLvBsYAAa0+DGzPmVR394=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P+ZRg/icOxfcJexru0c/x2MDTk6+7OlLsg+FqYp7VrfsGTdNSQAx1BM09Db5t+bbi
-         r4sCD9eSZkM9KycZ53M1KkaQDE2BD8va+XTrTWVK5CIkLsjzXtK6GrUweRVAB0O11u
-         LtAfl1L4RB2MV392FH6/e1E+ljVQ7IJ0Pb77ljxw=
+        b=UI5391SSGp+7G07TPc98q6A8rnW/vPZNp1DEqq7GUnd1x/qZapRM8KefUCvYU9ijO
+         m28YVeu4EDIxJsbyT8OgpWr1Eeit2eQfXbk1yY2UEPw2IHJ0CZhFZQZHiFtobiUHwr
+         N/Y0c7CA1AfdDuHsAU5E6D2+hb5c4Wb/vPiUvLnI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        patches@lists.linux.dev, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        "J. Bruce Fields" <bfields@redhat.com>,
+        Dan Aloni <dan.aloni@vastdata.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 518/731] power: supply: z2_battery: Fix possible memleak in z2_batt_probe()
+Subject: [PATCH 6.0 0837/1073] nfsd: under NFSv4.1, fix double svc_xprt_put on rpc_create failure
 Date:   Wed, 28 Dec 2022 15:40:25 +0100
-Message-Id: <20221228144311.563637956@linuxfoundation.org>
+Message-Id: <20221228144350.754538926@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +56,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Dan Aloni <dan.aloni@vastdata.com>
 
-[ Upstream commit 955bee204f3dd307642c101b75e370662987e735 ]
+[ Upstream commit 3bc8edc98bd43540dbe648e4ef91f443d6d20a24 ]
 
-If devm_gpiod_get_optional() returns error, the charger should be
-freed before z2_batt_probe returns according to the context. We
-fix it by just gotoing to 'err' branch.
+On error situation `clp->cl_cb_conn.cb_xprt` should not be given
+a reference to the xprt otherwise both client cleanup and the
+error handling path of the caller call to put it. Better to
+delay handing over the reference to a later branch.
 
-Fixes: a3b4388ea19b ("power: supply: z2_battery: Convert to GPIO descriptors")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+[   72.530665] refcount_t: underflow; use-after-free.
+[   72.531933] WARNING: CPU: 0 PID: 173 at lib/refcount.c:28 refcount_warn_saturate+0xcf/0x120
+[   72.533075] Modules linked in: nfsd(OE) nfsv4(OE) nfsv3(OE) nfs(OE) lockd(OE) compat_nfs_ssc(OE) nfs_acl(OE) rpcsec_gss_krb5(OE) auth_rpcgss(OE) rpcrdma(OE) dns_resolver fscache netfs grace rdma_cm iw_cm ib_cm sunrpc(OE) mlx5_ib mlx5_core mlxfw pci_hyperv_intf ib_uverbs ib_core xt_MASQUERADE nf_conntrack_netlink nft_counter xt_addrtype nft_compat br_netfilter bridge stp llc nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ip_set overlay nf_tables nfnetlink crct10dif_pclmul crc32_pclmul ghash_clmulni_intel xfs serio_raw virtio_net virtio_blk net_failover failover fuse [last unloaded: sunrpc]
+[   72.540389] CPU: 0 PID: 173 Comm: kworker/u16:5 Tainted: G           OE     5.15.82-dan #1
+[   72.541511] Hardware name: Red Hat KVM/RHEL-AV, BIOS 1.16.0-3.module+el8.7.0+1084+97b81f61 04/01/2014
+[   72.542717] Workqueue: nfsd4_callbacks nfsd4_run_cb_work [nfsd]
+[   72.543575] RIP: 0010:refcount_warn_saturate+0xcf/0x120
+[   72.544299] Code: 55 00 0f 0b 5d e9 01 50 98 00 80 3d 75 9e 39 08 00 0f 85 74 ff ff ff 48 c7 c7 e8 d1 60 8e c6 05 61 9e 39 08 01 e8 f6 51 55 00 <0f> 0b 5d e9 d9 4f 98 00 80 3d 4b 9e 39 08 00 0f 85 4c ff ff ff 48
+[   72.546666] RSP: 0018:ffffb3f841157cf0 EFLAGS: 00010286
+[   72.547393] RAX: 0000000000000026 RBX: ffff89ac6231d478 RCX: 0000000000000000
+[   72.548324] RDX: ffff89adb7c2c2c0 RSI: ffff89adb7c205c0 RDI: ffff89adb7c205c0
+[   72.549271] RBP: ffffb3f841157cf0 R08: 0000000000000000 R09: c0000000ffefffff
+[   72.550209] R10: 0000000000000001 R11: ffffb3f841157ad0 R12: ffff89ac6231d180
+[   72.551142] R13: ffff89ac6231d478 R14: ffff89ac40c06180 R15: ffff89ac6231d4b0
+[   72.552089] FS:  0000000000000000(0000) GS:ffff89adb7c00000(0000) knlGS:0000000000000000
+[   72.553175] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   72.553934] CR2: 0000563a310506a8 CR3: 0000000109a66000 CR4: 0000000000350ef0
+[   72.554874] Call Trace:
+[   72.555278]  <TASK>
+[   72.555614]  svc_xprt_put+0xaf/0xe0 [sunrpc]
+[   72.556276]  nfsd4_process_cb_update.isra.11+0xb7/0x410 [nfsd]
+[   72.557087]  ? update_load_avg+0x82/0x610
+[   72.557652]  ? cpuacct_charge+0x60/0x70
+[   72.558212]  ? dequeue_entity+0xdb/0x3e0
+[   72.558765]  ? queued_spin_unlock+0x9/0x20
+[   72.559358]  nfsd4_run_cb_work+0xfc/0x270 [nfsd]
+[   72.560031]  process_one_work+0x1df/0x390
+[   72.560600]  worker_thread+0x37/0x3b0
+[   72.561644]  ? process_one_work+0x390/0x390
+[   72.562247]  kthread+0x12f/0x150
+[   72.562710]  ? set_kthread_struct+0x50/0x50
+[   72.563309]  ret_from_fork+0x22/0x30
+[   72.563818]  </TASK>
+[   72.564189] ---[ end trace 031117b1c72ec616 ]---
+[   72.566019] list_add corruption. next->prev should be prev (ffff89ac4977e538), but was ffff89ac4763e018. (next=ffff89ac4763e018).
+[   72.567647] ------------[ cut here ]------------
+
+Fixes: a4abc6b12eb1 ("nfsd: Fix svc_xprt refcnt leak when setup callback client failed")
+Cc: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Cc: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Dan Aloni <dan.aloni@vastdata.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/z2_battery.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/nfsd/nfs4callback.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/power/supply/z2_battery.c b/drivers/power/supply/z2_battery.c
-index 7ed4e4bb26ec..fd33cdf9cf12 100644
---- a/drivers/power/supply/z2_battery.c
-+++ b/drivers/power/supply/z2_battery.c
-@@ -206,10 +206,12 @@ static int z2_batt_probe(struct i2c_client *client,
- 
- 	charger->charge_gpiod = devm_gpiod_get_optional(&client->dev,
- 							NULL, GPIOD_IN);
--	if (IS_ERR(charger->charge_gpiod))
--		return dev_err_probe(&client->dev,
-+	if (IS_ERR(charger->charge_gpiod)) {
-+		ret = dev_err_probe(&client->dev,
- 				     PTR_ERR(charger->charge_gpiod),
- 				     "failed to get charge GPIO\n");
-+		goto err;
-+	}
- 
- 	if (charger->charge_gpiod) {
- 		gpiod_set_consumer_name(charger->charge_gpiod, "BATT CHRG");
+diff --git a/fs/nfsd/nfs4callback.c b/fs/nfsd/nfs4callback.c
+index 4ce328209f61..775d38dc00fe 100644
+--- a/fs/nfsd/nfs4callback.c
++++ b/fs/nfsd/nfs4callback.c
+@@ -916,7 +916,6 @@ static int setup_callback_client(struct nfs4_client *clp, struct nfs4_cb_conn *c
+ 	} else {
+ 		if (!conn->cb_xprt)
+ 			return -EINVAL;
+-		clp->cl_cb_conn.cb_xprt = conn->cb_xprt;
+ 		clp->cl_cb_session = ses;
+ 		args.bc_xprt = conn->cb_xprt;
+ 		args.prognumber = clp->cl_cb_session->se_cb_prog;
+@@ -936,6 +935,9 @@ static int setup_callback_client(struct nfs4_client *clp, struct nfs4_cb_conn *c
+ 		rpc_shutdown_client(client);
+ 		return -ENOMEM;
+ 	}
++
++	if (clp->cl_minorversion != 0)
++		clp->cl_cb_conn.cb_xprt = conn->cb_xprt;
+ 	clp->cl_cb_client = client;
+ 	clp->cl_cb_cred = cred;
+ 	rcu_read_lock();
 -- 
 2.35.1
 
