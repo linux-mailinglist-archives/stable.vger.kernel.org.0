@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A874658200
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:32:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BCF46582E9
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234829AbiL1Qcq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:32:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50648 "EHLO
+        id S234905AbiL1QnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:43:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233715AbiL1QcQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:32:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 482C21573F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:28:56 -0800 (PST)
+        with ESMTP id S234996AbiL1Qmt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:42:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF4591FCC7
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D9F9F6157A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:28:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC9EDC433EF;
-        Wed, 28 Dec 2022 16:28:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4283761578
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:36:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58A8CC433D2;
+        Wed, 28 Dec 2022 16:36:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244935;
+        s=korg; t=1672245398;
         bh=ezD3OB3O7kZpJCovwCHyicXwG+VlHnom3ed48kJ43qQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GMe7dlX1wnbAWr5EmyJO2DWchq0sLDE5odSFqcyQfRmjAxikkYSQDYsIxcKsYBbxr
-         wu/WTEEbUI4PxOl3gqQ16hfyP7B1/aCNJsW6NP56El0ijr8rLD+6lApATH/nQEI+Sm
-         8kL3MmzC/orguojRgyOXtUQbGWhPvybgNbqcmc9Q=
+        b=vl9aUgEkCHX+dA4OVsF3hmFF67PDL2FKtGQ4BEuIUfJMhmX07fG5D9oZLr8KnhCFX
+         PbNG1Gl/uPGjWB6AB63Wqki5hSYxye0onk2t3dBcYcmY2/Q9zrVb31W0acBm/uhtkl
+         /At0nk29oO3SFhm8SFhwZN38YhPQbKZTAjvIYU6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Nayna Jain <nayna@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0802/1073] powerpc/pseries: Fix the H_CALL error code in PLPKS driver
-Date:   Wed, 28 Dec 2022 15:39:50 +0100
-Message-Id: <20221228144349.793846343@linuxfoundation.org>
+Subject: [PATCH 6.1 0852/1146] powerpc/pseries: Fix the H_CALL error code in PLPKS driver
+Date:   Wed, 28 Dec 2022 15:39:51 +0100
+Message-Id: <20221228144353.296743233@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
