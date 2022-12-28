@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5210F65782E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EA8A657D3B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:40:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233044AbiL1OsT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:48:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35936 "EHLO
+        id S233543AbiL1Pk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:40:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233098AbiL1Orx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:47:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 485871183A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:47:52 -0800 (PST)
+        with ESMTP id S233951AbiL1Pkx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:40:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C982E0CB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:40:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DCA27B81710
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:47:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 353DAC433D2;
-        Wed, 28 Dec 2022 14:47:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DF0E6155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:40:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7354C433EF;
+        Wed, 28 Dec 2022 15:40:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238869;
-        bh=WEmTKAh+yQ4BBPrEBaGs+/pD5VE6wJurxv04t/LRfQQ=;
+        s=korg; t=1672242052;
+        bh=Hzszc/GtUqFEvoxto5YfhgAmKhqqPYvO/qwSglXLCFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pd3IpVHPo6nf6/T4W/drw7sN2m1Ch4Lc0dbqPEYP3t1opcOjm7EG+j04p2AzQL9eg
-         ZgLsslQNC9fezrKS7hZayE2nEUVbJ4p63d+hTTtc3mjkMXSXPW3B30k8fdr1eF1pOo
-         w4aeLs0KMw4KGD0tgpXYH6jIDvgF9Mzt00sj8lFk=
+        b=WI6g3pgA/x7Q4159MV3Mey8e8gd0LXj0CzGxpy4tCQQMCDonTpd0ZSQuKyb4f1Aji
+         OGK52r7HI5MC3aZUwH4p/bSnabPuHsarwGYO3vnfDFJkpEzCWXP5H/uZpehLGzCPJu
+         bN9w2LniqGjidxNCF5SiFA+6Y8N5Pve3hEkxUz/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
+        patches@lists.linux.dev, Jesse Taube <mr.bossman075@gmail.com>,
+        Giulio Benetti <giulio.benetti@benettiengineering.com>,
+        Abel Vesa <abel.vesa@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 040/731] arm64: dts: mt2712e: Fix unit_address_vs_reg warning for oscillators
+Subject: [PATCH 6.0 0359/1073] clk: imx: imxrt1050: fix IMXRT1050_CLK_LCDIF_APB offsets
 Date:   Wed, 28 Dec 2022 15:32:27 +0100
-Message-Id: <20221228144257.716687349@linuxfoundation.org>
+Message-Id: <20221228144337.753555215@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,108 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Giulio Benetti <giulio.benetti@benettiengineering.com>
 
-[ Upstream commit e4495a0a8b3d84816c9a46edf3ce060bbf267475 ]
+[ Upstream commit 3095c02f95e537c553e0b30948c2f6c7cbed87ee ]
 
-Rename the fixed-clock oscillators to remove the unit address.
+Fix IMXRT1050_CLK_LCDIF_APB offsets.
 
-This solves unit_address_vs_reg warnings.
-
-Fixes: 5d4839709c8e ("arm64: dts: mt2712: Add clock controller device nodes")
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20221013152212.416661-4-angelogioacchino.delregno@collabora.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Fixes: 7154b046d8f3 ("clk: imx: Add initial support for i.MXRT1050 clock driver")
+Cc: Jesse Taube <mr.bossman075@gmail.com>
+Signed-off-by: Giulio Benetti <giulio.benetti@benettiengineering.com>
+Reviewed-by: Abel Vesa <abel.vesa@linaro.org>
+Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
+Link: https://lore.kernel.org/r/20221117181014.851505-1-giulio.benetti@benettiengineering.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/mt2712e.dtsi | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/clk/imx/clk-imxrt1050.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt2712e.dtsi b/arch/arm64/boot/dts/mediatek/mt2712e.dtsi
-index a9cca9c146fd..1c55689383b8 100644
---- a/arch/arm64/boot/dts/mediatek/mt2712e.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/mt2712e.dtsi
-@@ -160,70 +160,70 @@ sys_clk: dummyclk {
- 		#clock-cells = <0>;
- 	};
- 
--	clk26m: oscillator@0 {
-+	clk26m: oscillator-26m {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <26000000>;
- 		clock-output-names = "clk26m";
- 	};
- 
--	clk32k: oscillator@1 {
-+	clk32k: oscillator-32k {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <32768>;
- 		clock-output-names = "clk32k";
- 	};
- 
--	clkfpc: oscillator@2 {
-+	clkfpc: oscillator-50m {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <50000000>;
- 		clock-output-names = "clkfpc";
- 	};
- 
--	clkaud_ext_i_0: oscillator@3 {
-+	clkaud_ext_i_0: oscillator-aud0 {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <6500000>;
- 		clock-output-names = "clkaud_ext_i_0";
- 	};
- 
--	clkaud_ext_i_1: oscillator@4 {
-+	clkaud_ext_i_1: oscillator-aud1 {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <196608000>;
- 		clock-output-names = "clkaud_ext_i_1";
- 	};
- 
--	clkaud_ext_i_2: oscillator@5 {
-+	clkaud_ext_i_2: oscillator-aud2 {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <180633600>;
- 		clock-output-names = "clkaud_ext_i_2";
- 	};
- 
--	clki2si0_mck_i: oscillator@6 {
-+	clki2si0_mck_i: oscillator-i2s0 {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <30000000>;
- 		clock-output-names = "clki2si0_mck_i";
- 	};
- 
--	clki2si1_mck_i: oscillator@7 {
-+	clki2si1_mck_i: oscillator-i2s1 {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <30000000>;
- 		clock-output-names = "clki2si1_mck_i";
- 	};
- 
--	clki2si2_mck_i: oscillator@8 {
-+	clki2si2_mck_i: oscillator-i2s2 {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <30000000>;
- 		clock-output-names = "clki2si2_mck_i";
- 	};
- 
--	clktdmin_mclk_i: oscillator@9 {
-+	clktdmin_mclk_i: oscillator-mclk {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <30000000>;
+diff --git a/drivers/clk/imx/clk-imxrt1050.c b/drivers/clk/imx/clk-imxrt1050.c
+index 9539d35588ee..26108e9f7e67 100644
+--- a/drivers/clk/imx/clk-imxrt1050.c
++++ b/drivers/clk/imx/clk-imxrt1050.c
+@@ -140,7 +140,7 @@ static int imxrt1050_clocks_probe(struct platform_device *pdev)
+ 	hws[IMXRT1050_CLK_USDHC1] = imx_clk_hw_gate2("usdhc1", "usdhc1_podf", ccm_base + 0x80, 2);
+ 	hws[IMXRT1050_CLK_USDHC2] = imx_clk_hw_gate2("usdhc2", "usdhc2_podf", ccm_base + 0x80, 4);
+ 	hws[IMXRT1050_CLK_LPUART1] = imx_clk_hw_gate2("lpuart1", "lpuart_podf", ccm_base + 0x7c, 24);
+-	hws[IMXRT1050_CLK_LCDIF_APB] = imx_clk_hw_gate2("lcdif", "lcdif_podf", ccm_base + 0x74, 10);
++	hws[IMXRT1050_CLK_LCDIF_APB] = imx_clk_hw_gate2("lcdif", "lcdif_podf", ccm_base + 0x70, 28);
+ 	hws[IMXRT1050_CLK_DMA] = imx_clk_hw_gate("dma", "ipg", ccm_base + 0x7C, 6);
+ 	hws[IMXRT1050_CLK_DMA_MUX] = imx_clk_hw_gate("dmamux0", "ipg", ccm_base + 0x7C, 7);
+ 	imx_check_clk_hws(hws, IMXRT1050_CLK_END);
 -- 
 2.35.1
 
