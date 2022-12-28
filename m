@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 592B8658018
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:13:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC131657931
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:58:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234453AbiL1QNl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:13:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59200 "EHLO
+        id S233305AbiL1O64 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:58:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234460AbiL1QNH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:13:07 -0500
+        with ESMTP id S233316AbiL1O6Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:58:25 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 711791A069
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:11:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A39D710053
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:58:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 80F926156E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:11:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9194FC433D2;
-        Wed, 28 Dec 2022 16:11:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4128E61540
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:58:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58B55C433D2;
+        Wed, 28 Dec 2022 14:58:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243890;
-        bh=NCDusXs63H3DTZi81Gd9ZlJEWUg7qva/XiXOrTJPvg4=;
+        s=korg; t=1672239503;
+        bh=2NoQsfuLFH5qjh9NeGAICdSwPArreq+lbGl/pwIFnrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1/s7WIwXQGg/21KugPQ/RteP9ov5VpYqNdyIpnuHkCxbJdN4L4AC2FOs7vuCtDOOD
-         6H4aeV+Hc2bJQGt6XE4VYXTYbnJ9xXGWdLzq8Iz93D171xt+LrxMfCVij7ROy8k/x1
-         bJmQn/f51t3jn9Hu7S6uuMGlmmWhaTnL7i9ATVsw=
+        b=Z3PxGBDIRhMH3xkiHKOXqFl1nrzPaUPWwz+m7tJtuCjr4Net1kycgbaApvUfJXf1k
+         qtZQ4WUqRFeuwWbYVL7s3JhCbTp1qY+7yzPJbjov3/tW1oN6QWqADYUfHTRrraNSKF
+         ZVqIHsVzYkWdhjpQJajLKhYAMYPfUTmOha4Zqfk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        John Johansen <john.johansen@canonical.com>,
+        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0573/1146] apparmor: Fix abi check to include v8 abi
+Subject: [PATCH 5.15 205/731] ima: Fix misuse of dereference of pointer in template_desc_init_fields()
 Date:   Wed, 28 Dec 2022 15:35:12 +0100
-Message-Id: <20221228144345.736151190@linuxfoundation.org>
+Message-Id: <20221228144302.502656150@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Johansen <john.johansen@canonical.com>
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-[ Upstream commit 1b5a6198f5a9d0aa5497da0dc4bcd4fc166ee516 ]
+[ Upstream commit 25369175ce84813dd99d6604e710dc2491f68523 ]
 
-The v8 abi is supported by the kernel but the userspace supported
-version check does not allow for it. This was missed when v8 was added
-due to a bug in the userspace compiler which was setting an older abi
-version for v8 encoding (which is forward compatible except on the
-network encoding). However it is possible to detect the network
-encoding by checking the policydb network support which the code
-does. The end result was that missing the abi flag worked until
-userspace was fixed and began correctly checking for the v8 abi
-version.
+The input parameter @fields is type of struct ima_template_field ***, so
+when allocates array memory for @fields, the size of element should be
+sizeof(**field) instead of sizeof(*field).
 
-Fixes: 56974a6fcfef ("apparmor: add base infastructure for socket mediation")
-Signed-off-by: John Johansen <john.johansen@canonical.com>
+Actually the original code would not cause any runtime error, but it's
+better to make it logically right.
+
+Fixes: adf53a778a0a ("ima: new templates management mechanism")
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+Reviewed-by: Roberto Sassu <roberto.sassu@huawei.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/policy_unpack.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/integrity/ima/ima_template.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/security/apparmor/policy_unpack.c b/security/apparmor/policy_unpack.c
-index 55d31bac4f35..9d26bbb90133 100644
---- a/security/apparmor/policy_unpack.c
-+++ b/security/apparmor/policy_unpack.c
-@@ -972,7 +972,7 @@ static int verify_header(struct aa_ext *e, int required, const char **ns)
- 	 * if not specified use previous version
- 	 * Mask off everything that is not kernel abi version
- 	 */
--	if (VERSION_LT(e->version, v5) || VERSION_GT(e->version, v7)) {
-+	if (VERSION_LT(e->version, v5) || VERSION_GT(e->version, v8)) {
- 		audit_iface(NULL, NULL, NULL, "unsupported interface version",
- 			    e, error);
- 		return error;
+diff --git a/security/integrity/ima/ima_template.c b/security/integrity/ima/ima_template.c
+index db1ad6d7a57f..f84a0598e4f6 100644
+--- a/security/integrity/ima/ima_template.c
++++ b/security/integrity/ima/ima_template.c
+@@ -241,11 +241,11 @@ int template_desc_init_fields(const char *template_fmt,
+ 	}
+ 
+ 	if (fields && num_fields) {
+-		*fields = kmalloc_array(i, sizeof(*fields), GFP_KERNEL);
++		*fields = kmalloc_array(i, sizeof(**fields), GFP_KERNEL);
+ 		if (*fields == NULL)
+ 			return -ENOMEM;
+ 
+-		memcpy(*fields, found_fields, i * sizeof(*fields));
++		memcpy(*fields, found_fields, i * sizeof(**fields));
+ 		*num_fields = i;
+ 	}
+ 
 -- 
 2.35.1
 
