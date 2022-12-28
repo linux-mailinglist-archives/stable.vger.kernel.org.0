@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 069C66578D0
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:54:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED189657F39
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233180AbiL1Oye (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:54:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41890 "EHLO
+        id S234308AbiL1QDH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:03:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233200AbiL1Oy1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:54:27 -0500
+        with ESMTP id S234329AbiL1QCl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:02:41 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40A7A2DE
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:54:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDCC99FD0
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:02:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1C9961552
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:54:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0C16C433D2;
-        Wed, 28 Dec 2022 14:54:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 807276156E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:02:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93B53C433F0;
+        Wed, 28 Dec 2022 16:02:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239266;
-        bh=sQYlt14kTXoF7bYBiGRFGQUH5Ue0wqhvUFVZGIfzbco=;
+        s=korg; t=1672243348;
+        bh=fjyU/jynuoEc0nSHUZBHIHL/cu0n2spRNE3nKiMcUQQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Me4CBS9wgD5iA4Cp3qqCY6V8ushC3TAslStHiUxIINjHHKmriKFCtdV4EMZQLAH/I
-         YJnfkN91beQUGkiS2U/zMvhkJ1Tuiu0NPW056z2CbWCLXzPLWEd9RSsIIm0ydDTofE
-         LF9KnNEueh6ycyS+d45aUgu+wa0BFiZjZ+WTOfcg=
+        b=kASmmmyDpESdapASvBDohQYyhtt3RiqGxiHidnmujvFWuSxIslqlj24Sd2Sx201y0
+         bc5jZEIgGkEHDwVitcpX+0NBiDrovwesSVvkbwh8KRZKYGGLzU4UDa9PfiEGeMwVaK
+         qghUMP//3kUGyvrew8SgDPjaHQmej/9NwhxMrLE4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeffrey Altman <jaltman@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        linux-afs@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 191/731] rxrpc: Fix ack.bufferSize to be 0 when generating an ack
+        patches@lists.linux.dev,
+        Artem Chernyshev <artem.chernyshev@red-soft.ru>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Vishnu Dasa <vdasa@vmware.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0510/1073] net: vmw_vsock: vmci: Check memcpy_from_msg()
 Date:   Wed, 28 Dec 2022 15:34:58 +0100
-Message-Id: <20221228144302.095239374@linuxfoundation.org>
+Message-Id: <20221228144341.898738647@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Artem Chernyshev <artem.chernyshev@red-soft.ru>
 
-[ Upstream commit 8889a711f9b4dcf4dd1330fa493081beebd118c9 ]
+[ Upstream commit 44aa5a6dba8283bfda28b1517af4de711c5652a4 ]
 
-ack.bufferSize should be set to 0 when generating an ack.
+vmci_transport_dgram_enqueue() does not check the return value
+of memcpy_from_msg().  If memcpy_from_msg() fails, it is possible that
+uninitialized memory contents are sent unintentionally instead of user's
+message in the datagram to the destination.  Return with an error if
+memcpy_from_msg() fails.
 
-Fixes: 8d94aa381dab ("rxrpc: Calls shouldn't hold socket refs")
-Reported-by: Jeffrey Altman <jaltman@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+Fixes: 0f7db23a07af ("vmci_transport: switch ->enqeue_dgram, ->enqueue_stream and ->dequeue_stream to msghdr")
+Signed-off-by: Artem Chernyshev <artem.chernyshev@red-soft.ru>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/output.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/vmw_vsock/vmci_transport.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/net/rxrpc/output.c b/net/rxrpc/output.c
-index 9683617db704..08c117bc083e 100644
---- a/net/rxrpc/output.c
-+++ b/net/rxrpc/output.c
-@@ -93,7 +93,7 @@ static size_t rxrpc_fill_out_ack(struct rxrpc_connection *conn,
- 	*_hard_ack = hard_ack;
- 	*_top = top;
+diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+index b14f0ed7427b..a794e8b01136 100644
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -1711,7 +1711,11 @@ static int vmci_transport_dgram_enqueue(
+ 	if (!dg)
+ 		return -ENOMEM;
  
--	pkt->ack.bufferSpace	= htons(8);
-+	pkt->ack.bufferSpace	= htons(0);
- 	pkt->ack.maxSkew	= htons(0);
- 	pkt->ack.firstPacket	= htonl(hard_ack + 1);
- 	pkt->ack.previousPacket	= htonl(call->ackr_highest_seq);
+-	memcpy_from_msg(VMCI_DG_PAYLOAD(dg), msg, len);
++	err = memcpy_from_msg(VMCI_DG_PAYLOAD(dg), msg, len);
++	if (err) {
++		kfree(dg);
++		return err;
++	}
+ 
+ 	dg->dst = vmci_make_handle(remote_addr->svm_cid,
+ 				   remote_addr->svm_port);
 -- 
 2.35.1
 
