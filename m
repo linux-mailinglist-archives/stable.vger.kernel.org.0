@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9655F657C87
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:33:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27913658305
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233859AbiL1Pdf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:33:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51502 "EHLO
+        id S233134AbiL1QoF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:44:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233860AbiL1PdY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:33:24 -0500
+        with ESMTP id S234997AbiL1Qnl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:41 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B79415F2F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:33:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67DAD1A055
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:38:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0902561344
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:33:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B069C433D2;
-        Wed, 28 Dec 2022 15:33:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF04C6157D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:38:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E0BAC433EF;
+        Wed, 28 Dec 2022 16:38:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241602;
-        bh=dJH4IRPirUbc3Q6hoe3U4DoeCS+chkj0C9JCwqmG9jQ=;
+        s=korg; t=1672245487;
+        bh=PdMP5C30ft0X8j7AZsrvp3AOrowRZsfzSKyJNsTzGmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0xQVWwIHHtUVcMAGXj9EYOzmyjvZW/licMsrJS1RHNzSGtw2D+qSQQIC7w6SScw1b
-         SiNK4l+q1A1jV9PyHp9QA2crwWuO0s+xb8TTV6B+hiRmQZwkMM6OhGtK6wKKbAajnC
-         NJ2aSwRCDikUs8tlpyDwMT76FMp1dt+a96+mHuUU=
+        b=CWFdg/sLUkWsM8lR6JthV4yXnUAKz3GgswTlvR7xtr9lsZZzzV3kRmTwTh4Phxt2B
+         w20ej3uP6Eb2FzivoNfSS2OAHihlCi3FNkXAzui/NlrIorNPsR3X5kkEcfobXu0Lo6
+         phb24v574m2yUfDYfxQQ+JeTJJkcxjQz1kOGqP3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Luca Weiss <luca.weiss@fairphone.com>,
-        Amit Kucheria <amitk@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@kernel.org>,
+        patches@lists.linux.dev, Anup Patel <apatel@ventanamicro.com>,
+        Andrew Jones <ajones@ventanamicro.com>,
+        Atish Patra <atishp@rivosinc.com>,
+        Anup Patel <anup@brainfault.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 501/731] thermal/drivers/qcom/temp-alarm: Fix inaccurate warning for gen2
+Subject: [PATCH 6.1 0869/1146] RISC-V: KVM: Fix reg_val check in kvm_riscv_vcpu_set_reg_config()
 Date:   Wed, 28 Dec 2022 15:40:08 +0100
-Message-Id: <20221228144311.070787407@linuxfoundation.org>
+Message-Id: <20221228144353.772276525@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Weiss <luca.weiss@fairphone.com>
+From: Anup Patel <apatel@ventanamicro.com>
 
-[ Upstream commit 8763f8acbf8aef22a2321d4c978cd078aa3b8f64 ]
+[ Upstream commit e482d9e33d5b0f222cbef7341dcd52cead6b9edc ]
 
-On gen2 chips the stage2 threshold is not 140 degC but 125 degC.
+The reg_val check in kvm_riscv_vcpu_set_reg_config() should only
+be done for isa config register.
 
-Make the warning message clearer by using this variable and also by
-including the temperature that was checked for.
-
-Fixes: aa92b3310c55 ("thermal/drivers/qcom-spmi-temp-alarm: Add support for GEN2 rev 1 PMIC peripherals")
-Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
-Reviewed-by: Amit Kucheria <amitk@kernel.org>
-Link: https://lore.kernel.org/r/20221020145237.942146-1-luca.weiss@fairphone.com
-Signed-off-by: Daniel Lezcano <daniel.lezcano@kernel.org>
+Fixes: 9bfd900beeec ("RISC-V: KVM: Improve ISA extension by using a bitmap")
+Signed-off-by: Anup Patel <apatel@ventanamicro.com>
+Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
+Reviewed-by: Atish Patra <atishp@rivosinc.com>
+Signed-off-by: Anup Patel <anup@brainfault.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/qcom/qcom-spmi-temp-alarm.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/riscv/kvm/vcpu.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/thermal/qcom/qcom-spmi-temp-alarm.c b/drivers/thermal/qcom/qcom-spmi-temp-alarm.c
-index 7419e196dbb0..1037de19873a 100644
---- a/drivers/thermal/qcom/qcom-spmi-temp-alarm.c
-+++ b/drivers/thermal/qcom/qcom-spmi-temp-alarm.c
-@@ -251,7 +251,8 @@ static int qpnp_tm_update_critical_trip_temp(struct qpnp_tm_chip *chip,
- 			disable_s2_shutdown = true;
- 		else
- 			dev_warn(chip->dev,
--				 "No ADC is configured and critical temperature is above the maximum stage 2 threshold of 140 C! Configuring stage 2 shutdown at 140 C.\n");
-+				 "No ADC is configured and critical temperature %d mC is above the maximum stage 2 threshold of %ld mC! Configuring stage 2 shutdown at %ld mC.\n",
-+				 temp, stage2_threshold_max, stage2_threshold_max);
- 	}
+diff --git a/arch/riscv/kvm/vcpu.c b/arch/riscv/kvm/vcpu.c
+index 71ebbc4821f0..5174ef54ad1d 100644
+--- a/arch/riscv/kvm/vcpu.c
++++ b/arch/riscv/kvm/vcpu.c
+@@ -296,12 +296,15 @@ static int kvm_riscv_vcpu_set_reg_config(struct kvm_vcpu *vcpu,
+ 	if (copy_from_user(&reg_val, uaddr, KVM_REG_SIZE(reg->id)))
+ 		return -EFAULT;
  
- skip:
+-	/* This ONE REG interface is only defined for single letter extensions */
+-	if (fls(reg_val) >= RISCV_ISA_EXT_BASE)
+-		return -EINVAL;
+-
+ 	switch (reg_num) {
+ 	case KVM_REG_RISCV_CONFIG_REG(isa):
++		/*
++		 * This ONE REG interface is only defined for
++		 * single letter extensions.
++		 */
++		if (fls(reg_val) >= RISCV_ISA_EXT_BASE)
++			return -EINVAL;
++
+ 		if (!vcpu->arch.ran_atleast_once) {
+ 			/* Ignore the enable/disable request for certain extensions */
+ 			for (i = 0; i < RISCV_ISA_EXT_BASE; i++) {
 -- 
 2.35.1
 
