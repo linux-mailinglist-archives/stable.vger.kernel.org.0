@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EF53657DD0
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:47:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9A46657862
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:50:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234068AbiL1PrN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:47:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35580 "EHLO
+        id S233066AbiL1Ot7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:49:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234132AbiL1Pqz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:46:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79A61165A3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:46:54 -0800 (PST)
+        with ESMTP id S233071AbiL1Ot6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:49:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BCB9B41
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:49:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 16D1561542
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:46:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E2F4C433EF;
-        Wed, 28 Dec 2022 15:46:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BE8F5B816E6
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:49:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34AF5C433D2;
+        Wed, 28 Dec 2022 14:49:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242413;
-        bh=O62DbBscuRieN2HTwu4+4z2wGQ/rMFZe4gk8Z8aF/Ms=;
+        s=korg; t=1672238995;
+        bh=J7FwzpysjjsFN+SjVMjARPC9GfDv8COCLZ5rdinsQKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sVi4Ky+iqIWZ8AC3BbQui2QtTQ4rpEY/Ae1aj3qOMFc0n/1yysbman1h0u4hkD/tK
-         d4azcoPehvTcxrTB49bANVM/jTVoeOsQBJsCeLMrjlXqyOUsfvgGcHQ7CK4OAyzwxC
-         F4zMJdqS3n/YVWL2eIGkHPD78bJCVWFgGxzl1sg0=
+        b=tJyMa9zQkQFWXjFqP+1NdVWO9ZoMqeFccxvW9YPOZHIzhYg+7xpQJE+Td1W2oTA/W
+         g8+GbKFQqPTz/9ZozoVtkCTznheqw5Ta5YQ4vJZK16RjL+fN1OKepIaNZ9/9DTisUe
+         3FoUABdHEI95iUpzcm++Vbouemdr8Saqk4IymFjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0407/1073] NFSv4.2: Always decode the security label
-Date:   Wed, 28 Dec 2022 15:33:15 +0100
-Message-Id: <20221228144339.074248426@linuxfoundation.org>
+Subject: [PATCH 5.15 089/731] MIPS: vpe-mt: fix possible memory leak while module exiting
+Date:   Wed, 28 Dec 2022 15:33:16 +0100
+Message-Id: <20221228144259.130358315@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit c8a62f440229ae7a10874776344dfcc17d860336 ]
+[ Upstream commit 5822e8cc84ee37338ab0bdc3124f6eec04dc232d ]
 
-If the server returns a reply that includes a security label, then we
-must decode it whether or not we can store the results.
+Afer commit 1fa5ae857bb1 ("driver core: get rid of struct device's
+bus_id string array"), the name of device is allocated dynamically,
+it need be freed when module exiting, call put_device() to give up
+reference, so that it can be freed in kobject_cleanup() when the
+refcount hit to 0. The vpe_device is static, so remove kfree() from
+vpe_device_release().
 
-Fixes: 1e2f67da8931 ("NFS: Remove the nfs4_label argument from decode_getattr_*() functions")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4xdr.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ arch/mips/kernel/vpe-mt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
-index 8c5298e37f0f..9103e022376a 100644
---- a/fs/nfs/nfs4xdr.c
-+++ b/fs/nfs/nfs4xdr.c
-@@ -4755,12 +4755,10 @@ static int decode_getfattr_attrs(struct xdr_stream *xdr, uint32_t *bitmap,
- 	if (status < 0)
- 		goto xdr_error;
+diff --git a/arch/mips/kernel/vpe-mt.c b/arch/mips/kernel/vpe-mt.c
+index bad6b0891b2b..84a82b551ec3 100644
+--- a/arch/mips/kernel/vpe-mt.c
++++ b/arch/mips/kernel/vpe-mt.c
+@@ -313,7 +313,6 @@ ATTRIBUTE_GROUPS(vpe);
  
--	if (fattr->label) {
--		status = decode_attr_security_label(xdr, bitmap, fattr->label);
--		if (status < 0)
--			goto xdr_error;
--		fattr->valid |= status;
--	}
-+	status = decode_attr_security_label(xdr, bitmap, fattr->label);
-+	if (status < 0)
-+		goto xdr_error;
-+	fattr->valid |= status;
+ static void vpe_device_release(struct device *cd)
+ {
+-	kfree(cd);
+ }
  
- xdr_error:
- 	dprintk("%s: xdr returned %d\n", __func__, -status);
+ static struct class vpe_class = {
+@@ -497,6 +496,7 @@ int __init vpe_module_init(void)
+ 	device_del(&vpe_device);
+ 
+ out_class:
++	put_device(&vpe_device);
+ 	class_unregister(&vpe_class);
+ 
+ out_chrdev:
+@@ -509,7 +509,7 @@ void __exit vpe_module_exit(void)
+ {
+ 	struct vpe *v, *n;
+ 
+-	device_del(&vpe_device);
++	device_unregister(&vpe_device);
+ 	class_unregister(&vpe_class);
+ 	unregister_chrdev(major, VPE_MODULE_NAME);
+ 
 -- 
 2.35.1
 
