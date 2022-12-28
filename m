@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C10CD657B86
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F1E8657B89
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233329AbiL1PXN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:23:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39972 "EHLO
+        id S233231AbiL1PXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:23:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233718AbiL1PWo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:22:44 -0500
+        with ESMTP id S233328AbiL1PWr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:22:47 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FA2313F51
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:22:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CB2A1401B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:22:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BE6B6152F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:22:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C747C433D2;
-        Wed, 28 Dec 2022 15:22:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 26D1F6155C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:22:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39E0DC433D2;
+        Wed, 28 Dec 2022 15:22:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240951;
-        bh=uhp8QcyG8Cu3yjOSy+2bjMgySNFqU1Xu8QtI5cx4k/Y=;
+        s=korg; t=1672240959;
+        bh=3sOBcQxRetvwd6JEeMeaIjfwfbmL06MvSlThWTyQsq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hNbx4BUbL12uTSXZD91NeEQBtaZdMWCURE1v7RdkapAkQWbiQH9t/bVjDjwkU/jOp
-         3xrdDhkwKTivEx5WIT+DiFXijMCMORpUa+YPHPJyqhsvoPmQBr96mPHaZCtHaS9bsQ
-         WN1LHxUVYu0BhNC63ShytBxzkwyLvbYXPtd4vBaQ=
+        b=AgDCVcdEf918ez3Q2qi0fGYN30f06AXgDEcCPKS8J3MQMxg+CcbuiHCbafMKGMSCK
+         UkHTKvFLl0l1XrChWVgHOw2SXZOdcYE5BvZRc5CZKcFMkLO0zCXrgW8mYPBlI93wGC
+         FUuqCiBOyhuB1SmR3AeDV44syT9P20S/UoPdRr90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
-        Dylan Yudaken <dylany@fb.com>, Jens Axboe <axboe@kernel.dk>,
-        Sha Zhengju <handai.szj@taobao.com>,
+        patches@lists.linux.dev,
+        "Ilia.Gavrilov" <Ilia.Gavrilov@infotecs.ru>,
+        Colin Ian King <colin.i.king@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, wuchi <wuchi.zero@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0188/1146] eventfd: change int to __u64 in eventfd_signal() ifndef CONFIG_EVENTFD
-Date:   Wed, 28 Dec 2022 15:28:47 +0100
-Message-Id: <20221228144335.257573709@linuxfoundation.org>
+Subject: [PATCH 6.1 0189/1146] relay: fix type mismatch when allocating memory in relay_create_buf()
+Date:   Wed, 28 Dec 2022 15:28:48 +0100
+Message-Id: <20221228144335.283718387@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -55,38 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Gavrilov Ilia <Ilia.Gavrilov@infotecs.ru>
 
-[ Upstream commit fd4e60bf0ef8eb9edcfa12dda39e8b6ee9060492 ]
+[ Upstream commit 4d8586e04602fe42f0a782d2005956f8b6302678 ]
 
-Commit ee62c6b2dc93 ("eventfd: change int to __u64 in eventfd_signal()")
-forgot to change int to __u64 in the CONFIG_EVENTFD=n stub function.
+The 'padding' field of the 'rchan_buf' structure is an array of 'size_t'
+elements, but the memory is allocated for an array of 'size_t *' elements.
 
-Link: https://lkml.kernel.org/r/20221124140154.104680-1-zhangqilong3@huawei.com
-Fixes: ee62c6b2dc93 ("eventfd: change int to __u64 in eventfd_signal()")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Cc: Dylan Yudaken <dylany@fb.com>
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+Link: https://lkml.kernel.org/r/20221129092002.3538384-1-Ilia.Gavrilov@infotecs.ru
+Fixes: b86ff981a825 ("[PATCH] relay: migrate from relayfs to a generic relay API")
+Signed-off-by: Ilia.Gavrilov <Ilia.Gavrilov@infotecs.ru>
+Cc: Colin Ian King <colin.i.king@gmail.com>
 Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Sha Zhengju <handai.szj@taobao.com>
+Cc: wuchi <wuchi.zero@gmail.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/eventfd.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/relay.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/eventfd.h b/include/linux/eventfd.h
-index 30eb30d6909b..3cd202d3eefb 100644
---- a/include/linux/eventfd.h
-+++ b/include/linux/eventfd.h
-@@ -61,7 +61,7 @@ static inline struct eventfd_ctx *eventfd_ctx_fdget(int fd)
- 	return ERR_PTR(-ENOSYS);
- }
- 
--static inline int eventfd_signal(struct eventfd_ctx *ctx, int n)
-+static inline int eventfd_signal(struct eventfd_ctx *ctx, __u64 n)
+diff --git a/kernel/relay.c b/kernel/relay.c
+index d7edc934c56d..88bcb09f0a1f 100644
+--- a/kernel/relay.c
++++ b/kernel/relay.c
+@@ -148,13 +148,13 @@ static struct rchan_buf *relay_create_buf(struct rchan *chan)
  {
- 	return -ENOSYS;
- }
+ 	struct rchan_buf *buf;
+ 
+-	if (chan->n_subbufs > KMALLOC_MAX_SIZE / sizeof(size_t *))
++	if (chan->n_subbufs > KMALLOC_MAX_SIZE / sizeof(size_t))
+ 		return NULL;
+ 
+ 	buf = kzalloc(sizeof(struct rchan_buf), GFP_KERNEL);
+ 	if (!buf)
+ 		return NULL;
+-	buf->padding = kmalloc_array(chan->n_subbufs, sizeof(size_t *),
++	buf->padding = kmalloc_array(chan->n_subbufs, sizeof(size_t),
+ 				     GFP_KERNEL);
+ 	if (!buf->padding)
+ 		goto free_buf;
 -- 
 2.35.1
 
