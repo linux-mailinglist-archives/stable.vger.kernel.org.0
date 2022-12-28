@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D5EA6584C2
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:01:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D882B657F43
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233133AbiL1RB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:01:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54218 "EHLO
+        id S234253AbiL1QDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:03:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235380AbiL1RA4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:00:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D098D1B9CC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:56:00 -0800 (PST)
+        with ESMTP id S234254AbiL1QCr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:02:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 376941928A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:02:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 669B7613E9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:56:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CD8BC433D2;
-        Wed, 28 Dec 2022 16:55:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C881661542
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:02:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0D6BC433D2;
+        Wed, 28 Dec 2022 16:02:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246559;
-        bh=k58RRflD6JGFt7EF93aoHdhUah760czXjm3Zmz65dMQ=;
+        s=korg; t=1672243365;
+        bh=BrglO72aGgIDUCnSTd7qS7EwqALWhU6mg7lEWRQ2jfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bb6Pa6D06+fHpW8axTjIwMcMUhjFH5ZmUxk5H5hOHWwCC6hOsu2gEz2AHPvO+/NWj
-         KkHU0WOb9JJ02yw+tUkSToDsyz/hVAhYl7oVozyM2GIfZzrkipbRhPEv6QV9plwquy
-         P4cKcwFFtw69bcMJGTDlQ2bblWZ0armx558R9cDE=
+        b=IDnnUjHb0MFQXXEIVmucuHgn3ADDpDuE9bCd3LhaHLK/LiUA7/xzdAU9aLmp+3xTd
+         e7euVxlCKrb29/T7SCWFNuHgJwELMVWJIYztRvBT9Hhz8e6EOM/QJYOkN5ajYTW+pT
+         VLp675tMKuNzU/GRqcrjsQvQblNqTKd7/PN81ho0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Wang <wvw@google.com>,
-        Midas Chien <midaschieh@google.com>,
-        Connor OBrien <connoro@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Anton Vorontsov <anton@enomsg.org>,
-        Colin Cross <ccross@android.com>,
-        Tony Luck <tony.luck@intel.com>, kernel-team@android.com,
-        John Stultz <jstultz@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1081/1146] pstore: Switch pmsg_lock to an rt_mutex to avoid priority inversion
+        patches@lists.linux.dev,
+        =?UTF-8?q?Sven=20Z=C3=BChlsdorf?= <sven.zuehlsdorf@vigem.de>,
+        Enrik Berkhan <Enrik.Berkhan@inka.de>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 5.15 713/731] HID: mcp2221: dont connect hidraw
 Date:   Wed, 28 Dec 2022 15:43:40 +0100
-Message-Id: <20221228144359.574112911@linuxfoundation.org>
+Message-Id: <20221228144317.112260663@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,70 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Stultz <jstultz@google.com>
+From: Enrik Berkhan <Enrik.Berkhan@inka.de>
 
-[ Upstream commit 76d62f24db07f22ccf9bc18ca793c27d4ebef721 ]
+commit 67c90d14018775556d5420382ace86521421f9ff upstream.
 
-Wei Wang reported seeing priority inversion caused latencies
-caused by contention on pmsg_lock, and suggested it be switched
-to a rt_mutex.
+The MCP2221 driver should not connect to the hidraw userspace interface,
+as it needs exclusive access to the chip.
 
-I was initially hesitant this would help, as the tasks in that
-trace all seemed to be SCHED_NORMAL, so the benefit would be
-limited to only nice boosting.
+If you want to use /dev/hidrawX with the MCP2221, you need to avoid
+binding this driver to the device and use the hid generic driver instead
+(e.g. using udev rules).
 
-However, another similar issue was raised where the priority
-inversion was seen did involve a blocked RT task so it is clear
-this would be helpful in that case.
-
-Cc: Wei Wang <wvw@google.com>
-Cc: Midas Chien<midaschieh@google.com>
-Cc: Connor O'Brien <connoro@google.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Anton Vorontsov <anton@enomsg.org>
-Cc: Colin Cross <ccross@android.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: kernel-team@android.com
-Fixes: 9d5438f462ab ("pstore: Add pmsg - user-space accessible pstore object")
-Reported-by: Wei Wang <wvw@google.com>
-Signed-off-by: John Stultz <jstultz@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221214231834.3711880-1-jstultz@google.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-by: Sven Zühlsdorf <sven.zuehlsdorf@vigem.de>
+Signed-off-by: Enrik Berkhan <Enrik.Berkhan@inka.de>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Link: https://lore.kernel.org/r/20221103222714.21566-2-Enrik.Berkhan@inka.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/pstore/pmsg.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/hid/hid-mcp2221.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/fs/pstore/pmsg.c b/fs/pstore/pmsg.c
-index d8542ec2f38c..18cf94b597e0 100644
---- a/fs/pstore/pmsg.c
-+++ b/fs/pstore/pmsg.c
-@@ -7,9 +7,10 @@
- #include <linux/device.h>
- #include <linux/fs.h>
- #include <linux/uaccess.h>
-+#include <linux/rtmutex.h>
- #include "internal.h"
+--- a/drivers/hid/hid-mcp2221.c
++++ b/drivers/hid/hid-mcp2221.c
+@@ -840,12 +840,19 @@ static int mcp2221_probe(struct hid_devi
+ 		return ret;
+ 	}
  
--static DEFINE_MUTEX(pmsg_lock);
-+static DEFINE_RT_MUTEX(pmsg_lock);
+-	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
++	/*
++	 * This driver uses the .raw_event callback and therefore does not need any
++	 * HID_CONNECT_xxx flags.
++	 */
++	ret = hid_hw_start(hdev, 0);
+ 	if (ret) {
+ 		hid_err(hdev, "can't start hardware\n");
+ 		return ret;
+ 	}
  
- static ssize_t write_pmsg(struct file *file, const char __user *buf,
- 			  size_t count, loff_t *ppos)
-@@ -28,9 +29,9 @@ static ssize_t write_pmsg(struct file *file, const char __user *buf,
- 	if (!access_ok(buf, count))
- 		return -EFAULT;
++	hid_info(hdev, "USB HID v%x.%02x Device [%s] on %s\n", hdev->version >> 8,
++			hdev->version & 0xff, hdev->name, hdev->phys);
++
+ 	ret = hid_hw_open(hdev);
+ 	if (ret) {
+ 		hid_err(hdev, "can't open device\n");
+@@ -870,8 +877,7 @@ static int mcp2221_probe(struct hid_devi
+ 	mcp->adapter.retries = 1;
+ 	mcp->adapter.dev.parent = &hdev->dev;
+ 	snprintf(mcp->adapter.name, sizeof(mcp->adapter.name),
+-			"MCP2221 usb-i2c bridge on hidraw%d",
+-			((struct hidraw *)hdev->hidraw)->minor);
++			"MCP2221 usb-i2c bridge");
  
--	mutex_lock(&pmsg_lock);
-+	rt_mutex_lock(&pmsg_lock);
- 	ret = psinfo->write_user(&record, buf);
--	mutex_unlock(&pmsg_lock);
-+	rt_mutex_unlock(&pmsg_lock);
- 	return ret ? ret : count;
- }
- 
--- 
-2.35.1
-
+ 	ret = i2c_add_adapter(&mcp->adapter);
+ 	if (ret) {
 
 
