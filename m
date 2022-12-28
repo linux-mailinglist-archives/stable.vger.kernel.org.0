@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A75E6657FD2
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:10:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0965657EEF
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:59:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234409AbiL1QKn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:10:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55102 "EHLO
+        id S233057AbiL1P7X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:59:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234561AbiL1QKG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:10:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 214EE193CF
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:08:53 -0800 (PST)
+        with ESMTP id S234219AbiL1P7V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:59:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DFE318E05
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:59:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3D66AB817F6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:08:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5901C433D2;
-        Wed, 28 Dec 2022 16:08:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D05FB6155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:59:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF1DCC433EF;
+        Wed, 28 Dec 2022 15:59:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243726;
-        bh=ePLCemy2YIiZAvrzGA93uok9W6nFdUjaEHU7U60Ldvs=;
+        s=korg; t=1672243160;
+        bh=D/0aBaHzn5SFB1NyUoKmFvLKw/eY2lz8Z++VcCbMTJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yYCBNaCghzy+vX0rwUzcA7H/Q0KR5qAZ8VWdRrzn18Up5dJQ5kxIkZ4rCd8lX68JG
-         RlguLdFMCx7jWKbEkC1eK4MIMfuvWpoZTW3VDe2gPo1A5AVNUSZcsVfr5qmlRPm30A
-         Br2JiALNTxeJfGmoYlYo17gfhKQjvlJDOk0qPGv4=
+        b=arLKpLUMe2TWDTlrQvFSLC/drPgFK6gQJzwCx5acoB/v/jVsxWbpms9+BHm7xQZId
+         2VRqQMZMJK415qT6G9gojIsk8UK2GXWmWsOlZAnJrzi8eY63//IkIPepBz/o5kVP3Z
+         6B/Opg3vXbEZi4u0DaC9fkjiWp1wGeMvJrKkSj0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Zhen Lei <thunder.leizhen@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0545/1146] af_unix: call proto_unregister() in the error path in af_unix_init()
+Subject: [PATCH 6.0 0496/1073] mmc: core: Normalize the error handling branch in sd_read_ext_regs()
 Date:   Wed, 28 Dec 2022 15:34:44 +0100
-Message-Id: <20221228144344.976002022@linuxfoundation.org>
+Message-Id: <20221228144341.507984799@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 73e341e0281a35274629e9be27eae2f9b1b492bf ]
+[ Upstream commit fc02e2b52389c8fde02852b2f959c0b45f042bbd ]
 
-If register unix_stream_proto returns error, unix_dgram_proto needs
-be unregistered.
+Let's use pr_err() to output the error messages and let's extend a comment
+to clarify why returning 0 (success) in one case make sense.
 
-Fixes: 94531cfcbe79 ("af_unix: Add unix_stream_proto for sockmap")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: c784f92769ae ("mmc: core: Read the SD function extension registers for power management")
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+[Ulf: Clarified the comment and the commit-msg]
+Link: https://lore.kernel.org/r/20221130134920.2109-1-thunder.leizhen@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/unix/af_unix.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mmc/core/sd.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
-index b3545fc68097..ede2b2a140a4 100644
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -3738,6 +3738,7 @@ static int __init af_unix_init(void)
- 	rc = proto_register(&unix_stream_proto, 1);
- 	if (rc != 0) {
- 		pr_crit("%s: Cannot create unix_sock SLAB cache!\n", __func__);
-+		proto_unregister(&unix_dgram_proto);
+diff --git a/drivers/mmc/core/sd.c b/drivers/mmc/core/sd.c
+index 3662bf5320ce..72b664ed90cf 100644
+--- a/drivers/mmc/core/sd.c
++++ b/drivers/mmc/core/sd.c
+@@ -1259,7 +1259,7 @@ static int sd_read_ext_regs(struct mmc_card *card)
+ 	 */
+ 	err = sd_read_ext_reg(card, 0, 0, 0, 512, gen_info_buf);
+ 	if (err) {
+-		pr_warn("%s: error %d reading general info of SD ext reg\n",
++		pr_err("%s: error %d reading general info of SD ext reg\n",
+ 			mmc_hostname(card->host), err);
  		goto out;
  	}
+@@ -1273,7 +1273,12 @@ static int sd_read_ext_regs(struct mmc_card *card)
+ 	/* Number of extensions to be find. */
+ 	num_ext = gen_info_buf[4];
  
+-	/* We support revision 0, but limit it to 512 bytes for simplicity. */
++	/*
++	 * We only support revision 0 and limit it to 512 bytes for simplicity.
++	 * No matter what, let's return zero to allow us to continue using the
++	 * card, even if we can't support the features from the SD function
++	 * extensions registers.
++	 */
+ 	if (rev != 0 || len > 512) {
+ 		pr_warn("%s: non-supported SD ext reg layout\n",
+ 			mmc_hostname(card->host));
+@@ -1288,7 +1293,7 @@ static int sd_read_ext_regs(struct mmc_card *card)
+ 	for (i = 0; i < num_ext; i++) {
+ 		err = sd_parse_ext_reg(card, gen_info_buf, &next_ext_addr);
+ 		if (err) {
+-			pr_warn("%s: error %d parsing SD ext reg\n",
++			pr_err("%s: error %d parsing SD ext reg\n",
+ 				mmc_hostname(card->host), err);
+ 			goto out;
+ 		}
 -- 
 2.35.1
 
