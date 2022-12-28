@@ -2,44 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43C04657F7F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:05:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E69406578A2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:53:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233043AbiL1QFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:05:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52250 "EHLO
+        id S233179AbiL1OxF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:53:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234313AbiL1QFb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:05:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAE8619283
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:05:30 -0800 (PST)
+        with ESMTP id S233196AbiL1Ow3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:52:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FD19101E2
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:52:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52815B81719
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:05:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBA76C433EF;
-        Wed, 28 Dec 2022 16:05:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2FFE2B8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:52:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73278C433D2;
+        Wed, 28 Dec 2022 14:52:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243528;
-        bh=qFeJzhelFoZRu3G35Ye3Hge5j+zY9uliNDb3ea8N4YY=;
+        s=korg; t=1672239143;
+        bh=lomZ4pZK6Ek1cuGNK35hkaOAos1qguTINJQwSxAZRrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X5tZNIXhmiXW36PLxElFi+l64uuFHMFsxPlLIhuOVTHcHaSnoLg38yCUmUxkRuIOd
-         JLoejm5HYJwTnfQKEIj1P+c5Tcez1jurb7tZkN0KM9KIuJk67GSFWCquhFLRVEaXxO
-         scSRqDeZjk6hNr4Ta799BzNTfmnjUpbrUiLAGXb8=
+        b=gFjSJgnfNxa6TjLP5v0q4Nb4KBXzQelPyrkIUTqABT5Pms8Dvy1JBapQeQb0eGvPw
+         vL3aH4Qam5YEnqjpu5cK7fACmTwW3smc6EqEw3a+0Aaym0BVCBObcggW3RmWdCi04/
+         LJWyt85cVQQ0eMHfH3yEfVCi4R3/UnSwIMmkcBQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Akinobu Mita <akinobu.mita@gmail.com>,
+        Zhao Gongyi <zhaogongyi@huawei.com>,
+        David Hildenbrand <david@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Oscar Salvador <osalvador@suse.de>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Yicong Yang <yangyicong@hisilicon.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0476/1146] regulator: core: fix resource leak in regulator_register()
+Subject: [PATCH 5.15 108/731] lib/notifier-error-inject: fix error when writing -errno to debugfs file
 Date:   Wed, 28 Dec 2022 15:33:35 +0100
-Message-Id: <20221228144343.112800265@linuxfoundation.org>
+Message-Id: <20221228144259.679681344@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,69 +62,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Akinobu Mita <akinobu.mita@gmail.com>
 
-[ Upstream commit ba62319a42c50e6254e98b3f316464fac8e77968 ]
+[ Upstream commit f883c3edd2c432a2931ec8773c70a570115a50fe ]
 
-I got some resource leak reports while doing fault injection test:
+The simple attribute files do not accept a negative value since the commit
+488dac0c9237 ("libfs: fix error cast of negative value in
+simple_attr_write()").
 
-  OF: ERROR: memory leak, expected refcount 1 instead of 100,
-  of_node_get()/of_node_put() unbalanced - destroy cset entry:
-  attach overlay node /i2c/pmic@64/regulators/buck1
+This restores the previous behaviour by using newly introduced
+DEFINE_SIMPLE_ATTRIBUTE_SIGNED instead of DEFINE_SIMPLE_ATTRIBUTE.
 
-unreferenced object 0xffff88810deea000 (size 512):
-  comm "490-i2c-rt5190a", pid 253, jiffies 4294859840 (age 5061.046s)
-  hex dump (first 32 bytes):
-    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
-    ff ff ff ff ff ff ff ff a0 1e 00 a1 ff ff ff ff  ................
-  backtrace:
-    [<00000000d78541e2>] kmalloc_trace+0x21/0x110
-    [<00000000b343d153>] device_private_init+0x32/0xd0
-    [<00000000be1f0c70>] device_add+0xb2d/0x1030
-    [<00000000e3e6344d>] regulator_register+0xaf2/0x12a0
-    [<00000000e2f5e754>] devm_regulator_register+0x57/0xb0
-    [<000000008b898197>] rt5190a_probe+0x52a/0x861 [rt5190a_regulator]
-
-unreferenced object 0xffff88810b617b80 (size 32):
-  comm "490-i2c-rt5190a", pid 253, jiffies 4294859904 (age 5060.983s)
-  hex dump (first 32 bytes):
-    72 65 67 75 6c 61 74 6f 72 2e 32 38 36 38 2d 53  regulator.2868-S
-    55 50 50 4c 59 00 ff ff 29 00 00 00 2b 00 00 00  UPPLY...)...+...
-  backtrace:
-    [<000000009da9280d>] __kmalloc_node_track_caller+0x44/0x1b0
-    [<0000000025c6a4e5>] kstrdup+0x3a/0x70
-    [<00000000790efb69>] create_regulator+0xc0/0x4e0
-    [<0000000005ed203a>] regulator_resolve_supply+0x2d4/0x440
-    [<0000000045796214>] regulator_register+0x10b3/0x12a0
-    [<00000000e2f5e754>] devm_regulator_register+0x57/0xb0
-    [<000000008b898197>] rt5190a_probe+0x52a/0x861 [rt5190a_regulator]
-
-After calling regulator_resolve_supply(), the 'rdev->supply' is set
-by set_supply(), after this set, in the error path, the resources
-need be released, so call regulator_put() to avoid the leaks.
-
-Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
-Fixes: 8a866d527ac0 ("regulator: core: Resolve supply name earlier to prevent double-init")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221202025111.496402-1-yangyingliang@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lkml.kernel.org/r/20220919172418.45257-3-akinobu.mita@gmail.com
+Fixes: 488dac0c9237 ("libfs: fix error cast of negative value in simple_attr_write()")
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Reported-by: Zhao Gongyi <zhaogongyi@huawei.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Rafael J. Wysocki <rafael@kernel.org>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Wei Yongjun <weiyongjun1@huawei.com>
+Cc: Yicong Yang <yangyicong@hisilicon.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 1 +
- 1 file changed, 1 insertion(+)
+ lib/notifier-error-inject.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index bf418bc10146..d65721498349 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -5643,6 +5643,7 @@ regulator_register(const struct regulator_desc *regulator_desc,
- 	regulator_remove_coupling(rdev);
- 	mutex_unlock(&regulator_list_mutex);
- wash:
-+	regulator_put(rdev->supply);
- 	kfree(rdev->coupling_desc.coupled_rdevs);
- 	mutex_lock(&regulator_list_mutex);
- 	regulator_ena_gpio_free(rdev);
+diff --git a/lib/notifier-error-inject.c b/lib/notifier-error-inject.c
+index 21016b32d313..2b24ea6c9497 100644
+--- a/lib/notifier-error-inject.c
++++ b/lib/notifier-error-inject.c
+@@ -15,7 +15,7 @@ static int debugfs_errno_get(void *data, u64 *val)
+ 	return 0;
+ }
+ 
+-DEFINE_SIMPLE_ATTRIBUTE(fops_errno, debugfs_errno_get, debugfs_errno_set,
++DEFINE_SIMPLE_ATTRIBUTE_SIGNED(fops_errno, debugfs_errno_get, debugfs_errno_set,
+ 			"%lld\n");
+ 
+ static struct dentry *debugfs_create_errno(const char *name, umode_t mode,
 -- 
 2.35.1
 
