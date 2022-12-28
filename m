@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC0A46583C0
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:51:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB336658301
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235189AbiL1Qv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:51:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45006 "EHLO
+        id S234653AbiL1Qn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:43:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235143AbiL1QvG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:51:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C54D2DE1
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:45:46 -0800 (PST)
+        with ESMTP id S234984AbiL1Qn3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B8391A209
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C91D60D41
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:45:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58F9DC433D2;
-        Wed, 28 Dec 2022 16:45:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E3099B8171E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:37:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CE0BC433D2;
+        Wed, 28 Dec 2022 16:37:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245945;
-        bh=4VJnFXAYzanFpPgCUTRJ7cvXI3BZz/00GMskqzeIedk=;
+        s=korg; t=1672245474;
+        bh=SwThl0N1pKRQexATFYYnMwhF7WjNhdvKxDOxdnQCq9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H+p1oYdqG4DqyZPhJvyHz5pyMBMyHofpdfJsC0KdvqPqA919tApt7zX/sMikMv5qd
-         FCk6Y72M+c/VfLrXD4XWKrxsp3cjTzrdt5tMJhkS3ZpcdxyliWt1mT89FljIpieRsN
-         ZKFdZOB8o8hQ2kj6xohYp2bIkNG62lRaF/UiBz00=
+        b=0nuyaQNHqystr3hqnaPm0wYahEbvsjUHK/DgDFoklDi9K5L9Thc8eLMKvHscceU3e
+         hQZNiGdoL/OX2Ucva80n+TJ6h0e7ISh82uKqab2wip6PBbroqAshJxomOgFyhQmEdI
+         tfwrgYkGVuVAXuCdQHrFgFfqnFGE+nIBHwCQq9/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Paul Menzel <pmenzel@molgen.mpg.de>,
+        "Robert Elliott (Servers)" <elliott@hpe.com>,
+        =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0951/1146] ACPICA: Fix error code path in acpi_ds_call_control_method()
+Subject: [PATCH 6.0 0902/1073] x86/apic: Handle no CONFIG_X86_X2APIC on systems with x2APIC enabled by BIOS
 Date:   Wed, 28 Dec 2022 15:41:30 +0100
-Message-Id: <20221228144356.149915121@linuxfoundation.org>
+Message-Id: <20221228144352.532061645@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,66 +55,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Mateusz Jończyk <mat.jonczyk@o2.pl>
 
-[ Upstream commit 404ec60438add1afadaffaed34bb5fe4ddcadd40 ]
+[ Upstream commit e3998434da4f5b1f57f8d6a8a9f8502ee3723bae ]
 
-A use-after-free in acpi_ps_parse_aml() after a failing invocaion of
-acpi_ds_call_control_method() is reported by KASAN [1] and code
-inspection reveals that next_walk_state pushed to the thread by
-acpi_ds_create_walk_state() is freed on errors, but it is not popped
-from the thread beforehand.  Thus acpi_ds_get_current_walk_state()
-called by acpi_ps_parse_aml() subsequently returns it as the new
-walk state which is incorrect.
+A kernel that was compiled without CONFIG_X86_X2APIC was unable to boot on
+platforms that have x2APIC already enabled in the BIOS before starting the
+kernel.
 
-To address this, make acpi_ds_call_control_method() call
-acpi_ds_pop_walk_state() to pop next_walk_state from the thread before
-returning an error.
+The kernel was supposed to panic with an approprite error message in
+validate_x2apic() due to the missing X2APIC support.
 
-Link: https://lore.kernel.org/linux-acpi/20221019073443.248215-1-chenzhongjin@huawei.com/ # [1]
-Reported-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Chen Zhongjin <chenzhongjin@huawei.com>
+However, validate_x2apic() was run too late in the boot cycle, and the
+kernel tried to initialize the APIC nonetheless. This resulted in an
+earlier panic in setup_local_APIC() because the APIC was not registered.
+
+In my experiments, a panic message in setup_local_APIC() was not visible
+in the graphical console, which resulted in a hang with no indication
+what has gone wrong.
+
+Instead of calling panic(), disable the APIC, which results in a somewhat
+working system with the PIC only (and no SMP). This way the user is able to
+diagnose the problem more easily.
+
+Disabling X2APIC mode is not an option because it's impossible on systems
+with locked x2APIC.
+
+The proper place to disable the APIC in this case is in check_x2apic(),
+which is called early from setup_arch(). Doing this in
+__apic_intr_mode_select() is too late.
+
+Make check_x2apic() unconditionally available and remove the empty stub.
+
+Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Reported-by: Robert Elliott (Servers) <elliott@hpe.com>
+Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/lkml/d573ba1c-0dc4-3016-712a-cc23a8a33d42@molgen.mpg.de
+Link: https://lore.kernel.org/lkml/20220911084711.13694-3-mat.jonczyk@o2.pl
+Link: https://lore.kernel.org/all/20221129215008.7247-1-mat.jonczyk@o2.pl
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/dsmethod.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ arch/x86/Kconfig            |  4 ++--
+ arch/x86/include/asm/apic.h |  3 +--
+ arch/x86/kernel/apic/apic.c | 13 ++++++++-----
+ 3 files changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/acpi/acpica/dsmethod.c b/drivers/acpi/acpica/dsmethod.c
-index ae2e768830bf..9332bc688713 100644
---- a/drivers/acpi/acpica/dsmethod.c
-+++ b/drivers/acpi/acpica/dsmethod.c
-@@ -517,7 +517,7 @@ acpi_ds_call_control_method(struct acpi_thread_state *thread,
- 	info = ACPI_ALLOCATE_ZEROED(sizeof(struct acpi_evaluate_info));
- 	if (!info) {
- 		status = AE_NO_MEMORY;
--		goto cleanup;
-+		goto pop_walk_state;
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 4728d3f5d5c4..3fec0e9d9241 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -450,8 +450,8 @@ config X86_X2APIC
+ 
+ 	  Some Intel systems circa 2022 and later are locked into x2APIC mode
+ 	  and can not fall back to the legacy APIC modes if SGX or TDX are
+-	  enabled in the BIOS.  They will be unable to boot without enabling
+-	  this option.
++	  enabled in the BIOS. They will boot with very reduced functionality
++	  without enabling this option.
+ 
+ 	  If you don't know what to do here, say N.
+ 
+diff --git a/arch/x86/include/asm/apic.h b/arch/x86/include/asm/apic.h
+index 3415321c8240..3216da7074ba 100644
+--- a/arch/x86/include/asm/apic.h
++++ b/arch/x86/include/asm/apic.h
+@@ -249,7 +249,6 @@ static inline u64 native_x2apic_icr_read(void)
+ extern int x2apic_mode;
+ extern int x2apic_phys;
+ extern void __init x2apic_set_max_apicid(u32 apicid);
+-extern void __init check_x2apic(void);
+ extern void x2apic_setup(void);
+ static inline int x2apic_enabled(void)
+ {
+@@ -258,13 +257,13 @@ static inline int x2apic_enabled(void)
+ 
+ #define x2apic_supported()	(boot_cpu_has(X86_FEATURE_X2APIC))
+ #else /* !CONFIG_X86_X2APIC */
+-static inline void check_x2apic(void) { }
+ static inline void x2apic_setup(void) { }
+ static inline int x2apic_enabled(void) { return 0; }
+ 
+ #define x2apic_mode		(0)
+ #define	x2apic_supported()	(0)
+ #endif /* !CONFIG_X86_X2APIC */
++extern void __init check_x2apic(void);
+ 
+ struct irq_data;
+ 
+diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+index c6876d3ea4b1..20d9a604da7c 100644
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -1931,16 +1931,19 @@ void __init check_x2apic(void)
  	}
- 
- 	info->parameters = &this_walk_state->operands[0];
-@@ -529,7 +529,7 @@ acpi_ds_call_control_method(struct acpi_thread_state *thread,
- 
- 	ACPI_FREE(info);
- 	if (ACPI_FAILURE(status)) {
--		goto cleanup;
-+		goto pop_walk_state;
- 	}
- 
- 	next_walk_state->method_nesting_depth =
-@@ -575,6 +575,12 @@ acpi_ds_call_control_method(struct acpi_thread_state *thread,
- 
- 	return_ACPI_STATUS(status);
- 
-+pop_walk_state:
+ }
+ #else /* CONFIG_X86_X2APIC */
+-static int __init validate_x2apic(void)
++void __init check_x2apic(void)
+ {
+ 	if (!apic_is_x2apic_enabled())
+-		return 0;
++		return;
+ 	/*
+-	 * Checkme: Can we simply turn off x2apic here instead of panic?
++	 * Checkme: Can we simply turn off x2APIC here instead of disabling the APIC?
+ 	 */
+-	panic("BIOS has enabled x2apic but kernel doesn't support x2apic, please disable x2apic in BIOS.\n");
++	pr_err("Kernel does not support x2APIC, please recompile with CONFIG_X86_X2APIC.\n");
++	pr_err("Disabling APIC, expect reduced performance and functionality.\n");
 +
-+	/* On error, pop the walk state to be deleted from thread */
-+
-+	acpi_ds_pop_walk_state(thread);
-+
- cleanup:
++	disable_apic = 1;
++	setup_clear_cpu_cap(X86_FEATURE_APIC);
+ }
+-early_initcall(validate_x2apic);
  
- 	/* On error, we must terminate the method properly */
+ static inline void try_to_enable_x2apic(int remap_mode) { }
+ static inline void __x2apic_enable(void) { }
 -- 
 2.35.1
 
