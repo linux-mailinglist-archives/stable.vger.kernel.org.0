@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82835657F9D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:07:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 084AC657E9A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:55:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234408AbiL1QHU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:07:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53838 "EHLO
+        id S233630AbiL1Pz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:55:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234460AbiL1QGs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:06:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EA0511A38
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:06:36 -0800 (PST)
+        with ESMTP id S233669AbiL1Pz1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:55:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83A2218B13
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:55:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AFDA861560
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:06:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0B62C433EF;
-        Wed, 28 Dec 2022 16:06:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 20C706155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:55:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 340CDC433D2;
+        Wed, 28 Dec 2022 15:55:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243595;
-        bh=dvs4yo52huo1GEvWFbkCdzuqxLylM5fB0TGesP/gAj0=;
+        s=korg; t=1672242925;
+        bh=jBE6hruOnRQMIgFsUWDkBDqedX+JURaItPYusGic2g8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xTeI4U0raNL/P/GvvmxCbJyNK/aJ/iOZafWAe88UfOZkEHrJ+dguKrFGgKqjYa3AA
-         DH6dV3T/JifXQ52pmn84HTUJThebb+SI1NuVZrEBE00BoNdDK/TkJx58w9ax8fGHaV
-         jpsN1/AcHKQ2FaJd/OX5A5Avrzp1O0OM2TsvgoX4=
+        b=XI3dXt2G12bGnwtUQ23kHAHsEkpZgmDjwckeLTFAeDEyvN4KJVFW+esg81VUBQuCK
+         XWnP3rPhP6TGBNY2PT43YiivDSKvSCX69ZEMT0LRn1oqGYzLUONcRRvolnkvcebp4L
+         /HnnEQE2ngDzyDiookqP/LZhK/kntiM/PEvU69+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0518/1146] media: coda: Add check for kmalloc
-Date:   Wed, 28 Dec 2022 15:34:17 +0100
-Message-Id: <20221228144344.245383425@linuxfoundation.org>
+Subject: [PATCH 6.0 0470/1073] pinctrl: thunderbay: fix possible memory leak in thunderbay_build_functions()
+Date:   Wed, 28 Dec 2022 15:34:18 +0100
+Message-Id: <20221228144340.803152710@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit 6e5e5defdb8b0186312c2f855ace175aee6daf9b ]
+[ Upstream commit 83e1bcaf8cef26edaaf2a6098ef760f563683483 ]
 
-As the kmalloc may return NULL pointer,
-it should be better to check the return value
-in order to avoid NULL poineter dereference,
-same as the others.
+The thunderbay_add_functions() will free memory of thunderbay_funcs
+when everything is ok, but thunderbay_funcs will not be freed when
+thunderbay_add_functions() fails, then there will be a memory leak,
+so we need to add kfree() when thunderbay_add_functions() fails to
+fix it.
 
-Fixes: cb1d3a336371 ("[media] coda: add CODA7541 JPEG support")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+In addition, doing some cleaner works, moving kfree(funcs) from
+thunderbay_add_functions() to thunderbay_build_functions().
+
+Fixes: 12422af8194d ("pinctrl: Add Intel Thunder Bay pinctrl driver")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Reviewed-by: Rafał Miłecki <rafal@milecki.pl>
+Link: https://lore.kernel.org/r/20221129120126.1567338-1-cuigaosheng1@huawei.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/chips-media/coda-bit.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/pinctrl/pinctrl-thunderbay.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/chips-media/coda-bit.c b/drivers/media/platform/chips-media/coda-bit.c
-index 6d816fd69a17..ed47d5bd8d61 100644
---- a/drivers/media/platform/chips-media/coda-bit.c
-+++ b/drivers/media/platform/chips-media/coda-bit.c
-@@ -1084,10 +1084,16 @@ static int coda_start_encoding(struct coda_ctx *ctx)
+diff --git a/drivers/pinctrl/pinctrl-thunderbay.c b/drivers/pinctrl/pinctrl-thunderbay.c
+index 9328b17485cf..590bbbf619af 100644
+--- a/drivers/pinctrl/pinctrl-thunderbay.c
++++ b/drivers/pinctrl/pinctrl-thunderbay.c
+@@ -808,7 +808,7 @@ static int thunderbay_add_functions(struct thunderbay_pinctrl *tpc, struct funct
+ 					    funcs[i].num_group_names,
+ 					    funcs[i].data);
  	}
+-	kfree(funcs);
++
+ 	return 0;
+ }
  
- 	if (dst_fourcc == V4L2_PIX_FMT_JPEG) {
--		if (!ctx->params.jpeg_qmat_tab[0])
-+		if (!ctx->params.jpeg_qmat_tab[0]) {
- 			ctx->params.jpeg_qmat_tab[0] = kmalloc(64, GFP_KERNEL);
--		if (!ctx->params.jpeg_qmat_tab[1])
-+			if (!ctx->params.jpeg_qmat_tab[0])
-+				return -ENOMEM;
-+		}
-+		if (!ctx->params.jpeg_qmat_tab[1]) {
- 			ctx->params.jpeg_qmat_tab[1] = kmalloc(64, GFP_KERNEL);
-+			if (!ctx->params.jpeg_qmat_tab[1])
-+				return -ENOMEM;
-+		}
- 		coda_set_jpeg_compression_quality(ctx, ctx->params.jpeg_quality);
- 	}
+@@ -817,6 +817,7 @@ static int thunderbay_build_functions(struct thunderbay_pinctrl *tpc)
+ 	struct function_desc *thunderbay_funcs;
+ 	void *ptr;
+ 	int pin;
++	int ret;
  
+ 	/*
+ 	 * Allocate maximum possible number of functions. Assume every pin
+@@ -860,7 +861,10 @@ static int thunderbay_build_functions(struct thunderbay_pinctrl *tpc)
+ 		return -ENOMEM;
+ 
+ 	thunderbay_funcs = ptr;
+-	return thunderbay_add_functions(tpc, thunderbay_funcs);
++	ret = thunderbay_add_functions(tpc, thunderbay_funcs);
++
++	kfree(thunderbay_funcs);
++	return ret;
+ }
+ 
+ static int thunderbay_pinconf_set_tristate(struct thunderbay_pinctrl *tpc,
 -- 
 2.35.1
 
