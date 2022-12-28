@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FB97657B47
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:19:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ADCE657A2A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:08:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233311AbiL1PTx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:19:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38108 "EHLO
+        id S233632AbiL1PIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:08:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233384AbiL1PTr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:19:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D39A013F91
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:19:46 -0800 (PST)
+        with ESMTP id S233642AbiL1PI1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:08:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A6E813DD5
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:08:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 71A6C61365
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:19:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80A79C433F0;
-        Wed, 28 Dec 2022 15:19:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 04084B81716
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:08:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55E43C433D2;
+        Wed, 28 Dec 2022 15:08:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240785;
-        bh=1VRA98DtIypg+5pvhqP+KOO6DnS43DUQXm/uUmTP+Vc=;
+        s=korg; t=1672240102;
+        bh=HPmIDxaoMR6U9pgJ5s3dbnjhjWZLgiwkRCFGedtKinE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SnY+zsnIwkNKiDbfw3MkzVhr+KTSx2Mv8QaZTn9/eVJvbIf36ll0NxzTdY1IsGm7V
-         DxsVj+Hl4S4Tc5ditXII7CswJeu1Ty0tWXuKQuMijVOhwpSC6SAseGC9kxL9d35cFf
-         WoZLmSuvCgOJ8gZiFqk6scCS/JjGBYSSMzazidCM=
+        b=PHZYrLos7F5zkZgHiPM6bDUeihFTosJDEJf6RLGFxm7KcZSazaho7g90qshwaTBGA
+         9NWgBUxRJUUvZJ52dnT6/H/iOd0OG7fEgobCaH8xy8KkhIzueUwZkpr/cW4/6HES7a
+         258qmS0O6Kh4QnBrvUousqwOqV2xsq+hFUyO3G+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Daniel Lezcano <daniel.lezcano@kernel.org>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0167/1146] clocksource/drivers/timer-ti-dm: Fix missing clk_disable_unprepare in dmtimer_systimer_init_clock()
+Subject: [PATCH 6.0 0118/1073] lib/fonts: fix undefined behavior in bit shift for get_default_font
 Date:   Wed, 28 Dec 2022 15:28:26 +0100
-Message-Id: <20221228144334.696723376@linuxfoundation.org>
+Message-Id: <20221228144331.243764026@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +53,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit 180d35a7c05d520314a590c99ad8643d0213f28b ]
+[ Upstream commit 6fe888c4d2fb174408e4540bb2d5602b9f507f90 ]
 
-If clk_get_rate() fails which is called after clk_prepare_enable(),
-clk_disable_unprepare() need be called in error path to disable the
-clock in dmtimer_systimer_init_clock().
+Shifting signed 32-bit value by 31 bits is undefined, so changing
+significant bit to unsigned.  The UBSAN warning calltrace like below:
 
-Fixes: 52762fbd1c47 ("clocksource/drivers/timer-ti-dm: Add clockevent and clocksource support")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20221029114427.946520-1-yangyingliang@huawei.com
-Signed-off-by: Daniel Lezcano <daniel.lezcano@kernel.org>
+UBSAN: shift-out-of-bounds in lib/fonts/fonts.c:139:20
+left shift of 1 by 31 places cannot be represented in type 'int'
+ <TASK>
+ dump_stack_lvl+0x7d/0xa5
+ dump_stack+0x15/0x1b
+ ubsan_epilogue+0xe/0x4e
+ __ubsan_handle_shift_out_of_bounds+0x1e7/0x20c
+ get_default_font+0x1c7/0x1f0
+ fbcon_startup+0x347/0x3a0
+ do_take_over_console+0xce/0x270
+ do_fbcon_takeover+0xa1/0x170
+ do_fb_registered+0x2a8/0x340
+ fbcon_fb_registered+0x47/0xe0
+ register_framebuffer+0x294/0x4a0
+ __drm_fb_helper_initial_config_and_unlock+0x43c/0x880 [drm_kms_helper]
+ drm_fb_helper_initial_config+0x52/0x80 [drm_kms_helper]
+ drm_fbdev_client_hotplug+0x156/0x1b0 [drm_kms_helper]
+ drm_fbdev_generic_setup+0xfc/0x290 [drm_kms_helper]
+ bochs_pci_probe+0x6ca/0x772 [bochs]
+ local_pci_probe+0x4d/0xb0
+ pci_device_probe+0x119/0x320
+ really_probe+0x181/0x550
+ __driver_probe_device+0xc6/0x220
+ driver_probe_device+0x32/0x100
+ __driver_attach+0x195/0x200
+ bus_for_each_dev+0xbb/0x120
+ driver_attach+0x27/0x30
+ bus_add_driver+0x22e/0x2f0
+ driver_register+0xa9/0x190
+ __pci_register_driver+0x90/0xa0
+ bochs_pci_driver_init+0x52/0x1000 [bochs]
+ do_one_initcall+0x76/0x430
+ do_init_module+0x61/0x28a
+ load_module+0x1f82/0x2e50
+ __do_sys_finit_module+0xf8/0x190
+ __x64_sys_finit_module+0x23/0x30
+ do_syscall_64+0x58/0x80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ </TASK>
+
+Link: https://lkml.kernel.org/r/20221031113829.4183153-1-cuigaosheng1@huawei.com
+Fixes: c81f717cb9e0 ("fbcon: Fix typo and bogus logic in get_default_font")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/timer-ti-dm-systimer.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ lib/fonts/fonts.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clocksource/timer-ti-dm-systimer.c b/drivers/clocksource/timer-ti-dm-systimer.c
-index 2737407ff069..632523c1232f 100644
---- a/drivers/clocksource/timer-ti-dm-systimer.c
-+++ b/drivers/clocksource/timer-ti-dm-systimer.c
-@@ -345,8 +345,10 @@ static int __init dmtimer_systimer_init_clock(struct dmtimer_systimer *t,
- 		return error;
+diff --git a/lib/fonts/fonts.c b/lib/fonts/fonts.c
+index 5f4b07b56cd9..973866438608 100644
+--- a/lib/fonts/fonts.c
++++ b/lib/fonts/fonts.c
+@@ -135,8 +135,8 @@ const struct font_desc *get_default_font(int xres, int yres, u32 font_w,
+ 		if (res > 20)
+ 			c += 20 - res;
  
- 	r = clk_get_rate(clock);
--	if (!r)
-+	if (!r) {
-+		clk_disable_unprepare(clock);
- 		return -ENODEV;
-+	}
+-		if ((font_w & (1 << (f->width - 1))) &&
+-		    (font_h & (1 << (f->height - 1))))
++		if ((font_w & (1U << (f->width - 1))) &&
++		    (font_h & (1U << (f->height - 1))))
+ 			c += 1000;
  
- 	if (is_ick)
- 		t->ick = clock;
+ 		if (c > cc) {
 -- 
 2.35.1
 
