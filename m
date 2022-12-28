@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52C0D65787B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:51:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA9D3657DC5
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:46:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233120AbiL1Ovh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:51:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38422 "EHLO
+        id S234050AbiL1Pql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:46:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233197AbiL1Ou5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:50:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2810FB41
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:50:57 -0800 (PST)
+        with ESMTP id S234037AbiL1Pqb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:46:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A306A164B0
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:46:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA0D661130
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:50:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFC60C433D2;
-        Wed, 28 Dec 2022 14:50:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 387BCB8172A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:46:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D547C433D2;
+        Wed, 28 Dec 2022 15:46:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239056;
-        bh=yQi0KKFy++VnQxeN1EaZEtnH9V/nrQBt/zrBPeiXXF4=;
+        s=korg; t=1672242386;
+        bh=lOB/T60sWXx1He6Mrm1mXZncXUBjlFbZN3/xTZPaES8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XgYvw+idLLym4GmW4R6VBNc7dP5IMnfdAOnrNHfU+XmLLtP3WrNi3hmliSuOw3xXb
-         Oz0HG3szrMLI4L9Yd7rF6K4joBKhXgajIbQNPx7b+nwkuu/Dx3Nof28EyZv/DmCbL3
-         f6EZIC8YrZgyvSVsAIg2azXOr+wV5mIlLeeLzdhg=
+        b=1XJ5+Su7ldJcsMIMaIJcylnWc9Eb8pgPww3f2MgQrYHHWU3dq50isO0UVVEiECPxi
+         5YVNnnTLnXTzpFl8MN4XqKljo1K5Lwx/V8saWUGglNaOYDaA0Q84dczWLgeqv1X4kl
+         A2kwmyl8BUo4kzD8Lm1NxcKPKfZxSNSTYZdhVD5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Barnab=C3=A1s=20P=C5=91cze?= <pobrn@protonmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 085/731] timerqueue: Use rb_entry_safe() in timerqueue_getnext()
+Subject: [PATCH 6.0 0404/1073] ASoC: mediatek: mtk-btcvsd: Add checks for write and read of mtk_btcvsd_snd
 Date:   Wed, 28 Dec 2022 15:33:12 +0100
-Message-Id: <20221228144259.016984483@linuxfoundation.org>
+Message-Id: <20221228144338.990316536@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Barnabás Pőcze <pobrn@protonmail.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 2f117484329b233455ee278f2d9b0a4356835060 ]
+[ Upstream commit d067b3378a78c9c3048ac535e31c171b6f5b5846 ]
 
-When `timerqueue_getnext()` is called on an empty timer queue, it will
-use `rb_entry()` on a NULL pointer, which is invalid. Fix that by using
-`rb_entry_safe()` which handles NULL pointers.
+As the mtk_btcvsd_snd_write and mtk_btcvsd_snd_read may return error,
+it should be better to catch the exception.
 
-This has not caused any issues so far because the offset of the `rb_node`
-member in `timerqueue_node` is 0, so `rb_entry()` is essentially a no-op.
-
-Fixes: 511885d7061e ("lib/timerqueue: Rely on rbtree semantics for next timer")
-Signed-off-by: Barnabás Pőcze <pobrn@protonmail.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20221114195421.342929-1-pobrn@protonmail.com
+Fixes: 4bd8597dc36c ("ASoC: mediatek: add btcvsd driver")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20221116030750.40500-1-jiasheng@iscas.ac.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/timerqueue.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/mediatek/common/mtk-btcvsd.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/timerqueue.h b/include/linux/timerqueue.h
-index 93884086f392..adc80e29168e 100644
---- a/include/linux/timerqueue.h
-+++ b/include/linux/timerqueue.h
-@@ -35,7 +35,7 @@ struct timerqueue_node *timerqueue_getnext(struct timerqueue_head *head)
- {
- 	struct rb_node *leftmost = rb_first_cached(&head->rb_root);
+diff --git a/sound/soc/mediatek/common/mtk-btcvsd.c b/sound/soc/mediatek/common/mtk-btcvsd.c
+index d884bb7c0fc7..1c28b41e4311 100644
+--- a/sound/soc/mediatek/common/mtk-btcvsd.c
++++ b/sound/soc/mediatek/common/mtk-btcvsd.c
+@@ -1038,11 +1038,9 @@ static int mtk_pcm_btcvsd_copy(struct snd_soc_component *component,
+ 	struct mtk_btcvsd_snd *bt = snd_soc_component_get_drvdata(component);
  
--	return rb_entry(leftmost, struct timerqueue_node, node);
-+	return rb_entry_safe(leftmost, struct timerqueue_node, node);
+ 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+-		mtk_btcvsd_snd_write(bt, buf, count);
++		return mtk_btcvsd_snd_write(bt, buf, count);
+ 	else
+-		mtk_btcvsd_snd_read(bt, buf, count);
+-
+-	return 0;
++		return mtk_btcvsd_snd_read(bt, buf, count);
  }
  
- static inline void timerqueue_init(struct timerqueue_node *node)
+ /* kcontrol */
 -- 
 2.35.1
 
