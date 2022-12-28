@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 070F8657A02
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:07:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 613C6657A05
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:07:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233578AbiL1PHG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:07:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54778 "EHLO
+        id S233581AbiL1PHK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:07:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233580AbiL1PHC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:07:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 289E613D5F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:07:00 -0800 (PST)
+        with ESMTP id S233574AbiL1PHJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:07:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0D5713D73
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:07:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6CEACB81719
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:06:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D71D3C433D2;
-        Wed, 28 Dec 2022 15:06:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5244DB816F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:07:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AED73C433D2;
+        Wed, 28 Dec 2022 15:07:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240018;
-        bh=rnj2D8Gu4UrcFf3KpzZLWCSLRUJj0Yb9goAZhYSmhXU=;
+        s=korg; t=1672240026;
+        bh=o1YzpXgQYj519sWD9kChGCNvfZ8/8vRFsOJSvwkpebg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sDZZyVpOiX87Pt6iy1Rr2XHq6tlAbpa5BI0rG+FB4Rqbz0BX0oChUGIzOLWiemPxi
-         FZolOb1MswfpYR7VcMwBZzf0wFwAJY7mKVB2KQJUcDjzhgzsbaZ73/RYVA0vfSKO4x
-         y9w1fmN4ELgT1AYMMyTM/hHfjV30Czd4KRO+WFW4=
+        b=K6BQW47lF5y7Tyb5fcAQxxOqnE9ElQ/8OK8QbZD0i2yNvDGdHfuHn6y+SM28KqyBD
+         JB9NzHRmLsrRQva/sOg87SRaRuvovJe2dBBlHIbF94ky2M0iCHW/rflgCHAKXQvEVi
+         AKJeI1wtUj8IfJE5j3oMj0xIhHq/Z0z4SUHAkwKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Martin Pitt <mpitt@redhat.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
+        patches@lists.linux.dev, Chen Hui <judy.chenhui@huawei.com>,
+        Sibi Sankar <quic_sibis@quicinc.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0108/1073] fs: dont audit the capability check in simple_xattr_list()
-Date:   Wed, 28 Dec 2022 15:28:16 +0100
-Message-Id: <20221228144330.976270445@linuxfoundation.org>
+Subject: [PATCH 6.0 0109/1073] cpufreq: qcom-hw: Fix memory leak in qcom_cpufreq_hw_read_lut()
+Date:   Wed, 28 Dec 2022 15:28:17 +0100
+Message-Id: <20221228144331.003044471@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -55,52 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Chen Hui <judy.chenhui@huawei.com>
 
-[ Upstream commit e7eda157c4071cd1e69f4b1687b0fbe1ae5e6f46 ]
+[ Upstream commit 9901c21bcaf2f01fe5078f750d624f4ddfa8f81b ]
 
-The check being unconditional may lead to unwanted denials reported by
-LSMs when a process has the capability granted by DAC, but denied by an
-LSM. In the case of SELinux such denials are a problem, since they can't
-be effectively filtered out via the policy and when not silenced, they
-produce noise that may hide a true problem or an attack.
+If "cpu_dev" fails to get opp table in qcom_cpufreq_hw_read_lut(),
+the program will return, resulting in "table" resource is not released.
 
-Checking for the capability only if any trusted xattr is actually
-present wouldn't really address the issue, since calling listxattr(2) on
-such node on its own doesn't indicate an explicit attempt to see the
-trusted xattrs. Additionally, it could potentially leak the presence of
-trusted xattrs to an unprivileged user if they can check for the denials
-(e.g. through dmesg).
-
-Therefore, it's best (and simplest) to keep the check unconditional and
-instead use ns_capable_noaudit() that will silence any associated LSM
-denials.
-
-Fixes: 38f38657444d ("xattr: extract simple_xattr code from tmpfs")
-Reported-by: Martin Pitt <mpitt@redhat.com>
-Suggested-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Reviewed-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Fixes: 51c843cf77bb ("cpufreq: qcom: Update the bandwidth levels on frequency change")
+Signed-off-by: Chen Hui <judy.chenhui@huawei.com>
+Reviewed-by: Sibi Sankar <quic_sibis@quicinc.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xattr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/cpufreq/qcom-cpufreq-hw.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/xattr.c b/fs/xattr.c
-index a1f4998bc6be..8ea6b104b106 100644
---- a/fs/xattr.c
-+++ b/fs/xattr.c
-@@ -1147,7 +1147,7 @@ static int xattr_list_one(char **buffer, ssize_t *remaining_size,
- ssize_t simple_xattr_list(struct inode *inode, struct simple_xattrs *xattrs,
- 			  char *buffer, size_t size)
- {
--	bool trusted = capable(CAP_SYS_ADMIN);
-+	bool trusted = ns_capable_noaudit(&init_user_ns, CAP_SYS_ADMIN);
- 	struct simple_xattr *xattr;
- 	ssize_t remaining_size = size;
- 	int err = 0;
+diff --git a/drivers/cpufreq/qcom-cpufreq-hw.c b/drivers/cpufreq/qcom-cpufreq-hw.c
+index bb32659820ce..9221a416230a 100644
+--- a/drivers/cpufreq/qcom-cpufreq-hw.c
++++ b/drivers/cpufreq/qcom-cpufreq-hw.c
+@@ -190,6 +190,7 @@ static int qcom_cpufreq_hw_read_lut(struct device *cpu_dev,
+ 		}
+ 	} else if (ret != -ENODEV) {
+ 		dev_err(cpu_dev, "Invalid opp table in device tree\n");
++		kfree(table);
+ 		return ret;
+ 	} else {
+ 		policy->fast_switch_possible = true;
 -- 
 2.35.1
 
