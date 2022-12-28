@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ECF7657A47
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:09:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4775C657A4C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:10:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233701AbiL1PJo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:09:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56954 "EHLO
+        id S233653AbiL1PKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:10:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233725AbiL1PJc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:09:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3808313E88
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:09:24 -0800 (PST)
+        with ESMTP id S233662AbiL1PJe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:09:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C176213E18
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:09:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C9F986155B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:09:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC0D0C433D2;
-        Wed, 28 Dec 2022 15:09:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 757DCB81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:09:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C67E1C433EF;
+        Wed, 28 Dec 2022 15:09:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240163;
-        bh=AXPXLxh17Tug/qn92KC4ufziprryzeaMVNCXJJh7qCA=;
+        s=korg; t=1672240171;
+        bh=VyQ60h/XVdiZReQrC+N2lMR+wQwdb++0zwe5sr0dOpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fel2ZmXxw8OMnVqBgkI6deviQDWfA2a0wUS/6qlbzdWxIb/E9jUUCJl19f+b8K+cM
-         nQCUWMnmeIlsXux8mbQ1LAYqyW6YVwqd6Nvl/lR8M4s6pBvM1CdvklCMQwjFRWFTCa
-         5scO9XoQpyjhY6tK9N3++ofH5Y4tk5gjl3AhdVeA=
+        b=r3JYpFJEu/l5CO9l6tGvnnVqm9xfhew90aGJ8t8Sgv7T/sBnGSip1UlNYH5GvRZvk
+         d1FNmUgFISW7g3ELdR/qeidbFqB980YNbWZiRHPb/i1zo6HdnVLuWG4Og3esi7zTPk
+         jEbCzbsxh6XjMQlYcOKjezFr4tgYFEOxY+/Xqzr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Hanjun Guo <guohanjun@huawei.com>,
+        patches@lists.linux.dev, Huisong Li <lihuisong@huawei.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0125/1073] PNP: fix name memory leak in pnp_alloc_dev()
-Date:   Wed, 28 Dec 2022 15:28:33 +0100
-Message-Id: <20221228144331.431958984@linuxfoundation.org>
+Subject: [PATCH 6.0 0126/1073] mailbox: pcc: Reset pcc_chan_count to zero in case of PCC probe failure
+Date:   Wed, 28 Dec 2022 15:28:34 +0100
+Message-Id: <20221228144331.458281762@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -54,43 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Huisong Li <lihuisong@huawei.com>
 
-[ Upstream commit 110d7b0325c55ff3620073ba4201845f59e22ebf ]
+[ Upstream commit 6d7d3c287410c0ad499e478e2338dc3d7e3392b1 ]
 
-After commit 1fa5ae857bb1 ("driver core: get rid of struct device's
-bus_id string array"), the name of device is allocated dynamically,
-move dev_set_name() after pnp_add_id() to avoid memory leak.
+Currently, 'pcc_chan_count' is remains set to a non-zero value if PCC
+subspaces are parsed successfully but something else fail later during
+the initial PCC probing phase. This will result in pcc_mbox_request_channel
+trying to access the resources that are not initialised or allocated and
+may end up in a system crash.
 
-Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
+Reset pcc_chan_count to 0 when the PCC probe fails in order to prevent
+the possible issue as described above.
+
+Fixes: ce028702ddbc ("mailbox: pcc: Move bulk of PCCT parsing into pcc_mbox_probe")
+Signed-off-by: Huisong Li <lihuisong@huawei.com>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pnp/core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mailbox/pcc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pnp/core.c b/drivers/pnp/core.c
-index 4df5aa6a309c..6a60c5d83383 100644
---- a/drivers/pnp/core.c
-+++ b/drivers/pnp/core.c
-@@ -148,14 +148,14 @@ struct pnp_dev *pnp_alloc_dev(struct pnp_protocol *protocol, int id,
- 	dev->dev.coherent_dma_mask = dev->dma_mask;
- 	dev->dev.release = &pnp_release_device;
+diff --git a/drivers/mailbox/pcc.c b/drivers/mailbox/pcc.c
+index ebfa33a40fce..5e232b3fb72a 100644
+--- a/drivers/mailbox/pcc.c
++++ b/drivers/mailbox/pcc.c
+@@ -743,6 +743,7 @@ static int __init pcc_init(void)
  
--	dev_set_name(&dev->dev, "%02x:%02x", dev->protocol->number, dev->number);
--
- 	dev_id = pnp_add_id(dev, pnpid);
- 	if (!dev_id) {
- 		kfree(dev);
- 		return NULL;
+ 	if (IS_ERR(pcc_pdev)) {
+ 		pr_debug("Err creating PCC platform bundle\n");
++		pcc_chan_count = 0;
+ 		return PTR_ERR(pcc_pdev);
  	}
- 
-+	dev_set_name(&dev->dev, "%02x:%02x", dev->protocol->number, dev->number);
-+
- 	return dev;
- }
  
 -- 
 2.35.1
