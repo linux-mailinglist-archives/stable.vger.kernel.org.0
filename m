@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 821B9657DDE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:47:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1B8D657EFD
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:00:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234023AbiL1Prn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:47:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35898 "EHLO
+        id S234236AbiL1QAF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:00:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234090AbiL1Pr3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:47:29 -0500
+        with ESMTP id S234251AbiL1QAA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:00:00 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EFAAF63
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:47:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1032F18E36
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:59:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE9A96156C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:47:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDEE4C433D2;
-        Wed, 28 Dec 2022 15:47:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A3D2E6155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:59:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3E4BC433D2;
+        Wed, 28 Dec 2022 15:59:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242448;
-        bh=FphEkFFeAHGR/8Nzfu3WYKTyl00C3ATiGiN/BUSk4A4=;
+        s=korg; t=1672243193;
+        bh=Ke3jrv3VshKG1Ueay2AnjMG51GfPybS1JMpfxzJlg98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sa0dmCY6FZACEbem5FdOV9RZAVyPaLVSLs2P79ROdE/uTuIxts82y0nWRsphDj+0z
-         xxqehyO0/tzq6TVNr6qdmD/S0kIFQ0Blgf8pfRVd02PtgGNn+rho33DQWyAHp0YqbG
-         zuXrvDrJ4CM829JNkkFhlTlG/Ro7bKXNH/tuUj5g=
+        b=I8qJInQ3rKWqGSV7bgxRMqA/CIMJk9vlRZbCq9JX8a2gK4IG8Fz6T30ckiGBIYFY9
+         TJHJBNnS1+/U+/ed2TYh0PeYu2vghgrXhPg2t67wzcn6y6wkdRwqyjobrjVsUkQN3S
+         DnSG338XWFKMHgXm8NwxNZexrC+MQTY+ctWreQl8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0411/1073] NFSv4: Fix a deadlock between nfs4_open_recover_helper() and delegreturn
-Date:   Wed, 28 Dec 2022 15:33:19 +0100
-Message-Id: <20221228144339.183913058@linuxfoundation.org>
+        patches@lists.linux.dev, Deren Wu <deren.wu@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0461/1146] wifi: mt76: fix coverity overrun-call in mt76_get_txpower()
+Date:   Wed, 28 Dec 2022 15:33:20 +0100
+Message-Id: <20221228144342.703787164@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,70 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Deren Wu <deren.wu@mediatek.com>
 
-[ Upstream commit 51069e4aef6257b0454057359faed0ab0c9af083 ]
+[ Upstream commit 03dd0d49de7db680a856fa566963bb8421f46368 ]
 
-If we're asked to recover open state while a delegation return is
-outstanding, then the state manager thread cannot use a cached open, so
-if the server returns a delegation, we can end up deadlocked behind the
-pending delegreturn.
-To avoid this problem, let's just ask the server not to give us a
-delegation unless we're explicitly reclaiming one.
+Make sure the nss is valid for nss_delta array. Return zero
+if the index is invalid.
 
-Fixes: be36e185bd26 ("NFSv4: nfs4_open_recover_helper() must set share access")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Coverity message:
+Event overrun-call: Overrunning callee's array of size 4 by passing
+argument "n_chains" (which evaluates to 15) in call to
+"mt76_tx_power_nss_delta".
+int delta = mt76_tx_power_nss_delta(n_chains);
+
+Fixes: 07cda406308b ("mt76: fix rounding issues on converting per-chain and combined txpower")
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt76.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index f85559bbb422..6e247647a5fb 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -2130,18 +2130,18 @@ static struct nfs4_opendata *nfs4_open_recoverdata_alloc(struct nfs_open_context
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76.h b/drivers/net/wireless/mediatek/mt76/mt76.h
+index 87db9498dea4..7bcf7a6b67df 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76.h
++++ b/drivers/net/wireless/mediatek/mt76/mt76.h
+@@ -1107,8 +1107,9 @@ static inline bool mt76_is_skb_pktid(u8 pktid)
+ static inline u8 mt76_tx_power_nss_delta(u8 nss)
+ {
+ 	static const u8 nss_delta[4] = { 0, 6, 9, 12 };
++	u8 idx = nss - 1;
+ 
+-	return nss_delta[nss - 1];
++	return (idx < ARRAY_SIZE(nss_delta)) ? nss_delta[idx] : 0;
  }
  
- static int nfs4_open_recover_helper(struct nfs4_opendata *opendata,
--		fmode_t fmode)
-+				    fmode_t fmode)
- {
- 	struct nfs4_state *newstate;
-+	struct nfs_server *server = NFS_SB(opendata->dentry->d_sb);
-+	int openflags = opendata->o_arg.open_flags;
- 	int ret;
- 
- 	if (!nfs4_mode_match_open_stateid(opendata->state, fmode))
- 		return 0;
--	opendata->o_arg.open_flags = 0;
- 	opendata->o_arg.fmode = fmode;
--	opendata->o_arg.share_access = nfs4_map_atomic_open_share(
--			NFS_SB(opendata->dentry->d_sb),
--			fmode, 0);
-+	opendata->o_arg.share_access =
-+		nfs4_map_atomic_open_share(server, fmode, openflags);
- 	memset(&opendata->o_res, 0, sizeof(opendata->o_res));
- 	memset(&opendata->c_res, 0, sizeof(opendata->c_res));
- 	nfs4_init_opendata_res(opendata);
-@@ -2723,10 +2723,15 @@ static int _nfs4_open_expired(struct nfs_open_context *ctx, struct nfs4_state *s
- 	struct nfs4_opendata *opendata;
- 	int ret;
- 
--	opendata = nfs4_open_recoverdata_alloc(ctx, state,
--			NFS4_OPEN_CLAIM_FH);
-+	opendata = nfs4_open_recoverdata_alloc(ctx, state, NFS4_OPEN_CLAIM_FH);
- 	if (IS_ERR(opendata))
- 		return PTR_ERR(opendata);
-+	/*
-+	 * We're not recovering a delegation, so ask for no delegation.
-+	 * Otherwise the recovery thread could deadlock with an outstanding
-+	 * delegation return.
-+	 */
-+	opendata->o_arg.open_flags = O_DIRECT;
- 	ret = nfs4_open_recover(opendata, state);
- 	if (ret == -ESTALE)
- 		d_drop(ctx->dentry);
+ static inline bool mt76_testmode_enabled(struct mt76_phy *phy)
 -- 
 2.35.1
 
