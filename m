@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBCA6657FC8
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:09:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 244ED65807D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:18:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233120AbiL1QI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:08:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53800 "EHLO
+        id S233196AbiL1QSI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:18:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234481AbiL1QIQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:08:16 -0500
+        with ESMTP id S234744AbiL1QRX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:17:23 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2A1519C1D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:08:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA2732E2
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:15:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FF4060D41
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:08:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 684BAC433EF;
-        Wed, 28 Dec 2022 16:08:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 67200613E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:15:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C74CC433EF;
+        Wed, 28 Dec 2022 16:15:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243685;
-        bh=RfNxRfPBceNid/hZZzR5/5fHQA6SSSAnWhGevBKkqNQ=;
+        s=korg; t=1672244146;
+        bh=DAaGOI5j//tqpdGLaSmIh7me7A4cxD43sAiKX7MCgT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tDbhzIgk3u78rBmJ1rSJ8e8I6KN0ykZ7KhnXoVFA54wsgJoP0hol+NiAFoYp/K6RO
-         LRW73w3/fbS20+2mGMaKnzS1VJ97FR7R2vEleQ7L9lLthgXw1w2pt8kvUBZli6xVPx
-         lC/hOfQ6AsqXI2SQWHBI22q+m06inyXMhy76R5yg=
+        b=ibw+PugU6KNgCVSH8brDlmiXhbobvT9EViJDxSIrE3KUOIAh7qI0g6vPamNbFP/H6
+         Lf7s+/19eb04C2oy9PJ65h6LmGJBPWTcyjk38aH4ijMkm9n5OZsftIo6a+OE+++7Vi
+         482V55fmjDCV26/TFD6NjFW8R2nvFUZb85uGp1qQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, John Keeping <john@metanate.com>,
-        Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        patches@lists.linux.dev, Li Zhijian <lizhijian@fujitsu.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0569/1073] crypto: rockchip - do not do custom power management
-Date:   Wed, 28 Dec 2022 15:35:57 +0100
-Message-Id: <20221228144343.509472982@linuxfoundation.org>
+Subject: [PATCH 6.1 0619/1146] RDMA/rxe: Fix mr->map double free
+Date:   Wed, 28 Dec 2022 15:35:58 +0100
+Message-Id: <20221228144346.983328556@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,109 +53,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Li Zhijian <lizhijian@fujitsu.com>
 
-[ Upstream commit c50ef1411c8cbad0c7db100c477126076b6e3348 ]
+[ Upstream commit 7d984dac8f6bf4ebd3398af82b357e1d181ecaac ]
 
-The clock enable/disable at tfm init/exit is fragile,
-if 2 tfm are init in the same time and one is removed just after,
-it will leave the hardware uncloked even if a user remains.
+rxe_mr_cleanup() which tries to free mr->map again will be called when
+rxe_mr_init_user() fails:
 
-Instead simply enable clocks at probe time.
-We will do PM later.
+   CPU: 0 PID: 4917 Comm: rdma_flush_serv Kdump: loaded Not tainted 6.1.0-rc1-roce-flush+ #25
+   Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
+   Call Trace:
+    <TASK>
+    dump_stack_lvl+0x45/0x5d
+    panic+0x19e/0x349
+    end_report.part.0+0x54/0x7c
+    kasan_report.cold+0xa/0xf
+    rxe_mr_cleanup+0x9d/0xf0 [rdma_rxe]
+    __rxe_cleanup+0x10a/0x1e0 [rdma_rxe]
+    rxe_reg_user_mr+0xb7/0xd0 [rdma_rxe]
+    ib_uverbs_reg_mr+0x26a/0x480 [ib_uverbs]
+    ib_uverbs_handler_UVERBS_METHOD_INVOKE_WRITE+0x1a2/0x250 [ib_uverbs]
+    ib_uverbs_cmd_verbs+0x1397/0x15a0 [ib_uverbs]
 
-Fixes: ce0183cb6464b ("crypto: rockchip - switch to skcipher API")
-Reviewed-by: John Keeping <john@metanate.com>
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+This issue was firstly exposed since commit b18c7da63fcb ("RDMA/rxe: Fix
+memory leak in error path code") and then we fixed it in commit
+8ff5f5d9d8cf ("RDMA/rxe: Prevent double freeing rxe_map_set()") but this
+fix was reverted together at last by commit 1e75550648da (Revert
+"RDMA/rxe: Create duplicate mapping tables for FMRs")
+
+Simply let rxe_mr_cleanup() always handle freeing the mr->map once it is
+successfully allocated.
+
+Fixes: 1e75550648da ("Revert "RDMA/rxe: Create duplicate mapping tables for FMRs"")
+Link: https://lore.kernel.org/r/1667099073-2-1-git-send-email-lizhijian@fujitsu.com
+Signed-off-by: Li Zhijian <lizhijian@fujitsu.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/rockchip/rk3288_crypto.c          | 4 ++--
- drivers/crypto/rockchip/rk3288_crypto.h          | 2 --
- drivers/crypto/rockchip/rk3288_crypto_ahash.c    | 3 +--
- drivers/crypto/rockchip/rk3288_crypto_skcipher.c | 5 +++--
- 4 files changed, 6 insertions(+), 8 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_mr.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/crypto/rockchip/rk3288_crypto.c b/drivers/crypto/rockchip/rk3288_crypto.c
-index 35d73061d156..5f8444b9633a 100644
---- a/drivers/crypto/rockchip/rk3288_crypto.c
-+++ b/drivers/crypto/rockchip/rk3288_crypto.c
-@@ -395,8 +395,7 @@ static int rk_crypto_probe(struct platform_device *pdev)
- 		     rk_crypto_done_task_cb, (unsigned long)crypto_info);
- 	crypto_init_queue(&crypto_info->queue, 50);
+diff --git a/drivers/infiniband/sw/rxe/rxe_mr.c b/drivers/infiniband/sw/rxe/rxe_mr.c
+index 502e9ada99b3..80e2d631fdb2 100644
+--- a/drivers/infiniband/sw/rxe/rxe_mr.c
++++ b/drivers/infiniband/sw/rxe/rxe_mr.c
+@@ -99,6 +99,7 @@ static int rxe_mr_alloc(struct rxe_mr *mr, int num_buf)
+ 		kfree(mr->map[i]);
  
--	crypto_info->enable_clk = rk_crypto_enable_clk;
--	crypto_info->disable_clk = rk_crypto_disable_clk;
-+	rk_crypto_enable_clk(crypto_info);
- 	crypto_info->load_data = rk_load_data;
- 	crypto_info->unload_data = rk_unload_data;
- 	crypto_info->enqueue = rk_crypto_enqueue;
-@@ -423,6 +422,7 @@ static int rk_crypto_remove(struct platform_device *pdev)
- 	struct rk_crypto_info *crypto_tmp = platform_get_drvdata(pdev);
+ 	kfree(mr->map);
++	mr->map = NULL;
+ err1:
+ 	return -ENOMEM;
+ }
+@@ -122,7 +123,6 @@ int rxe_mr_init_user(struct rxe_dev *rxe, u64 start, u64 length, u64 iova,
+ 	int			num_buf;
+ 	void			*vaddr;
+ 	int err;
+-	int i;
  
- 	rk_crypto_unregister();
-+	rk_crypto_disable_clk(crypto_tmp);
- 	tasklet_kill(&crypto_tmp->done_task);
- 	tasklet_kill(&crypto_tmp->queue_task);
+ 	umem = ib_umem_get(&rxe->ib_dev, start, length, access);
+ 	if (IS_ERR(umem)) {
+@@ -163,9 +163,8 @@ int rxe_mr_init_user(struct rxe_dev *rxe, u64 start, u64 length, u64 iova,
+ 				pr_warn("%s: Unable to get virtual address\n",
+ 						__func__);
+ 				err = -ENOMEM;
+-				goto err_cleanup_map;
++				goto err_release_umem;
+ 			}
+-
+ 			buf->addr = (uintptr_t)vaddr;
+ 			buf->size = PAGE_SIZE;
+ 			num_buf++;
+@@ -182,10 +181,6 @@ int rxe_mr_init_user(struct rxe_dev *rxe, u64 start, u64 length, u64 iova,
+ 
  	return 0;
-diff --git a/drivers/crypto/rockchip/rk3288_crypto.h b/drivers/crypto/rockchip/rk3288_crypto.h
-index 97278c2574ff..2fa7131e4060 100644
---- a/drivers/crypto/rockchip/rk3288_crypto.h
-+++ b/drivers/crypto/rockchip/rk3288_crypto.h
-@@ -220,8 +220,6 @@ struct rk_crypto_info {
- 	int (*start)(struct rk_crypto_info *dev);
- 	int (*update)(struct rk_crypto_info *dev);
- 	void (*complete)(struct crypto_async_request *base, int err);
--	int (*enable_clk)(struct rk_crypto_info *dev);
--	void (*disable_clk)(struct rk_crypto_info *dev);
- 	int (*load_data)(struct rk_crypto_info *dev,
- 			 struct scatterlist *sg_src,
- 			 struct scatterlist *sg_dst);
-diff --git a/drivers/crypto/rockchip/rk3288_crypto_ahash.c b/drivers/crypto/rockchip/rk3288_crypto_ahash.c
-index ed03058497bc..49017d1fb510 100644
---- a/drivers/crypto/rockchip/rk3288_crypto_ahash.c
-+++ b/drivers/crypto/rockchip/rk3288_crypto_ahash.c
-@@ -301,7 +301,7 @@ static int rk_cra_hash_init(struct crypto_tfm *tfm)
- 				 sizeof(struct rk_ahash_rctx) +
- 				 crypto_ahash_reqsize(tctx->fallback_tfm));
  
--	return tctx->dev->enable_clk(tctx->dev);
-+	return 0;
- }
- 
- static void rk_cra_hash_exit(struct crypto_tfm *tfm)
-@@ -309,7 +309,6 @@ static void rk_cra_hash_exit(struct crypto_tfm *tfm)
- 	struct rk_ahash_ctx *tctx = crypto_tfm_ctx(tfm);
- 
- 	free_page((unsigned long)tctx->dev->addr_vir);
--	return tctx->dev->disable_clk(tctx->dev);
- }
- 
- struct rk_crypto_tmp rk_ahash_sha1 = {
-diff --git a/drivers/crypto/rockchip/rk3288_crypto_skcipher.c b/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
-index 5bbf0d2722e1..8c44a19eab75 100644
---- a/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
-+++ b/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
-@@ -388,8 +388,10 @@ static int rk_ablk_init_tfm(struct crypto_skcipher *tfm)
- 	ctx->dev->update = rk_ablk_rx;
- 	ctx->dev->complete = rk_crypto_complete;
- 	ctx->dev->addr_vir = (char *)__get_free_page(GFP_KERNEL);
-+	if (!ctx->dev->addr_vir)
-+		return -ENOMEM;
- 
--	return ctx->dev->addr_vir ? ctx->dev->enable_clk(ctx->dev) : -ENOMEM;
-+	return 0;
- }
- 
- static void rk_ablk_exit_tfm(struct crypto_skcipher *tfm)
-@@ -397,7 +399,6 @@ static void rk_ablk_exit_tfm(struct crypto_skcipher *tfm)
- 	struct rk_cipher_ctx *ctx = crypto_skcipher_ctx(tfm);
- 
- 	free_page((unsigned long)ctx->dev->addr_vir);
--	ctx->dev->disable_clk(ctx->dev);
- }
- 
- struct rk_crypto_tmp rk_ecb_aes_alg = {
+-err_cleanup_map:
+-	for (i = 0; i < mr->num_map; i++)
+-		kfree(mr->map[i]);
+-	kfree(mr->map);
+ err_release_umem:
+ 	ib_umem_release(umem);
+ err_out:
 -- 
 2.35.1
 
