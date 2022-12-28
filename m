@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FC5F657B38
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:19:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69B67657C4A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:31:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233276AbiL1PTk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:19:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38564 "EHLO
+        id S233427AbiL1Pa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:30:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233730AbiL1PTQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:19:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC08E14029
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:19:08 -0800 (PST)
+        with ESMTP id S233813AbiL1Pa5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:30:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED79C6390
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:30:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1C033B81647
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:19:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CE41C433EF;
-        Wed, 28 Dec 2022 15:19:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A38A4B8172A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:30:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12BE9C433D2;
+        Wed, 28 Dec 2022 15:30:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240745;
-        bh=Dl8F73j/k1Vvu/Go84CnXkQFkn565IjO3qljLZ2dEeI=;
+        s=korg; t=1672241453;
+        bh=ea7/DX0DUqreOuWBiXYFkHJIeizsMAwd2iDKksw/lYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RT4mTZpfjp7Fjy+6r/a18EA/2dYYXrJz4ErZFj2oLaKw8jNtM3enZTpDBTmQY22wr
-         2UQ9jd07kNy8zjBvaXXZnbgyZBlrghMmNgu1KZuzJdi2TX0e3oLaUoOTDCizTRu/vW
-         0Fzn2Em4aHpq3TqJQMtjDl5v81Oa/CnR61fChEDY=
+        b=ihHMNeywr83Lwi72ksTNHQlrEBlf11zR58l0mMaCONAE6eqtpMJgvOW+qghrKGHDs
+         nThCR197Rk7ASkEdyuJAS7KIRcPkFKgi8n22IFtNIoDFMnYDAAMeSP+RQgrf8JMzLj
+         ZgjsvY8zSGOG9iuRlO9jKgcbQMb4pTQwV0drcrlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Robert Foss <robert.foss@linaro.org>,
+        patches@lists.linux.dev, Jimmy Assarsson <extja@kvaser.com>,
+        Anssi Hannula <anssi.hannula@bitwise.fi>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0198/1073] drm/bridge: adv7533: remove dynamic lane switching from adv7533 bridge
-Date:   Wed, 28 Dec 2022 15:29:46 +0100
-Message-Id: <20221228144333.392771734@linuxfoundation.org>
+Subject: [PATCH 6.1 0248/1146] can: kvaser_usb_leaf: Set Warning state even without bus errors
+Date:   Wed, 28 Dec 2022 15:29:47 +0100
+Message-Id: <20221228144336.871877825@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,225 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abhinav Kumar <quic_abhinavk@quicinc.com>
+From: Anssi Hannula <anssi.hannula@bitwise.fi>
 
-[ Upstream commit 9a0cdcd6649b76f0b7ceec0e55b0a718321e34d3 ]
+[ Upstream commit df1b7af2761b935f63b4a53e789d41ed859edf61 ]
 
-adv7533 bridge tries to dynamically switch lanes based on the
-mode by detaching and attaching the mipi dsi device.
+kvaser_usb_leaf_rx_error_update_can_state() sets error state according
+to error counters when the hardware does not indicate a specific state
+directly.
 
-This approach is incorrect because this method of dynamic switch of
-detaching and attaching the mipi dsi device also results in removing
-and adding the component which is not necessary.
+However, this is currently gated behind a check for
+M16C_STATE_BUS_ERROR which does not always seem to be set when error
+counters are increasing, and may not be set when error counters are
+decreasing.
 
-This approach is also prone to deadlocks. So for example, on the
-db410c whenever this path is executed with lockdep enabled,
-this results in a deadlock due to below ordering of locks.
+This causes the CAN_STATE_ERROR_WARNING state to not be set in some
+cases even when appropriate.
 
--> #1 (crtc_ww_class_acquire){+.+.}-{0:0}:
-        lock_acquire+0x6c/0x90
-        drm_modeset_acquire_init+0xf4/0x150
-        drmm_mode_config_init+0x220/0x770
-        msm_drm_bind+0x13c/0x654
-        try_to_bring_up_aggregate_device+0x164/0x1d0
-        __component_add+0xa8/0x174
-        component_add+0x18/0x2c
-        dsi_dev_attach+0x24/0x30
-        dsi_host_attach+0x98/0x14c
-        devm_mipi_dsi_attach+0x38/0xb0
-        adv7533_attach_dsi+0x8c/0x110
-        adv7511_probe+0x5a0/0x930
-        i2c_device_probe+0x30c/0x350
-        really_probe.part.0+0x9c/0x2b0
-        __driver_probe_device+0x98/0x144
-        driver_probe_device+0xac/0x14c
-        __device_attach_driver+0xbc/0x124
-        bus_for_each_drv+0x78/0xd0
-        __device_attach+0xa8/0x1c0
-        device_initial_probe+0x18/0x24
-        bus_probe_device+0xa0/0xac
-        deferred_probe_work_func+0x90/0xd0
-        process_one_work+0x28c/0x6b0
-        worker_thread+0x240/0x444
-        kthread+0x110/0x114
-        ret_from_fork+0x10/0x20
+Change the code to set error state from counters even without
+M16C_STATE_BUS_ERROR.
 
--> #0 (component_mutex){+.+.}-{3:3}:
-        __lock_acquire+0x1280/0x20ac
-        lock_acquire.part.0+0xe0/0x230
-        lock_acquire+0x6c/0x90
-        __mutex_lock+0x84/0x400
-        mutex_lock_nested+0x3c/0x70
-        component_del+0x34/0x170
-        dsi_dev_detach+0x24/0x30
-        dsi_host_detach+0x20/0x64
-        mipi_dsi_detach+0x2c/0x40
-        adv7533_mode_set+0x64/0x90
-        adv7511_bridge_mode_set+0x210/0x214
-        drm_bridge_chain_mode_set+0x5c/0x84
-        crtc_set_mode+0x18c/0x1dc
-        drm_atomic_helper_commit_modeset_disables+0x40/0x50
-        msm_atomic_commit_tail+0x1d0/0x6e0
-        commit_tail+0xa4/0x180
-        drm_atomic_helper_commit+0x178/0x3b0
-        drm_atomic_commit+0xa4/0xe0
-        drm_client_modeset_commit_atomic+0x228/0x284
-        drm_client_modeset_commit_locked+0x64/0x1d0
-        drm_client_modeset_commit+0x34/0x60
-        drm_fb_helper_lastclose+0x74/0xcc
-        drm_lastclose+0x3c/0x80
-        drm_release+0xfc/0x114
-        __fput+0x70/0x224
-        ____fput+0x14/0x20
-        task_work_run+0x88/0x1a0
-        do_exit+0x350/0xa50
-        do_group_exit+0x38/0xa4
-        __wake_up_parent+0x0/0x34
-        invoke_syscall+0x48/0x114
-        el0_svc_common.constprop.0+0x60/0x11c
-        do_el0_svc+0x30/0xc0
-        el0_svc+0x58/0x100
-        el0t_64_sync_handler+0x1b0/0x1bc
-        el0t_64_sync+0x18c/0x190
+The Error-Passive case seems superfluous as it is already set via
+M16C_STATE_BUS_PASSIVE flag above, but it is kept for now.
 
-Due to above reasons, remove the dynamic lane switching
-code from adv7533 bridge chip and filter out the modes
-which would need different number of lanes as compared
-to the initialization time using the mode_valid callback.
+Tested with 0bfd:0124 Kvaser Mini PCI Express 2xHS FW 4.18.778.
 
-This can be potentially re-introduced by using the pre_enable()
-callback but this needs to be evaluated first whether such an
-approach will work so this will be done with a separate change.
-
-changes since RFC:
-	- Fix commit text and add TODO comment
-
-changes in v2:
-	- Fix checkpatch formatting errors
-
-Fixes: 62b2f026cd8e ("drm/bridge: adv7533: Change number of DSI lanes dynamically")
-Closes: https://gitlab.freedesktop.org/drm/msm/-/issues/16
-Suggested-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Link: https://lore.kernel.org/r/1661797363-7564-1-git-send-email-quic_abhinavk@quicinc.com
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/1665522649-3423-1-git-send-email-quic_abhinavk@quicinc.com
+Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
+Tested-by: Jimmy Assarsson <extja@kvaser.com>
+Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
+Link: https://lore.kernel.org/all/20221010185237.319219-6-extja@kvaser.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/adv7511/adv7511.h     |  3 ++-
- drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 18 ++++++++++----
- drivers/gpu/drm/bridge/adv7511/adv7533.c     | 25 ++++++++++----------
- 3 files changed, 29 insertions(+), 17 deletions(-)
+ .../net/can/usb/kvaser_usb/kvaser_usb_leaf.c  | 20 ++++++++-----------
+ 1 file changed, 8 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511.h b/drivers/gpu/drm/bridge/adv7511/adv7511.h
-index 94de73cbeb2d..17445800248d 100644
---- a/drivers/gpu/drm/bridge/adv7511/adv7511.h
-+++ b/drivers/gpu/drm/bridge/adv7511/adv7511.h
-@@ -402,7 +402,8 @@ static inline int adv7511_cec_init(struct device *dev, struct adv7511 *adv7511)
- 
- void adv7533_dsi_power_on(struct adv7511 *adv);
- void adv7533_dsi_power_off(struct adv7511 *adv);
--void adv7533_mode_set(struct adv7511 *adv, const struct drm_display_mode *mode);
-+enum drm_mode_status adv7533_mode_valid(struct adv7511 *adv,
-+					const struct drm_display_mode *mode);
- int adv7533_patch_registers(struct adv7511 *adv);
- int adv7533_patch_cec_registers(struct adv7511 *adv);
- int adv7533_attach_dsi(struct adv7511 *adv);
-diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-index 6031bdd92342..0f0950c11196 100644
---- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-+++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-@@ -697,7 +697,7 @@ adv7511_detect(struct adv7511 *adv7511, struct drm_connector *connector)
- }
- 
- static enum drm_mode_status adv7511_mode_valid(struct adv7511 *adv7511,
--			      struct drm_display_mode *mode)
-+			      const struct drm_display_mode *mode)
- {
- 	if (mode->clock > 165000)
- 		return MODE_CLOCK_HIGH;
-@@ -791,9 +791,6 @@ static void adv7511_mode_set(struct adv7511 *adv7511,
- 	regmap_update_bits(adv7511->regmap, 0x17,
- 		0x60, (vsync_polarity << 6) | (hsync_polarity << 5));
- 
--	if (adv7511->type == ADV7533 || adv7511->type == ADV7535)
--		adv7533_mode_set(adv7511, adj_mode);
--
- 	drm_mode_copy(&adv7511->curr_mode, adj_mode);
- 
- 	/*
-@@ -913,6 +910,18 @@ static void adv7511_bridge_mode_set(struct drm_bridge *bridge,
- 	adv7511_mode_set(adv, mode, adj_mode);
- }
- 
-+static enum drm_mode_status adv7511_bridge_mode_valid(struct drm_bridge *bridge,
-+						      const struct drm_display_info *info,
-+		const struct drm_display_mode *mode)
-+{
-+	struct adv7511 *adv = bridge_to_adv7511(bridge);
-+
-+	if (adv->type == ADV7533 || adv->type == ADV7535)
-+		return adv7533_mode_valid(adv, mode);
-+	else
-+		return adv7511_mode_valid(adv, mode);
-+}
-+
- static int adv7511_bridge_attach(struct drm_bridge *bridge,
- 				 enum drm_bridge_attach_flags flags)
- {
-@@ -960,6 +969,7 @@ static const struct drm_bridge_funcs adv7511_bridge_funcs = {
- 	.enable = adv7511_bridge_enable,
- 	.disable = adv7511_bridge_disable,
- 	.mode_set = adv7511_bridge_mode_set,
-+	.mode_valid = adv7511_bridge_mode_valid,
- 	.attach = adv7511_bridge_attach,
- 	.detect = adv7511_bridge_detect,
- 	.get_edid = adv7511_bridge_get_edid,
-diff --git a/drivers/gpu/drm/bridge/adv7511/adv7533.c b/drivers/gpu/drm/bridge/adv7511/adv7533.c
-index ef6270806d1d..258c79d4dab0 100644
---- a/drivers/gpu/drm/bridge/adv7511/adv7533.c
-+++ b/drivers/gpu/drm/bridge/adv7511/adv7533.c
-@@ -100,26 +100,27 @@ void adv7533_dsi_power_off(struct adv7511 *adv)
- 	regmap_write(adv->regmap_cec, 0x27, 0x0b);
- }
- 
--void adv7533_mode_set(struct adv7511 *adv, const struct drm_display_mode *mode)
-+enum drm_mode_status adv7533_mode_valid(struct adv7511 *adv,
-+					const struct drm_display_mode *mode)
- {
-+	int lanes;
- 	struct mipi_dsi_device *dsi = adv->dsi;
--	int lanes, ret;
--
--	if (adv->num_dsi_lanes != 4)
--		return;
- 
- 	if (mode->clock > 80000)
- 		lanes = 4;
- 	else
- 		lanes = 3;
- 
--	if (lanes != dsi->lanes) {
--		mipi_dsi_detach(dsi);
--		dsi->lanes = lanes;
--		ret = mipi_dsi_attach(dsi);
--		if (ret)
--			dev_err(&dsi->dev, "failed to change host lanes\n");
+diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+index 5d96ab85d04c..a6a26085bc15 100644
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+@@ -961,20 +961,16 @@ kvaser_usb_leaf_rx_error_update_can_state(struct kvaser_usb_net_priv *priv,
+ 		new_state = CAN_STATE_BUS_OFF;
+ 	} else if (es->status & M16C_STATE_BUS_PASSIVE) {
+ 		new_state = CAN_STATE_ERROR_PASSIVE;
+-	} else if (es->status & M16C_STATE_BUS_ERROR) {
++	} else if ((es->status & M16C_STATE_BUS_ERROR) &&
++		   cur_state >= CAN_STATE_BUS_OFF) {
+ 		/* Guard against spurious error events after a busoff */
+-		if (cur_state < CAN_STATE_BUS_OFF) {
+-			if (es->txerr >= 128 || es->rxerr >= 128)
+-				new_state = CAN_STATE_ERROR_PASSIVE;
+-			else if (es->txerr >= 96 || es->rxerr >= 96)
+-				new_state = CAN_STATE_ERROR_WARNING;
+-			else if (cur_state > CAN_STATE_ERROR_ACTIVE)
+-				new_state = CAN_STATE_ERROR_ACTIVE;
+-		}
 -	}
-+	/*
-+	 * TODO: add support for dynamic switching of lanes
-+	 * by using the bridge pre_enable() op . Till then filter
-+	 * out the modes which shall need different number of lanes
-+	 * than what was configured in the device tree.
-+	 */
-+	if (lanes != dsi->lanes)
-+		return MODE_BAD;
-+
-+	return MODE_OK;
- }
+-
+-	if (!es->status)
++	} else if (es->txerr >= 128 || es->rxerr >= 128) {
++		new_state = CAN_STATE_ERROR_PASSIVE;
++	} else if (es->txerr >= 96 || es->rxerr >= 96) {
++		new_state = CAN_STATE_ERROR_WARNING;
++	} else {
+ 		new_state = CAN_STATE_ERROR_ACTIVE;
++	}
  
- int adv7533_patch_registers(struct adv7511 *adv)
+ 	if (new_state != cur_state) {
+ 		tx_state = (es->txerr >= es->rxerr) ? new_state : 0;
 -- 
 2.35.1
 
