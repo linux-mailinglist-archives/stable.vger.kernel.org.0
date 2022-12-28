@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77637657A56
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:11:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 538EC6580EF
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:23:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233070AbiL1PKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:10:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56886 "EHLO
+        id S234659AbiL1QXN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:23:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233771AbiL1PKA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:10:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 425E913E33
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:10:00 -0800 (PST)
+        with ESMTP id S234847AbiL1QWT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:22:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 929CE1A20F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:19:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EDF3CB8172B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:09:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43F35C433EF;
-        Wed, 28 Dec 2022 15:09:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 585F0B81887
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:19:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A28E7C433D2;
+        Wed, 28 Dec 2022 16:19:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240197;
-        bh=e3OsxW13efZx5c2lO7pbpoPbHRXeTSQvQ1JS+fLpk50=;
+        s=korg; t=1672244394;
+        bh=UM2gO9+o7hnCGwcUNaEeEQAPY079Neovmli6/kdR7V4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qcniUxQVW6zUisN0d8j5VjHCj78vjpPXMpchsxOGQhoT5znqmyvoARUJU8Qr+s7Mp
-         McdXQ7lhSVt18CQr+JYr60jKkuMjpMV8YFAU/lluudFWr/f2yga+HjpSplBzJS3jI8
-         F26sV+AY4NDiyzBxeQE1O5pg86OcoJi+9raiJh2g=
+        b=CRBaGNneXrlyYZrI5otiB4sgj+Vyj6Jb98GKMf7tsxK1q8xQkCL0+aWBMpvYZSWII
+         PB7xEpq9EsNlpoga7aOcUsG/4xOpwBiTQTLpN40yuMN3SwY6mZnQPhIdLJSWEkizWu
+         ntOosf2JqLUFiKl9P7uEeXui3rEO5W9tOSyRJPRU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 294/731] mmc: pxamci: fix return value check of mmc_add_host()
+Subject: [PATCH 6.1 0662/1146] crypto: qat - fix error return code in adf_probe
 Date:   Wed, 28 Dec 2022 15:36:41 +0100
-Message-Id: <20221228144305.096091950@linuxfoundation.org>
+Message-Id: <20221228144348.134590622@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +54,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit 80e1ef3afb8bfbe768380b70ffe1b6cab87d1a3b ]
+[ Upstream commit 31f81401e23fb88cc030cd586abd28740e6c8136 ]
 
-mmc_add_host() may return error, if we ignore its return value, the memory
-that allocated in mmc_alloc_host() will be leaked and it will lead a kernel
-crash because of deleting not added device in the remove path.
+Fix to return a negative error code -EINVAL instead of 0.
 
-So fix this by checking the return value and goto error path which will call
-mmc_free_host(), besides, ->exit() need be called to uninit the pdata.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221101063023.1664968-5-yangyingliang@huawei.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 0cec19c761e5 ("crypto: qat - add support for compression for 4xxx")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Acked-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/pxamci.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/crypto/qat/qat_4xxx/adf_drv.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mmc/host/pxamci.c b/drivers/mmc/host/pxamci.c
-index 55868b6b8658..e25e9bb34eb3 100644
---- a/drivers/mmc/host/pxamci.c
-+++ b/drivers/mmc/host/pxamci.c
-@@ -763,7 +763,12 @@ static int pxamci_probe(struct platform_device *pdev)
- 			dev_warn(dev, "gpio_ro and get_ro() both defined\n");
+diff --git a/drivers/crypto/qat/qat_4xxx/adf_drv.c b/drivers/crypto/qat/qat_4xxx/adf_drv.c
+index 2f212561acc4..670a58b25cb1 100644
+--- a/drivers/crypto/qat/qat_4xxx/adf_drv.c
++++ b/drivers/crypto/qat/qat_4xxx/adf_drv.c
+@@ -261,6 +261,7 @@ static int adf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	hw_data->accel_capabilities_mask = hw_data->get_accel_cap(accel_dev);
+ 	if (!hw_data->accel_capabilities_mask) {
+ 		dev_err(&pdev->dev, "Failed to get capabilities mask.\n");
++		ret = -EINVAL;
+ 		goto out_err;
  	}
- 
--	mmc_add_host(mmc);
-+	ret = mmc_add_host(mmc);
-+	if (ret) {
-+		if (host->pdata && host->pdata->exit)
-+			host->pdata->exit(dev, mmc);
-+		goto out;
-+	}
- 
- 	return 0;
  
 -- 
 2.35.1
