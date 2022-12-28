@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9E6E657AA4
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:14:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20A686581D0
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:32:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232660AbiL1POG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:14:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59774 "EHLO
+        id S233708AbiL1QcB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:32:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233183AbiL1PN2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:13:28 -0500
+        with ESMTP id S234686AbiL1Qbc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:31:32 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78EFE13F03
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:13:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68BF611A3F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:27:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35ABBB816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:13:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B350C433D2;
-        Wed, 28 Dec 2022 15:13:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 200DFB817AC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:27:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D9B6C433D2;
+        Wed, 28 Dec 2022 16:27:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240391;
-        bh=Q/rRuMYWOK/w/tLWxb9Ie3tw9DniL0DJikkmVHz0wYk=;
+        s=korg; t=1672244862;
+        bh=Jq4TugW0ehcG+e8BFXTH5sEl3zKGdIwI+FWeE6BJRys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ns7vEsfXFVZtbwWmM4MYb2/FuvULjknEWlaNL5cQSMdOp/310KWiqxXEYUG9UAR8l
-         vdzHH5Mefl0bEuBfDcwL++v6u+Pd2FyE7R/PJqatSRxzUMxN1NtPBsB4IBWUpnoIgQ
-         VDqHqHy2Zp4faUW2GH+a+YuSyKmZqlNS7EqpEwAU=
+        b=Nn/FEkIx2kF/83ZQDtuznCowqaPDXCK/xyqAuHY9eynosyX6xdXa3XS/nFfzAcwnU
+         UcaYinaHHXsshRny4ciAEoP/eZcCXFmaFjBqKWdGSV3KRy5yW/LkXiQQaRa3SiQopY
+         axZZLofN1xNTkcSXYv5wBqY9EkbBqFzQKazv3lSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Pilmore <epilmore@gigaio.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 344/731] ntb_netdev: Use dev_kfree_skb_any() in interrupt context
+Subject: [PATCH 6.1 0712/1146] serial: sunsab: Fix error handling in sunsab_init()
 Date:   Wed, 28 Dec 2022 15:37:31 +0100
-Message-Id: <20221228144306.537442100@linuxfoundation.org>
+Message-Id: <20221228144349.484302601@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Pilmore <epilmore@gigaio.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 5f7d78b2b12a9d561f48fa00bab29b40f4616dad ]
+[ Upstream commit 1a6ec673fb627c26e2267ca0a03849f91dbd9b40 ]
 
-TX/RX callback handlers (ntb_netdev_tx_handler(),
-ntb_netdev_rx_handler()) can be called in interrupt
-context via the DMA framework when the respective
-DMA operations have completed. As such, any calls
-by these routines to free skb's, should use the
-interrupt context safe dev_kfree_skb_any() function.
+The sunsab_init() returns the platform_driver_register() directly without
+checking its return value, if platform_driver_register() failed, the
+allocated sunsab_ports is leaked.
+Fix by free sunsab_ports and set it to NULL when platform_driver_register()
+failed.
 
-Previously, these callback handlers would call the
-interrupt unsafe version of dev_kfree_skb(). This has
-not presented an issue on Intel IOAT DMA engines as
-that driver utilizes tasklets rather than a hard
-interrupt handler, like the AMD PTDMA DMA driver.
-On AMD systems, a kernel WARNING message is
-encountered, which is being issued from
-skb_release_head_state() due to in_hardirq()
-being true.
-
-Besides the user visible WARNING from the kernel,
-the other symptom of this bug was that TCP/IP performance
-across the ntb_netdev interface was very poor, i.e.
-approximately an order of magnitude below what was
-expected. With the repair to use dev_kfree_skb_any(),
-kernel WARNINGs from skb_release_head_state() ceased
-and TCP/IP performance, as measured by iperf, was on
-par with expected results, approximately 20 Gb/s on
-AMD Milan based server. Note that this performance
-is comparable with Intel based servers.
-
-Fixes: 765ccc7bc3d91 ("ntb_netdev: correct skb leak")
-Fixes: 548c237c0a997 ("net: Add support for NTB virtual ethernet device")
-Signed-off-by: Eric Pilmore <epilmore@gigaio.com>
-Reviewed-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/20221209000659.8318-1-epilmore@gigaio.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: c4d37215a824 ("[SERIAL] sunsab: Convert to of_driver framework.")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Link: https://lore.kernel.org/r/20221123061212.52593-1-yuancan@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ntb_netdev.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/sunsab.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ntb_netdev.c b/drivers/net/ntb_netdev.c
-index 1b7d588ff3c5..b701ee83e64a 100644
---- a/drivers/net/ntb_netdev.c
-+++ b/drivers/net/ntb_netdev.c
-@@ -137,7 +137,7 @@ static void ntb_netdev_rx_handler(struct ntb_transport_qp *qp, void *qp_data,
- enqueue_again:
- 	rc = ntb_transport_rx_enqueue(qp, skb, skb->data, ndev->mtu + ETH_HLEN);
- 	if (rc) {
--		dev_kfree_skb(skb);
-+		dev_kfree_skb_any(skb);
- 		ndev->stats.rx_errors++;
- 		ndev->stats.rx_fifo_errors++;
- 	}
-@@ -192,7 +192,7 @@ static void ntb_netdev_tx_handler(struct ntb_transport_qp *qp, void *qp_data,
- 		ndev->stats.tx_aborted_errors++;
+diff --git a/drivers/tty/serial/sunsab.c b/drivers/tty/serial/sunsab.c
+index 99608b2a2b74..7ace3aa49840 100644
+--- a/drivers/tty/serial/sunsab.c
++++ b/drivers/tty/serial/sunsab.c
+@@ -1133,7 +1133,13 @@ static int __init sunsab_init(void)
+ 		}
  	}
  
--	dev_kfree_skb(skb);
-+	dev_kfree_skb_any(skb);
+-	return platform_driver_register(&sab_driver);
++	err = platform_driver_register(&sab_driver);
++	if (err) {
++		kfree(sunsab_ports);
++		sunsab_ports = NULL;
++	}
++
++	return err;
+ }
  
- 	if (ntb_transport_tx_free_entry(dev->qp) >= tx_start) {
- 		/* Make sure anybody stopping the queue after this sees the new
+ static void __exit sunsab_exit(void)
 -- 
 2.35.1
 
