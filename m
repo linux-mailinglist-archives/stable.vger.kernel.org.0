@@ -2,145 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74E126582C3
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:41:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A043657C38
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:30:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233780AbiL1QlW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:41:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32804 "EHLO
+        id S233773AbiL1PaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:30:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232923AbiL1Qky (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:40:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB95A1EEC9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:35:30 -0800 (PST)
+        with ESMTP id S233798AbiL1PaM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:30:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F09C21571F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:30:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C48CCB817AE
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:35:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2092DC433F1;
-        Wed, 28 Dec 2022 16:35:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6A59B81647
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:30:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0065AC433EF;
+        Wed, 28 Dec 2022 15:30:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245321;
-        bh=2u+JqZVFjNOYCm9GMc8BJ4EA8rIcooMLdSQI+41VY6U=;
+        s=korg; t=1672241408;
+        bh=EpxBNJwcm9a8nfr5KG8vZQngwl1afZwch0/a3FladsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r3m7wqmkCm7cPJmFLtEsOFK/aYzGSfhg4D0M17T6E3pSjeaPW/wO9i12ZXnOKiw37
-         epJs40rEfT2cHM+DJonXRHDAE2WLDyf0q30srllSQnlRu/oBdiIXS6bvoxBkTmPkyK
-         8XxqBvYxpH6pr9bWPLv5RFqkNm5M0pFFABU7GLFY=
+        b=OJW1bPz30XFzMDgL6n3EiWVwIHOjlxJWmw60OX/IDG/L3oNCjQ0SobcWUgLF7NSDF
+         0sNmbMslKViudXNIBclz0aP4Y3YfIcFoT+BTrlU0alqEy1S9V6QXmV8bG9iaSgGCEJ
+         ua1xtdwg0GszQygwT6ekgSE+eqqCprDRmi5xyTq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Stefan Eichenberger <stefan.eichenberger@toradex.com>,
-        Francesco Dolcini <francesco@dolcini.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Frederic Barrat <fbarrat@linux.ibm.com>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0839/1146] rtc: snvs: Allow a time difference on clock register read
-Date:   Wed, 28 Dec 2022 15:39:38 +0100
-Message-Id: <20221228144352.946106716@linuxfoundation.org>
+Subject: [PATCH 5.15 472/731] cxl: fix possible null-ptr-deref in cxl_pci_init_afu|adapter()
+Date:   Wed, 28 Dec 2022 15:39:39 +0100
+Message-Id: <20221228144310.233108783@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Eichenberger <stefan.eichenberger@toradex.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 0462681e207ccc44778a77b3297af728b1cf5b9f ]
+[ Upstream commit 02cd3032b154fa02fdf90e7467abaeed889330b2 ]
 
-On an iMX6ULL the following message appears when a wakealarm is set:
+If device_register() fails in cxl_pci_afu|adapter(), the device
+is not added, device_unregister() can not be called in the error
+path, otherwise it will cause a null-ptr-deref because of removing
+not added device.
 
-echo 0 > /sys/class/rtc/rtc1/wakealarm
-rtc rtc1: Timeout trying to get valid LPSRT Counter read
+As comment of device_register() says, it should use put_device() to give
+up the reference in the error path. So split device_unregister() into
+device_del() and put_device(), then goes to put dev when register fails.
 
-This does not always happen but is reproducible quite often (7 out of 10
-times). The problem appears because the iMX6ULL is not able to read the
-registers within one 32kHz clock cycle which is the base clock of the
-RTC. Therefore, this patch allows a difference of up to 320 cycles
-(10ms). 10ms was chosen to be big enough even on systems with less cpu
-power (e.g. iMX6ULL). According to the reference manual a difference is
-fine:
-- If the two consecutive reads are similar, the value is correct.
-The values have to be similar, not equal.
-
-Fixes: cd7f3a249dbe ("rtc: snvs: Add timeouts to avoid kernel lockups")
-Reviewed-by: Francesco Dolcini <francesco.dolcini@toradex.com>
-Signed-off-by: Stefan Eichenberger <stefan.eichenberger@toradex.com>
-Signed-off-by: Francesco Dolcini <francesco@dolcini.it>
-Link: https://lore.kernel.org/r/20221106115915.7930-1-francesco@dolcini.it
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: f204e0b8cedd ("cxl: Driver code for powernv PCIe based cards for userspace access")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Acked-by: Frederic Barrat <fbarrat@linux.ibm.com>
+Acked-by: Andrew Donnellan <ajd@linux.ibm.com>
+Link: https://lore.kernel.org/r/20221111145440.2426970-2-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-snvs.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/misc/cxl/pci.c | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-index bd929b0e7d7d..d82acf1af1fa 100644
---- a/drivers/rtc/rtc-snvs.c
-+++ b/drivers/rtc/rtc-snvs.c
-@@ -32,6 +32,14 @@
- #define SNVS_LPPGDR_INIT	0x41736166
- #define CNTR_TO_SECS_SH		15
+diff --git a/drivers/misc/cxl/pci.c b/drivers/misc/cxl/pci.c
+index 2ba899f5659f..0ac3f4cb88ac 100644
+--- a/drivers/misc/cxl/pci.c
++++ b/drivers/misc/cxl/pci.c
+@@ -1164,10 +1164,10 @@ static int pci_init_afu(struct cxl *adapter, int slice, struct pci_dev *dev)
+ 	 * if it returns an error!
+ 	 */
+ 	if ((rc = cxl_register_afu(afu)))
+-		goto err_put1;
++		goto err_put_dev;
  
-+/* The maximum RTC clock cycles that are allowed to pass between two
-+ * consecutive clock counter register reads. If the values are corrupted a
-+ * bigger difference is expected. The RTC frequency is 32kHz. With 320 cycles
-+ * we end at 10ms which should be enough for most cases. If it once takes
-+ * longer than expected we do a retry.
-+ */
-+#define MAX_RTC_READ_DIFF_CYCLES	320
-+
- struct snvs_rtc_data {
- 	struct rtc_device *rtc;
- 	struct regmap *regmap;
-@@ -56,6 +64,7 @@ static u64 rtc_read_lpsrt(struct snvs_rtc_data *data)
- static u32 rtc_read_lp_counter(struct snvs_rtc_data *data)
- {
- 	u64 read1, read2;
-+	s64 diff;
- 	unsigned int timeout = 100;
+ 	if ((rc = cxl_sysfs_afu_add(afu)))
+-		goto err_put1;
++		goto err_del_dev;
  
- 	/* As expected, the registers might update between the read of the LSB
-@@ -66,7 +75,8 @@ static u32 rtc_read_lp_counter(struct snvs_rtc_data *data)
- 	do {
- 		read2 = read1;
- 		read1 = rtc_read_lpsrt(data);
--	} while (read1 != read2 && --timeout);
-+		diff = read1 - read2;
-+	} while (((diff < 0) || (diff > MAX_RTC_READ_DIFF_CYCLES)) && --timeout);
- 	if (!timeout)
- 		dev_err(&data->rtc->dev, "Timeout trying to get valid LPSRT Counter read\n");
+ 	adapter->afu[afu->slice] = afu;
  
-@@ -78,13 +88,15 @@ static u32 rtc_read_lp_counter(struct snvs_rtc_data *data)
- static int rtc_read_lp_counter_lsb(struct snvs_rtc_data *data, u32 *lsb)
- {
- 	u32 count1, count2;
-+	s32 diff;
- 	unsigned int timeout = 100;
+@@ -1176,10 +1176,12 @@ static int pci_init_afu(struct cxl *adapter, int slice, struct pci_dev *dev)
  
- 	regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &count1);
- 	do {
- 		count2 = count1;
- 		regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &count1);
--	} while (count1 != count2 && --timeout);
-+		diff = count1 - count2;
-+	} while (((diff < 0) || (diff > MAX_RTC_READ_DIFF_CYCLES)) && --timeout);
- 	if (!timeout) {
- 		dev_err(&data->rtc->dev, "Timeout trying to get valid LPSRT Counter read\n");
- 		return -ETIMEDOUT;
+ 	return 0;
+ 
+-err_put1:
++err_del_dev:
++	device_del(&afu->dev);
++err_put_dev:
+ 	pci_deconfigure_afu(afu);
+ 	cxl_debugfs_afu_remove(afu);
+-	device_unregister(&afu->dev);
++	put_device(&afu->dev);
+ 	return rc;
+ 
+ err_free_native:
+@@ -1667,23 +1669,25 @@ static struct cxl *cxl_pci_init_adapter(struct pci_dev *dev)
+ 	 * even if it returns an error!
+ 	 */
+ 	if ((rc = cxl_register_adapter(adapter)))
+-		goto err_put1;
++		goto err_put_dev;
+ 
+ 	if ((rc = cxl_sysfs_adapter_add(adapter)))
+-		goto err_put1;
++		goto err_del_dev;
+ 
+ 	/* Release the context lock as adapter is configured */
+ 	cxl_adapter_context_unlock(adapter);
+ 
+ 	return adapter;
+ 
+-err_put1:
++err_del_dev:
++	device_del(&adapter->dev);
++err_put_dev:
+ 	/* This should mirror cxl_remove_adapter, except without the
+ 	 * sysfs parts
+ 	 */
+ 	cxl_debugfs_adapter_remove(adapter);
+ 	cxl_deconfigure_adapter(adapter);
+-	device_unregister(&adapter->dev);
++	put_device(&adapter->dev);
+ 	return ERR_PTR(rc);
+ 
+ err_release:
 -- 
 2.35.1
 
