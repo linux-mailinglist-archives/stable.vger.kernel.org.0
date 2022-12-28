@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16F8A657EF9
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:59:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 821B9657DDE
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:47:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234240AbiL1P7v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:59:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46634 "EHLO
+        id S234023AbiL1Prn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:47:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234238AbiL1P7s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:59:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C01918E26
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:59:47 -0800 (PST)
+        with ESMTP id S234090AbiL1Pr3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:47:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EFAAF63
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:47:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EB807B8172B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:59:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 574ADC433D2;
-        Wed, 28 Dec 2022 15:59:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE9A96156C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:47:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDEE4C433D2;
+        Wed, 28 Dec 2022 15:47:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243184;
-        bh=oGeNAZgohyZQFne1ziJJO76MGyKtUscUNWfwi4Rdi7o=;
+        s=korg; t=1672242448;
+        bh=FphEkFFeAHGR/8Nzfu3WYKTyl00C3ATiGiN/BUSk4A4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YoqvvkllTTtaZLyBgLtKtHq0nasugNeEI4USzLekLmJuwEc0HtbRUVfKKyZg8qciG
-         gCDux9T3bvMTHCYCtH0aAOz8S2Hx91eRjwa3xcAoKDwiA8pAPFnbuqdB8qRPUtjPOS
-         j+Zc15CBawi2coEOsr4ngMLoU2aRLFhPn5v4A3R0=
+        b=sa0dmCY6FZACEbem5FdOV9RZAVyPaLVSLs2P79ROdE/uTuIxts82y0nWRsphDj+0z
+         xxqehyO0/tzq6TVNr6qdmD/S0kIFQ0Blgf8pfRVd02PtgGNn+rho33DQWyAHp0YqbG
+         zuXrvDrJ4CM829JNkkFhlTlG/Ro7bKXNH/tuUj5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, YN Chen <YN.Chen@mediatek.com>,
-        Deren Wu <deren.wu@mediatek.com>, Felix Fietkau <nbd@nbd.name>,
+        patches@lists.linux.dev,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0460/1146] wifi: mt76: mt7921: fix wrong power after multiple SAR set
+Subject: [PATCH 6.0 0411/1073] NFSv4: Fix a deadlock between nfs4_open_recover_helper() and delegreturn
 Date:   Wed, 28 Dec 2022 15:33:19 +0100
-Message-Id: <20221228144342.676856526@linuxfoundation.org>
+Message-Id: <20221228144339.183913058@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,67 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YN Chen <YN.Chen@mediatek.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 7eefb93d4a6fbccd859e538d208c50fd10b44cb7 ]
+[ Upstream commit 51069e4aef6257b0454057359faed0ab0c9af083 ]
 
-We should update CLC config before SAR set to synchronize all
-related settings.
+If we're asked to recover open state while a delegation return is
+outstanding, then the state manager thread cannot use a cached open, so
+if the server returns a delegation, we can end up deadlocked behind the
+pending delegreturn.
+To avoid this problem, let's just ask the server not to give us a
+delegation unless we're explicitly reclaiming one.
 
-Fixes: 23bdc5d8cadf ("wifi: mt76: mt7921: introduce Country Location Control support")
-Signed-off-by: YN Chen <YN.Chen@mediatek.com>
-Signed-off-by: Deren Wu <deren.wu@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Fixes: be36e185bd26 ("NFSv4: nfs4_open_recover_helper() must set share access")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/init.c   | 1 +
- drivers/net/wireless/mediatek/mt76/mt7921/main.c   | 6 ++++++
- drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h | 2 ++
- 3 files changed, 9 insertions(+)
+ fs/nfs/nfs4proc.c | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/init.c b/drivers/net/wireless/mediatek/mt76/mt7921/init.c
-index dcdb3cf04ac1..4ad66b344383 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/init.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/init.c
-@@ -37,6 +37,7 @@ mt7921_regd_notifier(struct wiphy *wiphy,
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index f85559bbb422..6e247647a5fb 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -2130,18 +2130,18 @@ static struct nfs4_opendata *nfs4_open_recoverdata_alloc(struct nfs_open_context
+ }
  
- 	memcpy(dev->mt76.alpha2, request->alpha2, sizeof(dev->mt76.alpha2));
- 	dev->mt76.region = request->dfs_region;
-+	dev->country_ie_env = request->country_ie_env;
+ static int nfs4_open_recover_helper(struct nfs4_opendata *opendata,
+-		fmode_t fmode)
++				    fmode_t fmode)
+ {
+ 	struct nfs4_state *newstate;
++	struct nfs_server *server = NFS_SB(opendata->dentry->d_sb);
++	int openflags = opendata->o_arg.open_flags;
+ 	int ret;
  
- 	mt7921_mutex_acquire(dev);
- 	mt7921_mcu_set_clc(dev, request->alpha2, request->country_ie_env);
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/main.c b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
-index 7e409ac7d9a8..111d9221b94f 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/main.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
-@@ -1504,7 +1504,13 @@ static int mt7921_set_sar_specs(struct ieee80211_hw *hw,
- 	int err;
+ 	if (!nfs4_mode_match_open_stateid(opendata->state, fmode))
+ 		return 0;
+-	opendata->o_arg.open_flags = 0;
+ 	opendata->o_arg.fmode = fmode;
+-	opendata->o_arg.share_access = nfs4_map_atomic_open_share(
+-			NFS_SB(opendata->dentry->d_sb),
+-			fmode, 0);
++	opendata->o_arg.share_access =
++		nfs4_map_atomic_open_share(server, fmode, openflags);
+ 	memset(&opendata->o_res, 0, sizeof(opendata->o_res));
+ 	memset(&opendata->c_res, 0, sizeof(opendata->c_res));
+ 	nfs4_init_opendata_res(opendata);
+@@ -2723,10 +2723,15 @@ static int _nfs4_open_expired(struct nfs_open_context *ctx, struct nfs4_state *s
+ 	struct nfs4_opendata *opendata;
+ 	int ret;
  
- 	mt7921_mutex_acquire(dev);
-+	err = mt7921_mcu_set_clc(dev, dev->mt76.alpha2,
-+				 dev->country_ie_env);
-+	if (err < 0)
-+		goto out;
-+
- 	err = mt7921_set_tx_sar_pwr(hw, sar);
-+out:
- 	mt7921_mutex_release(dev);
- 
- 	return err;
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h b/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h
-index eaba114a9c7e..2babaeff72ba 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h
-@@ -244,6 +244,8 @@ struct mt7921_dev {
- 	struct work_struct ipv6_ns_work;
- 	/* IPv6 addresses for WoWLAN */
- 	struct sk_buff_head ipv6_ns_list;
-+
-+	enum environment_cap country_ie_env;
- };
- 
- enum {
+-	opendata = nfs4_open_recoverdata_alloc(ctx, state,
+-			NFS4_OPEN_CLAIM_FH);
++	opendata = nfs4_open_recoverdata_alloc(ctx, state, NFS4_OPEN_CLAIM_FH);
+ 	if (IS_ERR(opendata))
+ 		return PTR_ERR(opendata);
++	/*
++	 * We're not recovering a delegation, so ask for no delegation.
++	 * Otherwise the recovery thread could deadlock with an outstanding
++	 * delegation return.
++	 */
++	opendata->o_arg.open_flags = O_DIRECT;
+ 	ret = nfs4_open_recover(opendata, state);
+ 	if (ret == -ESTALE)
+ 		d_drop(ctx->dentry);
 -- 
 2.35.1
 
