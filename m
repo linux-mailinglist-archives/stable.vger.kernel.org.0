@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D4F3657F00
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:00:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA1D6658410
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:54:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234245AbiL1QAL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:00:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46936 "EHLO
+        id S235232AbiL1QyB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:54:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234249AbiL1QAE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:00:04 -0500
+        with ESMTP id S235251AbiL1QxJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:53:09 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E356C18E3D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:00:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 901CC193FE
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:48:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 821C5B81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:00:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5E41C433D2;
-        Wed, 28 Dec 2022 16:00:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 46249B8172A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:48:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B86FC433D2;
+        Wed, 28 Dec 2022 16:48:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243201;
-        bh=F/SzWPdVnhRsksvZ9j1OOAWMBR2NQrYAmrU8kfUHv9Q=;
+        s=korg; t=1672246106;
+        bh=KNuMHHjvWcTpwbCNWnMLoHadgrrCZZnrlhqt5jUTw98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jWeqmo0v9ZMHMwlyz1Gipo23sfTA2Ye7+QzvyfrvYTHaxy+O7Z35p1WN4z7SuVeni
-         cuc6lFrtFhX+vw9/ZagY5b+FKrNvoxiso8jBXGELXFLXEQNRFPLIKX5eyXodlCcKkB
-         tmYI4L5F7MgBaTThHRpfu83kYxbDrNEcReyoUPBM=
+        b=bnMs1HFoDwLBDWrCDmPaHvyuegyrppxJNZvA3TYN58oo9Gtpr3NBWkTxtVNP5HZ2G
+         3KPY6hFM6xpqQMTvbLemCr+8LnvUW5SDX/fpIpKUeUlM6EAf0HAiZzvSMqA+efjL+n
+         A9xTfIEwexrSbVXRcK5okpXyXEIJUdJT3SJIiVig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Jingjin <wangjingjin1@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Daniel=20D=C3=ADaz?= <daniel.diaz@linaro.org>,
+        Kristina Martsenko <kristina.martsenko@arm.com>,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 694/731] ASoC: rockchip: spdif: Add missing clk_disable_unprepare() in rk_spdif_runtime_resume()
+Subject: [PATCH 6.0 1013/1073] lkdtm: cfi: Make PAC test work with GCC 7 and 8
 Date:   Wed, 28 Dec 2022 15:43:21 +0100
-Message-Id: <20221228144316.579627533@linuxfoundation.org>
+Message-Id: <20221228144355.685667171@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Jingjin <wangjingjin1@huawei.com>
+From: Kristina Martsenko <kristina.martsenko@arm.com>
 
-[ Upstream commit 6d94d0090527b1763872275a7ccd44df7219b31e ]
+[ Upstream commit f68022ae0aeb0803450e05abc0e984027c33ef1b ]
 
-rk_spdif_runtime_resume() may have called clk_prepare_enable() before return
-from failed branches, add missing clk_disable_unprepare() in this case.
+The CFI test uses the branch-protection=none compiler attribute to
+disable PAC return address protection on a function. While newer GCC
+versions support this attribute, older versions (GCC 7 and 8) instead
+supported the sign-return-address=none attribute, leading to a build
+failure when the test is built with older compilers. Fix it by checking
+which attribute is supported and using the correct one.
 
-Fixes: f874b80e1571 ("ASoC: rockchip: Add rockchip SPDIF transceiver driver")
-Signed-off-by: Wang Jingjin <wangjingjin1@huawei.com>
-Link: https://lore.kernel.org/r/20221208063900.4180790-1-wangjingjin1@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 2e53b877dc12 ("lkdtm: Add CFI_BACKWARD to test ROP mitigations")
+Reported-by: Daniel Díaz <daniel.diaz@linaro.org>
+Signed-off-by: Kristina Martsenko <kristina.martsenko@arm.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/all/CAEUSe78kDPxQmQqCWW-_9LCgJDFhAeMoVBFnX9QLx18Z4uT4VQ@mail.gmail.com/
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/rockchip/rockchip_spdif.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/misc/lkdtm/cfi.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/rockchip/rockchip_spdif.c b/sound/soc/rockchip/rockchip_spdif.c
-index d027ca4b1796..09a25d84fee6 100644
---- a/sound/soc/rockchip/rockchip_spdif.c
-+++ b/sound/soc/rockchip/rockchip_spdif.c
-@@ -88,6 +88,7 @@ static int __maybe_unused rk_spdif_runtime_resume(struct device *dev)
- 
- 	ret = clk_prepare_enable(spdif->hclk);
- 	if (ret) {
-+		clk_disable_unprepare(spdif->mclk);
- 		dev_err(spdif->dev, "hclk clock enable failed %d\n", ret);
- 		return ret;
- 	}
+diff --git a/drivers/misc/lkdtm/cfi.c b/drivers/misc/lkdtm/cfi.c
+index 71483cb1e422..f4fd30f7a9a0 100644
+--- a/drivers/misc/lkdtm/cfi.c
++++ b/drivers/misc/lkdtm/cfi.c
+@@ -51,7 +51,11 @@ static void lkdtm_CFI_FORWARD_PROTO(void)
+ # ifdef CONFIG_ARM64_BTI_KERNEL
+ #  define __no_pac             "branch-protection=bti"
+ # else
+-#  define __no_pac             "branch-protection=none"
++#  ifdef CONFIG_CC_HAS_BRANCH_PROT_PAC_RET
++#   define __no_pac            "branch-protection=none"
++#  else
++#   define __no_pac            "sign-return-address=none"
++#  endif
+ # endif
+ # define __no_ret_protection   __noscs __attribute__((__target__(__no_pac)))
+ #else
 -- 
 2.35.1
 
