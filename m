@@ -2,52 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19240658308
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA08F657DA2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:45:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233348AbiL1QoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:44:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36992 "EHLO
+        id S234003AbiL1PpP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:45:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232630AbiL1Qno (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:44 -0500
+        with ESMTP id S234004AbiL1PpO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:45:14 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BB371A216
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:38:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DBD1175B3
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:45:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EAD2161572
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:38:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D23D9C433D2;
-        Wed, 28 Dec 2022 16:38:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AF856155C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:45:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C8C6C433EF;
+        Wed, 28 Dec 2022 15:45:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245498;
-        bh=huscLZkbXLDXuPiTqXbzABWrfX3kei9rZ84GI/UNxbE=;
+        s=korg; t=1672242312;
+        bh=XezicBxC7vh4bZiwu9P39wBjQZUNgrg3LNoA3ip5Vd0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NDH/wlxtwygopVRxtqblrZWZnFCXVcEKtArsuXMqKGpaNqMF49Vq23+uS1efTIKlX
-         b0SlQ7oqLAy0+4XGucqAYsSpDvIT374N+7Zsdk6VdEinAeezp+6PnZvDrXkX5L6FOM
-         2T8K1XjVtrwYJytxu9l1zxjGdLQjf51rSv2Wr1EQ=
+        b=R4QcPrYZp4GgnFJE5xpnJCliBPY9AvNmlxnP1ReVJP04INDhO/Ea5v52ZX7C5mOPE
+         E+Cs8mslRlZ0EGn7rxNLDbXkpEZi+Dydbauath9REKkCTaWGPnyQyrwaYDkXWbR6FH
+         M4kP7Kmei+4ibqpGN21Mwn3HzZDBBLyk3ZUdmm/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ZhangPeng <zhangpeng362@huawei.com>,
-        syzbot+e836ff7133ac02be825f@syzkaller.appspotmail.com,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Nanyong Sun <sunnanyong@huawei.com>,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
+        Yu Kuai <yukuai3@huawei.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0905/1073] hfs: fix OOB Read in __hfs_brec_find
-Date:   Wed, 28 Dec 2022 15:41:33 +0100
-Message-Id: <20221228144352.613018387@linuxfoundation.org>
+Subject: [PATCH 5.15 587/731] block, bfq: fix possible uaf for bfqq->bic
+Date:   Wed, 28 Dec 2022 15:41:34 +0100
+Message-Id: <20221228144313.561564440@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,79 +53,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhangPeng <zhangpeng362@huawei.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 8d824e69d9f3fa3121b2dda25053bae71e2460d2 ]
+[ Upstream commit 64dc8c732f5c2b406cc752e6aaa1bd5471159cab ]
 
-Syzbot reported a OOB read bug:
+Our test report a uaf for 'bfqq->bic' in 5.10:
 
 ==================================================================
-BUG: KASAN: slab-out-of-bounds in hfs_strcmp+0x117/0x190
-fs/hfs/string.c:84
-Read of size 1 at addr ffff88807eb62c4e by task kworker/u4:1/11
-CPU: 1 PID: 11 Comm: kworker/u4:1 Not tainted
-6.1.0-rc6-syzkaller-00308-g644e9524388a #0
-Workqueue: writeback wb_workfn (flush-7:0)
+BUG: KASAN: use-after-free in bfq_select_queue+0x378/0xa30
+
+CPU: 6 PID: 2318352 Comm: fsstress Kdump: loaded Not tainted 5.10.0-60.18.0.50.h602.kasan.eulerosv2r11.x86_64 #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58-20220320_160524-szxrtosci10000 04/01/2014
 Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0x1b1/0x28e lib/dump_stack.c:106
- print_address_description+0x74/0x340 mm/kasan/report.c:284
- print_report+0x107/0x1f0 mm/kasan/report.c:395
- kasan_report+0xcd/0x100 mm/kasan/report.c:495
- hfs_strcmp+0x117/0x190 fs/hfs/string.c:84
- __hfs_brec_find+0x213/0x5c0 fs/hfs/bfind.c:75
- hfs_brec_find+0x276/0x520 fs/hfs/bfind.c:138
- hfs_write_inode+0x34c/0xb40 fs/hfs/inode.c:462
- write_inode fs/fs-writeback.c:1440 [inline]
+ bfq_select_queue+0x378/0xa30
+ bfq_dispatch_request+0xe8/0x130
+ blk_mq_do_dispatch_sched+0x62/0xb0
+ __blk_mq_sched_dispatch_requests+0x215/0x2a0
+ blk_mq_sched_dispatch_requests+0x8f/0xd0
+ __blk_mq_run_hw_queue+0x98/0x180
+ __blk_mq_delay_run_hw_queue+0x22b/0x240
+ blk_mq_run_hw_queue+0xe3/0x190
+ blk_mq_sched_insert_requests+0x107/0x200
+ blk_mq_flush_plug_list+0x26e/0x3c0
+ blk_finish_plug+0x63/0x90
+ __iomap_dio_rw+0x7b5/0x910
+ iomap_dio_rw+0x36/0x80
+ ext4_dio_read_iter+0x146/0x190 [ext4]
+ ext4_file_read_iter+0x1e2/0x230 [ext4]
+ new_sync_read+0x29f/0x400
+ vfs_read+0x24e/0x2d0
+ ksys_read+0xd5/0x1b0
+ do_syscall_64+0x33/0x40
+ entry_SYSCALL_64_after_hwframe+0x61/0xc6
 
-If the input inode of hfs_write_inode() is incorrect:
-struct inode
-  struct hfs_inode_info
-    struct hfs_cat_key
-      struct hfs_name
-        u8 len # len is greater than HFS_NAMELEN(31) which is the
-maximum length of an HFS filename
+Commit 3bc5e683c67d ("bfq: Split shared queues on move between cgroups")
+changes that move process to a new cgroup will allocate a new bfqq to
+use, however, the old bfqq and new bfqq can point to the same bic:
 
-OOB read occurred:
-hfs_write_inode()
-  hfs_brec_find()
-    __hfs_brec_find()
-      hfs_cat_keycmp()
-        hfs_strcmp() # OOB read occurred due to len is too large
+1) Initial state, two process with io in the same cgroup.
 
-Fix this by adding a Check on len in hfs_write_inode() before calling
-hfs_brec_find().
+Process 1       Process 2
+ (BIC1)          (BIC2)
+  |  Λ            |  Λ
+  |  |            |  |
+  V  |            V  |
+  bfqq1           bfqq2
 
-Link: https://lkml.kernel.org/r/20221130065959.2168236-1-zhangpeng362@huawei.com
-Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
-Reported-by: <syzbot+e836ff7133ac02be825f@syzkaller.appspotmail.com>
-Cc: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Jeff Layton <jlayton@kernel.org>
-Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Nanyong Sun <sunnanyong@huawei.com>
-Cc: Viacheslav Dubeyko <slava@dubeyko.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+2) bfqq1 is merged to bfqq2.
+
+Process 1       Process 2
+ (BIC1)          (BIC2)
+  |               |
+   \-------------\|
+                  V
+  bfqq1           bfqq2(coop)
+
+3) Process 1 exit, then issue new io(denoce IOA) from Process 2.
+
+ (BIC2)
+  |  Λ
+  |  |
+  V  |
+  bfqq2(coop)
+
+4) Before IOA is completed, move Process 2 to another cgroup and issue io.
+
+Process 2
+ (BIC2)
+   Λ
+   |\--------------\
+   |                V
+  bfqq2           bfqq3
+
+Now that BIC2 points to bfqq3, while bfqq2 and bfqq3 both point to BIC2.
+If all the requests are completed, and Process 2 exit, BIC2 will be
+freed while there is no guarantee that bfqq2 will be freed before BIC2.
+
+Fix the problem by clearing bfqq->bic while bfqq is detached from bic.
+
+Fixes: 3bc5e683c67d ("bfq: Split shared queues on move between cgroups")
+Suggested-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20221214030430.3304151-1-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfs/inode.c | 2 ++
- 1 file changed, 2 insertions(+)
+ block/bfq-iosched.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/fs/hfs/inode.c b/fs/hfs/inode.c
-index c4526f16355d..a0746be3c1de 100644
---- a/fs/hfs/inode.c
-+++ b/fs/hfs/inode.c
-@@ -458,6 +458,8 @@ int hfs_write_inode(struct inode *inode, struct writeback_control *wbc)
- 		/* panic? */
- 		return -EIO;
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index f21b861a0d66..b8b6e9eae94b 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -386,6 +386,12 @@ static void bfq_put_stable_ref(struct bfq_queue *bfqq);
  
-+	if (HFS_I(main_inode)->cat_key.CName.len > HFS_NAMELEN)
-+		return -EIO;
- 	fd.search_key->cat = HFS_I(main_inode)->cat_key;
- 	if (hfs_brec_find(&fd))
- 		/* panic? */
+ void bic_set_bfqq(struct bfq_io_cq *bic, struct bfq_queue *bfqq, bool is_sync)
+ {
++	struct bfq_queue *old_bfqq = bic->bfqq[is_sync];
++
++	/* Clear bic pointer if bfqq is detached from this bic */
++	if (old_bfqq && old_bfqq->bic == bic)
++		old_bfqq->bic = NULL;
++
+ 	/*
+ 	 * If bfqq != NULL, then a non-stable queue merge between
+ 	 * bic->bfqq and bfqq is happening here. This causes troubles
+@@ -5245,7 +5251,6 @@ static void bfq_exit_icq_bfqq(struct bfq_io_cq *bic, bool is_sync)
+ 		unsigned long flags;
+ 
+ 		spin_lock_irqsave(&bfqd->lock, flags);
+-		bfqq->bic = NULL;
+ 		bfq_exit_bfqq(bfqd, bfqq);
+ 		bic_set_bfqq(bic, NULL, is_sync);
+ 		spin_unlock_irqrestore(&bfqd->lock, flags);
 -- 
 2.35.1
 
