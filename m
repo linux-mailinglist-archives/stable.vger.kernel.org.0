@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38376657A01
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:07:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EF4A657905
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:56:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233575AbiL1PHA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:07:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54690 "EHLO
+        id S233273AbiL1O4q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:56:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233574AbiL1PG7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:06:59 -0500
+        with ESMTP id S233267AbiL1O4o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:56:44 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CD1D615D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:06:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D72D3DF1
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:56:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1E83B816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:06:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2534BC433EF;
-        Wed, 28 Dec 2022 15:06:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 753ECB8171E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:56:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E95D6C433D2;
+        Wed, 28 Dec 2022 14:56:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240015;
-        bh=35cZwjIkshA2Ay9vlvOfvedHRYE1QOuN38cd7osSdl0=;
+        s=korg; t=1672239401;
+        bh=qHNKDTYQZ7r6fbuZ4CQddHe5QhJgh9PS3kiUugWEc5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tfi4F1mVRLbouteFEZgXvift8aH1LqjKvyUrJF+uXXZSVtA44U1Zpsc/9UQYyQd9z
-         BRDUlviT6dAWRyFuXgoDuImmTw1i4i6jmhvGdBRuMLyp52QmhXhnT/jX67DVxHvvI3
-         OGRyjLAHRQcuOoCjwerhkWqSpV41I/FTMpecU0fM=
+        b=HlYkNt1wbU1PEiAyjJiLvtpSgvWuiBHmM5j90YoI9B+iYazsdA7Ibkl1/mKbXxNca
+         lSQEeRnXshETPuk1yvteSYX7QTk6tRBnsLvZRjf8py07adozGY5pRomJr4GG0NFy6P
+         lbvmRE/XAjOheQSudefXDEWMvHe1axMP0WaXVhEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
+        patches@lists.linux.dev, Marek Vasut <marex@denx.de>,
+        Patrice Chotard <patrice.chotard@foss.st.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0071/1146] arm64: dts: mt6779: Fix devicetree build warnings
-Date:   Wed, 28 Dec 2022 15:26:50 +0100
-Message-Id: <20221228144332.084572690@linuxfoundation.org>
+Subject: [PATCH 6.0 0023/1073] ARM: dts: stm32: Drop stm32mp15xc.dtsi from Avenger96
+Date:   Wed, 28 Dec 2022 15:26:51 +0100
+Message-Id: <20221228144328.780644220@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,74 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 4d759c524c15dc4151e40b9e3f368147fda7b789 ]
+[ Upstream commit 3b835f1b8acef53c8882b25f40f48d7f5982c938 ]
 
-Rename fixed-clock oscillators to oscillator-26m and oscillator-32k
-and remove the unit address to fix the unit_address_vs_reg warning;
-fix the unit address for interrupt and intpol controllers by
-removing a leading zero in their unit address.
+The Avenger96 is populated with STM32MP157A DHCOR SoM, drop the
+stm32mp15xc.dtsi which should only be included in DTs of devices
+which are populated with STM32MP15xC/F SoC as the stm32mp15xc.dtsi
+enables CRYP block not present in the STM32MP15xA/D SoC .
 
-This commit fixes the following warnings:
-
-(unit_address_vs_reg): /oscillator@0: node has a unit name, but
-no reg or ranges property
-(unit_address_vs_reg): /oscillator@1: node has a unit name, but
-no reg or ranges property
-(simple_bus_reg): /soc/interrupt-controller@0c000000: simple-bus
-unit address format error, expected "c000000"
-(simple_bus_reg): /soc/intpol-controller@0c53a650: simple-bus
-unit address format error, expected "c53a650"
-
-Fixes: 4c7a6260775d ("arm64: dts: add dts nodes for MT6779")
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20221013152212.416661-3-angelogioacchino.delregno@collabora.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Fixes: 7e76f82acd9e1 ("ARM: dts: stm32: Split Avenger96 into DHCOR SoM and Avenger96 board")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Reviewed-by: Patrice Chotard <patrice.chotard@foss.st.com>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/mt6779.dtsi | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dts | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt6779.dtsi b/arch/arm64/boot/dts/mediatek/mt6779.dtsi
-index 9bdf5145966c..dde9ce137b4f 100644
---- a/arch/arm64/boot/dts/mediatek/mt6779.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/mt6779.dtsi
-@@ -88,14 +88,14 @@ pmu {
- 		interrupts = <GIC_PPI 7 IRQ_TYPE_LEVEL_LOW 0>;
- 	};
+diff --git a/arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dts b/arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dts
+index 2e3c9fbb4eb3..275167f26fd9 100644
+--- a/arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dts
++++ b/arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dts
+@@ -13,7 +13,6 @@
+ /dts-v1/;
  
--	clk26m: oscillator@0 {
-+	clk26m: oscillator-26m {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <26000000>;
- 		clock-output-names = "clk26m";
- 	};
+ #include "stm32mp157.dtsi"
+-#include "stm32mp15xc.dtsi"
+ #include "stm32mp15xx-dhcor-som.dtsi"
+ #include "stm32mp15xx-dhcor-avenger96.dtsi"
  
--	clk32k: oscillator@1 {
-+	clk32k: oscillator-32k {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <32768>;
-@@ -117,7 +117,7 @@ soc {
- 		compatible = "simple-bus";
- 		ranges;
- 
--		gic: interrupt-controller@0c000000 {
-+		gic: interrupt-controller@c000000 {
- 			compatible = "arm,gic-v3";
- 			#interrupt-cells = <4>;
- 			interrupt-parent = <&gic>;
-@@ -138,7 +138,7 @@ ppi_cluster1: interrupt-partition-1 {
- 
- 		};
- 
--		sysirq: intpol-controller@0c53a650 {
-+		sysirq: intpol-controller@c53a650 {
- 			compatible = "mediatek,mt6779-sysirq",
- 				     "mediatek,mt6577-sysirq";
- 			interrupt-controller;
 -- 
 2.35.1
 
