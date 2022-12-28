@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CF74657C91
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:34:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BA12657B87
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233824AbiL1Pd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:33:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51954 "EHLO
+        id S233348AbiL1PXP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:23:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233430AbiL1Pd6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:33:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA31D15FD9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:33:56 -0800 (PST)
+        with ESMTP id S233742AbiL1PWo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:22:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 318FB13F57
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:22:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6332FB81647
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:33:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D03D9C433EF;
-        Wed, 28 Dec 2022 15:33:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C259561564
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:22:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6B31C433D2;
+        Wed, 28 Dec 2022 15:22:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241634;
-        bh=voRNV1ehR6mL7kdn35OYuaaty47peth5ZS4yX4ausPc=;
+        s=korg; t=1672240954;
+        bh=ahkX3g/K1MMp0mk1+59PBxK05Pcv6gYp9EUN8D+oqiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bGJzFFSMdJ/d6Ep2LpPFcWeQA38BA83yVOpdhPka+aLWAQIh7GffgXi2SbPM84gQA
-         PKwuF8XPxJWtUgoZVHfauDiXWTxTGyHp76LizKd+oPQPx5wz4IOu5nIOzYXwqD2mTv
-         ZPcyL6/5/OwwHOt+zUBhCdPujP1QzPTRbJfxRgGo=
+        b=u6CXwLMqQuEtctBR5//SZ9kqFAzaQ+EGy7ILKsyOaPT+29Fvew53DA6Cjkg0bdUZs
+         DJeHrrJIDf7A3dg1RaFcgzCplYccYMWYgNVODRMgLfPT7eT2D6TWs6yOERyo/GocTY
+         0QUXB+G42yDPs77T7YEsj0lXVnIe0n127xKB0YlY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        patches@lists.linux.dev, Jeff LaBundy <jeff@labundy.com>,
+        Mattijs Korpershoek <mkorpershoek@baylibre.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0271/1146] drm/ttm: fix undefined behavior in bit shift for TTM_TT_FLAG_PRIV_POPULATED
-Date:   Wed, 28 Dec 2022 15:30:10 +0100
-Message-Id: <20221228144337.496630830@linuxfoundation.org>
+Subject: [PATCH 6.0 0223/1073] Input: iqs7222 - report malformed properties
+Date:   Wed, 28 Dec 2022 15:30:11 +0100
+Message-Id: <20221228144334.075477010@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,95 +54,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Jeff LaBundy <jeff@labundy.com>
 
-[ Upstream commit 387659939c00156f8d6bab0fbc55b4eaf2b6bc5b ]
+[ Upstream commit 404f3b48e65f058d94429e4a1ec16a1f82ff3b2f ]
 
-Shifting signed 32-bit value by 31 bits is undefined, so changing
-significant bit to unsigned. The UBSAN warning calltrace like below:
+Nonzero return values of several calls to fwnode_property_read_u32()
+are silently ignored, leaving no way to know the properties were not
+applied in the event of an error.
 
-UBSAN: shift-out-of-bounds in ./include/drm/ttm/ttm_tt.h:122:26
-left shift of 1 by 31 places cannot be represented in type 'int'
-Call Trace:
- <TASK>
- dump_stack_lvl+0x7d/0xa5
- dump_stack+0x15/0x1b
- ubsan_epilogue+0xe/0x4e
- __ubsan_handle_shift_out_of_bounds+0x1e7/0x20c
- ttm_bo_move_memcpy+0x3b4/0x460 [ttm]
- bo_driver_move+0x32/0x40 [drm_vram_helper]
- ttm_bo_handle_move_mem+0x118/0x200 [ttm]
- ttm_bo_validate+0xfa/0x220 [ttm]
- drm_gem_vram_pin_locked+0x70/0x1b0 [drm_vram_helper]
- drm_gem_vram_pin+0x48/0xb0 [drm_vram_helper]
- drm_gem_vram_plane_helper_prepare_fb+0x53/0xe0 [drm_vram_helper]
- drm_gem_vram_simple_display_pipe_prepare_fb+0x26/0x30 [drm_vram_helper]
- drm_simple_kms_plane_prepare_fb+0x4d/0xe0 [drm_kms_helper]
- drm_atomic_helper_prepare_planes+0xda/0x210 [drm_kms_helper]
- drm_atomic_helper_commit+0xc3/0x1e0 [drm_kms_helper]
- drm_atomic_commit+0x9c/0x160 [drm]
- drm_client_modeset_commit_atomic+0x33a/0x380 [drm]
- drm_client_modeset_commit_locked+0x77/0x220 [drm]
- drm_client_modeset_commit+0x31/0x60 [drm]
- __drm_fb_helper_restore_fbdev_mode_unlocked+0xa7/0x170 [drm_kms_helper]
- drm_fb_helper_set_par+0x51/0x90 [drm_kms_helper]
- fbcon_init+0x316/0x790
- visual_init+0x113/0x1d0
- do_bind_con_driver+0x2a3/0x5c0
- do_take_over_console+0xa9/0x270
- do_fbcon_takeover+0xa1/0x170
- do_fb_registered+0x2a8/0x340
- fbcon_fb_registered+0x47/0xe0
- register_framebuffer+0x294/0x4a0
- __drm_fb_helper_initial_config_and_unlock+0x43c/0x880 [drm_kms_helper]
- drm_fb_helper_initial_config+0x52/0x80 [drm_kms_helper]
- drm_fbdev_client_hotplug+0x156/0x1b0 [drm_kms_helper]
- drm_fbdev_generic_setup+0xfc/0x290 [drm_kms_helper]
- bochs_pci_probe+0x6ca/0x772 [bochs]
- local_pci_probe+0x4d/0xb0
- pci_device_probe+0x119/0x320
- really_probe+0x181/0x550
- __driver_probe_device+0xc6/0x220
- driver_probe_device+0x32/0x100
- __driver_attach+0x195/0x200
- bus_for_each_dev+0xbb/0x120
- driver_attach+0x27/0x30
- bus_add_driver+0x22e/0x2f0
- driver_register+0xa9/0x190
- __pci_register_driver+0x90/0xa0
- bochs_pci_driver_init+0x52/0x1000 [bochs]
- do_one_initcall+0x76/0x430
- do_init_module+0x61/0x28a
- load_module+0x1f82/0x2e50
- __do_sys_finit_module+0xf8/0x190
- __x64_sys_finit_module+0x23/0x30
- do_syscall_64+0x58/0x80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
- </TASK>
+Solve this problem by evaluating fwnode_property_read_u32()'s return
+value, and reporting an error for any nonzero return value not equal
+to -EINVAL which indicates the property was absent altogether.
 
-Fixes: 3312be8f6fc8 ("drm/ttm: move populated state into page flags")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221031113350.4180975-1-cuigaosheng1@huawei.com
-Signed-off-by: Christian König <christian.koenig@amd.com>
+Fixes: e505edaedcb9 ("Input: add support for Azoteq IQS7222A/B/C")
+Signed-off-by: Jeff LaBundy <jeff@labundy.com>
+Reviewed-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
+Link: https://lore.kernel.org/r/Y1SRRrpQXvkETjfm@nixie71
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Stable-dep-of: 2f6fd2329789 ("Input: iqs7222 - protect against undefined slider size")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/drm/ttm/ttm_tt.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/misc/iqs7222.c | 44 +++++++++++++++++++++++++++++-------
+ 1 file changed, 36 insertions(+), 8 deletions(-)
 
-diff --git a/include/drm/ttm/ttm_tt.h b/include/drm/ttm/ttm_tt.h
-index 17a0310e8aaa..b7d3f3843f1e 100644
---- a/include/drm/ttm/ttm_tt.h
-+++ b/include/drm/ttm/ttm_tt.h
-@@ -88,7 +88,7 @@ struct ttm_tt {
- #define TTM_TT_FLAG_EXTERNAL		(1 << 2)
- #define TTM_TT_FLAG_EXTERNAL_MAPPABLE	(1 << 3)
+diff --git a/drivers/input/misc/iqs7222.c b/drivers/input/misc/iqs7222.c
+index 3b6e84689879..350be4f23f50 100644
+--- a/drivers/input/misc/iqs7222.c
++++ b/drivers/input/misc/iqs7222.c
+@@ -1807,8 +1807,9 @@ static int iqs7222_parse_chan(struct iqs7222_private *iqs7222,
+ 		chan_setup[0] |= IQS7222_CHAN_SETUP_0_REF_MODE_FOLLOW;
+ 		chan_setup[4] = val * 42 + 1048;
  
--#define TTM_TT_FLAG_PRIV_POPULATED  (1 << 31)
-+#define TTM_TT_FLAG_PRIV_POPULATED  (1U << 31)
- 	uint32_t page_flags;
- 	/** @num_pages: Number of pages in the page array. */
- 	uint32_t num_pages;
+-		if (!fwnode_property_read_u32(chan_node, "azoteq,ref-weight",
+-					      &val)) {
++		error = fwnode_property_read_u32(chan_node, "azoteq,ref-weight",
++						 &val);
++		if (!error) {
+ 			if (val > U16_MAX) {
+ 				dev_err(&client->dev,
+ 					"Invalid %s reference weight: %u\n",
+@@ -1817,6 +1818,11 @@ static int iqs7222_parse_chan(struct iqs7222_private *iqs7222,
+ 			}
+ 
+ 			chan_setup[5] = val;
++		} else if (error != -EINVAL) {
++			dev_err(&client->dev,
++				"Failed to read %s reference weight: %d\n",
++				fwnode_get_name(chan_node), error);
++			return error;
+ 		}
+ 
+ 		/*
+@@ -1889,9 +1895,10 @@ static int iqs7222_parse_chan(struct iqs7222_private *iqs7222,
+ 		if (!event_node)
+ 			continue;
+ 
+-		if (!fwnode_property_read_u32(event_node,
+-					      "azoteq,timeout-press-ms",
+-					      &val)) {
++		error = fwnode_property_read_u32(event_node,
++						 "azoteq,timeout-press-ms",
++						 &val);
++		if (!error) {
+ 			/*
+ 			 * The IQS7222B employs a global pair of press timeout
+ 			 * registers as opposed to channel-specific registers.
+@@ -1911,6 +1918,12 @@ static int iqs7222_parse_chan(struct iqs7222_private *iqs7222,
+ 
+ 			*setup &= ~(U8_MAX << i * 8);
+ 			*setup |= (val / 500 << i * 8);
++		} else if (error != -EINVAL) {
++			dev_err(&client->dev,
++				"Failed to read %s press timeout: %d\n",
++				fwnode_get_name(event_node), error);
++			fwnode_handle_put(event_node);
++			return error;
+ 		}
+ 
+ 		error = iqs7222_parse_event(iqs7222, event_node, chan_index,
+@@ -2009,7 +2022,8 @@ static int iqs7222_parse_sldr(struct iqs7222_private *iqs7222,
+ 	if (fwnode_property_present(sldr_node, "azoteq,use-prox"))
+ 		sldr_setup[4 + reg_offset] -= 2;
+ 
+-	if (!fwnode_property_read_u32(sldr_node, "azoteq,slider-size", &val)) {
++	error = fwnode_property_read_u32(sldr_node, "azoteq,slider-size", &val);
++	if (!error) {
+ 		if (!val || val > dev_desc->sldr_res) {
+ 			dev_err(&client->dev, "Invalid %s size: %u\n",
+ 				fwnode_get_name(sldr_node), val);
+@@ -2023,9 +2037,14 @@ static int iqs7222_parse_sldr(struct iqs7222_private *iqs7222,
+ 			sldr_setup[2] |= (val / 16 <<
+ 					  IQS7222_SLDR_SETUP_2_RES_SHIFT);
+ 		}
++	} else if (error != -EINVAL) {
++		dev_err(&client->dev, "Failed to read %s size: %d\n",
++			fwnode_get_name(sldr_node), error);
++		return error;
+ 	}
+ 
+-	if (!fwnode_property_read_u32(sldr_node, "azoteq,top-speed", &val)) {
++	error = fwnode_property_read_u32(sldr_node, "azoteq,top-speed", &val);
++	if (!error) {
+ 		if (val > (reg_offset ? U16_MAX : U8_MAX * 4)) {
+ 			dev_err(&client->dev, "Invalid %s top speed: %u\n",
+ 				fwnode_get_name(sldr_node), val);
+@@ -2038,9 +2057,14 @@ static int iqs7222_parse_sldr(struct iqs7222_private *iqs7222,
+ 			sldr_setup[2] &= ~IQS7222_SLDR_SETUP_2_TOP_SPEED_MASK;
+ 			sldr_setup[2] |= (val / 4);
+ 		}
++	} else if (error != -EINVAL) {
++		dev_err(&client->dev, "Failed to read %s top speed: %d\n",
++			fwnode_get_name(sldr_node), error);
++		return error;
+ 	}
+ 
+-	if (!fwnode_property_read_u32(sldr_node, "linux,axis", &val)) {
++	error = fwnode_property_read_u32(sldr_node, "linux,axis", &val);
++	if (!error) {
+ 		u16 sldr_max = sldr_setup[3] - 1;
+ 
+ 		if (!reg_offset) {
+@@ -2054,6 +2078,10 @@ static int iqs7222_parse_sldr(struct iqs7222_private *iqs7222,
+ 
+ 		input_set_abs_params(iqs7222->keypad, val, 0, sldr_max, 0, 0);
+ 		iqs7222->sl_axis[sldr_index] = val;
++	} else if (error != -EINVAL) {
++		dev_err(&client->dev, "Failed to read %s axis: %d\n",
++			fwnode_get_name(sldr_node), error);
++		return error;
+ 	}
+ 
+ 	if (dev_desc->wheel_enable) {
 -- 
 2.35.1
 
