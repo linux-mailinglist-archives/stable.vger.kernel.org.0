@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C422C657DAC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:45:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA475657ED0
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:57:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234011AbiL1Ppq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:45:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33962 "EHLO
+        id S234203AbiL1P5x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:57:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233594AbiL1Ppo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:45:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59AF21BA
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:45:42 -0800 (PST)
+        with ESMTP id S232644AbiL1P5w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:57:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 311F018390
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:57:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E95726154D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:45:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0367BC433EF;
-        Wed, 28 Dec 2022 15:45:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BDA67B8172B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:57:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 121CAC433D2;
+        Wed, 28 Dec 2022 15:57:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242341;
-        bh=wlpB7vzVpR/Jkll+kT2TQvJwvocQjmwKWaqr3cK5FXk=;
+        s=korg; t=1672243069;
+        bh=rkLBp7T6HCTqky4JiL2uDPw+MUHvb3s2k95hlO4iD8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G/4Akcnavhl4HFheDyvM7jHE3wneg4sHKWvJUcgtRv/hwEDyuYhc1vIXvp99XwrGj
-         zJVEnNqZivsgqBO1BuyV6hVcVsLVeNlNnL7pm4NVeI1M8CbtEzZpgcaiR9QanR+wO2
-         L5lnvmryn1ww8zC9zae0hgYuaxqn0KqAXuDnuMeI=
+        b=pmjVj7GLcgM/DhmyDEbf+EcdGD5Wl8BcOBhXBLHo2kvOL5WTRsVV1YEttT3pL85Yy
+         yGl8o7DMRSifBUrkJCwNDatgxgz6ivS0FXV9iS+Rq7ORFhOp7ar/aiJgUY7CZ+HoQw
+         DRVb2HpizGKBqdim/GXmCQpYdAQLmhGig4mawuvw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yunfei Dong <yunfei.dong@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0399/1073] media: mediatek: vcodec: Setting lat buf to lat_list when lat decode error
+Subject: [PATCH 6.1 0448/1146] bonding: uninitialized variable in bond_miimon_inspect()
 Date:   Wed, 28 Dec 2022 15:33:07 +0100
-Message-Id: <20221228144338.855943672@linuxfoundation.org>
+Message-Id: <20221228144342.349636334@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,74 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunfei Dong <yunfei.dong@mediatek.com>
+From: Dan Carpenter <error27@gmail.com>
 
-[ Upstream commit 12ac20d60213a439d1552382d04aabb905e0b784 ]
+[ Upstream commit e5214f363dabca240446272dac54d404501ad5e5 ]
 
-Need to set lat buf to lat_list when lat decode error, or lat buffer will
-be lost.
+The "ignore_updelay" variable needs to be initialized to false.
 
-Fixes: 5d418351ca8f ("media: mediatek: vcodec: support stateless VP9 decoding")
-Signed-off-by: Yunfei Dong <yunfei.dong@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: f8a65ab2f3ff ("bonding: fix link recovery in mode 2 when updelay is nonzero")
+Signed-off-by: Dan Carpenter <error27@gmail.com>
+Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Link: https://lore.kernel.org/r/Y4SWJlh3ohJ6EPTL@kili
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../mediatek/vcodec/vdec/vdec_vp9_req_lat_if.c    | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/net/bonding/bond_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/mediatek/vcodec/vdec/vdec_vp9_req_lat_if.c b/drivers/media/platform/mediatek/vcodec/vdec/vdec_vp9_req_lat_if.c
-index fb1c36a3592d..cbb6728b8a40 100644
---- a/drivers/media/platform/mediatek/vcodec/vdec/vdec_vp9_req_lat_if.c
-+++ b/drivers/media/platform/mediatek/vcodec/vdec/vdec_vp9_req_lat_if.c
-@@ -2073,21 +2073,23 @@ static int vdec_vp9_slice_lat_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
- 		return -EBUSY;
- 	}
- 	pfc = (struct vdec_vp9_slice_pfc *)lat_buf->private_data;
--	if (!pfc)
--		return -EINVAL;
-+	if (!pfc) {
-+		ret = -EINVAL;
-+		goto err_free_fb_out;
-+	}
- 	vsi = &pfc->vsi;
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index c527f8b37ae6..29d0a6493b1b 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -2531,10 +2531,10 @@ static int bond_slave_info_query(struct net_device *bond_dev, struct ifslave *in
+ /* called with rcu_read_lock() */
+ static int bond_miimon_inspect(struct bonding *bond)
+ {
++	bool ignore_updelay = false;
+ 	int link_state, commit = 0;
+ 	struct list_head *iter;
+ 	struct slave *slave;
+-	bool ignore_updelay;
  
- 	ret = vdec_vp9_slice_setup_lat(instance, bs, lat_buf, pfc);
- 	if (ret) {
- 		mtk_vcodec_err(instance, "Failed to setup VP9 lat ret %d\n", ret);
--		return ret;
-+		goto err_free_fb_out;
- 	}
- 	vdec_vp9_slice_vsi_to_remote(vsi, instance->vsi);
- 
- 	ret = vpu_dec_start(&instance->vpu, NULL, 0);
- 	if (ret) {
- 		mtk_vcodec_err(instance, "Failed to dec VP9 ret %d\n", ret);
--		return ret;
-+		goto err_free_fb_out;
- 	}
- 
- 	if (instance->irq) {
-@@ -2107,7 +2109,7 @@ static int vdec_vp9_slice_lat_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
- 	/* LAT trans full, no more UBE or decode timeout */
- 	if (ret) {
- 		mtk_vcodec_err(instance, "VP9 decode error: %d\n", ret);
--		return ret;
-+		goto err_free_fb_out;
- 	}
- 
- 	mtk_vcodec_debug(instance, "lat dma addr: 0x%lx 0x%lx\n",
-@@ -2120,6 +2122,9 @@ static int vdec_vp9_slice_lat_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
- 	vdec_msg_queue_qbuf(&ctx->dev->msg_queue_core_ctx, lat_buf);
- 
- 	return 0;
-+err_free_fb_out:
-+	vdec_msg_queue_qbuf(&ctx->msg_queue.lat_ctx, lat_buf);
-+	return ret;
- }
- 
- static int vdec_vp9_slice_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
+ 	if (BOND_MODE(bond) == BOND_MODE_ACTIVEBACKUP) {
+ 		ignore_updelay = !rcu_dereference(bond->curr_active_slave);
 -- 
 2.35.1
 
