@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23479657D9B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:45:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 062A26583C4
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:51:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233574AbiL1PpA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:45:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33196 "EHLO
+        id S235181AbiL1Qvk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:51:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233979AbiL1Po7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:44:59 -0500
+        with ESMTP id S234966AbiL1QvP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:51:15 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28BF31759C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:44:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 820C814D13
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:45:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BA558B8172A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:44:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30ED8C433D2;
-        Wed, 28 Dec 2022 15:44:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F47BB817AC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:45:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D1FEC433D2;
+        Wed, 28 Dec 2022 16:45:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242296;
-        bh=CQLLyORBbIsh+JLk/hX2a2QxvM6QZEq71mvmyvFZBEk=;
+        s=korg; t=1672245956;
+        bh=gXqKP8qLSfDtzf3svRbeUhGdvQn00qDVDCgVG3upEKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xZJ+NzcRLCwciSLhkdYQ4asnTzJqRIxqMHR0pbPUtugjLUawtmbqgk5xHk3T38xjr
-         TWeJVRvucc/Dqu4VoXhpzyheYcqdN6zm1v0J+Ka/WOpopxkQ1rNt2a2VldTZtqsqAT
-         nJJ0IWc2JRYmVL1ccpbiIa4o/Vul5/2PImmGBdwA=
+        b=nIddGgzhuK23GVRRkpFa54yRTMUj2Rd3uXUKtOsFQFu0th9wfvlFdk3ESXE9zmv1A
+         /VIr+UnpD5sbLtXWFVjL95ynYdLGUXUBq5f8o6Fz1C1sPct5m8V7lTJW1aZo+tpeOQ
+         eFyKZOw9xJXZn02yvGOONEUe6aVOLBAnFDND+6zw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Alexander Duyck <alexanderduyck@fb.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 585/731] mISDN: hfcpci: dont call dev_kfree_skb/kfree_skb() under spin_lock_irqsave()
+Subject: [PATCH 6.1 0953/1146] ACPI: video: Change GIGABYTE GB-BXBT-2807 quirk to force_none
 Date:   Wed, 28 Dec 2022 15:41:32 +0100
-Message-Id: <20221228144313.504424593@linuxfoundation.org>
+Message-Id: <20221228144356.206041383@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit f0f596bd75a9d573ca9b587abb39cee0b916bb82 ]
+[ Upstream commit 9f7dd272ff9338f1f43c7a837d5a7ee67811d552 ]
 
-It is not allowed to call kfree_skb() or consume_skb() from hardware
-interrupt context or with hardware interrupts being disabled.
+The GIGABYTE GB-BXBT-2807 DMI quirk was added by
+commit 25417185e9b5 ("ACPI: video: Add DMI quirk for GIGABYTE
+GB-BXBT-2807") which says the following in its commit message:
 
-skb_queue_purge() is called under spin_lock_irqsave() in hfcpci_l2l1D(),
-kfree_skb() is called in it, to fix this, use skb_queue_splice_init()
-to move the dch->squeue to a free queue, also enqueue the tx_skb and
-rx_skb, at last calling __skb_queue_purge() to free the SKBs afer unlock.
+"The GIGABYTE GB-BXBT-2807 is a mini-PC which uses off the shelf
+components, like an Intel GPU which is meant for mobile systems.
+As such, it, by default, has a backlight controller exposed.
 
-Fixes: 1700fe1a10dc ("Add mISDN HFC PCI driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Unfortunately, the backlight controller only confuses userspace, which
+sees the existence of a backlight device node and has the unrealistic
+belief that there is actually a backlight there!
+
+Add a DMI quirk to force the backlight off on this system."
+
+So in essence this quirk was using a video_detect_force_vendor quirk
+to disable backlight control. Now a days we have a specific "none"
+backlight type for this. Change the quirk to video_detect_force_none
+and group it together with the other force_none quirks.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/hardware/mISDN/hfcpci.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/acpi/video_detect.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/isdn/hardware/mISDN/hfcpci.c b/drivers/isdn/hardware/mISDN/hfcpci.c
-index af17459c1a5c..eba58b99cd29 100644
---- a/drivers/isdn/hardware/mISDN/hfcpci.c
-+++ b/drivers/isdn/hardware/mISDN/hfcpci.c
-@@ -1617,16 +1617,19 @@ hfcpci_l2l1D(struct mISDNchannel *ch, struct sk_buff *skb)
- 		test_and_clear_bit(FLG_L2_ACTIVATED, &dch->Flags);
- 		spin_lock_irqsave(&hc->lock, flags);
- 		if (hc->hw.protocol == ISDN_P_NT_S0) {
-+			struct sk_buff_head free_queue;
-+
-+			__skb_queue_head_init(&free_queue);
- 			/* prepare deactivation */
- 			Write_hfc(hc, HFCPCI_STATES, 0x40);
--			skb_queue_purge(&dch->squeue);
-+			skb_queue_splice_init(&dch->squeue, &free_queue);
- 			if (dch->tx_skb) {
--				dev_kfree_skb(dch->tx_skb);
-+				__skb_queue_tail(&free_queue, dch->tx_skb);
- 				dch->tx_skb = NULL;
- 			}
- 			dch->tx_idx = 0;
- 			if (dch->rx_skb) {
--				dev_kfree_skb(dch->rx_skb);
-+				__skb_queue_tail(&free_queue, dch->rx_skb);
- 				dch->rx_skb = NULL;
- 			}
- 			test_and_clear_bit(FLG_TX_BUSY, &dch->Flags);
-@@ -1639,10 +1642,12 @@ hfcpci_l2l1D(struct mISDNchannel *ch, struct sk_buff *skb)
- 			hc->hw.mst_m &= ~HFCPCI_MASTER;
- 			Write_hfc(hc, HFCPCI_MST_MODE, hc->hw.mst_m);
- 			ret = 0;
-+			spin_unlock_irqrestore(&hc->lock, flags);
-+			__skb_queue_purge(&free_queue);
- 		} else {
- 			ret = l1_event(dch->l1, hh->prim);
-+			spin_unlock_irqrestore(&hc->lock, flags);
- 		}
--		spin_unlock_irqrestore(&hc->lock, flags);
- 		break;
- 	}
- 	if (!ret)
+diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
+index b2a616287638..375d1ef8fbea 100644
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -197,14 +197,6 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
+ 		DMI_MATCH(DMI_PRODUCT_NAME, "1015CX"),
+ 		},
+ 	},
+-	{
+-	 .callback = video_detect_force_vendor,
+-	 /* GIGABYTE GB-BXBT-2807 */
+-	 .matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "GIGABYTE"),
+-		DMI_MATCH(DMI_PRODUCT_NAME, "GB-BXBT-2807"),
+-		},
+-	},
+ 	{
+ 	 .callback = video_detect_force_vendor,
+ 	 /* Samsung N150/N210/N220 */
+@@ -671,6 +663,14 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
+ 		DMI_MATCH(DMI_PRODUCT_NAME, "OptiPlex 9020M"),
+ 		},
+ 	},
++	{
++	 .callback = video_detect_force_none,
++	 /* GIGABYTE GB-BXBT-2807 */
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "GIGABYTE"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "GB-BXBT-2807"),
++		},
++	},
+ 	{
+ 	 .callback = video_detect_force_none,
+ 	 /* MSI MS-7721 */
 -- 
 2.35.1
 
