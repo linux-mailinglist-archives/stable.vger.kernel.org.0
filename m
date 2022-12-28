@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 802C4658091
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:18:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A74FF658194
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:29:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233159AbiL1QSV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:18:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36722 "EHLO
+        id S233390AbiL1Q3q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:29:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234416AbiL1QRi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:17:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB0E512AEA
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:16:26 -0800 (PST)
+        with ESMTP id S234022AbiL1Q3V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:29:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C4D91AF3F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:25:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67E6FB816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:16:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBCE7C433F0;
-        Wed, 28 Dec 2022 16:16:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CF1061577
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:25:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B109EC433D2;
+        Wed, 28 Dec 2022 16:25:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244184;
-        bh=FT4N1aMzM8pZb8mQNTjaDfiFq8UWFOlBIazXhZGXa3I=;
+        s=korg; t=1672244735;
+        bh=PsdoUCgKGoT+qjsLcICgMpI7tNh7jj7sNMm4wCZduN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NEjZaMttM3U1VX7SW+7f9zjnwzBYZXTk8uP9rNMoV1tOIhJ4K9cMDnBL3Jxnp4wZc
-         5iGV4fn63fZhiqC+hNErWXAq8tlWTyPc7TJYJWgNI63P4wX2SzuOvM53TPnG6M+fJ+
-         ppkA359WHCGe2QhAcwntezgbjkBTFwXYGMw30mjE=
+        b=k2XtJT8B7+kX1i1sDO6ozHLcXf4w38UPVMVT6+oIu9BOsxS4eLHV1PW6ndCnL/fU1
+         kDrAJ/JHQ8rz8X5mpmiNIBHXQ/v2z3yuQ8srLqeTKCyUOuO/Yy30jQAbK1cUW+usNV
+         TJ0rgHU2o/dKmAQsaOOxVYBJzNN5YQM0UFTpbL1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0665/1073] serial: 8250_bcm7271: Fix error handling in brcmuart_init()
+Subject: [PATCH 6.1 0714/1146] test_firmware: fix memory leak in test_firmware_init()
 Date:   Wed, 28 Dec 2022 15:37:33 +0100
-Message-Id: <20221228144346.106341931@linuxfoundation.org>
+Message-Id: <20221228144349.538668458@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,62 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 6a3ff858915fa8ca36c7eb02c87c9181ae2fc333 ]
+[ Upstream commit 7610615e8cdb3f6f5bbd9d8e7a5d8a63e3cabf2e ]
 
-A problem about 8250_bcm7271 create debugfs failed is triggered with the
-following log given:
+When misc_register() failed in test_firmware_init(), the memory pointed
+by test_fw_config->name is not released. The memory leak information is
+as follows:
+unreferenced object 0xffff88810a34cb00 (size 32):
+  comm "insmod", pid 7952, jiffies 4294948236 (age 49.060s)
+  hex dump (first 32 bytes):
+    74 65 73 74 2d 66 69 72 6d 77 61 72 65 2e 62 69  test-firmware.bi
+    6e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  n...............
+  backtrace:
+    [<ffffffff81b21fcb>] __kmalloc_node_track_caller+0x4b/0xc0
+    [<ffffffff81affb96>] kstrndup+0x46/0xc0
+    [<ffffffffa0403a49>] __test_firmware_config_init+0x29/0x380 [test_firmware]
+    [<ffffffffa040f068>] 0xffffffffa040f068
+    [<ffffffff81002c41>] do_one_initcall+0x141/0x780
+    [<ffffffff816a72c3>] do_init_module+0x1c3/0x630
+    [<ffffffff816adb9e>] load_module+0x623e/0x76a0
+    [<ffffffff816af471>] __do_sys_finit_module+0x181/0x240
+    [<ffffffff89978f99>] do_syscall_64+0x39/0xb0
+    [<ffffffff89a0008b>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
- [  324.516635] debugfs: Directory 'bcm7271-uart' with parent '/' already present!
-
-The reason is that brcmuart_init() returns platform_driver_register()
-directly without checking its return value, if platform_driver_register()
-failed, it returns without destroy the newly created debugfs, resulting
-the debugfs of 8250_bcm7271 can never be created later.
-
- brcmuart_init()
-   debugfs_create_dir() # create debugfs directory
-   platform_driver_register()
-     driver_register()
-       bus_add_driver()
-         priv = kzalloc(...) # OOM happened
-   # return without destroy debugfs directory
-
-Fix by removing debugfs when platform_driver_register() returns error.
-
-Fixes: 41a469482de2 ("serial: 8250: Add new 8250-core based Broadcom STB driver")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Link: https://lore.kernel.org/r/20221109072110.117291-2-yuancan@huawei.com
+Fixes: c92316bf8e94 ("test_firmware: add batched firmware tests")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Acked-by: Luis Chamberlain <mcgrof@kernel.org>
+Link: https://lore.kernel.org/r/20221119035721.18268-1-shaozhengchao@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_bcm7271.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ lib/test_firmware.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/serial/8250/8250_bcm7271.c b/drivers/tty/serial/8250/8250_bcm7271.c
-index 8efdc271eb75..5e0ffd6c4789 100644
---- a/drivers/tty/serial/8250/8250_bcm7271.c
-+++ b/drivers/tty/serial/8250/8250_bcm7271.c
-@@ -1212,9 +1212,17 @@ static struct platform_driver brcmuart_platform_driver = {
+diff --git a/lib/test_firmware.c b/lib/test_firmware.c
+index c82b65947ce6..1c5a2adb16ef 100644
+--- a/lib/test_firmware.c
++++ b/lib/test_firmware.c
+@@ -1491,6 +1491,7 @@ static int __init test_firmware_init(void)
  
- static int __init brcmuart_init(void)
- {
-+	int ret;
-+
- 	brcmuart_debugfs_root = debugfs_create_dir(
- 		brcmuart_platform_driver.driver.name, NULL);
--	return platform_driver_register(&brcmuart_platform_driver);
-+	ret = platform_driver_register(&brcmuart_platform_driver);
-+	if (ret) {
-+		debugfs_remove_recursive(brcmuart_debugfs_root);
-+		return ret;
-+	}
-+
-+	return 0;
- }
- module_init(brcmuart_init);
- 
+ 	rc = misc_register(&test_fw_misc_device);
+ 	if (rc) {
++		__test_firmware_config_free();
+ 		kfree(test_fw_config);
+ 		pr_err("could not register misc device: %d\n", rc);
+ 		return rc;
 -- 
 2.35.1
 
