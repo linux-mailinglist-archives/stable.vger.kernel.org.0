@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C835657E1A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:50:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6728F657F2C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:02:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234082AbiL1PuI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:50:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37990 "EHLO
+        id S234338AbiL1QCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:02:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234092AbiL1PuE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:50:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7340183A2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:50:02 -0800 (PST)
+        with ESMTP id S234340AbiL1QCU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:02:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49BEF193FE
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:01:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 79C9FB81730
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:50:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7F91C433D2;
-        Wed, 28 Dec 2022 15:49:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D7729B817AC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:01:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BE5CC433D2;
+        Wed, 28 Dec 2022 16:01:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242600;
-        bh=t8zlbSGSsooAWtq4TLVBiXeczbyuDynXBmG8sjChtnU=;
+        s=korg; t=1672243313;
+        bh=zRmOWPRb49a4R/+sFUKzNRYqucu/8Fs+8TYCMg8/Wuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bN6mftvuglVE4qsA/1lXMzZinY6Q3/SB484eFxBmBJONXYYdV/evphGWMuzb9LlCW
-         TooO7MAvmx21CqQ2Qw8zHkn4j/LxiXhp+lYkQtEcMtpvw2gWHrswvg5DoNWWippWs0
-         BaaMq0wApyFkZXz2psLsud8hj82EV28THaJ6NBlw=
+        b=b4PGgA1RCGY0FGyMpAAoXIqu8EvAtoxvgswCLhMAeS8U4Ewc6l2q8FMAlKRGYOYIS
+         05m2VxyYdHbvCgh8eOn+vIqZpSi1Dw9RA9O/Ocu4wX/lm9CSU+Ow1bvwf4uMjbuvuB
+         TJvJcyxECY0gOB8DYIa8j0UcnWpUPDuRlD2QVBEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pengcheng Yang <yangpc@wangsu.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0430/1073] bpf, sockmap: Fix repeated calls to sock_put() when msg has more_data
+Subject: [PATCH 6.1 0479/1146] bpf: Add dummy type reference to nf_conn___init to fix type deduplication
 Date:   Wed, 28 Dec 2022 15:33:38 +0100
-Message-Id: <20221228144339.707234303@linuxfoundation.org>
+Message-Id: <20221228144343.193341417@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pengcheng Yang <yangpc@wangsu.com>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-[ Upstream commit 7a9841ca025275b5b0edfb0b618934abb6ceec15 ]
+[ Upstream commit 578ce69ffda49d6c1a252490553290d1f27199f0 ]
 
-In tcp_bpf_send_verdict() redirection, the eval variable is assigned to
-__SK_REDIRECT after the apply_bytes data is sent, if msg has more_data,
-sock_put() will be called multiple times.
+The bpf_ct_set_nat_info() kfunc is defined in the nf_nat.ko module, and
+takes as a parameter the nf_conn___init struct, which is allocated through
+the bpf_xdp_ct_alloc() helper defined in the nf_conntrack.ko module.
+However, because kernel modules can't deduplicate BTF types between each
+other, and the nf_conn___init struct is not referenced anywhere in vmlinux
+BTF, this leads to two distinct BTF IDs for the same type (one in each
+module). This confuses the verifier, as described here:
 
-We should reset the eval variable to __SK_NONE every time more_data
-starts.
+https://lore.kernel.org/all/87leoh372s.fsf@toke.dk/
 
-This causes:
+As a workaround, add an explicit BTF_TYPE_EMIT for the type in
+net/filter.c, so the type definition gets included in vmlinux BTF. This
+way, both modules can refer to the same type ID (as they both build on top
+of vmlinux BTF), and the verifier is no longer confused.
 
-IPv4: Attempt to release TCP socket in state 1 00000000b4c925d7
-------------[ cut here ]------------
-refcount_t: addition on 0; use-after-free.
-WARNING: CPU: 5 PID: 4482 at lib/refcount.c:25 refcount_warn_saturate+0x7d/0x110
-Modules linked in:
-CPU: 5 PID: 4482 Comm: sockhash_bypass Kdump: loaded Not tainted 6.0.0 #1
-Hardware name: Red Hat KVM, BIOS 1.11.0-2.el7 04/01/2014
-Call Trace:
- <TASK>
- __tcp_transmit_skb+0xa1b/0xb90
- ? __alloc_skb+0x8c/0x1a0
- ? __kmalloc_node_track_caller+0x184/0x320
- tcp_write_xmit+0x22a/0x1110
- __tcp_push_pending_frames+0x32/0xf0
- do_tcp_sendpages+0x62d/0x640
- tcp_bpf_push+0xae/0x2c0
- tcp_bpf_sendmsg_redir+0x260/0x410
- ? preempt_count_add+0x70/0xa0
- tcp_bpf_send_verdict+0x386/0x4b0
- tcp_bpf_sendmsg+0x21b/0x3b0
- sock_sendmsg+0x58/0x70
- __sys_sendto+0xfa/0x170
- ? xfd_validate_state+0x1d/0x80
- ? switch_fpu_return+0x59/0xe0
- __x64_sys_sendto+0x24/0x30
- do_syscall_64+0x37/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
+v2:
 
-Fixes: cd9733f5d75c ("tcp_bpf: Fix one concurrency problem in the tcp_bpf_send_verdict function")
-Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/1669718441-2654-2-git-send-email-yangpc@wangsu.com
+- Use BTF_TYPE_EMIT (which is a statement so it has to be inside a function
+  definition; use xdp_func_proto() for this, since this is mostly
+  xdp-related).
+
+Fixes: 820dc0523e05 ("net: netfilter: move bpf_ct_set_nat_info kfunc in nf_nat_bpf.c")
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Link: https://lore.kernel.org/r/20221201123939.696558-1-toke@redhat.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_bpf.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/core/filter.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
-index cf9c3e8f7ccb..f3e868f4cd9e 100644
---- a/net/ipv4/tcp_bpf.c
-+++ b/net/ipv4/tcp_bpf.c
-@@ -279,7 +279,7 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
- 	bool cork = false, enospc = sk_msg_full(msg);
- 	struct sock *sk_redir;
- 	u32 tosend, origsize, sent, delta = 0;
--	u32 eval = __SK_NONE;
-+	u32 eval;
- 	int ret;
+diff --git a/net/core/filter.c b/net/core/filter.c
+index b35f642d117f..9b2e18c0d299 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -80,6 +80,7 @@
+ #include <net/tls.h>
+ #include <net/xdp.h>
+ #include <net/mptcp.h>
++#include <net/netfilter/nf_conntrack_bpf.h>
  
- more_data:
-@@ -310,6 +310,7 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
- 	tosend = msg->sg.size;
- 	if (psock->apply_bytes && psock->apply_bytes < tosend)
- 		tosend = psock->apply_bytes;
-+	eval = __SK_NONE;
+ static const struct bpf_func_proto *
+ bpf_sk_base_func_proto(enum bpf_func_id func_id);
+@@ -7988,6 +7989,19 @@ xdp_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
+ 	default:
+ 		return bpf_sk_base_func_proto(func_id);
+ 	}
++
++#if IS_MODULE(CONFIG_NF_CONNTRACK) && IS_ENABLED(CONFIG_DEBUG_INFO_BTF_MODULES)
++	/* The nf_conn___init type is used in the NF_CONNTRACK kfuncs. The
++	 * kfuncs are defined in two different modules, and we want to be able
++	 * to use them interchangably with the same BTF type ID. Because modules
++	 * can't de-duplicate BTF IDs between each other, we need the type to be
++	 * referenced in the vmlinux BTF or the verifier will get confused about
++	 * the different types. So we add this dummy type reference which will
++	 * be included in vmlinux BTF, allowing both modules to refer to the
++	 * same type ID.
++	 */
++	BTF_TYPE_EMIT(struct nf_conn___init);
++#endif
+ }
  
- 	switch (psock->eval) {
- 	case __SK_PASS:
+ const struct bpf_func_proto bpf_sock_map_update_proto __weak;
 -- 
 2.35.1
 
