@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8255657FB9
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:09:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69FAE657FBB
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:09:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234384AbiL1QIU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:08:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53384 "EHLO
+        id S233015AbiL1QIy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:08:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234404AbiL1QHq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:07:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 692A7B7E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:07:45 -0800 (PST)
+        with ESMTP id S234242AbiL1QHx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:07:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C85014D33
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:07:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0974F61560
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:07:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1875DC433EF;
-        Wed, 28 Dec 2022 16:07:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E3EE5B81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:07:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F9C6C433EF;
+        Wed, 28 Dec 2022 16:07:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243664;
-        bh=Jjmn+cly577mIBtdrHbVjmakA1xfXxsj/1hf5RIR99I=;
+        s=korg; t=1672243669;
+        bh=MbYpniwgD9PaQu1w+am41dxyGHm5OY1mSwRxM0yK16s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E1D4W3oRVSipmPZZEaECjhIi/RmqAxrxLjXKC00uhmwbp0Mo9j/CdL4EaAigSyDL5
-         EWypu7isfaHUtxc2baFs0DsoNAYrkKy7YEnyxk0zVpID5HtbQqURnoGAmvaWmKYbJ3
-         AdLp1lcsll/nX7YbdHMo4R3PcOJysOp3OJVGFLzY=
+        b=Uc617glT4KLdrgv1FCcgAXjvHshbfvxqmQV3QL4Se65bWrHSqv8iy4+bqaVU9vuyD
+         TCCWRLPiKSJqkRe47veiFfBoASJyIgXxJ8ZqXmshsqwu/NrllogjI+9m2OQUY16U9I
+         NFSIOX1AWH2a8OjI9T+eu4nDnxbrHChtJHM22PEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0530/1146] net: stmmac: selftests: fix potential memleak in stmmac_test_arpoffload()
-Date:   Wed, 28 Dec 2022 15:34:29 +0100
-Message-Id: <20221228144344.571802075@linuxfoundation.org>
+Subject: [PATCH 6.1 0531/1146] net: stmmac: fix possible memory leak in stmmac_dvr_probe()
+Date:   Wed, 28 Dec 2022 15:34:30 +0100
+Message-Id: <20221228144344.598016045@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -54,47 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit f150b63f3fa5fdd81e0dd6151e8850268e29438c ]
+[ Upstream commit a137f3f27f9290933fe7e40e6dc8a445781c31a2 ]
 
-The skb allocated by stmmac_test_get_arp_skb() hasn't been released in
-some error handling case, which will lead to a memory leak. Fix this up
-by adding kfree_skb() to release skb.
+The bitmap_free() should be called to free priv->af_xdp_zc_qps
+when create_singlethread_workqueue() fails, otherwise there will
+be a memory leak, so we add the err path error_wq_init to fix it.
 
-Compile tested only.
-
-Fixes: 5e3fb0a6e2b3 ("net: stmmac: selftests: Implement the ARP Offload test")
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Fixes: bba2556efad6 ("net: stmmac: Enable RX via AF_XDP zero-copy")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c
-index 49af7e78b7f5..687f43cd466c 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c
-@@ -1654,12 +1654,16 @@ static int stmmac_test_arpoffload(struct stmmac_priv *priv)
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 23ec0a9e396c..b978d057c5f4 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -7097,7 +7097,7 @@ int stmmac_dvr_probe(struct device *device,
+ 	priv->wq = create_singlethread_workqueue("stmmac_wq");
+ 	if (!priv->wq) {
+ 		dev_err(priv->device, "failed to create workqueue\n");
+-		return -ENOMEM;
++		goto error_wq_init;
  	}
  
- 	ret = stmmac_set_arp_offload(priv, priv->hw, true, ip_addr);
--	if (ret)
-+	if (ret) {
-+		kfree_skb(skb);
- 		goto cleanup;
-+	}
+ 	INIT_WORK(&priv->service_task, stmmac_service_task);
+@@ -7325,6 +7325,7 @@ int stmmac_dvr_probe(struct device *device,
+ 	stmmac_napi_del(ndev);
+ error_hw_init:
+ 	destroy_workqueue(priv->wq);
++error_wq_init:
+ 	bitmap_free(priv->af_xdp_zc_qps);
  
- 	ret = dev_set_promiscuity(priv->dev, 1);
--	if (ret)
-+	if (ret) {
-+		kfree_skb(skb);
- 		goto cleanup;
-+	}
- 
- 	ret = dev_direct_xmit(skb, 0);
- 	if (ret)
+ 	return ret;
 -- 
 2.35.1
 
