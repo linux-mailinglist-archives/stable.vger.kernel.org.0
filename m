@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAB64657EDD
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:58:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F37086583EE
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:53:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234205AbiL1P63 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:58:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45886 "EHLO
+        id S235133AbiL1Qxb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:53:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232081AbiL1P63 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:58:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 596E118697
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:58:28 -0800 (PST)
+        with ESMTP id S231982AbiL1Qwo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:52:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74E401DDF5
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:47:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D4CEB81730
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:58:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B347C433D2;
-        Wed, 28 Dec 2022 15:58:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 119246157A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:47:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AFFAC433D2;
+        Wed, 28 Dec 2022 16:47:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243105;
-        bh=2UabSsOlqCYdGnYpJg6lwiZLiazmhh/Z0NoGM4OMvKw=;
+        s=korg; t=1672246046;
+        bh=fKQHvWFNkeWQXyKfXOvm/FCHRa/72dGELhCs6H7+wtM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gF/jO41YbRGzPVUqd3fudyHXZLCo28tlKgniyQqJjEjnjvRIvXGnj+2qyrrVgsLBc
-         ZRIPJkCHcRLIlCAhtjULRaxU+IlxS+K4uR19DKpp8w6UwzFT1vOBoTZ5W51Www2KDN
-         nXDpwfFDoOG4CXoesi3TBmJVrjlpkJuEZ81BbauM=
+        b=YDAC3i2qIqkSy0qZxPVwRrfQpAk1zULYPD+ueZGxfpnSTa/h+rx7roJtccaEuAuCk
+         jCkv50yDd/cCOzNWKt/yP88xvmrPxVesvu3AQIoNhNQY3mF28iIPS9IHhjr0LfiWVa
+         KHDGcnY1r78Q4tBkferd5BS/hBFjPTN/cO7G5+qw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Tyler Hicks (Microsoft)" <code@tyhicks.com>,
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 684/731] KVM: selftests: Fix build regression by using accessor function
+Subject: [PATCH 6.0 1003/1073] ASoC: mediatek: mt8183: fix refcount leak in mt8183_mt6358_ts3a227_max98357_dev_probe()
 Date:   Wed, 28 Dec 2022 15:43:11 +0100
-Message-Id: <20221228144316.296920411@linuxfoundation.org>
+Message-Id: <20221228144355.386489679@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyler Hicks <code@tyhicks.com>
+From: Wang Yufen <wangyufen@huawei.com>
 
-Fix the stable backport of commit 05c2224d4b04 ("KVM: selftests: Fix
-number of pages for memory slot in memslot_modification_stress_test"),
-which caused memslot_modification_stress_test.c build failures due to
-trying to access private members of struct kvm_vm.
+[ Upstream commit 38eef3be38ab895959c442702864212cc3beb96c ]
 
-v6.0 commit b530eba14c70 ("KVM: selftests: Get rid of
-kvm_util_internal.h") and some other commits got rid of the accessors
-and made all of the KVM data structures public. Keep using the accessors
-in older kernels.
+The node returned by of_parse_phandle() with refcount incremented,
+of_node_put() needs be called when finish using it. So add it in the
+error path in mt8183_mt6358_ts3a227_max98357_dev_probe().
 
-There is no corresponding upstream commit for this change.
-
-Signed-off-by: Tyler Hicks (Microsoft) <code@tyhicks.com>
+Fixes: 11c0269017b2 ("ASoC: Mediatek: MT8183: Add machine driver with TS3A227")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Link: https://lore.kernel.org/r/1670234188-23596-1-git-send-email-wangyufen@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/kvm/memslot_modification_stress_test.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../mt8183/mt8183-mt6358-ts3a227-max98357.c        | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/kvm/memslot_modification_stress_test.c b/tools/testing/selftests/kvm/memslot_modification_stress_test.c
-index 1d806b8ffee2..766c1790df66 100644
---- a/tools/testing/selftests/kvm/memslot_modification_stress_test.c
-+++ b/tools/testing/selftests/kvm/memslot_modification_stress_test.c
-@@ -72,7 +72,7 @@ struct memslot_antagonist_args {
- static void add_remove_memslot(struct kvm_vm *vm, useconds_t delay,
- 			       uint64_t nr_modifications)
- {
--	uint64_t pages = max_t(int, vm->page_size, getpagesize()) / vm->page_size;
-+	uint64_t pages = max_t(int, vm_get_page_size(vm), getpagesize()) / vm_get_page_size(vm);
- 	uint64_t gpa;
- 	int i;
+diff --git a/sound/soc/mediatek/mt8183/mt8183-mt6358-ts3a227-max98357.c b/sound/soc/mediatek/mt8183/mt8183-mt6358-ts3a227-max98357.c
+index ab157db78335..cfb463f44af7 100644
+--- a/sound/soc/mediatek/mt8183/mt8183-mt6358-ts3a227-max98357.c
++++ b/sound/soc/mediatek/mt8183/mt8183-mt6358-ts3a227-max98357.c
+@@ -644,8 +644,10 @@ mt8183_mt6358_ts3a227_max98357_dev_probe(struct platform_device *pdev)
+ 	}
  
+ 	card = (struct snd_soc_card *)of_device_get_match_data(&pdev->dev);
+-	if (!card)
++	if (!card) {
++		of_node_put(platform_node);
+ 		return -EINVAL;
++	}
+ 	card->dev = &pdev->dev;
+ 
+ 	ec_codec = of_parse_phandle(pdev->dev.of_node, "mediatek,ec-codec", 0);
+@@ -734,8 +736,10 @@ mt8183_mt6358_ts3a227_max98357_dev_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+-	if (!priv)
+-		return -ENOMEM;
++	if (!priv) {
++		ret = -ENOMEM;
++		goto out;
++	}
+ 
+ 	snd_soc_card_set_drvdata(card, priv);
+ 
+@@ -743,7 +747,8 @@ mt8183_mt6358_ts3a227_max98357_dev_probe(struct platform_device *pdev)
+ 	if (IS_ERR(priv->pinctrl)) {
+ 		dev_err(&pdev->dev, "%s devm_pinctrl_get failed\n",
+ 			__func__);
+-		return PTR_ERR(priv->pinctrl);
++		ret = PTR_ERR(priv->pinctrl);
++		goto out;
+ 	}
+ 
+ 	for (i = 0; i < PIN_STATE_MAX; i++) {
+@@ -776,6 +781,7 @@ mt8183_mt6358_ts3a227_max98357_dev_probe(struct platform_device *pdev)
+ 
+ 	ret = devm_snd_soc_register_card(&pdev->dev, card);
+ 
++out:
+ 	of_node_put(platform_node);
+ 	of_node_put(ec_codec);
+ 	of_node_put(hdmi_codec);
 -- 
 2.35.1
 
