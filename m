@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EC41657A9E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:13:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0808C657BB4
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:24:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233053AbiL1PNo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:13:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59222 "EHLO
+        id S233720AbiL1PYi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:24:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233095AbiL1PNU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:13:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD79E13E3E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:12:57 -0800 (PST)
+        with ESMTP id S233714AbiL1PYg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:24:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A21B14020
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:24:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 57281B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:12:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2138C433D2;
-        Wed, 28 Dec 2022 15:12:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0527C6155C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:24:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 161BFC433EF;
+        Wed, 28 Dec 2022 15:24:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240375;
-        bh=UHBlDUhsez1dcACx8Ck0SuPtBxLNYo6KvdxCrrVZH9g=;
+        s=korg; t=1672241074;
+        bh=Phb+TCRBTmCBfEVCFaukEyDSOUn7WIKwvxfMKCGw5a8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DSek/YUmSjXXF1+Ig5ILb3WF7pjqGTZo+4ah6kDPcB9x/7OOHuvYDN5JGdX3Bhduh
-         tq6AIWag1mZ0gouQnUzxhm29RTaXzs4Iwi4vo345hg1nOb2uEbR0Ben0uklkeP8xsN
-         KhL947DlG5pksos2wX4SqgOccEH3el8GPoHRVJ/s=
+        b=bHXKM9S47eCAKpch9qCcykdcrUrJqZYcvHWSVg731sqQb12SO+Yv9gr64EOc5jITy
+         6QW3KjRyevKAavGV2PqRo7qVFpo4uvGIoLxChYAP0EcV4gs9RPb2KOvmQhmmKwl3p0
+         lE8ZSf81AZX+U8WGuoN1MRiqo/Vy9qNnA7H/tM+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        John Thomson <git@johnthomson.fastmail.com.au>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0153/1073] mips: ralink: mt7621: soc queries and tests as functions
+        Bitterblue Smith <rtl8821cerfe2@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0202/1146] wifi: rtl8xxxu: Fix reading the vendor of combo chips
 Date:   Wed, 28 Dec 2022 15:29:01 +0100
-Message-Id: <20221228144332.177500316@linuxfoundation.org>
+Message-Id: <20221228144335.631278653@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,148 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Thomson <git@johnthomson.fastmail.com.au>
+From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
 
-[ Upstream commit b4767d4c072583dec987225b6fe3f5524a735f42 ]
+[ Upstream commit 6f103aeb5e985ac08f3a4a049a2c17294f40cff9 ]
 
-Move the SoC register value queries and tests to specific functions,
-to remove repetition of logic
-No functional changes intended
+The wifi + bluetooth combo chips (RTL8723AU and RTL8723BU) read the
+chip vendor from the wrong register because the val32 variable gets
+overwritten. Add one more variable to avoid this.
 
-Signed-off-by: John Thomson <git@johnthomson.fastmail.com.au>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Stable-dep-of: 7c18b64bba3b ("mips: ralink: mt7621: do not use kzalloc too early")
+This had no real effect on RTL8723BU. It may have had an effect on
+RTL8723AU.
+
+Fixes: 26f1fad29ad9 ("New driver: rtl8xxxu (mac80211)")
+Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/24af8024-2f07-552b-93d8-38823d8e3cb0@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/ralink/mt7621.c | 86 +++++++++++++++++++++++++++------------
- 1 file changed, 61 insertions(+), 25 deletions(-)
+ .../wireless/realtek/rtl8xxxu/rtl8xxxu_core.c    | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/arch/mips/ralink/mt7621.c b/arch/mips/ralink/mt7621.c
-index 17dbf28897e0..6e126f570f0c 100644
---- a/arch/mips/ralink/mt7621.c
-+++ b/arch/mips/ralink/mt7621.c
-@@ -97,7 +97,57 @@ void __init ralink_of_remap(void)
- 		panic("Failed to remap core resources");
- }
- 
--static void soc_dev_init(struct ralink_soc_info *soc_info, u32 rev)
-+static unsigned int __init mt7621_get_soc_name0(void)
-+{
-+	return __raw_readl(MT7621_SYSC_BASE + SYSC_REG_CHIP_NAME0);
-+}
-+
-+static unsigned int __init mt7621_get_soc_name1(void)
-+{
-+	return __raw_readl(MT7621_SYSC_BASE + SYSC_REG_CHIP_NAME1);
-+}
-+
-+static bool __init mt7621_soc_valid(void)
-+{
-+	if (mt7621_get_soc_name0() == MT7621_CHIP_NAME0 &&
-+			mt7621_get_soc_name1() == MT7621_CHIP_NAME1)
-+		return true;
-+	else
-+		return false;
-+}
-+
-+static const char __init *mt7621_get_soc_id(void)
-+{
-+	if (mt7621_soc_valid())
-+		return "MT7621";
-+	else
-+		return "invalid";
-+}
-+
-+static unsigned int __init mt7621_get_soc_rev(void)
-+{
-+	return __raw_readl(MT7621_SYSC_BASE + SYSC_REG_CHIP_REV);
-+}
-+
-+static unsigned int __init mt7621_get_soc_ver(void)
-+{
-+	return (mt7621_get_soc_rev() >> CHIP_REV_VER_SHIFT) & CHIP_REV_VER_MASK;
-+}
-+
-+static unsigned int __init mt7621_get_soc_eco(void)
-+{
-+	return (mt7621_get_soc_rev() & CHIP_REV_ECO_MASK);
-+}
-+
-+static const char __init *mt7621_get_soc_revision(void)
-+{
-+	if (mt7621_get_soc_rev() == 1 && mt7621_get_soc_eco() == 1)
-+		return "E2";
-+	else
-+		return "E1";
-+}
-+
-+static void soc_dev_init(struct ralink_soc_info *soc_info)
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+index ac641a56efb0..8d00ce805f1c 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -1608,18 +1608,18 @@ static int rtl8xxxu_identify_chip(struct rtl8xxxu_priv *priv)
  {
- 	struct soc_device *soc_dev;
- 	struct soc_device_attribute *soc_dev_attr;
-@@ -108,12 +158,7 @@ static void soc_dev_init(struct ralink_soc_info *soc_info, u32 rev)
+ 	struct device *dev = &priv->udev->dev;
+ 	struct ieee80211_hw *hw = priv->hw;
+-	u32 val32, bonding;
++	u32 val32, bonding, sys_cfg;
+ 	u16 val16;
  
- 	soc_dev_attr->soc_id = "mt7621";
- 	soc_dev_attr->family = "Ralink";
--
--	if (((rev >> CHIP_REV_VER_SHIFT) & CHIP_REV_VER_MASK) == 1 &&
--	    (rev & CHIP_REV_ECO_MASK) == 1)
--		soc_dev_attr->revision = "E2";
--	else
--		soc_dev_attr->revision = "E1";
-+	soc_dev_attr->revision = mt7621_get_soc_revision();
- 
- 	soc_dev_attr->data = soc_info;
- 
-@@ -126,11 +171,6 @@ static void soc_dev_init(struct ralink_soc_info *soc_info, u32 rev)
- 
- void __init prom_soc_init(struct ralink_soc_info *soc_info)
- {
--	unsigned char *name = NULL;
--	u32 n0;
--	u32 n1;
--	u32 rev;
--
- 	/* Early detection of CMP support */
- 	mips_cm_probe();
- 	mips_cpc_probe();
-@@ -153,27 +193,23 @@ void __init prom_soc_init(struct ralink_soc_info *soc_info)
- 		__sync();
+-	val32 = rtl8xxxu_read32(priv, REG_SYS_CFG);
+-	priv->chip_cut = (val32 & SYS_CFG_CHIP_VERSION_MASK) >>
++	sys_cfg = rtl8xxxu_read32(priv, REG_SYS_CFG);
++	priv->chip_cut = (sys_cfg & SYS_CFG_CHIP_VERSION_MASK) >>
+ 		SYS_CFG_CHIP_VERSION_SHIFT;
+-	if (val32 & SYS_CFG_TRP_VAUX_EN) {
++	if (sys_cfg & SYS_CFG_TRP_VAUX_EN) {
+ 		dev_info(dev, "Unsupported test chip\n");
+ 		return -ENOTSUPP;
  	}
  
--	n0 = __raw_readl(MT7621_SYSC_BASE + SYSC_REG_CHIP_NAME0);
--	n1 = __raw_readl(MT7621_SYSC_BASE + SYSC_REG_CHIP_NAME1);
--
--	if (n0 == MT7621_CHIP_NAME0 && n1 == MT7621_CHIP_NAME1) {
--		name = "MT7621";
-+	if (mt7621_soc_valid())
- 		soc_info->compatible = "mediatek,mt7621-soc";
--	} else {
--		panic("mt7621: unknown SoC, n0:%08x n1:%08x\n", n0, n1);
--	}
-+	else
-+		panic("mt7621: unknown SoC, n0:%08x n1:%08x\n",
-+				mt7621_get_soc_name0(),
-+				mt7621_get_soc_name1());
- 	ralink_soc = MT762X_SOC_MT7621AT;
--	rev = __raw_readl(MT7621_SYSC_BASE + SYSC_REG_CHIP_REV);
- 
- 	snprintf(soc_info->sys_type, RAMIPS_SYS_TYPE_LEN,
- 		"MediaTek %s ver:%u eco:%u",
--		name,
--		(rev >> CHIP_REV_VER_SHIFT) & CHIP_REV_VER_MASK,
--		(rev & CHIP_REV_ECO_MASK));
-+		mt7621_get_soc_id(),
-+		mt7621_get_soc_ver(),
-+		mt7621_get_soc_eco());
- 
- 	soc_info->mem_detect = mt7621_memory_detect;
- 
--	soc_dev_init(soc_info, rev);
-+	soc_dev_init(soc_info);
- 
- 	if (!register_cps_smp_ops())
- 		return;
+-	if (val32 & SYS_CFG_BT_FUNC) {
++	if (sys_cfg & SYS_CFG_BT_FUNC) {
+ 		if (priv->chip_cut >= 3) {
+ 			sprintf(priv->chip_name, "8723BU");
+ 			priv->rtl_chip = RTL8723B;
+@@ -1641,7 +1641,7 @@ static int rtl8xxxu_identify_chip(struct rtl8xxxu_priv *priv)
+ 		if (val32 & MULTI_GPS_FUNC_EN)
+ 			priv->has_gps = 1;
+ 		priv->is_multi_func = 1;
+-	} else if (val32 & SYS_CFG_TYPE_ID) {
++	} else if (sys_cfg & SYS_CFG_TYPE_ID) {
+ 		bonding = rtl8xxxu_read32(priv, REG_HPON_FSM);
+ 		bonding &= HPON_FSM_BONDING_MASK;
+ 		if (priv->fops->tx_desc_size ==
+@@ -1692,7 +1692,7 @@ static int rtl8xxxu_identify_chip(struct rtl8xxxu_priv *priv)
+ 	case RTL8188E:
+ 	case RTL8192E:
+ 	case RTL8723B:
+-		switch (val32 & SYS_CFG_VENDOR_EXT_MASK) {
++		switch (sys_cfg & SYS_CFG_VENDOR_EXT_MASK) {
+ 		case SYS_CFG_VENDOR_ID_TSMC:
+ 			sprintf(priv->chip_vendor, "TSMC");
+ 			break;
+@@ -1709,7 +1709,7 @@ static int rtl8xxxu_identify_chip(struct rtl8xxxu_priv *priv)
+ 		}
+ 		break;
+ 	default:
+-		if (val32 & SYS_CFG_VENDOR_ID) {
++		if (sys_cfg & SYS_CFG_VENDOR_ID) {
+ 			sprintf(priv->chip_vendor, "UMC");
+ 			priv->vendor_umc = 1;
+ 		} else {
 -- 
 2.35.1
 
