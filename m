@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5C166582EA
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CB1C658206
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:32:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234898AbiL1QnR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:43:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33688 "EHLO
+        id S234805AbiL1Qcx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:32:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235007AbiL1Qmv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:42:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61C3D193C3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:07 -0800 (PST)
+        with ESMTP id S234808AbiL1QcZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:32:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52A77186B4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:29:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 03EA16157C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:36:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14532C433D2;
-        Wed, 28 Dec 2022 16:36:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 06B82B81886
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:29:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54EEDC433EF;
+        Wed, 28 Dec 2022 16:29:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245409;
-        bh=5p6TI3kPoDHFbjPnSlmWdnvOS3eVSq8WPBH3ZjkpxTM=;
+        s=korg; t=1672244951;
+        bh=fwbuUC4jbzYu3qFbzyYWlAeu9kbXPPFteuaTahy9Jjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qMWkLtQswW25Jn4DouSD9Y0qwGZR7JGD5d8DCx3L7VCB/hrnpUPVVccFHE9If7jaT
-         gwI9anGP/ZJObRivjFkgwjzluDrp4Dt1BIbaJSe9QIm4xnCxOXg0wQ3aDfXykEd1MP
-         Le2j45j/A4KpVxjal9Ny8bnJkX/Ah23R+7Wy8CHU=
+        b=JrdtX8fBIprKxhxH9YYaqDEKhhU9eUKlBbgAs852Io6C7zz33RNJ8gz104gK05wWu
+         MBMvIE4mMjV6HGAAthkW+uDPsmNRiI/9sAfnoSo5Sk24DZd4Ebeo8aHWTsXKwkMbYu
+         XKUAaygEqL+xgpFGNpN8J3YuRS9FjY0xxKP2OsH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nayna Jain <nayna@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        patches@lists.linux.dev, Li Huafei <lihuafei1@huawei.com>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0854/1146] powerpc/pseries: fix plpks_read_var() code for different consumers
+Subject: [PATCH 6.0 0805/1073] kprobes: Fix check for probe enabled in kill_kprobe()
 Date:   Wed, 28 Dec 2022 15:39:53 +0100
-Message-Id: <20221228144353.351974528@linuxfoundation.org>
+Message-Id: <20221228144349.874655003@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,79 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nayna Jain <nayna@linux.ibm.com>
+From: Li Huafei <lihuafei1@huawei.com>
 
-[ Upstream commit 1f622f3f80cbf8999ff5955a2fcfbd801a1f32e0 ]
+[ Upstream commit 0c76ef3f26d5ef2ac2c21b47e7620cff35809fbb ]
 
-Even though plpks_read_var() is currently called to read variables
-owned by different consumers, it internally supports only OS consumer.
+In kill_kprobe(), the check whether disarm_kprobe_ftrace() needs to be
+called always fails. This is because before that we set the
+KPROBE_FLAG_GONE flag for kprobe so that "!kprobe_disabled(p)" is always
+false.
 
-Fix plpks_read_var() to handle different consumers correctly.
+The disarm_kprobe_ftrace() call introduced by commit:
 
-Fixes: 2454a7af0f2a ("powerpc/pseries: define driver for Platform KeyStore")
-Signed-off-by: Nayna Jain <nayna@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20221106205839.600442-7-nayna@linux.ibm.com
+  0cb2f1372baa ("kprobes: Fix NULL pointer dereference at kprobe_ftrace_handler")
+
+to fix the NULL pointer reference problem. When the probe is enabled, if
+we do not disarm it, this problem still exists.
+
+Fix it by putting the probe enabled check before setting the
+KPROBE_FLAG_GONE flag.
+
+Link: https://lore.kernel.org/all/20221126114316.201857-1-lihuafei1@huawei.com/
+
+Fixes: 3031313eb3d54 ("kprobes: Fix to check probe enabled before disarm_kprobe_ftrace()")
+Signed-off-by: Li Huafei <lihuafei1@huawei.com>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/plpks.c | 28 +++++++++++++++++---------
- 1 file changed, 18 insertions(+), 10 deletions(-)
+ kernel/kprobes.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/plpks.c b/arch/powerpc/platforms/pseries/plpks.c
-index cbea447122ca..63a1e1fe0185 100644
---- a/arch/powerpc/platforms/pseries/plpks.c
-+++ b/arch/powerpc/platforms/pseries/plpks.c
-@@ -366,22 +366,24 @@ static int plpks_read_var(u8 consumer, struct plpks_var *var)
- {
- 	unsigned long retbuf[PLPAR_HCALL_BUFSIZE] = { 0 };
- 	struct plpks_auth *auth;
--	struct label *label;
-+	struct label *label = NULL;
- 	u8 *output;
- 	int rc;
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index 6d2a8623ec7b..771fcce54fac 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -2360,6 +2360,14 @@ static void kill_kprobe(struct kprobe *p)
  
- 	if (var->namelen > MAX_NAME_SIZE)
- 		return -EINVAL;
+ 	lockdep_assert_held(&kprobe_mutex);
  
--	auth = construct_auth(PKS_OS_OWNER);
-+	auth = construct_auth(consumer);
- 	if (IS_ERR(auth))
- 		return PTR_ERR(auth);
- 
--	label = construct_label(var->component, var->os, var->name,
--				var->namelen);
--	if (IS_ERR(label)) {
--		rc = PTR_ERR(label);
--		goto out_free_auth;
-+	if (consumer == PKS_OS_OWNER) {
-+		label = construct_label(var->component, var->os, var->name,
-+					var->namelen);
-+		if (IS_ERR(label)) {
-+			rc = PTR_ERR(label);
-+			goto out_free_auth;
-+		}
- 	}
- 
- 	output = kzalloc(maxobjsize, GFP_KERNEL);
-@@ -390,9 +392,15 @@ static int plpks_read_var(u8 consumer, struct plpks_var *var)
- 		goto out_free_label;
- 	}
- 
--	rc = plpar_hcall(H_PKS_READ_OBJECT, retbuf, virt_to_phys(auth),
--			 virt_to_phys(label), label->size, virt_to_phys(output),
--			 maxobjsize);
-+	if (consumer == PKS_OS_OWNER)
-+		rc = plpar_hcall(H_PKS_READ_OBJECT, retbuf, virt_to_phys(auth),
-+				 virt_to_phys(label), label->size, virt_to_phys(output),
-+				 maxobjsize);
-+	else
-+		rc = plpar_hcall(H_PKS_READ_OBJECT, retbuf, virt_to_phys(auth),
-+				 virt_to_phys(var->name), var->namelen, virt_to_phys(output),
-+				 maxobjsize);
++	/*
++	 * The module is going away. We should disarm the kprobe which
++	 * is using ftrace, because ftrace framework is still available at
++	 * 'MODULE_STATE_GOING' notification.
++	 */
++	if (kprobe_ftrace(p) && !kprobe_disabled(p) && !kprobes_all_disarmed)
++		disarm_kprobe_ftrace(p);
 +
+ 	p->flags |= KPROBE_FLAG_GONE;
+ 	if (kprobe_aggrprobe(p)) {
+ 		/*
+@@ -2376,14 +2384,6 @@ static void kill_kprobe(struct kprobe *p)
+ 	 * the original probed function (which will be freed soon) any more.
+ 	 */
+ 	arch_remove_kprobe(p);
+-
+-	/*
+-	 * The module is going away. We should disarm the kprobe which
+-	 * is using ftrace, because ftrace framework is still available at
+-	 * 'MODULE_STATE_GOING' notification.
+-	 */
+-	if (kprobe_ftrace(p) && !kprobe_disabled(p) && !kprobes_all_disarmed)
+-		disarm_kprobe_ftrace(p);
+ }
  
- 	if (rc != H_SUCCESS) {
- 		pr_err("Failed to read variable %s for component %s with error %d\n",
+ /* Disable one kprobe */
 -- 
 2.35.1
 
