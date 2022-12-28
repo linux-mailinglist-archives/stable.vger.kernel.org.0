@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8542658173
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:28:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAEBE657A9D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:13:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234720AbiL1Q2l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:28:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45984 "EHLO
+        id S233024AbiL1PNk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:13:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234654AbiL1Q2V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:28:21 -0500
+        with ESMTP id S233065AbiL1PNO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:13:14 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFE8C1AA05
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:24:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8067A13EB6
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:12:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 642446157A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:24:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78547C433EF;
-        Wed, 28 Dec 2022 16:24:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D50F61551
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:12:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3253AC433D2;
+        Wed, 28 Dec 2022 15:12:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244654;
-        bh=FqPvJcPjRfo3gCAgiE5/6f6HdCf1P4W7UZQ7C0CT5BQ=;
+        s=korg; t=1672240372;
+        bh=aHWKULzj3U3S4emToSKQRDMI+L6IMqOnnpO6EOPGC1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YpTchKwHkwBGA7OK9ik48JvRd5NZtlE/+PfYLR4KyHjzTssZAoTcy8iMewwrunWCC
-         47J2P6iA10eCs2MLfVYPjXmsj1M/h6GGHJ2Oygngko7cNonbCoqtU1GYIdeQWiPMgl
-         QajO9u3oS7fx7FKB8V7pxOy2lFNeeXE6TJ1Ng8VQ=
+        b=nwTN70ZirJXN7wyNQWZm21syN6vOdMN1FqDP09XJr0+JSb0jRp0ODKJCb7HFmWBeF
+         igkNqqfgOOvmV5XHbr8FNziXuGG9Me21rE6L5lKXTXQRtQ2zRQ6F/o969BcX3WtFPn
+         oieUBNKFr0ad4X2pnfHWRQsQtBlOwiKKMG6BX/V4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Markus Schneider-Pargmann <msp@baylibre.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0710/1146] serial: pch: Fix PCI device refcount leak in pch_request_dma()
+Subject: [PATCH 5.15 342/731] can: tcan4x5x: Fix use of register error status mask
 Date:   Wed, 28 Dec 2022 15:37:29 +0100
-Message-Id: <20221228144349.430981965@linuxfoundation.org>
+Message-Id: <20221228144306.480225943@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Markus Schneider-Pargmann <msp@baylibre.com>
 
-[ Upstream commit 8be3a7bf773700534a6e8f87f6ed2ed111254be5 ]
+[ Upstream commit 67727a17a6b375d68fe569b77e6516b034b834c0 ]
 
-As comment of pci_get_slot() says, it returns a pci_device with its
-refcount increased. The caller must decrement the reference count by
-calling pci_dev_put().
+TCAN4X5X_ERROR_STATUS is not a status register that needs clearing
+during interrupt handling. Instead this is a masking register that masks
+error interrupts. Writing TCAN4X5X_CLEAR_ALL_INT to this register
+effectively masks everything.
 
-Since 'dma_dev' is only used to filter the channel in filter(), we can
-call pci_dev_put() before exiting from pch_request_dma(). Add the
-missing pci_dev_put() for the normal and error path.
+Rename the register and mask all error interrupts only once by writing
+to the register in tcan4x5x_init.
 
-Fixes: 3c6a483275f4 ("Serial: EG20T: add PCH_UART driver")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Link: https://lore.kernel.org/r/20221122114559.27692-1-wangxiongfeng2@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5443c226ba91 ("can: tcan4x5x: Add tcan4x5x driver to the kernel")
+Signed-off-by: Markus Schneider-Pargmann <msp@baylibre.com>
+Link: https://lore.kernel.org/all/20221206115728.1056014-10-msp@baylibre.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/pch_uart.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/can/m_can/tcan4x5x-core.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/tty/serial/pch_uart.c b/drivers/tty/serial/pch_uart.c
-index c59ce7886579..b17788cf309b 100644
---- a/drivers/tty/serial/pch_uart.c
-+++ b/drivers/tty/serial/pch_uart.c
-@@ -694,6 +694,7 @@ static void pch_request_dma(struct uart_port *port)
- 	if (!chan) {
- 		dev_err(priv->port.dev, "%s:dma_request_channel FAILS(Tx)\n",
- 			__func__);
-+		pci_dev_put(dma_dev);
- 		return;
- 	}
- 	priv->chan_tx = chan;
-@@ -710,6 +711,7 @@ static void pch_request_dma(struct uart_port *port)
- 			__func__);
- 		dma_release_channel(priv->chan_tx);
- 		priv->chan_tx = NULL;
-+		pci_dev_put(dma_dev);
- 		return;
- 	}
+diff --git a/drivers/net/can/m_can/tcan4x5x-core.c b/drivers/net/can/m_can/tcan4x5x-core.c
+index a0eee69e52ea..c83b347be1cf 100644
+--- a/drivers/net/can/m_can/tcan4x5x-core.c
++++ b/drivers/net/can/m_can/tcan4x5x-core.c
+@@ -10,7 +10,7 @@
+ #define TCAN4X5X_DEV_ID1 0x04
+ #define TCAN4X5X_REV 0x08
+ #define TCAN4X5X_STATUS 0x0C
+-#define TCAN4X5X_ERROR_STATUS 0x10
++#define TCAN4X5X_ERROR_STATUS_MASK 0x10
+ #define TCAN4X5X_CONTROL 0x14
  
-@@ -717,6 +719,8 @@ static void pch_request_dma(struct uart_port *port)
- 	priv->rx_buf_virt = dma_alloc_coherent(port->dev, port->fifosize,
- 				    &priv->rx_buf_dma, GFP_KERNEL);
- 	priv->chan_rx = chan;
-+
-+	pci_dev_put(dma_dev);
+ #define TCAN4X5X_CONFIG 0x800
+@@ -204,12 +204,7 @@ static int tcan4x5x_clear_interrupts(struct m_can_classdev *cdev)
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = tcan4x5x_write_tcan_reg(cdev, TCAN4X5X_INT_FLAGS,
+-				      TCAN4X5X_CLEAR_ALL_INT);
+-	if (ret)
+-		return ret;
+-
+-	return tcan4x5x_write_tcan_reg(cdev, TCAN4X5X_ERROR_STATUS,
++	return tcan4x5x_write_tcan_reg(cdev, TCAN4X5X_INT_FLAGS,
+ 				       TCAN4X5X_CLEAR_ALL_INT);
  }
  
- static void pch_dma_rx_complete(void *arg)
+@@ -229,6 +224,11 @@ static int tcan4x5x_init(struct m_can_classdev *cdev)
+ 	if (ret)
+ 		return ret;
+ 
++	ret = tcan4x5x_write_tcan_reg(cdev, TCAN4X5X_ERROR_STATUS_MASK,
++				      TCAN4X5X_CLEAR_ALL_INT);
++	if (ret)
++		return ret;
++
+ 	ret = regmap_update_bits(tcan4x5x->regmap, TCAN4X5X_CONFIG,
+ 				 TCAN4X5X_MODE_SEL_MASK, TCAN4X5X_MODE_NORMAL);
+ 	if (ret)
 -- 
 2.35.1
 
