@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A8DF657DD7
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:47:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFF22657EF1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:59:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234036AbiL1Pri (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:47:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34982 "EHLO
+        id S233069AbiL1P73 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:59:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234062AbiL1PrN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:47:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BCDE165B3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:47:12 -0800 (PST)
+        with ESMTP id S234219AbiL1P73 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:59:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A14B18E05
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:59:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06BF4B8172B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:47:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48C1CC433EF;
-        Wed, 28 Dec 2022 15:47:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D07E2B81730
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:59:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44418C433D2;
+        Wed, 28 Dec 2022 15:59:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242429;
-        bh=3x2I4Yrc0I2Ml1JwaVLPHPuRGOL+MNwPBNq/LS4raYQ=;
+        s=korg; t=1672243165;
+        bh=bfVACty6wrQMY9FGTLJ2CbgpKEkw+xMGqWk0IQOrlSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XoyDjxhoNODk0txCGc/E5GzjQLTOcGKuho42uYTK7ahsv50QvaWRPao5mmZ6HI+WU
-         2EWec//fKtR853pDGRJDeLtLOHmTs40z4Lr7h0bl4H39DIqOG/AKLSpFxU6nmflxXW
-         uQbV2tiTJp+N3qdKV5+ojBp9C+kG/0IBy0ilcFoU=
+        b=gW6RjzL+bF0Mdhjv3HIrmLcQ+EzJdI/wkXMnRSkM6/P7Py6qRNtkVnxLFnSP708XP
+         jjpSH910D3RjjxQVv9uNNmblHaX2OY/nPWWSBRAAlqYShWKG2W1oNa0TEOF1+a1aWT
+         hkJICoUIKjuYeUhWtLq35K7w/2l3ccCuk1HOw1bE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0409/1073] NFSv4.2: Fix initialisation of struct nfs4_label
+        patches@lists.linux.dev, Shayne Chen <shayne.chen@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0458/1146] wifi: mt76: mt7915: rework eeprom tx paths and streams init
 Date:   Wed, 28 Dec 2022 15:33:17 +0100
-Message-Id: <20221228144339.129298862@linuxfoundation.org>
+Message-Id: <20221228144342.623004958@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,81 +52,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Shayne Chen <shayne.chen@mediatek.com>
 
-[ Upstream commit c528f70f504434eaff993a5ddd52203a2010d51f ]
+[ Upstream commit a7ec8bcf00034ce84d4c9a15dffd7577fbed4db2 ]
 
-The call to nfs4_label_init_security() should return a fully initialised
-label.
+Rework tx paths and streams init part to improve readability, and make
+sure that the available tx streams should be smaller than or equal to
+the available tx paths.
 
-Fixes: aa9c2669626c ("NFS: Client implementation of Labeled-NFS")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Shayne Chen <shayne.chen@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Stable-dep-of: de147cc28985 ("wifi: mt76: mt7915: Fix chainmask calculation on mt7915 DBDC")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ .../wireless/mediatek/mt76/mt7915/eeprom.c    | 57 ++++++++-----------
+ .../wireless/mediatek/mt76/mt7915/eeprom.h    |  5 --
+ 2 files changed, 23 insertions(+), 39 deletions(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 313e9145b6c9..0500da4dab57 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -122,6 +122,11 @@ nfs4_label_init_security(struct inode *dir, struct dentry *dentry,
- 	if (nfs_server_capable(dir, NFS_CAP_SECURITY_LABEL) == 0)
- 		return NULL;
- 
-+	label->lfs = 0;
-+	label->pi = 0;
-+	label->len = 0;
-+	label->label = NULL;
-+
- 	err = security_dentry_init_security(dentry, sattr->ia_mode,
- 				&dentry->d_name, NULL,
- 				(void **)&label->label, &label->len);
-@@ -3795,7 +3800,7 @@ nfs4_atomic_open(struct inode *dir, struct nfs_open_context *ctx,
- 		int open_flags, struct iattr *attr, int *opened)
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.c b/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.c
+index 4b1a9811646f..83bced0c0785 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.c
+@@ -173,60 +173,49 @@ static void mt7915_eeprom_parse_band_config(struct mt7915_phy *phy)
+ void mt7915_eeprom_parse_hw_cap(struct mt7915_dev *dev,
+ 				struct mt7915_phy *phy)
  {
- 	struct nfs4_state *state;
--	struct nfs4_label l = {0, 0, 0, NULL}, *label = NULL;
-+	struct nfs4_label l, *label;
+-	u8 nss, nss_band, nss_band_max, *eeprom = dev->mt76.eeprom.data;
++	u8 path, nss, nss_max = 4, *eeprom = dev->mt76.eeprom.data;
+ 	struct mt76_phy *mphy = phy->mt76;
+-	bool ext_phy = phy != &dev->phy;
  
- 	label = nfs4_label_init_security(dir, ctx->dentry, attr, &l);
+ 	mt7915_eeprom_parse_band_config(phy);
  
-@@ -4681,7 +4686,7 @@ nfs4_proc_create(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
- 		 int flags)
- {
- 	struct nfs_server *server = NFS_SERVER(dir);
--	struct nfs4_label l, *ilabel = NULL;
-+	struct nfs4_label l, *ilabel;
- 	struct nfs_open_context *ctx;
- 	struct nfs4_state *state;
- 	int status = 0;
-@@ -5032,7 +5037,7 @@ static int nfs4_proc_symlink(struct inode *dir, struct dentry *dentry,
- 	struct nfs4_exception exception = {
- 		.interruptible = true,
- 	};
--	struct nfs4_label l, *label = NULL;
-+	struct nfs4_label l, *label;
- 	int err;
+-	/* read tx/rx mask from eeprom */
++	/* read tx/rx path from eeprom */
+ 	if (is_mt7915(&dev->mt76)) {
+-		nss = FIELD_GET(MT_EE_WIFI_CONF0_TX_PATH,
+-				eeprom[MT_EE_WIFI_CONF]);
++		path = FIELD_GET(MT_EE_WIFI_CONF0_TX_PATH,
++				 eeprom[MT_EE_WIFI_CONF]);
+ 	} else {
+-		nss = FIELD_GET(MT_EE_WIFI_CONF0_TX_PATH,
+-				eeprom[MT_EE_WIFI_CONF + phy->band_idx]);
++		path = FIELD_GET(MT_EE_WIFI_CONF0_TX_PATH,
++				 eeprom[MT_EE_WIFI_CONF + phy->band_idx]);
+ 	}
  
- 	label = nfs4_label_init_security(dir, dentry, sattr, &l);
-@@ -5073,7 +5078,7 @@ static int nfs4_proc_mkdir(struct inode *dir, struct dentry *dentry,
- 	struct nfs4_exception exception = {
- 		.interruptible = true,
- 	};
--	struct nfs4_label l, *label = NULL;
-+	struct nfs4_label l, *label;
- 	int err;
+-	if (!nss || nss > 4)
+-		nss = 4;
++	if (!path || path > 4)
++		path = 4;
  
- 	label = nfs4_label_init_security(dir, dentry, sattr, &l);
-@@ -5192,7 +5197,7 @@ static int nfs4_proc_mknod(struct inode *dir, struct dentry *dentry,
- 	struct nfs4_exception exception = {
- 		.interruptible = true,
- 	};
--	struct nfs4_label l, *label = NULL;
-+	struct nfs4_label l, *label;
- 	int err;
+ 	/* read tx/rx stream */
+-	nss_band = nss;
+-
++	nss = path;
+ 	if (dev->dbdc_support) {
+ 		if (is_mt7915(&dev->mt76)) {
+-			nss_band = FIELD_GET(MT_EE_WIFI_CONF3_TX_PATH_B0,
+-					     eeprom[MT_EE_WIFI_CONF + 3]);
++			nss = FIELD_GET(MT_EE_WIFI_CONF3_TX_PATH_B0,
++					eeprom[MT_EE_WIFI_CONF + 3]);
+ 			if (phy->band_idx)
+-				nss_band = FIELD_GET(MT_EE_WIFI_CONF3_TX_PATH_B1,
+-						     eeprom[MT_EE_WIFI_CONF + 3]);
++				nss = FIELD_GET(MT_EE_WIFI_CONF3_TX_PATH_B1,
++						eeprom[MT_EE_WIFI_CONF + 3]);
+ 		} else {
+-			nss_band = FIELD_GET(MT_EE_WIFI_CONF_STREAM_NUM,
+-					     eeprom[MT_EE_WIFI_CONF + 2 + phy->band_idx]);
++			nss = FIELD_GET(MT_EE_WIFI_CONF_STREAM_NUM,
++					eeprom[MT_EE_WIFI_CONF + 2 + phy->band_idx]);
+ 		}
  
- 	label = nfs4_label_init_security(dir, dentry, sattr, &l);
+-		nss_band_max = is_mt7986(&dev->mt76) ?
+-			       MT_EE_NSS_MAX_DBDC_MA7986 : MT_EE_NSS_MAX_DBDC_MA7915;
+-	} else {
+-		nss_band_max = is_mt7986(&dev->mt76) ?
+-			       MT_EE_NSS_MAX_MA7986 : MT_EE_NSS_MAX_MA7915;
++		if (!is_mt7986(&dev->mt76))
++			nss_max = 2;
+ 	}
+ 
+-	if (!nss_band || nss_band > nss_band_max)
+-		nss_band = nss_band_max;
+-
+-	if (nss_band > nss) {
+-		dev_warn(dev->mt76.dev,
+-			 "nss mismatch, nss(%d) nss_band(%d) band(%d) ext_phy(%d)\n",
+-			 nss, nss_band, phy->band_idx, ext_phy);
+-		nss = nss_band;
+-	}
++	if (!nss)
++		nss = nss_max;
++	nss = min_t(u8, min_t(u8, nss_max, nss), path);
+ 
+-	mphy->chainmask = BIT(nss) - 1;
+-	if (ext_phy)
++	mphy->chainmask = BIT(path) - 1;
++	if (phy->band_idx)
+ 		mphy->chainmask <<= dev->chainshift;
+-	mphy->antenna_mask = BIT(nss_band) - 1;
++	mphy->antenna_mask = BIT(nss) - 1;
+ 	dev->chainmask |= mphy->chainmask;
+ 	dev->chainshift = hweight8(dev->mphy.chainmask);
+ }
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.h b/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.h
+index 7578ac6d0be6..f3e56817d36e 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.h
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.h
+@@ -58,11 +58,6 @@ enum mt7915_eeprom_field {
+ #define MT_EE_RATE_DELTA_SIGN			BIT(6)
+ #define MT_EE_RATE_DELTA_EN			BIT(7)
+ 
+-#define MT_EE_NSS_MAX_MA7915			4
+-#define MT_EE_NSS_MAX_DBDC_MA7915		2
+-#define MT_EE_NSS_MAX_MA7986			4
+-#define MT_EE_NSS_MAX_DBDC_MA7986		4
+-
+ enum mt7915_adie_sku {
+ 	MT7976_ONE_ADIE_DBDC = 0x7,
+ 	MT7975_ONE_ADIE	= 0x8,
 -- 
 2.35.1
 
