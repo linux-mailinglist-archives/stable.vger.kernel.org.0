@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2F086578E1
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:55:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37404657EE2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:58:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233234AbiL1Oza (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:55:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43028 "EHLO
+        id S234164AbiL1P6q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:58:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233317AbiL1OzM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:55:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1231110543
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:55:12 -0800 (PST)
+        with ESMTP id S234216AbiL1P6p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:58:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 154AA183AB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:58:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A4084614B2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:55:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B93A6C433D2;
-        Wed, 28 Dec 2022 14:55:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A66706155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:58:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFCC5C433F0;
+        Wed, 28 Dec 2022 15:58:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239311;
-        bh=jHFYO3VF5b6e5umtpDBVraCHKQmKkXpILeP/hEO29RU=;
+        s=korg; t=1672243124;
+        bh=AskKKRRcQqzLYBTMTG/5uzaH5GQVZxK81UJLrVlqNPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CVZw4Wozwl89DFl0SO1X6fQhS80pHFEawNJgUVcUeLJ8OSySNTJSf/QzwEdUmapec
-         Q0uls7nXv21rT/TUCwtDJQTNvRW8UjEGsshPMBVcyBovDzsn7Zg7Fl7GkgJu3RFSsW
-         lerQc8ccgQQ9aIG+mCAAgPbuR6Sm7Amyw/BjFh60=
+        b=U94V8iPekX+6J/ifH42GOHOuqB6ZaSdj75f9+xVRF5SZ4kNrY3GhaEcdAMu+Oj2Ht
+         mQzo7zmdbIJl1OVCWhW7ZvGHzVzj2n8kb4MbxGJ2QZqBJPxX0Ks0kZw6Rj2UtM3+8W
+         8lbftay5I9GwiLHavUI7kzhMghf3KNMjhPVjFidY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ralph Siemsen <ralph.siemsen@linaro.org>,
-        Marek Vasut <marex@denx.de>,
-        Gareth Williams <gareth.williams.jx@renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 173/731] clk: renesas: r9a06g032: Repair grave increment error
+Subject: [PATCH 6.0 0492/1073] mmc: wbsd: fix return value check of mmc_add_host()
 Date:   Wed, 28 Dec 2022 15:34:40 +0100
-Message-Id: <20221228144301.579567100@linuxfoundation.org>
+Message-Id: <20221228144341.397955710@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 02693e11611e082e3c4d8653e8af028e43d31164 ]
+[ Upstream commit dc5b9b50fc9d1334407e316e6e29a5097ef833bd ]
 
-If condition (clkspec.np != pd->dev.of_node) is true, then the driver
-ends up in an endless loop, forever, locking up the machine.
+mmc_add_host() may return error, if we ignore its return value,
+it will lead two issues:
+1. The memory that allocated in mmc_alloc_host() is leaked.
+2. In the remove() path, mmc_remove_host() will be called to
+   delete device, but it's not added yet, it will lead a kernel
+   crash because of null-ptr-deref in device_del().
 
-Fixes: aad03a66f902 ("clk: renesas: r9a06g032: Add clock domain support")
-Reviewed-by: Ralph Siemsen <ralph.siemsen@linaro.org>
-Signed-off-by: Marek Vasut <marex@denx.de>
-Reviewed-by: Gareth Williams <gareth.williams.jx@renesas.com>
-Link: https://lore.kernel.org/r/20221028113834.7496-1-marex@denx.de
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+So fix this by checking the return value and goto error path which
+will call mmc_free_host(), besides, other resources also need be
+released.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221109133237.3273558-1-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/renesas/r9a06g032-clocks.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/mmc/host/wbsd.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/renesas/r9a06g032-clocks.c b/drivers/clk/renesas/r9a06g032-clocks.c
-index abc0891fd96d..3e43ae8480dd 100644
---- a/drivers/clk/renesas/r9a06g032-clocks.c
-+++ b/drivers/clk/renesas/r9a06g032-clocks.c
-@@ -386,7 +386,7 @@ static int r9a06g032_attach_dev(struct generic_pm_domain *pd,
- 	int error;
- 	int index;
+diff --git a/drivers/mmc/host/wbsd.c b/drivers/mmc/host/wbsd.c
+index 67ecd342fe5f..7c7ec8d10232 100644
+--- a/drivers/mmc/host/wbsd.c
++++ b/drivers/mmc/host/wbsd.c
+@@ -1698,7 +1698,17 @@ static int wbsd_init(struct device *dev, int base, int irq, int dma,
+ 	 */
+ 	wbsd_init_device(host);
  
--	while (!of_parse_phandle_with_args(np, "clocks", "#clock-cells", i,
-+	while (!of_parse_phandle_with_args(np, "clocks", "#clock-cells", i++,
- 					   &clkspec)) {
- 		if (clkspec.np != pd->dev.of_node)
- 			continue;
-@@ -399,7 +399,6 @@ static int r9a06g032_attach_dev(struct generic_pm_domain *pd,
- 			if (error)
- 				return error;
- 		}
--		i++;
- 	}
+-	mmc_add_host(mmc);
++	ret = mmc_add_host(mmc);
++	if (ret) {
++		if (!pnp)
++			wbsd_chip_poweroff(host);
++
++		wbsd_release_resources(host);
++		wbsd_free_mmc(dev);
++
++		mmc_free_host(mmc);
++		return ret;
++	}
  
- 	return 0;
+ 	pr_info("%s: W83L51xD", mmc_hostname(mmc));
+ 	if (host->chip_id != 0)
 -- 
 2.35.1
 
