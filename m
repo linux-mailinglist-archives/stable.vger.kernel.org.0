@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8835F6584A7
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:00:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A35E4657EED
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:59:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234065AbiL1RAE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:00:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51270 "EHLO
+        id S233034AbiL1P7R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:59:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235424AbiL1Q7W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:59:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 757DCDF0D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:54:53 -0800 (PST)
+        with ESMTP id S234221AbiL1P7Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:59:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C051618B1F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:59:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12A2561582
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:54:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CE60C433D2;
-        Wed, 28 Dec 2022 16:54:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 598C861563
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:59:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B4AEC433EF;
+        Wed, 28 Dec 2022 15:59:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246492;
-        bh=cC6PVn5s+FJZaiUsnv2n67Lrx/nqLoNCbE1HweE/1Ek=;
+        s=korg; t=1672243154;
+        bh=u6MaG4xWvQTER4Qs822buU63yqRgryUF+fmgpGr/K0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wq00KTWKCVz1FkkFNkt1iEmBBYBBpnGyJPEsxU1JqFo9D7Ct0gxmzDApWG0d+zLme
-         mZQoFAKWVRkhqK8fFar5KqjNr7h5IdyrqvQjxVlqe3RGXxI6fWA0UGat4ZJY1gEdMJ
-         AeaQVasVmAyGAcByExb/AxddeXQvC5XrAtYw6s3U=
+        b=RAPmLkXtSgUFkXFvoi265lEvP8DqPIEB+tT9c2RgO8feK5NjCJ7HqewjLuHBNWCx7
+         eBdDrdTt8fm6gwDEJz0A8k/XuWm+3Km7ewfIgeGkONhKb57jYvsGJVYaXBybYaNOFn
+         4dY9UE/2KimMfQtnly7m+jm1Tdt+mBxE6/t+zdRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+a3e6acd85ded5c16a709@syzkaller.appspotmail.com,
-        Hawkins Jiawei <yin31149@gmail.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Ian Kent <raven@themaw.net>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1056/1146] hugetlbfs: fix null-ptr-deref in hugetlbfs_parse_param()
-Date:   Wed, 28 Dec 2022 15:43:15 +0100
-Message-Id: <20221228144358.979803561@linuxfoundation.org>
+Subject: [PATCH 5.15 689/731] ASoC: mediatek: mt8173-rt5650-rt5514: fix refcount leak in mt8173_rt5650_rt5514_dev_probe()
+Date:   Wed, 28 Dec 2022 15:43:16 +0100
+Message-Id: <20221228144316.437471899@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,94 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hawkins Jiawei <yin31149@gmail.com>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit 26215b7ee923b9251f7bb12c4e5f09dc465d35f2 ]
+[ Upstream commit 3327d721114c109ba0575f86f8fda3b525404054 ]
 
-Syzkaller reports a null-ptr-deref bug as follows:
-======================================================
-KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-RIP: 0010:hugetlbfs_parse_param+0x1dd/0x8e0 fs/hugetlbfs/inode.c:1380
-[...]
-Call Trace:
- <TASK>
- vfs_parse_fs_param fs/fs_context.c:148 [inline]
- vfs_parse_fs_param+0x1f9/0x3c0 fs/fs_context.c:129
- vfs_parse_fs_string+0xdb/0x170 fs/fs_context.c:191
- generic_parse_monolithic+0x16f/0x1f0 fs/fs_context.c:231
- do_new_mount fs/namespace.c:3036 [inline]
- path_mount+0x12de/0x1e20 fs/namespace.c:3370
- do_mount fs/namespace.c:3383 [inline]
- __do_sys_mount fs/namespace.c:3591 [inline]
- __se_sys_mount fs/namespace.c:3568 [inline]
- __x64_sys_mount+0x27f/0x300 fs/namespace.c:3568
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
- [...]
- </TASK>
-======================================================
+The node returned by of_parse_phandle() with refcount incremented,
+of_node_put() needs be called when finish using it. So add it in the
+error path in mt8173_rt5650_rt5514_dev_probe().
 
-According to commit "vfs: parse: deal with zero length string value",
-kernel will set the param->string to null pointer in vfs_parse_fs_string()
-if fs string has zero length.
-
-Yet the problem is that, hugetlbfs_parse_param() will dereference the
-param->string, without checking whether it is a null pointer.  To be more
-specific, if hugetlbfs_parse_param() parses an illegal mount parameter,
-such as "size=,", kernel will constructs struct fs_parameter with null
-pointer in vfs_parse_fs_string(), then passes this struct fs_parameter to
-hugetlbfs_parse_param(), which triggers the above null-ptr-deref bug.
-
-This patch solves it by adding sanity check on param->string
-in hugetlbfs_parse_param().
-
-Link: https://lkml.kernel.org/r/20221020231609.4810-1-yin31149@gmail.com
-Reported-by: syzbot+a3e6acd85ded5c16a709@syzkaller.appspotmail.com
-Tested-by: syzbot+a3e6acd85ded5c16a709@syzkaller.appspotmail.com
-  Link: https://lore.kernel.org/all/0000000000005ad00405eb7148c6@google.com/
-Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Hawkins Jiawei <yin31149@gmail.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Ian Kent <raven@themaw.net>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 0d1d7a664288 ("ASoC: mediatek: Refine mt8173 driver and change config option")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Link: https://lore.kernel.org/r/1670234664-24246-1-git-send-email-wangyufen@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hugetlbfs/inode.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-index df7772335dc0..8eea709e3659 100644
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -1377,7 +1377,7 @@ static int hugetlbfs_parse_param(struct fs_context *fc, struct fs_parameter *par
+diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
+index 390da5bf727e..9421b919d462 100644
+--- a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
++++ b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
+@@ -200,14 +200,16 @@ static int mt8173_rt5650_rt5514_dev_probe(struct platform_device *pdev)
+ 	if (!mt8173_rt5650_rt5514_dais[DAI_LINK_CODEC_I2S].codecs[0].of_node) {
+ 		dev_err(&pdev->dev,
+ 			"Property 'audio-codec' missing or invalid\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto out;
+ 	}
+ 	mt8173_rt5650_rt5514_dais[DAI_LINK_CODEC_I2S].codecs[1].of_node =
+ 		of_parse_phandle(pdev->dev.of_node, "mediatek,audio-codec", 1);
+ 	if (!mt8173_rt5650_rt5514_dais[DAI_LINK_CODEC_I2S].codecs[1].of_node) {
+ 		dev_err(&pdev->dev,
+ 			"Property 'audio-codec' missing or invalid\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto out;
+ 	}
+ 	mt8173_rt5650_rt5514_codec_conf[0].dlc.of_node =
+ 		mt8173_rt5650_rt5514_dais[DAI_LINK_CODEC_I2S].codecs[1].of_node;
+@@ -219,6 +221,7 @@ static int mt8173_rt5650_rt5514_dev_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
+ 			__func__, ret);
  
- 	case Opt_size:
- 		/* memparse() will accept a K/M/G without a digit */
--		if (!isdigit(param->string[0]))
-+		if (!param->string || !isdigit(param->string[0]))
- 			goto bad_val;
- 		ctx->max_size_opt = memparse(param->string, &rest);
- 		ctx->max_val_type = SIZE_STD;
-@@ -1387,7 +1387,7 @@ static int hugetlbfs_parse_param(struct fs_context *fc, struct fs_parameter *par
- 
- 	case Opt_nr_inodes:
- 		/* memparse() will accept a K/M/G without a digit */
--		if (!isdigit(param->string[0]))
-+		if (!param->string || !isdigit(param->string[0]))
- 			goto bad_val;
- 		ctx->nr_inodes = memparse(param->string, &rest);
- 		return 0;
-@@ -1403,7 +1403,7 @@ static int hugetlbfs_parse_param(struct fs_context *fc, struct fs_parameter *par
- 
- 	case Opt_min_size:
- 		/* memparse() will accept a K/M/G without a digit */
--		if (!isdigit(param->string[0]))
-+		if (!param->string || !isdigit(param->string[0]))
- 			goto bad_val;
- 		ctx->min_size_opt = memparse(param->string, &rest);
- 		ctx->min_val_type = SIZE_STD;
++out:
+ 	of_node_put(platform_node);
+ 	return ret;
+ }
 -- 
 2.35.1
 
