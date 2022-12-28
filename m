@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CD60657F5F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:04:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA86E65788B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:52:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233044AbiL1QEW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:04:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47584 "EHLO
+        id S233176AbiL1OwV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:52:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234327AbiL1QEH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:04:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C649E19027
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:04:06 -0800 (PST)
+        with ESMTP id S233180AbiL1OwA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:52:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 961BB12630
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:51:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6037A60D41
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:04:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71F74C433EF;
-        Wed, 28 Dec 2022 16:04:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3044561130
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:51:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 479D9C433F0;
+        Wed, 28 Dec 2022 14:51:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243445;
-        bh=Mt7l8+L5QgrPjlxFpDR+rjN5Kt/xAd1P+D68Wtizxw0=;
+        s=korg; t=1672239090;
+        bh=tm0898h3WOXG6oC8J3n1LMoBFSGJE7ZJ/sWPjZclCxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XT7LZrfPHQhdV4PTgYN4oESKJFKzGtcQxc0jIdagSefZjTFIcqfXwLbcddaj4NlU4
-         t1I7FRWyoSWF4y+bUBPqavYj4SPvTmgjuI6iNDUL1tSYZbfonkO1SX5Vk2lEWsFLqA
-         Q5IW9k/vO+vkQC7bNsi+YKffCcyNiGtntIhHRN9k=
+        b=Df08hNQE50uj2MFganIPX6sFJzeLvmNziJ8bgZyN9xIEcMI6ZipAskAU7o3PL1paa
+         W9Zg38oMilSgmmKad1q0QTuT7UL3AwuskwvebDYIh/Hrfe4Ya0KrQ4uWY0L5CV3ivy
+         z/3EsGQyJtp94AxiDndo0vmLi6X5D5RYQkZoCXQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xingjiang Qiao <nanpuyue@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        patches@lists.linux.dev,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0493/1146] hwmon: (emc2305) fix unable to probe emc2301/2/3
+Subject: [PATCH 5.15 125/731] xen/privcmd: Fix a possible warning in privcmd_ioctl_mmap_resource()
 Date:   Wed, 28 Dec 2022 15:33:52 +0100
-Message-Id: <20221228144343.573518348@linuxfoundation.org>
+Message-Id: <20221228144300.176169954@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xingjiang Qiao <nanpuyue@gmail.com>
+From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 
-[ Upstream commit 4d50591ebf60ccf79380fff3a4c23659c61c482f ]
+[ Upstream commit 8b997b2bb2c53b76a6db6c195930e9ab8e4b0c79 ]
 
-The definitions of 'EMC2305_REG_PRODUCT_ID' and 'EMC2305_REG_DEVICE' are
-both '0xfd', they actually return the same value, but the values returned
-by emc2301/2/3/5 are different, so probe emc2301/2/3 will fail, This patch
-fixes that.
+As 'kdata.num' is user-controlled data, if user tries to allocate
+memory larger than(>=) MAX_ORDER, then kcalloc() will fail, it
+creates a stack trace and messes up dmesg with a warning.
 
-Signed-off-by: Xingjiang Qiao <nanpuyue@gmail.com>
-Link: https://lore.kernel.org/r/20221206055331.170459-1-nanpuyue@gmail.com
-Fixes: 0d8400c5a2ce1 ("hwmon: (emc2305) add support for EMC2301/2/3/5 RPM-based PWM Fan Speed Controller.")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Call trace:
+-> privcmd_ioctl
+--> privcmd_ioctl_mmap_resource
+
+Add __GFP_NOWARN in order to avoid too large allocation warning.
+This is detected by static analysis using smatch.
+
+Fixes: 3ad0876554ca ("xen/privcmd: add IOCTL_PRIVCMD_MMAP_RESOURCE")
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20221126050745.778967-1-harshit.m.mogalapalli@oracle.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/emc2305.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/xen/privcmd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/emc2305.c b/drivers/hwmon/emc2305.c
-index aa1f25add0b6..9a78ca22541e 100644
---- a/drivers/hwmon/emc2305.c
-+++ b/drivers/hwmon/emc2305.c
-@@ -16,7 +16,6 @@ static const unsigned short
- emc2305_normal_i2c[] = { 0x27, 0x2c, 0x2d, 0x2e, 0x2f, 0x4c, 0x4d, I2C_CLIENT_END };
+diff --git a/drivers/xen/privcmd.c b/drivers/xen/privcmd.c
+index e88e8f6f0a33..719c5d1dda27 100644
+--- a/drivers/xen/privcmd.c
++++ b/drivers/xen/privcmd.c
+@@ -760,7 +760,7 @@ static long privcmd_ioctl_mmap_resource(struct file *file,
+ 		goto out;
+ 	}
  
- #define EMC2305_REG_DRIVE_FAIL_STATUS	0x27
--#define EMC2305_REG_DEVICE		0xfd
- #define EMC2305_REG_VENDOR		0xfe
- #define EMC2305_FAN_MAX			0xff
- #define EMC2305_FAN_MIN			0x00
-@@ -524,7 +523,7 @@ static int emc2305_probe(struct i2c_client *client, const struct i2c_device_id *
- 	struct device *dev = &client->dev;
- 	struct emc2305_data *data;
- 	struct emc2305_platform_data *pdata;
--	int vendor, device;
-+	int vendor;
- 	int ret;
- 	int i;
- 
-@@ -535,10 +534,6 @@ static int emc2305_probe(struct i2c_client *client, const struct i2c_device_id *
- 	if (vendor != EMC2305_VENDOR)
- 		return -ENODEV;
- 
--	device = i2c_smbus_read_byte_data(client, EMC2305_REG_DEVICE);
--	if (device != EMC2305_DEVICE)
--		return -ENODEV;
--
- 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
- 	if (!data)
- 		return -ENOMEM;
+-	pfns = kcalloc(kdata.num, sizeof(*pfns), GFP_KERNEL);
++	pfns = kcalloc(kdata.num, sizeof(*pfns), GFP_KERNEL | __GFP_NOWARN);
+ 	if (!pfns) {
+ 		rc = -ENOMEM;
+ 		goto out;
 -- 
 2.35.1
 
