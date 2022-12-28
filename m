@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B268C657F8F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:06:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADFDE657E85
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:54:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234398AbiL1QGV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:06:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53738 "EHLO
+        id S230012AbiL1Pyg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:54:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234399AbiL1QGI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:06:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2D5314D37
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:06:00 -0800 (PST)
+        with ESMTP id S234143AbiL1Pye (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:54:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB281186E8
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:54:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BAAB9B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:05:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31883C433D2;
-        Wed, 28 Dec 2022 16:05:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 96C45B81730
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:54:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0622DC433F0;
+        Wed, 28 Dec 2022 15:54:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243557;
-        bh=JYNMgYr1uiS2PGSjM4RIyuhqaeX8EwuHEPm5BgNNkrA=;
+        s=korg; t=1672242870;
+        bh=76OIiZE+s4qxSlgHGf48T1DXekFgMb1lpPVjUNBeT6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SrUwa0saUVmgjYOJx0KaI0D5fqlIOgY/VK4XO/F0rE6LKab3gTdgQKUy711ivXTDW
-         jL4QYKwzNmVSiyRLDiqOl8rmAAX1iEEb8YK5gJnM/qrg5UO3RJxSbHhmGG8BX89MnR
-         J17nfnmGsX0kd2vg7kvhASqMTRcQ1ldQAKnVgrMI=
+        b=EDmVbyOd3qz4/JqhCdhk3XJdqtXwmEK9VmVHpdUBlRExDYy9U1c0wcaOa7wEI5NqU
+         0GiyiSx7mwmhej883qRu48BYRe0YJlsZLcCrKbrtwlw/LAYJqjqouBhzsQq58y8tym
+         DZiSUMt7sg8B9DZaNRSrIqPBl1D2MC2JfQs6nOI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        patches@lists.linux.dev, Guenter Roeck <linux@roeck-us.net>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0512/1146] memstick/ms_block: Add check for alloc_ordered_workqueue
-Date:   Wed, 28 Dec 2022 15:34:11 +0100
-Message-Id: <20221228144344.081946584@linuxfoundation.org>
+Subject: [PATCH 6.0 0464/1073] hwmon: (jc42) Restore the min/max/critical temperatures on resume
+Date:   Wed, 28 Dec 2022 15:34:12 +0100
+Message-Id: <20221228144340.638680672@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit 4f431a047a5c8698ed4b67e2760cfbeb5fffb69d ]
+[ Upstream commit 084ed144c448fd5bc8ed5a58247153fbbfd115c3 ]
 
-As the alloc_ordered_workqueue may return NULL pointer, it should be better
-to add check for the return value. Moreover, the msb->io_queue should be
-freed if error occurs later.
+The JC42 compatible thermal sensor on Kingston KSM32ES8/16ME DIMMs
+(using Micron E-Die) is an ST Microelectronics STTS2004 (manufacturer
+0x104a, device 0x2201). It does not keep the previously programmed
+minimum, maximum and critical temperatures after system suspend and
+resume (which is a shutdown / startup cycle for the JC42 temperature
+sensor). This results in an alarm on system resume because the hardware
+default for these values is 0°C (so any environment temperature greater
+than 0°C will trigger the alarm).
 
-Fixes: 0ab30494bc4f ("memstick: add support for legacy memorysticks")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20221126012558.34374-1-jiasheng@iscas.ac.cn
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Example before system suspend:
+  jc42-i2c-0-1a
+  Adapter: SMBus PIIX4 adapter port 0 at 0b00
+  temp1:        +34.8°C  (low  =  +0.0°C)
+                         (high = +85.0°C, hyst = +85.0°C)
+                         (crit = +95.0°C, hyst = +95.0°C)
+
+Example after system resume (without this change):
+  jc42-i2c-0-1a
+  Adapter: SMBus PIIX4 adapter port 0 at 0b00
+  temp1:        +34.8°C  (low  =  +0.0°C)             ALARM (HIGH, CRIT)
+                         (high =  +0.0°C, hyst =  +0.0°C)
+                         (crit =  +0.0°C, hyst =  +0.0°C)
+
+Apply the cached values from the JC42_REG_TEMP_UPPER,
+JC42_REG_TEMP_LOWER, JC42_REG_TEMP_CRITICAL and JC42_REG_SMBUS (where
+the SMBUS register is not related to this issue but a side-effect of
+using regcache_sync() during system resume with the previously
+cached/programmed values. This fixes the alarm due to the hardware
+defaults of 0°C because the previously applied limits (set by userspace)
+are re-applied on system resume.
+
+Fixes: 175c490c9e7f ("hwmon: (jc42) Add support for STTS2004 and AT30TSE004")
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Link: https://lore.kernel.org/r/20221023213157.11078-3-martin.blumenstingl@googlemail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memstick/core/ms_block.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/hwmon/jc42.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/memstick/core/ms_block.c b/drivers/memstick/core/ms_block.c
-index ba8414519515..04115cd92433 100644
---- a/drivers/memstick/core/ms_block.c
-+++ b/drivers/memstick/core/ms_block.c
-@@ -2116,6 +2116,11 @@ static int msb_init_disk(struct memstick_dev *card)
- 	dbg("Set total disk size to %lu sectors", capacity);
+diff --git a/drivers/hwmon/jc42.c b/drivers/hwmon/jc42.c
+index 96bffd5b5866..5004b17c5682 100644
+--- a/drivers/hwmon/jc42.c
++++ b/drivers/hwmon/jc42.c
+@@ -579,6 +579,10 @@ static int jc42_suspend(struct device *dev)
  
- 	msb->io_queue = alloc_ordered_workqueue("ms_block", WQ_MEM_RECLAIM);
-+	if (!msb->io_queue) {
-+		rc = -ENOMEM;
-+		goto out_cleanup_disk;
-+	}
+ 	data->config |= JC42_CFG_SHUTDOWN;
+ 	regmap_write(data->regmap, JC42_REG_CONFIG, data->config);
 +
- 	INIT_WORK(&msb->io_work, msb_io_work);
- 	sg_init_table(msb->prealloc_sg, MS_BLOCK_MAX_SEGS+1);
- 
-@@ -2125,10 +2130,12 @@ static int msb_init_disk(struct memstick_dev *card)
- 	msb_start(card);
- 	rc = device_add_disk(&card->dev, msb->disk, NULL);
- 	if (rc)
--		goto out_cleanup_disk;
-+		goto out_destroy_workqueue;
- 	dbg("Disk added");
++	regcache_cache_only(data->regmap, true);
++	regcache_mark_dirty(data->regmap);
++
  	return 0;
+ }
  
-+out_destroy_workqueue:
-+	destroy_workqueue(msb->io_queue);
- out_cleanup_disk:
- 	put_disk(msb->disk);
- out_free_tag_set:
+@@ -586,9 +590,13 @@ static int jc42_resume(struct device *dev)
+ {
+ 	struct jc42_data *data = dev_get_drvdata(dev);
+ 
++	regcache_cache_only(data->regmap, false);
++
+ 	data->config &= ~JC42_CFG_SHUTDOWN;
+ 	regmap_write(data->regmap, JC42_REG_CONFIG, data->config);
+-	return 0;
++
++	/* Restore cached register values to hardware */
++	return regcache_sync(data->regmap);
+ }
+ 
+ static const struct dev_pm_ops jc42_dev_pm_ops = {
 -- 
 2.35.1
 
