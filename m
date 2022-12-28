@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA1D6658410
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:54:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FA92657F03
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:00:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235232AbiL1QyB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:54:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45350 "EHLO
+        id S234238AbiL1QAR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:00:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235251AbiL1QxJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:53:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 901CC193FE
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:48:29 -0800 (PST)
+        with ESMTP id S234243AbiL1QAO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:00:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C64F518E3C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:00:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 46249B8172A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:48:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B86FC433D2;
-        Wed, 28 Dec 2022 16:48:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 56E30B81733
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:00:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 912E7C433D2;
+        Wed, 28 Dec 2022 16:00:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246106;
-        bh=KNuMHHjvWcTpwbCNWnMLoHadgrrCZZnrlhqt5jUTw98=;
+        s=korg; t=1672243210;
+        bh=EDWLhLGDqbf4Fn+A15HGN/2N4DpwJL7OaUt77iuzllI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bnMs1HFoDwLBDWrCDmPaHvyuegyrppxJNZvA3TYN58oo9Gtpr3NBWkTxtVNP5HZ2G
-         3KPY6hFM6xpqQMTvbLemCr+8LnvUW5SDX/fpIpKUeUlM6EAf0HAiZzvSMqA+efjL+n
-         A9xTfIEwexrSbVXRcK5okpXyXEIJUdJT3SJIiVig=
+        b=FQX+Zx0FGrmXKpCenZgfwaeTDv37CQ4P6K1Y1A1DnD5E4ueKhgDLrynzqOci+Tw8Y
+         zJB9RgJJ39U3BNysfaY24aUqDpPGL6HYudGoh6RwjZeNVXe8XMHIAn5tArjDU2d+0J
+         LM4jyfSV/m2NAv4vK1aKKBF/wFxwGn5MVOAUemzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Daniel=20D=C3=ADaz?= <daniel.diaz@linaro.org>,
-        Kristina Martsenko <kristina.martsenko@arm.com>,
-        Kees Cook <keescook@chromium.org>,
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 1013/1073] lkdtm: cfi: Make PAC test work with GCC 7 and 8
-Date:   Wed, 28 Dec 2022 15:43:21 +0100
-Message-Id: <20221228144355.685667171@linuxfoundation.org>
+Subject: [PATCH 5.15 695/731] ASoC: rt5670: Remove unbalanced pm_runtime_put()
+Date:   Wed, 28 Dec 2022 15:43:22 +0100
+Message-Id: <20221228144316.607426693@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kristina Martsenko <kristina.martsenko@arm.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit f68022ae0aeb0803450e05abc0e984027c33ef1b ]
+[ Upstream commit 6c900dcc3f7331a67ed29739d74524e428d137fb ]
 
-The CFI test uses the branch-protection=none compiler attribute to
-disable PAC return address protection on a function. While newer GCC
-versions support this attribute, older versions (GCC 7 and 8) instead
-supported the sign-return-address=none attribute, leading to a build
-failure when the test is built with older compilers. Fix it by checking
-which attribute is supported and using the correct one.
+For some reason rt5670_i2c_probe() does a pm_runtime_put() at the end
+of a successful probe. But it has never done a pm_runtime_get() leading
+to the following error being logged into dmesg:
 
-Fixes: 2e53b877dc12 ("lkdtm: Add CFI_BACKWARD to test ROP mitigations")
-Reported-by: Daniel Díaz <daniel.diaz@linaro.org>
-Signed-off-by: Kristina Martsenko <kristina.martsenko@arm.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/all/CAEUSe78kDPxQmQqCWW-_9LCgJDFhAeMoVBFnX9QLx18Z4uT4VQ@mail.gmail.com/
+ rt5670 i2c-10EC5640:00: Runtime PM usage count underflow!
+
+Fix this by removing the unnecessary pm_runtime_put().
+
+Fixes: 64e89e5f5548 ("ASoC: rt5670: Add runtime PM support")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20221213123319.11285-1-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/lkdtm/cfi.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ sound/soc/codecs/rt5670.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/misc/lkdtm/cfi.c b/drivers/misc/lkdtm/cfi.c
-index 71483cb1e422..f4fd30f7a9a0 100644
---- a/drivers/misc/lkdtm/cfi.c
-+++ b/drivers/misc/lkdtm/cfi.c
-@@ -51,7 +51,11 @@ static void lkdtm_CFI_FORWARD_PROTO(void)
- # ifdef CONFIG_ARM64_BTI_KERNEL
- #  define __no_pac             "branch-protection=bti"
- # else
--#  define __no_pac             "branch-protection=none"
-+#  ifdef CONFIG_CC_HAS_BRANCH_PROT_PAC_RET
-+#   define __no_pac            "branch-protection=none"
-+#  else
-+#   define __no_pac            "sign-return-address=none"
-+#  endif
- # endif
- # define __no_ret_protection   __noscs __attribute__((__target__(__no_pac)))
- #else
+diff --git a/sound/soc/codecs/rt5670.c b/sound/soc/codecs/rt5670.c
+index ecbaf129a6e3..51b385575a5c 100644
+--- a/sound/soc/codecs/rt5670.c
++++ b/sound/soc/codecs/rt5670.c
+@@ -3313,8 +3313,6 @@ static int rt5670_i2c_probe(struct i2c_client *i2c,
+ 	if (ret < 0)
+ 		goto err;
+ 
+-	pm_runtime_put(&i2c->dev);
+-
+ 	return 0;
+ err:
+ 	pm_runtime_disable(&i2c->dev);
 -- 
 2.35.1
 
