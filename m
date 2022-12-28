@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D3DD657C02
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:28:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 430CE657D1A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:39:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232602AbiL1P17 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:27:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46060 "EHLO
+        id S233931AbiL1Pj1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:39:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233761AbiL1P1u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:27:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68F4F140EF
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:27:50 -0800 (PST)
+        with ESMTP id S233933AbiL1PjZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:39:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D1E3167C7
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:39:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 067116155C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:27:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 155B7C433EF;
-        Wed, 28 Dec 2022 15:27:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE06B6155C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:39:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFC5BC433D2;
+        Wed, 28 Dec 2022 15:39:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241269;
-        bh=PcBZnUMQZJfs9UCJITpCQuHInH6dyhAUB/PR4MiLLbs=;
+        s=korg; t=1672241964;
+        bh=x8dmkCqTND2Sk1j97ww3Lgpjzn3k7kpZ5uGEQVuEeZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dqSUXxQXHpwxXgoqAQYb3PH6NxGLqitnzJSkGbKWR7YfY3p++ifBSuU8J2GvIBO3u
-         55B4ilT2aPAtZFjqeC32xX0HTmO4nhBo+qMOQ/3QGNF6ORqRVi3HlflR1O0Fikb52H
-         lCNfSd5A3UCzoyy++PdFCR7EIe5LsGH6Oqbrd3M0=
+        b=fk6NNsIWxmI9z64A952N0xU1kcTpn3lHP4Y0dBfiRiyG//+DxeFmpROaHQwsceB1N
+         kEsg3sHRIDBgy/ZE9jl+52Z3DKH5HXVHn10dXS00jQf9uzQkDtKK4eg0PU2148YLqk
+         JJ8ao2T1b30KddpuOUa6MvsepwDmFhCRSRm7Iieo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ralph Siemsen <ralph.siemsen@linaro.org>,
-        Marek Vasut <marex@denx.de>,
-        Gareth Williams <gareth.williams.jx@renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0260/1073] clk: renesas: r9a06g032: Repair grave increment error
-Date:   Wed, 28 Dec 2022 15:30:48 +0100
-Message-Id: <20221228144335.079649253@linuxfoundation.org>
+        patches@lists.linux.dev,
+        coverity-bot <keescook+coverity-bot@chromium.org>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0310/1146] wifi: rtw89: use u32_encode_bits() to fill MAC quota value
+Date:   Wed, 28 Dec 2022 15:30:49 +0100
+Message-Id: <20221228144338.575236777@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Ping-Ke Shih <pkshih@realtek.com>
 
-[ Upstream commit 02693e11611e082e3c4d8653e8af028e43d31164 ]
+[ Upstream commit 525c06c81d75690a9b795cc62a758838c1a6b6fe ]
 
-If condition (clkspec.np != pd->dev.of_node) is true, then the driver
-ends up in an endless loop, forever, locking up the machine.
+Coverity reported shift 16 bits could cause sign extension and might get
+an unexpected value. Since the input values are predefined and no this
+kind of case, original code is safe so far. But, still changing them to
+use u32_encode_bits() will be more clear and prevent mistakes in the
+future.
 
-Fixes: aad03a66f902 ("clk: renesas: r9a06g032: Add clock domain support")
-Reviewed-by: Ralph Siemsen <ralph.siemsen@linaro.org>
-Signed-off-by: Marek Vasut <marex@denx.de>
-Reviewed-by: Gareth Williams <gareth.williams.jx@renesas.com>
-Link: https://lore.kernel.org/r/20221028113834.7496-1-marex@denx.de
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+The original message of Coverity is:
+  Suspicious implicit sign extension: "max_cfg->cma0_dma" with type "u16"
+  (16 bits, unsigned) is promoted in "max_cfg->cma0_dma << 16" to type
+  "int" (32 bits, signed), then sign-extended to type "unsigned long"
+  (64 bits, unsigned).  If "max_cfg->cma0_dma << 16" is greater than
+  0x7FFFFFFF, the upper bits of the result will all be 1."
+
+Reported-by: coverity-bot <keescook+coverity-bot@chromium.org>
+Addresses-Coverity-ID: 1527095 ("Integer handling issues")
+Fixes: e3ec7017f6a2 ("rtw89: add Realtek 802.11ax driver")
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221108013858.10806-1-pkshih@realtek.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/renesas/r9a06g032-clocks.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/wireless/realtek/rtw89/mac.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/renesas/r9a06g032-clocks.c b/drivers/clk/renesas/r9a06g032-clocks.c
-index 1488c9d6e639..983faa5707b9 100644
---- a/drivers/clk/renesas/r9a06g032-clocks.c
-+++ b/drivers/clk/renesas/r9a06g032-clocks.c
-@@ -412,7 +412,7 @@ static int r9a06g032_attach_dev(struct generic_pm_domain *pd,
- 	int error;
- 	int index;
- 
--	while (!of_parse_phandle_with_args(np, "clocks", "#clock-cells", i,
-+	while (!of_parse_phandle_with_args(np, "clocks", "#clock-cells", i++,
- 					   &clkspec)) {
- 		if (clkspec.np != pd->dev.of_node)
- 			continue;
-@@ -425,7 +425,6 @@ static int r9a06g032_attach_dev(struct generic_pm_domain *pd,
- 			if (error)
- 				return error;
- 		}
--		i++;
- 	}
- 
- 	return 0;
+diff --git a/drivers/net/wireless/realtek/rtw89/mac.c b/drivers/net/wireless/realtek/rtw89/mac.c
+index 0508dfca8edf..077fddc5fa1e 100644
+--- a/drivers/net/wireless/realtek/rtw89/mac.c
++++ b/drivers/net/wireless/realtek/rtw89/mac.c
+@@ -1429,10 +1429,8 @@ static int dle_mix_cfg(struct rtw89_dev *rtwdev, const struct rtw89_dle_mem *cfg
+ #define INVALID_QT_WCPU U16_MAX
+ #define SET_QUOTA_VAL(_min_x, _max_x, _module, _idx)			\
+ 	do {								\
+-		val = ((_min_x) &					\
+-		       B_AX_ ## _module ## _MIN_SIZE_MASK) |		\
+-		      (((_max_x) << 16) &				\
+-		       B_AX_ ## _module ## _MAX_SIZE_MASK);		\
++		val = u32_encode_bits(_min_x, B_AX_ ## _module ## _MIN_SIZE_MASK) | \
++		      u32_encode_bits(_max_x, B_AX_ ## _module ## _MAX_SIZE_MASK);  \
+ 		rtw89_write32(rtwdev,					\
+ 			      R_AX_ ## _module ## _QTA ## _idx ## _CFG,	\
+ 			      val);					\
 -- 
 2.35.1
 
