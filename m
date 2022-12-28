@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCB4865810E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92DCD657A11
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:07:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234618AbiL1QYj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:24:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40750 "EHLO
+        id S233591AbiL1PHc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:07:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234753AbiL1QX6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:23:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E110F02D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:20:50 -0800 (PST)
+        with ESMTP id S233593AbiL1PHa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:07:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADAFE13D7A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:07:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CC8E61562
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:20:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B25D4C433F0;
-        Wed, 28 Dec 2022 16:20:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 623FDB816F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:07:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8EA9C433D2;
+        Wed, 28 Dec 2022 15:07:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244449;
-        bh=junQJwSMgpqD8tpjznV0obRbOcn+cN4q8yR2PkXcEfg=;
+        s=korg; t=1672240047;
+        bh=W9wUOoN8RjUY0goWAA4qXdYTiG1MYt93A2fnmLO/5aI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SXQOlJVqSZGSpYo4NxP8RXm+1vdpqFWktuvx4r8wdKQa1y3Ea/xG0w07X3FGCwmDL
-         yNngM9gZoTTfALZvDUz/+tuvxYwdfUglHKjn3BlvRUZ6lrsQXfXhGUPqbQ8QC+9XMO
-         YJANpZNGEeg35AS4PMzZH6TuksV2Gzaj0T7o6YWA=
+        b=2k7DCgHwsIIRGUpSW2k3RcizaEHILXxc7A9P5VEm8GPsK3j/qSfF+3NOI5Oj1nZt/
+         8BEDOjlkdcH6MIcMtL00RpaREuHAVseSsi8TII+lypGIxYbQFJzp9zVbbTvq8tqB36
+         sF/QncMCg1cyWsDPCl7XtYMQHbPAy67cZOUXACys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yixing Liu <liuyixing1@huawei.com>,
-        Haoyue Xu <xuhaoyue1@hisilicon.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0671/1146] RDMA/hns: Fix the gid problem caused by free mr
+Subject: [PATCH 5.15 303/731] mmc: via-sdmmc: fix return value check of mmc_add_host()
 Date:   Wed, 28 Dec 2022 15:36:50 +0100
-Message-Id: <20221228144348.374675148@linuxfoundation.org>
+Message-Id: <20221228144305.359541028@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,343 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yixing Liu <liuyixing1@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 487d65090a3dce1ae54946aded55d0f8ac87cbab ]
+[ Upstream commit e4e46fb61e3bb4628170810d3f2b996b709b90d9 ]
 
-After the hns roce driver is loaded, if you modify the mac address of the
-network port, the following error will appear:
+mmc_add_host() may return error, if we ignore its return value,
+it will lead two issues:
+1. The memory that allocated in mmc_alloc_host() is leaked.
+2. In the remove() path, mmc_remove_host() will be called to
+   delete device, but it's not added yet, it will lead a kernel
+   crash because of null-ptr-deref in device_del().
 
-   __ib_cache_gid_add: unable to add gid fe80:0000:0000:0000:4600:4dff:fe22:abb5 error=-28
-    hns3 0000:7d:00.0 hns_0: attr path_mtu(1) invalid while modify qp
+Fix this by checking the return value and goto error path which
+will call mmc_free_host().
 
-The reason for the error is that the gid being occupied will cause the
-failure to modify the gid. The gid is occupied by the loopback QP used by
-free mr. When the mac address is modified, the gid will change. If there
-is a busy QP at this time, the gid will not be released and the
-modification will fail. The QP of free mr is created using the ib
-interface. The ib interface will add a reference count to the gid,
-resulting in this error scenario.
-
-Considering that free mr is solving a bug in HIP08, not an actual
-business, it is not necessary to use ib interfaces.
-
-Fixes: 70f92521584f ("RDMA/hns: Use the reserved loopback QPs to free MR before destroying MPT")
-Link: https://lore.kernel.org/r/20221126102911.2921820-2-xuhaoyue1@hisilicon.com
-Signed-off-by: Yixing Liu <liuyixing1@huawei.com>
-Signed-off-by: Haoyue Xu <xuhaoyue1@hisilicon.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: f0bf7f61b840 ("mmc: Add new via-sdmmc host controller driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221108130949.1067699-1-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 175 ++++++++++++++++-----
- drivers/infiniband/hw/hns/hns_roce_hw_v2.h |   8 +-
- 2 files changed, 137 insertions(+), 46 deletions(-)
+ drivers/mmc/host/via-sdmmc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index 65875b4cff13..621e6e927d61 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -2630,31 +2630,124 @@ static void free_dip_list(struct hns_roce_dev *hr_dev)
- 	spin_unlock_irqrestore(&hr_dev->dip_list_lock, flags);
- }
+diff --git a/drivers/mmc/host/via-sdmmc.c b/drivers/mmc/host/via-sdmmc.c
+index 88662a90ed96..a2b0d9461665 100644
+--- a/drivers/mmc/host/via-sdmmc.c
++++ b/drivers/mmc/host/via-sdmmc.c
+@@ -1151,7 +1151,9 @@ static int via_sd_probe(struct pci_dev *pcidev,
+ 	    pcidev->subsystem_device == 0x3891)
+ 		sdhost->quirks = VIA_CRDR_QUIRK_300MS_PWRDELAY;
  
--static void free_mr_exit(struct hns_roce_dev *hr_dev)
-+static struct ib_pd *free_mr_init_pd(struct hns_roce_dev *hr_dev)
-+{
-+	struct hns_roce_v2_priv *priv = hr_dev->priv;
-+	struct hns_roce_v2_free_mr *free_mr = &priv->free_mr;
-+	struct ib_device *ibdev = &hr_dev->ib_dev;
-+	struct hns_roce_pd *hr_pd;
-+	struct ib_pd *pd;
-+
-+	hr_pd = kzalloc(sizeof(*hr_pd), GFP_KERNEL);
-+	if (ZERO_OR_NULL_PTR(hr_pd))
-+		return NULL;
-+	pd = &hr_pd->ibpd;
-+	pd->device = ibdev;
-+
-+	if (hns_roce_alloc_pd(pd, NULL)) {
-+		ibdev_err(ibdev, "failed to create pd for free mr.\n");
-+		kfree(hr_pd);
-+		return NULL;
-+	}
-+	free_mr->rsv_pd = to_hr_pd(pd);
-+	free_mr->rsv_pd->ibpd.device = &hr_dev->ib_dev;
-+	free_mr->rsv_pd->ibpd.uobject = NULL;
-+	free_mr->rsv_pd->ibpd.__internal_mr = NULL;
-+	atomic_set(&free_mr->rsv_pd->ibpd.usecnt, 0);
-+
-+	return pd;
-+}
-+
-+static struct ib_cq *free_mr_init_cq(struct hns_roce_dev *hr_dev)
-+{
-+	struct hns_roce_v2_priv *priv = hr_dev->priv;
-+	struct hns_roce_v2_free_mr *free_mr = &priv->free_mr;
-+	struct ib_device *ibdev = &hr_dev->ib_dev;
-+	struct ib_cq_init_attr cq_init_attr = {};
-+	struct hns_roce_cq *hr_cq;
-+	struct ib_cq *cq;
-+
-+	cq_init_attr.cqe = HNS_ROCE_FREE_MR_USED_CQE_NUM;
-+
-+	hr_cq = kzalloc(sizeof(*hr_cq), GFP_KERNEL);
-+	if (ZERO_OR_NULL_PTR(hr_cq))
-+		return NULL;
-+
-+	cq = &hr_cq->ib_cq;
-+	cq->device = ibdev;
-+
-+	if (hns_roce_create_cq(cq, &cq_init_attr, NULL)) {
-+		ibdev_err(ibdev, "failed to create cq for free mr.\n");
-+		kfree(hr_cq);
-+		return NULL;
-+	}
-+	free_mr->rsv_cq = to_hr_cq(cq);
-+	free_mr->rsv_cq->ib_cq.device = &hr_dev->ib_dev;
-+	free_mr->rsv_cq->ib_cq.uobject = NULL;
-+	free_mr->rsv_cq->ib_cq.comp_handler = NULL;
-+	free_mr->rsv_cq->ib_cq.event_handler = NULL;
-+	free_mr->rsv_cq->ib_cq.cq_context = NULL;
-+	atomic_set(&free_mr->rsv_cq->ib_cq.usecnt, 0);
-+
-+	return cq;
-+}
-+
-+static int free_mr_init_qp(struct hns_roce_dev *hr_dev, struct ib_cq *cq,
-+			   struct ib_qp_init_attr *init_attr, int i)
- {
- 	struct hns_roce_v2_priv *priv = hr_dev->priv;
- 	struct hns_roce_v2_free_mr *free_mr = &priv->free_mr;
-+	struct ib_device *ibdev = &hr_dev->ib_dev;
-+	struct hns_roce_qp *hr_qp;
-+	struct ib_qp *qp;
- 	int ret;
-+
-+	hr_qp = kzalloc(sizeof(*hr_qp), GFP_KERNEL);
-+	if (ZERO_OR_NULL_PTR(hr_qp))
-+		return -ENOMEM;
-+
-+	qp = &hr_qp->ibqp;
-+	qp->device = ibdev;
-+
-+	ret = hns_roce_create_qp(qp, init_attr, NULL);
-+	if (ret) {
-+		ibdev_err(ibdev, "failed to create qp for free mr.\n");
-+		kfree(hr_qp);
-+		return ret;
-+	}
-+
-+	free_mr->rsv_qp[i] = hr_qp;
-+	free_mr->rsv_qp[i]->ibqp.recv_cq = cq;
-+	free_mr->rsv_qp[i]->ibqp.send_cq = cq;
-+
-+	return 0;
-+}
-+
-+static void free_mr_exit(struct hns_roce_dev *hr_dev)
-+{
-+	struct hns_roce_v2_priv *priv = hr_dev->priv;
-+	struct hns_roce_v2_free_mr *free_mr = &priv->free_mr;
-+	struct ib_qp *qp;
- 	int i;
- 
- 	for (i = 0; i < ARRAY_SIZE(free_mr->rsv_qp); i++) {
- 		if (free_mr->rsv_qp[i]) {
--			ret = ib_destroy_qp(free_mr->rsv_qp[i]);
--			if (ret)
--				ibdev_err(&hr_dev->ib_dev,
--					  "failed to destroy qp in free mr.\n");
--
-+			qp = &free_mr->rsv_qp[i]->ibqp;
-+			hns_roce_v2_destroy_qp(qp, NULL);
-+			kfree(free_mr->rsv_qp[i]);
- 			free_mr->rsv_qp[i] = NULL;
- 		}
- 	}
- 
- 	if (free_mr->rsv_cq) {
--		ib_destroy_cq(free_mr->rsv_cq);
-+		hns_roce_destroy_cq(&free_mr->rsv_cq->ib_cq, NULL);
-+		kfree(free_mr->rsv_cq);
- 		free_mr->rsv_cq = NULL;
- 	}
- 
- 	if (free_mr->rsv_pd) {
--		ib_dealloc_pd(free_mr->rsv_pd);
-+		hns_roce_dealloc_pd(&free_mr->rsv_pd->ibpd, NULL);
-+		kfree(free_mr->rsv_pd);
- 		free_mr->rsv_pd = NULL;
- 	}
- }
-@@ -2663,55 +2756,46 @@ static int free_mr_alloc_res(struct hns_roce_dev *hr_dev)
- {
- 	struct hns_roce_v2_priv *priv = hr_dev->priv;
- 	struct hns_roce_v2_free_mr *free_mr = &priv->free_mr;
--	struct ib_device *ibdev = &hr_dev->ib_dev;
--	struct ib_cq_init_attr cq_init_attr = {};
- 	struct ib_qp_init_attr qp_init_attr = {};
- 	struct ib_pd *pd;
- 	struct ib_cq *cq;
--	struct ib_qp *qp;
- 	int ret;
- 	int i;
- 
--	pd = ib_alloc_pd(ibdev, 0);
--	if (IS_ERR(pd)) {
--		ibdev_err(ibdev, "failed to create pd for free mr.\n");
--		return PTR_ERR(pd);
--	}
--	free_mr->rsv_pd = pd;
-+	pd = free_mr_init_pd(hr_dev);
-+	if (!pd)
-+		return -ENOMEM;
- 
--	cq_init_attr.cqe = HNS_ROCE_FREE_MR_USED_CQE_NUM;
--	cq = ib_create_cq(ibdev, NULL, NULL, NULL, &cq_init_attr);
--	if (IS_ERR(cq)) {
--		ibdev_err(ibdev, "failed to create cq for free mr.\n");
--		ret = PTR_ERR(cq);
--		goto create_failed;
-+	cq = free_mr_init_cq(hr_dev);
-+	if (!cq) {
-+		ret = -ENOMEM;
-+		goto create_failed_cq;
- 	}
--	free_mr->rsv_cq = cq;
- 
- 	qp_init_attr.qp_type = IB_QPT_RC;
- 	qp_init_attr.sq_sig_type = IB_SIGNAL_ALL_WR;
--	qp_init_attr.send_cq = free_mr->rsv_cq;
--	qp_init_attr.recv_cq = free_mr->rsv_cq;
-+	qp_init_attr.send_cq = cq;
-+	qp_init_attr.recv_cq = cq;
- 	for (i = 0; i < ARRAY_SIZE(free_mr->rsv_qp); i++) {
- 		qp_init_attr.cap.max_send_wr = HNS_ROCE_FREE_MR_USED_SQWQE_NUM;
- 		qp_init_attr.cap.max_send_sge = HNS_ROCE_FREE_MR_USED_SQSGE_NUM;
- 		qp_init_attr.cap.max_recv_wr = HNS_ROCE_FREE_MR_USED_RQWQE_NUM;
- 		qp_init_attr.cap.max_recv_sge = HNS_ROCE_FREE_MR_USED_RQSGE_NUM;
- 
--		qp = ib_create_qp(free_mr->rsv_pd, &qp_init_attr);
--		if (IS_ERR(qp)) {
--			ibdev_err(ibdev, "failed to create qp for free mr.\n");
--			ret = PTR_ERR(qp);
--			goto create_failed;
--		}
--
--		free_mr->rsv_qp[i] = qp;
-+		ret = free_mr_init_qp(hr_dev, cq, &qp_init_attr, i);
-+		if (ret)
-+			goto create_failed_qp;
- 	}
+-	mmc_add_host(mmc);
++	ret = mmc_add_host(mmc);
++	if (ret)
++		goto unmap;
  
  	return 0;
  
--create_failed:
--	free_mr_exit(hr_dev);
-+create_failed_qp:
-+	hns_roce_destroy_cq(cq, NULL);
-+	kfree(cq);
-+
-+create_failed_cq:
-+	hns_roce_dealloc_pd(pd, NULL);
-+	kfree(pd);
- 
- 	return ret;
- }
-@@ -2727,14 +2811,17 @@ static int free_mr_modify_rsv_qp(struct hns_roce_dev *hr_dev,
- 	int mask;
- 	int ret;
- 
--	hr_qp = to_hr_qp(free_mr->rsv_qp[sl_num]);
-+	hr_qp = to_hr_qp(&free_mr->rsv_qp[sl_num]->ibqp);
- 	hr_qp->free_mr_en = 1;
-+	hr_qp->ibqp.device = ibdev;
-+	hr_qp->ibqp.qp_type = IB_QPT_RC;
- 
- 	mask = IB_QP_STATE | IB_QP_PKEY_INDEX | IB_QP_PORT | IB_QP_ACCESS_FLAGS;
- 	attr->qp_state = IB_QPS_INIT;
- 	attr->port_num = 1;
- 	attr->qp_access_flags = IB_ACCESS_REMOTE_WRITE;
--	ret = ib_modify_qp(&hr_qp->ibqp, attr, mask);
-+	ret = hr_dev->hw->modify_qp(&hr_qp->ibqp, attr, mask, IB_QPS_INIT,
-+				    IB_QPS_INIT);
- 	if (ret) {
- 		ibdev_err(ibdev, "failed to modify qp to init, ret = %d.\n",
- 			  ret);
-@@ -2755,7 +2842,8 @@ static int free_mr_modify_rsv_qp(struct hns_roce_dev *hr_dev,
- 
- 	rdma_ah_set_sl(&attr->ah_attr, (u8)sl_num);
- 
--	ret = ib_modify_qp(&hr_qp->ibqp, attr, mask);
-+	ret = hr_dev->hw->modify_qp(&hr_qp->ibqp, attr, mask, IB_QPS_INIT,
-+				    IB_QPS_RTR);
- 	hr_dev->loop_idc = loopback;
- 	if (ret) {
- 		ibdev_err(ibdev, "failed to modify qp to rtr, ret = %d.\n",
-@@ -2769,7 +2857,8 @@ static int free_mr_modify_rsv_qp(struct hns_roce_dev *hr_dev,
- 	attr->sq_psn = HNS_ROCE_FREE_MR_USED_PSN;
- 	attr->retry_cnt = HNS_ROCE_FREE_MR_USED_QP_RETRY_CNT;
- 	attr->timeout = HNS_ROCE_FREE_MR_USED_QP_TIMEOUT;
--	ret = ib_modify_qp(&hr_qp->ibqp, attr, mask);
-+	ret = hr_dev->hw->modify_qp(&hr_qp->ibqp, attr, mask, IB_QPS_RTR,
-+				    IB_QPS_RTS);
- 	if (ret)
- 		ibdev_err(ibdev, "failed to modify qp to rts, ret = %d.\n",
- 			  ret);
-@@ -3413,7 +3502,7 @@ static void free_mr_send_cmd_to_hw(struct hns_roce_dev *hr_dev)
- 	mutex_lock(&free_mr->mutex);
- 
- 	for (i = 0; i < ARRAY_SIZE(free_mr->rsv_qp); i++) {
--		hr_qp = to_hr_qp(free_mr->rsv_qp[i]);
-+		hr_qp = free_mr->rsv_qp[i];
- 
- 		ret = free_mr_post_send_lp_wqe(hr_qp);
- 		if (ret) {
-@@ -3428,7 +3517,7 @@ static void free_mr_send_cmd_to_hw(struct hns_roce_dev *hr_dev)
- 
- 	end = msecs_to_jiffies(HNS_ROCE_V2_FREE_MR_TIMEOUT) + jiffies;
- 	while (cqe_cnt) {
--		npolled = hns_roce_v2_poll_cq(free_mr->rsv_cq, cqe_cnt, wc);
-+		npolled = hns_roce_v2_poll_cq(&free_mr->rsv_cq->ib_cq, cqe_cnt, wc);
- 		if (npolled < 0) {
- 			ibdev_err(ibdev,
- 				  "failed to poll cqe for free mr, remain %d cqe.\n",
-@@ -5467,7 +5556,7 @@ static int hns_roce_v2_destroy_qp_common(struct hns_roce_dev *hr_dev,
- 	return ret;
- }
- 
--static int hns_roce_v2_destroy_qp(struct ib_qp *ibqp, struct ib_udata *udata)
-+int hns_roce_v2_destroy_qp(struct ib_qp *ibqp, struct ib_udata *udata)
- {
- 	struct hns_roce_dev *hr_dev = to_hr_dev(ibqp->device);
- 	struct hns_roce_qp *hr_qp = to_hr_qp(ibqp);
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.h b/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
-index c7bf2d52c1cd..6d23c8617e0f 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
-@@ -1327,9 +1327,9 @@ struct hns_roce_link_table {
- #define HNS_ROCE_EXT_LLM_MIN_PAGES(que_num) ((que_num) * 4 + 2)
- 
- struct hns_roce_v2_free_mr {
--	struct ib_qp *rsv_qp[HNS_ROCE_FREE_MR_USED_QP_NUM];
--	struct ib_cq *rsv_cq;
--	struct ib_pd *rsv_pd;
-+	struct hns_roce_qp *rsv_qp[HNS_ROCE_FREE_MR_USED_QP_NUM];
-+	struct hns_roce_cq *rsv_cq;
-+	struct hns_roce_pd *rsv_pd;
- 	struct mutex mutex;
- };
- 
-@@ -1459,6 +1459,8 @@ struct hns_roce_sccc_clr_done {
- 	__le32 rsv[5];
- };
- 
-+int hns_roce_v2_destroy_qp(struct ib_qp *ibqp, struct ib_udata *udata);
-+
- static inline void hns_roce_write64(struct hns_roce_dev *hr_dev, __le32 val[2],
- 				    void __iomem *dest)
- {
 -- 
 2.35.1
 
