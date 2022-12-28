@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CD6A6580B0
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:19:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB1FC65799E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:03:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233206AbiL1QTd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:19:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36684 "EHLO
+        id S233450AbiL1PDM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:03:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233271AbiL1QTE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:19:04 -0500
+        with ESMTP id S233466AbiL1PDA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:03:00 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CFF01A05A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:17:39 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C28F712D3C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:02:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9EAFA6156B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:17:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B57CBC433D2;
-        Wed, 28 Dec 2022 16:17:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E7B961540
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:02:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 752F2C433EF;
+        Wed, 28 Dec 2022 15:02:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244258;
-        bh=DptcddMtWuF4Jnw4rgtwhEVBSnTWB1EX1/FTGRdmbt0=;
+        s=korg; t=1672239777;
+        bh=PKck37gJHVxIdHbiJ16u4EeMeh839mOU25rw5kbdLl4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KsBAiTYjLu4tIYM1+nQGdLEX+bmWZbyl9QUA2TOukzAoC6HEBHpUhWo3OxmvBc04W
-         JRDxZTZLf0GT4ObYmDtxdq99bhqtMa8aIdZlv1rcI8ARdxP9Gu/LnwOZ42bCaYa400
-         RSbcSKiNs5B5DBTNZbdB7ZW6XPvn4ruMUJB6CpGY=
+        b=jWCijak6iENV8iqij/KMx8MhVmr1OqPYPD1kJkIkZMlMFtn13CoWBiqfLkI6zjdOE
+         +4Q80KBeApBw3bCwT+vpU9omcX8O4UoYsOOEyL5SkNf2u8XU3bL1iO80QiDPIkyzsS
+         eurlJOE9MnQXIdUpZIzSnmEkRMJD1yspe/Y/Fdh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0637/1146] crypto: x86/sha1 - fix possible crash with CFI enabled
+        patches@lists.linux.dev, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 269/731] wifi: mt76: mt7921: fix reporting of TX AGGR histogram
 Date:   Wed, 28 Dec 2022 15:36:16 +0100
-Message-Id: <20221228144347.466091460@linuxfoundation.org>
+Message-Id: <20221228144304.364312503@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,71 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 32f34bf7e44eeaa241fb845d6f52af5104bc30fd ]
+[ Upstream commit 028b4f22b37b88821fd87b56ce47b180583c774e ]
 
-sha1_transform_ssse3(), sha1_transform_avx(), and sha1_ni_transform()
-(but not sha1_transform_avx2()) are called via indirect function calls.
-Therefore they need to use SYM_TYPED_FUNC_START instead of
-SYM_FUNC_START to cause their type hashes to be emitted when the kernel
-is built with CONFIG_CFI_CLANG=y.  Otherwise, the code crashes with a
-CFI failure (if the compiler didn't happen to optimize out the indirect
-calls).
+Similar to mt7915, fix stats clash between bins [4-7] in 802.11 tx
+aggregation histogram.
 
-Fixes: ccace936eec7 ("x86: Add types to indirectly called assembly functions")
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 163f4d22c118d ("mt76: mt7921: add MAC support")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/crypto/sha1_ni_asm.S    | 3 ++-
- arch/x86/crypto/sha1_ssse3_asm.S | 3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7921/mac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/crypto/sha1_ni_asm.S b/arch/x86/crypto/sha1_ni_asm.S
-index 2f94ec0e763b..3cae5a1bb3d6 100644
---- a/arch/x86/crypto/sha1_ni_asm.S
-+++ b/arch/x86/crypto/sha1_ni_asm.S
-@@ -54,6 +54,7 @@
-  */
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
+index 426e7a32bdc8..6cf0c9b1b8b9 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
+@@ -1476,7 +1476,7 @@ mt7921_mac_update_mib_stats(struct mt7921_phy *phy)
+ 	mib->rts_retries_cnt += mt76_get_field(dev, MT_MIB_MB_BSDR1(0),
+ 					       MT_MIB_RTS_FAIL_COUNT_MASK);
  
- #include <linux/linkage.h>
-+#include <linux/cfi_types.h>
+-	for (i = 0, aggr1 = aggr0 + 4; i < 4; i++) {
++	for (i = 0, aggr1 = aggr0 + 8; i < 4; i++) {
+ 		u32 val, val2;
  
- #define DIGEST_PTR	%rdi	/* 1st arg */
- #define DATA_PTR	%rsi	/* 2nd arg */
-@@ -93,7 +94,7 @@
-  */
- .text
- .align 32
--SYM_FUNC_START(sha1_ni_transform)
-+SYM_TYPED_FUNC_START(sha1_ni_transform)
- 	push		%rbp
- 	mov		%rsp, %rbp
- 	sub		$FRAME_SIZE, %rsp
-diff --git a/arch/x86/crypto/sha1_ssse3_asm.S b/arch/x86/crypto/sha1_ssse3_asm.S
-index 263f916362e0..f54988c80eb4 100644
---- a/arch/x86/crypto/sha1_ssse3_asm.S
-+++ b/arch/x86/crypto/sha1_ssse3_asm.S
-@@ -25,6 +25,7 @@
-  */
- 
- #include <linux/linkage.h>
-+#include <linux/cfi_types.h>
- 
- #define CTX	%rdi	// arg1
- #define BUF	%rsi	// arg2
-@@ -67,7 +68,7 @@
-  * param: function's name
-  */
- .macro SHA1_VECTOR_ASM  name
--	SYM_FUNC_START(\name)
-+	SYM_TYPED_FUNC_START(\name)
- 
- 	push	%rbx
- 	push	%r12
+ 		val = mt76_rr(dev, MT_TX_AGG_CNT(0, i));
 -- 
 2.35.1
 
