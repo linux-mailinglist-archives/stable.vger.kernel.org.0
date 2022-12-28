@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B8A36583BD
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:51:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC0A46583C0
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:51:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235106AbiL1QvW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:51:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44608 "EHLO
+        id S235189AbiL1Qv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:51:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235064AbiL1QvA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:51:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25999EA3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:45:40 -0800 (PST)
+        with ESMTP id S235143AbiL1QvG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:51:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C54D2DE1
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:45:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D590AB8188B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:45:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3097DC433EF;
-        Wed, 28 Dec 2022 16:45:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C91D60D41
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:45:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58F9DC433D2;
+        Wed, 28 Dec 2022 16:45:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245937;
-        bh=SlFOvmMdVICDIUhdLCEFcFnIe5h4iszNQXPFJAN9MsI=;
+        s=korg; t=1672245945;
+        bh=4VJnFXAYzanFpPgCUTRJ7cvXI3BZz/00GMskqzeIedk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ulUF3a0OLvV1bGL0bDo1tWAoGEiBmUOeHr8CI/kVPRcw6DJrOp1E/6Zh03diiSbse
-         /FP9fgnymEsh/s+b8ZpfrvOLb/YXuncn/ILGfqozBnabZ+hUYZ5UNJR7mULZfuakhr
-         LuG7/LSyvZy78SPN/T5G8xoq5JglCXU72m6IJW1s=
+        b=H+p1oYdqG4DqyZPhJvyHz5pyMBMyHofpdfJsC0KdvqPqA919tApt7zX/sMikMv5qd
+         FCk6Y72M+c/VfLrXD4XWKrxsp3cjTzrdt5tMJhkS3ZpcdxyliWt1mT89FljIpieRsN
+         ZKFdZOB8o8hQ2kj6xohYp2bIkNG62lRaF/UiBz00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mia Kanashi <chad@redpilled.dev>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0950/1146] ACPI: EC: Add quirk for the HP Pavilion Gaming 15-cx0041ur
-Date:   Wed, 28 Dec 2022 15:41:29 +0100
-Message-Id: <20221228144356.122717490@linuxfoundation.org>
+Subject: [PATCH 6.1 0951/1146] ACPICA: Fix error code path in acpi_ds_call_control_method()
+Date:   Wed, 28 Dec 2022 15:41:30 +0100
+Message-Id: <20221228144356.149915121@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -53,44 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mia Kanashi <chad@redpilled.dev>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit b423f240a66ad928c4cb5ec6055dfc90ce8d894e ]
+[ Upstream commit 404ec60438add1afadaffaed34bb5fe4ddcadd40 ]
 
-Added GPE quirk entry for the HP Pavilion Gaming 15-cx0041ur.
-There is a quirk entry for the 15-cx0xxx laptops, but this one has
-different DMI_PRODUCT_NAME.
+A use-after-free in acpi_ps_parse_aml() after a failing invocaion of
+acpi_ds_call_control_method() is reported by KASAN [1] and code
+inspection reveals that next_walk_state pushed to the thread by
+acpi_ds_create_walk_state() is freed on errors, but it is not popped
+from the thread beforehand.  Thus acpi_ds_get_current_walk_state()
+called by acpi_ps_parse_aml() subsequently returns it as the new
+walk state which is incorrect.
 
-Notably backlight keys and other ACPI events now function correctly.
+To address this, make acpi_ds_call_control_method() call
+acpi_ds_pop_walk_state() to pop next_walk_state from the thread before
+returning an error.
 
-Signed-off-by: Mia Kanashi <chad@redpilled.dev>
+Link: https://lore.kernel.org/linux-acpi/20221019073443.248215-1-chenzhongjin@huawei.com/ # [1]
+Reported-by: Chen Zhongjin <chenzhongjin@huawei.com>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Chen Zhongjin <chenzhongjin@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/ec.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/acpi/acpica/dsmethod.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
-index 9b42628cf21b..9751b84c1b22 100644
---- a/drivers/acpi/ec.c
-+++ b/drivers/acpi/ec.c
-@@ -1875,6 +1875,16 @@ static const struct dmi_system_id ec_dmi_table[] __initconst = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion Gaming Laptop 15-cx0xxx"),
- 		},
- 	},
-+	{
-+		/*
-+		 * HP Pavilion Gaming Laptop 15-cx0041ur
-+		 */
-+		.callback = ec_honor_dsdt_gpe,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "HP 15-cx0041ur"),
-+		},
-+	},
- 	{
- 		/*
- 		 * Samsung hardware
+diff --git a/drivers/acpi/acpica/dsmethod.c b/drivers/acpi/acpica/dsmethod.c
+index ae2e768830bf..9332bc688713 100644
+--- a/drivers/acpi/acpica/dsmethod.c
++++ b/drivers/acpi/acpica/dsmethod.c
+@@ -517,7 +517,7 @@ acpi_ds_call_control_method(struct acpi_thread_state *thread,
+ 	info = ACPI_ALLOCATE_ZEROED(sizeof(struct acpi_evaluate_info));
+ 	if (!info) {
+ 		status = AE_NO_MEMORY;
+-		goto cleanup;
++		goto pop_walk_state;
+ 	}
+ 
+ 	info->parameters = &this_walk_state->operands[0];
+@@ -529,7 +529,7 @@ acpi_ds_call_control_method(struct acpi_thread_state *thread,
+ 
+ 	ACPI_FREE(info);
+ 	if (ACPI_FAILURE(status)) {
+-		goto cleanup;
++		goto pop_walk_state;
+ 	}
+ 
+ 	next_walk_state->method_nesting_depth =
+@@ -575,6 +575,12 @@ acpi_ds_call_control_method(struct acpi_thread_state *thread,
+ 
+ 	return_ACPI_STATUS(status);
+ 
++pop_walk_state:
++
++	/* On error, pop the walk state to be deleted from thread */
++
++	acpi_ds_pop_walk_state(thread);
++
+ cleanup:
+ 
+ 	/* On error, we must terminate the method properly */
 -- 
 2.35.1
 
