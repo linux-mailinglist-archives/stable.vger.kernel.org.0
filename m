@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34A7F65844A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E0C16584C7
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:02:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235141AbiL1Q4h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:56:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45372 "EHLO
+        id S233160AbiL1RC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:02:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235287AbiL1Qzp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:55:45 -0500
+        with ESMTP id S235352AbiL1RBm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:01:42 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29DCCE5D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:50:45 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B628A1A7
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:56:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB84760D41
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:50:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D239EC433D2;
-        Wed, 28 Dec 2022 16:50:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A3B4F613E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:56:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0814C433D2;
+        Wed, 28 Dec 2022 16:56:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246244;
-        bh=6EZJ5zGAGneJBvLikeG5TLolBZiruBW5u1J3bwgqhYg=;
+        s=korg; t=1672246574;
+        bh=P9OsdIVMBEreN4JcSrTvRIENSHE29Zj6l6lLqaOumn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mqsCx0g1Jz6wEXoeTDRU+w8Ndjuytom5vpjhm6tcjSJkr/Z/mfZsDOct1sAs8BmQP
-         +LiOplPZWdb/R3daSU2iRaMNautcWVL2c9W4h3rUtX7Ur54AZ3+uu9UW7VIxuEXu3Q
-         v3H8ciUks6LBOkxpRbzXSazAQg4SHOkHTdUNTx7k=
+        b=1/jU4Vmd68JR9jr7AkqZXLwUDQK11788DcFbxxY3Sa0gvka2GXinj9Q7ahQOGoqJM
+         eGyatCMj6DQ75E+XtmTewXIFRjDjrsxo5mmTSqCo7jsJk7uNOcJ+xufrtuSBvdEVwC
+         omSWacBmtTTX7unNrr+WPspuvuz4l4KJhmHnbrto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Li Jun <jun.li@nxp.com>, Abel Vesa <abel.vesa@linaro.org>
-Subject: [PATCH 6.0 1037/1073] clk: imx: imx8mp: add shared clk gate for usb suspend clk
+        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 1086/1146] MIPS: ralink: mt7621: avoid to init common ralink reset controller
 Date:   Wed, 28 Dec 2022 15:43:45 +0100
-Message-Id: <20221228144356.360765925@linuxfoundation.org>
+Message-Id: <20221228144359.695076687@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jun <jun.li@nxp.com>
+From: Sergio Paracuellos <sergio.paracuellos@gmail.com>
 
-commit ed1f4ccfe947a3e1018a3bd7325134574c7ff9b3 upstream.
+[ Upstream commit 76ce51798cb16738a4a28a6662e7344aaf7ef769 ]
 
-32K usb suspend clock gate is shared with usb_root_clk, this
-shared clock gate was initially defined only for usb suspend
-clock, usb suspend clk is kept on while system is active or
-system sleep with usb wakeup enabled, so usb root clock is
-fine with this situation; with the commit cf7f3f4fa9e5
-("clk: imx8mp: fix usb_root_clk parent"), this clock gate is
-changed to be for usb root clock, but usb root clock will
-be off while usb is suspended, so usb suspend clock will be
-gated too, this cause some usb functionalities will not work,
-so define this clock to be a shared clock gate to conform with
-the real HW status.
+Commit 38a8553b0a22 ("clk: ralink: make system controller node a reset provider")
+make system controller a reset provider for mt7621 ralink SoCs. Ralink init code
+also tries to start previous common reset controller which at the end tries to
+find device tree node 'ralink,rt2880-reset'. mt7621 device tree file is not
+using at all this node anymore. Hence avoid to init this common reset controller
+for mt7621 ralink SoCs to avoid 'Failed to find reset controller node' boot
+error trace error.
 
-Fixes: 9c140d9926761 ("clk: imx: Add support for i.MX8MP clock driver")
-Cc: stable@vger.kernel.org # v5.19+
-Tested-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Signed-off-by: Li Jun <jun.li@nxp.com>
-Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
-Link: https://lore.kernel.org/r/1664549663-20364-2-git-send-email-jun.li@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 64b2d6ffff86 ("staging: mt7621-dts: align resets with binding documentation")
+Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-imx8mp.c |    4 +++-
+ arch/mips/ralink/of.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/clk/imx/clk-imx8mp.c
-+++ b/drivers/clk/imx/clk-imx8mp.c
-@@ -17,6 +17,7 @@
+diff --git a/arch/mips/ralink/of.c b/arch/mips/ralink/of.c
+index ea8072acf8d9..01c132bc33d5 100644
+--- a/arch/mips/ralink/of.c
++++ b/arch/mips/ralink/of.c
+@@ -21,6 +21,7 @@
+ #include <asm/bootinfo.h>
+ #include <asm/addrspace.h>
+ #include <asm/prom.h>
++#include <asm/mach-ralink/ralink_regs.h>
  
- static u32 share_count_nand;
- static u32 share_count_media;
-+static u32 share_count_usb;
+ #include "common.h"
  
- static const char * const pll_ref_sels[] = { "osc_24m", "dummy", "dummy", "dummy", };
- static const char * const audio_pll1_bypass_sels[] = {"audio_pll1", "audio_pll1_ref_sel", };
-@@ -673,7 +674,8 @@ static int imx8mp_clocks_probe(struct pl
- 	hws[IMX8MP_CLK_UART2_ROOT] = imx_clk_hw_gate4("uart2_root_clk", "uart2", ccm_base + 0x44a0, 0);
- 	hws[IMX8MP_CLK_UART3_ROOT] = imx_clk_hw_gate4("uart3_root_clk", "uart3", ccm_base + 0x44b0, 0);
- 	hws[IMX8MP_CLK_UART4_ROOT] = imx_clk_hw_gate4("uart4_root_clk", "uart4", ccm_base + 0x44c0, 0);
--	hws[IMX8MP_CLK_USB_ROOT] = imx_clk_hw_gate4("usb_root_clk", "hsio_axi", ccm_base + 0x44d0, 0);
-+	hws[IMX8MP_CLK_USB_ROOT] = imx_clk_hw_gate2_shared2("usb_root_clk", "hsio_axi", ccm_base + 0x44d0, 0, &share_count_usb);
-+	hws[IMX8MP_CLK_USB_SUSP] = imx_clk_hw_gate2_shared2("usb_suspend_clk", "osc_32k", ccm_base + 0x44d0, 0, &share_count_usb);
- 	hws[IMX8MP_CLK_USB_PHY_ROOT] = imx_clk_hw_gate4("usb_phy_root_clk", "usb_phy_ref", ccm_base + 0x44f0, 0);
- 	hws[IMX8MP_CLK_USDHC1_ROOT] = imx_clk_hw_gate4("usdhc1_root_clk", "usdhc1", ccm_base + 0x4510, 0);
- 	hws[IMX8MP_CLK_USDHC2_ROOT] = imx_clk_hw_gate4("usdhc2_root_clk", "usdhc2", ccm_base + 0x4520, 0);
+@@ -81,7 +82,8 @@ static int __init plat_of_setup(void)
+ 	__dt_register_buses(soc_info.compatible, "palmbus");
+ 
+ 	/* make sure that the reset controller is setup early */
+-	ralink_rst_init();
++	if (ralink_soc != MT762X_SOC_MT7621AT)
++		ralink_rst_init();
+ 
+ 	return 0;
+ }
+-- 
+2.35.1
+
 
 
