@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0BDF657887
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:52:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08355657E3B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:51:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233135AbiL1OwN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:52:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37846 "EHLO
+        id S234108AbiL1Pvn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:51:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233189AbiL1Ovv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:51:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0837BE8D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:51:22 -0800 (PST)
+        with ESMTP id S234117AbiL1Pva (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:51:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39906186FB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:51:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 56071B81719
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:51:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A41AAC433D2;
-        Wed, 28 Dec 2022 14:51:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 97A1C61562
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:51:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A94DFC433D2;
+        Wed, 28 Dec 2022 15:51:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239080;
-        bh=EOT13qNqO9wNjfTQOfp6Vv92F/Wje6Iick9/VN0jVe8=;
+        s=korg; t=1672242689;
+        bh=Mu9PiKrStsCHimDyzBVAY48ByRF4CSmzDMSPGqPB6Tk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gz8xUjRKedLYAZfH3lX5cxaU5uscSHb2Q8DZzKgUs3nOY6av+JWd++8FFbBLigwkJ
-         CPY1sZNJsmeHf0TftOroyRv2Q79GSChSpzYfsZO9dFODUAPIbXxnljClMaJ2o4q1pG
-         GQZdWP63OK+Gk3ZyY5opWRpX9FbD2LGDArt4uuK8=
+        b=sAxLFbyQ4hMBWhoaBohMRoCUrcFeYvC2KH+adlybuK06Q9i4HsFQj8iEqS1YEXJ1x
+         fdFlJYvBhWE0dSDaxS1Imoi9F/s6D+N8Les51I/dN3FBBIa5teWE6eClygHqD6xrJX
+         U+V56LCdPLFcnY/f+rmaYOl0I4o3BV/mUYHuEYHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 121/731] ACPICA: Fix use-after-free in acpi_ut_copy_ipackage_to_ipackage()
+        patches@lists.linux.dev,
+        Carson Vandegriffe <carson.vandegriffe@candelatech.com>,
+        Chad Monroe <chad.monroe@smartrg.com>,
+        Ryder Lee <ryder.lee@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0440/1073] wifi: mt76: mt7915: fix mt7915_mac_set_timing()
 Date:   Wed, 28 Dec 2022 15:33:48 +0100
-Message-Id: <20221228144300.060659413@linuxfoundation.org>
+Message-Id: <20221228144339.979023251@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,68 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zetao <lizetao1@huawei.com>
+From: Ryder Lee <ryder.lee@mediatek.com>
 
-[ Upstream commit 470188b09e92d83c5a997f25f0e8fb8cd2bc3469 ]
+[ Upstream commit 0c881dc08fd71ca2673f31a64989fbb28eac26f4 ]
 
-There is an use-after-free reported by KASAN:
+Correct mac timiing settings for different hardware generations.
+This improves 40-60Mbps performance.
 
-  BUG: KASAN: use-after-free in acpi_ut_remove_reference+0x3b/0x82
-  Read of size 1 at addr ffff888112afc460 by task modprobe/2111
-  CPU: 0 PID: 2111 Comm: modprobe Not tainted 6.1.0-rc7-dirty
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
-  Call Trace:
-   <TASK>
-   kasan_report+0xae/0xe0
-   acpi_ut_remove_reference+0x3b/0x82
-   acpi_ut_copy_iobject_to_iobject+0x3be/0x3d5
-   acpi_ds_store_object_to_local+0x15d/0x3a0
-   acpi_ex_store+0x78d/0x7fd
-   acpi_ex_opcode_1A_1T_1R+0xbe4/0xf9b
-   acpi_ps_parse_aml+0x217/0x8d5
-   ...
-   </TASK>
-
-The root cause of the problem is that the acpi_operand_object
-is freed when acpi_ut_walk_package_tree() fails in
-acpi_ut_copy_ipackage_to_ipackage(), lead to repeated release in
-acpi_ut_copy_iobject_to_iobject(). The problem was introduced
-by "8aa5e56eeb61" commit, this commit is to fix memory leak in
-acpi_ut_copy_iobject_to_iobject(), repeatedly adding remove
-operation, lead to "acpi_operand_object" used after free.
-
-Fix it by removing acpi_ut_remove_reference() in
-acpi_ut_copy_ipackage_to_ipackage(). acpi_ut_copy_ipackage_to_ipackage()
-is called to copy an internal package object into another internal
-package object, when it fails, the memory of acpi_operand_object
-should be freed by the caller.
-
-Fixes: 8aa5e56eeb61 ("ACPICA: Utilities: Fix memory leak in acpi_ut_copy_iobject_to_iobject")
-Signed-off-by: Li Zetao <lizetao1@huawei.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 9aac2969fe5f ("mt76: mt7915: update mac timing settings")
+Reported-By: Carson Vandegriffe <carson.vandegriffe@candelatech.com>
+Tested-by: Chad Monroe <chad.monroe@smartrg.com>
+Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/utcopy.c | 7 -------
- 1 file changed, 7 deletions(-)
+ .../net/wireless/mediatek/mt76/mt7915/mac.c   | 21 +++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/acpi/acpica/utcopy.c b/drivers/acpi/acpica/utcopy.c
-index d9877153f400..fdd503bb69c4 100644
---- a/drivers/acpi/acpica/utcopy.c
-+++ b/drivers/acpi/acpica/utcopy.c
-@@ -916,13 +916,6 @@ acpi_ut_copy_ipackage_to_ipackage(union acpi_operand_object *source_obj,
- 	status = acpi_ut_walk_package_tree(source_obj, dest_obj,
- 					   acpi_ut_copy_ielement_to_ielement,
- 					   walk_state);
--	if (ACPI_FAILURE(status)) {
--
--		/* On failure, delete the destination package object */
--
--		acpi_ut_remove_reference(dest_obj);
--	}
--
- 	return_ACPI_STATUS(status);
- }
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
+index 49aa5c056063..68e1cf5a1044 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
+@@ -1146,7 +1146,7 @@ void mt7915_mac_set_timing(struct mt7915_phy *phy)
+ 		  FIELD_PREP(MT_TIMEOUT_VAL_CCA, 48);
+ 	u32 ofdm = FIELD_PREP(MT_TIMEOUT_VAL_PLCP, 60) |
+ 		   FIELD_PREP(MT_TIMEOUT_VAL_CCA, 28);
+-	int offset;
++	int eifs_ofdm = 360, sifs = 10, offset;
+ 	bool a_band = !(phy->mt76->chandef.chan->band == NL80211_BAND_2GHZ);
  
+ 	if (!test_bit(MT76_STATE_RUNNING, &phy->mt76->state))
+@@ -1164,17 +1164,26 @@ void mt7915_mac_set_timing(struct mt7915_phy *phy)
+ 	reg_offset = FIELD_PREP(MT_TIMEOUT_VAL_PLCP, offset) |
+ 		     FIELD_PREP(MT_TIMEOUT_VAL_CCA, offset);
+ 
++	if (!is_mt7915(&dev->mt76)) {
++		if (!a_band) {
++			mt76_wr(dev, MT_TMAC_ICR1(phy->band_idx),
++				FIELD_PREP(MT_IFS_EIFS_CCK, 314));
++			eifs_ofdm = 78;
++		} else {
++			eifs_ofdm = 84;
++		}
++	} else if (a_band) {
++		sifs = 16;
++	}
++
+ 	mt76_wr(dev, MT_TMAC_CDTR(phy->band_idx), cck + reg_offset);
+ 	mt76_wr(dev, MT_TMAC_ODTR(phy->band_idx), ofdm + reg_offset);
+ 	mt76_wr(dev, MT_TMAC_ICR0(phy->band_idx),
+-		FIELD_PREP(MT_IFS_EIFS_OFDM, a_band ? 84 : 78) |
++		FIELD_PREP(MT_IFS_EIFS_OFDM, eifs_ofdm) |
+ 		FIELD_PREP(MT_IFS_RIFS, 2) |
+-		FIELD_PREP(MT_IFS_SIFS, 10) |
++		FIELD_PREP(MT_IFS_SIFS, sifs) |
+ 		FIELD_PREP(MT_IFS_SLOT, phy->slottime));
+ 
+-	mt76_wr(dev, MT_TMAC_ICR1(phy->band_idx),
+-		FIELD_PREP(MT_IFS_EIFS_CCK, 314));
+-
+ 	if (phy->slottime < 20 || a_band)
+ 		val = MT7915_CFEND_RATE_DEFAULT;
+ 	else
 -- 
 2.35.1
 
