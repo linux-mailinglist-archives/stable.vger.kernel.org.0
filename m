@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CF29658509
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:05:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A8CC65850A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:05:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235374AbiL1RFL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:05:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57730 "EHLO
+        id S235381AbiL1RFM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:05:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235436AbiL1REi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:04:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79A7D2036B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:59:07 -0800 (PST)
+        with ESMTP id S235443AbiL1REk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:04:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70B2B2036A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:59:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0AABFB8171F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:59:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57B1EC433D2;
-        Wed, 28 Dec 2022 16:59:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C93D61568
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:59:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2003CC433D2;
+        Wed, 28 Dec 2022 16:59:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246744;
-        bh=bGXTgoqWJi2fUp5K0LLLL0nuoz+1EZDAO3OwtrNwmm8=;
+        s=korg; t=1672246747;
+        bh=0Z1WykKJ+4YJpdOfdslu/bsFMASDIA3vEl0636o0UtY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v+mucoBF4YOYxN6s65XBi6aAhYNP1njfgcMPOlrGDVDhbZ0GHlZGmo1xxC5zLkRZI
-         PI/pXzK8yp2gz5mevR/QwyMwjfhr3ZX/Pq8nqtSF5/u+WVRbnrQf6nivT7EvftlK3P
-         m5jd06BYs5MFMFErS+Xm+R1LDfl0yoeko86LtTZg=
+        b=TMWunACgLlzClFDNuoLLAYOy6zJ8m6mlCDIeY+8z3WRMVMQgRjY6EszfegxKrpGo8
+         5zEvQ/2/rGBU0eJMxSm0m/Z9/4R8oD06Hek50uHX5xl2ZxFXeQiq97avcjzZo5GONp
+         9XzWV5ojFL5Mhx0LjdF/bkXZhp4OsEnIwHmurT0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
+        patches@lists.linux.dev, Herve Codina <herve.codina@bootlin.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 6.1 1123/1146] regulator: core: fix deadlock on regulator enable
-Date:   Wed, 28 Dec 2022 15:44:22 +0100
-Message-Id: <20221228144400.649742892@linuxfoundation.org>
+Subject: [PATCH 6.1 1124/1146] spi: fsl_spi: Dont change speed while chipselect is active
+Date:   Wed, 28 Dec 2022 15:44:23 +0100
+Message-Id: <20221228144400.676730888@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -52,65 +53,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit cb3543cff90a4448ed560ac86c98033ad5fecda9 upstream.
+commit 3b553e0041a65e499fa4e25ee146f01f4ec4e617 upstream.
 
-When updating the operating mode as part of regulator enable, the caller
-has already locked the regulator tree and drms_uA_update() must not try
-to do the same in order not to trigger a deadlock.
+Commit c9bfcb315104 ("spi_mpc83xx: much improved driver") made
+modifications to the driver to not perform speed changes while
+chipselect is active. But those changes where lost with the
+convertion to tranfer_one.
 
-The lock inversion is reported by lockdep as:
+Previous implementation was allowing speed changes during
+message transfer when cs_change flag was set.
+At the time being, core SPI does not provide any feature to change
+speed while chipselect is off, so do not allow any speed change during
+message transfer, and perform the transfer setup in prepare_message
+in order to set correct speed while chipselect is still off.
 
-  ======================================================
-  WARNING: possible circular locking dependency detected
-  6.1.0-next-20221215 #142 Not tainted
-  ------------------------------------------------------
-  udevd/154 is trying to acquire lock:
-  ffffc11f123d7e50 (regulator_list_mutex){+.+.}-{3:3}, at: regulator_lock_dependent+0x54/0x280
-
-  but task is already holding lock:
-  ffff80000e4c36e8 (regulator_ww_class_acquire){+.+.}-{0:0}, at: regulator_enable+0x34/0x80
-
-  which lock already depends on the new lock.
-
-  ...
-
-   Possible unsafe locking scenario:
-
-         CPU0                    CPU1
-         ----                    ----
-    lock(regulator_ww_class_acquire);
-                                 lock(regulator_list_mutex);
-                                 lock(regulator_ww_class_acquire);
-    lock(regulator_list_mutex);
-
-   *** DEADLOCK ***
-
-just before probe of a Qualcomm UFS controller (occasionally) deadlocks
-when enabling one of its regulators.
-
-Fixes: 9243a195be7a ("regulator: core: Change voltage setting path")
-Fixes: f8702f9e4aa7 ("regulator: core: Use ww_mutex for regulators locking")
-Cc: stable@vger.kernel.org      # 5.0
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20221215104646.19818-1-johan+linaro@kernel.org
+Reported-by: Herve Codina <herve.codina@bootlin.com>
+Fixes: 64ca1a034f00 ("spi: fsl_spi: Convert to transfer_one")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Tested-by: Herve Codina <herve.codina@bootlin.com>
+Reviewed-by: Herve Codina <herve.codina@bootlin.com>
+Link: https://lore.kernel.org/r/8aab84c51aa330cf91f4b43782a1c483e150a4e3.1671025244.git.christophe.leroy@csgroup.eu
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/regulator/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-fsl-spi.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
 
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -1002,7 +1002,7 @@ static int drms_uA_update(struct regulat
- 		/* get input voltage */
- 		input_uV = 0;
- 		if (rdev->supply)
--			input_uV = regulator_get_voltage(rdev->supply);
-+			input_uV = regulator_get_voltage_rdev(rdev->supply->rdev);
- 		if (input_uV <= 0)
- 			input_uV = rdev->constraints->input_uV;
+diff --git a/drivers/spi/spi-fsl-spi.c b/drivers/spi/spi-fsl-spi.c
+index 731624f157fc..93152144fd2e 100644
+--- a/drivers/spi/spi-fsl-spi.c
++++ b/drivers/spi/spi-fsl-spi.c
+@@ -333,13 +333,26 @@ static int fsl_spi_prepare_message(struct spi_controller *ctlr,
+ {
+ 	struct mpc8xxx_spi *mpc8xxx_spi = spi_controller_get_devdata(ctlr);
+ 	struct spi_transfer *t;
++	struct spi_transfer *first;
++
++	first = list_first_entry(&m->transfers, struct spi_transfer,
++				 transfer_list);
  
+ 	/*
+ 	 * In CPU mode, optimize large byte transfers to use larger
+ 	 * bits_per_word values to reduce number of interrupts taken.
++	 *
++	 * Some glitches can appear on the SPI clock when the mode changes.
++	 * Check that there is no speed change during the transfer and set it up
++	 * now to change the mode without having a chip-select asserted.
+ 	 */
+-	if (!(mpc8xxx_spi->flags & SPI_CPM_MODE)) {
+-		list_for_each_entry(t, &m->transfers, transfer_list) {
++	list_for_each_entry(t, &m->transfers, transfer_list) {
++		if (t->speed_hz != first->speed_hz) {
++			dev_err(&m->spi->dev,
++				"speed_hz cannot change during message.\n");
++			return -EINVAL;
++		}
++		if (!(mpc8xxx_spi->flags & SPI_CPM_MODE)) {
+ 			if (t->len < 256 || t->bits_per_word != 8)
+ 				continue;
+ 			if ((t->len & 3) == 0)
+@@ -348,7 +361,7 @@ static int fsl_spi_prepare_message(struct spi_controller *ctlr,
+ 				t->bits_per_word = 16;
+ 		}
+ 	}
+-	return 0;
++	return fsl_spi_setup_transfer(m->spi, first);
+ }
+ 
+ static int fsl_spi_transfer_one(struct spi_controller *controller,
+-- 
+2.39.0
+
 
 
