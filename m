@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C9E4657ADB
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:15:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 056256579C5
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:04:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233042AbiL1PPn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:15:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59506 "EHLO
+        id S233504AbiL1PEd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:04:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233106AbiL1PPh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:15:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 634AD13E8E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:15:34 -0800 (PST)
+        with ESMTP id S233501AbiL1PEb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:04:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0D2C13D40
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:04:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 005BAB81647
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:15:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CB09C433EF;
-        Wed, 28 Dec 2022 15:15:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CC316154E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:04:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94668C433D2;
+        Wed, 28 Dec 2022 15:04:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240531;
-        bh=AXPXLxh17Tug/qn92KC4ufziprryzeaMVNCXJJh7qCA=;
+        s=korg; t=1672239870;
+        bh=ZaxVzrrKeC0+AxsyMBxgRBrWUXjgwt8XTpTbLK7TLBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OT+amePnnUxAbjLE/P0w0O4Vkl+RfK6PWwKhHTqyGg+VUHyOKbH/a0B5QHnyhaqhh
-         Tt8IEKQgmHJkc6JRXv03Kycq6KTEvibtXgqmVe8cZ8u3nHIF7czPbrauPu6KfxY7vR
-         DhcK524wXSmXCRLzZsoIo8uxbjVJugG3WGl4BBQ4=
+        b=NOG6ukoPmgVe3LSNmQ/gRwao9P4reBnHl1ecs0LQmG1EdQVwThbcpK8RcFpx+9VGa
+         +MC36JGHDfB7ZRslM3mg4XRexKVCDut1dbqOxiHzRGbfT2GvnJELhXzkU+v1R8s1H6
+         VZZntvZo4u8HEODRDOF//hgodbeJLW4xJz2UO90Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Hanjun Guo <guohanjun@huawei.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0136/1146] PNP: fix name memory leak in pnp_alloc_dev()
-Date:   Wed, 28 Dec 2022 15:27:55 +0100
-Message-Id: <20221228144333.843459778@linuxfoundation.org>
+        patches@lists.linux.dev, Eddie James <eajames@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0088/1073] tpm: tis_i2c: Fix sanity check interrupt enable mask
+Date:   Wed, 28 Dec 2022 15:27:56 +0100
+Message-Id: <20221228144330.448613807@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Eddie James <eajames@linux.ibm.com>
 
-[ Upstream commit 110d7b0325c55ff3620073ba4201845f59e22ebf ]
+[ Upstream commit 561d6ef75628db9cce433e573aa3cdb6b3bba903 ]
 
-After commit 1fa5ae857bb1 ("driver core: get rid of struct device's
-bus_id string array"), the name of device is allocated dynamically,
-move dev_set_name() after pnp_add_id() to avoid memory leak.
+The sanity check mask for TPM_INT_ENABLE register was off by 8 bits,
+resulting in failure to probe if the TPM_INT_ENABLE register was a
+valid value.
 
-Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: bbc23a07b072 ("tpm: Add tpm_tis_i2c backend for tpm_tis_core")
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Tested-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pnp/core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/char/tpm/tpm_tis_i2c.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pnp/core.c b/drivers/pnp/core.c
-index 4df5aa6a309c..6a60c5d83383 100644
---- a/drivers/pnp/core.c
-+++ b/drivers/pnp/core.c
-@@ -148,14 +148,14 @@ struct pnp_dev *pnp_alloc_dev(struct pnp_protocol *protocol, int id,
- 	dev->dev.coherent_dma_mask = dev->dma_mask;
- 	dev->dev.release = &pnp_release_device;
+diff --git a/drivers/char/tpm/tpm_tis_i2c.c b/drivers/char/tpm/tpm_tis_i2c.c
+index ba0911b1d1ff..29f0db41c0b7 100644
+--- a/drivers/char/tpm/tpm_tis_i2c.c
++++ b/drivers/char/tpm/tpm_tis_i2c.c
+@@ -49,7 +49,7 @@
  
--	dev_set_name(&dev->dev, "%02x:%02x", dev->protocol->number, dev->number);
--
- 	dev_id = pnp_add_id(dev, pnpid);
- 	if (!dev_id) {
- 		kfree(dev);
- 		return NULL;
- 	}
- 
-+	dev_set_name(&dev->dev, "%02x:%02x", dev->protocol->number, dev->number);
-+
- 	return dev;
- }
- 
+ /* Masks with bits that must be read zero */
+ #define TPM_ACCESS_READ_ZERO 0x48
+-#define TPM_INT_ENABLE_ZERO 0x7FFFFF6
++#define TPM_INT_ENABLE_ZERO 0x7FFFFF60
+ #define TPM_STS_READ_ZERO 0x23
+ #define TPM_INTF_CAPABILITY_ZERO 0x0FFFF000
+ #define TPM_I2C_INTERFACE_CAPABILITY_ZERO 0x80000000
 -- 
 2.35.1
 
