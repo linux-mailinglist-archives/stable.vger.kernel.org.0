@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C354658428
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:55:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A70FC657E1B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:50:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235246AbiL1QzO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:55:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46332 "EHLO
+        id S234092AbiL1PuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:50:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235248AbiL1Qyu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:54:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 078161C407
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:49:32 -0800 (PST)
+        with ESMTP id S234097AbiL1PuE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:50:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFB0318682
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:50:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4855A60D41
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:49:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D18DC433D2;
-        Wed, 28 Dec 2022 16:49:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BAF4613E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:50:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82963C433EF;
+        Wed, 28 Dec 2022 15:50:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246171;
-        bh=yreuj1Pmw8nwCm3ADVtacDriCMOlBPDxspsHT79iAJ0=;
+        s=korg; t=1672242602;
+        bh=9HvOEQbQmJQMCPPSxuy7oPpJ+xnXyQ9GRx5pwrDqMPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yb73xQo7n8Gp9/fOzJGozWd4j+RdAyo+Lpyr+UMA2DAx+EXbQ3TUCY3HHSE1s7r3L
-         M9eJlvW1rrEgOMIKTfXYm5ZVjjARWybc8n/2cDIxaj89j0U5cc21c/ulpOiMsNBlLd
-         92H5Eh1X1D3YFkS1ELG+n3BGMVi327IngaCueqrU=
+        b=lD8+N4uiZb8NqkvuwKLj4aeq75687oiuYGqC1ej1ZkdW8LdXlL5tGnpS4kMxm07xc
+         IdQsYRKomMkl35mpgSc0FF8lMpSA72AWZujhQj07K6aovkvk2hIbjzIUD9/kqb0efM
+         HTU9Z6l1D5eBKBpb3I1wo+Gm3DjuBYDayKLrLx1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mia Kanashi <chad@redpilled.dev>,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0992/1146] HID: input: do not query XP-PEN Deco LW battery
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 624/731] ACPICA: Fix error code path in acpi_ds_call_control_method()
 Date:   Wed, 28 Dec 2022 15:42:11 +0100
-Message-Id: <20221228144357.310172102@linuxfoundation.org>
+Message-Id: <20221228144314.619093268@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 037c1aaeb96fe5f778026f4c1ef28b26cf600bfa ]
+[ Upstream commit 404ec60438add1afadaffaed34bb5fe4ddcadd40 ]
 
-The XP-PEN Deco LW drawing tablet can be connected by USB cable or using
-a USB Bluetooth dongle. When it is connected using the dongle, there
-might be a small delay until the tablet is paired with the dongle.
+A use-after-free in acpi_ps_parse_aml() after a failing invocaion of
+acpi_ds_call_control_method() is reported by KASAN [1] and code
+inspection reveals that next_walk_state pushed to the thread by
+acpi_ds_create_walk_state() is freed on errors, but it is not popped
+from the thread beforehand.  Thus acpi_ds_get_current_walk_state()
+called by acpi_ps_parse_aml() subsequently returns it as the new
+walk state which is incorrect.
 
-Fetching the device battery during this delay results in random battery
-percentage values.
+To address this, make acpi_ds_call_control_method() call
+acpi_ds_pop_walk_state() to pop next_walk_state from the thread before
+returning an error.
 
-Add a quirk to avoid actively querying the battery percentage and wait
-for the device to report it on its own.
-
-Reported-by: Mia Kanashi <chad@redpilled.dev>
-Tested-by: Mia Kanashi <chad@redpilled.dev>
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Link: https://lore.kernel.org/linux-acpi/20221019073443.248215-1-chenzhongjin@huawei.com/ # [1]
+Reported-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Chen Zhongjin <chenzhongjin@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-input.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/acpi/acpica/dsmethod.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 859aeb07542e..d728a94c642e 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -340,6 +340,7 @@ static enum power_supply_property hidinput_battery_props[] = {
- #define HID_BATTERY_QUIRK_PERCENT	(1 << 0) /* always reports percent */
- #define HID_BATTERY_QUIRK_FEATURE	(1 << 1) /* ask for feature report */
- #define HID_BATTERY_QUIRK_IGNORE	(1 << 2) /* completely ignore the battery */
-+#define HID_BATTERY_QUIRK_AVOID_QUERY	(1 << 3) /* do not query the battery */
+diff --git a/drivers/acpi/acpica/dsmethod.c b/drivers/acpi/acpica/dsmethod.c
+index 8e011e59b9b4..ee1832ba39a2 100644
+--- a/drivers/acpi/acpica/dsmethod.c
++++ b/drivers/acpi/acpica/dsmethod.c
+@@ -517,7 +517,7 @@ acpi_ds_call_control_method(struct acpi_thread_state *thread,
+ 	info = ACPI_ALLOCATE_ZEROED(sizeof(struct acpi_evaluate_info));
+ 	if (!info) {
+ 		status = AE_NO_MEMORY;
+-		goto cleanup;
++		goto pop_walk_state;
+ 	}
  
- static const struct hid_device_id hid_battery_quirks[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
-@@ -373,6 +374,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
- 	  HID_BATTERY_QUIRK_IGNORE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ASUS_UX550VE_TOUCHSCREEN),
- 	  HID_BATTERY_QUIRK_IGNORE },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE, USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L),
-+	  HID_BATTERY_QUIRK_AVOID_QUERY },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_ENVY_X360_15),
- 	  HID_BATTERY_QUIRK_IGNORE },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_ENVY_X360_15T_DR100),
-@@ -554,6 +557,9 @@ static int hidinput_setup_battery(struct hid_device *dev, unsigned report_type,
- 	dev->battery_avoid_query = report_type == HID_INPUT_REPORT &&
- 				   field->physical == HID_DG_STYLUS;
+ 	info->parameters = &this_walk_state->operands[0];
+@@ -529,7 +529,7 @@ acpi_ds_call_control_method(struct acpi_thread_state *thread,
  
-+	if (quirks & HID_BATTERY_QUIRK_AVOID_QUERY)
-+		dev->battery_avoid_query = true;
+ 	ACPI_FREE(info);
+ 	if (ACPI_FAILURE(status)) {
+-		goto cleanup;
++		goto pop_walk_state;
+ 	}
+ 
+ 	next_walk_state->method_nesting_depth =
+@@ -575,6 +575,12 @@ acpi_ds_call_control_method(struct acpi_thread_state *thread,
+ 
+ 	return_ACPI_STATUS(status);
+ 
++pop_walk_state:
 +
- 	dev->battery = power_supply_register(&dev->dev, psy_desc, &psy_cfg);
- 	if (IS_ERR(dev->battery)) {
- 		error = PTR_ERR(dev->battery);
++	/* On error, pop the walk state to be deleted from thread */
++
++	acpi_ds_pop_walk_state(thread);
++
+ cleanup:
+ 
+ 	/* On error, we must terminate the method properly */
 -- 
 2.35.1
 
