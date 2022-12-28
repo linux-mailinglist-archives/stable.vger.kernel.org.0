@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E53F5657E29
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:50:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75061657CEF
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:37:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233653AbiL1Puq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:50:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38500 "EHLO
+        id S233149AbiL1Phj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:37:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234103AbiL1Pup (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:50:45 -0500
+        with ESMTP id S233505AbiL1Phi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:37:38 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E75D218
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:50:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9695716586
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:37:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3A0CCB81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:50:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0BECC433D2;
-        Wed, 28 Dec 2022 15:50:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2B10FB81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:37:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72B8AC43392;
+        Wed, 28 Dec 2022 15:37:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242641;
-        bh=uQYc6Tzfchw3IidOWW+HWTuXrYssLkLX8Ndx4090s5E=;
+        s=korg; t=1672241854;
+        bh=0qMlYFCk1BMuRAlt8vvWrnHD2OMbPoPtB3GbqDp3dTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uOmtJcowcwXQxxPvbqJV2n8ddBlKwoiEU7KoAiGpKrI1CKWnwy/6tKIcciHUtoL6a
-         oTJJhSb7/H4AES0DiASrh75vjeqrVz7oc6k3c6vBSzm0lJrAneVT+J7n9R6Ki0k0L7
-         nUoJKmG2qs2XOaaMRZTQb4c8BObHqjBycSPtrWEQ=
+        b=h4lloWqgdI21Qg2riUelNUPiHMcZhLbEEmHiiAGFFQPokISVSwDkj+t/Cl4fSbdto
+         QiTfmLgdM481D/VyDXnAsdWt9K7MGqS00+yErg+rvX85ZU41WPrIdmikov6i9l2XAk
+         4x/2IPHJaW0cUM5rGsX8tP0JlI4AtPUggztOB8OE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hui Tang <tanghui20@huawei.com>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Jeff Johnson <quic_jjohnson@quicinc.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0385/1146] clk: microchip: check for null return of devm_kzalloc()
+Subject: [PATCH 6.0 0336/1073] wifi: ath10k: Fix return value in ath10k_pci_init()
 Date:   Wed, 28 Dec 2022 15:32:04 +0100
-Message-Id: <20221228144340.622198913@linuxfoundation.org>
+Message-Id: <20221228144337.128436875@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Tang <tanghui20@huawei.com>
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-[ Upstream commit e2e6a217a84d09785848a82599729c9a41566e3a ]
+[ Upstream commit 2af7749047d8d6ad43feff69f555a13a6a6c2831 ]
 
-Because of the possible failure of devm_kzalloc(), name might be NULL and
-will cause null pointer dereference later.
+This driver is attempting to register to support two different buses.
+if either of these is successful then ath10k_pci_init() should return 0
+so that hardware attached to the successful bus can be probed and
+supported. only if both of these are unsuccessful should ath10k_pci_init()
+return an errno.
 
-Therefore, it might be better to check it and directly return -ENOMEM.
-
-Fixes: d39fb172760e ("clk: microchip: add PolarFire SoC fabric clock support")
-Signed-off-by: Hui Tang <tanghui20@huawei.com>
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-[claudiu.beznea: s/refrence/reference/, s/possilble/possible]
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20221119054858.178629-1-tanghui20@huawei.com
+Fixes: 0b523ced9a3c ("ath10k: add basic skeleton to support ahb")
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+Reviewed-by: Jeff Johnson <quic_jjohnson@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20221110061926.18163-1-xiujianfeng@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/microchip/clk-mpfs-ccc.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/wireless/ath/ath10k/pci.c | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/clk/microchip/clk-mpfs-ccc.c b/drivers/clk/microchip/clk-mpfs-ccc.c
-index 7be028dced63..32aae880a14f 100644
---- a/drivers/clk/microchip/clk-mpfs-ccc.c
-+++ b/drivers/clk/microchip/clk-mpfs-ccc.c
-@@ -166,6 +166,9 @@ static int mpfs_ccc_register_outputs(struct device *dev, struct mpfs_ccc_out_hw_
- 		struct mpfs_ccc_out_hw_clock *out_hw = &out_hws[i];
- 		char *name = devm_kzalloc(dev, 23, GFP_KERNEL);
+diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
+index bf1c938be7d0..8015b457a870 100644
+--- a/drivers/net/wireless/ath/ath10k/pci.c
++++ b/drivers/net/wireless/ath/ath10k/pci.c
+@@ -3793,18 +3793,22 @@ static struct pci_driver ath10k_pci_driver = {
  
-+		if (!name)
-+			return -ENOMEM;
-+
- 		snprintf(name, 23, "%s_out%u", parent->name, i);
- 		out_hw->divider.hw.init = CLK_HW_INIT_HW(name, &parent->hw, &clk_divider_ops, 0);
- 		out_hw->divider.reg = data->pll_base[i / MPFS_CCC_OUTPUTS_PER_PLL] +
-@@ -200,6 +203,9 @@ static int mpfs_ccc_register_plls(struct device *dev, struct mpfs_ccc_pll_hw_clo
- 		struct mpfs_ccc_pll_hw_clock *pll_hw = &pll_hws[i];
- 		char *name = devm_kzalloc(dev, 18, GFP_KERNEL);
+ static int __init ath10k_pci_init(void)
+ {
+-	int ret;
++	int ret1, ret2;
  
-+		if (!name)
-+			return -ENOMEM;
+-	ret = pci_register_driver(&ath10k_pci_driver);
+-	if (ret)
++	ret1 = pci_register_driver(&ath10k_pci_driver);
++	if (ret1)
+ 		printk(KERN_ERR "failed to register ath10k pci driver: %d\n",
+-		       ret);
++		       ret1);
+ 
+-	ret = ath10k_ahb_init();
+-	if (ret)
+-		printk(KERN_ERR "ahb init failed: %d\n", ret);
++	ret2 = ath10k_ahb_init();
++	if (ret2)
++		printk(KERN_ERR "ahb init failed: %d\n", ret2);
+ 
+-	return ret;
++	if (ret1 && ret2)
++		return ret1;
 +
- 		pll_hw->base = data->pll_base[i];
- 		snprintf(name, 18, "ccc%s_pll%u", strchrnul(dev->of_node->full_name, '@'), i);
- 		pll_hw->name = (const char *)name;
++	/* registered to at least one bus */
++	return 0;
+ }
+ module_init(ath10k_pci_init);
+ 
 -- 
 2.35.1
 
