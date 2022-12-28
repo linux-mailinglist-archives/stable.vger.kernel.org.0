@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED189657F39
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3D77657FFA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:13:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234308AbiL1QDH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:03:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48594 "EHLO
+        id S234431AbiL1QNA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:13:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234329AbiL1QCl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:02:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDCC99FD0
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:02:29 -0800 (PST)
+        with ESMTP id S234591AbiL1QMC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:12:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 569421A808
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:10:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 807276156E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:02:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93B53C433F0;
-        Wed, 28 Dec 2022 16:02:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0914AB81730
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:10:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C5F5C433D2;
+        Wed, 28 Dec 2022 16:10:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243348;
-        bh=fjyU/jynuoEc0nSHUZBHIHL/cu0n2spRNE3nKiMcUQQ=;
+        s=korg; t=1672243806;
+        bh=5sT3RXSxcNBDAmIwHRhH8sS3K/brB4GbWQim4yWKBMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kASmmmyDpESdapASvBDohQYyhtt3RiqGxiHidnmujvFWuSxIslqlj24Sd2Sx201y0
-         bc5jZEIgGkEHDwVitcpX+0NBiDrovwesSVvkbwh8KRZKYGGLzU4UDa9PfiEGeMwVaK
-         qghUMP//3kUGyvrew8SgDPjaHQmej/9NwhxMrLE4=
+        b=2TMnDg/5VqugnQX22eR31sUrNOtqrq2sEVZit5TMqDK5Tf0fypoHoX6dcKdtnfSf8
+         zNSH7tVoPOVt5AthLyRr5EG4xV+uoXf12/CMqogGAh9P9pDQ3ndMbWMsSn8GWlQtH+
+         jUPn0YGFWgaF2ggB3SYVUUufyj+fukLxSViIldgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Artem Chernyshev <artem.chernyshev@red-soft.ru>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Vishnu Dasa <vdasa@vmware.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Tedd Ho-Jeong An <tedd.an@intel.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0510/1073] net: vmw_vsock: vmci: Check memcpy_from_msg()
+Subject: [PATCH 6.1 0559/1146] Bluetooth: btintel: Fix missing free skb in btintel_setup_combined()
 Date:   Wed, 28 Dec 2022 15:34:58 +0100
-Message-Id: <20221228144341.898738647@linuxfoundation.org>
+Message-Id: <20221228144345.352750306@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,45 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Artem Chernyshev <artem.chernyshev@red-soft.ru>
+From: Wang ShaoBo <bobo.shaobowang@huawei.com>
 
-[ Upstream commit 44aa5a6dba8283bfda28b1517af4de711c5652a4 ]
+[ Upstream commit cee50ce899de415baf4da3ed38b7d4f13c3170d1 ]
 
-vmci_transport_dgram_enqueue() does not check the return value
-of memcpy_from_msg().  If memcpy_from_msg() fails, it is possible that
-uninitialized memory contents are sent unintentionally instead of user's
-message in the datagram to the destination.  Return with an error if
-memcpy_from_msg() fails.
+skb allocated by __hci_cmd_sync would not be used whether in checking
+for supported iBT hardware variants or after, we should free it in all
+error branches, this patch makes the case read version failed or default
+error case free skb before return.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
-
-Fixes: 0f7db23a07af ("vmci_transport: switch ->enqeue_dgram, ->enqueue_stream and ->dequeue_stream to msghdr")
-Signed-off-by: Artem Chernyshev <artem.chernyshev@red-soft.ru>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: c86c7285bb08 ("Bluetooth: btintel: Fix the legacy bootloader returns tlv based version")
+Fixes: 019a1caa7fd2 ("Bluetooth: btintel: Refactoring setup routine for bootloader devices")
+Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Reviewed-by: Tedd Ho-Jeong An <tedd.an@intel.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/vmci_transport.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/bluetooth/btintel.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
-index b14f0ed7427b..a794e8b01136 100644
---- a/net/vmw_vsock/vmci_transport.c
-+++ b/net/vmw_vsock/vmci_transport.c
-@@ -1711,7 +1711,11 @@ static int vmci_transport_dgram_enqueue(
- 	if (!dg)
- 		return -ENOMEM;
+diff --git a/drivers/bluetooth/btintel.c b/drivers/bluetooth/btintel.c
+index a657e9a3e96a..f6b4b7a1be4c 100644
+--- a/drivers/bluetooth/btintel.c
++++ b/drivers/bluetooth/btintel.c
+@@ -2524,7 +2524,7 @@ static int btintel_setup_combined(struct hci_dev *hdev)
+ 		 */
+ 		err = btintel_read_version(hdev, &ver);
+ 		if (err)
+-			return err;
++			break;
  
--	memcpy_from_msg(VMCI_DG_PAYLOAD(dg), msg, len);
-+	err = memcpy_from_msg(VMCI_DG_PAYLOAD(dg), msg, len);
-+	if (err) {
-+		kfree(dg);
-+		return err;
-+	}
+ 		/* Apply the device specific HCI quirks
+ 		 *
+@@ -2566,7 +2566,8 @@ static int btintel_setup_combined(struct hci_dev *hdev)
+ 	default:
+ 		bt_dev_err(hdev, "Unsupported Intel hw variant (%u)",
+ 			   INTEL_HW_VARIANT(ver_tlv.cnvi_bt));
+-		return -EINVAL;
++		err = -EINVAL;
++		break;
+ 	}
  
- 	dg->dst = vmci_make_handle(remote_addr->svm_cid,
- 				   remote_addr->svm_port);
+ exit_error:
 -- 
 2.35.1
 
