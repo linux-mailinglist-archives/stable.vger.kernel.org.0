@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 997C7657983
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:02:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71764658097
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:18:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233412AbiL1PCq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:02:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48046 "EHLO
+        id S234576AbiL1QS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:18:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233442AbiL1PCS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:02:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E47713D0E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:01:49 -0800 (PST)
+        with ESMTP id S234561AbiL1QR5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:17:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37B34140A7
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:16:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE494B81717
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:01:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39512C433EF;
-        Wed, 28 Dec 2022 15:01:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C86566156B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:16:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE07FC433EF;
+        Wed, 28 Dec 2022 16:16:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239706;
-        bh=iEkJ4ggRPgklRu6XR4Cbdj3ONEfNXBceFrQnHeRM3SI=;
+        s=korg; t=1672244200;
+        bh=D2nGL7fs+XPP1YjAsf8TRYWowaxa1PIxTxY2oyNpFV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=smpsbCBazCU3SqaL4a7Ove1s7/LU9xc8oYU3uUyw/WYJKtpOhgHAxOgQ2c41GWyAG
-         eGfCddN+Lmtd1C8G0x3w5PNAFizDVHmdhVKZbwEJXXrSVDFUuYVueYZV+RITGn5Uyh
-         yC6b5D8iB8V29JiRRNF8A8KrycGYKzgkiOFkWKiA=
+        b=KybA8c2wO8WRtpS/VW7ch5eHcUBbcXsXkVf2q3NvueHKwjYCl2hxSDyfYdiqcrg6h
+         MbORm+Au4vEuSaW0A6vbnD4mlTIZVkXmCSllJP0dCEG3ivYNOxIejCLUV6I2iCvo+q
+         iDzZ7u1YbZk/OlTIeghNHsQ4UEBxeBsa85GaIx/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        patches@lists.linux.dev,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 260/731] Input: wistron_btns - disable on UML
+Subject: [PATCH 6.1 0628/1146] dt-bindings: imx6q-pcie: Fix clock names for imx6sx and imx8mq
 Date:   Wed, 28 Dec 2022 15:36:07 +0100
-Message-Id: <20221228144304.099587100@linuxfoundation.org>
+Message-Id: <20221228144347.226913791@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +56,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit b2b80d9dd14cb5b70dc254bddbc4eea932694791 ]
+[ Upstream commit b8a83e600bdde93e7da41ea3204b2b3832a3c99b ]
 
-The wistron_btns driver calls rtc_cmos_read(), which isn't
-available with UML builds, so disable this driver on UML.
+Originally as it was defined the legacy bindings the pcie_inbound_axi and
+pcie_aux clock names were supposed to be used in the fsl,imx6sx-pcie and
+fsl,imx8mq-pcie devices respectively. But the bindings conversion has been
+incorrectly so now the fourth clock name is defined as "pcie_inbound_axi
+for imx6sx-pcie, pcie_aux for imx8mq-pcie", which is completely wrong.
+Let's fix that by conditionally apply the clock-names constraints based on
+the compatible string content.
 
-Prevents this build error:
-
-ld: drivers/input/misc/wistron_btns.o: in function `poll_bios':
-wistron_btns.c:(.text+0x4be): undefined reference to `rtc_cmos_read'
-
-Fixes: 0bbadafdc49d ("um: allow disabling NO_IOMEM") # v5.14+
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Link: https://lore.kernel.org/r/20221130161604.1879-1-rdunlap@infradead.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Link: https://lore.kernel.org/r/20221113191301.5526-2-Sergey.Semin@baikalelectronics.ru
+Fixes: 751ca492f131 ("dt-bindings: PCI: imx6: convert the imx pcie controller to dtschema")
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Acked-by: Alexander Stein <alexander.stein@ew.tq-group.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/misc/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../bindings/pci/fsl,imx6q-pcie.yaml          | 46 +++++++++++++++++--
+ 1 file changed, 42 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index dd5227cf8696..b5b8ddb536be 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -330,7 +330,7 @@ config INPUT_CPCAP_PWRBUTTON
+diff --git a/Documentation/devicetree/bindings/pci/fsl,imx6q-pcie.yaml b/Documentation/devicetree/bindings/pci/fsl,imx6q-pcie.yaml
+index 376e739bcad4..49b4f7a32e71 100644
+--- a/Documentation/devicetree/bindings/pci/fsl,imx6q-pcie.yaml
++++ b/Documentation/devicetree/bindings/pci/fsl,imx6q-pcie.yaml
+@@ -14,9 +14,6 @@ description: |+
+   This PCIe host controller is based on the Synopsys DesignWare PCIe IP
+   and thus inherits all the common properties defined in snps,dw-pcie.yaml.
  
- config INPUT_WISTRON_BTNS
- 	tristate "x86 Wistron laptop button interface"
--	depends on X86_32
-+	depends on X86_32 && !UML
- 	select INPUT_SPARSEKMAP
- 	select NEW_LEDS
- 	select LEDS_CLASS
+-allOf:
+-  - $ref: /schemas/pci/snps,dw-pcie.yaml#
+-
+ properties:
+   compatible:
+     enum:
+@@ -61,7 +58,7 @@ properties:
+       - const: pcie
+       - const: pcie_bus
+       - const: pcie_phy
+-      - const: pcie_inbound_axi for imx6sx-pcie, pcie_aux for imx8mq-pcie
++      - enum: [ pcie_inbound_axi, pcie_aux ]
+ 
+   num-lanes:
+     const: 1
+@@ -175,6 +172,47 @@ required:
+   - clocks
+   - clock-names
+ 
++allOf:
++  - $ref: /schemas/pci/snps,dw-pcie.yaml#
++  - if:
++      properties:
++        compatible:
++          contains:
++            const: fsl,imx6sx-pcie
++    then:
++      properties:
++        clock-names:
++          items:
++            - {}
++            - {}
++            - {}
++            - const: pcie_inbound_axi
++  - if:
++      properties:
++        compatible:
++          contains:
++            const: fsl,imx8mq-pcie
++    then:
++      properties:
++        clock-names:
++          items:
++            - {}
++            - {}
++            - {}
++            - const: pcie_aux
++  - if:
++      properties:
++        compatible:
++          not:
++            contains:
++              enum:
++                - fsl,imx6sx-pcie
++                - fsl,imx8mq-pcie
++    then:
++      properties:
++        clock-names:
++          maxItems: 3
++
+ unevaluatedProperties: false
+ 
+ examples:
 -- 
 2.35.1
 
