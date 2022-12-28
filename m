@@ -2,50 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BAA4658400
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:54:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CFC1657F06
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:00:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233264AbiL1QyB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:54:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45852 "EHLO
+        id S232935AbiL1QAV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:00:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235262AbiL1QxM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:53:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEE521B1EB
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:48:34 -0800 (PST)
+        with ESMTP id S232658AbiL1QAU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:00:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2958A18E23
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:00:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A477BB8172A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:48:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCF42C433EF;
-        Wed, 28 Dec 2022 16:48:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8AA9613E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:00:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9E6AC433D2;
+        Wed, 28 Dec 2022 16:00:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246112;
-        bh=k58RRflD6JGFt7EF93aoHdhUah760czXjm3Zmz65dMQ=;
+        s=korg; t=1672243218;
+        bh=t5mGLbpNT5DCWhg/P4ibk1NCU+6t0ogggYFa2OyyLpk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kpPOaNnOBhLDc9gyA0DOpUrvs2D+j4zkl+DEshMdwBWem1dT0Qe+9/20/sr9hbS/h
-         3kfTOX8g2buBLgbmVNFt5oOcnsVPhHvhmPVYUjAAC6dIUtOYLsrQA0yv4XpL9uSJPW
-         NbSrLc0tMJvzjgOJC6xMGcr77mgbV//ugMu9HYVA=
+        b=im7AXQPVKA02GalvAN4m5rBbG6n943+uRFZBl9MH8sraQ/EZfaOJdD/GAeTa64DQn
+         l5oQDIeY4frSBTb1Eep03qQxl9qTHZmsxf+hkjo1HtWwZuUcNHe/J/zg+eULc8MTb/
+         ugj3NzUmGmDurxt6shiil/3fqryaxlfZ2EOoMAfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Wang <wvw@google.com>,
-        Midas Chien <midaschieh@google.com>,
-        Connor OBrien <connoro@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Anton Vorontsov <anton@enomsg.org>,
-        Colin Cross <ccross@android.com>,
-        Tony Luck <tony.luck@intel.com>, kernel-team@android.com,
-        John Stultz <jstultz@google.com>,
+        patches@lists.linux.dev, Imre Deak <imre.deak@intel.com>,
+        Clint Taylor <clinton.a.taylor@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Khaled Almahallawy <khaled.almahallawy@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 1014/1073] pstore: Switch pmsg_lock to an rt_mutex to avoid priority inversion
-Date:   Wed, 28 Dec 2022 15:43:22 +0100
-Message-Id: <20221228144355.715370434@linuxfoundation.org>
+Subject: [PATCH 5.15 696/731] drm/i915/display: Dont disable DDI/Transcoder when setting phy test pattern
+Date:   Wed, 28 Dec 2022 15:43:23 +0100
+Message-Id: <20221228144316.639314377@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,67 +56,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Stultz <jstultz@google.com>
+From: Khaled Almahallawy <khaled.almahallawy@intel.com>
 
-[ Upstream commit 76d62f24db07f22ccf9bc18ca793c27d4ebef721 ]
+[ Upstream commit 3153eebb7a76e663ac76d6670dc113296de96622 ]
 
-Wei Wang reported seeing priority inversion caused latencies
-caused by contention on pmsg_lock, and suggested it be switched
-to a rt_mutex.
+Bspecs has updated recently to remove the restriction to disable
+DDI/Transcoder before setting PHY test pattern. This update is to
+address PHY compliance test failures observed on a port with LTTPR.
+The issue is that when Transc. is disabled, the main link signals fed
+to LTTPR will be dropped invalidating link training, which will affect
+the quality of the phy test pattern when the transcoder is enabled again.
 
-I was initially hesitant this would help, as the tasks in that
-trace all seemed to be SCHED_NORMAL, so the benefit would be
-limited to only nice boosting.
+v2: Update commit message (Clint)
+v3: Add missing Signed-off in v2
+v4: Update Bspec and commit message for pre-gen12 (Jani)
 
-However, another similar issue was raised where the priority
-inversion was seen did involve a blocked RT task so it is clear
-this would be helpful in that case.
-
-Cc: Wei Wang <wvw@google.com>
-Cc: Midas Chien<midaschieh@google.com>
-Cc: Connor O'Brien <connoro@google.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Anton Vorontsov <anton@enomsg.org>
-Cc: Colin Cross <ccross@android.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: kernel-team@android.com
-Fixes: 9d5438f462ab ("pstore: Add pmsg - user-space accessible pstore object")
-Reported-by: Wei Wang <wvw@google.com>
-Signed-off-by: John Stultz <jstultz@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221214231834.3711880-1-jstultz@google.com
+Bspec: 50482, 7555
+Fixes: 8cdf72711928 ("drm/i915/dp: Program vswing, pre-emphasis, test-pattern")
+Cc: Imre Deak <imre.deak@intel.com>
+Cc: Clint Taylor <clinton.a.taylor@intel.com>
+CC: Jani Nikula <jani.nikula@intel.com>
+Tested-by: Khaled Almahallawy <khaled.almahallawy@intel.com>
+Reviewed-by: Clint Taylor <clinton.a.taylor@intel.com>
+Signed-off-by: Khaled Almahallawy <khaled.almahallawy@intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221123220926.170034-1-khaled.almahallawy@intel.com
+(cherry picked from commit be4a847652056b067d6dc6fe0fc024a9e2e987ca)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/pstore/pmsg.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/i915/display/intel_dp.c | 59 -------------------------
+ 1 file changed, 59 deletions(-)
 
-diff --git a/fs/pstore/pmsg.c b/fs/pstore/pmsg.c
-index d8542ec2f38c..18cf94b597e0 100644
---- a/fs/pstore/pmsg.c
-+++ b/fs/pstore/pmsg.c
-@@ -7,9 +7,10 @@
- #include <linux/device.h>
- #include <linux/fs.h>
- #include <linux/uaccess.h>
-+#include <linux/rtmutex.h>
- #include "internal.h"
- 
--static DEFINE_MUTEX(pmsg_lock);
-+static DEFINE_RT_MUTEX(pmsg_lock);
- 
- static ssize_t write_pmsg(struct file *file, const char __user *buf,
- 			  size_t count, loff_t *ppos)
-@@ -28,9 +29,9 @@ static ssize_t write_pmsg(struct file *file, const char __user *buf,
- 	if (!access_ok(buf, count))
- 		return -EFAULT;
- 
--	mutex_lock(&pmsg_lock);
-+	rt_mutex_lock(&pmsg_lock);
- 	ret = psinfo->write_user(&record, buf);
--	mutex_unlock(&pmsg_lock);
-+	rt_mutex_unlock(&pmsg_lock);
- 	return ret ? ret : count;
+diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+index 1ccdf2da042b..64a15b636e8d 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp.c
++++ b/drivers/gpu/drm/i915/display/intel_dp.c
+@@ -3245,61 +3245,6 @@ static void intel_dp_phy_pattern_update(struct intel_dp *intel_dp,
+ 	}
  }
+ 
+-static void
+-intel_dp_autotest_phy_ddi_disable(struct intel_dp *intel_dp,
+-				  const struct intel_crtc_state *crtc_state)
+-{
+-	struct intel_digital_port *dig_port = dp_to_dig_port(intel_dp);
+-	struct drm_device *dev = dig_port->base.base.dev;
+-	struct drm_i915_private *dev_priv = to_i915(dev);
+-	struct intel_crtc *crtc = to_intel_crtc(dig_port->base.base.crtc);
+-	enum pipe pipe = crtc->pipe;
+-	u32 trans_ddi_func_ctl_value, trans_conf_value, dp_tp_ctl_value;
+-
+-	trans_ddi_func_ctl_value = intel_de_read(dev_priv,
+-						 TRANS_DDI_FUNC_CTL(pipe));
+-	trans_conf_value = intel_de_read(dev_priv, PIPECONF(pipe));
+-	dp_tp_ctl_value = intel_de_read(dev_priv, TGL_DP_TP_CTL(pipe));
+-
+-	trans_ddi_func_ctl_value &= ~(TRANS_DDI_FUNC_ENABLE |
+-				      TGL_TRANS_DDI_PORT_MASK);
+-	trans_conf_value &= ~PIPECONF_ENABLE;
+-	dp_tp_ctl_value &= ~DP_TP_CTL_ENABLE;
+-
+-	intel_de_write(dev_priv, PIPECONF(pipe), trans_conf_value);
+-	intel_de_write(dev_priv, TRANS_DDI_FUNC_CTL(pipe),
+-		       trans_ddi_func_ctl_value);
+-	intel_de_write(dev_priv, TGL_DP_TP_CTL(pipe), dp_tp_ctl_value);
+-}
+-
+-static void
+-intel_dp_autotest_phy_ddi_enable(struct intel_dp *intel_dp,
+-				 const struct intel_crtc_state *crtc_state)
+-{
+-	struct intel_digital_port *dig_port = dp_to_dig_port(intel_dp);
+-	struct drm_device *dev = dig_port->base.base.dev;
+-	struct drm_i915_private *dev_priv = to_i915(dev);
+-	enum port port = dig_port->base.port;
+-	struct intel_crtc *crtc = to_intel_crtc(dig_port->base.base.crtc);
+-	enum pipe pipe = crtc->pipe;
+-	u32 trans_ddi_func_ctl_value, trans_conf_value, dp_tp_ctl_value;
+-
+-	trans_ddi_func_ctl_value = intel_de_read(dev_priv,
+-						 TRANS_DDI_FUNC_CTL(pipe));
+-	trans_conf_value = intel_de_read(dev_priv, PIPECONF(pipe));
+-	dp_tp_ctl_value = intel_de_read(dev_priv, TGL_DP_TP_CTL(pipe));
+-
+-	trans_ddi_func_ctl_value |= TRANS_DDI_FUNC_ENABLE |
+-				    TGL_TRANS_DDI_SELECT_PORT(port);
+-	trans_conf_value |= PIPECONF_ENABLE;
+-	dp_tp_ctl_value |= DP_TP_CTL_ENABLE;
+-
+-	intel_de_write(dev_priv, PIPECONF(pipe), trans_conf_value);
+-	intel_de_write(dev_priv, TGL_DP_TP_CTL(pipe), dp_tp_ctl_value);
+-	intel_de_write(dev_priv, TRANS_DDI_FUNC_CTL(pipe),
+-		       trans_ddi_func_ctl_value);
+-}
+-
+ static void intel_dp_process_phy_request(struct intel_dp *intel_dp,
+ 					 const struct intel_crtc_state *crtc_state)
+ {
+@@ -3317,14 +3262,10 @@ static void intel_dp_process_phy_request(struct intel_dp *intel_dp,
+ 	intel_dp_get_adjust_train(intel_dp, crtc_state, DP_PHY_DPRX,
+ 				  link_status);
+ 
+-	intel_dp_autotest_phy_ddi_disable(intel_dp, crtc_state);
+-
+ 	intel_dp_set_signal_levels(intel_dp, crtc_state, DP_PHY_DPRX);
+ 
+ 	intel_dp_phy_pattern_update(intel_dp, crtc_state);
+ 
+-	intel_dp_autotest_phy_ddi_enable(intel_dp, crtc_state);
+-
+ 	drm_dp_dpcd_write(&intel_dp->aux, DP_TRAINING_LANE0_SET,
+ 			  intel_dp->train_set, crtc_state->lane_count);
  
 -- 
 2.35.1
