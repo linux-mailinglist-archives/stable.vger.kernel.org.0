@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A7956582F9
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDF1465820A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:32:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234925AbiL1Qnw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:43:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34088 "EHLO
+        id S234115AbiL1Qc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:32:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234949AbiL1QnY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D247A1D335
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:33 -0800 (PST)
+        with ESMTP id S233760AbiL1Qc3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:32:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28AF8192A9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:29:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AB5161576
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:37:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77894C433EF;
-        Wed, 28 Dec 2022 16:37:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D6810B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:29:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E178C433D2;
+        Wed, 28 Dec 2022 16:29:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245452;
-        bh=FYBXsWlUp8AgPasGNzvLJEMDl7Pt9WKeBV+dNyhtRUA=;
+        s=korg; t=1672244959;
+        bh=dRCMaNydInFQ/tG2XTzF+1HqvwiZ6fy+vxvxIUa9J6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SS08v0szOVRnsEe0nTDmNVIsFbRmYArERmga8tpcfoUD7uV/ZSL0kd87rdMHTOYAT
-         94uXShyjp4H0pXzq64udWklMHLIutcS+BLy3rAY5b4201Pu9B4dSBayJUf8srXD4dl
-         m0Ck8uHtvu40Q9cWed/HXvffTN5XOz1YGNYhrglA=
+        b=cVEo7OTFjVgk7GAcdpXzkk/WACmePulQ1TsLqqsOf/yLzXI3Rlm483SgoYtdUDYa5
+         VjYmpc8JFw/wBMuDRYAxXbjWiZGB26q7A+0yocsNfcJZoCqxrKijzIGHQv5nhWZhFj
+         1RMtu2RKAdE8wtVA8gkLU9JrrS3DsWfJjf8eFjiU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Huafei <lihuafei1@huawei.com>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0855/1146] kprobes: Fix check for probe enabled in kill_kprobe()
+Subject: [PATCH 6.0 0806/1073] powerpc: dts: turris1x.dts: Add channel labels for temperature sensor
 Date:   Wed, 28 Dec 2022 15:39:54 +0100
-Message-Id: <20221228144353.378179777@linuxfoundation.org>
+Message-Id: <20221228144349.901420480@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Huafei <lihuafei1@huawei.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 0c76ef3f26d5ef2ac2c21b47e7620cff35809fbb ]
+[ Upstream commit 67bbb62f61e810734da0a1577a9802ddaed24140 ]
 
-In kill_kprobe(), the check whether disarm_kprobe_ftrace() needs to be
-called always fails. This is because before that we set the
-KPROBE_FLAG_GONE flag for kprobe so that "!kprobe_disabled(p)" is always
-false.
+Channel 0 of SA56004ED chip refers to internal SA56004ED chip sensor (chip
+itself is located on the board) and channel 1 of SA56004ED chip refers to
+external sensor which is connected to temperature diode of the P2020 CPU.
 
-The disarm_kprobe_ftrace() call introduced by commit:
-
-  0cb2f1372baa ("kprobes: Fix NULL pointer dereference at kprobe_ftrace_handler")
-
-to fix the NULL pointer reference problem. When the probe is enabled, if
-we do not disarm it, this problem still exists.
-
-Fix it by putting the probe enabled check before setting the
-KPROBE_FLAG_GONE flag.
-
-Link: https://lore.kernel.org/all/20221126114316.201857-1-lihuafei1@huawei.com/
-
-Fixes: 3031313eb3d54 ("kprobes: Fix to check probe enabled before disarm_kprobe_ftrace()")
-Signed-off-by: Li Huafei <lihuafei1@huawei.com>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Fixes: 54c15ec3b738 ("powerpc: dts: Add DTS file for CZ.NIC Turris 1.x routers")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220930123901.10251-1-pali@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kprobes.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/powerpc/boot/dts/turris1x.dts | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index 3050631e528d..a35074f0daa1 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -2364,6 +2364,14 @@ static void kill_kprobe(struct kprobe *p)
- 
- 	lockdep_assert_held(&kprobe_mutex);
- 
-+	/*
-+	 * The module is going away. We should disarm the kprobe which
-+	 * is using ftrace, because ftrace framework is still available at
-+	 * 'MODULE_STATE_GOING' notification.
-+	 */
-+	if (kprobe_ftrace(p) && !kprobe_disabled(p) && !kprobes_all_disarmed)
-+		disarm_kprobe_ftrace(p);
+diff --git a/arch/powerpc/boot/dts/turris1x.dts b/arch/powerpc/boot/dts/turris1x.dts
+index 045af668e928..e9cda34a140e 100644
+--- a/arch/powerpc/boot/dts/turris1x.dts
++++ b/arch/powerpc/boot/dts/turris1x.dts
+@@ -69,6 +69,20 @@ temperature-sensor@4c {
+ 				interrupt-parent = <&gpio>;
+ 				interrupts = <12 IRQ_TYPE_LEVEL_LOW>, /* GPIO12 - ALERT pin */
+ 					     <13 IRQ_TYPE_LEVEL_LOW>; /* GPIO13 - CRIT pin */
++				#address-cells = <1>;
++				#size-cells = <0>;
 +
- 	p->flags |= KPROBE_FLAG_GONE;
- 	if (kprobe_aggrprobe(p)) {
- 		/*
-@@ -2380,14 +2388,6 @@ static void kill_kprobe(struct kprobe *p)
- 	 * the original probed function (which will be freed soon) any more.
- 	 */
- 	arch_remove_kprobe(p);
--
--	/*
--	 * The module is going away. We should disarm the kprobe which
--	 * is using ftrace, because ftrace framework is still available at
--	 * 'MODULE_STATE_GOING' notification.
--	 */
--	if (kprobe_ftrace(p) && !kprobe_disabled(p) && !kprobes_all_disarmed)
--		disarm_kprobe_ftrace(p);
- }
++				/* Local temperature sensor (SA56004ED internal) */
++				channel@0 {
++					reg = <0>;
++					label = "board";
++				};
++
++				/* Remote temperature sensor (D+/D- connected to P2020 CPU Temperature Diode) */
++				channel@1 {
++					reg = <1>;
++					label = "cpu";
++				};
+ 			};
  
- /* Disable one kprobe */
+ 			/* DDR3 SPD/EEPROM */
 -- 
 2.35.1
 
