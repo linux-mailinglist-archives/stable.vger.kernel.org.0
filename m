@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CB1C658206
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:32:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96074657C53
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:31:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234805AbiL1Qcx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:32:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51104 "EHLO
+        id S233825AbiL1Pb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:31:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234808AbiL1QcZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:32:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52A77186B4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:29:14 -0800 (PST)
+        with ESMTP id S233853AbiL1PbT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:31:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37D7515F23
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:31:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06B82B81886
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:29:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54EEDC433EF;
-        Wed, 28 Dec 2022 16:29:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA6A6B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:31:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 463B9C433EF;
+        Wed, 28 Dec 2022 15:31:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244951;
-        bh=fwbuUC4jbzYu3qFbzyYWlAeu9kbXPPFteuaTahy9Jjc=;
+        s=korg; t=1672241474;
+        bh=2s8+8v+kwfXxbFXzf6BDPF3hKKV7A9BpshUDpveIOhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JrdtX8fBIprKxhxH9YYaqDEKhhU9eUKlBbgAs852Io6C7zz33RNJ8gz104gK05wWu
-         MBMvIE4mMjV6HGAAthkW+uDPsmNRiI/9sAfnoSo5Sk24DZd4Ebeo8aHWTsXKwkMbYu
-         XKUAaygEqL+xgpFGNpN8J3YuRS9FjY0xxKP2OsH8=
+        b=DlCYXlHBnqnyvHkbZ0UFkC61iPsP3pRP9i0m0mqRwdhmuuvsL4+cKw/TsLi2TSt7y
+         S+ufsSbOQJUaz3IgbkH9pubtRm/VXLRWmvZEivPl0xlhI1CKaZ2Fc8UNo6T31pxrlJ
+         KYwPwpJ17ZyzmZkiDQY3j/I4CL2JAQbaT3DbTQiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Huafei <lihuafei1@huawei.com>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0805/1073] kprobes: Fix check for probe enabled in kill_kprobe()
+        patches@lists.linux.dev, Hui Tang <tanghui20@huawei.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 486/731] i2c: pxa-pci: fix missing pci_disable_device() on error in ce4100_i2c_probe
 Date:   Wed, 28 Dec 2022 15:39:53 +0100
-Message-Id: <20221228144349.874655003@linuxfoundation.org>
+Message-Id: <20221228144310.636288796@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Huafei <lihuafei1@huawei.com>
+From: Hui Tang <tanghui20@huawei.com>
 
-[ Upstream commit 0c76ef3f26d5ef2ac2c21b47e7620cff35809fbb ]
+[ Upstream commit d78a167332e1ca8113268ed922c1212fd71b73ad ]
 
-In kill_kprobe(), the check whether disarm_kprobe_ftrace() needs to be
-called always fails. This is because before that we set the
-KPROBE_FLAG_GONE flag for kprobe so that "!kprobe_disabled(p)" is always
-false.
+Using pcim_enable_device() to avoid missing pci_disable_device().
 
-The disarm_kprobe_ftrace() call introduced by commit:
-
-  0cb2f1372baa ("kprobes: Fix NULL pointer dereference at kprobe_ftrace_handler")
-
-to fix the NULL pointer reference problem. When the probe is enabled, if
-we do not disarm it, this problem still exists.
-
-Fix it by putting the probe enabled check before setting the
-KPROBE_FLAG_GONE flag.
-
-Link: https://lore.kernel.org/all/20221126114316.201857-1-lihuafei1@huawei.com/
-
-Fixes: 3031313eb3d54 ("kprobes: Fix to check probe enabled before disarm_kprobe_ftrace()")
-Signed-off-by: Li Huafei <lihuafei1@huawei.com>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Fixes: 7e94dd154e93 ("i2c-pxa2xx: Add PCI support for PXA I2C controller")
+Signed-off-by: Hui Tang <tanghui20@huawei.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kprobes.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-pxa-pci.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index 6d2a8623ec7b..771fcce54fac 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -2360,6 +2360,14 @@ static void kill_kprobe(struct kprobe *p)
+diff --git a/drivers/i2c/busses/i2c-pxa-pci.c b/drivers/i2c/busses/i2c-pxa-pci.c
+index f614cade432b..30e38bc8b6db 100644
+--- a/drivers/i2c/busses/i2c-pxa-pci.c
++++ b/drivers/i2c/busses/i2c-pxa-pci.c
+@@ -105,7 +105,7 @@ static int ce4100_i2c_probe(struct pci_dev *dev,
+ 	int i;
+ 	struct ce4100_devices *sds;
  
- 	lockdep_assert_held(&kprobe_mutex);
+-	ret = pci_enable_device_mem(dev);
++	ret = pcim_enable_device(dev);
+ 	if (ret)
+ 		return ret;
  
-+	/*
-+	 * The module is going away. We should disarm the kprobe which
-+	 * is using ftrace, because ftrace framework is still available at
-+	 * 'MODULE_STATE_GOING' notification.
-+	 */
-+	if (kprobe_ftrace(p) && !kprobe_disabled(p) && !kprobes_all_disarmed)
-+		disarm_kprobe_ftrace(p);
-+
- 	p->flags |= KPROBE_FLAG_GONE;
- 	if (kprobe_aggrprobe(p)) {
- 		/*
-@@ -2376,14 +2384,6 @@ static void kill_kprobe(struct kprobe *p)
- 	 * the original probed function (which will be freed soon) any more.
- 	 */
- 	arch_remove_kprobe(p);
--
--	/*
--	 * The module is going away. We should disarm the kprobe which
--	 * is using ftrace, because ftrace framework is still available at
--	 * 'MODULE_STATE_GOING' notification.
--	 */
--	if (kprobe_ftrace(p) && !kprobe_disabled(p) && !kprobes_all_disarmed)
--		disarm_kprobe_ftrace(p);
+@@ -114,10 +114,8 @@ static int ce4100_i2c_probe(struct pci_dev *dev,
+ 		return -EINVAL;
+ 	}
+ 	sds = kzalloc(sizeof(*sds), GFP_KERNEL);
+-	if (!sds) {
+-		ret = -ENOMEM;
+-		goto err_mem;
+-	}
++	if (!sds)
++		return -ENOMEM;
+ 
+ 	for (i = 0; i < ARRAY_SIZE(sds->pdev); i++) {
+ 		sds->pdev[i] = add_i2c_device(dev, i);
+@@ -133,8 +131,6 @@ static int ce4100_i2c_probe(struct pci_dev *dev,
+ 
+ err_dev_add:
+ 	kfree(sds);
+-err_mem:
+-	pci_disable_device(dev);
+ 	return ret;
  }
  
- /* Disable one kprobe */
 -- 
 2.35.1
 
