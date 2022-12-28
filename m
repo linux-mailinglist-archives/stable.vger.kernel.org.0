@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66CF1657EF3
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:59:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D08F4657FD8
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:10:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234225AbiL1P7d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:59:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46484 "EHLO
+        id S234421AbiL1QKo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:10:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234223AbiL1P7c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:59:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18F4A18E14
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:59:32 -0800 (PST)
+        with ESMTP id S234430AbiL1QKI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:10:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75E121A3BA
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:08:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A8BB661562
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:59:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBA09C433EF;
-        Wed, 28 Dec 2022 15:59:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 86575B81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:08:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDA47C433EF;
+        Wed, 28 Dec 2022 16:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243171;
-        bh=W/Xnmc97F+AtLcG8E2pp6biNEpuKZmfhp14G8o0Nryc=;
+        s=korg; t=1672243731;
+        bh=hoHcJ1yWNHEcu8fm58/F1BLXG3UF5mL5jGRp1Ibx4SE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BfmANrE4gpzhCWCQ9GNmH0iX9KsdoIVDQtqKScvTs3C2veWqiNk6YvFPBkgFGFYhS
-         jyojUN/ZGbN4V3VFuLhsM0Z9U9FDMiOsDbMoMo1MVsI3fMKwwao6cS6uCCN/A0SoGS
-         Uo7JzopNioNrsXUyVK3hHt9aev55pFQrKPNsy5xk=
+        b=GfvW/xEYsuXTw1pTAjVaAc1aMKdzWAqJH/pGA/EFd8o0Ja33fAARNECrJ7zhCYrIy
+         u9lLYMrDZIlKvF/a1T8lXM55bpSEQCbuZPeniACfJSM9Pk5n/tDjjyUT81+9S26r0W
+         qLneBKceH41FaJnMlDpugCePJN0EjcpfVPbN3Pow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Tom Lendacky <thomas.lendacky@amd.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0497/1073] regulator: qcom-labibb: Fix missing of_node_put() in qcom_labibb_regulator_probe()
+Subject: [PATCH 6.1 0546/1146] net: amd-xgbe: Fix logic around active and passive cables
 Date:   Wed, 28 Dec 2022 15:34:45 +0100
-Message-Id: <20221228144341.534325280@linuxfoundation.org>
+Message-Id: <20221228144345.002356713@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-[ Upstream commit cf34ac6aa2b12fb0c3aacfdcae8acd7904b949ec ]
+[ Upstream commit 4998006c73afe44e2f639d55bd331c6c26eb039f ]
 
-The reg_node needs to be released through of_node_put() in the error
-handling path when of_irq_get_byname() failed.
+SFP+ active and passive cables are copper cables with fixed SFP+ end
+connectors. Due to a misinterpretation of this, SFP+ active cables could
+end up not being recognized, causing the driver to fail to establish a
+connection.
 
-Fixes: 390af53e0411 ("regulator: qcom-labibb: Implement short-circuit and over-current IRQs")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Link: https://lore.kernel.org/r/20221203062109.115043-1-yuancan@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Introduce a new enum in SFP+ cable types, XGBE_SFP_CABLE_FIBER, that is
+the default cable type, and handle active and passive cables when they are
+specifically detected.
+
+Fixes: abf0a1c2b26a ("amd-xgbe: Add support for SFP+ modules")
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/qcom-labibb-regulator.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/regulator/qcom-labibb-regulator.c b/drivers/regulator/qcom-labibb-regulator.c
-index 639b71eb41ff..bcf7140f3bc9 100644
---- a/drivers/regulator/qcom-labibb-regulator.c
-+++ b/drivers/regulator/qcom-labibb-regulator.c
-@@ -822,6 +822,7 @@ static int qcom_labibb_regulator_probe(struct platform_device *pdev)
- 			if (irq == 0)
- 				irq = -EINVAL;
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+index 4064c3e3dd49..868a768f424c 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+@@ -189,6 +189,7 @@ enum xgbe_sfp_cable {
+ 	XGBE_SFP_CABLE_UNKNOWN = 0,
+ 	XGBE_SFP_CABLE_ACTIVE,
+ 	XGBE_SFP_CABLE_PASSIVE,
++	XGBE_SFP_CABLE_FIBER,
+ };
  
-+			of_node_put(reg_node);
- 			return dev_err_probe(vreg->dev, irq,
- 					     "Short-circuit irq not found.\n");
- 		}
+ enum xgbe_sfp_base {
+@@ -1149,16 +1150,18 @@ static void xgbe_phy_sfp_parse_eeprom(struct xgbe_prv_data *pdata)
+ 	phy_data->sfp_tx_fault = xgbe_phy_check_sfp_tx_fault(phy_data);
+ 	phy_data->sfp_rx_los = xgbe_phy_check_sfp_rx_los(phy_data);
+ 
+-	/* Assume ACTIVE cable unless told it is PASSIVE */
++	/* Assume FIBER cable unless told otherwise */
+ 	if (sfp_base[XGBE_SFP_BASE_CABLE] & XGBE_SFP_BASE_CABLE_PASSIVE) {
+ 		phy_data->sfp_cable = XGBE_SFP_CABLE_PASSIVE;
+ 		phy_data->sfp_cable_len = sfp_base[XGBE_SFP_BASE_CU_CABLE_LEN];
+-	} else {
++	} else if (sfp_base[XGBE_SFP_BASE_CABLE] & XGBE_SFP_BASE_CABLE_ACTIVE) {
+ 		phy_data->sfp_cable = XGBE_SFP_CABLE_ACTIVE;
++	} else {
++		phy_data->sfp_cable = XGBE_SFP_CABLE_FIBER;
+ 	}
+ 
+ 	/* Determine the type of SFP */
+-	if (phy_data->sfp_cable == XGBE_SFP_CABLE_PASSIVE &&
++	if (phy_data->sfp_cable != XGBE_SFP_CABLE_FIBER &&
+ 	    xgbe_phy_sfp_bit_rate(sfp_eeprom, XGBE_SFP_SPEED_10000))
+ 		phy_data->sfp_base = XGBE_SFP_BASE_10000_CR;
+ 	else if (sfp_base[XGBE_SFP_BASE_10GBE_CC] & XGBE_SFP_BASE_10GBE_CC_SR)
 -- 
 2.35.1
 
