@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83FCD657C5E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:32:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2866657D76
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:43:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233857AbiL1PcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:32:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49420 "EHLO
+        id S233478AbiL1Pnb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:43:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233824AbiL1Pb4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:31:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D08691649D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:31:43 -0800 (PST)
+        with ESMTP id S233561AbiL1Pnb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:43:31 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AF1D1707E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:43:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7034EB8170E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:31:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D429CC433EF;
-        Wed, 28 Dec 2022 15:31:40 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 81C7ECE1369
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:43:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 719ADC433D2;
+        Wed, 28 Dec 2022 15:43:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241501;
-        bh=r1GAJSewigeviLBCeAFUN/U32cZE68w24A3nr97AUx0=;
+        s=korg; t=1672242206;
+        bh=8v+EMNxtKi4gzOckFgmgHMjxyI2PGf6ODKXnpVuuKe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VE/8wz/bTwqeiLwtbq9SkWzPTVx1PtvIjvf3RoR/s1Vu4AfyBNt9q3npL1kwxF1dF
-         a54PmdXyshsFRPNm7zhQq1XS04pWVqSNuWA8L4C/rC2rsrGYVCamOkCWGPBfXvVm5u
-         lXDFhm3Rk8yS2+XBx8e42n3UOcRlFO41bo+E4uio=
+        b=0+1Bd0cAC87r1TYlRsfOd/dW4/r2GpekE464dISzpR4DzyhGagAReHbjNlQPyr3wz
+         a8boRSL5/uE+nr0dD2Q89SzDATw6WI+2uCTqsVVdk+TqmBhz4iGSVArAkB2c9hOzBV
+         5TVvYDJtJv4bFby/0lxawS9Xi45BA7j9Tx9z/V98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0291/1073] mtd: core: fix possible resource leak in init_mtd()
-Date:   Wed, 28 Dec 2022 15:31:19 +0100
-Message-Id: <20221228144335.919543495@linuxfoundation.org>
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        Yu Kuai <yukuai3@huawei.com>,
+        Mike Snitzer <snitzer@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0341/1146] dm: cleanup open_table_device
+Date:   Wed, 28 Dec 2022 15:31:20 +0100
+Message-Id: <20221228144339.419409011@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +54,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 1aadf01e5076b9ab6bf294b9622335c651314895 ]
+[ Upstream commit b9a785d2dc6567b2fd9fc60057a6a945a276927a ]
 
-I got the error report while inject fault in init_mtd():
+Move all the logic for allocation the table_device and linking it into
+the list into the open_table_device.  This keeps the code tidy and
+ensures that the table_devices only exist in fully initialized state.
 
-sysfs: cannot create duplicate filename '/devices/virtual/bdi/mtd-0'
-Call Trace:
- <TASK>
- dump_stack_lvl+0x67/0x83
- sysfs_warn_dup+0x60/0x70
- sysfs_create_dir_ns+0x109/0x120
- kobject_add_internal+0xce/0x2f0
- kobject_add+0x98/0x110
- device_add+0x179/0xc00
- device_create_groups_vargs+0xf4/0x100
- device_create+0x7b/0xb0
- bdi_register_va.part.13+0x58/0x2d0
- bdi_register+0x9b/0xb0
- init_mtd+0x62/0x171 [mtd]
- do_one_initcall+0x6c/0x3c0
- do_init_module+0x58/0x222
- load_module+0x268e/0x27d0
- __do_sys_finit_module+0xd5/0x140
- do_syscall_64+0x37/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
- </TASK>
-kobject_add_internal failed for mtd-0 with -EEXIST, don't try to register
-	things with the same name in the same directory.
-Error registering mtd class or bdi: -17
-
-If init_mtdchar() fails in init_mtd(), mtd_bdi will not be unregistered,
-as a result, we can't load the mtd module again, to fix this by calling
-bdi_unregister(mtd_bdi) after out_procfs label.
-
-Fixes: 445caaa20c4d ("mtd: Allocate bdi objects dynamically")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20221024065109.2050705-1-cuigaosheng1@huawei.com
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Mike Snitzer <snitzer@kernel.org>
+Link: https://lore.kernel.org/r/20221115141054.1051801-4-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Stable-dep-of: 1a581b721699 ("dm: track per-add_disk holder relations in DM")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/mtdcore.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/md/dm.c | 56 ++++++++++++++++++++++++-------------------------
+ 1 file changed, 27 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/mtd/mtdcore.c b/drivers/mtd/mtdcore.c
-index cc7e1fd1ef10..37050c551880 100644
---- a/drivers/mtd/mtdcore.c
-+++ b/drivers/mtd/mtdcore.c
-@@ -2452,6 +2452,7 @@ static int __init init_mtd(void)
- out_procfs:
- 	if (proc_mtd)
- 		remove_proc_entry("mtd", NULL);
-+	bdi_unregister(mtd_bdi);
- 	bdi_put(mtd_bdi);
- err_bdi:
- 	class_unregister(&mtd_class);
+diff --git a/drivers/md/dm.c b/drivers/md/dm.c
+index 95a1ee3d314e..739996499f4d 100644
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -732,28 +732,41 @@ static char *_dm_claim_ptr = "I belong to device-mapper";
+ /*
+  * Open a table device so we can use it as a map destination.
+  */
+-static int open_table_device(struct table_device *td, dev_t dev,
+-			     struct mapped_device *md)
++static struct table_device *open_table_device(struct mapped_device *md,
++		dev_t dev, fmode_t mode)
+ {
++	struct table_device *td;
+ 	struct block_device *bdev;
+ 	u64 part_off;
+ 	int r;
+ 
+-	BUG_ON(td->dm_dev.bdev);
++	td = kmalloc_node(sizeof(*td), GFP_KERNEL, md->numa_node_id);
++	if (!td)
++		return ERR_PTR(-ENOMEM);
++	refcount_set(&td->count, 1);
+ 
+-	bdev = blkdev_get_by_dev(dev, td->dm_dev.mode | FMODE_EXCL, _dm_claim_ptr);
+-	if (IS_ERR(bdev))
+-		return PTR_ERR(bdev);
++	bdev = blkdev_get_by_dev(dev, mode | FMODE_EXCL, _dm_claim_ptr);
++	if (IS_ERR(bdev)) {
++		r = PTR_ERR(bdev);
++		goto out_free_td;
++	}
+ 
+ 	r = bd_link_disk_holder(bdev, dm_disk(md));
+-	if (r) {
+-		blkdev_put(bdev, td->dm_dev.mode | FMODE_EXCL);
+-		return r;
+-	}
++	if (r)
++		goto out_blkdev_put;
+ 
++	td->dm_dev.mode = mode;
+ 	td->dm_dev.bdev = bdev;
+ 	td->dm_dev.dax_dev = fs_dax_get_by_bdev(bdev, &part_off, NULL, NULL);
+-	return 0;
++	format_dev_t(td->dm_dev.name, dev);
++	list_add(&td->list, &md->table_devices);
++	return td;
++
++out_blkdev_put:
++	blkdev_put(bdev, mode | FMODE_EXCL);
++out_free_td:
++	kfree(td);
++	return ERR_PTR(r);
+ }
+ 
+ /*
+@@ -786,31 +799,16 @@ static struct table_device *find_table_device(struct list_head *l, dev_t dev,
+ int dm_get_table_device(struct mapped_device *md, dev_t dev, fmode_t mode,
+ 			struct dm_dev **result)
+ {
+-	int r;
+ 	struct table_device *td;
+ 
+ 	mutex_lock(&md->table_devices_lock);
+ 	td = find_table_device(&md->table_devices, dev, mode);
+ 	if (!td) {
+-		td = kmalloc_node(sizeof(*td), GFP_KERNEL, md->numa_node_id);
+-		if (!td) {
+-			mutex_unlock(&md->table_devices_lock);
+-			return -ENOMEM;
+-		}
+-
+-		td->dm_dev.mode = mode;
+-		td->dm_dev.bdev = NULL;
+-
+-		if ((r = open_table_device(td, dev, md))) {
++		td = open_table_device(md, dev, mode);
++		if (IS_ERR(td)) {
+ 			mutex_unlock(&md->table_devices_lock);
+-			kfree(td);
+-			return r;
++			return PTR_ERR(td);
+ 		}
+-
+-		format_dev_t(td->dm_dev.name, dev);
+-
+-		refcount_set(&td->count, 1);
+-		list_add(&td->list, &md->table_devices);
+ 	} else {
+ 		refcount_inc(&td->count);
+ 	}
 -- 
 2.35.1
 
