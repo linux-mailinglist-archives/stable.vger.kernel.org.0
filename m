@@ -2,44 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D077657B96
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75850658235
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:33:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233351AbiL1PXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:23:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40258 "EHLO
+        id S234873AbiL1Qdj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:33:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233679AbiL1PXP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:23:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23E2513F55
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:23:14 -0800 (PST)
+        with ESMTP id S234792AbiL1QdP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B5461B7AC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:30:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8999B8172A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:23:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 210D0C433D2;
-        Wed, 28 Dec 2022 15:23:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A19F7B8171E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:30:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDE04C433EF;
+        Wed, 28 Dec 2022 16:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240991;
-        bh=OoW6+A9KlidEaPg6LYF0DzCw0G9ropuf4+xsU6mgME4=;
+        s=korg; t=1672245036;
+        bh=ixDZxU/fEWImfhu8/btyqy3WKqizzgjiw6cz764ALec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S6n4pcB4iuD4L27/oWrbtiWMySw25ZJuonuC6/eqisLLlqlrlg5nmd3r3ugt/Se9m
-         qtTTpszYQmiexZtvQecRqQdOKl6FGN9WrZkRnWYe+zHxXOn+fchubrqV1S8UmE910R
-         k5CL+4cauCLbIfrTCipThe1rNF+2zBOi8fIzYvKg=
+        b=UnKorRr5zxWAwb3j+74+Pa43kEr8NaX03bay0d7K1KggMYHTImzt8tp9LLf2bWZQ4
+         jza1viUyzxtsCMSOgvR/qAk3pAC2t1tMZLlRKo7yHsjhha7FFvuqf77fP8TrTiD+gT
+         hozRxuPyPoHw9PHhNtPMsNoQaD49EIRlRwolo4bk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        James Clark <james.clark@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sandipan Das <sandipan.das@amd.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 413/731] scsi: fcoe: Fix possible name leak when device_register() fails
-Date:   Wed, 28 Dec 2022 15:38:40 +0100
-Message-Id: <20221228144308.545596015@linuxfoundation.org>
+Subject: [PATCH 6.1 0782/1146] perf branch: Fix interpretation of branch records
+Date:   Wed, 28 Dec 2022 15:38:41 +0100
+Message-Id: <20221228144351.387516311@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,76 +61,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: James Clark <james.clark@arm.com>
 
-[ Upstream commit 47b6a122c7b69a876c7ee2fc064a26b09627de9d ]
+[ Upstream commit 20ed9fa4965875fdde5bfd65d838465e38d46b22 ]
 
-If device_register() returns an error, the name allocated by dev_set_name()
-needs to be freed. As the comment of device_register() says, one should use
-put_device() to give up the reference in the error path. Fix this by
-calling put_device(), then the name can be freed in kobject_cleanup().
+Commit 93315e46b000fc80 ("perf/core: Add speculation info to branch
+entries") added a new field in between type and new_type. Perf has its
+own copy of this struct so update it to match the kernel side.
 
-The 'fcf' is freed in fcoe_fcf_device_release(), so the kfree() in the
-error path can be removed.
+This doesn't currently cause any issues because new_type is only used by
+the Arm BRBE driver which isn't merged yet.
 
-The 'ctlr' is freed in fcoe_ctlr_device_release(), so don't use the error
-label, just return NULL after calling put_device().
+Committer notes:
 
-Fixes: 9a74e884ee71 ("[SCSI] libfcoe: Add fcoe_sysfs")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221112094310.3633291-1-yangyingliang@huawei.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Is this really an ABI? How are we supposed to deal with old perf.data
+files with new tools and vice versa? :-\
+
+Fixes: 93315e46b000fc80 ("perf/core: Add speculation info to branch entries")
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Signed-off-by: James Clark <james.clark@arm.com>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Sandipan Das <sandipan.das@amd.com>
+Link: https://lore.kernel.org/r/20221130165158.517385-1-james.clark@arm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/fcoe/fcoe_sysfs.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ tools/perf/util/branch.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/fcoe/fcoe_sysfs.c b/drivers/scsi/fcoe/fcoe_sysfs.c
-index af658aa38fed..6260aa5ea6af 100644
---- a/drivers/scsi/fcoe/fcoe_sysfs.c
-+++ b/drivers/scsi/fcoe/fcoe_sysfs.c
-@@ -830,14 +830,15 @@ struct fcoe_ctlr_device *fcoe_ctlr_device_add(struct device *parent,
- 
- 	dev_set_name(&ctlr->dev, "ctlr_%d", ctlr->id);
- 	error = device_register(&ctlr->dev);
--	if (error)
--		goto out_del_q2;
-+	if (error) {
-+		destroy_workqueue(ctlr->devloss_work_q);
-+		destroy_workqueue(ctlr->work_q);
-+		put_device(&ctlr->dev);
-+		return NULL;
-+	}
- 
- 	return ctlr;
- 
--out_del_q2:
--	destroy_workqueue(ctlr->devloss_work_q);
--	ctlr->devloss_work_q = NULL;
- out_del_q:
- 	destroy_workqueue(ctlr->work_q);
- 	ctlr->work_q = NULL;
-@@ -1036,16 +1037,16 @@ struct fcoe_fcf_device *fcoe_fcf_device_add(struct fcoe_ctlr_device *ctlr,
- 	fcf->selected = new_fcf->selected;
- 
- 	error = device_register(&fcf->dev);
--	if (error)
--		goto out_del;
-+	if (error) {
-+		put_device(&fcf->dev);
-+		goto out;
-+	}
- 
- 	fcf->state = FCOE_FCF_STATE_CONNECTED;
- 	list_add_tail(&fcf->peers, &ctlr->fcfs);
- 
- 	return fcf;
- 
--out_del:
--	kfree(fcf);
- out:
- 	return NULL;
- }
+diff --git a/tools/perf/util/branch.h b/tools/perf/util/branch.h
+index f838b23db180..dca75cad96f6 100644
+--- a/tools/perf/util/branch.h
++++ b/tools/perf/util/branch.h
+@@ -24,9 +24,10 @@ struct branch_flags {
+ 			u64 abort:1;
+ 			u64 cycles:16;
+ 			u64 type:4;
++			u64 spec:2;
+ 			u64 new_type:4;
+ 			u64 priv:3;
+-			u64 reserved:33;
++			u64 reserved:31;
+ 		};
+ 	};
+ };
 -- 
 2.35.1
 
