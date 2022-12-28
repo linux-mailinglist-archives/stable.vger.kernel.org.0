@@ -2,109 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4722657E01
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:49:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EC33658406
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:54:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234072AbiL1PtH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:49:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36972 "EHLO
+        id S235235AbiL1QyC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:54:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234077AbiL1PtE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:49:04 -0500
+        with ESMTP id S235270AbiL1QxO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:53:14 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ECB217E3F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:49:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CB111C109
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:48:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5514B81732
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:49:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AECBC433F0;
-        Wed, 28 Dec 2022 15:49:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AC9AEB81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:48:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02C01C433F0;
+        Wed, 28 Dec 2022 16:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242541;
-        bh=8EsqfBJhnpIecq5KIgt0aYEKapSpV/WLVB1jLuGwtIA=;
+        s=korg; t=1672246115;
+        bh=RRlZ/RYlgnzPCUxsM7r8Nez0thPXYMbIJNno/2zX654=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0JzCIMwV8cl9izGbDNDvmgqSskPt70HstcXiOPUEQlDRIblek5bAaYZsE75RHrhgO
-         UpiPiit4Q3Pz6KynxDW1gUIj30eR1mDK8pD7+YbFX1mU73GKMFyqOfCRHp5OLfJgpb
-         4gK0w7FwCi/qC4CwBm+fovwYThcGvle4bIjgHEe8=
+        b=YCg4EHQOrdFYcJ5QmoYkGg+bWV6hdjB5ZY0ixJiDPQ1PZ0apz+vVcsBjlZKomDNhC
+         h6RDHUPSecTGDD6CmSg0Ez2YVu8MhH8mHBH+10EDx63G8w9fxukKgC2lrvB/Wh8I8x
+         1F2kdQlgDo+lf+GhyhWwPg0hmGqSOJ62SukzAvoc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zqiang <qiang1.zhang@intel.com>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 615/731] rcu: Fix __this_cpu_read() lockdep warning in rcu_force_quiescent_state()
+        patches@lists.linux.dev, Kerem Karabay <kekrby@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0983/1146] HID: apple: enable APPLE_ISO_TILDE_QUIRK for the keyboards of Macs with the T2 chip
 Date:   Wed, 28 Dec 2022 15:42:02 +0100
-Message-Id: <20221228144314.360075917@linuxfoundation.org>
+Message-Id: <20221228144357.065520320@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,UPPERCASE_50_75 autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zqiang <qiang1.zhang@intel.com>
+From: Kerem Karabay <kekrby@gmail.com>
 
-[ Upstream commit ceb1c8c9b8aa9199da46a0f29d2d5f08d9b44c15 ]
+[ Upstream commit 084bc074c231e716cbcb9e8f9db05b17fd3563cf ]
 
-Running rcutorture with non-zero fqs_duration module parameter in a
-kernel built with CONFIG_PREEMPTION=y results in the following splat:
+The iso_layout parameter must be manually set to get the driver to
+swap KEY_102ND and KEY_GRAVE. This patch eliminates the need to do that.
 
-BUG: using __this_cpu_read() in preemptible [00000000]
-code: rcu_torture_fqs/398
-caller is __this_cpu_preempt_check+0x13/0x20
-CPU: 3 PID: 398 Comm: rcu_torture_fqs Not tainted 6.0.0-rc1-yoctodev-standard+
-Call Trace:
-<TASK>
-dump_stack_lvl+0x5b/0x86
-dump_stack+0x10/0x16
-check_preemption_disabled+0xe5/0xf0
-__this_cpu_preempt_check+0x13/0x20
-rcu_force_quiescent_state.part.0+0x1c/0x170
-rcu_force_quiescent_state+0x1e/0x30
-rcu_torture_fqs+0xca/0x160
-? rcu_torture_boost+0x430/0x430
-kthread+0x192/0x1d0
-? kthread_complete_and_exit+0x30/0x30
-ret_from_fork+0x22/0x30
-</TASK>
+This is safe to do, as Macs with keyboards that do not need the quirk
+will keep working the same way as the value of hid->country will be
+different than HID_COUNTRY_INTERNATIONAL_ISO. This was tested by one
+person with a Mac with the WELLSPRINGT2_J152F keyboard with a layout
+that does not require the quirk to be set.
 
-The problem is that rcu_force_quiescent_state() uses __this_cpu_read()
-in preemptible code instead of the proper raw_cpu_read().  This commit
-therefore changes __this_cpu_read() to raw_cpu_read().
-
-Signed-off-by: Zqiang <qiang1.zhang@intel.com>
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Kerem Karabay <kekrby@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-apple.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index 63f7ce228cc3..cf101da389b0 100644
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -2674,7 +2674,7 @@ void rcu_force_quiescent_state(void)
- 	struct rcu_node *rnp_old = NULL;
- 
- 	/* Funnel through hierarchy to reduce memory contention. */
--	rnp = __this_cpu_read(rcu_data.mynode);
-+	rnp = raw_cpu_read(rcu_data.mynode);
- 	for (; rnp != NULL; rnp = rnp->parent) {
- 		ret = (READ_ONCE(rcu_state.gp_flags) & RCU_GP_FLAG_FQS) ||
- 		       !raw_spin_trylock(&rnp->fqslock);
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index e86bbf85b87e..c671ce94671c 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -997,21 +997,21 @@ static const struct hid_device_id apple_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_JIS),
+ 		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRINGT2_J140K),
+-		.driver_data = APPLE_HAS_FN | APPLE_BACKLIGHT_CTL },
++		.driver_data = APPLE_HAS_FN | APPLE_BACKLIGHT_CTL | APPLE_ISO_TILDE_QUIRK },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRINGT2_J132),
+-		.driver_data = APPLE_HAS_FN | APPLE_BACKLIGHT_CTL },
++		.driver_data = APPLE_HAS_FN | APPLE_BACKLIGHT_CTL | APPLE_ISO_TILDE_QUIRK },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRINGT2_J680),
+-		.driver_data = APPLE_HAS_FN | APPLE_BACKLIGHT_CTL },
++		.driver_data = APPLE_HAS_FN | APPLE_BACKLIGHT_CTL | APPLE_ISO_TILDE_QUIRK },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRINGT2_J213),
+-		.driver_data = APPLE_HAS_FN | APPLE_BACKLIGHT_CTL },
++		.driver_data = APPLE_HAS_FN | APPLE_BACKLIGHT_CTL | APPLE_ISO_TILDE_QUIRK },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRINGT2_J214K),
+-		.driver_data = APPLE_HAS_FN },
++		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRINGT2_J223),
+-		.driver_data = APPLE_HAS_FN },
++		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRINGT2_J230K),
+-		.driver_data = APPLE_HAS_FN },
++		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRINGT2_J152F),
+-		.driver_data = APPLE_HAS_FN },
++		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI),
+ 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO),
 -- 
 2.35.1
 
