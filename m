@@ -2,51 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C6DF657CBC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:35:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6FD3658326
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233880AbiL1Pfd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:35:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53104 "EHLO
+        id S234939AbiL1Qom (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:44:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233473AbiL1Pfc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:35:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2097164B6;
-        Wed, 28 Dec 2022 07:35:30 -0800 (PST)
+        with ESMTP id S234942AbiL1QoR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7E981C42A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:39:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D0FF61553;
-        Wed, 28 Dec 2022 15:35:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61B54C433EF;
-        Wed, 28 Dec 2022 15:35:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 451BE61576
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:39:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AA7DC433EF;
+        Wed, 28 Dec 2022 16:39:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241729;
-        bh=EkiMvV3HvX3sxagCjGoLMgx9jwP3adKq+9H8iXqZ68Q=;
+        s=korg; t=1672245579;
+        bh=vguymVk6W8AEmYcmqZEk9CMx6BepfOetrT5xctjC3zo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Llg2kYVFpHcdHWQrH8o0lq5nvxE9MTj850thKGUUOTarpyWar+Y+BT92FvcpT6qB7
-         3EeZoiKJh0PvH5AzQ4xepP+21A5/MXTrWLlFUw1BILPK/3vuvGu/0PLLPW/1pQQenK
-         Tx37nfrUmMPTFX8Ke6PcAL8xPUQoSzWAeWtWQgkE=
+        b=sPPny3vagAflIzHr3WiQKlLmvRsEzKPpPrl65U37tUG1k264CKQDe/oIIG+26zK3s
+         UOMCtn5sgGUkXdr96O6MSUExHYf2KoLLBs8muKVdATcuq+5dQL5ZUmlNfjrpRliukv
+         CK7JcTd5vqRS+MvHK5PDYvfUj5N60VQspNYj7Hdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Leo Yan <leo.yan@linaro.org>,
-        Ian Rogers <irogers@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        bpf@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 516/731] perf trace: Handle failure when trace point folder is missed
+Subject: [PATCH 6.1 0884/1146] rtc: pic32: Move devm_rtc_allocate_device earlier in pic32_rtc_probe()
 Date:   Wed, 28 Dec 2022 15:40:23 +0100
-Message-Id: <20221228144311.501682140@linuxfoundation.org>
+Message-Id: <20221228144354.178313141@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,91 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit 03e9a5d8eb552a1bf692a9c8a5ecd50f4e428006 ]
+[ Upstream commit 90cd5c88830140c9fade92a8027e0fb2c6e4cc49 ]
 
-On Arm64 a case is perf tools fails to find the corresponding trace
-point folder for system calls listed in the table 'syscalltbl_arm64',
-e.g. the generated system call table contains "lookup_dcookie" but we
-cannot find out the matched trace point folder for it.
+The pic32_rtc_enable(pdata, 0) and clk_disable_unprepare(pdata->clk)
+should be called in the error handling of devm_rtc_allocate_device(),
+so we should move devm_rtc_allocate_device earlier in pic32_rtc_probe()
+to fix it.
 
-We need to figure out if there have any issue for the generated system
-call table, on the other hand, we need to handle the case when trace
-point folder is missed under sysfs, this patch sets the flag
-syscall::nonexistent as true and returns the error from
-trace__read_syscall_info().
-
-Another problem is for trace__syscall_info(), it returns two different
-values if a system call doesn't exist: at the first time calling
-trace__syscall_info() it returns NULL when the system call doesn't exist,
-later if call trace__syscall_info() again for the same missed system
-call, it returns pointer of syscall.  trace__syscall_info() checks the
-condition 'syscalls.table[id].name == NULL', but the name will be
-assigned in the first invoking even the system call is not found.
-
-So checking system call's name in trace__syscall_info() is not the right
-thing to do, this patch simply checks flag syscall::nonexistent to make
-decision if a system call exists or not, finally trace__syscall_info()
-returns the consistent result (NULL) if a system call doesn't existed.
-
-Fixes: b8b1033fcaa091d8 ("perf trace: Mark syscall ids that are not allocated to avoid unnecessary error messages")
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Acked-by: Ian Rogers <irogers@google.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: bpf@vger.kernel.org
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20221121075237.127706-4-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 6515e23b9fde ("rtc: pic32: convert to devm_rtc_allocate_device")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Link: https://lore.kernel.org/r/20221123015953.1998521-1-cuigaosheng1@huawei.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-trace.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ drivers/rtc/rtc-pic32.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/tools/perf/builtin-trace.c b/tools/perf/builtin-trace.c
-index c1db48ff01a5..2fea9952818f 100644
---- a/tools/perf/builtin-trace.c
-+++ b/tools/perf/builtin-trace.c
-@@ -1802,13 +1802,19 @@ static int trace__read_syscall_info(struct trace *trace, int id)
- 		sc->tp_format = trace_event__tp_format("syscalls", tp_name);
- 	}
+diff --git a/drivers/rtc/rtc-pic32.c b/drivers/rtc/rtc-pic32.c
+index 7fb9145c43bd..fa351ac20158 100644
+--- a/drivers/rtc/rtc-pic32.c
++++ b/drivers/rtc/rtc-pic32.c
+@@ -324,16 +324,16 @@ static int pic32_rtc_probe(struct platform_device *pdev)
  
-+	/*
-+	 * Fails to read trace point format via sysfs node, so the trace point
-+	 * doesn't exist.  Set the 'nonexistent' flag as true.
-+	 */
-+	if (IS_ERR(sc->tp_format)) {
-+		sc->nonexistent = true;
-+		return PTR_ERR(sc->tp_format);
-+	}
+ 	spin_lock_init(&pdata->alarm_lock);
+ 
++	pdata->rtc = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(pdata->rtc))
++		return PTR_ERR(pdata->rtc);
 +
- 	if (syscall__alloc_arg_fmts(sc, IS_ERR(sc->tp_format) ?
- 					RAW_SYSCALL_ARGS_NUM : sc->tp_format->format.nr_fields))
- 		return -ENOMEM;
+ 	clk_prepare_enable(pdata->clk);
  
--	if (IS_ERR(sc->tp_format))
--		return PTR_ERR(sc->tp_format);
+ 	pic32_rtc_enable(pdata, 1);
+ 
+ 	device_init_wakeup(&pdev->dev, 1);
+ 
+-	pdata->rtc = devm_rtc_allocate_device(&pdev->dev);
+-	if (IS_ERR(pdata->rtc))
+-		return PTR_ERR(pdata->rtc);
 -
- 	sc->args = sc->tp_format->format.fields;
- 	/*
- 	 * We need to check and discard the first variable '__syscall_nr'
-@@ -2125,11 +2131,8 @@ static struct syscall *trace__syscall_info(struct trace *trace,
- 	    (err = trace__read_syscall_info(trace, id)) != 0)
- 		goto out_cant_read;
- 
--	if (trace->syscalls.table[id].name == NULL) {
--		if (trace->syscalls.table[id].nonexistent)
--			return NULL;
-+	if (trace->syscalls.table && trace->syscalls.table[id].nonexistent)
- 		goto out_cant_read;
--	}
- 
- 	return &trace->syscalls.table[id];
- 
+ 	pdata->rtc->ops = &pic32_rtcops;
+ 	pdata->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+ 	pdata->rtc->range_max = RTC_TIMESTAMP_END_2099;
 -- 
 2.35.1
 
