@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 874B0657F1D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:01:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B917658421
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:55:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234264AbiL1QB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:01:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47946 "EHLO
+        id S235168AbiL1QzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:55:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234268AbiL1QBP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:01:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE843F58C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:01:14 -0800 (PST)
+        with ESMTP id S233248AbiL1Qy2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:54:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B7871AA0F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:49:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7729B613E9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:01:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84103C433F0;
-        Wed, 28 Dec 2022 16:01:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2852361579
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:49:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35365C433F0;
+        Wed, 28 Dec 2022 16:49:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243273;
-        bh=sLTI31HENs6Ll01mWXMNkww90A2ei0ml03NtVclXo4E=;
+        s=korg; t=1672246153;
+        bh=7kbCR2crzDvx9icrq7XfxiKCXACYh1djJjgz3X3iK4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gRAVrCXluCpGQlhUzXqqQnqbGTZPZsS184f6+SFhyDmw7QaN0z/iR0A55G910CJLU
-         B/SSbGuW0R1gPmeIwhsmkSarhj528spNrO1r2kg7L0RugiPS9XDT3nQBTEDS5hfIQw
-         vxVgKqBU9M7kCMnDm2qxJ7vnqSncjLFoI8fUFnoI=
+        b=AJJSar5/aDiqY+PfMJ0+uYnOHFF3VDb6zI0syk77/zCEfANHs6yRnScCthyRKam8i
+         Szzj5z3LT4D6SBz530dgJ5o8gZiT+bQk2ozUpKuiAOSjrQ30KrmLZPDfrGPgcLRCiD
+         4+nWvq93tS2cI5FbV30iqNItO7q6RptZKUk5xnR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,19 +35,20 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Roberto Sassu <roberto.sassu@huawei.com>,
         Mimi Zohar <zohar@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 702/731] ima: Simplify ima_lsm_copy_rule
+Subject: [PATCH 6.0 1021/1073] ima: Simplify ima_lsm_copy_rule
 Date:   Wed, 28 Dec 2022 15:43:29 +0100
-Message-Id: <20221228144316.810526986@linuxfoundation.org>
+Message-Id: <20221228144355.921710026@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -78,10 +79,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 7 deletions(-)
 
 diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index 844d69f6ac00..ed43d30682ff 100644
+index bb3707160b01..2edff7f58c25 100644
 --- a/security/integrity/ima/ima_policy.c
 +++ b/security/integrity/ima/ima_policy.c
-@@ -391,12 +391,6 @@ static struct ima_rule_entry *ima_lsm_copy_rule(struct ima_rule_entry *entry)
+@@ -398,12 +398,6 @@ static struct ima_rule_entry *ima_lsm_copy_rule(struct ima_rule_entry *entry)
  
  		nentry->lsm[i].type = entry->lsm[i].type;
  		nentry->lsm[i].args_p = entry->lsm[i].args_p;
@@ -94,7 +95,7 @@ index 844d69f6ac00..ed43d30682ff 100644
  
  		ima_filter_rule_init(nentry->lsm[i].type, Audit_equal,
  				     nentry->lsm[i].args_p,
-@@ -410,6 +404,7 @@ static struct ima_rule_entry *ima_lsm_copy_rule(struct ima_rule_entry *entry)
+@@ -417,6 +411,7 @@ static struct ima_rule_entry *ima_lsm_copy_rule(struct ima_rule_entry *entry)
  
  static int ima_lsm_update_rule(struct ima_rule_entry *entry)
  {
@@ -102,8 +103,8 @@ index 844d69f6ac00..ed43d30682ff 100644
  	struct ima_rule_entry *nentry;
  
  	nentry = ima_lsm_copy_rule(entry);
-@@ -424,7 +419,8 @@ static int ima_lsm_update_rule(struct ima_rule_entry *entry)
- 	 * references and the entry itself. All other memory refrences will now
+@@ -431,7 +426,8 @@ static int ima_lsm_update_rule(struct ima_rule_entry *entry)
+ 	 * references and the entry itself. All other memory references will now
  	 * be owned by nentry.
  	 */
 -	ima_lsm_free_rule(entry);
