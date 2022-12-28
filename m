@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 077B6657D4A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:42:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA9E1657D4D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:42:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233420AbiL1Pl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:41:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58736 "EHLO
+        id S233989AbiL1PmL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:42:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234020AbiL1Plh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:41:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DFD817424
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:41:33 -0800 (PST)
+        with ESMTP id S233973AbiL1Pls (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:41:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BE2017062
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:41:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 90A2C6155E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:41:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3125C433EF;
-        Wed, 28 Dec 2022 15:41:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C67966154D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:41:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5996C433D2;
+        Wed, 28 Dec 2022 15:41:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242092;
-        bh=ZGoLCNixLbBxQ3UtrZQa7yTLMaIVn6hfPVEIV+ynbHs=;
+        s=korg; t=1672242100;
+        bh=equXzBOScuNHFwsjvnhCbdOTD/DBMaXGysdemzxdUE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UGr71ZRI8O83oyGFkCHSVejkokSDsvxozCZYnSJJ3cekr1TL1UNt/bMhqp43hUr5y
-         63SnXIifT0VgyU2qkcMwc6q4ZYOJ/nG5EJJS7a+lYIQVk2Jwlc8av/j12VDlleoBjs
-         1uFnv6/5dhrbSdn/fgUNOKIiqCPWHN74zOJzsbUQ=
+        b=PSbil2crLIWQfE0iy93bMInakua6cBJeR4kFJF+TX47HqWylZqTKKptaZOnGIPc6r
+         eCEpD996H9DuhxXBhvtahvbr6s0wNfST8sipozLOM9Nb0Tmay4+bRDRt+bMirnXwLm
+         RaVGc3+rbngHBp4/h1qi3UhJ72mw/uY6F9xT0iE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xinlei Lee <xinlei.lee@mediatek.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        patches@lists.linux.dev, Zeng Heng <zengheng4@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0328/1146] drm/mediatek: Modify dpi power on/off sequence.
-Date:   Wed, 28 Dec 2022 15:31:07 +0100
-Message-Id: <20221228144339.069363467@linuxfoundation.org>
+Subject: [PATCH 6.1 0329/1146] ASoC: pxa: fix null-pointer dereference in filter()
+Date:   Wed, 28 Dec 2022 15:31:08 +0100
+Message-Id: <20221228144339.095756985@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -53,64 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xinlei Lee <xinlei.lee@mediatek.com>
+From: Zeng Heng <zengheng4@huawei.com>
 
-[ Upstream commit ff446c0f6290185cefafe3b376bb86063a3a9f6a ]
+[ Upstream commit ec7bf231aaa1bdbcb69d23bc50c753c80fb22429 ]
 
-Modify dpi power on/off sequence so that the first gpio operation will
-take effect.
+kasprintf() would return NULL pointer when kmalloc() fail to allocate.
+Need to check the return pointer before calling strcmp().
 
-Fixes: 6bd4763fd532 ("drm/mediatek: set dpi pin mode to gpio low to avoid leakage current")
-Signed-off-by: Xinlei Lee <xinlei.lee@mediatek.com>
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+Fixes: 7a824e214e25 ("ASoC: mmp: add audio dma support")
+Signed-off-by: Zeng Heng <zengheng4@huawei.com>
+Link: https://lore.kernel.org/r/20221114085629.1910435-1-zengheng4@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_dpi.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ sound/soc/pxa/mmp-pcm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_dpi.c b/drivers/gpu/drm/mediatek/mtk_dpi.c
-index 508a6d994e83..1f5d39a4077c 100644
---- a/drivers/gpu/drm/mediatek/mtk_dpi.c
-+++ b/drivers/gpu/drm/mediatek/mtk_dpi.c
-@@ -461,9 +461,6 @@ static void mtk_dpi_power_off(struct mtk_dpi *dpi)
- 	if (--dpi->refcount != 0)
- 		return;
+diff --git a/sound/soc/pxa/mmp-pcm.c b/sound/soc/pxa/mmp-pcm.c
+index 5d520e18e512..99b245e3079a 100644
+--- a/sound/soc/pxa/mmp-pcm.c
++++ b/sound/soc/pxa/mmp-pcm.c
+@@ -98,7 +98,7 @@ static bool filter(struct dma_chan *chan, void *param)
  
--	if (dpi->pinctrl && dpi->pins_gpio)
--		pinctrl_select_state(dpi->pinctrl, dpi->pins_gpio);
--
- 	mtk_dpi_disable(dpi);
- 	clk_disable_unprepare(dpi->pixel_clk);
- 	clk_disable_unprepare(dpi->engine_clk);
-@@ -488,9 +485,6 @@ static int mtk_dpi_power_on(struct mtk_dpi *dpi)
- 		goto err_pixel;
+ 	devname = kasprintf(GFP_KERNEL, "%s.%d", dma_data->dma_res->name,
+ 		dma_data->ssp_id);
+-	if ((strcmp(dev_name(chan->device->dev), devname) == 0) &&
++	if (devname && (strcmp(dev_name(chan->device->dev), devname) == 0) &&
+ 		(chan->chan_id == dma_data->dma_res->start)) {
+ 		found = true;
  	}
- 
--	if (dpi->pinctrl && dpi->pins_dpi)
--		pinctrl_select_state(dpi->pinctrl, dpi->pins_dpi);
--
- 	return 0;
- 
- err_pixel:
-@@ -721,12 +715,18 @@ static void mtk_dpi_bridge_disable(struct drm_bridge *bridge)
- 	struct mtk_dpi *dpi = bridge_to_dpi(bridge);
- 
- 	mtk_dpi_power_off(dpi);
-+
-+	if (dpi->pinctrl && dpi->pins_gpio)
-+		pinctrl_select_state(dpi->pinctrl, dpi->pins_gpio);
- }
- 
- static void mtk_dpi_bridge_enable(struct drm_bridge *bridge)
- {
- 	struct mtk_dpi *dpi = bridge_to_dpi(bridge);
- 
-+	if (dpi->pinctrl && dpi->pins_dpi)
-+		pinctrl_select_state(dpi->pinctrl, dpi->pins_dpi);
-+
- 	mtk_dpi_power_on(dpi);
- 	mtk_dpi_set_display_mode(dpi, &dpi->mode);
- 	mtk_dpi_enable(dpi);
 -- 
 2.35.1
 
