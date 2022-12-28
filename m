@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECA3E657B85
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD9AF658157
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:27:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233696AbiL1PXM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:23:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40996 "EHLO
+        id S233397AbiL1Q1v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:27:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233716AbiL1PWn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:22:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8248E13D20
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:22:31 -0800 (PST)
+        with ESMTP id S234823AbiL1Q1H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:27:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 748801CFD1
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:23:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2A19BB81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:22:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87548C433F1;
-        Wed, 28 Dec 2022 15:22:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E737C6157C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:23:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02A54C433D2;
+        Wed, 28 Dec 2022 16:23:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240948;
-        bh=ieSZeBbn7w/cyRoCLx2tN9mnZCd1J//pmlSCTtrLYUk=;
+        s=korg; t=1672244598;
+        bh=mdITFTjbfwPjSDJMbCZ1ox/jw4uwrTLdaTJS8sxrtvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CP4cY0CNuSUEMshkhBilnSKsbUOzwJCcdngg608gQJXJXw4zubkZGI0S3EX/Cuchb
-         BY8OVPlLRf6HSNqwX4qLui9jNWAo/drmsTWA7fEycHIc3cl8pDRX/SD7AxLs4DZU8i
-         YODFRr0yIFY3k7GSC1x+e2EuaeSP6+IV1bP83zSE=
+        b=rPt1IERMK3lJP8x9VB3sHD3jnI/+AoN04Z37tKX82clRJrYtTgcDRiX0V1+TY/+pn
+         tnvEXmPXElh6z5HQsxhVt56KJmJ94nbFQ9hQeV+EFN5GYxoJLpp+bUDFxUNcLdUPia
+         UOlQwwB/7eZiInCYsRkDHc1BdpfnubMaWi6o1vQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Zhang <markzhang@nvidia.com>,
-        Patrisious Haddad <phaddad@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 420/731] RDMA/nldev: Fix failure to send large messages
+Subject: [PATCH 6.0 0739/1073] HSI: omap_ssi_core: fix possible memory leak in ssi_probe()
 Date:   Wed, 28 Dec 2022 15:38:47 +0100
-Message-Id: <20221228144308.745661847@linuxfoundation.org>
+Message-Id: <20221228144348.096713213@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Zhang <markzhang@nvidia.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit fc8f93ad3e5485d45c992233c96acd902992dfc4 ]
+[ Upstream commit 1aff514e1d2bd47854dbbdf867970b9d463d4c57 ]
 
-Return "-EMSGSIZE" instead of "-EINVAL" when filling a QP entry, so that
-new SKBs will be allocated if there's not enough room in current SKB.
+If ssi_add_controller() returns error, it should call hsi_put_controller()
+to give up the reference that was set in hsi_alloc_controller(), so that
+it can call hsi_controller_release() to free controller and ports that
+allocated in hsi_alloc_controller().
 
-Fixes: 65959522f806 ("RDMA: Add support to dump resource tracker in RAW format")
-Signed-off-by: Mark Zhang <markzhang@nvidia.com>
-Reviewed-by: Patrisious Haddad <phaddad@nvidia.com>
-Link: https://lore.kernel.org/r/b5e9c62f6b8369acab5648b661bf539cbceeffdc.1669636336.git.leonro@nvidia.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Fixes: b209e047bc74 ("HSI: Introduce OMAP SSI driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/nldev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hsi/controllers/omap_ssi_core.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/core/nldev.c b/drivers/infiniband/core/nldev.c
-index cefe12964f3e..7ad3ba7d5a0a 100644
---- a/drivers/infiniband/core/nldev.c
-+++ b/drivers/infiniband/core/nldev.c
-@@ -511,7 +511,7 @@ static int fill_res_qp_entry(struct sk_buff *msg, bool has_cap_net_admin,
+diff --git a/drivers/hsi/controllers/omap_ssi_core.c b/drivers/hsi/controllers/omap_ssi_core.c
+index b23a576ed88a..052cf3e92dd6 100644
+--- a/drivers/hsi/controllers/omap_ssi_core.c
++++ b/drivers/hsi/controllers/omap_ssi_core.c
+@@ -502,8 +502,10 @@ static int ssi_probe(struct platform_device *pd)
+ 	platform_set_drvdata(pd, ssi);
  
- 	/* In create_qp() port is not set yet */
- 	if (qp->port && nla_put_u32(msg, RDMA_NLDEV_ATTR_PORT_INDEX, qp->port))
--		return -EINVAL;
-+		return -EMSGSIZE;
+ 	err = ssi_add_controller(ssi, pd);
+-	if (err < 0)
++	if (err < 0) {
++		hsi_put_controller(ssi);
+ 		goto out1;
++	}
  
- 	ret = nla_put_u32(msg, RDMA_NLDEV_ATTR_RES_LQPN, qp->qp_num);
- 	if (ret)
+ 	pm_runtime_enable(&pd->dev);
+ 
 -- 
 2.35.1
 
