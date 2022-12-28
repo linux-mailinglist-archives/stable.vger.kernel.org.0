@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0062657CD8
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:36:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C379F65781A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233894AbiL1Pgj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:36:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54304 "EHLO
+        id S232929AbiL1OsD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:48:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233847AbiL1Pgi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:36:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36A98140EF
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:36:37 -0800 (PST)
+        with ESMTP id S232978AbiL1Ori (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:47:38 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCE9212090
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:47:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C59CC61542
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:36:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D37D9C433EF;
-        Wed, 28 Dec 2022 15:36:35 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 15056CE1355
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:47:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AFF4C433EF;
+        Wed, 28 Dec 2022 14:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241796;
-        bh=XnTi9FcTf0AmtoOMr2gqYVbtxiOYs+MFc/cV4YioQHA=;
+        s=korg; t=1672238819;
+        bh=+Z+M/DLXhHzIRpNXTVfEJITUXHY8tJgU0gM3+2lYOwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hKyM0/DZ+gOKYbXuUmvRRcibtt3Y+F6UoHi3yB5EXgstm8WHT5f5w7cLOSXa3wvwd
-         t9bz6u0rgmSCijzy33WlJdySXxL3Ghn4lCelhMVRpNVHoKpY2GQ0sVLYcy/bY18Fax
-         Z4+iQ3FsULSHA3dwSjMC4YvVDIvhv3ZiPTYdjKtA=
+        b=vnNM2FAtTUjuhl5EfL4BgzAfyRgPcT0aQ8DvCv5FlSWtDYussd6nAGvDbUqIyxokp
+         tlHjQynvbJrFPmilsRdwDsgLCVvWFNdNcQMwIvnOPdygJX38JwbHEIosLkSNigPg/3
+         GvQk225W548SbIgLQ5UmuxMSsEoash6I3DX00B7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, GUO Zihua <guozihua@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0328/1073] integrity: Fix memory leakage in keyring allocation error path
+Subject: [PATCH 5.15 009/731] arm64: dts: qcom: sdm630: fix UART1 pin bias
 Date:   Wed, 28 Dec 2022 15:31:56 +0100
-Message-Id: <20221228144336.915303301@linuxfoundation.org>
+Message-Id: <20221228144256.808793379@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: GUO Zihua <guozihua@huawei.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 39419ef7af0916cc3620ecf1ed42d29659109bf3 ]
+[ Upstream commit 780f836fe071a9e8703fe6a05ae00129acf83391 ]
 
-Key restriction is allocated in integrity_init_keyring(). However, if
-keyring allocation failed, it is not freed, causing memory leaks.
+There is no "bias-no-pull" property.  Assume intentions were disabling
+bias.
 
-Fixes: 2b6aa412ff23 ("KEYS: Use structure to capture key restriction function and data")
-Signed-off-by: GUO Zihua <guozihua@huawei.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Fixes: b190fb010664 ("arm64: dts: qcom: sdm630: Add sdm630 dts file")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221010114417.29859-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/digsig.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/sdm630.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/integrity/digsig.c b/security/integrity/digsig.c
-index 8a82a6c7f48a..f2193c531f4a 100644
---- a/security/integrity/digsig.c
-+++ b/security/integrity/digsig.c
-@@ -126,6 +126,7 @@ int __init integrity_init_keyring(const unsigned int id)
- {
- 	struct key_restriction *restriction;
- 	key_perm_t perm;
-+	int ret;
+diff --git a/arch/arm64/boot/dts/qcom/sdm630.dtsi b/arch/arm64/boot/dts/qcom/sdm630.dtsi
+index 952bb133914f..c2e1a0d9a272 100644
+--- a/arch/arm64/boot/dts/qcom/sdm630.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm630.dtsi
+@@ -768,7 +768,7 @@ rx-cts-rts {
+ 					pins = "gpio17", "gpio18", "gpio19";
+ 					function = "gpio";
+ 					drive-strength = <2>;
+-					bias-no-pull;
++					bias-disable;
+ 				};
+ 			};
  
- 	perm = (KEY_POS_ALL & ~KEY_POS_SETATTR) | KEY_USR_VIEW
- 		| KEY_USR_READ | KEY_USR_SEARCH;
-@@ -154,7 +155,10 @@ int __init integrity_init_keyring(const unsigned int id)
- 		perm |= KEY_USR_WRITE;
- 
- out:
--	return __integrity_init_keyring(id, perm, restriction);
-+	ret = __integrity_init_keyring(id, perm, restriction);
-+	if (ret)
-+		kfree(restriction);
-+	return ret;
- }
- 
- static int __init integrity_add_key(const unsigned int id, const void *data,
 -- 
 2.35.1
 
