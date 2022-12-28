@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 246766579E1
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:05:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A37676580E4
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:22:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233530AbiL1PFq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:05:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53308 "EHLO
+        id S233267AbiL1QW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:22:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233537AbiL1PFp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:05:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48A89B69
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:05:44 -0800 (PST)
+        with ESMTP id S234751AbiL1QVQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:21:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 910F21B1EE
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:19:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00CFBB816D6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:05:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FABDC433D2;
-        Wed, 28 Dec 2022 15:05:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E45861568
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:19:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42EB1C433D2;
+        Wed, 28 Dec 2022 16:19:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239941;
-        bh=AURp8llk8cjLk2SquN5QyRHwglvat3pCE3+uszkf+Ck=;
+        s=korg; t=1672244357;
+        bh=kHYnQcbDkTQfgJl0KpLUriDVaVrup0eOHrDTsP8DpgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hI5Q478ng97MwUFrMTFRiA0OmssDlfvl+1KtHucALLG4ITPqs6QCpk/zGKl5JRhon
-         kgI5WgrZLhugLXi9Px7nruQtNhH7ZpNSWyWl9ImWbh2CLPhZoQUxyvDAmjCqfjqFly
-         NMDDb4bjVo3p/3uJBTY3CcPa0ns2GnGsF0Lhdnzo=
+        b=f4vbqS09vo3ePZ9z3pLZ/ovQb+mDh+VjyCkBdT+/5FDne0tbgZxtQuO4txv5eIQF/
+         qX7ooMNu6PnarDnfOz3Gh5Wzd/7FKUM03e7R4LkznDy6anY6knQ8OTngcU+3NhDnMS
+         eRIP17Z/HcViR3N8gqj8GcLocx89zXw1hbZFjlSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        patches@lists.linux.dev, Bart Van Assche <bvanassche@acm.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 288/731] SUNRPC: Fix missing release socket in rpc_sockname()
+Subject: [PATCH 6.1 0656/1146] scsi: ufs: core: Fix the polling implementation
 Date:   Wed, 28 Dec 2022 15:36:35 +0100
-Message-Id: <20221228144304.917637802@linuxfoundation.org>
+Message-Id: <20221228144347.976904298@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang ShaoBo <bobo.shaobowang@huawei.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 50fa355bc0d75911fe9d5072a5ba52cdb803aff7 ]
+[ Upstream commit ee8c88cab4afbd5ee10a127d6cbecd6b200185a5 ]
 
-socket dynamically created is not released when getting an unintended
-address family type in rpc_sockname(), direct to out_release for calling
-sock_release().
+Fix the following issues in ufshcd_poll():
 
-Fixes: 2e738fdce22f ("SUNRPC: Add API to acquire source address")
-Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+ - If polling succeeds, return a positive value.
+
+ - Do not complete polling requests from interrupt context because the
+   block layer expects these requests to be completed from thread
+   context. From block/bio.c:
+
+     If REQ_ALLOC_CACHE is set, the final put of the bio MUST be done from
+     process context, not hard/soft IRQ.
+
+Fixes: eaab9b573054 ("scsi: ufs: Implement polling support")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Link: https://lore.kernel.org/r/20221118233717.441298-1-bvanassche@acm.org
+Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/clnt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/ufs/core/ufshcd.c | 28 ++++++++++++++++++++++++++--
+ 1 file changed, 26 insertions(+), 2 deletions(-)
 
-diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-index ca2a494d727b..bbeb80e1133d 100644
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -1375,7 +1375,7 @@ static int rpc_sockname(struct net *net, struct sockaddr *sap, size_t salen,
- 		break;
- 	default:
- 		err = -EAFNOSUPPORT;
--		goto out;
-+		goto out_release;
+diff --git a/drivers/ufs/core/ufshcd.c b/drivers/ufs/core/ufshcd.c
+index b1f59a5fe632..5432be4cd0ed 100644
+--- a/drivers/ufs/core/ufshcd.c
++++ b/drivers/ufs/core/ufshcd.c
+@@ -5382,6 +5382,26 @@ static void __ufshcd_transfer_req_compl(struct ufs_hba *hba,
  	}
- 	if (err < 0) {
- 		dprintk("RPC:       can't bind UDP socket (%d)\n", err);
+ }
+ 
++/* Any value that is not an existing queue number is fine for this constant. */
++enum {
++	UFSHCD_POLL_FROM_INTERRUPT_CONTEXT = -1
++};
++
++static void ufshcd_clear_polled(struct ufs_hba *hba,
++				unsigned long *completed_reqs)
++{
++	int tag;
++
++	for_each_set_bit(tag, completed_reqs, hba->nutrs) {
++		struct scsi_cmnd *cmd = hba->lrb[tag].cmd;
++
++		if (!cmd)
++			continue;
++		if (scsi_cmd_to_rq(cmd)->cmd_flags & REQ_POLLED)
++			__clear_bit(tag, completed_reqs);
++	}
++}
++
+ /*
+  * Returns > 0 if one or more commands have been completed or 0 if no
+  * requests have been completed.
+@@ -5398,13 +5418,17 @@ static int ufshcd_poll(struct Scsi_Host *shost, unsigned int queue_num)
+ 	WARN_ONCE(completed_reqs & ~hba->outstanding_reqs,
+ 		  "completed: %#lx; outstanding: %#lx\n", completed_reqs,
+ 		  hba->outstanding_reqs);
++	if (queue_num == UFSHCD_POLL_FROM_INTERRUPT_CONTEXT) {
++		/* Do not complete polled requests from interrupt context. */
++		ufshcd_clear_polled(hba, &completed_reqs);
++	}
+ 	hba->outstanding_reqs &= ~completed_reqs;
+ 	spin_unlock_irqrestore(&hba->outstanding_lock, flags);
+ 
+ 	if (completed_reqs)
+ 		__ufshcd_transfer_req_compl(hba, completed_reqs);
+ 
+-	return completed_reqs;
++	return completed_reqs != 0;
+ }
+ 
+ /**
+@@ -5435,7 +5459,7 @@ static irqreturn_t ufshcd_transfer_req_compl(struct ufs_hba *hba)
+ 	 * Ignore the ufshcd_poll() return value and return IRQ_HANDLED since we
+ 	 * do not want polling to trigger spurious interrupt complaints.
+ 	 */
+-	ufshcd_poll(hba->host, 0);
++	ufshcd_poll(hba->host, UFSHCD_POLL_FROM_INTERRUPT_CONTEXT);
+ 
+ 	return IRQ_HANDLED;
+ }
 -- 
 2.35.1
 
