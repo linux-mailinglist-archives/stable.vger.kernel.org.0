@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7F026582F5
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73FC7657C6F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:32:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233895AbiL1Qnq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:43:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37008 "EHLO
+        id S233848AbiL1Pc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:32:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234577AbiL1QnM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:12 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16BE21D0D8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:25 -0800 (PST)
+        with ESMTP id S233475AbiL1Pc2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:32:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9399415FE1
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:32:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E8315CE12D2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:37:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABCF3C433D2;
-        Wed, 28 Dec 2022 16:37:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 50B28B8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:32:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD3FFC433D2;
+        Wed, 28 Dec 2022 15:32:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245442;
-        bh=8PYbaGHGn2BoTknj0lteJ96f0x3lbuqYfESKBT6W+U4=;
+        s=korg; t=1672241541;
+        bh=AneIGNGeTxm7Ds+h80KjUti9WNHwRciL5L8MSXaRuyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y8XFdvNO8LMQkxPEC5Sz8BKkUoaSnDhJ8PVKZ6M4ZVKSWW3Zjwvy8/od4vQokqKVN
-         HboV37eILs4hsYnB7S0mnZriThbz6QeZyi+CogiPVgPxz8027D+N7T0baIVwcGRhG1
-         ieVV3odhhNI/QtSjN6Bpoo/B/UEzuePOce72FUrI=
+        b=YoOSbH/DU3wPrAFvYTh615gohwRxzjSC+IDTRtcrt4euq3kh8xppqmbmyDgQQhLFP
+         2V8YuYsK7sALTF0ZRaWmr6Qyows0pO5j9SqW+elOLl4Jw6IVBsPr8KvZxrcLohhlYe
+         rPItzJqRhzlYbr90E2PKecwQdncLb1NBFjGFUVrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
-        Yong Wu <yong.wu@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0862/1146] iommu/mediatek: Use component_match_add
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 494/731] i2c: mux: reg: check return value after calling platform_get_resource()
 Date:   Wed, 28 Dec 2022 15:40:01 +0100
-Message-Id: <20221228144353.571871543@linuxfoundation.org>
+Message-Id: <20221228144310.866451415@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,58 +52,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yong Wu <yong.wu@mediatek.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit b5765a1b44bea9dfcae69c53ffeb4c689d0922a7 ]
+[ Upstream commit 2d47b79d2bd39cc6369eccf94a06568d84c906ae ]
 
-In order to simplify the error patch(avoid call of_node_put), Use
-component_match_add instead component_match_add_release since we are only
-interested in the "device" here. Then we could always call of_node_put in
-normal path.
+It will cause null-ptr-deref in resource_size(), if platform_get_resource()
+returns NULL, move calling resource_size() after devm_ioremap_resource() that
+will check 'res' to avoid null-ptr-deref.
+And use devm_platform_get_and_ioremap_resource() to simplify code.
 
-Strictly this is not a fixes patch, but it is a prepare for adding the
-error path, thus I add a Fixes tag too.
-
-Fixes: d2e9a1102cfc ("iommu/mediatek: Contain MM IOMMU flow with the MM TYPE")
-Suggested-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Yong Wu <yong.wu@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Link: https://lore.kernel.org/r/20221018024258.19073-3-yong.wu@mediatek.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: b3fdd32799d8 ("i2c: mux: Add register-based mux i2c-mux-reg")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/mtk_iommu.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/i2c/muxes/i2c-mux-reg.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index febcca8fcbcf..ba5abfc2890c 100644
---- a/drivers/iommu/mtk_iommu.c
-+++ b/drivers/iommu/mtk_iommu.c
-@@ -1069,19 +1069,17 @@ static int mtk_iommu_mm_dts_parse(struct device *dev, struct component_match **m
- 			id = i;
- 
- 		plarbdev = of_find_device_by_node(larbnode);
--		if (!plarbdev) {
--			of_node_put(larbnode);
-+		of_node_put(larbnode);
-+		if (!plarbdev)
- 			return -ENODEV;
--		}
-+
- 		if (!plarbdev->dev.driver) {
--			of_node_put(larbnode);
- 			platform_device_put(plarbdev);
- 			return -EPROBE_DEFER;
+diff --git a/drivers/i2c/muxes/i2c-mux-reg.c b/drivers/i2c/muxes/i2c-mux-reg.c
+index 0e0679f65cf7..30a6de1694e0 100644
+--- a/drivers/i2c/muxes/i2c-mux-reg.c
++++ b/drivers/i2c/muxes/i2c-mux-reg.c
+@@ -183,13 +183,12 @@ static int i2c_mux_reg_probe(struct platform_device *pdev)
+ 	if (!mux->data.reg) {
+ 		dev_info(&pdev->dev,
+ 			"Register not set, using platform resource\n");
+-		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-		mux->data.reg_size = resource_size(res);
+-		mux->data.reg = devm_ioremap_resource(&pdev->dev, res);
++		mux->data.reg = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+ 		if (IS_ERR(mux->data.reg)) {
+ 			ret = PTR_ERR(mux->data.reg);
+ 			goto err_put_parent;
  		}
- 		data->larb_imu[id].dev = &plarbdev->dev;
- 
--		component_match_add_release(dev, match, component_release_of,
--					    component_compare_of, larbnode);
-+		component_match_add(dev, match, component_compare_dev, &plarbdev->dev);
- 		platform_device_put(plarbdev);
++		mux->data.reg_size = resource_size(res);
  	}
  
+ 	if (mux->data.reg_size != 4 && mux->data.reg_size != 2 &&
 -- 
 2.35.1
 
