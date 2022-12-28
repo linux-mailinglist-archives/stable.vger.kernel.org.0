@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E11A1658104
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:24:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDFDE657B2F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:19:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234590AbiL1QYF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:24:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43386 "EHLO
+        id S233273AbiL1PTH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:19:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234663AbiL1QXN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:23:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1CCF1C12A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:20:28 -0800 (PST)
+        with ESMTP id S233279AbiL1PSz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:18:55 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5DFD13FA6
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:18:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5011F61568
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:20:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60F8DC433D2;
-        Wed, 28 Dec 2022 16:20:27 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 66C95CE076E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:18:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C019C433EF;
+        Wed, 28 Dec 2022 15:18:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244427;
-        bh=k4hU1/mZkG+kZTABAbAXY9jw9zBkfOiRU/c1YsitHUc=;
+        s=korg; t=1672240721;
+        bh=kSVwgmvVNGbFTnjgzz26lvZguO1HjL3EHlnn4O0L3Ho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O09hD3VzniUQLfUvc/2P2xaSKncODKp5k1eMpRwpdoVT1o0dDgwsMZBkbTtDzM5yX
-         CDqcn7DqlXAICY5zsoBHKwP/a9VK/5tEGtgefcF7Hl/1I/GrkRkMioxCLmfYl7fSrG
-         IJHsncC9QwN2OQZ6FrWgy01w3T8q0JE4Me+qncno=
+        b=RdDMXV166KjAK0fZU6oQGjz9eeDsWhyVIRa+UDyeG/i5tRdp3++5y9CilhZyC5FzP
+         tjI3BgdKWbLO9TIttSw1v0708mBBkY8i/vNTe75nJ+svKpmNw6OqRmwNWZMHnx6bvu
+         4380EYzXgEZ/tOEdZuleWpfbfWyl+JJ17OP+7DoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lee Jones <lee@kernel.org>,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        John Keeping <john@metanate.com>,
+        patches@lists.linux.dev,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
+        Douglas Gilbert <dgilbert@interlog.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0708/1073] usb: gadget: f_hid: fix refcount leak on error path
-Date:   Wed, 28 Dec 2022 15:38:16 +0100
-Message-Id: <20221228144347.263432552@linuxfoundation.org>
+Subject: [PATCH 5.15 390/731] scsi: scsi_debug: Fix a warning in resp_write_scat()
+Date:   Wed, 28 Dec 2022 15:38:17 +0100
+Message-Id: <20221228144307.865428304@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Keeping <john@metanate.com>
+From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 
-[ Upstream commit 70a3288a7586526315105c699b687d78cd32559a ]
+[ Upstream commit 216e179724c1d9f57a8ababf8bd7aaabef67f01b ]
 
-When failing to allocate report_desc, opts->refcnt has already been
-incremented so it needs to be decremented to avoid leaving the options
-structure permanently locked.
+As 'lbdof_blen' is coming from user, if the size in kzalloc() is >=
+MAX_ORDER then we hit a warning.
 
-Fixes: 21a9476a7ba8 ("usb: gadget: hid: add configfs support")
-Tested-by: Lee Jones <lee@kernel.org>
-Reviewed-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
-Reviewed-by: Lee Jones <lee@kernel.org>
-Signed-off-by: John Keeping <john@metanate.com>
-Link: https://lore.kernel.org/r/20221122123523.3068034-3-john@metanate.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Call trace:
+
+sg_ioctl
+ sg_ioctl_common
+   scsi_ioctl
+    sg_scsi_ioctl
+     blk_execute_rq
+      blk_mq_sched_insert_request
+       blk_mq_run_hw_queue
+        __blk_mq_delay_run_hw_queue
+         __blk_mq_run_hw_queue
+          blk_mq_sched_dispatch_requests
+           __blk_mq_sched_dispatch_requests
+            blk_mq_dispatch_rq_list
+             scsi_queue_rq
+              scsi_dispatch_cmd
+               scsi_debug_queuecommand
+                schedule_resp
+                 resp_write_scat
+
+If you try to allocate a memory larger than(>=) MAX_ORDER, then kmalloc()
+will definitely fail.  It creates a stack trace and messes up dmesg.  The
+user controls the size here so if they specify a too large size it will
+fail.
+
+Add __GFP_NOWARN in order to avoid too large allocation warning.  This is
+detected by static analysis using smatch.
+
+Fixes: 481b5e5c7949 ("scsi: scsi_debug: add resp_write_scat function")
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Link: https://lore.kernel.org/r/20221111100526.1790533-1-harshit.m.mogalapalli@oracle.com
+Acked-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_hid.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/scsi_debug.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/function/f_hid.c b/drivers/usb/gadget/function/f_hid.c
-index 8b8bbeaa27cb..6be6009f911e 100644
---- a/drivers/usb/gadget/function/f_hid.c
-+++ b/drivers/usb/gadget/function/f_hid.c
-@@ -1292,6 +1292,7 @@ static struct usb_function *hidg_alloc(struct usb_function_instance *fi)
- 						 GFP_KERNEL);
- 		if (!hidg->report_desc) {
- 			put_device(&hidg->dev);
-+			--opts->refcnt;
- 			mutex_unlock(&opts->lock);
- 			return ERR_PTR(-ENOMEM);
- 		}
+diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
+index 0b16061d8da8..b44fd9b80934 100644
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -3640,7 +3640,7 @@ static int resp_write_scat(struct scsi_cmnd *scp,
+ 		mk_sense_buffer(scp, ILLEGAL_REQUEST, INVALID_FIELD_IN_CDB, 0);
+ 		return illegal_condition_result;
+ 	}
+-	lrdp = kzalloc(lbdof_blen, GFP_ATOMIC);
++	lrdp = kzalloc(lbdof_blen, GFP_ATOMIC | __GFP_NOWARN);
+ 	if (lrdp == NULL)
+ 		return SCSI_MLQUEUE_HOST_BUSY;
+ 	if (sdebug_verbose)
 -- 
 2.35.1
 
