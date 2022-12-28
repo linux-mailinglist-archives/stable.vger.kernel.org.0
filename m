@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49A13658460
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F070C6583AD
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:49:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235302AbiL1Q5U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:57:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45846 "EHLO
+        id S235120AbiL1Qt6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:49:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235285AbiL1Q4g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:56:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4A631DA4E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:52:28 -0800 (PST)
+        with ESMTP id S235156AbiL1Qtd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:49:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EBAE1CB10
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:44:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 528636156B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:52:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 663E9C433D2;
-        Wed, 28 Dec 2022 16:52:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 12314B817AC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:44:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 684E8C433D2;
+        Wed, 28 Dec 2022 16:44:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246347;
-        bh=9tm+8jRDQilPkH7rR150lBeFa5xhvMEIY4E7qaiUcWw=;
+        s=korg; t=1672245893;
+        bh=MsKCMRgsRiM3cHpDyWcl/k/gwLX4zmA6DMHBQa4n8gM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F885V4p2dX77vFBkyI/C2DpSNwMl9g1uCYvH2JNTM6AifF+PAeG+y5atQsfvKVVNZ
-         A5Y+ipMggZRLgrt6YgqOT7ToRAQwFLilWoV3w3WxEgQAXpifvCuSBjX43NYjjmGQNK
-         DG+Z26qYxB9/pAqoU6kBrsfTpO1/3L0sWIr3ic74=
+        b=Znp9UK3wJjgKR6ed+V8zyMsDK1d4JlZtVKqnrWqQau2xUpSaC0cTGUYMD410JkjnF
+         LpH1jBtkM53rOWYyetjM4qqWG2YyBV0q38D0loekdDcpQGzUlKRlAMk9TJvv35CMUd
+         9bZxU2dG2McxPImsiR9y5dQce1aCJHzhudEUrvuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yunfei Dong <yunfei.dong@mediatek.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Sven Peter <sven@svenpeter.dev>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1025/1146] media: mediatek: vcodec: Cant set dst buffer to done when lat decode error
+Subject: [PATCH 6.0 0976/1073] Bluetooth: Add quirk to disable extended scanning
 Date:   Wed, 28 Dec 2022 15:42:44 +0100
-Message-Id: <20221228144358.206843958@linuxfoundation.org>
+Message-Id: <20221228144354.583097441@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunfei Dong <yunfei.dong@mediatek.com>
+From: Sven Peter <sven@svenpeter.dev>
 
-[ Upstream commit 3568ecd3f3a6d133ab7feffbba34955c8c79bbc4 ]
+[ Upstream commit 392fca352c7a95e2828d49e7500e26d0c87ca265 ]
 
-Core thread will call v4l2_m2m_buf_done to set dst buffer done for
-lat architecture. If lat call v4l2_m2m_buf_done_and_job_finish to
-free dst buffer when lat decode error, core thread will access kernel
-NULL pointer dereference, then crash.
+Broadcom 4377 controllers found in Apple x86 Macs with the T2 chip
+claim to support extended scanning when querying supported states,
 
-Signed-off-by: Yunfei Dong <yunfei.dong@mediatek.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+< HCI Command: LE Read Supported St.. (0x08|0x001c) plen 0
+> HCI Event: Command Complete (0x0e) plen 12
+      LE Read Supported States (0x08|0x001c) ncmd 1
+        Status: Success (0x00)
+        States: 0x000003ffffffffff
+[...]
+          LE Set Extended Scan Parameters (Octet 37 - Bit 5)
+          LE Set Extended Scan Enable (Octet 37 - Bit 6)
+[...]
+
+, but then fail to actually implement the extended scanning:
+
+< HCI Command: LE Set Extended Sca.. (0x08|0x0041) plen 8
+        Own address type: Random (0x01)
+        Filter policy: Accept all advertisement (0x00)
+        PHYs: 0x01
+        Entry 0: LE 1M
+          Type: Active (0x01)
+          Interval: 11.250 msec (0x0012)
+          Window: 11.250 msec (0x0012)
+> HCI Event: Command Complete (0x0e) plen 4
+      LE Set Extended Scan Parameters (0x08|0x0041) ncmd 1
+        Status: Unknown HCI Command (0x01)
+
+Signed-off-by: Sven Peter <sven@svenpeter.dev>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../media/platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c   | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/bluetooth/hci.h      | 10 ++++++++++
+ include/net/bluetooth/hci_core.h |  4 +++-
+ 2 files changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c
-index e86809052a9f..ffbcee04dc26 100644
---- a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c
-+++ b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c
-@@ -253,7 +253,7 @@ static void mtk_vdec_worker(struct work_struct *work)
+diff --git a/include/net/bluetooth/hci.h b/include/net/bluetooth/hci.h
+index 4518c63e9d17..78c55b69919d 100644
+--- a/include/net/bluetooth/hci.h
++++ b/include/net/bluetooth/hci.h
+@@ -274,6 +274,16 @@ enum {
+ 	 * during the hdev->setup vendor callback.
+ 	 */
+ 	HCI_QUIRK_BROKEN_ENHANCED_SETUP_SYNC_CONN,
++
++	/*
++	 * When this quirk is set, the HCI_OP_LE_SET_EXT_SCAN_ENABLE command is
++	 * disabled. This is required for some Broadcom controllers which
++	 * erroneously claim to support extended scanning.
++	 *
++	 * This quirk can be set before hci_register_dev is called or
++	 * during the hdev->setup vendor callback.
++	 */
++	HCI_QUIRK_BROKEN_EXT_SCAN,
+ };
  
- 	state = ret ? VB2_BUF_STATE_ERROR : VB2_BUF_STATE_DONE;
- 	if (!IS_VDEC_LAT_ARCH(dev->vdec_pdata->hw_arch) ||
--	    ctx->current_codec == V4L2_PIX_FMT_VP8_FRAME || ret) {
-+	    ctx->current_codec == V4L2_PIX_FMT_VP8_FRAME) {
- 		v4l2_m2m_buf_done_and_job_finish(dev->m2m_dev_dec, ctx->m2m_ctx, state);
- 		if (src_buf_req)
- 			v4l2_ctrl_request_complete(src_buf_req, &ctx->ctrl_hdl);
+ /* HCI device flags */
+diff --git a/include/net/bluetooth/hci_core.h b/include/net/bluetooth/hci_core.h
+index e7862903187d..29d1254f9856 100644
+--- a/include/net/bluetooth/hci_core.h
++++ b/include/net/bluetooth/hci_core.h
+@@ -1681,7 +1681,9 @@ void hci_conn_del_sysfs(struct hci_conn *conn);
+ 
+ /* Use ext scanning if set ext scan param and ext scan enable is supported */
+ #define use_ext_scan(dev) (((dev)->commands[37] & 0x20) && \
+-			   ((dev)->commands[37] & 0x40))
++			   ((dev)->commands[37] & 0x40) && \
++			   !test_bit(HCI_QUIRK_BROKEN_EXT_SCAN, &(dev)->quirks))
++
+ /* Use ext create connection if command is supported */
+ #define use_ext_conn(dev) ((dev)->commands[37] & 0x80)
+ 
 -- 
 2.35.1
 
