@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CC57657D1D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:39:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A6416582B0
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:40:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233254AbiL1Pjh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:39:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56500 "EHLO
+        id S234912AbiL1QkR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:40:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233518AbiL1Pjf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:39:35 -0500
+        with ESMTP id S235052AbiL1Qjf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:39:35 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E1A3167CA
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:39:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 451911E3E3
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:34:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3C186B81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:39:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC1D3C433D2;
-        Wed, 28 Dec 2022 15:39:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E7064B81707
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:34:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43BA1C433F0;
+        Wed, 28 Dec 2022 16:34:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241972;
-        bh=TTgh3nof+qRtikzAzm32Sm9gSnJCpYLiGe180JzSmu4=;
+        s=korg; t=1672245289;
+        bh=eOD5xF4l3voCHKji6uotozJLhreiNAuDHg892/xOdLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bnQ5j0dUn9AmY3sL+xlhTyC8Fla7xB642D0qCVQw9JW8fIQXUFWgHcUeMIAna1jPV
-         BKp+coSyuYgvdePQRHHmINT/oPq4U4+SiW4huXbJVNqSbljajdSDBT5Rb1jP8hfzBt
-         G2XUOc6OwtfUQVpVe4fpoCNXb/TY9NAQY4V/uBvc=
+        b=hXx1SwktZT7X1QtL7nR19uUAUIUn4IDvoJrxJUh8AQZDX2zi7HBaeEa/+oyA/8URy
+         Qv7RWRdX/AbUvjpU2eWqX478ujLrg25FtzDBZg7qumC2ws+sNthCnQyREPifmMLYem
+         nofDAhCq+r9wkqxxxMzWyCtd9jAbKsqxBeWoCqnE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        patches@lists.linux.dev, GUO Zihua <guozihua@huawei.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 548/731] rtc: pcf85063: Fix reading alarm
+Subject: [PATCH 6.0 0867/1073] rtc: mxc_v2: Add missing clk_disable_unprepare()
 Date:   Wed, 28 Dec 2022 15:40:55 +0100
-Message-Id: <20221228144312.425700375@linuxfoundation.org>
+Message-Id: <20221228144351.571095158@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: GUO Zihua <guozihua@huawei.com>
 
-[ Upstream commit a6ceee26fd5ed9b5bd37322b1ca88e4548cee4a3 ]
+[ Upstream commit 55d5a86618d3b1a768bce01882b74cbbd2651975 ]
 
-If the alarms are disabled the topmost bit (AEN_*) is set in the alarm
-registers. This is also interpreted in BCD number leading to this warning:
-rtc rtc0: invalid alarm value: 2022-09-21T80:80:80
+The call to clk_disable_unprepare() is left out in the error handling of
+devm_rtc_allocate_device. Add it back.
 
-Fix this by masking alarm enabling and reserved bits.
-
-Fixes: 05cb3a56ee8c ("rtc: pcf85063: add alarm support")
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Link: https://lore.kernel.org/r/20220921074141.3903104-1-alexander.stein@ew.tq-group.com
+Fixes: 5490a1e018a4 ("rtc: mxc_v2: fix possible race condition")
+Signed-off-by: GUO Zihua <guozihua@huawei.com>
+Link: https://lore.kernel.org/r/20221122085046.21689-1-guozihua@huawei.com
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-pcf85063.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-mxc_v2.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
-index 14da4ab30104..3e2837722667 100644
---- a/drivers/rtc/rtc-pcf85063.c
-+++ b/drivers/rtc/rtc-pcf85063.c
-@@ -167,10 +167,10 @@ static int pcf85063_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	if (ret)
- 		return ret;
+diff --git a/drivers/rtc/rtc-mxc_v2.c b/drivers/rtc/rtc-mxc_v2.c
+index 5e0383401629..f6d2ad91ff7a 100644
+--- a/drivers/rtc/rtc-mxc_v2.c
++++ b/drivers/rtc/rtc-mxc_v2.c
+@@ -336,8 +336,10 @@ static int mxc_rtc_probe(struct platform_device *pdev)
+ 	}
  
--	alrm->time.tm_sec = bcd2bin(buf[0]);
--	alrm->time.tm_min = bcd2bin(buf[1]);
--	alrm->time.tm_hour = bcd2bin(buf[2]);
--	alrm->time.tm_mday = bcd2bin(buf[3]);
-+	alrm->time.tm_sec = bcd2bin(buf[0] & 0x7f);
-+	alrm->time.tm_min = bcd2bin(buf[1] & 0x7f);
-+	alrm->time.tm_hour = bcd2bin(buf[2] & 0x3f);
-+	alrm->time.tm_mday = bcd2bin(buf[3] & 0x3f);
+ 	pdata->rtc = devm_rtc_allocate_device(&pdev->dev);
+-	if (IS_ERR(pdata->rtc))
++	if (IS_ERR(pdata->rtc)) {
++		clk_disable_unprepare(pdata->clk);
+ 		return PTR_ERR(pdata->rtc);
++	}
  
- 	ret = regmap_read(pcf85063->regmap, PCF85063_REG_CTRL2, &val);
- 	if (ret)
+ 	pdata->rtc->ops = &mxc_rtc_ops;
+ 	pdata->rtc->range_max = U32_MAX;
 -- 
 2.35.1
 
