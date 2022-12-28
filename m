@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE70D657A5F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:11:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0253F657940
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:59:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232755AbiL1PLK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:11:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56868 "EHLO
+        id S233330AbiL1O7X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:59:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233703AbiL1PKQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:10:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1454213E03
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:10:16 -0800 (PST)
+        with ESMTP id S233356AbiL1O7H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:59:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9662110053
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:59:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A80BCB81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:10:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20FD4C433EF;
-        Wed, 28 Dec 2022 15:10:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3444A61540
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:59:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46429C433D2;
+        Wed, 28 Dec 2022 14:59:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240213;
-        bh=c4hsV7i8ymG8pi0rs0ItIYG7BfhreTpAMJMVsu1akkI=;
+        s=korg; t=1672239545;
+        bh=zzLuUU4rG14XyxJiFO/vJJ7P5Nwc3Mzom4Mh5RRjFyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SUxl1ZqjYdTkRx6VdbNqVlQNRYxaeHayjqWUqBJkqvnO9jK6luSlV3vz6l2/rn1hD
-         sLrseiozxraFH4YY9LYjUeFZz57nW7f4aZbdZZNYKA43mu9+ex5lhsKt04OGY4QDfO
-         zU3usKTOR86BnEPkN0OoT4vE3v7QskhGyUuWAOss=
+        b=ZD5Cuhyzi3R1SUvIsfMDnd5UDuQG7BvjAz/zO4M83iUZs4+voLK8oyNrxm5vlXhnk
+         GsFjuNW1o61TTWYFY6EkP0lxA3xmwnrs85VNozKoTK719y77Q7NJrx+BwU6R97XsL/
+         w90zATEHu9/sF6BdFqq7brt5zJsIs/nWJpdlaTRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0096/1146] pstore/ram: Fix error return code in ramoops_probe()
-Date:   Wed, 28 Dec 2022 15:27:15 +0100
-Message-Id: <20221228144332.749662451@linuxfoundation.org>
+        patches@lists.linux.dev, Kory Maincent <kory.maincent@bootlin.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0048/1073] arm: dts: spear600: Fix clcd interrupt
+Date:   Wed, 28 Dec 2022 15:27:16 +0100
+Message-Id: <20221228144329.423212626@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Kory Maincent <kory.maincent@bootlin.com>
 
-[ Upstream commit e1fce564900f8734edf15b87f028c57e14f6e28d ]
+[ Upstream commit 0336e2ce34e7a89832b6c214f924eb7bc58940be ]
 
-In the if (dev_of_node(dev) && !pdata) path, the "err" may be assigned a
-value of 0, so the error return code -EINVAL may be incorrectly set
-to 0. To fix set valid return code before calling to goto.
+Interrupt 12 of the Interrupt controller belongs to the SMI controller,
+the right one for the display controller is the interrupt 13.
 
-Fixes: 35da60941e44 ("pstore/ram: add Device Tree bindings")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/1669969374-46582-1-git-send-email-wangyufen@huawei.com
+Fixes: 8113ba917dfa ("ARM: SPEAr: DT: Update device nodes")
+Signed-off-by: Kory Maincent <kory.maincent@bootlin.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/pstore/ram.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/boot/dts/spear600.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/pstore/ram.c b/fs/pstore/ram.c
-index fefe3d391d3a..74e4d93f3e08 100644
---- a/fs/pstore/ram.c
-+++ b/fs/pstore/ram.c
-@@ -735,6 +735,7 @@ static int ramoops_probe(struct platform_device *pdev)
- 	/* Make sure we didn't get bogus platform data pointer. */
- 	if (!pdata) {
- 		pr_err("NULL platform data\n");
-+		err = -EINVAL;
- 		goto fail_out;
- 	}
- 
-@@ -742,6 +743,7 @@ static int ramoops_probe(struct platform_device *pdev)
- 			!pdata->ftrace_size && !pdata->pmsg_size)) {
- 		pr_err("The memory size and the record/console size must be "
- 			"non-zero\n");
-+		err = -EINVAL;
- 		goto fail_out;
- 	}
+diff --git a/arch/arm/boot/dts/spear600.dtsi b/arch/arm/boot/dts/spear600.dtsi
+index fd41243a0b2c..9d5a04a46b14 100644
+--- a/arch/arm/boot/dts/spear600.dtsi
++++ b/arch/arm/boot/dts/spear600.dtsi
+@@ -47,7 +47,7 @@ clcd: clcd@fc200000 {
+ 			compatible = "arm,pl110", "arm,primecell";
+ 			reg = <0xfc200000 0x1000>;
+ 			interrupt-parent = <&vic1>;
+-			interrupts = <12>;
++			interrupts = <13>;
+ 			status = "disabled";
+ 		};
  
 -- 
 2.35.1
