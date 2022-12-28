@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC561657FE3
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:11:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E2D2657F02
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:00:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232963AbiL1QLo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:11:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53686 "EHLO
+        id S234246AbiL1QAP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:00:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234481AbiL1QLB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:11:01 -0500
+        with ESMTP id S234234AbiL1QAK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:00:10 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 119B31A062
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:09:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B783418E27
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:00:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4911EB8172A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:09:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5739C433D2;
-        Wed, 28 Dec 2022 16:09:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 66371B81732
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:00:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7A6DC433EF;
+        Wed, 28 Dec 2022 16:00:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243755;
-        bh=oG8p6uHzd9jeLxIpvjJPqGMurUe78KnMd7qmPO7t9wE=;
+        s=korg; t=1672243207;
+        bh=AYyIUtagm/bpnlo648dU+f0jbsbLqMQN0uBU8nFAmxw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HbNI7SoK9DjdkaPAZEGwigvImIqnfbzRjFC+HNeBxBn6N09aKaiphoDhhvr42Sdha
-         BJDvmlYqaczBoVafDOBcQJCVNC6GLYFw7s0T7o92jsKRAf1sFhddB/kE9rcx/RtwTI
-         EbA6Jw+bCRvjC7TejtkrRRgZXqemJG7LRs/qCPPs=
+        b=L6QLbyS831K3eWv6Eunvc488CrOY4bcD2+GFhAIhPiA5NBt3Wycqmi2ktO0nrcvMZ
+         Ssyv0wB9D8TmRV5estAW0jRO61qIKgC4VR6mhexY1ZLIbZkQ7mOHogY5aOaSjxLVxQ
+         tMlCGR6dZ5NJP/MD6I4gZ5qO7a+MjBycs2rIqjBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Markus Schneider-Pargmann <msp@baylibre.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Ricardo Ribalda <ribalda@chromium.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0550/1146] can: tcan4x5x: Fix use of register error status mask
+Subject: [PATCH 6.0 0501/1073] media: staging: stkwebcam: Restore MEDIA_{USB,CAMERA}_SUPPORT dependencies
 Date:   Wed, 28 Dec 2022 15:34:49 +0100
-Message-Id: <20221228144345.109913681@linuxfoundation.org>
+Message-Id: <20221228144341.642392740@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Markus Schneider-Pargmann <msp@baylibre.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 67727a17a6b375d68fe569b77e6516b034b834c0 ]
+[ Upstream commit faaf901727eddcfbe889fe172ec9cdb5e63c8236 ]
 
-TCAN4X5X_ERROR_STATUS is not a status register that needs clearing
-during interrupt handling. Instead this is a masking register that masks
-error interrupts. Writing TCAN4X5X_CLEAR_ALL_INT to this register
-effectively masks everything.
+By moving support for the USB Syntek DC1125 Camera to staging, the
+dependencies on MEDIA_USB_SUPPORT and MEDIA_CAMERA_SUPPORT were lost.
 
-Rename the register and mask all error interrupts only once by writing
-to the register in tcan4x5x_init.
-
-Fixes: 5443c226ba91 ("can: tcan4x5x: Add tcan4x5x driver to the kernel")
-Signed-off-by: Markus Schneider-Pargmann <msp@baylibre.com>
-Link: https://lore.kernel.org/all/20221206115728.1056014-10-msp@baylibre.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 56280c64ecac ("media: stkwebcam: deprecate driver, move to staging")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Ricardo Ribalda <ribalda@chromium.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/m_can/tcan4x5x-core.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/staging/media/stkwebcam/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/m_can/tcan4x5x-core.c b/drivers/net/can/m_can/tcan4x5x-core.c
-index a77f4d4f6299..2342aa011647 100644
---- a/drivers/net/can/m_can/tcan4x5x-core.c
-+++ b/drivers/net/can/m_can/tcan4x5x-core.c
-@@ -10,7 +10,7 @@
- #define TCAN4X5X_DEV_ID1 0x04
- #define TCAN4X5X_REV 0x08
- #define TCAN4X5X_STATUS 0x0C
--#define TCAN4X5X_ERROR_STATUS 0x10
-+#define TCAN4X5X_ERROR_STATUS_MASK 0x10
- #define TCAN4X5X_CONTROL 0x14
- 
- #define TCAN4X5X_CONFIG 0x800
-@@ -204,12 +204,7 @@ static int tcan4x5x_clear_interrupts(struct m_can_classdev *cdev)
- 	if (ret)
- 		return ret;
- 
--	ret = tcan4x5x_write_tcan_reg(cdev, TCAN4X5X_INT_FLAGS,
--				      TCAN4X5X_CLEAR_ALL_INT);
--	if (ret)
--		return ret;
--
--	return tcan4x5x_write_tcan_reg(cdev, TCAN4X5X_ERROR_STATUS,
-+	return tcan4x5x_write_tcan_reg(cdev, TCAN4X5X_INT_FLAGS,
- 				       TCAN4X5X_CLEAR_ALL_INT);
- }
- 
-@@ -229,6 +224,11 @@ static int tcan4x5x_init(struct m_can_classdev *cdev)
- 	if (ret)
- 		return ret;
- 
-+	ret = tcan4x5x_write_tcan_reg(cdev, TCAN4X5X_ERROR_STATUS_MASK,
-+				      TCAN4X5X_CLEAR_ALL_INT);
-+	if (ret)
-+		return ret;
-+
- 	ret = regmap_update_bits(tcan4x5x->regmap, TCAN4X5X_CONFIG,
- 				 TCAN4X5X_MODE_SEL_MASK, TCAN4X5X_MODE_NORMAL);
- 	if (ret)
+diff --git a/drivers/staging/media/stkwebcam/Kconfig b/drivers/staging/media/stkwebcam/Kconfig
+index 4450403dff41..7234498e634a 100644
+--- a/drivers/staging/media/stkwebcam/Kconfig
++++ b/drivers/staging/media/stkwebcam/Kconfig
+@@ -2,7 +2,7 @@
+ config VIDEO_STKWEBCAM
+ 	tristate "USB Syntek DC1125 Camera support (DEPRECATED)"
+ 	depends on VIDEO_DEV
+-	depends on USB
++	depends on MEDIA_USB_SUPPORT && MEDIA_CAMERA_SUPPORT
+ 	help
+ 	  Say Y here if you want to use this type of camera.
+ 	  Supported devices are typically found in some Asus laptops,
 -- 
 2.35.1
 
