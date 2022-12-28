@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA9B8657A08
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:07:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BA54658030
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:15:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233574AbiL1PHN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:07:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54916 "EHLO
+        id S234493AbiL1QPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:15:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233580AbiL1PHN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:07:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B22613D62
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:07:12 -0800 (PST)
+        with ESMTP id S233126AbiL1QOn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:14:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B0861B1CC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:12:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DAFC061558
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:07:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC193C433D2;
-        Wed, 28 Dec 2022 15:07:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D6C68B81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:12:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2791EC433D2;
+        Wed, 28 Dec 2022 16:12:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240031;
-        bh=GdbX6+uOBY8NC+rX9II4UJQot+soNQqSJiZvdA7CGAU=;
+        s=korg; t=1672243946;
+        bh=p9M0WAJBIkKMkquAW9sDukna7e8a3Kq0X73HkVFvDlU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IVn5YcTCuiJufig333tO/P/zSmTNsM/LKw+r2LwLB2MPWVutkJjt4CN0FEoksRSSX
-         CiOpWzKTC1zWEFQDFsENIXJSBIqaH/swvv22L4FE1eqYycjmueUUyFzCKe3mYktvAR
-         9WQHdiy9OvtCre7gog3trBUrl+Vnz7vLFPCKQep0=
+        b=tW7rItzH1ueNK/fSrsBhKqOOhRrbTwj+v7aYRWiFICVKTi6R4UeoLN9UYNgwQ1fmS
+         k2DyH09D2KELe2LnTfVnh+lCd+fdH08bqOso9okgjFxQQFL5oItxy2HaP8mW3tOCtG
+         Q7CrBnM6F7dXOn1TYr2NXiqPIFX0mipkc8xf9kU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 301/731] mmc: omap_hsmmc: fix return value check of mmc_add_host()
+Subject: [PATCH 6.0 0620/1073] scsi: hpsa: Fix possible memory leak in hpsa_add_sas_device()
 Date:   Wed, 28 Dec 2022 15:36:48 +0100
-Message-Id: <20221228144305.300924393@linuxfoundation.org>
+Message-Id: <20221228144344.885265904@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +55,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit a525cad241c339ca00bf7ebf03c5180f2a9b767c ]
+[ Upstream commit fda34a5d304d0b98cc967e8763b52221b66dc202 ]
 
-mmc_add_host() may return error, if we ignore its return value,
-it will lead two issues:
-1. The memory that allocated in mmc_alloc_host() is leaked.
-2. In the remove() path, mmc_remove_host() will be called to
-   delete device, but it's not added yet, it will lead a kernel
-   crash because of null-ptr-deref in device_del().
+If hpsa_sas_port_add_rphy() returns an error, the 'rphy' allocated in
+sas_end_device_alloc() needs to be freed. Address this by calling
+sas_rphy_free() in the error path.
 
-Fix this by checking the return value and goto error path wihch
-will call mmc_free_host().
-
-Fixes: a45c6cb81647 ("[ARM] 5369/1: omap mmc: Add new omap hsmmc controller for 2430 and 34xx, v3")
+Fixes: d04e62b9d63a ("hpsa: add in sas transport class")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221108121316.340354-1-yangyingliang@huawei.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://lore.kernel.org/r/20221111043012.1074466-1-yangyingliang@huawei.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/omap_hsmmc.c | 4 +++-
+ drivers/scsi/hpsa.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/omap_hsmmc.c b/drivers/mmc/host/omap_hsmmc.c
-index 2f8038d69f67..eb0bd46b7e81 100644
---- a/drivers/mmc/host/omap_hsmmc.c
-+++ b/drivers/mmc/host/omap_hsmmc.c
-@@ -1987,7 +1987,9 @@ static int omap_hsmmc_probe(struct platform_device *pdev)
- 	if (!ret)
- 		mmc->caps |= MMC_CAP_SDIO_IRQ;
+diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
+index 0feb58fe73d2..796bc7aa6c8e 100644
+--- a/drivers/scsi/hpsa.c
++++ b/drivers/scsi/hpsa.c
+@@ -9827,10 +9827,12 @@ static int hpsa_add_sas_device(struct hpsa_sas_node *hpsa_sas_node,
  
--	mmc_add_host(mmc);
-+	ret = mmc_add_host(mmc);
-+	if (ret)
-+		goto err_irq;
+ 	rc = hpsa_sas_port_add_rphy(hpsa_sas_port, rphy);
+ 	if (rc)
+-		goto free_sas_port;
++		goto free_sas_rphy;
  
- 	if (mmc_pdata(host)->name != NULL) {
- 		ret = device_create_file(&mmc->class_dev, &dev_attr_slot_name);
+ 	return 0;
+ 
++free_sas_rphy:
++	sas_rphy_free(rphy);
+ free_sas_port:
+ 	hpsa_free_sas_port(hpsa_sas_port);
+ 	device->sas_port = NULL;
 -- 
 2.35.1
 
