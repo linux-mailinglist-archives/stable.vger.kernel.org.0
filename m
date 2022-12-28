@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 760C6658282
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:38:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B54C665830A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231452AbiL1Qhe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:37:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54008 "EHLO
+        id S234888AbiL1QoL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:44:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234920AbiL1Qg0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:36:26 -0500
+        with ESMTP id S233660AbiL1Qnp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:45 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D74311478
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:32:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A6981AA0F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:38:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AECA661572
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:32:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97E53C433EF;
-        Wed, 28 Dec 2022 16:32:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A4B961541
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:38:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB47DC433D2;
+        Wed, 28 Dec 2022 16:38:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245170;
-        bh=Rg8+MlLZcxNWeaWneO5vyQy1f/u1KBeebCoUCwQ8y3I=;
+        s=korg; t=1672245501;
+        bh=MxP9Ca6ZRaaiDUdG1Bv32qDmM1KGnIdycsO7dqW+zb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DHAU6kXJGVRwK7m1CHnoq1iUgDZpukDqXUUhHV/SGWEvk3aHc4pECnXvTkslSjbPN
-         QSGX+8bxzfFVgzL/wNoJ1oXwyDPgOW23ugAuGzwZ3aTyrkY1yML590lmpnpI372LZw
-         tdBJ5mu22u4v9QwWQIa8a/6NY98KAyM4+KCY35ls=
+        b=IoBQS8Jc/Zu5BaV2miX16rX7kp6jDn61sUq8MZwMVnCW7ktm8reDL9hSx1cgVtxIZ
+         Vr/0H8NCI/XywfX3jKVN6OgUsH6WlcQKw06L7HvI0F1sMdL/e2P3chkYpzPABbrCq1
+         GMuOJpYcv8Majs9yU8SUJuZk0yn+++UDSbphZQlI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mukesh Ojha <quic_mojha@quicinc.com>,
-        Luca Weiss <luca.weiss@fairphone.com>,
-        Caleb Connolly <caleb.connolly@linaro.org>,
-        Sibi Sankar <quic_sibis@quicinc.com>,
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
         Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0822/1073] remoteproc: qcom_q6v5_pas: disable wakeup on probe fail or remove
+Subject: [PATCH 6.1 0871/1146] remoteproc: qcom: q6v5: Fix potential null-ptr-deref in q6v5_wcss_init_mmio()
 Date:   Wed, 28 Dec 2022 15:40:10 +0100
-Message-Id: <20221228144350.341742843@linuxfoundation.org>
+Message-Id: <20221228144353.825557755@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,56 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Weiss <luca.weiss@fairphone.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit 9a70551996e699fda262e8d54bbd41739d7aad6d ]
+[ Upstream commit f360e2b275efbb745ba0af8b47d9ef44221be586 ]
 
-Leaving wakeup enabled during probe fail (-EPROBE_DEFER) or remove makes
-the subsequent probe fail.
+q6v5_wcss_init_mmio() will call platform_get_resource_byname() that may
+fail and return NULL. devm_ioremap() will use res->start as input, which
+may causes null-ptr-deref. Check the ret value of
+platform_get_resource_byname() to avoid the null-ptr-deref.
 
-[    3.749454] remoteproc remoteproc0: releasing 3000000.remoteproc
-[    3.752949] qcom_q6v5_pas: probe of 3000000.remoteproc failed with error -17
-[    3.878935] remoteproc remoteproc0: releasing 4080000.remoteproc
-[    3.887602] qcom_q6v5_pas: probe of 4080000.remoteproc failed with error -17
-[    4.319552] remoteproc remoteproc0: releasing 8300000.remoteproc
-[    4.332716] qcom_q6v5_pas: probe of 8300000.remoteproc failed with error -17
-
-Fix this by disabling wakeup in both cases so the driver can properly
-probe on the next try.
-
-Fixes: a781e5aa5911 ("remoteproc: core: Prevent system suspend during remoteproc recovery")
-Fixes: dc86c129b4fb ("remoteproc: qcom: pas: Mark devices as wakeup capable")
-Reviewed-by: Mukesh Ojha <quic_mojha@quicinc.com>
-Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
-Reviewed-by: Caleb Connolly <caleb.connolly@linaro.org>
-Reviewed-by: Sibi Sankar <quic_sibis@quicinc.com>
+Fixes: 0af65b9b915e ("remoteproc: qcom: wcss: Add non pas wcss Q6 support for QCS404")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
 Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221118090816.100012-1-luca.weiss@fairphone.com
+Link: https://lore.kernel.org/r/20221125021641.29392-1-shangxiaojing@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/qcom_q6v5_pas.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/remoteproc/qcom_q6v5_wcss.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/remoteproc/qcom_q6v5_pas.c b/drivers/remoteproc/qcom_q6v5_pas.c
-index 6afd0941e552..67f5152e2398 100644
---- a/drivers/remoteproc/qcom_q6v5_pas.c
-+++ b/drivers/remoteproc/qcom_q6v5_pas.c
-@@ -556,6 +556,7 @@ static int adsp_probe(struct platform_device *pdev)
- detach_proxy_pds:
- 	adsp_pds_detach(adsp, adsp->proxy_pds, adsp->proxy_pd_count);
- free_rproc:
-+	device_init_wakeup(adsp->dev, false);
- 	rproc_free(rproc);
+diff --git a/drivers/remoteproc/qcom_q6v5_wcss.c b/drivers/remoteproc/qcom_q6v5_wcss.c
+index bb0947f7770e..de232337e082 100644
+--- a/drivers/remoteproc/qcom_q6v5_wcss.c
++++ b/drivers/remoteproc/qcom_q6v5_wcss.c
+@@ -827,6 +827,9 @@ static int q6v5_wcss_init_mmio(struct q6v5_wcss *wcss,
+ 	int ret;
  
- 	return ret;
-@@ -572,6 +573,7 @@ static int adsp_remove(struct platform_device *pdev)
- 	qcom_remove_sysmon_subdev(adsp->sysmon);
- 	qcom_remove_smd_subdev(adsp->rproc, &adsp->smd_subdev);
- 	qcom_remove_ssr_subdev(adsp->rproc, &adsp->ssr_subdev);
-+	device_init_wakeup(adsp->dev, false);
- 	rproc_free(adsp->rproc);
- 
- 	return 0;
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "qdsp6");
++	if (!res)
++		return -EINVAL;
++
+ 	wcss->reg_base = devm_ioremap(&pdev->dev, res->start,
+ 				      resource_size(res));
+ 	if (!wcss->reg_base)
 -- 
 2.35.1
 
