@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E00B657A10
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:07:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E2E5657B30
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:19:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233590AbiL1PH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:07:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55104 "EHLO
+        id S233259AbiL1PTI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:19:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233591AbiL1PH0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:07:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A1E413D7C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:07:25 -0800 (PST)
+        with ESMTP id S233257AbiL1PTC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:19:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C724F13FA9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:18:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D8D161553
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:07:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D47BC433D2;
-        Wed, 28 Dec 2022 15:07:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0637B61551
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:18:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14130C433D2;
+        Wed, 28 Dec 2022 15:18:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240044;
-        bh=5mTxK/RncLcU3rrenc/5jESFvzS91oTeb9pVSlhc/ps=;
+        s=korg; t=1672240724;
+        bh=Lez0XSHP/3AfL8wxzX79PzZk+p3Dw0gYxZGEGDraGYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eder/KgTNFY1azEwZDU4AITR9TtafKEa/xsWJwRTZJfVjZDIH5uUwy+XYXL88LCVb
-         WBvVmEinpXJ17/E8isDcO6KCkN3k+w8hBQ5PGNuy65Rkyj6PLGXZucJ1Fl+9kxZ3OO
-         NCKND/S+c9i0FqxbsVtBpiNdaXgthg/wrtdw2Hdg=
+        b=E2nL1McnMfHsQMTSmTBp6KpJiOaQzHtmdv8De9EKvPhFNA3ydtXbV9u1T5fyc7D4L
+         0Rahgpt/ngWu1G7RzhHU3cJJtmNAubVRKUzYTTKhMZoAvW043XXGgS2ErrTRPBDZ1X
+         iEChpDQmny/4Puy/vagL3QiRZfSNz3rbB6wQJyjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Alexandre Bounine <alex.bou9@gmail.com>,
+        Matt Porter <mporter@kernel.crashing.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0111/1073] ACPI: irq: Fix some kernel-doc issues
+Subject: [PATCH 6.1 0160/1146] rapidio: fix possible name leaks when rio_add_device() fails
 Date:   Wed, 28 Dec 2022 15:28:19 +0100
-Message-Id: <20221228144331.057375208@linuxfoundation.org>
+Message-Id: <20221228144334.505159984@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit ebb92d58b90753e658059f5d8590d9048395491a ]
+[ Upstream commit f9574cd48679926e2a569e1957a5a1bcc8a719ac ]
 
-The following commit change the second parameter of acpi_set_irq_model()
-but forgot to update the function description. Let's fix it.
+Patch series "rapidio: fix three possible memory leaks".
 
-  commit 7327b16f5f56 ("APCI: irq: Add support for multiple GSI domains")
+This patchset fixes three name leaks in error handling.
+ - patch #1 fixes two name leaks while rio_add_device() fails.
+ - patch #2 fixes a name leak while  rio_register_mport() fails.
 
-Also add description of parameter 'gsi' for
-acpi_get_irq_source_fwhandle() to avoid the following build W=1 warning.
+This patch (of 2):
 
-  drivers/acpi/irq.c:108: warning: Function parameter or member 'gsi' not described in 'acpi_get_irq_source_fwhandle'
+If rio_add_device() returns error, the name allocated by dev_set_name()
+need be freed.  It should use put_device() to give up the reference in the
+error path, so that the name can be freed in kobject_cleanup(), and the
+'rdev' can be freed in rio_release_dev().
 
-Fixes: 7327b16f5f56 ("APCI: irq: Add support for multiple GSI domains")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: https://lkml.kernel.org/r/20221114152636.2939035-1-yangyingliang@huawei.com
+Link: https://lkml.kernel.org/r/20221114152636.2939035-2-yangyingliang@huawei.com
+Fixes: e8de370188d0 ("rapidio: add mport char device driver")
+Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Cc: Alexandre Bounine <alex.bou9@gmail.com>
+Cc: Matt Porter <mporter@kernel.crashing.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/irq.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/rapidio/devices/rio_mport_cdev.c | 7 +++++--
+ drivers/rapidio/rio-scan.c               | 8 ++++++--
+ 2 files changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/acpi/irq.c b/drivers/acpi/irq.c
-index dabe45eba055..0d9a17fdd83e 100644
---- a/drivers/acpi/irq.c
-+++ b/drivers/acpi/irq.c
-@@ -94,6 +94,7 @@ EXPORT_SYMBOL_GPL(acpi_unregister_gsi);
- /**
-  * acpi_get_irq_source_fwhandle() - Retrieve fwhandle from IRQ resource source.
-  * @source: acpi_resource_source to use for the lookup.
-+ * @gsi: GSI IRQ number
-  *
-  * Description:
-  * Retrieve the fwhandle of the device referenced by the given IRQ resource
-@@ -295,8 +296,8 @@ EXPORT_SYMBOL_GPL(acpi_irq_get);
- /**
-  * acpi_set_irq_model - Setup the GSI irqdomain information
-  * @model: the value assigned to acpi_irq_model
-- * @fwnode: the irq_domain identifier for mapping and looking up
-- *          GSI interrupts
-+ * @fn: a dispatcher function that will return the domain fwnode
-+ *	for a given GSI
-  */
- void __init acpi_set_irq_model(enum acpi_irq_model_id model,
- 			       struct fwnode_handle *(*fn)(u32))
+diff --git a/drivers/rapidio/devices/rio_mport_cdev.c b/drivers/rapidio/devices/rio_mport_cdev.c
+index 2cdc054e53a5..3cc83997a1f8 100644
+--- a/drivers/rapidio/devices/rio_mport_cdev.c
++++ b/drivers/rapidio/devices/rio_mport_cdev.c
+@@ -1804,8 +1804,11 @@ static int rio_mport_add_riodev(struct mport_cdev_priv *priv,
+ 		rio_init_dbell_res(&rdev->riores[RIO_DOORBELL_RESOURCE],
+ 				   0, 0xffff);
+ 	err = rio_add_device(rdev);
+-	if (err)
+-		goto cleanup;
++	if (err) {
++		put_device(&rdev->dev);
++		return err;
++	}
++
+ 	rio_dev_get(rdev);
+ 
+ 	return 0;
+diff --git a/drivers/rapidio/rio-scan.c b/drivers/rapidio/rio-scan.c
+index 19b0c33f4a62..fdcf742b2adb 100644
+--- a/drivers/rapidio/rio-scan.c
++++ b/drivers/rapidio/rio-scan.c
+@@ -454,8 +454,12 @@ static struct rio_dev *rio_setup_device(struct rio_net *net,
+ 				   0, 0xffff);
+ 
+ 	ret = rio_add_device(rdev);
+-	if (ret)
+-		goto cleanup;
++	if (ret) {
++		if (rswitch)
++			kfree(rswitch->route_table);
++		put_device(&rdev->dev);
++		return NULL;
++	}
+ 
+ 	rio_dev_get(rdev);
+ 
 -- 
 2.35.1
 
