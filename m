@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57FDB657E77
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:53:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B00365785B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:49:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234139AbiL1Px4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:53:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41578 "EHLO
+        id S233038AbiL1Otj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:49:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234126AbiL1Pxy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:53:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA04015F29
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:53:53 -0800 (PST)
+        with ESMTP id S233050AbiL1Oti (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:49:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 264FA3AB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:49:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A3957B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:53:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18556C433D2;
-        Wed, 28 Dec 2022 15:53:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B7E6E6153B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:49:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC844C433D2;
+        Wed, 28 Dec 2022 14:49:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242831;
-        bh=i4kn/bkOE2FWuqdT+xmrCUi/bo4Ef6WDtqiFk35+D7k=;
+        s=korg; t=1672238977;
+        bh=BgSxeAmFV1uMi0RZDKEqnnUtz6CbCkr1MlfzPGl1Kuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rweTbBBIdR+6FQHZkfGcyh28rFuanjuDH53xlEpSzG2iDO3Y7hin+SBX9jhR4tF8k
-         uIsT1Wd0FSRKhsnGq5DmUMQJRYswtbAT4twAgzqK9b7w8dnKJ+JsxdyDnmm131H9D5
-         2Ml6kYLZvbU/+P1U5ZSKauIpE5bwOba50iWQgmT4=
+        b=iJql2Lw5OVIpQdUdevwMRWiNn6Pd1FfaePJxiGV0w/KURbENCA8QicVTV09DU//aP
+         DNCsVeKErQGCy38wOdYrI6pGC04zcamx2MfPiIz5rRgrppT2RJ8yGRqX1UEEXhxbPF
+         RbjY8V5gRRrqrkCDGi4iGsAfhW4EtUl5iY0/CMm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0421/1146] drm/msm/mdp5: fix reading hw revision on db410c platform
+Subject: [PATCH 5.15 053/731] ARM: dts: turris-omnia: Add switch port 6 node
 Date:   Wed, 28 Dec 2022 15:32:40 +0100
-Message-Id: <20221228144341.610082955@linuxfoundation.org>
+Message-Id: <20221228144258.092507517@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 5d8c0417ea62fed3cec7f5daed06a20477efeb39 ]
+[ Upstream commit f87db2005f73876602211af0ee156817019b6bda ]
 
-Since the commit commit c6122688f265 ("drm/msm/mdp5: stop overriding
-drvdata") reading the MDP5 hw revision on db410c will crash the board
-as the MDSS_GDSC is not enabled. Revert a part of the offending commit
-(moving rpm enablement) and set priv->kms earlier. This make it possible
-to use pm_runtime_get_sync() during read_mdp_hw_revision(), which will
-power up both the MDP5 and MDSS devices.
+Switch port 6 is connected to eth0, so add appropriate device tree node for it.
 
-Fixes: c6122688f265 ("drm/msm/mdp5: stop overriding drvdata")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/512985/
-Link: https://lore.kernel.org/r/20221125000213.252115-1-dmitry.baryshkov@linaro.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: 26ca8b52d6e1 ("ARM: dts: add support for Turris Omnia")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ arch/arm/boot/dts/armada-385-turris-omnia.dts | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
-index b46f983f2b46..29ae5c9613f3 100644
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
-@@ -519,10 +519,9 @@ static void read_mdp_hw_revision(struct mdp5_kms *mdp5_kms,
- 	struct device *dev = &mdp5_kms->pdev->dev;
- 	u32 version;
+diff --git a/arch/arm/boot/dts/armada-385-turris-omnia.dts b/arch/arm/boot/dts/armada-385-turris-omnia.dts
+index 86e8a4680273..e7649c795699 100644
+--- a/arch/arm/boot/dts/armada-385-turris-omnia.dts
++++ b/arch/arm/boot/dts/armada-385-turris-omnia.dts
+@@ -456,7 +456,17 @@ fixed-link {
+ 				};
+ 			};
  
--	/* Manually enable the MDP5, as pm runtime isn't usable yet. */
--	mdp5_enable(mdp5_kms);
-+	pm_runtime_get_sync(dev);
- 	version = mdp5_read(mdp5_kms, REG_MDP5_HW_VERSION);
--	mdp5_disable(mdp5_kms);
-+	pm_runtime_put_sync(dev);
- 
- 	*major = FIELD(version, MDP5_HW_VERSION_MAJOR);
- 	*minor = FIELD(version, MDP5_HW_VERSION_MINOR);
-@@ -839,6 +838,12 @@ static int mdp5_init(struct platform_device *pdev, struct drm_device *dev)
- 	 */
- 	clk_set_rate(mdp5_kms->core_clk, 200000000);
- 
-+	/* set uninit-ed kms */
-+	priv->kms = &mdp5_kms->base.base;
+-			/* port 6 is connected to eth0 */
++			ports@6 {
++				reg = <6>;
++				label = "cpu";
++				ethernet = <&eth0>;
++				phy-mode = "rgmii-id";
 +
-+	pm_runtime_enable(&pdev->dev);
-+	mdp5_kms->rpm_enabled = true;
-+
- 	read_mdp_hw_revision(mdp5_kms, &major, &minor);
- 
- 	mdp5_kms->cfg = mdp5_cfg_init(mdp5_kms, major, minor);
-@@ -887,12 +892,6 @@ static int mdp5_init(struct platform_device *pdev, struct drm_device *dev)
- 	if (ret)
- 		goto fail;
- 
--	/* set uninit-ed kms */
--	priv->kms = &mdp5_kms->base.base;
--
--	pm_runtime_enable(&pdev->dev);
--	mdp5_kms->rpm_enabled = true;
--
- 	return 0;
- fail:
- 	if (mdp5_kms)
++				fixed-link {
++					speed = <1000>;
++					full-duplex;
++				};
++			};
+ 		};
+ 	};
+ };
 -- 
 2.35.1
 
