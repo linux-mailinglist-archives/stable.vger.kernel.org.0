@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC5346584DD
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:03:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D02FF658475
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234391AbiL1RD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:03:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57494 "EHLO
+        id S233739AbiL1Q5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:57:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234469AbiL1RDG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:03:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B5261D656
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:57:07 -0800 (PST)
+        with ESMTP id S235326AbiL1Q4o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:56:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 996C810B68
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:52:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A3D161572
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:57:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19F6CC433D2;
-        Wed, 28 Dec 2022 16:57:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5078EB8172A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:52:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F8CDC433D2;
+        Wed, 28 Dec 2022 16:52:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246626;
-        bh=DdwE8nGV7R2/8VF/7Z3y2CUgJ6sF/dlFB5LQu3rt0F0=;
+        s=korg; t=1672246371;
+        bh=49jbtjE20D3i7P5igmqRub2WStPr6KsnGhlBmfvJLkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PJNby+5HZBg58n0UM8GYySxNQHoQRcS3MkS57SNjBXElE9o0m3AutnMBLu3JU13Dp
-         WPwhw/xFWmL3Mn2zKZbnrjYZRpypNI9RvGx43VYgP24xc7xDcQjd6hPKodx1I+Qx75
-         CLaaZIjFS2bGsPSdp4IznnbkYfFC+DLGjS0EKyOw=
+        b=AD+GQFk1/t3VGRzYaCCq186Yil2QmVK7C6b4yrBRBpeNuSf4I5aheklyOYCcmCEmq
+         BRyLS4DnG/GLNPp5OHfSTfMmoTWGxYvgdslu+nyLOGwzXn53HOykWw7vEECW0w0qAv
+         Dh5rbBQLSDMrgqgC8/UFT4+8ousdR7KmyeSqBCR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>
-Subject: [PATCH 6.1 1105/1146] arm64: dts: qcom: sm6350: fix USB-DP PHY registers
+        patches@lists.linux.dev,
+        syzbot+0b1fb6b0108c27419f9f@syzkaller.appspotmail.com,
+        Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 6.0 1056/1073] btrfs: do not BUG_ON() on ENOMEM when dropping extent items for a range
 Date:   Wed, 28 Dec 2022 15:44:04 +0100
-Message-Id: <20221228144400.172648894@linuxfoundation.org>
+Message-Id: <20221228144356.912548818@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,47 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 347b9491c595d5091bfabe65cad2fd6eee786153 upstream.
+commit 162d053e15fe985f754ef495a96eb3db970c43ed upstream.
 
-When adding support for the DisplayPort part of the QMP PHY the binding
-(and devicetree parser) for the (USB) child node was simply reused and
-this has lead to some confusion.
+If we get -ENOMEM while dropping file extent items in a given range, at
+btrfs_drop_extents(), due to failure to allocate memory when attempting to
+increment the reference count for an extent or drop the reference count,
+we handle it with a BUG_ON(). This is excessive, instead we can simply
+abort the transaction and return the error to the caller. In fact most
+callers of btrfs_drop_extents(), directly or indirectly, already abort
+the transaction if btrfs_drop_extents() returns any error.
 
-The third DP register region is really the DP_PHY region, not "PCS" as
-the binding claims, and lie at offset 0x2a00 (not 0x2c00).
+Also, we already have error paths at btrfs_drop_extents() that may return
+-ENOMEM and in those cases we abort the transaction, like for example
+anything that changes the b+tree may return -ENOMEM due to a failure to
+allocate a new extent buffer when COWing an existing extent buffer, such
+as a call to btrfs_duplicate_item() for example.
 
-Similarly, there likely are no "RX", "RX2" or "PCS_MISC" regions as
-there are for the USB part of the PHY (and in any case the Linux driver
-does not use them).
+So replace the BUG_ON() calls with proper logic to abort the transaction
+and return the error.
 
-Note that the sixth "PCS_MISC" region is not even in the binding.
-
-Fixes: 23737b9557fe ("arm64: dts: qcom: sm6350: Add USB1 nodes")
-Cc: stable@vger.kernel.org      # 5.16
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221111094729.11842-2-johan+linaro@kernel.org
+Reported-by: syzbot+0b1fb6b0108c27419f9f@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/linux-btrfs/00000000000089773e05ee4b9cb4@google.com/
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/qcom/sm6350.dtsi |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ fs/btrfs/file.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/boot/dts/qcom/sm6350.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm6350.dtsi
-@@ -1150,10 +1150,9 @@
- 			dp_phy: dp-phy@88ea200 {
- 				reg = <0 0x088ea200 0 0x200>,
- 				      <0 0x088ea400 0 0x200>,
--				      <0 0x088eac00 0 0x400>,
-+				      <0 0x088eaa00 0 0x200>,
- 				      <0 0x088ea600 0 0x200>,
--				      <0 0x088ea800 0 0x200>,
--				      <0 0x088eaa00 0 0x100>;
-+				      <0 0x088ea800 0 0x200>;
- 				#phy-cells = <0>;
- 				#clock-cells = <1>;
- 			};
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -880,7 +880,10 @@ next_slot:
+ 						args->start - extent_offset,
+ 						0, false);
+ 				ret = btrfs_inc_extent_ref(trans, &ref);
+-				BUG_ON(ret); /* -ENOMEM */
++				if (ret) {
++					btrfs_abort_transaction(trans, ret);
++					break;
++				}
+ 			}
+ 			key.offset = args->start;
+ 		}
+@@ -967,7 +970,10 @@ delete_extent_item:
+ 						key.offset - extent_offset, 0,
+ 						false);
+ 				ret = btrfs_free_extent(trans, &ref);
+-				BUG_ON(ret); /* -ENOMEM */
++				if (ret) {
++					btrfs_abort_transaction(trans, ret);
++					break;
++				}
+ 				args->bytes_found += extent_end - key.offset;
+ 			}
+ 
 
 
