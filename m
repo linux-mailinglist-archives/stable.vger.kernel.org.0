@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58791657BBF
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:25:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E405657BC5
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:25:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233737AbiL1PZC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:25:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43476 "EHLO
+        id S233789AbiL1PZM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:25:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233742AbiL1PYz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:24:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AD8214094
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:24:54 -0800 (PST)
+        with ESMTP id S233772AbiL1PZE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:25:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95B3814090
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:25:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D48461544
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:24:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA729C433EF;
-        Wed, 28 Dec 2022 15:24:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 32CD1B8170E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:25:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F6D5C433EF;
+        Wed, 28 Dec 2022 15:25:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241093;
-        bh=NGARQIiPfuEkAt7iOMcn4IBrJvH1vv0aMMd7XSuptFA=;
+        s=korg; t=1672241100;
+        bh=0H/gT3N/xTzqw0ftic1ObQIE7L4MTFIDrAGhCwj5ePk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vvai6RqOkKGNuREaV1WoV3GSRnN0RqVYpLU1Jwx1iUT6Y82HE85FBAupCtAGs3BGW
-         Q6ZSc62POzr4fdlaTVbQG3fx4ejiAtTpKA/DIOCfkd6B54riJKdLOnI2kSMUymu+HL
-         Qlpwhh1+28BFxCsiWIVNtRLhxm5jZDGu32S0koqc=
+        b=z0GycfJ13Us4gGNGiSo6wKlQ+vk6u3M0EpCZJkgPyHTXNpgKIUKipkS0YVo0Q/Wn8
+         A50NuRinSWYeoK4jx5xU5C5dQw9abpIK0kEHYFs7hn1/rdV6VviALjQMOLcixcK1//
+         832vwiJNMYIoohQTwPKiAEBthp0W6kRujLyiu2mI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Robert Foss <robert.foss@linaro.org>,
+        patches@lists.linux.dev, Xu Kuohai <xukuohai@huawei.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0204/1146] drm/bridge: adv7533: remove dynamic lane switching from adv7533 bridge
-Date:   Wed, 28 Dec 2022 15:29:03 +0100
-Message-Id: <20221228144335.689984707@linuxfoundation.org>
+Subject: [PATCH 6.1 0205/1146] libbpf: Fix use-after-free in btf_dump_name_dups
+Date:   Wed, 28 Dec 2022 15:29:04 +0100
+Message-Id: <20221228144335.716976762@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -55,225 +54,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abhinav Kumar <quic_abhinavk@quicinc.com>
+From: Xu Kuohai <xukuohai@huawei.com>
 
-[ Upstream commit 9a0cdcd6649b76f0b7ceec0e55b0a718321e34d3 ]
+[ Upstream commit 93c660ca40b5d2f7c1b1626e955a8e9fa30e0749 ]
 
-adv7533 bridge tries to dynamically switch lanes based on the
-mode by detaching and attaching the mipi dsi device.
+ASAN reports an use-after-free in btf_dump_name_dups:
 
-This approach is incorrect because this method of dynamic switch of
-detaching and attaching the mipi dsi device also results in removing
-and adding the component which is not necessary.
+ERROR: AddressSanitizer: heap-use-after-free on address 0xffff927006db at pc 0xaaaab5dfb618 bp 0xffffdd89b890 sp 0xffffdd89b928
+READ of size 2 at 0xffff927006db thread T0
+    #0 0xaaaab5dfb614 in __interceptor_strcmp.part.0 (test_progs+0x21b614)
+    #1 0xaaaab635f144 in str_equal_fn tools/lib/bpf/btf_dump.c:127
+    #2 0xaaaab635e3e0 in hashmap_find_entry tools/lib/bpf/hashmap.c:143
+    #3 0xaaaab635e72c in hashmap__find tools/lib/bpf/hashmap.c:212
+    #4 0xaaaab6362258 in btf_dump_name_dups tools/lib/bpf/btf_dump.c:1525
+    #5 0xaaaab636240c in btf_dump_resolve_name tools/lib/bpf/btf_dump.c:1552
+    #6 0xaaaab6362598 in btf_dump_type_name tools/lib/bpf/btf_dump.c:1567
+    #7 0xaaaab6360b48 in btf_dump_emit_struct_def tools/lib/bpf/btf_dump.c:912
+    #8 0xaaaab6360630 in btf_dump_emit_type tools/lib/bpf/btf_dump.c:798
+    #9 0xaaaab635f720 in btf_dump__dump_type tools/lib/bpf/btf_dump.c:282
+    #10 0xaaaab608523c in test_btf_dump_incremental tools/testing/selftests/bpf/prog_tests/btf_dump.c:236
+    #11 0xaaaab6097530 in test_btf_dump tools/testing/selftests/bpf/prog_tests/btf_dump.c:875
+    #12 0xaaaab6314ed0 in run_one_test tools/testing/selftests/bpf/test_progs.c:1062
+    #13 0xaaaab631a0a8 in main tools/testing/selftests/bpf/test_progs.c:1697
+    #14 0xffff9676d214 in __libc_start_main ../csu/libc-start.c:308
+    #15 0xaaaab5d65990  (test_progs+0x185990)
 
-This approach is also prone to deadlocks. So for example, on the
-db410c whenever this path is executed with lockdep enabled,
-this results in a deadlock due to below ordering of locks.
+0xffff927006db is located 11 bytes inside of 16-byte region [0xffff927006d0,0xffff927006e0)
+freed by thread T0 here:
+    #0 0xaaaab5e2c7c4 in realloc (test_progs+0x24c7c4)
+    #1 0xaaaab634f4a0 in libbpf_reallocarray tools/lib/bpf/libbpf_internal.h:191
+    #2 0xaaaab634f840 in libbpf_add_mem tools/lib/bpf/btf.c:163
+    #3 0xaaaab636643c in strset_add_str_mem tools/lib/bpf/strset.c:106
+    #4 0xaaaab6366560 in strset__add_str tools/lib/bpf/strset.c:157
+    #5 0xaaaab6352d70 in btf__add_str tools/lib/bpf/btf.c:1519
+    #6 0xaaaab6353e10 in btf__add_field tools/lib/bpf/btf.c:2032
+    #7 0xaaaab6084fcc in test_btf_dump_incremental tools/testing/selftests/bpf/prog_tests/btf_dump.c:232
+    #8 0xaaaab6097530 in test_btf_dump tools/testing/selftests/bpf/prog_tests/btf_dump.c:875
+    #9 0xaaaab6314ed0 in run_one_test tools/testing/selftests/bpf/test_progs.c:1062
+    #10 0xaaaab631a0a8 in main tools/testing/selftests/bpf/test_progs.c:1697
+    #11 0xffff9676d214 in __libc_start_main ../csu/libc-start.c:308
+    #12 0xaaaab5d65990  (test_progs+0x185990)
 
--> #1 (crtc_ww_class_acquire){+.+.}-{0:0}:
-        lock_acquire+0x6c/0x90
-        drm_modeset_acquire_init+0xf4/0x150
-        drmm_mode_config_init+0x220/0x770
-        msm_drm_bind+0x13c/0x654
-        try_to_bring_up_aggregate_device+0x164/0x1d0
-        __component_add+0xa8/0x174
-        component_add+0x18/0x2c
-        dsi_dev_attach+0x24/0x30
-        dsi_host_attach+0x98/0x14c
-        devm_mipi_dsi_attach+0x38/0xb0
-        adv7533_attach_dsi+0x8c/0x110
-        adv7511_probe+0x5a0/0x930
-        i2c_device_probe+0x30c/0x350
-        really_probe.part.0+0x9c/0x2b0
-        __driver_probe_device+0x98/0x144
-        driver_probe_device+0xac/0x14c
-        __device_attach_driver+0xbc/0x124
-        bus_for_each_drv+0x78/0xd0
-        __device_attach+0xa8/0x1c0
-        device_initial_probe+0x18/0x24
-        bus_probe_device+0xa0/0xac
-        deferred_probe_work_func+0x90/0xd0
-        process_one_work+0x28c/0x6b0
-        worker_thread+0x240/0x444
-        kthread+0x110/0x114
-        ret_from_fork+0x10/0x20
+previously allocated by thread T0 here:
+    #0 0xaaaab5e2c7c4 in realloc (test_progs+0x24c7c4)
+    #1 0xaaaab634f4a0 in libbpf_reallocarray tools/lib/bpf/libbpf_internal.h:191
+    #2 0xaaaab634f840 in libbpf_add_mem tools/lib/bpf/btf.c:163
+    #3 0xaaaab636643c in strset_add_str_mem tools/lib/bpf/strset.c:106
+    #4 0xaaaab6366560 in strset__add_str tools/lib/bpf/strset.c:157
+    #5 0xaaaab6352d70 in btf__add_str tools/lib/bpf/btf.c:1519
+    #6 0xaaaab6353ff0 in btf_add_enum_common tools/lib/bpf/btf.c:2070
+    #7 0xaaaab6354080 in btf__add_enum tools/lib/bpf/btf.c:2102
+    #8 0xaaaab6082f50 in test_btf_dump_incremental tools/testing/selftests/bpf/prog_tests/btf_dump.c:162
+    #9 0xaaaab6097530 in test_btf_dump tools/testing/selftests/bpf/prog_tests/btf_dump.c:875
+    #10 0xaaaab6314ed0 in run_one_test tools/testing/selftests/bpf/test_progs.c:1062
+    #11 0xaaaab631a0a8 in main tools/testing/selftests/bpf/test_progs.c:1697
+    #12 0xffff9676d214 in __libc_start_main ../csu/libc-start.c:308
+    #13 0xaaaab5d65990  (test_progs+0x185990)
 
--> #0 (component_mutex){+.+.}-{3:3}:
-        __lock_acquire+0x1280/0x20ac
-        lock_acquire.part.0+0xe0/0x230
-        lock_acquire+0x6c/0x90
-        __mutex_lock+0x84/0x400
-        mutex_lock_nested+0x3c/0x70
-        component_del+0x34/0x170
-        dsi_dev_detach+0x24/0x30
-        dsi_host_detach+0x20/0x64
-        mipi_dsi_detach+0x2c/0x40
-        adv7533_mode_set+0x64/0x90
-        adv7511_bridge_mode_set+0x210/0x214
-        drm_bridge_chain_mode_set+0x5c/0x84
-        crtc_set_mode+0x18c/0x1dc
-        drm_atomic_helper_commit_modeset_disables+0x40/0x50
-        msm_atomic_commit_tail+0x1d0/0x6e0
-        commit_tail+0xa4/0x180
-        drm_atomic_helper_commit+0x178/0x3b0
-        drm_atomic_commit+0xa4/0xe0
-        drm_client_modeset_commit_atomic+0x228/0x284
-        drm_client_modeset_commit_locked+0x64/0x1d0
-        drm_client_modeset_commit+0x34/0x60
-        drm_fb_helper_lastclose+0x74/0xcc
-        drm_lastclose+0x3c/0x80
-        drm_release+0xfc/0x114
-        __fput+0x70/0x224
-        ____fput+0x14/0x20
-        task_work_run+0x88/0x1a0
-        do_exit+0x350/0xa50
-        do_group_exit+0x38/0xa4
-        __wake_up_parent+0x0/0x34
-        invoke_syscall+0x48/0x114
-        el0_svc_common.constprop.0+0x60/0x11c
-        do_el0_svc+0x30/0xc0
-        el0_svc+0x58/0x100
-        el0t_64_sync_handler+0x1b0/0x1bc
-        el0t_64_sync+0x18c/0x190
+The reason is that the key stored in hash table name_map is a string
+address, and the string memory is allocated by realloc() function, when
+the memory is resized by realloc() later, the old memory may be freed,
+so the address stored in name_map references to a freed memory, causing
+use-after-free.
 
-Due to above reasons, remove the dynamic lane switching
-code from adv7533 bridge chip and filter out the modes
-which would need different number of lanes as compared
-to the initialization time using the mode_valid callback.
+Fix it by storing duplicated string address in name_map.
 
-This can be potentially re-introduced by using the pre_enable()
-callback but this needs to be evaluated first whether such an
-approach will work so this will be done with a separate change.
-
-changes since RFC:
-	- Fix commit text and add TODO comment
-
-changes in v2:
-	- Fix checkpatch formatting errors
-
-Fixes: 62b2f026cd8e ("drm/bridge: adv7533: Change number of DSI lanes dynamically")
-Closes: https://gitlab.freedesktop.org/drm/msm/-/issues/16
-Suggested-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Link: https://lore.kernel.org/r/1661797363-7564-1-git-send-email-quic_abhinavk@quicinc.com
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/1665522649-3423-1-git-send-email-quic_abhinavk@quicinc.com
+Fixes: 919d2b1dbb07 ("libbpf: Allow modification of BTF and add btf__add_str API")
+Signed-off-by: Xu Kuohai <xukuohai@huawei.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Martin KaFai Lau <martin.lau@kernel.org>
+Link: https://lore.kernel.org/bpf/20221011120108.782373-2-xukuohai@huaweicloud.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/adv7511/adv7511.h     |  3 ++-
- drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 18 ++++++++++----
- drivers/gpu/drm/bridge/adv7511/adv7533.c     | 25 ++++++++++----------
- 3 files changed, 29 insertions(+), 17 deletions(-)
+ tools/lib/bpf/btf_dump.c | 29 ++++++++++++++++++++++++++---
+ 1 file changed, 26 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511.h b/drivers/gpu/drm/bridge/adv7511/adv7511.h
-index 94de73cbeb2d..17445800248d 100644
---- a/drivers/gpu/drm/bridge/adv7511/adv7511.h
-+++ b/drivers/gpu/drm/bridge/adv7511/adv7511.h
-@@ -402,7 +402,8 @@ static inline int adv7511_cec_init(struct device *dev, struct adv7511 *adv7511)
- 
- void adv7533_dsi_power_on(struct adv7511 *adv);
- void adv7533_dsi_power_off(struct adv7511 *adv);
--void adv7533_mode_set(struct adv7511 *adv, const struct drm_display_mode *mode);
-+enum drm_mode_status adv7533_mode_valid(struct adv7511 *adv,
-+					const struct drm_display_mode *mode);
- int adv7533_patch_registers(struct adv7511 *adv);
- int adv7533_patch_cec_registers(struct adv7511 *adv);
- int adv7533_attach_dsi(struct adv7511 *adv);
-diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-index f887200e8abc..78b72739e5c3 100644
---- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-+++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-@@ -697,7 +697,7 @@ adv7511_detect(struct adv7511 *adv7511, struct drm_connector *connector)
+diff --git a/tools/lib/bpf/btf_dump.c b/tools/lib/bpf/btf_dump.c
+index 3937f66c7f8d..0b470169729e 100644
+--- a/tools/lib/bpf/btf_dump.c
++++ b/tools/lib/bpf/btf_dump.c
+@@ -219,6 +219,17 @@ static int btf_dump_resize(struct btf_dump *d)
+ 	return 0;
  }
  
- static enum drm_mode_status adv7511_mode_valid(struct adv7511 *adv7511,
--			      struct drm_display_mode *mode)
-+			      const struct drm_display_mode *mode)
- {
- 	if (mode->clock > 165000)
- 		return MODE_CLOCK_HIGH;
-@@ -791,9 +791,6 @@ static void adv7511_mode_set(struct adv7511 *adv7511,
- 	regmap_update_bits(adv7511->regmap, 0x17,
- 		0x60, (vsync_polarity << 6) | (hsync_polarity << 5));
- 
--	if (adv7511->type == ADV7533 || adv7511->type == ADV7535)
--		adv7533_mode_set(adv7511, adj_mode);
--
- 	drm_mode_copy(&adv7511->curr_mode, adj_mode);
- 
- 	/*
-@@ -913,6 +910,18 @@ static void adv7511_bridge_mode_set(struct drm_bridge *bridge,
- 	adv7511_mode_set(adv, mode, adj_mode);
- }
- 
-+static enum drm_mode_status adv7511_bridge_mode_valid(struct drm_bridge *bridge,
-+						      const struct drm_display_info *info,
-+		const struct drm_display_mode *mode)
++static void btf_dump_free_names(struct hashmap *map)
 +{
-+	struct adv7511 *adv = bridge_to_adv7511(bridge);
++	size_t bkt;
++	struct hashmap_entry *cur;
 +
-+	if (adv->type == ADV7533 || adv->type == ADV7535)
-+		return adv7533_mode_valid(adv, mode);
-+	else
-+		return adv7511_mode_valid(adv, mode);
++	hashmap__for_each_entry(map, cur, bkt)
++		free((void *)cur->key);
++
++	hashmap__free(map);
 +}
 +
- static int adv7511_bridge_attach(struct drm_bridge *bridge,
- 				 enum drm_bridge_attach_flags flags)
+ void btf_dump__free(struct btf_dump *d)
  {
-@@ -960,6 +969,7 @@ static const struct drm_bridge_funcs adv7511_bridge_funcs = {
- 	.enable = adv7511_bridge_enable,
- 	.disable = adv7511_bridge_disable,
- 	.mode_set = adv7511_bridge_mode_set,
-+	.mode_valid = adv7511_bridge_mode_valid,
- 	.attach = adv7511_bridge_attach,
- 	.detect = adv7511_bridge_detect,
- 	.get_edid = adv7511_bridge_get_edid,
-diff --git a/drivers/gpu/drm/bridge/adv7511/adv7533.c b/drivers/gpu/drm/bridge/adv7511/adv7533.c
-index ef6270806d1d..258c79d4dab0 100644
---- a/drivers/gpu/drm/bridge/adv7511/adv7533.c
-+++ b/drivers/gpu/drm/bridge/adv7511/adv7533.c
-@@ -100,26 +100,27 @@ void adv7533_dsi_power_off(struct adv7511 *adv)
- 	regmap_write(adv->regmap_cec, 0x27, 0x0b);
+ 	int i;
+@@ -237,8 +248,8 @@ void btf_dump__free(struct btf_dump *d)
+ 	free(d->cached_names);
+ 	free(d->emit_queue);
+ 	free(d->decl_stack);
+-	hashmap__free(d->type_names);
+-	hashmap__free(d->ident_names);
++	btf_dump_free_names(d->type_names);
++	btf_dump_free_names(d->ident_names);
+ 
+ 	free(d);
  }
- 
--void adv7533_mode_set(struct adv7511 *adv, const struct drm_display_mode *mode)
-+enum drm_mode_status adv7533_mode_valid(struct adv7511 *adv,
-+					const struct drm_display_mode *mode)
+@@ -1520,11 +1531,23 @@ static void btf_dump_emit_type_cast(struct btf_dump *d, __u32 id,
+ static size_t btf_dump_name_dups(struct btf_dump *d, struct hashmap *name_map,
+ 				 const char *orig_name)
  {
-+	int lanes;
- 	struct mipi_dsi_device *dsi = adv->dsi;
--	int lanes, ret;
--
--	if (adv->num_dsi_lanes != 4)
--		return;
- 
- 	if (mode->clock > 80000)
- 		lanes = 4;
- 	else
- 		lanes = 3;
- 
--	if (lanes != dsi->lanes) {
--		mipi_dsi_detach(dsi);
--		dsi->lanes = lanes;
--		ret = mipi_dsi_attach(dsi);
--		if (ret)
--			dev_err(&dsi->dev, "failed to change host lanes\n");
--	}
-+	/*
-+	 * TODO: add support for dynamic switching of lanes
-+	 * by using the bridge pre_enable() op . Till then filter
-+	 * out the modes which shall need different number of lanes
-+	 * than what was configured in the device tree.
-+	 */
-+	if (lanes != dsi->lanes)
-+		return MODE_BAD;
++	char *old_name, *new_name;
+ 	size_t dup_cnt = 0;
++	int err;
 +
-+	return MODE_OK;
- }
++	new_name = strdup(orig_name);
++	if (!new_name)
++		return 1;
  
- int adv7533_patch_registers(struct adv7511 *adv)
+ 	hashmap__find(name_map, orig_name, (void **)&dup_cnt);
+ 	dup_cnt++;
+-	hashmap__set(name_map, orig_name, (void *)dup_cnt, NULL, NULL);
++
++	err = hashmap__set(name_map, new_name, (void *)dup_cnt,
++			   (const void **)&old_name, NULL);
++	if (err)
++		free(new_name);
++
++	free(old_name);
+ 
+ 	return dup_cnt;
+ }
 -- 
 2.35.1
 
