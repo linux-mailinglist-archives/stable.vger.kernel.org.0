@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 998F2657F79
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:05:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44431657E72
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:53:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233104AbiL1QFT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:05:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51752 "EHLO
+        id S234136AbiL1Pxq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:53:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234288AbiL1QFS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:05:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BB46186CD
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:05:17 -0800 (PST)
+        with ESMTP id S234119AbiL1Pxn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:53:43 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F22E186BC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:53:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2366AB8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:05:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E151C433D2;
-        Wed, 28 Dec 2022 16:05:14 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8C221CE1369
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:53:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70D66C433D2;
+        Wed, 28 Dec 2022 15:53:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243514;
-        bh=xUQTlc1D4KPn3pxvsRl1F29e784Z/ZcyQb7a0L/HTl4=;
+        s=korg; t=1672242817;
+        bh=WWqEQ7RoWQt46ctD8ATq/gyweFseY1a1uwNtlRWXbRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tao1XoI+4Sp7ARGQqJXMuvM8XhpB0b1gpCgELXt0mD/yD27Sa+Gf5DsKqeJV1bF78
-         fQ0Ga75QRkViRk4bKhcH4wySpXGfyK/VOnBqxt8Wpm+McsVz1SCQHY7R6ccjpZHreq
-         xeTRAyfoEz24/d8WibKRbfoBuqdWg3VEY5rgmpDs=
+        b=z9l9M3f1R1FCXA+3SEn5fGblq3OZPXGWaixdng1lVaxoDm3aDiXHY7DAFoegNdwG/
+         4Zufgezi3YnfQYQ0tfYcLqY7UcEUC4QwuK8ciOXBy2sgwtmE2W19ssqKASlNDvrjRF
+         YdUp8b8Qa+J2T5ET2R1gdAQ0rW8ubWZDjR4SJRsM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        patches@lists.linux.dev, Douglas Anderson <dianders@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0501/1146] mmc: toshsd: fix return value check of mmc_add_host()
+Subject: [PATCH 6.0 0452/1073] clk: qcom: lpass-sc7280: Fix pm_runtime usage
 Date:   Wed, 28 Dec 2022 15:34:00 +0100
-Message-Id: <20221228144343.786007389@linuxfoundation.org>
+Message-Id: <20221228144340.308297231@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +55,236 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit f670744a316ea983113a65313dcd387b5a992444 ]
+[ Upstream commit d470be3c4f30b4666e43eef6bab80f543563cdb0 ]
 
-mmc_add_host() may return error, if we ignore its return value, the memory
-that allocated in mmc_alloc_host() will be leaked and it will lead a kernel
-crash because of deleting not added device in the remove path.
+The pm_runtime usage in lpass-sc7280 was broken in quite a few
+ways. Specifically:
 
-So fix this by checking the return value and goto error path which will call
-mmc_free_host(), besides, free_irq() also needs be called.
+1. At the end of probe it called "put" twice. This is a no-no and will
+   end us up with a negative usage count. Even worse than calling
+   "put" twice, it never called "get" once. Thus after bootup it could
+   be seen that the runtime usage of the devices managed by this
+   driver was -2.
+2. In some error cases it manually called pm_runtime_disable() even
+   though it had previously used devm_add_action_or_reset() to set
+   this up to be called automatically. This meant that in these error
+   cases we'd double-call pm_runtime_disable().
+3. It forgot to call undo pm_runtime_use_autosuspend(), which can
+   sometimes have subtle problems (and the docs specifically mention
+   that you need to undo this function).
 
-Fixes: a5eb8bbd66cc ("mmc: add Toshiba PCI SD controller driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221101063023.1664968-8-yangyingliang@huawei.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Overall the above seriously calls into question how this driver is
+working. It seems like a combination of "it doesn't", "by luck", and
+"because of the weirdness of runtime_pm". Specifically I put a
+printout to the serial console every time the runtime suspend/resume
+was called for the two devices created by this driver (I wrapped the
+pm_clk calls). When I had serial console enabled, I found that the
+calls got resumed at bootup (when the clk core probed and before our
+double-put) and then never touched again. That's no good.
+  [    0.829997] DOUG: my_pm_clk_resume, usage=1
+  [    0.835487] DOUG: my_pm_clk_resume, usage=1
+
+When I disabled serial console (speeding up boot), I got a different
+pattern, which I guess (?) is better:
+  [    0.089767] DOUG: my_pm_clk_resume, usage=1
+  [    0.090507] DOUG: my_pm_clk_resume, usage=1
+  [    0.151885] DOUG: my_pm_clk_suspend, usage=-2
+  [    0.151914] DOUG: my_pm_clk_suspend, usage=-2
+  [    1.825747] DOUG: my_pm_clk_resume, usage=-1
+  [    1.825774] DOUG: my_pm_clk_resume, usage=-1
+  [    1.888269] DOUG: my_pm_clk_suspend, usage=-2
+  [    1.888282] DOUG: my_pm_clk_suspend, usage=-2
+
+These different patterns have to do with the fact that the core PM
+Runtime code really isn't designed to be robust to negative usage
+counts and sometimes may happen to stumble upon a behavior that
+happens to "work". For instance, you can see that
+__pm_runtime_suspend() will treat any non-zero value (including
+negative numbers) as if the device is in use.
+
+In any case, let's fix the driver to be correct. We'll hold a
+pm_runtime reference for the whole probe and then drop it (once!) at
+the end. We'll get rid of manual pm_runtime_disable() calls in the
+error handling. We'll also switch to devm_pm_runtime_enable(), which
+magically handles undoing pm_runtime_use_autosuspend() as of commit
+b4060db9251f ("PM: runtime: Have devm_pm_runtime_enable() handle
+pm_runtime_dont_use_autosuspend()").
+
+While we're at this, let's also use devm_pm_clk_create() instead of
+rolling it ourselves.
+
+Note that the above changes make it obvious that
+lpassaudio_create_pm_clks() was doing more than just creating
+clocks. It was also setting up pm_runtime parameters. Let's rename it.
+
+All of these problems were found by code inspection. I started looking
+at this driver because it was involved in a deadlock that I reported a
+while ago [1]. Though I bisected the deadlock to commit 1b771839de05
+("clk: qcom: gdsc: enable optional power domain support"), it was
+never really clear why that patch affected it other than a luck of
+timing changes. I'll also note that by fixing the timing (as done in
+this change) we also seem to aboid the deadlock, which is a nice
+benefit.
+
+Also note that some of the fixes here are much the same type of stuff
+that Dmitry did in commit 72cfc73f4663 ("clk: qcom: use
+devm_pm_runtime_enable and devm_pm_clk_create"), but I guess
+lpassaudiocc-sc7280.c didn't exist then.
+
+[1] https://lore.kernel.org/r/20220922154354.2486595-1-dianders@chromium.org
+
+Fixes: a9dd26639d05 ("clk: qcom: lpass: Add support for LPASS clock controller for SC7280")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221104064055.1.I00a0e4564a25489e85328ec41636497775627564@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/toshsd.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/clk/qcom/lpassaudiocc-sc7280.c | 55 ++++++++++----------------
+ 1 file changed, 21 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/mmc/host/toshsd.c b/drivers/mmc/host/toshsd.c
-index 8d037c2071ab..497791ffada6 100644
---- a/drivers/mmc/host/toshsd.c
-+++ b/drivers/mmc/host/toshsd.c
-@@ -651,7 +651,9 @@ static int toshsd_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+diff --git a/drivers/clk/qcom/lpassaudiocc-sc7280.c b/drivers/clk/qcom/lpassaudiocc-sc7280.c
+index 5d4bc563073c..b2646b7e13c9 100644
+--- a/drivers/clk/qcom/lpassaudiocc-sc7280.c
++++ b/drivers/clk/qcom/lpassaudiocc-sc7280.c
+@@ -722,33 +722,17 @@ static const struct of_device_id lpass_audio_cc_sc7280_match_table[] = {
+ };
+ MODULE_DEVICE_TABLE(of, lpass_audio_cc_sc7280_match_table);
+ 
+-static void lpassaudio_pm_runtime_disable(void *data)
+-{
+-	pm_runtime_disable(data);
+-}
+-
+-static void lpassaudio_pm_clk_destroy(void *data)
+-{
+-	pm_clk_destroy(data);
+-}
+-
+-static int lpassaudio_create_pm_clks(struct platform_device *pdev)
++static int lpass_audio_setup_runtime_pm(struct platform_device *pdev)
+ {
+ 	int ret;
+ 
+ 	pm_runtime_use_autosuspend(&pdev->dev);
+ 	pm_runtime_set_autosuspend_delay(&pdev->dev, 50);
+-	pm_runtime_enable(&pdev->dev);
+-
+-	ret = devm_add_action_or_reset(&pdev->dev, lpassaudio_pm_runtime_disable, &pdev->dev);
+-	if (ret)
+-		return ret;
+-
+-	ret = pm_clk_create(&pdev->dev);
++	ret = devm_pm_runtime_enable(&pdev->dev);
  	if (ret)
- 		goto unmap;
+ 		return ret;
  
--	mmc_add_host(mmc);
-+	ret = mmc_add_host(mmc);
-+	if (ret)
-+		goto free_irq;
+-	ret = devm_add_action_or_reset(&pdev->dev, lpassaudio_pm_clk_destroy, &pdev->dev);
++	ret = devm_pm_clk_create(&pdev->dev);
+ 	if (ret)
+ 		return ret;
  
- 	base = pci_resource_start(pdev, 0);
- 	dev_dbg(&pdev->dev, "MMIO %pa, IRQ %d\n", &base, pdev->irq);
-@@ -660,6 +662,8 @@ static int toshsd_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+@@ -756,7 +740,7 @@ static int lpassaudio_create_pm_clks(struct platform_device *pdev)
+ 	if (ret < 0)
+ 		dev_err(&pdev->dev, "failed to acquire iface clock\n");
  
- 	return 0;
+-	return ret;
++	return pm_runtime_resume_and_get(&pdev->dev);
+ }
  
-+free_irq:
-+	free_irq(pdev->irq, host);
- unmap:
- 	pci_iounmap(pdev, host->ioaddr);
- release:
+ static int lpass_audio_cc_sc7280_probe(struct platform_device *pdev)
+@@ -765,7 +749,7 @@ static int lpass_audio_cc_sc7280_probe(struct platform_device *pdev)
+ 	struct regmap *regmap;
+ 	int ret;
+ 
+-	ret = lpassaudio_create_pm_clks(pdev);
++	ret = lpass_audio_setup_runtime_pm(pdev);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -775,8 +759,8 @@ static int lpass_audio_cc_sc7280_probe(struct platform_device *pdev)
+ 
+ 	regmap = qcom_cc_map(pdev, desc);
+ 	if (IS_ERR(regmap)) {
+-		pm_runtime_disable(&pdev->dev);
+-		return PTR_ERR(regmap);
++		ret = PTR_ERR(regmap);
++		goto exit;
+ 	}
+ 
+ 	clk_zonda_pll_configure(&lpass_audio_cc_pll, regmap, &lpass_audio_cc_pll_config);
+@@ -788,20 +772,18 @@ static int lpass_audio_cc_sc7280_probe(struct platform_device *pdev)
+ 	ret = qcom_cc_probe_by_index(pdev, 0, &lpass_audio_cc_sc7280_desc);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to register LPASS AUDIO CC clocks\n");
+-		pm_runtime_disable(&pdev->dev);
+-		return ret;
++		goto exit;
+ 	}
+ 
+ 	ret = qcom_cc_probe_by_index(pdev, 1, &lpass_audio_cc_reset_sc7280_desc);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to register LPASS AUDIO CC Resets\n");
+-		pm_runtime_disable(&pdev->dev);
+-		return ret;
++		goto exit;
+ 	}
+ 
+ 	pm_runtime_mark_last_busy(&pdev->dev);
++exit:
+ 	pm_runtime_put_autosuspend(&pdev->dev);
+-	pm_runtime_put_sync(&pdev->dev);
+ 
+ 	return ret;
+ }
+@@ -839,14 +821,15 @@ static int lpass_aon_cc_sc7280_probe(struct platform_device *pdev)
+ 	struct regmap *regmap;
+ 	int ret;
+ 
+-	ret = lpassaudio_create_pm_clks(pdev);
++	ret = lpass_audio_setup_runtime_pm(pdev);
+ 	if (ret)
+ 		return ret;
+ 
+ 	if (of_property_read_bool(pdev->dev.of_node, "qcom,adsp-pil-mode")) {
+ 		lpass_audio_cc_sc7280_regmap_config.name = "cc";
+ 		desc = &lpass_cc_sc7280_desc;
+-		return qcom_cc_probe(pdev, desc);
++		ret = qcom_cc_probe(pdev, desc);
++		goto exit;
+ 	}
+ 
+ 	lpass_audio_cc_sc7280_regmap_config.name = "lpasscc_aon";
+@@ -854,18 +837,22 @@ static int lpass_aon_cc_sc7280_probe(struct platform_device *pdev)
+ 	desc = &lpass_aon_cc_sc7280_desc;
+ 
+ 	regmap = qcom_cc_map(pdev, desc);
+-	if (IS_ERR(regmap))
+-		return PTR_ERR(regmap);
++	if (IS_ERR(regmap)) {
++		ret = PTR_ERR(regmap);
++		goto exit;
++	}
+ 
+ 	clk_lucid_pll_configure(&lpass_aon_cc_pll, regmap, &lpass_aon_cc_pll_config);
+ 
+ 	ret = qcom_cc_really_probe(pdev, &lpass_aon_cc_sc7280_desc, regmap);
+-	if (ret)
++	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to register LPASS AON CC clocks\n");
++		goto exit;
++	}
+ 
+ 	pm_runtime_mark_last_busy(&pdev->dev);
++exit:
+ 	pm_runtime_put_autosuspend(&pdev->dev);
+-	pm_runtime_put_sync(&pdev->dev);
+ 
+ 	return ret;
+ }
 -- 
 2.35.1
 
