@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C0936580D3
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:21:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C64D6580D6
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:21:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234490AbiL1QVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:21:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38738 "EHLO
+        id S234550AbiL1QV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:21:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233259AbiL1QUx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:20:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1361118389
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:18:39 -0800 (PST)
+        with ESMTP id S234593AbiL1QU4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:20:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAE5E186B2
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:18:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 99A7DB81707
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:18:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 081DBC433F0;
-        Wed, 28 Dec 2022 16:18:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9410CB81707
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:18:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F096BC433D2;
+        Wed, 28 Dec 2022 16:18:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244316;
-        bh=uk0nQwChktl9ikYq1svLREd9MaeIHvUyQ6lqfp8+vyA=;
+        s=korg; t=1672244324;
+        bh=WYTj24gHWOgJnCuBWpN5rv/BxgI9Y51+WK1pKanmyzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aalJSdA4UZkNs6ekiTOuZcjdUHXC9pdFVH0tr7lKifoe9ZgZuThbweQRoxWOMGV4v
-         I164joDD+7+iD5MUlmXs027ktgKr343zJpICLn0qsazbzZfJNjn94ubYMu1cR54hGt
-         NQ2WFkaq4M/HYzhb5TSJufPe761niGR25FyWtKk4=
+        b=GPtIbhXcLB8dshxlf4BJwkjrC2AmB4EtsK8MtykwOvUFp/xib1lks+Yd8B4sa8O+6
+         Z46Wc+bw045LoX3UlTUBJn7+eXaLH4SCsbWeP7KHgJ3exzCb+73vRF49ivhzfxuFgG
+         3TNAIFT7zEB56CDJT2XOCtAlCsj1c/5qMJC6lMC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gabriel Somlo <gsomlo@gmail.com>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0690/1073] serial: altera_uart: fix locking in polling mode
-Date:   Wed, 28 Dec 2022 15:37:58 +0100
-Message-Id: <20221228144346.776338953@linuxfoundation.org>
+Subject: [PATCH 6.0 0691/1073] serial: sunsab: Fix error handling in sunsab_init()
+Date:   Wed, 28 Dec 2022 15:37:59 +0100
+Message-Id: <20221228144346.803065876@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -52,49 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gabriel Somlo <gsomlo@gmail.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 1307c5d33cce8a41dd77c2571e4df65a5b627feb ]
+[ Upstream commit 1a6ec673fb627c26e2267ca0a03849f91dbd9b40 ]
 
-Since altera_uart_interrupt() may also be called from
-a poll timer in "serving_softirq" context, use
-spin_[lock_irqsave|unlock_irqrestore] variants, which
-are appropriate for both softirq and hardware interrupt
-contexts.
+The sunsab_init() returns the platform_driver_register() directly without
+checking its return value, if platform_driver_register() failed, the
+allocated sunsab_ports is leaked.
+Fix by free sunsab_ports and set it to NULL when platform_driver_register()
+failed.
 
-Fixes: 2f8b9c15cd88 ("altera_uart: Add support for polling mode (IRQ-less)")
-Signed-off-by: Gabriel Somlo <gsomlo@gmail.com>
-Link: https://lore.kernel.org/r/20221122200426.888349-1-gsomlo@gmail.com
+Fixes: c4d37215a824 ("[SERIAL] sunsab: Convert to of_driver framework.")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Link: https://lore.kernel.org/r/20221123061212.52593-1-yuancan@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/altera_uart.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/tty/serial/sunsab.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/altera_uart.c b/drivers/tty/serial/altera_uart.c
-index ab08c4050a84..191d737ea563 100644
---- a/drivers/tty/serial/altera_uart.c
-+++ b/drivers/tty/serial/altera_uart.c
-@@ -278,16 +278,17 @@ static irqreturn_t altera_uart_interrupt(int irq, void *data)
- {
- 	struct uart_port *port = data;
- 	struct altera_uart *pp = container_of(port, struct altera_uart, port);
-+	unsigned long flags;
- 	unsigned int isr;
+diff --git a/drivers/tty/serial/sunsab.c b/drivers/tty/serial/sunsab.c
+index 6ea52293d9f3..7c10715dace8 100644
+--- a/drivers/tty/serial/sunsab.c
++++ b/drivers/tty/serial/sunsab.c
+@@ -1137,7 +1137,13 @@ static int __init sunsab_init(void)
+ 		}
+ 	}
  
- 	isr = altera_uart_readl(port, ALTERA_UART_STATUS_REG) & pp->imr;
- 
--	spin_lock(&port->lock);
-+	spin_lock_irqsave(&port->lock, flags);
- 	if (isr & ALTERA_UART_STATUS_RRDY_MSK)
- 		altera_uart_rx_chars(port);
- 	if (isr & ALTERA_UART_STATUS_TRDY_MSK)
- 		altera_uart_tx_chars(port);
--	spin_unlock(&port->lock);
-+	spin_unlock_irqrestore(&port->lock, flags);
- 
- 	return IRQ_RETVAL(isr);
+-	return platform_driver_register(&sab_driver);
++	err = platform_driver_register(&sab_driver);
++	if (err) {
++		kfree(sunsab_ports);
++		sunsab_ports = NULL;
++	}
++
++	return err;
  }
+ 
+ static void __exit sunsab_exit(void)
 -- 
 2.35.1
 
