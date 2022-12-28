@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D30565801F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:14:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DC2F657979
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:02:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234457AbiL1QOH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:14:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59856 "EHLO
+        id S233481AbiL1PBz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:01:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234459AbiL1QNo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:13:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 907AF1AD8F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:11:42 -0800 (PST)
+        with ESMTP id S233519AbiL1PB1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:01:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F3AB1263D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:01:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F22C161577
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:11:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 111EBC433D2;
-        Wed, 28 Dec 2022 16:11:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F30D6153B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:01:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 199A6C433D2;
+        Wed, 28 Dec 2022 15:01:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243901;
-        bh=EIj8sJGijWRFsfgtNCgCcLWUcJjmrtfZbMz2oLgw5qE=;
+        s=korg; t=1672239680;
+        bh=PE46jcV5/Eb6XVjfPOGWJle3O1NjZM7IpF0HWuBm72w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l1ItS8efH9eUAAPoLTn7xEc9zdqhzHeMwW0uFuqVc021NXtKaEuhENJoIFigWRoxS
-         iNkwelcytkj0y55/Y5tFTR6ZO0yrYiNJ8sweKXlHAoSoijO0Zsw4T8NxHTTgvJLZOk
-         Cv4n3LtN7U5g6qO6iUSc2vlVG/hUCtOWSqF/0u2Q=
+        b=Ibtvx8RFXZ2+p/m9r7RbJTm7jSZhkxix3hxl6wfD9AYqmTuy2M2cM1kxKOHEq8JEJ
+         oKdUNagnfLvsyNNq2n/gNFwPpPw7pRcm20Z6wEgNu0Sq9mo2N+TsOnzOpvGPmrTTE8
+         SKEipm/xDycggRCgX8/3oyPAbeMuVcSV7Zp1/Lw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        John Johansen <john.johansen@canonical.com>,
+        patches@lists.linux.dev,
+        Konstantin Meskhidze <konstantin.meskhidze@huawei.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0576/1073] apparmor: Fix memleak in alloc_ns()
+Subject: [PATCH 5.15 257/731] drm/amdkfd: Fix memory leakage
 Date:   Wed, 28 Dec 2022 15:36:04 +0100
-Message-Id: <20221228144343.697015764@linuxfoundation.org>
+Message-Id: <20221228144304.010170225@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Konstantin Meskhidze <konstantin.meskhidze@huawei.com>
 
-[ Upstream commit e9e6fa49dbab6d84c676666f3fe7d360497fd65b ]
+[ Upstream commit 75818afff631e1ea785a82c3e8bb82eb0dee539c ]
 
-After changes in commit a1bd627b46d1 ("apparmor: share profile name on
-replacement"), the hname member of struct aa_policy is not valid slab
-object, but a subset of that, it can not be freed by kfree_sensitive(),
-use aa_policy_destroy() to fix it.
+This patch fixes potential memory leakage and seg fault
+in  _gpuvm_import_dmabuf() function
 
-Fixes: a1bd627b46d1 ("apparmor: share profile name on replacement")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Signed-off-by: John Johansen <john.johansen@canonical.com>
+Fixes: d4ec4bdc0bd5 ("drm/amdkfd: Allow access for mmapping KFD BOs")
+Signed-off-by: Konstantin Meskhidze <konstantin.meskhidze@huawei.com>
+Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/policy_ns.c | 2 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/apparmor/policy_ns.c b/security/apparmor/policy_ns.c
-index 43beaad083fe..78700d94b453 100644
---- a/security/apparmor/policy_ns.c
-+++ b/security/apparmor/policy_ns.c
-@@ -134,7 +134,7 @@ static struct aa_ns *alloc_ns(const char *prefix, const char *name)
- 	return ns;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
+index 477ab3551177..34303dd3ada9 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
+@@ -1910,7 +1910,7 @@ int amdgpu_amdkfd_gpuvm_import_dmabuf(struct kgd_dev *kgd,
  
- fail_unconfined:
--	kfree_sensitive(ns->base.hname);
-+	aa_policy_destroy(&ns->base);
- fail_ns:
- 	kfree_sensitive(ns);
- 	return NULL;
+ 	ret = drm_vma_node_allow(&obj->vma_node, drm_priv);
+ 	if (ret) {
+-		kfree(mem);
++		kfree(*mem);
+ 		return ret;
+ 	}
+ 
 -- 
 2.35.1
 
