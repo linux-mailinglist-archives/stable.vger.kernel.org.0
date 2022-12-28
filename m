@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D805E6578D2
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:54:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F08F3657FFE
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:13:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233200AbiL1Oyk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:54:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41882 "EHLO
+        id S234451AbiL1QNE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:13:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233210AbiL1Oyb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:54:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD3F71F7
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:54:29 -0800 (PST)
+        with ESMTP id S234618AbiL1QMI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:12:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1317018390
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:10:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C39961552
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:54:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 904B1C433D2;
-        Wed, 28 Dec 2022 14:54:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A4D4C6155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:10:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7690C433EF;
+        Wed, 28 Dec 2022 16:10:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239268;
-        bh=zBbt05Kt2GDSAY+Qg8DEhUEf/rDv5JoKLA/XP5bfIc4=;
+        s=korg; t=1672243820;
+        bh=3hK324ZcW3L3UmJ5zVrnhE+fsbEoUoe3fn6JuXVY6fc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZUHJ8/X00GxdaILbeGdYwmEgXiX/wfW73t38KBw1UG+bU1jWURB5z7pHm85cHt1V+
-         URHxrC1lFzRblqhsdv0U3MiwO0w5Vts0oSozfGU33gYTNTiO5IU05nLgPOMrsJBGMh
-         Vioxmz6PHjgfjbPkyU/mxXpLUvYXAwoxu3diWns0=
+        b=PlZLR08M9ObUBQW/x5JT3WB3tkwJ/rqxHkEYzJjIS7ar0l9mhTwVXRcKDEJleGI1F
+         coAAHpoz6Q6DeN9VKciflP78FWmIiog/J2TmXj+DmxzfhYVDwAuq30KOsPI4IKKq7l
+         Hxi8i0hTz1mSlHEgQcfrTX+xBnnCGCQpnBOj4T74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Khazhismel Kumykov <khazhy@google.com>,
-        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 192/731] bfq: fix waker_bfqq inconsistency crash
-Date:   Wed, 28 Dec 2022 15:34:59 +0100
-Message-Id: <20221228144302.123505294@linuxfoundation.org>
+Subject: [PATCH 6.1 0561/1146] Bluetooth: hci_qca: dont call kfree_skb() under spin_lock_irqsave()
+Date:   Wed, 28 Dec 2022 15:35:00 +0100
+Message-Id: <20221228144345.406500104@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,73 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Khazhismel Kumykov <khazhy@chromium.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit a1795c2ccb1e4c49220d2a0d381540024d71647c ]
+[ Upstream commit df4cfc91208e0a98f078223793f5871b1a82cc54 ]
 
-This fixes crashes in bfq_add_bfqq_busy due to waker_bfqq being NULL,
-but woken_list_node still being hashed. This would happen when
-bfq_init_rq() expects a brand new allocated queue to be returned from
-bfq_get_bfqq_handle_split() and unconditionally updates waker_bfqq
-without resetting woken_list_node. Since we can always return oom_bfqq
-when attempting to allocate, we cannot assume waker_bfqq starts as NULL.
+It is not allowed to call kfree_skb() from hardware interrupt
+context or with interrupts being disabled. So replace kfree_skb()
+with dev_kfree_skb_irq() under spin_lock_irqsave().
 
-Avoid setting woken_bfqq for oom_bfqq entirely, as it's not useful.
-
-Crashes would have a stacktrace like:
-[160595.656560]  bfq_add_bfqq_busy+0x110/0x1ec
-[160595.661142]  bfq_add_request+0x6bc/0x980
-[160595.666602]  bfq_insert_request+0x8ec/0x1240
-[160595.671762]  bfq_insert_requests+0x58/0x9c
-[160595.676420]  blk_mq_sched_insert_request+0x11c/0x198
-[160595.682107]  blk_mq_submit_bio+0x270/0x62c
-[160595.686759]  __submit_bio_noacct_mq+0xec/0x178
-[160595.691926]  submit_bio+0x120/0x184
-[160595.695990]  ext4_mpage_readpages+0x77c/0x7c8
-[160595.701026]  ext4_readpage+0x60/0xb0
-[160595.705158]  filemap_read_page+0x54/0x114
-[160595.711961]  filemap_fault+0x228/0x5f4
-[160595.716272]  do_read_fault+0xe0/0x1f0
-[160595.720487]  do_fault+0x40/0x1c8
-
-Tested by injecting random failures into bfq_get_queue, crashes go away
-completely.
-
-Fixes: 8ef3fc3a043c ("block, bfq: make shared queues inherit wakers")
-Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221108181030.1611703-1-khazhy@google.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 0ff252c1976d ("Bluetooth: hciuart: Add support QCA chipset for UART")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/bluetooth/hci_qca.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 7d8fe13573f6..f21b861a0d66 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -6630,6 +6630,12 @@ static struct bfq_queue *bfq_init_rq(struct request *rq)
- 				bfqq = bfq_get_bfqq_handle_split(bfqd, bic, bio,
- 								 true, is_sync,
- 								 NULL);
-+				if (unlikely(bfqq == &bfqd->oom_bfqq))
-+					bfqq_already_existing = true;
-+			} else
-+				bfqq_already_existing = true;
-+
-+			if (!bfqq_already_existing) {
- 				bfqq->waker_bfqq = old_bfqq->waker_bfqq;
- 				bfqq->tentative_waker_bfqq = NULL;
- 
-@@ -6643,8 +6649,7 @@ static struct bfq_queue *bfq_init_rq(struct request *rq)
- 				if (bfqq->waker_bfqq)
- 					hlist_add_head(&bfqq->woken_list_node,
- 						       &bfqq->waker_bfqq->woken_list);
--			} else
--				bfqq_already_existing = true;
-+			}
- 		}
+diff --git a/drivers/bluetooth/hci_qca.c b/drivers/bluetooth/hci_qca.c
+index 8df11016fd51..bae9b2a408d9 100644
+--- a/drivers/bluetooth/hci_qca.c
++++ b/drivers/bluetooth/hci_qca.c
+@@ -912,7 +912,7 @@ static int qca_enqueue(struct hci_uart *hu, struct sk_buff *skb)
+ 	default:
+ 		BT_ERR("Illegal tx state: %d (losing packet)",
+ 		       qca->tx_ibs_state);
+-		kfree_skb(skb);
++		dev_kfree_skb_irq(skb);
+ 		break;
  	}
  
 -- 
