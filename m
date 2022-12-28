@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 426DF658433
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:56:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC448657F33
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233283AbiL1Qzj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:55:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48532 "EHLO
+        id S234289AbiL1QDB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:03:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235141AbiL1Qy7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:54:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19AE91EAFF
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:49:52 -0800 (PST)
+        with ESMTP id S234301AbiL1QCe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:02:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B46C3192A9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:02:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9483B6156C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:49:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8112C433EF;
-        Wed, 28 Dec 2022 16:49:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EC142B817F6
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:02:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50FEBC433EF;
+        Wed, 28 Dec 2022 16:02:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246191;
-        bh=hikALMhCr119baUZq1pQ/utGrr8+EJvZn7py4V8ykH4=;
+        s=korg; t=1672243329;
+        bh=Ga+jYqrPUaptjY8lEl3ZmIurSZV9s84ThLBf7KaNI08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0kohsRUEHW5QX6zP1x9Dhqj/QO6AVETXS6/HepiFuWfLFkoZNzO5g/3Ix4+aOLbwc
-         sx0Kn6oi00D2mei1LEGilgmoZNTgfpYNP06gHBXfxTLrMeK3Of6Bn1kLDkEbzrSw2Z
-         QiKkHVw4lJ2t09Jgx2eowHEei+Fb5zsehE3961FQ=
+        b=PnwKtDRneLuqFv5JE5QEDhmKjIziSPcKMPFL/R3Q2Aht5B0twidPu8MwQFKgi8ty3
+         1ojhowbEzxTds7+nADH0DrEFnJtB6ngLvNG0hUBiurTsd6KzDhIaE5e+7UVphxN0at
+         w1eVvXOsBrLKqKtbVPHdMHEoDCkvKAVCG3lnBnx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeff LaBundy <jeff@labundy.com>,
-        Mattijs Korpershoek <mkorpershoek@baylibre.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 1027/1073] Input: iqs7222 - add support for IQS7222A v1.13+
-Date:   Wed, 28 Dec 2022 15:43:35 +0100
-Message-Id: <20221228144356.087336267@linuxfoundation.org>
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Sven Peter <sven@svenpeter.dev>
+Subject: [PATCH 5.15 709/731] usb: dwc3: Fix race between dwc3_set_mode and __dwc3_set_mode
+Date:   Wed, 28 Dec 2022 15:43:36 +0100
+Message-Id: <20221228144317.003740012@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,204 +53,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff LaBundy <jeff@labundy.com>
+From: Sven Peter <sven@svenpeter.dev>
 
-[ Upstream commit 8d4c313c03f104c69e25ab03058d8955be9dc387 ]
+commit 62c73bfea048e66168df09da6d3e4510ecda40bb upstream.
 
-IQS7222A revisions 1.13 and later widen the gesture multiplier from
-x4 ms to x16 ms. Add a means to scale the gesture timings specified
-in the device tree based on the revision of the device.
+dwc->desired_dr_role is changed by dwc3_set_mode inside a spinlock but
+then read by __dwc3_set_mode outside of that lock. This can lead to a
+race condition when very quick successive role switch events happen:
 
-Fixes: e505edaedcb9 ("Input: add support for Azoteq IQS7222A/B/C")
-Signed-off-by: Jeff LaBundy <jeff@labundy.com>
-Reviewed-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
-Link: https://lore.kernel.org/r/Y1SRdbK1Dp2q7O8o@nixie71
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CPU A
+	dwc3_set_mode(DWC3_GCTL_PRTCAP_HOST) // first role switch event
+		spin_lock_irqsave(&dwc->lock, flags);
+		dwc->desired_dr_role = mode; // DWC3_GCTL_PRTCAP_HOST
+		spin_unlock_irqrestore(&dwc->lock, flags);
+		queue_work(system_freezable_wq, &dwc->drd_work);
+
+CPU B
+	__dwc3_set_mode
+		// ....
+		spin_lock_irqsave(&dwc->lock, flags);
+		// desired_dr_role is DWC3_GCTL_PRTCAP_HOST
+		dwc3_set_prtcap(dwc, dwc->desired_dr_role);
+		spin_unlock_irqrestore(&dwc->lock, flags);
+
+CPU A
+	dwc3_set_mode(DWC3_GCTL_PRTCAP_DEVICE) // second event
+		spin_lock_irqsave(&dwc->lock, flags);
+		dwc->desired_dr_role = mode; // DWC3_GCTL_PRTCAP_DEVICE
+		spin_unlock_irqrestore(&dwc->lock, flags);
+
+CPU B (continues running __dwc3_set_mode)
+	switch (dwc->desired_dr_role) { // DWC3_GCTL_PRTCAP_DEVICE
+	// ....
+	case DWC3_GCTL_PRTCAP_DEVICE:
+		// ....
+		ret = dwc3_gadget_init(dwc);
+
+We then have DWC3_GCTL.DWC3_GCTL_PRTCAPDIR = DWC3_GCTL_PRTCAP_HOST and
+dwc->current_dr_role = DWC3_GCTL_PRTCAP_HOST but initialized the
+controller in device mode. It's also possible to get into a state
+where both host and device are intialized at the same time.
+Fix this race by creating a local copy of desired_dr_role inside
+__dwc3_set_mode while holding dwc->lock.
+
+Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work properly")
+Cc: stable <stable@kernel.org>
+Acked-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Signed-off-by: Sven Peter <sven@svenpeter.dev>
+Link: https://lore.kernel.org/r/20221128161526.79730-1-sven@svenpeter.dev
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/misc/iqs7222.c | 111 +++++++++++++++++++++++++++++++++++
- 1 file changed, 111 insertions(+)
+ drivers/usb/dwc3/core.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/misc/iqs7222.c b/drivers/input/misc/iqs7222.c
-index 6af25dfd1d2a..e47ab6c1177f 100644
---- a/drivers/input/misc/iqs7222.c
-+++ b/drivers/input/misc/iqs7222.c
-@@ -86,7 +86,9 @@ enum iqs7222_reg_key_id {
- 	IQS7222_REG_KEY_TOUCH,
- 	IQS7222_REG_KEY_DEBOUNCE,
- 	IQS7222_REG_KEY_TAP,
-+	IQS7222_REG_KEY_TAP_LEGACY,
- 	IQS7222_REG_KEY_AXIAL,
-+	IQS7222_REG_KEY_AXIAL_LEGACY,
- 	IQS7222_REG_KEY_WHEEL,
- 	IQS7222_REG_KEY_NO_WHEEL,
- 	IQS7222_REG_KEY_RESERVED
-@@ -202,10 +204,68 @@ struct iqs7222_dev_desc {
- 	int allow_offset;
- 	int event_offset;
- 	int comms_offset;
-+	bool legacy_gesture;
- 	struct iqs7222_reg_grp_desc reg_grps[IQS7222_NUM_REG_GRPS];
- };
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -120,21 +120,25 @@ static void __dwc3_set_mode(struct work_
+ 	unsigned long flags;
+ 	int ret;
+ 	u32 reg;
++	u32 desired_dr_role;
  
- static const struct iqs7222_dev_desc iqs7222_devs[] = {
-+	{
-+		.prod_num = IQS7222_PROD_NUM_A,
-+		.fw_major = 1,
-+		.fw_minor = 13,
-+		.sldr_res = U8_MAX * 16,
-+		.touch_link = 1768,
-+		.allow_offset = 9,
-+		.event_offset = 10,
-+		.comms_offset = 12,
-+		.reg_grps = {
-+			[IQS7222_REG_GRP_STAT] = {
-+				.base = IQS7222_SYS_STATUS,
-+				.num_row = 1,
-+				.num_col = 8,
-+			},
-+			[IQS7222_REG_GRP_CYCLE] = {
-+				.base = 0x8000,
-+				.num_row = 7,
-+				.num_col = 3,
-+			},
-+			[IQS7222_REG_GRP_GLBL] = {
-+				.base = 0x8700,
-+				.num_row = 1,
-+				.num_col = 3,
-+			},
-+			[IQS7222_REG_GRP_BTN] = {
-+				.base = 0x9000,
-+				.num_row = 12,
-+				.num_col = 3,
-+			},
-+			[IQS7222_REG_GRP_CHAN] = {
-+				.base = 0xA000,
-+				.num_row = 12,
-+				.num_col = 6,
-+			},
-+			[IQS7222_REG_GRP_FILT] = {
-+				.base = 0xAC00,
-+				.num_row = 1,
-+				.num_col = 2,
-+			},
-+			[IQS7222_REG_GRP_SLDR] = {
-+				.base = 0xB000,
-+				.num_row = 2,
-+				.num_col = 11,
-+			},
-+			[IQS7222_REG_GRP_GPIO] = {
-+				.base = 0xC000,
-+				.num_row = 1,
-+				.num_col = 3,
-+			},
-+			[IQS7222_REG_GRP_SYS] = {
-+				.base = IQS7222_SYS_SETUP,
-+				.num_row = 1,
-+				.num_col = 13,
-+			},
-+		},
-+	},
- 	{
- 		.prod_num = IQS7222_PROD_NUM_A,
- 		.fw_major = 1,
-@@ -215,6 +275,7 @@ static const struct iqs7222_dev_desc iqs7222_devs[] = {
- 		.allow_offset = 9,
- 		.event_offset = 10,
- 		.comms_offset = 12,
-+		.legacy_gesture = true,
- 		.reg_grps = {
- 			[IQS7222_REG_GRP_STAT] = {
- 				.base = IQS7222_SYS_STATUS,
-@@ -874,6 +935,16 @@ static const struct iqs7222_prop_desc iqs7222_props[] = {
- 		.reg_offset = 9,
- 		.reg_shift = 8,
- 		.reg_width = 8,
-+		.val_pitch = 16,
-+		.label = "maximum gesture time",
-+	},
-+	{
-+		.name = "azoteq,gesture-max-ms",
-+		.reg_grp = IQS7222_REG_GRP_SLDR,
-+		.reg_key = IQS7222_REG_KEY_TAP_LEGACY,
-+		.reg_offset = 9,
-+		.reg_shift = 8,
-+		.reg_width = 8,
- 		.val_pitch = 4,
- 		.label = "maximum gesture time",
- 	},
-@@ -884,6 +955,16 @@ static const struct iqs7222_prop_desc iqs7222_props[] = {
- 		.reg_offset = 9,
- 		.reg_shift = 3,
- 		.reg_width = 5,
-+		.val_pitch = 16,
-+		.label = "minimum gesture time",
-+	},
-+	{
-+		.name = "azoteq,gesture-min-ms",
-+		.reg_grp = IQS7222_REG_GRP_SLDR,
-+		.reg_key = IQS7222_REG_KEY_TAP_LEGACY,
-+		.reg_offset = 9,
-+		.reg_shift = 3,
-+		.reg_width = 5,
- 		.val_pitch = 4,
- 		.label = "minimum gesture time",
- 	},
-@@ -897,6 +978,16 @@ static const struct iqs7222_prop_desc iqs7222_props[] = {
- 		.val_pitch = 16,
- 		.label = "gesture distance",
- 	},
-+	{
-+		.name = "azoteq,gesture-dist",
-+		.reg_grp = IQS7222_REG_GRP_SLDR,
-+		.reg_key = IQS7222_REG_KEY_AXIAL_LEGACY,
-+		.reg_offset = 10,
-+		.reg_shift = 8,
-+		.reg_width = 8,
-+		.val_pitch = 16,
-+		.label = "gesture distance",
-+	},
- 	{
- 		.name = "azoteq,gesture-max-ms",
- 		.reg_grp = IQS7222_REG_GRP_SLDR,
-@@ -904,6 +995,16 @@ static const struct iqs7222_prop_desc iqs7222_props[] = {
- 		.reg_offset = 10,
- 		.reg_shift = 0,
- 		.reg_width = 8,
-+		.val_pitch = 16,
-+		.label = "maximum gesture time",
-+	},
-+	{
-+		.name = "azoteq,gesture-max-ms",
-+		.reg_grp = IQS7222_REG_GRP_SLDR,
-+		.reg_key = IQS7222_REG_KEY_AXIAL_LEGACY,
-+		.reg_offset = 10,
-+		.reg_shift = 0,
-+		.reg_width = 8,
- 		.val_pitch = 4,
- 		.label = "maximum gesture time",
- 	},
-@@ -2115,8 +2216,18 @@ static int iqs7222_parse_sldr(struct iqs7222_private *iqs7222,
- 		if (!event_node)
- 			continue;
+ 	mutex_lock(&dwc->mutex);
++	spin_lock_irqsave(&dwc->lock, flags);
++	desired_dr_role = dwc->desired_dr_role;
++	spin_unlock_irqrestore(&dwc->lock, flags);
  
-+		/*
-+		 * Depending on the device, gestures are either offered using
-+		 * one of two timing resolutions, or are not supported at all.
-+		 */
- 		if (reg_offset)
- 			reg_key = IQS7222_REG_KEY_RESERVED;
-+		else if (dev_desc->legacy_gesture &&
-+			 iqs7222_sl_events[i].reg_key == IQS7222_REG_KEY_TAP)
-+			reg_key = IQS7222_REG_KEY_TAP_LEGACY;
-+		else if (dev_desc->legacy_gesture &&
-+			 iqs7222_sl_events[i].reg_key == IQS7222_REG_KEY_AXIAL)
-+			reg_key = IQS7222_REG_KEY_AXIAL_LEGACY;
- 		else
- 			reg_key = iqs7222_sl_events[i].reg_key;
+ 	pm_runtime_get_sync(dwc->dev);
  
--- 
-2.35.1
-
+ 	if (dwc->current_dr_role == DWC3_GCTL_PRTCAP_OTG)
+ 		dwc3_otg_update(dwc, 0);
+ 
+-	if (!dwc->desired_dr_role)
++	if (!desired_dr_role)
+ 		goto out;
+ 
+-	if (dwc->desired_dr_role == dwc->current_dr_role)
++	if (desired_dr_role == dwc->current_dr_role)
+ 		goto out;
+ 
+-	if (dwc->desired_dr_role == DWC3_GCTL_PRTCAP_OTG && dwc->edev)
++	if (desired_dr_role == DWC3_GCTL_PRTCAP_OTG && dwc->edev)
+ 		goto out;
+ 
+ 	switch (dwc->current_dr_role) {
+@@ -162,7 +166,7 @@ static void __dwc3_set_mode(struct work_
+ 	 */
+ 	if (dwc->current_dr_role && ((DWC3_IP_IS(DWC3) ||
+ 			DWC3_VER_IS_PRIOR(DWC31, 190A)) &&
+-			dwc->desired_dr_role != DWC3_GCTL_PRTCAP_OTG)) {
++			desired_dr_role != DWC3_GCTL_PRTCAP_OTG)) {
+ 		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
+ 		reg |= DWC3_GCTL_CORESOFTRESET;
+ 		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
+@@ -182,11 +186,11 @@ static void __dwc3_set_mode(struct work_
+ 
+ 	spin_lock_irqsave(&dwc->lock, flags);
+ 
+-	dwc3_set_prtcap(dwc, dwc->desired_dr_role);
++	dwc3_set_prtcap(dwc, desired_dr_role);
+ 
+ 	spin_unlock_irqrestore(&dwc->lock, flags);
+ 
+-	switch (dwc->desired_dr_role) {
++	switch (desired_dr_role) {
+ 	case DWC3_GCTL_PRTCAP_HOST:
+ 		ret = dwc3_host_init(dwc);
+ 		if (ret) {
 
 
