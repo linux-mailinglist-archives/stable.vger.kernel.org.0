@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEBD86578A5
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:53:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D38BA657E93
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:55:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233186AbiL1OxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:53:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37994 "EHLO
+        id S234160AbiL1PzP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:55:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232989AbiL1Owh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:52:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D2EC1006D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:52:36 -0800 (PST)
+        with ESMTP id S234165AbiL1PzJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:55:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2DF718B16
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:55:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B26BCB8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:52:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D28FC433EF;
-        Wed, 28 Dec 2022 14:52:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EBEE61560
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:55:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44848C433D2;
+        Wed, 28 Dec 2022 15:55:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239153;
-        bh=4RnHyQ7viJQ/hDh+fOipsTFvnYoh5Lry5TB6k2A76fg=;
+        s=korg; t=1672242906;
+        bh=vuoz5BJfDr89hu6KaL4k1HR5x5eg+/9gWPsl+Z4jtDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h8xAxzFHfZmhwPCn8DEuqifWq/99JtuAp+eQ/Tx8PuWt++noDJeVboJokx+szn10E
-         rbxTLyUeNClZIrBXf4zJJ87mWb2IuFnJNc2SwYN8tuzx9Lz4ahn4byYvSTOViHQAYY
-         ORC6qryoxdtHoDdbdPHix2PrI+ZnHGmPnhg6tx8o=
+        b=1M8ywnE9ZREq8dw8N8mOJWWOiIPQiNdDtAFOa1/JHSblI8QMEJYVVgFE7C1bV/n2z
+         bFpd9tvNRYf8V5ktRGWbXpw8luWu0xf4AlrYn7h3tu7xZYnxbH1pVHeE8bq4hY5SZK
+         G5GZe5DzSnfBmSKqnMz6REQtiNplZt05eMyKOi+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Niklas Cassel <niklas.cassel@wdc.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        patches@lists.linux.dev, "Guoniu.zhou" <guoniu.zhou@nxp.com>,
+        Jacopo Mondi <jacopo@jmondi.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 149/731] ata: libata: fix NCQ autosense logic
+Subject: [PATCH 6.0 0468/1073] media: ov5640: set correct default link frequency
 Date:   Wed, 28 Dec 2022 15:34:16 +0100
-Message-Id: <20221228144300.873691972@linuxfoundation.org>
+Message-Id: <20221228144340.748933111@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,74 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+From: Guoniu.zhou <guoniu.zhou@nxp.com>
 
-[ Upstream commit 7390896b3484d44cbdb8bc4859964314ac66d3c9 ]
+[ Upstream commit d7b41196927ba2a2b5badad1a85f9087eb90b076 ]
 
-Currently, the logic if we should call ata_scsi_set_sense()
-(and set flag ATA_QCFLAG_SENSE_VALID to indicate that we have
-successfully added sense data to the struct ata_queued_cmd)
-looks like this:
+current_link_freq field in ov5640_dev structure is link frequency,
+not link frequency array index, so correct it.
 
-if (dev->class == ATA_DEV_ZAC &&
-    ((qc->result_tf.status & ATA_SENSE) || qc->result_tf.auxiliary))
-
-The problem with this is that a drive can support the NCQ command
-error log without supporting NCQ autosense.
-
-On such a drive, if the failing command has sense data, the status
-field in the NCQ command error log will have the ATA_SENSE bit set.
-
-It is just that this sense data is not included in the NCQ command
-error log when NCQ autosense is not supported. Instead the sense
-data has to be fetched using the REQUEST SENSE DATA EXT command.
-
-Therefore, we should only add the sense data if the drive supports
-NCQ autosense AND the ATA_SENSE bit is set in the status field.
-
-Fix this, and at the same time, remove the duplicated ATA_DEV_ZAC
-check. The struct ata_taskfile supplied to ata_eh_read_log_10h()
-is memset:ed before calling the function, so simply checking if
-qc->result_tf.auxiliary is set is sufficient to tell us that the
-log actually contained sense data.
-
-Fixes: d238ffd59d3c ("libata: do not attempt to retrieve sense code twice")
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Fixes: 3c28588f35d3 ("media: ov5640: Update pixel_rate and link_freq")
+Signed-off-by: Guoniu.zhou <guoniu.zhou@nxp.com>
+Acked-by: Jacopo Mondi <jacopo@jmondi.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-sata.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/media/i2c/ov5640.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/ata/libata-sata.c b/drivers/ata/libata-sata.c
-index 1e59e5b6b047..b5aa525d8760 100644
---- a/drivers/ata/libata-sata.c
-+++ b/drivers/ata/libata-sata.c
-@@ -1413,7 +1413,8 @@ static int ata_eh_read_log_10h(struct ata_device *dev,
- 	tf->hob_lbah = buf[10];
- 	tf->nsect = buf[12];
- 	tf->hob_nsect = buf[13];
--	if (dev->class == ATA_DEV_ZAC && ata_id_has_ncq_autosense(dev->id))
-+	if (dev->class == ATA_DEV_ZAC && ata_id_has_ncq_autosense(dev->id) &&
-+	    (tf->status & ATA_SENSE))
- 		tf->auxiliary = buf[14] << 16 | buf[15] << 8 | buf[16];
+diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
+index 502f0b62e950..7e72e7c7b0dd 100644
+--- a/drivers/media/i2c/ov5640.c
++++ b/drivers/media/i2c/ov5640.c
+@@ -3816,7 +3816,8 @@ static int ov5640_probe(struct i2c_client *client)
+ 	sensor->current_mode =
+ 		&ov5640_mode_data[OV5640_MODE_VGA_640_480];
+ 	sensor->last_mode = sensor->current_mode;
+-	sensor->current_link_freq = OV5640_DEFAULT_LINK_FREQ;
++	sensor->current_link_freq =
++		ov5640_csi2_link_freqs[OV5640_DEFAULT_LINK_FREQ];
  
- 	return 0;
-@@ -1477,8 +1478,12 @@ void ata_eh_analyze_ncq_error(struct ata_link *link)
- 	memcpy(&qc->result_tf, &tf, sizeof(tf));
- 	qc->result_tf.flags = ATA_TFLAG_ISADDR | ATA_TFLAG_LBA | ATA_TFLAG_LBA48;
- 	qc->err_mask |= AC_ERR_DEV | AC_ERR_NCQ;
--	if (dev->class == ATA_DEV_ZAC &&
--	    ((qc->result_tf.status & ATA_SENSE) || qc->result_tf.auxiliary)) {
-+
-+	/*
-+	 * If the device supports NCQ autosense, ata_eh_read_log_10h() will have
-+	 * stored the sense data in qc->result_tf.auxiliary.
-+	 */
-+	if (qc->result_tf.auxiliary) {
- 		char sense_key, asc, ascq;
+ 	sensor->ae_target = 52;
  
- 		sense_key = (qc->result_tf.auxiliary >> 16) & 0xff;
 -- 
 2.35.1
 
