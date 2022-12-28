@@ -2,102 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B97D65838D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:48:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED2EC657D42
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:41:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231822AbiL1Qsh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:48:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39656 "EHLO
+        id S233958AbiL1PlM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:41:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235103AbiL1QsM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:48:12 -0500
+        with ESMTP id S233976AbiL1PlI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:41:08 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4526719C29
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:43:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B58A15FFC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:41:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D607261541
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:43:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA80DC433D2;
-        Wed, 28 Dec 2022 16:43:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 096D461542
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:41:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E7C6C433EF;
+        Wed, 28 Dec 2022 15:41:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245819;
-        bh=YRc8YepZil4fRNkcQMEG8TU2mnvzDHG0bpISHrAty3o=;
+        s=korg; t=1672242066;
+        bh=H5nfNj6i2aBjx1sIE6dF/39prsVVVi+kb+2ZnFvZ8IU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RWqD8YNBmndadnbIUHO18BagRgy+vJoBCCD2VahpXjb1rMJgQWLEUjaNPyUs78LOt
-         R48+L/14zVZoyeoQrLryU+5XAAJzgg6u2maAhahssyXYXie8HSYaYVEp2u0bIuF94g
-         uMg/4pTnAffOFjLIFy5h35KBSvgHJKGLtwBXXass=
+        b=mQhMCOva2godZaWAqpAcjNzIfOo+HUQ4NY3wziS+Hp1Po+/GyW/QeHEkYzSHn8O0M
+         aeP6y+NAuwtYOcZ4KJsGPxOoPjfUydtiDBRpOvtRhyuYyG2JmzbyedLEp30W3ZraYB
+         I1Er9gofDeecfK7eU6bVboVn0UTgDzwBVOaNJJ4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
+        patches@lists.linux.dev, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0926/1146] mailbox: zynq-ipi: fix error handling while device_register() fails
+Subject: [PATCH 5.15 558/731] powerpc/perf: callchain validate kernel stack pointer bounds
 Date:   Wed, 28 Dec 2022 15:41:05 +0100
-Message-Id: <20221228144355.427252849@linuxfoundation.org>
+Message-Id: <20221228144312.740805254@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit a6792a0cdef0b1c2d77920246283a72537e60e94 ]
+[ Upstream commit 32c5209214bd8d4f8c4e9d9b630ef4c671f58e79 ]
 
-If device_register() fails, it has two issues:
-1. The name allocated by dev_set_name() is leaked.
-2. The parent of device is not NULL, device_unregister() is called
-   in zynqmp_ipi_free_mboxes(), it will lead a kernel crash because
-   of removing not added device.
+The interrupt frame detection and loads from the hypothetical pt_regs
+are not bounds-checked. The next-frame validation only bounds-checks
+STACK_FRAME_OVERHEAD, which does not include the pt_regs. Add another
+test for this.
 
-Call put_device() to give up the reference, so the name is freed in
-kobject_cleanup(). Add device registered check in zynqmp_ipi_free_mboxes()
-to avoid null-ptr-deref.
+The user could set r1 to be equal to the address matching the first
+interrupt frame - STACK_INT_FRAME_SIZE, which is in the previous page
+due to the kernel redzone, and induce the kernel to load the marker from
+there. Possibly this could cause a crash at least. If the user could
+induce the previous page to contain a valid marker, then it might be
+able to direct perf to read specific memory addresses in a way that
+could be transmitted back to the user in the perf data.
 
-Fixes: 4981b82ba2ff ("mailbox: ZynqMP IPI mailbox controller")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+Fixes: 20002ded4d93 ("perf_counter: powerpc: Add callchain support")
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20221127124942.1665522-4-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/zynqmp-ipi-mailbox.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/powerpc/perf/callchain.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mailbox/zynqmp-ipi-mailbox.c b/drivers/mailbox/zynqmp-ipi-mailbox.c
-index 31a0fa914274..12e004ff1a14 100644
---- a/drivers/mailbox/zynqmp-ipi-mailbox.c
-+++ b/drivers/mailbox/zynqmp-ipi-mailbox.c
-@@ -493,6 +493,7 @@ static int zynqmp_ipi_mbox_probe(struct zynqmp_ipi_mbox *ipi_mbox,
- 	ret = device_register(&ipi_mbox->dev);
- 	if (ret) {
- 		dev_err(dev, "Failed to register ipi mbox dev.\n");
-+		put_device(&ipi_mbox->dev);
- 		return ret;
- 	}
- 	mdev = &ipi_mbox->dev;
-@@ -619,7 +620,8 @@ static void zynqmp_ipi_free_mboxes(struct zynqmp_ipi_pdata *pdata)
- 		ipi_mbox = &pdata->ipi_mboxes[i];
- 		if (ipi_mbox->dev.parent) {
- 			mbox_controller_unregister(&ipi_mbox->mbox);
--			device_unregister(&ipi_mbox->dev);
-+			if (device_is_registered(&ipi_mbox->dev))
-+				device_unregister(&ipi_mbox->dev);
- 		}
- 	}
- }
+diff --git a/arch/powerpc/perf/callchain.c b/arch/powerpc/perf/callchain.c
+index 082f6d0308a4..8718289c051d 100644
+--- a/arch/powerpc/perf/callchain.c
++++ b/arch/powerpc/perf/callchain.c
+@@ -61,6 +61,7 @@ perf_callchain_kernel(struct perf_callchain_entry_ctx *entry, struct pt_regs *re
+ 		next_sp = fp[0];
+ 
+ 		if (next_sp == sp + STACK_INT_FRAME_SIZE &&
++		    validate_sp(sp, current, STACK_INT_FRAME_SIZE) &&
+ 		    fp[STACK_FRAME_MARKER] == STACK_FRAME_REGS_MARKER) {
+ 			/*
+ 			 * This looks like an interrupt frame for an
 -- 
 2.35.1
 
