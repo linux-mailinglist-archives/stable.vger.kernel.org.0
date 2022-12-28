@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EFEC66584A2
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:59:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7C4F6583F1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:53:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235255AbiL1Q7d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:59:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54502 "EHLO
+        id S235148AbiL1Qxg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:53:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235270AbiL1Q7G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:59:06 -0500
+        with ESMTP id S232106AbiL1Qwq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:52:46 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BC062099F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:54:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B71631DDF8
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:47:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0616F61558
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:54:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AB8FC433D2;
-        Wed, 28 Dec 2022 16:54:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 541AD60D41
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:47:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 677F2C433D2;
+        Wed, 28 Dec 2022 16:47:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246481;
-        bh=J+eE3omN9uKeuY76OvoIYt83WXDRbRMRqcQxZO9NgN4=;
+        s=korg; t=1672246051;
+        bh=+fHx5xwYWoNrQ8o+aNkjZ5N9nvTSb0xbIriaqQ8NvX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nhOonGHXvO0B/RdyAR2dIXb79L4fHDc8USvhmBoxA9xSKppx5pViE0AGS69BM8SEU
-         zMrFeOGgaGpfgyaB+INvaCFuRaKMIUUAlfqNQ1rQf+DRJx5u8fM1DvXfxVEP1p7ZD/
-         IGTGJ0yF9zaBfmyKthenYGaRweJkvNErxd5qIqKc=
+        b=rZ1HzVu285xvkWePP8Z74EqBL7l2JDoUR0I73Gahu/u9DW8TXnSt907oqHyre1Fyg
+         7jNn7fEsQOFNl6p3O7JL0WDDpTRwqYi5+0/iuD9aZVsBRSj2OWzFwKF4rUdhEm9pK9
+         v4DczNKhKxU1QKGXovxUHndOz02FO9i4R/lavfqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1052/1146] scsi: ufs: Reduce the START STOP UNIT timeout
-Date:   Wed, 28 Dec 2022 15:43:11 +0100
-Message-Id: <20221228144358.883134434@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 1004/1073] ALSA: hda/hdmi: fix i915 silent stream programming flow
+Date:   Wed, 28 Dec 2022 15:43:12 +0100
+Message-Id: <20221228144355.416002332@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit dcd5b7637c6d442d957f73780a03047413ed3a10 ]
+[ Upstream commit ada261b690ecd5c2f55f0c51bdf11d852a4561a6 ]
 
-Reduce the START STOP UNIT command timeout to one second since on Android
-devices a kernel panic is triggered if an attempt to suspend the system
-takes more than 20 seconds. One second should be enough for the START STOP
-UNIT command since this command completes in less than a millisecond for
-the UFS devices I have access to.
+The i915 display codec may not successfully transition to
+normal audio streaming mode, if the stream id is programmed
+while codec is actively transmitting data. This can happen
+when silent stream is enabled in KAE mode.
 
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Link: https://lore.kernel.org/r/20221018202958.1902564-7-bvanassche@acm.org
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fix the issue by implementing a i915 specific programming
+flow, where the silent streaming is temporarily stopped,
+a small delay is applied to ensure display codec becomes
+idle, and then proceed with reprogramming the stream ID.
+
+Fixes: 15175a4f2bbb ("ALSA: hda/hdmi: add keep-alive support for ADL-P and DG2")
+Link: https://gitlab.freedesktop.org/drm/intel/-/issues/7353
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Tested-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Link: https://lore.kernel.org/r/20221209101822.3893675-2-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ufs/core/ufshcd.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ sound/pci/hda/patch_hdmi.c | 28 ++++++++++++++++++++++++++--
+ 1 file changed, 26 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/ufs/core/ufshcd.c b/drivers/ufs/core/ufshcd.c
-index 5432be4cd0ed..d1db6be80156 100644
---- a/drivers/ufs/core/ufshcd.c
-+++ b/drivers/ufs/core/ufshcd.c
-@@ -8771,8 +8771,6 @@ static int ufshcd_set_dev_pwr_mode(struct ufs_hba *hba,
- 	struct scsi_device *sdp;
- 	unsigned long flags;
- 	int ret, retries;
--	unsigned long deadline;
--	int32_t remaining;
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index 287f4f78e7b1..3655584fc37b 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -2963,9 +2963,33 @@ static int i915_hsw_setup_stream(struct hda_codec *codec, hda_nid_t cvt_nid,
+ 				 hda_nid_t pin_nid, int dev_id, u32 stream_tag,
+ 				 int format)
+ {
++	struct hdmi_spec *spec = codec->spec;
++	int pin_idx = pin_id_to_pin_index(codec, pin_nid, dev_id);
++	struct hdmi_spec_per_pin *per_pin;
++	int res;
++
++	if (pin_idx < 0)
++		per_pin = NULL;
++	else
++		per_pin = get_pin(spec, pin_idx);
++
+ 	haswell_verify_D0(codec, cvt_nid, pin_nid);
+-	return hdmi_setup_stream(codec, cvt_nid, pin_nid, dev_id,
+-				 stream_tag, format);
++
++	if (spec->silent_stream_type == SILENT_STREAM_KAE && per_pin && per_pin->silent_stream) {
++		silent_stream_set_kae(codec, per_pin, false);
++		/* wait for pending transfers in codec to clear */
++		usleep_range(100, 200);
++	}
++
++	res = hdmi_setup_stream(codec, cvt_nid, pin_nid, dev_id,
++				stream_tag, format);
++
++	if (spec->silent_stream_type == SILENT_STREAM_KAE && per_pin && per_pin->silent_stream) {
++		usleep_range(100, 200);
++		silent_stream_set_kae(codec, per_pin, true);
++	}
++
++	return res;
+ }
  
- 	spin_lock_irqsave(hba->host->host_lock, flags);
- 	sdp = hba->ufs_device_wlun;
-@@ -8805,14 +8803,9 @@ static int ufshcd_set_dev_pwr_mode(struct ufs_hba *hba,
- 	 * callbacks hence set the RQF_PM flag so that it doesn't resume the
- 	 * already suspended childs.
- 	 */
--	deadline = jiffies + 10 * HZ;
- 	for (retries = 3; retries > 0; --retries) {
--		ret = -ETIMEDOUT;
--		remaining = deadline - jiffies;
--		if (remaining <= 0)
--			break;
- 		ret = scsi_execute(sdp, cmd, DMA_NONE, NULL, 0, NULL, &sshdr,
--				   remaining / HZ, 0, 0, RQF_PM, NULL);
-+				   HZ, 0, 0, RQF_PM, NULL);
- 		if (!scsi_status_is_check_condition(ret) ||
- 				!scsi_sense_valid(&sshdr) ||
- 				sshdr.sense_key != UNIT_ATTENTION)
+ /* pin_cvt_fixup ops override for HSW+ and VLV+ */
 -- 
 2.35.1
 
