@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7AB3657C1C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:29:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CE8C657C1F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:29:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233736AbiL1P27 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:28:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46666 "EHLO
+        id S233778AbiL1P3R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:29:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233656AbiL1P25 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:28:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F10D614D3F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:28:56 -0800 (PST)
+        with ESMTP id S233773AbiL1P3J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:29:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45B1C15721
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:29:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BAA961551
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:28:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AC90C433EF;
-        Wed, 28 Dec 2022 15:28:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 722FAB81647
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:29:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E05D1C433EF;
+        Wed, 28 Dec 2022 15:29:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241336;
-        bh=0nZct2RXErNm/Q/ixo2Jfi/Xhjlv4X0yHsElhUs+mls=;
+        s=korg; t=1672241344;
+        bh=it1IqFbAMGrQR55YRJyMG3htlj7dBdDxPU83/mm0UFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KrDN2gX79SoGNnkr1PG7Hk4jZqq0pU+JytMhyt5mYiRmNXnwW8LHPfmj4E2dO5oQb
-         ZfJ9RCwcJnfUPziK76ldCNMmdazBTUuYXg97MDCH09Ag+EnxQgeJCXy/PuWC/pLxQC
-         0VMbX2WM5Re3uxl+vOV5voVbnYwWihb3dVJ+aG9k=
+        b=aLUxPtND0hlRQyKTPf5r8v2LUr0QTs7CfBoWZWikeoEfsYIoUU8hz7Q5pfiaQmMUg
+         iLYb1JKtv9Rf+2j9wnZtRBZg+ryXBYJWdG5CSLuYi+3BbZm9mDB0sAoMnP2r42kRW8
+         NhbcCfdrcPK6nxqnr9gtGC18nYPOK4M4s1PRac2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jernej Skrabec <jernej.skrabec@gmail.com>,
+        patches@lists.linux.dev, Yunfei Dong <yunfei.dong@mediatek.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0234/1146] media: cedrus: hevc: Fix offset adjustments
-Date:   Wed, 28 Dec 2022 15:29:33 +0100
-Message-Id: <20221228144336.494727249@linuxfoundation.org>
+Subject: [PATCH 6.1 0235/1146] media: mediatek: vcodec: fix h264 cavlc bitstream fail
+Date:   Wed, 28 Dec 2022 15:29:34 +0100
+Message-Id: <20221228144336.521581223@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -53,99 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@gmail.com>
+From: Yunfei Dong <yunfei.dong@mediatek.com>
 
-[ Upstream commit e9120e76a6f7e19a8d26c03f2964937e4ce69784 ]
+[ Upstream commit d555409dd1b7cc9e7e5b9e2924c0ef4bf23f6c9b ]
 
-As it turns out, current padding size check works fine in theory but it
-doesn't in practice. Most probable reason are caching issues.
+Some cavlc bistream will decode fail when the frame size is less than
+20 bytes. Need to add pending data at the end of the bitstream.
 
-Let's rework reading data from bitstream using Cedrus engine instead of
-CPU. That way we avoid all cache issues and make sure that we're reading
-same data as Cedrus.
+For the minimum size of mapped memory is 256 bytes(16x16), adding four
+bytes data won't lead to access unknown virtual memory.
 
-Fixes: e7060d9a78c2 ("media: uapi: Change data_bit_offset definition")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Fixes: 59fba9eed5a7 ("media: mediatek: vcodec: support stateless H.264 decoding for mt8192")
+Signed-off-by: Yunfei Dong <yunfei.dong@mediatek.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../staging/media/sunxi/cedrus/cedrus_h265.c  | 25 ++++++++++++++-----
- .../staging/media/sunxi/cedrus/cedrus_regs.h  |  2 ++
- 2 files changed, 21 insertions(+), 6 deletions(-)
+ .../vcodec/vdec/vdec_h264_req_multi_if.c      | 32 +++++++++++++++++--
+ 1 file changed, 29 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/media/sunxi/cedrus/cedrus_h265.c b/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-index 4952fc17f3e6..625f77a8c5bd 100644
---- a/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-+++ b/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-@@ -242,6 +242,18 @@ static void cedrus_h265_skip_bits(struct cedrus_dev *dev, int num)
- 	}
+diff --git a/drivers/media/platform/mediatek/vcodec/vdec/vdec_h264_req_multi_if.c b/drivers/media/platform/mediatek/vcodec/vdec/vdec_h264_req_multi_if.c
+index 4cc92700692b..18e048755d11 100644
+--- a/drivers/media/platform/mediatek/vcodec/vdec/vdec_h264_req_multi_if.c
++++ b/drivers/media/platform/mediatek/vcodec/vdec/vdec_h264_req_multi_if.c
+@@ -539,6 +539,29 @@ static int vdec_h264_slice_core_decode(struct vdec_lat_buf *lat_buf)
+ 	return 0;
  }
  
-+static u32 cedrus_h265_show_bits(struct cedrus_dev *dev, int num)
++static void vdec_h264_insert_startcode(struct mtk_vcodec_dev *vcodec_dev, unsigned char *buf,
++				       size_t *bs_size, struct mtk_h264_pps_param *pps)
 +{
-+	cedrus_write(dev, VE_DEC_H265_TRIGGER,
-+		     VE_DEC_H265_TRIGGER_SHOW_BITS |
-+		     VE_DEC_H265_TRIGGER_TYPE_N_BITS(num));
++	struct device *dev = &vcodec_dev->plat_dev->dev;
 +
-+	cedrus_wait_for(dev, VE_DEC_H265_STATUS,
-+			VE_DEC_H265_STATUS_VLD_BUSY);
++	/* Need to add pending data at the end of bitstream when bs_sz is small than
++	 * 20 bytes for cavlc bitstream, or lat will decode fail. This pending data is
++	 * useful for mt8192 and mt8195 platform.
++	 *
++	 * cavlc bitstream when entropy_coding_mode_flag is false.
++	 */
++	if (pps->entropy_coding_mode_flag || *bs_size > 20 ||
++	    !(of_device_is_compatible(dev->of_node, "mediatek,mt8192-vcodec-dec") ||
++	    of_device_is_compatible(dev->of_node, "mediatek,mt8195-vcodec-dec")))
++		return;
 +
-+	return cedrus_read(dev, VE_DEC_H265_BITS_READ);
++	buf[*bs_size] = 0;
++	buf[*bs_size + 1] = 0;
++	buf[*bs_size + 2] = 1;
++	buf[*bs_size + 3] = 0xff;
++	(*bs_size) += 4;
 +}
 +
- static void cedrus_h265_write_scaling_list(struct cedrus_ctx *ctx,
- 					   struct cedrus_run *run)
+ static int vdec_h264_slice_lat_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
+ 				      struct vdec_fb *fb, bool *res_chg)
  {
-@@ -406,7 +418,7 @@ static int cedrus_h265_setup(struct cedrus_ctx *ctx, struct cedrus_run *run)
- 	u32 num_entry_point_offsets;
- 	u32 output_pic_list_index;
- 	u32 pic_order_cnt[2];
--	u8 *padding;
-+	u8 padding;
- 	int count;
- 	u32 reg;
+@@ -582,9 +605,6 @@ static int vdec_h264_slice_lat_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
+ 	}
  
-@@ -520,21 +532,22 @@ static int cedrus_h265_setup(struct cedrus_ctx *ctx, struct cedrus_run *run)
- 	if (slice_params->data_byte_offset == 0)
- 		return -EOPNOTSUPP;
+ 	inst->vsi->dec.nal_info = buf[nal_start_idx];
+-	inst->vsi->dec.bs_buf_addr = (u64)bs->dma_addr;
+-	inst->vsi->dec.bs_buf_size = bs->size;
+-
+ 	lat_buf->src_buf_req = src_buf_info->m2m_buf.vb.vb2_buf.req_obj.req;
+ 	v4l2_m2m_buf_copy_metadata(&src_buf_info->m2m_buf.vb, &lat_buf->ts_info, true);
  
--	padding = (u8 *)vb2_plane_vaddr(&run->src->vb2_buf, 0) +
--		slice_params->data_byte_offset - 1;
-+	cedrus_h265_skip_bits(dev, (slice_params->data_byte_offset - 1) * 8);
+@@ -592,6 +612,12 @@ static int vdec_h264_slice_lat_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
+ 	if (err)
+ 		goto err_free_fb_out;
+ 
++	vdec_h264_insert_startcode(inst->ctx->dev, buf, &bs->size,
++				   &share_info->h264_slice_params.pps);
 +
-+	padding = cedrus_h265_show_bits(dev, 8);
- 
- 	/* at least one bit must be set in that byte */
--	if (*padding == 0)
-+	if (padding == 0)
- 		return -EINVAL;
- 
- 	for (count = 0; count < 8; count++)
--		if (*padding & (1 << count))
-+		if (padding & (1 << count))
- 			break;
- 
- 	/* Include the one bit. */
- 	count++;
- 
--	cedrus_h265_skip_bits(dev, slice_params->data_byte_offset * 8 - count);
-+	cedrus_h265_skip_bits(dev, 8 - count);
- 
- 	/* Bitstream parameters. */
- 
-diff --git a/drivers/staging/media/sunxi/cedrus/cedrus_regs.h b/drivers/staging/media/sunxi/cedrus/cedrus_regs.h
-index d81f7513ade0..655c05b389cf 100644
---- a/drivers/staging/media/sunxi/cedrus/cedrus_regs.h
-+++ b/drivers/staging/media/sunxi/cedrus/cedrus_regs.h
-@@ -505,6 +505,8 @@
- #define VE_DEC_H265_LOW_ADDR_ENTRY_POINTS_BUF(a) \
- 	SHIFT_AND_MASK_BITS(a, 7, 0)
- 
-+#define VE_DEC_H265_BITS_READ			(VE_ENGINE_DEC_H265 + 0xdc)
++	inst->vsi->dec.bs_buf_addr = (uint64_t)bs->dma_addr;
++	inst->vsi->dec.bs_buf_size = bs->size;
 +
- #define VE_DEC_H265_SRAM_OFFSET			(VE_ENGINE_DEC_H265 + 0xe0)
- 
- #define VE_DEC_H265_SRAM_OFFSET_PRED_WEIGHT_LUMA_L0	0x00
+ 	*res_chg = inst->resolution_changed;
+ 	if (inst->resolution_changed) {
+ 		mtk_vcodec_debug(inst, "- resolution changed -");
 -- 
 2.35.1
 
