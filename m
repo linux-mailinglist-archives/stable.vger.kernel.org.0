@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A19E1658041
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:16:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB18A658044
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:16:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233188AbiL1QQY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:16:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59856 "EHLO
+        id S234513AbiL1QQ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:16:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234362AbiL1QP7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:15:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B7031A822
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:13:13 -0800 (PST)
+        with ESMTP id S234507AbiL1QQC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:16:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1D0B1A042
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:13:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AAA196155B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:13:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF27BC433EF;
-        Wed, 28 Dec 2022 16:13:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 91609B81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:13:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDDAEC433F1;
+        Wed, 28 Dec 2022 16:13:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243992;
-        bh=aEbAf8Nw3/SptkcTaR0PqfaP2bC67L8uD2FS4ViH92c=;
+        s=korg; t=1672244000;
+        bh=I21Uviczf09RqOMqnp8NxnQrbMRK7oSdOiegTRbWpr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PUuNrvePeGeypHfYraX+BQS3MG+t31t/3IaCrGQBcV9rkhc3rOdypj8zgRyAPnwYH
-         W5UaqYfxdCW+rzOWiHKNd+sXORjp04cl6FMvDs8SxdAZ93uWlTYMSBpcd2B3DMo6nw
-         pkkniisbLP3PmvQZb1XINe1gpnHVu00k39ABOey0=
+        b=0fqvyXvvXYupl/Tsnq4DdgoyAcQyb8kuutpneLr5vHveieF70WY6OIXNFrpBvZKSh
+         c7C519nNprp2jmQ0Oqsr/YexAGyhCc4ulYVDvWViiJWHyqn3BGFSuMNyMhqPYn6wW2
+         bYHFSkkJIKf6X4wDrgrsWKPOFn0Np+zl/2zhP6Io=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Narsimhulu Musini <nmusini@cisco.com>,
+        patches@lists.linux.dev, Jie Zhan <zhanjie9@hisilicon.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0628/1073] scsi: snic: Fix possible UAF in snic_tgt_create()
-Date:   Wed, 28 Dec 2022 15:36:56 +0100
-Message-Id: <20221228144345.099558489@linuxfoundation.org>
+Subject: [PATCH 6.0 0629/1073] scsi: libsas: Add smp_ata_check_ready_type()
+Date:   Wed, 28 Dec 2022 15:36:57 +0100
+Message-Id: <20221228144345.126197151@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -54,45 +53,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Jie Zhan <zhanjie9@hisilicon.com>
 
-[ Upstream commit e118df492320176af94deec000ae034cc92be754 ]
+[ Upstream commit 9181ce3cb5d96f0ee28246a857ca651830fa3746 ]
 
-Smatch reports a warning as follows:
+Create function smp_ata_check_ready_type() for LLDDs to wait for SATA
+devices to come up after a link reset.
 
-drivers/scsi/snic/snic_disc.c:307 snic_tgt_create() warn:
-  '&tgt->list' not removed from list
-
-If device_add() fails in snic_tgt_create(), tgt will be freed, but
-tgt->list will not be removed from snic->disc.tgt_list, then list traversal
-may cause UAF.
-
-Remove from snic->disc.tgt_list before free().
-
-Fixes: c8806b6c9e82 ("snic: driver for Cisco SCSI HBA")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Link: https://lore.kernel.org/r/20221117035100.2944812-1-cuigaosheng1@huawei.com
-Acked-by: Narsimhulu Musini <nmusini@cisco.com>
+Signed-off-by: Jie Zhan <zhanjie9@hisilicon.com>
+Link: https://lore.kernel.org/r/20221118083714.4034612-4-zhanjie9@hisilicon.com
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Stable-dep-of: 3c2673a09cf1 ("scsi: hisi_sas: Fix SATA devices missing issue during I_T nexus reset")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/snic/snic_disc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/scsi/libsas/sas_ata.c      | 25 +++++++++++++++++++++++++
+ drivers/scsi/libsas/sas_expander.c |  4 ++--
+ drivers/scsi/libsas/sas_internal.h |  2 ++
+ include/scsi/sas_ata.h             |  6 ++++++
+ 4 files changed, 35 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/snic/snic_disc.c b/drivers/scsi/snic/snic_disc.c
-index 9b2b5f8c23b9..8fbf3c1b1311 100644
---- a/drivers/scsi/snic/snic_disc.c
-+++ b/drivers/scsi/snic/snic_disc.c
-@@ -304,6 +304,9 @@ snic_tgt_create(struct snic *snic, struct snic_tgt_id *tgtid)
- 			      ret);
+diff --git a/drivers/scsi/libsas/sas_ata.c b/drivers/scsi/libsas/sas_ata.c
+index d35c9296f738..2fd55ef9ffca 100644
+--- a/drivers/scsi/libsas/sas_ata.c
++++ b/drivers/scsi/libsas/sas_ata.c
+@@ -287,6 +287,31 @@ static int sas_ata_clear_pending(struct domain_device *dev, struct ex_phy *phy)
+ 		return 1;
+ }
  
- 		put_device(&snic->shost->shost_gendev);
-+		spin_lock_irqsave(snic->shost->host_lock, flags);
-+		list_del(&tgt->list);
-+		spin_unlock_irqrestore(snic->shost->host_lock, flags);
- 		kfree(tgt);
- 		tgt = NULL;
++int smp_ata_check_ready_type(struct ata_link *link)
++{
++	struct domain_device *dev = link->ap->private_data;
++	struct sas_phy *phy = sas_get_local_phy(dev);
++	struct domain_device *ex_dev = dev->parent;
++	enum sas_device_type type = SAS_PHY_UNUSED;
++	u8 sas_addr[SAS_ADDR_SIZE];
++	int res;
++
++	res = sas_get_phy_attached_dev(ex_dev, phy->number, sas_addr, &type);
++	sas_put_local_phy(phy);
++	if (res)
++		return res;
++
++	switch (type) {
++	case SAS_SATA_PENDING:
++		return 0;
++	case SAS_END_DEVICE:
++		return 1;
++	default:
++		return -ENODEV;
++	}
++}
++EXPORT_SYMBOL_GPL(smp_ata_check_ready_type);
++
+ static int smp_ata_check_ready(struct ata_link *link)
+ {
+ 	int res;
+diff --git a/drivers/scsi/libsas/sas_expander.c b/drivers/scsi/libsas/sas_expander.c
+index 5ce251830104..63a23251fb1d 100644
+--- a/drivers/scsi/libsas/sas_expander.c
++++ b/drivers/scsi/libsas/sas_expander.c
+@@ -1693,8 +1693,8 @@ static int sas_get_phy_change_count(struct domain_device *dev,
+ 	return res;
+ }
  
+-static int sas_get_phy_attached_dev(struct domain_device *dev, int phy_id,
+-				    u8 *sas_addr, enum sas_device_type *type)
++int sas_get_phy_attached_dev(struct domain_device *dev, int phy_id,
++			     u8 *sas_addr, enum sas_device_type *type)
+ {
+ 	int res;
+ 	struct smp_disc_resp *disc_resp;
+diff --git a/drivers/scsi/libsas/sas_internal.h b/drivers/scsi/libsas/sas_internal.h
+index 8d0ad3abc7b5..a94bd0790b05 100644
+--- a/drivers/scsi/libsas/sas_internal.h
++++ b/drivers/scsi/libsas/sas_internal.h
+@@ -84,6 +84,8 @@ struct domain_device *sas_ex_to_ata(struct domain_device *ex_dev, int phy_id);
+ int sas_ex_phy_discover(struct domain_device *dev, int single);
+ int sas_get_report_phy_sata(struct domain_device *dev, int phy_id,
+ 			    struct smp_rps_resp *rps_resp);
++int sas_get_phy_attached_dev(struct domain_device *dev, int phy_id,
++			     u8 *sas_addr, enum sas_device_type *type);
+ int sas_try_ata_reset(struct asd_sas_phy *phy);
+ void sas_hae_reset(struct work_struct *work);
+ 
+diff --git a/include/scsi/sas_ata.h b/include/scsi/sas_ata.h
+index a1df4f9d57a3..ec646217e7f6 100644
+--- a/include/scsi/sas_ata.h
++++ b/include/scsi/sas_ata.h
+@@ -35,6 +35,7 @@ void sas_ata_end_eh(struct ata_port *ap);
+ int sas_execute_ata_cmd(struct domain_device *device, u8 *fis,
+ 			int force_phy_id);
+ int sas_ata_wait_after_reset(struct domain_device *dev, unsigned long deadline);
++int smp_ata_check_ready_type(struct ata_link *link);
+ #else
+ 
+ 
+@@ -98,6 +99,11 @@ static inline int sas_ata_wait_after_reset(struct domain_device *dev,
+ {
+ 	return -ETIMEDOUT;
+ }
++
++static inline int smp_ata_check_ready_type(struct ata_link *link)
++{
++	return 0;
++}
+ #endif
+ 
+ #endif /* _SAS_ATA_H_ */
 -- 
 2.35.1
 
