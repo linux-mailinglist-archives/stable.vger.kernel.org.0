@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEFF4658154
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:27:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D3E6657A76
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:11:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233218AbiL1Q1t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:27:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43354 "EHLO
+        id S232941AbiL1PLh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:11:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234800AbiL1Q07 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:26:59 -0500
+        with ESMTP id S233180AbiL1PLU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:11:20 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C78131C108
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:23:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCC7513E16
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:11:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA022B81717
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:23:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E5FAC433D2;
-        Wed, 28 Dec 2022 16:23:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 73705B8171F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:11:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2BF9C433D2;
+        Wed, 28 Dec 2022 15:11:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244590;
-        bh=xywG0XWy9xHqG27Lvsj4AS/kh+Wewvozb4pqlK1NiBA=;
+        s=korg; t=1672240277;
+        bh=PK9DHjeDqa+7dXSz8ls1e+rVW8Q40/ZB2ysndfLFgf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LJoli8uTeHEhtc6tllh0Ec637qqpTpQkw+jayf4JqjSbLSUeGzD9ApRV6trcEesEW
-         xNU2b4CBPmun+rlvqMKqGKspwDtKxwBnH2XOqJrRbC4C7r67n4iCzj+6bD8hBA1VoO
-         nauGdpmBpxGbWx3zG48X5jkPZV2BXFqweLPAfuok=
+        b=y23Sp3d3kXDhIdJ9JxBqMjDtzbYG0j5dz1wek2+hBQNcKvG3hEBUaOEG3uIPRr2oN
+         +W8lPr/hV7DIAi01orxK/E97hj1teQ4gauhgcr3j7ygKmC2kG0I/vRtEyeeqXgTnf7
+         ZcQBlcQlW/wHUGdLPaYMK3oBIb5mS5y0w9hygg2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sven Peter <sven@svenpeter.dev>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0699/1146] usb: typec: Check for ops->exit instead of ops->enter in altmode_exit
+Subject: [PATCH 5.15 331/731] net: apple: mace: dont call dev_kfree_skb() under spin_lock_irqsave()
 Date:   Wed, 28 Dec 2022 15:37:18 +0100
-Message-Id: <20221228144349.131250455@linuxfoundation.org>
+Message-Id: <20221228144306.166590972@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Peter <sven@svenpeter.dev>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit b6ddd180e3d9f92c1e482b3cdeec7dda086b1341 ]
+[ Upstream commit 3dfe3486c1cd4f82b466b7d307f23777137b8acc ]
 
-typec_altmode_exit checks if ops->enter is not NULL but then calls
-ops->exit a few lines below. Fix that and check for the function
-pointer it's about to call instead.
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-Fixes: 8a37d87d72f0 ("usb: typec: Bus type for alternate modes")
-Signed-off-by: Sven Peter <sven@svenpeter.dev>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20221114165924.33487-1-sven@svenpeter.dev
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
+The difference between them is free reason, dev_kfree_skb_irq() means
+the SKB is dropped in error and dev_consume_skb_irq() means the SKB
+is consumed in normal.
+
+In this case, dev_kfree_skb() is called in mace_tx_timeout() to drop
+the SKB, when tx timeout, so replace it with dev_kfree_skb_irq().
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/bus.c | 2 +-
+ drivers/net/ethernet/apple/mace.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/typec/bus.c b/drivers/usb/typec/bus.c
-index 26ea2fdec17d..31c2a3130cad 100644
---- a/drivers/usb/typec/bus.c
-+++ b/drivers/usb/typec/bus.c
-@@ -134,7 +134,7 @@ int typec_altmode_exit(struct typec_altmode *adev)
- 	if (!adev || !adev->active)
- 		return 0;
- 
--	if (!pdev->ops || !pdev->ops->enter)
-+	if (!pdev->ops || !pdev->ops->exit)
- 		return -EOPNOTSUPP;
- 
- 	/* Moving to USB Safe State */
+diff --git a/drivers/net/ethernet/apple/mace.c b/drivers/net/ethernet/apple/mace.c
+index 4b80e3a52a19..44037e9e197f 100644
+--- a/drivers/net/ethernet/apple/mace.c
++++ b/drivers/net/ethernet/apple/mace.c
+@@ -841,7 +841,7 @@ static void mace_tx_timeout(struct timer_list *t)
+     if (mp->tx_bad_runt) {
+ 	mp->tx_bad_runt = 0;
+     } else if (i != mp->tx_fill) {
+-	dev_kfree_skb(mp->tx_bufs[i]);
++	dev_kfree_skb_irq(mp->tx_bufs[i]);
+ 	if (++i >= N_TX_RING)
+ 	    i = 0;
+ 	mp->tx_empty = i;
 -- 
 2.35.1
 
