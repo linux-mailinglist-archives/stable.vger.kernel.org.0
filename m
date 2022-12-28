@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 40216657BD5
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:26:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28D6F657CEA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:37:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232680AbiL1P0m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:26:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44722 "EHLO
+        id S233492AbiL1Ph1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:37:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233845AbiL1PZs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:25:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 063F4B05
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:25:43 -0800 (PST)
+        with ESMTP id S233502AbiL1Ph0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:37:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E27A15807
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:37:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5C13CB81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:25:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C331EC433F0;
-        Wed, 28 Dec 2022 15:25:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B058B6154D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:37:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A18AEC433D2;
+        Wed, 28 Dec 2022 15:37:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241141;
-        bh=c63AvY7EiMllCaX1dYzzbfLMwnTOuLYomnFjkQ2hMrI=;
+        s=korg; t=1672241844;
+        bh=pflqptXIswItlr5+JwuUkH37rwc7vDGlWVLQV8q1BOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G76bd4XGkzKU27mplnphb3B0CzYfiBvcwC5UUkHeC7Eh6eLRxp9FVMh7PbONjDUqz
-         0bYWi9l87drZGPFkgYdhsbEmnhCt6AE3MuAsdRVD5zYDFKbYN/SHUTvnV0dEqWSURk
-         kB9BPJA8z70OxCjSNSuZr0n6k+gskN85Z4Eewipw=
+        b=Wwj9SnCjXkKeEIhtg4qyYH+GcCStVrDRypu1baohSbbqQMWst98S0UeFf9efiCVA9
+         0bNL6Z6wMVqB5CUV3wMEqvLRjOX5mwKDwp7J5oVNboUP4q5424d8JZRrVn01WMlYrh
+         4KMqpwdOZsGW9e7V7RcaCaqV9pXbP2VVb73jFiVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jimmy Assarsson <extja@kvaser.com>,
-        Anssi Hannula <anssi.hannula@bitwise.fi>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0246/1073] can: kvaser_usb_leaf: Fix wrong CAN state after stopping
+Subject: [PATCH 6.1 0295/1146] clk: qcom: gcc-ipq806x: use parent_data for the last remaining entry
 Date:   Wed, 28 Dec 2022 15:30:34 +0100
-Message-Id: <20221228144334.705989485@linuxfoundation.org>
+Message-Id: <20221228144338.151943617@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anssi Hannula <anssi.hannula@bitwise.fi>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit a11249acf802341294557895d8e5f6aef080253f ]
+[ Upstream commit 55307e522cc7a4dddc3d231ca5cb7e68e9668f66 ]
 
-0bfd:0124 Kvaser Mini PCI Express 2xHS FW 4.18.778 sends a
-CMD_CHIP_STATE_EVENT indicating bus-off after stopping the device,
-causing a stopped device to appear as CAN_STATE_BUS_OFF instead of
-CAN_STATE_STOPPED.
+Use parent_data for the last remaining entry (pll4). This clock is
+provided by the lcc device.
 
-Fix that by not handling error events on stopped devices.
-
-Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
-Tested-by: Jimmy Assarsson <extja@kvaser.com>
-Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
-Link: https://lore.kernel.org/all/20221010185237.319219-8-extja@kvaser.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: cb02866f9a74 ("clk: qcom: gcc-ipq806x: convert parent_names to parent_data")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20220927113826.246241-3-dmitry.baryshkov@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/clk/qcom/gcc-ipq806x.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-index 993fcc19637d..4f9c76f4d0da 100644
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-@@ -1045,6 +1045,10 @@ static void kvaser_usb_leaf_rx_error(const struct kvaser_usb *dev,
- 	leaf = priv->sub_priv;
- 	stats = &priv->netdev->stats;
- 
-+	/* Ignore e.g. state change to bus-off reported just after stopping */
-+	if (!netif_running(priv->netdev))
-+		return;
-+
- 	/* Update all of the CAN interface's state and error counters before
- 	 * trying any memory allocation that can actually fail with -ENOMEM.
- 	 *
+diff --git a/drivers/clk/qcom/gcc-ipq806x.c b/drivers/clk/qcom/gcc-ipq806x.c
+index 718de17a1e60..6447f3e81b55 100644
+--- a/drivers/clk/qcom/gcc-ipq806x.c
++++ b/drivers/clk/qcom/gcc-ipq806x.c
+@@ -79,7 +79,9 @@ static struct clk_regmap pll4_vote = {
+ 	.enable_mask = BIT(4),
+ 	.hw.init = &(struct clk_init_data){
+ 		.name = "pll4_vote",
+-		.parent_names = (const char *[]){ "pll4" },
++		.parent_data = &(const struct clk_parent_data){
++			.fw_name = "pll4", .name = "pll4",
++		},
+ 		.num_parents = 1,
+ 		.ops = &clk_pll_vote_ops,
+ 	},
 -- 
 2.35.1
 
