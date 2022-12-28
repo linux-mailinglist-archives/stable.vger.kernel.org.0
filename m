@@ -2,50 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8919A657DDB
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:47:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD7B665834C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:46:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234045AbiL1Prl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:47:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35740 "EHLO
+        id S234961AbiL1Qp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:45:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234088AbiL1Pr1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:47:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B79AF63
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:47:26 -0800 (PST)
+        with ESMTP id S235038AbiL1Qo6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5CDF1928A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:40:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2AFBD6156E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:47:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B9E4C433D2;
-        Wed, 28 Dec 2022 15:47:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2578FB8171E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:40:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8243DC433EF;
+        Wed, 28 Dec 2022 16:40:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242445;
-        bh=Vs2THPZN1bFtpTqzRY0XrXk4Nj4RfuADrKV69XLaEak=;
+        s=korg; t=1672245656;
+        bh=UGuOnxnM7GPmefNXCCPZBE0jOJo+3GsKpHYT1te8Qhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RGEVocwSuvs92p8jIV0vRyckMHYncjgBKM0AgCFgnzg3dJQTFiWZ4ZP22Gykslz+7
-         G4kU95dxFZY1egPypIzToUHFRN5nwck1kozyx8Dp1rLO6Bvd2Ibxx4LV0oAeSLG6LB
-         57Z/Y4Etol6U1pHTC+QFtlj2snd16Cg2R4YaFPaU=
+        b=ie8AwSa40by0mV01yu3Qmbb5guI9ahS+d6+J3AUNRKehUcGfjl8VezWhn9EPNL+LC
+         mVMo1qEQRvG/rK8+hdR92+p51pp7H7h0rS/DWykdTfsTvmDH6+T0UG6unvmWDb23Oy
+         AGZ/Mq+ugdfOpD4a6u7US0M+ozoWlmFqVdyVyls8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Chun-Jie Chen <chun-jie.chen@mediatek.com>,
-        Allen-KH Cheng <allen-kh.cheng@mediatek.com>,
-        Chen-Yu Tsai <wenst@chromium.org>,
-        Miles Chen <miles.chen@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
+        patches@lists.linux.dev, Sami Tolvanen <samitolvanen@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 604/731] soc: mediatek: pm-domains: Fix the power glitch issue
-Date:   Wed, 28 Dec 2022 15:41:51 +0100
-Message-Id: <20221228144314.044471070@linuxfoundation.org>
+Subject: [PATCH 6.0 0924/1073] drm/meson: Fix return type of meson_encoder_cvbs_mode_valid()
+Date:   Wed, 28 Dec 2022 15:41:52 +0100
+Message-Id: <20221228144353.125462165@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,42 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chun-Jie Chen <chun-jie.chen@mediatek.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit dba8eb83af9dd757ef645b52200775e86883d858 ]
+[ Upstream commit 6c4e4d35203301906afb53c6d1e1302d4c793c05 ]
 
-Power reset maybe generate unexpected signal. In order to avoid
-the glitch issue, we need to enable isolation first to guarantee the
-stable signal when power reset is triggered.
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed. A
+proposed warning in clang aims to catch these at compile time, which
+reveals:
 
-Fixes: 59b644b01cf4 ("soc: mediatek: Add MediaTek SCPSYS power domains")
-Signed-off-by: Chun-Jie Chen <chun-jie.chen@mediatek.com>
-Signed-off-by: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
-Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
-Reviewed-by: Miles Chen <miles.chen@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20221014102029.1162-1-allen-kh.cheng@mediatek.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+  drivers/gpu/drm/meson/meson_encoder_cvbs.c:211:16: error: incompatible function pointer types initializing 'enum drm_mode_status (*)(struct drm_bridge *, const struct drm_display_info *, const struct drm_display_mode *)' with an expression of type 'int (struct drm_bridge *, const struct drm_display_info *, const struct drm_display_mode *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .mode_valid = meson_encoder_cvbs_mode_valid,
+                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  1 error generated.
+
+->mode_valid() in 'struct drm_bridge_funcs' expects a return type of
+'enum drm_mode_status', not 'int'. Adjust the return type of
+meson_encoder_cvbs_mode_valid() to match the prototype's to resolve the
+warning and CFI failure.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1750
+Reported-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221102155242.1927166-1-nathan@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/mediatek/mtk-pm-domains.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/meson/meson_encoder_cvbs.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/soc/mediatek/mtk-pm-domains.c b/drivers/soc/mediatek/mtk-pm-domains.c
-index afd2fd74802d..52ecde8e446c 100644
---- a/drivers/soc/mediatek/mtk-pm-domains.c
-+++ b/drivers/soc/mediatek/mtk-pm-domains.c
-@@ -272,9 +272,9 @@ static int scpsys_power_off(struct generic_pm_domain *genpd)
- 	clk_bulk_disable_unprepare(pd->num_subsys_clks, pd->subsys_clks);
+diff --git a/drivers/gpu/drm/meson/meson_encoder_cvbs.c b/drivers/gpu/drm/meson/meson_encoder_cvbs.c
+index 5675bc2a92cf..3f73b211fa8e 100644
+--- a/drivers/gpu/drm/meson/meson_encoder_cvbs.c
++++ b/drivers/gpu/drm/meson/meson_encoder_cvbs.c
+@@ -116,9 +116,10 @@ static int meson_encoder_cvbs_get_modes(struct drm_bridge *bridge,
+ 	return i;
+ }
  
- 	/* subsys power off */
--	regmap_clear_bits(scpsys->base, pd->data->ctl_offs, PWR_RST_B_BIT);
- 	regmap_set_bits(scpsys->base, pd->data->ctl_offs, PWR_ISO_BIT);
- 	regmap_set_bits(scpsys->base, pd->data->ctl_offs, PWR_CLK_DIS_BIT);
-+	regmap_clear_bits(scpsys->base, pd->data->ctl_offs, PWR_RST_B_BIT);
- 	regmap_clear_bits(scpsys->base, pd->data->ctl_offs, PWR_ON_2ND_BIT);
- 	regmap_clear_bits(scpsys->base, pd->data->ctl_offs, PWR_ON_BIT);
- 
+-static int meson_encoder_cvbs_mode_valid(struct drm_bridge *bridge,
+-					const struct drm_display_info *display_info,
+-					const struct drm_display_mode *mode)
++static enum drm_mode_status
++meson_encoder_cvbs_mode_valid(struct drm_bridge *bridge,
++			      const struct drm_display_info *display_info,
++			      const struct drm_display_mode *mode)
+ {
+ 	if (meson_cvbs_get_mode(mode))
+ 		return MODE_OK;
 -- 
 2.35.1
 
