@@ -2,95 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED2EC657D42
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:41:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D3BF6583A6
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:49:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233958AbiL1PlM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:41:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57868 "EHLO
+        id S233692AbiL1Qtq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:49:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233976AbiL1PlI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:41:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B58A15FFC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:41:07 -0800 (PST)
+        with ESMTP id S235079AbiL1QtX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:49:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F3A81C429
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:44:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 096D461542
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:41:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E7C6C433EF;
-        Wed, 28 Dec 2022 15:41:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 33E57B8171F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:44:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85E0DC433EF;
+        Wed, 28 Dec 2022 16:44:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242066;
-        bh=H5nfNj6i2aBjx1sIE6dF/39prsVVVi+kb+2ZnFvZ8IU=;
+        s=korg; t=1672245879;
+        bh=13a7YM9MqNunMOp1Rzij0Ac6TUJ8cIhNvHKEvxD+xXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mQhMCOva2godZaWAqpAcjNzIfOo+HUQ4NY3wziS+Hp1Po+/GyW/QeHEkYzSHn8O0M
-         aeP6y+NAuwtYOcZ4KJsGPxOoPjfUydtiDBRpOvtRhyuYyG2JmzbyedLEp30W3ZraYB
-         I1Er9gofDeecfK7eU6bVboVn0UTgDzwBVOaNJJ4s=
+        b=cp+VXg66ADQ20TZLqKLpTia3DWh+VXKkhqI4e9L5vGklms6katJNEVbVkIBjmEVFi
+         sqXeGRvU2PbzvwqX4/rzM9eBOEG+bfOh5Gy+Qv0/Ab58Q8Ptm8bWxoQ6sSWr3xXnMg
+         Wq8YVhD+UHQUN5LjcZVRAZga464HuftWZpWNC/WI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 558/731] powerpc/perf: callchain validate kernel stack pointer bounds
-Date:   Wed, 28 Dec 2022 15:41:05 +0100
-Message-Id: <20221228144312.740805254@linuxfoundation.org>
+        patches@lists.linux.dev, Jun Nie <jun.nie@linaro.org>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+4caeae4c7103813598ae@syzkaller.appspotmail.com
+Subject: [PATCH 6.1 0927/1146] net_sched: reject TCF_EM_SIMPLE case for complex ematch module
+Date:   Wed, 28 Dec 2022 15:41:06 +0100
+Message-Id: <20221228144355.456015348@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Cong Wang <cong.wang@bytedance.com>
 
-[ Upstream commit 32c5209214bd8d4f8c4e9d9b630ef4c671f58e79 ]
+[ Upstream commit 9cd3fd2054c3b3055163accbf2f31a4426f10317 ]
 
-The interrupt frame detection and loads from the hypothetical pt_regs
-are not bounds-checked. The next-frame validation only bounds-checks
-STACK_FRAME_OVERHEAD, which does not include the pt_regs. Add another
-test for this.
+When TCF_EM_SIMPLE was introduced, it is supposed to be convenient
+for ematch implementation:
 
-The user could set r1 to be equal to the address matching the first
-interrupt frame - STACK_INT_FRAME_SIZE, which is in the previous page
-due to the kernel redzone, and induce the kernel to load the marker from
-there. Possibly this could cause a crash at least. If the user could
-induce the previous page to contain a valid marker, then it might be
-able to direct perf to read specific memory addresses in a way that
-could be transmitted back to the user in the perf data.
+https://lore.kernel.org/all/20050105110048.GO26856@postel.suug.ch/
 
-Fixes: 20002ded4d93 ("perf_counter: powerpc: Add callchain support")
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20221127124942.1665522-4-npiggin@gmail.com
+"You don't have to, providing a 32bit data chunk without TCF_EM_SIMPLE
+set will simply result in allocating & copy. It's an optimization,
+nothing more."
+
+So if an ematch module provides ops->datalen that means it wants a
+complex data structure (saved in its em->data) instead of a simple u32
+value. We should simply reject such a combination, otherwise this u32
+could be misinterpreted as a pointer.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-and-tested-by: syzbot+4caeae4c7103813598ae@syzkaller.appspotmail.com
+Reported-by: Jun Nie <jun.nie@linaro.org>
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Cong Wang <cong.wang@bytedance.com>
+Acked-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/callchain.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/sched/ematch.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/powerpc/perf/callchain.c b/arch/powerpc/perf/callchain.c
-index 082f6d0308a4..8718289c051d 100644
---- a/arch/powerpc/perf/callchain.c
-+++ b/arch/powerpc/perf/callchain.c
-@@ -61,6 +61,7 @@ perf_callchain_kernel(struct perf_callchain_entry_ctx *entry, struct pt_regs *re
- 		next_sp = fp[0];
- 
- 		if (next_sp == sp + STACK_INT_FRAME_SIZE &&
-+		    validate_sp(sp, current, STACK_INT_FRAME_SIZE) &&
- 		    fp[STACK_FRAME_MARKER] == STACK_FRAME_REGS_MARKER) {
- 			/*
- 			 * This looks like an interrupt frame for an
+diff --git a/net/sched/ematch.c b/net/sched/ematch.c
+index 4ce681361851..5c1235e6076a 100644
+--- a/net/sched/ematch.c
++++ b/net/sched/ematch.c
+@@ -255,6 +255,8 @@ static int tcf_em_validate(struct tcf_proto *tp,
+ 			 * the value carried.
+ 			 */
+ 			if (em_hdr->flags & TCF_EM_SIMPLE) {
++				if (em->ops->datalen > 0)
++					goto errout;
+ 				if (data_len < sizeof(u32))
+ 					goto errout;
+ 				em->data = *(u32 *) data;
 -- 
 2.35.1
 
