@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1FAB65747C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 10:12:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3FD365747D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 10:12:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229864AbiL1JMy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 04:12:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60756 "EHLO
+        id S232633AbiL1JM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 04:12:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230145AbiL1JMt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 04:12:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15212C7E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 01:12:48 -0800 (PST)
+        with ESMTP id S230024AbiL1JM5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 04:12:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBC1AB1D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 01:12:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F7EB612E1
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 09:12:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84065C433D2;
-        Wed, 28 Dec 2022 09:12:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 764C5B8125C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 09:12:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE864C433EF;
+        Wed, 28 Dec 2022 09:12:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672218767;
-        bh=57RcLTXp1z2mjIPtAkfsewJkcDGOm/H2JyqTBTkw4lU=;
+        s=korg; t=1672218770;
+        bh=nrSVSUilDsaL8Wjp/O39tpklN6jq+QK+2TS4O6C1bGA=;
         h=Subject:To:Cc:From:Date:From;
-        b=zT58h5QnahmWipLDRmTGvuIUzVYekBomYp+8tPl3G7tcGQYxH1aAUbadK48JSJfFv
-         /IuLKjBl24vv0jDJXz9dIazWqpYPVgLBU4Q24ROgGtXHX6kjSTetW2mjP893teniWi
-         Y/BNJCAvpafCgeAqbHoSZpAsKoTZM6B/VlsEB0qY=
-Subject: FAILED: patch "[PATCH] loop: Fix the max_loop commandline argument treatment when it" failed to apply to 5.4-stable tree
+        b=r8FGxik0taa21n/mQ46TmShgheHb8hKNv2wnk/sYj+hi9wX8s/o6K9DCauJONCsMI
+         wOTDpKVvwK6OwGdN19y5mBW7pal64l5Cp/2Cxugm+U1mncZppdVTG1C7RMyy5U3jeN
+         /bZneG+Ij2vm1VmPuziCfJdMI0SvO9FgvYvDDN0M=
+Subject: FAILED: patch "[PATCH] loop: Fix the max_loop commandline argument treatment when it" failed to apply to 4.19-stable tree
 To:     isaacmanjarres@google.com, axboe@kernel.dk, kenchen@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 28 Dec 2022 10:12:35 +0100
-Message-ID: <1672218755176113@kroah.com>
+Date:   Wed, 28 Dec 2022 10:12:37 +0100
+Message-ID: <16722187579876@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,6 +70,10 @@ b0bd158dd630 ("loop: Refactor loop_set_status() size calculation")
 5795b6f5607f ("loop: Factor out setting loop device size")
 083a6a50783e ("loop: Remove sector_t truncation checks")
 7c5014b0987a ("loop: Call loop_config_discard() only after new config is applied")
+33ec3e53e7b1 ("loop: Don't change loop device under exclusive opener")
+56a85fd8376e ("loop: properly observe rotational flag of underlying device")
+758a58d0bc67 ("loop: set GENHD_FL_NO_PART_SCAN after blkdev_reread_part()")
+5db470e229e2 ("loop: drop caches if offset or block_size are changed")
 
 thanks,
 
