@@ -2,45 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 613C6657A05
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:07:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD144657B29
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:18:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233581AbiL1PHK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:07:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54856 "EHLO
+        id S233243AbiL1PSg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:18:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233574AbiL1PHJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:07:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0D5713D73
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:07:08 -0800 (PST)
+        with ESMTP id S233214AbiL1PSf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:18:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7F6413F18
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:18:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5244DB816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:07:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AED73C433D2;
-        Wed, 28 Dec 2022 15:07:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 79409B816D9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:18:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A966AC433EF;
+        Wed, 28 Dec 2022 15:18:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240026;
-        bh=o1YzpXgQYj519sWD9kChGCNvfZ8/8vRFsOJSvwkpebg=;
+        s=korg; t=1672240711;
+        bh=czY5fFUobZe4djTQze+1Ku0RbqxKIEMWMj4BSLxAV2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K6BQW47lF5y7Tyb5fcAQxxOqnE9ElQ/8OK8QbZD0i2yNvDGdHfuHn6y+SM28KqyBD
-         JB9NzHRmLsrRQva/sOg87SRaRuvovJe2dBBlHIbF94ky2M0iCHW/rflgCHAKXQvEVi
-         AKJeI1wtUj8IfJE5j3oMj0xIhHq/Z0z4SUHAkwKw=
+        b=K3tosQtQRc05s4uGUYmNVgnpkgjXCztMDtaM+uQAIvCBorbQtRYBleEWYPUIA24Fm
+         gcZCZFTB1MoRhLZIG4/xvTBLliuWMYWkrlwIiHOAJDzkNOhxH8JTo36GTwtD1MqvbX
+         6ZAqFy5/A4BZT1yxMQLCxnB1sZsZcBsUA3G6qoV8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Hui <judy.chenhui@huawei.com>,
-        Sibi Sankar <quic_sibis@quicinc.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        patches@lists.linux.dev, Akinobu Mita <akinobu.mita@gmail.com>,
+        Zhao Gongyi <zhaogongyi@huawei.com>,
+        David Hildenbrand <david@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Oscar Salvador <osalvador@suse.de>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Yicong Yang <yangyicong@hisilicon.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0109/1073] cpufreq: qcom-hw: Fix memory leak in qcom_cpufreq_hw_read_lut()
+Subject: [PATCH 6.1 0158/1146] debugfs: fix error when writing negative value to atomic_t debugfs file
 Date:   Wed, 28 Dec 2022 15:28:17 +0100
-Message-Id: <20221228144331.003044471@linuxfoundation.org>
+Message-Id: <20221228144334.450137015@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +62,195 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Hui <judy.chenhui@huawei.com>
+From: Akinobu Mita <akinobu.mita@gmail.com>
 
-[ Upstream commit 9901c21bcaf2f01fe5078f750d624f4ddfa8f81b ]
+[ Upstream commit d472cf797c4e268613dbce5ec9b95d0bcae19ecb ]
 
-If "cpu_dev" fails to get opp table in qcom_cpufreq_hw_read_lut(),
-the program will return, resulting in "table" resource is not released.
+The simple attribute files do not accept a negative value since the commit
+488dac0c9237 ("libfs: fix error cast of negative value in
+simple_attr_write()"), so we have to use a 64-bit value to write a
+negative value for a debugfs file created by debugfs_create_atomic_t().
 
-Fixes: 51c843cf77bb ("cpufreq: qcom: Update the bandwidth levels on frequency change")
-Signed-off-by: Chen Hui <judy.chenhui@huawei.com>
-Reviewed-by: Sibi Sankar <quic_sibis@quicinc.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+This restores the previous behaviour by introducing
+DEFINE_DEBUGFS_ATTRIBUTE_SIGNED for a signed value.
+
+Link: https://lkml.kernel.org/r/20220919172418.45257-4-akinobu.mita@gmail.com
+Fixes: 488dac0c9237 ("libfs: fix error cast of negative value in simple_attr_write()")
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Reported-by: Zhao Gongyi <zhaogongyi@huawei.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Rafael J. Wysocki <rafael@kernel.org>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Wei Yongjun <weiyongjun1@huawei.com>
+Cc: Yicong Yang <yangyicong@hisilicon.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/qcom-cpufreq-hw.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../fault-injection/fault-injection.rst       | 10 +++----
+ fs/debugfs/file.c                             | 28 +++++++++++++++----
+ include/linux/debugfs.h                       | 19 +++++++++++--
+ 3 files changed, 43 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/cpufreq/qcom-cpufreq-hw.c b/drivers/cpufreq/qcom-cpufreq-hw.c
-index bb32659820ce..9221a416230a 100644
---- a/drivers/cpufreq/qcom-cpufreq-hw.c
-+++ b/drivers/cpufreq/qcom-cpufreq-hw.c
-@@ -190,6 +190,7 @@ static int qcom_cpufreq_hw_read_lut(struct device *cpu_dev,
- 		}
- 	} else if (ret != -ENODEV) {
- 		dev_err(cpu_dev, "Invalid opp table in device tree\n");
-+		kfree(table);
+diff --git a/Documentation/fault-injection/fault-injection.rst b/Documentation/fault-injection/fault-injection.rst
+index 17779a2772e5..5f6454b9dbd4 100644
+--- a/Documentation/fault-injection/fault-injection.rst
++++ b/Documentation/fault-injection/fault-injection.rst
+@@ -83,9 +83,7 @@ configuration of fault-injection capabilities.
+ - /sys/kernel/debug/fail*/times:
+ 
+ 	specifies how many times failures may happen at most. A value of -1
+-	means "no limit". Note, though, that this file only accepts unsigned
+-	values. So, if you want to specify -1, you better use 'printf' instead
+-	of 'echo', e.g.: $ printf %#x -1 > times
++	means "no limit".
+ 
+ - /sys/kernel/debug/fail*/space:
+ 
+@@ -284,7 +282,7 @@ Application Examples
+     echo Y > /sys/kernel/debug/$FAILTYPE/task-filter
+     echo 10 > /sys/kernel/debug/$FAILTYPE/probability
+     echo 100 > /sys/kernel/debug/$FAILTYPE/interval
+-    printf %#x -1 > /sys/kernel/debug/$FAILTYPE/times
++    echo -1 > /sys/kernel/debug/$FAILTYPE/times
+     echo 0 > /sys/kernel/debug/$FAILTYPE/space
+     echo 2 > /sys/kernel/debug/$FAILTYPE/verbose
+     echo Y > /sys/kernel/debug/$FAILTYPE/ignore-gfp-wait
+@@ -338,7 +336,7 @@ Application Examples
+     echo N > /sys/kernel/debug/$FAILTYPE/task-filter
+     echo 10 > /sys/kernel/debug/$FAILTYPE/probability
+     echo 100 > /sys/kernel/debug/$FAILTYPE/interval
+-    printf %#x -1 > /sys/kernel/debug/$FAILTYPE/times
++    echo -1 > /sys/kernel/debug/$FAILTYPE/times
+     echo 0 > /sys/kernel/debug/$FAILTYPE/space
+     echo 2 > /sys/kernel/debug/$FAILTYPE/verbose
+     echo Y > /sys/kernel/debug/$FAILTYPE/ignore-gfp-wait
+@@ -369,7 +367,7 @@ Application Examples
+     echo N > /sys/kernel/debug/$FAILTYPE/task-filter
+     echo 100 > /sys/kernel/debug/$FAILTYPE/probability
+     echo 0 > /sys/kernel/debug/$FAILTYPE/interval
+-    printf %#x -1 > /sys/kernel/debug/$FAILTYPE/times
++    echo -1 > /sys/kernel/debug/$FAILTYPE/times
+     echo 0 > /sys/kernel/debug/$FAILTYPE/space
+     echo 1 > /sys/kernel/debug/$FAILTYPE/verbose
+ 
+diff --git a/fs/debugfs/file.c b/fs/debugfs/file.c
+index ddb3fc258df9..b54f470e0d03 100644
+--- a/fs/debugfs/file.c
++++ b/fs/debugfs/file.c
+@@ -378,8 +378,8 @@ ssize_t debugfs_attr_read(struct file *file, char __user *buf,
+ }
+ EXPORT_SYMBOL_GPL(debugfs_attr_read);
+ 
+-ssize_t debugfs_attr_write(struct file *file, const char __user *buf,
+-			 size_t len, loff_t *ppos)
++static ssize_t debugfs_attr_write_xsigned(struct file *file, const char __user *buf,
++			 size_t len, loff_t *ppos, bool is_signed)
+ {
+ 	struct dentry *dentry = F_DENTRY(file);
+ 	ssize_t ret;
+@@ -387,12 +387,28 @@ ssize_t debugfs_attr_write(struct file *file, const char __user *buf,
+ 	ret = debugfs_file_get(dentry);
+ 	if (unlikely(ret))
  		return ret;
- 	} else {
- 		policy->fast_switch_possible = true;
+-	ret = simple_attr_write(file, buf, len, ppos);
++	if (is_signed)
++		ret = simple_attr_write_signed(file, buf, len, ppos);
++	else
++		ret = simple_attr_write(file, buf, len, ppos);
+ 	debugfs_file_put(dentry);
+ 	return ret;
+ }
++
++ssize_t debugfs_attr_write(struct file *file, const char __user *buf,
++			 size_t len, loff_t *ppos)
++{
++	return debugfs_attr_write_xsigned(file, buf, len, ppos, false);
++}
+ EXPORT_SYMBOL_GPL(debugfs_attr_write);
+ 
++ssize_t debugfs_attr_write_signed(struct file *file, const char __user *buf,
++			 size_t len, loff_t *ppos)
++{
++	return debugfs_attr_write_xsigned(file, buf, len, ppos, true);
++}
++EXPORT_SYMBOL_GPL(debugfs_attr_write_signed);
++
+ static struct dentry *debugfs_create_mode_unsafe(const char *name, umode_t mode,
+ 					struct dentry *parent, void *value,
+ 					const struct file_operations *fops,
+@@ -738,11 +754,11 @@ static int debugfs_atomic_t_get(void *data, u64 *val)
+ 	*val = atomic_read((atomic_t *)data);
+ 	return 0;
+ }
+-DEFINE_DEBUGFS_ATTRIBUTE(fops_atomic_t, debugfs_atomic_t_get,
++DEFINE_DEBUGFS_ATTRIBUTE_SIGNED(fops_atomic_t, debugfs_atomic_t_get,
+ 			debugfs_atomic_t_set, "%lld\n");
+-DEFINE_DEBUGFS_ATTRIBUTE(fops_atomic_t_ro, debugfs_atomic_t_get, NULL,
++DEFINE_DEBUGFS_ATTRIBUTE_SIGNED(fops_atomic_t_ro, debugfs_atomic_t_get, NULL,
+ 			"%lld\n");
+-DEFINE_DEBUGFS_ATTRIBUTE(fops_atomic_t_wo, NULL, debugfs_atomic_t_set,
++DEFINE_DEBUGFS_ATTRIBUTE_SIGNED(fops_atomic_t_wo, NULL, debugfs_atomic_t_set,
+ 			"%lld\n");
+ 
+ /**
+diff --git a/include/linux/debugfs.h b/include/linux/debugfs.h
+index f60674692d36..ea2d919fd9c7 100644
+--- a/include/linux/debugfs.h
++++ b/include/linux/debugfs.h
+@@ -45,7 +45,7 @@ struct debugfs_u32_array {
+ 
+ extern struct dentry *arch_debugfs_dir;
+ 
+-#define DEFINE_DEBUGFS_ATTRIBUTE(__fops, __get, __set, __fmt)		\
++#define DEFINE_DEBUGFS_ATTRIBUTE_XSIGNED(__fops, __get, __set, __fmt, __is_signed)	\
+ static int __fops ## _open(struct inode *inode, struct file *file)	\
+ {									\
+ 	__simple_attr_check_format(__fmt, 0ull);			\
+@@ -56,10 +56,16 @@ static const struct file_operations __fops = {				\
+ 	.open	 = __fops ## _open,					\
+ 	.release = simple_attr_release,					\
+ 	.read	 = debugfs_attr_read,					\
+-	.write	 = debugfs_attr_write,					\
++	.write	 = (__is_signed) ? debugfs_attr_write_signed : debugfs_attr_write,	\
+ 	.llseek  = no_llseek,						\
+ }
+ 
++#define DEFINE_DEBUGFS_ATTRIBUTE(__fops, __get, __set, __fmt)		\
++	DEFINE_DEBUGFS_ATTRIBUTE_XSIGNED(__fops, __get, __set, __fmt, false)
++
++#define DEFINE_DEBUGFS_ATTRIBUTE_SIGNED(__fops, __get, __set, __fmt)	\
++	DEFINE_DEBUGFS_ATTRIBUTE_XSIGNED(__fops, __get, __set, __fmt, true)
++
+ typedef struct vfsmount *(*debugfs_automount_t)(struct dentry *, void *);
+ 
+ #if defined(CONFIG_DEBUG_FS)
+@@ -102,6 +108,8 @@ ssize_t debugfs_attr_read(struct file *file, char __user *buf,
+ 			size_t len, loff_t *ppos);
+ ssize_t debugfs_attr_write(struct file *file, const char __user *buf,
+ 			size_t len, loff_t *ppos);
++ssize_t debugfs_attr_write_signed(struct file *file, const char __user *buf,
++			size_t len, loff_t *ppos);
+ 
+ struct dentry *debugfs_rename(struct dentry *old_dir, struct dentry *old_dentry,
+                 struct dentry *new_dir, const char *new_name);
+@@ -254,6 +262,13 @@ static inline ssize_t debugfs_attr_write(struct file *file,
+ 	return -ENODEV;
+ }
+ 
++static inline ssize_t debugfs_attr_write_signed(struct file *file,
++					const char __user *buf,
++					size_t len, loff_t *ppos)
++{
++	return -ENODEV;
++}
++
+ static inline struct dentry *debugfs_rename(struct dentry *old_dir, struct dentry *old_dentry,
+                 struct dentry *new_dir, char *new_name)
+ {
 -- 
 2.35.1
 
