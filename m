@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B88F657DB6
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:46:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 824B7658401
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:54:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234016AbiL1PqL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:46:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34536 "EHLO
+        id S235227AbiL1QyA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:54:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234026AbiL1PqJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:46:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A555313F78
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:46:08 -0800 (PST)
+        with ESMTP id S235242AbiL1QxH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:53:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B2E1183B3
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:48:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C7CA8B81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:46:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22A80C433D2;
-        Wed, 28 Dec 2022 15:46:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B40D1B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:48:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22C27C433D2;
+        Wed, 28 Dec 2022 16:48:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242365;
-        bh=g5DWXgmezYnT/RO8YzVpE4jnKtnrAXeoJ9Yq5ZKvGXo=;
+        s=korg; t=1672246101;
+        bh=Nr7Czi64UOU5LI7QtmOhNRgux5NWwntjgCqwpLPPEEA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ssrdxW/JVadSy0DLC86NwVphoOUBv63mf1q5VQLSigsJBxlE+4kcHhFn/4QS3jurw
-         3SAU03B7+2M30AOF6mZ+k5BudDFVvqN95Gce9/XLB27d86tsizN78iOzWjfko6lond
-         G1DTUxMLBaiqA/DMk0zQvRdCR5Z3RpKrfZVuQMMY=
+        b=C4h0cwdZTW6qRgaiPZm2FD8PXWWxdHoVQpxJO41ZjGYKPh6wKkBg7YXNwcr2npZdD
+         3SE0xsh/KfvNUxDUpUDT6rHN5PuTrtr/XWYV0HK7yjSiFO55ZdJCY21Gkzx1ItXGYl
+         NM5FQk1rBh71ljNcw39GaZJAcowkdS/27QqF5Nlg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Aravindhan Gunasekaran <aravindhan.gunasekaran@intel.com>,
-        Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>,
-        Naama Meir <naamax.meir@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 595/731] igc: Use strict cycles for Qbv scheduling
+Subject: [PATCH 6.1 0963/1146] ACPI: x86: Add skip i2c clients quirk for Medion Lifetab S10346
 Date:   Wed, 28 Dec 2022 15:41:42 +0100
-Message-Id: <20221228144313.789872614@linuxfoundation.org>
+Message-Id: <20221228144356.478801122@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,50 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit d8f45be01dd9381065a3778a579385249ed011dc ]
+[ Upstream commit ecc6aaabcedc276128315f57755364106017c606 ]
 
-Configuring strict cycle mode in the controller forces more well
-behaved transmissions when taprio is offloaded.
+The Medion Lifetab S10346 is a x86 tablet which ships with Android x86 as
+factory OS. The Android x86 kernel fork ignores I2C devices described in
+the DSDT, except for the PMIC and Audio codecs.
 
-When set this strict_cycle and strict_end, transmission is not
-enabled if the whole packet cannot be completed before end of
-the Qbv cycle.
+As usual the Medion Lifetab S10346's DSDT contains a bunch of extra I2C
+devices which are not actually there, causing various resource conflicts.
+Add an ACPI_QUIRK_SKIP_I2C_CLIENTS quirk for the Medion Lifetab S10346 to
+the acpi_quirk_skip_dmi_ids table to woraround this.
 
-Fixes: 82faa9b79950 ("igc: Add support for ETF offloading")
-Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Signed-off-by: Aravindhan Gunasekaran <aravindhan.gunasekaran@intel.com>
-Signed-off-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
-Tested-by: Naama Meir <naamax.meir@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igc/igc_tsn.c | 11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ drivers/acpi/x86/utils.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/igc/igc_tsn.c b/drivers/net/ethernet/intel/igc/igc_tsn.c
-index 0fce22de2ab8..4a019954cadb 100644
---- a/drivers/net/ethernet/intel/igc/igc_tsn.c
-+++ b/drivers/net/ethernet/intel/igc/igc_tsn.c
-@@ -110,15 +110,8 @@ static int igc_tsn_enable_offload(struct igc_adapter *adapter)
- 		wr32(IGC_STQT(i), ring->start_time);
- 		wr32(IGC_ENDQT(i), ring->end_time);
- 
--		if (adapter->base_time) {
--			/* If we have a base_time we are in "taprio"
--			 * mode and we need to be strict about the
--			 * cycles: only transmit a packet if it can be
--			 * completed during that cycle.
--			 */
--			txqctl |= IGC_TXQCTL_STRICT_CYCLE |
--				IGC_TXQCTL_STRICT_END;
--		}
-+		txqctl |= IGC_TXQCTL_STRICT_CYCLE |
-+			IGC_TXQCTL_STRICT_END;
- 
- 		if (ring->launchtime_enable)
- 			txqctl |= IGC_TXQCTL_QUEUE_MODE_LAUNCHT;
+diff --git a/drivers/acpi/x86/utils.c b/drivers/acpi/x86/utils.c
+index 635de40b5822..4e816bb402f6 100644
+--- a/drivers/acpi/x86/utils.c
++++ b/drivers/acpi/x86/utils.c
+@@ -329,6 +329,17 @@ static const struct dmi_system_id acpi_quirk_skip_dmi_ids[] = {
+ 		.driver_data = (void *)(ACPI_QUIRK_SKIP_I2C_CLIENTS |
+ 					ACPI_QUIRK_SKIP_ACPI_AC_AND_BATTERY),
+ 	},
++	{
++		/* Medion Lifetab S10346 */
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "AMI Corporation"),
++			DMI_MATCH(DMI_BOARD_NAME, "Aptio CRB"),
++			/* Way too generic, also match on BIOS data */
++			DMI_MATCH(DMI_BIOS_DATE, "10/22/2015"),
++		},
++		.driver_data = (void *)(ACPI_QUIRK_SKIP_I2C_CLIENTS |
++					ACPI_QUIRK_SKIP_ACPI_AC_AND_BATTERY),
++	},
+ 	{
+ 		/* Nextbook Ares 8 */
+ 		.matches = {
 -- 
 2.35.1
 
