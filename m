@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8445C657AE5
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:16:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C4766580CB
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:20:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232969AbiL1PQG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:16:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35408 "EHLO
+        id S234596AbiL1QU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:20:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233127AbiL1PQD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:16:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C6E22655
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:16:02 -0800 (PST)
+        with ESMTP id S234623AbiL1QUc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:20:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9C7D1AF16
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:18:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9890461365
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:16:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADE71C433EF;
-        Wed, 28 Dec 2022 15:16:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8AE3BB81886
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:18:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA34BC433EF;
+        Wed, 28 Dec 2022 16:18:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240561;
-        bh=Hi6BFIMRcUjPEp2sL+IcqtBoaRRu7/3k8oGvrd7hHKE=;
+        s=korg; t=1672244294;
+        bh=gMCIb3VUK28kJJbTXoC/j03I1n/nSjr3xW/J/A+J5bM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZaZTCZ/Ab/YSITpNp5vz5GqUSul/NJUpQ67DkzI6oFzg4hkUR3jk1eNPLIDhEzOuG
-         OA9LATOruzbqNtWd4O4v2PVPpXiMOkE8nivtX1HdXRk3+vGZZbVwUEIqhXHWsCXK1o
-         jQw2TpLvdHG1oOnyNf/vECm81LQntliXe36yxN8Y=
+        b=VWWGXOvKhFZWIiLZicuhrf2c+PnMOqqFHGUNHIXFAj39rezhdtHYOOFeRTwWg5s7K
+         PpAWfCiecbryiay7jVkCtyGlsesQfn8WHopDaDwl3tiZsmA3CRdYtfAPnVBH9Eonze
+         7g+LTNDthTPQ0DMAZPwjjjhKILQafrC2eEIH362I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Leon Romanovsky <leonro@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Valentin Caron <valentin.caron@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 367/731] RDMA/core: Fix order of nldev_exit call
+Subject: [PATCH 6.0 0686/1073] serial: stm32: move dma_request_chan() before clk_prepare_enable()
 Date:   Wed, 28 Dec 2022 15:37:54 +0100
-Message-Id: <20221228144307.199336345@linuxfoundation.org>
+Message-Id: <20221228144346.669480913@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +55,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Valentin Caron <valentin.caron@foss.st.com>
 
-[ Upstream commit 4508d32ccced24c972bc4592104513e1ff8439b5 ]
+[ Upstream commit 0d114e9ff940ebad8e88267013bf96c605a6b336 ]
 
-Create symmetrical exit flow by calling to nldev_exit() after
-call to rdma_nl_unregister(RDMA_NL_LS).
+If dma_request_chan() returns a PROBE_DEFER error, clk_disable_unprepare()
+will be called and USART clock will be disabled. But early console can be
+still active on the same USART.
 
-Fixes: 6c80b41abe22 ("RDMA/netlink: Add nldev initialization flows")
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Link: https://lore.kernel.org/r/64e676774a53a406f4cde265d5a4cfd6b8e97df9.1666683334.git.leonro@nvidia.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+While moving dma_request_chan() before clk_prepare_enable(), the clock
+won't be taken in case of a DMA PROBE_DEFER error, and so it doesn't need
+to be disabled. Then USART is still clocked for early console.
+
+Fixes: a7770a4bfcf4 ("serial: stm32: defer probe for dma devices")
+Reported-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Valentin Caron <valentin.caron@foss.st.com>
+Link: https://lore.kernel.org/r/20221118170602.1057863-1-valentin.caron@foss.st.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/device.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/stm32-usart.c | 47 ++++++++++++++++----------------
+ 1 file changed, 23 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/infiniband/core/device.c b/drivers/infiniband/core/device.c
-index 1519379b116e..ab2106a09f9c 100644
---- a/drivers/infiniband/core/device.c
-+++ b/drivers/infiniband/core/device.c
-@@ -2848,8 +2848,8 @@ static int __init ib_core_init(void)
- static void __exit ib_core_cleanup(void)
- {
- 	roce_gid_mgmt_cleanup();
--	nldev_exit();
- 	rdma_nl_unregister(RDMA_NL_LS);
-+	nldev_exit();
- 	unregister_pernet_device(&rdma_dev_net_ops);
- 	unregister_blocking_lsm_notifier(&ibdev_lsm_nb);
- 	ib_sa_cleanup();
+diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
+index 9a875558f5ef..1f8aad186908 100644
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -1681,22 +1681,10 @@ static int stm32_usart_serial_probe(struct platform_device *pdev)
+ 	if (!stm32port->info)
+ 		return -EINVAL;
+ 
+-	ret = stm32_usart_init_port(stm32port, pdev);
+-	if (ret)
+-		return ret;
+-
+-	if (stm32port->wakeup_src) {
+-		device_set_wakeup_capable(&pdev->dev, true);
+-		ret = dev_pm_set_wake_irq(&pdev->dev, stm32port->port.irq);
+-		if (ret)
+-			goto err_deinit_port;
+-	}
+-
+ 	stm32port->rx_ch = dma_request_chan(&pdev->dev, "rx");
+-	if (PTR_ERR(stm32port->rx_ch) == -EPROBE_DEFER) {
+-		ret = -EPROBE_DEFER;
+-		goto err_wakeirq;
+-	}
++	if (PTR_ERR(stm32port->rx_ch) == -EPROBE_DEFER)
++		return -EPROBE_DEFER;
++
+ 	/* Fall back in interrupt mode for any non-deferral error */
+ 	if (IS_ERR(stm32port->rx_ch))
+ 		stm32port->rx_ch = NULL;
+@@ -1710,6 +1698,17 @@ static int stm32_usart_serial_probe(struct platform_device *pdev)
+ 	if (IS_ERR(stm32port->tx_ch))
+ 		stm32port->tx_ch = NULL;
+ 
++	ret = stm32_usart_init_port(stm32port, pdev);
++	if (ret)
++		goto err_dma_tx;
++
++	if (stm32port->wakeup_src) {
++		device_set_wakeup_capable(&pdev->dev, true);
++		ret = dev_pm_set_wake_irq(&pdev->dev, stm32port->port.irq);
++		if (ret)
++			goto err_deinit_port;
++	}
++
+ 	if (stm32port->rx_ch && stm32_usart_of_dma_rx_probe(stm32port, pdev)) {
+ 		/* Fall back in interrupt mode */
+ 		dma_release_channel(stm32port->rx_ch);
+@@ -1746,19 +1745,11 @@ static int stm32_usart_serial_probe(struct platform_device *pdev)
+ 	pm_runtime_set_suspended(&pdev->dev);
+ 	pm_runtime_put_noidle(&pdev->dev);
+ 
+-	if (stm32port->tx_ch) {
++	if (stm32port->tx_ch)
+ 		stm32_usart_of_dma_tx_remove(stm32port, pdev);
+-		dma_release_channel(stm32port->tx_ch);
+-	}
+-
+ 	if (stm32port->rx_ch)
+ 		stm32_usart_of_dma_rx_remove(stm32port, pdev);
+ 
+-err_dma_rx:
+-	if (stm32port->rx_ch)
+-		dma_release_channel(stm32port->rx_ch);
+-
+-err_wakeirq:
+ 	if (stm32port->wakeup_src)
+ 		dev_pm_clear_wake_irq(&pdev->dev);
+ 
+@@ -1768,6 +1759,14 @@ static int stm32_usart_serial_probe(struct platform_device *pdev)
+ 
+ 	stm32_usart_deinit_port(stm32port);
+ 
++err_dma_tx:
++	if (stm32port->tx_ch)
++		dma_release_channel(stm32port->tx_ch);
++
++err_dma_rx:
++	if (stm32port->rx_ch)
++		dma_release_channel(stm32port->rx_ch);
++
+ 	return ret;
+ }
+ 
 -- 
 2.35.1
 
