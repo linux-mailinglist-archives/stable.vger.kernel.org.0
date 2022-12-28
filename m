@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9AE4658150
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:27:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C33C365809E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:18:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233139AbiL1Q1U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:27:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43286 "EHLO
+        id S234559AbiL1QSr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:18:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234707AbiL1Q0b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:26:31 -0500
+        with ESMTP id S234568AbiL1QSY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:18:24 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D6731CB04
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:23:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8ADC18B13
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:17:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0898EB81886
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:23:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74D36C433D2;
-        Wed, 28 Dec 2022 16:22:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7EF71B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:17:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4942C433D2;
+        Wed, 28 Dec 2022 16:17:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244579;
-        bh=HJTwop3gV7pytFYEfgRP0peWG4utb8Thn+6kYfYydBo=;
+        s=korg; t=1672244221;
+        bh=5UizsMV9wiYyZ4JDG+DlLKc7fGxS6bLAGUQI6Vk/jmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CMSjlXrzEQHmlSb9BOft3bN2MjrDorUoPfV9XMkNxu9hD4ecdxXV6kGFiIfJTxwCC
-         CFUPbmZDFDE9sp5a2AxJPncbc4QgW7RKj3fniyTnnusD9LfKSLf+7fTq2ZV5qcALod
-         cQboQAVspL89WQiEEcO5dldOfafpBT/1N/9Om+qc=
+        b=gW7JFRvZoits1tJe/OjuUHQGHwNfS+bg9KAvXSh5NHhR/Ccpj7GXUMg6IQ7o8Hq6B
+         dzy7krYRLDDOav85+V6piF6juDmrU6VPDmBzP6DZyMZuMMEVQjswACZm3+uM5JBnVp
+         4l/HdgNnn+1CBYtGMMUbjE1ROjWP/7EnAzdtkqLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Georgi Djakov <djakov@kernel.org>,
+        Chengchang Tang <tangchengchang@huawei.com>,
+        Haoyue Xu <xuhaoyue1@hisilicon.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0697/1146] interconnect: qcom: sc7180: fix dropped const of qcom_icc_bcm
+Subject: [PATCH 6.0 0648/1073] RDMA/hns: Fix AH attr queried by query_qp
 Date:   Wed, 28 Dec 2022 15:37:16 +0100
-Message-Id: <20221228144349.077227798@linuxfoundation.org>
+Message-Id: <20221228144345.644543042@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Chengchang Tang <tangchengchang@huawei.com>
 
-[ Upstream commit f24227a640344f894522045f74bb2decbdc4f55e ]
+[ Upstream commit bc34c04f7b97c3794dec5a6d6d27ffd5f0e4f5c8 ]
 
-Pointers to struct qcom_icc_bcm are const, but the change was dropped
-during merge.
+The queried AH attr is invalid. This patch fix it.
 
-Fixes: 016fca59f95f ("Merge branch 'icc-const' into icc-next")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20221027154848.293523-1-krzysztof.kozlowski@linaro.org
-Signed-off-by: Georgi Djakov <djakov@kernel.org>
+This problem is found by rdma-core test test_mr_rereg_pd
+
+ERROR: test_mr_rereg_pd (tests.test_mr.MRTest)
+Test that cover rereg MR's PD with this flow:
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "./tests/test_mr.py", line 157, in test_mr_rereg_pd
+    self.restate_qps()
+  File "./tests/test_mr.py", line 113, in restate_qps
+    self.server.qp.to_rts(self.server_qp_attr)
+  File "qp.pyx", line 1137, in pyverbs.qp.QP.to_rts
+  File "qp.pyx", line 1123, in pyverbs.qp.QP.to_rtr
+pyverbs.pyverbs_error.PyverbsRDMAError: Failed to modify QP state to RTR.
+Errno: 22, Invalid argument
+
+Fixes: 926a01dc000d ("RDMA/hns: Add QP operations support for hip08 SoC")
+Link: https://lore.kernel.org/r/20221126102911.2921820-3-xuhaoyue1@hisilicon.com
+Signed-off-by: Chengchang Tang <tangchengchang@huawei.com>
+Signed-off-by: Haoyue Xu <xuhaoyue1@hisilicon.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/interconnect/qcom/sc7180.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/interconnect/qcom/sc7180.c b/drivers/interconnect/qcom/sc7180.c
-index 35cd448efdfb..82d5e8a8c19e 100644
---- a/drivers/interconnect/qcom/sc7180.c
-+++ b/drivers/interconnect/qcom/sc7180.c
-@@ -369,7 +369,7 @@ static const struct qcom_icc_desc sc7180_gem_noc = {
- 	.num_bcms = ARRAY_SIZE(gem_noc_bcms),
- };
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index d242fa192f0d..ba60496c8f01 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -5470,6 +5470,8 @@ static int hns_roce_v2_query_qp(struct ib_qp *ibqp, struct ib_qp_attr *qp_attr,
  
--static struct qcom_icc_bcm *mc_virt_bcms[] = {
-+static struct qcom_icc_bcm * const mc_virt_bcms[] = {
- 	&bcm_acv,
- 	&bcm_mc0,
- };
+ 		rdma_ah_set_sl(&qp_attr->ah_attr,
+ 			       hr_reg_read(&context, QPC_SL));
++		rdma_ah_set_port_num(&qp_attr->ah_attr, hr_qp->port + 1);
++		rdma_ah_set_ah_flags(&qp_attr->ah_attr, IB_AH_GRH);
+ 		grh->flow_label = hr_reg_read(&context, QPC_FL);
+ 		grh->sgid_index = hr_reg_read(&context, QPC_GMV_IDX);
+ 		grh->hop_limit = hr_reg_read(&context, QPC_HOPLIMIT);
 -- 
 2.35.1
 
