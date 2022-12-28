@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F334657D80
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:44:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D07B657D86
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:44:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233973AbiL1PoF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:44:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60454 "EHLO
+        id S233575AbiL1PoK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:44:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233992AbiL1PoC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:44:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E39C317433
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:43:53 -0800 (PST)
+        with ESMTP id S233979AbiL1PoE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:44:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7678F1740C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:44:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 832D86155C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:43:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90D13C433D2;
-        Wed, 28 Dec 2022 15:43:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8262B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:44:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D01CC433F0;
+        Wed, 28 Dec 2022 15:44:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242232;
-        bh=xBH2Ta0JdDm2ZQTTHy4fWztn5V5aVxdqhRoeLP1CPI4=;
+        s=korg; t=1672242240;
+        bh=ewhZL2tHn2SOQzvBTF5or+PQfMteZJMpwQ6I7vLoelk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V1L6S/bG8gE7gDteK6QwDnkvXxT8AEKzY/qDjtum2UeV/IFhG9IRFGeN4opzUMXFU
-         MquqIzTHWZpqi0tqsIVPOtx7xTA3O9PQqnS2Iwb4GkzwFgnJfsRT64KMNa3SytZKdb
-         lwAmGieEKHxUYHEfoG74z443wuMAnuIxT0ihaKyE=
+        b=WOZKY2dLmqGTQELP1nOK2uIeydxTuGTrXIGqzYIInNaMoEVpt6y+ZOtVOzsNMG078
+         gAoSI+akpN80KlNbtJTSjfLlWPXuJlWSbBpa+C/a2fIVpOf5L8tjv+G7RixxSLHpiF
+         rnT7+KadW6H7l/sz0N4eJ9nesj//x6xyXKGgmGIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Mike Snitzer <snitzer@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0344/1146] dm: track per-add_disk holder relations in DM
-Date:   Wed, 28 Dec 2022 15:31:23 +0100
-Message-Id: <20221228144339.503706784@linuxfoundation.org>
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        Stanislav Fomichev <sdf@google.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0345/1146] selftests/bpf: fix memory leak of lsm_cgroup
+Date:   Wed, 28 Dec 2022 15:31:24 +0100
+Message-Id: <20221228144339.531316020@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -54,124 +54,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit 1a581b72169968f4154b5793828f3bc28b258b35 ]
+[ Upstream commit c453e64cbc9532c0c2edfa999c35d29dad16b8bb ]
 
-dm is a bit special in that it opens the underlying devices.  Commit
-89f871af1b26 ("dm: delay registering the gendisk") tried to accommodate
-that by allowing to add the holder to the list before add_gendisk and
-then just add them to sysfs once add_disk is called.  But that leads to
-really odd lifetime problems and error handling problems as we can't
-know the state of the kobjects and don't unwind properly.  To fix this
-switch to just registering all existing table_devices with the holder
-code right after add_disk, and remove them before calling del_gendisk.
+kmemleak reports this issue:
 
-Fixes: 89f871af1b26 ("dm: delay registering the gendisk")
-Reported-by: Yu Kuai <yukuai3@huawei.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Mike Snitzer <snitzer@kernel.org>
-Link: https://lore.kernel.org/r/20221115141054.1051801-7-yukuai1@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+unreferenced object 0xffff88810b7835c0 (size 32):
+  comm "test_progs", pid 270, jiffies 4294969007 (age 1621.315s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    03 00 00 00 03 00 00 00 0f 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000376cdeab>] kmalloc_trace+0x27/0x110
+    [<000000003bcdb3b6>] selinux_sk_alloc_security+0x66/0x110
+    [<000000003959008f>] security_sk_alloc+0x47/0x80
+    [<00000000e7bc6668>] sk_prot_alloc+0xbd/0x1a0
+    [<0000000002d6343a>] sk_alloc+0x3b/0x940
+    [<000000009812a46d>] unix_create1+0x8f/0x3d0
+    [<000000005ed0976b>] unix_create+0xa1/0x150
+    [<0000000086a1d27f>] __sock_create+0x233/0x4a0
+    [<00000000cffe3a73>] __sys_socket_create.part.0+0xaa/0x110
+    [<0000000007c63f20>] __sys_socket+0x49/0xf0
+    [<00000000b08753c8>] __x64_sys_socket+0x42/0x50
+    [<00000000b56e26b3>] do_syscall_64+0x3b/0x90
+    [<000000009b4871b8>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+The issue occurs in the following scenarios:
+
+unix_create1()
+  sk_alloc()
+    sk_prot_alloc()
+      security_sk_alloc()
+        call_int_hook()
+          hlist_for_each_entry()
+            entry1->hook.sk_alloc_security
+            <-- selinux_sk_alloc_security() succeeded,
+            <-- sk->security alloced here.
+            entry2->hook.sk_alloc_security
+            <-- bpf_lsm_sk_alloc_security() failed
+      goto out_free;
+        ...    <-- the sk->security not freed, memleak
+
+The core problem is that the LSM is not yet fully stacked (work is
+actively going on in this space) which means that some LSM hooks do
+not support multiple LSMs at the same time. To fix, skip the
+"EPERM" test when it runs in the environments that already have
+non-bpf lsms installed
+
+Fixes: dca85aac8895 ("selftests/bpf: lsm_cgroup functional test")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Cc: Stanislav Fomichev <sdf@google.com>
+Acked-by: Stanislav Fomichev <sdf@google.com>
+Link: https://lore.kernel.org/r/1668482980-16163-1-git-send-email-wangyufen@huawei.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm.c | 49 +++++++++++++++++++++++++++++++++++++++----------
- 1 file changed, 39 insertions(+), 10 deletions(-)
+ .../selftests/bpf/prog_tests/lsm_cgroup.c       | 17 +++++++++++++----
+ tools/testing/selftests/bpf/progs/lsm_cgroup.c  |  8 ++++++++
+ 2 files changed, 21 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index f10ac680cef4..e30c2d2bc9c7 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -751,9 +751,16 @@ static struct table_device *open_table_device(struct mapped_device *md,
- 		goto out_free_td;
- 	}
+diff --git a/tools/testing/selftests/bpf/prog_tests/lsm_cgroup.c b/tools/testing/selftests/bpf/prog_tests/lsm_cgroup.c
+index 1102e4f42d2d..f117bfef68a1 100644
+--- a/tools/testing/selftests/bpf/prog_tests/lsm_cgroup.c
++++ b/tools/testing/selftests/bpf/prog_tests/lsm_cgroup.c
+@@ -173,10 +173,12 @@ static void test_lsm_cgroup_functional(void)
+ 	ASSERT_EQ(query_prog_cnt(cgroup_fd, NULL), 4, "total prog count");
+ 	ASSERT_EQ(query_prog_cnt(cgroup_fd2, NULL), 1, "total prog count");
  
--	r = bd_link_disk_holder(bdev, dm_disk(md));
--	if (r)
--		goto out_blkdev_put;
-+	/*
-+	 * We can be called before the dm disk is added.  In that case we can't
-+	 * register the holder relation here.  It will be done once add_disk was
-+	 * called.
-+	 */
-+	if (md->disk->slave_dir) {
-+		r = bd_link_disk_holder(bdev, md->disk);
-+		if (r)
-+			goto out_blkdev_put;
-+	}
+-	/* AF_UNIX is prohibited. */
+-
+ 	fd = socket(AF_UNIX, SOCK_STREAM, 0);
+-	ASSERT_LT(fd, 0, "socket(AF_UNIX)");
++	if (!(skel->kconfig->CONFIG_SECURITY_APPARMOR
++	    || skel->kconfig->CONFIG_SECURITY_SELINUX
++	    || skel->kconfig->CONFIG_SECURITY_SMACK))
++		/* AF_UNIX is prohibited. */
++		ASSERT_LT(fd, 0, "socket(AF_UNIX)");
+ 	close(fd);
  
- 	td->dm_dev.mode = mode;
- 	td->dm_dev.bdev = bdev;
-@@ -774,7 +781,8 @@ static struct table_device *open_table_device(struct mapped_device *md,
-  */
- static void close_table_device(struct table_device *td, struct mapped_device *md)
+ 	/* AF_INET6 gets default policy (sk_priority). */
+@@ -233,11 +235,18 @@ static void test_lsm_cgroup_functional(void)
+ 
+ 	/* AF_INET6+SOCK_STREAM
+ 	 * AF_PACKET+SOCK_RAW
++	 * AF_UNIX+SOCK_RAW if already have non-bpf lsms installed
+ 	 * listen_fd
+ 	 * client_fd
+ 	 * accepted_fd
+ 	 */
+-	ASSERT_EQ(skel->bss->called_socket_post_create2, 5, "called_create2");
++	if (skel->kconfig->CONFIG_SECURITY_APPARMOR
++	    || skel->kconfig->CONFIG_SECURITY_SELINUX
++	    || skel->kconfig->CONFIG_SECURITY_SMACK)
++		/* AF_UNIX+SOCK_RAW if already have non-bpf lsms installed */
++		ASSERT_EQ(skel->bss->called_socket_post_create2, 6, "called_create2");
++	else
++		ASSERT_EQ(skel->bss->called_socket_post_create2, 5, "called_create2");
+ 
+ 	/* start_server
+ 	 * bind(ETH_P_ALL)
+diff --git a/tools/testing/selftests/bpf/progs/lsm_cgroup.c b/tools/testing/selftests/bpf/progs/lsm_cgroup.c
+index 4f2d60b87b75..02c11d16b692 100644
+--- a/tools/testing/selftests/bpf/progs/lsm_cgroup.c
++++ b/tools/testing/selftests/bpf/progs/lsm_cgroup.c
+@@ -7,6 +7,10 @@
+ 
+ char _license[] SEC("license") = "GPL";
+ 
++extern bool CONFIG_SECURITY_SELINUX __kconfig __weak;
++extern bool CONFIG_SECURITY_SMACK __kconfig __weak;
++extern bool CONFIG_SECURITY_APPARMOR __kconfig __weak;
++
+ #ifndef AF_PACKET
+ #define AF_PACKET 17
+ #endif
+@@ -140,6 +144,10 @@ SEC("lsm_cgroup/sk_alloc_security")
+ int BPF_PROG(socket_alloc, struct sock *sk, int family, gfp_t priority)
  {
--	bd_unlink_disk_holder(td->dm_dev.bdev, dm_disk(md));
-+	if (md->disk->slave_dir)
-+		bd_unlink_disk_holder(td->dm_dev.bdev, md->disk);
- 	blkdev_put(td->dm_dev.bdev, td->dm_dev.mode | FMODE_EXCL);
- 	put_dax(td->dm_dev.dax_dev);
- 	list_del(&td->list);
-@@ -1964,7 +1972,13 @@ static void cleanup_mapped_device(struct mapped_device *md)
- 		md->disk->private_data = NULL;
- 		spin_unlock(&_minor_lock);
- 		if (dm_get_md_type(md) != DM_TYPE_NONE) {
-+			struct table_device *td;
+ 	called_socket_alloc++;
++	/* if already have non-bpf lsms installed, EPERM will cause memory leak of non-bpf lsms */
++	if (CONFIG_SECURITY_SELINUX || CONFIG_SECURITY_SMACK || CONFIG_SECURITY_APPARMOR)
++		return 1;
 +
- 			dm_sysfs_exit(md);
-+			list_for_each_entry(td, &md->table_devices, list) {
-+				bd_unlink_disk_holder(td->dm_dev.bdev,
-+						      md->disk);
-+			}
+ 	if (family == AF_UNIX)
+ 		return 0; /* EPERM */
  
- 			/*
- 			 * Hold lock to make sure del_gendisk() won't concurrent
-@@ -2304,6 +2318,7 @@ int dm_setup_md_queue(struct mapped_device *md, struct dm_table *t)
- {
- 	enum dm_queue_mode type = dm_table_get_type(t);
- 	struct queue_limits limits;
-+	struct table_device *td;
- 	int r;
- 
- 	switch (type) {
-@@ -2342,16 +2357,30 @@ int dm_setup_md_queue(struct mapped_device *md, struct dm_table *t)
- 	if (r)
- 		return r;
- 
--	r = dm_sysfs_init(md);
--	if (r) {
--		mutex_lock(&md->table_devices_lock);
--		del_gendisk(md->disk);
--		mutex_unlock(&md->table_devices_lock);
--		return r;
-+	/*
-+	 * Register the holder relationship for devices added before the disk
-+	 * was live.
-+	 */
-+	list_for_each_entry(td, &md->table_devices, list) {
-+		r = bd_link_disk_holder(td->dm_dev.bdev, md->disk);
-+		if (r)
-+			goto out_undo_holders;
- 	}
- 
-+	r = dm_sysfs_init(md);
-+	if (r)
-+		goto out_undo_holders;
-+
- 	md->type = type;
- 	return 0;
-+
-+out_undo_holders:
-+	list_for_each_entry_continue_reverse(td, &md->table_devices, list)
-+		bd_unlink_disk_holder(td->dm_dev.bdev, md->disk);
-+	mutex_lock(&md->table_devices_lock);
-+	del_gendisk(md->disk);
-+	mutex_unlock(&md->table_devices_lock);
-+	return r;
- }
- 
- struct mapped_device *dm_get_md(dev_t dev)
 -- 
 2.35.1
 
