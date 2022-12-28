@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D3B9658159
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:27:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4A6B65823C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:34:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233308AbiL1Q1y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:27:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45958 "EHLO
+        id S233750AbiL1QeS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:34:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234835AbiL1Q1K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:27:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6170A11A3F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:23:26 -0800 (PST)
+        with ESMTP id S234852AbiL1Qdc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFC4F1C107
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:31:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0F281B816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:23:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79907C433EF;
-        Wed, 28 Dec 2022 16:23:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7BC6CB81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:31:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E20C1C433D2;
+        Wed, 28 Dec 2022 16:31:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244603;
-        bh=bbE/MAX1gX6lzAw0fJ4igsuaQGEAsqCDqF8RDE3Cq7c=;
+        s=korg; t=1672245064;
+        bh=8MEO/rRVwQM+oexh/uO6JzcQQF64co5aEekCsfe3xP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P+VsiR12sBhlKgvWahPNeVhhhh90wz4IQmp6LeDPfZiuhaOWWlYK8Ed0rJMAvk1no
-         8p64b125hbwAsZHQd97tB9p2hLCEIg9CYbAFDaPvb21w/ljKdVG67IvmKkX+QpJAF/
-         k9CDtnOQxJzhzT6gcnV8EgXJndBpURlTvoIp+oTA=
+        b=T8V8d/xIbGSjFlen9t9MKG1X+p8oCwixQi20n1EFnVGgeyTbm2SSvlwQ9t6xc2jg0
+         wRrko4ro+4wzscfepCncF++h/OoeU4Rp8kbXqLteSbbc50x1Of040HAEH4sczYh2c0
+         HSRHvbuHsjbBMd49polI4TIkmlITq1ppbFKjMQ3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zeng Heng <zengheng4@huawei.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        patches@lists.linux.dev,
+        "Author: Randy Dunlap" <rdunlap@infradead.org>,
+        syzbot+35b87c668935bb55e666@syzkaller.appspotmail.com,
+        Shigeru Yoshida <syoshida@redhat.com>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0740/1073] power: supply: fix residue sysfs file in error handle route of __power_supply_register()
-Date:   Wed, 28 Dec 2022 15:38:48 +0100
-Message-Id: <20221228144348.123132103@linuxfoundation.org>
+Subject: [PATCH 6.1 0790/1146] fs/ntfs3: Avoid UBSAN error on true_sectors_per_clst()
+Date:   Wed, 28 Dec 2022 15:38:49 +0100
+Message-Id: <20221228144351.606454504@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zeng Heng <zengheng4@huawei.com>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-[ Upstream commit 5b79480ce1978864ac3f06f2134dfa3b6691fe74 ]
+[ Upstream commit caad9dd8792a2622737b7273cb34835fd9536cd2 ]
 
-If device_add() succeeds, we should call device_del() when want to
-get rid of it, so move it into proper jump symbol.
+syzbot reported UBSAN error as below:
 
-Otherwise, when __power_supply_register() returns fail and goto
-wakeup_init_failed to exit, there is still residue device file in sysfs.
-When attempt to probe device again, sysfs would complain as below:
+[   76.901829][ T6677] ================================================================================
+[   76.903908][ T6677] UBSAN: shift-out-of-bounds in fs/ntfs3/super.c:675:13
+[   76.905363][ T6677] shift exponent -247 is negative
 
-sysfs: cannot create duplicate filename '/devices/platform/i2c/i2c-0/0-001c/power_supply/adp5061'
-Call Trace:
- dump_stack_lvl+0x68/0x85
- sysfs_warn_dup.cold+0x1c/0x29
- sysfs_create_dir_ns+0x1b1/0x1d0
- kobject_add_internal+0x143/0x390
- kobject_add+0x108/0x170
+This patch avoid this error.
 
-Fixes: 80c6463e2fa3 ("power_supply: Fix Oops from NULL pointer dereference from wakeup_source_activate")
-Signed-off-by: Zeng Heng <zengheng4@huawei.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Link: https://syzkaller.appspot.com/bug?id=b0299c09a14aababf0f1c862dd4ebc8ab9eb0179
+Fixes: a3b774342fa7 (fs/ntfs3: validate BOOT sectors_per_clusters)
+Cc: Author: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: syzbot+35b87c668935bb55e666@syzkaller.appspotmail.com
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/power_supply_core.c | 2 +-
+ fs/ntfs3/super.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/power/supply/power_supply_core.c b/drivers/power/supply/power_supply_core.c
-index 4b5fb172fa99..9bae94d2ea3a 100644
---- a/drivers/power/supply/power_supply_core.c
-+++ b/drivers/power/supply/power_supply_core.c
-@@ -1387,8 +1387,8 @@ __power_supply_register(struct device *parent,
- register_cooler_failed:
- 	psy_unregister_thermal(psy);
- register_thermal_failed:
--	device_del(dev);
- wakeup_init_failed:
-+	device_del(dev);
- device_add_failed:
- check_supplies_failed:
- dev_set_name_failed:
+diff --git a/fs/ntfs3/super.c b/fs/ntfs3/super.c
+index 47012c9bf505..adc4f73722b7 100644
+--- a/fs/ntfs3/super.c
++++ b/fs/ntfs3/super.c
+@@ -672,7 +672,7 @@ static u32 true_sectors_per_clst(const struct NTFS_BOOT *boot)
+ 	if (boot->sectors_per_clusters <= 0x80)
+ 		return boot->sectors_per_clusters;
+ 	if (boot->sectors_per_clusters >= 0xf4) /* limit shift to 2MB max */
+-		return 1U << (0 - boot->sectors_per_clusters);
++		return 1U << -(s8)boot->sectors_per_clusters;
+ 	return -EINVAL;
+ }
+ 
 -- 
 2.35.1
 
