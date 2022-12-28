@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8724C657F6A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:04:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E60165802C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:14:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233032AbiL1QEl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:04:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48218 "EHLO
+        id S233041AbiL1QOl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:14:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233095AbiL1QEg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:04:36 -0500
+        with ESMTP id S233098AbiL1QOS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:14:18 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2349819028
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:04:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C947A1A230
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:12:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B2BA960D41
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:04:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9C5FC433EF;
-        Wed, 28 Dec 2022 16:04:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6847C6158B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:12:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A1ABC433D2;
+        Wed, 28 Dec 2022 16:12:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243475;
-        bh=oG8p6uHzd9jeLxIpvjJPqGMurUe78KnMd7qmPO7t9wE=;
+        s=korg; t=1672243935;
+        bh=xFZx9leuCJgbMXiiX9g1ARpxtzdYalSiEPvhxz40504=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NmfaKZ/WwiaW6CUBDngGfb+XW3U1OyhnWZN77dmc/8Zra+78aX+20izFj9hXi/Ldt
-         oVn0QhYRTFYGYtusNEytnKx+K0Iij4KcQ0T5hJuFv1ccU5qeb13IyUtRBZF/3puprQ
-         4wQEO98VpchEhnSTWGvpMlOQmCG+R5qrf2K6liS0=
+        b=Xb5PlhvuRScQb2bnll2WPsQnYW+rWYhLzqGDWBn6wm3fmb+IlRkJMp3bD8pj8HTAI
+         jPryi5dEO2ejHWaXEkpgf0SysPWPkeBUvAF5naeivIAxcMwR+ngvV8bwQggGN17WEX
+         UT16zGlRVFm6sf6GgOM0PKUHs71yY5RZSzi8AA6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Markus Schneider-Pargmann <msp@baylibre.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev, Vidya Sagar <vidyas@nvidia.com>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Jingoo Han <jingoohan1@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0533/1073] can: tcan4x5x: Fix use of register error status mask
+Subject: [PATCH 6.1 0582/1146] PCI: dwc: Fix n_fts[] array overrun
 Date:   Wed, 28 Dec 2022 15:35:21 +0100
-Message-Id: <20221228144342.530045124@linuxfoundation.org>
+Message-Id: <20221228144345.982672329@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Markus Schneider-Pargmann <msp@baylibre.com>
+From: Vidya Sagar <vidyas@nvidia.com>
 
-[ Upstream commit 67727a17a6b375d68fe569b77e6516b034b834c0 ]
+[ Upstream commit 66110361281b2f7da0c8bd51eaf1f152f4236035 ]
 
-TCAN4X5X_ERROR_STATUS is not a status register that needs clearing
-during interrupt handling. Instead this is a masking register that masks
-error interrupts. Writing TCAN4X5X_CLEAR_ALL_INT to this register
-effectively masks everything.
+commit aeaa0bfe89654 ("PCI: dwc: Move N_FTS setup to common setup")
+incorrectly uses pci->link_gen in deriving the index to the
+n_fts[] array also introducing the issue of accessing beyond the
+boundaries of array for greater than Gen-2 speeds. This change fixes
+that issue.
 
-Rename the register and mask all error interrupts only once by writing
-to the register in tcan4x5x_init.
-
-Fixes: 5443c226ba91 ("can: tcan4x5x: Add tcan4x5x driver to the kernel")
-Signed-off-by: Markus Schneider-Pargmann <msp@baylibre.com>
-Link: https://lore.kernel.org/all/20221206115728.1056014-10-msp@baylibre.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Link: https://lore.kernel.org/r/20220926111923.22487-1-vidyas@nvidia.com
+Fixes: aeaa0bfe8965 ("PCI: dwc: Move N_FTS setup to common setup")
+Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
+Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Acked-by: Jingoo Han <jingoohan1@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/m_can/tcan4x5x-core.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/pci/controller/dwc/pcie-designware.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/m_can/tcan4x5x-core.c b/drivers/net/can/m_can/tcan4x5x-core.c
-index a77f4d4f6299..2342aa011647 100644
---- a/drivers/net/can/m_can/tcan4x5x-core.c
-+++ b/drivers/net/can/m_can/tcan4x5x-core.c
-@@ -10,7 +10,7 @@
- #define TCAN4X5X_DEV_ID1 0x04
- #define TCAN4X5X_REV 0x08
- #define TCAN4X5X_STATUS 0x0C
--#define TCAN4X5X_ERROR_STATUS 0x10
-+#define TCAN4X5X_ERROR_STATUS_MASK 0x10
- #define TCAN4X5X_CONTROL 0x14
+diff --git a/drivers/pci/controller/dwc/pcie-designware.c b/drivers/pci/controller/dwc/pcie-designware.c
+index c6725c519a47..9e4d96e5a3f5 100644
+--- a/drivers/pci/controller/dwc/pcie-designware.c
++++ b/drivers/pci/controller/dwc/pcie-designware.c
+@@ -641,7 +641,7 @@ void dw_pcie_setup(struct dw_pcie *pci)
+ 	if (pci->n_fts[1]) {
+ 		val = dw_pcie_readl_dbi(pci, PCIE_LINK_WIDTH_SPEED_CONTROL);
+ 		val &= ~PORT_LOGIC_N_FTS_MASK;
+-		val |= pci->n_fts[pci->link_gen - 1];
++		val |= pci->n_fts[1];
+ 		dw_pcie_writel_dbi(pci, PCIE_LINK_WIDTH_SPEED_CONTROL, val);
+ 	}
  
- #define TCAN4X5X_CONFIG 0x800
-@@ -204,12 +204,7 @@ static int tcan4x5x_clear_interrupts(struct m_can_classdev *cdev)
- 	if (ret)
- 		return ret;
- 
--	ret = tcan4x5x_write_tcan_reg(cdev, TCAN4X5X_INT_FLAGS,
--				      TCAN4X5X_CLEAR_ALL_INT);
--	if (ret)
--		return ret;
--
--	return tcan4x5x_write_tcan_reg(cdev, TCAN4X5X_ERROR_STATUS,
-+	return tcan4x5x_write_tcan_reg(cdev, TCAN4X5X_INT_FLAGS,
- 				       TCAN4X5X_CLEAR_ALL_INT);
- }
- 
-@@ -229,6 +224,11 @@ static int tcan4x5x_init(struct m_can_classdev *cdev)
- 	if (ret)
- 		return ret;
- 
-+	ret = tcan4x5x_write_tcan_reg(cdev, TCAN4X5X_ERROR_STATUS_MASK,
-+				      TCAN4X5X_CLEAR_ALL_INT);
-+	if (ret)
-+		return ret;
-+
- 	ret = regmap_update_bits(tcan4x5x->regmap, TCAN4X5X_CONFIG,
- 				 TCAN4X5X_MODE_SEL_MASK, TCAN4X5X_MODE_NORMAL);
- 	if (ret)
 -- 
 2.35.1
 
