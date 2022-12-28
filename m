@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E86F5657980
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:02:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28FF8657FD9
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:10:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233350AbiL1PCn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:02:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48652 "EHLO
+        id S234385AbiL1QKq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:10:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233583AbiL1PCK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:02:10 -0500
+        with ESMTP id S234388AbiL1QKN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:10:13 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CA1413DD1
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:01:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AE431A3B8
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:08:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0005DB8171A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:01:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52FA7C433D2;
-        Wed, 28 Dec 2022 15:01:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 60911B81887
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:08:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90367C433EF;
+        Wed, 28 Dec 2022 16:08:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239698;
-        bh=j70oovOAnzydGEjGIVxrDnsFcwXl8sgvwoJ4d4R1vzA=;
+        s=korg; t=1672243734;
+        bh=QtLQYQfbDlvXGVYbZvwjozrTI1OYVyEVmQvOT2ln1q4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U24AWP6MA6558tUwOnD3g8oWhUdgw9XGMfsSLkweuXGkz7ThZZ5zuTfjXn4WlSSNq
-         CpLthESZCs9xY2ISVy5089kbcBRWvho5fbxDjFrd48pb35VtG4qorOni7PkpbkuODS
-         vWG0yMGeClHljiR975HsaNBOBFknzbzOrt/8Nuss=
+        b=YlVkMrLm9x3vrxhlz564QE+2L+AmBYBzW/iy0sheYN0NMFDF2Iw6lzQ3HOUcyvhJH
+         K+xN0yaai6j4ZpfC3kZsEBanLmTOFM0x/qa5oo0y9lE+D2xiBog3pFkA0DoJXBIC4f
+         O8rcMpYyOMI861yJsLAB4fsampgsJd/B0Xg6IENo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Garver <eric@garver.life>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev,
+        syzbot+035a381ea1afb63f098d@syzkaller.appspotmail.com,
+        syzbot+729c925c2d9fc495ddee@syzkaller.appspotmail.com,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 259/731] netfilter: conntrack: set icmpv6 redirects as RELATED
-Date:   Wed, 28 Dec 2022 15:36:06 +0100
-Message-Id: <20221228144304.071023516@linuxfoundation.org>
+Subject: [PATCH 6.0 0579/1073] f2fs: fix to invalidate dcc->f2fs_issue_discard in error path
+Date:   Wed, 28 Dec 2022 15:36:07 +0100
+Message-Id: <20221228144343.776565545@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,171 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Chao Yu <chao@kernel.org>
 
-[ Upstream commit 7d7cfb48d81353e826493d24c7cec7360950968f ]
+[ Upstream commit 91586ce0d39a05f88795aa8814fb99b1387236b3 ]
 
-icmp conntrack will set icmp redirects as RELATED, but icmpv6 will not
-do this.
+Syzbot reports a NULL pointer dereference issue as below:
 
-For icmpv6, only icmp errors (code <= 128) are examined for RELATED state.
-ICMPV6 Redirects are part of neighbour discovery mechanism, those are
-handled by marking a selected subset (e.g.  neighbour solicitations) as
-UNTRACKED, but not REDIRECT -- they will thus be flagged as INVALID.
+ __refcount_add include/linux/refcount.h:193 [inline]
+ __refcount_inc include/linux/refcount.h:250 [inline]
+ refcount_inc include/linux/refcount.h:267 [inline]
+ get_task_struct include/linux/sched/task.h:110 [inline]
+ kthread_stop+0x34/0x1c0 kernel/kthread.c:703
+ f2fs_stop_discard_thread+0x3c/0x5c fs/f2fs/segment.c:1638
+ kill_f2fs_super+0x5c/0x194 fs/f2fs/super.c:4522
+ deactivate_locked_super+0x70/0xe8 fs/super.c:332
+ deactivate_super+0xd0/0xd4 fs/super.c:363
+ cleanup_mnt+0x1f8/0x234 fs/namespace.c:1186
+ __cleanup_mnt+0x20/0x30 fs/namespace.c:1193
+ task_work_run+0xc4/0x14c kernel/task_work.c:177
+ exit_task_work include/linux/task_work.h:38 [inline]
+ do_exit+0x26c/0xbe0 kernel/exit.c:795
+ do_group_exit+0x60/0xe8 kernel/exit.c:925
+ __do_sys_exit_group kernel/exit.c:936 [inline]
+ __se_sys_exit_group kernel/exit.c:934 [inline]
+ __wake_up_parent+0x0/0x40 kernel/exit.c:934
+ __invoke_syscall arch/arm64/kernel/syscall.c:38 [inline]
+ invoke_syscall arch/arm64/kernel/syscall.c:52 [inline]
+ el0_svc_common+0x138/0x220 arch/arm64/kernel/syscall.c:142
+ do_el0_svc+0x48/0x164 arch/arm64/kernel/syscall.c:206
+ el0_svc+0x58/0x150 arch/arm64/kernel/entry-common.c:636
+ el0t_64_sync_handler+0x84/0xf0 arch/arm64/kernel/entry-common.c:654
+ el0t_64_sync+0x18c/0x190 arch/arm64/kernel/entry.S:581
 
-Add minimal support for REDIRECTs.  No parsing of neighbour options is
-added for simplicity, so this will only check that we have the embeeded
-original header (ND_OPT_REDIRECT_HDR), and then attempt to do a flow
-lookup for this tuple.
+The root cause of this issue is in error path of f2fs_start_discard_thread(),
+it missed to invalidate dcc->f2fs_issue_discard, later kthread_stop() may
+access invalid pointer.
 
-Also extend the existing test case to cover redirects.
-
-Fixes: 9fb9cbb1082d ("[NETFILTER]: Add nf_conntrack subsystem.")
-Reported-by: Eric Garver <eric@garver.life>
-Link: https://github.com/firewalld/firewalld/issues/1046
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Acked-by: Eric Garver <eric@garver.life>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 4d67490498ac ("f2fs: Don't create discard thread when device doesn't support realtime discard")
+Reported-by: syzbot+035a381ea1afb63f098d@syzkaller.appspotmail.com
+Reported-by: syzbot+729c925c2d9fc495ddee@syzkaller.appspotmail.com
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_proto_icmpv6.c     | 53 +++++++++++++++++++
- .../netfilter/conntrack_icmp_related.sh       | 36 ++++++++++++-
- 2 files changed, 87 insertions(+), 2 deletions(-)
+ fs/f2fs/segment.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nf_conntrack_proto_icmpv6.c b/net/netfilter/nf_conntrack_proto_icmpv6.c
-index 61e3b05cf02c..1020d67600a9 100644
---- a/net/netfilter/nf_conntrack_proto_icmpv6.c
-+++ b/net/netfilter/nf_conntrack_proto_icmpv6.c
-@@ -129,6 +129,56 @@ static void icmpv6_error_log(const struct sk_buff *skb,
- 	nf_l4proto_log_invalid(skb, state, IPPROTO_ICMPV6, "%s", msg);
- }
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index 84bad18ce13d..10d8bc81cff7 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -2026,8 +2026,10 @@ int f2fs_start_discard_thread(struct f2fs_sb_info *sbi)
  
-+static noinline_for_stack int
-+nf_conntrack_icmpv6_redirect(struct nf_conn *tmpl, struct sk_buff *skb,
-+			     unsigned int dataoff,
-+			     const struct nf_hook_state *state)
-+{
-+	u8 hl = ipv6_hdr(skb)->hop_limit;
-+	union nf_inet_addr outer_daddr;
-+	union {
-+		struct nd_opt_hdr nd_opt;
-+		struct rd_msg rd_msg;
-+	} tmp;
-+	const struct nd_opt_hdr *nd_opt;
-+	const struct rd_msg *rd_msg;
-+
-+	rd_msg = skb_header_pointer(skb, dataoff, sizeof(*rd_msg), &tmp.rd_msg);
-+	if (!rd_msg) {
-+		icmpv6_error_log(skb, state, "short redirect");
-+		return -NF_ACCEPT;
+ 	dcc->f2fs_issue_discard = kthread_run(issue_discard_thread, sbi,
+ 				"f2fs_discard-%u:%u", MAJOR(dev), MINOR(dev));
+-	if (IS_ERR(dcc->f2fs_issue_discard))
++	if (IS_ERR(dcc->f2fs_issue_discard)) {
+ 		err = PTR_ERR(dcc->f2fs_issue_discard);
++		dcc->f2fs_issue_discard = NULL;
 +	}
-+
-+	if (rd_msg->icmph.icmp6_code != 0)
-+		return NF_ACCEPT;
-+
-+	if (hl != 255 || !(ipv6_addr_type(&ipv6_hdr(skb)->saddr) & IPV6_ADDR_LINKLOCAL)) {
-+		icmpv6_error_log(skb, state, "invalid saddr or hoplimit for redirect");
-+		return -NF_ACCEPT;
-+	}
-+
-+	dataoff += sizeof(*rd_msg);
-+
-+	/* warning: rd_msg no longer usable after this call */
-+	nd_opt = skb_header_pointer(skb, dataoff, sizeof(*nd_opt), &tmp.nd_opt);
-+	if (!nd_opt || nd_opt->nd_opt_len == 0) {
-+		icmpv6_error_log(skb, state, "redirect without options");
-+		return -NF_ACCEPT;
-+	}
-+
-+	/* We could call ndisc_parse_options(), but it would need
-+	 * skb_linearize() and a bit more work.
-+	 */
-+	if (nd_opt->nd_opt_type != ND_OPT_REDIRECT_HDR)
-+		return NF_ACCEPT;
-+
-+	memcpy(&outer_daddr.ip6, &ipv6_hdr(skb)->daddr,
-+	       sizeof(outer_daddr.ip6));
-+	dataoff += 8;
-+	return nf_conntrack_inet_error(tmpl, skb, dataoff, state,
-+				       IPPROTO_ICMPV6, &outer_daddr);
-+}
-+
- int nf_conntrack_icmpv6_error(struct nf_conn *tmpl,
- 			      struct sk_buff *skb,
- 			      unsigned int dataoff,
-@@ -159,6 +209,9 @@ int nf_conntrack_icmpv6_error(struct nf_conn *tmpl,
- 		return NF_ACCEPT;
- 	}
  
-+	if (icmp6h->icmp6_type == NDISC_REDIRECT)
-+		return nf_conntrack_icmpv6_redirect(tmpl, skb, dataoff, state);
-+
- 	/* is not error message ? */
- 	if (icmp6h->icmp6_type >= 128)
- 		return NF_ACCEPT;
-diff --git a/tools/testing/selftests/netfilter/conntrack_icmp_related.sh b/tools/testing/selftests/netfilter/conntrack_icmp_related.sh
-index b48e1833bc89..76645aaf2b58 100755
---- a/tools/testing/selftests/netfilter/conntrack_icmp_related.sh
-+++ b/tools/testing/selftests/netfilter/conntrack_icmp_related.sh
-@@ -35,6 +35,8 @@ cleanup() {
- 	for i in 1 2;do ip netns del nsrouter$i;done
+ 	return err;
  }
- 
-+trap cleanup EXIT
-+
- ipv4() {
-     echo -n 192.168.$1.2
- }
-@@ -146,11 +148,17 @@ ip netns exec nsclient1 nft -f - <<EOF
- table inet filter {
- 	counter unknown { }
- 	counter related { }
-+	counter redir4 { }
-+	counter redir6 { }
- 	chain input {
- 		type filter hook input priority 0; policy accept;
--		meta l4proto { icmp, icmpv6 } ct state established,untracked accept
- 
-+		icmp type "redirect" ct state "related" counter name "redir4" accept
-+		icmpv6 type "nd-redirect" ct state "related" counter name "redir6" accept
-+
-+		meta l4proto { icmp, icmpv6 } ct state established,untracked accept
- 		meta l4proto { icmp, icmpv6 } ct state "related" counter name "related" accept
-+
- 		counter name "unknown" drop
- 	}
- }
-@@ -279,5 +287,29 @@ else
- 	echo "ERROR: icmp error RELATED state test has failed"
- fi
- 
--cleanup
-+# add 'bad' route,  expect icmp REDIRECT to be generated
-+ip netns exec nsclient1 ip route add 192.168.1.42 via 192.168.1.1
-+ip netns exec nsclient1 ip route add dead:1::42 via dead:1::1
-+
-+ip netns exec "nsclient1" ping -q -c 2 192.168.1.42 > /dev/null
-+
-+expect="packets 1 bytes 112"
-+check_counter nsclient1 "redir4" "$expect"
-+if [ $? -ne 0 ];then
-+	ret=1
-+fi
-+
-+ip netns exec "nsclient1" ping -c 1 dead:1::42 > /dev/null
-+expect="packets 1 bytes 192"
-+check_counter nsclient1 "redir6" "$expect"
-+if [ $? -ne 0 ];then
-+	ret=1
-+fi
-+
-+if [ $ret -eq 0 ];then
-+	echo "PASS: icmp redirects had RELATED state"
-+else
-+	echo "ERROR: icmp redirect RELATED state test has failed"
-+fi
-+
- exit $ret
 -- 
 2.35.1
 
