@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 766B06584C1
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:01:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 738C965843D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:56:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235077AbiL1RBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:01:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52452 "EHLO
+        id S235170AbiL1Q4D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:56:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235373AbiL1RAz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:00:55 -0500
+        with ESMTP id S235228AbiL1QzP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:55:15 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC6E21AA11
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:55:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D6B81EEEB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:50:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 60C5BB8188A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:55:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA056C433EF;
-        Wed, 28 Dec 2022 16:55:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07893B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:50:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46846C433D2;
+        Wed, 28 Dec 2022 16:50:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246557;
-        bh=UhnRP5xJv+eN8kx5sD6N7kKtsFqsuCQhb0p1qF5MzI4=;
+        s=korg; t=1672246208;
+        bh=7VuaGYkV0nDTDJVIDF2az2eEPos1FRhz67/jOmyknqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dbwa+456zkJlv7I4pnPUN0f+dDNGfdiy3Fvc+UygY+/LPAvvrrKHnhdJynUQ9e71f
-         i8nT7KO6kIJ92fJ7V+nNT/UMzO1hF2FGWJoaYDcuQ7W+UhJHcg6b5d6KgUMHNOMxZb
-         L7/9gRiauzgiR3wbtK53DS0TENfNT0h7Ytip9wBg=
+        b=sfoyxCdgBEaIU6QJA083RIOM8S4J9HIT9YY5KbnbEV1GaA1zMs8ZjpR3PJIsULIMS
+         6L57g4M5veNXdUiCsi7UcXC3evxG2YXcZN96WatH8Az0jkwG/YfGrD3qksjXlW885u
+         g6Gdgn4sxs9dn3czBzqHVPzYC++6TsCuNzXudwFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Daniel=20D=C3=ADaz?= <daniel.diaz@linaro.org>,
-        Kristina Martsenko <kristina.martsenko@arm.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1080/1146] lkdtm: cfi: Make PAC test work with GCC 7 and 8
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Bastien Nocera <hadess@hadess.net>
+Subject: [PATCH 6.0 1031/1073] HID: logitech-hidpp: Guard FF init code against non-USB devices
 Date:   Wed, 28 Dec 2022 15:43:39 +0100
-Message-Id: <20221228144359.549532291@linuxfoundation.org>
+Message-Id: <20221228144356.196545215@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kristina Martsenko <kristina.martsenko@arm.com>
+From: Bastien Nocera <hadess@hadess.net>
 
-[ Upstream commit f68022ae0aeb0803450e05abc0e984027c33ef1b ]
+commit 0e13e7b448005612972eae36c0f698c21d1e2f8a upstream.
 
-The CFI test uses the branch-protection=none compiler attribute to
-disable PAC return address protection on a function. While newer GCC
-versions support this attribute, older versions (GCC 7 and 8) instead
-supported the sign-return-address=none attribute, leading to a build
-failure when the test is built with older compilers. Fix it by checking
-which attribute is supported and using the correct one.
+The Force Feedback code assumes that all the devices passed to it will
+be USB devices, but that might not be the case for emulated devices.
+Guard against a crash by checking the device type before poking at USB
+properties.
 
-Fixes: 2e53b877dc12 ("lkdtm: Add CFI_BACKWARD to test ROP mitigations")
-Reported-by: Daniel Díaz <daniel.diaz@linaro.org>
-Signed-off-by: Kristina Martsenko <kristina.martsenko@arm.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/all/CAEUSe78kDPxQmQqCWW-_9LCgJDFhAeMoVBFnX9QLx18Z4uT4VQ@mail.gmail.com/
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org # v5.16+
+Reported-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Bastien Nocera <hadess@hadess.net>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Link: https://lore.kernel.org/r/20221215154416.111704-1-hadess@hadess.net
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/lkdtm/cfi.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/hid/hid-logitech-hidpp.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/misc/lkdtm/cfi.c b/drivers/misc/lkdtm/cfi.c
-index 5245cf6013c9..fc28714ae3a6 100644
---- a/drivers/misc/lkdtm/cfi.c
-+++ b/drivers/misc/lkdtm/cfi.c
-@@ -54,7 +54,11 @@ static void lkdtm_CFI_FORWARD_PROTO(void)
- # ifdef CONFIG_ARM64_BTI_KERNEL
- #  define __no_pac             "branch-protection=bti"
- # else
--#  define __no_pac             "branch-protection=none"
-+#  ifdef CONFIG_CC_HAS_BRANCH_PROT_PAC_RET
-+#   define __no_pac            "branch-protection=none"
-+#  else
-+#   define __no_pac            "sign-return-address=none"
-+#  endif
- # endif
- # define __no_ret_protection   __noscs __attribute__((__target__(__no_pac)))
- #else
--- 
-2.35.1
-
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -2545,12 +2545,17 @@ static int hidpp_ff_init(struct hidpp_de
+ 	struct hid_device *hid = hidpp->hid_dev;
+ 	struct hid_input *hidinput;
+ 	struct input_dev *dev;
+-	const struct usb_device_descriptor *udesc = &(hid_to_usb_dev(hid)->descriptor);
+-	const u16 bcdDevice = le16_to_cpu(udesc->bcdDevice);
++	struct usb_device_descriptor *udesc;
++	u16 bcdDevice;
+ 	struct ff_device *ff;
+ 	int error, j, num_slots = data->num_effects;
+ 	u8 version;
+ 
++	if (!hid_is_usb(hid)) {
++		hid_err(hid, "device is not USB\n");
++		return -ENODEV;
++	}
++
+ 	if (list_empty(&hid->inputs)) {
+ 		hid_err(hid, "no inputs found\n");
+ 		return -ENODEV;
+@@ -2564,6 +2569,8 @@ static int hidpp_ff_init(struct hidpp_de
+ 	}
+ 
+ 	/* Get firmware release */
++	udesc = &(hid_to_usb_dev(hid)->descriptor);
++	bcdDevice = le16_to_cpu(udesc->bcdDevice);
+ 	version = bcdDevice & 255;
+ 
+ 	/* Set supported force feedback capabilities */
 
 
