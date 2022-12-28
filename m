@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AFE3658389
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:48:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D292065827B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:37:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235031AbiL1Qsf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:48:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42514 "EHLO
+        id S234826AbiL1QhI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:37:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235101AbiL1QsM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:48:12 -0500
+        with ESMTP id S235003AbiL1QgG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:36:06 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 507C31EAE4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:43:39 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 232F21D31F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:32:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9EA8B817AC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:43:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0A8DC433D2;
-        Wed, 28 Dec 2022 16:43:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B5115B81888
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:32:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AB56C433D2;
+        Wed, 28 Dec 2022 16:32:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245816;
-        bh=IBipz98u+KaI/sK0ROsRFz3iFrOH7XVKK50hifb5WAM=;
+        s=korg; t=1672245151;
+        bh=hfir7DbpDXAOR+tvs+bqxebL3YHTCRmmWCLgcFiNMO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xd21FFGgExxkVRXSypBOsTc5LJwrPE7tUQrsgAfCBYi/hoYHTrwLpGH4E2fxKgwzh
-         VZJhdRWhi6qAJVmKwneuVIviM759dJAzfXne4NsVk1mXjwYw9RRxxugZeiz+PR2qGZ
-         ftbqAzqzQns50exThH892EnNUdfdiWhnnHzkgg1g=
+        b=GJ+OGGPZGfWJL15i5YXOdDzxcZtrobqt01TcOpYOMMI8/0YDgMtv6RHHFaC5iOxRb
+         LbevOBK6aR8dhPsFfVcVDIZQ5mjIPW1+9ryiUmiw84TYQXehC8AcFC5p+Q4Sv/acvb
+         jsug8bf1KSEtN7RgUZYuvWvohESw0c9j5npVcpFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liang Li <liali@redhat.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0890/1146] bonding: do failover when high prio link up
+Subject: [PATCH 6.0 0841/1073] mISDN: hfcsusb: dont call dev_kfree_skb/kfree_skb() under spin_lock_irqsave()
 Date:   Wed, 28 Dec 2022 15:40:29 +0100
-Message-Id: <20221228144354.356787690@linuxfoundation.org>
+Message-Id: <20221228144350.864612211@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,112 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit e95cc44763a41d5c715ef16742bcb1d8e6524a62 ]
+[ Upstream commit ddc9648db162eee556edd5222d2808fe33730203 ]
 
-Currently, when a high prio link enslaved, or when current link down,
-the high prio port could be selected. But when high prio link up, the
-new active slave reselection is not triggered. Fix it by checking link's
-prio when getting up. Making the do_failover after looping all slaves as
-there may be multi high prio slaves up.
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-Reported-by: Liang Li <liali@redhat.com>
-Fixes: 0a2ff7cc8ad4 ("Bonding: add per-port priority for failover re-selection")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
+The difference between them is free reason, dev_kfree_skb_irq() means
+the SKB is dropped in error and dev_consume_skb_irq() means the SKB
+is consumed in normal.
+
+skb_queue_purge() is called under spin_lock_irqsave() in hfcusb_l2l1D(),
+kfree_skb() is called in it, to fix this, use skb_queue_splice_init()
+to move the dch->squeue to a free queue, also enqueue the tx_skb and
+rx_skb, at last calling __skb_queue_purge() to free the SKBs afer unlock.
+
+In tx_iso_complete(), dev_kfree_skb() is called to consume the transmitted
+SKB, so replace it with dev_consume_skb_irq().
+
+Fixes: 69f52adb2d53 ("mISDN: Add HFC USB driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_main.c | 24 +++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+ drivers/isdn/hardware/mISDN/hfcsusb.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index af35a46994cc..b108f2f4adc2 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -2653,8 +2653,9 @@ static void bond_miimon_link_change(struct bonding *bond,
+diff --git a/drivers/isdn/hardware/mISDN/hfcsusb.c b/drivers/isdn/hardware/mISDN/hfcsusb.c
+index 651f2f8f685b..1efd17979f24 100644
+--- a/drivers/isdn/hardware/mISDN/hfcsusb.c
++++ b/drivers/isdn/hardware/mISDN/hfcsusb.c
+@@ -326,20 +326,24 @@ hfcusb_l2l1D(struct mISDNchannel *ch, struct sk_buff *skb)
+ 		test_and_clear_bit(FLG_L2_ACTIVATED, &dch->Flags);
  
- static void bond_miimon_commit(struct bonding *bond)
- {
--	struct list_head *iter;
- 	struct slave *slave, *primary;
-+	bool do_failover = false;
-+	struct list_head *iter;
- 
- 	bond_for_each_slave(bond, slave, iter) {
- 		switch (slave->link_new_state) {
-@@ -2698,8 +2699,9 @@ static void bond_miimon_commit(struct bonding *bond)
- 
- 			bond_miimon_link_change(bond, slave, BOND_LINK_UP);
- 
--			if (!rcu_access_pointer(bond->curr_active_slave) || slave == primary)
--				goto do_failover;
-+			if (!rcu_access_pointer(bond->curr_active_slave) || slave == primary ||
-+			    slave->prio > rcu_dereference(bond->curr_active_slave)->prio)
-+				do_failover = true;
- 
- 			continue;
- 
-@@ -2720,7 +2722,7 @@ static void bond_miimon_commit(struct bonding *bond)
- 			bond_miimon_link_change(bond, slave, BOND_LINK_DOWN);
- 
- 			if (slave == rcu_access_pointer(bond->curr_active_slave))
--				goto do_failover;
-+				do_failover = true;
- 
- 			continue;
- 
-@@ -2731,8 +2733,9 @@ static void bond_miimon_commit(struct bonding *bond)
- 
- 			continue;
- 		}
-+	}
- 
--do_failover:
-+	if (do_failover) {
- 		block_netpoll_tx();
- 		bond_select_active_slave(bond);
- 		unblock_netpoll_tx();
-@@ -3530,6 +3533,7 @@ static int bond_ab_arp_inspect(struct bonding *bond)
-  */
- static void bond_ab_arp_commit(struct bonding *bond)
- {
-+	bool do_failover = false;
- 	struct list_head *iter;
- 	unsigned long last_tx;
- 	struct slave *slave;
-@@ -3559,8 +3563,9 @@ static void bond_ab_arp_commit(struct bonding *bond)
- 				slave_info(bond->dev, slave->dev, "link status definitely up\n");
- 
- 				if (!rtnl_dereference(bond->curr_active_slave) ||
--				    slave == rtnl_dereference(bond->primary_slave))
--					goto do_failover;
-+				    slave == rtnl_dereference(bond->primary_slave) ||
-+				    slave->prio > rtnl_dereference(bond->curr_active_slave)->prio)
-+					do_failover = true;
- 
+ 		if (hw->protocol == ISDN_P_NT_S0) {
++			struct sk_buff_head free_queue;
++
++			__skb_queue_head_init(&free_queue);
+ 			hfcsusb_ph_command(hw, HFC_L1_DEACTIVATE_NT);
+ 			spin_lock_irqsave(&hw->lock, flags);
+-			skb_queue_purge(&dch->squeue);
++			skb_queue_splice_init(&dch->squeue, &free_queue);
+ 			if (dch->tx_skb) {
+-				dev_kfree_skb(dch->tx_skb);
++				__skb_queue_tail(&free_queue, dch->tx_skb);
+ 				dch->tx_skb = NULL;
  			}
- 
-@@ -3579,7 +3584,7 @@ static void bond_ab_arp_commit(struct bonding *bond)
- 
- 			if (slave == rtnl_dereference(bond->curr_active_slave)) {
- 				RCU_INIT_POINTER(bond->current_arp_slave, NULL);
--				goto do_failover;
-+				do_failover = true;
+ 			dch->tx_idx = 0;
+ 			if (dch->rx_skb) {
+-				dev_kfree_skb(dch->rx_skb);
++				__skb_queue_tail(&free_queue, dch->rx_skb);
+ 				dch->rx_skb = NULL;
  			}
+ 			test_and_clear_bit(FLG_TX_BUSY, &dch->Flags);
+ 			spin_unlock_irqrestore(&hw->lock, flags);
++			__skb_queue_purge(&free_queue);
+ #ifdef FIXME
+ 			if (test_and_clear_bit(FLG_L1_BUSY, &dch->Flags))
+ 				dchannel_sched_event(&hc->dch, D_CLEARBUSY);
+@@ -1330,7 +1334,7 @@ tx_iso_complete(struct urb *urb)
+ 					printk("\n");
+ 				}
  
- 			continue;
-@@ -3603,8 +3608,9 @@ static void bond_ab_arp_commit(struct bonding *bond)
- 				  slave->link_new_state);
- 			continue;
- 		}
-+	}
- 
--do_failover:
-+	if (do_failover) {
- 		block_netpoll_tx();
- 		bond_select_active_slave(bond);
- 		unblock_netpoll_tx();
+-				dev_kfree_skb(tx_skb);
++				dev_consume_skb_irq(tx_skb);
+ 				tx_skb = NULL;
+ 				if (fifo->dch && get_next_dframe(fifo->dch))
+ 					tx_skb = fifo->dch->tx_skb;
 -- 
 2.35.1
 
