@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31CBE65841D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:54:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3599E65834D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:46:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235230AbiL1QyA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:54:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45846 "EHLO
+        id S234973AbiL1QqB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:46:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235254AbiL1QxK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:53:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4B091AF09
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:48:30 -0800 (PST)
+        with ESMTP id S233732AbiL1QpU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:45:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54C0C1AA20
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:41:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D5F761578
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:48:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4591DC433D2;
-        Wed, 28 Dec 2022 16:48:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D88F5B817AE
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:41:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 350F4C433D2;
+        Wed, 28 Dec 2022 16:40:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246109;
-        bh=8cNekZ4Ly99pLxeUE847IppAKRmEzQ5qOYdrADTmNG4=;
+        s=korg; t=1672245659;
+        bh=qZG5T3xyT7Knk3MeTWpsmEUZ4/PyUg2RjPoFA7v5H1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OBl9M1h7V9KVBCO+9QDcvMoqbCaoQi2dLASpLlxFToYZktEProa4otiOMB1ZOzdl+
-         rATZsywhbkFyRKBj2Bw6o3JHwZGAdwFR+vCnuf8fHXd0OjzLHGYop3INMZ1DjC2SAe
-         Zfpi5ERHxQSfpjtxzi1moNyS/C/OaqMMAim8yDYI=
+        b=Iw6zZ6kq01dpCNBs17J1JPaHQd/Z11fw0rUf1uu5TM5xoEUEkmVWIgsAe6utTw+ff
+         1eFZqmWw9OQyxOGYTRJnEWyj/52yLBeLzUhppEuz3OiaQHGIo7+x1ZKVXy8eTFhzL8
+         iB5rTvHRpgMGRg1j3D7oMYr5nGaAu47yP1EBfrac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kerem Karabay <kekrby@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0982/1146] HID: apple: fix key translations where multiple quirks attempt to translate the same key
+        patches@lists.linux.dev, Alexandra Winter <wintera@linux.ibm.com>,
+        Kees Cook <keescook@chromium.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0933/1073] s390/ctcm: Fix return type of ctc{mp,}m_tx()
 Date:   Wed, 28 Dec 2022 15:42:01 +0100
-Message-Id: <20221228144357.037648075@linuxfoundation.org>
+Message-Id: <20221228144353.370520680@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,242 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kerem Karabay <kekrby@gmail.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 5476fcf7f7b901db1cea92acb1abdd12609e30e1 ]
+[ Upstream commit aa5bf80c3c067b82b4362cd6e8e2194623bcaca6 ]
 
-The hid-apple driver does not support chaining translations or
-dependencies on other translations. This creates two problems:
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed. A
+proposed warning in clang aims to catch these at compile time, which
+reveals:
 
-1 - In Non-English keyboards of Macs, KEY_102ND and KEY_GRAVE are
-swapped and the APPLE_ISO_TILDE_QUIRK is used to work around this
-problem. The quirk is not set for the Macs where these bugs happen yet
-(see the 2nd patch for that), but this can be forced by setting the
-iso_layout parameter. Unfortunately, this only partially works.
-KEY_102ND gets translated to KEY_GRAVE, but KEY_GRAVE does not get
-translated to KEY_102ND, so both of them end up functioning as
-KEY_GRAVE. This is because the driver translates the keys as if Fn was
-pressed and the original is sent if it is not pressed, without any
-further translations happening on the key[#463]. KEY_GRAVE is present at
-macbookpro_no_esc_fn_keys[#195], so this is what happens:
+  drivers/s390/net/ctcm_main.c:1064:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .ndo_start_xmit         = ctcm_tx,
+                                    ^~~~~~~
+  drivers/s390/net/ctcm_main.c:1072:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .ndo_start_xmit         = ctcmpc_tx,
+                                    ^~~~~~~~~
 
-    - KEY_GRAVE -> KEY_ESC (as if Fn is pressed)
-    - KEY_GRAVE is returned (Fn isn't pressed, so translation is discarded)
-    - KEY_GRAVE -> KEY_102ND (this part is not reached!)
-    ...
+->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
+'netdev_tx_t', not 'int'. Adjust the return type of ctc{mp,}m_tx() to
+match the prototype's to resolve the warning and potential CFI failure,
+should s390 select ARCH_SUPPORTS_CFI_CLANG in the future.
 
-2 - In case the touchbar does not work, the driver supports sending
-Escape when Fn+KEY_GRAVE is pressed. As mentioned previously, KEY_102ND
-is actually KEY_GRAVE and needs to be translated before this happens.
+Additionally, while in the area, remove a comment block that is no
+longer relevant.
 
-Normally, these are the steps that should happen:
-
-    - KEY_102ND -> KEY_GRAVE
-    - KEY_GRAVE -> KEY_ESC (Fn is pressed)
-    - KEY_ESC is returned
-
-Though this is what happens instead, as dependencies on other
-translations are not supported:
-
-    - KEY_102ND -> KEY_ESC (Fn is pressed)
-    - KEY_ESC is returned
-
-This patch fixes both bugs by ordering the translations correctly and by
-making the translations continue and not return immediately after
-translating a key so that chained translations work and translations can
-depend on other ones.
-
-This patch also simplifies the implementation of the swap_fn_leftctrl
-option a little bit, as it makes it simply use a normal translation
-instead adding extra code to translate a key to KEY_FN[#381]. This change
-wasn't put in another patch as the code that translates the Fn key needs
-to be changed because of the changes in the patch, and those changes
-would be discarded with the next patch anyway (the part that originally
-translates KEY_FN to KEY_LEFTCTRL needs to be made an else-if branch of
-the part that transltes KEY_LEFTCTRL to KEY_FN).
-
-Note: Line numbers (#XYZ) are for drivers/hid/hid-apple.c at commit
-20afcc462579 ("HID: apple: Add "GANSS" to the non-Apple list").
-
-Note: These bugs are only present on Macs with a keyboard with no
-dedicated escape key and a non-English layout.
-
-Signed-off-by: Kerem Karabay <kekrby@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1750
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-apple.c | 102 +++++++++++++++++-----------------------
- 1 file changed, 44 insertions(+), 58 deletions(-)
+ drivers/s390/net/ctcm_main.c | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 6970797cdc56..e86bbf85b87e 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -314,6 +314,7 @@ static const struct apple_key_translation swapped_option_cmd_keys[] = {
+diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+index e0fdd54bfeb7..f672c610cb24 100644
+--- a/drivers/s390/net/ctcm_main.c
++++ b/drivers/s390/net/ctcm_main.c
+@@ -825,16 +825,9 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
+ /*
+  * Start transmission of a packet.
+  * Called from generic network device layer.
+- *
+- *  skb		Pointer to buffer containing the packet.
+- *  dev		Pointer to interface struct.
+- *
+- * returns 0 if packet consumed, !0 if packet rejected.
+- *         Note: If we return !0, then the packet is free'd by
+- *               the generic network layer.
+  */
+ /* first merge version - leaving both functions separated */
+-static int ctcm_tx(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t ctcm_tx(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct ctcm_priv *priv = dev->ml_priv;
  
- static const struct apple_key_translation swapped_fn_leftctrl_keys[] = {
- 	{ KEY_FN, KEY_LEFTCTRL },
-+	{ KEY_LEFTCTRL, KEY_FN },
- 	{ }
- };
- 
-@@ -375,24 +376,40 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- 	struct apple_sc *asc = hid_get_drvdata(hid);
- 	const struct apple_key_translation *trans, *table;
- 	bool do_translate;
--	u16 code = 0;
-+	u16 code = usage->code;
- 	unsigned int real_fnmode;
- 
--	u16 fn_keycode = (swap_fn_leftctrl) ? (KEY_LEFTCTRL) : (KEY_FN);
--
--	if (usage->code == fn_keycode) {
--		asc->fn_on = !!value;
--		input_event_with_scancode(input, usage->type, KEY_FN,
--				usage->hid, value);
--		return 1;
--	}
--
- 	if (fnmode == 3) {
- 		real_fnmode = (asc->quirks & APPLE_IS_NON_APPLE) ? 2 : 1;
- 	} else {
- 		real_fnmode = fnmode;
- 	}
- 
-+	if (swap_fn_leftctrl) {
-+		trans = apple_find_translation(swapped_fn_leftctrl_keys, code);
-+
-+		if (trans)
-+			code = trans->to;
-+	}
-+
-+	if (iso_layout > 0 || (iso_layout < 0 && (asc->quirks & APPLE_ISO_TILDE_QUIRK) &&
-+			hid->country == HID_COUNTRY_INTERNATIONAL_ISO)) {
-+		trans = apple_find_translation(apple_iso_keyboard, code);
-+
-+		if (trans)
-+			code = trans->to;
-+	}
-+
-+	if (swap_opt_cmd) {
-+		trans = apple_find_translation(swapped_option_cmd_keys, code);
-+
-+		if (trans)
-+			code = trans->to;
-+	}
-+
-+	if (code == KEY_FN)
-+		asc->fn_on = !!value;
-+
- 	if (real_fnmode) {
- 		if (hid->product == USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI ||
- 		    hid->product == USB_DEVICE_ID_APPLE_ALU_WIRELESS_ISO ||
-@@ -430,15 +447,18 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- 		else
- 			table = apple_fn_keys;
- 
--		trans = apple_find_translation (table, usage->code);
-+		trans = apple_find_translation(table, code);
- 
- 		if (trans) {
--			if (test_bit(trans->from, input->key))
-+			bool from_is_set = test_bit(trans->from, input->key);
-+			bool to_is_set = test_bit(trans->to, input->key);
-+
-+			if (from_is_set)
- 				code = trans->from;
--			else if (test_bit(trans->to, input->key))
-+			else if (to_is_set)
- 				code = trans->to;
- 
--			if (!code) {
-+			if (!(from_is_set || to_is_set)) {
- 				if (trans->flags & APPLE_FLAG_FKEY) {
- 					switch (real_fnmode) {
- 					case 1:
-@@ -455,62 +475,31 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- 					do_translate = asc->fn_on;
- 				}
- 
--				code = do_translate ? trans->to : trans->from;
-+				if (do_translate)
-+					code = trans->to;
- 			}
--
--			input_event_with_scancode(input, usage->type, code,
--					usage->hid, value);
--			return 1;
- 		}
- 
- 		if (asc->quirks & APPLE_NUMLOCK_EMULATION &&
--				(test_bit(usage->code, asc->pressed_numlock) ||
-+				(test_bit(code, asc->pressed_numlock) ||
- 				test_bit(LED_NUML, input->led))) {
--			trans = apple_find_translation(powerbook_numlock_keys,
--					usage->code);
-+			trans = apple_find_translation(powerbook_numlock_keys, code);
- 
- 			if (trans) {
- 				if (value)
--					set_bit(usage->code,
--							asc->pressed_numlock);
-+					set_bit(code, asc->pressed_numlock);
- 				else
--					clear_bit(usage->code,
--							asc->pressed_numlock);
-+					clear_bit(code, asc->pressed_numlock);
- 
--				input_event_with_scancode(input, usage->type,
--						trans->to, usage->hid, value);
-+				code = trans->to;
- 			}
--
--			return 1;
- 		}
- 	}
- 
--	if (iso_layout > 0 || (iso_layout < 0 && (asc->quirks & APPLE_ISO_TILDE_QUIRK) &&
--			hid->country == HID_COUNTRY_INTERNATIONAL_ISO)) {
--		trans = apple_find_translation(apple_iso_keyboard, usage->code);
--		if (trans) {
--			input_event_with_scancode(input, usage->type,
--					trans->to, usage->hid, value);
--			return 1;
--		}
--	}
-+	if (usage->code != code) {
-+		input_event_with_scancode(input, usage->type, code, usage->hid, value);
- 
--	if (swap_opt_cmd) {
--		trans = apple_find_translation(swapped_option_cmd_keys, usage->code);
--		if (trans) {
--			input_event_with_scancode(input, usage->type,
--					trans->to, usage->hid, value);
--			return 1;
--		}
--	}
--
--	if (swap_fn_leftctrl) {
--		trans = apple_find_translation(swapped_fn_leftctrl_keys, usage->code);
--		if (trans) {
--			input_event_with_scancode(input, usage->type,
--					trans->to, usage->hid, value);
--			return 1;
--		}
-+		return 1;
- 	}
- 
- 	return 0;
-@@ -640,9 +629,6 @@ static void apple_setup_input(struct input_dev *input)
- 	apple_setup_key_translation(input, apple2021_fn_keys);
- 	apple_setup_key_translation(input, macbookpro_no_esc_fn_keys);
- 	apple_setup_key_translation(input, macbookpro_dedicated_esc_fn_keys);
--
--	if (swap_fn_leftctrl)
--		apple_setup_key_translation(input, swapped_fn_leftctrl_keys);
+@@ -877,7 +870,7 @@ static int ctcm_tx(struct sk_buff *skb, struct net_device *dev)
  }
  
- static int apple_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ /* unmerged MPC variant of ctcm_tx */
+-static int ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	int len = 0;
+ 	struct ctcm_priv *priv = dev->ml_priv;
 -- 
 2.35.1
 
