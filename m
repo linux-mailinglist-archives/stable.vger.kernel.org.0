@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B27B46581A0
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:30:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71BE46581B6
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:31:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234410AbiL1QaK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:30:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51130 "EHLO
+        id S234761AbiL1QbW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:31:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234439AbiL1Q3s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:29:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 180F51A07D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:26:07 -0800 (PST)
+        with ESMTP id S234779AbiL1QbE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:31:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EA571CB1D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:27:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C602FB8171E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:26:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 370AFC433EF;
-        Wed, 28 Dec 2022 16:26:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A0817B81717
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:27:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11F2AC433D2;
+        Wed, 28 Dec 2022 16:27:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244764;
-        bh=xJmIZES7AHgJ86zvjlr3EmsXBGWYcZ8YuKr18CqoSxU=;
+        s=korg; t=1672244822;
+        bh=2T2LJ59ayqgeEhm+nqeNL0q+bbd5bJDVPllt0w3at18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mk5VjORCHtwGvMBNvXXjPSOoq4hmYJkumhCqgZwbcL+QCalJbd97U/scpLhYMy7Ft
-         1l0oKSA5hT4MdG2F6iwathHsm+G39JLkM96HR+b8fnr1X6uniHP3d2Bro3PY1vCsXe
-         JRgvjycNmly3tGcJfNjUIXbXCWMjvsexbObC5Pvw=
+        b=jLslj6yKnhwQGM/CYnHsVuhKG2ToRV2G3K3uROnxRPDmNfyt03ZesWP3sT4NT3ETv
+         TG2j6fE5NKo0ke9OS16/EW3rIVYoc4ZqUMxgIzP4+6lQzdST4C4zaqbIMAiPD46gdN
+         8aue98htuofRvz2CMXy0HioJwjqBFM3ICwn++ezI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
+        patches@lists.linux.dev, Marek Vasut <marex@denx.de>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0752/1073] power: supply: bq25890: Convert to i2cs .probe_new()
-Date:   Wed, 28 Dec 2022 15:39:00 +0100
-Message-Id: <20221228144348.445653495@linuxfoundation.org>
+Subject: [PATCH 6.0 0753/1073] power: supply: bq25890: Ensure pump_express_work is cancelled on remove
+Date:   Wed, 28 Dec 2022 15:39:01 +0100
+Message-Id: <20221228144348.472698098@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -55,44 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit c5cddca2351b291c8787b45cd046b1dfeb86979f ]
+[ Upstream commit a7aaa80098d5b7608b2dc1e883e3c3f929415243 ]
 
-The probe function doesn't make use of the i2c_device_id * parameter so it
-can be trivially converted.
+The pump_express_work which gets queued from an external_power_changed
+callback might be pending / running on remove() (or on probe failure).
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Add a devm action cancelling the work, to ensure that it is cancelled.
+
+Note the devm action is added before devm_power_supply_register(), making
+it run after devm unregisters the power_supply, so that the work cannot
+be queued anymore (this is also why a devm action is used for this).
+
+Fixes: 48f45b094dbb ("power: supply: bq25890: Support higher charging voltages through Pump Express+ protocol")
+Reviewed-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Stable-dep-of: a7aaa80098d5 ("power: supply: bq25890: Ensure pump_express_work is cancelled on remove")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/bq25890_charger.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/power/supply/bq25890_charger.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
 diff --git a/drivers/power/supply/bq25890_charger.c b/drivers/power/supply/bq25890_charger.c
-index 86228753e804..b4c8481ea17b 100644
+index b4c8481ea17b..92fab662a51d 100644
 --- a/drivers/power/supply/bq25890_charger.c
 +++ b/drivers/power/supply/bq25890_charger.c
-@@ -1189,8 +1189,7 @@ static int bq25890_fw_probe(struct bq25890_device *bq)
+@@ -1189,6 +1189,13 @@ static int bq25890_fw_probe(struct bq25890_device *bq)
  	return 0;
  }
  
--static int bq25890_probe(struct i2c_client *client,
--			 const struct i2c_device_id *id)
-+static int bq25890_probe(struct i2c_client *client)
++static void bq25890_non_devm_cleanup(void *data)
++{
++	struct bq25890_device *bq = data;
++
++	cancel_delayed_work_sync(&bq->pump_express_work);
++}
++
+ static int bq25890_probe(struct i2c_client *client)
  {
  	struct device *dev = &client->dev;
- 	struct bq25890_device *bq;
-@@ -1391,7 +1390,7 @@ static struct i2c_driver bq25890_driver = {
- 		.acpi_match_table = ACPI_PTR(bq25890_acpi_match),
- 		.pm = &bq25890_pm,
- 	},
--	.probe = bq25890_probe,
-+	.probe_new = bq25890_probe,
- 	.remove = bq25890_remove,
- 	.shutdown = bq25890_shutdown,
- 	.id_table = bq25890_i2c_ids,
+@@ -1244,6 +1251,14 @@ static int bq25890_probe(struct i2c_client *client)
+ 	/* OTG reporting */
+ 	bq->usb_phy = devm_usb_get_phy(dev, USB_PHY_TYPE_USB2);
+ 
++	/*
++	 * This must be before bq25890_power_supply_init(), so that it runs
++	 * after devm unregisters the power_supply.
++	 */
++	ret = devm_add_action_or_reset(dev, bq25890_non_devm_cleanup, bq);
++	if (ret)
++		return ret;
++
+ 	ret = bq25890_register_regulator(bq);
+ 	if (ret)
+ 		return ret;
 -- 
 2.35.1
 
