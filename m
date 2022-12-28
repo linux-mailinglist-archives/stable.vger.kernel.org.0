@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6E6A657A82
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:12:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EB1A65796D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:01:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232644AbiL1PMh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:12:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60038 "EHLO
+        id S233398AbiL1PBP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:01:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233024AbiL1PMC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:12:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A025F13E92
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:11:51 -0800 (PST)
+        with ESMTP id S233420AbiL1PAw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:00:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D77C72E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:00:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 044AAB81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:11:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6542CC433D2;
-        Wed, 28 Dec 2022 15:11:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7504A61365
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:00:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89553C433D2;
+        Wed, 28 Dec 2022 15:00:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240308;
-        bh=FzIu+QmG5f76vnsf4ty9BqwLXnUe/0HCE2h6SqmjvZg=;
+        s=korg; t=1672239642;
+        bh=LN62Qwap7FxUixeVq+R4s4nnFyLMUv94FDJ3IEkQxr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GU4h4D2loOOMQW1FLsIASkad4A5Cp8h5wkcG+BMdMbJb2Iap3y500jkoA338MKy96
-         nIEyHPwQ9y9rRvxvF8NXW6AEMjvgZRQtCJOrgVXgVnhqh2o26iHKkO0j+SJXMT41E5
-         7ZxW96pYq7omSpfovL5y705TNCRp5+KgChMQRB1A=
+        b=vMSUjfsWRF6oCL0GXnAfAl4s0og/EuYUEQa/IYZcZ5Usua9r2CFCbGUWNa2QRHKwU
+         11AmqxUvJBDlbroFOaixokbPVgnyjVPJLKXHargcsSG1lJ0CZhLJl25EVYbfKr+ZdG
+         Opdp9olN9OpiSL+Nj2R/p1sgs3E2lPI3yP5tdQ3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>
-Subject: [PATCH 6.1 0107/1146] sched/uclamp: Make task_fits_capacity() use util_fits_cpu()
-Date:   Wed, 28 Dec 2022 15:27:26 +0100
-Message-Id: <20221228144333.054366154@linuxfoundation.org>
+        patches@lists.linux.dev,
+        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0059/1073] ARM: dts: nuvoton: Remove bogus unit addresses from fixed-partition nodes
+Date:   Wed, 28 Dec 2022 15:27:27 +0100
+Message-Id: <20221228144329.702808374@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,111 +53,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qais Yousef <qais.yousef@arm.com>
+From: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
 
-[ Upstream commit b48e16a69792b5dc4a09d6807369d11b2970cc36 ]
+[ Upstream commit ea3ce4cf076ba11bb591c8013c5315136cae52c8 ]
 
-So that the new uclamp rules in regard to migration margin and capacity
-pressure are taken into account correctly.
+The unit addresses do not correspond to the nodes' reg properties,
+because they don't have any.
 
-Fixes: a7008c07a568 ("sched/fair: Make task_fits_capacity() consider uclamp restrictions")
-Co-developed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Signed-off-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220804143609.515789-3-qais.yousef@arm.com
+Fixes: e42b650f828d ("ARM: dts: nuvoton: Add new device nodes to NPCM750 EVB")
+Fixes: ee33e2fb3d70 ("ARM: dts: nuvoton: Add Quanta GBS BMC Device Tree")
+Fixes: 59f5abe09f0a ("ARM: dts: nuvoton: Add Quanta GSJ BMC")
+Fixes: 14579c76f5ca ("ARM: dts: nuvoton: Add Fii Kudo system")
+Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+Link: https://lore.kernel.org/r/20221031221553.163273-1-j.neuschaefer@gmx.net
+Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c  | 26 ++++++++++++++++----------
- kernel/sched/sched.h |  9 +++++++++
- 2 files changed, 25 insertions(+), 10 deletions(-)
+ arch/arm/boot/dts/nuvoton-npcm730-gbs.dts            | 2 +-
+ arch/arm/boot/dts/nuvoton-npcm730-gsj.dts            | 2 +-
+ arch/arm/boot/dts/nuvoton-npcm730-kudo.dts           | 6 +++---
+ arch/arm/boot/dts/nuvoton-npcm750-evb.dts            | 4 ++--
+ arch/arm/boot/dts/nuvoton-npcm750-runbmc-olympus.dts | 6 +++---
+ 5 files changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 0d193ef03730..db6174b989ed 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4549,10 +4549,12 @@ static inline int util_fits_cpu(unsigned long util,
- 	return fits;
- }
+diff --git a/arch/arm/boot/dts/nuvoton-npcm730-gbs.dts b/arch/arm/boot/dts/nuvoton-npcm730-gbs.dts
+index d10669fcd527..9e9eba8bad5e 100644
+--- a/arch/arm/boot/dts/nuvoton-npcm730-gbs.dts
++++ b/arch/arm/boot/dts/nuvoton-npcm730-gbs.dts
+@@ -366,7 +366,7 @@ flash@0 {
+ 		spi-max-frequency = <20000000>;
+ 		spi-rx-bus-width = <2>;
+ 		label = "bmc";
+-		partitions@80000000 {
++		partitions {
+ 			compatible = "fixed-partitions";
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+diff --git a/arch/arm/boot/dts/nuvoton-npcm730-gsj.dts b/arch/arm/boot/dts/nuvoton-npcm730-gsj.dts
+index 491606c4f044..2a394cc15284 100644
+--- a/arch/arm/boot/dts/nuvoton-npcm730-gsj.dts
++++ b/arch/arm/boot/dts/nuvoton-npcm730-gsj.dts
+@@ -142,7 +142,7 @@ flash@0 {
+ 		reg = <0>;
+ 		spi-rx-bus-width = <2>;
  
--static inline int task_fits_capacity(struct task_struct *p,
--				     unsigned long capacity)
-+static inline int task_fits_cpu(struct task_struct *p, int cpu)
- {
--	return fits_capacity(uclamp_task_util(p), capacity);
-+	unsigned long uclamp_min = uclamp_eff_value(p, UCLAMP_MIN);
-+	unsigned long uclamp_max = uclamp_eff_value(p, UCLAMP_MAX);
-+	unsigned long util = task_util_est(p);
-+	return util_fits_cpu(util, uclamp_min, uclamp_max, cpu);
- }
+-		partitions@80000000 {
++		partitions {
+ 			compatible = "fixed-partitions";
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+diff --git a/arch/arm/boot/dts/nuvoton-npcm730-kudo.dts b/arch/arm/boot/dts/nuvoton-npcm730-kudo.dts
+index a0c2d7652625..f7b38bee039b 100644
+--- a/arch/arm/boot/dts/nuvoton-npcm730-kudo.dts
++++ b/arch/arm/boot/dts/nuvoton-npcm730-kudo.dts
+@@ -388,7 +388,7 @@ flash@0 {
+ 		spi-max-frequency = <5000000>;
+ 		spi-rx-bus-width = <2>;
+ 		label = "bmc";
+-		partitions@80000000 {
++		partitions {
+ 			compatible = "fixed-partitions";
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+@@ -422,7 +422,7 @@ flash@1 {
+ 		reg = <1>;
+ 		spi-max-frequency = <5000000>;
+ 		spi-rx-bus-width = <2>;
+-		partitions@88000000 {
++		partitions {
+ 			compatible = "fixed-partitions";
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+@@ -447,7 +447,7 @@ flash@0 {
+ 		reg = <0>;
+ 		spi-max-frequency = <5000000>;
+ 		spi-rx-bus-width = <2>;
+-		partitions@A0000000 {
++		partitions {
+ 			compatible = "fixed-partitions";
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+diff --git a/arch/arm/boot/dts/nuvoton-npcm750-evb.dts b/arch/arm/boot/dts/nuvoton-npcm750-evb.dts
+index 3dad32834e5e..f53d45fa1de8 100644
+--- a/arch/arm/boot/dts/nuvoton-npcm750-evb.dts
++++ b/arch/arm/boot/dts/nuvoton-npcm750-evb.dts
+@@ -74,7 +74,7 @@ flash@0 {
+ 		spi-rx-bus-width = <2>;
+ 		reg = <0>;
+ 		spi-max-frequency = <5000000>;
+-		partitions@80000000 {
++		partitions {
+ 			compatible = "fixed-partitions";
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+@@ -135,7 +135,7 @@ flash@0 {
+ 		spi-rx-bus-width = <2>;
+ 		reg = <0>;
+ 		spi-max-frequency = <5000000>;
+-		partitions@A0000000 {
++		partitions {
+ 			compatible = "fixed-partitions";
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+diff --git a/arch/arm/boot/dts/nuvoton-npcm750-runbmc-olympus.dts b/arch/arm/boot/dts/nuvoton-npcm750-runbmc-olympus.dts
+index 132e702281fc..87359ab05db3 100644
+--- a/arch/arm/boot/dts/nuvoton-npcm750-runbmc-olympus.dts
++++ b/arch/arm/boot/dts/nuvoton-npcm750-runbmc-olympus.dts
+@@ -107,7 +107,7 @@ flash@0 {
+ 		reg = <0>;
+ 		spi-rx-bus-width = <2>;
  
- static inline void update_misfit_status(struct task_struct *p, struct rq *rq)
-@@ -4565,7 +4567,7 @@ static inline void update_misfit_status(struct task_struct *p, struct rq *rq)
- 		return;
- 	}
+-		partitions@80000000 {
++		partitions {
+ 			compatible = "fixed-partitions";
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+@@ -146,7 +146,7 @@ flash@1 {
+ 		reg = <1>;
+ 		npcm,fiu-rx-bus-width = <2>;
  
--	if (task_fits_capacity(p, capacity_of(cpu_of(rq)))) {
-+	if (task_fits_cpu(p, cpu_of(rq))) {
- 		rq->misfit_task_load = 0;
- 		return;
- 	}
-@@ -8399,7 +8401,7 @@ static int detach_tasks(struct lb_env *env)
+-		partitions@88000000 {
++		partitions {
+ 			compatible = "fixed-partitions";
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+@@ -173,7 +173,7 @@ flash@0 {
+ 		reg = <0>;
+ 		spi-rx-bus-width = <2>;
  
- 		case migrate_misfit:
- 			/* This is not a misfit task */
--			if (task_fits_capacity(p, capacity_of(env->src_cpu)))
-+			if (task_fits_cpu(p, env->src_cpu))
- 				goto next;
- 
- 			env->imbalance = 0;
-@@ -9404,6 +9406,10 @@ static inline void update_sg_wakeup_stats(struct sched_domain *sd,
- 
- 	memset(sgs, 0, sizeof(*sgs));
- 
-+	/* Assume that task can't fit any CPU of the group */
-+	if (sd->flags & SD_ASYM_CPUCAPACITY)
-+		sgs->group_misfit_task_load = 1;
-+
- 	for_each_cpu(i, sched_group_span(group)) {
- 		struct rq *rq = cpu_rq(i);
- 		unsigned int local;
-@@ -9423,12 +9429,12 @@ static inline void update_sg_wakeup_stats(struct sched_domain *sd,
- 		if (!nr_running && idle_cpu_without(i, p))
- 			sgs->idle_cpus++;
- 
--	}
-+		/* Check if task fits in the CPU */
-+		if (sd->flags & SD_ASYM_CPUCAPACITY &&
-+		    sgs->group_misfit_task_load &&
-+		    task_fits_cpu(p, i))
-+			sgs->group_misfit_task_load = 0;
- 
--	/* Check if task fits in the group */
--	if (sd->flags & SD_ASYM_CPUCAPACITY &&
--	    !task_fits_capacity(p, group->sgc->max_capacity)) {
--		sgs->group_misfit_task_load = 1;
- 	}
- 
- 	sgs->group_capacity = group->sgc->capacity;
-diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
-index a4a20046e586..0ab091b9d91b 100644
---- a/kernel/sched/sched.h
-+++ b/kernel/sched/sched.h
-@@ -3060,6 +3060,15 @@ static inline bool uclamp_is_used(void)
- 	return static_branch_likely(&sched_uclamp_used);
- }
- #else /* CONFIG_UCLAMP_TASK */
-+static inline unsigned long uclamp_eff_value(struct task_struct *p,
-+					     enum uclamp_id clamp_id)
-+{
-+	if (clamp_id == UCLAMP_MIN)
-+		return 0;
-+
-+	return SCHED_CAPACITY_SCALE;
-+}
-+
- static inline
- unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
- 				  struct task_struct *p)
+-		partitions@A0000000 {
++		partitions {
+ 			compatible = "fixed-partitions";
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
 -- 
 2.35.1
 
