@@ -2,50 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCF5165833C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:45:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3E736582EC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235045AbiL1QpC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:45:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33706 "EHLO
+        id S234625AbiL1QnT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:43:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233698AbiL1Qoh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 180DA1CB21
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:40:26 -0800 (PST)
+        with ESMTP id S235011AbiL1Qmw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:42:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E6641FCD0
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A89A8B817AC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:40:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB459C433D2;
-        Wed, 28 Dec 2022 16:40:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 592CF61585
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:37:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B089C433D2;
+        Wed, 28 Dec 2022 16:37:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245623;
-        bh=9oyafgAYJZt8m+g84Q0/Z/9EO3zaqoJGmm/f6hIgaCQ=;
+        s=korg; t=1672245422;
+        bh=y9bwSUuc+lA1U3NC4hPJWbpqyHp4QqmMJF7rGIqbdi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sbz1xwm7rWKo//AkM5cMEjinCTjKJ6qNSDjuO+yEgBYNSfdfA+0WtxGi3SJPPtRhC
-         X8Ze9BWYK4ojnD44yH4j5p5z048SOZgWGZsZAN0/LB/8UbfDkE1HNfT9aDU1GxVIzj
-         1cubS3Sq5GI2wUs9ABsoKFygvu5YpBalG6Gosr+4=
+        b=u6bFD6q5lgoxM23VxAUiErzHeyi8cj6z3XiNsBOMU2B71jbf6dpY8Kbl99OlTLQLn
+         v1+kxXb3Aiesauq1iP2c9OpTt2kTmtawFzLitqoswhl/xhp334nvdgz0BmTW1va4eh
+         29RnXotypMcbdiYgNp2bQ6CaaQbu5l2lcTpHq2l0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>,
-        Dexuan Cui <decui@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Gaurav Kohli <gauravkohli@linux.microsoft.com>,
         Michael Kelley <mikelley@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>,
-        Fabio A M Martins <fabiomirmar@gmail.com>,
-        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0888/1073] video: hyperv_fb: Avoid taking busy spinlock on panic path
-Date:   Wed, 28 Dec 2022 15:41:16 +0100
-Message-Id: <20221228144352.146910999@linuxfoundation.org>
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0889/1073] x86/hyperv: Remove unregister syscore call from Hyper-V cleanup
+Date:   Wed, 28 Dec 2022 15:41:17 +0100
+Message-Id: <20221228144352.174692000@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -62,104 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guilherme G. Piccoli <gpiccoli@igalia.com>
+From: Gaurav Kohli <gauravkohli@linux.microsoft.com>
 
-[ Upstream commit 1d044ca035dc22df0d3b39e56f2881071d9118bd ]
+[ Upstream commit 32c97d980e2eef25465d453f2956a9ca68926a3c ]
 
-The Hyper-V framebuffer code registers a panic notifier in order
-to try updating its fbdev if the kernel crashed. The notifier
-callback is straightforward, but it calls the vmbus_sendpacket()
-routine eventually, and such function takes a spinlock for the
-ring buffer operations.
+Hyper-V cleanup code comes under panic path where preemption and irq
+is already disabled. So calling of unregister_syscore_ops might schedule
+out the thread even for the case where mutex lock is free.
+hyperv_cleanup
+	unregister_syscore_ops
+			mutex_lock(&syscore_ops_lock)
+				might_sleep
+Here might_sleep might schedule out this thread, where voluntary preemption
+config is on and this thread will never comes back. And also this was added
+earlier to maintain the symmetry which is not required as this can comes
+during crash shutdown path only.
 
-Panic path runs in atomic context, with local interrupts and
-preemption disabled, and all secondary CPUs shutdown. That said,
-taking a spinlock might cause a lockup if a secondary CPU was
-disabled with such lock taken. Fix it here by checking if the
-ring buffer spinlock is busy on Hyper-V framebuffer panic notifier;
-if so, bail-out avoiding the potential lockup scenario.
+To prevent the same, removing unregister_syscore_ops function call.
 
-Cc: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
-Cc: Dexuan Cui <decui@microsoft.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: Michael Kelley <mikelley@microsoft.com>
-Cc: Stephen Hemminger <sthemmin@microsoft.com>
-Cc: Tianyu Lan <Tianyu.Lan@microsoft.com>
-Cc: Wei Liu <wei.liu@kernel.org>
-Tested-by: Fabio A M Martins <fabiomirmar@gmail.com>
-Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+Signed-off-by: Gaurav Kohli <gauravkohli@linux.microsoft.com>
 Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/20220819221731.480795-10-gpiccoli@igalia.com
+Link: https://lore.kernel.org/r/1669443291-2575-1-git-send-email-gauravkohli@linux.microsoft.com
 Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/ring_buffer.c        | 13 +++++++++++++
- drivers/video/fbdev/hyperv_fb.c |  8 +++++++-
- include/linux/hyperv.h          |  2 ++
- 3 files changed, 22 insertions(+), 1 deletion(-)
+ arch/x86/hyperv/hv_init.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/hv/ring_buffer.c b/drivers/hv/ring_buffer.c
-index 59a4aa86d1f3..c6692fd5ab15 100644
---- a/drivers/hv/ring_buffer.c
-+++ b/drivers/hv/ring_buffer.c
-@@ -280,6 +280,19 @@ void hv_ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info)
- 	ring_info->pkt_buffer_size = 0;
- }
- 
-+/*
-+ * Check if the ring buffer spinlock is available to take or not; used on
-+ * atomic contexts, like panic path (see the Hyper-V framebuffer driver).
-+ */
-+
-+bool hv_ringbuffer_spinlock_busy(struct vmbus_channel *channel)
-+{
-+	struct hv_ring_buffer_info *rinfo = &channel->outbound;
-+
-+	return spin_is_locked(&rinfo->ring_lock);
-+}
-+EXPORT_SYMBOL_GPL(hv_ringbuffer_spinlock_busy);
-+
- /* Write to the ring buffer. */
- int hv_ringbuffer_write(struct vmbus_channel *channel,
- 			const struct kvec *kv_list, u32 kv_count,
-diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
-index b58b445bb529..0839ba7d3a34 100644
---- a/drivers/video/fbdev/hyperv_fb.c
-+++ b/drivers/video/fbdev/hyperv_fb.c
-@@ -779,12 +779,18 @@ static void hvfb_ondemand_refresh_throttle(struct hvfb_par *par,
- static int hvfb_on_panic(struct notifier_block *nb,
- 			 unsigned long e, void *p)
+diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
+index a0165df3c4d8..d03561b2fffe 100644
+--- a/arch/x86/hyperv/hv_init.c
++++ b/arch/x86/hyperv/hv_init.c
+@@ -536,8 +536,6 @@ void hyperv_cleanup(void)
  {
-+	struct hv_device *hdev;
- 	struct hvfb_par *par;
- 	struct fb_info *info;
+ 	union hv_x64_msr_hypercall_contents hypercall_msr;
  
- 	par = container_of(nb, struct hvfb_par, hvfb_panic_nb);
--	par->synchronous_fb = true;
- 	info = par->info;
-+	hdev = device_to_hv_device(info->device);
-+
-+	if (hv_ringbuffer_spinlock_busy(hdev->channel))
-+		return NOTIFY_DONE;
-+
-+	par->synchronous_fb = true;
- 	if (par->need_docopy)
- 		hvfb_docopy(par, 0, dio_fb_size);
- 	synthvid_update(info, 0, 0, INT_MAX, INT_MAX);
-diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
-index 3b42264333ef..646f1da9f27e 100644
---- a/include/linux/hyperv.h
-+++ b/include/linux/hyperv.h
-@@ -1341,6 +1341,8 @@ struct hv_ring_buffer_debug_info {
- int hv_ringbuffer_get_debuginfo(struct hv_ring_buffer_info *ring_info,
- 				struct hv_ring_buffer_debug_info *debug_info);
- 
-+bool hv_ringbuffer_spinlock_busy(struct vmbus_channel *channel);
-+
- /* Vmbus interface */
- #define vmbus_driver_register(driver)	\
- 	__vmbus_driver_register(driver, THIS_MODULE, KBUILD_MODNAME)
+-	unregister_syscore_ops(&hv_syscore_ops);
+-
+ 	/* Reset our OS id */
+ 	wrmsrl(HV_X64_MSR_GUEST_OS_ID, 0);
+ 	hv_ghcb_msr_write(HV_X64_MSR_GUEST_OS_ID, 0);
 -- 
 2.35.1
 
