@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67114657F34
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 227D6657F37
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234292AbiL1QDC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:03:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47872 "EHLO
+        id S234301AbiL1QDF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:03:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234315AbiL1QCg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:02:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ED2B1903E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:02:17 -0800 (PST)
+        with ESMTP id S234324AbiL1QCj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:02:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65F9C1903C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:02:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 13565B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:02:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F04FC433EF;
-        Wed, 28 Dec 2022 16:02:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 066B16156B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:02:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1476FC433D2;
+        Wed, 28 Dec 2022 16:02:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243334;
-        bh=2rrUSp67Iav+dUQyQEFqdtDDmewO+4/TOVq44ekXSgY=;
+        s=korg; t=1672243343;
+        bh=4PNDDJZmArPkClOrlBSTTJGNXsNvzCzJ1ewJlq8/RAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IFPoo7918cCRAvet/NMN5cmJ4RGbaCg3aZnUtgFMCiQOZTYgVL9MEZ6bOqTjdB6z2
-         /TMJ/7moFLdL+f8g1tqulm8VmZiRDW3VZHDFTOBvyhZwcsXHL6hAcgqGhRIVXZlhsM
-         MVtOcw0NxkC7Zx4t/zWysNQlM7mK+iKHpM4MH94w=
+        b=UMu7OlmwqPc5j2ehF0IVgGXLaNLdPm/kogI6huRRKQXy2XUU00TuPwBD4dnpH+yj9
+         E+UxFLaTL9fvTEfYKMb2bOx9EaamoIAntIUjXxhPH6Ph4HryZ5eM3GZSK1VRgGYP6d
+         I/+xZM9K7ToMJkgQCbqUqWhDOeVyTGKwQNbDntUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
+        Jiri Pirko <jiri@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0518/1073] ethernet: s2io: dont call dev_kfree_skb() under spin_lock_irqsave()
-Date:   Wed, 28 Dec 2022 15:35:06 +0100
-Message-Id: <20221228144342.112924031@linuxfoundation.org>
+Subject: [PATCH 6.0 0519/1073] net: farsync: Fix kmemleak when rmmods farsync
+Date:   Wed, 28 Dec 2022 15:35:07 +0100
+Message-Id: <20221228144342.140018614@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -53,43 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Li Zetao <lizetao1@huawei.com>
 
-[ Upstream commit 6cee96e09df54ae17784c0f38a49e0ed8229b825 ]
+[ Upstream commit 2f623aaf9f31de968dea6169849706a2f9be444c ]
 
-It is not allowed to call kfree_skb() or consume_skb() from hardware
-interrupt context or with hardware interrupts being disabled.
+There are two memory leaks reported by kmemleak:
 
-It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
-The difference between them is free reason, dev_kfree_skb_irq() means
-the SKB is dropped in error and dev_consume_skb_irq() means the SKB
-is consumed in normal.
+  unreferenced object 0xffff888114b20200 (size 128):
+    comm "modprobe", pid 4846, jiffies 4295146524 (age 401.345s)
+    hex dump (first 32 bytes):
+      e0 62 57 09 81 88 ff ff e0 62 57 09 81 88 ff ff  .bW......bW.....
+      01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    backtrace:
+      [<ffffffff815bcd82>] kmalloc_trace+0x22/0x60
+      [<ffffffff83d35c78>] __hw_addr_add_ex+0x198/0x6c0
+      [<ffffffff83d3989d>] dev_addr_init+0x13d/0x230
+      [<ffffffff83d1063d>] alloc_netdev_mqs+0x10d/0xe50
+      [<ffffffff82b4a06e>] alloc_hdlcdev+0x2e/0x80
+      [<ffffffffa016a741>] fst_add_one+0x601/0x10e0 [farsync]
+      ...
 
-In this case, dev_kfree_skb() is called in free_tx_buffers() to drop
-the SKBs in tx buffers, when the card is down, so replace it with
-dev_kfree_skb_irq() here.
+  unreferenced object 0xffff88810b85b000 (size 1024):
+    comm "modprobe", pid 4846, jiffies 4295146523 (age 401.346s)
+    hex dump (first 32 bytes):
+      00 00 b0 02 00 c9 ff ff 00 70 0a 00 00 c9 ff ff  .........p......
+      00 00 00 f2 00 00 00 f3 0a 00 00 00 02 00 00 00  ................
+    backtrace:
+      [<ffffffff815bcd82>] kmalloc_trace+0x22/0x60
+      [<ffffffffa016a294>] fst_add_one+0x154/0x10e0 [farsync]
+      [<ffffffff82060e83>] local_pci_probe+0xd3/0x170
+      ...
+
+The root cause is traced to the netdev and fst_card_info are not freed
+when removes one fst in fst_remove_one(), which may trigger oom if
+repeated insmod and rmmod module.
+
+Fix it by adding free_netdev() and kfree() in fst_remove_one(), just as
+the operations on the error handling path in fst_add_one().
 
 Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Li Zetao <lizetao1@huawei.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/neterion/s2io.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wan/farsync.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/neterion/s2io.c b/drivers/net/ethernet/neterion/s2io.c
-index 8f74c039b3be..29d39e5b9cf5 100644
---- a/drivers/net/ethernet/neterion/s2io.c
-+++ b/drivers/net/ethernet/neterion/s2io.c
-@@ -2386,7 +2386,7 @@ static void free_tx_buffers(struct s2io_nic *nic)
- 			skb = s2io_txdl_getskb(&mac_control->fifos[i], txdp, j);
- 			if (skb) {
- 				swstats->mem_freed += skb->truesize;
--				dev_kfree_skb(skb);
-+				dev_kfree_skb_irq(skb);
- 				cnt++;
- 			}
- 		}
+diff --git a/drivers/net/wan/farsync.c b/drivers/net/wan/farsync.c
+index 6a212c085435..5b01642ca44e 100644
+--- a/drivers/net/wan/farsync.c
++++ b/drivers/net/wan/farsync.c
+@@ -2545,6 +2545,7 @@ fst_remove_one(struct pci_dev *pdev)
+ 		struct net_device *dev = port_to_dev(&card->ports[i]);
+ 
+ 		unregister_hdlc_device(dev);
++		free_netdev(dev);
+ 	}
+ 
+ 	fst_disable_intr(card);
+@@ -2564,6 +2565,7 @@ fst_remove_one(struct pci_dev *pdev)
+ 				  card->tx_dma_handle_card);
+ 	}
+ 	fst_card_array[card->card_no] = NULL;
++	kfree(card);
+ }
+ 
+ static struct pci_driver fst_driver = {
 -- 
 2.35.1
 
