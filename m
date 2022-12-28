@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3017A657AF8
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:16:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86B3F6579DD
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:05:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233168AbiL1PQr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:16:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35884 "EHLO
+        id S233534AbiL1PFd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:05:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233166AbiL1PQp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:16:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 137746269
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:16:44 -0800 (PST)
+        with ESMTP id S233530AbiL1PFc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:05:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F05EF13D4B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:05:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BC320B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:16:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17BE8C433F0;
-        Wed, 28 Dec 2022 15:16:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E8196153B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:05:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4714C433EF;
+        Wed, 28 Dec 2022 15:05:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240601;
-        bh=UVijFt/tOpGD2l3/z1ymEi5pmXo7aTOFsoByvTDKQXo=;
+        s=korg; t=1672239931;
+        bh=P3z9pugJnSw0EPfc4Dp7+HVf9iEv+pRbrSqrhEy51XU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N2rmwzc1Av3VZh9mFasegrwnDGXxQJn/9GY8eECy1srgCH+N+BHo1sEzOrVbVlc0y
-         wfYZ82rhWvM5U/zE795DffXHFiLhZB/po3GuYkM8XKYS+PCt/ovjOf/VaQhvetID/D
-         7utQoghFdVJimpp033gW5DBvjp97diIsPgUDbei8=
+        b=v6TAhBBgde8M/joVLxQqRPEq0yZa+Eiq5ZgQ/HauYKdVlzIdWt4v1sp2H7s5VJH5H
+         CKeLORMGV48chymaJcSroIrH7bVxptMwpHvHUIliyd8PMwadD4OPBuDa/rRz0Fpo4e
+         BIw8+zqlCbc0k7CL0pJ9fFyzVQy+raCgMGWw7MIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Prashant Malani <pmalani@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0144/1146] platform/chrome: cros_usbpd_notify: Fix error handling in cros_usbpd_notify_init()
+        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>
+Subject: [PATCH 6.0 0095/1073] sched/uclamp: Make task_fits_capacity() use util_fits_cpu()
 Date:   Wed, 28 Dec 2022 15:28:03 +0100
-Message-Id: <20221228144334.059454136@linuxfoundation.org>
+Message-Id: <20221228144330.631070755@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +54,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Qais Yousef <qais.yousef@arm.com>
 
-[ Upstream commit 5a2d96623670155d94aca72c320c0ac27bdc6bd2 ]
+[ Upstream commit b48e16a69792b5dc4a09d6807369d11b2970cc36 ]
 
-The following WARNING message was given when rmmod cros_usbpd_notify:
+So that the new uclamp rules in regard to migration margin and capacity
+pressure are taken into account correctly.
 
- Unexpected driver unregister!
- WARNING: CPU: 0 PID: 253 at drivers/base/driver.c:270 driver_unregister+0x8a/0xb0
- Modules linked in: cros_usbpd_notify(-)
- CPU: 0 PID: 253 Comm: rmmod Not tainted 6.1.0-rc3 #24
- ...
- Call Trace:
-  <TASK>
-  cros_usbpd_notify_exit+0x11/0x1e [cros_usbpd_notify]
-  __x64_sys_delete_module+0x3c7/0x570
-  ? __ia32_sys_delete_module+0x570/0x570
-  ? lock_is_held_type+0xe3/0x140
-  ? syscall_enter_from_user_mode+0x17/0x50
-  ? rcu_read_lock_sched_held+0xa0/0xd0
-  ? syscall_enter_from_user_mode+0x1c/0x50
-  do_syscall_64+0x37/0x90
-  entry_SYSCALL_64_after_hwframe+0x63/0xcd
- RIP: 0033:0x7f333fe9b1b7
-
-The reason is that the cros_usbpd_notify_init() does not check the return
-value of platform_driver_register(), and the cros_usbpd_notify can
-install successfully even if platform_driver_register() failed.
-
-Fix by checking the return value of platform_driver_register() and
-unregister cros_usbpd_notify_plat_driver when it failed.
-
-Fixes: ec2daf6e33f9 ("platform: chrome: Add cros-usbpd-notify driver")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Link: https://lore.kernel.org/r/20221117080823.77549-1-yuancan@huawei.com
-Signed-off-by: Prashant Malani <pmalani@chromium.org>
+Fixes: a7008c07a568 ("sched/fair: Make task_fits_capacity() consider uclamp restrictions")
+Co-developed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220804143609.515789-3-qais.yousef@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_usbpd_notify.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ kernel/sched/fair.c  | 26 ++++++++++++++++----------
+ kernel/sched/sched.h |  9 +++++++++
+ 2 files changed, 25 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/platform/chrome/cros_usbpd_notify.c b/drivers/platform/chrome/cros_usbpd_notify.c
-index 4b5a81c9dc6d..10670b6588e3 100644
---- a/drivers/platform/chrome/cros_usbpd_notify.c
-+++ b/drivers/platform/chrome/cros_usbpd_notify.c
-@@ -239,7 +239,11 @@ static int __init cros_usbpd_notify_init(void)
- 		return ret;
- 
- #ifdef CONFIG_ACPI
--	platform_driver_register(&cros_usbpd_notify_acpi_driver);
-+	ret = platform_driver_register(&cros_usbpd_notify_acpi_driver);
-+	if (ret) {
-+		platform_driver_unregister(&cros_usbpd_notify_plat_driver);
-+		return ret;
-+	}
- #endif
- 	return 0;
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 4ccd21e9a29f..fd0eb93e1bbb 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4377,10 +4377,12 @@ static inline int util_fits_cpu(unsigned long util,
+ 	return fits;
  }
+ 
+-static inline int task_fits_capacity(struct task_struct *p,
+-				     unsigned long capacity)
++static inline int task_fits_cpu(struct task_struct *p, int cpu)
+ {
+-	return fits_capacity(uclamp_task_util(p), capacity);
++	unsigned long uclamp_min = uclamp_eff_value(p, UCLAMP_MIN);
++	unsigned long uclamp_max = uclamp_eff_value(p, UCLAMP_MAX);
++	unsigned long util = task_util_est(p);
++	return util_fits_cpu(util, uclamp_min, uclamp_max, cpu);
+ }
+ 
+ static inline void update_misfit_status(struct task_struct *p, struct rq *rq)
+@@ -4393,7 +4395,7 @@ static inline void update_misfit_status(struct task_struct *p, struct rq *rq)
+ 		return;
+ 	}
+ 
+-	if (task_fits_capacity(p, capacity_of(cpu_of(rq)))) {
++	if (task_fits_cpu(p, cpu_of(rq))) {
+ 		rq->misfit_task_load = 0;
+ 		return;
+ 	}
+@@ -8231,7 +8233,7 @@ static int detach_tasks(struct lb_env *env)
+ 
+ 		case migrate_misfit:
+ 			/* This is not a misfit task */
+-			if (task_fits_capacity(p, capacity_of(env->src_cpu)))
++			if (task_fits_cpu(p, env->src_cpu))
+ 				goto next;
+ 
+ 			env->imbalance = 0;
+@@ -9236,6 +9238,10 @@ static inline void update_sg_wakeup_stats(struct sched_domain *sd,
+ 
+ 	memset(sgs, 0, sizeof(*sgs));
+ 
++	/* Assume that task can't fit any CPU of the group */
++	if (sd->flags & SD_ASYM_CPUCAPACITY)
++		sgs->group_misfit_task_load = 1;
++
+ 	for_each_cpu(i, sched_group_span(group)) {
+ 		struct rq *rq = cpu_rq(i);
+ 		unsigned int local;
+@@ -9255,12 +9261,12 @@ static inline void update_sg_wakeup_stats(struct sched_domain *sd,
+ 		if (!nr_running && idle_cpu_without(i, p))
+ 			sgs->idle_cpus++;
+ 
+-	}
++		/* Check if task fits in the CPU */
++		if (sd->flags & SD_ASYM_CPUCAPACITY &&
++		    sgs->group_misfit_task_load &&
++		    task_fits_cpu(p, i))
++			sgs->group_misfit_task_load = 0;
+ 
+-	/* Check if task fits in the group */
+-	if (sd->flags & SD_ASYM_CPUCAPACITY &&
+-	    !task_fits_capacity(p, group->sgc->max_capacity)) {
+-		sgs->group_misfit_task_load = 1;
+ 	}
+ 
+ 	sgs->group_capacity = group->sgc->capacity;
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index f34b489636ff..1b8a5d791907 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -3044,6 +3044,15 @@ static inline bool uclamp_is_used(void)
+ 	return static_branch_likely(&sched_uclamp_used);
+ }
+ #else /* CONFIG_UCLAMP_TASK */
++static inline unsigned long uclamp_eff_value(struct task_struct *p,
++					     enum uclamp_id clamp_id)
++{
++	if (clamp_id == UCLAMP_MIN)
++		return 0;
++
++	return SCHED_CAPACITY_SCALE;
++}
++
+ static inline
+ unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
+ 				  struct task_struct *p)
 -- 
 2.35.1
 
