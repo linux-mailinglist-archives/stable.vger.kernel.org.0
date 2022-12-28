@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37F3B6581F4
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:32:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFF9C658114
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234680AbiL1Qc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:32:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52728 "EHLO
+        id S234697AbiL1QYq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:24:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234696AbiL1QcD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:32:03 -0500
+        with ESMTP id S234660AbiL1QYH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:24:07 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAFBB2E8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:28:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F58B165B4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:21:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9F6C4B81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:28:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1645CC433F0;
-        Wed, 28 Dec 2022 16:28:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C9499B817AC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:21:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F08FC433F0;
+        Wed, 28 Dec 2022 16:21:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244919;
-        bh=klFy7AXjHXGz564pvfCV6fTFf/FUGAlNJIEEtUEHjlA=;
+        s=korg; t=1672244462;
+        bh=3lwxasK5NkpFU4+l7wHqxiDULc6e1FGx/znr2yxZgU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AuWiXCk6Y2ElFZf7XxhzUgqIXMTGVQ3IZEfXorsPN7ssg4WyHzNMpwhGOqKVtbEjY
-         slurdnRXrFHyDvjGurHjkK8Mla+B0wAV0wHDzuio9xwQcxXCmXp+lYx2JEVdvwZf9x
-         OP0gj7vT6PFNqi8WWfvFoMcSjmdHQm5cGtzGI3cA=
+        b=hI8WQ9C0hbc8TnkTVtIVQInh/FaDTmGUp0ku4zNBmiXz7CpyAUwCFE3P77Anweqtx
+         RrPASc+mS2svATgBJP9L9TjQ9KfwsuYHZlYuNksmnRLg8MJaXKgjuVIRabsfyUPXd7
+         1CAWwRWZIpcaTTfzCsGUJbYCtWlTo6rJsPeCwVfc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0762/1146] led: qcom-lpg: Fix sleeping in atomic
-Date:   Wed, 28 Dec 2022 15:38:21 +0100
-Message-Id: <20221228144350.844065663@linuxfoundation.org>
+        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0714/1073] staging: rtl8192e: Fix potential use-after-free in rtllib_rx_Monitor()
+Date:   Wed, 28 Dec 2022 15:38:22 +0100
+Message-Id: <20221228144347.421807720@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,127 +52,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 3031993b3474794ecb71b6f969a3e60e4bda9d8a ]
+[ Upstream commit d30f4436f364b4ad915ca2c09be07cd0f93ceb44 ]
 
-lpg_brighness_set() function can sleep, while led's brightness_set()
-callback must be non-blocking. Change LPG driver to use
-brightness_set_blocking() instead.
+The skb is delivered to netif_rx() in rtllib_monitor_rx(), which may free it,
+after calling this, dereferencing skb may trigger use-after-free.
+Found by Smatch.
 
-BUG: sleeping function called from invalid context at kernel/locking/mutex.c:580
-in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 0, name: swapper/0
-preempt_count: 101, expected: 0
-INFO: lockdep is turned off.
-CPU: 0 PID: 0 Comm: swapper/0 Tainted: G        W          6.1.0-rc1-00014-gbe99b089c6fc-dirty #85
-Hardware name: Qualcomm Technologies, Inc. DB820c (DT)
-Call trace:
- dump_backtrace.part.0+0xe4/0xf0
- show_stack+0x18/0x40
- dump_stack_lvl+0x88/0xb4
- dump_stack+0x18/0x34
- __might_resched+0x170/0x254
- __might_sleep+0x48/0x9c
- __mutex_lock+0x4c/0x400
- mutex_lock_nested+0x2c/0x40
- lpg_brightness_single_set+0x40/0x90
- led_set_brightness_nosleep+0x34/0x60
- led_heartbeat_function+0x80/0x170
- call_timer_fn+0xb8/0x340
- __run_timers.part.0+0x20c/0x254
- run_timer_softirq+0x3c/0x7c
- _stext+0x14c/0x578
- ____do_softirq+0x10/0x20
- call_on_irq_stack+0x2c/0x5c
- do_softirq_own_stack+0x1c/0x30
- __irq_exit_rcu+0x164/0x170
- irq_exit_rcu+0x10/0x40
- el1_interrupt+0x38/0x50
- el1h_64_irq_handler+0x18/0x2c
- el1h_64_irq+0x64/0x68
- cpuidle_enter_state+0xc8/0x380
- cpuidle_enter+0x38/0x50
- do_idle+0x244/0x2d0
- cpu_startup_entry+0x24/0x30
- rest_init+0x128/0x1a0
- arch_post_acpi_subsys_init+0x0/0x18
- start_kernel+0x6f4/0x734
- __primary_switched+0xbc/0xc4
-
-Fixes: 24e2d05d1b68 ("leds: Add driver for Qualcomm LPG")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
+Fixes: 94a799425eee ("From: wlanfae <wlanfae@realtek.com> [PATCH 1/8] rtl8192e: Import new version of driver from realtek")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Link: https://lore.kernel.org/r/20221123081253.22296-1-yuehaibing@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/rgb/leds-qcom-lpg.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ drivers/staging/rtl8192e/rtllib_rx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/leds/rgb/leds-qcom-lpg.c b/drivers/leds/rgb/leds-qcom-lpg.c
-index 02f51cc61837..c1a56259226f 100644
---- a/drivers/leds/rgb/leds-qcom-lpg.c
-+++ b/drivers/leds/rgb/leds-qcom-lpg.c
-@@ -602,8 +602,8 @@ static void lpg_brightness_set(struct lpg_led *led, struct led_classdev *cdev,
- 		lpg_lut_sync(lpg, lut_mask);
+diff --git a/drivers/staging/rtl8192e/rtllib_rx.c b/drivers/staging/rtl8192e/rtllib_rx.c
+index abe5c153f74e..b0ef9da43bc4 100644
+--- a/drivers/staging/rtl8192e/rtllib_rx.c
++++ b/drivers/staging/rtl8192e/rtllib_rx.c
+@@ -1489,9 +1489,9 @@ static int rtllib_rx_Monitor(struct rtllib_device *ieee, struct sk_buff *skb,
+ 		hdrlen += 4;
+ 	}
+ 
+-	rtllib_monitor_rx(ieee, skb, rx_stats, hdrlen);
+ 	ieee->stats.rx_packets++;
+ 	ieee->stats.rx_bytes += skb->len;
++	rtllib_monitor_rx(ieee, skb, rx_stats, hdrlen);
+ 
+ 	return 1;
  }
- 
--static void lpg_brightness_single_set(struct led_classdev *cdev,
--				      enum led_brightness value)
-+static int lpg_brightness_single_set(struct led_classdev *cdev,
-+				     enum led_brightness value)
- {
- 	struct lpg_led *led = container_of(cdev, struct lpg_led, cdev);
- 	struct mc_subled info;
-@@ -614,10 +614,12 @@ static void lpg_brightness_single_set(struct led_classdev *cdev,
- 	lpg_brightness_set(led, cdev, &info);
- 
- 	mutex_unlock(&led->lpg->lock);
-+
-+	return 0;
- }
- 
--static void lpg_brightness_mc_set(struct led_classdev *cdev,
--				  enum led_brightness value)
-+static int lpg_brightness_mc_set(struct led_classdev *cdev,
-+				 enum led_brightness value)
- {
- 	struct led_classdev_mc *mc = lcdev_to_mccdev(cdev);
- 	struct lpg_led *led = container_of(mc, struct lpg_led, mcdev);
-@@ -628,6 +630,8 @@ static void lpg_brightness_mc_set(struct led_classdev *cdev,
- 	lpg_brightness_set(led, cdev, mc->subled_info);
- 
- 	mutex_unlock(&led->lpg->lock);
-+
-+	return 0;
- }
- 
- static int lpg_blink_set(struct lpg_led *led,
-@@ -1118,7 +1122,7 @@ static int lpg_add_led(struct lpg *lpg, struct device_node *np)
- 		led->mcdev.num_colors = num_channels;
- 
- 		cdev = &led->mcdev.led_cdev;
--		cdev->brightness_set = lpg_brightness_mc_set;
-+		cdev->brightness_set_blocking = lpg_brightness_mc_set;
- 		cdev->blink_set = lpg_blink_mc_set;
- 
- 		/* Register pattern accessors only if we have a LUT block */
-@@ -1132,7 +1136,7 @@ static int lpg_add_led(struct lpg *lpg, struct device_node *np)
- 			return ret;
- 
- 		cdev = &led->cdev;
--		cdev->brightness_set = lpg_brightness_single_set;
-+		cdev->brightness_set_blocking = lpg_brightness_single_set;
- 		cdev->blink_set = lpg_blink_single_set;
- 
- 		/* Register pattern accessors only if we have a LUT block */
-@@ -1151,7 +1155,7 @@ static int lpg_add_led(struct lpg *lpg, struct device_node *np)
- 	else
- 		cdev->brightness = LED_OFF;
- 
--	cdev->brightness_set(cdev, cdev->brightness);
-+	cdev->brightness_set_blocking(cdev, cdev->brightness);
- 
- 	init_data.fwnode = of_fwnode_handle(np);
- 
 -- 
 2.35.1
 
