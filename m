@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8F9D657EFF
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:00:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A3CC658418
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:54:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230224AbiL1QAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:00:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46788 "EHLO
+        id S233360AbiL1QyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:54:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232658AbiL1QAC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:00:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F5F718E27
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:59:59 -0800 (PST)
+        with ESMTP id S235179AbiL1Qxl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:53:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25A1B1DF20
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:48:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E1EC4613E9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:59:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01238C433D2;
-        Wed, 28 Dec 2022 15:59:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5920DB8188B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:48:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89C99C433EF;
+        Wed, 28 Dec 2022 16:48:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243198;
-        bh=FKtCj8p/pFb9w5475+Qx7EIJbbFLYrGQLnNpQwnJEmc=;
+        s=korg; t=1672246132;
+        bh=87Fm83zzhdCo40yLR2Qb9vfcz28VPo8F2EtMDVbNYOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F+E6YDm07BFX0+J/EzKjccO5gDGNamWNPn9Np3nZhE0jyQBpgZsjCzLX2hj0S0pPr
-         jxxivf6jK95m2U/FPkBAEnE4Lz82+oiCX6YSpuDMEipFtaMoEfgRGmv+Ieuh5Y3TO1
-         QPxpY0FfJCoIft5E0OSFj8el00d5h2HFSh6c+C0c=
+        b=cCrjurD8WfJqWoy7cP0OvBzHJoGg3R/Ist82mgcP/eNS84Vcz8ZvF8ZOAIy/Q0D2i
+         L7UE9DJHrcTN9vxNtc5HBwheG/1vmo5VUH4ZDHOai3MaCPEnsQQTvlVPxLi5wM9UbI
+         7A0GeaGYylRyGzKYFmiX8oKXtYsBYElPsq+NVdr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 676/731] scsi: ufs: Reduce the START STOP UNIT timeout
+Subject: [PATCH 6.0 0995/1073] clk: renesas: r8a779f0: Add TMU and parent SASYNC clocks
 Date:   Wed, 28 Dec 2022 15:43:03 +0100
-Message-Id: <20221228144316.070794153@linuxfoundation.org>
+Message-Id: <20221228144355.151108173@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit dcd5b7637c6d442d957f73780a03047413ed3a10 ]
+[ Upstream commit 1e56ebc9872feb2cf9a002c0a23d79a68f6493cb ]
 
-Reduce the START STOP UNIT command timeout to one second since on Android
-devices a kernel panic is triggered if an attempt to suspend the system
-takes more than 20 seconds. One second should be enough for the START STOP
-UNIT command since this command completes in less than a millisecond for
-the UFS devices I have access to.
-
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Link: https://lore.kernel.org/r/20221018202958.1902564-7-bvanassche@acm.org
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Link: https://lore.kernel.org/r/20220726210110.1444-2-wsa+renesas@sang-engineering.com
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ drivers/clk/renesas/r8a779f0-cpg-mssr.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index dae1a85f1512..a428b8145dcc 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -8476,8 +8476,6 @@ static int ufshcd_set_dev_pwr_mode(struct ufs_hba *hba,
- 	struct scsi_device *sdp;
- 	unsigned long flags;
- 	int ret, retries;
--	unsigned long deadline;
--	int32_t remaining;
+diff --git a/drivers/clk/renesas/r8a779f0-cpg-mssr.c b/drivers/clk/renesas/r8a779f0-cpg-mssr.c
+index 9bd6746e6a07..738f71556621 100644
+--- a/drivers/clk/renesas/r8a779f0-cpg-mssr.c
++++ b/drivers/clk/renesas/r8a779f0-cpg-mssr.c
+@@ -108,6 +108,11 @@ static const struct cpg_core_clk r8a779f0_core_clks[] __initconst = {
+ 	DEF_FIXED("cbfusa",	R8A779F0_CLK_CBFUSA,	CLK_EXTAL,	2, 1),
+ 	DEF_FIXED("cpex",	R8A779F0_CLK_CPEX,	CLK_EXTAL,	2, 1),
  
- 	spin_lock_irqsave(hba->host->host_lock, flags);
- 	sdp = hba->sdev_ufs_device;
-@@ -8510,14 +8508,9 @@ static int ufshcd_set_dev_pwr_mode(struct ufs_hba *hba,
- 	 * callbacks hence set the RQF_PM flag so that it doesn't resume the
- 	 * already suspended childs.
- 	 */
--	deadline = jiffies + 10 * HZ;
- 	for (retries = 3; retries > 0; --retries) {
--		ret = -ETIMEDOUT;
--		remaining = deadline - jiffies;
--		if (remaining <= 0)
--			break;
- 		ret = scsi_execute(sdp, cmd, DMA_NONE, NULL, 0, NULL, &sshdr,
--				   remaining / HZ, 0, 0, RQF_PM, NULL);
-+				   HZ, 0, 0, RQF_PM, NULL);
- 		if (!scsi_status_is_check_condition(ret) ||
- 				!scsi_sense_valid(&sshdr) ||
- 				sshdr.sense_key != UNIT_ATTENTION)
++	DEF_FIXED("sasyncrt",	R8A779F0_CLK_SASYNCRT,	CLK_PLL5_DIV4,	48, 1),
++	DEF_FIXED("sasyncperd1", R8A779F0_CLK_SASYNCPERD1, CLK_PLL5_DIV4, 3, 1),
++	DEF_FIXED("sasyncperd2", R8A779F0_CLK_SASYNCPERD2, R8A779F0_CLK_SASYNCPERD1, 2, 1),
++	DEF_FIXED("sasyncperd4", R8A779F0_CLK_SASYNCPERD4, R8A779F0_CLK_SASYNCPERD1, 4, 1),
++
+ 	DEF_GEN4_SDH("sdh0",	R8A779F0_CLK_SD0H,	CLK_SDSRC,	   0x870),
+ 	DEF_GEN4_SD("sd0",	R8A779F0_CLK_SD0,	R8A779F0_CLK_SD0H, 0x870),
+ 
+@@ -140,6 +145,11 @@ static const struct mssr_mod_clk r8a779f0_mod_clks[] __initconst = {
+ 	DEF_MOD("sdhi0",        706,    R8A779F0_CLK_SD0),
+ 	DEF_MOD("sys-dmac0",	709,	R8A779F0_CLK_S0D3_PER),
+ 	DEF_MOD("sys-dmac1",	710,	R8A779F0_CLK_S0D3_PER),
++	DEF_MOD("tmu0",		713,	R8A779F0_CLK_SASYNCRT),
++	DEF_MOD("tmu1",		714,	R8A779F0_CLK_SASYNCPERD2),
++	DEF_MOD("tmu2",		715,	R8A779F0_CLK_SASYNCPERD2),
++	DEF_MOD("tmu3",		716,	R8A779F0_CLK_SASYNCPERD2),
++	DEF_MOD("tmu4",		717,	R8A779F0_CLK_SASYNCPERD2),
+ 	DEF_MOD("wdt",		907,	R8A779F0_CLK_R),
+ 	DEF_MOD("pfc0",		915,	R8A779F0_CLK_CL16M),
+ 	DEF_MOD("tsc",		919,	R8A779F0_CLK_CL16M),
 -- 
 2.35.1
 
