@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1FDB658358
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:47:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AE9A6582D2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:42:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233352AbiL1QrD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:47:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36452 "EHLO
+        id S233841AbiL1QmG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:42:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235170AbiL1Qq1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:46:27 -0500
+        with ESMTP id S234892AbiL1Qla (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:41:30 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9B2ADDE
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:41:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6256A1403E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:35:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C85FAB8171F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:41:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2681CC433D2;
-        Wed, 28 Dec 2022 16:41:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C32EB81707
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:35:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9130C433D2;
+        Wed, 28 Dec 2022 16:35:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245684;
-        bh=kwAN22GT82QZ6Gdtej146pryhHJx/Z/oP4kQAqPG6ZQ=;
+        s=korg; t=1672245356;
+        bh=uDorpQ+jvXyiKodZwc1Qzokg5j+zVX948Cb/FLcavMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nBbtNcNnakwe+aLU3f0CBr6Ao6sAwvaYm3Z60kWR+9mi99IwuDf5jj47UrPl3ui+X
-         clQnKsxNbVmyNoJGgbK1tboJdE0v9nIm85gGH/zELwOmQ5M7mvhWB1Eq0oo1QbooPD
-         oLrYk/BksimyL+KUkY65qFd+SM2uoKY88FTpkGEI=
+        b=RUJpN6lsAHfyciNSw73zaBw/aBQ/G7O8p/w1KBx5Din6KXrMS3aNDHM/MrqbeUo1R
+         CZ4M/ktFWTE1cjUtYQVDQx2+Mb/bTD6KjAk08GNCxbZyykSeN+sGce2xC3e9Im2hqV
+         +qV3tC+I5WLVF7MSb8YbeWsTcDb5Gb/8Hv/yskkU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0905/1146] block: fix error unwinding in blk_register_queue
+Subject: [PATCH 6.0 0856/1073] block: fix error unwinding in blk_register_queue
 Date:   Wed, 28 Dec 2022 15:40:44 +0100
-Message-Id: <20221228144354.798794401@linuxfoundation.org>
+Message-Id: <20221228144351.269645767@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -71,7 +71,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 16 insertions(+), 12 deletions(-)
 
 diff --git a/block/blk-sysfs.c b/block/blk-sysfs.c
-index 3d6951a0b4e7..1631ba2f7259 100644
+index 4825eaa4363a..02931b6f25c5 100644
 --- a/block/blk-sysfs.c
 +++ b/block/blk-sysfs.c
 @@ -820,13 +820,15 @@ int blk_register_queue(struct gendisk *disk)
