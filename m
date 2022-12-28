@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D281657A1A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:07:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29F35657B3A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:19:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233609AbiL1PHu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:07:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55366 "EHLO
+        id S233287AbiL1PTn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:19:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233602AbiL1PHt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:07:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2606413D78
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:07:49 -0800 (PST)
+        with ESMTP id S233749AbiL1PTT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:19:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D04B514007
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:19:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B4B5161365
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:07:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C47E9C433F0;
-        Wed, 28 Dec 2022 15:07:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7429FB81647
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:19:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD0C1C433EF;
+        Wed, 28 Dec 2022 15:19:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240068;
-        bh=NiptSmm1Izwv4ZrmHEeZGc306A/GVdhTjv/BY+YFM/4=;
+        s=korg; t=1672240751;
+        bh=j76NZNX+VuyFiUsR6EsmZCpiE7DtsTkC7Vrl3ZjW4XU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NYcxOk0KjN+02bqfwoi3E68SNziVNDjvg64fnZLzSbUn9TNRbZnDzlSNbuEOESjiT
-         uye+j3Jxo6I60/ABQcnlV5wEDH2JPFuLCwM5JGSIQsmknV6afDn431MzsU/H380kwz
-         Y8ydw1zbRHA0OoJmDC/MfAlOnb6H8pkuzz/3TTLg=
+        b=1v4Kwej7S+nKtDoSoX0ZQ57bCLxxkQHUQPOoiEXZoaNiBuPlrZ9MHMsOWaw25YsQh
+         SWq93D++BEVz7WKRtqexSorZymL8shNoxfFI3UEuxn3giBLGRJwJsljwUgrdVEZoT2
+         LTK5I4csvgFDqVcNFsBtQtgpfVyb8YVPaBihwP9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, wuchi <wuchi.zero@gmail.com>,
-        Waiman Long <longman@redhat.com>,
+        patches@lists.linux.dev, Alexey Izbyshev <izbyshev@ispras.ru>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Christoph Hellwig <hch@lst.de>,
-        Kees Cook <keescook@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0114/1073] lib/debugobjects: fix stat count and optimize debug_objects_mem_init
+Subject: [PATCH 6.1 0163/1146] futex: Resend potentially swallowed owner death notification
 Date:   Wed, 28 Dec 2022 15:28:22 +0100
-Message-Id: <20221228144331.136877682@linuxfoundation.org>
+Message-Id: <20221228144334.588331609@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,74 +54,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: wuchi <wuchi.zero@gmail.com>
+From: Alexey Izbyshev <izbyshev@ispras.ru>
 
-[ Upstream commit eabb7f1ace53e127309407b2b5e74e8199e85270 ]
+[ Upstream commit 90d758896787048fa3d4209309d4800f3920e66f ]
 
-1. Var debug_objects_allocated tracks valid kmem_cache_alloc calls, so
-   track it in debug_objects_replace_static_objects.  Do similar things in
-   object_cpu_offline.
+Commit ca16d5bee598 ("futex: Prevent robust futex exit race") addressed
+two cases when tasks waiting on a robust non-PI futex remained blocked
+despite the futex not being owned anymore:
 
-2. In debug_objects_mem_init, there is no need to call function
-   cpuhp_setup_state_nocalls when debug_objects_enabled = 0 (out of
-   memory).
+* if the owner died after writing zero to the futex word, but before
+  waking up a waiter
 
-Link: https://lkml.kernel.org/r/20220611130634.99741-1-wuchi.zero@gmail.com
-Fixes: 634d61f45d6f ("debugobjects: Percpu pool lookahead freeing/allocation")
-Fixes: c4b73aabd098 ("debugobjects: Track number of kmem_cache_alloc/kmem_cache_free done")
-Signed-off-by: wuchi <wuchi.zero@gmail.com>
-Reviewed-by: Waiman Long <longman@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Kees Cook <keescook@chromium.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+* if a task waiting on the futex was woken up, but died before updating
+  the futex word (effectively swallowing the notification without acting
+  on it)
+
+In the second case, the task could be woken up either by the previous
+owner (after the futex word was reset to zero) or by the kernel (after
+the OWNER_DIED bit was set and the TID part of the futex word was reset
+to zero) if the previous owner died without the resetting the futex.
+
+Because the referenced commit wakes up a potential waiter only if the
+whole futex word is zero, the latter subcase remains unaddressed.
+
+Fix this by looking only at the TID part of the futex when deciding
+whether a wake up is needed.
+
+Fixes: ca16d5bee598 ("futex: Prevent robust futex exit race")
+Signed-off-by: Alexey Izbyshev <izbyshev@ispras.ru>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20221111215439.248185-1-izbyshev@ispras.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/debugobjects.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ kernel/futex/core.c | 26 +++++++++++++++++---------
+ 1 file changed, 17 insertions(+), 9 deletions(-)
 
-diff --git a/lib/debugobjects.c b/lib/debugobjects.c
-index 337d797a7141..6f8e5dd1dcd0 100644
---- a/lib/debugobjects.c
-+++ b/lib/debugobjects.c
-@@ -437,6 +437,7 @@ static int object_cpu_offline(unsigned int cpu)
- 	struct debug_percpu_free *percpu_pool;
- 	struct hlist_node *tmp;
- 	struct debug_obj *obj;
-+	unsigned long flags;
+diff --git a/kernel/futex/core.c b/kernel/futex/core.c
+index b22ef1efe751..514e4582b863 100644
+--- a/kernel/futex/core.c
++++ b/kernel/futex/core.c
+@@ -638,6 +638,7 @@ static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr,
+ 			      bool pi, bool pending_op)
+ {
+ 	u32 uval, nval, mval;
++	pid_t owner;
+ 	int err;
  
- 	/* Remote access is safe as the CPU is dead already */
- 	percpu_pool = per_cpu_ptr(&percpu_obj_pool, cpu);
-@@ -444,6 +445,12 @@ static int object_cpu_offline(unsigned int cpu)
- 		hlist_del(&obj->node);
- 		kmem_cache_free(obj_cache, obj);
+ 	/* Futex address must be 32bit aligned */
+@@ -659,6 +660,10 @@ static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr,
+ 	 * 2. A woken up waiter is killed before it can acquire the
+ 	 *    futex in user space.
+ 	 *
++	 * In the second case, the wake up notification could be generated
++	 * by the unlock path in user space after setting the futex value
++	 * to zero or by the kernel after setting the OWNER_DIED bit below.
++	 *
+ 	 * In both cases the TID validation below prevents a wakeup of
+ 	 * potential waiters which can cause these waiters to block
+ 	 * forever.
+@@ -667,24 +672,27 @@ static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr,
+ 	 *
+ 	 *	1) task->robust_list->list_op_pending != NULL
+ 	 *	   @pending_op == true
+-	 *	2) User space futex value == 0
++	 *	2) The owner part of user space futex value == 0
+ 	 *	3) Regular futex: @pi == false
+ 	 *
+ 	 * If these conditions are met, it is safe to attempt waking up a
+ 	 * potential waiter without touching the user space futex value and
+-	 * trying to set the OWNER_DIED bit. The user space futex value is
+-	 * uncontended and the rest of the user space mutex state is
+-	 * consistent, so a woken waiter will just take over the
+-	 * uncontended futex. Setting the OWNER_DIED bit would create
+-	 * inconsistent state and malfunction of the user space owner died
+-	 * handling.
++	 * trying to set the OWNER_DIED bit. If the futex value is zero,
++	 * the rest of the user space mutex state is consistent, so a woken
++	 * waiter will just take over the uncontended futex. Setting the
++	 * OWNER_DIED bit would create inconsistent state and malfunction
++	 * of the user space owner died handling. Otherwise, the OWNER_DIED
++	 * bit is already set, and the woken waiter is expected to deal with
++	 * this.
+ 	 */
+-	if (pending_op && !pi && !uval) {
++	owner = uval & FUTEX_TID_MASK;
++
++	if (pending_op && !pi && !owner) {
+ 		futex_wake(uaddr, 1, 1, FUTEX_BITSET_MATCH_ANY);
+ 		return 0;
  	}
-+
-+	raw_spin_lock_irqsave(&pool_lock, flags);
-+	obj_pool_used -= percpu_pool->obj_free;
-+	debug_objects_freed += percpu_pool->obj_free;
-+	raw_spin_unlock_irqrestore(&pool_lock, flags);
-+
- 	percpu_pool->obj_free = 0;
  
- 	return 0;
-@@ -1318,6 +1325,8 @@ static int __init debug_objects_replace_static_objects(void)
- 		hlist_add_head(&obj->node, &objects);
- 	}
+-	if ((uval & FUTEX_TID_MASK) != task_pid_vnr(curr))
++	if (owner != task_pid_vnr(curr))
+ 		return 0;
  
-+	debug_objects_allocated += i;
-+
  	/*
- 	 * debug_objects_mem_init() is now called early that only one CPU is up
- 	 * and interrupts have been disabled, so it is safe to replace the
-@@ -1386,6 +1395,7 @@ void __init debug_objects_mem_init(void)
- 		debug_objects_enabled = 0;
- 		kmem_cache_destroy(obj_cache);
- 		pr_warn("out of memory.\n");
-+		return;
- 	} else
- 		debug_objects_selftest();
- 
 -- 
 2.35.1
 
