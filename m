@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F1E8657B89
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84654657A73
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:11:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233231AbiL1PXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:23:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40520 "EHLO
+        id S230122AbiL1PLc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:11:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233328AbiL1PWr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:22:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CB2A1401B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:22:40 -0800 (PST)
+        with ESMTP id S233749AbiL1PLH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:11:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBDE413E04
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:11:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 26D1F6155C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:22:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39E0DC433D2;
-        Wed, 28 Dec 2022 15:22:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 771D8B8170E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:11:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2B86C433F0;
+        Wed, 28 Dec 2022 15:11:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240959;
-        bh=3sOBcQxRetvwd6JEeMeaIjfwfbmL06MvSlThWTyQsq8=;
+        s=korg; t=1672240264;
+        bh=r+fIj9rI22pciiGWei/XhG78gxF9mEKm9Ku3Em0IRL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AgDCVcdEf918ez3Q2qi0fGYN30f06AXgDEcCPKS8J3MQMxg+CcbuiHCbafMKGMSCK
-         UkHTKvFLl0l1XrChWVgHOw2SXZOdcYE5BvZRc5CZKcFMkLO0zCXrgW8mYPBlI93wGC
-         FUuqCiBOyhuB1SmR3AeDV44syT9P20S/UoPdRr90=
+        b=AI1mR1fyjc8uzoIlmtKDZPUpCD2HNuTT3bJLmVpG7TiNnZxH6T3erkV8JwtE/s11P
+         vq1q7e7hNHWXUZwNq1fh/FPCyw2DiGpdA4NLQm5YPPJQTnukbHeJ/FPJ+dx0crRUY9
+         C6UQmZVJcHo4cOOaamXGahDKCmyts/86eSe7x2No=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Ilia.Gavrilov" <Ilia.Gavrilov@infotecs.ru>,
-        Colin Ian King <colin.i.king@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, wuchi <wuchi.zero@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        patches@lists.linux.dev, Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0189/1146] relay: fix type mismatch when allocating memory in relay_create_buf()
+Subject: [PATCH 6.0 0140/1073] NFSD: Finish converting the NFSv2 GETACL result encoder
 Date:   Wed, 28 Dec 2022 15:28:48 +0100
-Message-Id: <20221228144335.283718387@linuxfoundation.org>
+Message-Id: <20221228144331.833017897@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gavrilov Ilia <Ilia.Gavrilov@infotecs.ru>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit 4d8586e04602fe42f0a782d2005956f8b6302678 ]
+[ Upstream commit ea5021e911d3479346a75ac9b7d9dcd751b0fb99 ]
 
-The 'padding' field of the 'rchan_buf' structure is an array of 'size_t'
-elements, but the memory is allocated for an array of 'size_t *' elements.
+The xdr_stream conversion inadvertently left some code that set the
+page_len of the send buffer. The XDR stream encoders should handle
+this automatically now.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+This oversight adds garbage past the end of the Reply message.
+Clients typically ignore the garbage, but NFSD does not need to send
+it, as it leaks stale memory contents onto the wire.
 
-Link: https://lkml.kernel.org/r/20221129092002.3538384-1-Ilia.Gavrilov@infotecs.ru
-Fixes: b86ff981a825 ("[PATCH] relay: migrate from relayfs to a generic relay API")
-Signed-off-by: Ilia.Gavrilov <Ilia.Gavrilov@infotecs.ru>
-Cc: Colin Ian King <colin.i.king@gmail.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: wuchi <wuchi.zero@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: f8cba47344f7 ("NFSD: Update the NFSv2 GETACL result encoder to use struct xdr_stream")
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/relay.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/nfsd/nfs2acl.c | 10 ----------
+ 1 file changed, 10 deletions(-)
 
-diff --git a/kernel/relay.c b/kernel/relay.c
-index d7edc934c56d..88bcb09f0a1f 100644
---- a/kernel/relay.c
-+++ b/kernel/relay.c
-@@ -148,13 +148,13 @@ static struct rchan_buf *relay_create_buf(struct rchan *chan)
- {
- 	struct rchan_buf *buf;
+diff --git a/fs/nfsd/nfs2acl.c b/fs/nfsd/nfs2acl.c
+index 9edd3c1a30fb..87f224cd30a8 100644
+--- a/fs/nfsd/nfs2acl.c
++++ b/fs/nfsd/nfs2acl.c
+@@ -246,7 +246,6 @@ nfsaclsvc_encode_getaclres(struct svc_rqst *rqstp, struct xdr_stream *xdr)
+ 	struct nfsd3_getaclres *resp = rqstp->rq_resp;
+ 	struct dentry *dentry = resp->fh.fh_dentry;
+ 	struct inode *inode;
+-	int w;
  
--	if (chan->n_subbufs > KMALLOC_MAX_SIZE / sizeof(size_t *))
-+	if (chan->n_subbufs > KMALLOC_MAX_SIZE / sizeof(size_t))
- 		return NULL;
+ 	if (!svcxdr_encode_stat(xdr, resp->status))
+ 		return false;
+@@ -260,15 +259,6 @@ nfsaclsvc_encode_getaclres(struct svc_rqst *rqstp, struct xdr_stream *xdr)
+ 	if (xdr_stream_encode_u32(xdr, resp->mask) < 0)
+ 		return false;
  
- 	buf = kzalloc(sizeof(struct rchan_buf), GFP_KERNEL);
- 	if (!buf)
- 		return NULL;
--	buf->padding = kmalloc_array(chan->n_subbufs, sizeof(size_t *),
-+	buf->padding = kmalloc_array(chan->n_subbufs, sizeof(size_t),
- 				     GFP_KERNEL);
- 	if (!buf->padding)
- 		goto free_buf;
+-	rqstp->rq_res.page_len = w = nfsacl_size(
+-		(resp->mask & NFS_ACL)   ? resp->acl_access  : NULL,
+-		(resp->mask & NFS_DFACL) ? resp->acl_default : NULL);
+-	while (w > 0) {
+-		if (!*(rqstp->rq_next_page++))
+-			return true;
+-		w -= PAGE_SIZE;
+-	}
+-
+ 	if (!nfs_stream_encode_acl(xdr, inode, resp->acl_access,
+ 				   resp->mask & NFS_ACL, 0))
+ 		return false;
 -- 
 2.35.1
 
