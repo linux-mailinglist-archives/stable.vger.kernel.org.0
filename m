@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F5A8657855
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:49:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BCAC657F0B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:00:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232960AbiL1Ot0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:49:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37348 "EHLO
+        id S234247AbiL1QAe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:00:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232950AbiL1OtZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:49:25 -0500
+        with ESMTP id S234242AbiL1QAb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:00:31 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02D3B3AB
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:49:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D28218E23
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:00:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 962C561130
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:49:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A53F7C433D2;
-        Wed, 28 Dec 2022 14:49:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1920661563
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:00:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA81FC433F1;
+        Wed, 28 Dec 2022 16:00:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238964;
-        bh=42Y8QxZyZzt8It3aAKopBhcGIJD49TelzXjP2Zcvcz8=;
+        s=korg; t=1672243229;
+        bh=otFveWaqV2lUR8YzwahqjNHQ6/nJvhCF7rnHkC2Cx0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JcH0iJm6GnD1f8ndMrusHvhbzSv3ovjf85hg0EAwAlFB8HAKurBFc2yDZFdHfZfM8
-         vvRxBGLf4V+Lg013LVTxexlRdf9Vm5htc/lmIhbWDjTRSi+Wi/syrBe3wjq9pNhvh1
-         QoiiHEWnyNJQ5fbsP2qiem5AyCjVluntOi7aPBvI=
+        b=YXjepNGnA1h4B8bTJ6jGvVcGaemYLZCG80EjiXmM+wkGvUrSTLWtSMuVah1UEGaX2
+         iVpFgvk/ibPQlS0+Kf9KkOnml+t827yez2j6mgKnqlv46+xwdo0d8AxpflXCAsfcac
+         4zDM3BnIeVP53zDWvhDS/xr4gTtJMr/0ZErp938o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Al Viro <viro@zeniv.linux.org.uk>,
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 076/731] alpha: fix syscall entry in !AUDUT_SYSCALL case
+Subject: [PATCH 6.1 0444/1146] Input: wistron_btns - disable on UML
 Date:   Wed, 28 Dec 2022 15:33:03 +0100
-Message-Id: <20221228144258.755375968@linuxfoundation.org>
+Message-Id: <20221228144342.239719880@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,38 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit f7b2431a6d22f7a91c567708e071dfcd6d66db14 ]
+[ Upstream commit b2b80d9dd14cb5b70dc254bddbc4eea932694791 ]
 
-We only want to take the slow path if SYSCALL_TRACE or SYSCALL_AUDIT is
-set; on !AUDIT_SYSCALL configs the current tree hits it whenever _any_
-thread flag (including NEED_RESCHED, NOTIFY_SIGNAL, etc.) happens to
-be set.
+The wistron_btns driver calls rtc_cmos_read(), which isn't
+available with UML builds, so disable this driver on UML.
 
-Fixes: a9302e843944 "alpha: Enable system-call auditing support"
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Prevents this build error:
+
+ld: drivers/input/misc/wistron_btns.o: in function `poll_bios':
+wistron_btns.c:(.text+0x4be): undefined reference to `rtc_cmos_read'
+
+Fixes: 0bbadafdc49d ("um: allow disabling NO_IOMEM") # v5.14+
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/20221130161604.1879-1-rdunlap@infradead.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/alpha/kernel/entry.S | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/input/misc/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/alpha/kernel/entry.S b/arch/alpha/kernel/entry.S
-index e227f3a29a43..c41a5a9c3b9f 100644
---- a/arch/alpha/kernel/entry.S
-+++ b/arch/alpha/kernel/entry.S
-@@ -469,8 +469,10 @@ entSys:
- #ifdef CONFIG_AUDITSYSCALL
- 	lda     $6, _TIF_SYSCALL_TRACE | _TIF_SYSCALL_AUDIT
- 	and     $3, $6, $3
--#endif
- 	bne     $3, strace
-+#else
-+	blbs    $3, strace		/* check for SYSCALL_TRACE in disguise */
-+#endif
- 	beq	$4, 1f
- 	ldq	$27, 0($5)
- 1:	jsr	$26, ($27), sys_ni_syscall
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 9f088900f863..fa942651619d 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -330,7 +330,7 @@ config INPUT_CPCAP_PWRBUTTON
+ 
+ config INPUT_WISTRON_BTNS
+ 	tristate "x86 Wistron laptop button interface"
+-	depends on X86_32
++	depends on X86_32 && !UML
+ 	select INPUT_SPARSEKMAP
+ 	select NEW_LEDS
+ 	select LEDS_CLASS
 -- 
 2.35.1
 
