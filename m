@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33B9C657CED
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:37:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 871E8657D9D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:45:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233502AbiL1Phd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:37:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55090 "EHLO
+        id S234000AbiL1PpG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:45:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233911AbiL1Phc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:37:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 072EC164B9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:37:32 -0800 (PST)
+        with ESMTP id S233592AbiL1PpF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:45:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 755B617599
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:45:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B2EFBB81647
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:37:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BAE1C433EF;
-        Wed, 28 Dec 2022 15:37:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15EF8B8172B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:45:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68D61C433D2;
+        Wed, 28 Dec 2022 15:45:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241849;
-        bh=SxhX8RRTugluLrIwxcNtKr6LnnBhcPBA0pudhYJip5c=;
+        s=korg; t=1672242301;
+        bh=vRLkE86fpirHqul2CUIg/o2NFoI2q2mrfmZebt6V5PA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M+tZzE4l/fXFl5eg72oQDqD1ZkLUvIOm7IW7q3kcnSITmzB2hLusZzRy5oVr/RBFp
-         Z/5zYWlftwRcRwsus8sAHFNPAvgi1nNp7px6t+d1nuBW2sgj8szfgUsSYzjh8czr/h
-         6xyvczaX1BTOoeECIJ5nnu4dIr52P09I4A8XmiR4=
+        b=G7bXHWWqUbVLlrlMwMJVwhKiUj+oEEotG54caWtIuNwj1gaW+0P9t/I0Xl4MwUp0D
+         Eng03XwBuyJ/JQeEOb09+WEJcHuN/qse2Telf3yJ2NPLASm0ed3hCU7YTNni8MNygG
+         CjFHTwMGwvRplFEvO0XMq/8xJ0G7RG44GHKtAvcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        patches@lists.linux.dev, Ming Qian <ming.qian@nxp.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0303/1073] drm: rcar-du: Drop leftovers dependencies from Kconfig
+Subject: [PATCH 6.1 0352/1146] media: amphion: add lock around vdec_g_fmt
 Date:   Wed, 28 Dec 2022 15:31:31 +0100
-Message-Id: <20221228144336.241661335@linuxfoundation.org>
+Message-Id: <20221228144339.724260199@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+From: Ming Qian <ming.qian@nxp.com>
 
-[ Upstream commit 1760eb547276299ab0c6a6cd3d29469e54ade615 ]
+[ Upstream commit 8480dd5fb3c82b5887d456b3fbe4201d99231814 ]
 
-Commit 841281fe52a7 ("drm: rcar-du: Drop LVDS device tree backward
-compatibility") has removed device tree overlay sources used for
-backward compatibility with old bindings, but forgot to remove related
-dependencies from Kconfig. Fix it.
+the capture format may be changed when
+sequence header is parsed,
+it may be read and write in the same time,
+add lock around vdec_g_fmt to synchronize it
 
-Fixes: 841281fe52a7 ("drm: rcar-du: Drop LVDS device tree backward compatibility")
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Fixes: 6de8d628df6e ("media: amphion: add v4l2 m2m vpu decoder stateful driver")
+Signed-off-by: Ming Qian <ming.qian@nxp.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rcar-du/Kconfig | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/media/platform/amphion/vdec.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/rcar-du/Kconfig b/drivers/gpu/drm/rcar-du/Kconfig
-index f6e6a6d5d987..b3c29ca7726e 100644
---- a/drivers/gpu/drm/rcar-du/Kconfig
-+++ b/drivers/gpu/drm/rcar-du/Kconfig
-@@ -41,8 +41,6 @@ config DRM_RCAR_LVDS
- 	depends on DRM_RCAR_USE_LVDS
- 	select DRM_KMS_HELPER
- 	select DRM_PANEL
--	select OF_FLATTREE
--	select OF_OVERLAY
+diff --git a/drivers/media/platform/amphion/vdec.c b/drivers/media/platform/amphion/vdec.c
+index 84c90ce265f2..b27e6bed85f0 100644
+--- a/drivers/media/platform/amphion/vdec.c
++++ b/drivers/media/platform/amphion/vdec.c
+@@ -286,6 +286,7 @@ static int vdec_g_fmt(struct file *file, void *fh, struct v4l2_format *f)
+ 	struct vpu_format *cur_fmt;
+ 	int i;
  
- config DRM_RCAR_MIPI_DSI
- 	tristate "R-Car DU MIPI DSI Encoder Support"
++	vpu_inst_lock(inst);
+ 	cur_fmt = vpu_get_format(inst, f->type);
+ 
+ 	pixmp->pixelformat = cur_fmt->pixfmt;
+@@ -303,6 +304,7 @@ static int vdec_g_fmt(struct file *file, void *fh, struct v4l2_format *f)
+ 	f->fmt.pix_mp.xfer_func = vdec->codec_info.transfer_chars;
+ 	f->fmt.pix_mp.ycbcr_enc = vdec->codec_info.matrix_coeffs;
+ 	f->fmt.pix_mp.quantization = vdec->codec_info.full_range;
++	vpu_inst_unlock(inst);
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
