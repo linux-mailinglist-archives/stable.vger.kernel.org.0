@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AB826581A8
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:30:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37D8B657AE8
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:16:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230392AbiL1QaY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:30:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49486 "EHLO
+        id S233111AbiL1PQO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:16:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233315AbiL1QaA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:30:00 -0500
+        with ESMTP id S233125AbiL1PQM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:16:12 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24DE51B9E8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:26:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B45FB228
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:16:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5E3FB81717
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:26:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46E92C433D2;
-        Wed, 28 Dec 2022 16:26:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 653A8B8170E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:16:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA72FC433F0;
+        Wed, 28 Dec 2022 15:16:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244785;
-        bh=2s8+8v+kwfXxbFXzf6BDPF3hKKV7A9BpshUDpveIOhI=;
+        s=korg; t=1672240569;
+        bh=UJhwYti2ReR2+D0E9d97pY7m97WR85RhOj5MVYvjwHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EpCSrM5SAqhbk+r1LtG2wDJpDKCkyjXAeIqBdDgpKRGGVz/+ntSI/386H6zEcOXlp
-         BWwFdTtmXAewe+G7skL3puB/8MoFEifFjwVHsrvL2kzQiQYSTwnBRTnxPS+K8MeMO9
-         Cpby2OQP1lGN+ggRG9nCkejEq17Dn/VnUl1tI8Ts=
+        b=yIsGcfsqQevnuOZbW8nWc7f6REuDDJ0ue26aq4YqXDTkkDuhMFtSXpuJYo1hprUPX
+         7AKPoQOiXK84kN8haCeHsAQ9V30TlJIKGcWT2UeXSHBR/UHHRMc6hJUaMH6Tx6lhDF
+         3W6OrRbws535a/OwHAMa0PaOROIr7XXsvIMryxHA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hui Tang <tanghui20@huawei.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0736/1146] i2c: pxa-pci: fix missing pci_disable_device() on error in ce4100_i2c_probe
+        patches@lists.linux.dev,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        Om Prakash Singh <omp@nvidia.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 368/731] PCI: pci-epf-test: Register notifier if only core_init_notifier is enabled
 Date:   Wed, 28 Dec 2022 15:37:55 +0100
-Message-Id: <20221228144350.139836817@linuxfoundation.org>
+Message-Id: <20221228144307.229677594@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,55 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Tang <tanghui20@huawei.com>
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-[ Upstream commit d78a167332e1ca8113268ed922c1212fd71b73ad ]
+[ Upstream commit 6acd25cc98ce0c9ee4fefdaf44fc8bca534b26e5 ]
 
-Using pcim_enable_device() to avoid missing pci_disable_device().
+The pci_epf_test_notifier function should be installed also if only
+core_init_notifier is enabled. Fix the current logic.
 
-Fixes: 7e94dd154e93 ("i2c-pxa2xx: Add PCI support for PXA I2C controller")
-Signed-off-by: Hui Tang <tanghui20@huawei.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Link: https://lore.kernel.org/r/20220825090101.20474-1-hayashi.kunihiko@socionext.com
+Fixes: 5e50ee27d4a5 ("PCI: pci-epf-test: Add support to defer core initialization")
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Acked-by: Om Prakash Singh <omp@nvidia.com>
+Acked-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-pxa-pci.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/pci/endpoint/functions/pci-epf-test.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-pxa-pci.c b/drivers/i2c/busses/i2c-pxa-pci.c
-index f614cade432b..30e38bc8b6db 100644
---- a/drivers/i2c/busses/i2c-pxa-pci.c
-+++ b/drivers/i2c/busses/i2c-pxa-pci.c
-@@ -105,7 +105,7 @@ static int ce4100_i2c_probe(struct pci_dev *dev,
- 	int i;
- 	struct ce4100_devices *sds;
- 
--	ret = pci_enable_device_mem(dev);
-+	ret = pcim_enable_device(dev);
+diff --git a/drivers/pci/endpoint/functions/pci-epf-test.c b/drivers/pci/endpoint/functions/pci-epf-test.c
+index a5ed779b0a51..45535d4ae644 100644
+--- a/drivers/pci/endpoint/functions/pci-epf-test.c
++++ b/drivers/pci/endpoint/functions/pci-epf-test.c
+@@ -883,7 +883,7 @@ static int pci_epf_test_bind(struct pci_epf *epf)
  	if (ret)
- 		return ret;
+ 		epf_test->dma_supported = false;
  
-@@ -114,10 +114,8 @@ static int ce4100_i2c_probe(struct pci_dev *dev,
- 		return -EINVAL;
- 	}
- 	sds = kzalloc(sizeof(*sds), GFP_KERNEL);
--	if (!sds) {
--		ret = -ENOMEM;
--		goto err_mem;
--	}
-+	if (!sds)
-+		return -ENOMEM;
- 
- 	for (i = 0; i < ARRAY_SIZE(sds->pdev); i++) {
- 		sds->pdev[i] = add_i2c_device(dev, i);
-@@ -133,8 +131,6 @@ static int ce4100_i2c_probe(struct pci_dev *dev,
- 
- err_dev_add:
- 	kfree(sds);
--err_mem:
--	pci_disable_device(dev);
- 	return ret;
- }
- 
+-	if (linkup_notifier) {
++	if (linkup_notifier || core_init_notifier) {
+ 		epf->nb.notifier_call = pci_epf_test_notifier;
+ 		pci_epc_register_notifier(epc, &epf->nb);
+ 	} else {
 -- 
 2.35.1
 
