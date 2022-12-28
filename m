@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FB3D657ED4
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:58:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16D0F657DB1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:45:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234171AbiL1P6F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:58:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45346 "EHLO
+        id S233608AbiL1Pp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:45:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234168AbiL1P6E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:58:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FB7A1839E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:58:03 -0800 (PST)
+        with ESMTP id S234012AbiL1Pp4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:45:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55149F18
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:45:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 23A8CB8172B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:58:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78F94C433D2;
-        Wed, 28 Dec 2022 15:58:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8960BB8172E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:45:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDBB1C433D2;
+        Wed, 28 Dec 2022 15:45:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243080;
-        bh=f6uMwpk10iQ6hf7u5EM9uglE3krudtcEF2jqcO8nND4=;
+        s=korg; t=1672242352;
+        bh=vZeP1t6afT0ryktVps5NpbEQ3EArquOAMim4yMVsm3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G3FDa2u2GgUrghKqoGNRu3Ng07EED0GWZ+mpjjsqzhYomb01mDUoRC3fdFmnUDjZc
-         UwVxqho4wJSS5Hjny7sC8AhOsUaM1cy3l76AKD/QyyQNwxQnyHaYSWruW95GwpvzGY
-         lS7A3ZW9kwIdwi6qRHN7/IFt1Q7zEdlut5Zf7m+0=
+        b=yeQ/Sj8e7oywEvKcn8Nw7WPmixsZfLgjn+LDwoSAg0A2QCeusn1vL9A8j5emQNTv8
+         2nCpGVyF1diJ/hWCcHBJLp71Gg2St4K66ZHO32SQ56N+gB/c4eDzbg9FNMHaqnR4gb
+         TXGTloMmpadsydHhc4VVWs2iOJCtcyLDpS/DPxWw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Sverdlin <alexander.sverdlin@siemens.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Yunfei Dong <yunfei.dong@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0449/1146] spi: spidev: mask SPI_CS_HIGH in SPI_IOC_RD_MODE
+Subject: [PATCH 6.0 0400/1073] media: mediatek: vcodec: Core thread depends on core_list
 Date:   Wed, 28 Dec 2022 15:33:08 +0100
-Message-Id: <20221228144342.376843371@linuxfoundation.org>
+Message-Id: <20221228144338.883204436@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,81 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Sverdlin <alexander.sverdlin@siemens.com>
+From: Yunfei Dong <yunfei.dong@mediatek.com>
 
-[ Upstream commit 7dbfa445ff7393d1c4c066c1727c9e0af1251958 ]
+[ Upstream commit 95bc23513c9188065a22194f9af870376fc38fdd ]
 
-Commit f3186dd87669 ("spi: Optionally use GPIO descriptors for CS GPIOs")
-has changed the user-space interface so that bogus SPI_CS_HIGH started
-to appear in the mask returned by SPI_IOC_RD_MODE even for active-low CS
-pins. Commit 138c9c32f090
-("spi: spidev: Fix CS polarity if GPIO descriptors are used") fixed only
-SPI_IOC_WR_MODE part of the problem. Let's fix SPI_IOC_RD_MODE
-symmetrically.
+Core thread will continue to work when core_list is not empty, not
+depends on lat_list.
 
-Test case:
-
-	#include <sys/ioctl.h>
-	#include <fcntl.h>
-	#include <linux/spi/spidev.h>
-
-	int main(int argc, char **argv)
-	{
-		char modew = SPI_CPHA;
-		char moder;
-		int f = open("/dev/spidev0.0", O_RDWR);
-
-		if (f < 0)
-			return 1;
-
-		ioctl(f, SPI_IOC_WR_MODE, &modew);
-		ioctl(f, SPI_IOC_RD_MODE, &moder);
-
-		return moder == modew ? 0 : 2;
-	}
-
-Fixes: f3186dd87669 ("spi: Optionally use GPIO descriptors for CS GPIOs")
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@siemens.com>
-Link: https://lore.kernel.org/r/20221130162927.539512-1-alexander.sverdlin@siemens.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 365e4ba01df4 ("media: mtk-vcodec: Add work queue for core hardware decode")
+Signed-off-by: Yunfei Dong <yunfei.dong@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spidev.c | 21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ drivers/media/platform/mediatek/vcodec/vdec_msg_queue.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
-index b2775d82d2d7..6313e7d0cdf8 100644
---- a/drivers/spi/spidev.c
-+++ b/drivers/spi/spidev.c
-@@ -377,12 +377,23 @@ spidev_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
- 	switch (cmd) {
- 	/* read requests */
- 	case SPI_IOC_RD_MODE:
--		retval = put_user(spi->mode & SPI_MODE_MASK,
--					(__u8 __user *)arg);
--		break;
- 	case SPI_IOC_RD_MODE32:
--		retval = put_user(spi->mode & SPI_MODE_MASK,
--					(__u32 __user *)arg);
-+		tmp = spi->mode;
-+
-+		{
-+			struct spi_controller *ctlr = spi->controller;
-+
-+			if (ctlr->use_gpio_descriptors && ctlr->cs_gpiods &&
-+			    ctlr->cs_gpiods[spi->chip_select])
-+				tmp &= ~SPI_CS_HIGH;
-+		}
-+
-+		if (cmd == SPI_IOC_RD_MODE)
-+			retval = put_user(tmp & SPI_MODE_MASK,
-+					  (__u8 __user *)arg);
-+		else
-+			retval = put_user(tmp & SPI_MODE_MASK,
-+					  (__u32 __user *)arg);
- 		break;
- 	case SPI_IOC_RD_LSB_FIRST:
- 		retval = put_user((spi->mode & SPI_LSB_FIRST) ?  1 : 0,
+diff --git a/drivers/media/platform/mediatek/vcodec/vdec_msg_queue.c b/drivers/media/platform/mediatek/vcodec/vdec_msg_queue.c
+index ae500980ad45..dc2004790a47 100644
+--- a/drivers/media/platform/mediatek/vcodec/vdec_msg_queue.c
++++ b/drivers/media/platform/mediatek/vcodec/vdec_msg_queue.c
+@@ -221,7 +221,7 @@ static void vdec_msg_queue_core_work(struct work_struct *work)
+ 	mtk_vcodec_dec_disable_hardware(ctx, MTK_VDEC_CORE);
+ 	vdec_msg_queue_qbuf(&ctx->msg_queue.lat_ctx, lat_buf);
+ 
+-	if (!list_empty(&ctx->msg_queue.lat_ctx.ready_queue)) {
++	if (!list_empty(&dev->msg_queue_core_ctx.ready_queue)) {
+ 		mtk_v4l2_debug(3, "re-schedule to decode for core: %d",
+ 			       dev->msg_queue_core_ctx.ready_num);
+ 		queue_work(dev->core_workqueue, &msg_queue->core_work);
 -- 
 2.35.1
 
