@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D238657FCF
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:10:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C0A565796B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:01:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233106AbiL1QKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:10:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53736 "EHLO
+        id S233416AbiL1PBM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:01:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234415AbiL1QJm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:09:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6695B17E2D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:08:35 -0800 (PST)
+        with ESMTP id S233463AbiL1PAw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:00:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3B55B9D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:00:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D9CAB81888
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:08:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C406EC4339E;
-        Wed, 28 Dec 2022 16:08:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 51D9661540
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:00:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6354EC433F0;
+        Wed, 28 Dec 2022 15:00:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243702;
-        bh=ekM7PxMiAF1QhFuSLHpNpPze+NPIKVh0kSGq6/Xp3+I=;
+        s=korg; t=1672239645;
+        bh=avd4fX7l7hX5HTf4cz35HVWK9yS+No8I6+h2r+Fp7Os=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ctuRXvFM89vS6OR6ADZ/A+syZBbg7nwqsFQzU9C3HTs1DzJOWzYfzBhS2mY6NvTHn
-         A+jGfh5Qa/FuZG5LFK/g8hUy5SWqM2g38aIdDQYwQkLBDChMqSHGj4U3HXsg1TtSoM
-         f7qpYoKqC+Y0QE/vlGE6cCKf3+LKi3ExOr2HPfSM=
+        b=f4MycWOoxSh20d4Ahilvxz8LxMXiDyshD+L720P1BRfI07FKrMx6qSzDt9pVPtnvj
+         jQreyAyuJAWEejfknVue/INAwADg+oZ9bSBpMWe4d8EvoMxFEszoaMgY7DOhw9l4qc
+         /erUpvBjo4SvtzcJoyzGjVUVrcuvTkmoaEJFFnp0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, John Keeping <john@metanate.com>,
-        Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        patches@lists.linux.dev, Ricardo Ribalda <ribalda@chromium.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0572/1073] crypto: rockchip - add fallback for ahash
+Subject: [PATCH 5.15 253/731] ASoC: mediatek: mt8173: Enable IRQ when pdata is ready
 Date:   Wed, 28 Dec 2022 15:36:00 +0100
-Message-Id: <20221228144343.590341092@linuxfoundation.org>
+Message-Id: <20221228144303.896194800@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,84 +53,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-[ Upstream commit 816600485cb597b3ff7d6806a95a78512839f775 ]
+[ Upstream commit 4cbb264d4e9136acab2c8fd39e39ab1b1402b84b ]
 
-Adds a fallback for all case hardware cannot handle.
+If the device does not come straight from reset, we might receive an IRQ
+before we are ready to handle it.
 
-Fixes: ce0183cb6464b ("crypto: rockchip - switch to skcipher API")
-Reviewed-by: John Keeping <john@metanate.com>
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes:
+
+[    2.334737] Unable to handle kernel read from unreadable memory at virtual address 00000000000001e4
+[    2.522601] Call trace:
+[    2.525040]  regmap_read+0x1c/0x80
+[    2.528434]  mt8173_afe_irq_handler+0x40/0xf0
+...
+[    2.598921]  start_kernel+0x338/0x42c
+
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Fixes: ee0bcaff109f ("ASoC: mediatek: Add AFE platform driver")
+Link: https://lore.kernel.org/r/20221128-mt8173-afe-v1-0-70728221628f@chromium.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/rockchip/rk3288_crypto_ahash.c | 38 +++++++++++++++++++
- 1 file changed, 38 insertions(+)
+ sound/soc/mediatek/mt8173/mt8173-afe-pcm.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/crypto/rockchip/rk3288_crypto_ahash.c b/drivers/crypto/rockchip/rk3288_crypto_ahash.c
-index 49017d1fb510..16009bb0bf16 100644
---- a/drivers/crypto/rockchip/rk3288_crypto_ahash.c
-+++ b/drivers/crypto/rockchip/rk3288_crypto_ahash.c
-@@ -16,6 +16,40 @@
-  * so we put the fixed hash out when met zero message.
-  */
+diff --git a/sound/soc/mediatek/mt8173/mt8173-afe-pcm.c b/sound/soc/mediatek/mt8173/mt8173-afe-pcm.c
+index 31494930433f..8092506facbd 100644
+--- a/sound/soc/mediatek/mt8173/mt8173-afe-pcm.c
++++ b/sound/soc/mediatek/mt8173/mt8173-afe-pcm.c
+@@ -1072,16 +1072,6 @@ static int mt8173_afe_pcm_dev_probe(struct platform_device *pdev)
  
-+static bool rk_ahash_need_fallback(struct ahash_request *req)
-+{
-+	struct scatterlist *sg;
-+
-+	sg = req->src;
-+	while (sg) {
-+		if (!IS_ALIGNED(sg->offset, sizeof(u32))) {
-+			return true;
-+		}
-+		if (sg->length % 4) {
-+			return true;
-+		}
-+		sg = sg_next(sg);
+ 	afe->dev = &pdev->dev;
+ 
+-	irq_id = platform_get_irq(pdev, 0);
+-	if (irq_id <= 0)
+-		return irq_id < 0 ? irq_id : -ENXIO;
+-	ret = devm_request_irq(afe->dev, irq_id, mt8173_afe_irq_handler,
+-			       0, "Afe_ISR_Handle", (void *)afe);
+-	if (ret) {
+-		dev_err(afe->dev, "could not request_irq\n");
+-		return ret;
+-	}
+-
+ 	afe->base_addr = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(afe->base_addr))
+ 		return PTR_ERR(afe->base_addr);
+@@ -1187,6 +1177,16 @@ static int mt8173_afe_pcm_dev_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_cleanup_components;
+ 
++	irq_id = platform_get_irq(pdev, 0);
++	if (irq_id <= 0)
++		return irq_id < 0 ? irq_id : -ENXIO;
++	ret = devm_request_irq(afe->dev, irq_id, mt8173_afe_irq_handler,
++			       0, "Afe_ISR_Handle", (void *)afe);
++	if (ret) {
++		dev_err(afe->dev, "could not request_irq\n");
++		goto err_pm_disable;
 +	}
-+	return false;
-+}
 +
-+static int rk_ahash_digest_fb(struct ahash_request *areq)
-+{
-+	struct rk_ahash_rctx *rctx = ahash_request_ctx(areq);
-+	struct crypto_ahash *tfm = crypto_ahash_reqtfm(areq);
-+	struct rk_ahash_ctx *tfmctx = crypto_ahash_ctx(tfm);
-+
-+	ahash_request_set_tfm(&rctx->fallback_req, tfmctx->fallback_tfm);
-+	rctx->fallback_req.base.flags = areq->base.flags &
-+					CRYPTO_TFM_REQ_MAY_SLEEP;
-+
-+	rctx->fallback_req.nbytes = areq->nbytes;
-+	rctx->fallback_req.src = areq->src;
-+	rctx->fallback_req.result = areq->result;
-+
-+	return crypto_ahash_digest(&rctx->fallback_req);
-+}
-+
- static int zero_message_process(struct ahash_request *req)
- {
- 	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
-@@ -167,6 +201,9 @@ static int rk_ahash_digest(struct ahash_request *req)
- 	struct rk_ahash_ctx *tctx = crypto_tfm_ctx(req->base.tfm);
- 	struct rk_crypto_info *dev = tctx->dev;
+ 	dev_info(&pdev->dev, "MT8173 AFE driver initialized.\n");
+ 	return 0;
  
-+	if (rk_ahash_need_fallback(req))
-+		return rk_ahash_digest_fb(req);
-+
- 	if (!req->nbytes)
- 		return zero_message_process(req);
- 	else
-@@ -309,6 +346,7 @@ static void rk_cra_hash_exit(struct crypto_tfm *tfm)
- 	struct rk_ahash_ctx *tctx = crypto_tfm_ctx(tfm);
- 
- 	free_page((unsigned long)tctx->dev->addr_vir);
-+	crypto_free_ahash(tctx->fallback_tfm);
- }
- 
- struct rk_crypto_tmp rk_ahash_sha1 = {
 -- 
 2.35.1
 
