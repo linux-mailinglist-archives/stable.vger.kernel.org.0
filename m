@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BB13657E92
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:55:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4554657D7A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:43:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234176AbiL1PzM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:55:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42672 "EHLO
+        id S233959AbiL1Pnf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:43:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234162AbiL1PzF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:55:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA9AE18B1C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:55:04 -0800 (PST)
+        with ESMTP id S233973AbiL1Pnd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:43:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1158817409
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:43:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 876CA6156C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:55:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92C01C433D2;
-        Wed, 28 Dec 2022 15:55:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A2BFF6155C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:43:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4C2EC433D2;
+        Wed, 28 Dec 2022 15:43:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242903;
-        bh=FoxYHp9WbO8yNbj/wlK5JvWJiKXSe9+l6W+iEX6c9Cc=;
+        s=korg; t=1672242212;
+        bh=5i8+6z/rlX5Z6LI2Qdy/T6Ajt7q0R/OK8XXzhCAbKO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aqIxoPIEo+0pew/uunlrTjjyoKBT6nO4ir5x8lMRlbuVv1GOB7RiSwHGe465E8FCk
-         Vn7Tbmoh9LFxs5NhNhV/rvd0K2zkm2WKLdwb8BZuQEFHbx2t+I/QJdd5Cjtkv4SQ7W
-         4C/NKVwp1rkNx9n5jxpTLJX1+2lQHVMD7qh+ANfo=
+        b=z75e40mj17x73Y52hJyrgAAC/MnOORpboy7xn7uk40VKhWrxo5WaNvOioMNN957lW
+         LrV0tSKzbxNH64wXpQmhJfMvRfKaQ0p4RfFrADYvOjn4g7yt27/Z8qjcCYujv5r8Eq
+         kmzp+ApcSz0xQ/aCpHEBTxj68hnb9do1tT/eFqMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liu Shixin <liushixin2@huawei.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0429/1146] ALSA: asihpi: fix missing pci_disable_device()
+        patches@lists.linux.dev, Marek Vasut <marex@denx.de>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0380/1073] media: mt9p031: Drop bogus v4l2_subdev_get_try_crop() call from mt9p031_init_cfg()
 Date:   Wed, 28 Dec 2022 15:32:48 +0100
-Message-Id: <20221228144341.835358891@linuxfoundation.org>
+Message-Id: <20221228144338.326710140@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,35 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin <liushixin2@huawei.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 9d86515c3d4c0564a0c31a2df87d735353a1971e ]
+[ Upstream commit e208ad015f9310a87b4bb1ba1e4d3e347f391aa4 ]
 
-pci_disable_device() need be called while module exiting, switch to use
-pcim_enable(), pci_disable_device() will be called in pcim_release().
+The mt9p031_init_cfg() already calls __mt9p031_get_pad_crop(), which
+correctly calls v4l2_subdev_get_try_crop() on V4L2_SUBDEV_FORMAT_TRY
+or returns &mt9p031->crop on V4L2_SUBDEV_FORMAT_ACTIVE. No need to
+call v4l2_subdev_get_try_crop() in mt9p031_init_cfg() again in case
+of both V4L2_SUBDEV_FORMAT_TRY and V4L2_SUBDEV_FORMAT_ACTIVE.
 
-Fixes: 3285ea10e9b0 ("ALSA: asihpi - Interrelated HPI tidy up.")
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Link: https://lore.kernel.org/r/20221126021429.3029562-1-liushixin2@huawei.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+This also fixes a splat generated by this call since commit
+2ba3e38517f5a ("media: v4l: subdev: Fail graciously when getting try data for NULL state")
+because v4l2_subdev_get_try_crop() is called with sd_state = NULL
+in mt9p031_init_cfg().
+
+Fixes: 69681cd041648 ("media: mt9p031: Move open subdev op init code into init_cfg")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/asihpi/hpioctl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/i2c/mt9p031.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/sound/pci/asihpi/hpioctl.c b/sound/pci/asihpi/hpioctl.c
-index bb31b7fe867d..477a5b4b50bc 100644
---- a/sound/pci/asihpi/hpioctl.c
-+++ b/sound/pci/asihpi/hpioctl.c
-@@ -361,7 +361,7 @@ int asihpi_adapter_probe(struct pci_dev *pci_dev,
- 		pci_dev->device, pci_dev->subsystem_vendor,
- 		pci_dev->subsystem_device, pci_dev->devfn);
+diff --git a/drivers/media/i2c/mt9p031.c b/drivers/media/i2c/mt9p031.c
+index 1fd4dc6e4726..92f4e184353f 100644
+--- a/drivers/media/i2c/mt9p031.c
++++ b/drivers/media/i2c/mt9p031.c
+@@ -702,7 +702,6 @@ static int mt9p031_init_cfg(struct v4l2_subdev *subdev,
+ 					     V4L2_SUBDEV_FORMAT_TRY;
  
--	if (pci_enable_device(pci_dev) < 0) {
-+	if (pcim_enable_device(pci_dev) < 0) {
- 		dev_err(&pci_dev->dev,
- 			"pci_enable_device failed, disabling device\n");
- 		return -EIO;
+ 	crop = __mt9p031_get_pad_crop(mt9p031, sd_state, 0, which);
+-	v4l2_subdev_get_try_crop(subdev, sd_state, 0);
+ 	crop->left = MT9P031_COLUMN_START_DEF;
+ 	crop->top = MT9P031_ROW_START_DEF;
+ 	crop->width = MT9P031_WINDOW_WIDTH_DEF;
 -- 
 2.35.1
 
