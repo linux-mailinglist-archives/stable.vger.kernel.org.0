@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C4766580CB
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:20:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 066426581A6
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:30:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234596AbiL1QU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:20:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38232 "EHLO
+        id S234757AbiL1QaW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:30:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234623AbiL1QUc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:20:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9C7D1AF16
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:18:16 -0800 (PST)
+        with ESMTP id S234726AbiL1Q37 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:29:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09DC51A21E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:26:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8AE3BB81886
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:18:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA34BC433EF;
-        Wed, 28 Dec 2022 16:18:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9D16CB81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:26:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 007A6C433EF;
+        Wed, 28 Dec 2022 16:26:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244294;
-        bh=gMCIb3VUK28kJJbTXoC/j03I1n/nSjr3xW/J/A+J5bM=;
+        s=korg; t=1672244780;
+        bh=/pDDlATTEz2kV0cZYGFDWVoDagRz9bk136d7yrb2bR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VWWGXOvKhFZWIiLZicuhrf2c+PnMOqqFHGUNHIXFAj39rezhdtHYOOFeRTwWg5s7K
-         PpAWfCiecbryiay7jVkCtyGlsesQfn8WHopDaDwl3tiZsmA3CRdYtfAPnVBH9Eonze
-         7g+LTNDthTPQ0DMAZPwjjjhKILQafrC2eEIH362I=
+        b=k1q8f+GIdLHic0Pj6e43E/U8pT/t9ZuI3aL9igwV9prJxPXL6ld8xrIUu0sbKRn/+
+         M/8Um6LuKKwyRc2UGWVIZjmkvQhUU5DnvdS0QtiH+B+5POW9oG1jF7I6p/HmAgf6z5
+         LRyBQMUFT+Pekf3jT8X5jD7yQQVkpI2w9QaPF7Os=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Valentin Caron <valentin.caron@foss.st.com>,
+        patches@lists.linux.dev, Avihai Horon <avihaih@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Joao Martins <joao.m.martins@oracle.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0686/1073] serial: stm32: move dma_request_chan() before clk_prepare_enable()
+Subject: [PATCH 6.1 0735/1146] vfio/iova_bitmap: refactor iova_bitmap_set() to better handle page boundaries
 Date:   Wed, 28 Dec 2022 15:37:54 +0100
-Message-Id: <20221228144346.669480913@linuxfoundation.org>
+Message-Id: <20221228144350.112889489@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,112 +55,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Caron <valentin.caron@foss.st.com>
+From: Joao Martins <joao.m.martins@oracle.com>
 
-[ Upstream commit 0d114e9ff940ebad8e88267013bf96c605a6b336 ]
+[ Upstream commit b058ea3ab5afea873ab8d976277539ca9e43869a ]
 
-If dma_request_chan() returns a PROBE_DEFER error, clk_disable_unprepare()
-will be called and USART clock will be disabled. But early console can be
-still active on the same USART.
+Commit f38044e5ef58 ("vfio/iova_bitmap: Fix PAGE_SIZE unaligned bitmaps")
+had fixed the unaligned bitmaps by capping the remaining iterable set at
+the start of the bitmap. Although, that mistakenly worked around
+iova_bitmap_set() incorrectly setting bits across page boundary.
 
-While moving dma_request_chan() before clk_prepare_enable(), the clock
-won't be taken in case of a DMA PROBE_DEFER error, and so it doesn't need
-to be disabled. Then USART is still clocked for early console.
+Fix this by reworking the loop inside iova_bitmap_set() to iterate over a
+range of bits to set (cur_bit .. last_bit) which may span different pinned
+pages, thus updating @page_idx and @offset as it sets the bits. The
+previous cap to the first page is now adjusted to be always accounted
+rather than when there's only a non-zero pgoff.
 
-Fixes: a7770a4bfcf4 ("serial: stm32: defer probe for dma devices")
-Reported-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Valentin Caron <valentin.caron@foss.st.com>
-Link: https://lore.kernel.org/r/20221118170602.1057863-1-valentin.caron@foss.st.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+While at it, make @page_idx , @offset and @nbits to be unsigned int given
+that it won't be more than 512 and 4096 respectively (even a bigger
+PAGE_SIZE or a smaller struct page size won't make this bigger than the
+above 32-bit max). Also, delete the stale kdoc on Return type.
+
+Cc: Avihai Horon <avihaih@nvidia.com>
+Fixes: f38044e5ef58 ("vfio/iova_bitmap: Fix PAGE_SIZE unaligned bitmaps")
+Co-developed-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Joao Martins <joao.m.martins@oracle.com>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Tested-by: Avihai Horon <avihaih@nvidia.com>
+Link: https://lore.kernel.org/r/20221129131235.38880-1-joao.m.martins@oracle.com
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/stm32-usart.c | 47 ++++++++++++++++----------------
- 1 file changed, 23 insertions(+), 24 deletions(-)
+ drivers/vfio/iova_bitmap.c | 30 +++++++++++++-----------------
+ 1 file changed, 13 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
-index 9a875558f5ef..1f8aad186908 100644
---- a/drivers/tty/serial/stm32-usart.c
-+++ b/drivers/tty/serial/stm32-usart.c
-@@ -1681,22 +1681,10 @@ static int stm32_usart_serial_probe(struct platform_device *pdev)
- 	if (!stm32port->info)
- 		return -EINVAL;
+diff --git a/drivers/vfio/iova_bitmap.c b/drivers/vfio/iova_bitmap.c
+index 2dd65f040127..0f19d502f351 100644
+--- a/drivers/vfio/iova_bitmap.c
++++ b/drivers/vfio/iova_bitmap.c
+@@ -297,9 +297,7 @@ static unsigned long iova_bitmap_mapped_remaining(struct iova_bitmap *bitmap)
+ {
+ 	unsigned long remaining, bytes;
  
--	ret = stm32_usart_init_port(stm32port, pdev);
--	if (ret)
--		return ret;
+-	/* Cap to one page in the first iteration, if PAGE_SIZE unaligned. */
+-	bytes = !bitmap->mapped.pgoff ? bitmap->mapped.npages << PAGE_SHIFT :
+-					PAGE_SIZE - bitmap->mapped.pgoff;
++	bytes = (bitmap->mapped.npages << PAGE_SHIFT) - bitmap->mapped.pgoff;
+ 
+ 	remaining = bitmap->mapped_total_index - bitmap->mapped_base_index;
+ 	remaining = min_t(unsigned long, remaining,
+@@ -398,29 +396,27 @@ int iova_bitmap_for_each(struct iova_bitmap *bitmap, void *opaque,
+  * Set the bits corresponding to the range [iova .. iova+length-1] in
+  * the user bitmap.
+  *
+- * Return: The number of bits set.
+  */
+ void iova_bitmap_set(struct iova_bitmap *bitmap,
+ 		     unsigned long iova, size_t length)
+ {
+ 	struct iova_bitmap_map *mapped = &bitmap->mapped;
+-	unsigned long offset = (iova - mapped->iova) >> mapped->pgshift;
+-	unsigned long nbits = max_t(unsigned long, 1, length >> mapped->pgshift);
+-	unsigned long page_idx = offset / BITS_PER_PAGE;
+-	unsigned long page_offset = mapped->pgoff;
+-	void *kaddr;
 -
--	if (stm32port->wakeup_src) {
--		device_set_wakeup_capable(&pdev->dev, true);
--		ret = dev_pm_set_wake_irq(&pdev->dev, stm32port->port.irq);
--		if (ret)
--			goto err_deinit_port;
--	}
--
- 	stm32port->rx_ch = dma_request_chan(&pdev->dev, "rx");
--	if (PTR_ERR(stm32port->rx_ch) == -EPROBE_DEFER) {
--		ret = -EPROBE_DEFER;
--		goto err_wakeirq;
--	}
-+	if (PTR_ERR(stm32port->rx_ch) == -EPROBE_DEFER)
-+		return -EPROBE_DEFER;
-+
- 	/* Fall back in interrupt mode for any non-deferral error */
- 	if (IS_ERR(stm32port->rx_ch))
- 		stm32port->rx_ch = NULL;
-@@ -1710,6 +1698,17 @@ static int stm32_usart_serial_probe(struct platform_device *pdev)
- 	if (IS_ERR(stm32port->tx_ch))
- 		stm32port->tx_ch = NULL;
+-	offset = offset % BITS_PER_PAGE;
++	unsigned long cur_bit = ((iova - mapped->iova) >>
++			mapped->pgshift) + mapped->pgoff * BITS_PER_BYTE;
++	unsigned long last_bit = (((iova + length - 1) - mapped->iova) >>
++			mapped->pgshift) + mapped->pgoff * BITS_PER_BYTE;
  
-+	ret = stm32_usart_init_port(stm32port, pdev);
-+	if (ret)
-+		goto err_dma_tx;
-+
-+	if (stm32port->wakeup_src) {
-+		device_set_wakeup_capable(&pdev->dev, true);
-+		ret = dev_pm_set_wake_irq(&pdev->dev, stm32port->port.irq);
-+		if (ret)
-+			goto err_deinit_port;
-+	}
-+
- 	if (stm32port->rx_ch && stm32_usart_of_dma_rx_probe(stm32port, pdev)) {
- 		/* Fall back in interrupt mode */
- 		dma_release_channel(stm32port->rx_ch);
-@@ -1746,19 +1745,11 @@ static int stm32_usart_serial_probe(struct platform_device *pdev)
- 	pm_runtime_set_suspended(&pdev->dev);
- 	pm_runtime_put_noidle(&pdev->dev);
+ 	do {
+-		unsigned long size = min(BITS_PER_PAGE - offset, nbits);
++		unsigned int page_idx = cur_bit / BITS_PER_PAGE;
++		unsigned int offset = cur_bit % BITS_PER_PAGE;
++		unsigned int nbits = min(BITS_PER_PAGE - offset,
++					 last_bit - cur_bit + 1);
++		void *kaddr;
  
--	if (stm32port->tx_ch) {
-+	if (stm32port->tx_ch)
- 		stm32_usart_of_dma_tx_remove(stm32port, pdev);
--		dma_release_channel(stm32port->tx_ch);
--	}
--
- 	if (stm32port->rx_ch)
- 		stm32_usart_of_dma_rx_remove(stm32port, pdev);
- 
--err_dma_rx:
--	if (stm32port->rx_ch)
--		dma_release_channel(stm32port->rx_ch);
--
--err_wakeirq:
- 	if (stm32port->wakeup_src)
- 		dev_pm_clear_wake_irq(&pdev->dev);
- 
-@@ -1768,6 +1759,14 @@ static int stm32_usart_serial_probe(struct platform_device *pdev)
- 
- 	stm32_usart_deinit_port(stm32port);
- 
-+err_dma_tx:
-+	if (stm32port->tx_ch)
-+		dma_release_channel(stm32port->tx_ch);
-+
-+err_dma_rx:
-+	if (stm32port->rx_ch)
-+		dma_release_channel(stm32port->rx_ch);
-+
- 	return ret;
+ 		kaddr = kmap_local_page(mapped->pages[page_idx]);
+-		bitmap_set(kaddr + page_offset, offset, size);
++		bitmap_set(kaddr, offset, nbits);
+ 		kunmap_local(kaddr);
+-		page_offset = offset = 0;
+-		nbits -= size;
+-		page_idx++;
+-	} while (nbits > 0);
++		cur_bit += nbits;
++	} while (cur_bit <= last_bit);
  }
- 
+ EXPORT_SYMBOL_GPL(iova_bitmap_set);
 -- 
 2.35.1
 
