@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C8BD658129
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 574BC658059
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:17:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234772AbiL1QZW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:25:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45984 "EHLO
+        id S232525AbiL1QRc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:17:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234813AbiL1QY1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:24:27 -0500
+        with ESMTP id S233013AbiL1QQa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:16:30 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0512F19C1A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:21:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B76D81AA05
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:14:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9327CB817AC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:21:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB8EDC433D2;
-        Wed, 28 Dec 2022 16:21:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5388EB81730
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:14:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 964B1C433EF;
+        Wed, 28 Dec 2022 16:14:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244511;
-        bh=+vZNcwnTcRQqjUzQHdUFdM5gSLlmZ0HxnhFErN0E+5c=;
+        s=korg; t=1672244046;
+        bh=UM2gO9+o7hnCGwcUNaEeEQAPY079Neovmli6/kdR7V4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tEYVJX/3gko2mR+S4DVMXypfY4jviQt06kDF/5bV47QuBN0dRa+8YHJLic1wHOO/F
-         Sdmsama9XoOl/qWtNMX4vhyczL6P45miLTy42XBj8HuBnCjA3c9q2IKcip/u2Ay0yJ
-         r3WGh9QQu+SaBb2bwfTZbItyjZM8KbTiGV7/OuJo=
+        b=a6Etal0rtT+NSm3i/KnBkRQDFF9gkpP4ft0EhKwtXgaQIQrPdEFZpHWYyPUXvz8/k
+         NcYBwRESIVndmpO9aV4gES/cslk/Qvchtn3K7RD46C1qpSRGxexNHT5LkglLYsUjl7
+         R6wA/PYHO5kFBB11EAjWWGl4PmiS5q+hdLXit5I0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexandre Ghiti <alexghiti@rivosinc.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0686/1146] riscv: Fix P4D_SHIFT definition for 3-level page table mode
+Subject: [PATCH 6.0 0637/1073] crypto: qat - fix error return code in adf_probe
 Date:   Wed, 28 Dec 2022 15:37:05 +0100
-Message-Id: <20221228144348.774946219@linuxfoundation.org>
+Message-Id: <20221228144345.342380648@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +54,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Ghiti <alexghiti@rivosinc.com>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit 71fc3621efc38ace9640ee6a0db3300900689592 ]
+[ Upstream commit 31f81401e23fb88cc030cd586abd28740e6c8136 ]
 
-RISC-V kernels support 3,4,5-level page tables at runtime by folding
-upper levels.
+Fix to return a negative error code -EINVAL instead of 0.
 
-In case of a 3-level page table, PGDIR is folded into P4D which in turn
-is folded into PUD: PGDIR_SHIFT value is correctly set to the same value
-as PUD_SHIFT, but P4D_SHIFT is not, then any use of P4D_SHIFT will access
-invalid address bits (all set to 1).
-
-Fix this by dynamically defining P4D_SHIFT value, like we already do for
-PGDIR_SHIFT.
-
-Fixes: d10efa21a937 ("riscv: mm: Control p4d's folding by pgtable_l5_enabled")
-Signed-off-by: Alexandre Ghiti <alexghiti@rivosinc.com>
-Reviewed-by: Palmer Dabbelt <palmer@rivosinc.com>
-Link: https://lore.kernel.org/r/20221201135128.1482189-2-alexghiti@rivosinc.com
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Fixes: 0cec19c761e5 ("crypto: qat - add support for compression for 4xxx")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Acked-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/include/asm/pgtable-64.h | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/crypto/qat/qat_4xxx/adf_drv.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/riscv/include/asm/pgtable-64.h b/arch/riscv/include/asm/pgtable-64.h
-index dc42375c2357..42a042c0e13e 100644
---- a/arch/riscv/include/asm/pgtable-64.h
-+++ b/arch/riscv/include/asm/pgtable-64.h
-@@ -25,7 +25,11 @@ extern bool pgtable_l5_enabled;
- #define PGDIR_MASK      (~(PGDIR_SIZE - 1))
- 
- /* p4d is folded into pgd in case of 4-level page table */
--#define P4D_SHIFT      39
-+#define P4D_SHIFT_L3   30
-+#define P4D_SHIFT_L4   39
-+#define P4D_SHIFT_L5   39
-+#define P4D_SHIFT      (pgtable_l5_enabled ? P4D_SHIFT_L5 : \
-+		(pgtable_l4_enabled ? P4D_SHIFT_L4 : P4D_SHIFT_L3))
- #define P4D_SIZE       (_AC(1, UL) << P4D_SHIFT)
- #define P4D_MASK       (~(P4D_SIZE - 1))
+diff --git a/drivers/crypto/qat/qat_4xxx/adf_drv.c b/drivers/crypto/qat/qat_4xxx/adf_drv.c
+index 2f212561acc4..670a58b25cb1 100644
+--- a/drivers/crypto/qat/qat_4xxx/adf_drv.c
++++ b/drivers/crypto/qat/qat_4xxx/adf_drv.c
+@@ -261,6 +261,7 @@ static int adf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	hw_data->accel_capabilities_mask = hw_data->get_accel_cap(accel_dev);
+ 	if (!hw_data->accel_capabilities_mask) {
+ 		dev_err(&pdev->dev, "Failed to get capabilities mask.\n");
++		ret = -EINVAL;
+ 		goto out_err;
+ 	}
  
 -- 
 2.35.1
