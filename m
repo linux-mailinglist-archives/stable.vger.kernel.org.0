@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEC846583CD
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:52:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81526657EC1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:57:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235207AbiL1Qwa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:52:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45402 "EHLO
+        id S232023AbiL1P5J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:57:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235259AbiL1QwJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:52:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2A09209B2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:46:25 -0800 (PST)
+        with ESMTP id S234190AbiL1P5G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:57:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62EAD17E06
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:57:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8953061578
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:46:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EA4AC433D2;
-        Wed, 28 Dec 2022 16:46:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F3A90613E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:57:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12835C433EF;
+        Wed, 28 Dec 2022 15:57:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245985;
-        bh=UO2KWIN9lEp9rlsay7SFYUnLpIwAJ6qTyqrbsgEsLyI=;
+        s=korg; t=1672243025;
+        bh=iTuO9QfbW5dOdxV+MuKHqJvpops+DbnddqpcwT5+1hA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KnVOcbsEnk+2m3pf9hXf+ovJo3XNJ5JQeLMXj8pCHoBGkS94VGpXpF4BZOj9r8iV/
-         IzMzRh0IZT3lCjb+0zRIw7jTM9vQyj3YWdbMSMozWVzNSosL2i9L5P+X4sbFOXFjNP
-         pCn8I422TCUNq29bZ5M09G7sKxjbbZNhUYOaaPlA=
+        b=Wx9EH8Cko6/Ivf0fVDeZdfWfBEb1RfKqkhs1qo+HjK6L5ont1SveGHWuUYgwCxfde
+         0Mlqg5QToD1I2DDv2Tf6/xkg2RYNMw48oQsjCeRHdgeMreDxP3AKvpw34TLuCaeVPF
+         0gkm9PAWjyQY4WJNxm/gH3piadNeizbiyRbepCR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Mike Marshall <hubcap@omnibond.com>,
+        patches@lists.linux.dev,
+        syzbot+9ca7a12fd736d93e0232@syzkaller.appspotmail.com,
+        Shigeru Yoshida <syoshida@redhat.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0991/1073] orangefs: Fix kmemleak in orangefs_prepare_debugfs_help_string()
+Subject: [PATCH 5.15 672/731] media: si470x: Fix use-after-free in si470x_int_in_callback()
 Date:   Wed, 28 Dec 2022 15:42:59 +0100
-Message-Id: <20221228144355.027195984@linuxfoundation.org>
+Message-Id: <20221228144315.961814545@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-[ Upstream commit d23417a5bf3a3afc55de5442eb46e1e60458b0a1 ]
+[ Upstream commit 7d21e0b1b41b21d628bf2afce777727bd4479aa5 ]
 
-When insert and remove the orangefs module, then debug_help_string will
-be leaked:
+syzbot reported use-after-free in si470x_int_in_callback() [1].  This
+indicates that urb->context, which contains struct si470x_device
+object, is freed when si470x_int_in_callback() is called.
 
-  unreferenced object 0xffff8881652ba000 (size 4096):
-    comm "insmod", pid 1701, jiffies 4294893639 (age 13218.530s)
-    hex dump (first 32 bytes):
-      43 6c 69 65 6e 74 20 44 65 62 75 67 20 4b 65 79  Client Debug Key
-      77 6f 72 64 73 20 61 72 65 20 75 6e 6b 6e 6f 77  words are unknow
-    backtrace:
-      [<0000000004e6f8e3>] kmalloc_trace+0x27/0xa0
-      [<0000000006f75d85>] orangefs_prepare_debugfs_help_string+0x5e/0x480 [orangefs]
-      [<0000000091270a2a>] _sub_I_65535_1+0x57/0xf70 [crc_itu_t]
-      [<000000004b1ee1a3>] do_one_initcall+0x87/0x2a0
-      [<000000001d0614ae>] do_init_module+0xdf/0x320
-      [<00000000efef068c>] load_module+0x2f98/0x3330
-      [<000000006533b44d>] __do_sys_finit_module+0x113/0x1b0
-      [<00000000a0da6f99>] do_syscall_64+0x35/0x80
-      [<000000007790b19b>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+The cause of this issue is that si470x_int_in_callback() is called for
+freed urb.
 
-When remove the module, should always free debug_help_string. Should
-always free the allocated buffer when change the free_debug_help_string.
+si470x_usb_driver_probe() calls si470x_start_usb(), which then calls
+usb_submit_urb() and si470x_start().  If si470x_start_usb() fails,
+si470x_usb_driver_probe() doesn't kill urb, but it just frees struct
+si470x_device object, as depicted below:
 
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Mike Marshall <hubcap@omnibond.com>
+si470x_usb_driver_probe()
+  ...
+  si470x_start_usb()
+    ...
+    usb_submit_urb()
+    retval = si470x_start()
+    return retval
+  if (retval < 0)
+    free struct si470x_device object, but don't kill urb
+
+This patch fixes this issue by killing urb when si470x_start_usb()
+fails and urb is submitted.  If si470x_start_usb() fails and urb is
+not submitted, i.e. submitting usb fails, it just frees struct
+si470x_device object.
+
+Reported-by: syzbot+9ca7a12fd736d93e0232@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=94ed6dddd5a55e90fd4bab942aa4bb297741d977 [1]
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/orangefs/orangefs-debugfs.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/media/radio/si470x/radio-si470x-usb.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/orangefs/orangefs-debugfs.c b/fs/orangefs/orangefs-debugfs.c
-index 29eaa4544372..a848b6ef9599 100644
---- a/fs/orangefs/orangefs-debugfs.c
-+++ b/fs/orangefs/orangefs-debugfs.c
-@@ -222,6 +222,8 @@ static void orangefs_kernel_debug_init(void)
- void orangefs_debugfs_cleanup(void)
- {
- 	debugfs_remove_recursive(debug_dir);
-+	kfree(debug_help_string);
-+	debug_help_string = NULL;
- }
+diff --git a/drivers/media/radio/si470x/radio-si470x-usb.c b/drivers/media/radio/si470x/radio-si470x-usb.c
+index 3f8634a46573..1365ae732b79 100644
+--- a/drivers/media/radio/si470x/radio-si470x-usb.c
++++ b/drivers/media/radio/si470x/radio-si470x-usb.c
+@@ -733,8 +733,10 @@ static int si470x_usb_driver_probe(struct usb_interface *intf,
  
- /* open ORANGEFS_KMOD_DEBUG_HELP_FILE */
-@@ -671,6 +673,7 @@ int orangefs_prepare_debugfs_help_string(int at_boot)
- 		memset(debug_help_string, 0, DEBUG_HELP_STRING_SIZE);
- 		strlcat(debug_help_string, new, string_size);
- 		mutex_unlock(&orangefs_help_file_lock);
-+		kfree(new);
- 	}
+ 	/* start radio */
+ 	retval = si470x_start_usb(radio);
+-	if (retval < 0)
++	if (retval < 0 && !radio->int_in_running)
+ 		goto err_buf;
++	else if (retval < 0)	/* in case of radio->int_in_running == 1 */
++		goto err_all;
  
- 	rc = 0;
+ 	/* set initial frequency */
+ 	si470x_set_freq(radio, 87.5 * FREQ_MUL); /* available in all regions */
 -- 
 2.35.1
 
