@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC5FD65829D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:38:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9ACD6581A3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:30:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234893AbiL1Qis (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:38:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60916 "EHLO
+        id S234660AbiL1QaR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:30:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234964AbiL1QiY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:38:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C94281DA68
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:33:59 -0800 (PST)
+        with ESMTP id S233259AbiL1Q3w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:29:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66B6D1B9CB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:26:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E34361541
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:33:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70437C433EF;
-        Wed, 28 Dec 2022 16:33:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0049E6157D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:26:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14E46C433D2;
+        Wed, 28 Dec 2022 16:26:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245238;
-        bh=d7qnGsQb5nXdXTgUtUwCiB+xdXkn/m9UY8KHFauaA40=;
+        s=korg; t=1672244772;
+        bh=isc+PtY/S6UvDtUWaru1orVyUMYcZ031antn4FepVFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pGDQn2irboRuRx8U1E/SB7vwSCSFMQqZsM+se4nVQTpuYO9eydXVWnFTwZ0rKQxfr
-         qRta9yL6syu2k6KKdyv5t+58lQIj2Hz9Rg7rs542xhLp0Q1QU810uCx4BKm4kAni4Q
-         pNsXwoNpAlRs6VQpHGBeg2238YdM2rIgyDlSUnwI=
+        b=VIOVYCPQ3R3VUfCNIev0EoMaRFAHkJHKJJlxQdar49vmIdNTB2ucAHsexhUUnqGuU
+         FSbBHLok4EsO7EBLQvEg/bNwxjKb89XryC+HUERolcvTtMdeIU/06+TKeoDKj48JJZ
+         Kz9x6BF5fjMPn9dopRsD63lD3biFfpiZpRI4PyvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Matt Redfearn <matt.redfearn@mips.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <nathan@kernel.org>,
-        =?UTF-8?q?Petr=20Van=C4=9Bk?= <arkamar@atlas.cz>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0820/1146] include/uapi/linux/swab: Fix potentially missing __always_inline
+        patches@lists.linux.dev, Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0771/1073] iommu/sun50i: Fix flush size
 Date:   Wed, 28 Dec 2022 15:39:19 +0100
-Message-Id: <20221228144352.428605303@linuxfoundation.org>
+Message-Id: <20221228144348.954008852@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,59 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Redfearn <matt.redfearn@mips.com>
+From: Jernej Skrabec <jernej.skrabec@gmail.com>
 
-[ Upstream commit defbab270d45e32b068e7e73c3567232d745c60f ]
+[ Upstream commit 67a8a67f9eceb72e4c73d1d09ed9ab04f4b8e12d ]
 
-Commit bc27fb68aaad ("include/uapi/linux/byteorder, swab: force inlining
-of some byteswap operations") added __always_inline to swab functions
-and commit 283d75737837 ("uapi/linux/stddef.h: Provide __always_inline to
-userspace headers") added a definition of __always_inline for use in
-exported headers when the kernel's compiler.h is not available.
+Function sun50i_table_flush() takes number of entries as an argument,
+not number of bytes. Fix that mistake in sun50i_dte_get_page_table().
 
-However, since swab.h does not include stddef.h, if the header soup does
-not indirectly include it, the definition of __always_inline is missing,
-resulting in a compilation failure, which was observed compiling the
-perf tool using exported headers containing this commit:
-
-In file included from /usr/include/linux/byteorder/little_endian.h:12:0,
-                 from /usr/include/asm/byteorder.h:14,
-                 from tools/include/uapi/linux/perf_event.h:20,
-                 from perf.h:8,
-                 from builtin-bench.c:18:
-/usr/include/linux/swab.h:160:8: error: unknown type name `__always_inline'
- static __always_inline __u16 __swab16p(const __u16 *p)
-
-Fix this by replacing the inclusion of linux/compiler.h with
-linux/stddef.h to ensure that we pick up that definition if required,
-without relying on it's indirect inclusion. compiler.h is then included
-indirectly, via stddef.h.
-
-Fixes: 283d75737837 ("uapi/linux/stddef.h: Provide __always_inline to userspace headers")
-Signed-off-by: Matt Redfearn <matt.redfearn@mips.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Petr Vaněk <arkamar@atlas.cz>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 4100b8c229b3 ("iommu: Add Allwinner H6 IOMMU driver")
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Link: https://lore.kernel.org/r/20221025165415.307591-5-jernej.skrabec@gmail.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/swab.h | 2 +-
+ drivers/iommu/sun50i-iommu.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/uapi/linux/swab.h b/include/uapi/linux/swab.h
-index 0723a9cce747..01717181339e 100644
---- a/include/uapi/linux/swab.h
-+++ b/include/uapi/linux/swab.h
-@@ -3,7 +3,7 @@
- #define _UAPI_LINUX_SWAB_H
+diff --git a/drivers/iommu/sun50i-iommu.c b/drivers/iommu/sun50i-iommu.c
+index 135df6934a9e..7c3b2ac552da 100644
+--- a/drivers/iommu/sun50i-iommu.c
++++ b/drivers/iommu/sun50i-iommu.c
+@@ -512,7 +512,7 @@ static u32 *sun50i_dte_get_page_table(struct sun50i_iommu_domain *sun50i_domain,
+ 		sun50i_iommu_free_page_table(iommu, drop_pt);
+ 	}
  
- #include <linux/types.h>
--#include <linux/compiler.h>
-+#include <linux/stddef.h>
- #include <asm/bitsperlong.h>
- #include <asm/swab.h>
+-	sun50i_table_flush(sun50i_domain, page_table, PT_SIZE);
++	sun50i_table_flush(sun50i_domain, page_table, NUM_PT_ENTRIES);
+ 	sun50i_table_flush(sun50i_domain, dte_addr, 1);
  
+ 	return page_table;
 -- 
 2.35.1
 
