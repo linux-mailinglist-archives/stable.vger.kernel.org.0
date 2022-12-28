@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74CA9657CF2
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:37:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E236657E49
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:52:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233912AbiL1Php (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:37:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55218 "EHLO
+        id S233070AbiL1Pwg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:52:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233915AbiL1Pho (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:37:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B76C816586
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:37:43 -0800 (PST)
+        with ESMTP id S234169AbiL1PwS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:52:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7E05186F6
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:52:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 53C6061553
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:37:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65368C433D2;
-        Wed, 28 Dec 2022 15:37:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 47173B817B0
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:52:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 928C5C433D2;
+        Wed, 28 Dec 2022 15:52:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241862;
-        bh=dUuzfAvJTRQPR0LvCjGelH1YSJVCYz6LxaoNl1VfyJQ=;
+        s=korg; t=1672242729;
+        bh=qS3sQKPxUY+CWKSVE4dLqFIwyaZ2m2NE5iWvu3ZYrf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m+DyiDFSqWLlIwczqkNLdjH2619eoUnBVwramfENKcq+ajvSKk5TBqlWpTuj41ZjB
-         Ikn6pkTWS23xPgQPLdRMHQP5T8PRXBZNHlE1l8AKCRUOc1E8OX0yqhTA67NoglbSQc
-         IUteB6LgD6dgptzkZG3bTbGUaTKlcYlKDJMFlLNc=
+        b=npLkahThC5Sv88lbkfvw2hm4gJwYKkq29O9xvx6ZBUcAKkfKdzv0W92Fb/AMGBxWt
+         rJlVHOvm4H4XVVSmZxB7BBdtdmUVfn/AvCc2L7zB+ZLiQJ5dxYCx87+/3K36gsnJZG
+         OUz+/5SHE9uniATol79bgZIIKblXxVMr+RQgYssk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rob Clark <robdclark@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Akhil P Oommen <quic_akhilpo@quicinc.com>,
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0337/1073] drm/msm/a6xx: Fix speed-bin detection vs probe-defer
+Subject: [PATCH 6.1 0386/1146] mtd: core: Fix refcount error in del_mtd_device()
 Date:   Wed, 28 Dec 2022 15:32:05 +0100
-Message-Id: <20221228144337.156896225@linuxfoundation.org>
+Message-Id: <20221228144340.649044052@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +53,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit f6d1918794ef92b4e26b80c3d40365347b76b1fd ]
+[ Upstream commit 56570bdad5e31c5c538cd6efff5c4510256e1bb4 ]
 
-If we get an error (other than -ENOENT) we need to propagate that up the
-stack.  Otherwise if the nvmem driver hasn't probed yet, we'll end up
-end up claiming that we support all the OPPs which is not likely to be
-true (and on some generations impossible to be true, ie. if there are
-conflicting OPPs).
+del_mtd_device() will call of_node_put() to mtd_get_of_node(mtd), which
+is mtd->dev.of_node. However, memset(&mtd->dev, 0) is called before
+of_node_put(). As the result, of_node_put() won't do anything in
+del_mtd_device(), and causes the refcount leak.
 
-v2: Update commit msg, gc unused label, etc
-v3: Add previously missing \n's
+del_mtd_device()
+    memset(&mtd->dev, 0, sizeof(mtd->dev) # clear mtd->dev
+    of_node_put()
+        mtd_get_of_node(mtd) # mtd->dev is cleared, can't locate of_node
+                             # of_node_put(NULL) won't do anything
 
-Fixes: fe7952c629da ("drm/msm: Add speed-bin support to a618 gpu")
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Akhil P Oommen <quic_akhilpo@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/511690/
-Link: https://lore.kernel.org/r/20221115154637.1613968-1-robdclark@gmail.com
+Fix the error by caching the pointer of the device_node.
+
+OF: ERROR: memory leak, expected refcount 1 instead of 2,
+of_node_get()/of_node_put() unbalanced - destroy cset entry: attach
+overlay node /spi/spi-sram@0
+CPU: 3 PID: 275 Comm: python3 Tainted: G N 6.1.0-rc3+ #54
+    0d8a1edddf51f172ff5226989a7565c6313b08e2
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org 04/01/2014
+Call Trace:
+<TASK>
+    dump_stack_lvl+0x67/0x83
+    kobject_get+0x155/0x160
+    of_node_get+0x1f/0x30
+    of_fwnode_get+0x43/0x70
+    fwnode_handle_get+0x54/0x80
+    fwnode_get_nth_parent+0xc9/0xe0
+    fwnode_full_name_string+0x3f/0xa0
+    device_node_string+0x30f/0x750
+    pointer+0x598/0x7a0
+    vsnprintf+0x62d/0x9b0
+    ...
+    cfs_overlay_release+0x30/0x90
+    config_item_release+0xbe/0x1a0
+    config_item_put+0x5e/0x80
+    configfs_rmdir+0x3bd/0x540
+    vfs_rmdir+0x18c/0x320
+    do_rmdir+0x198/0x330
+    __x64_sys_rmdir+0x2c/0x40
+    do_syscall_64+0x37/0x90
+    entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Fixes: 00596576a051 ("mtd: core: clear out unregistered devices a bit more")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+[<miquel.raynal@bootlin.com>: Light reword of the commit log]
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20221119063915.11108-1-shangxiaojing@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/mtd/mtdcore.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-index 4d501100b9e4..5804c35ae74b 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-@@ -1869,7 +1869,7 @@ static u32 fuse_to_supp_hw(struct device *dev, struct adreno_rev rev, u32 fuse)
- 
- 	if (val == UINT_MAX) {
- 		DRM_DEV_ERROR(dev,
--			"missing support for speed-bin: %u. Some OPPs may not be supported by hardware",
-+			"missing support for speed-bin: %u. Some OPPs may not be supported by hardware\n",
- 			fuse);
- 		return UINT_MAX;
- 	}
-@@ -1879,7 +1879,7 @@ static u32 fuse_to_supp_hw(struct device *dev, struct adreno_rev rev, u32 fuse)
- 
- static int a6xx_set_supported_hw(struct device *dev, struct adreno_rev rev)
+diff --git a/drivers/mtd/mtdcore.c b/drivers/mtd/mtdcore.c
+index 675305139a54..686ada1a63e9 100644
+--- a/drivers/mtd/mtdcore.c
++++ b/drivers/mtd/mtdcore.c
+@@ -776,6 +776,7 @@ int del_mtd_device(struct mtd_info *mtd)
  {
--	u32 supp_hw = UINT_MAX;
-+	u32 supp_hw;
- 	u32 speedbin;
  	int ret;
+ 	struct mtd_notifier *not;
++	struct device_node *mtd_of_node;
  
-@@ -1891,15 +1891,13 @@ static int a6xx_set_supported_hw(struct device *dev, struct adreno_rev rev)
- 	if (ret == -ENOENT) {
- 		return 0;
- 	} else if (ret) {
--		DRM_DEV_ERROR(dev,
--			      "failed to read speed-bin (%d). Some OPPs may not be supported by hardware",
--			      ret);
--		goto done;
-+		dev_err_probe(dev, ret,
-+			      "failed to read speed-bin. Some OPPs may not be supported by hardware\n");
-+		return ret;
- 	}
+ 	mutex_lock(&mtd_table_mutex);
  
- 	supp_hw = fuse_to_supp_hw(dev, rev, speedbin);
+@@ -794,6 +795,7 @@ int del_mtd_device(struct mtd_info *mtd)
+ 		       mtd->index, mtd->name, mtd->usecount);
+ 		ret = -EBUSY;
+ 	} else {
++		mtd_of_node = mtd_get_of_node(mtd);
+ 		debugfs_remove_recursive(mtd->dbg.dfs_dir);
  
--done:
- 	ret = devm_pm_opp_set_supported_hw(dev, &supp_hw, 1);
- 	if (ret)
- 		return ret;
+ 		/* Try to remove the NVMEM provider */
+@@ -805,7 +807,7 @@ int del_mtd_device(struct mtd_info *mtd)
+ 		memset(&mtd->dev, 0, sizeof(mtd->dev));
+ 
+ 		idr_remove(&mtd_idr, mtd->index);
+-		of_node_put(mtd_get_of_node(mtd));
++		of_node_put(mtd_of_node);
+ 
+ 		module_put(THIS_MODULE);
+ 		ret = 0;
 -- 
 2.35.1
 
