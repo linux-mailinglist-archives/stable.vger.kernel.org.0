@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0370D657C44
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:30:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97580657DA4
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:45:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233800AbiL1Pan (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:30:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48358 "EHLO
+        id S233590AbiL1PpU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:45:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233816AbiL1Pak (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:30:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B634D15F00
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:30:38 -0800 (PST)
+        with ESMTP id S234002AbiL1PpT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:45:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B664F175B4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:45:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E6896155C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:30:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63F3CC433EF;
-        Wed, 28 Dec 2022 15:30:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 56A746154D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:45:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BC08C433D2;
+        Wed, 28 Dec 2022 15:45:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241437;
-        bh=3oVPIiQdyLeTm+s9ltRA9dB94nBAb11n5VE1ZMmCUsM=;
+        s=korg; t=1672242317;
+        bh=grmuduIJoEobr0zOVIsI/nBmbnUiYZvuoaYcymVNqnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TMA2EGr8AOISfWZdQPZPXg9N3g+gJftYYRytPIHmMIr+Pn+Hl6PfGncb63DWBbtPr
-         VFrlW6HCoZPL+ZkWRuzOJKFk0CBf7LMDKiO+2OQkLt/Q2xFPxadD4e7IRL/CwREtVz
-         VolfOS4VKWcocYDQqpsZR3M3G0s2y2qbbt8yWOj4=
+        b=JqzVEMVfrBomAfPpT9WYnPy9IEpgERdmsShdUsNF5XEVvSOk9S16BcvJlqW6yUkQU
+         M7OknvwsX0nmB1uzmfZVtr9F0VVeIjE+yh7MCliYwzudRBOLTbAJtYsZ57VqL3lCpv
+         hDTI1WJfJRGSqcHrHH2R0utdoYbmdWLK5hLcWaUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Marijn Suijten <marijn.suijten@somainline.org>,
+        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0274/1073] drm/msm/dsi: Remove repeated calculation of slice_per_intf
+Subject: [PATCH 6.1 0323/1146] module: Fix NULL vs IS_ERR checking for module_get_next_page
 Date:   Wed, 28 Dec 2022 15:31:02 +0100
-Message-Id: <20221228144335.459585012@linuxfoundation.org>
+Message-Id: <20221228144338.926514043@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,59 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 170ffca836dd9f1a0219c4f67554d408fa2b5912 ]
+[ Upstream commit 45af1d7aae7d5520d2858f8517a1342646f015db ]
 
-slice_per_intf is already computed for intf_width, which holds the same
-value as hdisplay.
+The module_get_next_page() function return error pointers on error
+instead of NULL.
+Use IS_ERR() to check the return value to fix this.
 
-Fixes: 08802f515c3c ("drm/msm/dsi: Add support for DSC configuration")
-Reviewed-by: Bjorn Andersson <andersson@kernel.org>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Reviewed-by: Vinod Koul <vkoul@kernel.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Patchwork: https://patchwork.freedesktop.org/patch/508933/
-Link: https://lore.kernel.org/r/20221026182824.876933-3-marijn.suijten@somainline.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: b1ae6dc41eaa ("module: add in-kernel support for decompressing")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi_host.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ kernel/module/decompress.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
-index 843521c9cdcf..1bce664a4eed 100644
---- a/drivers/gpu/drm/msm/dsi/dsi_host.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
-@@ -917,7 +917,7 @@ static void dsi_ctrl_config(struct msm_dsi_host *msm_host, bool enable,
- static void dsi_update_dsc_timing(struct msm_dsi_host *msm_host, bool is_cmd_mode, u32 hdisplay)
- {
- 	struct drm_dsc_config *dsc = msm_host->dsc;
--	u32 reg, intf_width, reg_ctrl, reg_ctrl2;
-+	u32 reg, reg_ctrl, reg_ctrl2;
- 	u32 slice_per_intf, total_bytes_per_intf;
- 	u32 pkt_per_line;
- 	u32 bytes_in_slice;
-@@ -926,8 +926,7 @@ static void dsi_update_dsc_timing(struct msm_dsi_host *msm_host, bool is_cmd_mod
- 	/* first calculate dsc parameters and then program
- 	 * compress mode registers
- 	 */
--	intf_width = hdisplay;
--	slice_per_intf = DIV_ROUND_UP(intf_width, dsc->slice_width);
-+	slice_per_intf = DIV_ROUND_UP(hdisplay, dsc->slice_width);
+diff --git a/kernel/module/decompress.c b/kernel/module/decompress.c
+index c033572d83f0..720e719253cd 100644
+--- a/kernel/module/decompress.c
++++ b/kernel/module/decompress.c
+@@ -114,8 +114,8 @@ static ssize_t module_gzip_decompress(struct load_info *info,
+ 	do {
+ 		struct page *page = module_get_next_page(info);
  
- 	/* If slice_per_pkt is greater than slice_per_intf
- 	 * then default to 1. This can happen during partial
-@@ -936,7 +935,6 @@ static void dsi_update_dsc_timing(struct msm_dsi_host *msm_host, bool is_cmd_mod
- 	if (slice_per_intf > dsc->slice_count)
- 		dsc->slice_count = 1;
+-		if (!page) {
+-			retval = -ENOMEM;
++		if (IS_ERR(page)) {
++			retval = PTR_ERR(page);
+ 			goto out_inflate_end;
+ 		}
  
--	slice_per_intf = DIV_ROUND_UP(hdisplay, dsc->slice_width);
- 	bytes_in_slice = DIV_ROUND_UP(dsc->slice_width * dsc->bits_per_pixel, 8);
+@@ -173,8 +173,8 @@ static ssize_t module_xz_decompress(struct load_info *info,
+ 	do {
+ 		struct page *page = module_get_next_page(info);
  
- 	dsc->slice_chunk_size = bytes_in_slice;
+-		if (!page) {
+-			retval = -ENOMEM;
++		if (IS_ERR(page)) {
++			retval = PTR_ERR(page);
+ 			goto out;
+ 		}
+ 
 -- 
 2.35.1
 
