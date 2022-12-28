@@ -2,44 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 241D865831E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA0EF657CB3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:35:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234577AbiL1Qoi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:44:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33706 "EHLO
+        id S233868AbiL1PfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:35:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233660AbiL1QoL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:11 -0500
+        with ESMTP id S233866AbiL1PfP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:35:15 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F6C71C422
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:39:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E29EA164AE;
+        Wed, 28 Dec 2022 07:35:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AC01BB8171E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:39:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4E0AC433EF;
-        Wed, 28 Dec 2022 16:39:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 85165B816D9;
+        Wed, 28 Dec 2022 15:35:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3F97C433F0;
+        Wed, 28 Dec 2022 15:35:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245566;
-        bh=mt5AZ1mURiWfYgcw7WIIujrgKsaHmkt9OYdGE26JT7U=;
+        s=korg; t=1672241711;
+        bh=dubQICoRUaMZoxPUUNZWHpXkhoid96dHvEkNtoni8vA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1xosab6tQ3ij1x+EvfKc7oK57HZKR76IF4dHUGUAFH1uXedPUTND9D1uM3NhsX4Sx
-         KY35qUi49rGroIX3+xAnS+tlRHluKy8mgJsjiENR2PBk3a7fz817acWTohuuryG0Sp
-         vRrcTKwTc3YNxbypvPHNvXYo2SP1XywLuKIEe9JY=
+        b=uR/zRPmfzKmIF8IwlhrC+1PYbeufJz11WMtJjfJMQP+x+19nv7Ppj0/yNIR3hFHpv
+         X0GuqfSnBt2/QG50wG1Qo1jtFbPp9e0t7tZWOG3COt4yo8x7e+1ax3DFSX6l6cf8pR
+         Soo8yXjj6W0zM4wxG8uzE1r2NKR0B7MCd7otki88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qingfang DENG <dqfext@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev, Leo Yan <leo.yan@linaro.org>,
+        Ian Rogers <irogers@google.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        bpf@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0882/1146] netfilter: flowtable: really fix NAT IPv6 offload
+Subject: [PATCH 5.15 514/731] perf trace: Return error if a system call doesnt exist
 Date:   Wed, 28 Dec 2022 15:40:21 +0100
-Message-Id: <20221228144354.121652129@linuxfoundation.org>
+Message-Id: <20221228144311.443765467@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +60,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qingfang DENG <dqfext@gmail.com>
+From: Leo Yan <leo.yan@linaro.org>
 
-[ Upstream commit 5fb45f95eec682621748b7cb012c6a8f0f981e6a ]
+[ Upstream commit d4223e1776c30b2ce8d0e6eaadcbf696e60fca3c ]
 
-The for-loop was broken from the start. It translates to:
+When a system call is not detected, the reason is either because the
+system call ID is out of scope or failure to find the corresponding path
+in the sysfs, trace__read_syscall_info() returns zero.  Finally, without
+returning an error value it introduces confusion for the caller.
 
-	for (i = 0; i < 4; i += 4)
+This patch lets the function trace__read_syscall_info() to return
+-EEXIST when a system call doesn't exist.
 
-which means the loop statement is run only once, so only the highest
-32-bit of the IPv6 address gets mangled.
-
-Fix the loop increment.
-
-Fixes: 0e07e25b481a ("netfilter: flowtable: fix NAT IPv6 offload mangling")
-Fixes: 5c27d8d76ce8 ("netfilter: nf_flow_table_offload: add IPv6 support")
-Signed-off-by: Qingfang DENG <dqfext@gmail.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: b8b1033fcaa091d8 ("perf trace: Mark syscall ids that are not allocated to avoid unnecessary error messages")
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: bpf@vger.kernel.org
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20221121075237.127706-3-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_flow_table_offload.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ tools/perf/builtin-trace.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nf_flow_table_offload.c b/net/netfilter/nf_flow_table_offload.c
-index 0fdcdb2c9ae4..4d9b99abe37d 100644
---- a/net/netfilter/nf_flow_table_offload.c
-+++ b/net/netfilter/nf_flow_table_offload.c
-@@ -383,12 +383,12 @@ static void flow_offload_ipv6_mangle(struct nf_flow_rule *flow_rule,
- 				     const __be32 *addr, const __be32 *mask)
- {
- 	struct flow_action_entry *entry;
--	int i, j;
-+	int i;
+diff --git a/tools/perf/builtin-trace.c b/tools/perf/builtin-trace.c
+index 2bf21194c7b3..aaa465d7f011 100644
+--- a/tools/perf/builtin-trace.c
++++ b/tools/perf/builtin-trace.c
+@@ -1782,11 +1782,11 @@ static int trace__read_syscall_info(struct trace *trace, int id)
+ #endif
+ 	sc = trace->syscalls.table + id;
+ 	if (sc->nonexistent)
+-		return 0;
++		return -EEXIST;
  
--	for (i = 0, j = 0; i < sizeof(struct in6_addr) / sizeof(u32); i += sizeof(u32), j++) {
-+	for (i = 0; i < sizeof(struct in6_addr) / sizeof(u32); i++) {
- 		entry = flow_action_entry_next(flow_rule);
- 		flow_offload_mangle(entry, FLOW_ACT_MANGLE_HDR_TYPE_IP6,
--				    offset + i, &addr[j], mask);
-+				    offset + i * sizeof(u32), &addr[i], mask);
+ 	if (name == NULL) {
+ 		sc->nonexistent = true;
+-		return 0;
++		return -EEXIST;
  	}
- }
  
+ 	sc->name = name;
 -- 
 2.35.1
 
