@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D366E657F50
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A91AF657F54
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:04:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234349AbiL1QDs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:03:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50484 "EHLO
+        id S232660AbiL1QD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:03:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234357AbiL1QD0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:03:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E3E1192BF
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:03:25 -0800 (PST)
+        with ESMTP id S234274AbiL1QDj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:03:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D3951901B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:03:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E8C3BB81710
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:03:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63EC5C433D2;
-        Wed, 28 Dec 2022 16:03:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CCB1661572
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:03:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E15FDC433EF;
+        Wed, 28 Dec 2022 16:03:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243402;
-        bh=y0lHDZrcIgidh16KnuWyzmlxz+0g7bavRTkyGNLA/j4=;
+        s=korg; t=1672243418;
+        bh=43AF6sQG+Whwj/cUZ/1+g5aRM0w+7UnMnjN8ongqtHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zFQuZmNrp6juuVG/n9JPlxotimgVHDH6Lu1FxPlWimo5kaqDwgsOpCTskSkAwiiY+
-         isjuZHXrc/MRP2Cn2ep0KGBk/UsXAT0ei2NqyohqKhgM++FktPeqz7hUrszuXagWAV
-         MYnlV5is8Fe0iVDKWigDB1BBBJlaHlY7nwRafb3s=
+        b=SneD9b2mKxbt8z1tIonsXzd8h75dH+a7IvdG8DmB14hWjXTn7oBnrHoSWTiPiwao0
+         H0kucB+QZrYQHt/AdfRxpQ7IDjoZAgwFKB7sl0kZyn8umVQeECLwE2n6yzDrVw/8+O
+         1qab8ABAeUR5DZK+NpjnugYiwmA4lJ4slza6Rs2g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeff Layton <jlayton@kernel.org>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        patches@lists.linux.dev, ChenXiaoSong <chenxiaosong2@huawei.com>,
         Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0489/1146] NFS: Allow very small rsize & wsize again
-Date:   Wed, 28 Dec 2022 15:33:48 +0100
-Message-Id: <20221228144343.466675061@linuxfoundation.org>
+Subject: [PATCH 6.1 0490/1146] NFSv4.x: Fail client initialisation if state manager thread cant run
+Date:   Wed, 28 Dec 2022 15:33:49 +0100
+Message-Id: <20221228144343.493226431@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -54,47 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anna Schumaker <Anna.Schumaker@Netapp.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit a60214c2465493aac0b014d87ee19327b6204c42 ]
+[ Upstream commit b4e4f66901658fae0614dea5bf91062a5387eda7 ]
 
-940261a19508 introduced nfs_io_size() to clamp the iosize to a multiple
-of PAGE_SIZE. This had the unintended side effect of no longer allowing
-iosizes less than a page, which could be useful in some situations.
+If the state manager thread fails to start, then we should just mark the
+client initialisation as failed so that other processes or threads don't
+get stuck in nfs_wait_client_init_complete().
 
-UDP already has an exception that causes it to fall back on the
-power-of-two style sizes instead. This patch adds an additional
-exception for very small iosizes.
-
-Reported-by: Jeff Layton <jlayton@kernel.org>
-Fixes: 940261a19508 ("NFS: Allow setting rsize / wsize to a multiple of PAGE_SIZE")
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Reported-by: ChenXiaoSong <chenxiaosong2@huawei.com>
+Fixes: 4697bd5e9419 ("NFSv4: Fix a race in the net namespace mount notification")
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/internal.h | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ fs/nfs/nfs4state.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
-index 647fc3f547cb..ae7d4a8c728c 100644
---- a/fs/nfs/internal.h
-+++ b/fs/nfs/internal.h
-@@ -739,12 +739,10 @@ unsigned long nfs_io_size(unsigned long iosize, enum xprt_transports proto)
- 		iosize = NFS_DEF_FILE_IO_SIZE;
- 	else if (iosize >= NFS_MAX_FILE_IO_SIZE)
- 		iosize = NFS_MAX_FILE_IO_SIZE;
--	else
--		iosize = iosize & PAGE_MASK;
- 
--	if (proto == XPRT_TRANSPORT_UDP)
-+	if (proto == XPRT_TRANSPORT_UDP || iosize < PAGE_SIZE)
- 		return nfs_block_bits(iosize, NULL);
--	return iosize;
-+	return iosize & PAGE_MASK;
- }
- 
- /*
+diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
+index a2d2d5d1b088..03087ef1c7b4 100644
+--- a/fs/nfs/nfs4state.c
++++ b/fs/nfs/nfs4state.c
+@@ -1230,6 +1230,8 @@ void nfs4_schedule_state_manager(struct nfs_client *clp)
+ 	if (IS_ERR(task)) {
+ 		printk(KERN_ERR "%s: kthread_run: %ld\n",
+ 			__func__, PTR_ERR(task));
++		if (!nfs_client_init_is_complete(clp))
++			nfs_mark_client_ready(clp, PTR_ERR(task));
+ 		nfs4_clear_state_manager_bit(clp);
+ 		clear_bit(NFS4CLNT_MANAGER_AVAILABLE, &clp->cl_state);
+ 		nfs_put_client(clp);
 -- 
 2.35.1
 
