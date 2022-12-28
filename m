@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC131657931
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:58:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D679657F4B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233305AbiL1O64 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:58:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45116 "EHLO
+        id S234373AbiL1QDe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:03:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233316AbiL1O6Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:58:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A39D710053
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:58:24 -0800 (PST)
+        with ESMTP id S234328AbiL1QDM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:03:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AED641928C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:03:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4128E61540
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:58:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58B55C433D2;
-        Wed, 28 Dec 2022 14:58:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E48436156E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:03:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF6E6C433F0;
+        Wed, 28 Dec 2022 16:03:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239503;
-        bh=2NoQsfuLFH5qjh9NeGAICdSwPArreq+lbGl/pwIFnrU=;
+        s=korg; t=1672243389;
+        bh=yoj//D37v82aTDnUCc2h2XHFMHJuk2hrvtsKDHa7EKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z3PxGBDIRhMH3xkiHKOXqFl1nrzPaUPWwz+m7tJtuCjr4Net1kycgbaApvUfJXf1k
-         qtZQ4WUqRFeuwWbYVL7s3JhCbTp1qY+7yzPJbjov3/tW1oN6QWqADYUfHTRrraNSKF
-         ZVqIHsVzYkWdhjpQJajLKhYAMYPfUTmOha4Zqfk0=
+        b=KzEYSjsa0SVTK7MWEfzZhfnOmwde/fsX1iqJERLS4RrOJV9/wYw0q6+traDwVX+ku
+         /2L8UqA5fLJyuT7JeLuvCWdRhL9WZxZbKA+YMLC+kqHyPgptyiB3s9555ZY0znWU8k
+         Oa9lvYDRVxgOii0Fw+I+5yPCXAkVrqB5zoC46Jl0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 205/731] ima: Fix misuse of dereference of pointer in template_desc_init_fields()
+Subject: [PATCH 6.0 0524/1073] net: ethernet: dnet: dont call dev_kfree_skb() under spin_lock_irqsave()
 Date:   Wed, 28 Dec 2022 15:35:12 +0100
-Message-Id: <20221228144302.502656150@linuxfoundation.org>
+Message-Id: <20221228144342.277188811@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 25369175ce84813dd99d6604e710dc2491f68523 ]
+[ Upstream commit f07fadcbee2a5e84caa67c7c445424200bffb60b ]
 
-The input parameter @fields is type of struct ima_template_field ***, so
-when allocates array memory for @fields, the size of element should be
-sizeof(**field) instead of sizeof(*field).
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-Actually the original code would not cause any runtime error, but it's
-better to make it logically right.
+In this case, the lock is used to protected 'bp', so we can move
+dev_kfree_skb() after the spin_unlock_irqrestore().
 
-Fixes: adf53a778a0a ("ima: new templates management mechanism")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Reviewed-by: Roberto Sassu <roberto.sassu@huawei.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Fixes: 4796417417a6 ("dnet: Dave DNET ethernet controller driver (updated)")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_template.c | 4 ++--
+ drivers/net/ethernet/dnet.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/security/integrity/ima/ima_template.c b/security/integrity/ima/ima_template.c
-index db1ad6d7a57f..f84a0598e4f6 100644
---- a/security/integrity/ima/ima_template.c
-+++ b/security/integrity/ima/ima_template.c
-@@ -241,11 +241,11 @@ int template_desc_init_fields(const char *template_fmt,
- 	}
+diff --git a/drivers/net/ethernet/dnet.c b/drivers/net/ethernet/dnet.c
+index 92462ed87bc4..d9f0c297ae2a 100644
+--- a/drivers/net/ethernet/dnet.c
++++ b/drivers/net/ethernet/dnet.c
+@@ -550,11 +550,11 @@ static netdev_tx_t dnet_start_xmit(struct sk_buff *skb, struct net_device *dev)
  
- 	if (fields && num_fields) {
--		*fields = kmalloc_array(i, sizeof(*fields), GFP_KERNEL);
-+		*fields = kmalloc_array(i, sizeof(**fields), GFP_KERNEL);
- 		if (*fields == NULL)
- 			return -ENOMEM;
+ 	skb_tx_timestamp(skb);
  
--		memcpy(*fields, found_fields, i * sizeof(*fields));
-+		memcpy(*fields, found_fields, i * sizeof(**fields));
- 		*num_fields = i;
- 	}
++	spin_unlock_irqrestore(&bp->lock, flags);
++
+ 	/* free the buffer */
+ 	dev_kfree_skb(skb);
+ 
+-	spin_unlock_irqrestore(&bp->lock, flags);
+-
+ 	return NETDEV_TX_OK;
+ }
  
 -- 
 2.35.1
