@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD5CA657A3F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:09:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D785657928
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:58:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233640AbiL1PJd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:09:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56656 "EHLO
+        id S233216AbiL1O6u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:58:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233672AbiL1PJP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:09:15 -0500
+        with ESMTP id S233322AbiL1O6N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:58:13 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48C1E13E12
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:09:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECD5E12D04
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:58:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F125FB81716
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:09:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E1FBC433D2;
-        Wed, 28 Dec 2022 15:09:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A5411B81710
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:58:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23A6DC433D2;
+        Wed, 28 Dec 2022 14:58:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240149;
-        bh=r1zup2cLWtFYcsasnSUOl/1OxfM4qhhQ3lADivQd/eU=;
+        s=korg; t=1672239482;
+        bh=gAmBoqw4wbX+MYP/T9RGg4IOrRl8Kem9L1L7oGTJ7uo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w0K99xSWEpUlf+Bud0cE/cxMP1W7bAMtMO2xJZTbrChC96F7KUbi6OkwW5E4g3zdS
-         Y3jljgQvC5g1PKixU6QcOhX8zKZaPFoPpkgY+y3kTROBHZcSh5sC/MEYDUdu59kTo1
-         B917llKtDJUrR2Ji7YNQfcrKAL81Ma7ZDBQ5uTPw=
+        b=qhh5wFiCJF4EaH5vBPDyPW9VGN+LWk0meHn+MSvdalTNLNrVGgvDhaZf5uZzmgARG
+         7TIYvL7g150N+8LlcEDJRiasp4rfmwN7zoj9PvDTiXFzSFF3zojTla+1hlqvqyM3P+
+         1IPhNxLjkjMzGuaLvw0gCqXeat9UZCFmRq+O1MT0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0086/1146] ARM: dts: armada-39x: Fix assigned-addresses for every PCIe Root Port
+Subject: [PATCH 6.0 0037/1073] arm64: dts: qcom: sm8250-mtp: fix reset line polarity
 Date:   Wed, 28 Dec 2022 15:27:05 +0100
-Message-Id: <20221228144332.481794835@linuxfoundation.org>
+Message-Id: <20221228144329.139732500@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 69236d2391b4d7324b11c3252921571577892e7b ]
+[ Upstream commit 15d9fcbb3e6e8420c7d1ae331405780c5d9c1c25 ]
 
-BDF of resource in DT assigned-addresses property of Marvell PCIe Root Port
-(PCI-to-PCI bridge) should match BDF in address part in that DT node name
-as specified resource belongs to Marvell PCIe Root Port itself.
+The driver for the codec, when resetting the chip, first drives the line
+low, and then high. This means that the line is active low. Change the
+annotation in the DTS accordingly.
 
-Fixes: 538da83ddbea ("ARM: mvebu: add Device Tree files for Armada 39x SoC and board")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Fixes: 36c9d012f193 ("arm64: dts: qcom: use GPIO flags for tlmm")
+Fixes: 5a263cf629a8 ("arm64: dts: qcom: sm8250-mtp: Add wcd9380 audio codec node")
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221027074652.1044235-3-dmitry.torokhov@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/armada-39x.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/qcom/sm8250-mtp.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/armada-39x.dtsi b/arch/arm/boot/dts/armada-39x.dtsi
-index 923b035a3ab3..9d1cac49c022 100644
---- a/arch/arm/boot/dts/armada-39x.dtsi
-+++ b/arch/arm/boot/dts/armada-39x.dtsi
-@@ -463,7 +463,7 @@ pcie1_intc: interrupt-controller {
- 			/* x1 port */
- 			pcie@2,0 {
- 				device_type = "pci";
--				assigned-addresses = <0x82000800 0 0x40000 0 0x2000>;
-+				assigned-addresses = <0x82001000 0 0x40000 0 0x2000>;
- 				reg = <0x1000 0 0 0 0>;
- 				#address-cells = <3>;
- 				#size-cells = <2>;
-@@ -492,7 +492,7 @@ pcie2_intc: interrupt-controller {
- 			/* x1 port */
- 			pcie@3,0 {
- 				device_type = "pci";
--				assigned-addresses = <0x82000800 0 0x44000 0 0x2000>;
-+				assigned-addresses = <0x82001800 0 0x44000 0 0x2000>;
- 				reg = <0x1800 0 0 0 0>;
- 				#address-cells = <3>;
- 				#size-cells = <2>;
-@@ -524,7 +524,7 @@ pcie3_intc: interrupt-controller {
- 			 */
- 			pcie@4,0 {
- 				device_type = "pci";
--				assigned-addresses = <0x82000800 0 0x48000 0 0x2000>;
-+				assigned-addresses = <0x82002000 0 0x48000 0 0x2000>;
- 				reg = <0x2000 0 0 0 0>;
- 				#address-cells = <3>;
- 				#size-cells = <2>;
+diff --git a/arch/arm64/boot/dts/qcom/sm8250-mtp.dts b/arch/arm64/boot/dts/qcom/sm8250-mtp.dts
+index a102aa5efa32..a05fe468e0b4 100644
+--- a/arch/arm64/boot/dts/qcom/sm8250-mtp.dts
++++ b/arch/arm64/boot/dts/qcom/sm8250-mtp.dts
+@@ -635,7 +635,7 @@ &soc {
+ 	wcd938x: codec {
+ 		compatible = "qcom,wcd9380-codec";
+ 		#sound-dai-cells = <1>;
+-		reset-gpios = <&tlmm 32 GPIO_ACTIVE_HIGH>;
++		reset-gpios = <&tlmm 32 GPIO_ACTIVE_LOW>;
+ 		vdd-buck-supply = <&vreg_s4a_1p8>;
+ 		vdd-rxtx-supply = <&vreg_s4a_1p8>;
+ 		vdd-io-supply = <&vreg_s4a_1p8>;
 -- 
 2.35.1
 
