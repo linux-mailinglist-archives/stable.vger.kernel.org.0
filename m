@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EC92657E04
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:49:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5290657853
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:49:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233644AbiL1PtM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:49:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37186 "EHLO
+        id S232944AbiL1OtV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:49:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234075AbiL1PtL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:49:11 -0500
+        with ESMTP id S232950AbiL1OtU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:49:20 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DE8C17E3D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:49:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDE05BCA
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:49:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 00876613E9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:49:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10918C433D2;
-        Wed, 28 Dec 2022 15:49:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AE846154C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:49:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8188FC433D2;
+        Wed, 28 Dec 2022 14:49:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242549;
-        bh=xuLvn5VXetaoJQNLXRFKDPKG6AlhDaefnP0aYcDA9VE=;
+        s=korg; t=1672238958;
+        bh=qY16RBtuxcD3RstD6hVr5F6RiT/+hNpK2zQhV3Y6A1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NMkfDEjATH4xWXk6hd41wlRxxvBkMNte4+9dJtmrF+jTqCI7990VWnLIqi9DJe4+m
-         hTEW//BG+NdQjALqwHsNM0sGggJI2uhb0AcT5WDFSBZMCXDXYeQ07beEjAakxaQ3Nf
-         cToK+DIvs12jYeoeGc6xBrnKoBKuSdG+q9i2dN80=
+        b=DhqOAtal/yWem/vqeplcq8hR20cQwjXboI0lS7x9xCgGng8Ucb0SfQ8rrTfUCiH6j
+         /mUdjseL2T78HQx/m/qy2+4PSfAWCCovhFKVDT1MtPWx9UZ4EFuyK1z6/1unW+GgAi
+         2EaYoYj5odMWSeEX/xxpXsUJPiLm5jLmovDiPQ3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Ulf Hansson <ulf.hansson@linaro.org>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0392/1073] media: sun6i-mipi-csi2: Register async subdev with no sensor attached
-Date:   Wed, 28 Dec 2022 15:33:00 +0100
-Message-Id: <20221228144338.665819682@linuxfoundation.org>
+Subject: [PATCH 5.15 074/731] cpuidle: dt: Return the correct numbers of parsed idle states
+Date:   Wed, 28 Dec 2022 15:33:01 +0100
+Message-Id: <20221228144258.698041966@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,74 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit 67182951f1dde5a88479cf8befee5f32ea014a49 ]
+[ Upstream commit ee3c2c8ad6ba6785f14a60e4081d7c82e88162a2 ]
 
-This allows the device to probe and register its async subdev without
-a sensor attached.
+While we correctly skips to initialize an idle state from a disabled idle
+state node in DT, the returned value from dt_init_idle_driver() don't get
+adjusted accordingly. Instead the number of found idle state nodes are
+returned, while the callers are expecting the number of successfully
+initialized idle states from DT.
 
-The rationale is that the parent driver might otherwise wait for the
-subdev to be registered when it should be available (from the fwnode
-graph endpoint perspective). This is generally not problematic when
-the MIPI CSI-2 bridge is the only device attached to the parent, but
-in the case of a CSI controller that can feed from both MIPI CSI-2
-and parallel, it would prevent using the parallel sensor due to the
-parent waiting for the MIPI CSI-2 subdev to register.
+This leads to cpuidle drivers unnecessarily continues to initialize their
+idle state specific data. Moreover, in the case when all idle states have
+been disabled in DT, we would end up registering a cpuidle driver, rather
+than relying on the default arch specific idle call.
 
-Fixes: af54b4f4c17f ("media: sunxi: Add support for the A31 MIPI CSI-2 controller")
-Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 9f14da345599 ("drivers: cpuidle: implement DT based idle states infrastructure")
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c     | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/cpuidle/dt_idle_states.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c b/drivers/media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c
-index 340380a5f66f..484ac5f054d5 100644
---- a/drivers/media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c
-+++ b/drivers/media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c
-@@ -498,6 +498,7 @@ static int sun6i_mipi_csi2_bridge_setup(struct sun6i_mipi_csi2_device *csi2_dev)
- 	struct v4l2_async_notifier *notifier = &bridge->notifier;
- 	struct media_pad *pads = bridge->pads;
- 	struct device *dev = csi2_dev->dev;
-+	bool notifier_registered = false;
- 	int ret;
- 
- 	mutex_init(&bridge->lock);
-@@ -535,12 +536,17 @@ static int sun6i_mipi_csi2_bridge_setup(struct sun6i_mipi_csi2_device *csi2_dev)
- 	notifier->ops = &sun6i_mipi_csi2_notifier_ops;
- 
- 	ret = sun6i_mipi_csi2_bridge_source_setup(csi2_dev);
--	if (ret)
-+	if (ret && ret != -ENODEV)
- 		goto error_v4l2_notifier_cleanup;
- 
--	ret = v4l2_async_subdev_nf_register(subdev, notifier);
--	if (ret < 0)
--		goto error_v4l2_notifier_cleanup;
-+	/* Only register the notifier when a sensor is connected. */
-+	if (ret != -ENODEV) {
-+		ret = v4l2_async_subdev_nf_register(subdev, notifier);
-+		if (ret < 0)
-+			goto error_v4l2_notifier_cleanup;
-+
-+		notifier_registered = true;
-+	}
- 
- 	/* V4L2 Subdev */
- 
-@@ -551,7 +557,8 @@ static int sun6i_mipi_csi2_bridge_setup(struct sun6i_mipi_csi2_device *csi2_dev)
- 	return 0;
- 
- error_v4l2_notifier_unregister:
--	v4l2_async_nf_unregister(notifier);
-+	if (notifier_registered)
-+		v4l2_async_nf_unregister(notifier);
- 
- error_v4l2_notifier_cleanup:
- 	v4l2_async_nf_cleanup(notifier);
+diff --git a/drivers/cpuidle/dt_idle_states.c b/drivers/cpuidle/dt_idle_states.c
+index 252f2a9686a6..448bc796b0b4 100644
+--- a/drivers/cpuidle/dt_idle_states.c
++++ b/drivers/cpuidle/dt_idle_states.c
+@@ -223,6 +223,6 @@ int dt_init_idle_driver(struct cpuidle_driver *drv,
+ 	 * also be 0 on platforms with missing DT idle states or legacy DT
+ 	 * configuration predating the DT idle states bindings.
+ 	 */
+-	return i;
++	return state_idx - start_idx;
+ }
+ EXPORT_SYMBOL_GPL(dt_init_idle_driver);
 -- 
 2.35.1
 
