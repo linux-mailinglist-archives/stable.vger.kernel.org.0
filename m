@@ -2,43 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 994DB65747F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 10:13:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0881657560
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 11:37:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230024AbiL1JNC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 04:13:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60878 "EHLO
+        id S232799AbiL1Khd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 05:37:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230145AbiL1JNA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 04:13:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BBFC1025
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 01:12:59 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BA2BDB8125B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 09:12:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8AF2C433F0;
-        Wed, 28 Dec 2022 09:12:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672218776;
-        bh=3QXnvrCWzLiIt9UiYC4fqXALkuQfpebHwbDmNRpj3Jo=;
-        h=Subject:To:Cc:From:Date:From;
-        b=KwkeBsTKcPss26DutJV6KKK5QAHEbiQOWmCvTyblc7AZrgwwKYW3otyM8qSiJJPeU
-         hlS3ZiqH9+3T3Ip522QscUMDKNw/umGCDx6Li0hlMkJ7ClhGCoQI7DxfMtYiBqrHcN
-         OjA3OlLWsWtyf2V3POYeM3oT/ishCeptaFu2iTto=
-Subject: FAILED: patch "[PATCH] loop: Fix the max_loop commandline argument treatment when it" failed to apply to 4.9-stable tree
-To:     isaacmanjarres@google.com, axboe@kernel.dk, kenchen@google.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 28 Dec 2022 10:12:45 +0100
-Message-ID: <1672218765218183@kroah.com>
+        with ESMTP id S232776AbiL1Khc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 05:37:32 -0500
+Received: from relay4-d.mail.gandi.net (relay4-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::224])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7269F1142;
+        Wed, 28 Dec 2022 02:37:30 -0800 (PST)
+Received: (Authenticated sender: didi.debian@cknow.org)
+        by mail.gandi.net (Postfix) with ESMTPSA id D2969E0008;
+        Wed, 28 Dec 2022 10:37:27 +0000 (UTC)
+From:   Diederik de Haas <didi.debian@cknow.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     LABBE Corentin <clabbe@baylibre.com>
+Subject: crypto-rockchip patches queued for 6.1
+Date:   Wed, 28 Dec 2022 11:37:16 +0100
+Message-ID: <2236134.UumAgOJHRH@prancing-pony>
+Organization: Connecting Knowledge
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+Content-Type: multipart/signed; boundary="nextPart4633592.hJsWa3VWUR"; micalg="pgp-sha256"; protocol="application/pgp-signature"
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -46,132 +34,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+--nextPart4633592.hJsWa3VWUR
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"; protected-headers="v1"
+From: Diederik de Haas <didi.debian@cknow.org>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: LABBE Corentin <clabbe@baylibre.com>
+Subject: crypto-rockchip patches queued for 6.1
+Date: Wed, 28 Dec 2022 11:37:16 +0100
+Message-ID: <2236134.UumAgOJHRH@prancing-pony>
+Organization: Connecting Knowledge
+MIME-Version: 1.0
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Hi,
 
-Possible dependencies:
+I couldn't find an existing mail with "[PATCH AUTOSEL 6.1 N/M] XYZ" to reply 
+to, so I'm just sending an email like this. Hope that's ok.
 
-85c50197716c ("loop: Fix the max_loop commandline argument treatment when it is set to 0")
-18d1f200b380 ("loop: move loop_ctl_mutex locking into loop_add")
-f9d107644aa4 ("loop: split loop_control_ioctl")
-4157fe0b3d16 ("loop: don't call loop_lookup before adding a loop device")
-d6da83d072c1 ("loop: remove the l argument to loop_add")
-990e78116d38 ("block: loop: fix deadlock between open and remove")
-6cc8e7430801 ("loop: scale loop device by introducing per device lock")
-aeb2b0b1a3da ("block: drop dead assignments in loop_init()")
-8410d38c2552 ("loop: use __register_blkdev to allocate devices on demand")
-200f93377220 ("loop: be paranoid on exit and prevent new additions / removals")
-62ab466ca881 ("loop: Move loop_set_status_from_info() and friends up")
-0c3796c24459 ("loop: Factor out configuring loop from status")
-b0bd158dd630 ("loop: Refactor loop_set_status() size calculation")
-5795b6f5607f ("loop: Factor out setting loop device size")
-083a6a50783e ("loop: Remove sector_t truncation checks")
-7c5014b0987a ("loop: Call loop_config_discard() only after new config is applied")
-33ec3e53e7b1 ("loop: Don't change loop device under exclusive opener")
-56a85fd8376e ("loop: properly observe rotational flag of underlying device")
-758a58d0bc67 ("loop: set GENHD_FL_NO_PART_SCAN after blkdev_reread_part()")
-5db470e229e2 ("loop: drop caches if offset or block_size are changed")
+In https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/
+tree/queue-6.1 there are a number of patches which start with:
+crypto-rockchip- like crypto-rockchip-add-fallback-for-ahash.patch
 
-thanks,
+I guess they were (auto) selected as they contain a "Fixes: <commitid>" line. 
+Those 7 patches are actually part of a larger patch set, see here:
+https://lore.kernel.org/all/20220927075511.3147847-1-clabbe@baylibre.com/
 
-greg k-h
+All those patches have been merged into Linus' tree for 6.2 and there's a 
+hotfix planned to be submitted for 6.2 here:
+https://git.kernel.org/pub/scm/linux/kernel/git/mmind/linux-rockchip.git/
+commit/?h=v6.2-armsoc/dtsfixes&id=53e8e1e6e9c1653095211a8edf17912f2374bb03
 
------------------- original commit in Linus's tree ------------------
+Wouldn't it make more sense to queue the whole patch set for 6.1?
+Or (at least) the whole crypto rockchip part as mentioned here:
+https://lore.kernel.org/all/Y5mGGrBJaDL6mnQJ@gondor.apana.org.au/ 
+under the "Corentin Labbe (32):" label?
 
-From 85c50197716c60fe57f411339c579462e563ac57 Mon Sep 17 00:00:00 2001
-From: "Isaac J. Manjarres" <isaacmanjarres@google.com>
-Date: Thu, 8 Dec 2022 13:29:01 -0800
-Subject: [PATCH] loop: Fix the max_loop commandline argument treatment when it
- is set to 0
+Cheers,
+  Diederik
+--nextPart4633592.hJsWa3VWUR
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
+Content-Transfer-Encoding: 7Bit
 
-Currently, the max_loop commandline argument can be used to specify how
-many loop block devices are created at init time. If it is not
-specified on the commandline, CONFIG_BLK_DEV_LOOP_MIN_COUNT loop block
-devices will be created.
+-----BEGIN PGP SIGNATURE-----
 
-The max_loop commandline argument can be used to override the value of
-CONFIG_BLK_DEV_LOOP_MIN_COUNT. However, when max_loop is set to 0
-through the commandline, the current logic treats it as if it had not
-been set, and creates CONFIG_BLK_DEV_LOOP_MIN_COUNT devices anyway.
+iHUEABYIAB0WIQT1sUPBYsyGmi4usy/XblvOeH7bbgUCY6wcXAAKCRDXblvOeH7b
+btqqAP4iLSE6PpPqVvUKFVUQelSXQCv1a27fo1L7BjYB6PBaJgD/QixSqe6Ap5fh
+kPYJw+GTqH5AjTXDFQ2FaC8e6R6pSwk=
+=Rj7+
+-----END PGP SIGNATURE-----
 
-Fix this by starting max_loop off as set to CONFIG_BLK_DEV_LOOP_MIN_COUNT.
-This preserves the intended behavior of creating
-CONFIG_BLK_DEV_LOOP_MIN_COUNT loop block devices if the max_loop
-commandline parameter is not specified, and allowing max_loop to
-be respected for all values, including 0.
+--nextPart4633592.hJsWa3VWUR--
 
-This allows environments that can create all of their required loop
-block devices on demand to not have to unnecessarily preallocate loop
-block devices.
 
-Fixes: 732850827450 ("remove artificial software max_loop limit")
-Cc: stable@vger.kernel.org
-Cc: Ken Chen <kenchen@google.com>
-Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
-Link: https://lore.kernel.org/r/20221208212902.765781-1-isaacmanjarres@google.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index 1f8f3b87bdfa..df628e30bca4 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -1773,7 +1773,16 @@ static const struct block_device_operations lo_fops = {
- /*
-  * And now the modules code and kernel interface.
-  */
--static int max_loop;
-+
-+/*
-+ * If max_loop is specified, create that many devices upfront.
-+ * This also becomes a hard limit. If max_loop is not specified,
-+ * create CONFIG_BLK_DEV_LOOP_MIN_COUNT loop devices at module
-+ * init time. Loop devices can be requested on-demand with the
-+ * /dev/loop-control interface, or be instantiated by accessing
-+ * a 'dead' device node.
-+ */
-+static int max_loop = CONFIG_BLK_DEV_LOOP_MIN_COUNT;
- module_param(max_loop, int, 0444);
- MODULE_PARM_DESC(max_loop, "Maximum number of loop devices");
- module_param(max_part, int, 0444);
-@@ -2181,7 +2190,7 @@ MODULE_ALIAS("devname:loop-control");
- 
- static int __init loop_init(void)
- {
--	int i, nr;
-+	int i;
- 	int err;
- 
- 	part_shift = 0;
-@@ -2209,19 +2218,6 @@ static int __init loop_init(void)
- 		goto err_out;
- 	}
- 
--	/*
--	 * If max_loop is specified, create that many devices upfront.
--	 * This also becomes a hard limit. If max_loop is not specified,
--	 * create CONFIG_BLK_DEV_LOOP_MIN_COUNT loop devices at module
--	 * init time. Loop devices can be requested on-demand with the
--	 * /dev/loop-control interface, or be instantiated by accessing
--	 * a 'dead' device node.
--	 */
--	if (max_loop)
--		nr = max_loop;
--	else
--		nr = CONFIG_BLK_DEV_LOOP_MIN_COUNT;
--
- 	err = misc_register(&loop_misc);
- 	if (err < 0)
- 		goto err_out;
-@@ -2233,7 +2229,7 @@ static int __init loop_init(void)
- 	}
- 
- 	/* pre-create number of devices given by config or max_loop */
--	for (i = 0; i < nr; i++)
-+	for (i = 0; i < max_loop; i++)
- 		loop_add(i);
- 
- 	printk(KERN_INFO "loop: module loaded\n");
 
