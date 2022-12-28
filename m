@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9025B657926
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:58:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D18AC657A39
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:09:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233296AbiL1O6t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:58:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45542 "EHLO
+        id S233651AbiL1PJE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:09:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233364AbiL1O6B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:58:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBA6912AEE
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:57:59 -0800 (PST)
+        with ESMTP id S233653AbiL1PJA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:09:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5711213DEC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:09:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D044B8171A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:57:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB554C433D2;
-        Wed, 28 Dec 2022 14:57:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E7C3D61541
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:08:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 046AAC433F0;
+        Wed, 28 Dec 2022 15:08:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239477;
-        bh=wAJh6NFGxgffYs+GWGWvdFjhTZ2PvIioEJs3elPeJHo=;
+        s=korg; t=1672240139;
+        bh=2zKy84RmyRpjwSVC1XTMAYPM9Q+32qlA7CIizcGBS10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QMiZ3cSRBuwA9clDj6RoI2bLNZxUcWZP5tk7QN6Eufl3wMtBRGqUNqp9pN7DZjTqg
-         d6FWTG2q+ZEGsCJZGZapahnGqHyXCDfZ21e4mW1b9TexP93Tlv0I+qGXN/fgU2iFz0
-         ltBtaMONzKNLJe28eICtD5hFJp85nGG3l5x8dlLg=
+        b=TAp67xkAFs50H7xBkakBowtmyaylk7uAzMfPeXpkK8TxWvKAyeQhrzPjjWYQSkHe5
+         +8ygwX+0y9gBLgqpnfqNrAh9MANQ2qOwO4FH+hxHcyGG4zR0MWAnkOfOMlMrg8SjbX
+         +ZzKo8dANPC5XPrCdwgImTgbNeLdzA/Uoo784twU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Bjorn Andersson <andersson@kernel.org>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0036/1073] arm64: dts: qcom: msm8996: fix sound card reset line polarity
+Subject: [PATCH 6.1 0085/1146] ARM: dts: armada-38x: Fix assigned-addresses for every PCIe Root Port
 Date:   Wed, 28 Dec 2022 15:27:04 +0100
-Message-Id: <20221228144329.114374116@linuxfoundation.org>
+Message-Id: <20221228144332.455668694@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 76d21ffc5d425bf7ea9888652c49d7dbda15f356 ]
+[ Upstream commit 44f47b7a8fa4678ce4c38ea74837e4996b9df6d6 ]
 
-When resetting the block, the reset line is being driven low and then
-high, which means that the line in DTS should be annotated as "active
-low". It will become important when wcd9335 driver will be converted
-to gpiod API that respects declared line polarities.
+BDF of resource in DT assigned-addresses property of Marvell PCIe Root Port
+(PCI-to-PCI bridge) should match BDF in address part in that DT node name
+as specified resource belongs to Marvell PCIe Root Port itself.
 
-Fixes: f3eb39a55a1f ("arm64: dts: db820c: Add sound card support")
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221027074652.1044235-1-dmitry.torokhov@gmail.com
+Fixes: 0d3d96ab0059 ("ARM: mvebu: add Device Tree description of the Armada 380/385 SoCs")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8996.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/armada-380.dtsi | 4 ++--
+ arch/arm/boot/dts/armada-385.dtsi | 6 +++---
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8996.dtsi b/arch/arm64/boot/dts/qcom/msm8996.dtsi
-index d3cf0677ea28..5cf04c350a62 100644
---- a/arch/arm64/boot/dts/qcom/msm8996.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8996.dtsi
-@@ -3358,7 +3358,7 @@ wcd9335: codec@1{
- 					interrupt-names = "intr1", "intr2";
- 					interrupt-controller;
- 					#interrupt-cells = <1>;
--					reset-gpios = <&tlmm 64 GPIO_ACTIVE_HIGH>;
-+					reset-gpios = <&tlmm 64 GPIO_ACTIVE_LOW>;
- 
- 					slim-ifc-dev = <&tasha_ifd>;
- 
+diff --git a/arch/arm/boot/dts/armada-380.dtsi b/arch/arm/boot/dts/armada-380.dtsi
+index ce1dddb2269b..e94f22b0e9b5 100644
+--- a/arch/arm/boot/dts/armada-380.dtsi
++++ b/arch/arm/boot/dts/armada-380.dtsi
+@@ -89,7 +89,7 @@ pcie1_intc: interrupt-controller {
+ 			/* x1 port */
+ 			pcie@2,0 {
+ 				device_type = "pci";
+-				assigned-addresses = <0x82000800 0 0x40000 0 0x2000>;
++				assigned-addresses = <0x82001000 0 0x40000 0 0x2000>;
+ 				reg = <0x1000 0 0 0 0>;
+ 				#address-cells = <3>;
+ 				#size-cells = <2>;
+@@ -118,7 +118,7 @@ pcie2_intc: interrupt-controller {
+ 			/* x1 port */
+ 			pcie@3,0 {
+ 				device_type = "pci";
+-				assigned-addresses = <0x82000800 0 0x44000 0 0x2000>;
++				assigned-addresses = <0x82001800 0 0x44000 0 0x2000>;
+ 				reg = <0x1800 0 0 0 0>;
+ 				#address-cells = <3>;
+ 				#size-cells = <2>;
+diff --git a/arch/arm/boot/dts/armada-385.dtsi b/arch/arm/boot/dts/armada-385.dtsi
+index 83392b92dae2..be8d607c59b2 100644
+--- a/arch/arm/boot/dts/armada-385.dtsi
++++ b/arch/arm/boot/dts/armada-385.dtsi
+@@ -93,7 +93,7 @@ pcie1_intc: interrupt-controller {
+ 			/* x1 port */
+ 			pcie2: pcie@2,0 {
+ 				device_type = "pci";
+-				assigned-addresses = <0x82000800 0 0x40000 0 0x2000>;
++				assigned-addresses = <0x82001000 0 0x40000 0 0x2000>;
+ 				reg = <0x1000 0 0 0 0>;
+ 				#address-cells = <3>;
+ 				#size-cells = <2>;
+@@ -121,7 +121,7 @@ pcie2_intc: interrupt-controller {
+ 			/* x1 port */
+ 			pcie3: pcie@3,0 {
+ 				device_type = "pci";
+-				assigned-addresses = <0x82000800 0 0x44000 0 0x2000>;
++				assigned-addresses = <0x82001800 0 0x44000 0 0x2000>;
+ 				reg = <0x1800 0 0 0 0>;
+ 				#address-cells = <3>;
+ 				#size-cells = <2>;
+@@ -152,7 +152,7 @@ pcie3_intc: interrupt-controller {
+ 			 */
+ 			pcie4: pcie@4,0 {
+ 				device_type = "pci";
+-				assigned-addresses = <0x82000800 0 0x48000 0 0x2000>;
++				assigned-addresses = <0x82002000 0 0x48000 0 0x2000>;
+ 				reg = <0x2000 0 0 0 0>;
+ 				#address-cells = <3>;
+ 				#size-cells = <2>;
 -- 
 2.35.1
 
