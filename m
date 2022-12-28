@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DA0C657F0F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:00:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEC656584CD
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:03:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234244AbiL1QAm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:00:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47248 "EHLO
+        id S235313AbiL1RDD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:03:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234249AbiL1QAk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:00:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3D6819014
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:00:38 -0800 (PST)
+        with ESMTP id S235346AbiL1RCZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:02:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C46C01FCC2
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:56:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62AC46155B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:00:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 290B2C433D2;
-        Wed, 28 Dec 2022 16:00:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 28013B8188D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:56:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AE37C433D2;
+        Wed, 28 Dec 2022 16:56:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243237;
-        bh=k58RRflD6JGFt7EF93aoHdhUah760czXjm3Zmz65dMQ=;
+        s=korg; t=1672246593;
+        bh=+2f/ByGGh8mwTX2fIHF/zc9Wwd3FoVMz8xvFRmI5psw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OFJeLZPk7qyErMsB9iiLMA1XIpv4sktYi0GBIcRMvo+/0jwcUHZdXal9QRc9Uwj3E
-         zfMiSjuYsz3MMvfPme751sf4xjsxzaVLVOhir31Y6XZmY/VMRbd3BiIlocHsvciDLF
-         nhF3d61HdT7YXyrJJp4CVUDkRZh5Wbvk9+RhQIR0=
+        b=Y++lne1Rnpfd1mpHXDND4eceBAoa3eoW3nUMRYhNTFYRD9zCGnXRRO9iwpAI3kgMK
+         rpvB1eqgm/YRufP4sqCif/6VwKccs4L0WzzxAGnxRbMx2u8pWK6mc1gVICXK1QZ4Od
+         7LePU4ygm61g6QCMpzE9Z84SK960Olx2v78mjdu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Wang <wvw@google.com>,
-        Midas Chien <midaschieh@google.com>,
-        Connor OBrien <connoro@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Anton Vorontsov <anton@enomsg.org>,
-        Colin Cross <ccross@android.com>,
-        Tony Luck <tony.luck@intel.com>, kernel-team@android.com,
-        John Stultz <jstultz@google.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 698/731] pstore: Switch pmsg_lock to an rt_mutex to avoid priority inversion
+Subject: [PATCH 6.1 1066/1146] ASoC: sof_es8336: fix possible use-after-free in sof_es8336_remove()
 Date:   Wed, 28 Dec 2022 15:43:25 +0100
-Message-Id: <20221228144316.694828304@linuxfoundation.org>
+Message-Id: <20221228144359.218361866@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,68 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Stultz <jstultz@google.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 76d62f24db07f22ccf9bc18ca793c27d4ebef721 ]
+[ Upstream commit 1b41beaa7a58467505ec3023af8aad74f878b888 ]
 
-Wei Wang reported seeing priority inversion caused latencies
-caused by contention on pmsg_lock, and suggested it be switched
-to a rt_mutex.
+sof_es8336_remove() calls cancel_delayed_work(). However, that
+function does not wait until the work function finishes. This
+means that the callback function may still be running after
+the driver's remove function has finished, which would result
+in a use-after-free.
 
-I was initially hesitant this would help, as the tasks in that
-trace all seemed to be SCHED_NORMAL, so the benefit would be
-limited to only nice boosting.
+Fix by calling cancel_delayed_work_sync(), which ensures that
+the work is properly cancelled, no longer running, and unable
+to re-schedule itself.
 
-However, another similar issue was raised where the priority
-inversion was seen did involve a blocked RT task so it is clear
-this would be helpful in that case.
-
-Cc: Wei Wang <wvw@google.com>
-Cc: Midas Chien<midaschieh@google.com>
-Cc: Connor O'Brien <connoro@google.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Anton Vorontsov <anton@enomsg.org>
-Cc: Colin Cross <ccross@android.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: kernel-team@android.com
-Fixes: 9d5438f462ab ("pstore: Add pmsg - user-space accessible pstore object")
-Reported-by: Wei Wang <wvw@google.com>
-Signed-off-by: John Stultz <jstultz@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221214231834.3711880-1-jstultz@google.com
+Fixes: 89cdb224f2ab ("ASoC: sof_es8336: reduce pop noise on speaker")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20221205143721.3988988-1-yangyingliang@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/pstore/pmsg.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ sound/soc/intel/boards/sof_es8336.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/pstore/pmsg.c b/fs/pstore/pmsg.c
-index d8542ec2f38c..18cf94b597e0 100644
---- a/fs/pstore/pmsg.c
-+++ b/fs/pstore/pmsg.c
-@@ -7,9 +7,10 @@
- #include <linux/device.h>
- #include <linux/fs.h>
- #include <linux/uaccess.h>
-+#include <linux/rtmutex.h>
- #include "internal.h"
+diff --git a/sound/soc/intel/boards/sof_es8336.c b/sound/soc/intel/boards/sof_es8336.c
+index 70713e4b07dc..773e5d1d87d4 100644
+--- a/sound/soc/intel/boards/sof_es8336.c
++++ b/sound/soc/intel/boards/sof_es8336.c
+@@ -783,7 +783,7 @@ static int sof_es8336_remove(struct platform_device *pdev)
+ 	struct snd_soc_card *card = platform_get_drvdata(pdev);
+ 	struct sof_es8336_private *priv = snd_soc_card_get_drvdata(card);
  
--static DEFINE_MUTEX(pmsg_lock);
-+static DEFINE_RT_MUTEX(pmsg_lock);
- 
- static ssize_t write_pmsg(struct file *file, const char __user *buf,
- 			  size_t count, loff_t *ppos)
-@@ -28,9 +29,9 @@ static ssize_t write_pmsg(struct file *file, const char __user *buf,
- 	if (!access_ok(buf, count))
- 		return -EFAULT;
- 
--	mutex_lock(&pmsg_lock);
-+	rt_mutex_lock(&pmsg_lock);
- 	ret = psinfo->write_user(&record, buf);
--	mutex_unlock(&pmsg_lock);
-+	rt_mutex_unlock(&pmsg_lock);
- 	return ret ? ret : count;
- }
- 
+-	cancel_delayed_work(&priv->pcm_pop_work);
++	cancel_delayed_work_sync(&priv->pcm_pop_work);
+ 	gpiod_put(priv->gpio_speakers);
+ 	device_remove_software_node(priv->codec_dev);
+ 	put_device(priv->codec_dev);
 -- 
 2.35.1
 
