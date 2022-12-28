@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 466866584CE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:03:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF9B1657F61
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:04:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233776AbiL1RDE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:03:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56872 "EHLO
+        id S234283AbiL1QEY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:04:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231745AbiL1RCa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:02:30 -0500
+        with ESMTP id S233076AbiL1QEO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:04:14 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 524FCEA3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:56:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A491919287
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:04:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BB6EB8188A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:56:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4163C433D2;
-        Wed, 28 Dec 2022 16:56:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3B7CEB81710
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:04:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2EB1C433D2;
+        Wed, 28 Dec 2022 16:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246582;
-        bh=viAwfO3RI0U6SfdLXJO9hpCyP45/2q2Rs9X/DWs8k6M=;
+        s=korg; t=1672243451;
+        bh=Ep1LP9pPDoV+Knr4iC2+D7JKSWohoR/hKJvTo0Q0jwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RPRZZkydY2NLoLaanMoeNNkSCU9xMWMR9wK1C3+ZTJOWygFwOs42zJC+YUop/BiLs
-         tFX7LF6Q/SU6MAAGDIZVz9vxyIqvnq+QzkoN9VViRR7qA1Y0GV4xzn77RXtDakpq0o
-         /TtwbRNw6GGHRHQr6OUNH3VQ+quebpaAKIF5X2mo=
+        b=NZUmwIulXyuORAUlgVZehVL1Jlj2PSnSg1SnJQ44g1Kc0fZwZoc54R5et2V6oyHFM
+         lDexMCOO2lYe2namJsBfd3OBfe/MvVD6UMVnBSkzcZuc+sFAOTKRk//3iK1yeDKxKj
+         5YB1WgbMH8g8WPv0dzEdS1eTJ7E2iOqGCc7mAnGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1089/1146] cfi: Fix CFI failure with KASAN
-Date:   Wed, 28 Dec 2022 15:43:48 +0100
-Message-Id: <20221228144359.766288307@linuxfoundation.org>
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Denis Efremov <efremov@linux.com>
+Subject: [PATCH 5.15 722/731] floppy: Fix memory leak in do_floppy_init()
+Date:   Wed, 28 Dec 2022 15:43:49 +0100
+Message-Id: <20221228144317.372691362@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +52,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Tolvanen <samitolvanen@google.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit cf8016408d880afe9c5dc495af40dc2932874e77 ]
+commit f8ace2e304c5dd8a7328db9cd2b8a4b1b98d83ec upstream.
 
-When CFI_CLANG and KASAN are both enabled, LLVM doesn't generate a
-CFI type hash for asan.module_ctor functions in translation units
-where CFI is disabled, which leads to a CFI failure during boot when
-do_ctors calls the affected constructors:
+A memory leak was reported when floppy_alloc_disk() failed in
+do_floppy_init().
 
-  CFI failure at do_basic_setup+0x64/0x90 (target:
-  asan.module_ctor+0x0/0x28; expected type: 0xa540670c)
+unreferenced object 0xffff888115ed25a0 (size 8):
+  comm "modprobe", pid 727, jiffies 4295051278 (age 25.529s)
+  hex dump (first 8 bytes):
+    00 ac 67 5b 81 88 ff ff                          ..g[....
+  backtrace:
+    [<000000007f457abb>] __kmalloc_node+0x4c/0xc0
+    [<00000000a87bfa9e>] blk_mq_realloc_tag_set_tags.part.0+0x6f/0x180
+    [<000000006f02e8b1>] blk_mq_alloc_tag_set+0x573/0x1130
+    [<0000000066007fd7>] 0xffffffffc06b8b08
+    [<0000000081f5ac40>] do_one_initcall+0xd0/0x4f0
+    [<00000000e26d04ee>] do_init_module+0x1a4/0x680
+    [<000000001bb22407>] load_module+0x6249/0x7110
+    [<00000000ad31ac4d>] __do_sys_finit_module+0x140/0x200
+    [<000000007bddca46>] do_syscall_64+0x35/0x80
+    [<00000000b5afec39>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+unreferenced object 0xffff88810fc30540 (size 32):
+  comm "modprobe", pid 727, jiffies 4295051278 (age 25.529s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<000000007f457abb>] __kmalloc_node+0x4c/0xc0
+    [<000000006b91eab4>] blk_mq_alloc_tag_set+0x393/0x1130
+    [<0000000066007fd7>] 0xffffffffc06b8b08
+    [<0000000081f5ac40>] do_one_initcall+0xd0/0x4f0
+    [<00000000e26d04ee>] do_init_module+0x1a4/0x680
+    [<000000001bb22407>] load_module+0x6249/0x7110
+    [<00000000ad31ac4d>] __do_sys_finit_module+0x140/0x200
+    [<000000007bddca46>] do_syscall_64+0x35/0x80
+    [<00000000b5afec39>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-Specifically, this happens because CFI is disabled for
-kernel/cfi.c. There's no reason to keep CFI disabled here anymore, so
-fix the failure by not filtering out CC_FLAGS_CFI for the file.
+If the floppy_alloc_disk() failed, disks of current drive will not be set,
+thus the lastest allocated set->tag cannot be freed in the error handling
+path. A simple call graph shown as below:
 
-Note that https://reviews.llvm.org/rG3b14862f0a96 fixed the issue
-where LLVM didn't emit CFI type hashes for any sanitizer constructors,
-but now type hashes are emitted correctly for TUs that use CFI.
+ floppy_module_init()
+   floppy_init()
+     do_floppy_init()
+       for (drive = 0; drive < N_DRIVE; drive++)
+         blk_mq_alloc_tag_set()
+           blk_mq_alloc_tag_set_tags()
+             blk_mq_realloc_tag_set_tags() # set->tag allocated
+         floppy_alloc_disk()
+           blk_mq_alloc_disk() # error occurred, disks failed to allocated
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1742
-Fixes: 89245600941e ("cfi: Switch to -fsanitize=kcfi")
-Reported-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221222225747.3538676-1-samitolvanen@google.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+       ->out_put_disk:
+       for (drive = 0; drive < N_DRIVE; drive++)
+         if (!disks[drive][0]) # the last disks is not set and loop break
+           break;
+         blk_mq_free_tag_set() # the latest allocated set->tag leaked
+
+Fix this problem by free the set->tag of current drive before jump to
+error handling path.
+
+Cc: stable@vger.kernel.org
+Fixes: 302cfee15029 ("floppy: use a separate gendisk for each media format")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+[efremov: added stable list, changed title]
+Signed-off-by: Denis Efremov <efremov@linux.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/Makefile | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/block/floppy.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/Makefile b/kernel/Makefile
-index d754e0be1176..ebc692242b68 100644
---- a/kernel/Makefile
-+++ b/kernel/Makefile
-@@ -41,9 +41,6 @@ UBSAN_SANITIZE_kcov.o := n
- KMSAN_SANITIZE_kcov.o := n
- CFLAGS_kcov.o := $(call cc-option, -fno-conserve-stack) -fno-stack-protector
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -4587,8 +4587,10 @@ static int __init do_floppy_init(void)
+ 			goto out_put_disk;
  
--# Don't instrument error handlers
--CFLAGS_REMOVE_cfi.o := $(CC_FLAGS_CFI)
--
- obj-y += sched/
- obj-y += locking/
- obj-y += power/
--- 
-2.35.1
-
+ 		err = floppy_alloc_disk(drive, 0);
+-		if (err)
++		if (err) {
++			blk_mq_free_tag_set(&tag_sets[drive]);
+ 			goto out_put_disk;
++		}
+ 
+ 		timer_setup(&motor_off_timer[drive], motor_off_callback, 0);
+ 	}
 
 
