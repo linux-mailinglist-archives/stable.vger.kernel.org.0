@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25BE6657EBC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:56:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E8BF657FAF
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:07:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234189AbiL1P4y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:56:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44722 "EHLO
+        id S234318AbiL1QHw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:07:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234190AbiL1P4x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:56:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72948178B9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:56:52 -0800 (PST)
+        with ESMTP id S234242AbiL1QH2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:07:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 330CA10B7A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:07:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2D939B8172B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:56:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EAFCC433F0;
-        Wed, 28 Dec 2022 15:56:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C74A961577
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:07:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA7CAC433EF;
+        Wed, 28 Dec 2022 16:07:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243009;
-        bh=G3bF5zDa6UOtDDkVTz9o54tixBLXMzT7gPBIx978YdA=;
+        s=korg; t=1672243646;
+        bh=TuF4wUYdyFvLGY9SACynje///QzokDH5XG2EpqcTumw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VkyYdEmRj9cVaJ4cknp4ng38YBNJ/t4TRAEH61qmAzusFoDcc7w7BupaGS2sUBbTu
-         S2H7MfYChYo86JeKmj+LiEgFkIM2P263LWmbu2+QIpW6V8JxsRWNkp7mYYwU6weS11
-         yJ8Qx6WLzRCNU1BwkArwHdSOT2v22WsKKsgS4Dh0=
+        b=Z5uwyKelm++3ADoWpZaGJCTyLDf2v7/2A9s5FnKV1NajUIY3+KT2YLGDlhmwS6/zG
+         ENXAZHXHG4z4lKG+OU8Lwv2evX3AQz0uEKTO/3V2F321HRu5Ownl5EC2cVjXOCcPCS
+         t/TNQAUIEerrc2iN9TJsn0KLkEO+OJf5TrZAVYtY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0478/1073] mmc: alcor: fix return value check of mmc_add_host()
+Subject: [PATCH 6.1 0527/1146] clk: socfpga: Fix memory leak in socfpga_gate_init()
 Date:   Wed, 28 Dec 2022 15:34:26 +0100
-Message-Id: <20221228144341.019491103@linuxfoundation.org>
+Message-Id: <20221228144344.490879413@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-[ Upstream commit e93d1468f429475a753d6baa79b853b7ee5ef8c0 ]
+[ Upstream commit 0b8ba891ad4d1ef6bfa4c72efc83f9f9f855f68b ]
 
-mmc_add_host() may return error, if we ignore its return value, the memory
-that allocated in mmc_alloc_host() will be leaked and it will lead a kernel
-crash because of deleting not added device in the remove path.
+Free @socfpga_clk and @ops on the error path to avoid memory leak issue.
 
-So fix this by checking the return value and calling mmc_free_host() in the
-error path.
-
-Fixes: c5413ad815a6 ("mmc: add new Alcor Micro Cardreader SD/MMC driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221101063023.1664968-2-yangyingliang@huawei.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: a30a67be7b6e ("clk: socfpga: Don't have get_parent for single parent ops")
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+Link: https://lore.kernel.org/r/20221123031622.63171-1-xiujianfeng@huawei.com
+Acked-by: Dinh Nguyen <dinguyen@kernel.org>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/alcor.c | 5 ++++-
+ drivers/clk/socfpga/clk-gate.c | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/alcor.c b/drivers/mmc/host/alcor.c
-index bfb8efeb7eb8..d01df01d4b4d 100644
---- a/drivers/mmc/host/alcor.c
-+++ b/drivers/mmc/host/alcor.c
-@@ -1114,7 +1114,10 @@ static int alcor_pci_sdmmc_drv_probe(struct platform_device *pdev)
- 	alcor_hw_init(host);
+diff --git a/drivers/clk/socfpga/clk-gate.c b/drivers/clk/socfpga/clk-gate.c
+index 53d6e3ec4309..c94b59b80dd4 100644
+--- a/drivers/clk/socfpga/clk-gate.c
++++ b/drivers/clk/socfpga/clk-gate.c
+@@ -188,8 +188,10 @@ void __init socfpga_gate_init(struct device_node *node)
+ 		return;
  
- 	dev_set_drvdata(&pdev->dev, host);
--	mmc_add_host(mmc);
-+	ret = mmc_add_host(mmc);
-+	if (ret)
-+		goto free_host;
-+
- 	return 0;
+ 	ops = kmemdup(&gateclk_ops, sizeof(gateclk_ops), GFP_KERNEL);
+-	if (WARN_ON(!ops))
++	if (WARN_ON(!ops)) {
++		kfree(socfpga_clk);
+ 		return;
++	}
  
- free_host:
+ 	rc = of_property_read_u32_array(node, "clk-gate", clk_gate, 2);
+ 	if (rc)
+@@ -243,6 +245,7 @@ void __init socfpga_gate_init(struct device_node *node)
+ 
+ 	err = clk_hw_register(NULL, hw_clk);
+ 	if (err) {
++		kfree(ops);
+ 		kfree(socfpga_clk);
+ 		return;
+ 	}
 -- 
 2.35.1
 
