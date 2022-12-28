@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6090657B6A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:21:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC4546579F5
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:06:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233728AbiL1PVk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:21:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40158 "EHLO
+        id S233464AbiL1PGe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:06:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233731AbiL1PVW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:21:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB8681403D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:21:17 -0800 (PST)
+        with ESMTP id S233555AbiL1PG1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:06:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 763E0B871
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:06:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B9B461365
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:21:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70381C433D2;
-        Wed, 28 Dec 2022 15:21:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 29D08B8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:06:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75EEBC433D2;
+        Wed, 28 Dec 2022 15:06:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240876;
-        bh=qfdjoX+aTeK0QVl/CpkxTz0Z1WWXL3X/QCgcK1LzpDk=;
+        s=korg; t=1672239983;
+        bh=42Y8QxZyZzt8It3aAKopBhcGIJD49TelzXjP2Zcvcz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pNV5XetQwmSCTLZlxkORNxJkuEsAcO06kf9f7Uh0NAURK8/R0G6RyQm4k/rlNqhBh
-         PZs41lKBvWWlTWkrj8XJMsPKbwxo9isBvMYPJjB1318AK9/hnzUPfC+j76VEl1itNZ
-         agF5o18Vdb113yGOFra+LYH4pR2BlLfy3hrtIQOQ=
+        b=gu94kikGV/6ul4MiQfoDIORdp9FD+QZNIISAgvpOM5NE5MUHAhQlDcFxnHlQwh91G
+         hfwnbFQwsOIXgIB3vUm6o3pzG1gUTvXmLylTbEhqS9uQAi/e5bK2W2DdNdUFo0I2Oj
+         U+1edakuSoD+DWeVekjfkbaB1mfuz8p6N0YyTohE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhi Li <yieli@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        patches@lists.linux.dev, Al Viro <viro@zeniv.linux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0153/1146] nfsd: dont call nfsd_file_put from client states seqfile display
+Subject: [PATCH 6.0 0104/1073] alpha: fix syscall entry in !AUDUT_SYSCALL case
 Date:   Wed, 28 Dec 2022 15:28:12 +0100
-Message-Id: <20221228144334.312174060@linuxfoundation.org>
+Message-Id: <20221228144330.871316366@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,145 +52,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit e0aa651068bfd520afcd357af8ecd2de005fc83d ]
+[ Upstream commit f7b2431a6d22f7a91c567708e071dfcd6d66db14 ]
 
-We had a report of this:
+We only want to take the slow path if SYSCALL_TRACE or SYSCALL_AUDIT is
+set; on !AUDIT_SYSCALL configs the current tree hits it whenever _any_
+thread flag (including NEED_RESCHED, NOTIFY_SIGNAL, etc.) happens to
+be set.
 
-    BUG: sleeping function called from invalid context at fs/nfsd/filecache.c:440
-
-...with a stack trace showing nfsd_file_put being called from
-nfs4_show_open. This code has always tried to call fput while holding a
-spinlock, but we recently changed this to use the filecache, and that
-started triggering the might_sleep() in nfsd_file_put.
-
-states_start takes and holds the cl_lock while iterating over the
-client's states, and we can't sleep with that held.
-
-Have the various nfs4_show_* functions instead hold the fi_lock instead
-of taking a nfsd_file reference.
-
-Fixes: 78599c42ae3c ("nfsd4: add file to display list of client's opens")
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2138357
-Reported-by: Zhi Li <yieli@redhat.com>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: a9302e843944 "alpha: Enable system-call auditing support"
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c | 51 +++++++++++++++++++++++++++++----------------
- 1 file changed, 33 insertions(+), 18 deletions(-)
+ arch/alpha/kernel/entry.S | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index 836bd825ca4a..52b5552d0d70 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -675,15 +675,26 @@ find_any_file(struct nfs4_file *f)
- 	return ret;
- }
- 
--static struct nfsd_file *find_deleg_file(struct nfs4_file *f)
-+static struct nfsd_file *find_any_file_locked(struct nfs4_file *f)
- {
--	struct nfsd_file *ret = NULL;
-+	lockdep_assert_held(&f->fi_lock);
-+
-+	if (f->fi_fds[O_RDWR])
-+		return f->fi_fds[O_RDWR];
-+	if (f->fi_fds[O_WRONLY])
-+		return f->fi_fds[O_WRONLY];
-+	if (f->fi_fds[O_RDONLY])
-+		return f->fi_fds[O_RDONLY];
-+	return NULL;
-+}
-+
-+static struct nfsd_file *find_deleg_file_locked(struct nfs4_file *f)
-+{
-+	lockdep_assert_held(&f->fi_lock);
- 
--	spin_lock(&f->fi_lock);
- 	if (f->fi_deleg_file)
--		ret = nfsd_file_get(f->fi_deleg_file);
--	spin_unlock(&f->fi_lock);
--	return ret;
-+		return f->fi_deleg_file;
-+	return NULL;
- }
- 
- static atomic_long_t num_delegations;
-@@ -2613,9 +2624,11 @@ static int nfs4_show_open(struct seq_file *s, struct nfs4_stid *st)
- 	ols = openlockstateid(st);
- 	oo = ols->st_stateowner;
- 	nf = st->sc_file;
--	file = find_any_file(nf);
-+
-+	spin_lock(&nf->fi_lock);
-+	file = find_any_file_locked(nf);
- 	if (!file)
--		return 0;
-+		goto out;
- 
- 	seq_printf(s, "- ");
- 	nfs4_show_stateid(s, &st->sc_stateid);
-@@ -2637,8 +2650,8 @@ static int nfs4_show_open(struct seq_file *s, struct nfs4_stid *st)
- 	seq_printf(s, ", ");
- 	nfs4_show_owner(s, oo);
- 	seq_printf(s, " }\n");
--	nfsd_file_put(file);
--
-+out:
-+	spin_unlock(&nf->fi_lock);
- 	return 0;
- }
- 
-@@ -2652,9 +2665,10 @@ static int nfs4_show_lock(struct seq_file *s, struct nfs4_stid *st)
- 	ols = openlockstateid(st);
- 	oo = ols->st_stateowner;
- 	nf = st->sc_file;
--	file = find_any_file(nf);
-+	spin_lock(&nf->fi_lock);
-+	file = find_any_file_locked(nf);
- 	if (!file)
--		return 0;
-+		goto out;
- 
- 	seq_printf(s, "- ");
- 	nfs4_show_stateid(s, &st->sc_stateid);
-@@ -2674,8 +2688,8 @@ static int nfs4_show_lock(struct seq_file *s, struct nfs4_stid *st)
- 	seq_printf(s, ", ");
- 	nfs4_show_owner(s, oo);
- 	seq_printf(s, " }\n");
--	nfsd_file_put(file);
--
-+out:
-+	spin_unlock(&nf->fi_lock);
- 	return 0;
- }
- 
-@@ -2687,9 +2701,10 @@ static int nfs4_show_deleg(struct seq_file *s, struct nfs4_stid *st)
- 
- 	ds = delegstateid(st);
- 	nf = st->sc_file;
--	file = find_deleg_file(nf);
-+	spin_lock(&nf->fi_lock);
-+	file = find_deleg_file_locked(nf);
- 	if (!file)
--		return 0;
-+		goto out;
- 
- 	seq_printf(s, "- ");
- 	nfs4_show_stateid(s, &st->sc_stateid);
-@@ -2705,8 +2720,8 @@ static int nfs4_show_deleg(struct seq_file *s, struct nfs4_stid *st)
- 	seq_printf(s, ", ");
- 	nfs4_show_fname(s, file);
- 	seq_printf(s, " }\n");
--	nfsd_file_put(file);
--
-+out:
-+	spin_unlock(&nf->fi_lock);
- 	return 0;
- }
- 
+diff --git a/arch/alpha/kernel/entry.S b/arch/alpha/kernel/entry.S
+index e227f3a29a43..c41a5a9c3b9f 100644
+--- a/arch/alpha/kernel/entry.S
++++ b/arch/alpha/kernel/entry.S
+@@ -469,8 +469,10 @@ entSys:
+ #ifdef CONFIG_AUDITSYSCALL
+ 	lda     $6, _TIF_SYSCALL_TRACE | _TIF_SYSCALL_AUDIT
+ 	and     $3, $6, $3
+-#endif
+ 	bne     $3, strace
++#else
++	blbs    $3, strace		/* check for SYSCALL_TRACE in disguise */
++#endif
+ 	beq	$4, 1f
+ 	ldq	$27, 0($5)
+ 1:	jsr	$26, ($27), sys_ni_syscall
 -- 
 2.35.1
 
