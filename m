@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDA5E657D18
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:39:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 196FA657823
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233519AbiL1PjX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:39:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56256 "EHLO
+        id S233000AbiL1OsL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:48:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233520AbiL1PjW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:39:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36385165BD
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:39:21 -0800 (PST)
+        with ESMTP id S233077AbiL1Orn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:47:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88FE3120B9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:47:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0C69B81710
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:39:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C853C433D2;
-        Wed, 28 Dec 2022 15:39:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2778461541
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:47:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35898C433EF;
+        Wed, 28 Dec 2022 14:47:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241958;
-        bh=os/Td5PwHSmMXNaM+DcoJz8j98yfo7xt2eyBCbTzniI=;
+        s=korg; t=1672238840;
+        bh=sVdd6W75Mu618ftxMgo0QmxEBDXvoh+LI/0etn9UcuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uT4t5MRd1fA+43IXd4sHArUpK6Cv/f+XL06VGIm74GB/ZkmBYQxH4/y+sJYxEpZ/x
-         59X8vrYL/O+0qrHL4YMqVJ/7xoixKBMHmfB/3P0eXSPd0lB2c8pwU/UqugLh8Ta75H
-         0sysChgHK7jyxY0xq53tJFW/5ZeKweBxAw6q86dY=
+        b=lgIJH7cqMP1ifZw8T1n5W289RtDxkD4KGLVvs5jYV2niu+5gzCmUIpKiqBofOh4xI
+         zpz5K/QAAZf+4wZYUGq7gs6HN6XeyjFF2FAep3uvr40kpsizLOWaBPteFr9vwBwfTT
+         UWxhKNC+PAiOTInMmBaYTCO2UK88gzz+swvrfD+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lorenzo Bianconi <lorenzo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0348/1073] net: ethernet: mtk_eth_soc: fix RSTCTRL_PPE{0,1} definitions
-Date:   Wed, 28 Dec 2022 15:32:16 +0100
-Message-Id: <20221228144337.458763377@linuxfoundation.org>
+        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
+        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 030/731] soc: ti: smartreflex: Fix PM disable depth imbalance in omap_sr_probe
+Date:   Wed, 28 Dec 2022 15:32:17 +0100
+Message-Id: <20221228144257.424490810@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,77 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit ef8c373bd91df3cf70596497da0955d218961ead ]
+[ Upstream commit 69460e68eb662064ab4188d4e129ff31c1f23ed9 ]
 
-Fix RSTCTRL_PPE0 and RSTCTRL_PPE1 register mask definitions for
-MTK_NETSYS_V2.
-Remove duplicated definitions.
+The pm_runtime_enable will increase power disable depth. Thus
+a pairing decrement is needed on the error handling path to
+keep it balanced according to context.
 
-Fixes: 160d3a9b1929 ("net: ethernet: mtk_eth_soc: introduce MTK_NETSYS_V2 support")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 984aa6dbf4ca ("OMAP3: PM: Adding smartreflex driver support.")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Link: https://lore.kernel.org/r/20221108080322.52268-3-zhangqilong3@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mediatek/mtk_eth_soc.c | 13 +++++++------
- drivers/net/ethernet/mediatek/mtk_eth_soc.h | 10 +++-------
- 2 files changed, 10 insertions(+), 13 deletions(-)
+ drivers/soc/ti/smartreflex.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-index 26e0a2af64cf..4c16f2df566f 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -3272,16 +3272,17 @@ static int mtk_hw_init(struct mtk_eth *eth)
- 		return 0;
- 	}
+diff --git a/drivers/soc/ti/smartreflex.c b/drivers/soc/ti/smartreflex.c
+index b5b2fa538d5c..4d15587324d4 100644
+--- a/drivers/soc/ti/smartreflex.c
++++ b/drivers/soc/ti/smartreflex.c
+@@ -931,6 +931,7 @@ static int omap_sr_probe(struct platform_device *pdev)
+ err_debugfs:
+ 	debugfs_remove_recursive(sr_info->dbg_dir);
+ err_list_del:
++	pm_runtime_disable(&pdev->dev);
+ 	list_del(&sr_info->node);
+ 	clk_unprepare(sr_info->fck);
  
--	val = RSTCTRL_FE | RSTCTRL_PPE;
- 	if (MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V2)) {
- 		regmap_write(eth->ethsys, ETHSYS_FE_RST_CHK_IDLE_EN, 0);
--
--		val |= RSTCTRL_ETH;
--		if (MTK_HAS_CAPS(eth->soc->caps, MTK_RSTCTRL_PPE1))
--			val |= RSTCTRL_PPE1;
-+		val = RSTCTRL_PPE0_V2;
-+	} else {
-+		val = RSTCTRL_PPE0;
- 	}
- 
--	ethsys_reset(eth, val);
-+	if (MTK_HAS_CAPS(eth->soc->caps, MTK_RSTCTRL_PPE1))
-+		val |= RSTCTRL_PPE1;
-+
-+	ethsys_reset(eth, RSTCTRL_ETH | RSTCTRL_FE | val);
- 
- 	if (MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V2)) {
- 		regmap_write(eth->ethsys, ETHSYS_FE_RST_CHK_IDLE_EN,
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.h b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-index 0f9668a4079d..da261dd49d6f 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-@@ -451,18 +451,14 @@
- /* ethernet reset control register */
- #define ETHSYS_RSTCTRL			0x34
- #define RSTCTRL_FE			BIT(6)
--#define RSTCTRL_PPE			BIT(31)
--#define RSTCTRL_PPE1			BIT(30)
-+#define RSTCTRL_PPE0			BIT(31)
-+#define RSTCTRL_PPE0_V2			BIT(30)
-+#define RSTCTRL_PPE1			BIT(31)
- #define RSTCTRL_ETH			BIT(23)
- 
- /* ethernet reset check idle register */
- #define ETHSYS_FE_RST_CHK_IDLE_EN	0x28
- 
--/* ethernet reset control register */
--#define ETHSYS_RSTCTRL		0x34
--#define RSTCTRL_FE		BIT(6)
--#define RSTCTRL_PPE		BIT(31)
--
- /* ethernet dma channel agent map */
- #define ETHSYS_DMA_AG_MAP	0x408
- #define ETHSYS_DMA_AG_MAP_PDMA	BIT(0)
 -- 
 2.35.1
 
