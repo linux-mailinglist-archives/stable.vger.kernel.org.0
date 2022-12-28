@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D82A6657CC1
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:35:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C18D1657BAF
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:24:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233462AbiL1Pfm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:35:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53270 "EHLO
+        id S233290AbiL1PYX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:24:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233473AbiL1Pfm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:35:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF128164B0
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:35:40 -0800 (PST)
+        with ESMTP id S233685AbiL1PYW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:24:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CC1E1401C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:24:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2DE7AB81710
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:35:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CD7AC433D2;
-        Wed, 28 Dec 2022 15:35:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DAB061564
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:24:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3FECC433D2;
+        Wed, 28 Dec 2022 15:24:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241737;
-        bh=1TjtFbsIZv5NGqDHCzpNDsVKhY55ko3BCqipYKiYS64=;
+        s=korg; t=1672241061;
+        bh=l4bkgbj+pXRGG31kIC+nGp9WQ5tuUJE/4MCqDjxeMSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HxSI2kPnaiwq0qLTtsyNqTuEnx11arVPsLv2wf3jGCwlFdiRgJVcIkCCHR2VmaWlD
-         kOVoR+CezcaanpLwPFdSPJ447Vf+ZoAyfQw0wO9j6RoZaTZeFQ3bJriTHfoezH6l8k
-         YpxZ46n+T5Hy9eNKarll/es2amd4VDOMRcCxCpqs=
+        b=CpHHUPL7pbTU31iYBQNUVUeCt4bU3iYtLXvQdLPOsVCpPbtMKXv2xvv0Y5fF2CKpD
+         D+oCs3IPENGRdX6B0Gg+b/aBvooqgzGDlmhH1VTRsICUpox05bbGNd+fpaCfR52BBU
+         kI+J9e7gzPq2VWnYGc+411TzGyCg6XHR+/3zMN+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        patches@lists.linux.dev, Ricardo Ribalda <ribalda@chromium.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0283/1146] drm/msm/dsi: Migrate to drm_dsc_compute_rc_parameters()
-Date:   Wed, 28 Dec 2022 15:30:22 +0100
-Message-Id: <20221228144337.827453477@linuxfoundation.org>
+Subject: [PATCH 6.0 0235/1073] media: i2c: ad5820: Fix error path
+Date:   Wed, 28 Dec 2022 15:30:23 +0100
+Message-Id: <20221228144334.410842273@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,138 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-[ Upstream commit c3a1aabce2d4087255de90100c3dad492e7d925c ]
+[ Upstream commit 9fce241660f37d9e95e93c0ae6fba8cfefa5797b ]
 
-As per the FIXME this code is entirely duplicate with what is already
-provided inside drm_dsc_compute_rc_parameters(), supposedly because that
-function was yielding "incorrect" results while in reality the panel
-driver(s?) used for testing were providing incorrect parameters.
+Error path seems to be swaped. Fix the order and provide some meaningful
+names.
 
-For example, this code from downstream assumed dsc->bits_per_pixel to
-contain an integer value, whereas the upstream drm_dsc_config struct
-stores it with 4 fractional bits.  drm_dsc_compute_rc_parameters()
-already accounts for this feat while the panel driver used for testing
-[1] wasn't, hence making drm_dsc_compute_rc_parameters() seem like it
-was returning an incorrect result.
-Other users of dsc->bits_per_pixel inside dsi_populate_dsc_params() also
-treat it in the same erroneous way, and will be addressed in a separate
-patch.
-In the end, using drm_dsc_compute_rc_parameters() spares both a lot of
-duplicate code and erratic behaviour.
-
-[1]: https://git.linaro.org/people/vinod.koul/kernel.git/commit/?h=topic/pixel3_5.18-rc1&id=1d7d98ad564f1ec69e7525e07418918d90f247a1
-
-Fixes: b9080324d6ca ("drm/msm/dsi: add support for dsc data")
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/508939/
-Link: https://lore.kernel.org/r/20221026182824.876933-7-marijn.suijten@somainline.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: bee3d5115611 ("[media] ad5820: Add driver for auto-focus coil")
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi_host.c | 64 +++---------------------------
- 1 file changed, 6 insertions(+), 58 deletions(-)
+ drivers/media/i2c/ad5820.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
-index 906ee38133c1..36d42f17331d 100644
---- a/drivers/gpu/drm/msm/dsi/dsi_host.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
-@@ -21,6 +21,7 @@
+diff --git a/drivers/media/i2c/ad5820.c b/drivers/media/i2c/ad5820.c
+index 2958a4694461..07639ecc85aa 100644
+--- a/drivers/media/i2c/ad5820.c
++++ b/drivers/media/i2c/ad5820.c
+@@ -327,18 +327,18 @@ static int ad5820_probe(struct i2c_client *client,
  
- #include <video/mipi_display.h>
+ 	ret = media_entity_pads_init(&coil->subdev.entity, 0, NULL);
+ 	if (ret < 0)
+-		goto cleanup2;
++		goto clean_mutex;
  
-+#include <drm/display/drm_dsc_helper.h>
- #include <drm/drm_of.h>
+ 	ret = v4l2_async_register_subdev(&coil->subdev);
+ 	if (ret < 0)
+-		goto cleanup;
++		goto clean_entity;
  
- #include "dsi.h"
-@@ -1749,14 +1750,6 @@ static char bpg_offset[DSC_NUM_BUF_RANGES] = {
+ 	return ret;
  
- static int dsi_populate_dsc_params(struct drm_dsc_config *dsc)
- {
--	int mux_words_size;
--	int groups_per_line, groups_total;
--	int min_rate_buffer_size;
--	int hrd_delay;
--	int pre_num_extra_mux_bits, num_extra_mux_bits;
--	int slice_bits;
--	int data;
--	int final_value, final_scale;
- 	int i;
- 
- 	dsc->rc_model_size = 8192;
-@@ -1782,11 +1775,11 @@ static int dsi_populate_dsc_params(struct drm_dsc_config *dsc)
- 	if (dsc->bits_per_pixel != 8)
- 		dsc->initial_offset = 2048;	/* bpp = 12 */
- 
--	mux_words_size = 48;		/* bpc == 8/10 */
--	if (dsc->bits_per_component == 12)
--		mux_words_size = 64;
-+	if (dsc->bits_per_component <= 10)
-+		dsc->mux_word_size = DSC_MUX_WORD_SIZE_8_10_BPC;
-+	else
-+		dsc->mux_word_size = DSC_MUX_WORD_SIZE_12_BPC;
- 
--	dsc->mux_word_size = mux_words_size;
- 	dsc->initial_xmit_delay = 512;
- 	dsc->initial_scale_value = 32;
- 	dsc->first_line_bpg_offset = 12;
-@@ -1798,52 +1791,7 @@ static int dsi_populate_dsc_params(struct drm_dsc_config *dsc)
- 	dsc->rc_quant_incr_limit0 = 11;
- 	dsc->rc_quant_incr_limit1 = 11;
- 
--	/* FIXME: need to call drm_dsc_compute_rc_parameters() so that rest of
--	 * params are calculated
--	 */
--	groups_per_line = DIV_ROUND_UP(dsc->slice_width, 3);
--	dsc->slice_chunk_size = DIV_ROUND_UP(dsc->slice_width * dsc->bits_per_pixel, 8);
--
--	/* rbs-min */
--	min_rate_buffer_size =  dsc->rc_model_size - dsc->initial_offset +
--				dsc->initial_xmit_delay * dsc->bits_per_pixel +
--				groups_per_line * dsc->first_line_bpg_offset;
--
--	hrd_delay = DIV_ROUND_UP(min_rate_buffer_size, dsc->bits_per_pixel);
--
--	dsc->initial_dec_delay = hrd_delay - dsc->initial_xmit_delay;
--
--	dsc->initial_scale_value = 8 * dsc->rc_model_size /
--				       (dsc->rc_model_size - dsc->initial_offset);
--
--	slice_bits = 8 * dsc->slice_chunk_size * dsc->slice_height;
--
--	groups_total = groups_per_line * dsc->slice_height;
--
--	data = dsc->first_line_bpg_offset * 2048;
--
--	dsc->nfl_bpg_offset = DIV_ROUND_UP(data, (dsc->slice_height - 1));
--
--	pre_num_extra_mux_bits = 3 * (mux_words_size + (4 * dsc->bits_per_component + 4) - 2);
--
--	num_extra_mux_bits = pre_num_extra_mux_bits - (mux_words_size -
--			     ((slice_bits - pre_num_extra_mux_bits) % mux_words_size));
--
--	data = 2048 * (dsc->rc_model_size - dsc->initial_offset + num_extra_mux_bits);
--	dsc->slice_bpg_offset = DIV_ROUND_UP(data, groups_total);
--
--	data = dsc->initial_xmit_delay * dsc->bits_per_pixel;
--	final_value =  dsc->rc_model_size - data + num_extra_mux_bits;
--	dsc->final_offset = final_value;
--
--	final_scale = 8 * dsc->rc_model_size / (dsc->rc_model_size - final_value);
--
--	data = (final_scale - 9) * (dsc->nfl_bpg_offset + dsc->slice_bpg_offset);
--	dsc->scale_increment_interval = (2048 * dsc->final_offset) / data;
--
--	dsc->scale_decrement_interval = groups_per_line / (dsc->initial_scale_value - 8);
--
--	return 0;
-+	return drm_dsc_compute_rc_parameters(dsc);
+-cleanup2:
+-	mutex_destroy(&coil->power_lock);
+-cleanup:
++clean_entity:
+ 	media_entity_cleanup(&coil->subdev.entity);
++clean_mutex:
++	mutex_destroy(&coil->power_lock);
+ 	return ret;
  }
  
- static int dsi_host_parse_dt(struct msm_dsi_host *msm_host)
 -- 
 2.35.1
 
