@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39E9D657C2C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:29:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7094365818A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:29:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233763AbiL1P3m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:29:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47338 "EHLO
+        id S234654AbiL1Q3K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:29:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233779AbiL1P3j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:29:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2683715728
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:29:39 -0800 (PST)
+        with ESMTP id S234722AbiL1Q2m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:28:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD0461902E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:25:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BD26DB816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:29:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31FB5C433F0;
-        Wed, 28 Dec 2022 15:29:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 49E4E6157C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:25:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59C78C433D2;
+        Wed, 28 Dec 2022 16:25:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241376;
-        bh=TOU/oiuKLjmB2Ty15HATCPIpELhn9kSTHm6ZnJwyFns=;
+        s=korg; t=1672244708;
+        bh=8MEO/rRVwQM+oexh/uO6JzcQQF64co5aEekCsfe3xP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kPd/HQRX0SYI3MmYYFDcHOIDxzkC7IHQMFWzr6vMxzKYVayXJUybjJDC0Dsn37XvS
-         73Mr6srQKth3Gb2RnfKrgydJo7ltRszfXIZAc42XkJ0m3wDEjZDY3HJ2trmE+KGmZw
-         NuxPBXPNisQAdiAS88CwxsaTai1Ik0aSnpKiZnKk=
+        b=gHtooGoI4v+DAXKTo87raT6tR3GymwhPXSBs7LePVp5wd31mtWLsxDxQjIfhx8yIo
+         znMZfaG+7uMG2mNUHd+s+rkQQ+0W0kCqAhsQaK4KpIT1GHyHzgAOVpM/9RW3OPQAON
+         idQowj/AUCjLgwRYFyazPMVfPEqvCaev6S7l169I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev,
+        "Author: Randy Dunlap" <rdunlap@infradead.org>,
+        syzbot+35b87c668935bb55e666@syzkaller.appspotmail.com,
+        Shigeru Yoshida <syoshida@redhat.com>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 441/731] class: fix possible memory leak in __class_register()
+Subject: [PATCH 6.0 0760/1073] fs/ntfs3: Avoid UBSAN error on true_sectors_per_clst()
 Date:   Wed, 28 Dec 2022 15:39:08 +0100
-Message-Id: <20221228144309.342258273@linuxfoundation.org>
+Message-Id: <20221228144348.659664854@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,69 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-[ Upstream commit 8c3e8a6bdb5253b97ad532570f8b5db5f7a06407 ]
+[ Upstream commit caad9dd8792a2622737b7273cb34835fd9536cd2 ]
 
-If class_add_groups() returns error, the 'cp->subsys' need be
-unregister, and the 'cp' need be freed.
+syzbot reported UBSAN error as below:
 
-We can not call kset_unregister() here, because the 'cls' will
-be freed in callback function class_release() and it's also
-freed in caller's error path, it will cause double free.
+[   76.901829][ T6677] ================================================================================
+[   76.903908][ T6677] UBSAN: shift-out-of-bounds in fs/ntfs3/super.c:675:13
+[   76.905363][ T6677] shift exponent -247 is negative
 
-So fix this by calling kobject_del() and kfree_const(name) to
-cleanup kobject. Besides, call kfree() to free the 'cp'.
+This patch avoid this error.
 
-Fault injection test can trigger this:
-
-unreferenced object 0xffff888102fa8190 (size 8):
-  comm "modprobe", pid 502, jiffies 4294906074 (age 49.296s)
-  hex dump (first 8 bytes):
-    70 6b 74 63 64 76 64 00                          pktcdvd.
-  backtrace:
-    [<00000000e7c7703d>] __kmalloc_track_caller+0x1ae/0x320
-    [<000000005e4d70bc>] kstrdup+0x3a/0x70
-    [<00000000c2e5e85a>] kstrdup_const+0x68/0x80
-    [<000000000049a8c7>] kvasprintf_const+0x10b/0x190
-    [<0000000029123163>] kobject_set_name_vargs+0x56/0x150
-    [<00000000747219c9>] kobject_set_name+0xab/0xe0
-    [<0000000005f1ea4e>] __class_register+0x15c/0x49a
-
-unreferenced object 0xffff888037274000 (size 1024):
-  comm "modprobe", pid 502, jiffies 4294906074 (age 49.296s)
-  hex dump (first 32 bytes):
-    00 40 27 37 80 88 ff ff 00 40 27 37 80 88 ff ff  .@'7.....@'7....
-    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
-  backtrace:
-    [<00000000151f9600>] kmem_cache_alloc_trace+0x17c/0x2f0
-    [<00000000ecf3dd95>] __class_register+0x86/0x49a
-
-Fixes: ced6473e7486 ("driver core: class: add class_groups support")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221026082803.3458760-1-yangyingliang@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://syzkaller.appspot.com/bug?id=b0299c09a14aababf0f1c862dd4ebc8ab9eb0179
+Fixes: a3b774342fa7 (fs/ntfs3: validate BOOT sectors_per_clusters)
+Cc: Author: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: syzbot+35b87c668935bb55e666@syzkaller.appspotmail.com
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/class.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/ntfs3/super.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/base/class.c b/drivers/base/class.c
-index 7476f393df97..0e44a68e90a0 100644
---- a/drivers/base/class.c
-+++ b/drivers/base/class.c
-@@ -192,6 +192,11 @@ int __class_register(struct class *cls, struct lock_class_key *key)
- 	}
- 	error = class_add_groups(class_get(cls), cls->class_groups);
- 	class_put(cls);
-+	if (error) {
-+		kobject_del(&cp->subsys.kobj);
-+		kfree_const(cp->subsys.kobj.name);
-+		kfree(cp);
-+	}
- 	return error;
+diff --git a/fs/ntfs3/super.c b/fs/ntfs3/super.c
+index 47012c9bf505..adc4f73722b7 100644
+--- a/fs/ntfs3/super.c
++++ b/fs/ntfs3/super.c
+@@ -672,7 +672,7 @@ static u32 true_sectors_per_clst(const struct NTFS_BOOT *boot)
+ 	if (boot->sectors_per_clusters <= 0x80)
+ 		return boot->sectors_per_clusters;
+ 	if (boot->sectors_per_clusters >= 0xf4) /* limit shift to 2MB max */
+-		return 1U << (0 - boot->sectors_per_clusters);
++		return 1U << -(s8)boot->sectors_per_clusters;
+ 	return -EINVAL;
  }
- EXPORT_SYMBOL_GPL(__class_register);
+ 
 -- 
 2.35.1
 
