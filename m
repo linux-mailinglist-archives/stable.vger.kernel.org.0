@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB8BA657F51
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 704EF6578EB
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:55:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234359AbiL1QDv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:03:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50554 "EHLO
+        id S233224AbiL1Ozo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:55:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234366AbiL1QD3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:03:29 -0500
+        with ESMTP id S233223AbiL1Ozi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:55:38 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19C55193D3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:03:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85FE310543
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:55:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A4704B81710
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:03:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0282DC433D2;
-        Wed, 28 Dec 2022 16:03:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 135B5B8172C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:55:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53E8DC433F0;
+        Wed, 28 Dec 2022 14:55:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243405;
-        bh=AUNv4Z887qHvzpEifxMftsN+gO1fimH5MRbEkobYItI=;
+        s=korg; t=1672239334;
+        bh=7XiM/Y019F48+ixJCG5UmjIJVmopXRMYr7QK6RitcBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UFBJE2pRyb+PZi4ULClvXjVVpFgnq8Z2l+IMDCESujk4g1eXVYdy05FyARk8lVFGn
-         Z/6Bu0tXOLgaKDAAVFNpNo/wNAvkRfaJ0OcNh6w5WIvz4pvwEaVR7VpY/O6rKlGyUX
-         LZZPmUU3prdHQkMsz9yF3gKMOLe/p7HQjNvhKMQ8=
+        b=NMP5zMfFWIcWZ1cHYzo/7DsS1gsOHG0URfJ6X8/Z/Tn3spTDngb9D4aY5aDp6zRV1
+         JkwRyPXs4EIVEaGAfpe/gQcCj9reZGljerVLbgSlzbOC7b5iL3FhbJgSdjfXooDrNT
+         DwQa5kYkp+2+3dwUbUbBUSszNKuCny/s1vBwHThY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Jeff Johnson <quic_jjohnson@quicinc.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0526/1073] net: amd: lance: dont call dev_kfree_skb() under spin_lock_irqsave()
+Subject: [PATCH 5.15 207/731] wifi: ath10k: Fix return value in ath10k_pci_init()
 Date:   Wed, 28 Dec 2022 15:35:14 +0100
-Message-Id: <20221228144342.332242390@linuxfoundation.org>
+Message-Id: <20221228144302.560217340@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-[ Upstream commit 6151d105dfce8c23edf30eed35e97f3d9b96a35c ]
+[ Upstream commit 2af7749047d8d6ad43feff69f555a13a6a6c2831 ]
 
-It is not allowed to call kfree_skb() or consume_skb() from hardware
-interrupt context or with hardware interrupts being disabled.
+This driver is attempting to register to support two different buses.
+if either of these is successful then ath10k_pci_init() should return 0
+so that hardware attached to the successful bus can be probed and
+supported. only if both of these are unsuccessful should ath10k_pci_init()
+return an errno.
 
-It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
-The difference between them is free reason, dev_kfree_skb_irq() means
-the SKB is dropped in error and dev_consume_skb_irq() means the SKB
-is consumed in normal.
-
-In these two cases, dev_kfree_skb() is called consume the xmited SKB,
-so replace it with dev_consume_skb_irq().
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 0b523ced9a3c ("ath10k: add basic skeleton to support ahb")
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+Reviewed-by: Jeff Johnson <quic_jjohnson@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20221110061926.18163-1-xiujianfeng@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amd/atarilance.c | 2 +-
- drivers/net/ethernet/amd/lance.c      | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath10k/pci.c | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/amd/atarilance.c b/drivers/net/ethernet/amd/atarilance.c
-index 27869164c6e6..ca12f9f48839 100644
---- a/drivers/net/ethernet/amd/atarilance.c
-+++ b/drivers/net/ethernet/amd/atarilance.c
-@@ -824,7 +824,7 @@ lance_start_xmit(struct sk_buff *skb, struct net_device *dev)
- 	lp->memcpy_f( PKTBUF_ADDR(head), (void *)skb->data, skb->len );
- 	head->flag = TMD1_OWN_CHIP | TMD1_ENP | TMD1_STP;
- 	dev->stats.tx_bytes += skb->len;
--	dev_kfree_skb( skb );
-+	dev_consume_skb_irq(skb);
- 	lp->cur_tx++;
- 	while( lp->cur_tx >= TX_RING_SIZE && lp->dirty_tx >= TX_RING_SIZE ) {
- 		lp->cur_tx -= TX_RING_SIZE;
-diff --git a/drivers/net/ethernet/amd/lance.c b/drivers/net/ethernet/amd/lance.c
-index 462016666752..e3b8de9fc728 100644
---- a/drivers/net/ethernet/amd/lance.c
-+++ b/drivers/net/ethernet/amd/lance.c
-@@ -1001,7 +1001,7 @@ static netdev_tx_t lance_start_xmit(struct sk_buff *skb,
- 		skb_copy_from_linear_data(skb, &lp->tx_bounce_buffs[entry], skb->len);
- 		lp->tx_ring[entry].base =
- 			((u32)isa_virt_to_bus((lp->tx_bounce_buffs + entry)) & 0xffffff) | 0x83000000;
--		dev_kfree_skb(skb);
-+		dev_consume_skb_irq(skb);
- 	} else {
- 		lp->tx_skbuff[entry] = skb;
- 		lp->tx_ring[entry].base = ((u32)isa_virt_to_bus(skb->data) & 0xffffff) | 0x83000000;
+diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
+index 4d4e2f91e15c..85a30c301dad 100644
+--- a/drivers/net/wireless/ath/ath10k/pci.c
++++ b/drivers/net/wireless/ath/ath10k/pci.c
+@@ -3793,18 +3793,22 @@ static struct pci_driver ath10k_pci_driver = {
+ 
+ static int __init ath10k_pci_init(void)
+ {
+-	int ret;
++	int ret1, ret2;
+ 
+-	ret = pci_register_driver(&ath10k_pci_driver);
+-	if (ret)
++	ret1 = pci_register_driver(&ath10k_pci_driver);
++	if (ret1)
+ 		printk(KERN_ERR "failed to register ath10k pci driver: %d\n",
+-		       ret);
++		       ret1);
+ 
+-	ret = ath10k_ahb_init();
+-	if (ret)
+-		printk(KERN_ERR "ahb init failed: %d\n", ret);
++	ret2 = ath10k_ahb_init();
++	if (ret2)
++		printk(KERN_ERR "ahb init failed: %d\n", ret2);
+ 
+-	return ret;
++	if (ret1 && ret2)
++		return ret1;
++
++	/* registered to at least one bus */
++	return 0;
+ }
+ module_init(ath10k_pci_init);
+ 
 -- 
 2.35.1
 
