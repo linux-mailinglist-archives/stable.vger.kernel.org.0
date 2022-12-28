@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D07C6580FC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:23:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8DA3658024
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:14:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234669AbiL1QXO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:23:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43076 "EHLO
+        id S234443AbiL1QO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:14:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234887AbiL1QW1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:22:27 -0500
+        with ESMTP id S234445AbiL1QOF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:14:05 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 427071A217
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:20:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EAC11AD9F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:12:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0408DB81888
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:20:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68A69C433F1;
-        Wed, 28 Dec 2022 16:19:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 96626B81730
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:11:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3A7CC433D2;
+        Wed, 28 Dec 2022 16:11:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244399;
-        bh=AwSq+tNbqhVUBJhHq2Il+ctNtr0VGa4hvH3SnZp8t+g=;
+        s=korg; t=1672243917;
+        bh=nEC565JBodTcslZS0YFyAvQ6xeJWT3+TMb2qbBBL0Eo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nyUDReIMgilTGsUf7r82iPgk8kW8L91SstZUzLQAJbypKlPVD1wBVZzTxw8h9nS+F
-         E1C/RPv5iIyDVSNJuuCpa121w30YQoo2cDl0iQQqIGX7ODf6rS4eReVDP0OLZfgoHD
-         WZSBFozQFLzUrIYjrp02UCY0ydiP73bt1WHfSgEA=
+        b=wwBTom7jh4mp0kKTx8sEpGk9SbCOOZzpQvJxQ2NYqA8mkPzuckrCjI9VqqsRQb4Un
+         C9NEhspTGnE/t/Eo9wb0Lxea7H+BjYZsFaIW8YnCbFY/NoIta0MZ6o4j9IBWEQUQbT
+         WxfVvH7hig4nCuhMQNdGvK5Oxdv7RNK9oo2GR+AE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        patches@lists.linux.dev, Zhang Yiqun <zhangyiqun@phytium.com.cn>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0663/1146] crypto: amlogic - Remove kcalloc without check
-Date:   Wed, 28 Dec 2022 15:36:42 +0100
-Message-Id: <20221228144348.160762805@linuxfoundation.org>
+Subject: [PATCH 6.0 0615/1073] crypto: tcrypt - Fix multibuffer skcipher speed test mem leak
+Date:   Wed, 28 Dec 2022 15:36:43 +0100
+Message-Id: <20221228144344.747500416@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Zhang Yiqun <zhangyiqun@phytium.com.cn>
 
-[ Upstream commit 3d780c8a9850ad60dee47a8d971ba7888f3d1bd3 ]
+[ Upstream commit 1aa33fc8d4032227253ceb736f47c52b859d9683 ]
 
-There is no real point in allocating dedicated memory for the irqs array.
-MAXFLOW is only 2, so it is easier to allocated the needed space
-directly within the 'meson_dev' structure.
+In the past, the data for mb-skcipher test has been allocated
+twice, that means the first allcated memory area is without
+free, which may cause a potential memory leakage. So this
+patch is to remove one allocation to fix this error.
 
-This saves some memory allocation and avoids an indirection when using the
-irqs array.
-
-Fixes: 48fe583fe541 ("crypto: amlogic - Add crypto accelerator...")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Fixes: e161c5930c15 ("crypto: tcrypt - add multibuf skcipher...")
+Signed-off-by: Zhang Yiqun <zhangyiqun@phytium.com.cn>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/amlogic/amlogic-gxl-core.c | 1 -
- drivers/crypto/amlogic/amlogic-gxl.h      | 2 +-
- 2 files changed, 1 insertion(+), 2 deletions(-)
+ crypto/tcrypt.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/drivers/crypto/amlogic/amlogic-gxl-core.c b/drivers/crypto/amlogic/amlogic-gxl-core.c
-index 6e7ae896717c..937187027ad5 100644
---- a/drivers/crypto/amlogic/amlogic-gxl-core.c
-+++ b/drivers/crypto/amlogic/amlogic-gxl-core.c
-@@ -237,7 +237,6 @@ static int meson_crypto_probe(struct platform_device *pdev)
- 		return err;
- 	}
+diff --git a/crypto/tcrypt.c b/crypto/tcrypt.c
+index 574640210c80..bc57b182f304 100644
+--- a/crypto/tcrypt.c
++++ b/crypto/tcrypt.c
+@@ -1101,15 +1101,6 @@ static void test_mb_skcipher_speed(const char *algo, int enc, int secs,
+ 			goto out_free_tfm;
+ 		}
  
--	mc->irqs = devm_kcalloc(mc->dev, MAXFLOW, sizeof(int), GFP_KERNEL);
- 	for (i = 0; i < MAXFLOW; i++) {
- 		mc->irqs[i] = platform_get_irq(pdev, i);
- 		if (mc->irqs[i] < 0)
-diff --git a/drivers/crypto/amlogic/amlogic-gxl.h b/drivers/crypto/amlogic/amlogic-gxl.h
-index dc0f142324a3..8c0746a1d6d4 100644
---- a/drivers/crypto/amlogic/amlogic-gxl.h
-+++ b/drivers/crypto/amlogic/amlogic-gxl.h
-@@ -95,7 +95,7 @@ struct meson_dev {
- 	struct device *dev;
- 	struct meson_flow *chanlist;
- 	atomic_t flow;
--	int *irqs;
-+	int irqs[MAXFLOW];
- #ifdef CONFIG_CRYPTO_DEV_AMLOGIC_GXL_DEBUG
- 	struct dentry *dbgfs_dir;
- #endif
+-
+-	for (i = 0; i < num_mb; ++i)
+-		if (testmgr_alloc_buf(data[i].xbuf)) {
+-			while (i--)
+-				testmgr_free_buf(data[i].xbuf);
+-			goto out_free_tfm;
+-		}
+-
+-
+ 	for (i = 0; i < num_mb; ++i) {
+ 		data[i].req = skcipher_request_alloc(tfm, GFP_KERNEL);
+ 		if (!data[i].req) {
 -- 
 2.35.1
 
