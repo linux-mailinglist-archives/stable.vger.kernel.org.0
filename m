@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B566657A55
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:11:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 786AC65812C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230050AbiL1PKi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:10:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57502 "EHLO
+        id S234784AbiL1QZY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:25:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233763AbiL1PJ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:09:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4DC913E30
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:09:55 -0800 (PST)
+        with ESMTP id S234828AbiL1QYa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:24:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42C351A06F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:22:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 82E6161541
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:09:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92FB8C433EF;
-        Wed, 28 Dec 2022 15:09:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D68A7B817AC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:22:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40E56C433EF;
+        Wed, 28 Dec 2022 16:22:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240194;
-        bh=4SDcgg9dEKll+/HsPRS9j58Fi8dbWbDKdjnYHSYltf0=;
+        s=korg; t=1672244524;
+        bh=zMF/yGLZQKNDuBIMeUnyEoVVgDcMNlmXAoVofT5OfCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vvFuWYio5PURYV+YfSxjX02kuky3C4R/mBJG8va+yKq2RLmSbB4NbsPVELUos4H0J
-         UeAz2L1JgMNNPKgqPKpaSGr2+qL3aMNF7nC9ogRC1t5q4CHSodPkT8ENzTTFlL9cLy
-         dYYfGwFuU7kyI1uX1mY4CUbJ2745Jr/0l4RQkuhg=
+        b=OreqdSu/oTQYDSJThCCKKXlQm81FVnIyME9D/9lbUQOE4qSH423qPRT//9b02sj2z
+         Mvisz7kDhEX+70s3Jh8mRP+brEmOl4ODkRtdSrcMkJ3mEMgWgA1r+WMlD+4aebO0Hl
+         /rVSuHU4JwPZLSsmjKPS0dTrTkROz6A9xb8vTgus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yonghong Song <yhs@meta.com>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@rivosinc.com>,
-        Yonghong Song <yhs@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        patches@lists.linux.dev, Jon Hunter <jonathanh@nvidia.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Akhil R <akhilrajeev@nvidia.com>, Kartik <kkartik@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 320/731] bpf: Do not zero-extend kfunc return values
+Subject: [PATCH 6.1 0688/1146] serial: tegra: Read DMA status before terminating
 Date:   Wed, 28 Dec 2022 15:37:07 +0100
-Message-Id: <20221228144305.851137528@linuxfoundation.org>
+Message-Id: <20221228144348.829794910@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,101 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Björn Töpel <bjorn@rivosinc.com>
+From: Kartik <kkartik@nvidia.com>
 
-[ Upstream commit d35af0a7feb077c43ff0233bba5a8c6e75b73e35 ]
+[ Upstream commit 109a951a9f1fd8a34ebd1896cbbd5d5cede880a7 ]
 
-In BPF all global functions, and BPF helpers return a 64-bit
-value. For kfunc calls, this is not the case, and they can return
-e.g. 32-bit values.
+Read the DMA status before terminating the DMA, as doing so deletes
+the DMA desc.
 
-The return register R0 for kfuncs calls can therefore be marked as
-subreg_def != DEF_NOT_SUBREG. In general, if a register is marked with
-subreg_def != DEF_NOT_SUBREG, some archs (where bpf_jit_needs_zext()
-returns true) require the verifier to insert explicit zero-extension
-instructions.
+Also, to get the correct transfer status information, pause the DMA
+using dmaengine_pause() before reading the DMA status.
 
-For kfuncs calls, however, the caller should do sign/zero extension
-for return values. In other words, the compiler is responsible to
-insert proper instructions, not the verifier.
-
-An example, provided by Yonghong Song:
-
-$ cat t.c
-extern unsigned foo(void);
-unsigned bar1(void) {
-     return foo();
-}
-unsigned bar2(void) {
-     if (foo()) return 10; else return 20;
-}
-
-$ clang -target bpf -mcpu=v3 -O2 -c t.c && llvm-objdump -d t.o
-t.o:    file format elf64-bpf
-
-Disassembly of section .text:
-
-0000000000000000 <bar1>:
-	0:       85 10 00 00 ff ff ff ff call -0x1
-	1:       95 00 00 00 00 00 00 00 exit
-
-0000000000000010 <bar2>:
-	2:       85 10 00 00 ff ff ff ff call -0x1
-	3:       bc 01 00 00 00 00 00 00 w1 = w0
-	4:       b4 00 00 00 14 00 00 00 w0 = 0x14
-	5:       16 01 01 00 00 00 00 00 if w1 == 0x0 goto +0x1 <LBB1_2>
-	6:       b4 00 00 00 0a 00 00 00 w0 = 0xa
-
-0000000000000038 <LBB1_2>:
-	7:       95 00 00 00 00 00 00 00 exit
-
-If the return value of 'foo()' is used in the BPF program, the proper
-zero-extension will be done.
-
-Currently, the verifier correctly marks, say, a 32-bit return value as
-subreg_def != DEF_NOT_SUBREG, but will fail performing the actual
-zero-extension, due to a verifier bug in
-opt_subreg_zext_lo32_rnd_hi32(). load_reg is not properly set to R0,
-and the following path will be taken:
-
-		if (WARN_ON(load_reg == -1)) {
-			verbose(env, "verifier bug. zext_dst is set, but no reg is defined\n");
-			return -EFAULT;
-		}
-
-A longer discussion from v1 can be found in the link below.
-
-Correct the verifier by avoiding doing explicit zero-extension of R0
-for kfunc calls. Note that R0 will still be marked as a sub-register
-for return values smaller than 64-bit.
-
-Fixes: 83a2881903f3 ("bpf: Account for BPF_FETCH in insn_has_def32()")
-Link: https://lore.kernel.org/bpf/20221202103620.1915679-1-bjorn@kernel.org/
-Suggested-by: Yonghong Song <yhs@meta.com>
-Signed-off-by: Björn Töpel <bjorn@rivosinc.com>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/r/20221207103540.396496-1-bjorn@kernel.org
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Fixes: e9ea096dd225 ("serial: tegra: add serial driver")
+Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
+Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Akhil R <akhilrajeev@nvidia.com>
+Signed-off-by: Kartik <kkartik@nvidia.com>
+Link: https://lore.kernel.org/r/1666105086-17326-1-git-send-email-kkartik@nvidia.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/tty/serial/serial-tegra.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index b1ca4dbdeecf..488225bb42f6 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -12132,6 +12132,10 @@ static int opt_subreg_zext_lo32_rnd_hi32(struct bpf_verifier_env *env,
- 		if (!bpf_jit_needs_zext() && !is_cmpxchg_insn(&insn))
- 			continue;
+diff --git a/drivers/tty/serial/serial-tegra.c b/drivers/tty/serial/serial-tegra.c
+index b7170cb9a544..cda9cd4fa92c 100644
+--- a/drivers/tty/serial/serial-tegra.c
++++ b/drivers/tty/serial/serial-tegra.c
+@@ -619,8 +619,9 @@ static void tegra_uart_stop_tx(struct uart_port *u)
+ 	if (tup->tx_in_progress != TEGRA_UART_TX_DMA)
+ 		return;
  
-+		/* Zero-extension is done by the caller. */
-+		if (bpf_pseudo_kfunc_call(&insn))
-+			continue;
-+
- 		if (WARN_ON(load_reg == -1)) {
- 			verbose(env, "verifier bug. zext_dst is set, but no reg is defined\n");
- 			return -EFAULT;
+-	dmaengine_terminate_all(tup->tx_dma_chan);
++	dmaengine_pause(tup->tx_dma_chan);
+ 	dmaengine_tx_status(tup->tx_dma_chan, tup->tx_cookie, &state);
++	dmaengine_terminate_all(tup->tx_dma_chan);
+ 	count = tup->tx_bytes_requested - state.residue;
+ 	async_tx_ack(tup->tx_dma_desc);
+ 	uart_xmit_advance(&tup->uport, count);
+@@ -763,8 +764,9 @@ static void tegra_uart_terminate_rx_dma(struct tegra_uart_port *tup)
+ 		return;
+ 	}
+ 
+-	dmaengine_terminate_all(tup->rx_dma_chan);
++	dmaengine_pause(tup->rx_dma_chan);
+ 	dmaengine_tx_status(tup->rx_dma_chan, tup->rx_cookie, &state);
++	dmaengine_terminate_all(tup->rx_dma_chan);
+ 
+ 	tegra_uart_rx_buffer_push(tup, state.residue);
+ 	tup->rx_dma_active = false;
 -- 
 2.35.1
 
