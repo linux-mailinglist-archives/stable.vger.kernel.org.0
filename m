@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9A2D657A18
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:07:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A103265790E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:57:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233597AbiL1PHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:07:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55312 "EHLO
+        id S233214AbiL1O5I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:57:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233607AbiL1PHo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:07:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACF8213DC7
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:07:43 -0800 (PST)
+        with ESMTP id S233284AbiL1O5G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:57:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B223E1004D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:57:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A3456151F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:07:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55C09C433D2;
-        Wed, 28 Dec 2022 15:07:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 51E4E614B2
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:57:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 618EDC433D2;
+        Wed, 28 Dec 2022 14:57:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240062;
-        bh=+e4kKoYMfsgLA0QIIilo188036g+bAIfSq9Ae03fcaw=;
+        s=korg; t=1672239424;
+        bh=9H5l4CQ8u8WDFpOSxw0urqW3JuRp+pRhbLSUVgXweQQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qeZrcYyD01DnQ6HfCGVl/Vfvc/58/7EuxaOcNfJSuA2SSausoE+9igkBQCJSwxJgk
-         VHVW/GYWjydEvdGXOrJMg8g/nDUguJpftW3p8gt+Wo8SnYRqj9RDBf7BpFB39IcO7/
-         te/3I4dI8bTbq/ObcEVu8GkvNgIrm9HkSVDu31cQ=
+        b=jC1WaU/mqLlZ4TrNtS3pWYzCBJdoeYaDWDXj6/lhyhlYbDfkIgw9Ke3KoFeZTOTZm
+         i0lygRtvyHxw/Z54M1LmYfd97kPIDsm8/RYwJ2Sb9iQRshGLNiZN/+UtKr0Tf4pK4W
+         KSfX+L35gjEPpZzbZH8r8XFTgdeO68Fi81+YdsTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
+        Marijn Suijten <marijn.suijten@somainline.org>,
         AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
+        <angelogioacchino.delregno@somainline.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0076/1146] arm64: dts: mediatek: pumpkin-common: Fix devicetree warnings
+Subject: [PATCH 6.0 0027/1073] arm64: dts: qcom: pm660: Use unique ADC5_VCOIN address in node name
 Date:   Wed, 28 Dec 2022 15:26:55 +0100
-Message-Id: <20221228144332.215175544@linuxfoundation.org>
+Message-Id: <20221228144328.883869144@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Marijn Suijten <marijn.suijten@somainline.org>
 
-[ Upstream commit 509438336ce75c8b4e6ce8e8d507dc77d0783bdd ]
+[ Upstream commit 02549ba5de0a09a27616496c3512db5af4ad7862 ]
 
-Fix the pinctrl submodes and optee node to remove unneeded unit address,
-fixing all unit_address_vs_reg warnings.
+The register address in the node name is shadowing vph_pwr@83, whereas
+the ADC5_VCOIN register resolves to 0x85.  Fix this copy-paste
+discrepancy.
 
-Fixes: 9983822c8cf9 ("arm64: dts: mediatek: add pumpkin board dts")
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20221013152212.416661-8-angelogioacchino.delregno@collabora.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Fixes: 4bf097540506 ("arm64: dts: qcom: pm660: Add VADC and temp alarm nodes")
+Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20220926190148.283805-3-marijn.suijten@somainline.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/qcom/pm660.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi b/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
-index 8ee1529683a3..ec8dfb3d1c6d 100644
---- a/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
-@@ -17,7 +17,7 @@ chosen {
- 	};
+diff --git a/arch/arm64/boot/dts/qcom/pm660.dtsi b/arch/arm64/boot/dts/qcom/pm660.dtsi
+index d0eefbb51663..d8c9ece20cd9 100644
+--- a/arch/arm64/boot/dts/qcom/pm660.dtsi
++++ b/arch/arm64/boot/dts/qcom/pm660.dtsi
+@@ -163,7 +163,7 @@ vadc_vph_pwr: vph_pwr@83 {
+ 				qcom,pre-scaling = <1 3>;
+ 			};
  
- 	firmware {
--		optee: optee@4fd00000 {
-+		optee: optee {
- 			compatible = "linaro,optee-tz";
- 			method = "smc";
- 		};
-@@ -209,7 +209,7 @@ pins_cmd_dat {
- 		};
- 	};
- 
--	i2c0_pins_a: i2c0@0 {
-+	i2c0_pins_a: i2c0 {
- 		pins1 {
- 			pinmux = <MT8516_PIN_58_SDA0__FUNC_SDA0_0>,
- 				 <MT8516_PIN_59_SCL0__FUNC_SCL0_0>;
-@@ -217,7 +217,7 @@ pins1 {
- 		};
- 	};
- 
--	i2c2_pins_a: i2c2@0 {
-+	i2c2_pins_a: i2c2 {
- 		pins1 {
- 			pinmux = <MT8516_PIN_60_SDA2__FUNC_SDA2_0>,
- 				 <MT8516_PIN_61_SCL2__FUNC_SCL2_0>;
+-			vcoin: vcoin@83 {
++			vcoin: vcoin@85 {
+ 				reg = <ADC5_VCOIN>;
+ 				qcom,decimation = <1024>;
+ 				qcom,pre-scaling = <1 3>;
 -- 
 2.35.1
 
