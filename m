@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3BA9657C66
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:32:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F2DC657D81
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:44:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233830AbiL1Pct (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:32:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49070 "EHLO
+        id S233987AbiL1Pns (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:43:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233440AbiL1PcG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:32:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17DBE15F11
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:31:58 -0800 (PST)
+        with ESMTP id S233975AbiL1Pnq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:43:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E26D17411
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:43:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A8FF46155A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:31:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B69BFC433D2;
-        Wed, 28 Dec 2022 15:31:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E1745B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:43:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52B1EC433D2;
+        Wed, 28 Dec 2022 15:43:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241517;
-        bh=WdydrDjmFfmFi2uwdAoP3asV+PVKKKriPAKw0MdvNAw=;
+        s=korg; t=1672242214;
+        bh=etGL9b31FhcHtmbWlHkJy3c1C6FYjfxA1Y3eLbIe7oA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=goLWDfxWw9mjmZZOuVgXgAIhs9OuLwcsD+bbM4yQCra+fQeF5BAO4yJQSdlJcvjwx
-         15Vpcy+Y0d7lZouPhP2nt4Zqx+hibBRaW+Jj4QIo3fp6l75oezZsrUFA59HVLsc5Im
-         /Xf2yo5qPpobXiP5Ehqot5a40D7i7dxtKx9gTNKM=
+        b=f6M2dR53gUP2rBA2qsMz1d9gwNcoyXx3c9fh70wOGZIEhM2AGsPL/lFmEFQK5SFZ1
+         /epW35gLBjnE/9bRZGFZBQRG4I0aU1J+mWgaRxhm3gLTVZC8MLTm6iGX5rMEuyCFhM
+         cYxWqxNN41+Rwu8wj4exe2lWjMMwMgE1D2e/sJuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marek Vasut <marex@denx.de>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0293/1073] wifi: rsi: Fix handling of 802.3 EAPOL frames sent via control port
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        Yu Kuai <yukuai3@huawei.com>,
+        Mike Snitzer <snitzer@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0342/1146] dm: cleanup close_table_device
 Date:   Wed, 28 Dec 2022 15:31:21 +0100
-Message-Id: <20221228144335.973145394@linuxfoundation.org>
+Message-Id: <20221228144339.449042042@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,90 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit b8f6efccbb9dc0ff5dee7e20d69a4747298ee603 ]
+[ Upstream commit 7b5865831c1003122f737df5e16adaa583f1a595 ]
 
-When using wpa_supplicant v2.10, this driver is no longer able to
-associate with any AP and fails in the EAPOL 4-way handshake while
-sending the 2/4 message to the AP. The problem is not present in
-wpa_supplicant v2.9 or older. The problem stems from HostAP commit
-144314eaa ("wpa_supplicant: Send EAPOL frames over nl80211 where available")
-which changes the way EAPOL frames are sent, from them being send
-at L2 frames to them being sent via nl80211 control port.
+Take the list unlink and free into close_table_device so that no half
+torn down table_devices exist.  Also remove the check for a NULL bdev
+as that can't happen - open_table_device never adds a table_device to
+the list that does not have a valid block_device.
 
-An EAPOL frame sent as L2 frame is passed to the WiFi driver with
-skb->protocol ETH_P_PAE, while EAPOL frame sent via nl80211 control
-port has skb->protocol set to ETH_P_802_3 . The later happens in
-ieee80211_tx_control_port(), where the EAPOL frame is encapsulated
-into 802.3 frame.
-
-The rsi_91x driver handles ETH_P_PAE EAPOL frames as high-priority
-frames and sends them via highest-priority transmit queue, while
-the ETH_P_802_3 frames are sent as regular frames. The EAPOL 4-way
-handshake frames must be sent as highest-priority, otherwise the
-4-way handshake times out.
-
-Therefore, to fix this problem, inspect the skb control flags and
-if flag IEEE80211_TX_CTRL_PORT_CTRL_PROTO is set, assume this is
-an EAPOL frame and transmit the frame via high-priority queue just
-like other ETH_P_PAE frames.
-
-Fixes: 0eb42586cf87 ("rsi: data packet descriptor enhancements")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221104163339.227432-1-marex@denx.de
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Mike Snitzer <snitzer@kernel.org>
+Link: https://lore.kernel.org/r/20221115141054.1051801-5-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Stable-dep-of: 1a581b721699 ("dm: track per-add_disk holder relations in DM")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/rsi/rsi_91x_core.c | 4 +++-
- drivers/net/wireless/rsi/rsi_91x_hal.c  | 6 +++++-
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/md/dm.c | 12 +++---------
+ 1 file changed, 3 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/wireless/rsi/rsi_91x_core.c b/drivers/net/wireless/rsi/rsi_91x_core.c
-index 0f3a80f66b61..ead4d4e04328 100644
---- a/drivers/net/wireless/rsi/rsi_91x_core.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_core.c
-@@ -466,7 +466,9 @@ void rsi_core_xmit(struct rsi_common *common, struct sk_buff *skb)
- 							      tid, 0);
- 			}
- 		}
--		if (skb->protocol == cpu_to_be16(ETH_P_PAE)) {
-+
-+		if (IEEE80211_SKB_CB(skb)->control.flags &
-+		    IEEE80211_TX_CTRL_PORT_CTRL_PROTO) {
- 			q_num = MGMT_SOFT_Q;
- 			skb->priority = q_num;
- 		}
-diff --git a/drivers/net/wireless/rsi/rsi_91x_hal.c b/drivers/net/wireless/rsi/rsi_91x_hal.c
-index c61f83a7333b..c7460fbba014 100644
---- a/drivers/net/wireless/rsi/rsi_91x_hal.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_hal.c
-@@ -162,12 +162,16 @@ int rsi_prepare_data_desc(struct rsi_common *common, struct sk_buff *skb)
- 	u8 header_size;
- 	u8 vap_id = 0;
- 	u8 dword_align_bytes;
-+	bool tx_eapol;
- 	u16 seq_num;
+diff --git a/drivers/md/dm.c b/drivers/md/dm.c
+index 739996499f4d..8fb0b97b2df1 100644
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -774,14 +774,11 @@ static struct table_device *open_table_device(struct mapped_device *md,
+  */
+ static void close_table_device(struct table_device *td, struct mapped_device *md)
+ {
+-	if (!td->dm_dev.bdev)
+-		return;
+-
+ 	bd_unlink_disk_holder(td->dm_dev.bdev, dm_disk(md));
+ 	blkdev_put(td->dm_dev.bdev, td->dm_dev.mode | FMODE_EXCL);
+ 	put_dax(td->dm_dev.dax_dev);
+-	td->dm_dev.bdev = NULL;
+-	td->dm_dev.dax_dev = NULL;
++	list_del(&td->list);
++	kfree(td);
+ }
  
- 	info = IEEE80211_SKB_CB(skb);
- 	vif = info->control.vif;
- 	tx_params = (struct skb_info *)info->driver_data;
+ static struct table_device *find_table_device(struct list_head *l, dev_t dev,
+@@ -823,11 +820,8 @@ void dm_put_table_device(struct mapped_device *md, struct dm_dev *d)
+ 	struct table_device *td = container_of(d, struct table_device, dm_dev);
  
-+	tx_eapol = IEEE80211_SKB_CB(skb)->control.flags &
-+		   IEEE80211_TX_CTRL_PORT_CTRL_PROTO;
-+
- 	header_size = FRAME_DESC_SZ + sizeof(struct rsi_xtended_desc);
- 	if (header_size > skb_headroom(skb)) {
- 		rsi_dbg(ERR_ZONE, "%s: Unable to send pkt\n", __func__);
-@@ -231,7 +235,7 @@ int rsi_prepare_data_desc(struct rsi_common *common, struct sk_buff *skb)
- 		}
- 	}
+ 	mutex_lock(&md->table_devices_lock);
+-	if (refcount_dec_and_test(&td->count)) {
++	if (refcount_dec_and_test(&td->count))
+ 		close_table_device(td, md);
+-		list_del(&td->list);
+-		kfree(td);
+-	}
+ 	mutex_unlock(&md->table_devices_lock);
+ }
  
--	if (skb->protocol == cpu_to_be16(ETH_P_PAE)) {
-+	if (tx_eapol) {
- 		rsi_dbg(INFO_ZONE, "*** Tx EAPOL ***\n");
- 
- 		data_desc->frame_info = cpu_to_le16(RATE_INFO_ENABLE);
 -- 
 2.35.1
 
