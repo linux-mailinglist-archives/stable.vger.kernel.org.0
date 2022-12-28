@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BB52657F14
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:01:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1C46657F17
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:01:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233024AbiL1QA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:00:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47684 "EHLO
+        id S234299AbiL1QBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:01:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234274AbiL1QAw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:00:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DA35235
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:00:50 -0800 (PST)
+        with ESMTP id S234281AbiL1QBA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:01:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3323F186EA
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:00:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA6BD61567
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:00:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E91AEC433D2;
-        Wed, 28 Dec 2022 16:00:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C54D661560
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:00:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2CF4C433D2;
+        Wed, 28 Dec 2022 16:00:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243249;
-        bh=6SQ70RZccRw/EhbzPjDFSwlXxLAY5Ne+GUKkdIONBpY=;
+        s=korg; t=1672243257;
+        bh=MaduEKFH7wJK2FtAh/uuzeU+w+u4AuEb7WtiXz8s/mU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GvAfRsdFHW3Na2b4Gsyr/eKYzWiTUJydFx01azHq5MQ5ynPYZTrMalsLZGlDVU1kH
-         oe8E17v9CeZ4qti/Xo4Vdghb+mcuv8ADpw//+FrQydITMLW9pKFMOZbjYMqX661Gjl
-         EgZVGc/1+PcXqq3OiUcoXfj+E7RqV5Yz6vG8No8o=
+        b=iupchyuhBp71/I2vyb+xgrREC/EbD5S1fIJx0K5irOYqt6f5EFNuKXgQizrSjIezK
+         jmfIfShVmartBB/okDKf0B0sBrsQzHJsszP3JTGZH0iF7n334JUEhM9S/RvuWyg4h7
+         yz9RqLKRjjK0FvXSo6VqkFjcDWO5iYlX6OhHks60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Douglas Anderson <dianders@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
+        patches@lists.linux.dev, Christian Marangi <ansuelsmth@gmail.com>,
         Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0467/1146] clk: qcom: lpass-sc7180: Fix pm_runtime usage
-Date:   Wed, 28 Dec 2022 15:33:26 +0100
-Message-Id: <20221228144342.870412963@linuxfoundation.org>
+Subject: [PATCH 6.1 0468/1146] clk: qcom: clk-krait: fix wrong div2 functions
+Date:   Wed, 28 Dec 2022 15:33:27 +0100
+Message-Id: <20221228144342.896927647@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -54,133 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Christian Marangi <ansuelsmth@gmail.com>
 
-[ Upstream commit ff1ccf59eaffd192efe21f7de9fb0c130faf1b1b ]
+[ Upstream commit d676d3a3717cf726d3affedbe5ba98fc4ccad7b3 ]
 
-The sc7180 lpass clock controller's pm_runtime usage wasn't broken
-quite as spectacularly as the sc7280's pm_runtime usage, but it was
-still broken. Putting some printouts in at boot showed me this (with
-serial console enabled, which makes the prints slow and thus changes
-timing):
-  [    3.109951] DOUG: my_pm_clk_resume, usage=1
-  [    3.114767] DOUG: my_pm_clk_resume, usage=1
-  [    3.664443] DOUG: my_pm_clk_suspend, usage=0
-  [    3.897566] DOUG: my_pm_clk_suspend, usage=0
-  [    3.910137] DOUG: my_pm_clk_resume, usage=1
-  [    3.923217] DOUG: my_pm_clk_resume, usage=0
-  [    4.440116] DOUG: my_pm_clk_suspend, usage=-1
-  [    4.444982] DOUG: my_pm_clk_suspend, usage=0
-  [   14.170501] DOUG: my_pm_clk_resume, usage=1
-  [   14.176245] DOUG: my_pm_clk_resume, usage=0
+Currently div2 value is applied to the wrong bits. This is caused by a
+bug in the code where the shift is done only for lpl, for anything
+else the mask is not shifted to the correct bits.
 
-...or this w/out serial console:
-  [    0.556139] DOUG: my_pm_clk_resume, usage=1
-  [    0.556279] DOUG: my_pm_clk_resume, usage=1
-  [    1.058422] DOUG: my_pm_clk_suspend, usage=-1
-  [    1.058464] DOUG: my_pm_clk_suspend, usage=0
-  [    1.186250] DOUG: my_pm_clk_resume, usage=1
-  [    1.186292] DOUG: my_pm_clk_resume, usage=0
-  [    1.731536] DOUG: my_pm_clk_suspend, usage=-1
-  [    1.731557] DOUG: my_pm_clk_suspend, usage=0
-  [   10.288910] DOUG: my_pm_clk_resume, usage=1
-  [   10.289496] DOUG: my_pm_clk_resume, usage=0
+Fix this by correctly shift if lpl is not supported.
 
-It seems to be doing roughly the right sequence of calls, but just
-like with sc7280 this is more by luck than anything. Having a usage of
--1 is just not OK.
-
-Let's fix this like we did with sc7280.
-
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Fixes: ce8c195e652f ("clk: qcom: lpasscc: Introduce pm autosuspend for SC7180")
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Fixes: 4d7dc77babfe ("clk: qcom: Add support for Krait clocks")
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
 Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221104064055.2.I49b25b9bda9430fc7ea21e5a708ca5a0aced2798@changeid
+Link: https://lore.kernel.org/r/20221108215625.30186-1-ansuelsmth@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/lpasscorecc-sc7180.c | 24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ drivers/clk/qcom/clk-krait.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/clk/qcom/lpasscorecc-sc7180.c b/drivers/clk/qcom/lpasscorecc-sc7180.c
-index ac09b7b840ab..a5731994cbed 100644
---- a/drivers/clk/qcom/lpasscorecc-sc7180.c
-+++ b/drivers/clk/qcom/lpasscorecc-sc7180.c
-@@ -356,7 +356,7 @@ static const struct qcom_cc_desc lpass_audio_hm_sc7180_desc = {
- 	.num_gdscs = ARRAY_SIZE(lpass_audio_hm_sc7180_gdscs),
- };
+diff --git a/drivers/clk/qcom/clk-krait.c b/drivers/clk/qcom/clk-krait.c
+index 45da736bd5f4..293a9dfa7151 100644
+--- a/drivers/clk/qcom/clk-krait.c
++++ b/drivers/clk/qcom/clk-krait.c
+@@ -114,6 +114,8 @@ static int krait_div2_set_rate(struct clk_hw *hw, unsigned long rate,
  
--static int lpass_create_pm_clks(struct platform_device *pdev)
-+static int lpass_setup_runtime_pm(struct platform_device *pdev)
- {
- 	int ret;
+ 	if (d->lpl)
+ 		mask = mask << (d->shift + LPL_SHIFT) | mask << d->shift;
++	else
++		mask <<= d->shift;
  
-@@ -375,7 +375,7 @@ static int lpass_create_pm_clks(struct platform_device *pdev)
- 	if (ret < 0)
- 		dev_err(&pdev->dev, "failed to acquire iface clock\n");
- 
--	return ret;
-+	return pm_runtime_resume_and_get(&pdev->dev);
- }
- 
- static int lpass_core_cc_sc7180_probe(struct platform_device *pdev)
-@@ -384,7 +384,7 @@ static int lpass_core_cc_sc7180_probe(struct platform_device *pdev)
- 	struct regmap *regmap;
- 	int ret;
- 
--	ret = lpass_create_pm_clks(pdev);
-+	ret = lpass_setup_runtime_pm(pdev);
- 	if (ret)
- 		return ret;
- 
-@@ -392,12 +392,14 @@ static int lpass_core_cc_sc7180_probe(struct platform_device *pdev)
- 	desc = &lpass_audio_hm_sc7180_desc;
- 	ret = qcom_cc_probe_by_index(pdev, 1, desc);
- 	if (ret)
--		return ret;
-+		goto exit;
- 
- 	lpass_core_cc_sc7180_regmap_config.name = "lpass_core_cc";
- 	regmap = qcom_cc_map(pdev, &lpass_core_cc_sc7180_desc);
--	if (IS_ERR(regmap))
--		return PTR_ERR(regmap);
-+	if (IS_ERR(regmap)) {
-+		ret = PTR_ERR(regmap);
-+		goto exit;
-+	}
- 
- 	/*
- 	 * Keep the CLK always-ON
-@@ -415,6 +417,7 @@ static int lpass_core_cc_sc7180_probe(struct platform_device *pdev)
- 	ret = qcom_cc_really_probe(pdev, &lpass_core_cc_sc7180_desc, regmap);
- 
- 	pm_runtime_mark_last_busy(&pdev->dev);
-+exit:
- 	pm_runtime_put_autosuspend(&pdev->dev);
- 
- 	return ret;
-@@ -425,14 +428,19 @@ static int lpass_hm_core_probe(struct platform_device *pdev)
- 	const struct qcom_cc_desc *desc;
- 	int ret;
- 
--	ret = lpass_create_pm_clks(pdev);
-+	ret = lpass_setup_runtime_pm(pdev);
- 	if (ret)
- 		return ret;
- 
- 	lpass_core_cc_sc7180_regmap_config.name = "lpass_hm_core";
- 	desc = &lpass_core_hm_sc7180_desc;
- 
--	return qcom_cc_probe_by_index(pdev, 0, desc);
-+	ret = qcom_cc_probe_by_index(pdev, 0, desc);
-+
-+	pm_runtime_mark_last_busy(&pdev->dev);
-+	pm_runtime_put_autosuspend(&pdev->dev);
-+
-+	return ret;
- }
- 
- static const struct of_device_id lpass_hm_sc7180_match_table[] = {
+ 	spin_lock_irqsave(&krait_clock_reg_lock, flags);
+ 	val = krait_get_l2_indirect_reg(d->offset);
 -- 
 2.35.1
 
