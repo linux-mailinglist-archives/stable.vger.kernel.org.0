@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC6DC658137
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:26:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 048BE658139
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:26:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234713AbiL1Q0F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:26:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45950 "EHLO
+        id S232979AbiL1Q0V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:26:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234828AbiL1QZj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:25:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E5391B9D2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:22:35 -0800 (PST)
+        with ESMTP id S234546AbiL1Q0B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:26:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19BD21B9FA
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:22:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B290B817AC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:22:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF60AC433EF;
-        Wed, 28 Dec 2022 16:22:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9D5ECB81887
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:22:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DEAAC433EF;
+        Wed, 28 Dec 2022 16:22:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244553;
-        bh=zNMQ1iEoPwwDlkBybz2d2dum8OGMyfkYl+fYoa90zKs=;
+        s=korg; t=1672244558;
+        bh=SFPTuRawkPrLeC4Xej53eDm7pPjGgreFXTjfdwfB+Qk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CcxEW+dqdI8KCPFLI60PGCspEKDWoOn0jLnR3ztSAbNb4MlWD9dh8/IkHPevyxBLg
-         Fv92AUIYNWIDBPpbNH7dTMDsOr35Sr8X4C2yKKkU5kMs6JS+++kkgoVEzGkCy49QyU
-         W9tkH9h/Gvowpa/uqeKVr2XETB7qmsBwhOhxazDU=
+        b=mueXvP/P+kRZsCjiEoiULgo8Vh52XZwJW+fabk5lDiO9X6uAygCxd5nTvfZpq5ng9
+         KEmoDQr73B63xR8pqU4a0jcRpVMUhfAZVhfWhYTnRJJmpmqlKYCBfJMvcTNqyxfRjM
+         QcXlfVh0ufpPwZywZGtz5JuNNWQpsFBXCGk7foAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        patches@lists.linux.dev,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
         Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0731/1073] fbdev: via: Fix error in via_core_init()
-Date:   Wed, 28 Dec 2022 15:38:39 +0100
-Message-Id: <20221228144347.878495118@linuxfoundation.org>
+Subject: [PATCH 6.0 0732/1073] fbdev: vermilion: decrease reference count in error path
+Date:   Wed, 28 Dec 2022 15:38:40 +0100
+Message-Id: <20221228144347.905453475@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -52,45 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 5886b130de953cfb8826f7771ec8640a79934a7f ]
+[ Upstream commit 001f2cdb952a9566c77fb4b5470cc361db5601bb ]
 
-via_core_init() won't exit the driver when pci_register_driver() failed.
-Exit the viafb-i2c and the viafb-gpio in failed path to prevent error.
+pci_get_device() will increase the reference count for the returned
+pci_dev. For the error path, we need to use pci_dev_put() to decrease
+the reference count.
 
-VIA Graphics Integration Chipset framebuffer 2.4 initializing
-Error: Driver 'viafb-i2c' is already registered, aborting...
-Error: Driver 'viafb-gpio' is already registered, aborting...
-
-Fixes: 7582eb9be85f ("viafb: Turn GPIO and i2c into proper platform devices")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Fixes: dbe7e429fedb ("vmlfb: framebuffer driver for Intel Vermilion Range")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/via/via-core.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/vermilion/vermilion.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/via/via-core.c b/drivers/video/fbdev/via/via-core.c
-index 89d75079b730..0363b478fa3e 100644
---- a/drivers/video/fbdev/via/via-core.c
-+++ b/drivers/video/fbdev/via/via-core.c
-@@ -725,7 +725,14 @@ static int __init via_core_init(void)
- 		return ret;
- 	viafb_i2c_init();
- 	viafb_gpio_init();
--	return pci_register_driver(&via_driver);
-+	ret = pci_register_driver(&via_driver);
-+	if (ret) {
-+		viafb_gpio_exit();
-+		viafb_i2c_exit();
-+		return ret;
-+	}
-+
-+	return 0;
- }
+diff --git a/drivers/video/fbdev/vermilion/vermilion.c b/drivers/video/fbdev/vermilion/vermilion.c
+index ff61605b8764..a543643ce014 100644
+--- a/drivers/video/fbdev/vermilion/vermilion.c
++++ b/drivers/video/fbdev/vermilion/vermilion.c
+@@ -277,8 +277,10 @@ static int vmlfb_get_gpu(struct vml_par *par)
  
- static void __exit via_core_exit(void)
+ 	mutex_unlock(&vml_mutex);
+ 
+-	if (pci_enable_device(par->gpu) < 0)
++	if (pci_enable_device(par->gpu) < 0) {
++		pci_dev_put(par->gpu);
+ 		return -ENODEV;
++	}
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
