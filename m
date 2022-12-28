@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 697ED658451
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1325657E60
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:53:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235306AbiL1Q4k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:56:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46958 "EHLO
+        id S234132AbiL1PxG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:53:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235310AbiL1Qzv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:55:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A026E1D327
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:51:00 -0800 (PST)
+        with ESMTP id S234115AbiL1PxB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:53:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24952186D4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:53:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3EDF2B8188B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:50:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D892C433D2;
-        Wed, 28 Dec 2022 16:50:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A5C5961577
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:52:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B61F7C433D2;
+        Wed, 28 Dec 2022 15:52:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246257;
-        bh=peGOiY9UJyxc+ENCrALAYeUcywYnLBAiyUrKaKSKKD8=;
+        s=korg; t=1672242779;
+        bh=To1zNpXD0KVKRva4FzasldUmR2gCcvIZD+yhSo2fdVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f0zVfCAgHb6YErn19a95Hi2LD1eg3R486dFqP/cQOPVUUvDrJW5zFG3NQMBLgV+W9
-         k1/P1kBgvHBWFQwQ5hI3hq0MiTY793pQtdvwIRdI1sTaXZlFym4d9fjqJ4P2chXffL
-         DaOUaZhPjc4K5tX2Q4JEIatUaJCojnOHYuIsajRU=
+        b=nj2gGWLU1WxG4mSLulnhx1M7c+0TezGX7yuwfoEl1aWZ0z9jj/kDOSopUcpgKRPOL
+         FRIY2nVUZ+CXr181/+ijtUpRAptf5kgy3ofMXTE2CwrRpLoOIC1dxP3MItIlYp15g6
+         GRyo3bt69TEeGB/bCh17VfsNFNSeVyYkPpF/a+fQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hannes Reinecke <hare@suse.de>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1011/1146] nvme-auth: dont override ctrl keys before validation
-Date:   Wed, 28 Dec 2022 15:42:30 +0100
-Message-Id: <20221228144357.827735626@linuxfoundation.org>
+        patches@lists.linux.dev, Sami Tolvanen <samitolvanen@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 644/731] drm/amdgpu: Fix type of second parameter in trans_msg() callback
+Date:   Wed, 28 Dec 2022 15:42:31 +0100
+Message-Id: <20221228144315.176366505@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 01604350e14560d4d69323eb1ba12a257a643ea8 ]
+[ Upstream commit f0d0f1087333714ee683cc134a95afe331d7ddd9 ]
 
-Replace ctrl ctrl_key/host_key only after nvme_auth_generate_key is successful.
-Also, this fixes a bug where the keys are leaked.
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed. A
+proposed warning in clang aims to catch these at compile time, which
+reveals:
 
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+  drivers/gpu/drm/amd/amdgpu/mxgpu_ai.c:412:15: error: incompatible function pointer types initializing 'void (*)(struct amdgpu_device *, u32, u32, u32, u32)' (aka 'void (*)(struct amdgpu_device *, unsigned int, unsigned int, unsigned int, unsigned int)') with an expression of type 'void (struct amdgpu_device *, enum idh_request, u32, u32, u32)' (aka 'void (struct amdgpu_device *, enum idh_request, unsigned int, unsigned int, unsigned int)') [-Werror,-Wincompatible-function-pointer-types-strict]
+          .trans_msg = xgpu_ai_mailbox_trans_msg,
+                      ^~~~~~~~~~~~~~~~~~~~~~~~~
+  1 error generated.
+
+  drivers/gpu/drm/amd/amdgpu/mxgpu_nv.c:435:15: error: incompatible function pointer types initializing 'void (*)(struct amdgpu_device *, u32, u32, u32, u32)' (aka 'void (*)(struct amdgpu_device *, unsigned int, unsigned int, unsigned int, unsigned int)') with an expression of type 'void (struct amdgpu_device *, enum idh_request, u32, u32, u32)' (aka 'void (struct amdgpu_device *, enum idh_request, unsigned int, unsigned int, unsigned int)') [-Werror,-Wincompatible-function-pointer-types-strict]
+          .trans_msg = xgpu_nv_mailbox_trans_msg,
+                      ^~~~~~~~~~~~~~~~~~~~~~~~~
+  1 error generated.
+
+The type of the second parameter in the prototype should be 'enum
+idh_request' instead of 'u32'. Update it to clear up the warnings.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1750
+Reported-by: Sami Tolvanen <samitolvanen@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_virt.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 95b73b386719..108b5022cead 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -3745,13 +3745,17 @@ static ssize_t nvme_ctrl_dhchap_secret_store(struct device *dev,
- 	memcpy(dhchap_secret, buf, count);
- 	nvme_auth_stop(ctrl);
- 	if (strcmp(dhchap_secret, opts->dhchap_secret)) {
-+		struct nvme_dhchap_key *key, *host_key;
- 		int ret;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.h
+index ce31d4fdee93..4af3610f4a82 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.h
+@@ -62,6 +62,8 @@ struct amdgpu_vf_error_buffer {
+ 	uint64_t data[AMDGPU_VF_ERROR_ENTRY_SIZE];
+ };
  
--		ret = nvme_auth_generate_key(dhchap_secret, &ctrl->host_key);
-+		ret = nvme_auth_generate_key(dhchap_secret, &key);
- 		if (ret)
- 			return ret;
- 		kfree(opts->dhchap_secret);
- 		opts->dhchap_secret = dhchap_secret;
-+		host_key = ctrl->host_key;
-+		ctrl->host_key = key;
-+		nvme_auth_free_key(host_key);
- 		/* Key has changed; re-authentication with new key */
- 		nvme_auth_reset(ctrl);
- 	}
-@@ -3795,13 +3799,17 @@ static ssize_t nvme_ctrl_dhchap_ctrl_secret_store(struct device *dev,
- 	memcpy(dhchap_secret, buf, count);
- 	nvme_auth_stop(ctrl);
- 	if (strcmp(dhchap_secret, opts->dhchap_ctrl_secret)) {
-+		struct nvme_dhchap_key *key, *ctrl_key;
- 		int ret;
++enum idh_request;
++
+ /**
+  * struct amdgpu_virt_ops - amdgpu device virt operations
+  */
+@@ -71,7 +73,8 @@ struct amdgpu_virt_ops {
+ 	int (*req_init_data)(struct amdgpu_device *adev);
+ 	int (*reset_gpu)(struct amdgpu_device *adev);
+ 	int (*wait_reset)(struct amdgpu_device *adev);
+-	void (*trans_msg)(struct amdgpu_device *adev, u32 req, u32 data1, u32 data2, u32 data3);
++	void (*trans_msg)(struct amdgpu_device *adev, enum idh_request req,
++			  u32 data1, u32 data2, u32 data3);
+ };
  
--		ret = nvme_auth_generate_key(dhchap_secret, &ctrl->ctrl_key);
-+		ret = nvme_auth_generate_key(dhchap_secret, &key);
- 		if (ret)
- 			return ret;
- 		kfree(opts->dhchap_ctrl_secret);
- 		opts->dhchap_ctrl_secret = dhchap_secret;
-+		ctrl_key = ctrl->ctrl_key;
-+		ctrl->ctrl_key = key;
-+		nvme_auth_free_key(ctrl_key);
- 		/* Key has changed; re-authentication with new key */
- 		nvme_auth_reset(ctrl);
- 	}
+ /*
 -- 
 2.35.1
 
