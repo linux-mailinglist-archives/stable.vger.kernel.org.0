@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D429657B9E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83680657CB1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:35:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233692AbiL1PXo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:23:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42426 "EHLO
+        id S233882AbiL1PfK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:35:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233703AbiL1PXi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:23:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAD4A13F55
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:23:37 -0800 (PST)
+        with ESMTP id S233870AbiL1PfH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:35:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFD4C164B2
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:35:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 938B1B816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:23:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03F68C433D2;
-        Wed, 28 Dec 2022 15:23:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EE5361560
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:35:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CABBC433EF;
+        Wed, 28 Dec 2022 15:35:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241015;
-        bh=S7o5T/QOFbnrqB/QRxQKCXJ2XlTwZ99O41lblVkNgzM=;
+        s=korg; t=1672241705;
+        bh=UG08ZJZ/SGMkz4T2u/XEXW+kYA5et+5MvE1A2TuVIUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xtvkJliOBvDdJ2SARgQ7kPbXv9CvtzxLjZnGe/nek0LcFeVOh1nUV3NTib+DmD/ye
-         9IlP9vqN39XBTcbFmFlQvzxYJCRIcOp1nJ3ptuhclvImlMW/5AXZyfWbpSijLOA4EL
-         4U+YR9YUb41KfmmOd25+wN4ty9sl1qBvCycgo6bI=
+        b=vr+xuFP2e1L3Shq6ER/LSsFPocGf5CQ9g/Yyy1FFP4Sn1WF511ZlfcwrbOj8IDCgI
+         UVUFHqnlv2xMHAyVM8p4XDy9Z7c3XBojfNl55shii8rCtCN3kU3aCd2z0R7xM5soFF
+         /ttP29quOuOO32uO0+VYitJH6XCjOsWDb7iLV3aQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        patches@lists.linux.dev, Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Marijn Suijten <marijn.suijten@somainline.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0230/1073] media: cedrus: hevc: Fix offset adjustments
+Subject: [PATCH 6.1 0279/1146] drm/msm/dsi: Remove repeated calculation of slice_per_intf
 Date:   Wed, 28 Dec 2022 15:30:18 +0100
-Message-Id: <20221228144334.274409637@linuxfoundation.org>
+Message-Id: <20221228144337.716331765@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,99 +57,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@gmail.com>
+From: Marijn Suijten <marijn.suijten@somainline.org>
 
-[ Upstream commit e9120e76a6f7e19a8d26c03f2964937e4ce69784 ]
+[ Upstream commit 170ffca836dd9f1a0219c4f67554d408fa2b5912 ]
 
-As it turns out, current padding size check works fine in theory but it
-doesn't in practice. Most probable reason are caching issues.
+slice_per_intf is already computed for intf_width, which holds the same
+value as hdisplay.
 
-Let's rework reading data from bitstream using Cedrus engine instead of
-CPU. That way we avoid all cache issues and make sure that we're reading
-same data as Cedrus.
-
-Fixes: e7060d9a78c2 ("media: uapi: Change data_bit_offset definition")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 08802f515c3c ("drm/msm/dsi: Add support for DSC configuration")
+Reviewed-by: Bjorn Andersson <andersson@kernel.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Reviewed-by: Vinod Koul <vkoul@kernel.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
+Patchwork: https://patchwork.freedesktop.org/patch/508933/
+Link: https://lore.kernel.org/r/20221026182824.876933-3-marijn.suijten@somainline.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../staging/media/sunxi/cedrus/cedrus_h265.c  | 25 ++++++++++++++-----
- .../staging/media/sunxi/cedrus/cedrus_regs.h  |  2 ++
- 2 files changed, 21 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/msm/dsi/dsi_host.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/media/sunxi/cedrus/cedrus_h265.c b/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-index 095b8464f37a..a07fd28e1fcf 100644
---- a/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-+++ b/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-@@ -242,6 +242,18 @@ static void cedrus_h265_skip_bits(struct cedrus_dev *dev, int num)
- 	}
- }
- 
-+static u32 cedrus_h265_show_bits(struct cedrus_dev *dev, int num)
-+{
-+	cedrus_write(dev, VE_DEC_H265_TRIGGER,
-+		     VE_DEC_H265_TRIGGER_SHOW_BITS |
-+		     VE_DEC_H265_TRIGGER_TYPE_N_BITS(num));
-+
-+	cedrus_wait_for(dev, VE_DEC_H265_STATUS,
-+			VE_DEC_H265_STATUS_VLD_BUSY);
-+
-+	return cedrus_read(dev, VE_DEC_H265_BITS_READ);
-+}
-+
- static void cedrus_h265_write_scaling_list(struct cedrus_ctx *ctx,
- 					   struct cedrus_run *run)
+diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
+index 8026fe65bff6..d94832504d0f 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi_host.c
++++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
+@@ -842,7 +842,7 @@ static void dsi_ctrl_config(struct msm_dsi_host *msm_host, bool enable,
+ static void dsi_update_dsc_timing(struct msm_dsi_host *msm_host, bool is_cmd_mode, u32 hdisplay)
  {
-@@ -406,7 +418,7 @@ static int cedrus_h265_setup(struct cedrus_ctx *ctx, struct cedrus_run *run)
- 	u32 num_entry_point_offsets;
- 	u32 output_pic_list_index;
- 	u32 pic_order_cnt[2];
--	u8 *padding;
-+	u8 padding;
- 	int count;
- 	u32 reg;
+ 	struct drm_dsc_config *dsc = msm_host->dsc;
+-	u32 reg, intf_width, reg_ctrl, reg_ctrl2;
++	u32 reg, reg_ctrl, reg_ctrl2;
+ 	u32 slice_per_intf, total_bytes_per_intf;
+ 	u32 pkt_per_line;
+ 	u32 bytes_in_slice;
+@@ -851,8 +851,7 @@ static void dsi_update_dsc_timing(struct msm_dsi_host *msm_host, bool is_cmd_mod
+ 	/* first calculate dsc parameters and then program
+ 	 * compress mode registers
+ 	 */
+-	intf_width = hdisplay;
+-	slice_per_intf = DIV_ROUND_UP(intf_width, dsc->slice_width);
++	slice_per_intf = DIV_ROUND_UP(hdisplay, dsc->slice_width);
  
-@@ -520,21 +532,22 @@ static int cedrus_h265_setup(struct cedrus_ctx *ctx, struct cedrus_run *run)
- 	if (slice_params->data_byte_offset == 0)
- 		return -EOPNOTSUPP;
+ 	/* If slice_per_pkt is greater than slice_per_intf
+ 	 * then default to 1. This can happen during partial
+@@ -861,7 +860,6 @@ static void dsi_update_dsc_timing(struct msm_dsi_host *msm_host, bool is_cmd_mod
+ 	if (slice_per_intf > dsc->slice_count)
+ 		dsc->slice_count = 1;
  
--	padding = (u8 *)vb2_plane_vaddr(&run->src->vb2_buf, 0) +
--		slice_params->data_byte_offset - 1;
-+	cedrus_h265_skip_bits(dev, (slice_params->data_byte_offset - 1) * 8);
-+
-+	padding = cedrus_h265_show_bits(dev, 8);
+-	slice_per_intf = DIV_ROUND_UP(hdisplay, dsc->slice_width);
+ 	bytes_in_slice = DIV_ROUND_UP(dsc->slice_width * dsc->bits_per_pixel, 8);
  
- 	/* at least one bit must be set in that byte */
--	if (*padding == 0)
-+	if (padding == 0)
- 		return -EINVAL;
- 
- 	for (count = 0; count < 8; count++)
--		if (*padding & (1 << count))
-+		if (padding & (1 << count))
- 			break;
- 
- 	/* Include the one bit. */
- 	count++;
- 
--	cedrus_h265_skip_bits(dev, slice_params->data_byte_offset * 8 - count);
-+	cedrus_h265_skip_bits(dev, 8 - count);
- 
- 	/* Bitstream parameters. */
- 
-diff --git a/drivers/staging/media/sunxi/cedrus/cedrus_regs.h b/drivers/staging/media/sunxi/cedrus/cedrus_regs.h
-index d81f7513ade0..655c05b389cf 100644
---- a/drivers/staging/media/sunxi/cedrus/cedrus_regs.h
-+++ b/drivers/staging/media/sunxi/cedrus/cedrus_regs.h
-@@ -505,6 +505,8 @@
- #define VE_DEC_H265_LOW_ADDR_ENTRY_POINTS_BUF(a) \
- 	SHIFT_AND_MASK_BITS(a, 7, 0)
- 
-+#define VE_DEC_H265_BITS_READ			(VE_ENGINE_DEC_H265 + 0xdc)
-+
- #define VE_DEC_H265_SRAM_OFFSET			(VE_ENGINE_DEC_H265 + 0xe0)
- 
- #define VE_DEC_H265_SRAM_OFFSET_PRED_WEIGHT_LUMA_L0	0x00
+ 	dsc->slice_chunk_size = bytes_in_slice;
 -- 
 2.35.1
 
