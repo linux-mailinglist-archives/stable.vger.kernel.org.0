@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F04C657881
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:52:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31564657ECD
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:57:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233231AbiL1Ovz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:51:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37878 "EHLO
+        id S234197AbiL1P5n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:57:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233204AbiL1Ov0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:51:26 -0500
+        with ESMTP id S230508AbiL1P5m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:57:42 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B332112094
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:51:07 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D7BE1838C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:57:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E9C261130
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:51:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6657CC433EF;
-        Wed, 28 Dec 2022 14:51:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DEB67613E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:57:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8856C433EF;
+        Wed, 28 Dec 2022 15:57:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239066;
-        bh=3K5C9H/H1XZ2Tp7eEaVtGaJav/GejqjYteQIlAcRS1U=;
+        s=korg; t=1672243061;
+        bh=aqhTVUAqNs5uG0668dzDfneghVWFgYrpeQTgcxSUuxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GaQbV/T78WcJ9gww1UVjODPxpuVVT7OwFsekAQPrW2cR/kqvQ1b5QD7Umou5YCiba
-         tOW8voiHeb3gwO7pFK2YYgF1LMsz8CWM8t3NC6fC13FZc5nHPXVVnX37JGQSxl6f6G
-         3pVgaIqzmCEqiTNgH2hUM9KjG+3yUpfiNSZP9+yo=
+        b=hTpjl792wfkUUYJLMK6qQrGKTjYEWyJStNPQMrgSv7IYg2jCWR+SpPoFP2Jlqwhs2
+         tmtPo8iR+ZpAbR0qF4mGzeccWwfpDVMMGssfnpF5zYhQ3cXuWseB6RAMhxinszvVZu
+         8+CMzRP6rr6XHzzw0dCvxeflc0XJwMlbrdsddAk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Martin Pitt <mpitt@redhat.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
+        patches@lists.linux.dev, Pengcheng Yang <yangpc@wangsu.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 079/731] fs: dont audit the capability check in simple_xattr_list()
+Subject: [PATCH 6.1 0447/1146] bpf, sockmap: Fix data loss caused by using apply_bytes on ingress redirect
 Date:   Wed, 28 Dec 2022 15:33:06 +0100
-Message-Id: <20221228144258.841727499@linuxfoundation.org>
+Message-Id: <20221228144342.323220215@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Pengcheng Yang <yangpc@wangsu.com>
 
-[ Upstream commit e7eda157c4071cd1e69f4b1687b0fbe1ae5e6f46 ]
+[ Upstream commit 9072931f020bfd907d6d89ee21ff1481cd78b407 ]
 
-The check being unconditional may lead to unwanted denials reported by
-LSMs when a process has the capability granted by DAC, but denied by an
-LSM. In the case of SELinux such denials are a problem, since they can't
-be effectively filtered out via the policy and when not silenced, they
-produce noise that may hide a true problem or an attack.
+Use apply_bytes on ingress redirect, when apply_bytes is less than
+the length of msg data, some data may be skipped and lost in
+bpf_tcp_ingress().
 
-Checking for the capability only if any trusted xattr is actually
-present wouldn't really address the issue, since calling listxattr(2) on
-such node on its own doesn't indicate an explicit attempt to see the
-trusted xattrs. Additionally, it could potentially leak the presence of
-trusted xattrs to an unprivileged user if they can check for the denials
-(e.g. through dmesg).
+If there is still data in the scatterlist that has not been consumed,
+we cannot move the msg iter.
 
-Therefore, it's best (and simplest) to keep the check unconditional and
-instead use ns_capable_noaudit() that will silence any associated LSM
-denials.
-
-Fixes: 38f38657444d ("xattr: extract simple_xattr code from tmpfs")
-Reported-by: Martin Pitt <mpitt@redhat.com>
-Suggested-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Reviewed-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
+Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
+Link: https://lore.kernel.org/bpf/1669718441-2654-4-git-send-email-yangpc@wangsu.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xattr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/tcp_bpf.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/fs/xattr.c b/fs/xattr.c
-index 7117cb253864..4c82f271f4aa 100644
---- a/fs/xattr.c
-+++ b/fs/xattr.c
-@@ -1119,7 +1119,7 @@ static int xattr_list_one(char **buffer, ssize_t *remaining_size,
- ssize_t simple_xattr_list(struct inode *inode, struct simple_xattrs *xattrs,
- 			  char *buffer, size_t size)
- {
--	bool trusted = capable(CAP_SYS_ADMIN);
-+	bool trusted = ns_capable_noaudit(&init_user_ns, CAP_SYS_ADMIN);
- 	struct simple_xattr *xattr;
- 	ssize_t remaining_size = size;
- 	int err = 0;
+diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
+index 275c5ca9e04d..94aad3870c5f 100644
+--- a/net/ipv4/tcp_bpf.c
++++ b/net/ipv4/tcp_bpf.c
+@@ -45,8 +45,11 @@ static int bpf_tcp_ingress(struct sock *sk, struct sk_psock *psock,
+ 		tmp->sg.end = i;
+ 		if (apply) {
+ 			apply_bytes -= size;
+-			if (!apply_bytes)
++			if (!apply_bytes) {
++				if (sge->length)
++					sk_msg_iter_var_prev(i);
+ 				break;
++			}
+ 		}
+ 	} while (i != msg->sg.end);
+ 
 -- 
 2.35.1
 
