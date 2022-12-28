@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A128C657FB2
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:07:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C2A2657FD1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:10:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234376AbiL1QH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:07:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55104 "EHLO
+        id S233119AbiL1QKk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:10:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234442AbiL1QHf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:07:35 -0500
+        with ESMTP id S234529AbiL1QJw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:09:52 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEB961868E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:07:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35550186CD
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:08:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9E594B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:07:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BE53C433D2;
-        Wed, 28 Dec 2022 16:07:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49CAFB81710
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:08:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9DA7C433D2;
+        Wed, 28 Dec 2022 16:08:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243651;
-        bh=9woX/Ix4nDg2OVr2Q8Uak1GUS/dAnI0aLXg8+CsrtEs=;
+        s=korg; t=1672243710;
+        bh=cEByCizjkr9SFweALUH3TyTJ8Hb83s8clgTdI+lTNSE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iJNkYQ0gfJu3asAFvsyjggAVZnWZfqjVOwhE4gdoJGEs1ACl9cVQFyGWvvhBgiDJG
-         AIc7Fqgm6ePCrRsISY2TtyxFJQv+xRpctvr1ztMPFQw/EXWyQRSCU+SXPlHJ3DPWkn
-         4Ec8LrGjc6VAnzpKIfdF53dZr1fbCbnIOvh/4psU=
+        b=pNjCx7crumKPq1C/BMJpGwGxc0aNxEkdilsdorsAEkgTclYROY4ZjJlPPdE/2CxYu
+         7HWbChto34FWFMrTmWfrd+Oi3x2QCo3zE8xot1gozBOnSR1rRWKlwWsFHzbCsf3J34
+         hUOsndDhiAZr0GhQdRiX1qvcdicXKRCJQthmninc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
+        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Tedd Ho-Jeong An <tedd.an@intel.com>,
         Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0541/1073] Bluetooth: hci_conn: Fix crash on hci_create_cis_sync
-Date:   Wed, 28 Dec 2022 15:35:29 +0100
-Message-Id: <20221228144342.750381528@linuxfoundation.org>
+Subject: [PATCH 6.0 0542/1073] Bluetooth: btintel: Fix missing free skb in btintel_setup_combined()
+Date:   Wed, 28 Dec 2022 15:35:30 +0100
+Message-Id: <20221228144342.777753878@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -53,60 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Wang ShaoBo <bobo.shaobowang@huawei.com>
 
-[ Upstream commit 50757a259ba78c4e938b5735e76ffec6cd0c942e ]
+[ Upstream commit cee50ce899de415baf4da3ed38b7d4f13c3170d1 ]
 
-When attempting to connect multiple ISO sockets without using
-DEFER_SETUP may result in the following crash:
+skb allocated by __hci_cmd_sync would not be used whether in checking
+for supported iBT hardware variants or after, we should free it in all
+error branches, this patch makes the case read version failed or default
+error case free skb before return.
 
-BUG: KASAN: null-ptr-deref in hci_create_cis_sync+0x18b/0x2b0
-Read of size 2 at addr 0000000000000036 by task kworker/u3:1/50
-
-CPU: 0 PID: 50 Comm: kworker/u3:1 Not tainted
-6.0.0-rc7-02243-gb84a13ff4eda #4373
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009),
-BIOS 1.16.0-1.fc36 04/01/2014
-Workqueue: hci0 hci_cmd_sync_work
-Call Trace:
- <TASK>
- dump_stack_lvl+0x19/0x27
- kasan_report+0xbc/0xf0
- ? hci_create_cis_sync+0x18b/0x2b0
- hci_create_cis_sync+0x18b/0x2b0
- ? get_link_mode+0xd0/0xd0
- ? __ww_mutex_lock_slowpath+0x10/0x10
- ? mutex_lock+0xe0/0xe0
- ? get_link_mode+0xd0/0xd0
- hci_cmd_sync_work+0x111/0x190
- process_one_work+0x427/0x650
- worker_thread+0x87/0x750
- ? process_one_work+0x650/0x650
- kthread+0x14e/0x180
- ? kthread_exit+0x50/0x50
- ret_from_fork+0x22/0x30
- </TASK>
-
-Fixes: 26afbd826ee3 ("Bluetooth: Add initial implementation of CIS connections")
+Fixes: c86c7285bb08 ("Bluetooth: btintel: Fix the legacy bootloader returns tlv based version")
+Fixes: 019a1caa7fd2 ("Bluetooth: btintel: Refactoring setup routine for bootloader devices")
+Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Reviewed-by: Tedd Ho-Jeong An <tedd.an@intel.com>
 Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_conn.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/bluetooth/btintel.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/bluetooth/hci_conn.c b/net/bluetooth/hci_conn.c
-index f26ed278d9e3..67360444eee6 100644
---- a/net/bluetooth/hci_conn.c
-+++ b/net/bluetooth/hci_conn.c
-@@ -1817,7 +1817,7 @@ static int hci_create_cis_sync(struct hci_dev *hdev, void *data)
- 			continue;
+diff --git a/drivers/bluetooth/btintel.c b/drivers/bluetooth/btintel.c
+index d44a96667517..0c2542cee294 100644
+--- a/drivers/bluetooth/btintel.c
++++ b/drivers/bluetooth/btintel.c
+@@ -2522,7 +2522,7 @@ static int btintel_setup_combined(struct hci_dev *hdev)
+ 		 */
+ 		err = btintel_read_version(hdev, &ver);
+ 		if (err)
+-			return err;
++			break;
  
- 		/* Check if all CIS(s) belonging to a CIG are ready */
--		if (conn->link->state != BT_CONNECTED ||
-+		if (!conn->link || conn->link->state != BT_CONNECTED ||
- 		    conn->state != BT_CONNECT) {
- 			cmd.cp.num_cis = 0;
- 			break;
+ 		/* Apply the device specific HCI quirks
+ 		 *
+@@ -2563,7 +2563,8 @@ static int btintel_setup_combined(struct hci_dev *hdev)
+ 	default:
+ 		bt_dev_err(hdev, "Unsupported Intel hw variant (%u)",
+ 			   INTEL_HW_VARIANT(ver_tlv.cnvi_bt));
+-		return -EINVAL;
++		err = -EINVAL;
++		break;
+ 	}
+ 
+ exit_error:
 -- 
 2.35.1
 
