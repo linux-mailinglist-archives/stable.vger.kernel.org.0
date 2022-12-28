@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 596E965846D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 794946584F4
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:04:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235266AbiL1Q5P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:57:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46834 "EHLO
+        id S235361AbiL1REO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:04:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235046AbiL1Q4b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:56:31 -0500
+        with ESMTP id S235365AbiL1RDs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:03:48 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DD771D0E3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:52:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B0AA1CFF4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:58:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35706B8172A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:52:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B679C433EF;
-        Wed, 28 Dec 2022 16:52:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E6F43B8171E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:58:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48505C433EF;
+        Wed, 28 Dec 2022 16:58:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246325;
-        bh=cFuGLqk7wK2pepHQh2ikuLczkSKE1cvpSxrFp4f4fh4=;
+        s=korg; t=1672246687;
+        bh=KO9p54nhjzygjNgFozlKGwdkzlpcixkmnImu6PElxDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cLLVdn1RyYTwIoZ40wV5CIu+8Ncj3g6Xyhy5Mt7dM7BJjStWFq7I3ToDLxemMTsvx
-         vV6533b3iCFI3ERlLTgt67hOvEZu1DkQtDUCDuL9qOLW+C0kRRsGH2x9f5wuLqE1Kc
-         DF57S9b22n4a7pQfgxUgpaOfHs1lV2tIGOjr/nhM=
+        b=A1B7qVRAIWoVVwxn8CvPWZMAzz1EBpbpoV/t597IcM1jBPAdtCHBjWbhlV/a7/PRM
+         kUGgR8ctCNp5+YpZ5MyAKdm2Jh+6nEURfEmgnr57Znr69Qjh13AJioklnvzqoebZxG
+         BAbqeuLkxJ/4T0+hppPQEC6OcnU3IxLeDDDlq18M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 6.0 1050/1073] iio: addac: ad74413r: fix integer promotion bug in ad74413_get_input_current_offset()
+        patches@lists.linux.dev, wangdicheng <wangdicheng@kylinos.cn>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 6.1 1099/1146] ALSA: usb-audio: add the quirk for KT0206 device
 Date:   Wed, 28 Dec 2022 15:43:58 +0100
-Message-Id: <20221228144356.735660180@linuxfoundation.org>
+Message-Id: <20221228144400.017586259@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +52,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+From: wangdicheng <wangdicheng@kylinos.cn>
 
-commit 980389d06d08442fad0139874bff455c76125e47 upstream.
+commit 696b66ac26ef953aed5783ef26a252ec8f207013 upstream.
 
-The constant AD74413R_ADC_RESULT_MAX is defined via GENMASK, so its
-type is "unsigned long".
+Add relevant information to the quirks-table.h file.
+The test passes and the sound source file plays normally.
 
-Hence in the expression voltage_offset * AD74413R_ADC_RESULT_MAX,
-voltage_offset is first promoted to unsigned long, and since it may be
-negative, that results in a garbage value. For example, when range is
-AD74413R_ADC_RANGE_5V_BI_DIR, voltage_offset is -2500 and
-voltage_range is 5000, so the RHS of this assignment is, depending on
-sizeof(long), either 826225UL or 3689348814709142UL, which after
-truncation to int then results in either 826225 or 1972216214 being
-the output from in_currentX_offset.
-
-Casting to int avoids that promotion and results in the correct -32767
-output.
-
-Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Fixes: fea251b6a5db (iio: addac: add AD74413R driver)
-Reviewed-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20221118123209.1658420-1-linux@rasmusvillemoes.dk
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: wangdicheng <wangdicheng@kylinos.cn>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/SG2PR02MB587849631CB96809CF90DBED8A1A9@SG2PR02MB5878.apcprd02.prod.outlook.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/addac/ad74413r.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/quirks-table.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/iio/addac/ad74413r.c
-+++ b/drivers/iio/addac/ad74413r.c
-@@ -691,7 +691,7 @@ static int ad74413_get_input_current_off
- 	if (ret)
- 		return ret;
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -76,6 +76,8 @@
+ { USB_DEVICE_VENDOR_SPEC(0x041e, 0x3f0a) },
+ /* E-Mu 0204 USB */
+ { USB_DEVICE_VENDOR_SPEC(0x041e, 0x3f19) },
++/* Ktmicro Usb_audio device */
++{ USB_DEVICE_VENDOR_SPEC(0x31b2, 0x0011) },
  
--	*val = voltage_offset * AD74413R_ADC_RESULT_MAX / voltage_range;
-+	*val = voltage_offset * (int)AD74413R_ADC_RESULT_MAX / voltage_range;
- 
- 	return IIO_VAL_INT;
- }
+ /*
+  * Creative Technology, Ltd Live! Cam Sync HD [VF0770]
 
 
