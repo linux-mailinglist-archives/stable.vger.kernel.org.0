@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08CA5657BD2
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:26:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DFBA658132
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233408AbiL1P0O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:26:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44380 "EHLO
+        id S232973AbiL1QZl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:25:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233811AbiL1PZh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:25:37 -0500
+        with ESMTP id S234727AbiL1QY4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:24:56 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E1DF14090
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:25:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11EC01AF12
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:22:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3976261562
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:25:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48E4CC4339B;
-        Wed, 28 Dec 2022 15:25:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D4A961578
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:22:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A174DC433EF;
+        Wed, 28 Dec 2022 16:22:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241135;
-        bh=H0/2lVufVcgmfCTaHjqj60U5X0v4AH4CRhvow763WYQ=;
+        s=korg; t=1672244545;
+        bh=SzcUNELs8EVr24QcRJ18nd+cPbQCAYgJOWh5yzdJPu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xeiBnnAGaxbmOhB/GPTJWq9OvGzSpN6JdJx/LvlTviSlSSLpJK8wvc264D1asECYU
-         CnKptUZAtM6MI/WPDraxzZ/IiY6o4DuiMLZZg/JQe+P3JIAF2VB/LHXXuWIt8kIi9J
-         Q1ORu0BgW2KjdcgoiDhLdKuBxEV/ohaVu+bBYFAY=
+        b=2DfpDL5gZJ5U9gcS3NmhINz/1ujaCQkEF16YumRTw+6U/W4GFjmHtyu9sMLayGPhA
+         5PldmYiUJlDm60ChrxdGoYAQ60hBfN1hb/sU1jOH5N9JRgLu1Ld2p/yXbcsJ/c6Ama
+         mlTi6gg2qWiikQu4ZuqVAgKg0GTznmozwnw5KV0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 410/731] scsi: efct: Fix possible memleak in efct_device_init()
-Date:   Wed, 28 Dec 2022 15:38:37 +0100
-Message-Id: <20221228144308.454204168@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0730/1073] fbdev: pm2fb: fix missing pci_disable_device()
+Date:   Wed, 28 Dec 2022 15:38:38 +0100
+Message-Id: <20221228144347.850903098@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +52,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit bb0cd225dd37df1f4a22e36dad59ff33178ecdfc ]
+[ Upstream commit ed359a464846b48f76ea6cc5cd8257e545ac97f4 ]
 
-In efct_device_init(), when efct_scsi_reg_fc_transport() fails,
-efct_scsi_tgt_driver_exit() is not called to release memory for
-efct_scsi_tgt_driver_init() and causes memleak:
+Add missing pci_disable_device() in error path of probe() and remove() path.
 
-unreferenced object 0xffff8881020ce000 (size 2048):
-  comm "modprobe", pid 465, jiffies 4294928222 (age 55.872s)
-  backtrace:
-    [<0000000021a1ef1b>] kmalloc_trace+0x27/0x110
-    [<000000004c3ed51c>] target_register_template+0x4fd/0x7b0 [target_core_mod]
-    [<00000000f3393296>] efct_scsi_tgt_driver_init+0x18/0x50 [efct]
-    [<00000000115de533>] 0xffffffffc0d90011
-    [<00000000d608f646>] do_one_initcall+0xd0/0x4e0
-    [<0000000067828cf1>] do_init_module+0x1cc/0x6a0
-    ...
-
-Fixes: 4df84e846624 ("scsi: elx: efct: Driver initialization routines")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Link: https://lore.kernel.org/r/20221111074046.57061-1-chenzhongjin@huawei.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/elx/efct/efct_driver.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/video/fbdev/pm2fb.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/elx/efct/efct_driver.c b/drivers/scsi/elx/efct/efct_driver.c
-index eab68fd9337a..37e1ab96ee5b 100644
---- a/drivers/scsi/elx/efct/efct_driver.c
-+++ b/drivers/scsi/elx/efct/efct_driver.c
-@@ -42,6 +42,7 @@ efct_device_init(void)
- 
- 	rc = efct_scsi_reg_fc_transport();
- 	if (rc) {
-+		efct_scsi_tgt_driver_exit();
- 		pr_err("failed to register to FC host\n");
- 		return rc;
+diff --git a/drivers/video/fbdev/pm2fb.c b/drivers/video/fbdev/pm2fb.c
+index 8fd79deb1e2a..94f1f33f88f9 100644
+--- a/drivers/video/fbdev/pm2fb.c
++++ b/drivers/video/fbdev/pm2fb.c
+@@ -1528,8 +1528,10 @@ static int pm2fb_probe(struct pci_dev *pdev, const struct pci_device_id *id)
  	}
+ 
+ 	info = framebuffer_alloc(sizeof(struct pm2fb_par), &pdev->dev);
+-	if (!info)
+-		return -ENOMEM;
++	if (!info) {
++		err = -ENOMEM;
++		goto err_exit_disable;
++	}
+ 	default_par = info->par;
+ 
+ 	switch (pdev->device) {
+@@ -1710,6 +1712,8 @@ static int pm2fb_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	release_mem_region(pm2fb_fix.mmio_start, pm2fb_fix.mmio_len);
+  err_exit_neither:
+ 	framebuffer_release(info);
++ err_exit_disable:
++	pci_disable_device(pdev);
+ 	return retval;
+ }
+ 
+@@ -1734,6 +1738,7 @@ static void pm2fb_remove(struct pci_dev *pdev)
+ 	fb_dealloc_cmap(&info->cmap);
+ 	kfree(info->pixmap.addr);
+ 	framebuffer_release(info);
++	pci_disable_device(pdev);
+ }
+ 
+ static const struct pci_device_id pm2fb_id_table[] = {
 -- 
 2.35.1
 
