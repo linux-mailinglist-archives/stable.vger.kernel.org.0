@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D059658280
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:37:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 159F7657CDD
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:36:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234874AbiL1QhL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:37:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59200 "EHLO
+        id S233901AbiL1Pgw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:36:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233711AbiL1QgZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:36:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E413D167E9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:32:49 -0800 (PST)
+        with ESMTP id S233847AbiL1Pgv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:36:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45EE71580B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:36:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 99D63B816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:32:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03320C433EF;
-        Wed, 28 Dec 2022 16:32:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D60BD61542
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:36:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1727C433EF;
+        Wed, 28 Dec 2022 15:36:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245167;
-        bh=/i/jO8lqBGMdg0NVwjFTcwnqMV74SH0Tx0c5CjoSec8=;
+        s=korg; t=1672241810;
+        bh=341Irjy7OAyENGO9M+wnz4E3V61UtC3nXWZORmmWKjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sFA8hYjzmqqsIKkY9UKjeDzeJB+RsitkjmPyKkEXmKFEwo+sXz0y+kuy3pYrdb18a
-         th580GHw/NKU62EHoePYhdTzOBIaCXQbUUp8tznp8o2oqiG/Yob/Amwgncsvugxf7g
-         F/3Eq69lTrpOvWMJ/+oM7agiRbm60HSP2Krrof14=
+        b=jDrk3vV5EmMnuArafZchs0kd87h9jyCZzIqRXAhV5UBsX3m84loQGh1wmW4RfkO16
+         0Qqw1QbPtXXv4RS9U0lxiE9OL+p6ZoRr6NoCnSoqmSyGNrZhDpixwmI0heZSq0oDq0
+         DJ5uKeaSObCTo27DzGm7chO86TScVh8VyGXmkZqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
-        Yu Kuai <yukuai3@huawei.com>, Jens Axboe <axboe@kernel.dk>,
+        patches@lists.linux.dev,
+        "Author: Randy Dunlap" <rdunlap@infradead.org>,
+        syzbot+35b87c668935bb55e666@syzkaller.appspotmail.com,
+        Shigeru Yoshida <syoshida@redhat.com>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0844/1073] block, bfq: fix possible uaf for bfqq->bic
+Subject: [PATCH 5.15 525/731] fs/ntfs3: Avoid UBSAN error on true_sectors_per_clst()
 Date:   Wed, 28 Dec 2022 15:40:32 +0100
-Message-Id: <20221228144350.946931172@linuxfoundation.org>
+Message-Id: <20221228144311.764599251@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,120 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-[ Upstream commit 64dc8c732f5c2b406cc752e6aaa1bd5471159cab ]
+[ Upstream commit caad9dd8792a2622737b7273cb34835fd9536cd2 ]
 
-Our test report a uaf for 'bfqq->bic' in 5.10:
+syzbot reported UBSAN error as below:
 
-==================================================================
-BUG: KASAN: use-after-free in bfq_select_queue+0x378/0xa30
+[   76.901829][ T6677] ================================================================================
+[   76.903908][ T6677] UBSAN: shift-out-of-bounds in fs/ntfs3/super.c:675:13
+[   76.905363][ T6677] shift exponent -247 is negative
 
-CPU: 6 PID: 2318352 Comm: fsstress Kdump: loaded Not tainted 5.10.0-60.18.0.50.h602.kasan.eulerosv2r11.x86_64 #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58-20220320_160524-szxrtosci10000 04/01/2014
-Call Trace:
- bfq_select_queue+0x378/0xa30
- bfq_dispatch_request+0xe8/0x130
- blk_mq_do_dispatch_sched+0x62/0xb0
- __blk_mq_sched_dispatch_requests+0x215/0x2a0
- blk_mq_sched_dispatch_requests+0x8f/0xd0
- __blk_mq_run_hw_queue+0x98/0x180
- __blk_mq_delay_run_hw_queue+0x22b/0x240
- blk_mq_run_hw_queue+0xe3/0x190
- blk_mq_sched_insert_requests+0x107/0x200
- blk_mq_flush_plug_list+0x26e/0x3c0
- blk_finish_plug+0x63/0x90
- __iomap_dio_rw+0x7b5/0x910
- iomap_dio_rw+0x36/0x80
- ext4_dio_read_iter+0x146/0x190 [ext4]
- ext4_file_read_iter+0x1e2/0x230 [ext4]
- new_sync_read+0x29f/0x400
- vfs_read+0x24e/0x2d0
- ksys_read+0xd5/0x1b0
- do_syscall_64+0x33/0x40
- entry_SYSCALL_64_after_hwframe+0x61/0xc6
+This patch avoid this error.
 
-Commit 3bc5e683c67d ("bfq: Split shared queues on move between cgroups")
-changes that move process to a new cgroup will allocate a new bfqq to
-use, however, the old bfqq and new bfqq can point to the same bic:
-
-1) Initial state, two process with io in the same cgroup.
-
-Process 1       Process 2
- (BIC1)          (BIC2)
-  |  Λ            |  Λ
-  |  |            |  |
-  V  |            V  |
-  bfqq1           bfqq2
-
-2) bfqq1 is merged to bfqq2.
-
-Process 1       Process 2
- (BIC1)          (BIC2)
-  |               |
-   \-------------\|
-                  V
-  bfqq1           bfqq2(coop)
-
-3) Process 1 exit, then issue new io(denoce IOA) from Process 2.
-
- (BIC2)
-  |  Λ
-  |  |
-  V  |
-  bfqq2(coop)
-
-4) Before IOA is completed, move Process 2 to another cgroup and issue io.
-
-Process 2
- (BIC2)
-   Λ
-   |\--------------\
-   |                V
-  bfqq2           bfqq3
-
-Now that BIC2 points to bfqq3, while bfqq2 and bfqq3 both point to BIC2.
-If all the requests are completed, and Process 2 exit, BIC2 will be
-freed while there is no guarantee that bfqq2 will be freed before BIC2.
-
-Fix the problem by clearing bfqq->bic while bfqq is detached from bic.
-
-Fixes: 3bc5e683c67d ("bfq: Split shared queues on move between cgroups")
-Suggested-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221214030430.3304151-1-yukuai1@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://syzkaller.appspot.com/bug?id=b0299c09a14aababf0f1c862dd4ebc8ab9eb0179
+Fixes: a3b774342fa7 (fs/ntfs3: validate BOOT sectors_per_clusters)
+Cc: Author: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: syzbot+35b87c668935bb55e666@syzkaller.appspotmail.com
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ fs/ntfs3/super.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 68872a61706a..528ca21044a5 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -386,6 +386,12 @@ static void bfq_put_stable_ref(struct bfq_queue *bfqq);
+diff --git a/fs/ntfs3/super.c b/fs/ntfs3/super.c
+index f3b88c7e35f7..39b09f32f4db 100644
+--- a/fs/ntfs3/super.c
++++ b/fs/ntfs3/super.c
+@@ -672,7 +672,7 @@ static u32 true_sectors_per_clst(const struct NTFS_BOOT *boot)
+ 	if (boot->sectors_per_clusters <= 0x80)
+ 		return boot->sectors_per_clusters;
+ 	if (boot->sectors_per_clusters >= 0xf4) /* limit shift to 2MB max */
+-		return 1U << (0 - boot->sectors_per_clusters);
++		return 1U << -(s8)boot->sectors_per_clusters;
+ 	return -EINVAL;
+ }
  
- void bic_set_bfqq(struct bfq_io_cq *bic, struct bfq_queue *bfqq, bool is_sync)
- {
-+	struct bfq_queue *old_bfqq = bic->bfqq[is_sync];
-+
-+	/* Clear bic pointer if bfqq is detached from this bic */
-+	if (old_bfqq && old_bfqq->bic == bic)
-+		old_bfqq->bic = NULL;
-+
- 	/*
- 	 * If bfqq != NULL, then a non-stable queue merge between
- 	 * bic->bfqq and bfqq is happening here. This causes troubles
-@@ -5379,7 +5385,6 @@ static void bfq_exit_icq_bfqq(struct bfq_io_cq *bic, bool is_sync)
- 		unsigned long flags;
- 
- 		spin_lock_irqsave(&bfqd->lock, flags);
--		bfqq->bic = NULL;
- 		bfq_exit_bfqq(bfqd, bfqq);
- 		bic_set_bfqq(bic, NULL, is_sync);
- 		spin_unlock_irqrestore(&bfqd->lock, flags);
 -- 
 2.35.1
 
