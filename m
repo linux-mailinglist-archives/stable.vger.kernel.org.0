@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DC3F657E4F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:52:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C976965844C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233727AbiL1Pwp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:52:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39520 "EHLO
+        id S235291AbiL1Q4h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:56:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233678AbiL1Pwf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:52:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B169B15F29
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:52:34 -0800 (PST)
+        with ESMTP id S235292AbiL1Qzr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:55:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7A11B491
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:50:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6CBE7B81730
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:52:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C376DC43392;
-        Wed, 28 Dec 2022 15:52:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4E544B8172A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:50:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FA5FC433EF;
+        Wed, 28 Dec 2022 16:50:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242752;
-        bh=HvhBXNttaTTCxIN6/c+CJYTilJvv/u7LgQqCqzGcXGE=;
+        s=korg; t=1672246247;
+        bh=zMN0JpNGVOLNjuMgyWyYnkzVk1/TzmYVAsYau57Uow4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BSdmhy/Uni2kjbL1RzClDcrFHb0wDhJ4/DqPUlhDgdZ6INa2uoe5PoN+wgTqmOTjm
-         visYMd7gmhh/66AIsrdpmpij2z0quN6ZzR06CBIjNZte0JL7kgZUGf+BdXiqeXODRH
-         tvKpenGbC3tKXqvM+/5C5NyXy0sgdHSBpJ/kAjC4=
+        b=nalTqNyfbB3+HGYI+kfGasoVRTkGiwNqhIwvuaUejAqBJcKC7U9YdbkAWKfyVzTju
+         izcdkg2+0HRfmpwc4ConlJAtTgArCERF1zbc3kRmSZZ3PsBoVz1FSiK2k+YZWc5bPc
+         2VGvzeErJtAkx6b8rvjubXf68+wPmTQDIjTZM5eQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Alvin Lee <Alvin.Lee2@amd.com>,
+        Tom Chung <chiahsuan.chung@amd.com>,
+        George Shen <george.shen@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 641/731] hamradio: baycom_epp: Fix return type of baycom_send_packet()
+Subject: [PATCH 6.1 1009/1146] drm/amd/display: Workaround to increase phantom pipe vactive in pipesplit
 Date:   Wed, 28 Dec 2022 15:42:28 +0100
-Message-Id: <20221228144315.088354209@linuxfoundation.org>
+Message-Id: <20221228144357.775129043@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +56,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: George Shen <george.shen@amd.com>
 
-[ Upstream commit c5733e5b15d91ab679646ec3149e192996a27d5d ]
+[ Upstream commit 5b8f9deaf3b6badfc0da968e6e07ceabd19700b6 ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed. A
-proposed warning in clang aims to catch these at compile time, which
-reveals:
+[Why]
+Certain high resolution displays exhibit DCC line corruption with SubVP
+enabled. This is likely due to insufficient DCC meta data buffered
+immediately after the mclk switch.
 
-  drivers/net/hamradio/baycom_epp.c:1119:25: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .ndo_start_xmit      = baycom_send_packet,
-                                ^~~~~~~~~~~~~~~~~~
-  1 error generated.
+[How]
+Add workaround to increase phantom pipe vactive height by
+meta_row_height number of lines, thus increasing the amount of meta data
+buffered immediately after mclk switch finishes.
 
-->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
-'netdev_tx_t', not 'int'. Adjust the return type of baycom_send_packet()
-to match the prototype's to resolve the warning and CFI failure.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1750
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221102160610.1186145-1-nathan@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
+Acked-by: Tom Chung <chiahsuan.chung@amd.com>
+Signed-off-by: George Shen <george.shen@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hamradio/baycom_epp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/net/hamradio/baycom_epp.c b/drivers/net/hamradio/baycom_epp.c
-index 6b6f28d5b8d5..f9d03f7b9101 100644
---- a/drivers/net/hamradio/baycom_epp.c
-+++ b/drivers/net/hamradio/baycom_epp.c
-@@ -758,7 +758,7 @@ static void epp_bh(struct work_struct *work)
-  * ===================== network driver interface =========================
-  */
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c b/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
+index 2abe3967f7fb..d1bf49d207de 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
+@@ -531,9 +531,11 @@ void dcn32_set_phantom_stream_timing(struct dc *dc,
+ 	unsigned int i, pipe_idx;
+ 	struct pipe_ctx *pipe;
+ 	uint32_t phantom_vactive, phantom_bp, pstate_width_fw_delay_lines;
++	unsigned int num_dpp;
+ 	unsigned int vlevel = context->bw_ctx.dml.vba.VoltageLevel;
+ 	unsigned int dcfclk = context->bw_ctx.dml.vba.DCFCLKState[vlevel][context->bw_ctx.dml.vba.maxMpcComb];
+ 	unsigned int socclk = context->bw_ctx.dml.vba.SOCCLKPerState[vlevel];
++	struct vba_vars_st *vba = &context->bw_ctx.dml.vba;
  
--static int baycom_send_packet(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t baycom_send_packet(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct baycom_state *bc = netdev_priv(dev);
+ 	dc_assert_fp_enabled();
+ 
+@@ -569,6 +571,11 @@ void dcn32_set_phantom_stream_timing(struct dc *dc,
+ 	phantom_vactive = get_subviewport_lines_needed_in_mall(&context->bw_ctx.dml, pipes, pipe_cnt, pipe_idx) +
+ 				pstate_width_fw_delay_lines + dc->caps.subvp_swath_height_margin_lines;
+ 
++	// W/A for DCC corruption with certain high resolution timings.
++	// Determing if pipesplit is used. If so, add meta_row_height to the phantom vactive.
++	num_dpp = vba->NoOfDPP[vba->VoltageLevel][vba->maxMpcComb][vba->pipe_plane[pipe_idx]];
++	phantom_vactive += num_dpp > 1 ? vba->meta_row_height[vba->pipe_plane[pipe_idx]] : 0;
++
+ 	// For backporch of phantom pipe, use vstartup of the main pipe
+ 	phantom_bp = get_vstartup(&context->bw_ctx.dml, pipes, pipe_cnt, pipe_idx);
  
 -- 
 2.35.1
