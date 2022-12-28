@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1E73658151
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:27:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CF2C657B7B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233241AbiL1Q1W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:27:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43368 "EHLO
+        id S233319AbiL1PXD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:23:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233179AbiL1Q0e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:26:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A23421CB0C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:23:03 -0800 (PST)
+        with ESMTP id S233738AbiL1PWj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:22:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C9DA140B4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:22:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 18D1F61562
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:23:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2751FC433D2;
-        Wed, 28 Dec 2022 16:23:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 559BBB816D9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:22:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C64EEC433EF;
+        Wed, 28 Dec 2022 15:22:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244582;
-        bh=j46zpKOl6k0n7AFT8PXbXAe/Di5YT7Br9fHCHK91+k4=;
+        s=korg; t=1672240930;
+        bh=Z/toL6BcbxqcS1VXTJbOKRKvW8KybiSJWmyF8kXnYNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0aeSK/jVh81IaYe9e7ZWBFhifLq9vj8rZk/PdTBkzQSUTmy4JzldzgQQ0SI3lpgRS
-         kM45cNAPLSKGgcQcjzsgz/wb4zQ9mpRML1dPL381Swx3WL63CAxs6ACluh7rEwDA1z
-         CEfUKMF/Skkm45Fi+doZzZSepahQCr+ntYYXnlMA=
+        b=jxZCNjwjGJGuqHH7625hhLj3baJgFI/XnaDRXa5wB3xFAoJV387qnhxaFCkHNRq2L
+         hbPG93OESA5h6a7xwZ6yIbtjHO+a0y2x/AgavstSgW2a9Yyw48T82ZVjsw1OScB7CE
+         EyC4rit8bpaplSfxZbrkzxixeb16n068r5XCTANc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0736/1073] fbdev: uvesafb: Fixes an error handling path in uvesafb_probe()
-Date:   Wed, 28 Dec 2022 15:38:44 +0100
-Message-Id: <20221228144348.016263333@linuxfoundation.org>
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 418/731] RDMA/nldev: Add checks for nla_nest_start() in fill_stat_counter_qps()
+Date:   Wed, 28 Dec 2022 15:38:45 +0100
+Message-Id: <20221228144308.687995193@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit a94371040712031ba129c7e9d8ff04a06a2f8207 ]
+[ Upstream commit ea5ef136e215fdef35f14010bc51fcd6686e6922 ]
 
-If an error occurs after a successful uvesafb_init_mtrr() call, it must be
-undone by a corresponding arch_phys_wc_del() call, as already done in the
-remove function.
+As the nla_nest_start() may fail with NULL returned, the return value needs
+to be checked.
 
-This has been added in the remove function in commit 63e28a7a5ffc
-("uvesafb: Clean up MTRR code")
-
-Fixes: 8bdb3a2d7df4 ("uvesafb: the driver core")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: c4ffee7c9bdb ("RDMA/netlink: Implement counter dumpit calback")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Link: https://lore.kernel.org/r/20221126043410.85632-1-yuancan@huawei.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/uvesafb.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/core/nldev.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/video/fbdev/uvesafb.c b/drivers/video/fbdev/uvesafb.c
-index 4df6772802d7..1f3b7e013568 100644
---- a/drivers/video/fbdev/uvesafb.c
-+++ b/drivers/video/fbdev/uvesafb.c
-@@ -1758,6 +1758,7 @@ static int uvesafb_probe(struct platform_device *dev)
- out_unmap:
- 	iounmap(info->screen_base);
- out_mem:
-+	arch_phys_wc_del(par->mtrr_handle);
- 	release_mem_region(info->fix.smem_start, info->fix.smem_len);
- out_reg:
- 	release_region(0x3c0, 32);
+diff --git a/drivers/infiniband/core/nldev.c b/drivers/infiniband/core/nldev.c
+index 6f3799698634..cefe12964f3e 100644
+--- a/drivers/infiniband/core/nldev.c
++++ b/drivers/infiniband/core/nldev.c
+@@ -892,6 +892,8 @@ static int fill_stat_counter_qps(struct sk_buff *msg,
+ 	int ret = 0;
+ 
+ 	table_attr = nla_nest_start(msg, RDMA_NLDEV_ATTR_RES_QP);
++	if (!table_attr)
++		return -EMSGSIZE;
+ 
+ 	rt = &counter->device->res[RDMA_RESTRACK_QP];
+ 	xa_lock(&rt->xa);
 -- 
 2.35.1
 
