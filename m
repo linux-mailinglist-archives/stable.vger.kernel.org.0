@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 738C965843D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:56:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E8FF65843F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:56:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235170AbiL1Q4D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:56:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47122 "EHLO
+        id S235191AbiL1Q4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:56:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235228AbiL1QzP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:55:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D6B81EEEB
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:50:11 -0800 (PST)
+        with ESMTP id S235271AbiL1QzS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:55:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93E5C1C908
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:50:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 07893B81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:50:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46846C433D2;
-        Wed, 28 Dec 2022 16:50:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 30F0E60D41
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:50:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42334C433EF;
+        Wed, 28 Dec 2022 16:50:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246208;
-        bh=7VuaGYkV0nDTDJVIDF2az2eEPos1FRhz67/jOmyknqg=;
+        s=korg; t=1672246214;
+        bh=fCTy5XsnxXJd1DH8S1nEC1bP1x0RlusDZgk6MB26vuw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sfoyxCdgBEaIU6QJA083RIOM8S4J9HIT9YY5KbnbEV1GaA1zMs8ZjpR3PJIsULIMS
-         6L57g4M5veNXdUiCsi7UcXC3evxG2YXcZN96WatH8Az0jkwG/YfGrD3qksjXlW885u
-         g6Gdgn4sxs9dn3czBzqHVPzYC++6TsCuNzXudwFo=
+        b=KKqUAwY/8wA6FIKdML7Qh846jZwD/eNGMIkl0e4FbqpKtnYTtPwDIVrYQb2cUzH++
+         pEBuJK6Af1hw4cKquYyHHQmb4LwmAW2uvadva51I2vAWAI/rgOEuE/POb4IfgRtP+R
+         R/2EOLLqzquTDpiZANijSvC/IIc9Hh2wU1yH8MAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Bastien Nocera <hadess@hadess.net>
-Subject: [PATCH 6.0 1031/1073] HID: logitech-hidpp: Guard FF init code against non-USB devices
-Date:   Wed, 28 Dec 2022 15:43:39 +0100
-Message-Id: <20221228144356.196545215@linuxfoundation.org>
+        patches@lists.linux.dev, Peter Chen <peter.chen@kernel.org>,
+        Pawel Laszczak <pawell@cadence.com>
+Subject: [PATCH 6.0 1032/1073] usb: cdnsp: fix lack of ZLP for ep0
+Date:   Wed, 28 Dec 2022 15:43:40 +0100
+Message-Id: <20221228144356.224206172@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -53,55 +52,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bastien Nocera <hadess@hadess.net>
+From: Pawel Laszczak <pawell@cadence.com>
 
-commit 0e13e7b448005612972eae36c0f698c21d1e2f8a upstream.
+commit ae423ef5d095e09970f52c08020fdbf7f9d87c22 upstream.
 
-The Force Feedback code assumes that all the devices passed to it will
-be USB devices, but that might not be the case for emulated devices.
-Guard against a crash by checking the device type before poking at USB
-properties.
+Patch implements the handling of ZLP for control transfer.
+To send the ZLP driver must prepare the extra TRB in TD with
+length set to zero and TRB type to TRB_NORMAL.
+The first TRB must have set TRB_CHAIN flag, TD_SIZE = 1
+and TRB type to TRB_DATA.
 
-Cc: stable@vger.kernel.org # v5.16+
-Reported-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Bastien Nocera <hadess@hadess.net>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Link: https://lore.kernel.org/r/20221215154416.111704-1-hadess@hadess.net
+Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
+cc: <stable@vger.kernel.org>
+Reviewed-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Link: https://lore.kernel.org/r/20221122085138.332434-1-pawell@cadence.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-logitech-hidpp.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/usb/cdns3/cdnsp-ring.c |   42 +++++++++++++++++++++++++++++++----------
+ 1 file changed, 32 insertions(+), 10 deletions(-)
 
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -2545,12 +2545,17 @@ static int hidpp_ff_init(struct hidpp_de
- 	struct hid_device *hid = hidpp->hid_dev;
- 	struct hid_input *hidinput;
- 	struct input_dev *dev;
--	const struct usb_device_descriptor *udesc = &(hid_to_usb_dev(hid)->descriptor);
--	const u16 bcdDevice = le16_to_cpu(udesc->bcdDevice);
-+	struct usb_device_descriptor *udesc;
-+	u16 bcdDevice;
- 	struct ff_device *ff;
- 	int error, j, num_slots = data->num_effects;
- 	u8 version;
+--- a/drivers/usb/cdns3/cdnsp-ring.c
++++ b/drivers/usb/cdns3/cdnsp-ring.c
+@@ -2006,10 +2006,11 @@ int cdnsp_queue_bulk_tx(struct cdnsp_dev
  
-+	if (!hid_is_usb(hid)) {
-+		hid_err(hid, "device is not USB\n");
-+		return -ENODEV;
+ int cdnsp_queue_ctrl_tx(struct cdnsp_device *pdev, struct cdnsp_request *preq)
+ {
+-	u32 field, length_field, remainder;
++	u32 field, length_field, zlp = 0;
+ 	struct cdnsp_ep *pep = preq->pep;
+ 	struct cdnsp_ring *ep_ring;
+ 	int num_trbs;
++	u32 maxp;
+ 	int ret;
+ 
+ 	ep_ring = cdnsp_request_to_transfer_ring(pdev, preq);
+@@ -2019,26 +2020,33 @@ int cdnsp_queue_ctrl_tx(struct cdnsp_dev
+ 	/* 1 TRB for data, 1 for status */
+ 	num_trbs = (pdev->three_stage_setup) ? 2 : 1;
+ 
++	maxp = usb_endpoint_maxp(pep->endpoint.desc);
++
++	if (preq->request.zero && preq->request.length &&
++	    (preq->request.length % maxp == 0)) {
++		num_trbs++;
++		zlp = 1;
 +	}
 +
- 	if (list_empty(&hid->inputs)) {
- 		hid_err(hid, "no inputs found\n");
- 		return -ENODEV;
-@@ -2564,6 +2569,8 @@ static int hidpp_ff_init(struct hidpp_de
+ 	ret = cdnsp_prepare_transfer(pdev, preq, num_trbs);
+ 	if (ret)
+ 		return ret;
+ 
+ 	/* If there's data, queue data TRBs */
+-	if (pdev->ep0_expect_in)
+-		field = TRB_TYPE(TRB_DATA) | TRB_IOC;
+-	else
+-		field = TRB_ISP | TRB_TYPE(TRB_DATA) | TRB_IOC;
+-
+ 	if (preq->request.length > 0) {
+-		remainder = cdnsp_td_remainder(pdev, 0, preq->request.length,
+-					       preq->request.length, preq, 1, 0);
++		field = TRB_TYPE(TRB_DATA);
+ 
+-		length_field = TRB_LEN(preq->request.length) |
+-				TRB_TD_SIZE(remainder) | TRB_INTR_TARGET(0);
++		if (zlp)
++			field |= TRB_CHAIN;
++		else
++			field |= TRB_IOC | (pdev->ep0_expect_in ? 0 : TRB_ISP);
+ 
+ 		if (pdev->ep0_expect_in)
+ 			field |= TRB_DIR_IN;
+ 
++		length_field = TRB_LEN(preq->request.length) |
++			       TRB_TD_SIZE(zlp) | TRB_INTR_TARGET(0);
++
+ 		cdnsp_queue_trb(pdev, ep_ring, true,
+ 				lower_32_bits(preq->request.dma),
+ 				upper_32_bits(preq->request.dma), length_field,
+@@ -2046,6 +2054,20 @@ int cdnsp_queue_ctrl_tx(struct cdnsp_dev
+ 				TRB_SETUPID(pdev->setup_id) |
+ 				pdev->setup_speed);
+ 
++		if (zlp) {
++			field = TRB_TYPE(TRB_NORMAL) | TRB_IOC;
++
++			if (!pdev->ep0_expect_in)
++				field = TRB_ISP;
++
++			cdnsp_queue_trb(pdev, ep_ring, true,
++					lower_32_bits(preq->request.dma),
++					upper_32_bits(preq->request.dma), 0,
++					field | ep_ring->cycle_state |
++					TRB_SETUPID(pdev->setup_id) |
++					pdev->setup_speed);
++		}
++
+ 		pdev->ep0_stage = CDNSP_DATA_STAGE;
  	}
  
- 	/* Get firmware release */
-+	udesc = &(hid_to_usb_dev(hid)->descriptor);
-+	bcdDevice = le16_to_cpu(udesc->bcdDevice);
- 	version = bcdDevice & 255;
- 
- 	/* Set supported force feedback capabilities */
 
 
