@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF694657F58
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:04:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64270657889
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:52:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233077AbiL1QEK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:04:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50510 "EHLO
+        id S233160AbiL1OwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:52:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234356AbiL1QDu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:03:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F925192A9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:03:49 -0800 (PST)
+        with ESMTP id S233233AbiL1Ovz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:51:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D5AE12628
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:51:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 05FBDB81730
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:03:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EC06C433EF;
-        Wed, 28 Dec 2022 16:03:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE93161365
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:51:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E342BC433D2;
+        Wed, 28 Dec 2022 14:51:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243426;
-        bh=Lmcw3TOe2AlptIzFhBZvvS38VLzYip5lBfUY/kKNdNQ=;
+        s=korg; t=1672239085;
+        bh=a30lcUAUkVhTXqbEPEJwUaKuaBs4RVEPcVVf/mU1yTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RGxKovDCZL+2GG9uhg/JoI7BDJZEXG1xDxljWES9jxscQiYY6HOBS7ZOic8p5xV9H
-         KYnGNySU1CmyU/rwbpntWq4hmHCu3uZBHnyyytdfUNbuG8Skmd3oLww9niAQ8nt5C5
-         jAKjrPuvUAiDfUfPNjyUasWaTnz32NFue9VhA32I=
+        b=R/PasEldQHVQBBkAIJouPAc6LCbOueGP0rp5XQSLxdam7VExsUsLDego7dWZq3erU
+         l3GEI/K9DpYoX88mm6n+tNGl05KmSlr+ooaLkXm6L4dByOFX3AoiMSCVRGArMiZtr2
+         1HzCunpXw6A7mdjuSieQqCjbga+ImkmT8ENzxoFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@rivosinc.com>,
-        Pu Lehui <pulehui@huawei.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
+        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Juergen Gross <jgross@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0491/1146] riscv, bpf: Emit fixed-length instructions for BPF_PSEUDO_FUNC
+Subject: [PATCH 5.15 123/731] x86/xen: Fix memory leak in xen_smp_intr_init{_pv}()
 Date:   Wed, 28 Dec 2022 15:33:50 +0100
-Message-Id: <20221228144343.520406287@linuxfoundation.org>
+Message-Id: <20221228144300.118403027@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,76 +53,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pu Lehui <pulehui@huawei.com>
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-[ Upstream commit b54b6003612a376e7be32cbc5c1af3754bbbbb3d ]
+[ Upstream commit 69143f60868b3939ddc89289b29db593b647295e ]
 
-For BPF_PSEUDO_FUNC instruction, verifier will refill imm with
-correct addresses of bpf_calls and then run last pass of JIT.
-Since the emit_imm of RV64 is variable-length, which will emit
-appropriate length instructions accorroding to the imm, it may
-broke ctx->offset, and lead to unpredictable problem, such as
-inaccurate jump. So let's fix it with fixed-length instructions.
+These local variables @{resched|pmu|callfunc...}_name saves the new
+string allocated by kasprintf(), and when bind_{v}ipi_to_irqhandler()
+fails, it goes to the @fail tag, and calls xen_smp_intr_free{_pv}() to
+free resource, however the new string is not saved, which cause a memory
+leak issue. fix it.
 
-Fixes: 69c087ba6225 ("bpf: Add bpf_for_each_map_elem() helper")
-Suggested-by: Björn Töpel <bjorn@rivosinc.com>
-Signed-off-by: Pu Lehui <pulehui@huawei.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Björn Töpel <bjorn@kernel.org>
-Acked-by: Björn Töpel <bjorn@kernel.org>
-Link: https://lore.kernel.org/bpf/20221206091410.1584784-1-pulehui@huaweicloud.com
+Fixes: 9702785a747a ("i386: move xen")
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20221123155858.11382-2-xiujianfeng@huawei.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/net/bpf_jit_comp64.c | 29 ++++++++++++++++++++++++++++-
- 1 file changed, 28 insertions(+), 1 deletion(-)
+ arch/x86/xen/smp.c    | 24 ++++++++++++------------
+ arch/x86/xen/smp_pv.c | 12 ++++++------
+ 2 files changed, 18 insertions(+), 18 deletions(-)
 
-diff --git a/arch/riscv/net/bpf_jit_comp64.c b/arch/riscv/net/bpf_jit_comp64.c
-index 00df3a8f92ac..f2417ac54edd 100644
---- a/arch/riscv/net/bpf_jit_comp64.c
-+++ b/arch/riscv/net/bpf_jit_comp64.c
-@@ -136,6 +136,25 @@ static bool in_auipc_jalr_range(s64 val)
- 		val < ((1L << 31) - (1L << 11));
+diff --git a/arch/x86/xen/smp.c b/arch/x86/xen/smp.c
+index c1b2f764b29a..cdec892b28e2 100644
+--- a/arch/x86/xen/smp.c
++++ b/arch/x86/xen/smp.c
+@@ -32,30 +32,30 @@ static irqreturn_t xen_reschedule_interrupt(int irq, void *dev_id)
+ 
+ void xen_smp_intr_free(unsigned int cpu)
+ {
++	kfree(per_cpu(xen_resched_irq, cpu).name);
++	per_cpu(xen_resched_irq, cpu).name = NULL;
+ 	if (per_cpu(xen_resched_irq, cpu).irq >= 0) {
+ 		unbind_from_irqhandler(per_cpu(xen_resched_irq, cpu).irq, NULL);
+ 		per_cpu(xen_resched_irq, cpu).irq = -1;
+-		kfree(per_cpu(xen_resched_irq, cpu).name);
+-		per_cpu(xen_resched_irq, cpu).name = NULL;
+ 	}
++	kfree(per_cpu(xen_callfunc_irq, cpu).name);
++	per_cpu(xen_callfunc_irq, cpu).name = NULL;
+ 	if (per_cpu(xen_callfunc_irq, cpu).irq >= 0) {
+ 		unbind_from_irqhandler(per_cpu(xen_callfunc_irq, cpu).irq, NULL);
+ 		per_cpu(xen_callfunc_irq, cpu).irq = -1;
+-		kfree(per_cpu(xen_callfunc_irq, cpu).name);
+-		per_cpu(xen_callfunc_irq, cpu).name = NULL;
+ 	}
++	kfree(per_cpu(xen_debug_irq, cpu).name);
++	per_cpu(xen_debug_irq, cpu).name = NULL;
+ 	if (per_cpu(xen_debug_irq, cpu).irq >= 0) {
+ 		unbind_from_irqhandler(per_cpu(xen_debug_irq, cpu).irq, NULL);
+ 		per_cpu(xen_debug_irq, cpu).irq = -1;
+-		kfree(per_cpu(xen_debug_irq, cpu).name);
+-		per_cpu(xen_debug_irq, cpu).name = NULL;
+ 	}
++	kfree(per_cpu(xen_callfuncsingle_irq, cpu).name);
++	per_cpu(xen_callfuncsingle_irq, cpu).name = NULL;
+ 	if (per_cpu(xen_callfuncsingle_irq, cpu).irq >= 0) {
+ 		unbind_from_irqhandler(per_cpu(xen_callfuncsingle_irq, cpu).irq,
+ 				       NULL);
+ 		per_cpu(xen_callfuncsingle_irq, cpu).irq = -1;
+-		kfree(per_cpu(xen_callfuncsingle_irq, cpu).name);
+-		per_cpu(xen_callfuncsingle_irq, cpu).name = NULL;
+ 	}
  }
  
-+/* Emit fixed-length instructions for address */
-+static int emit_addr(u8 rd, u64 addr, bool extra_pass, struct rv_jit_context *ctx)
-+{
-+	u64 ip = (u64)(ctx->insns + ctx->ninsns);
-+	s64 off = addr - ip;
-+	s64 upper = (off + (1 << 11)) >> 12;
-+	s64 lower = off & 0xfff;
-+
-+	if (extra_pass && !in_auipc_jalr_range(off)) {
-+		pr_err("bpf-jit: target offset 0x%llx is out of range\n", off);
-+		return -ERANGE;
-+	}
-+
-+	emit(rv_auipc(rd, upper), ctx);
-+	emit(rv_addi(rd, rd, lower), ctx);
-+	return 0;
-+}
-+
-+/* Emit variable-length instructions for 32-bit and 64-bit imm */
- static void emit_imm(u8 rd, s64 val, struct rv_jit_context *ctx)
- {
- 	/* Note that the immediate from the add is sign-extended,
-@@ -1050,7 +1069,15 @@ int bpf_jit_emit_insn(const struct bpf_insn *insn, struct rv_jit_context *ctx,
- 		u64 imm64;
+@@ -65,6 +65,7 @@ int xen_smp_intr_init(unsigned int cpu)
+ 	char *resched_name, *callfunc_name, *debug_name;
  
- 		imm64 = (u64)insn1.imm << 32 | (u32)imm;
--		emit_imm(rd, imm64, ctx);
-+		if (bpf_pseudo_func(insn)) {
-+			/* fixed-length insns for extra jit pass */
-+			ret = emit_addr(rd, imm64, extra_pass, ctx);
-+			if (ret)
-+				return ret;
-+		} else {
-+			emit_imm(rd, imm64, ctx);
-+		}
-+
- 		return 1;
+ 	resched_name = kasprintf(GFP_KERNEL, "resched%d", cpu);
++	per_cpu(xen_resched_irq, cpu).name = resched_name;
+ 	rc = bind_ipi_to_irqhandler(XEN_RESCHEDULE_VECTOR,
+ 				    cpu,
+ 				    xen_reschedule_interrupt,
+@@ -74,9 +75,9 @@ int xen_smp_intr_init(unsigned int cpu)
+ 	if (rc < 0)
+ 		goto fail;
+ 	per_cpu(xen_resched_irq, cpu).irq = rc;
+-	per_cpu(xen_resched_irq, cpu).name = resched_name;
+ 
+ 	callfunc_name = kasprintf(GFP_KERNEL, "callfunc%d", cpu);
++	per_cpu(xen_callfunc_irq, cpu).name = callfunc_name;
+ 	rc = bind_ipi_to_irqhandler(XEN_CALL_FUNCTION_VECTOR,
+ 				    cpu,
+ 				    xen_call_function_interrupt,
+@@ -86,10 +87,10 @@ int xen_smp_intr_init(unsigned int cpu)
+ 	if (rc < 0)
+ 		goto fail;
+ 	per_cpu(xen_callfunc_irq, cpu).irq = rc;
+-	per_cpu(xen_callfunc_irq, cpu).name = callfunc_name;
+ 
+ 	if (!xen_fifo_events) {
+ 		debug_name = kasprintf(GFP_KERNEL, "debug%d", cpu);
++		per_cpu(xen_debug_irq, cpu).name = debug_name;
+ 		rc = bind_virq_to_irqhandler(VIRQ_DEBUG, cpu,
+ 					     xen_debug_interrupt,
+ 					     IRQF_PERCPU | IRQF_NOBALANCING,
+@@ -97,10 +98,10 @@ int xen_smp_intr_init(unsigned int cpu)
+ 		if (rc < 0)
+ 			goto fail;
+ 		per_cpu(xen_debug_irq, cpu).irq = rc;
+-		per_cpu(xen_debug_irq, cpu).name = debug_name;
  	}
  
+ 	callfunc_name = kasprintf(GFP_KERNEL, "callfuncsingle%d", cpu);
++	per_cpu(xen_callfuncsingle_irq, cpu).name = callfunc_name;
+ 	rc = bind_ipi_to_irqhandler(XEN_CALL_FUNCTION_SINGLE_VECTOR,
+ 				    cpu,
+ 				    xen_call_function_single_interrupt,
+@@ -110,7 +111,6 @@ int xen_smp_intr_init(unsigned int cpu)
+ 	if (rc < 0)
+ 		goto fail;
+ 	per_cpu(xen_callfuncsingle_irq, cpu).irq = rc;
+-	per_cpu(xen_callfuncsingle_irq, cpu).name = callfunc_name;
+ 
+ 	return 0;
+ 
+diff --git a/arch/x86/xen/smp_pv.c b/arch/x86/xen/smp_pv.c
+index cd5539fc5eb4..b47b5111397a 100644
+--- a/arch/x86/xen/smp_pv.c
++++ b/arch/x86/xen/smp_pv.c
+@@ -97,18 +97,18 @@ asmlinkage __visible void cpu_bringup_and_idle(void)
+ 
+ void xen_smp_intr_free_pv(unsigned int cpu)
+ {
++	kfree(per_cpu(xen_irq_work, cpu).name);
++	per_cpu(xen_irq_work, cpu).name = NULL;
+ 	if (per_cpu(xen_irq_work, cpu).irq >= 0) {
+ 		unbind_from_irqhandler(per_cpu(xen_irq_work, cpu).irq, NULL);
+ 		per_cpu(xen_irq_work, cpu).irq = -1;
+-		kfree(per_cpu(xen_irq_work, cpu).name);
+-		per_cpu(xen_irq_work, cpu).name = NULL;
+ 	}
+ 
++	kfree(per_cpu(xen_pmu_irq, cpu).name);
++	per_cpu(xen_pmu_irq, cpu).name = NULL;
+ 	if (per_cpu(xen_pmu_irq, cpu).irq >= 0) {
+ 		unbind_from_irqhandler(per_cpu(xen_pmu_irq, cpu).irq, NULL);
+ 		per_cpu(xen_pmu_irq, cpu).irq = -1;
+-		kfree(per_cpu(xen_pmu_irq, cpu).name);
+-		per_cpu(xen_pmu_irq, cpu).name = NULL;
+ 	}
+ }
+ 
+@@ -118,6 +118,7 @@ int xen_smp_intr_init_pv(unsigned int cpu)
+ 	char *callfunc_name, *pmu_name;
+ 
+ 	callfunc_name = kasprintf(GFP_KERNEL, "irqwork%d", cpu);
++	per_cpu(xen_irq_work, cpu).name = callfunc_name;
+ 	rc = bind_ipi_to_irqhandler(XEN_IRQ_WORK_VECTOR,
+ 				    cpu,
+ 				    xen_irq_work_interrupt,
+@@ -127,10 +128,10 @@ int xen_smp_intr_init_pv(unsigned int cpu)
+ 	if (rc < 0)
+ 		goto fail;
+ 	per_cpu(xen_irq_work, cpu).irq = rc;
+-	per_cpu(xen_irq_work, cpu).name = callfunc_name;
+ 
+ 	if (is_xen_pmu) {
+ 		pmu_name = kasprintf(GFP_KERNEL, "pmu%d", cpu);
++		per_cpu(xen_pmu_irq, cpu).name = pmu_name;
+ 		rc = bind_virq_to_irqhandler(VIRQ_XENPMU, cpu,
+ 					     xen_pmu_irq_handler,
+ 					     IRQF_PERCPU|IRQF_NOBALANCING,
+@@ -138,7 +139,6 @@ int xen_smp_intr_init_pv(unsigned int cpu)
+ 		if (rc < 0)
+ 			goto fail;
+ 		per_cpu(xen_pmu_irq, cpu).irq = rc;
+-		per_cpu(xen_pmu_irq, cpu).name = pmu_name;
+ 	}
+ 
+ 	return 0;
 -- 
 2.35.1
 
