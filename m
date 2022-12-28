@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEC88657E1D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:50:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54DE165789C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:53:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234096AbiL1PuN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:50:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38006 "EHLO
+        id S232182AbiL1Ow7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:52:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234087AbiL1PuM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:50:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61903183A2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:50:11 -0800 (PST)
+        with ESMTP id S233180AbiL1OwV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:52:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 867593B3
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:52:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1BE78B81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:50:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A044C433D2;
-        Wed, 28 Dec 2022 15:50:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1CB52B8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:52:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FE9EC433D2;
+        Wed, 28 Dec 2022 14:52:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242608;
-        bh=ukl/UUUyQv5isEgSUCnKLX5i9xKeHluyYZsSNRReM1Y=;
+        s=korg; t=1672239129;
+        bh=hfqNsI/l11lvtkpQTyjbDWTHJ4CRCGx3+EPzQj6W0O4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o95tn7wVbOfKvePE/1hAN3MhvwNtlkpx7AkE6tQ2wnbwZd+I1aaKlWhKrWi5RCAhZ
-         r2gdiBk8YGk08DuV1Y4wdP9cKVle+hy9tFTH8cku5t5rik5ns95qiwG6CjgLYRAYCG
-         NfDnbNvJgrTK/dNVFfZglrUxiHcLSFF5W9dbfHZ0=
+        b=kIFaMsvcWAxNIjcs8nnbnge02GnadUCONKjMhjyaFmsAt6/OeWwAz/Lz+AfwVzR9s
+         DcUkhdpcmt9ZCh7Ho7cYrwEVQVN5T4nkvpsw3jUq8nHK1W2WuFf3uwUG7Bxqa/Kr8k
+         sWhcSb/39VIUBScT1JefRFz5hv0ZImLKtFTIs810=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pengcheng Yang <yangpc@wangsu.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
+        patches@lists.linux.dev,
+        John Thomson <git@johnthomson.fastmail.com.au>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0431/1073] bpf, sockmap: Fix missing BPF_F_INGRESS flag when using apply_bytes
-Date:   Wed, 28 Dec 2022 15:33:39 +0100
-Message-Id: <20221228144339.733742976@linuxfoundation.org>
+Subject: [PATCH 5.15 113/731] mips: ralink: mt7621: define MT7621_SYSC_BASE with __iomem
+Date:   Wed, 28 Dec 2022 15:33:40 +0100
+Message-Id: <20221228144259.826762937@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,159 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pengcheng Yang <yangpc@wangsu.com>
+From: John Thomson <git@johnthomson.fastmail.com.au>
 
-[ Upstream commit a351d6087bf7d3d8440d58d3bf244ec64b89394a ]
+[ Upstream commit a2cab953b4c077cc02878d424466d3a6eac32aaf ]
 
-When redirecting, we use sk_msg_to_ingress() to get the BPF_F_INGRESS
-flag from the msg->flags. If apply_bytes is used and it is larger than
-the current data being processed, sk_psock_msg_verdict() will not be
-called when sendmsg() is called again. At this time, the msg->flags is 0,
-and we lost the BPF_F_INGRESS flag.
+So that MT7621_SYSC_BASE can be used later in multiple functions without
+needing to repeat this __iomem declaration each time
 
-So we need to save the BPF_F_INGRESS flag in sk_psock and use it when
-redirection.
-
-Fixes: 8934ce2fd081 ("bpf: sockmap redirect ingress support")
-Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/1669718441-2654-3-git-send-email-yangpc@wangsu.com
+Signed-off-by: John Thomson <git@johnthomson.fastmail.com.au>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Stable-dep-of: 7c18b64bba3b ("mips: ralink: mt7621: do not use kzalloc too early")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/skmsg.h |  1 +
- include/net/tcp.h     |  4 ++--
- net/core/skmsg.c      |  9 ++++++---
- net/ipv4/tcp_bpf.c    | 11 ++++++-----
- net/tls/tls_sw.c      |  6 ++++--
- 5 files changed, 19 insertions(+), 12 deletions(-)
+ arch/mips/include/asm/mach-ralink/mt7621.h | 4 +++-
+ arch/mips/ralink/mt7621.c                  | 7 +++----
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/skmsg.h b/include/linux/skmsg.h
-index 70d6cb94e580..84f787416a54 100644
---- a/include/linux/skmsg.h
-+++ b/include/linux/skmsg.h
-@@ -82,6 +82,7 @@ struct sk_psock {
- 	u32				apply_bytes;
- 	u32				cork_bytes;
- 	u32				eval;
-+	bool				redir_ingress; /* undefined if sk_redir is null */
- 	struct sk_msg			*cork;
- 	struct sk_psock_progs		progs;
- #if IS_ENABLED(CONFIG_BPF_STREAM_PARSER)
-diff --git a/include/net/tcp.h b/include/net/tcp.h
-index 95c1d51393ac..3cde7b4a401f 100644
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -2284,8 +2284,8 @@ int tcp_bpf_update_proto(struct sock *sk, struct sk_psock *psock, bool restore);
- void tcp_bpf_clone(const struct sock *sk, struct sock *newsk);
- #endif /* CONFIG_BPF_SYSCALL */
+diff --git a/arch/mips/include/asm/mach-ralink/mt7621.h b/arch/mips/include/asm/mach-ralink/mt7621.h
+index 6bbf082dd149..79d5bb0e06d6 100644
+--- a/arch/mips/include/asm/mach-ralink/mt7621.h
++++ b/arch/mips/include/asm/mach-ralink/mt7621.h
+@@ -7,10 +7,12 @@
+ #ifndef _MT7621_REGS_H_
+ #define _MT7621_REGS_H_
  
--int tcp_bpf_sendmsg_redir(struct sock *sk, struct sk_msg *msg, u32 bytes,
--			  int flags);
-+int tcp_bpf_sendmsg_redir(struct sock *sk, bool ingress,
-+			  struct sk_msg *msg, u32 bytes, int flags);
- #endif /* CONFIG_NET_SOCK_MSG */
++#define IOMEM(x)			((void __iomem *)(KSEG1ADDR(x)))
++
+ #define MT7621_PALMBUS_BASE		0x1C000000
+ #define MT7621_PALMBUS_SIZE		0x03FFFFFF
  
- #if !defined(CONFIG_BPF_SYSCALL) || !defined(CONFIG_NET_SOCK_MSG)
-diff --git a/net/core/skmsg.c b/net/core/skmsg.c
-index e6b9ced3eda8..53d0251788aa 100644
---- a/net/core/skmsg.c
-+++ b/net/core/skmsg.c
-@@ -886,13 +886,16 @@ int sk_psock_msg_verdict(struct sock *sk, struct sk_psock *psock,
- 	ret = sk_psock_map_verd(ret, msg->sk_redir);
- 	psock->apply_bytes = msg->apply_bytes;
- 	if (ret == __SK_REDIRECT) {
--		if (psock->sk_redir)
-+		if (psock->sk_redir) {
- 			sock_put(psock->sk_redir);
--		psock->sk_redir = msg->sk_redir;
--		if (!psock->sk_redir) {
-+			psock->sk_redir = NULL;
-+		}
-+		if (!msg->sk_redir) {
- 			ret = __SK_DROP;
- 			goto out;
- 		}
-+		psock->redir_ingress = sk_msg_to_ingress(msg);
-+		psock->sk_redir = msg->sk_redir;
- 		sock_hold(psock->sk_redir);
+-#define MT7621_SYSC_BASE		0x1E000000
++#define MT7621_SYSC_BASE		IOMEM(0x1E000000)
+ 
+ #define SYSC_REG_CHIP_NAME0		0x00
+ #define SYSC_REG_CHIP_NAME1		0x04
+diff --git a/arch/mips/ralink/mt7621.c b/arch/mips/ralink/mt7621.c
+index 4c8378661219..af66886f1366 100644
+--- a/arch/mips/ralink/mt7621.c
++++ b/arch/mips/ralink/mt7621.c
+@@ -95,7 +95,6 @@ static void soc_dev_init(struct ralink_soc_info *soc_info, u32 rev)
+ 
+ void __init prom_soc_init(struct ralink_soc_info *soc_info)
+ {
+-	void __iomem *sysc = (void __iomem *) KSEG1ADDR(MT7621_SYSC_BASE);
+ 	unsigned char *name = NULL;
+ 	u32 n0;
+ 	u32 n1;
+@@ -123,8 +122,8 @@ void __init prom_soc_init(struct ralink_soc_info *soc_info)
+ 		__sync();
  	}
- out:
-diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
-index f3e868f4cd9e..275c5ca9e04d 100644
---- a/net/ipv4/tcp_bpf.c
-+++ b/net/ipv4/tcp_bpf.c
-@@ -131,10 +131,9 @@ static int tcp_bpf_push_locked(struct sock *sk, struct sk_msg *msg,
- 	return ret;
- }
  
--int tcp_bpf_sendmsg_redir(struct sock *sk, struct sk_msg *msg,
--			  u32 bytes, int flags)
-+int tcp_bpf_sendmsg_redir(struct sock *sk, bool ingress,
-+			  struct sk_msg *msg, u32 bytes, int flags)
- {
--	bool ingress = sk_msg_to_ingress(msg);
- 	struct sk_psock *psock = sk_psock_get(sk);
- 	int ret;
+-	n0 = __raw_readl(sysc + SYSC_REG_CHIP_NAME0);
+-	n1 = __raw_readl(sysc + SYSC_REG_CHIP_NAME1);
++	n0 = __raw_readl(MT7621_SYSC_BASE + SYSC_REG_CHIP_NAME0);
++	n1 = __raw_readl(MT7621_SYSC_BASE + SYSC_REG_CHIP_NAME1);
  
-@@ -276,7 +275,7 @@ static int tcp_bpf_recvmsg(struct sock *sk, struct msghdr *msg, size_t len,
- static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
- 				struct sk_msg *msg, int *copied, int flags)
- {
--	bool cork = false, enospc = sk_msg_full(msg);
-+	bool cork = false, enospc = sk_msg_full(msg), redir_ingress;
- 	struct sock *sk_redir;
- 	u32 tosend, origsize, sent, delta = 0;
- 	u32 eval;
-@@ -322,6 +321,7 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
- 		sk_msg_apply_bytes(psock, tosend);
- 		break;
- 	case __SK_REDIRECT:
-+		redir_ingress = psock->redir_ingress;
- 		sk_redir = psock->sk_redir;
- 		sk_msg_apply_bytes(psock, tosend);
- 		if (!psock->apply_bytes) {
-@@ -338,7 +338,8 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
- 		release_sock(sk);
+ 	if (n0 == MT7621_CHIP_NAME0 && n1 == MT7621_CHIP_NAME1) {
+ 		name = "MT7621";
+@@ -133,7 +132,7 @@ void __init prom_soc_init(struct ralink_soc_info *soc_info)
+ 		panic("mt7621: unknown SoC, n0:%08x n1:%08x\n", n0, n1);
+ 	}
+ 	ralink_soc = MT762X_SOC_MT7621AT;
+-	rev = __raw_readl(sysc + SYSC_REG_CHIP_REV);
++	rev = __raw_readl(MT7621_SYSC_BASE + SYSC_REG_CHIP_REV);
  
- 		origsize = msg->sg.size;
--		ret = tcp_bpf_sendmsg_redir(sk_redir, msg, tosend, flags);
-+		ret = tcp_bpf_sendmsg_redir(sk_redir, redir_ingress,
-+					    msg, tosend, flags);
- 		sent = origsize - msg->sg.size;
- 
- 		if (eval == __SK_REDIRECT)
-diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
-index fe27241cd13f..0ee1df154fee 100644
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -792,7 +792,7 @@ static int bpf_exec_tx_verdict(struct sk_msg *msg, struct sock *sk,
- 	struct sk_psock *psock;
- 	struct sock *sk_redir;
- 	struct tls_rec *rec;
--	bool enospc, policy;
-+	bool enospc, policy, redir_ingress;
- 	int err = 0, send;
- 	u32 delta = 0;
- 
-@@ -837,6 +837,7 @@ static int bpf_exec_tx_verdict(struct sk_msg *msg, struct sock *sk,
- 		}
- 		break;
- 	case __SK_REDIRECT:
-+		redir_ingress = psock->redir_ingress;
- 		sk_redir = psock->sk_redir;
- 		memcpy(&msg_redir, msg, sizeof(*msg));
- 		if (msg->apply_bytes < send)
-@@ -846,7 +847,8 @@ static int bpf_exec_tx_verdict(struct sk_msg *msg, struct sock *sk,
- 		sk_msg_return_zero(sk, msg, send);
- 		msg->sg.size -= send;
- 		release_sock(sk);
--		err = tcp_bpf_sendmsg_redir(sk_redir, &msg_redir, send, flags);
-+		err = tcp_bpf_sendmsg_redir(sk_redir, redir_ingress,
-+					    &msg_redir, send, flags);
- 		lock_sock(sk);
- 		if (err < 0) {
- 			*copied -= sk_msg_free_nocharge(sk, &msg_redir);
+ 	snprintf(soc_info->sys_type, RAMIPS_SYS_TYPE_LEN,
+ 		"MediaTek %s ver:%u eco:%u",
 -- 
 2.35.1
 
