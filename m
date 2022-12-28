@@ -2,159 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15BE2658352
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:46:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2CD1657CF0
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:37:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234313AbiL1Qqa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:46:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36574 "EHLO
+        id S233504AbiL1Phk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:37:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234401AbiL1Qp6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:45:58 -0500
+        with ESMTP id S233913AbiL1Phi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:37:38 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AB241DA56
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:41:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F08016587
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:37:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2845461572
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:41:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BBB5C433D2;
-        Wed, 28 Dec 2022 16:41:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C79D6155C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:37:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2197DC433D2;
+        Wed, 28 Dec 2022 15:37:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245673;
-        bh=H850jVq67tVt0GSLkzOla16JWgCEzjxQpwzXPtGvzEg=;
+        s=korg; t=1672241857;
+        bh=v0mDm9n6Jd+Qgs90vqQ7Mq1h7st+wwTDa8QulsNcMGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yR443fSL0bMTPcqDiZu7l931MqzH2XhIY6soKvdsFiFOEvjb+yJYcxCeNKxl55H6I
-         clnsZDlcG8w/wH1n1Pn+hjhfo4+pWyIWCvd8fJ0lnzpuYRTFYdG/6GpnFeQB9hQTJZ
-         E163Teh++EBQ2pQfPs+CbWFIOw4M+V4j1IfLuKks=
+        b=Mx57kIeAyWo6OS8ICTrcPTFCyQPku7ao0JDF7d8KsWyanx4hs6u8uXxncCAHn9EyU
+         nppUp5QzU913i0q5OvnwS/x1fezJtyxulIh1+9/FLOx2ioh2LCeAXx3YGsSWzwQCfW
+         P9hn9FHbbNWdcRLuD32Rfua//XT6PwFqVGijLDss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Eric Biggers <ebiggers@google.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0903/1146] blk-crypto: pass a gendisk to blk_crypto_sysfs_{,un}register
+        patches@lists.linux.dev, Jon Hunter <jonathanh@nvidia.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 535/731] pwm: tegra: Improve required rate calculation
 Date:   Wed, 28 Dec 2022 15:40:42 +0100
-Message-Id: <20221228144354.740102648@linuxfoundation.org>
+Message-Id: <20221228144312.053496567@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Jon Hunter <jonathanh@nvidia.com>
 
-[ Upstream commit 450deb93df7d457cdd93594a1987f9650c749b96 ]
+[ Upstream commit f271946117dde2ca8741b8138b347b2d68e6ad56 ]
 
-Prepare for changes to the block layer sysfs handling by passing the
-readily available gendisk to blk_crypto_sysfs_{,un}register.
+For the case where dev_pm_opp_set_rate() is called to set the PWM clock
+rate, the requested rate is calculated as ...
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20221114042637.1009333-2-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Stable-dep-of: d36a9ea5e776 ("block: fix use-after-free of q->q_usage_counter")
+ required_clk_rate = (NSEC_PER_SEC / period_ns) << PWM_DUTY_WIDTH;
+
+The above calculation may lead to rounding errors because the
+NSEC_PER_SEC is divided by 'period_ns' before applying the
+PWM_DUTY_WIDTH multiplication factor. For example, if the period is
+45334ns, the above calculation yields a rate of 5646848Hz instead of
+5646976Hz. Fix this by applying the multiplication factor before
+dividing and using the DIV_ROUND_UP macro which yields the expected
+result of 5646976Hz.
+
+Fixes: 1d7796bdb63a ("pwm: tegra: Support dynamic clock frequency configuration")
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-crypto-internal.h | 10 ++++++----
- block/blk-crypto-sysfs.c    |  7 ++++---
- block/blk-sysfs.c           |  4 ++--
- 3 files changed, 12 insertions(+), 9 deletions(-)
+ drivers/pwm/pwm-tegra.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/block/blk-crypto-internal.h b/block/blk-crypto-internal.h
-index e6818ffaddbf..b8a00847171f 100644
---- a/block/blk-crypto-internal.h
-+++ b/block/blk-crypto-internal.h
-@@ -21,9 +21,9 @@ extern const struct blk_crypto_mode blk_crypto_modes[];
+diff --git a/drivers/pwm/pwm-tegra.c b/drivers/pwm/pwm-tegra.c
+index 11a10b575ace..2735a97906fd 100644
+--- a/drivers/pwm/pwm-tegra.c
++++ b/drivers/pwm/pwm-tegra.c
+@@ -142,8 +142,8 @@ static int tegra_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
+ 		 * source clock rate as required_clk_rate, PWM controller will
+ 		 * be able to configure the requested period.
+ 		 */
+-		required_clk_rate =
+-			(NSEC_PER_SEC / period_ns) << PWM_DUTY_WIDTH;
++		required_clk_rate = DIV_ROUND_UP_ULL(NSEC_PER_SEC << PWM_DUTY_WIDTH,
++						     period_ns);
  
- #ifdef CONFIG_BLK_INLINE_ENCRYPTION
- 
--int blk_crypto_sysfs_register(struct request_queue *q);
-+int blk_crypto_sysfs_register(struct gendisk *disk);
- 
--void blk_crypto_sysfs_unregister(struct request_queue *q);
-+void blk_crypto_sysfs_unregister(struct gendisk *disk);
- 
- void bio_crypt_dun_increment(u64 dun[BLK_CRYPTO_DUN_ARRAY_SIZE],
- 			     unsigned int inc);
-@@ -67,12 +67,14 @@ static inline bool blk_crypto_rq_is_encrypted(struct request *rq)
- 
- #else /* CONFIG_BLK_INLINE_ENCRYPTION */
- 
--static inline int blk_crypto_sysfs_register(struct request_queue *q)
-+static inline int blk_crypto_sysfs_register(struct gendisk *disk)
- {
- 	return 0;
- }
- 
--static inline void blk_crypto_sysfs_unregister(struct request_queue *q) { }
-+static inline void blk_crypto_sysfs_unregister(struct gendisk *disk)
-+{
-+}
- 
- static inline bool bio_crypt_rq_ctx_compatible(struct request *rq,
- 					       struct bio *bio)
-diff --git a/block/blk-crypto-sysfs.c b/block/blk-crypto-sysfs.c
-index fd93bd2f33b7..e05f145cd797 100644
---- a/block/blk-crypto-sysfs.c
-+++ b/block/blk-crypto-sysfs.c
-@@ -126,8 +126,9 @@ static struct kobj_type blk_crypto_ktype = {
-  * If the request_queue has a blk_crypto_profile, create the "crypto"
-  * subdirectory in sysfs (/sys/block/$disk/queue/crypto/).
-  */
--int blk_crypto_sysfs_register(struct request_queue *q)
-+int blk_crypto_sysfs_register(struct gendisk *disk)
- {
-+	struct request_queue *q = disk->queue;
- 	struct blk_crypto_kobj *obj;
- 	int err;
- 
-@@ -149,9 +150,9 @@ int blk_crypto_sysfs_register(struct request_queue *q)
- 	return 0;
- }
- 
--void blk_crypto_sysfs_unregister(struct request_queue *q)
-+void blk_crypto_sysfs_unregister(struct gendisk *disk)
- {
--	kobject_put(q->crypto_kobject);
-+	kobject_put(disk->queue->crypto_kobject);
- }
- 
- static int __init blk_crypto_sysfs_init(void)
-diff --git a/block/blk-sysfs.c b/block/blk-sysfs.c
-index e7871665825a..2b1cf0b2a5c7 100644
---- a/block/blk-sysfs.c
-+++ b/block/blk-sysfs.c
-@@ -833,7 +833,7 @@ int blk_register_queue(struct gendisk *disk)
- 			goto put_dev;
- 	}
- 
--	ret = blk_crypto_sysfs_register(q);
-+	ret = blk_crypto_sysfs_register(disk);
- 	if (ret)
- 		goto put_dev;
- 
-@@ -910,7 +910,7 @@ void blk_unregister_queue(struct gendisk *disk)
- 	 */
- 	if (queue_is_mq(q))
- 		blk_mq_sysfs_unregister(disk);
--	blk_crypto_sysfs_unregister(q);
-+	blk_crypto_sysfs_unregister(disk);
- 
- 	mutex_lock(&q->sysfs_lock);
- 	elv_unregister_queue(q);
+ 		err = clk_set_rate(pc->clk, required_clk_rate);
+ 		if (err < 0)
 -- 
 2.35.1
 
