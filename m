@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E057657BFD
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:28:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB514657AEC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:16:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233769AbiL1P1v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:27:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45852 "EHLO
+        id S233126AbiL1PQW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:16:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233795AbiL1P1j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:27:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D208D14038
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:27:38 -0800 (PST)
+        with ESMTP id S233052AbiL1PQV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:16:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A566F10BF
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:16:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8694EB816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:27:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4D65C433F2;
-        Wed, 28 Dec 2022 15:27:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 40EF26155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:16:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53710C433D2;
+        Wed, 28 Dec 2022 15:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241256;
-        bh=QSM/P7uHKbIBIyOmWg1RBOnaRqFfbonn7XTW45BAUyc=;
+        s=korg; t=1672240579;
+        bh=Jd8K+jkkZkbgbn3LMA0FQ8m7KSnhp/xrdIKxgjwQKow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HFfA79ZPjp+WM+7CWfhzT64JmBOh9dbFLravlksRj5ccKLpQasf4MIfljhz9Bgvqd
-         96gAhLclZnewSlsj5hx+Z3lbFZdTFIa0G2NbaHMP2QqxaenYX0a9S/kD1eaINBfjnJ
-         auKAYCOvGAmkqYU8qePe6DgcRaeDSfyswE8PxUEI=
+        b=RagC89GbmmpxhYat1jht22WDDc4WHL7gUhyVKPotTRcgyCsRiCoVZF8ArkFIQ0ZNY
+         vtCvztfl7vt6tcUh3n99iDlConyxHBKYnBYXx5EFAeuahixnI6LrE4hsFVE1HkWEYT
+         cN+yydIe9y3za7bn5qy4MvHe3K9AI2zLp6w/dGB4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Gerhard Engleder <gerhard@engleder-embedded.com>,
-        Andy Gospodarek <gospo@broadcom.com>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0225/1146] samples/bpf: Fix MAC address swapping in xdp2_kern
-Date:   Wed, 28 Dec 2022 15:29:24 +0100
-Message-Id: <20221228144336.254724826@linuxfoundation.org>
+Subject: [PATCH 6.0 0177/1073] lockd: set other missing fields when unlocking files
+Date:   Wed, 28 Dec 2022 15:29:25 +0100
+Message-Id: <20221228144332.817979687@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerhard Engleder <gerhard@engleder-embedded.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 7a698edf954cb3f8b6e8dacdb77615355170420c ]
+[ Upstream commit 18ebd35b61b4693a0ddc270b6d4f18def232e770 ]
 
-xdp2_kern rewrites and forwards packets out on the same interface.
-Forwarding still works but rewrite got broken when xdp multibuffer
-support has been added.
+vfs_lock_file() expects the struct file_lock to be fully initialised by
+the caller. Re-exported NFSv3 has been seen to Oops if the fl_file field
+is NULL.
 
-With xdp multibuffer a local copy of the packet has been introduced. The
-MAC address is now swapped in the local copy, but the local copy in not
-written back.
-
-Fix MAC address swapping be adding write back of modified packet.
-
-Fixes: 772251742262 ("samples/bpf: fixup some tools to be able to support xdp multibuffer")
-Signed-off-by: Gerhard Engleder <gerhard@engleder-embedded.com>
-Reviewed-by: Andy Gospodarek <gospo@broadcom.com>
-Link: https://lore.kernel.org/r/20221015213050.65222-1-gerhard@engleder-embedded.com
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Fixes: aec158242b87 ("lockd: set fl_owner when unlocking files")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216582
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/xdp2_kern.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/lockd/svcsubs.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/samples/bpf/xdp2_kern.c b/samples/bpf/xdp2_kern.c
-index 3332ba6bb95f..67804ecf7ce3 100644
---- a/samples/bpf/xdp2_kern.c
-+++ b/samples/bpf/xdp2_kern.c
-@@ -112,6 +112,10 @@ int xdp_prog1(struct xdp_md *ctx)
- 
- 	if (ipproto == IPPROTO_UDP) {
- 		swap_src_dst_mac(data);
-+
-+		if (bpf_xdp_store_bytes(ctx, 0, pkt, sizeof(pkt)))
-+			return rc;
-+
- 		rc = XDP_TX;
+diff --git a/fs/lockd/svcsubs.c b/fs/lockd/svcsubs.c
+index e1c4617de771..3515f17eaf3f 100644
+--- a/fs/lockd/svcsubs.c
++++ b/fs/lockd/svcsubs.c
+@@ -176,7 +176,7 @@ nlm_delete_file(struct nlm_file *file)
  	}
+ }
  
+-static int nlm_unlock_files(struct nlm_file *file, fl_owner_t owner)
++static int nlm_unlock_files(struct nlm_file *file, const struct file_lock *fl)
+ {
+ 	struct file_lock lock;
+ 
+@@ -184,12 +184,15 @@ static int nlm_unlock_files(struct nlm_file *file, fl_owner_t owner)
+ 	lock.fl_type  = F_UNLCK;
+ 	lock.fl_start = 0;
+ 	lock.fl_end   = OFFSET_MAX;
+-	lock.fl_owner = owner;
+-	if (file->f_file[O_RDONLY] &&
+-	    vfs_lock_file(file->f_file[O_RDONLY], F_SETLK, &lock, NULL))
++	lock.fl_owner = fl->fl_owner;
++	lock.fl_pid   = fl->fl_pid;
++	lock.fl_flags = FL_POSIX;
++
++	lock.fl_file = file->f_file[O_RDONLY];
++	if (lock.fl_file && vfs_lock_file(lock.fl_file, F_SETLK, &lock, NULL))
+ 		goto out_err;
+-	if (file->f_file[O_WRONLY] &&
+-	    vfs_lock_file(file->f_file[O_WRONLY], F_SETLK, &lock, NULL))
++	lock.fl_file = file->f_file[O_WRONLY];
++	if (lock.fl_file && vfs_lock_file(lock.fl_file, F_SETLK, &lock, NULL))
+ 		goto out_err;
+ 	return 0;
+ out_err:
+@@ -226,7 +229,7 @@ nlm_traverse_locks(struct nlm_host *host, struct nlm_file *file,
+ 		if (match(lockhost, host)) {
+ 
+ 			spin_unlock(&flctx->flc_lock);
+-			if (nlm_unlock_files(file, fl->fl_owner))
++			if (nlm_unlock_files(file, fl))
+ 				return 1;
+ 			goto again;
+ 		}
 -- 
 2.35.1
 
