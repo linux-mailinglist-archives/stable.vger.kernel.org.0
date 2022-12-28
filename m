@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 516E96583A2
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:49:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1116658471
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235139AbiL1Qt3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:49:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40218 "EHLO
+        id S235252AbiL1Q5O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:57:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235158AbiL1QtI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:49:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B69C61BEB6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:44:29 -0800 (PST)
+        with ESMTP id S235269AbiL1Q42 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:56:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 268D01F620
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:52:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 54BCD6155B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:44:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6490AC433F1;
-        Wed, 28 Dec 2022 16:44:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B736860D41
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:52:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C09E1C433D2;
+        Wed, 28 Dec 2022 16:52:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245868;
-        bh=L8aI6zpMCK6k+RVf1stpAquGtD/tHaTUqbsuYkzbmi0=;
+        s=korg; t=1672246323;
+        bh=PQTkkO2TEez+Hevl8IFWz7Fj4RaHB0oBJSP09rZ7HLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HdipC2fKhfl1qav5C/8NRBT2kHWes84ZxAuY0YWmiXENHHXnr+dUW6CzQRWfTUKhj
-         ZdrdwWrdD9q8D02894/R3WaEJK0lzC3HS1pJsa/491bhLDEvkRtPO7L55QbdMNNnFE
-         op6lsK9d4OzRBKbyEDlcz9sjUqq8h+i9E2H05Vvw=
+        b=YAsIN9iThNwJKaxkGFQpJV1pJ32H6v0ITqAmwmCTU9au1Gsw/viYgq3ezJncoW63v
+         QOxw2lXJ8Mgke+s/0QrSzv89aCyPwk3EoarDK3854qtXNmyev4rjUo8U/IcLnj8YM+
+         KiV+NFcH1pGObec4CdL363mEDOffDNUR+xefhu4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+9ca7a12fd736d93e0232@syzkaller.appspotmail.com,
-        Shigeru Yoshida <syoshida@redhat.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Maxim Korotkov <korotkov.maxim.s@gmail.com>,
+        Alexander Lobakin <alexandr.lobakin@intel.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0972/1073] media: si470x: Fix use-after-free in si470x_int_in_callback()
+Subject: [PATCH 6.1 1021/1146] ethtool: avoiding integer overflow in ethtool_phys_id()
 Date:   Wed, 28 Dec 2022 15:42:40 +0100
-Message-Id: <20221228144354.466133352@linuxfoundation.org>
+Message-Id: <20221228144358.102950763@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shigeru Yoshida <syoshida@redhat.com>
+From: Maxim Korotkov <korotkov.maxim.s@gmail.com>
 
-[ Upstream commit 7d21e0b1b41b21d628bf2afce777727bd4479aa5 ]
+[ Upstream commit 64a8f8f7127da228d59a39e2c5e75f86590f90b4 ]
 
-syzbot reported use-after-free in si470x_int_in_callback() [1].  This
-indicates that urb->context, which contains struct si470x_device
-object, is freed when si470x_int_in_callback() is called.
+The value of an arithmetic expression "n * id.data" is subject
+to possible overflow due to a failure to cast operands to a larger data
+type before performing arithmetic. Used macro for multiplication instead
+operator for avoiding overflow.
 
-The cause of this issue is that si470x_int_in_callback() is called for
-freed urb.
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-si470x_usb_driver_probe() calls si470x_start_usb(), which then calls
-usb_submit_urb() and si470x_start().  If si470x_start_usb() fails,
-si470x_usb_driver_probe() doesn't kill urb, but it just frees struct
-si470x_device object, as depicted below:
-
-si470x_usb_driver_probe()
-  ...
-  si470x_start_usb()
-    ...
-    usb_submit_urb()
-    retval = si470x_start()
-    return retval
-  if (retval < 0)
-    free struct si470x_device object, but don't kill urb
-
-This patch fixes this issue by killing urb when si470x_start_usb()
-fails and urb is submitted.  If si470x_start_usb() fails and urb is
-not submitted, i.e. submitting usb fails, it just frees struct
-si470x_device object.
-
-Reported-by: syzbot+9ca7a12fd736d93e0232@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=94ed6dddd5a55e90fd4bab942aa4bb297741d977 [1]
-Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Maxim Korotkov <korotkov.maxim.s@gmail.com>
+Reviewed-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20221122122901.22294-1-korotkov.maxim.s@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/radio/si470x/radio-si470x-usb.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/ethtool/ioctl.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/radio/si470x/radio-si470x-usb.c b/drivers/media/radio/si470x/radio-si470x-usb.c
-index 6b2768623c88..aa7a580dbecc 100644
---- a/drivers/media/radio/si470x/radio-si470x-usb.c
-+++ b/drivers/media/radio/si470x/radio-si470x-usb.c
-@@ -727,8 +727,10 @@ static int si470x_usb_driver_probe(struct usb_interface *intf,
+diff --git a/net/ethtool/ioctl.c b/net/ethtool/ioctl.c
+index 57e7238a4136..81fe2422fe58 100644
+--- a/net/ethtool/ioctl.c
++++ b/net/ethtool/ioctl.c
+@@ -2008,7 +2008,8 @@ static int ethtool_phys_id(struct net_device *dev, void __user *useraddr)
+ 	} else {
+ 		/* Driver expects to be called at twice the frequency in rc */
+ 		int n = rc * 2, interval = HZ / n;
+-		u64 count = n * id.data, i = 0;
++		u64 count = mul_u32_u32(n, id.data);
++		u64 i = 0;
  
- 	/* start radio */
- 	retval = si470x_start_usb(radio);
--	if (retval < 0)
-+	if (retval < 0 && !radio->int_in_running)
- 		goto err_buf;
-+	else if (retval < 0)	/* in case of radio->int_in_running == 1 */
-+		goto err_all;
- 
- 	/* set initial frequency */
- 	si470x_set_freq(radio, 87.5 * FREQ_MUL); /* available in all regions */
+ 		do {
+ 			rtnl_lock();
 -- 
 2.35.1
 
