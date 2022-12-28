@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CA766578EF
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:55:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F32BF657F5D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:04:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233249AbiL1Ozw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:55:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43558 "EHLO
+        id S232959AbiL1QES (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:04:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233121AbiL1Ozt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:55:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E694AB31
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:55:47 -0800 (PST)
+        with ESMTP id S234267AbiL1QEB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:04:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9693CF58C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:04:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9C7AAB816D6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:55:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19006C433D2;
-        Wed, 28 Dec 2022 14:55:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 34AFEB8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:03:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82A43C433EF;
+        Wed, 28 Dec 2022 16:03:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239345;
-        bh=j1ALrGnqB1XDxRqxmm5sH6hFPd/6VMxh/l/c1wBe1A4=;
+        s=korg; t=1672243437;
+        bh=pDYmob6WaIS91pyoxGGAyqw7p191uVHX15Av8NEccFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MG9W0pBxtaLVxFp5ptDKS4dj84YDoGrF8cs4GrKIWwW7ZjuImF0vdBQfHg632AtVW
-         H5txJaFnS71Ew9OVwqedzU5xq0CUt7W5yOgCTUvok0ShQT+WhQunBHVOWjjhpz1JsH
-         AVEZYB0bJPLmTJ0+ACV64smuXPGnlWack1pVzp8Y=
+        b=jXDpvN1pWtK48CzuxdqLpftCikknvrhzwc0dx8l9h9TyUvNOjnzzCjX6yEB4MXxU/
+         Gk2Q2/OzMUvWq5HoybCOaRIN/jhXO9QoCvTQVR+Hbklm35AvhfoKXF7ixMEfYg3hzc
+         GEPFFzXR45foZzjCF6OpAbBwWUT0vTQO3xTpk7VE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hui Tang <tanghui20@huawei.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        patches@lists.linux.dev, Tom Lendacky <thomas.lendacky@amd.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 209/731] mtd: lpddr2_nvm: Fix possible null-ptr-deref
-Date:   Wed, 28 Dec 2022 15:35:16 +0100
-Message-Id: <20221228144302.616391393@linuxfoundation.org>
+Subject: [PATCH 6.0 0529/1073] net: amd-xgbe: Fix logic around active and passive cables
+Date:   Wed, 28 Dec 2022 15:35:17 +0100
+Message-Id: <20221228144342.413306645@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Tang <tanghui20@huawei.com>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-[ Upstream commit 6bdd45d795adf9e73b38ced5e7f750cd199499ff ]
+[ Upstream commit 4998006c73afe44e2f639d55bd331c6c26eb039f ]
 
-It will cause null-ptr-deref when resource_size(add_range) invoked,
-if platform_get_resource() returns NULL.
+SFP+ active and passive cables are copper cables with fixed SFP+ end
+connectors. Due to a misinterpretation of this, SFP+ active cables could
+end up not being recognized, causing the driver to fail to establish a
+connection.
 
-Fixes: 96ba9dd65788 ("mtd: lpddr: add driver for LPDDR2-NVM PCM memories")
-Signed-off-by: Hui Tang <tanghui20@huawei.com>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20221114090240.244172-1-tanghui20@huawei.com
+Introduce a new enum in SFP+ cable types, XGBE_SFP_CABLE_FIBER, that is
+the default cable type, and handle active and passive cables when they are
+specifically detected.
+
+Fixes: abf0a1c2b26a ("amd-xgbe: Add support for SFP+ modules")
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/lpddr/lpddr2_nvm.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mtd/lpddr/lpddr2_nvm.c b/drivers/mtd/lpddr/lpddr2_nvm.c
-index 72f5c7b30079..add4386f99f0 100644
---- a/drivers/mtd/lpddr/lpddr2_nvm.c
-+++ b/drivers/mtd/lpddr/lpddr2_nvm.c
-@@ -433,6 +433,8 @@ static int lpddr2_nvm_probe(struct platform_device *pdev)
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+index 601a9f2fa9bf..c7b0d69ee62f 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+@@ -189,6 +189,7 @@ enum xgbe_sfp_cable {
+ 	XGBE_SFP_CABLE_UNKNOWN = 0,
+ 	XGBE_SFP_CABLE_ACTIVE,
+ 	XGBE_SFP_CABLE_PASSIVE,
++	XGBE_SFP_CABLE_FIBER,
+ };
  
- 	/* lpddr2_nvm address range */
- 	add_range = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!add_range)
-+		return -ENODEV;
+ enum xgbe_sfp_base {
+@@ -1149,16 +1150,18 @@ static void xgbe_phy_sfp_parse_eeprom(struct xgbe_prv_data *pdata)
+ 	phy_data->sfp_tx_fault = xgbe_phy_check_sfp_tx_fault(phy_data);
+ 	phy_data->sfp_rx_los = xgbe_phy_check_sfp_rx_los(phy_data);
  
- 	/* Populate map_info data structure */
- 	*map = (struct map_info) {
+-	/* Assume ACTIVE cable unless told it is PASSIVE */
++	/* Assume FIBER cable unless told otherwise */
+ 	if (sfp_base[XGBE_SFP_BASE_CABLE] & XGBE_SFP_BASE_CABLE_PASSIVE) {
+ 		phy_data->sfp_cable = XGBE_SFP_CABLE_PASSIVE;
+ 		phy_data->sfp_cable_len = sfp_base[XGBE_SFP_BASE_CU_CABLE_LEN];
+-	} else {
++	} else if (sfp_base[XGBE_SFP_BASE_CABLE] & XGBE_SFP_BASE_CABLE_ACTIVE) {
+ 		phy_data->sfp_cable = XGBE_SFP_CABLE_ACTIVE;
++	} else {
++		phy_data->sfp_cable = XGBE_SFP_CABLE_FIBER;
+ 	}
+ 
+ 	/* Determine the type of SFP */
+-	if (phy_data->sfp_cable == XGBE_SFP_CABLE_PASSIVE &&
++	if (phy_data->sfp_cable != XGBE_SFP_CABLE_FIBER &&
+ 	    xgbe_phy_sfp_bit_rate(sfp_eeprom, XGBE_SFP_SPEED_10000))
+ 		phy_data->sfp_base = XGBE_SFP_BASE_10000_CR;
+ 	else if (sfp_base[XGBE_SFP_BASE_10GBE_CC] & XGBE_SFP_BASE_10GBE_CC_SR)
 -- 
 2.35.1
 
