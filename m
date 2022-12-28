@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11146657AA5
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:14:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58791657BBF
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:25:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232723AbiL1POG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:14:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59786 "EHLO
+        id S233737AbiL1PZC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:25:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233192AbiL1PN3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:13:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B08313E0C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:13:16 -0800 (PST)
+        with ESMTP id S233742AbiL1PYz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:24:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AD8214094
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:24:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3E2CB816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:13:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CAD1C433EF;
-        Wed, 28 Dec 2022 15:13:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D48461544
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:24:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA729C433EF;
+        Wed, 28 Dec 2022 15:24:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240393;
-        bh=j76NZNX+VuyFiUsR6EsmZCpiE7DtsTkC7Vrl3ZjW4XU=;
+        s=korg; t=1672241093;
+        bh=NGARQIiPfuEkAt7iOMcn4IBrJvH1vv0aMMd7XSuptFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZyzHo8H7r6yzoQC0CAiBhmvhFvpIOi/JlUgcGo4IPSi/HGoK+s+FkcX4jbDss6QfJ
-         4Kw2op8U+lxWzQRH+jgTSOvT7QLzo98DoL5KOLwdaeJjNoo5BB8u1oh5uAoD+ai165
-         J1eKiJxRQkGB/L3yxGUBuwR2jMYLKloaySr0NNu4=
+        b=vvai6RqOkKGNuREaV1WoV3GSRnN0RqVYpLU1Jwx1iUT6Y82HE85FBAupCtAGs3BGW
+         Q6ZSc62POzr4fdlaTVbQG3fx4ejiAtTpKA/DIOCfkd6B54riJKdLOnI2kSMUymu+HL
+         Qlpwhh1+28BFxCsiWIVNtRLhxm5jZDGu32S0koqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexey Izbyshev <izbyshev@ispras.ru>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0155/1073] futex: Resend potentially swallowed owner death notification
+Subject: [PATCH 6.1 0204/1146] drm/bridge: adv7533: remove dynamic lane switching from adv7533 bridge
 Date:   Wed, 28 Dec 2022 15:29:03 +0100
-Message-Id: <20221228144332.231482688@linuxfoundation.org>
+Message-Id: <20221228144335.689984707@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,102 +55,225 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Izbyshev <izbyshev@ispras.ru>
+From: Abhinav Kumar <quic_abhinavk@quicinc.com>
 
-[ Upstream commit 90d758896787048fa3d4209309d4800f3920e66f ]
+[ Upstream commit 9a0cdcd6649b76f0b7ceec0e55b0a718321e34d3 ]
 
-Commit ca16d5bee598 ("futex: Prevent robust futex exit race") addressed
-two cases when tasks waiting on a robust non-PI futex remained blocked
-despite the futex not being owned anymore:
+adv7533 bridge tries to dynamically switch lanes based on the
+mode by detaching and attaching the mipi dsi device.
 
-* if the owner died after writing zero to the futex word, but before
-  waking up a waiter
+This approach is incorrect because this method of dynamic switch of
+detaching and attaching the mipi dsi device also results in removing
+and adding the component which is not necessary.
 
-* if a task waiting on the futex was woken up, but died before updating
-  the futex word (effectively swallowing the notification without acting
-  on it)
+This approach is also prone to deadlocks. So for example, on the
+db410c whenever this path is executed with lockdep enabled,
+this results in a deadlock due to below ordering of locks.
 
-In the second case, the task could be woken up either by the previous
-owner (after the futex word was reset to zero) or by the kernel (after
-the OWNER_DIED bit was set and the TID part of the futex word was reset
-to zero) if the previous owner died without the resetting the futex.
+-> #1 (crtc_ww_class_acquire){+.+.}-{0:0}:
+        lock_acquire+0x6c/0x90
+        drm_modeset_acquire_init+0xf4/0x150
+        drmm_mode_config_init+0x220/0x770
+        msm_drm_bind+0x13c/0x654
+        try_to_bring_up_aggregate_device+0x164/0x1d0
+        __component_add+0xa8/0x174
+        component_add+0x18/0x2c
+        dsi_dev_attach+0x24/0x30
+        dsi_host_attach+0x98/0x14c
+        devm_mipi_dsi_attach+0x38/0xb0
+        adv7533_attach_dsi+0x8c/0x110
+        adv7511_probe+0x5a0/0x930
+        i2c_device_probe+0x30c/0x350
+        really_probe.part.0+0x9c/0x2b0
+        __driver_probe_device+0x98/0x144
+        driver_probe_device+0xac/0x14c
+        __device_attach_driver+0xbc/0x124
+        bus_for_each_drv+0x78/0xd0
+        __device_attach+0xa8/0x1c0
+        device_initial_probe+0x18/0x24
+        bus_probe_device+0xa0/0xac
+        deferred_probe_work_func+0x90/0xd0
+        process_one_work+0x28c/0x6b0
+        worker_thread+0x240/0x444
+        kthread+0x110/0x114
+        ret_from_fork+0x10/0x20
 
-Because the referenced commit wakes up a potential waiter only if the
-whole futex word is zero, the latter subcase remains unaddressed.
+-> #0 (component_mutex){+.+.}-{3:3}:
+        __lock_acquire+0x1280/0x20ac
+        lock_acquire.part.0+0xe0/0x230
+        lock_acquire+0x6c/0x90
+        __mutex_lock+0x84/0x400
+        mutex_lock_nested+0x3c/0x70
+        component_del+0x34/0x170
+        dsi_dev_detach+0x24/0x30
+        dsi_host_detach+0x20/0x64
+        mipi_dsi_detach+0x2c/0x40
+        adv7533_mode_set+0x64/0x90
+        adv7511_bridge_mode_set+0x210/0x214
+        drm_bridge_chain_mode_set+0x5c/0x84
+        crtc_set_mode+0x18c/0x1dc
+        drm_atomic_helper_commit_modeset_disables+0x40/0x50
+        msm_atomic_commit_tail+0x1d0/0x6e0
+        commit_tail+0xa4/0x180
+        drm_atomic_helper_commit+0x178/0x3b0
+        drm_atomic_commit+0xa4/0xe0
+        drm_client_modeset_commit_atomic+0x228/0x284
+        drm_client_modeset_commit_locked+0x64/0x1d0
+        drm_client_modeset_commit+0x34/0x60
+        drm_fb_helper_lastclose+0x74/0xcc
+        drm_lastclose+0x3c/0x80
+        drm_release+0xfc/0x114
+        __fput+0x70/0x224
+        ____fput+0x14/0x20
+        task_work_run+0x88/0x1a0
+        do_exit+0x350/0xa50
+        do_group_exit+0x38/0xa4
+        __wake_up_parent+0x0/0x34
+        invoke_syscall+0x48/0x114
+        el0_svc_common.constprop.0+0x60/0x11c
+        do_el0_svc+0x30/0xc0
+        el0_svc+0x58/0x100
+        el0t_64_sync_handler+0x1b0/0x1bc
+        el0t_64_sync+0x18c/0x190
 
-Fix this by looking only at the TID part of the futex when deciding
-whether a wake up is needed.
+Due to above reasons, remove the dynamic lane switching
+code from adv7533 bridge chip and filter out the modes
+which would need different number of lanes as compared
+to the initialization time using the mode_valid callback.
 
-Fixes: ca16d5bee598 ("futex: Prevent robust futex exit race")
-Signed-off-by: Alexey Izbyshev <izbyshev@ispras.ru>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20221111215439.248185-1-izbyshev@ispras.ru
+This can be potentially re-introduced by using the pre_enable()
+callback but this needs to be evaluated first whether such an
+approach will work so this will be done with a separate change.
+
+changes since RFC:
+	- Fix commit text and add TODO comment
+
+changes in v2:
+	- Fix checkpatch formatting errors
+
+Fixes: 62b2f026cd8e ("drm/bridge: adv7533: Change number of DSI lanes dynamically")
+Closes: https://gitlab.freedesktop.org/drm/msm/-/issues/16
+Suggested-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Link: https://lore.kernel.org/r/1661797363-7564-1-git-send-email-quic_abhinavk@quicinc.com
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/1665522649-3423-1-git-send-email-quic_abhinavk@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/futex/core.c | 26 +++++++++++++++++---------
- 1 file changed, 17 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/bridge/adv7511/adv7511.h     |  3 ++-
+ drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 18 ++++++++++----
+ drivers/gpu/drm/bridge/adv7511/adv7533.c     | 25 ++++++++++----------
+ 3 files changed, 29 insertions(+), 17 deletions(-)
 
-diff --git a/kernel/futex/core.c b/kernel/futex/core.c
-index b22ef1efe751..514e4582b863 100644
---- a/kernel/futex/core.c
-+++ b/kernel/futex/core.c
-@@ -638,6 +638,7 @@ static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr,
- 			      bool pi, bool pending_op)
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511.h b/drivers/gpu/drm/bridge/adv7511/adv7511.h
+index 94de73cbeb2d..17445800248d 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511.h
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511.h
+@@ -402,7 +402,8 @@ static inline int adv7511_cec_init(struct device *dev, struct adv7511 *adv7511)
+ 
+ void adv7533_dsi_power_on(struct adv7511 *adv);
+ void adv7533_dsi_power_off(struct adv7511 *adv);
+-void adv7533_mode_set(struct adv7511 *adv, const struct drm_display_mode *mode);
++enum drm_mode_status adv7533_mode_valid(struct adv7511 *adv,
++					const struct drm_display_mode *mode);
+ int adv7533_patch_registers(struct adv7511 *adv);
+ int adv7533_patch_cec_registers(struct adv7511 *adv);
+ int adv7533_attach_dsi(struct adv7511 *adv);
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+index f887200e8abc..78b72739e5c3 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+@@ -697,7 +697,7 @@ adv7511_detect(struct adv7511 *adv7511, struct drm_connector *connector)
+ }
+ 
+ static enum drm_mode_status adv7511_mode_valid(struct adv7511 *adv7511,
+-			      struct drm_display_mode *mode)
++			      const struct drm_display_mode *mode)
  {
- 	u32 uval, nval, mval;
-+	pid_t owner;
- 	int err;
+ 	if (mode->clock > 165000)
+ 		return MODE_CLOCK_HIGH;
+@@ -791,9 +791,6 @@ static void adv7511_mode_set(struct adv7511 *adv7511,
+ 	regmap_update_bits(adv7511->regmap, 0x17,
+ 		0x60, (vsync_polarity << 6) | (hsync_polarity << 5));
  
- 	/* Futex address must be 32bit aligned */
-@@ -659,6 +660,10 @@ static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr,
- 	 * 2. A woken up waiter is killed before it can acquire the
- 	 *    futex in user space.
- 	 *
-+	 * In the second case, the wake up notification could be generated
-+	 * by the unlock path in user space after setting the futex value
-+	 * to zero or by the kernel after setting the OWNER_DIED bit below.
-+	 *
- 	 * In both cases the TID validation below prevents a wakeup of
- 	 * potential waiters which can cause these waiters to block
- 	 * forever.
-@@ -667,24 +672,27 @@ static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr,
- 	 *
- 	 *	1) task->robust_list->list_op_pending != NULL
- 	 *	   @pending_op == true
--	 *	2) User space futex value == 0
-+	 *	2) The owner part of user space futex value == 0
- 	 *	3) Regular futex: @pi == false
- 	 *
- 	 * If these conditions are met, it is safe to attempt waking up a
- 	 * potential waiter without touching the user space futex value and
--	 * trying to set the OWNER_DIED bit. The user space futex value is
--	 * uncontended and the rest of the user space mutex state is
--	 * consistent, so a woken waiter will just take over the
--	 * uncontended futex. Setting the OWNER_DIED bit would create
--	 * inconsistent state and malfunction of the user space owner died
--	 * handling.
-+	 * trying to set the OWNER_DIED bit. If the futex value is zero,
-+	 * the rest of the user space mutex state is consistent, so a woken
-+	 * waiter will just take over the uncontended futex. Setting the
-+	 * OWNER_DIED bit would create inconsistent state and malfunction
-+	 * of the user space owner died handling. Otherwise, the OWNER_DIED
-+	 * bit is already set, and the woken waiter is expected to deal with
-+	 * this.
- 	 */
--	if (pending_op && !pi && !uval) {
-+	owner = uval & FUTEX_TID_MASK;
-+
-+	if (pending_op && !pi && !owner) {
- 		futex_wake(uaddr, 1, 1, FUTEX_BITSET_MATCH_ANY);
- 		return 0;
- 	}
- 
--	if ((uval & FUTEX_TID_MASK) != task_pid_vnr(curr))
-+	if (owner != task_pid_vnr(curr))
- 		return 0;
+-	if (adv7511->type == ADV7533 || adv7511->type == ADV7535)
+-		adv7533_mode_set(adv7511, adj_mode);
+-
+ 	drm_mode_copy(&adv7511->curr_mode, adj_mode);
  
  	/*
+@@ -913,6 +910,18 @@ static void adv7511_bridge_mode_set(struct drm_bridge *bridge,
+ 	adv7511_mode_set(adv, mode, adj_mode);
+ }
+ 
++static enum drm_mode_status adv7511_bridge_mode_valid(struct drm_bridge *bridge,
++						      const struct drm_display_info *info,
++		const struct drm_display_mode *mode)
++{
++	struct adv7511 *adv = bridge_to_adv7511(bridge);
++
++	if (adv->type == ADV7533 || adv->type == ADV7535)
++		return adv7533_mode_valid(adv, mode);
++	else
++		return adv7511_mode_valid(adv, mode);
++}
++
+ static int adv7511_bridge_attach(struct drm_bridge *bridge,
+ 				 enum drm_bridge_attach_flags flags)
+ {
+@@ -960,6 +969,7 @@ static const struct drm_bridge_funcs adv7511_bridge_funcs = {
+ 	.enable = adv7511_bridge_enable,
+ 	.disable = adv7511_bridge_disable,
+ 	.mode_set = adv7511_bridge_mode_set,
++	.mode_valid = adv7511_bridge_mode_valid,
+ 	.attach = adv7511_bridge_attach,
+ 	.detect = adv7511_bridge_detect,
+ 	.get_edid = adv7511_bridge_get_edid,
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7533.c b/drivers/gpu/drm/bridge/adv7511/adv7533.c
+index ef6270806d1d..258c79d4dab0 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7533.c
++++ b/drivers/gpu/drm/bridge/adv7511/adv7533.c
+@@ -100,26 +100,27 @@ void adv7533_dsi_power_off(struct adv7511 *adv)
+ 	regmap_write(adv->regmap_cec, 0x27, 0x0b);
+ }
+ 
+-void adv7533_mode_set(struct adv7511 *adv, const struct drm_display_mode *mode)
++enum drm_mode_status adv7533_mode_valid(struct adv7511 *adv,
++					const struct drm_display_mode *mode)
+ {
++	int lanes;
+ 	struct mipi_dsi_device *dsi = adv->dsi;
+-	int lanes, ret;
+-
+-	if (adv->num_dsi_lanes != 4)
+-		return;
+ 
+ 	if (mode->clock > 80000)
+ 		lanes = 4;
+ 	else
+ 		lanes = 3;
+ 
+-	if (lanes != dsi->lanes) {
+-		mipi_dsi_detach(dsi);
+-		dsi->lanes = lanes;
+-		ret = mipi_dsi_attach(dsi);
+-		if (ret)
+-			dev_err(&dsi->dev, "failed to change host lanes\n");
+-	}
++	/*
++	 * TODO: add support for dynamic switching of lanes
++	 * by using the bridge pre_enable() op . Till then filter
++	 * out the modes which shall need different number of lanes
++	 * than what was configured in the device tree.
++	 */
++	if (lanes != dsi->lanes)
++		return MODE_BAD;
++
++	return MODE_OK;
+ }
+ 
+ int adv7533_patch_registers(struct adv7511 *adv)
 -- 
 2.35.1
 
