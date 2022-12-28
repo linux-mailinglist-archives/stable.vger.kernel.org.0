@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BD84657B80
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1E73658151
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:27:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233333AbiL1PXH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:23:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40380 "EHLO
+        id S233241AbiL1Q1W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:27:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233710AbiL1PWb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:22:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C257140A4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:22:04 -0800 (PST)
+        with ESMTP id S233179AbiL1Q0e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:26:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A23421CB0C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:23:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 581ABB8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:22:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFF12C433EF;
-        Wed, 28 Dec 2022 15:22:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 18D1F61562
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:23:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2751FC433D2;
+        Wed, 28 Dec 2022 16:23:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240922;
-        bh=xOSIsdrlsN8wvIdBL7ojX65T6doiYRzlcIhZ17Gdm40=;
+        s=korg; t=1672244582;
+        bh=j46zpKOl6k0n7AFT8PXbXAe/Di5YT7Br9fHCHK91+k4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hnySp+Tn1TbzhRWlqnvrjEkILNjaaBPXElr4CvfJrvV1i8Swt7Dtitl0lACd7dSPs
-         9u4o8w8hkX4YDd4qstWUyD+kook3LBuhlPSl/Ot87cQW+5ImOAKclagzQQOv4CVJcC
-         QPgxoDItwS38ylniAahRp2X82z77mR0hv6SrYxf0=
+        b=0aeSK/jVh81IaYe9e7ZWBFhifLq9vj8rZk/PdTBkzQSUTmy4JzldzgQQ0SI3lpgRS
+         kM45cNAPLSKGgcQcjzsgz/wb4zQ9mpRML1dPL381Swx3WL63CAxs6ACluh7rEwDA1z
+         CEfUKMF/Skkm45Fi+doZzZSepahQCr+ntYYXnlMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Narsimhulu Musini <nmusini@cisco.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 417/731] scsi: snic: Fix possible UAF in snic_tgt_create()
+        patches@lists.linux.dev,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0736/1073] fbdev: uvesafb: Fixes an error handling path in uvesafb_probe()
 Date:   Wed, 28 Dec 2022 15:38:44 +0100
-Message-Id: <20221228144308.658771799@linuxfoundation.org>
+Message-Id: <20221228144348.016263333@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit e118df492320176af94deec000ae034cc92be754 ]
+[ Upstream commit a94371040712031ba129c7e9d8ff04a06a2f8207 ]
 
-Smatch reports a warning as follows:
+If an error occurs after a successful uvesafb_init_mtrr() call, it must be
+undone by a corresponding arch_phys_wc_del() call, as already done in the
+remove function.
 
-drivers/scsi/snic/snic_disc.c:307 snic_tgt_create() warn:
-  '&tgt->list' not removed from list
+This has been added in the remove function in commit 63e28a7a5ffc
+("uvesafb: Clean up MTRR code")
 
-If device_add() fails in snic_tgt_create(), tgt will be freed, but
-tgt->list will not be removed from snic->disc.tgt_list, then list traversal
-may cause UAF.
-
-Remove from snic->disc.tgt_list before free().
-
-Fixes: c8806b6c9e82 ("snic: driver for Cisco SCSI HBA")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Link: https://lore.kernel.org/r/20221117035100.2944812-1-cuigaosheng1@huawei.com
-Acked-by: Narsimhulu Musini <nmusini@cisco.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 8bdb3a2d7df4 ("uvesafb: the driver core")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/snic/snic_disc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/video/fbdev/uvesafb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/snic/snic_disc.c b/drivers/scsi/snic/snic_disc.c
-index e9ccfb97773f..7cf871323b2c 100644
---- a/drivers/scsi/snic/snic_disc.c
-+++ b/drivers/scsi/snic/snic_disc.c
-@@ -318,6 +318,9 @@ snic_tgt_create(struct snic *snic, struct snic_tgt_id *tgtid)
- 			      ret);
- 
- 		put_device(&snic->shost->shost_gendev);
-+		spin_lock_irqsave(snic->shost->host_lock, flags);
-+		list_del(&tgt->list);
-+		spin_unlock_irqrestore(snic->shost->host_lock, flags);
- 		kfree(tgt);
- 		tgt = NULL;
- 
+diff --git a/drivers/video/fbdev/uvesafb.c b/drivers/video/fbdev/uvesafb.c
+index 4df6772802d7..1f3b7e013568 100644
+--- a/drivers/video/fbdev/uvesafb.c
++++ b/drivers/video/fbdev/uvesafb.c
+@@ -1758,6 +1758,7 @@ static int uvesafb_probe(struct platform_device *dev)
+ out_unmap:
+ 	iounmap(info->screen_base);
+ out_mem:
++	arch_phys_wc_del(par->mtrr_handle);
+ 	release_mem_region(info->fix.smem_start, info->fix.smem_len);
+ out_reg:
+ 	release_region(0x3c0, 32);
 -- 
 2.35.1
 
