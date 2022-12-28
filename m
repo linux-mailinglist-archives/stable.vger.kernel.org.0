@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 689C6657BDC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:27:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 341C2657D46
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:41:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233765AbiL1P0s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:26:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44372 "EHLO
+        id S233998AbiL1Pld (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:41:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233867AbiL1PZ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:25:58 -0500
+        with ESMTP id S233997AbiL1PlX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:41:23 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D97B113F85
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:25:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE8D41705E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:41:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 764B56152F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:25:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88F90C433EF;
-        Wed, 28 Dec 2022 15:25:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 288596155C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:41:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31166C433EF;
+        Wed, 28 Dec 2022 15:41:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241156;
-        bh=fUhopehXK5q5kKpyplt9LhLxFeU9rOb2gOvpumRX/OU=;
+        s=korg; t=1672242078;
+        bh=izaY5eQ0gyghSemOf/D2C1+We3uv9ADQVnBBGBnCXOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JX3okfKp3Qo2KOiTGt3cwjS8pYAWqR+/krN4d3xagDWSz6LjSDZaUsAf4lYM76RL+
-         oZJ6RW18wQ89KrGles7GqiHLc7B1Ppyge4gI2Qxsogz42TGiaNxmy3R9m3c5HdVSA6
-         3EE8Sq3LVSQO5fWlOg1+JzuEIQ67ABB+zKQqNgEE=
+        b=IQgbVuJEKD4iaddehWYRs5g8LNvUrfKheBrgda80VQ3aK+k4kYRE0rCubZYuNiI4P
+         H8Ts/QNrTShlmOsA2XssNIa8ULiAMGSzBTxkentiKOdZA1U5EzEvHFpeNNDIPa9J5U
+         ox3OfjagNBYOGJF5LTU4rnpmgpuW8myFqAWTpzvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anssi Hannula <anssi.hannula@bitwise.fi>,
-        Jimmy Assarsson <extja@kvaser.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0248/1073] can: kvaser_usb: Add struct kvaser_usb_busparams
+Subject: [PATCH 6.1 0297/1146] clk: qcom: gcc-sm8250: Use retention mode for USB GDSCs
 Date:   Wed, 28 Dec 2022 15:30:36 +0100
-Message-Id: <20221228144334.759356928@linuxfoundation.org>
+Message-Id: <20221228144338.205267431@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,141 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jimmy Assarsson <extja@kvaser.com>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-[ Upstream commit 00e5786177649c1e3110f9454fdd34e336597265 ]
+[ Upstream commit ac1c5a03d3772b1db25e8092f771aa33f6ae2f7e ]
 
-Add struct kvaser_usb_busparams containing the busparameters used in
-CMD_{SET,GET}_BUSPARAMS* commands.
+USB controllers on SM8250 doesn't work after coming back from suspend.
+This can be fixed by keeping the USB GDSCs in retention mode so that
+hardware can keep them ON and put into rentention mode once the parent
+domain goes to a low power state.
 
-Tested-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
-Link: https://lore.kernel.org/all/20221010185237.319219-11-extja@kvaser.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Stable-dep-of: 39d3df6b0ea8 ("can: kvaser_usb: Compare requested bittiming parameters with actual parameters in do_set_{,data}_bittiming")
+Fixes: 3e5770921a88 ("clk: qcom: gcc: Add global clock controller driver for SM8250")
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221102091320.66007-1-manivannan.sadhasivam@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/kvaser_usb/kvaser_usb.h   |  8 +++++
- .../net/can/usb/kvaser_usb/kvaser_usb_hydra.c | 32 +++++++------------
- .../net/can/usb/kvaser_usb/kvaser_usb_leaf.c  | 18 ++++-------
- 3 files changed, 27 insertions(+), 31 deletions(-)
+ drivers/clk/qcom/gcc-sm8250.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb.h b/drivers/net/can/usb/kvaser_usb/kvaser_usb.h
-index d9c5dd5da908..778b61c90c2b 100644
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb.h
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb.h
-@@ -76,6 +76,14 @@ struct kvaser_usb_tx_urb_context {
- 	u32 echo_index;
+diff --git a/drivers/clk/qcom/gcc-sm8250.c b/drivers/clk/qcom/gcc-sm8250.c
+index 9755ef4888c1..a0ba37656b07 100644
+--- a/drivers/clk/qcom/gcc-sm8250.c
++++ b/drivers/clk/qcom/gcc-sm8250.c
+@@ -3267,7 +3267,7 @@ static struct gdsc usb30_prim_gdsc = {
+ 	.pd = {
+ 		.name = "usb30_prim_gdsc",
+ 	},
+-	.pwrsts = PWRSTS_OFF_ON,
++	.pwrsts = PWRSTS_RET_ON,
  };
  
-+struct kvaser_usb_busparams {
-+	__le32 bitrate;
-+	u8 tseg1;
-+	u8 tseg2;
-+	u8 sjw;
-+	u8 nsamples;
-+} __packed;
-+
- struct kvaser_usb {
- 	struct usb_device *udev;
- 	struct usb_interface *intf;
-diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
-index 3abfaa77e893..b8ae29872217 100644
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
-@@ -196,17 +196,9 @@ struct kvaser_cmd_chip_state_event {
- #define KVASER_USB_HYDRA_BUS_MODE_CANFD_ISO	0x01
- #define KVASER_USB_HYDRA_BUS_MODE_NONISO	0x02
- struct kvaser_cmd_set_busparams {
--	__le32 bitrate;
--	u8 tseg1;
--	u8 tseg2;
--	u8 sjw;
--	u8 nsamples;
-+	struct kvaser_usb_busparams busparams_arb;
- 	u8 reserved0[4];
--	__le32 bitrate_d;
--	u8 tseg1_d;
--	u8 tseg2_d;
--	u8 sjw_d;
--	u8 nsamples_d;
-+	struct kvaser_usb_busparams busparams_data;
- 	u8 canfd_mode;
- 	u8 reserved1[7];
- } __packed;
-@@ -1538,11 +1530,11 @@ static int kvaser_usb_hydra_set_bittiming(struct net_device *netdev)
- 		return -ENOMEM;
+ static struct gdsc usb30_sec_gdsc = {
+@@ -3275,7 +3275,7 @@ static struct gdsc usb30_sec_gdsc = {
+ 	.pd = {
+ 		.name = "usb30_sec_gdsc",
+ 	},
+-	.pwrsts = PWRSTS_OFF_ON,
++	.pwrsts = PWRSTS_RET_ON,
+ };
  
- 	cmd->header.cmd_no = CMD_SET_BUSPARAMS_REQ;
--	cmd->set_busparams_req.bitrate = cpu_to_le32(bt->bitrate);
--	cmd->set_busparams_req.sjw = (u8)sjw;
--	cmd->set_busparams_req.tseg1 = (u8)tseg1;
--	cmd->set_busparams_req.tseg2 = (u8)tseg2;
--	cmd->set_busparams_req.nsamples = 1;
-+	cmd->set_busparams_req.busparams_arb.bitrate = cpu_to_le32(bt->bitrate);
-+	cmd->set_busparams_req.busparams_arb.sjw = (u8)sjw;
-+	cmd->set_busparams_req.busparams_arb.tseg1 = (u8)tseg1;
-+	cmd->set_busparams_req.busparams_arb.tseg2 = (u8)tseg2;
-+	cmd->set_busparams_req.busparams_arb.nsamples = 1;
- 
- 	kvaser_usb_hydra_set_cmd_dest_he
- 		(cmd, dev->card_data.hydra.channel_to_he[priv->channel]);
-@@ -1572,11 +1564,11 @@ static int kvaser_usb_hydra_set_data_bittiming(struct net_device *netdev)
- 		return -ENOMEM;
- 
- 	cmd->header.cmd_no = CMD_SET_BUSPARAMS_FD_REQ;
--	cmd->set_busparams_req.bitrate_d = cpu_to_le32(dbt->bitrate);
--	cmd->set_busparams_req.sjw_d = (u8)sjw;
--	cmd->set_busparams_req.tseg1_d = (u8)tseg1;
--	cmd->set_busparams_req.tseg2_d = (u8)tseg2;
--	cmd->set_busparams_req.nsamples_d = 1;
-+	cmd->set_busparams_req.busparams_data.bitrate = cpu_to_le32(dbt->bitrate);
-+	cmd->set_busparams_req.busparams_data.sjw = (u8)sjw;
-+	cmd->set_busparams_req.busparams_data.tseg1 = (u8)tseg1;
-+	cmd->set_busparams_req.busparams_data.tseg2 = (u8)tseg2;
-+	cmd->set_busparams_req.busparams_data.nsamples = 1;
- 
- 	if (priv->can.ctrlmode & CAN_CTRLMODE_FD) {
- 		if (priv->can.ctrlmode & CAN_CTRLMODE_FD_NON_ISO)
-diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-index fa940be4e1b0..996d58b97af1 100644
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-@@ -164,11 +164,7 @@ struct usbcan_cmd_softinfo {
- struct kvaser_cmd_busparams {
- 	u8 tid;
- 	u8 channel;
--	__le32 bitrate;
--	u8 tseg1;
--	u8 tseg2;
--	u8 sjw;
--	u8 no_samp;
-+	struct kvaser_usb_busparams busparams;
- } __packed;
- 
- struct kvaser_cmd_tx_can {
-@@ -1699,15 +1695,15 @@ static int kvaser_usb_leaf_set_bittiming(struct net_device *netdev)
- 	cmd->len = CMD_HEADER_LEN + sizeof(struct kvaser_cmd_busparams);
- 	cmd->u.busparams.channel = priv->channel;
- 	cmd->u.busparams.tid = 0xff;
--	cmd->u.busparams.bitrate = cpu_to_le32(bt->bitrate);
--	cmd->u.busparams.sjw = bt->sjw;
--	cmd->u.busparams.tseg1 = bt->prop_seg + bt->phase_seg1;
--	cmd->u.busparams.tseg2 = bt->phase_seg2;
-+	cmd->u.busparams.busparams.bitrate = cpu_to_le32(bt->bitrate);
-+	cmd->u.busparams.busparams.sjw = bt->sjw;
-+	cmd->u.busparams.busparams.tseg1 = bt->prop_seg + bt->phase_seg1;
-+	cmd->u.busparams.busparams.tseg2 = bt->phase_seg2;
- 
- 	if (priv->can.ctrlmode & CAN_CTRLMODE_3_SAMPLES)
--		cmd->u.busparams.no_samp = 3;
-+		cmd->u.busparams.busparams.nsamples = 3;
- 	else
--		cmd->u.busparams.no_samp = 1;
-+		cmd->u.busparams.busparams.nsamples = 1;
- 
- 	rc = kvaser_usb_send_cmd(dev, cmd, cmd->len);
- 
+ static struct gdsc hlos1_vote_mmnoc_mmu_tbu_hf0_gdsc = {
 -- 
 2.35.1
 
