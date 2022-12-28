@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A59FF657B44
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:19:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 767E8657A26
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:08:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233264AbiL1PTu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:19:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38598 "EHLO
+        id S233614AbiL1PIS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:08:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233280AbiL1PTl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:19:41 -0500
+        with ESMTP id S233612AbiL1PIS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:08:18 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9245213FBC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:19:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5418C13D71
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:08:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 212B1B816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:19:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89E48C433EF;
-        Wed, 28 Dec 2022 15:19:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E797EB8172A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:08:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C181C433F0;
+        Wed, 28 Dec 2022 15:08:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240777;
-        bh=r/KStz9OGDI6mi4yJy0q4qIS2rAOAC3TwNJOwxCFeMo=;
+        s=korg; t=1672240094;
+        bh=l4mdijT3DXLoB3FEQAQQT3XWHgMtUjdefbiHKLqvrG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N62A3CUf1caTf9VjxxL2nQwzAm4gCAAoKLNx5GRX/ThkmB0AhqH2JFXxQwrDRv7R2
-         Xqdu+V9Vcnkqf32M4kcEqh+cQiek/9+niGiNBJR7QFW7P1UBaSmx+JaontCua8sjg6
-         D2W35zo7irvFiteNImYNesaZhlTrO1pccr6Zjbtc=
+        b=neFI0bOapJeH9Ec3k3tPUPBhTRlFjT6pBYhsaOTwPAMyGjiR8XIp+a5RRwQCML7Vg
+         DHHqtL7jZla0kJelx9d36qRrzhi+Lyzhq9qRdoEe9apkMivv8dy5B/bHeyNnc+L0ob
+         0mNshYEfLU+rWfmFBEYwYtg+02TG+x4wbdciT6Ws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Daniel Lezcano <daniel.lezcano@kernel.org>,
+        patches@lists.linux.dev, Alexey Dobriyan <adobriyan@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0166/1146] clocksource/drivers/timer-ti-dm: Fix warning for omap_timer_match
+Subject: [PATCH 6.0 0117/1073] proc: fixup uptime selftest
 Date:   Wed, 28 Dec 2022 15:28:25 +0100
-Message-Id: <20221228144334.670247673@linuxfoundation.org>
+Message-Id: <20221228144331.216765246@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Alexey Dobriyan <adobriyan@gmail.com>
 
-[ Upstream commit 9688498b1648aa98a3ee45d9f07763c099f6fb12 ]
+[ Upstream commit 5cc81d5c81af0dee54da9a67a3ebe4be076a13db ]
 
-We can now get a warning for 'omap_timer_match' defined but not used.
-Let's fix this by dropping of_match_ptr for omap_timer_match.
+syscall(3) returns -1 and sets errno on error, unlike "syscall"
+instruction.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: ab0bbef3ae0f ("clocksource/drivers/timer-ti-dm: Make timer selectable for ARCH_K3")
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20221028103526.40319-1-tony@atomide.com
-Signed-off-by: Daniel Lezcano <daniel.lezcano@kernel.org>
+Systems which have <= 32/64 CPUs are unaffected. Test won't bounce
+to all CPUs before completing if there are more of them.
+
+Link: https://lkml.kernel.org/r/Y1bUiT7VRXlXPQa1@p183
+Fixes: 1f5bd0547654 ("proc: selftests: test /proc/uptime")
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/timer-ti-dm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/proc/proc-uptime-002.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clocksource/timer-ti-dm.c b/drivers/clocksource/timer-ti-dm.c
-index cad29ded3a48..00af1a8e34fb 100644
---- a/drivers/clocksource/timer-ti-dm.c
-+++ b/drivers/clocksource/timer-ti-dm.c
-@@ -1258,7 +1258,7 @@ static struct platform_driver omap_dm_timer_driver = {
- 	.remove = omap_dm_timer_remove,
- 	.driver = {
- 		.name   = "omap_timer",
--		.of_match_table = of_match_ptr(omap_timer_match),
-+		.of_match_table = omap_timer_match,
- 		.pm = &omap_dm_timer_pm_ops,
- 	},
- };
+diff --git a/tools/testing/selftests/proc/proc-uptime-002.c b/tools/testing/selftests/proc/proc-uptime-002.c
+index e7ceabed7f51..7d0aa22bdc12 100644
+--- a/tools/testing/selftests/proc/proc-uptime-002.c
++++ b/tools/testing/selftests/proc/proc-uptime-002.c
+@@ -17,6 +17,7 @@
+ // while shifting across CPUs.
+ #undef NDEBUG
+ #include <assert.h>
++#include <errno.h>
+ #include <unistd.h>
+ #include <sys/syscall.h>
+ #include <stdlib.h>
+@@ -54,7 +55,7 @@ int main(void)
+ 		len += sizeof(unsigned long);
+ 		free(m);
+ 		m = malloc(len);
+-	} while (sys_sched_getaffinity(0, len, m) == -EINVAL);
++	} while (sys_sched_getaffinity(0, len, m) == -1 && errno == EINVAL);
+ 
+ 	fd = open("/proc/uptime", O_RDONLY);
+ 	assert(fd >= 0);
 -- 
 2.35.1
 
