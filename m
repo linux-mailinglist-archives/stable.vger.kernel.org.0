@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EC66657811
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:47:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB585657CE6
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:37:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233052AbiL1Orj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:47:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35226 "EHLO
+        id S233904AbiL1PhO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:37:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233017AbiL1Or1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:47:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E605111C1D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:46:32 -0800 (PST)
+        with ESMTP id S233906AbiL1PhO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:37:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 857A91580C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:37:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67E9BB81719
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:46:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8A32C433D2;
-        Wed, 28 Dec 2022 14:46:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2101161553
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:37:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EC9DC433EF;
+        Wed, 28 Dec 2022 15:37:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238790;
-        bh=qHNKDTYQZ7r6fbuZ4CQddHe5QhJgh9PS3kiUugWEc5s=;
+        s=korg; t=1672241832;
+        bh=lL7VBS0iHKkJfUUElzYBQqkPTuo4og5ASgpq3wqi8/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=avSthovdE3o2npBc3jN4C2+HHWTmifHKdcZ8z2ekHocPymfla33M2hS7G/pJehcHx
-         LyiHgMUXfqClrvJoVEQmRvXbTFsDrFDZR9TaOpO3M1T1c+Q5mUfBcydZlhWLcC6Oh6
-         8QF8S7aPdK4eQV0PBR4mjymVxhAKbPC7lNIqOBUQ=
+        b=Fo+0/lKkkpRTF1ZuD3HwAE3XJzv50iL4JjF3SynEq/OnfEW+H+3V0l5qDdGUxkHjn
+         i3ACkWs5qWhzh5D5AF06rQDQ9DLh7n1vGBZzpMFiTfWrYgtBwkdO3bZBSnA96HS3rH
+         VERwdn91SU4/KsHxQ+BSzv8vRPv71ykJEld1bckA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marek Vasut <marex@denx.de>,
-        Patrice Chotard <patrice.chotard@foss.st.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 013/731] ARM: dts: stm32: Drop stm32mp15xc.dtsi from Avenger96
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        Yu Kuai <yukuai3@huawei.com>,
+        Mike Snitzer <snitzer@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0332/1073] dm: cleanup close_table_device
 Date:   Wed, 28 Dec 2022 15:32:00 +0100
-Message-Id: <20221228144256.923923342@linuxfoundation.org>
+Message-Id: <20221228144337.021593822@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 3b835f1b8acef53c8882b25f40f48d7f5982c938 ]
+[ Upstream commit 7b5865831c1003122f737df5e16adaa583f1a595 ]
 
-The Avenger96 is populated with STM32MP157A DHCOR SoM, drop the
-stm32mp15xc.dtsi which should only be included in DTs of devices
-which are populated with STM32MP15xC/F SoC as the stm32mp15xc.dtsi
-enables CRYP block not present in the STM32MP15xA/D SoC .
+Take the list unlink and free into close_table_device so that no half
+torn down table_devices exist.  Also remove the check for a NULL bdev
+as that can't happen - open_table_device never adds a table_device to
+the list that does not have a valid block_device.
 
-Fixes: 7e76f82acd9e1 ("ARM: dts: stm32: Split Avenger96 into DHCOR SoM and Avenger96 board")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Reviewed-by: Patrice Chotard <patrice.chotard@foss.st.com>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Mike Snitzer <snitzer@kernel.org>
+Link: https://lore.kernel.org/r/20221115141054.1051801-5-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Stable-dep-of: 1a581b721699 ("dm: track per-add_disk holder relations in DM")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dts | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/md/dm.c | 12 +++---------
+ 1 file changed, 3 insertions(+), 9 deletions(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dts b/arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dts
-index 2e3c9fbb4eb3..275167f26fd9 100644
---- a/arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dts
-+++ b/arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dts
-@@ -13,7 +13,6 @@
- /dts-v1/;
+diff --git a/drivers/md/dm.c b/drivers/md/dm.c
+index 1903afa4618a..620abcef2df5 100644
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -774,14 +774,11 @@ static struct table_device *open_table_device(struct mapped_device *md,
+  */
+ static void close_table_device(struct table_device *td, struct mapped_device *md)
+ {
+-	if (!td->dm_dev.bdev)
+-		return;
+-
+ 	bd_unlink_disk_holder(td->dm_dev.bdev, dm_disk(md));
+ 	blkdev_put(td->dm_dev.bdev, td->dm_dev.mode | FMODE_EXCL);
+ 	put_dax(td->dm_dev.dax_dev);
+-	td->dm_dev.bdev = NULL;
+-	td->dm_dev.dax_dev = NULL;
++	list_del(&td->list);
++	kfree(td);
+ }
  
- #include "stm32mp157.dtsi"
--#include "stm32mp15xc.dtsi"
- #include "stm32mp15xx-dhcor-som.dtsi"
- #include "stm32mp15xx-dhcor-avenger96.dtsi"
+ static struct table_device *find_table_device(struct list_head *l, dev_t dev,
+@@ -823,11 +820,8 @@ void dm_put_table_device(struct mapped_device *md, struct dm_dev *d)
+ 	struct table_device *td = container_of(d, struct table_device, dm_dev);
+ 
+ 	mutex_lock(&md->table_devices_lock);
+-	if (refcount_dec_and_test(&td->count)) {
++	if (refcount_dec_and_test(&td->count))
+ 		close_table_device(td, md);
+-		list_del(&td->list);
+-		kfree(td);
+-	}
+ 	mutex_unlock(&md->table_devices_lock);
+ }
  
 -- 
 2.35.1
