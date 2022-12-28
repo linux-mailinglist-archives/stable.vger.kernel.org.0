@@ -2,102 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50322658177
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:28:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 467B365820B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:32:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234694AbiL1Q2o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:28:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49972 "EHLO
+        id S234821AbiL1Qc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:32:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234692AbiL1Q2Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:28:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E083BC9B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:24:26 -0800 (PST)
+        with ESMTP id S234706AbiL1Qcb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:32:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 217E419C16
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:29:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D83861578
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:24:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23771C433D2;
-        Wed, 28 Dec 2022 16:24:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7EACDB8171E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:29:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1CFCC433D2;
+        Wed, 28 Dec 2022 16:29:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244665;
-        bh=gF+h+ABmY5dZwDVfEFPIILKAqEER3hSUGmWU0JSOzyA=;
+        s=korg; t=1672244962;
+        bh=Da6gWwcZyOn9qM4GMEFzWvDv9vncCig2qTKEeta2DU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zQdYZoYsKJf4EXr3vH65bTESnDrelBIatOx7/IcIMImqeMRgxQTMDT3LHBXkrqZ4w
-         GHIHMDNflyi9Utw7iav03Tp/pGZa/3YLBI87KEQ65tn70+iw++X8C5Xr4EpfB/15+X
-         30LjryOV55nGwg8eLvoBYP+boIRVLDVko1Fq2ZbY=
+        b=vw7Q5REuOZZcnTrLzkbDuM6oMuoTyd8vvZ0wEhYUWYT5ae6Fm5lY9Gdbr3PaG0Pv4
+         bXugt3hY/bj2S8OcJSS7qxYcvRYB+k6Husvc8Vg1MZPZrzWGKScmLQLgCZ/OIqTnkM
+         lId/jpa/vGg30W1NMqieiDLZYQkXPGl7msO7lLUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheyu Ma <zheyuma97@gmail.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0719/1073] i2c: ismt: Fix an out-of-bounds bug in ismt_access()
-Date:   Wed, 28 Dec 2022 15:38:27 +0100
-Message-Id: <20221228144347.555905683@linuxfoundation.org>
+        patches@lists.linux.dev,
+        "=?UTF-8?q?Daniel=20P . =20Berrang=C3=A9?=" <berrange@redhat.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0769/1146] watchdog: iTCO_wdt: Set NO_REBOOT if the watchdog is not already running
+Date:   Wed, 28 Dec 2022 15:38:28 +0100
+Message-Id: <20221228144351.037224390@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
+        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-[ Upstream commit 39244cc754829bf707dccd12e2ce37510f5b1f8d ]
+[ Upstream commit ef9b7bf52c2f47f0a9bf988543c577b92c92d15e ]
 
-When the driver does not check the data from the user, the variable
-'data->block[0]' may be very large to cause an out-of-bounds bug.
+Daniel reported that the commit 1ae3e78c0820 ("watchdog: iTCO_wdt: No
+need to stop the timer in probe") makes QEMU implementation of the iTCO
+watchdog not to trigger reboot anymore when NO_REBOOT flag is initially
+cleared using this option (in QEMU command line):
 
-The following log can reveal it:
+  -global ICH9-LPC.noreboot=false
 
-[   33.995542] i2c i2c-1: ioctl, cmd=0x720, arg=0x7ffcb3dc3a20
-[   33.995978] ismt_smbus 0000:00:05.0: I2C_SMBUS_BLOCK_DATA:  WRITE
-[   33.996475] ==================================================================
-[   33.996995] BUG: KASAN: out-of-bounds in ismt_access.cold+0x374/0x214b
-[   33.997473] Read of size 18446744073709551615 at addr ffff88810efcfdb1 by task ismt_poc/485
-[   33.999450] Call Trace:
-[   34.001849]  memcpy+0x20/0x60
-[   34.002077]  ismt_access.cold+0x374/0x214b
-[   34.003382]  __i2c_smbus_xfer+0x44f/0xfb0
-[   34.004007]  i2c_smbus_xfer+0x10a/0x390
-[   34.004291]  i2cdev_ioctl_smbus+0x2c8/0x710
-[   34.005196]  i2cdev_ioctl+0x5ec/0x74c
+The problem with the commit is that it left the unconditional setting of
+NO_REBOOT that is not cleared anymore when the kernel keeps pinging the
+watchdog (as opposed to the previous code that called iTCO_wdt_stop()
+that cleared it).
 
-Fix this bug by checking the size of 'data->block[0]' first.
+Fix this so that we only set NO_REBOOT if the watchdog was not initially
+running.
 
-Fixes: 13f35ac14cd0 ("i2c: Adding support for Intel iSMT SMBus 2.0 host controller")
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: 1ae3e78c0820 ("watchdog: iTCO_wdt: No need to stop the timer in probe")
+Reported-by: Daniel P. Berrangé <berrange@redhat.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Tested-by: Daniel P. Berrangé <berrange@redhat.com>
+Reviewed-by: Daniel P. Berrangé <berrange@redhat.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20221028062750.45451-1-mika.westerberg@linux.intel.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-ismt.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/watchdog/iTCO_wdt.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
-index 6078fa0c0d48..63120c41354c 100644
---- a/drivers/i2c/busses/i2c-ismt.c
-+++ b/drivers/i2c/busses/i2c-ismt.c
-@@ -509,6 +509,9 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
- 		if (read_write == I2C_SMBUS_WRITE) {
- 			/* Block Write */
- 			dev_dbg(dev, "I2C_SMBUS_BLOCK_DATA:  WRITE\n");
-+			if (data->block[0] < 1 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
-+				return -EINVAL;
-+
- 			dma_size = data->block[0] + 1;
- 			dma_direction = DMA_TO_DEVICE;
- 			desc->wr_len_cmd = dma_size;
+diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
+index 34693f11385f..e937b4dd28be 100644
+--- a/drivers/watchdog/iTCO_wdt.c
++++ b/drivers/watchdog/iTCO_wdt.c
+@@ -423,14 +423,18 @@ static unsigned int iTCO_wdt_get_timeleft(struct watchdog_device *wd_dev)
+ 	return time_left;
+ }
+ 
+-static void iTCO_wdt_set_running(struct iTCO_wdt_private *p)
++/* Returns true if the watchdog was running */
++static bool iTCO_wdt_set_running(struct iTCO_wdt_private *p)
+ {
+ 	u16 val;
+ 
+-	/* Bit 11: TCO Timer Halt -> 0 = The TCO timer is * enabled */
++	/* Bit 11: TCO Timer Halt -> 0 = The TCO timer is enabled */
+ 	val = inw(TCO1_CNT(p));
+-	if (!(val & BIT(11)))
++	if (!(val & BIT(11))) {
+ 		set_bit(WDOG_HW_RUNNING, &p->wddev.status);
++		return true;
++	}
++	return false;
+ }
+ 
+ /*
+@@ -518,9 +522,6 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
+ 		return -ENODEV;	/* Cannot reset NO_REBOOT bit */
+ 	}
+ 
+-	/* Set the NO_REBOOT bit to prevent later reboots, just for sure */
+-	p->update_no_reboot_bit(p->no_reboot_priv, true);
+-
+ 	if (turn_SMI_watchdog_clear_off >= p->iTCO_version) {
+ 		/*
+ 		 * Bit 13: TCO_EN -> 0
+@@ -572,7 +573,13 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
+ 	watchdog_set_drvdata(&p->wddev, p);
+ 	platform_set_drvdata(pdev, p);
+ 
+-	iTCO_wdt_set_running(p);
++	if (!iTCO_wdt_set_running(p)) {
++		/*
++		 * If the watchdog was not running set NO_REBOOT now to
++		 * prevent later reboots.
++		 */
++		p->update_no_reboot_bit(p->no_reboot_priv, true);
++	}
+ 
+ 	/* Check that the heartbeat value is within it's range;
+ 	   if not reset to the default */
 -- 
 2.35.1
 
