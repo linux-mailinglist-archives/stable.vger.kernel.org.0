@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7657F657A79
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:11:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC6F765795B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:00:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232960AbiL1PLk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:11:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58704 "EHLO
+        id S233365AbiL1PAL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:00:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233709AbiL1PLZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:11:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CB8E13E0B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:11:25 -0800 (PST)
+        with ESMTP id S233371AbiL1PAK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:00:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96A1E10053
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:00:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BB25CB81719
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:11:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 333EBC433EF;
-        Wed, 28 Dec 2022 15:11:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 364626153C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:00:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BD97C433EF;
+        Wed, 28 Dec 2022 15:00:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240282;
-        bh=PPJmcwp3FgBjPY4ZAdOQyFFyIfLnkbvDE5yqRuRAZJI=;
+        s=korg; t=1672239608;
+        bh=9r4fFwVoGBI/fvrBhj1o+J5lS3aanaQFi+cPjeG3BGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I1yFtjqUpt+cCxhfyxlPm7Z2fdSZB52P50x/O2M/jq4I9M9PWhp1H1ZoCoJoo3EKP
-         ULO3Mbrk+K+DIv0iMZy7haONeuUUcEtAaIYM4NvSEWsYSAQC035SRzFfvX9Yt24wxT
-         jRTed3VgK9egG6r/tc3Tb2xHHFS5711SFv4kbHKY=
+        b=MX3InsrvY+A7SJAiD/IUTSZL+kkDV6GxdmbJD6jAo/uxHszNSEH1IOB5eUZqnXrE/
+         Ag1KG2e18M8pm016G0HAuter7e/1Sb5lxXEHQN07aLDjTenBXxVcKjKBMuo8sOcBnv
+         hDNqjwaq8SBZ7zzuD1e4J880jc/mjW2iw3ba+rt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miklos Szeredi <mszeredi@redhat.com>,
-        Amir Goldstein <amir73il@gmail.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0104/1146] ovl: remove privs in ovl_copyfile()
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        Punit Agrawal <punit.agrawal@bytedance.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0055/1073] perf/smmuv3: Fix hotplug callback leak in arm_smmu_pmu_init()
 Date:   Wed, 28 Dec 2022 15:27:23 +0100
-Message-Id: <20221228144332.973203603@linuxfoundation.org>
+Message-Id: <20221228144329.599651407@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit b306e90ffabdaa7e3b3350dbcd19b7663e71ab17 ]
+[ Upstream commit 6f2d566b46436a50a80d6445e82879686b89588c ]
 
-Underlying fs doesn't remove privs because copy_range/remap_range are
-called with privileged mounter credentials.
+arm_smmu_pmu_init() won't remove the callback added by
+cpuhp_setup_state_multi() when platform_driver_register() failed. Remove
+the callback by cpuhp_remove_multi_state() in fail path.
 
-This fixes some failures in fstest generic/673.
+Similar to the handling of arm_ccn_init() in commit 26242b330093 ("bus:
+arm-ccn: Prevent hotplug callback leak")
 
-Fixes: 8ede205541ff ("ovl: add reflink/copyfile/dedup support")
-Acked-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Fixes: 7d839b4b9e00 ("perf/smmuv3: Add arm64 smmuv3 pmu driver")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Reviewed-by: Punit Agrawal <punit.agrawal@bytedance.com>
+Link: https://lore.kernel.org/r/20221115115540.6245-3-shangxiaojing@huawei.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/overlayfs/file.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/perf/arm_smmuv3_pmu.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/fs/overlayfs/file.c b/fs/overlayfs/file.c
-index a1a22f58ba18..755a11c63596 100644
---- a/fs/overlayfs/file.c
-+++ b/fs/overlayfs/file.c
-@@ -567,14 +567,23 @@ static loff_t ovl_copyfile(struct file *file_in, loff_t pos_in,
- 	const struct cred *old_cred;
- 	loff_t ret;
+diff --git a/drivers/perf/arm_smmuv3_pmu.c b/drivers/perf/arm_smmuv3_pmu.c
+index 00d4c45a8017..25a269d431e4 100644
+--- a/drivers/perf/arm_smmuv3_pmu.c
++++ b/drivers/perf/arm_smmuv3_pmu.c
+@@ -959,6 +959,8 @@ static struct platform_driver smmu_pmu_driver = {
  
-+	inode_lock(inode_out);
-+	if (op != OVL_DEDUPE) {
-+		/* Update mode */
-+		ovl_copyattr(inode_out);
-+		ret = file_remove_privs(file_out);
-+		if (ret)
-+			goto out_unlock;
-+	}
+ static int __init arm_smmu_pmu_init(void)
+ {
++	int ret;
 +
- 	ret = ovl_real_fdget(file_out, &real_out);
- 	if (ret)
--		return ret;
-+		goto out_unlock;
+ 	cpuhp_state_num = cpuhp_setup_state_multi(CPUHP_AP_ONLINE_DYN,
+ 						  "perf/arm/pmcg:online",
+ 						  NULL,
+@@ -966,7 +968,11 @@ static int __init arm_smmu_pmu_init(void)
+ 	if (cpuhp_state_num < 0)
+ 		return cpuhp_state_num;
  
- 	ret = ovl_real_fdget(file_in, &real_in);
- 	if (ret) {
- 		fdput(real_out);
--		return ret;
-+		goto out_unlock;
- 	}
- 
- 	old_cred = ovl_override_creds(file_inode(file_out)->i_sb);
-@@ -603,6 +612,9 @@ static loff_t ovl_copyfile(struct file *file_in, loff_t pos_in,
- 	fdput(real_in);
- 	fdput(real_out);
- 
-+out_unlock:
-+	inode_unlock(inode_out);
+-	return platform_driver_register(&smmu_pmu_driver);
++	ret = platform_driver_register(&smmu_pmu_driver);
++	if (ret)
++		cpuhp_remove_multi_state(cpuhp_state_num);
 +
- 	return ret;
++	return ret;
  }
+ module_init(arm_smmu_pmu_init);
  
 -- 
 2.35.1
