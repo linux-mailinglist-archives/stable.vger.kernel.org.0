@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B60165841E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:54:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60C5C65835B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:47:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235226AbiL1Qyv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:54:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46332 "EHLO
+        id S235024AbiL1QrP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:47:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235306AbiL1Qxx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:53:53 -0500
+        with ESMTP id S234661AbiL1Qqm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:46:42 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93F3A1E3FF
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:49:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70DB91DF34
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:41:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 33B6B61541
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:49:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 430C7C433EF;
-        Wed, 28 Dec 2022 16:49:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D36361563
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:41:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2284EC433EF;
+        Wed, 28 Dec 2022 16:41:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246145;
-        bh=P6Vv4HWUGMloQZ7EzWAIoXrADR6KamKu1l8cHYJ5V+0=;
+        s=korg; t=1672245695;
+        bh=ai9Dl+ViSUHNRfzUgoHRUybCXR2fgv0q8wVs0578jWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HNih+pBkROXC+sOcIYpCa5RcTRKm9LinuvRdSuf3PTg8WhrpPaXfBJG8w+E+kwXor
-         ZGotTY6SDUmyFlyf0owWIThYWBYVuqw8ZznpXH+ECHeBAZCkzqfNLOO+jBKxxbsui0
-         WUQlB8IiWR+McgSN6ofyCHmjynH9RtUYik+OnEUg=
+        b=mUCycgO64Zwl+LQWU0MPz8JFR8QySQArx/J1FlbeYJ/ubHRxn9fspUi5Cay9DZBQl
+         03D979bE/Ebve/7Ouc6GhBR7RwWu2xcf8Ufojer0OKS7kywtPN2okD2sKE99jCLMXN
+         Dxi5l9/JbUwk8D/uT+6hyr5vmLa5PhSnpoYpvE4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Alain Volmat <alain.volmat@foss.st.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0988/1146] net: ethernet: ti: Fix return type of netcp_ndo_start_xmit()
+Subject: [PATCH 6.0 0939/1073] drm/sti: Use drm_mode_copy()
 Date:   Wed, 28 Dec 2022 15:42:07 +0100
-Message-Id: <20221228144357.200202436@linuxfoundation.org>
+Message-Id: <20221228144353.535842257@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +55,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-[ Upstream commit 63fe6ff674a96cfcfc0fa8df1051a27aa31c70b4 ]
+[ Upstream commit 442cf8e22ba25a77cb9092d78733fdbac9844e50 ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed. A
-proposed warning in clang aims to catch these at compile time, which
-reveals:
+struct drm_display_mode embeds a list head, so overwriting
+the full struct with another one will corrupt the list
+(if the destination mode is on a list). Use drm_mode_copy()
+instead which explicitly preserves the list head of
+the destination mode.
 
-  drivers/net/ethernet/ti/netcp_core.c:1944:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .ndo_start_xmit         = netcp_ndo_start_xmit,
-                                    ^~~~~~~~~~~~~~~~~~~~
-  1 error generated.
+Even if we know the destination mode is not on any list
+using drm_mode_copy() seems decent as it sets a good
+example. Bad examples of not using it might eventually
+get copied into code where preserving the list head
+actually matters.
 
-->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
-'netdev_tx_t', not 'int'. Adjust the return type of
-netcp_ndo_start_xmit() to match the prototype's to resolve the warning
-and CFI failure.
+Obviously one case not covered here is when the mode
+itself is embedded in a larger structure and the whole
+structure is copied. But if we are careful when copying
+into modes embedded in structures I think we can be a
+little more reassured that bogus list heads haven't been
+propagated in.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1750
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221102160933.1601260-1-nathan@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+@is_mode_copy@
+@@
+drm_mode_copy(...)
+{
+...
+}
+
+@depends on !is_mode_copy@
+struct drm_display_mode *mode;
+expression E, S;
+@@
+(
+- *mode = E
++ drm_mode_copy(mode, &E)
+|
+- memcpy(mode, E, S)
++ drm_mode_copy(mode, E)
+)
+
+@depends on !is_mode_copy@
+struct drm_display_mode mode;
+expression E;
+@@
+(
+- mode = E
++ drm_mode_copy(&mode, &E)
+|
+- memcpy(&mode, E, S)
++ drm_mode_copy(&mode, E)
+)
+
+@@
+struct drm_display_mode *mode;
+@@
+- &*mode
++ mode
+
+Cc: Alain Volmat <alain.volmat@foss.st.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221107192545.9896-8-ville.syrjala@linux.intel.com
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/netcp_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/sti/sti_dvo.c  | 2 +-
+ drivers/gpu/drm/sti/sti_hda.c  | 2 +-
+ drivers/gpu/drm/sti/sti_hdmi.c | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/ti/netcp_core.c b/drivers/net/ethernet/ti/netcp_core.c
-index aba70bef4894..9eb9eaff4dc9 100644
---- a/drivers/net/ethernet/ti/netcp_core.c
-+++ b/drivers/net/ethernet/ti/netcp_core.c
-@@ -1261,7 +1261,7 @@ static int netcp_tx_submit_skb(struct netcp_intf *netcp,
- }
+diff --git a/drivers/gpu/drm/sti/sti_dvo.c b/drivers/gpu/drm/sti/sti_dvo.c
+index b6ee8a82e656..f3a5616b7daf 100644
+--- a/drivers/gpu/drm/sti/sti_dvo.c
++++ b/drivers/gpu/drm/sti/sti_dvo.c
+@@ -288,7 +288,7 @@ static void sti_dvo_set_mode(struct drm_bridge *bridge,
  
- /* Submit the packet */
--static int netcp_ndo_start_xmit(struct sk_buff *skb, struct net_device *ndev)
-+static netdev_tx_t netcp_ndo_start_xmit(struct sk_buff *skb, struct net_device *ndev)
- {
- 	struct netcp_intf *netcp = netdev_priv(ndev);
- 	struct netcp_stats *tx_stats = &netcp->stats;
+ 	DRM_DEBUG_DRIVER("\n");
+ 
+-	memcpy(&dvo->mode, mode, sizeof(struct drm_display_mode));
++	drm_mode_copy(&dvo->mode, mode);
+ 
+ 	/* According to the path used (main or aux), the dvo clocks should
+ 	 * have a different parent clock. */
+diff --git a/drivers/gpu/drm/sti/sti_hda.c b/drivers/gpu/drm/sti/sti_hda.c
+index 03cc401ed593..ec6656b9ee7c 100644
+--- a/drivers/gpu/drm/sti/sti_hda.c
++++ b/drivers/gpu/drm/sti/sti_hda.c
+@@ -524,7 +524,7 @@ static void sti_hda_set_mode(struct drm_bridge *bridge,
+ 
+ 	DRM_DEBUG_DRIVER("\n");
+ 
+-	memcpy(&hda->mode, mode, sizeof(struct drm_display_mode));
++	drm_mode_copy(&hda->mode, mode);
+ 
+ 	if (!hda_get_mode_idx(hda->mode, &mode_idx)) {
+ 		DRM_ERROR("Undefined mode\n");
+diff --git a/drivers/gpu/drm/sti/sti_hdmi.c b/drivers/gpu/drm/sti/sti_hdmi.c
+index cb82622877d2..fcc2194869d6 100644
+--- a/drivers/gpu/drm/sti/sti_hdmi.c
++++ b/drivers/gpu/drm/sti/sti_hdmi.c
+@@ -941,7 +941,7 @@ static void sti_hdmi_set_mode(struct drm_bridge *bridge,
+ 	DRM_DEBUG_DRIVER("\n");
+ 
+ 	/* Copy the drm display mode in the connector local structure */
+-	memcpy(&hdmi->mode, mode, sizeof(struct drm_display_mode));
++	drm_mode_copy(&hdmi->mode, mode);
+ 
+ 	/* Update clock framerate according to the selected mode */
+ 	ret = clk_set_rate(hdmi->clk_pix, mode->clock * 1000);
 -- 
 2.35.1
 
