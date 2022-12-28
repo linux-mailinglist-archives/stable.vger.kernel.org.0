@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCDDF657BAC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:24:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D82A6657CC1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:35:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233703AbiL1PYR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:24:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43028 "EHLO
+        id S233462AbiL1Pfm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:35:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233361AbiL1PYQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:24:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3CB313E18
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:24:15 -0800 (PST)
+        with ESMTP id S233473AbiL1Pfm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:35:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF128164B0
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:35:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5DA97B816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:24:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B751EC433EF;
-        Wed, 28 Dec 2022 15:24:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2DE7AB81710
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:35:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CD7AC433D2;
+        Wed, 28 Dec 2022 15:35:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241053;
-        bh=VN9M4iMM4clNQxQXqqVor1g9XHH1T+QIhpc3P6vGCTE=;
+        s=korg; t=1672241737;
+        bh=1TjtFbsIZv5NGqDHCzpNDsVKhY55ko3BCqipYKiYS64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uHms/GJi614raEFQK6Av6amAIcxd7HrITRfGCnoZtk0xc+zftI5Ztt2IiVEfTlWe0
-         FB/YnkDprHRMg+yOXetot+IZ66VrGrb7fh/LRCVddkLS3fpOxfFbrGxRe3edvHsuSP
-         C2s7bn/FG+ohDUa2sJ3JN1swGLO1EjRdAr1H3Wtk=
+        b=HxSI2kPnaiwq0qLTtsyNqTuEnx11arVPsLv2wf3jGCwlFdiRgJVcIkCCHR2VmaWlD
+         kOVoR+CezcaanpLwPFdSPJ447Vf+ZoAyfQw0wO9j6RoZaTZeFQ3bJriTHfoezH6l8k
+         YpxZ46n+T5Hy9eNKarll/es2amd4VDOMRcCxCpqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rafael Mendonca <rafaelmendsr@gmail.com>,
-        Tommaso Merciai <tommaso.merciai@amarulasolutions.com>,
-        Martin Kepplinger <martink@posteo.de>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        patches@lists.linux.dev, Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Marijn Suijten <marijn.suijten@somainline.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0234/1073] media: i2c: hi846: Fix memory leak in hi846_parse_dt()
+Subject: [PATCH 6.1 0283/1146] drm/msm/dsi: Migrate to drm_dsc_compute_rc_parameters()
 Date:   Wed, 28 Dec 2022 15:30:22 +0100
-Message-Id: <20221228144334.382169544@linuxfoundation.org>
+Message-Id: <20221228144337.827453477@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,69 +54,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael Mendonca <rafaelmendsr@gmail.com>
+From: Marijn Suijten <marijn.suijten@somainline.org>
 
-[ Upstream commit 80113026d415e27483669db7a88b548d1ec3d3d1 ]
+[ Upstream commit c3a1aabce2d4087255de90100c3dad492e7d925c ]
 
-If any of the checks related to the supported link frequencies fail, then
-the V4L2 fwnode resources don't get released before returning, which leads
-to a memleak. Fix this by properly freeing the V4L2 fwnode data in a
-designated label.
+As per the FIXME this code is entirely duplicate with what is already
+provided inside drm_dsc_compute_rc_parameters(), supposedly because that
+function was yielding "incorrect" results while in reality the panel
+driver(s?) used for testing were providing incorrect parameters.
 
-Fixes: e8c0882685f9 ("media: i2c: add driver for the SK Hynix Hi-846 8M pixel camera")
-Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
-Reviewed-by: Tommaso Merciai <tommaso.merciai@amarulasolutions.com>
-Reviewed-by: Martin Kepplinger <martink@posteo.de>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+For example, this code from downstream assumed dsc->bits_per_pixel to
+contain an integer value, whereas the upstream drm_dsc_config struct
+stores it with 4 fractional bits.  drm_dsc_compute_rc_parameters()
+already accounts for this feat while the panel driver used for testing
+[1] wasn't, hence making drm_dsc_compute_rc_parameters() seem like it
+was returning an incorrect result.
+Other users of dsc->bits_per_pixel inside dsi_populate_dsc_params() also
+treat it in the same erroneous way, and will be addressed in a separate
+patch.
+In the end, using drm_dsc_compute_rc_parameters() spares both a lot of
+duplicate code and erratic behaviour.
+
+[1]: https://git.linaro.org/people/vinod.koul/kernel.git/commit/?h=topic/pixel3_5.18-rc1&id=1d7d98ad564f1ec69e7525e07418918d90f247a1
+
+Fixes: b9080324d6ca ("drm/msm/dsi: add support for dsc data")
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/508939/
+Link: https://lore.kernel.org/r/20221026182824.876933-7-marijn.suijten@somainline.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/hi846.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/msm/dsi/dsi_host.c | 64 +++---------------------------
+ 1 file changed, 6 insertions(+), 58 deletions(-)
 
-diff --git a/drivers/media/i2c/hi846.c b/drivers/media/i2c/hi846.c
-index ad35c3ff3611..254031503c72 100644
---- a/drivers/media/i2c/hi846.c
-+++ b/drivers/media/i2c/hi846.c
-@@ -2008,22 +2008,24 @@ static int hi846_parse_dt(struct hi846 *hi846, struct device *dev)
- 	    bus_cfg.bus.mipi_csi2.num_data_lanes != 4) {
- 		dev_err(dev, "number of CSI2 data lanes %d is not supported",
- 			bus_cfg.bus.mipi_csi2.num_data_lanes);
--		v4l2_fwnode_endpoint_free(&bus_cfg);
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto check_hwcfg_error;
- 	}
+diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
+index 906ee38133c1..36d42f17331d 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi_host.c
++++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
+@@ -21,6 +21,7 @@
  
- 	hi846->nr_lanes = bus_cfg.bus.mipi_csi2.num_data_lanes;
+ #include <video/mipi_display.h>
  
- 	if (!bus_cfg.nr_of_link_frequencies) {
- 		dev_err(dev, "link-frequency property not found in DT\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto check_hwcfg_error;
- 	}
++#include <drm/display/drm_dsc_helper.h>
+ #include <drm/drm_of.h>
  
- 	/* Check that link frequences for all the modes are in device tree */
- 	fq = hi846_check_link_freqs(hi846, &bus_cfg);
- 	if (fq) {
- 		dev_err(dev, "Link frequency of %lld is not supported\n", fq);
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto check_hwcfg_error;
- 	}
+ #include "dsi.h"
+@@ -1749,14 +1750,6 @@ static char bpg_offset[DSC_NUM_BUF_RANGES] = {
  
- 	v4l2_fwnode_endpoint_free(&bus_cfg);
-@@ -2044,6 +2046,10 @@ static int hi846_parse_dt(struct hi846 *hi846, struct device *dev)
- 	}
+ static int dsi_populate_dsc_params(struct drm_dsc_config *dsc)
+ {
+-	int mux_words_size;
+-	int groups_per_line, groups_total;
+-	int min_rate_buffer_size;
+-	int hrd_delay;
+-	int pre_num_extra_mux_bits, num_extra_mux_bits;
+-	int slice_bits;
+-	int data;
+-	int final_value, final_scale;
+ 	int i;
  
- 	return 0;
-+
-+check_hwcfg_error:
-+	v4l2_fwnode_endpoint_free(&bus_cfg);
-+	return ret;
+ 	dsc->rc_model_size = 8192;
+@@ -1782,11 +1775,11 @@ static int dsi_populate_dsc_params(struct drm_dsc_config *dsc)
+ 	if (dsc->bits_per_pixel != 8)
+ 		dsc->initial_offset = 2048;	/* bpp = 12 */
+ 
+-	mux_words_size = 48;		/* bpc == 8/10 */
+-	if (dsc->bits_per_component == 12)
+-		mux_words_size = 64;
++	if (dsc->bits_per_component <= 10)
++		dsc->mux_word_size = DSC_MUX_WORD_SIZE_8_10_BPC;
++	else
++		dsc->mux_word_size = DSC_MUX_WORD_SIZE_12_BPC;
+ 
+-	dsc->mux_word_size = mux_words_size;
+ 	dsc->initial_xmit_delay = 512;
+ 	dsc->initial_scale_value = 32;
+ 	dsc->first_line_bpg_offset = 12;
+@@ -1798,52 +1791,7 @@ static int dsi_populate_dsc_params(struct drm_dsc_config *dsc)
+ 	dsc->rc_quant_incr_limit0 = 11;
+ 	dsc->rc_quant_incr_limit1 = 11;
+ 
+-	/* FIXME: need to call drm_dsc_compute_rc_parameters() so that rest of
+-	 * params are calculated
+-	 */
+-	groups_per_line = DIV_ROUND_UP(dsc->slice_width, 3);
+-	dsc->slice_chunk_size = DIV_ROUND_UP(dsc->slice_width * dsc->bits_per_pixel, 8);
+-
+-	/* rbs-min */
+-	min_rate_buffer_size =  dsc->rc_model_size - dsc->initial_offset +
+-				dsc->initial_xmit_delay * dsc->bits_per_pixel +
+-				groups_per_line * dsc->first_line_bpg_offset;
+-
+-	hrd_delay = DIV_ROUND_UP(min_rate_buffer_size, dsc->bits_per_pixel);
+-
+-	dsc->initial_dec_delay = hrd_delay - dsc->initial_xmit_delay;
+-
+-	dsc->initial_scale_value = 8 * dsc->rc_model_size /
+-				       (dsc->rc_model_size - dsc->initial_offset);
+-
+-	slice_bits = 8 * dsc->slice_chunk_size * dsc->slice_height;
+-
+-	groups_total = groups_per_line * dsc->slice_height;
+-
+-	data = dsc->first_line_bpg_offset * 2048;
+-
+-	dsc->nfl_bpg_offset = DIV_ROUND_UP(data, (dsc->slice_height - 1));
+-
+-	pre_num_extra_mux_bits = 3 * (mux_words_size + (4 * dsc->bits_per_component + 4) - 2);
+-
+-	num_extra_mux_bits = pre_num_extra_mux_bits - (mux_words_size -
+-			     ((slice_bits - pre_num_extra_mux_bits) % mux_words_size));
+-
+-	data = 2048 * (dsc->rc_model_size - dsc->initial_offset + num_extra_mux_bits);
+-	dsc->slice_bpg_offset = DIV_ROUND_UP(data, groups_total);
+-
+-	data = dsc->initial_xmit_delay * dsc->bits_per_pixel;
+-	final_value =  dsc->rc_model_size - data + num_extra_mux_bits;
+-	dsc->final_offset = final_value;
+-
+-	final_scale = 8 * dsc->rc_model_size / (dsc->rc_model_size - final_value);
+-
+-	data = (final_scale - 9) * (dsc->nfl_bpg_offset + dsc->slice_bpg_offset);
+-	dsc->scale_increment_interval = (2048 * dsc->final_offset) / data;
+-
+-	dsc->scale_decrement_interval = groups_per_line / (dsc->initial_scale_value - 8);
+-
+-	return 0;
++	return drm_dsc_compute_rc_parameters(dsc);
  }
  
- static int hi846_probe(struct i2c_client *client)
+ static int dsi_host_parse_dt(struct msm_dsi_host *msm_host)
 -- 
 2.35.1
 
