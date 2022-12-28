@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60840658356
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:46:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FA68658412
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:54:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235039AbiL1Qqn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:46:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40252 "EHLO
+        id S234441AbiL1Qy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:54:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235149AbiL1QqV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:46:21 -0500
+        with ESMTP id S235199AbiL1Qxn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:53:43 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 574DC1DDE5;
-        Wed, 28 Dec 2022 08:41:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 909171DF2E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:48:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 03664B8171E;
-        Wed, 28 Dec 2022 16:41:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DE7AC433D2;
-        Wed, 28 Dec 2022 16:41:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 18109B81889
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:48:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66C04C433D2;
+        Wed, 28 Dec 2022 16:48:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245681;
-        bh=I9Gx9m76r4Ac5f8DVvtK63xglKXDOM6E0OjZCYSrZJo=;
+        s=korg; t=1672246134;
+        bh=UGuOnxnM7GPmefNXCCPZBE0jOJo+3GsKpHYT1te8Qhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mLY25z9V0Ax80WB5biEifGkfb4prtQ9MaEErlhyNUYy6xM21oRgxyL0tKEATqGvXc
-         cR5P8ImsgzWL26REr7XHuB9oqv8PWdaKQyJOhVcVvF9epRdRDt8S9lGC0jKCJUTMnw
-         p2b/OkLN9bHe6yQHLW2mP+nyqi/VgbaGHVagVelc=
+        b=MGD0eceA+aB5eiCriSaGYo8RMt72yUiPgdc4eXDCC6X85+izhCmd+2gnkBhS5Aaq5
+         03U1h3oCPWU8mfwhp6kdNLYciRR9Tf4+QeCPq3boLxH4ZWPsDEChlYmiOYyyzQkfzA
+         QNwi3i6/5BZqk5elZjWw+4vbYh35NNkX1b2+eG9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rob Clark <robdclark@gmail.com>,
-        Sean Paul <sean@poorly.run>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0937/1073] drm/msm: Use drm_mode_copy()
+        patches@lists.linux.dev, Sami Tolvanen <samitolvanen@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0986/1146] drm/meson: Fix return type of meson_encoder_cvbs_mode_valid()
 Date:   Wed, 28 Dec 2022 15:42:05 +0100
-Message-Id: <20221228144353.479905766@linuxfoundation.org>
+Message-Id: <20221228144357.146825840@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,94 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit b2a1c5ca50db22b3677676dd5bad5f6092429acf ]
+[ Upstream commit 6c4e4d35203301906afb53c6d1e1302d4c793c05 ]
 
-struct drm_display_mode embeds a list head, so overwriting
-the full struct with another one will corrupt the list
-(if the destination mode is on a list). Use drm_mode_copy()
-instead which explicitly preserves the list head of
-the destination mode.
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed. A
+proposed warning in clang aims to catch these at compile time, which
+reveals:
 
-Even if we know the destination mode is not on any list
-using drm_mode_copy() seems decent as it sets a good
-example. Bad examples of not using it might eventually
-get copied into code where preserving the list head
-actually matters.
+  drivers/gpu/drm/meson/meson_encoder_cvbs.c:211:16: error: incompatible function pointer types initializing 'enum drm_mode_status (*)(struct drm_bridge *, const struct drm_display_info *, const struct drm_display_mode *)' with an expression of type 'int (struct drm_bridge *, const struct drm_display_info *, const struct drm_display_mode *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .mode_valid = meson_encoder_cvbs_mode_valid,
+                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  1 error generated.
 
-Obviously one case not covered here is when the mode
-itself is embedded in a larger structure and the whole
-structure is copied. But if we are careful when copying
-into modes embedded in structures I think we can be a
-little more reassured that bogus list heads haven't been
-propagated in.
+->mode_valid() in 'struct drm_bridge_funcs' expects a return type of
+'enum drm_mode_status', not 'int'. Adjust the return type of
+meson_encoder_cvbs_mode_valid() to match the prototype's to resolve the
+warning and CFI failure.
 
-@is_mode_copy@
-@@
-drm_mode_copy(...)
-{
-...
-}
-
-@depends on !is_mode_copy@
-struct drm_display_mode *mode;
-expression E, S;
-@@
-(
-- *mode = E
-+ drm_mode_copy(mode, &E)
-|
-- memcpy(mode, E, S)
-+ drm_mode_copy(mode, E)
-)
-
-@depends on !is_mode_copy@
-struct drm_display_mode mode;
-expression E;
-@@
-(
-- mode = E
-+ drm_mode_copy(&mode, &E)
-|
-- memcpy(&mode, E, S)
-+ drm_mode_copy(&mode, E)
-)
-
-@@
-struct drm_display_mode *mode;
-@@
-- &*mode
-+ mode
-
-Cc: Rob Clark <robdclark@gmail.com>
-Cc: Sean Paul <sean@poorly.run>
-Cc: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Cc: linux-arm-msm@vger.kernel.org
-Cc: freedreno@lists.freedesktop.org
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221107192545.9896-5-ville.syrjala@linux.intel.com
+Link: https://github.com/ClangBuiltLinux/linux/issues/1750
+Reported-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221102155242.1927166-1-nathan@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dp/dp_display.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/meson/meson_encoder_cvbs.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
-index a49f6dbbe888..c9d9b384ddd0 100644
---- a/drivers/gpu/drm/msm/dp/dp_display.c
-+++ b/drivers/gpu/drm/msm/dp/dp_display.c
-@@ -857,7 +857,7 @@ static int dp_display_set_mode(struct msm_dp *dp_display,
+diff --git a/drivers/gpu/drm/meson/meson_encoder_cvbs.c b/drivers/gpu/drm/meson/meson_encoder_cvbs.c
+index 5675bc2a92cf..3f73b211fa8e 100644
+--- a/drivers/gpu/drm/meson/meson_encoder_cvbs.c
++++ b/drivers/gpu/drm/meson/meson_encoder_cvbs.c
+@@ -116,9 +116,10 @@ static int meson_encoder_cvbs_get_modes(struct drm_bridge *bridge,
+ 	return i;
+ }
  
- 	dp = container_of(dp_display, struct dp_display_private, dp_display);
- 
--	dp->panel->dp_mode.drm_mode = mode->drm_mode;
-+	drm_mode_copy(&dp->panel->dp_mode.drm_mode, &mode->drm_mode);
- 	dp->panel->dp_mode.bpp = mode->bpp;
- 	dp->panel->dp_mode.capabilities = mode->capabilities;
- 	dp_panel_init_panel_info(dp->panel);
+-static int meson_encoder_cvbs_mode_valid(struct drm_bridge *bridge,
+-					const struct drm_display_info *display_info,
+-					const struct drm_display_mode *mode)
++static enum drm_mode_status
++meson_encoder_cvbs_mode_valid(struct drm_bridge *bridge,
++			      const struct drm_display_info *display_info,
++			      const struct drm_display_mode *mode)
+ {
+ 	if (meson_cvbs_get_mode(mode))
+ 		return MODE_OK;
 -- 
 2.35.1
 
