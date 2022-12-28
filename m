@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0887B657B8B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4668657C9D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:34:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233660AbiL1PXS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:23:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40540 "EHLO
+        id S233456AbiL1PeX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:34:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233305AbiL1PWt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:22:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74C981401C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:22:47 -0800 (PST)
+        with ESMTP id S233853AbiL1PeW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:34:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6DA516488
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:34:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 28EF0B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:22:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8099EC433EF;
-        Wed, 28 Dec 2022 15:22:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 637FC6156E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:34:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75971C433EF;
+        Wed, 28 Dec 2022 15:34:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240964;
-        bh=lP2hftc/IGXLm6OvTWqEEbJiePcYt5ggfTLyTNUPeQw=;
+        s=korg; t=1672241660;
+        bh=+jwCzEbmijGYDF6u/I/5dKAOYFtW41xjnpynBR2aAlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JReg1Tv9gUb6pcJsJnIn/xrZ57YjBGzZmXP5ok43XmttthH9RbLYfWjGqNEL3N0Nt
-         LGNmjrUgUzIY8KKrSedPSrZ9/Aj/sqYSpb8twYQu2y7WZgJzkrHxHsg0w+XvekrlGO
-         A5iGuHdaiQD3tzus1sCflPE/9p+MHtQb0mYy5MH8=
+        b=aSjYDaGBgeM4U3+yXZF8dJFoBJzAKW+6Wtle3kDcBnqi5qv7r9M13nrKCNJsv792n
+         mvQyr9/Far85TEL8DKjy+0pdIAPGK6nr8Jcxspd2H9kF9hr1JdlwV3Iszl5ddYJ6+P
+         1bqRnYVErAkNGXJ+q34D1ZMFvzJUa4iAfqwNDp/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeff LaBundy <jeff@labundy.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0224/1073] Input: iqs7222 - protect against undefined slider size
-Date:   Wed, 28 Dec 2022 15:30:12 +0100
-Message-Id: <20221228144334.104660573@linuxfoundation.org>
+Subject: [PATCH 6.1 0274/1146] drm/msm/hdmi: use devres helper for runtime PM management
+Date:   Wed, 28 Dec 2022 15:30:13 +0100
+Message-Id: <20221228144337.578711363@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff LaBundy <jeff@labundy.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 2f6fd232978906f6fb054529210b9faec384bd45 ]
+[ Upstream commit b964444b2b64ce182495731d830499d1c588ccf6 ]
 
-Select variants of silicon do not define a default slider size, in
-which case the size must be specified in the device tree. If it is
-not, the axis's maximum value is reported as 65535 due to unsigned
-integer overflow.
+Use devm_pm_runtime_enable() to enable runtime PM. This way its effect
+will be reverted on device unbind/destruction.
 
-To solve this problem, move the existing zero-check outside of the
-conditional block that checks whether the property is present.
-
-Fixes: e505edaedcb9 ("Input: add support for Azoteq IQS7222A/B/C")
-Signed-off-by: Jeff LaBundy <jeff@labundy.com>
-Link: https://lore.kernel.org/r/Y1SRXEi7XMlncDWk@nixie71
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: 6ed9ed484d04 ("drm/msm/hdmi: Set up runtime PM for HDMI")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/499647/
+Link: https://lore.kernel.org/r/20220826093927.851597-2-dmitry.baryshkov@linaro.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/misc/iqs7222.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/msm/hdmi/hdmi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/misc/iqs7222.c b/drivers/input/misc/iqs7222.c
-index 350be4f23f50..8fd665874a24 100644
---- a/drivers/input/misc/iqs7222.c
-+++ b/drivers/input/misc/iqs7222.c
-@@ -2024,7 +2024,7 @@ static int iqs7222_parse_sldr(struct iqs7222_private *iqs7222,
+diff --git a/drivers/gpu/drm/msm/hdmi/hdmi.c b/drivers/gpu/drm/msm/hdmi/hdmi.c
+index f28fb21e3891..8cd5d50639a5 100644
+--- a/drivers/gpu/drm/msm/hdmi/hdmi.c
++++ b/drivers/gpu/drm/msm/hdmi/hdmi.c
+@@ -252,7 +252,7 @@ static struct hdmi *msm_hdmi_init(struct platform_device *pdev)
+ 	if (hdmi->hpd_gpiod)
+ 		gpiod_set_consumer_name(hdmi->hpd_gpiod, "HDMI_HPD");
  
- 	error = fwnode_property_read_u32(sldr_node, "azoteq,slider-size", &val);
- 	if (!error) {
--		if (!val || val > dev_desc->sldr_res) {
-+		if (val > dev_desc->sldr_res) {
- 			dev_err(&client->dev, "Invalid %s size: %u\n",
- 				fwnode_get_name(sldr_node), val);
- 			return -EINVAL;
-@@ -2043,6 +2043,13 @@ static int iqs7222_parse_sldr(struct iqs7222_private *iqs7222,
- 		return error;
- 	}
+-	pm_runtime_enable(&pdev->dev);
++	devm_pm_runtime_enable(&pdev->dev);
  
-+	if (!(reg_offset ? sldr_setup[3]
-+			 : sldr_setup[2] & IQS7222_SLDR_SETUP_2_RES_MASK)) {
-+		dev_err(&client->dev, "Undefined %s size\n",
-+			fwnode_get_name(sldr_node));
-+		return -EINVAL;
-+	}
-+
- 	error = fwnode_property_read_u32(sldr_node, "azoteq,top-speed", &val);
- 	if (!error) {
- 		if (val > (reg_offset ? U16_MAX : U8_MAX * 4)) {
+ 	hdmi->workq = alloc_ordered_workqueue("msm_hdmi", 0);
+ 
 -- 
 2.35.1
 
