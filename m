@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D53EA657B35
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:19:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DB2F657C43
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:30:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233258AbiL1PTg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:19:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37978 "EHLO
+        id S233791AbiL1Pak (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:30:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233589AbiL1PTI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:19:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 097441408A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:18:58 -0800 (PST)
+        with ESMTP id S233823AbiL1Paj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:30:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BF8B15F03
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:30:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 589A461551
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:18:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69230C433D2;
-        Wed, 28 Dec 2022 15:18:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 47A26B8170E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:30:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B75A3C433EF;
+        Wed, 28 Dec 2022 15:30:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240737;
-        bh=4/o4PVMUe4np5d+cgENpzoe7wZaJhmyjdHE73+UchXU=;
+        s=korg; t=1672241435;
+        bh=s30D2pAhz04U+XCQ1T9rDF6lZbMoYUQ0Kx+k0Dx9DjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TnP97HAQ61z8cNGKZE7x2Pp6tUqPWTUyQpVOS1RmXP01Acq5V/hMVYSE4fmpxFNE5
-         K06ofI8BEDTe6Vczbjr2XxLVs+wO4zFlVn2AeZ/gqAqyKXYUgIwJLx1ZKiok2R/f+0
-         Abf3T7NhzFcc2SuVmY8VyawlcYI0/l8SvWTP6w6Q=
+        b=C8/dDaSi61yTNCBDqyp/tOGePVu/FkuhibdK9tqz42Wy6VuBcljl9ZmlGJiTw3mT1
+         vG7N464IsmgfBLlxX/Td1Q1IcW1q4cXpnoN4GXJhC0AmT32Eg8BbBXZB5ThaRfjZTj
+         K0nMCyOu0gArI80jnd+V7/V5UF+xUuXvlVxH6UcY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Aditya Kumar Singh <quic_adisi@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        patches@lists.linux.dev, Anssi Hannula <anssi.hannula@bitwise.fi>,
+        Jimmy Assarsson <extja@kvaser.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0197/1073] wifi: ath11k: fix firmware assert during bandwidth change for peer sta
+Subject: [PATCH 6.1 0246/1146] can: kvaser_usb: kvaser_usb_leaf: Rename {leaf,usbcan}_cmd_error_event to {leaf,usbcan}_cmd_can_error_event
 Date:   Wed, 28 Dec 2022 15:29:45 +0100
-Message-Id: <20221228144333.366016713@linuxfoundation.org>
+Message-Id: <20221228144336.818079781@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,235 +54,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Kumar Singh <quic_adisi@quicinc.com>
+From: Jimmy Assarsson <extja@kvaser.com>
 
-[ Upstream commit 3ff51d7416ee1ea2d771051a0ffa1ec8be054768 ]
+[ Upstream commit 7ea56128dbf904a3359bcf9289cccdfa3c85c7e8 ]
 
-Currently, ath11k sends peer assoc command for each peer to
-firmware when bandwidth changes. Peer assoc command is a
-bulky command and if many clients are connected, this could
-lead to firmware buffer getting overflowed leading to a firmware
-assert.
+Prepare for handling CMD_ERROR_EVENT. Rename struct
+{leaf,usbcan}_cmd_error_event to {leaf,usbcan}_cmd_can_error_event.
 
-However, during bandwidth change, only phymode and bandwidth
-also can be updated by WMI set peer param command. This makes
-the overall command light when compared to peer assoc and for
-multi-client cases, firmware buffer overflow also does not
-occur.
-
-Remove sending peer assoc command during sta bandwidth change
-and instead add sending WMI set peer param command for phymode
-and bandwidth.
-
-Tested-on: QCN9074 hw1.0 PCI WLAN.HK.2.5.0.1-01100-QCAHKSWPL_SILICONZ-1
-
-Fixes: f187fe8e3bc65 ("ath11k: fix firmware crash during channel switch")
-Signed-off-by: Aditya Kumar Singh <quic_adisi@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20221005095430.19890-1-quic_adisi@quicinc.com
+Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
+Reported-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Tested-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
+Link: https://lore.kernel.org/all/20221010185237.319219-4-extja@kvaser.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/core.h |   2 +
- drivers/net/wireless/ath/ath11k/mac.c  | 122 +++++++++++++++++--------
- 2 files changed, 87 insertions(+), 37 deletions(-)
+ .../net/can/usb/kvaser_usb/kvaser_usb_leaf.c  | 38 +++++++++----------
+ 1 file changed, 19 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/core.h b/drivers/net/wireless/ath/ath11k/core.h
-index b4aac98497cb..8edc1f4e5694 100644
---- a/drivers/net/wireless/ath/ath11k/core.h
-+++ b/drivers/net/wireless/ath/ath11k/core.h
-@@ -498,6 +498,8 @@ struct ath11k_sta {
+diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+index 33ff62cd1729..a1d4ac8d4a08 100644
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+@@ -234,7 +234,7 @@ struct kvaser_cmd_tx_acknowledge_header {
+ 	u8 tid;
+ } __packed;
  
- 	bool use_4addr_set;
- 	u16 tcl_metadata;
-+
-+	u32 bw_prev;
+-struct leaf_cmd_error_event {
++struct leaf_cmd_can_error_event {
+ 	u8 tid;
+ 	u8 flags;
+ 	__le16 time[3];
+@@ -246,7 +246,7 @@ struct leaf_cmd_error_event {
+ 	u8 error_factor;
+ } __packed;
+ 
+-struct usbcan_cmd_error_event {
++struct usbcan_cmd_can_error_event {
+ 	u8 tid;
+ 	u8 padding;
+ 	u8 tx_errors_count_ch0;
+@@ -319,7 +319,7 @@ struct kvaser_cmd {
+ 			struct leaf_cmd_softinfo softinfo;
+ 			struct leaf_cmd_rx_can rx_can;
+ 			struct leaf_cmd_chip_state_event chip_state_event;
+-			struct leaf_cmd_error_event error_event;
++			struct leaf_cmd_can_error_event can_error_event;
+ 			struct leaf_cmd_log_message log_message;
+ 			struct kvaser_cmd_cap_req cap_req;
+ 			struct kvaser_cmd_cap_res cap_res;
+@@ -329,7 +329,7 @@ struct kvaser_cmd {
+ 			struct usbcan_cmd_softinfo softinfo;
+ 			struct usbcan_cmd_rx_can rx_can;
+ 			struct usbcan_cmd_chip_state_event chip_state_event;
+-			struct usbcan_cmd_error_event error_event;
++			struct usbcan_cmd_can_error_event can_error_event;
+ 		} __packed usbcan;
+ 
+ 		struct kvaser_cmd_tx_can tx_can;
+@@ -351,7 +351,7 @@ static const u8 kvaser_usb_leaf_cmd_sizes_leaf[] = {
+ 	[CMD_RX_EXT_MESSAGE]		= kvaser_fsize(u.leaf.rx_can),
+ 	[CMD_LEAF_LOG_MESSAGE]		= kvaser_fsize(u.leaf.log_message),
+ 	[CMD_CHIP_STATE_EVENT]		= kvaser_fsize(u.leaf.chip_state_event),
+-	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.leaf.error_event),
++	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.leaf.can_error_event),
+ 	[CMD_GET_CAPABILITIES_RESP]	= kvaser_fsize(u.leaf.cap_res),
+ 	/* ignored events: */
+ 	[CMD_FLUSH_QUEUE_REPLY]		= CMD_SIZE_ANY,
+@@ -366,7 +366,7 @@ static const u8 kvaser_usb_leaf_cmd_sizes_usbcan[] = {
+ 	[CMD_RX_STD_MESSAGE]		= kvaser_fsize(u.usbcan.rx_can),
+ 	[CMD_RX_EXT_MESSAGE]		= kvaser_fsize(u.usbcan.rx_can),
+ 	[CMD_CHIP_STATE_EVENT]		= kvaser_fsize(u.usbcan.chip_state_event),
+-	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.usbcan.error_event),
++	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.usbcan.can_error_event),
+ 	/* ignored events: */
+ 	[CMD_USBCAN_CLOCK_OVERFLOW_EVENT] = CMD_SIZE_ANY,
  };
+@@ -1132,11 +1132,11 @@ static void kvaser_usb_leaf_usbcan_rx_error(const struct kvaser_usb *dev,
  
- #define ATH11K_MIN_5G_FREQ 4150
-diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
-index 7f6521314b2d..475ed20b495d 100644
---- a/drivers/net/wireless/ath/ath11k/mac.c
-+++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -4209,10 +4209,11 @@ static void ath11k_sta_rc_update_wk(struct work_struct *wk)
- 	const u8 *ht_mcs_mask;
- 	const u16 *vht_mcs_mask;
- 	const u16 *he_mcs_mask;
--	u32 changed, bw, nss, smps;
-+	u32 changed, bw, nss, smps, bw_prev;
- 	int err, num_vht_rates, num_he_rates;
- 	const struct cfg80211_bitrate_mask *mask;
- 	struct peer_assoc_params peer_arg;
-+	enum wmi_phy_mode peer_phymode;
+ 	case CMD_CAN_ERROR_EVENT:
+ 		es.channel = 0;
+-		es.status = cmd->u.usbcan.error_event.status_ch0;
+-		es.txerr = cmd->u.usbcan.error_event.tx_errors_count_ch0;
+-		es.rxerr = cmd->u.usbcan.error_event.rx_errors_count_ch0;
++		es.status = cmd->u.usbcan.can_error_event.status_ch0;
++		es.txerr = cmd->u.usbcan.can_error_event.tx_errors_count_ch0;
++		es.rxerr = cmd->u.usbcan.can_error_event.rx_errors_count_ch0;
+ 		es.usbcan.other_ch_status =
+-			cmd->u.usbcan.error_event.status_ch1;
++			cmd->u.usbcan.can_error_event.status_ch1;
+ 		kvaser_usb_leaf_usbcan_conditionally_rx_error(dev, &es);
  
- 	arsta = container_of(wk, struct ath11k_sta, update_wk);
- 	sta = container_of((void *)arsta, struct ieee80211_sta, drv_priv);
-@@ -4233,6 +4234,7 @@ static void ath11k_sta_rc_update_wk(struct work_struct *wk)
- 	arsta->changed = 0;
- 
- 	bw = arsta->bw;
-+	bw_prev = arsta->bw_prev;
- 	nss = arsta->nss;
- 	smps = arsta->smps;
- 
-@@ -4246,26 +4248,57 @@ static void ath11k_sta_rc_update_wk(struct work_struct *wk)
- 			   ath11k_mac_max_he_nss(he_mcs_mask)));
- 
- 	if (changed & IEEE80211_RC_BW_CHANGED) {
--		/* Send peer assoc command before set peer bandwidth param to
--		 * avoid the mismatch between the peer phymode and the peer
--		 * bandwidth.
--		 */
--		ath11k_peer_assoc_prepare(ar, arvif->vif, sta, &peer_arg, true);
--
--		peer_arg.is_assoc = false;
--		err = ath11k_wmi_send_peer_assoc_cmd(ar, &peer_arg);
--		if (err) {
--			ath11k_warn(ar->ab, "failed to send peer assoc for STA %pM vdev %i: %d\n",
--				    sta->addr, arvif->vdev_id, err);
--		} else if (wait_for_completion_timeout(&ar->peer_assoc_done, 1 * HZ)) {
-+		/* Get the peer phymode */
-+		ath11k_peer_assoc_h_phymode(ar, arvif->vif, sta, &peer_arg);
-+		peer_phymode = peer_arg.peer_phymode;
-+
-+		ath11k_dbg(ar->ab, ATH11K_DBG_MAC, "mac update sta %pM peer bw %d phymode %d\n",
-+			   sta->addr, bw, peer_phymode);
-+
-+		if (bw > bw_prev) {
-+			/* BW is upgraded. In this case we send WMI_PEER_PHYMODE
-+			 * followed by WMI_PEER_CHWIDTH
-+			 */
-+			ath11k_dbg(ar->ab, ATH11K_DBG_MAC, "mac BW upgrade for sta %pM new BW %d, old BW %d\n",
-+				   sta->addr, bw, bw_prev);
-+
-+			err = ath11k_wmi_set_peer_param(ar, sta->addr, arvif->vdev_id,
-+							WMI_PEER_PHYMODE, peer_phymode);
-+
-+			if (err) {
-+				ath11k_warn(ar->ab, "failed to update STA %pM peer phymode %d: %d\n",
-+					    sta->addr, peer_phymode, err);
-+				goto err_rc_bw_changed;
-+			}
-+
- 			err = ath11k_wmi_set_peer_param(ar, sta->addr, arvif->vdev_id,
- 							WMI_PEER_CHWIDTH, bw);
-+
- 			if (err)
- 				ath11k_warn(ar->ab, "failed to update STA %pM peer bw %d: %d\n",
- 					    sta->addr, bw, err);
- 		} else {
--			ath11k_warn(ar->ab, "failed to get peer assoc conf event for %pM vdev %i\n",
--				    sta->addr, arvif->vdev_id);
-+			/* BW is downgraded. In this case we send WMI_PEER_CHWIDTH
-+			 * followed by WMI_PEER_PHYMODE
-+			 */
-+			ath11k_dbg(ar->ab, ATH11K_DBG_MAC, "mac BW downgrade for sta %pM new BW %d,old BW %d\n",
-+				   sta->addr, bw, bw_prev);
-+
-+			err = ath11k_wmi_set_peer_param(ar, sta->addr, arvif->vdev_id,
-+							WMI_PEER_CHWIDTH, bw);
-+
-+			if (err) {
-+				ath11k_warn(ar->ab, "failed to update STA %pM peer bw %d: %d\n",
-+					    sta->addr, bw, err);
-+				goto err_rc_bw_changed;
-+			}
-+
-+			err = ath11k_wmi_set_peer_param(ar, sta->addr, arvif->vdev_id,
-+							WMI_PEER_PHYMODE, peer_phymode);
-+
-+			if (err)
-+				ath11k_warn(ar->ab, "failed to update STA %pM peer phymode %d: %d\n",
-+					    sta->addr, peer_phymode, err);
+ 		/* The USBCAN firmware supports up to 2 channels.
+@@ -1144,13 +1144,13 @@ static void kvaser_usb_leaf_usbcan_rx_error(const struct kvaser_usb *dev,
+ 		 */
+ 		if (dev->nchannels == MAX_USBCAN_NET_DEVICES) {
+ 			es.channel = 1;
+-			es.status = cmd->u.usbcan.error_event.status_ch1;
++			es.status = cmd->u.usbcan.can_error_event.status_ch1;
+ 			es.txerr =
+-				cmd->u.usbcan.error_event.tx_errors_count_ch1;
++				cmd->u.usbcan.can_error_event.tx_errors_count_ch1;
+ 			es.rxerr =
+-				cmd->u.usbcan.error_event.rx_errors_count_ch1;
++				cmd->u.usbcan.can_error_event.rx_errors_count_ch1;
+ 			es.usbcan.other_ch_status =
+-				cmd->u.usbcan.error_event.status_ch0;
++				cmd->u.usbcan.can_error_event.status_ch0;
+ 			kvaser_usb_leaf_usbcan_conditionally_rx_error(dev, &es);
  		}
- 	}
+ 		break;
+@@ -1167,11 +1167,11 @@ static void kvaser_usb_leaf_leaf_rx_error(const struct kvaser_usb *dev,
  
-@@ -4346,6 +4379,7 @@ static void ath11k_sta_rc_update_wk(struct work_struct *wk)
- 		}
- 	}
- 
-+err_rc_bw_changed:
- 	mutex_unlock(&ar->conf_mutex);
- }
- 
-@@ -4499,6 +4533,34 @@ static int ath11k_mac_station_add(struct ath11k *ar,
- 	return ret;
- }
- 
-+static u32 ath11k_mac_ieee80211_sta_bw_to_wmi(struct ath11k *ar,
-+					      struct ieee80211_sta *sta)
-+{
-+	u32 bw = WMI_PEER_CHWIDTH_20MHZ;
-+
-+	switch (sta->deflink.bandwidth) {
-+	case IEEE80211_STA_RX_BW_20:
-+		bw = WMI_PEER_CHWIDTH_20MHZ;
-+		break;
-+	case IEEE80211_STA_RX_BW_40:
-+		bw = WMI_PEER_CHWIDTH_40MHZ;
-+		break;
-+	case IEEE80211_STA_RX_BW_80:
-+		bw = WMI_PEER_CHWIDTH_80MHZ;
-+		break;
-+	case IEEE80211_STA_RX_BW_160:
-+		bw = WMI_PEER_CHWIDTH_160MHZ;
-+		break;
-+	default:
-+		ath11k_warn(ar->ab, "Invalid bandwidth %d for %pM\n",
-+			    sta->deflink.bandwidth, sta->addr);
-+		bw = WMI_PEER_CHWIDTH_20MHZ;
-+		break;
-+	}
-+
-+	return bw;
-+}
-+
- static int ath11k_mac_op_sta_state(struct ieee80211_hw *hw,
- 				   struct ieee80211_vif *vif,
- 				   struct ieee80211_sta *sta,
-@@ -4583,6 +4645,12 @@ static int ath11k_mac_op_sta_state(struct ieee80211_hw *hw,
- 		if (ret)
- 			ath11k_warn(ar->ab, "Failed to associate station: %pM\n",
- 				    sta->addr);
-+
-+		spin_lock_bh(&ar->data_lock);
-+		/* Set arsta bw and prev bw */
-+		arsta->bw = ath11k_mac_ieee80211_sta_bw_to_wmi(ar, sta);
-+		arsta->bw_prev = arsta->bw;
-+		spin_unlock_bh(&ar->data_lock);
- 	} else if (old_state == IEEE80211_STA_ASSOC &&
- 		   new_state == IEEE80211_STA_AUTHORIZED) {
- 		spin_lock_bh(&ar->ab->base_lock);
-@@ -4706,28 +4774,8 @@ static void ath11k_mac_op_sta_rc_update(struct ieee80211_hw *hw,
- 	spin_lock_bh(&ar->data_lock);
- 
- 	if (changed & IEEE80211_RC_BW_CHANGED) {
--		bw = WMI_PEER_CHWIDTH_20MHZ;
--
--		switch (sta->deflink.bandwidth) {
--		case IEEE80211_STA_RX_BW_20:
--			bw = WMI_PEER_CHWIDTH_20MHZ;
--			break;
--		case IEEE80211_STA_RX_BW_40:
--			bw = WMI_PEER_CHWIDTH_40MHZ;
--			break;
--		case IEEE80211_STA_RX_BW_80:
--			bw = WMI_PEER_CHWIDTH_80MHZ;
--			break;
--		case IEEE80211_STA_RX_BW_160:
--			bw = WMI_PEER_CHWIDTH_160MHZ;
--			break;
--		default:
--			ath11k_warn(ar->ab, "Invalid bandwidth %d in rc update for %pM\n",
--				    sta->deflink.bandwidth, sta->addr);
--			bw = WMI_PEER_CHWIDTH_20MHZ;
--			break;
--		}
--
-+		bw = ath11k_mac_ieee80211_sta_bw_to_wmi(ar, sta);
-+		arsta->bw_prev = arsta->bw;
- 		arsta->bw = bw;
- 	}
- 
+ 	switch (cmd->id) {
+ 	case CMD_CAN_ERROR_EVENT:
+-		es.channel = cmd->u.leaf.error_event.channel;
+-		es.status = cmd->u.leaf.error_event.status;
+-		es.txerr = cmd->u.leaf.error_event.tx_errors_count;
+-		es.rxerr = cmd->u.leaf.error_event.rx_errors_count;
+-		es.leaf.error_factor = cmd->u.leaf.error_event.error_factor;
++		es.channel = cmd->u.leaf.can_error_event.channel;
++		es.status = cmd->u.leaf.can_error_event.status;
++		es.txerr = cmd->u.leaf.can_error_event.tx_errors_count;
++		es.rxerr = cmd->u.leaf.can_error_event.rx_errors_count;
++		es.leaf.error_factor = cmd->u.leaf.can_error_event.error_factor;
+ 		break;
+ 	case CMD_LEAF_LOG_MESSAGE:
+ 		es.channel = cmd->u.leaf.log_message.channel;
 -- 
 2.35.1
 
