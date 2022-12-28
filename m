@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 448DF657C3A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:30:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46A646582E4
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233407AbiL1PaS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:30:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47998 "EHLO
+        id S234847AbiL1QnN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:43:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233791AbiL1PaP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:30:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1B4415827
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:30:14 -0800 (PST)
+        with ESMTP id S235078AbiL1Qm3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:42:29 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A30E1F9C7
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:36:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 320F76155C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:30:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 442ACC433EF;
-        Wed, 28 Dec 2022 15:30:13 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2A5B0CE12D2
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:36:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21800C433EF;
+        Wed, 28 Dec 2022 16:36:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241413;
-        bh=S6iJRfMbIHxe5GQye2Z4sJxdn416QZ+RRMMYLtoRXPc=;
+        s=korg; t=1672245369;
+        bh=eKOr5EO23pDTaQCicEFcySKgUHyYJcFa3NTYYaWGAJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JjkctPd0G4wkb2LNUjhATnG5G55LLUmLVbqhHPpuwL+lDBF5rSTX0Gt7Kejkh8PrN
-         tjPROsIVhvr7cei0QVSmh94vspQyFPhlJhnp3J1ACJ9M7C7oaIDmZ2bCYXG3nZc7zx
-         oYFfVaLr0pn8HYM4CYX93AkpEaPDwnSxVqrVNMak=
+        b=AaE4qNyJmSnXV9ITs1ESDsRoANQYD40imaAfLzI14IrsmBVTZTq5ASwIvaej7BJ3g
+         y/yjoRVIw8jk8qiPVtH4NoQK1FX9QTBAbvwhU1L2nO3gSGYl9ZB7aq8g5oua5KNhcL
+         hqo8YQem9FTdqdkGq4k/FYfh6r8ZexWm4ebv5+eA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Yang Shen <shenyang39@huawei.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 479/731] coresight: trbe: remove cpuhp instance node before remove cpuhp state
+Subject: [PATCH 6.1 0847/1146] powerpc/52xx: Fix a resource leak in an error handling path
 Date:   Wed, 28 Dec 2022 15:39:46 +0100
-Message-Id: <20221228144310.436876422@linuxfoundation.org>
+Message-Id: <20221228144353.160458575@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Shen <shenyang39@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 20ee8c223f792947378196307d8e707c9cdc2d61 ]
+[ Upstream commit 5836947613ef33d311b4eff6a32d019580a214f5 ]
 
-cpuhp_state_add_instance() and cpuhp_state_remove_instance() should
-be used in pairs. Or there will lead to the warn on
-cpuhp_remove_multi_state() since the cpuhp_step list is not empty.
+The error handling path of mpc52xx_lpbfifo_probe() has a request_irq()
+that is not balanced by a corresponding free_irq().
 
-The following is the error log with 'rmmod coresight-trbe':
-Error: Removing state 215 which has instances left.
-Call trace:
-  __cpuhp_remove_state_cpuslocked+0x144/0x160
-  __cpuhp_remove_state+0xac/0x100
-  arm_trbe_device_remove+0x2c/0x60 [coresight_trbe]
-  platform_remove+0x34/0x70
-  device_remove+0x54/0x90
-  device_release_driver_internal+0x1e4/0x250
-  driver_detach+0x5c/0xb0
-  bus_remove_driver+0x64/0xc0
-  driver_unregister+0x3c/0x70
-  platform_driver_unregister+0x20/0x30
-  arm_trbe_exit+0x1c/0x658 [coresight_trbe]
-  __arm64_sys_delete_module+0x1ac/0x24c
-  invoke_syscall+0x50/0x120
-  el0_svc_common.constprop.0+0x58/0x1a0
-  do_el0_svc+0x38/0xd0
-  el0_svc+0x2c/0xc0
-  el0t_64_sync_handler+0x1ac/0x1b0
-  el0t_64_sync+0x19c/0x1a0
- ---[ end trace 0000000000000000 ]---
+Add the missing call, as already done in the remove function.
 
-Fixes: 3fbf7f011f24 ("coresight: sink: Add TRBE driver")
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Signed-off-by: Yang Shen <shenyang39@huawei.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Link: https://lore.kernel.org/r/20221122090355.23533-1-shenyang39@huawei.com
+Fixes: 3c9059d79f5e ("powerpc/5200: add LocalPlus bus FIFO device driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/dec1496d46ccd5311d0f6e9f9ca4238be11bf6a6.1643440531.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/coresight/coresight-trbe.c | 1 +
+ arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hwtracing/coresight/coresight-trbe.c b/drivers/hwtracing/coresight/coresight-trbe.c
-index 7dddb85b9059..fac63d092c7b 100644
---- a/drivers/hwtracing/coresight/coresight-trbe.c
-+++ b/drivers/hwtracing/coresight/coresight-trbe.c
-@@ -1030,6 +1030,7 @@ static int arm_trbe_probe_cpuhp(struct trbe_drvdata *drvdata)
- 
- static void arm_trbe_remove_cpuhp(struct trbe_drvdata *drvdata)
- {
-+	cpuhp_state_remove_instance(drvdata->trbe_online, &drvdata->hotplug_node);
- 	cpuhp_remove_multi_state(drvdata->trbe_online);
- }
- 
+diff --git a/arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c b/arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c
+index 48038aaedbd3..2875c206ac0f 100644
+--- a/arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c
++++ b/arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c
+@@ -531,6 +531,7 @@ static int mpc52xx_lpbfifo_probe(struct platform_device *op)
+  err_bcom_rx_irq:
+ 	bcom_gen_bd_rx_release(lpbfifo.bcom_rx_task);
+  err_bcom_rx:
++	free_irq(lpbfifo.irq, &lpbfifo);
+  err_irq:
+ 	iounmap(lpbfifo.regs);
+ 	lpbfifo.regs = NULL;
 -- 
 2.35.1
 
