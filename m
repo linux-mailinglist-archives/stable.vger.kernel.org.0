@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3374657A57
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:11:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 061A665793D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:59:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233626AbiL1PKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:10:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57444 "EHLO
+        id S233319AbiL1O7W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:59:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233672AbiL1PKJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:10:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5784813E09
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:10:08 -0800 (PST)
+        with ESMTP id S233329AbiL1O65 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:58:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29FAA12AB7
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:58:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C55FDB81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:10:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26180C433D2;
-        Wed, 28 Dec 2022 15:10:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB5EA61540
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:58:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1B87C433EF;
+        Wed, 28 Dec 2022 14:58:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240205;
-        bh=PEzqnv/g0IwVl556ORdc3h+lNfyt/OGUZ7XwCHfcnzw=;
+        s=korg; t=1672239535;
+        bh=xBGGz7xQCydoAMkMhr0MZjjfNOa0L1obhG/G9+6689o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PfCNkodw8BH1/fomRFGVUw8ALrPIRmOcNodPtOS4gwYDaTjvIHnRrlbVZNlK/M+a0
-         +c3E5wDAbETnUkx7TfP5FKDatB8MSrkmR+zNzR3efgO/7QzpVaE/gyv/VvYSIEg5Oi
-         VPH1TcEyqAlYMs4qPgrQdEzkPF6H+TApTXfgRMuI=
+        b=tbEYtrVf28ETmOAxk+acRspnS3+PhjM/N64dBlm3QcCrSLv8LxYGhdCXluroJHzdo
+         Stp7Ssjl0elOdhKDYeQaKuzheYPhdPsmgWOGn0fPEZf/xQyBufaXXHoZE8bFduvjFL
+         1Lo+C/Yv1ay0kaU5n0lT+DZUDAePF2Sj9OKHaP0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+ab17848fe269b573eb71@syzkaller.appspotmail.com,
-        Ayushman Dutta <ayudutta@amazon.com>,
-        Kees Cook <keescook@chromium.org>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Frank Wunderlich <frank-w@public-files.de>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0095/1146] seccomp: Move copy_seccomp() to no failure path.
-Date:   Wed, 28 Dec 2022 15:27:14 +0100
-Message-Id: <20221228144332.722897904@linuxfoundation.org>
+Subject: [PATCH 6.0 0047/1073] arm64: dts: mt7986: fix trng node name
+Date:   Wed, 28 Dec 2022 15:27:15 +0100
+Message-Id: <20221228144329.396723276@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,177 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Frank Wunderlich <frank-w@public-files.de>
 
-[ Upstream commit a1140cb215fa13dcec06d12ba0c3ee105633b7c4 ]
+[ Upstream commit 07ce611c705217507c2a036bba8695cbd82c9e36 ]
 
-Our syzbot instance reported memory leaks in do_seccomp() [0], similar
-to the report [1].  It shows that we miss freeing struct seccomp_filter
-and some objects included in it.
+Binding requires node name to be rng not trng:
 
-We can reproduce the issue with the program below [2] which calls one
-seccomp() and two clone() syscalls.
+trng@1020f000: $nodename:0: 'trng@1020f000' does not match '^rng@[0-9a-f]+$'
 
-The first clone()d child exits earlier than its parent and sends a
-signal to kill it during the second clone(), more precisely before the
-fatal_signal_pending() test in copy_process().  When the parent receives
-the signal, it has to destroy the embryonic process and return -EINTR to
-user space.  In the failure path, we have to call seccomp_filter_release()
-to decrement the filter's refcount.
-
-Initially, we called it in free_task() called from the failure path, but
-the commit 3a15fb6ed92c ("seccomp: release filter after task is fully
-dead") moved it to release_task() to notify user space as early as possible
-that the filter is no longer used.
-
-To keep the change and current seccomp refcount semantics, let's move
-copy_seccomp() just after the signal check and add a WARN_ON_ONCE() in
-free_task() for future debugging.
-
-[0]:
-unreferenced object 0xffff8880063add00 (size 256):
-  comm "repro_seccomp", pid 230, jiffies 4294687090 (age 9.914s)
-  hex dump (first 32 bytes):
-    01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00  ................
-    ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................
-  backtrace:
-    do_seccomp (./include/linux/slab.h:600 ./include/linux/slab.h:733 kernel/seccomp.c:666 kernel/seccomp.c:708 kernel/seccomp.c:1871 kernel/seccomp.c:1991)
-    do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
-    entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
-unreferenced object 0xffffc90000035000 (size 4096):
-  comm "repro_seccomp", pid 230, jiffies 4294687090 (age 9.915s)
-  hex dump (first 32 bytes):
-    01 00 00 00 00 00 00 00 00 00 00 00 05 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    __vmalloc_node_range (mm/vmalloc.c:3226)
-    __vmalloc_node (mm/vmalloc.c:3261 (discriminator 4))
-    bpf_prog_alloc_no_stats (kernel/bpf/core.c:91)
-    bpf_prog_alloc (kernel/bpf/core.c:129)
-    bpf_prog_create_from_user (net/core/filter.c:1414)
-    do_seccomp (kernel/seccomp.c:671 kernel/seccomp.c:708 kernel/seccomp.c:1871 kernel/seccomp.c:1991)
-    do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
-    entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
-unreferenced object 0xffff888003fa1000 (size 1024):
-  comm "repro_seccomp", pid 230, jiffies 4294687090 (age 9.915s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    bpf_prog_alloc_no_stats (./include/linux/slab.h:600 ./include/linux/slab.h:733 kernel/bpf/core.c:95)
-    bpf_prog_alloc (kernel/bpf/core.c:129)
-    bpf_prog_create_from_user (net/core/filter.c:1414)
-    do_seccomp (kernel/seccomp.c:671 kernel/seccomp.c:708 kernel/seccomp.c:1871 kernel/seccomp.c:1991)
-    do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
-    entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
-unreferenced object 0xffff888006360240 (size 16):
-  comm "repro_seccomp", pid 230, jiffies 4294687090 (age 9.915s)
-  hex dump (first 16 bytes):
-    01 00 37 00 76 65 72 6c e0 83 01 06 80 88 ff ff  ..7.verl........
-  backtrace:
-    bpf_prog_store_orig_filter (net/core/filter.c:1137)
-    bpf_prog_create_from_user (net/core/filter.c:1428)
-    do_seccomp (kernel/seccomp.c:671 kernel/seccomp.c:708 kernel/seccomp.c:1871 kernel/seccomp.c:1991)
-    do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
-    entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
-unreferenced object 0xffff8880060183e0 (size 8):
-  comm "repro_seccomp", pid 230, jiffies 4294687090 (age 9.915s)
-  hex dump (first 8 bytes):
-    06 00 00 00 00 00 ff 7f                          ........
-  backtrace:
-    kmemdup (mm/util.c:129)
-    bpf_prog_store_orig_filter (net/core/filter.c:1144)
-    bpf_prog_create_from_user (net/core/filter.c:1428)
-    do_seccomp (kernel/seccomp.c:671 kernel/seccomp.c:708 kernel/seccomp.c:1871 kernel/seccomp.c:1991)
-    do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
-    entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
-
-[1]: https://syzkaller.appspot.com/bug?id=2809bb0ac77ad9aa3f4afe42d6a610aba594a987
-
-[2]:
-#define _GNU_SOURCE
-#include <sched.h>
-#include <signal.h>
-#include <unistd.h>
-#include <sys/syscall.h>
-#include <linux/filter.h>
-#include <linux/seccomp.h>
-
-void main(void)
-{
-	struct sock_filter filter[] = {
-		BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ALLOW),
-	};
-	struct sock_fprog fprog = {
-		.len = sizeof(filter) / sizeof(filter[0]),
-		.filter = filter,
-	};
-	long i, pid;
-
-	syscall(__NR_seccomp, SECCOMP_SET_MODE_FILTER, 0, &fprog);
-
-	for (i = 0; i < 2; i++) {
-		pid = syscall(__NR_clone, CLONE_NEWNET | SIGKILL, NULL, NULL, 0);
-		if (pid == 0)
-			return;
-	}
-}
-
-Fixes: 3a15fb6ed92c ("seccomp: release filter after task is fully dead")
-Reported-by: syzbot+ab17848fe269b573eb71@syzkaller.appspotmail.com
-Reported-by: Ayushman Dutta <ayudutta@amazon.com>
-Suggested-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20220823154532.82913-1-kuniyu@amazon.com
+Fixes: 50137c150f5f ("arm64: dts: mediatek: add basic mt7986 support")
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221027151022.5541-1-linux@fw-web.de
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/fork.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt7986a.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/fork.c b/kernel/fork.c
-index 08969f5aa38d..844dfdc8c639 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -535,6 +535,9 @@ void put_task_stack(struct task_struct *tsk)
+diff --git a/arch/arm64/boot/dts/mediatek/mt7986a.dtsi b/arch/arm64/boot/dts/mediatek/mt7986a.dtsi
+index e3a407d03551..12c259ec042e 100644
+--- a/arch/arm64/boot/dts/mediatek/mt7986a.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt7986a.dtsi
+@@ -162,7 +162,7 @@ sgmiisys1: syscon@10070000 {
+ 			#clock-cells = <1>;
+ 		};
  
- void free_task(struct task_struct *tsk)
- {
-+#ifdef CONFIG_SECCOMP
-+	WARN_ON_ONCE(tsk->seccomp.filter);
-+#endif
- 	release_user_cpus_ptr(tsk);
- 	scs_release(tsk);
- 
-@@ -2406,12 +2409,6 @@ static __latent_entropy struct task_struct *copy_process(
- 
- 	spin_lock(&current->sighand->siglock);
- 
--	/*
--	 * Copy seccomp details explicitly here, in case they were changed
--	 * before holding sighand lock.
--	 */
--	copy_seccomp(p);
--
- 	rv_task_fork(p);
- 
- 	rseq_fork(p, clone_flags);
-@@ -2428,6 +2425,14 @@ static __latent_entropy struct task_struct *copy_process(
- 		goto bad_fork_cancel_cgroup;
- 	}
- 
-+	/* No more failure paths after this point. */
-+
-+	/*
-+	 * Copy seccomp details explicitly here, in case they were changed
-+	 * before holding sighand lock.
-+	 */
-+	copy_seccomp(p);
-+
- 	init_task_pid_links(p);
- 	if (likely(p->pid)) {
- 		ptrace_init_task(p, (clone_flags & CLONE_PTRACE) || trace);
+-		trng: trng@1020f000 {
++		trng: rng@1020f000 {
+ 			compatible = "mediatek,mt7986-rng",
+ 				     "mediatek,mt7623-rng";
+ 			reg = <0 0x1020f000 0 0x100>;
 -- 
 2.35.1
 
