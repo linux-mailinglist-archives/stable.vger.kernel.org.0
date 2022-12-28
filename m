@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAF4F65809C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:18:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4375A657FDD
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:11:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233207AbiL1QSi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:18:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36684 "EHLO
+        id S234506AbiL1QLE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:11:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233234AbiL1QSK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:18:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED4A6178BB
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:16:56 -0800 (PST)
+        with ESMTP id S234570AbiL1QKd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:10:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CE7619C24
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:09:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A7FB61560
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:16:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AACFC433EF;
-        Wed, 28 Dec 2022 16:16:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D66A0B81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:09:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F8C1C433D2;
+        Wed, 28 Dec 2022 16:09:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244216;
-        bh=9dUPKqRteL/BxhH6fqdLsfEkUfjD2qB6Fxf+dVoy+g0=;
+        s=korg; t=1672243744;
+        bh=f1yknhdNEv510RONUsHY8Ln7xVDyPd46hqurIzVSIZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xOO1LVt/3OiJwZRMtid6wIGzPGIV1Qkzc7B/gWormXE6ld6WFVA7UpQfr3wZ663Ky
-         rSZo/RhNtaVJ07Uetkcl2Mkhb6MHYeZklzZPPkMr2DZ1ozBLUn1mzh/sC6JOVv0HY1
-         G2T8xrH82545xpvtw35baJYGjn2Fm7qsQns3TYqc=
+        b=hgUlNoDrFaar9qFyy8Fo25WgFfnGbndZhebx1UVV/XGJIu6c6er4ICHP9tMATmOnH
+         EF2k779ON1aWtJVFEBBOHKbk2CS2tZy0M8vf9RffOvGrwAB1LfeQzPn1/wvyGkyycV
+         tiMsp/xcAngPawhIo/OC4vGGBJuAfHdotCDqtKYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Frank Li <frank.li@nxp.com>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        patches@lists.linux.dev, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0630/1146] PCI: endpoint: pci-epf-vntb: Fix call pci_epc_mem_free_addr() in error path
+Subject: [PATCH 6.0 0581/1073] f2fs: allow to set compression for inlined file
 Date:   Wed, 28 Dec 2022 15:36:09 +0100
-Message-Id: <20221228144347.279980833@linuxfoundation.org>
+Message-Id: <20221228144343.829594317@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Li <frank.li@nxp.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-[ Upstream commit 0c031262d2ddfb938f9668d620d7ed674771646c ]
+[ Upstream commit a995627e6dd81d4485d40ce64880017a080d71e6 ]
 
-Replace pci_epc_mem_free_addr() with pci_epf_free_space() in the
-error handle path to match pci_epf_alloc_space().
+The below commit disallows to set compression on empty created file which
+has a inline_data. Let's fix it.
 
-Link: https://lore.kernel.org/r/20221102141014.1025893-4-Frank.Li@nxp.com
-Fixes: e35f56bb0330 ("PCI: endpoint: Support NTB transfer between RC and EP")
-Signed-off-by: Frank Li <frank.li@nxp.com>
-Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Fixes: 7165841d578e ("f2fs: fix to check inline_data during compressed inode conversion")
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/endpoint/functions/pci-epf-vntb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/f2fs/file.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/pci/endpoint/functions/pci-epf-vntb.c b/drivers/pci/endpoint/functions/pci-epf-vntb.c
-index 0ea85e1d292e..fba0179939b8 100644
---- a/drivers/pci/endpoint/functions/pci-epf-vntb.c
-+++ b/drivers/pci/endpoint/functions/pci-epf-vntb.c
-@@ -557,7 +557,7 @@ static int epf_ntb_db_bar_init(struct epf_ntb *ntb)
- 	return ret;
- 
- err_alloc_peer_mem:
--	pci_epc_mem_free_addr(ntb->epf->epc, epf_bar->phys_addr, mw_addr, epf_bar->size);
-+	pci_epf_free_space(ntb->epf, mw_addr, barno, 0);
- 	return -1;
- }
- 
+diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
+index ce4905a073b3..74337edcbbb0 100644
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -1866,6 +1866,10 @@ static int f2fs_setflags_common(struct inode *inode, u32 iflags, u32 mask)
+ 			if (!f2fs_disable_compressed_file(inode))
+ 				return -EINVAL;
+ 		} else {
++			/* try to convert inline_data to support compression */
++			int err = f2fs_convert_inline_inode(inode);
++			if (err)
++				return err;
+ 			if (!f2fs_may_compress(inode))
+ 				return -EINVAL;
+ 			if (S_ISREG(inode->i_mode) && F2FS_HAS_BLOCKS(inode))
 -- 
 2.35.1
 
