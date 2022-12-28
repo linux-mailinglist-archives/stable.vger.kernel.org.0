@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D45F16584A8
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:00:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49B6E657EEA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:59:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235228AbiL1RAE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:00:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48532 "EHLO
+        id S232950AbiL1P7J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:59:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235408AbiL1Q7S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:59:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 927A520BD4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:54:50 -0800 (PST)
+        with ESMTP id S232999AbiL1P7I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:59:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A56B018E00
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:59:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FF1D60D41
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:54:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FDB6C433EF;
-        Wed, 28 Dec 2022 16:54:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4093D6155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:59:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 232A4C433D2;
+        Wed, 28 Dec 2022 15:59:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246489;
-        bh=GfROr8HR6qZP6TAhiHR0HybOQfzTNxipuRy8eXjgMtc=;
+        s=korg; t=1672243146;
+        bh=TePuMiNa2pNC63XpVcgQ1xVINJebu79XDAKz+0GVs9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ogc8zCUrCfxMf4HvGgOMxaLC46bDqQ0mxDN30jtsOWF5Y7zSIWIPGdHNZO3rhA8rF
-         ysbnxsU+2KWZxYbEJtmjMopAsmivxhN8OS4d1JK6BodWMitFfTnVBdw3izmZWpU/Ln
-         xHbD/zdyqU4q2apU/+bZdQDtcpBBJ7f/ov/GUkKc=
+        b=u3t7m5LehrV9tKR13OVerPt6xGw0/ZaoKoIc1PXsrwmceS0h6kvVyBAz2rizrAPju
+         IEB/Seq8UN25jwve1LPCdIgPrzpTn/uyka3A8GDISHdfPrYDj6rug525f5YbqBBKIW
+         FNFISW6PNmDF4hEVyuB63XFUNA+hWyEj2w2Vq7s4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sami Tolvanen <samitolvanen@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Lukasz Majczak <lma@semihlaf.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1055/1146] scsi: elx: libefc: Fix second parameter type in state callbacks
-Date:   Wed, 28 Dec 2022 15:43:14 +0100
-Message-Id: <20221228144358.955542644@linuxfoundation.org>
+Subject: [PATCH 5.15 688/731] ASoC: Intel: Skylake: Fix driver hang during shutdown
+Date:   Wed, 28 Dec 2022 15:43:15 +0100
+Message-Id: <20221228144316.408959382@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,79 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Cezary Rojewski <cezary.rojewski@intel.com>
 
-[ Upstream commit 3d75e766b58a7410d4e835c534e1b4664a8f62d0 ]
+[ Upstream commit 171107237246d66bce04f3769d33648f896b4ce3 ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function pointer
-prototype to make sure the call target is valid to help mitigate ROP
-attacks. If they are not identical, there is a failure at run time, which
-manifests as either a kernel panic or thread getting killed. A proposed
-warning in clang aims to catch these at compile time, which reveals:
+AudioDSP cores and HDAudio links need to be turned off on shutdown to
+ensure no communication or data transfer occurs during the procedure.
 
-  drivers/scsi/elx/libefc/efc_node.c:811:22: error: incompatible function pointer types assigning to 'void (*)(struct efc_sm_ctx *, u32, void *)' (aka 'void (*)(struct efc_sm_ctx *, unsigned int, void *)') from 'void (*)(struct efc_sm_ctx *, enum efc_sm_event, void *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-                  ctx->current_state = state;
-                                    ^ ~~~~~
-  drivers/scsi/elx/libefc/efc_node.c:878:21: error: incompatible function pointer types assigning to 'void (*)(struct efc_sm_ctx *, u32, void *)' (aka 'void (*)(struct efc_sm_ctx *, unsigned int, void *)') from 'void (*)(struct efc_sm_ctx *, enum efc_sm_event, void *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          node->nodedb_state = state;
-                            ^ ~~~~~
-  drivers/scsi/elx/libefc/efc_node.c:905:6: error: incompatible function pointer types assigning to 'void (*)(struct efc_sm_ctx *, enum efc_sm_event, void *)' from 'void (*)(struct efc_sm_ctx *, u32, void *)' (aka 'void (*)(struct efc_sm_ctx *, unsigned int, void *)') [-Werror,-Wincompatible-function-pointer-types-strict]
-                  pf = node->nodedb_state;
-                    ^ ~~~~~~~~~~~~~~~~~~
-
-  drivers/scsi/elx/libefc/efc_device.c:455:22: error: incompatible function pointer types assigning to 'void (*)(struct efc_sm_ctx *, u32, void *)' (aka 'void (*)(struct efc_sm_ctx *, unsigned int, void *)') from 'void (struct efc_sm_ctx *, enum efc_sm_event, void *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-                  node->nodedb_state = __efc_d_init;
-                                    ^ ~~~~~~~~~~~~
-
-  drivers/scsi/elx/libefc/efc_sm.c:41:22: error: incompatible function pointer types assigning to 'void (*)(struct efc_sm_ctx *, u32, void *)' (aka 'void (*)(struct efc_sm_ctx *, unsigned int, void *)') from 'void (*)(struct efc_sm_ctx *, enum efc_sm_event, void *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-                  ctx->current_state = state;
-                                    ^ ~~~~~
-
-The type of the second parameter in the prototypes of ->current_state() and
-->nodedb_state() ('u32') does not match the implementations, which have a
-second parameter type of 'enum efc_sm_event'. Update the prototypes to have
-the correct second parameter type, clearing up all the warnings and CFI
-failures.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1750
-Reported-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/20221102161906.2781508-1-nathan@kernel.org
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: c5a76a246989 ("ASoC: Intel: Skylake: Add shutdown callback")
+Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Tested-by: Lukasz Majczak <lma@semihlaf.com>
+Link: https://lore.kernel.org/r/20221205085330.857665-6-cezary.rojewski@intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/elx/libefc/efclib.h | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ sound/soc/intel/skylake/skl.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/elx/libefc/efclib.h b/drivers/scsi/elx/libefc/efclib.h
-index dde20891c2dd..57e338612812 100644
---- a/drivers/scsi/elx/libefc/efclib.h
-+++ b/drivers/scsi/elx/libefc/efclib.h
-@@ -58,10 +58,12 @@ enum efc_node_send_ls_acc {
- #define EFC_LINK_STATUS_UP		0
- #define EFC_LINK_STATUS_DOWN		1
+diff --git a/sound/soc/intel/skylake/skl.c b/sound/soc/intel/skylake/skl.c
+index 148ddf4cace0..46bb3b8bd5af 100644
+--- a/sound/soc/intel/skylake/skl.c
++++ b/sound/soc/intel/skylake/skl.c
+@@ -1096,7 +1096,10 @@ static void skl_shutdown(struct pci_dev *pci)
+ 	if (!skl->init_done)
+ 		return;
  
-+enum efc_sm_event;
+-	snd_hdac_stop_streams_and_chip(bus);
++	snd_hdac_stop_streams(bus);
++	snd_hdac_ext_bus_link_power_down_all(bus);
++	skl_dsp_sleep(skl->dsp);
 +
- /* State machine context header  */
- struct efc_sm_ctx {
- 	void (*current_state)(struct efc_sm_ctx *ctx,
--			      u32 evt, void *arg);
-+			      enum efc_sm_event evt, void *arg);
- 
- 	const char	*description;
- 	void		*app;
-@@ -365,7 +367,7 @@ struct efc_node {
- 	int			prev_evt;
- 
- 	void (*nodedb_state)(struct efc_sm_ctx *ctx,
--			     u32 evt, void *arg);
-+			     enum efc_sm_event evt, void *arg);
- 	struct timer_list	gidpt_delay_timer;
- 	u64			time_last_gidpt_msec;
- 
+ 	list_for_each_entry(s, &bus->stream_list, list) {
+ 		stream = stream_to_hdac_ext_stream(s);
+ 		snd_hdac_ext_stream_decouple(bus, stream, false);
 -- 
 2.35.1
 
