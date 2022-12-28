@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 807DC658231
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:33:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90468657C28
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:29:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234837AbiL1Qdn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:33:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50762 "EHLO
+        id S233438AbiL1P3e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:29:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234816AbiL1QdU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94F0BDF7F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:30:48 -0800 (PST)
+        with ESMTP id S233766AbiL1P3c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:29:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 505DC1573B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:29:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E9C361562
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:30:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 462BDC433D2;
-        Wed, 28 Dec 2022 16:30:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DEC5AB8171F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:29:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37FCAC433EF;
+        Wed, 28 Dec 2022 15:29:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245047;
-        bh=2u+JqZVFjNOYCm9GMc8BJ4EA8rIcooMLdSQI+41VY6U=;
+        s=korg; t=1672241368;
+        bh=tP5GtcpL8y1odZI4Boe03MmjASKA2EbFGCclmc2dx8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OeoqGlNdBnnINq1qE8COUfxPNMxATe7busG0eyck844LOY70R+ZRaSlmpe0gSLk5R
-         P7MrMrBdHgjbn7HetcypoJbCI9xL22AzIh5xqwte0lmXCuSUrAgnDfJzknS16EVoIC
-         hLOTivxgDNlz6F9ZoWDVjFdhdyF5wKLKJe+og7tM=
+        b=QvkaoBbOc8Uw0MQTUnWeXIpfKqpXBTpJY9k9p1IlWmyVgMRS4qL6wzrw5gmPnq7o/
+         d2h8Hs0nOZPJw1/5XZHCuNSQmn4y+1ysnJ5baySxq319uacomZamRKrveTNdVtlDkF
+         6vM8tEGdxJVH1XeIV4Q+sNhM2+jogTn6tcOOt03M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Stefan Eichenberger <stefan.eichenberger@toradex.com>,
-        Francesco Dolcini <francesco@dolcini.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
+        Frederic Barrat <fbarrat@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0790/1073] rtc: snvs: Allow a time difference on clock register read
+Subject: [PATCH 5.15 471/731] cxl: fix possible null-ptr-deref in cxl_guest_init_afu|adapter()
 Date:   Wed, 28 Dec 2022 15:39:38 +0100
-Message-Id: <20221228144349.470280346@linuxfoundation.org>
+Message-Id: <20221228144310.204619936@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,90 +54,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Eichenberger <stefan.eichenberger@toradex.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 0462681e207ccc44778a77b3297af728b1cf5b9f ]
+[ Upstream commit 61c80d1c3833e196256fb060382db94f24d3d9a7 ]
 
-On an iMX6ULL the following message appears when a wakealarm is set:
+If device_register() fails in cxl_register_afu|adapter(), the device
+is not added, device_unregister() can not be called in the error path,
+otherwise it will cause a null-ptr-deref because of removing not added
+device.
 
-echo 0 > /sys/class/rtc/rtc1/wakealarm
-rtc rtc1: Timeout trying to get valid LPSRT Counter read
+As comment of device_register() says, it should use put_device() to give
+up the reference in the error path. So split device_unregister() into
+device_del() and put_device(), then goes to put dev when register fails.
 
-This does not always happen but is reproducible quite often (7 out of 10
-times). The problem appears because the iMX6ULL is not able to read the
-registers within one 32kHz clock cycle which is the base clock of the
-RTC. Therefore, this patch allows a difference of up to 320 cycles
-(10ms). 10ms was chosen to be big enough even on systems with less cpu
-power (e.g. iMX6ULL). According to the reference manual a difference is
-fine:
-- If the two consecutive reads are similar, the value is correct.
-The values have to be similar, not equal.
-
-Fixes: cd7f3a249dbe ("rtc: snvs: Add timeouts to avoid kernel lockups")
-Reviewed-by: Francesco Dolcini <francesco.dolcini@toradex.com>
-Signed-off-by: Stefan Eichenberger <stefan.eichenberger@toradex.com>
-Signed-off-by: Francesco Dolcini <francesco@dolcini.it>
-Link: https://lore.kernel.org/r/20221106115915.7930-1-francesco@dolcini.it
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: 14baf4d9c739 ("cxl: Add guest-specific code")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Acked-by: Andrew Donnellan <ajd@linux.ibm.com>
+Acked-by: Frederic Barrat <fbarrat@linux.ibm.com>
+Link: https://lore.kernel.org/r/20221111145440.2426970-1-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-snvs.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/misc/cxl/guest.c | 24 ++++++++++++++----------
+ 1 file changed, 14 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-index bd929b0e7d7d..d82acf1af1fa 100644
---- a/drivers/rtc/rtc-snvs.c
-+++ b/drivers/rtc/rtc-snvs.c
-@@ -32,6 +32,14 @@
- #define SNVS_LPPGDR_INIT	0x41736166
- #define CNTR_TO_SECS_SH		15
+diff --git a/drivers/misc/cxl/guest.c b/drivers/misc/cxl/guest.c
+index 186308f1f8eb..6334376826a9 100644
+--- a/drivers/misc/cxl/guest.c
++++ b/drivers/misc/cxl/guest.c
+@@ -959,10 +959,10 @@ int cxl_guest_init_afu(struct cxl *adapter, int slice, struct device_node *afu_n
+ 	 * if it returns an error!
+ 	 */
+ 	if ((rc = cxl_register_afu(afu)))
+-		goto err_put1;
++		goto err_put_dev;
  
-+/* The maximum RTC clock cycles that are allowed to pass between two
-+ * consecutive clock counter register reads. If the values are corrupted a
-+ * bigger difference is expected. The RTC frequency is 32kHz. With 320 cycles
-+ * we end at 10ms which should be enough for most cases. If it once takes
-+ * longer than expected we do a retry.
-+ */
-+#define MAX_RTC_READ_DIFF_CYCLES	320
-+
- struct snvs_rtc_data {
- 	struct rtc_device *rtc;
- 	struct regmap *regmap;
-@@ -56,6 +64,7 @@ static u64 rtc_read_lpsrt(struct snvs_rtc_data *data)
- static u32 rtc_read_lp_counter(struct snvs_rtc_data *data)
- {
- 	u64 read1, read2;
-+	s64 diff;
- 	unsigned int timeout = 100;
+ 	if ((rc = cxl_sysfs_afu_add(afu)))
+-		goto err_put1;
++		goto err_del_dev;
  
- 	/* As expected, the registers might update between the read of the LSB
-@@ -66,7 +75,8 @@ static u32 rtc_read_lp_counter(struct snvs_rtc_data *data)
- 	do {
- 		read2 = read1;
- 		read1 = rtc_read_lpsrt(data);
--	} while (read1 != read2 && --timeout);
-+		diff = read1 - read2;
-+	} while (((diff < 0) || (diff > MAX_RTC_READ_DIFF_CYCLES)) && --timeout);
- 	if (!timeout)
- 		dev_err(&data->rtc->dev, "Timeout trying to get valid LPSRT Counter read\n");
+ 	/*
+ 	 * pHyp doesn't expose the programming models supported by the
+@@ -978,7 +978,7 @@ int cxl_guest_init_afu(struct cxl *adapter, int slice, struct device_node *afu_n
+ 		afu->modes_supported = CXL_MODE_DIRECTED;
  
-@@ -78,13 +88,15 @@ static u32 rtc_read_lp_counter(struct snvs_rtc_data *data)
- static int rtc_read_lp_counter_lsb(struct snvs_rtc_data *data, u32 *lsb)
- {
- 	u32 count1, count2;
-+	s32 diff;
- 	unsigned int timeout = 100;
+ 	if ((rc = cxl_afu_select_best_mode(afu)))
+-		goto err_put2;
++		goto err_remove_sysfs;
  
- 	regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &count1);
- 	do {
- 		count2 = count1;
- 		regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &count1);
--	} while (count1 != count2 && --timeout);
-+		diff = count1 - count2;
-+	} while (((diff < 0) || (diff > MAX_RTC_READ_DIFF_CYCLES)) && --timeout);
- 	if (!timeout) {
- 		dev_err(&data->rtc->dev, "Timeout trying to get valid LPSRT Counter read\n");
- 		return -ETIMEDOUT;
+ 	adapter->afu[afu->slice] = afu;
+ 
+@@ -998,10 +998,12 @@ int cxl_guest_init_afu(struct cxl *adapter, int slice, struct device_node *afu_n
+ 
+ 	return 0;
+ 
+-err_put2:
++err_remove_sysfs:
+ 	cxl_sysfs_afu_remove(afu);
+-err_put1:
+-	device_unregister(&afu->dev);
++err_del_dev:
++	device_del(&afu->dev);
++err_put_dev:
++	put_device(&afu->dev);
+ 	free = false;
+ 	guest_release_serr_irq(afu);
+ err2:
+@@ -1135,18 +1137,20 @@ struct cxl *cxl_guest_init_adapter(struct device_node *np, struct platform_devic
+ 	 * even if it returns an error!
+ 	 */
+ 	if ((rc = cxl_register_adapter(adapter)))
+-		goto err_put1;
++		goto err_put_dev;
+ 
+ 	if ((rc = cxl_sysfs_adapter_add(adapter)))
+-		goto err_put1;
++		goto err_del_dev;
+ 
+ 	/* release the context lock as the adapter is configured */
+ 	cxl_adapter_context_unlock(adapter);
+ 
+ 	return adapter;
+ 
+-err_put1:
+-	device_unregister(&adapter->dev);
++err_del_dev:
++	device_del(&adapter->dev);
++err_put_dev:
++	put_device(&adapter->dev);
+ 	free = false;
+ 	cxl_guest_remove_chardev(adapter);
+ err1:
 -- 
 2.35.1
 
