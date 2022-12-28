@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38F93657C77
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:33:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EBBC657D90
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:44:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233440AbiL1PdD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:33:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49290 "EHLO
+        id S233982AbiL1Po3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:44:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233374AbiL1Pcp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:32:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E756D15FD9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:32:44 -0800 (PST)
+        with ESMTP id S233979AbiL1Po2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:44:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B0DD1742F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:44:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 887D6B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:32:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2677C433D2;
-        Wed, 28 Dec 2022 15:32:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A66B56156C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:44:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3374C433D2;
+        Wed, 28 Dec 2022 15:44:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241562;
-        bh=jPTkkaYuH0DswnGejV9IOCH+RcQYHlma1W2FmPDhEKY=;
+        s=korg; t=1672242267;
+        bh=7ljlnLcKf9jbkj65tY/z1q7swUbRQNxZMhQJK4+O5Pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uRQUjRo6n5PnHAeR0/SKM5+SAoNQdkEJvXjugXlsr2zaBA/eN4NTzNPcF9lCJtrke
-         j1EfcYW33ncO08lL7Zed9y7ZfABtrezaVBZ6nbcAUACMJk1He7NkDbdNeovs4Ih7dE
-         ooVuxI2B1KLfnoZ9XR2rE4sfNbPFH27vvbE9El2w=
+        b=qFaF2cIFfG3YEYEJdeBmu64cONQrCScqmPztWiBn80B1a3nnr8anAnHPE+H/YTSiU
+         lwIzRPOJ2fVBprP2ZLcmVuLP43dK2RV+bHuikrk+c86nScj0gNR42vrTRYuaLhIPb9
+         poK6bHnxEo2BYJvV7vPGoHZNwCrvjhTBuAoG1bRk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Cole Robinson <crobinso@redhat.com>,
-        Borislav Petkov <bp@suse.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
+        patches@lists.linux.dev, Hui Tang <tanghui20@huawei.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0298/1073] virt/sev-guest: Add a MODULE_ALIAS
-Date:   Wed, 28 Dec 2022 15:31:26 +0100
-Message-Id: <20221228144336.106513118@linuxfoundation.org>
+Subject: [PATCH 6.1 0348/1146] mtd: lpddr2_nvm: Fix possible null-ptr-deref
+Date:   Wed, 28 Dec 2022 15:31:27 +0100
+Message-Id: <20221228144339.613711233@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cole Robinson <crobinso@redhat.com>
+From: Hui Tang <tanghui20@huawei.com>
 
-[ Upstream commit 2874529b3513bdc90299c90f40713602da685e35 ]
+[ Upstream commit 6bdd45d795adf9e73b38ced5e7f750cd199499ff ]
 
-Autoload the driver when, for example, SNP init code creates the
-corresponding platform device.
+It will cause null-ptr-deref when resource_size(add_range) invoked,
+if platform_get_resource() returns NULL.
 
-  [ bp: Rewrite commit message. ]
-
-Fixes: fce96cf04430 ("virt: Add SEV-SNP guest driver")
-Signed-off-by: Cole Robinson <crobinso@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Link: https://lore.kernel.org/r/ff480c5e688eb0a72a4db0a29c7b1bb54c45bfd4.1667594253.git.crobinso@redhat.com
+Fixes: 96ba9dd65788 ("mtd: lpddr: add driver for LPDDR2-NVM PCM memories")
+Signed-off-by: Hui Tang <tanghui20@huawei.com>
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20221114090240.244172-1-tanghui20@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virt/coco/sev-guest/sev-guest.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mtd/lpddr/lpddr2_nvm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/virt/coco/sev-guest/sev-guest.c b/drivers/virt/coco/sev-guest/sev-guest.c
-index 1ea6d2e5b218..99d6062afe72 100644
---- a/drivers/virt/coco/sev-guest/sev-guest.c
-+++ b/drivers/virt/coco/sev-guest/sev-guest.c
-@@ -800,3 +800,4 @@ MODULE_AUTHOR("Brijesh Singh <brijesh.singh@amd.com>");
- MODULE_LICENSE("GPL");
- MODULE_VERSION("1.0.0");
- MODULE_DESCRIPTION("AMD SEV Guest Driver");
-+MODULE_ALIAS("platform:sev-guest");
+diff --git a/drivers/mtd/lpddr/lpddr2_nvm.c b/drivers/mtd/lpddr/lpddr2_nvm.c
+index 367e2d906de0..e71af4c49096 100644
+--- a/drivers/mtd/lpddr/lpddr2_nvm.c
++++ b/drivers/mtd/lpddr/lpddr2_nvm.c
+@@ -433,6 +433,8 @@ static int lpddr2_nvm_probe(struct platform_device *pdev)
+ 
+ 	/* lpddr2_nvm address range */
+ 	add_range = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!add_range)
++		return -ENODEV;
+ 
+ 	/* Populate map_info data structure */
+ 	*map = (struct map_info) {
 -- 
 2.35.1
 
