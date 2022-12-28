@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D88C9657990
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:03:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ECCE6579A6
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:03:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233469AbiL1PDB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:03:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48864 "EHLO
+        id S233313AbiL1PDX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:03:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233491AbiL1PCc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:02:32 -0500
+        with ESMTP id S233423AbiL1PDU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:03:20 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D858813CCC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:02:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F050F12ABD
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:03:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 72DA66153C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:02:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F934C433F0;
-        Wed, 28 Dec 2022 15:02:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8338D61543
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:03:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94345C433D2;
+        Wed, 28 Dec 2022 15:03:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239740;
-        bh=GvYOdyMW2LWb4c+OOOy02McPr3TdKMze3wjftwhEmvA=;
+        s=korg; t=1672239798;
+        bh=OepPGvD5L0rJXQdAq7Umh3WccAxWFMYdTvuPPkA0cIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hQnuD57XA2IJ6ys3StSjRc8aLtwnBs0NtqAr6nriXNSuoE4mOl+HQyYVd24tM7SBr
-         AFrWElI26161Tlw1wbrvoMDI+D+q02IYEhEOEksPXsGWlmuO0vRJXDn3gdjsKtPTNs
-         sPc1o87Ymy0MtF9sLWZzNSNzvc3tyItW2d8Bv70o=
+        b=gXKRktD0nagdXRHujF0rbWzDfhwYvtLb9udK2zyVvVvMRc/sYQhz+uN1MFrQTJRKy
+         hsCr/ikQEfhvCH73DTbCVtE+aQmzu4NH1P+SDFnmypmLemyKqdMfsN33sxmvNawlnP
+         m5By1Bgyq7+tZdhz55P6HzRtBOW2xwFV83wdv4NA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
         Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0034/1146] arm64: dts: qcom: sc7280: fix codec reset line polarity for CRD 1.0/2.0
-Date:   Wed, 28 Dec 2022 15:26:13 +0100
-Message-Id: <20221228144331.093984203@linuxfoundation.org>
+Subject: [PATCH 6.1 0035/1146] arm64: dts: qcom: sm8250: drop bogus DP PHY clock
+Date:   Wed, 28 Dec 2022 15:26:14 +0100
+Message-Id: <20221228144331.120673421@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -54,36 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit b8f298d4f69d82119ac0d22809a17c80b1f188d1 ]
+[ Upstream commit bb9f23e46ddcebe1bc68a43a0f7acfc1865a6472 ]
 
-The driver for the codec, when resetting the chip, first drives the line
-low, and then high. This means that the line is active low. Change the
-annotation in the DTS accordingly.
+The QMP pipe clock is used by the USB part of the PHY so drop the
+corresponding properties from the DP child node.
 
-Fixes: f8b4eb64f200 ("arm64: dts: qcom: sc7280: Add wcd9385 codec node for CRD 1.0/2.0 and IDP boards")
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: 5aa0d1becd5b ("arm64: dts: qcom: sm8250: switch usb1 qmp phy to USB3+DP mode")
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221027074652.1044235-5-dmitry.torokhov@gmail.com
+Link: https://lore.kernel.org/r/20221026152511.9661-2-johan+linaro@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sc7280-idp.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/sm8250.dtsi | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi b/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi
-index cd432a2856a7..7772dfba94ec 100644
---- a/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi
-@@ -34,7 +34,7 @@ wcd9385: audio-codec-1 {
- 		pinctrl-0 = <&wcd_reset_n>;
- 		pinctrl-1 = <&wcd_reset_n_sleep>;
+diff --git a/arch/arm64/boot/dts/qcom/sm8250.dtsi b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+index 1452213efb00..29b34adb09e2 100644
+--- a/arch/arm64/boot/dts/qcom/sm8250.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+@@ -2898,9 +2898,6 @@ dp_phy: dp-phy@88ea200 {
+ 				      <0 0x088eaa00 0 0x100>;
+ 				#phy-cells = <0>;
+ 				#clock-cells = <1>;
+-				clocks = <&gcc GCC_USB3_PRIM_PHY_PIPE_CLK>;
+-				clock-names = "pipe0";
+-				clock-output-names = "usb3_phy_pipe_clk_src";
+ 			};
+ 		};
  
--		reset-gpios = <&tlmm 83 GPIO_ACTIVE_HIGH>;
-+		reset-gpios = <&tlmm 83 GPIO_ACTIVE_LOW>;
- 
- 		qcom,rx-device = <&wcd_rx>;
- 		qcom,tx-device = <&wcd_tx>;
 -- 
 2.35.1
 
