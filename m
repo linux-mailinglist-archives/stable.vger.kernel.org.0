@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C778657868
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:50:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75CE0657DE3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:48:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233073AbiL1OuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:50:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37924 "EHLO
+        id S234043AbiL1Prr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:47:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233101AbiL1OuM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:50:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81D3911C1F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:50:11 -0800 (PST)
+        with ESMTP id S234052AbiL1Prp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:47:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C341178AB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:47:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 12272B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:50:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BFFBC433EF;
-        Wed, 28 Dec 2022 14:50:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D31BC61572
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:47:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D595EC433F0;
+        Wed, 28 Dec 2022 15:47:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239008;
-        bh=35wUNQA3z0odziUalHmDpCk9+LKaQ4zeghy4IUYunuw=;
+        s=korg; t=1672242464;
+        bh=FoxYHp9WbO8yNbj/wlK5JvWJiKXSe9+l6W+iEX6c9Cc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z54z3eHwK/Sky2VTQfUQ9g8tEpbZci1mQZ1xEBOYGmDVx0gDiqlAuxvCh43sP9Pog
-         H/vtPDW5bsk6gCLLeSn01mFGaS9dd6od/Jw+f0Na1bZL9YSkc9kZ7g/35UkY0vQ+Kg
-         jTAAukoKCwZ5Pk8klal9u+Lb2+rRpih7VZTlUR4o=
+        b=tkllirDi62UiFFozNgTq8VFV9az74HfyEPWngfty4RAoO/3UIHjrHqv6GMOKnv58Y
+         caAkGCd/UIHA7uTqWZItKfGWBT3sRP0zMdOX9UFQUgm3zohz+1pSHZYzIp5rbmeTjg
+         DsztyZY8xQaYDSRpMMhkddcgnOnHwYzOUJBu37DE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 094/731] perf/x86/intel/uncore: Fix reference count leak in hswep_has_limit_sbox()
+        patches@lists.linux.dev, Liu Shixin <liushixin2@huawei.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0413/1073] ALSA: asihpi: fix missing pci_disable_device()
 Date:   Wed, 28 Dec 2022 15:33:21 +0100
-Message-Id: <20221228144259.275400669@linuxfoundation.org>
+Message-Id: <20221228144339.240387811@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Liu Shixin <liushixin2@huawei.com>
 
-[ Upstream commit 1ff9dd6e7071a561f803135c1d684b13c7a7d01d ]
+[ Upstream commit 9d86515c3d4c0564a0c31a2df87d735353a1971e ]
 
-pci_get_device() will increase the reference count for the returned
-'dev'. We need to call pci_dev_put() to decrease the reference count.
-Since 'dev' is only used in pci_read_config_dword(), let's add
-pci_dev_put() right after it.
+pci_disable_device() need be called while module exiting, switch to use
+pcim_enable(), pci_disable_device() will be called in pcim_release().
 
-Fixes: 9d480158ee86 ("perf/x86/intel/uncore: Remove uncore extra PCI dev HSWEP_PCI_PCU_3")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-Link: https://lore.kernel.org/r/20221118063137.121512-3-wangxiongfeng2@huawei.com
+Fixes: 3285ea10e9b0 ("ALSA: asihpi - Interrelated HPI tidy up.")
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Link: https://lore.kernel.org/r/20221126021429.3029562-1-liushixin2@huawei.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/uncore_snbep.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/asihpi/hpioctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index 76fedc8e12dd..f5d89d06c66a 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -2891,6 +2891,7 @@ static bool hswep_has_limit_sbox(unsigned int device)
- 		return false;
+diff --git a/sound/pci/asihpi/hpioctl.c b/sound/pci/asihpi/hpioctl.c
+index bb31b7fe867d..477a5b4b50bc 100644
+--- a/sound/pci/asihpi/hpioctl.c
++++ b/sound/pci/asihpi/hpioctl.c
+@@ -361,7 +361,7 @@ int asihpi_adapter_probe(struct pci_dev *pci_dev,
+ 		pci_dev->device, pci_dev->subsystem_vendor,
+ 		pci_dev->subsystem_device, pci_dev->devfn);
  
- 	pci_read_config_dword(dev, HSWEP_PCU_CAPID4_OFFET, &capid4);
-+	pci_dev_put(dev);
- 	if (!hswep_get_chop(capid4))
- 		return true;
- 
+-	if (pci_enable_device(pci_dev) < 0) {
++	if (pcim_enable_device(pci_dev) < 0) {
+ 		dev_err(&pci_dev->dev,
+ 			"pci_enable_device failed, disabling device\n");
+ 		return -EIO;
 -- 
 2.35.1
 
