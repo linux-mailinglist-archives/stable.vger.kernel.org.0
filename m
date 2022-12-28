@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D17A657AB3
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:14:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63C47657B77
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:22:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233095AbiL1POW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:14:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59560 "EHLO
+        id S233748AbiL1PWs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:22:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232861AbiL1PNy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:13:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA95B13E88
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:13:53 -0800 (PST)
+        with ESMTP id S233762AbiL1PWV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:22:21 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D908C14084
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:21:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E108DB816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:13:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 557ACC433D2;
-        Wed, 28 Dec 2022 15:13:50 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2E28CCE076E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:21:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20EE6C433D2;
+        Wed, 28 Dec 2022 15:21:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240430;
-        bh=UVijFt/tOpGD2l3/z1ymEi5pmXo7aTOFsoByvTDKQXo=;
+        s=korg; t=1672240911;
+        bh=Jd8K+jkkZkbgbn3LMA0FQ8m7KSnhp/xrdIKxgjwQKow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xNTbKjRPM+ldufBoslGT3JFPzTfqpNxAHp89UEA7Pj0Aw002FYtKRvAGP8PH0UfUC
-         P2BlOAghLLXXdMSIHFImfcgqso4F34HIMLsogjMJFfaiOs2Vzmmp98PfthDpvTigaO
-         MSpPRWLBTNfis9+hXgARpY/EhnFdEnpqfOngQfsE=
+        b=BlaZe98RpWbG5nEUdMB3HKTa/SIUlWGYWujNjfb/xni5oWvIQs/T4gdNXN3rzxMwq
+         bWi+bZ/jqd+8Yzg0huMRvLlrw7jLoRclG8h7W96JV9SGuCLWW2kO8TuPTwUYwod3Ic
+         NGaGCbaiAuFSyNO0t9rXFrLybBSTmPOXE3EoQF/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Prashant Malani <pmalani@chromium.org>,
+        patches@lists.linux.dev,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0133/1073] platform/chrome: cros_usbpd_notify: Fix error handling in cros_usbpd_notify_init()
-Date:   Wed, 28 Dec 2022 15:28:41 +0100
-Message-Id: <20221228144331.645893524@linuxfoundation.org>
+Subject: [PATCH 6.1 0183/1146] lockd: set other missing fields when unlocking files
+Date:   Wed, 28 Dec 2022 15:28:42 +0100
+Message-Id: <20221228144335.122963892@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 5a2d96623670155d94aca72c320c0ac27bdc6bd2 ]
+[ Upstream commit 18ebd35b61b4693a0ddc270b6d4f18def232e770 ]
 
-The following WARNING message was given when rmmod cros_usbpd_notify:
+vfs_lock_file() expects the struct file_lock to be fully initialised by
+the caller. Re-exported NFSv3 has been seen to Oops if the fl_file field
+is NULL.
 
- Unexpected driver unregister!
- WARNING: CPU: 0 PID: 253 at drivers/base/driver.c:270 driver_unregister+0x8a/0xb0
- Modules linked in: cros_usbpd_notify(-)
- CPU: 0 PID: 253 Comm: rmmod Not tainted 6.1.0-rc3 #24
- ...
- Call Trace:
-  <TASK>
-  cros_usbpd_notify_exit+0x11/0x1e [cros_usbpd_notify]
-  __x64_sys_delete_module+0x3c7/0x570
-  ? __ia32_sys_delete_module+0x570/0x570
-  ? lock_is_held_type+0xe3/0x140
-  ? syscall_enter_from_user_mode+0x17/0x50
-  ? rcu_read_lock_sched_held+0xa0/0xd0
-  ? syscall_enter_from_user_mode+0x1c/0x50
-  do_syscall_64+0x37/0x90
-  entry_SYSCALL_64_after_hwframe+0x63/0xcd
- RIP: 0033:0x7f333fe9b1b7
-
-The reason is that the cros_usbpd_notify_init() does not check the return
-value of platform_driver_register(), and the cros_usbpd_notify can
-install successfully even if platform_driver_register() failed.
-
-Fix by checking the return value of platform_driver_register() and
-unregister cros_usbpd_notify_plat_driver when it failed.
-
-Fixes: ec2daf6e33f9 ("platform: chrome: Add cros-usbpd-notify driver")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Link: https://lore.kernel.org/r/20221117080823.77549-1-yuancan@huawei.com
-Signed-off-by: Prashant Malani <pmalani@chromium.org>
+Fixes: aec158242b87 ("lockd: set fl_owner when unlocking files")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216582
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_usbpd_notify.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/lockd/svcsubs.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/platform/chrome/cros_usbpd_notify.c b/drivers/platform/chrome/cros_usbpd_notify.c
-index 4b5a81c9dc6d..10670b6588e3 100644
---- a/drivers/platform/chrome/cros_usbpd_notify.c
-+++ b/drivers/platform/chrome/cros_usbpd_notify.c
-@@ -239,7 +239,11 @@ static int __init cros_usbpd_notify_init(void)
- 		return ret;
- 
- #ifdef CONFIG_ACPI
--	platform_driver_register(&cros_usbpd_notify_acpi_driver);
-+	ret = platform_driver_register(&cros_usbpd_notify_acpi_driver);
-+	if (ret) {
-+		platform_driver_unregister(&cros_usbpd_notify_plat_driver);
-+		return ret;
-+	}
- #endif
- 	return 0;
+diff --git a/fs/lockd/svcsubs.c b/fs/lockd/svcsubs.c
+index e1c4617de771..3515f17eaf3f 100644
+--- a/fs/lockd/svcsubs.c
++++ b/fs/lockd/svcsubs.c
+@@ -176,7 +176,7 @@ nlm_delete_file(struct nlm_file *file)
+ 	}
  }
+ 
+-static int nlm_unlock_files(struct nlm_file *file, fl_owner_t owner)
++static int nlm_unlock_files(struct nlm_file *file, const struct file_lock *fl)
+ {
+ 	struct file_lock lock;
+ 
+@@ -184,12 +184,15 @@ static int nlm_unlock_files(struct nlm_file *file, fl_owner_t owner)
+ 	lock.fl_type  = F_UNLCK;
+ 	lock.fl_start = 0;
+ 	lock.fl_end   = OFFSET_MAX;
+-	lock.fl_owner = owner;
+-	if (file->f_file[O_RDONLY] &&
+-	    vfs_lock_file(file->f_file[O_RDONLY], F_SETLK, &lock, NULL))
++	lock.fl_owner = fl->fl_owner;
++	lock.fl_pid   = fl->fl_pid;
++	lock.fl_flags = FL_POSIX;
++
++	lock.fl_file = file->f_file[O_RDONLY];
++	if (lock.fl_file && vfs_lock_file(lock.fl_file, F_SETLK, &lock, NULL))
+ 		goto out_err;
+-	if (file->f_file[O_WRONLY] &&
+-	    vfs_lock_file(file->f_file[O_WRONLY], F_SETLK, &lock, NULL))
++	lock.fl_file = file->f_file[O_WRONLY];
++	if (lock.fl_file && vfs_lock_file(lock.fl_file, F_SETLK, &lock, NULL))
+ 		goto out_err;
+ 	return 0;
+ out_err:
+@@ -226,7 +229,7 @@ nlm_traverse_locks(struct nlm_host *host, struct nlm_file *file,
+ 		if (match(lockhost, host)) {
+ 
+ 			spin_unlock(&flctx->flc_lock);
+-			if (nlm_unlock_files(file, fl->fl_owner))
++			if (nlm_unlock_files(file, fl))
+ 				return 1;
+ 			goto again;
+ 		}
 -- 
 2.35.1
 
