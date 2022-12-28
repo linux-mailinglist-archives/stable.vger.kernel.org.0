@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AABA86584F1
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:04:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5B4A657F7C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:05:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235346AbiL1REK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:04:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56438 "EHLO
+        id S230257AbiL1QF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:05:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234943AbiL1RDo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:03:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF6BD1C129
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:58:04 -0800 (PST)
+        with ESMTP id S234256AbiL1QFV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:05:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21D501902A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:05:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 76099B8188B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:58:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8F46C433D2;
-        Wed, 28 Dec 2022 16:58:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B36586156E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:05:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C78FBC433D2;
+        Wed, 28 Dec 2022 16:05:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246682;
-        bh=RcWnq7GP/UzPFJHuOTgz5KeYcbscuCrl+RsL6vKS3p0=;
+        s=korg; t=1672243520;
+        bh=L5ZrilAx5jf6RcAS90Y8P9B0ybULVQKJV3TNiqw/meM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CGnl2TgrWDEmyw9TrXjhuYLcGGtuU0XNnLmnN3nlWBwnOyTkEVlED0SzQJO3SE3rQ
-         Kh7PhWDh/P4D3XvEwjrKwnecI33tttrGXI+IBDWkGCD9djALjNjke+1ToX91QzYcDH
-         oJyEMaxeeEoD00yQJjinAECXJSrdP5Pv3Ftwxic0=
+        b=WfSbubJZHZLSLBH+wj4EhyyTqCH34RuPrYV8Ci3Pn4SNcA0laUNkx5BXAgAU0ukeF
+         /ZGmRthVI7DBnOb8+nz1pLGOv3UYhOeUvi1a37MUgO1WmlfLOuAVfKOIBIkxLl+gvf
+         qlT7DQDfsLPe6SjOSr6Hhpv0rO89T531CSjG01eE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeff LaBundy <jeff@labundy.com>,
-        Rob Herring <robh@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1097/1146] dt-bindings: input: iqs7222: Add support for IQS7222A v1.13+
-Date:   Wed, 28 Dec 2022 15:43:56 +0100
-Message-Id: <20221228144359.966541143@linuxfoundation.org>
+        patches@lists.linux.dev,
+        syzbot+fce48a3dd3368645bd6c@syzkaller.appspotmail.com,
+        Lin Ma <linma@zju.edu.cn>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.15 730/731] media: dvbdev: fix refcnt bug
+Date:   Wed, 28 Dec 2022 15:43:57 +0100
+Message-Id: <20221228144317.603160512@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,75 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff LaBundy <jeff@labundy.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-[ Upstream commit 97384a65c5e304ccab0477751546f5519d9371c3 ]
+commit 3a664569b71b0a52be5ffb9fb87cc4f83d29bd71 upstream.
 
-IQS7222A revisions 1.13 and later widen the gesture multiplier from
-x4 ms to x16 ms; update the binding accordingly.
+Previous commit initialize the dvbdev->ref before the template copy,
+which will overwrite the reference and cause refcnt bug.
 
-As part of this change, refresh the corresponding properties in the
-example as well.
+refcount_t: addition on 0; use-after-free.
+WARNING: CPU: 0 PID: 1 at lib/refcount.c:25 refcount_warn_saturate+0x17c/0x1f0 lib/refcount.c:25
+Modules linked in:
+CPU: 0 PID: 1 Comm: swapper/0 Not tainted 6.1.0-rc6-next-20221128-syzkaller #0
+...
+RIP: 0010:refcount_warn_saturate+0x17c/0x1f0 lib/refcount.c:25
+RSP: 0000:ffffc900000678d0 EFLAGS: 00010282
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: ffff88813ff58000 RSI: ffffffff81660e7c RDI: fffff5200000cf0c
+RBP: ffff888022a45010 R08: 0000000000000005 R09: 0000000000000000
+R10: 0000000080000000 R11: 0000000000000000 R12: 0000000000000001
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000001
+FS:  0000000000000000(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffff88823ffff000 CR3: 000000000c48e000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ __refcount_add include/linux/refcount.h:199 [inline]
+ __refcount_inc include/linux/refcount.h:250 [inline]
+ refcount_inc include/linux/refcount.h:267 [inline]
+ kref_get include/linux/kref.h:45 [inline]
+ dvb_device_get drivers/media/dvb-core/dvbdev.c:585 [inline]
+ dvb_register_device+0xe83/0x16e0 drivers/media/dvb-core/dvbdev.c:517
+...
 
-Fixes: 44dc42d254bf ("dt-bindings: input: Add bindings for Azoteq IQS7222A/B/C")
-Signed-off-by: Jeff LaBundy <jeff@labundy.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/Y1SRaVGwj30z/g6r@nixie71
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Just place the kref_init at correct position.
+
+Reported-by: syzbot+fce48a3dd3368645bd6c@syzkaller.appspotmail.com
+Fixes: 0fc044b2b5e2 ("media: dvbdev: adopts refcnt to avoid UAF")
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../bindings/input/azoteq,iqs7222.yaml           | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/media/dvb-core/dvbdev.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml b/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
-index 913fd2da9862..9ddba7f2e7aa 100644
---- a/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
-+++ b/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
-@@ -572,9 +572,9 @@ patternProperties:
-           linux,code: true
+--- a/drivers/media/dvb-core/dvbdev.c
++++ b/drivers/media/dvb-core/dvbdev.c
+@@ -490,8 +490,8 @@ int dvb_register_device(struct dvb_adapt
+ 		return -ENOMEM;
+ 	}
  
-           azoteq,gesture-max-ms:
--            multipleOf: 4
-+            multipleOf: 16
-             minimum: 0
--            maximum: 1020
-+            maximum: 4080
-             description:
-               Specifies the length of time (in ms) within which a tap, swipe
-               or flick gesture must be completed in order to be acknowledged
-@@ -582,9 +582,9 @@ patternProperties:
-               gesture applies to all remaining swipe or flick gestures.
- 
-           azoteq,gesture-min-ms:
--            multipleOf: 4
-+            multipleOf: 16
-             minimum: 0
--            maximum: 124
-+            maximum: 496
-             description:
-               Specifies the length of time (in ms) for which a tap gesture must
-               be held in order to be acknowledged by the device.
-@@ -930,14 +930,14 @@ examples:
- 
-                             event-tap {
-                                     linux,code = <KEY_PLAYPAUSE>;
--                                    azoteq,gesture-max-ms = <600>;
--                                    azoteq,gesture-min-ms = <24>;
-+                                    azoteq,gesture-max-ms = <400>;
-+                                    azoteq,gesture-min-ms = <32>;
-                             };
- 
-                             event-flick-pos {
-                                     linux,code = <KEY_NEXTSONG>;
--                                    azoteq,gesture-max-ms = <600>;
--                                    azoteq,gesture-dist = <816>;
-+                                    azoteq,gesture-max-ms = <800>;
-+                                    azoteq,gesture-dist = <800>;
-                             };
- 
-                             event-flick-neg {
--- 
-2.35.1
-
+-	kref_init(&dvbdev->ref);
+ 	memcpy(dvbdev, template, sizeof(struct dvb_device));
++	kref_init(&dvbdev->ref);
+ 	dvbdev->type = type;
+ 	dvbdev->id = id;
+ 	dvbdev->adapter = adap;
 
 
