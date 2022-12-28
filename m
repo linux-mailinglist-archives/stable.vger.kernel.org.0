@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 323936578F0
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:55:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E36206578F2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:56:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233245AbiL1Oz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:55:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43590 "EHLO
+        id S233223AbiL1O4C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:56:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233253AbiL1Ozw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:55:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FE92DD5
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:55:49 -0800 (PST)
+        with ESMTP id S233247AbiL1O4A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:56:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 121B910053
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:55:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0BC361541
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:55:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4F29C433D2;
-        Wed, 28 Dec 2022 14:55:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A01CEB81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:55:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE696C433EF;
+        Wed, 28 Dec 2022 14:55:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239348;
-        bh=nrg5uLepJOiprDjSVWoMzJlcEOouFyraHN06Edfc+E0=;
+        s=korg; t=1672239356;
+        bh=1x3PbNmWnKW+kjZz8KnZYm4wLij/rxtQIFx3wR1Z0V4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=afDiKKXMbplMyVcvKNnmDL3D3qTNOY2g9kggt6z8RVK7XGDreIYcTyM4OCrI4NTn+
-         VV0toyk/DgD58RNdLsPL4f2QnZ2ymZigXYc4kF/XPQ8tkfsBar4/HymB2vnPU/QSRO
-         tuZvPV2t2N8/AYdFzRdMnoTkatTovzqli9DR0QEk=
+        b=1pW5KlZKhZSUt3br5q/OPdEyVxrkwxSa9x7dpKHwI+q1HOw6CdFhz+ypuMvHV3jG2
+         cB5nGHSnRJ58bUh9fYy8faFiSqYs8Z5MOtKfaHnhVLWWJGdSWUhnwLOiq7fJ2Hofni
+         6dxcS35Ns5faaHel5VAIGDs0jgjqA4Mkxx+06GI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        patches@lists.linux.dev, Luca Weiss <luca@z3ntu.xyz>,
         Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
         Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0014/1073] arm64: dts: qcom: msm8996: fix GPU OPP table
-Date:   Wed, 28 Dec 2022 15:26:42 +0100
-Message-Id: <20221228144328.549863205@linuxfoundation.org>
+Subject: [PATCH 6.0 0015/1073] ARM: dts: qcom: apq8064: fix coresight compatible
+Date:   Wed, 28 Dec 2022 15:26:43 +0100
+Message-Id: <20221228144328.575321345@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -55,50 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Luca Weiss <luca@z3ntu.xyz>
 
-[ Upstream commit 0d440d811e6e2f37093e54db55bc27fe66678170 ]
+[ Upstream commit a42b1ee868361f1cb0492f1bdaefb43e0751e468 ]
 
-Fix Adreno OPP table according to the msm-3.18. Enable 624 MHz for the
-speed bin 3 and 560 MHz for bins 2 and 3.
+There's a typo missing the arm, prefix of arm,coresight-etb10. Fix it to
+make devicetree validation happier.
 
-Fixes: 69cc3114ab0f ("arm64: dts: Add Adreno GPU definitions")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
+Fixes: 7a5c275fd821 ("ARM: dts: qcom: Add apq8064 CoreSight components")
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
 Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20220724140421.1933004-7-dmitry.baryshkov@linaro.org
+Link: https://lore.kernel.org/r/20221013190657.48499-3-luca@z3ntu.xyz
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8996.dtsi | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/qcom-apq8064.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8996.dtsi b/arch/arm64/boot/dts/qcom/msm8996.dtsi
-index 24791ed436c5..c8b9d7d60774 100644
---- a/arch/arm64/boot/dts/qcom/msm8996.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8996.dtsi
-@@ -1228,17 +1228,17 @@ gpu_opp_table: opp-table {
- 				compatible = "operating-points-v2";
+diff --git a/arch/arm/boot/dts/qcom-apq8064.dtsi b/arch/arm/boot/dts/qcom-apq8064.dtsi
+index ada4c828bf2f..095849423de1 100644
+--- a/arch/arm/boot/dts/qcom-apq8064.dtsi
++++ b/arch/arm/boot/dts/qcom-apq8064.dtsi
+@@ -1580,7 +1580,7 @@ wifi {
+ 		};
  
- 				/*
--				 * 624Mhz and 560Mhz are only available on speed
--				 * bin (1 << 0). All the rest are available on
--				 * all bins of the hardware
-+				 * 624Mhz is only available on speed bins 0 and 3.
-+				 * 560Mhz is only available on speed bins 0, 2 and 3.
-+				 * All the rest are available on all bins of the hardware.
- 				 */
- 				opp-624000000 {
- 					opp-hz = /bits/ 64 <624000000>;
--					opp-supported-hw = <0x01>;
-+					opp-supported-hw = <0x09>;
- 				};
- 				opp-560000000 {
- 					opp-hz = /bits/ 64 <560000000>;
--					opp-supported-hw = <0x01>;
-+					opp-supported-hw = <0x0d>;
- 				};
- 				opp-510000000 {
- 					opp-hz = /bits/ 64 <510000000>;
+ 		etb@1a01000 {
+-			compatible = "coresight-etb10", "arm,primecell";
++			compatible = "arm,coresight-etb10", "arm,primecell";
+ 			reg = <0x1a01000 0x1000>;
+ 
+ 			clocks = <&rpmcc RPM_QDSS_CLK>;
 -- 
 2.35.1
 
