@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E823B657B68
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:21:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D34D465812A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233711AbiL1PV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:21:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40114 "EHLO
+        id S234781AbiL1QZX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:25:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233380AbiL1PVP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:21:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E3C014021
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:21:12 -0800 (PST)
+        with ESMTP id S234825AbiL1QYa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:24:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 927AB19C3A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:22:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8BCF61544
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:21:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBA1AC433D2;
-        Wed, 28 Dec 2022 15:21:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3704CB816F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:22:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AC88C433EF;
+        Wed, 28 Dec 2022 16:22:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240871;
-        bh=pvlQrj2X9CHWoDjKElzDkcTQ3pvjEyggMdRDMY+TNDk=;
+        s=korg; t=1672244522;
+        bh=8tFq7JLBXzqGGvy14KOYaed8BFPAxwaM75ZJKH6+DsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pKBBLFfNUWusBeZFhOKYtQR4RwgsAZxZypXhC3hVWDLVFD4+B0gma8HLwYr2pcImX
-         /SB0gBv4PJ24rXrfkX2hYraFC+TPjnK6V2l0yTwGk6lr4lAmsryCro3Y8fkM9cfThv
-         VUjiDY7tXJtIlh4E8QM93vaY7/pFi8xbNFQPTnQQ=
+        b=QHAAxJnAbUYI15dv/XsnKYF+5iq7l1MCtqlf93Fp0wgFdvEsJ6A9V1/xE+ZGSf06R
+         j73rY+SoY/D5Ug5HZ7oJa8Xj2kTOHYpxTgiCo7vo63LnALyks538vcZvc+YY7h8x0N
+         Gqv/exDYXciTddIrqaIV6+D7yq0bz8uIJwkjur+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Bryan Brattlof <bb@ti.com>,
+        Keerthy <j-keerthy@ti.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 407/731] scsi: mpt3sas: Fix possible resource leaks in mpt3sas_transport_port_add()
+Subject: [PATCH 6.0 0726/1073] thermal/drivers/k3_j72xx_bandgap: Fix the debug print message
 Date:   Wed, 28 Dec 2022 15:38:34 +0100
-Message-Id: <20221228144308.364806720@linuxfoundation.org>
+Message-Id: <20221228144347.744739073@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,64 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Keerthy <j-keerthy@ti.com>
 
-[ Upstream commit 78316e9dfc24906dd474630928ed1d3c562b568e ]
+[ Upstream commit a7c42af78b19a11e98a5555a664c343e3a672632 ]
 
-In mpt3sas_transport_port_add(), if sas_rphy_add() returns error,
-sas_rphy_free() needs be called to free the resource allocated in
-sas_end_device_alloc(). Otherwise a kernel crash will happen:
+The debug print message to check the workaround applicability is inverted.
+Fix the same.
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000000000000108
-CPU: 45 PID: 37020 Comm: bash Kdump: loaded Tainted: G        W          6.1.0-rc1+ #189
-pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : device_del+0x54/0x3d0
-lr : device_del+0x37c/0x3d0
-Call trace:
- device_del+0x54/0x3d0
- attribute_container_class_device_del+0x28/0x38
- transport_remove_classdev+0x6c/0x80
- attribute_container_device_trigger+0x108/0x110
- transport_remove_device+0x28/0x38
- sas_rphy_remove+0x50/0x78 [scsi_transport_sas]
- sas_port_delete+0x30/0x148 [scsi_transport_sas]
- do_sas_phy_delete+0x78/0x80 [scsi_transport_sas]
- device_for_each_child+0x68/0xb0
- sas_remove_children+0x30/0x50 [scsi_transport_sas]
- sas_rphy_remove+0x38/0x78 [scsi_transport_sas]
- sas_port_delete+0x30/0x148 [scsi_transport_sas]
- do_sas_phy_delete+0x78/0x80 [scsi_transport_sas]
- device_for_each_child+0x68/0xb0
- sas_remove_children+0x30/0x50 [scsi_transport_sas]
- sas_remove_host+0x20/0x38 [scsi_transport_sas]
- scsih_remove+0xd8/0x420 [mpt3sas]
-
-Because transport_add_device() is not called when sas_rphy_add() fails, the
-device is not added. When sas_rphy_remove() is subsequently called to
-remove the device in the remove() path, a NULL pointer dereference happens.
-
-Fixes: f92363d12359 ("[SCSI] mpt3sas: add new driver supporting 12GB SAS")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221109032403.1636422-1-yangyingliang@huawei.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: ffcb2fc86eb7 ("thermal: k3_j72xx_bandgap: Add the bandgap driver support")
+Reported-by: Bryan Brattlof <bb@ti.com>
+Signed-off-by: Keerthy <j-keerthy@ti.com>
+Link: https://lore.kernel.org/r/20221010034126.3550-1-j-keerthy@ti.com
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_transport.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/thermal/k3_j72xx_bandgap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_transport.c b/drivers/scsi/mpt3sas/mpt3sas_transport.c
-index 0681daee6c14..e5ecd6ada6cd 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_transport.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_transport.c
-@@ -829,6 +829,8 @@ mpt3sas_transport_port_add(struct MPT3SAS_ADAPTER *ioc, u16 handle,
- 	if ((sas_rphy_add(rphy))) {
- 		ioc_err(ioc, "failure at %s:%d/%s()!\n",
- 			__FILE__, __LINE__, __func__);
-+		sas_rphy_free(rphy);
-+		rphy = NULL;
- 	}
+diff --git a/drivers/thermal/k3_j72xx_bandgap.c b/drivers/thermal/k3_j72xx_bandgap.c
+index 115a44eb4fbf..4eb4926bbdc7 100644
+--- a/drivers/thermal/k3_j72xx_bandgap.c
++++ b/drivers/thermal/k3_j72xx_bandgap.c
+@@ -439,7 +439,7 @@ static int k3_j72xx_bandgap_probe(struct platform_device *pdev)
+ 		workaround_needed = false;
  
- 	if (mpt3sas_port->remote_identify.device_type == SAS_END_DEVICE) {
+ 	dev_dbg(bgp->dev, "Work around %sneeded\n",
+-		workaround_needed ? "not " : "");
++		workaround_needed ? "" : "not ");
+ 
+ 	if (!workaround_needed)
+ 		init_table(5, ref_table, golden_factors);
 -- 
 2.35.1
 
