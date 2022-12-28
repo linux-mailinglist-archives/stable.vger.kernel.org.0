@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50220658046
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:16:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7344B657A34
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:08:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234452AbiL1QQd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:16:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34050 "EHLO
+        id S233641AbiL1PI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:08:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234528AbiL1QQI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:16:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6388319C33
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:13:28 -0800 (PST)
+        with ESMTP id S233642AbiL1PIt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:08:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDD4413D7B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:08:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01A1CB8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:13:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B0B9C433D2;
-        Wed, 28 Dec 2022 16:13:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93B1AB8172A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:08:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC85AC433EF;
+        Wed, 28 Dec 2022 15:08:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244005;
-        bh=/NlQ00/LR5XlA2MbDUa67/WFKNqh5ldcsIfdZ3E2JnI=;
+        s=korg; t=1672240126;
+        bh=nbsY3WSVrPhxu28msYZko4vjGpymjKrQS4avgwvyqEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WuyZ/mK43l4B97PoR/NqJ8p+ygMIktC3gw18iEbSqo/wR3U7RYxkcoICMbniAPhNn
-         HJsfsxK7e2juqOiIQosrJWdJTKxRU9KxPqpk8XLs4UQ6YEUV8NXQKIpOW9u7is8lDe
-         f+wHmz2N2V8SGq1qXSuApzeAASrB4ATgLeBgQbXQ=
+        b=Cp2NQAf3yOLlMpVgI2HIaDYAYzP5eioAegm6semmQEQxf0i9EuTeiinc0c8UbBngt
+         xTuCGAl+XqjdxLYSh03Nt2G52FxYegzUsNLHzzVwQdHKUrWnmNINxtaoZrfYPzWbYt
+         4RSRsrUFcVl1fR7iIerGHbUGd5OhQKmYXAFBHP4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jie Zhan <zhanjie9@hisilicon.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0630/1073] scsi: hisi_sas: Fix SATA devices missing issue during I_T nexus reset
-Date:   Wed, 28 Dec 2022 15:36:58 +0100
-Message-Id: <20221228144345.153489765@linuxfoundation.org>
+Subject: [PATCH 5.15 312/731] media: coda: Add check for dcoda_iram_alloc
+Date:   Wed, 28 Dec 2022 15:36:59 +0100
+Message-Id: <20221228144305.621829166@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,74 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jie Zhan <zhanjie9@hisilicon.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 3c2673a09cf1181318c07b7dbc1bc532ba3d33e3 ]
+[ Upstream commit 6b8082238fb8bb20f67e46388123e67a5bbc558d ]
 
-SATA devices on an expander may be removed and not be found again when I_T
-nexus reset and revalidation are processed simultaneously.
+As the coda_iram_alloc may return NULL pointer,
+it should be better to check the return value
+in order to avoid NULL poineter dereference,
+same as the others.
 
-The issue comes from:
-
- - Revalidation can remove SATA devices in link reset, e.g. in
-   hisi_sas_clear_nexus_ha().
-
- - However, hisi_sas_debug_I_T_nexus_reset() polls the state of a SATA
-   device on an expander after sending link_reset, where it calls:
-    hisi_sas_debug_I_T_nexus_reset
-     sas_ata_wait_after_reset
-      ata_wait_after_reset
-       ata_wait_ready
-        smp_ata_check_ready
-         sas_ex_phy_discover
-          sas_ex_phy_discover_helper
-           sas_set_ex_phy
-
-   The ex_phy's change count is updated in sas_set_ex_phy(), so SATA
-   devices after a link reset may not be found later through revalidation.
-
-A similar issue was reported in:
-commit 0f3fce5cc77e ("[SCSI] libsas: fix ata_eh clobbering ex_phys via
-smp_ata_check_ready")
-commit 87c8331fcf72 ("[SCSI] libsas: prevent domain rediscovery competing
-with ata error handling").
-
-To address this issue, in hisi_sas_debug_I_T_nexus_reset(), we now call
-smp_ata_check_ready_type() that only polls the device type while not
-updating the ex_phy's data of libsas.
-
-Fixes: 71453bd9d1bf ("scsi: hisi_sas: Use sas_ata_wait_after_reset() in IT nexus reset")
-Signed-off-by: Jie Zhan <zhanjie9@hisilicon.com>
-Link: https://lore.kernel.org/r/20221118083714.4034612-5-zhanjie9@hisilicon.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: b313bcc9a467 ("[media] coda: simplify IRAM setup")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hisi_sas/hisi_sas_main.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/media/platform/coda/coda-bit.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
-index 33af5b8dede2..f4f9e5abee76 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_main.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
-@@ -1701,13 +1701,15 @@ static int hisi_sas_debug_I_T_nexus_reset(struct domain_device *device)
- 		return rc;
- 	}
+diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
+index c484c008ab02..284608845b85 100644
+--- a/drivers/media/platform/coda/coda-bit.c
++++ b/drivers/media/platform/coda/coda-bit.c
+@@ -852,7 +852,7 @@ static void coda_setup_iram(struct coda_ctx *ctx)
+ 		/* Only H.264BP and H.263P3 are considered */
+ 		iram_info->buf_dbk_y_use = coda_iram_alloc(iram_info, w64);
+ 		iram_info->buf_dbk_c_use = coda_iram_alloc(iram_info, w64);
+-		if (!iram_info->buf_dbk_c_use)
++		if (!iram_info->buf_dbk_y_use || !iram_info->buf_dbk_c_use)
+ 			goto out;
+ 		iram_info->axi_sram_use |= dbk_bits;
  
-+	/* Remote phy */
- 	if (rc)
- 		return rc;
+@@ -876,7 +876,7 @@ static void coda_setup_iram(struct coda_ctx *ctx)
  
--	/* Remote phy */
- 	if (dev_is_sata(device)) {
--		rc = sas_ata_wait_after_reset(device,
--					HISI_SAS_WAIT_PHYUP_TIMEOUT);
-+		struct ata_link *link = &device->sata_dev.ap->link;
-+
-+		rc = ata_wait_after_reset(link, HISI_SAS_WAIT_PHYUP_TIMEOUT,
-+					  smp_ata_check_ready_type);
- 	} else {
- 		msleep(2000);
- 	}
+ 		iram_info->buf_dbk_y_use = coda_iram_alloc(iram_info, w128);
+ 		iram_info->buf_dbk_c_use = coda_iram_alloc(iram_info, w128);
+-		if (!iram_info->buf_dbk_c_use)
++		if (!iram_info->buf_dbk_y_use || !iram_info->buf_dbk_c_use)
+ 			goto out;
+ 		iram_info->axi_sram_use |= dbk_bits;
+ 
 -- 
 2.35.1
 
