@@ -2,47 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2320465833D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:45:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8919A657DDB
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:47:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233698AbiL1QpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:45:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35576 "EHLO
+        id S234045AbiL1Prl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:47:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234401AbiL1Qof (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 883A71CB20
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:40:17 -0800 (PST)
+        with ESMTP id S234088AbiL1Pr1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:47:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B79AF63
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:47:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3CD8CB8171E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:40:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BC64C433D2;
-        Wed, 28 Dec 2022 16:40:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2AFBD6156E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:47:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B9E4C433D2;
+        Wed, 28 Dec 2022 15:47:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245615;
-        bh=AlYS/l6ElL7QqRBU9A8AzkmpdKoqNyTen6wL+yZBCuo=;
+        s=korg; t=1672242445;
+        bh=Vs2THPZN1bFtpTqzRY0XrXk4Nj4RfuADrKV69XLaEak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lmkSyQ6yqsgJDqVDlITRaiX7dgnyJ2AbJiSymIDg3EtnWUiS0s2RXBgZBZbpCk/7t
-         a8Ku/kcOqMN9OqgPZTmakHDDgZ48jgIJyZ/Y8V2VLlmJpzKzXkGXWwJq+/ETedzynA
-         tDiMagznunNtBovhIjwsxt+UvBcHkPaqz8BgyVq0=
+        b=RGEVocwSuvs92p8jIV0vRyckMHYncjgBKM0AgCFgnzg3dJQTFiWZ4ZP22Gykslz+7
+         G4kU95dxFZY1egPypIzToUHFRN5nwck1kozyx8Dp1rLO6Bvd2Ibxx4LV0oAeSLG6LB
+         57Z/Y4Etol6U1pHTC+QFtlj2snd16Cg2R4YaFPaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Martin Liska <mliska@suse.cz>,
-        Ariel Elior <aelior@marvell.com>,
-        Manish Chopra <manishc@marvell.com>,
-        "Jiri Slaby (SUSE)" <jirislaby@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev,
+        Chun-Jie Chen <chun-jie.chen@mediatek.com>,
+        Allen-KH Cheng <allen-kh.cheng@mediatek.com>,
+        Chen-Yu Tsai <wenst@chromium.org>,
+        Miles Chen <miles.chen@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0923/1073] qed (gcc13): use u16 for fid to be big enough
+Subject: [PATCH 5.15 604/731] soc: mediatek: pm-domains: Fix the power glitch issue
 Date:   Wed, 28 Dec 2022 15:41:51 +0100
-Message-Id: <20221228144353.097879839@linuxfoundation.org>
+Message-Id: <20221228144314.044471070@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,51 +59,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby (SUSE) <jirislaby@kernel.org>
+From: Chun-Jie Chen <chun-jie.chen@mediatek.com>
 
-[ Upstream commit 7d84118229bf7f7290438c85caa8e49de52d50c1 ]
+[ Upstream commit dba8eb83af9dd757ef645b52200775e86883d858 ]
 
-gcc 13 correctly reports overflow in qed_grc_dump_addr_range():
-In file included from drivers/net/ethernet/qlogic/qed/qed.h:23,
-                 from drivers/net/ethernet/qlogic/qed/qed_debug.c:10:
-drivers/net/ethernet/qlogic/qed/qed_debug.c: In function 'qed_grc_dump_addr_range':
-include/linux/qed/qed_if.h:1217:9: error: overflow in conversion from 'int' to 'u8' {aka 'unsigned char'} changes value from '(int)vf_id << 8 | 128' to '128' [-Werror=overflow]
+Power reset maybe generate unexpected signal. In order to avoid
+the glitch issue, we need to enable isolation first to guarantee the
+stable signal when power reset is triggered.
 
-We do:
-  u8 fid;
-  ...
-  fid = vf_id << 8 | 128;
-
-Since fid is 16bit (and the stored value above too), fid should be u16,
-not u8. Fix that.
-
-Cc: Martin Liska <mliska@suse.cz>
-Cc: Ariel Elior <aelior@marvell.com>
-Cc: Manish Chopra <manishc@marvell.com>
-Signed-off-by: Jiri Slaby (SUSE) <jirislaby@kernel.org>
-Link: https://lore.kernel.org/r/20221031114354.10398-1-jirislaby@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 59b644b01cf4 ("soc: mediatek: Add MediaTek SCPSYS power domains")
+Signed-off-by: Chun-Jie Chen <chun-jie.chen@mediatek.com>
+Signed-off-by: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
+Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
+Reviewed-by: Miles Chen <miles.chen@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221014102029.1162-1-allen-kh.cheng@mediatek.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_debug.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/soc/mediatek/mtk-pm-domains.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_debug.c b/drivers/net/ethernet/qlogic/qed/qed_debug.c
-index 5250d1d1e49c..86ecb080b153 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_debug.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_debug.c
-@@ -1972,9 +1972,10 @@ static u32 qed_grc_dump_addr_range(struct qed_hwfn *p_hwfn,
- 				   u8 split_id)
- {
- 	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
--	u8 port_id = 0, pf_id = 0, vf_id = 0, fid = 0;
-+	u8 port_id = 0, pf_id = 0, vf_id = 0;
- 	bool read_using_dmae = false;
- 	u32 thresh;
-+	u16 fid;
+diff --git a/drivers/soc/mediatek/mtk-pm-domains.c b/drivers/soc/mediatek/mtk-pm-domains.c
+index afd2fd74802d..52ecde8e446c 100644
+--- a/drivers/soc/mediatek/mtk-pm-domains.c
++++ b/drivers/soc/mediatek/mtk-pm-domains.c
+@@ -272,9 +272,9 @@ static int scpsys_power_off(struct generic_pm_domain *genpd)
+ 	clk_bulk_disable_unprepare(pd->num_subsys_clks, pd->subsys_clks);
  
- 	if (!dump)
- 		return len;
+ 	/* subsys power off */
+-	regmap_clear_bits(scpsys->base, pd->data->ctl_offs, PWR_RST_B_BIT);
+ 	regmap_set_bits(scpsys->base, pd->data->ctl_offs, PWR_ISO_BIT);
+ 	regmap_set_bits(scpsys->base, pd->data->ctl_offs, PWR_CLK_DIS_BIT);
++	regmap_clear_bits(scpsys->base, pd->data->ctl_offs, PWR_RST_B_BIT);
+ 	regmap_clear_bits(scpsys->base, pd->data->ctl_offs, PWR_ON_2ND_BIT);
+ 	regmap_clear_bits(scpsys->base, pd->data->ctl_offs, PWR_ON_BIT);
+ 
 -- 
 2.35.1
 
