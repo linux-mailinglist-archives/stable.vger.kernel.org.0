@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 599CE65823B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:34:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFA6F657C97
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:34:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233259AbiL1QeR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:34:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54090 "EHLO
+        id S233840AbiL1PeN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:34:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234848AbiL1Qd3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:29 -0500
+        with ESMTP id S233846AbiL1PeM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:34:12 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0C951BEB6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:31:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24B3715FFB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:34:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 39FB261576
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:31:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C419C433F0;
-        Wed, 28 Dec 2022 16:31:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B4EFA6154D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:34:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9E2CC433EF;
+        Wed, 28 Dec 2022 15:34:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245061;
-        bh=BRj+vj95WFv8M5utjgkr7BywBbDyiGst/9oYhliNUUY=;
+        s=korg; t=1672241650;
+        bh=MtJxME0daBU8mxhlgoTcfsB+TZFPAlcvqI2POhUuFIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DR70nQO3l9EaDFSSyg8Ru3PtIA6/64hL60yTIGPisHL4hVRxphDzLMchFkACCP1lb
-         Pk4nOBE3fpkMNe8elmL/T0qAHg4pmA3Ya28CLYD0JltX8GBdroeHeF67M6BXPh8dJ1
-         Xvq1ERVf5aiuwMHTLC+StqxpTlfDxbh1R46Bh5lE=
+        b=GzXXRta31oFtC7Byoiie2D1SPc86m4e8MV34MqBqPdSvkupdikdyIR4R6WimbwI9F
+         wA3t9ltmpAN1cVVObWD3m9j5yG8PDxLo9ONg93k496Vm5qLmzshXjuu6zmTU7Fy61i
+         yXHlW4tY9eCKN0y2mk8LaMjWY1XFCtfpx3JyRu9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Lynch <nathanl@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0826/1073] powerpc/pseries/eeh: use correct API for error log size
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 507/731] fbdev: ep93xx-fb: Add missing clk_disable_unprepare in ep93xxfb_probe()
 Date:   Wed, 28 Dec 2022 15:40:14 +0100
-Message-Id: <20221228144350.449898734@linuxfoundation.org>
+Message-Id: <20221228144311.243019046@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +52,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit 9aafbfa5f57a4b75bafd3bed0191e8429c5fa618 ]
+[ Upstream commit c84bf485a5aaf9aa0764a58832b7ef4375c29f03 ]
 
-rtas-error-log-max is not the name of an RTAS function, so rtas_token()
-is not the appropriate API for retrieving its value. We already have
-rtas_get_error_log_max() which returns a sensible value if the property
-is absent for any reason, so use that instead.
+The clk_disable_unprepare() should be called in the error handling
+of register_framebuffer(), fix it.
 
-Fixes: 8d633291b4fc ("powerpc/eeh: pseries platform EEH error log retrieval")
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-[mpe: Drop no-longer possible error handling as noticed by ajd]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20221118150751.469393-6-nathanl@linux.ibm.com
+Fixes: 0937a7b3625d ("video: ep93xx: Prepare clock before using it")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/eeh_pseries.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ drivers/video/fbdev/ep93xx-fb.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/pseries/eeh_pseries.c b/arch/powerpc/platforms/pseries/eeh_pseries.c
-index 8e40ccac0f44..e5a58a9b2fe9 100644
---- a/arch/powerpc/platforms/pseries/eeh_pseries.c
-+++ b/arch/powerpc/platforms/pseries/eeh_pseries.c
-@@ -848,16 +848,7 @@ static int __init eeh_pseries_init(void)
- 	}
+diff --git a/drivers/video/fbdev/ep93xx-fb.c b/drivers/video/fbdev/ep93xx-fb.c
+index 2398b3d48fed..305f1587bd89 100644
+--- a/drivers/video/fbdev/ep93xx-fb.c
++++ b/drivers/video/fbdev/ep93xx-fb.c
+@@ -552,12 +552,14 @@ static int ep93xxfb_probe(struct platform_device *pdev)
  
- 	/* Initialize error log size */
--	eeh_error_buf_size = rtas_token("rtas-error-log-max");
--	if (eeh_error_buf_size == RTAS_UNKNOWN_SERVICE) {
--		pr_info("%s: unknown EEH error log size\n",
--			__func__);
--		eeh_error_buf_size = 1024;
--	} else if (eeh_error_buf_size > RTAS_ERROR_LOG_MAX) {
--		pr_info("%s: EEH error log size %d exceeds the maximal %d\n",
--			__func__, eeh_error_buf_size, RTAS_ERROR_LOG_MAX);
--		eeh_error_buf_size = RTAS_ERROR_LOG_MAX;
--	}
-+	eeh_error_buf_size = rtas_get_error_log_max();
+ 	err = register_framebuffer(info);
+ 	if (err)
+-		goto failed_check;
++		goto failed_framebuffer;
  
- 	/* Set EEH probe mode */
- 	eeh_add_flag(EEH_PROBE_MODE_DEVTREE | EEH_ENABLE_IO_FOR_LOG);
+ 	dev_info(info->dev, "registered. Mode = %dx%d-%d\n",
+ 		 info->var.xres, info->var.yres, info->var.bits_per_pixel);
+ 	return 0;
+ 
++failed_framebuffer:
++	clk_disable_unprepare(fbi->clk);
+ failed_check:
+ 	if (fbi->mach_info->teardown)
+ 		fbi->mach_info->teardown(pdev);
 -- 
 2.35.1
 
