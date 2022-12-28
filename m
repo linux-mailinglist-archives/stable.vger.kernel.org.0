@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83DFF657D7C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:44:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C092F6583B2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:50:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233963AbiL1Pnt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:43:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60432 "EHLO
+        id S235051AbiL1QuU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:50:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233979AbiL1Pnr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:43:47 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 810851740A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:43:40 -0800 (PST)
+        with ESMTP id S235116AbiL1Qt4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:49:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B8931F9D4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:45:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EB134CE1361
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:43:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0A02C433EF;
-        Wed, 28 Dec 2022 15:43:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6278B816F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:45:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09BFFC433D2;
+        Wed, 28 Dec 2022 16:45:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242217;
-        bh=BpzWDVsO3r6wcoi5AnkNBiNcLbYwtUgyrd0CgUXdI5s=;
+        s=korg; t=1672245907;
+        bh=oK4XDHowo8pk+fzEGgRwIFdrMEojl+jVI5Mt9gJlPyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YKhn5h3COGzZLpIBH+9IpsPHNH5HF8a+9LYTx/oHyagHQAXnyTT1e5+0k2GpoyVxL
-         V9s5RAnzwuF1Y5F+iUqv8rsYde3rk1RpWwfJFx49f03G8DplE4MZynLItA9JNi0tUb
-         xYb5Hh0T/D0TCznz573pXiti+buivP4nZPoT681c=
+        b=UYDQfSobGW8RHyX1t64knpAWfwSbZDBQf2Y/aP4U53opb5LO9ePGmUis7HY/IGKzl
+         I3JO3YOszcOdkwkwIWrZ9ftljDR+zXVEj4kLx5i2YJsDH88ifh/Syq/yM3Mqh5HzpI
+         tnbOpHQ9ZAn0OmPGBEFTlOVQxOFjK/UjORR2mGpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lee Jones <lee.jones@linaro.org>,
+        patches@lists.linux.dev,
+        syzbot+15342c1aa6a00fb7a438@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 576/731] mfd: pm8008: Remove driver data structure pm8008_data
-Date:   Wed, 28 Dec 2022 15:41:23 +0100
-Message-Id: <20221228144313.250289462@linuxfoundation.org>
+Subject: [PATCH 6.1 0945/1146] fs: jfs: fix shift-out-of-bounds in dbAllocAG
+Date:   Wed, 28 Dec 2022 15:41:24 +0100
+Message-Id: <20221228144355.985841772@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,142 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 915696927cd6e7838d25dab8fbd2ae05d4acce84 ]
+[ Upstream commit 898f706695682b9954f280d95e49fa86ffa55d08 ]
 
-Maintaining a local driver data structure that is never shared
-outside of the core device is an unnecessary complexity.  Half of the
-attributes were not used outside of a single function, one of which
-was not used at all.  The remaining 2 are generic and can be passed
-around as required.
+Syzbot found a crash : UBSAN: shift-out-of-bounds in dbAllocAG. The
+underlying bug is the missing check of bmp->db_agl2size. The field can
+be greater than 64 and trigger the shift-out-of-bounds.
 
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Stable-dep-of: 14f8c55d48e0 ("mfd: pm8008: Fix return value check in pm8008_probe()")
+Fix this bug by adding a check of bmp->db_agl2size in dbMount since this
+field is used in many following functions. The upper bound for this
+field is L2MAXL2SIZE - L2MAXAG, thanks for the help of Dave Kleikamp.
+Note that, for maintenance, I reorganized error handling code of dbMount.
+
+Reported-by: syzbot+15342c1aa6a00fb7a438@syzkaller.appspotmail.com
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/qcom-pm8008.c | 53 +++++++++++++++------------------------
- 1 file changed, 20 insertions(+), 33 deletions(-)
+ fs/jfs/jfs_dmap.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/mfd/qcom-pm8008.c b/drivers/mfd/qcom-pm8008.c
-index c472d7f8103c..4b8ff947762f 100644
---- a/drivers/mfd/qcom-pm8008.c
-+++ b/drivers/mfd/qcom-pm8008.c
-@@ -54,13 +54,6 @@ enum {
+diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
+index 6b838d3ae7c2..e1cbfbb60303 100644
+--- a/fs/jfs/jfs_dmap.c
++++ b/fs/jfs/jfs_dmap.c
+@@ -155,7 +155,7 @@ int dbMount(struct inode *ipbmap)
+ 	struct bmap *bmp;
+ 	struct dbmap_disk *dbmp_le;
+ 	struct metapage *mp;
+-	int i;
++	int i, err;
  
- #define PM8008_PERIPH_OFFSET(paddr)	(paddr - PM8008_PERIPH_0_BASE)
+ 	/*
+ 	 * allocate/initialize the in-memory bmap descriptor
+@@ -170,8 +170,8 @@ int dbMount(struct inode *ipbmap)
+ 			   BMAPBLKNO << JFS_SBI(ipbmap->i_sb)->l2nbperpage,
+ 			   PSIZE, 0);
+ 	if (mp == NULL) {
+-		kfree(bmp);
+-		return -EIO;
++		err = -EIO;
++		goto err_kfree_bmp;
+ 	}
  
--struct pm8008_data {
--	struct device *dev;
--	struct regmap *regmap;
--	int irq;
--	struct regmap_irq_chip_data *irq_data;
--};
--
- static unsigned int p0_offs[] = {PM8008_PERIPH_OFFSET(PM8008_PERIPH_0_BASE)};
- static unsigned int p1_offs[] = {PM8008_PERIPH_OFFSET(PM8008_PERIPH_1_BASE)};
- static unsigned int p2_offs[] = {PM8008_PERIPH_OFFSET(PM8008_PERIPH_2_BASE)};
-@@ -150,7 +143,7 @@ static struct regmap_config qcom_mfd_regmap_cfg = {
- 	.max_register	= 0xFFFF,
- };
+ 	/* copy the on-disk bmap descriptor to its in-memory version. */
+@@ -181,9 +181,8 @@ int dbMount(struct inode *ipbmap)
+ 	bmp->db_l2nbperpage = le32_to_cpu(dbmp_le->dn_l2nbperpage);
+ 	bmp->db_numag = le32_to_cpu(dbmp_le->dn_numag);
+ 	if (!bmp->db_numag) {
+-		release_metapage(mp);
+-		kfree(bmp);
+-		return -EINVAL;
++		err = -EINVAL;
++		goto err_release_metapage;
+ 	}
  
--static int pm8008_init(struct pm8008_data *chip)
-+static int pm8008_init(struct regmap *regmap)
- {
- 	int rc;
+ 	bmp->db_maxlevel = le32_to_cpu(dbmp_le->dn_maxlevel);
+@@ -194,6 +193,11 @@ int dbMount(struct inode *ipbmap)
+ 	bmp->db_agwidth = le32_to_cpu(dbmp_le->dn_agwidth);
+ 	bmp->db_agstart = le32_to_cpu(dbmp_le->dn_agstart);
+ 	bmp->db_agl2size = le32_to_cpu(dbmp_le->dn_agl2size);
++	if (bmp->db_agl2size > L2MAXL2SIZE - L2MAXAG) {
++		err = -EINVAL;
++		goto err_release_metapage;
++	}
++
+ 	for (i = 0; i < MAXAG; i++)
+ 		bmp->db_agfree[i] = le64_to_cpu(dbmp_le->dn_agfree[i]);
+ 	bmp->db_agsize = le64_to_cpu(dbmp_le->dn_agsize);
+@@ -214,6 +218,12 @@ int dbMount(struct inode *ipbmap)
+ 	BMAP_LOCK_INIT(bmp);
  
-@@ -160,34 +153,31 @@ static int pm8008_init(struct pm8008_data *chip)
- 	 * This is required to enable the writing of TYPE registers in
- 	 * regmap_irq_sync_unlock().
- 	 */
--	rc = regmap_write(chip->regmap,
--			 (PM8008_TEMP_ALARM_ADDR | INT_SET_TYPE_OFFSET),
--			 BIT(0));
-+	rc = regmap_write(regmap, (PM8008_TEMP_ALARM_ADDR | INT_SET_TYPE_OFFSET), BIT(0));
- 	if (rc)
- 		return rc;
- 
- 	/* Do the same for GPIO1 and GPIO2 peripherals */
--	rc = regmap_write(chip->regmap,
--			 (PM8008_GPIO1_ADDR | INT_SET_TYPE_OFFSET), BIT(0));
-+	rc = regmap_write(regmap, (PM8008_GPIO1_ADDR | INT_SET_TYPE_OFFSET), BIT(0));
- 	if (rc)
- 		return rc;
- 
--	rc = regmap_write(chip->regmap,
--			 (PM8008_GPIO2_ADDR | INT_SET_TYPE_OFFSET), BIT(0));
-+	rc = regmap_write(regmap, (PM8008_GPIO2_ADDR | INT_SET_TYPE_OFFSET), BIT(0));
- 
- 	return rc;
+ 	return (0);
++
++err_release_metapage:
++	release_metapage(mp);
++err_kfree_bmp:
++	kfree(bmp);
++	return err;
  }
  
--static int pm8008_probe_irq_peripherals(struct pm8008_data *chip,
-+static int pm8008_probe_irq_peripherals(struct device *dev,
-+					struct regmap *regmap,
- 					int client_irq)
- {
- 	int rc, i;
- 	struct regmap_irq_type *type;
- 	struct regmap_irq_chip_data *irq_data;
  
--	rc = pm8008_init(chip);
-+	rc = pm8008_init(regmap);
- 	if (rc) {
--		dev_err(chip->dev, "Init failed: %d\n", rc);
-+		dev_err(dev, "Init failed: %d\n", rc);
- 		return rc;
- 	}
- 
-@@ -207,10 +197,10 @@ static int pm8008_probe_irq_peripherals(struct pm8008_data *chip,
- 				IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW);
- 	}
- 
--	rc = devm_regmap_add_irq_chip(chip->dev, chip->regmap, client_irq,
-+	rc = devm_regmap_add_irq_chip(dev, regmap, client_irq,
- 			IRQF_SHARED, 0, &pm8008_irq_chip, &irq_data);
- 	if (rc) {
--		dev_err(chip->dev, "Failed to add IRQ chip: %d\n", rc);
-+		dev_err(dev, "Failed to add IRQ chip: %d\n", rc);
- 		return rc;
- 	}
- 
-@@ -220,26 +210,23 @@ static int pm8008_probe_irq_peripherals(struct pm8008_data *chip,
- static int pm8008_probe(struct i2c_client *client)
- {
- 	int rc;
--	struct pm8008_data *chip;
--
--	chip = devm_kzalloc(&client->dev, sizeof(*chip), GFP_KERNEL);
--	if (!chip)
--		return -ENOMEM;
-+	struct device *dev;
-+	struct regmap *regmap;
- 
--	chip->dev = &client->dev;
--	chip->regmap = devm_regmap_init_i2c(client, &qcom_mfd_regmap_cfg);
--	if (!chip->regmap)
-+	dev = &client->dev;
-+	regmap = devm_regmap_init_i2c(client, &qcom_mfd_regmap_cfg);
-+	if (!regmap)
- 		return -ENODEV;
- 
--	i2c_set_clientdata(client, chip);
-+	i2c_set_clientdata(client, regmap);
- 
--	if (of_property_read_bool(chip->dev->of_node, "interrupt-controller")) {
--		rc = pm8008_probe_irq_peripherals(chip, client->irq);
-+	if (of_property_read_bool(dev->of_node, "interrupt-controller")) {
-+		rc = pm8008_probe_irq_peripherals(dev, regmap, client->irq);
- 		if (rc)
--			dev_err(chip->dev, "Failed to probe irq periphs: %d\n", rc);
-+			dev_err(dev, "Failed to probe irq periphs: %d\n", rc);
- 	}
- 
--	return devm_of_platform_populate(chip->dev);
-+	return devm_of_platform_populate(dev);
- }
- 
- static const struct of_device_id pm8008_match[] = {
 -- 
 2.35.1
 
