@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32311657D2E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:40:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 751FD657E3F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:52:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233539AbiL1PkV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:40:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57000 "EHLO
+        id S234111AbiL1PwU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:52:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233533AbiL1PkU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:40:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D39C8167DF
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:40:19 -0800 (PST)
+        with ESMTP id S234205AbiL1Pv7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:51:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C06318B37
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:51:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8AE49B81719
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:40:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0139AC433D2;
-        Wed, 28 Dec 2022 15:40:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA0216156C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:51:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B88FBC433D2;
+        Wed, 28 Dec 2022 15:51:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242017;
-        bh=bW1aOMrTRUttyI3VIMBCfWgzz0HAU3MruvekUoEfb5k=;
+        s=korg; t=1672242705;
+        bh=Q4ePPxLDI//uhmZaWgeKmx1tpKk4NHDU6bjLyAZX8LQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oML8YTa8IgBKi6m6PWieQOD/QmkjsyLERJ6mDn4v7sIcZKAU6tynBwgwHmNu9vxxs
-         BhI1toZ9kYHDH4LqxPH1sPInrC1mxBlCuqAQ/K1BO7p2f6gU2H12PotoA1JI3J2MKc
-         E/yI5X9/+3znz6vL0uAJdUTdr0LK+uvRothhpCks=
+        b=IAii164PBn02q7GLgE5zf0z75MGGm+w47ef9/xDIdNI9IDdY+u7PsxcJBP15eTAdh
+         w8g1XI7D/EOkWHaygzqZK5ACw1TJGxgoFzisTcyolyX6d+mpWiXSeM+qbABrs6mhwl
+         SxYJWKxiGgFp9K17kO+orpMjeAljkWAcaNBHhHRk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <dan.carpenter@oracle.com>,
-        Peng Fan <peng.fan@nxp.com>, Abel Vesa <abel.vesa@linaro.org>,
+        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
+        Baisong Zhong <zhongbaisong@huawei.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0355/1073] clk: imx93: unmap anatop base in error handling path
+Subject: [PATCH 6.1 0404/1146] media: dvb-usb: az6027: fix null-ptr-deref in az6027_i2c_xfer()
 Date:   Wed, 28 Dec 2022 15:32:23 +0100
-Message-Id: <20221228144337.646412898@linuxfoundation.org>
+Message-Id: <20221228144341.138362583@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,72 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Baisong Zhong <zhongbaisong@huawei.com>
 
-[ Upstream commit bda7b7f396f94d8df89ecacc88f2826908e8762c ]
+[ Upstream commit 0ed554fd769a19ea8464bb83e9ac201002ef74ad ]
 
-The anatop base is not unmapped during error handling path, fix it.
+Wei Chen reports a kernel bug as blew:
 
-Fixes: 24defbe194b6 ("clk: imx: add i.MX93 clk")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Reviewed-by: Abel Vesa <abel.vesa@linaro.org>
-Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
-Link: https://lore.kernel.org/r/20221028095211.2598312-2-peng.fan@oss.nxp.com
+general protection fault, probably for non-canonical address
+KASAN: null-ptr-deref in range [0x0000000000000010-0x0000000000000017]
+...
+Call Trace:
+<TASK>
+__i2c_transfer+0x77e/0x1930 drivers/i2c/i2c-core-base.c:2109
+i2c_transfer+0x1d5/0x3d0 drivers/i2c/i2c-core-base.c:2170
+i2cdev_ioctl_rdwr+0x393/0x660 drivers/i2c/i2c-dev.c:297
+i2cdev_ioctl+0x75d/0x9f0 drivers/i2c/i2c-dev.c:458
+vfs_ioctl fs/ioctl.c:51 [inline]
+__do_sys_ioctl fs/ioctl.c:870 [inline]
+__se_sys_ioctl+0xfb/0x170 fs/ioctl.c:856
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7fd834a8bded
+
+In az6027_i2c_xfer(), if msg[i].addr is 0x99,
+a null-ptr-deref will caused when accessing msg[i].buf.
+For msg[i].len is 0 and msg[i].buf is null.
+
+Fix this by checking msg[i].len in az6027_i2c_xfer().
+
+Link: https://lore.kernel.org/lkml/CAO4mrfcPHB5aQJO=mpqV+p8mPLNg-Fok0gw8gZ=zemAfMGTzMg@mail.gmail.com/
+
+Link: https://lore.kernel.org/linux-media/20221120065918.2160782-1-zhongbaisong@huawei.com
+Fixes: 76f9a820c867 ("V4L/DVB: AZ6027: Initial import of the driver")
+Reported-by: Wei Chen <harperchen1110@gmail.com>
+Signed-off-by: Baisong Zhong <zhongbaisong@huawei.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-imx93.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/media/usb/dvb-usb/az6027.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/clk/imx/clk-imx93.c b/drivers/clk/imx/clk-imx93.c
-index 4d2524addc3e..8d67b065f7b6 100644
---- a/drivers/clk/imx/clk-imx93.c
-+++ b/drivers/clk/imx/clk-imx93.c
-@@ -247,7 +247,7 @@ static int imx93_clocks_probe(struct platform_device *pdev)
- 	struct device_node *np = dev->of_node;
- 	const struct imx93_clk_root *root;
- 	const struct imx93_clk_ccgr *ccgr;
--	void __iomem *base = NULL;
-+	void __iomem *base, *anatop_base;
- 	int i, ret;
- 
- 	clk_hw_data = kzalloc(struct_size(clk_hw_data, hws,
-@@ -274,20 +274,22 @@ static int imx93_clocks_probe(struct platform_device *pdev)
- 								    "sys_pll_pfd2", 1, 2);
- 
- 	np = of_find_compatible_node(NULL, NULL, "fsl,imx93-anatop");
--	base = of_iomap(np, 0);
-+	anatop_base = of_iomap(np, 0);
- 	of_node_put(np);
--	if (WARN_ON(!base))
-+	if (WARN_ON(!anatop_base))
- 		return -ENOMEM;
- 
--	clks[IMX93_CLK_AUDIO_PLL] = imx_clk_fracn_gppll("audio_pll", "osc_24m", base + 0x1200,
-+	clks[IMX93_CLK_AUDIO_PLL] = imx_clk_fracn_gppll("audio_pll", "osc_24m", anatop_base + 0x1200,
- 							&imx_fracn_gppll);
--	clks[IMX93_CLK_VIDEO_PLL] = imx_clk_fracn_gppll("video_pll", "osc_24m", base + 0x1400,
-+	clks[IMX93_CLK_VIDEO_PLL] = imx_clk_fracn_gppll("video_pll", "osc_24m", anatop_base + 0x1400,
- 							&imx_fracn_gppll);
- 
- 	np = dev->of_node;
- 	base = devm_platform_ioremap_resource(pdev, 0);
--	if (WARN_ON(IS_ERR(base)))
-+	if (WARN_ON(IS_ERR(base))) {
-+		iounmap(anatop_base);
- 		return PTR_ERR(base);
-+	}
- 
- 	for (i = 0; i < ARRAY_SIZE(root_array); i++) {
- 		root = &root_array[i];
-@@ -317,6 +319,7 @@ static int imx93_clocks_probe(struct platform_device *pdev)
- 
- unregister_hws:
- 	imx_unregister_hw_clocks(clks, IMX93_CLK_END);
-+	iounmap(anatop_base);
- 
- 	return ret;
- }
+diff --git a/drivers/media/usb/dvb-usb/az6027.c b/drivers/media/usb/dvb-usb/az6027.c
+index cf15988dfb51..7d78ee09be5e 100644
+--- a/drivers/media/usb/dvb-usb/az6027.c
++++ b/drivers/media/usb/dvb-usb/az6027.c
+@@ -975,6 +975,10 @@ static int az6027_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msg[], int n
+ 		if (msg[i].addr == 0x99) {
+ 			req = 0xBE;
+ 			index = 0;
++			if (msg[i].len < 1) {
++				i = -EOPNOTSUPP;
++				break;
++			}
+ 			value = msg[i].buf[0] & 0x00ff;
+ 			length = 1;
+ 			az6027_usb_out_op(d, req, value, index, data, length);
 -- 
 2.35.1
 
