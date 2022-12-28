@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AFE16578F1
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:55:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A731657F60
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:04:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233121AbiL1Oz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:55:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43614 "EHLO
+        id S234281AbiL1QEX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:04:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233254AbiL1Ozy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:55:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1A532601
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:55:51 -0800 (PST)
+        with ESMTP id S234296AbiL1QEL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:04:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B66119294
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:04:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D43A61551
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:55:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CBB5C433F0;
-        Wed, 28 Dec 2022 14:55:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B834AB81710
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:04:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1212FC433D2;
+        Wed, 28 Dec 2022 16:04:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239350;
-        bh=Lg3+sS0P7sRRl7EcrVLUwrTj8NIOkXIWXIuPPTev0Rg=;
+        s=korg; t=1672243448;
+        bh=BnzgfrcnUbhBoEyrfatcrzwFuxGQoSTQsF9opmIAp+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RIM8MZUJzo39VJjlMXeeXMyv/3qUrP3Jci68P0Ln8yG3CLY8XHAk6y9ETSxrhQ3Cf
-         7++pyESeYV2c1gHEwhIXh4khHqn1Fvh7vleEQfCWnDgZmCVKE2F/662WuFX0AnB5FC
-         0s34Uvbh4XTvsUeJuZYFgupTAOk0r/pWn0dPbuFI=
+        b=KjD6BKlqwvlTxi7EVpSx4fZKFnKl+7ykoVePKXNaTJQtH2YOh5nslGVq69IoXQlOD
+         s4uyH4HVVZbCL4kElCBTjxtFF04Or/b0diQX8BaKootl79o+Lpe7fmSxPfQVSV1jqu
+         Csl9OUKw0vl7vNz1xY3rWiahzlMX+EX3FP+aKBtA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Douglas Anderson <dianders@chromium.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        patches@lists.linux.dev, Tom Lendacky <thomas.lendacky@amd.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 210/731] Input: elants_i2c - properly handle the reset GPIO when power is off
-Date:   Wed, 28 Dec 2022 15:35:17 +0100
-Message-Id: <20221228144302.644356945@linuxfoundation.org>
+Subject: [PATCH 6.0 0530/1073] net: amd-xgbe: Check only the minimum speed for active/passive cables
+Date:   Wed, 28 Dec 2022 15:35:18 +0100
+Message-Id: <20221228144342.441374088@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,88 +53,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-[ Upstream commit a85fbd6498441694475716a4d5c65f9d3e073faf ]
+[ Upstream commit f8ab263d4d48e6dab752029bf562f20a2ee630ed ]
 
-As can be seen in elants_i2c_power_off(), we want the reset GPIO
-asserted when power is off. The reset GPIO is active low so we need
-the reset line logic low when power is off to avoid leakage.
+There are cables that exist that can support speeds in excess of 10GbE.
+The driver, however, restricts the EEPROM advertised nominal bitrate to
+a specific range, which can prevent usage of cables that can support,
+for example, up to 25GbE.
 
-We have a problem, though, at probe time. At probe time we haven't
-powered the regulators on yet but we have:
+Rather than checking that an active or passive cable supports a specific
+range, only check for a minimum supported speed.
 
-  devm_gpiod_get(&client->dev, "reset", GPIOD_OUT_LOW);
-
-While that _looks_ right, it turns out that it's not. The
-GPIOD_OUT_LOW doesn't mean to init the GPIO to low. It means init the
-GPIO to "not asserted". Since this is an active low GPIO that inits it
-to be high.
-
-Let's fix this to properly init the GPIO. Now after both probe and
-power off the state of the GPIO is consistent (it's "asserted" or
-level low).
-
-Once we fix this, we can see that at power on time we no longer to
-assert the reset GPIO as the first thing. The reset GPIO is _always_
-asserted before powering on. Let's fix powering on to account for
-this.
-
-Fixes: afe10358e47a ("Input: elants_i2c - wire up regulator support")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20221117123805.1.I9959ac561dd6e1e8e1ce7085e4de6167b27c574f@changeid
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: abf0a1c2b26a ("amd-xgbe: Add support for SFP+ modules")
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/elants_i2c.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 14 ++------------
+ 1 file changed, 2 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index b9e2219efbb8..6858a3e20a0c 100644
---- a/drivers/input/touchscreen/elants_i2c.c
-+++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -1329,14 +1329,12 @@ static int elants_i2c_power_on(struct elants_data *ts)
- 	if (IS_ERR_OR_NULL(ts->reset_gpio))
- 		return 0;
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+index c7b0d69ee62f..1ef04326a572 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+@@ -237,10 +237,7 @@ enum xgbe_sfp_speed {
  
--	gpiod_set_value_cansleep(ts->reset_gpio, 1);
--
- 	error = regulator_enable(ts->vcc33);
- 	if (error) {
- 		dev_err(&ts->client->dev,
- 			"failed to enable vcc33 regulator: %d\n",
- 			error);
--		goto release_reset_gpio;
-+		return error;
+ #define XGBE_SFP_BASE_BR			12
+ #define XGBE_SFP_BASE_BR_1GBE_MIN		0x0a
+-#define XGBE_SFP_BASE_BR_1GBE_MAX		0x0d
+ #define XGBE_SFP_BASE_BR_10GBE_MIN		0x64
+-#define XGBE_SFP_BASE_BR_10GBE_MAX		0x68
+-#define XGBE_MOLEX_SFP_BASE_BR_10GBE_MAX	0x78
+ 
+ #define XGBE_SFP_BASE_CU_CABLE_LEN		18
+ 
+@@ -827,29 +824,22 @@ static void xgbe_phy_sfp_phy_settings(struct xgbe_prv_data *pdata)
+ static bool xgbe_phy_sfp_bit_rate(struct xgbe_sfp_eeprom *sfp_eeprom,
+ 				  enum xgbe_sfp_speed sfp_speed)
+ {
+-	u8 *sfp_base, min, max;
++	u8 *sfp_base, min;
+ 
+ 	sfp_base = sfp_eeprom->base;
+ 
+ 	switch (sfp_speed) {
+ 	case XGBE_SFP_SPEED_1000:
+ 		min = XGBE_SFP_BASE_BR_1GBE_MIN;
+-		max = XGBE_SFP_BASE_BR_1GBE_MAX;
+ 		break;
+ 	case XGBE_SFP_SPEED_10000:
+ 		min = XGBE_SFP_BASE_BR_10GBE_MIN;
+-		if (memcmp(&sfp_eeprom->base[XGBE_SFP_BASE_VENDOR_NAME],
+-			   XGBE_MOLEX_VENDOR, XGBE_SFP_BASE_VENDOR_NAME_LEN) == 0)
+-			max = XGBE_MOLEX_SFP_BASE_BR_10GBE_MAX;
+-		else
+-			max = XGBE_SFP_BASE_BR_10GBE_MAX;
+ 		break;
+ 	default:
+ 		return false;
  	}
  
- 	error = regulator_enable(ts->vccio);
-@@ -1345,7 +1343,7 @@ static int elants_i2c_power_on(struct elants_data *ts)
- 			"failed to enable vccio regulator: %d\n",
- 			error);
- 		regulator_disable(ts->vcc33);
--		goto release_reset_gpio;
-+		return error;
- 	}
+-	return ((sfp_base[XGBE_SFP_BASE_BR] >= min) &&
+-		(sfp_base[XGBE_SFP_BASE_BR] <= max));
++	return sfp_base[XGBE_SFP_BASE_BR] >= min;
+ }
  
- 	/*
-@@ -1354,7 +1352,6 @@ static int elants_i2c_power_on(struct elants_data *ts)
- 	 */
- 	udelay(ELAN_POWERON_DELAY_USEC);
- 
--release_reset_gpio:
- 	gpiod_set_value_cansleep(ts->reset_gpio, 0);
- 	if (error)
- 		return error;
-@@ -1462,7 +1459,7 @@ static int elants_i2c_probe(struct i2c_client *client)
- 		return error;
- 	}
- 
--	ts->reset_gpio = devm_gpiod_get(&client->dev, "reset", GPIOD_OUT_LOW);
-+	ts->reset_gpio = devm_gpiod_get(&client->dev, "reset", GPIOD_OUT_HIGH);
- 	if (IS_ERR(ts->reset_gpio)) {
- 		error = PTR_ERR(ts->reset_gpio);
- 
+ static void xgbe_phy_free_phy_device(struct xgbe_prv_data *pdata)
 -- 
 2.35.1
 
