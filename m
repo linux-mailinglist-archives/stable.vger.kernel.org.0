@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16866657C3D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:30:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B74E657B2E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:19:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233796AbiL1Pa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:30:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48122 "EHLO
+        id S233269AbiL1PTG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:19:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233795AbiL1PaX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:30:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE3E51582D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:30:21 -0800 (PST)
+        with ESMTP id S233270AbiL1PSw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:18:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C507613F93
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:18:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4C25DB816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:30:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80896C433EF;
-        Wed, 28 Dec 2022 15:30:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A1E5E6154D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:18:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1E0BC433EF;
+        Wed, 28 Dec 2022 15:18:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241419;
-        bh=xNoU7NTr0kGWQZE8bzcq4Lq8MYZaAKLZd0qCwQNS2y4=;
+        s=korg; t=1672240719;
+        bh=pEccpsYeV3uQ4280V8qVqse/FNhvZ5FUHw9+gfdgzOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M5QXUuPZiKVB7Cb+CayEwCQfshTeQp+JXsRiMNBsVuMqXO9bD0C2IV0lWV+w+L7SE
-         90ei2xsOcZGnWr/H4eVxUR80zr++yf7707yxmg10hapMkoP198kRxL1nkqkbWuk4x4
-         m9cFbeu1po4o8fHna2lt2cj7tvGJLXd5+XW72dXE=
+        b=jWcefqcyhCr8YxuQu+OCFiUb0MxIMgCd2peVK8bUWHsIAolVLlMzySyst4B+BXmtq
+         ga/6V1dKQSqWjse+1EYTG2QI2QNr07KNQkDeTrbJmK7I38FN/rQEdMxf/jcHHbmAjD
+         qW7buQBUeVNwsGadmWEsmw2aGiAE/bOJprsV2zlY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alan Maguire <alan.maguire@oracle.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0244/1146] libbpf: Btf dedup identical struct test needs check for nested structs/arrays
+        patches@lists.linux.dev,
+        Bitterblue Smith <rtl8821cerfe2@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0195/1073] wifi: rtl8xxxu: Fix reading the vendor of combo chips
 Date:   Wed, 28 Dec 2022 15:29:43 +0100
-Message-Id: <20221228144336.763224788@linuxfoundation.org>
+Message-Id: <20221228144333.311311165@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,91 +53,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Maguire <alan.maguire@oracle.com>
+From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
 
-[ Upstream commit f3c51fe02c55bd944662714e5b91b96dc271ad9f ]
+[ Upstream commit 6f103aeb5e985ac08f3a4a049a2c17294f40cff9 ]
 
-When examining module BTF, it is common to see core kernel structures
-such as sk_buff, net_device duplicated in the module.  After adding
-debug messaging to BTF it turned out that much of the problem
-was down to the identical struct test failing during deduplication;
-sometimes the compiler adds identical structs.  However
-it turns out sometimes that type ids of identical struct members
-can also differ, even when the containing structs are still identical.
+The wifi + bluetooth combo chips (RTL8723AU and RTL8723BU) read the
+chip vendor from the wrong register because the val32 variable gets
+overwritten. Add one more variable to avoid this.
 
-To take an example, for struct sk_buff, debug messaging revealed
-that the identical struct matching was failing for the anon
-struct "headers"; specifically for the first field:
+This had no real effect on RTL8723BU. It may have had an effect on
+RTL8723AU.
 
-__u8       __pkt_type_offset[0]; /*   128     0 */
-
-Looking at the code in BTF deduplication, we have code that guards
-against the possibility of identical struct definitions, down to
-type ids, and identical array definitions.  However in this case
-we have a struct which is being defined twice but does not have
-identical type ids since each duplicate struct has separate type
-ids for the above array member.   A similar problem (though not
-observed) could occur for struct-in-struct.
-
-The solution is to make the "identical struct" test check members
-not just for matching ids, but to also check if they in turn are
-identical structs or arrays.
-
-The results of doing this are quite dramatic (for some modules
-at least); I see the number of type ids drop from around 10000
-to just over 1000 in one module for example.
-
-For testing use latest pahole or apply [1], otherwise dedups
-can fail for the reasons described there.
-
-Also fix return type of btf_dedup_identical_arrays() as
-suggested by Andrii to match boolean return type used
-elsewhere.
-
-Fixes: efdd3eb8015e ("libbpf: Accommodate DWARF/compiler bug with duplicated structs")
-Signed-off-by: Alan Maguire <alan.maguire@oracle.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/1666622309-22289-1-git-send-email-alan.maguire@oracle.com
-
-[1] https://lore.kernel.org/bpf/1666364523-9648-1-git-send-email-alan.maguire
-
+Fixes: 26f1fad29ad9 ("New driver: rtl8xxxu (mac80211)")
+Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/24af8024-2f07-552b-93d8-38823d8e3cb0@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/btf.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ .../wireless/realtek/rtl8xxxu/rtl8xxxu_core.c    | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/tools/lib/bpf/btf.c b/tools/lib/bpf/btf.c
-index d88647da2c7f..675a0df5c840 100644
---- a/tools/lib/bpf/btf.c
-+++ b/tools/lib/bpf/btf.c
-@@ -3887,14 +3887,14 @@ static inline __u16 btf_fwd_kind(struct btf_type *t)
- }
- 
- /* Check if given two types are identical ARRAY definitions */
--static int btf_dedup_identical_arrays(struct btf_dedup *d, __u32 id1, __u32 id2)
-+static bool btf_dedup_identical_arrays(struct btf_dedup *d, __u32 id1, __u32 id2)
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+index 08f9d17dce12..2286119ba3d5 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -1608,18 +1608,18 @@ static int rtl8xxxu_identify_chip(struct rtl8xxxu_priv *priv)
  {
- 	struct btf_type *t1, *t2;
+ 	struct device *dev = &priv->udev->dev;
+ 	struct ieee80211_hw *hw = priv->hw;
+-	u32 val32, bonding;
++	u32 val32, bonding, sys_cfg;
+ 	u16 val16;
  
- 	t1 = btf_type_by_id(d->btf, id1);
- 	t2 = btf_type_by_id(d->btf, id2);
- 	if (!btf_is_array(t1) || !btf_is_array(t2))
--		return 0;
-+		return false;
- 
- 	return btf_equal_array(t1, t2);
- }
-@@ -3918,7 +3918,9 @@ static bool btf_dedup_identical_structs(struct btf_dedup *d, __u32 id1, __u32 id
- 	m1 = btf_members(t1);
- 	m2 = btf_members(t2);
- 	for (i = 0, n = btf_vlen(t1); i < n; i++, m1++, m2++) {
--		if (m1->type != m2->type)
-+		if (m1->type != m2->type &&
-+		    !btf_dedup_identical_arrays(d, m1->type, m2->type) &&
-+		    !btf_dedup_identical_structs(d, m1->type, m2->type))
- 			return false;
+-	val32 = rtl8xxxu_read32(priv, REG_SYS_CFG);
+-	priv->chip_cut = (val32 & SYS_CFG_CHIP_VERSION_MASK) >>
++	sys_cfg = rtl8xxxu_read32(priv, REG_SYS_CFG);
++	priv->chip_cut = (sys_cfg & SYS_CFG_CHIP_VERSION_MASK) >>
+ 		SYS_CFG_CHIP_VERSION_SHIFT;
+-	if (val32 & SYS_CFG_TRP_VAUX_EN) {
++	if (sys_cfg & SYS_CFG_TRP_VAUX_EN) {
+ 		dev_info(dev, "Unsupported test chip\n");
+ 		return -ENOTSUPP;
  	}
- 	return true;
+ 
+-	if (val32 & SYS_CFG_BT_FUNC) {
++	if (sys_cfg & SYS_CFG_BT_FUNC) {
+ 		if (priv->chip_cut >= 3) {
+ 			sprintf(priv->chip_name, "8723BU");
+ 			priv->rtl_chip = RTL8723B;
+@@ -1641,7 +1641,7 @@ static int rtl8xxxu_identify_chip(struct rtl8xxxu_priv *priv)
+ 		if (val32 & MULTI_GPS_FUNC_EN)
+ 			priv->has_gps = 1;
+ 		priv->is_multi_func = 1;
+-	} else if (val32 & SYS_CFG_TYPE_ID) {
++	} else if (sys_cfg & SYS_CFG_TYPE_ID) {
+ 		bonding = rtl8xxxu_read32(priv, REG_HPON_FSM);
+ 		bonding &= HPON_FSM_BONDING_MASK;
+ 		if (priv->fops->tx_desc_size ==
+@@ -1692,7 +1692,7 @@ static int rtl8xxxu_identify_chip(struct rtl8xxxu_priv *priv)
+ 	case RTL8188E:
+ 	case RTL8192E:
+ 	case RTL8723B:
+-		switch (val32 & SYS_CFG_VENDOR_EXT_MASK) {
++		switch (sys_cfg & SYS_CFG_VENDOR_EXT_MASK) {
+ 		case SYS_CFG_VENDOR_ID_TSMC:
+ 			sprintf(priv->chip_vendor, "TSMC");
+ 			break;
+@@ -1709,7 +1709,7 @@ static int rtl8xxxu_identify_chip(struct rtl8xxxu_priv *priv)
+ 		}
+ 		break;
+ 	default:
+-		if (val32 & SYS_CFG_VENDOR_ID) {
++		if (sys_cfg & SYS_CFG_VENDOR_ID) {
+ 			sprintf(priv->chip_vendor, "UMC");
+ 			priv->vendor_umc = 1;
+ 		} else {
+-- 
+2.35.1
+
+
+
+piaojun@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ fs/ocfs2/journal.c | 2 +-
+ fs/ocfs2/journal.h | 1 +
+ fs/ocfs2/super.c   | 5 ++++-
+ 3 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/fs/ocfs2/journal.c b/fs/ocfs2/journal.c
+index 126671e6caed..3fb98b4569a2 100644
+--- a/fs/ocfs2/journal.c
++++ b/fs/ocfs2/journal.c
+@@ -157,7 +157,7 @@ static void ocfs2_queue_replay_slots(struct ocfs2_super *osb,
+ 	replay_map->rm_state = REPLAY_DONE;
+ }
+ 
+-static void ocfs2_free_replay_slots(struct ocfs2_super *osb)
++void ocfs2_free_replay_slots(struct ocfs2_super *osb)
+ {
+ 	struct ocfs2_replay_map *replay_map = osb->replay_map;
+ 
+diff --git a/fs/ocfs2/journal.h b/fs/ocfs2/journal.h
+index 969d0aa28718..41c382f68529 100644
+--- a/fs/ocfs2/journal.h
++++ b/fs/ocfs2/journal.h
+@@ -150,6 +150,7 @@ int ocfs2_recovery_init(struct ocfs2_super *osb);
+ void ocfs2_recovery_exit(struct ocfs2_super *osb);
+ 
+ int ocfs2_compute_replay_slots(struct ocfs2_super *osb);
++void ocfs2_free_replay_slots(struct ocfs2_super *osb);
+ /*
+  *  Journal Control:
+  *  Initialize, Load, Shutdown, Wipe a journal.
+diff --git a/fs/ocfs2/super.c b/fs/ocfs2/super.c
+index 42c993e53924..0b0e6a132101 100644
+--- a/fs/ocfs2/super.c
++++ b/fs/ocfs2/super.c
+@@ -1159,6 +1159,7 @@ static int ocfs2_fill_super(struct super_block *sb, void *data, int silent)
+ out_dismount:
+ 	atomic_set(&osb->vol_state, VOLUME_DISABLED);
+ 	wake_up(&osb->osb_mount_event);
++	ocfs2_free_replay_slots(osb);
+ 	ocfs2_dismount_volume(sb, 1);
+ 	goto out;
+ 
+@@ -1822,12 +1823,14 @@ static int ocfs2_mount_volume(struct super_block *sb)
+ 	status = ocfs2_truncate_log_init(osb);
+ 	if (status < 0) {
+ 		mlog_errno(status);
+-		goto out_system_inodes;
++		goto out_check_volume;
+ 	}
+ 
+ 	ocfs2_super_unlock(osb, 1);
+ 	return 0;
+ 
++out_check_volume:
++	ocfs2_free_replay_slots(osb);
+ out_system_inodes:
+ 	if (osb->local_alloc_state == OCFS2_LA_ENABLED)
+ 		ocfs2_shutdown_local_alloc(osb);
 -- 
 2.35.1
 
