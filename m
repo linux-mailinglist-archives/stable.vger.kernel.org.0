@@ -2,52 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75850658235
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:33:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0574A65813E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:26:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234873AbiL1Qdj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:33:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51104 "EHLO
+        id S230396AbiL1Q0e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:26:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234792AbiL1QdP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B5461B7AC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:30:39 -0800 (PST)
+        with ESMTP id S232981AbiL1Q0N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:26:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1FC31A20E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:22:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A19F7B8171E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:30:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDE04C433EF;
-        Wed, 28 Dec 2022 16:30:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C35961577
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:22:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E22BC433EF;
+        Wed, 28 Dec 2022 16:22:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245036;
-        bh=ixDZxU/fEWImfhu8/btyqy3WKqizzgjiw6cz764ALec=;
+        s=korg; t=1672244563;
+        bh=MtJxME0daBU8mxhlgoTcfsB+TZFPAlcvqI2POhUuFIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UnKorRr5zxWAwb3j+74+Pa43kEr8NaX03bay0d7K1KggMYHTImzt8tp9LLf2bWZQ4
-         jza1viUyzxtsCMSOgvR/qAk3pAC2t1tMZLlRKo7yHsjhha7FFvuqf77fP8TrTiD+gT
-         hozRxuPyPoHw9PHhNtPMsNoQaD49EIRlRwolo4bk=
+        b=I1ycGRBcV4xzHK1ZZSQwxb0CxtoJMTp00mUDfltTOpQk6NhMpId+uBJT00NlUcwy2
+         gi9ORv5oSc9FPwlVEzvUkEYqATRAiRFlvhasyHrJFAxT3BkzvEECtnjwdGvUwmvZae
+         Y/Vek+axAXaLYQp0QMLiuK6PoE13I4bkD2JELNFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        James Clark <james.clark@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sandipan Das <sandipan.das@amd.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0782/1146] perf branch: Fix interpretation of branch records
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0733/1073] fbdev: ep93xx-fb: Add missing clk_disable_unprepare in ep93xxfb_probe()
 Date:   Wed, 28 Dec 2022 15:38:41 +0100
-Message-Id: <20221228144351.387516311@linuxfoundation.org>
+Message-Id: <20221228144347.932449040@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,55 +52,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Clark <james.clark@arm.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit 20ed9fa4965875fdde5bfd65d838465e38d46b22 ]
+[ Upstream commit c84bf485a5aaf9aa0764a58832b7ef4375c29f03 ]
 
-Commit 93315e46b000fc80 ("perf/core: Add speculation info to branch
-entries") added a new field in between type and new_type. Perf has its
-own copy of this struct so update it to match the kernel side.
+The clk_disable_unprepare() should be called in the error handling
+of register_framebuffer(), fix it.
 
-This doesn't currently cause any issues because new_type is only used by
-the Arm BRBE driver which isn't merged yet.
-
-Committer notes:
-
-Is this really an ABI? How are we supposed to deal with old perf.data
-files with new tools and vice versa? :-\
-
-Fixes: 93315e46b000fc80 ("perf/core: Add speculation info to branch entries")
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Signed-off-by: James Clark <james.clark@arm.com>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Sandipan Das <sandipan.das@amd.com>
-Link: https://lore.kernel.org/r/20221130165158.517385-1-james.clark@arm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 0937a7b3625d ("video: ep93xx: Prepare clock before using it")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/branch.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/ep93xx-fb.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/branch.h b/tools/perf/util/branch.h
-index f838b23db180..dca75cad96f6 100644
---- a/tools/perf/util/branch.h
-+++ b/tools/perf/util/branch.h
-@@ -24,9 +24,10 @@ struct branch_flags {
- 			u64 abort:1;
- 			u64 cycles:16;
- 			u64 type:4;
-+			u64 spec:2;
- 			u64 new_type:4;
- 			u64 priv:3;
--			u64 reserved:33;
-+			u64 reserved:31;
- 		};
- 	};
- };
+diff --git a/drivers/video/fbdev/ep93xx-fb.c b/drivers/video/fbdev/ep93xx-fb.c
+index 2398b3d48fed..305f1587bd89 100644
+--- a/drivers/video/fbdev/ep93xx-fb.c
++++ b/drivers/video/fbdev/ep93xx-fb.c
+@@ -552,12 +552,14 @@ static int ep93xxfb_probe(struct platform_device *pdev)
+ 
+ 	err = register_framebuffer(info);
+ 	if (err)
+-		goto failed_check;
++		goto failed_framebuffer;
+ 
+ 	dev_info(info->dev, "registered. Mode = %dx%d-%d\n",
+ 		 info->var.xres, info->var.yres, info->var.bits_per_pixel);
+ 	return 0;
+ 
++failed_framebuffer:
++	clk_disable_unprepare(fbi->clk);
+ failed_check:
+ 	if (fbi->mach_info->teardown)
+ 		fbi->mach_info->teardown(pdev);
 -- 
 2.35.1
 
