@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 536556584EB
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:03:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C8B7658489
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:58:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232964AbiL1RD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:03:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54152 "EHLO
+        id S235197AbiL1Q56 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:57:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235290AbiL1RDe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:03:34 -0500
+        with ESMTP id S235277AbiL1Q5W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:57:22 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FAA114085
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:57:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2666D1573F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:53:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0ADF7B8171F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:57:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7829DC433D2;
-        Wed, 28 Dec 2022 16:57:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9FAEB8172A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:53:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B157C433D2;
+        Wed, 28 Dec 2022 16:53:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246665;
-        bh=L4T6co3qEhFUImBGVuk1Cgsr93LNnaOLn11IL9Q4Eqk=;
+        s=korg; t=1672246419;
+        bh=BtLffO+3Gb4T0px8/3Ad1Wxi+x0cyol3HvDsLe14VPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ElE7Npbsp/P0jc5H3FIybFkosYXqkDsLXRUcynQ/YRkUoVvwDKVPn0RJZCbAN8+3G
-         ZBnj+rITPD8/vwIFR7pOFznmCjA2B1y3eAF+alF3gBgiLFCWySjCcGLJHIhcm1jQST
-         Th35WmXhxupqjZnapAKv0C/AesvYH43YPrClVaZo=
+        b=gNQzwFCOgDTaGLzA16jm0bvZpefkbDiTthfTT2Dej2QH3sqyfcLR0uVrFYDmdtFvI
+         0F9VyRFIbk5ExyX+VRHv1NbLdlg+bcawvTA/wTXTK4ZFUu/jlq9HY9MugKrXtMBjWA
+         WGSVfaVLHR82uhaOZhCe21ariGdwaOmNyvTStSPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeff Mahoney <jeffm@suse.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 6.1 1118/1146] reiserfs: Add missing calls to reiserfs_security_free()
+        patches@lists.linux.dev,
+        Yassine Oudjana <y.oudjana@protonmail.com>,
+        Marek Vasut <marex@denx.de>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Subject: [PATCH 6.0 1069/1073] extcon: usbc-tusb320: Call the Type-C IRQ handler only if a port is registered
 Date:   Wed, 28 Dec 2022 15:44:17 +0100
-Message-Id: <20221228144400.518201472@linuxfoundation.org>
+Message-Id: <20221228144357.276732576@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,89 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Yassine Oudjana <y.oudjana@protonmail.com>
 
-commit 572302af1258459e124437b8f3369357447afac7 upstream.
+commit 341fd15e2e18c24d5c738496cfc3d7a272241201 upstream.
 
-Commit 57fe60df6241 ("reiserfs: add atomic addition of selinux attributes
-during inode creation") defined reiserfs_security_free() to free the name
-and value of a security xattr allocated by the active LSM through
-security_old_inode_init_security(). However, this function is not called
-in the reiserfs code.
+Commit bf7571c00dca ("extcon: usbc-tusb320: Add USB TYPE-C support")
+added an optional Type-C interface to the driver but missed to check
+if it is in use when calling the IRQ handler. This causes an oops on
+devices currently using the old extcon interface. Check if a Type-C
+port is registered before calling the Type-C IRQ handler.
 
-Thus, add a call to reiserfs_security_free() whenever
-reiserfs_security_init() is called, and initialize value to NULL, to avoid
-to call kfree() on an uninitialized pointer.
-
-Finally, remove the kfree() for the xattr name, as it is not allocated
-anymore.
-
-Fixes: 57fe60df6241 ("reiserfs: add atomic addition of selinux attributes during inode creation")
-Cc: stable@vger.kernel.org
-Cc: Jeff Mahoney <jeffm@suse.com>
-Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Reported-by: Mimi Zohar <zohar@linux.ibm.com>
-Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Fixes: bf7571c00dca ("extcon: usbc-tusb320: Add USB TYPE-C support")
+Signed-off-by: Yassine Oudjana <y.oudjana@protonmail.com>
+Reviewed-by: Marek Vasut <marex@denx.de>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20221107153317.657803-1-y.oudjana@protonmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/reiserfs/namei.c          |    4 ++++
- fs/reiserfs/xattr_security.c |    2 +-
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/extcon/extcon-usbc-tusb320.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/fs/reiserfs/namei.c
-+++ b/fs/reiserfs/namei.c
-@@ -696,6 +696,7 @@ static int reiserfs_create(struct user_n
+--- a/drivers/extcon/extcon-usbc-tusb320.c
++++ b/drivers/extcon/extcon-usbc-tusb320.c
+@@ -327,7 +327,13 @@ static irqreturn_t tusb320_state_update_
+ 		return IRQ_NONE;
  
- out_failed:
- 	reiserfs_write_unlock(dir->i_sb);
-+	reiserfs_security_free(&security);
- 	return retval;
- }
+ 	tusb320_extcon_irq_handler(priv, reg);
+-	tusb320_typec_irq_handler(priv, reg);
++
++	/*
++	 * Type-C support is optional. Only call the Type-C handler if a
++	 * port had been registered previously.
++	 */
++	if (priv->port)
++		tusb320_typec_irq_handler(priv, reg);
  
-@@ -779,6 +780,7 @@ static int reiserfs_mknod(struct user_na
+ 	regmap_write(priv->regmap, TUSB320_REG9, reg);
  
- out_failed:
- 	reiserfs_write_unlock(dir->i_sb);
-+	reiserfs_security_free(&security);
- 	return retval;
- }
- 
-@@ -878,6 +880,7 @@ static int reiserfs_mkdir(struct user_na
- 	retval = journal_end(&th);
- out_failed:
- 	reiserfs_write_unlock(dir->i_sb);
-+	reiserfs_security_free(&security);
- 	return retval;
- }
- 
-@@ -1194,6 +1197,7 @@ static int reiserfs_symlink(struct user_
- 	retval = journal_end(&th);
- out_failed:
- 	reiserfs_write_unlock(parent_dir->i_sb);
-+	reiserfs_security_free(&security);
- 	return retval;
- }
- 
---- a/fs/reiserfs/xattr_security.c
-+++ b/fs/reiserfs/xattr_security.c
-@@ -50,6 +50,7 @@ int reiserfs_security_init(struct inode
- 	int error;
- 
- 	sec->name = NULL;
-+	sec->value = NULL;
- 
- 	/* Don't add selinux attributes on xattrs - they'll never get used */
- 	if (IS_PRIVATE(dir))
-@@ -95,7 +96,6 @@ int reiserfs_security_write(struct reise
- 
- void reiserfs_security_free(struct reiserfs_security_handle *sec)
- {
--	kfree(sec->name);
- 	kfree(sec->value);
- 	sec->name = NULL;
- 	sec->value = NULL;
 
 
