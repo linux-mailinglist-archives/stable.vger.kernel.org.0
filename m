@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50F7A657EE8
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:59:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E268B657DCC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:47:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234220AbiL1P7F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:59:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46238 "EHLO
+        id S234039AbiL1PrF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:47:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234217AbiL1P7E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:59:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBEC118B3F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:59:03 -0800 (PST)
+        with ESMTP id S234089AbiL1Pqq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:46:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E299C17898
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:46:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6479BB8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:59:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B252DC433D2;
-        Wed, 28 Dec 2022 15:59:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 816576155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:46:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 906E5C433D2;
+        Wed, 28 Dec 2022 15:46:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243141;
-        bh=HehFi/ehS9YWaSp0HsfWjWiRel2hGAWS15p5BJpm8jo=;
+        s=korg; t=1672242402;
+        bh=we8p8o1BquqEHzPx1VRXPxJZZaJJny3MO4j2jDe/9T4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lXmfPVDgjpXaoVRdj3gLvHRFKJD8CkOM07edyIKVPK/reUeZDyTW31dPWbvkD6jaD
-         4Fz8flXNtevQWUMSixeH/Mq5MJDZ6ffIB1SyN79Muic617RAxcwRtoVi4POtZSdl2m
-         xptWZc+7sqNkU4a+iSWwBjjhXvE2WV9rwPcOlZ+U=
+        b=HezfS6Ni1fu4WFuwlvGRUJjzGHW/dUujlJ54rMZKr/g7wAIt4ouQPlH/dMxW1q2Ef
+         1uq4cD+5FOMzwuZ0wROKwEWCRVMkpH8Dtqg1+0LkoGQ1DmsUpfcGtbbH/fI29+0bUw
+         8L8x+lbGpLb0pZIBxshYxrpqkJgwLWcDfKeDZ8Z8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Carson Vandegriffe <carson.vandegriffe@candelatech.com>,
-        Chad Monroe <chad.monroe@smartrg.com>,
-        Ryder Lee <ryder.lee@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0455/1146] wifi: mt76: mt7915: fix mt7915_mac_set_timing()
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0406/1073] NFSv4.2: Clear FATTR4_WORD2_SECURITY_LABEL when done decoding
 Date:   Wed, 28 Dec 2022 15:33:14 +0100
-Message-Id: <20221228144342.540179065@linuxfoundation.org>
+Message-Id: <20221228144339.047455728@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,68 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryder Lee <ryder.lee@mediatek.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 0c881dc08fd71ca2673f31a64989fbb28eac26f4 ]
+[ Upstream commit eef7314caf2d73a94b68ba293cd105154d3a664e ]
 
-Correct mac timiing settings for different hardware generations.
-This improves 40-60Mbps performance.
+We need to clear the FATTR4_WORD2_SECURITY_LABEL bitmap flag
+irrespective of whether or not the label is too long.
 
-Fixes: 9aac2969fe5f ("mt76: mt7915: update mac timing settings")
-Reported-By: Carson Vandegriffe <carson.vandegriffe@candelatech.com>
-Tested-by: Chad Monroe <chad.monroe@smartrg.com>
-Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Fixes: aa9c2669626c ("NFS: Client implementation of Labeled-NFS")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/mediatek/mt76/mt7915/mac.c   | 21 +++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ fs/nfs/nfs4xdr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-index a4bcc617c1a3..7ae9c4bd9c86 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-@@ -1151,7 +1151,7 @@ void mt7915_mac_set_timing(struct mt7915_phy *phy)
- 		  FIELD_PREP(MT_TIMEOUT_VAL_CCA, 48);
- 	u32 ofdm = FIELD_PREP(MT_TIMEOUT_VAL_PLCP, 60) |
- 		   FIELD_PREP(MT_TIMEOUT_VAL_CCA, 28);
--	int offset;
-+	int eifs_ofdm = 360, sifs = 10, offset;
- 	bool a_band = !(phy->mt76->chandef.chan->band == NL80211_BAND_2GHZ);
- 
- 	if (!test_bit(MT76_STATE_RUNNING, &phy->mt76->state))
-@@ -1169,17 +1169,26 @@ void mt7915_mac_set_timing(struct mt7915_phy *phy)
- 	reg_offset = FIELD_PREP(MT_TIMEOUT_VAL_PLCP, offset) |
- 		     FIELD_PREP(MT_TIMEOUT_VAL_CCA, offset);
- 
-+	if (!is_mt7915(&dev->mt76)) {
-+		if (!a_band) {
-+			mt76_wr(dev, MT_TMAC_ICR1(phy->band_idx),
-+				FIELD_PREP(MT_IFS_EIFS_CCK, 314));
-+			eifs_ofdm = 78;
-+		} else {
-+			eifs_ofdm = 84;
-+		}
-+	} else if (a_band) {
-+		sifs = 16;
-+	}
-+
- 	mt76_wr(dev, MT_TMAC_CDTR(phy->band_idx), cck + reg_offset);
- 	mt76_wr(dev, MT_TMAC_ODTR(phy->band_idx), ofdm + reg_offset);
- 	mt76_wr(dev, MT_TMAC_ICR0(phy->band_idx),
--		FIELD_PREP(MT_IFS_EIFS_OFDM, a_band ? 84 : 78) |
-+		FIELD_PREP(MT_IFS_EIFS_OFDM, eifs_ofdm) |
- 		FIELD_PREP(MT_IFS_RIFS, 2) |
--		FIELD_PREP(MT_IFS_SIFS, 10) |
-+		FIELD_PREP(MT_IFS_SIFS, sifs) |
- 		FIELD_PREP(MT_IFS_SLOT, phy->slottime));
- 
--	mt76_wr(dev, MT_TMAC_ICR1(phy->band_idx),
--		FIELD_PREP(MT_IFS_EIFS_CCK, 314));
--
- 	if (phy->slottime < 20 || a_band)
- 		val = MT7915_CFEND_RATE_DEFAULT;
- 	else
+diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
+index acfe5f4bda48..8c5298e37f0f 100644
+--- a/fs/nfs/nfs4xdr.c
++++ b/fs/nfs/nfs4xdr.c
+@@ -4234,6 +4234,7 @@ static int decode_attr_security_label(struct xdr_stream *xdr, uint32_t *bitmap,
+ 		p = xdr_inline_decode(xdr, len);
+ 		if (unlikely(!p))
+ 			return -EIO;
++		bitmap[2] &= ~FATTR4_WORD2_SECURITY_LABEL;
+ 		if (len < NFS4_MAXLABELLEN) {
+ 			if (label) {
+ 				if (label->len) {
+@@ -4246,7 +4247,6 @@ static int decode_attr_security_label(struct xdr_stream *xdr, uint32_t *bitmap,
+ 				label->lfs = lfs;
+ 				status = NFS_ATTR_FATTR_V4_SECURITY_LABEL;
+ 			}
+-			bitmap[2] &= ~FATTR4_WORD2_SECURITY_LABEL;
+ 		} else
+ 			printk(KERN_WARNING "%s: label too long (%u)!\n",
+ 					__func__, len);
 -- 
 2.35.1
 
