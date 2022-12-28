@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6429465818B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:29:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CC59658287
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:38:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234702AbiL1Q3N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:29:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49358 "EHLO
+        id S234693AbiL1Qhj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:37:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234726AbiL1Q2p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:28:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA7F51A040
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:25:12 -0800 (PST)
+        with ESMTP id S235001AbiL1Qgt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:36:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 980EE1D32A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:33:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F13DF6157A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:25:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A067C433F1;
-        Wed, 28 Dec 2022 16:25:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FBCD61541
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:33:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40C88C433D2;
+        Wed, 28 Dec 2022 16:33:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244711;
-        bh=PlHBVn08YpjN7k+XsOfJZRjQJPmkDDTrkLM3CKK5tBs=;
+        s=korg; t=1672245183;
+        bh=1hpsb5adlX++fZug+jS3IPD/NzMHWhklGO0g+YDGgGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rbvnnfbMxa7ncM++psLe4BEMH6zSgR9eRc/E2BSm1NHZEd2HgdLjIqnorrlL36LwD
-         4vFYJKxH3soPUcCo7vKtq9IrHW4YP2zq1NEFbfQN7PWpROtH2QoP2Jn2cMtax2bogn
-         jLXNWxjRuxQj52I13Njy1YxCmndRi11DBggDUINw=
+        b=rafhaCsXdNOVrniHVVEYpuDZLHjYuHTyGEAVSOGKawPc1Wn19QeBJOKt0XNCVsMQW
+         m/mCnN8snwNIO/iPp+QXoBGCWh60omr6s/oZT6nIsgo43rbHXiq2lsuFl3U7d+jbLe
+         9wIRm4PqNyLzbEWWxkvyQ8P8deuO5Y2ceCqmvjhU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <dan.carpenter@oracle.com>,
-        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0761/1073] fs/ntfs3: Harden against integer overflows
-Date:   Wed, 28 Dec 2022 15:39:09 +0100
-Message-Id: <20221228144348.686099092@linuxfoundation.org>
+        patches@lists.linux.dev, Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0811/1146] iommu/sun50i: Fix R/W permission check
+Date:   Wed, 28 Dec 2022 15:39:10 +0100
+Message-Id: <20221228144352.181920063@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +52,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jernej Skrabec <jernej.skrabec@gmail.com>
 
-[ Upstream commit e001e60869390686809663c02bceb1d3922548fb ]
+[ Upstream commit eac0104dc69be50bed86926d6f32e82b44f8c921 ]
 
-Smatch complains that the "add_bytes" is not to be trusted.  Use
-size_add() to prevent an integer overflow.
+Because driver has enum type permissions and iommu subsystem has bitmap
+type, we have to be careful how check for combined read and write
+permissions is done. In such case, we have to mask both permissions and
+check that both are set at the same time.
 
-Fixes: be71b5cba2e6 ("fs/ntfs3: Add attrib operations")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+Current code just masks both flags but doesn't check that both are set.
+In short, it always sets R/W permission, regardles if requested
+permissions were RO, WO or RW. Fix that.
+
+Fixes: 4100b8c229b3 ("iommu: Add Allwinner H6 IOMMU driver")
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Link: https://lore.kernel.org/r/20221025165415.307591-4-jernej.skrabec@gmail.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/xattr.c | 2 +-
+ drivers/iommu/sun50i-iommu.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ntfs3/xattr.c b/fs/ntfs3/xattr.c
-index 7de8718c68a9..ea582b4fe1d9 100644
---- a/fs/ntfs3/xattr.c
-+++ b/fs/ntfs3/xattr.c
-@@ -107,7 +107,7 @@ static int ntfs_read_ea(struct ntfs_inode *ni, struct EA_FULL **ea,
- 		return -EFBIG;
+diff --git a/drivers/iommu/sun50i-iommu.c b/drivers/iommu/sun50i-iommu.c
+index bbc269500800..df871af04bcb 100644
+--- a/drivers/iommu/sun50i-iommu.c
++++ b/drivers/iommu/sun50i-iommu.c
+@@ -271,7 +271,7 @@ static u32 sun50i_mk_pte(phys_addr_t page, int prot)
+ 	enum sun50i_iommu_aci aci;
+ 	u32 flags = 0;
  
- 	/* Allocate memory for packed Ea. */
--	ea_p = kmalloc(size + add_bytes, GFP_NOFS);
-+	ea_p = kmalloc(size_add(size, add_bytes), GFP_NOFS);
- 	if (!ea_p)
- 		return -ENOMEM;
- 
+-	if (prot & (IOMMU_READ | IOMMU_WRITE))
++	if ((prot & (IOMMU_READ | IOMMU_WRITE)) == (IOMMU_READ | IOMMU_WRITE))
+ 		aci = SUN50I_IOMMU_ACI_RD_WR;
+ 	else if (prot & IOMMU_READ)
+ 		aci = SUN50I_IOMMU_ACI_RD;
 -- 
 2.35.1
 
