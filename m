@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49622657976
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:01:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D30565801F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:14:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233411AbiL1PBl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:01:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48728 "EHLO
+        id S234457AbiL1QOH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:14:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233468AbiL1PBQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:01:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A98F913CFE
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:01:15 -0800 (PST)
+        with ESMTP id S234459AbiL1QNo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:13:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 907AF1AD8F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:11:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D25E5B8171E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:01:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 342EFC433D2;
-        Wed, 28 Dec 2022 15:01:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F22C161577
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:11:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 111EBC433D2;
+        Wed, 28 Dec 2022 16:11:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239672;
-        bh=SSERZanmXNDMnivHBMDPHYS4rqHmfrl1MOn69aHOnvk=;
+        s=korg; t=1672243901;
+        bh=EIj8sJGijWRFsfgtNCgCcLWUcJjmrtfZbMz2oLgw5qE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XzDStVkCgokZCkUFW14hbmDLreRwqZc71PlcBzcxvylUiJOqOqrQz9O/v3nbvXWBy
-         wEE9GIeaqA6YReQj/hYQ3h+JZQJnCRk5gnrIHhLqzWPtTaLAalYffKEKL5Jl6F8Zgt
-         CYnuauQmgC5pMJMxSStC66mUmOIi5UpLAzZOFXKA=
+        b=l1ItS8efH9eUAAPoLTn7xEc9zdqhzHeMwW0uFuqVc021NXtKaEuhENJoIFigWRoxS
+         iNkwelcytkj0y55/Y5tFTR6ZO0yrYiNJ8sweKXlHAoSoijO0Zsw4T8NxHTTgvJLZOk
+         Cv4n3LtN7U5g6qO6iUSc2vlVG/hUCtOWSqF/0u2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
+        John Johansen <john.johansen@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 256/731] drm/amdgpu: Fix PCI device refcount leak in amdgpu_atrm_get_bios()
-Date:   Wed, 28 Dec 2022 15:36:03 +0100
-Message-Id: <20221228144303.980999532@linuxfoundation.org>
+Subject: [PATCH 6.0 0576/1073] apparmor: Fix memleak in alloc_ns()
+Date:   Wed, 28 Dec 2022 15:36:04 +0100
+Message-Id: <20221228144343.697015764@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-[ Upstream commit ca54639c7752edf1304d92ff4d0c049d4efc9ba0 ]
+[ Upstream commit e9e6fa49dbab6d84c676666f3fe7d360497fd65b ]
 
-As comment of pci_get_class() says, it returns a pci_device with its
-refcount increased and decreased the refcount for the input parameter
-@from if it is not NULL.
+After changes in commit a1bd627b46d1 ("apparmor: share profile name on
+replacement"), the hname member of struct aa_policy is not valid slab
+object, but a subset of that, it can not be freed by kfree_sensitive(),
+use aa_policy_destroy() to fix it.
 
-If we break the loop in amdgpu_atrm_get_bios() with 'pdev' not NULL, we
-need to call pci_dev_put() to decrease the refcount. Add the missing
-pci_dev_put() to avoid refcount leak.
-
-Fixes: d38ceaf99ed0 ("drm/amdgpu: add core driver (v4)")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: a1bd627b46d1 ("apparmor: share profile name on replacement")
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+Signed-off-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c | 1 +
- 1 file changed, 1 insertion(+)
+ security/apparmor/policy_ns.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c
-index 27b19503773b..71354f505b84 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c
-@@ -317,6 +317,7 @@ static bool amdgpu_atrm_get_bios(struct amdgpu_device *adev)
+diff --git a/security/apparmor/policy_ns.c b/security/apparmor/policy_ns.c
+index 43beaad083fe..78700d94b453 100644
+--- a/security/apparmor/policy_ns.c
++++ b/security/apparmor/policy_ns.c
+@@ -134,7 +134,7 @@ static struct aa_ns *alloc_ns(const char *prefix, const char *name)
+ 	return ns;
  
- 	if (!found)
- 		return false;
-+	pci_dev_put(pdev);
- 
- 	adev->bios = kmalloc(size, GFP_KERNEL);
- 	if (!adev->bios) {
+ fail_unconfined:
+-	kfree_sensitive(ns->base.hname);
++	aa_policy_destroy(&ns->base);
+ fail_ns:
+ 	kfree_sensitive(ns);
+ 	return NULL;
 -- 
 2.35.1
 
