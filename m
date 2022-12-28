@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7951C6583FB
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:54:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5418658345
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:46:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235205AbiL1Qxo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:53:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43420 "EHLO
+        id S233802AbiL1QpL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:45:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235219AbiL1QxA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:53:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F160E13E04
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:48:05 -0800 (PST)
+        with ESMTP id S234374AbiL1Qok (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F3181CB34
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:40:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E6496155B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:48:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B4D5C433D2;
-        Wed, 28 Dec 2022 16:48:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA59FB816F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:40:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EEB1C433EF;
+        Wed, 28 Dec 2022 16:40:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246085;
-        bh=FgkbxNBjbqEgSLmU0OPf3Y85XtaLIngNOmgqAftktAo=;
+        s=korg; t=1672245634;
+        bh=yreuj1Pmw8nwCm3ADVtacDriCMOlBPDxspsHT79iAJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IGeoGQCz05MK9w2BGXh3siPwPOYff6GEOMWMnO4urSPm++D9uncG+mfKh1J8L35M/
-         MFTGgCltoiDViSUt6yGrR/ou/+dshGngK+LgxAC4UreMUfUv/337im/VAONw1kNZgv
-         WytsgQOuOLJhQEvoNK6TR1gITyF98/lt7EKK0tFs=
+        b=ZvezIWEo9i/d8P687vpQjU8XVZOE/jaeObXTKz0kFwnJLuBOGE2hH0cuJeGdThJcc
+         U8iAImyzYUv4pXSeC0OvpyZ+UeEbVHPtc+PvEM844bCqq4WXISUdqsF7zkmZkO6Uak
+         SqSOGP9l8uxcGCnaB0V9rQSx/przi1yqrwNhzltM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Roman Li <roman.li@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Hamza Mahfooz <hamza.mahfooz@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0978/1146] drm/edid: add a quirk for two LG monitors to get them to work on 10bpc
+        patches@lists.linux.dev, Mia Kanashi <chad@redpilled.dev>,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0929/1073] HID: input: do not query XP-PEN Deco LW battery
 Date:   Wed, 28 Dec 2022 15:41:57 +0100
-Message-Id: <20221228144356.922576195@linuxfoundation.org>
+Message-Id: <20221228144353.260902381@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,85 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hamza Mahfooz <hamza.mahfooz@amd.com>
+From: José Expósito <jose.exposito89@gmail.com>
 
-[ Upstream commit aa193f7eff8ff753577351140b8af13b76cdc7c2 ]
+[ Upstream commit 037c1aaeb96fe5f778026f4c1ef28b26cf600bfa ]
 
-The LG 27GP950 and LG 27GN950 have visible display corruption when
-trying to use 10bpc modes. So, to fix this, cap their maximum DSC
-target bitrate to 15bpp.
+The XP-PEN Deco LW drawing tablet can be connected by USB cable or using
+a USB Bluetooth dongle. When it is connected using the dongle, there
+might be a small delay until the tablet is paired with the dongle.
 
-Suggested-by: Roman Li <roman.li@amd.com>
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Hamza Mahfooz <hamza.mahfooz@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fetching the device battery during this delay results in random battery
+percentage values.
+
+Add a quirk to avoid actively querying the battery percentage and wait
+for the device to report it on its own.
+
+Reported-by: Mia Kanashi <chad@redpilled.dev>
+Tested-by: Mia Kanashi <chad@redpilled.dev>
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_edid.c  | 12 ++++++++++++
- include/drm/drm_connector.h |  6 ++++++
- 2 files changed, 18 insertions(+)
+ drivers/hid/hid-input.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
-index 4005dab6147d..b36abfa91581 100644
---- a/drivers/gpu/drm/drm_edid.c
-+++ b/drivers/gpu/drm/drm_edid.c
-@@ -87,6 +87,8 @@ static int oui(u8 first, u8 second, u8 third)
- #define EDID_QUIRK_FORCE_10BPC			(1 << 11)
- /* Non desktop display (i.e. HMD) */
- #define EDID_QUIRK_NON_DESKTOP			(1 << 12)
-+/* Cap the DSC target bitrate to 15bpp */
-+#define EDID_QUIRK_CAP_DSC_15BPP		(1 << 13)
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 859aeb07542e..d728a94c642e 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -340,6 +340,7 @@ static enum power_supply_property hidinput_battery_props[] = {
+ #define HID_BATTERY_QUIRK_PERCENT	(1 << 0) /* always reports percent */
+ #define HID_BATTERY_QUIRK_FEATURE	(1 << 1) /* ask for feature report */
+ #define HID_BATTERY_QUIRK_IGNORE	(1 << 2) /* completely ignore the battery */
++#define HID_BATTERY_QUIRK_AVOID_QUERY	(1 << 3) /* do not query the battery */
  
- #define MICROSOFT_IEEE_OUI	0xca125c
+ static const struct hid_device_id hid_battery_quirks[] = {
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+@@ -373,6 +374,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
+ 	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ASUS_UX550VE_TOUCHSCREEN),
+ 	  HID_BATTERY_QUIRK_IGNORE },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE, USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L),
++	  HID_BATTERY_QUIRK_AVOID_QUERY },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_ENVY_X360_15),
+ 	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_ENVY_X360_15T_DR100),
+@@ -554,6 +557,9 @@ static int hidinput_setup_battery(struct hid_device *dev, unsigned report_type,
+ 	dev->battery_avoid_query = report_type == HID_INPUT_REPORT &&
+ 				   field->physical == HID_DG_STYLUS;
  
-@@ -147,6 +149,12 @@ static const struct edid_quirk {
- 	EDID_QUIRK('F', 'C', 'M', 13600, EDID_QUIRK_PREFER_LARGE_75 |
- 				       EDID_QUIRK_DETAILED_IN_CM),
- 
-+	/* LG 27GP950 */
-+	EDID_QUIRK('G', 'S', 'M', 0x5bbf, EDID_QUIRK_CAP_DSC_15BPP),
++	if (quirks & HID_BATTERY_QUIRK_AVOID_QUERY)
++		dev->battery_avoid_query = true;
 +
-+	/* LG 27GN950 */
-+	EDID_QUIRK('G', 'S', 'M', 0x5b9a, EDID_QUIRK_CAP_DSC_15BPP),
-+
- 	/* LGD panel of HP zBook 17 G2, eDP 10 bpc, but reports unknown bpc */
- 	EDID_QUIRK('L', 'G', 'D', 764, EDID_QUIRK_FORCE_10BPC),
- 
-@@ -6166,6 +6174,7 @@ static void drm_reset_display_info(struct drm_connector *connector)
- 
- 	info->mso_stream_count = 0;
- 	info->mso_pixel_overlap = 0;
-+	info->max_dsc_bpp = 0;
- }
- 
- static u32 update_display_info(struct drm_connector *connector,
-@@ -6252,6 +6261,9 @@ static u32 update_display_info(struct drm_connector *connector,
- 		info->non_desktop = true;
- 	}
- 
-+	if (quirks & EDID_QUIRK_CAP_DSC_15BPP)
-+		info->max_dsc_bpp = 15;
-+
- 	return quirks;
- }
- 
-diff --git a/include/drm/drm_connector.h b/include/drm/drm_connector.h
-index 56aee949c6fa..4d830fc55a3d 100644
---- a/include/drm/drm_connector.h
-+++ b/include/drm/drm_connector.h
-@@ -656,6 +656,12 @@ struct drm_display_info {
- 	 * @mso_pixel_overlap: eDP MSO segment pixel overlap, 0-8 pixels.
- 	 */
- 	u8 mso_pixel_overlap;
-+
-+	/**
-+	 * @max_dsc_bpp: Maximum DSC target bitrate, if it is set to 0 the
-+	 * monitor's default value is used instead.
-+	 */
-+	u32 max_dsc_bpp;
- };
- 
- int drm_display_info_set_bus_formats(struct drm_display_info *info,
+ 	dev->battery = power_supply_register(&dev->dev, psy_desc, &psy_cfg);
+ 	if (IS_ERR(dev->battery)) {
+ 		error = PTR_ERR(dev->battery);
 -- 
 2.35.1
 
