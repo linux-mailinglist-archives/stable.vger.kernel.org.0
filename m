@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96FA3657DE8
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:48:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D890657817
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233632AbiL1PsI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:48:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36168 "EHLO
+        id S232861AbiL1OsC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:48:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234070AbiL1PsA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:48:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 442FF178B5
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:48:00 -0800 (PST)
+        with ESMTP id S233043AbiL1Orh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:47:37 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DEA01208B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:46:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E78D9B81730
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:47:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4198FC433D2;
-        Wed, 28 Dec 2022 15:47:57 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id CA6A0CE134B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:46:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAA4FC433EF;
+        Wed, 28 Dec 2022 14:46:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242477;
-        bh=XkPe3dJ9RRR1N8aSr2mMb0JFqzW72j2gCtbe4xfFdds=;
+        s=korg; t=1672238811;
+        bh=LPxoZ4k9G3fNILRX+bf+StZjyW63VVdFYpmM9jvrFIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IH7SRlDQgeH0ynufnxigfQo5iQhpX+4KAlXKFsMfg+mQRWyyigM7/9/sWviXFJU2r
-         6ad+cI/nZ0i3kIEXJluICUA0GDz7sbyGlOisdkwpi6qgC9iu9dE2PygRNjBydHB8WI
-         /koafmBN9Bv039515Ie1mTRsNkrTiQNF7cbMp+Ac=
+        b=A8RZf1hqff3Ezn/zv02vKZwpkdS8omokSplEA5CaHnWeLyd6AyuiFb3qLLZ9dzXJK
+         I3RrRbNeW+4yLfsu858F2SG0DFkCu1Mzv9H8bppDbpYgXAWHYVBnkTrfNOOow9Df2n
+         xhknqtEtdM7uQyr76sQoteCIMIPTo4GhB7Wwm5B4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Junxiao Chang <junxiao.chang@intel.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Lili Li <lili.li@intel.com>, Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0374/1146] ASoC: Intel: Skylake: Fix Kconfig dependency
+Subject: [PATCH 5.15 006/731] arm64: dts: qcom: msm8996: fix supported-hw in cpufreq OPP tables
 Date:   Wed, 28 Dec 2022 15:31:53 +0100
-Message-Id: <20221228144340.322316385@linuxfoundation.org>
+Message-Id: <20221228144256.720678872@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +55,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lili Li <lili.li@intel.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit e5d4d2b23aed20a7815d1b500dbcd50af1da0023 ]
+[ Upstream commit 0154caaa2b748e7414a4ec3c6ee60e8f483b2d4f ]
 
-Commit e4746d94d00c ("ASoC: Intel: Skylake: Introduce HDA codec init and
-exit routines") introduced HDA codec init routine which depends on SND_HDA.
-Select SND_SOC_HDAC_HDA unconditionally to fix following compile error:
-ERROR: modpost: "snd_hda_codec_device_init" [sound/soc/intel/skylake/snd-soc-skl.ko] undefined!
+Adjust MSM8996 cpufreq tables according to tables in msm-3.18. Some of
+the frequencies are not supported on speed bins other than 0. Also other
+speed bins support intermediate topmost frequencies, not supported on
+speed bin 0. Implement all these differencies.
 
-Fixes: e4746d94d00c ("ASoC: Intel: Skylake: Introduce HDA codec init and exit routines")
-Reviewed-by: Junxiao Chang <junxiao.chang@intel.com>
-Suggested-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Signed-off-by: Lili Li <lili.li@intel.com>
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Link: https://lore.kernel.org/r/20221121104742.1007486-1-lili.li@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 90173a954a22 ("arm64: dts: qcom: msm8996: Add CPU opps")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20220724140421.1933004-5-dmitry.baryshkov@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/msm8996.dtsi | 38 ++++++++++++++++++++-------
+ 1 file changed, 29 insertions(+), 9 deletions(-)
 
-diff --git a/sound/soc/intel/Kconfig b/sound/soc/intel/Kconfig
-index d2ca710ac3fa..ac799de4f7fd 100644
---- a/sound/soc/intel/Kconfig
-+++ b/sound/soc/intel/Kconfig
-@@ -177,7 +177,7 @@ config SND_SOC_INTEL_SKYLAKE_COMMON
- 	select SND_HDA_DSP_LOADER
- 	select SND_SOC_TOPOLOGY
- 	select SND_SOC_INTEL_SST
--	select SND_SOC_HDAC_HDA if SND_SOC_INTEL_SKYLAKE_HDAUDIO_CODEC
-+	select SND_SOC_HDAC_HDA
- 	select SND_SOC_ACPI_INTEL_MATCH
- 	select SND_INTEL_DSP_CONFIG
- 	help
+diff --git a/arch/arm64/boot/dts/qcom/msm8996.dtsi b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+index 4f472306f10f..032c6cd635e2 100644
+--- a/arch/arm64/boot/dts/qcom/msm8996.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+@@ -202,22 +202,32 @@ opp-1228800000 {
+ 		};
+ 		opp-1324800000 {
+ 			opp-hz = /bits/ 64 <1324800000>;
+-			opp-supported-hw = <0x7>;
++			opp-supported-hw = <0x5>;
++			clock-latency-ns = <200000>;
++		};
++		opp-1363200000 {
++			opp-hz = /bits/ 64 <1363200000>;
++			opp-supported-hw = <0x2>;
+ 			clock-latency-ns = <200000>;
+ 		};
+ 		opp-1401600000 {
+ 			opp-hz = /bits/ 64 <1401600000>;
+-			opp-supported-hw = <0x7>;
++			opp-supported-hw = <0x5>;
+ 			clock-latency-ns = <200000>;
+ 		};
+ 		opp-1478400000 {
+ 			opp-hz = /bits/ 64 <1478400000>;
+-			opp-supported-hw = <0x7>;
++			opp-supported-hw = <0x1>;
++			clock-latency-ns = <200000>;
++		};
++		opp-1497600000 {
++			opp-hz = /bits/ 64 <1497600000>;
++			opp-supported-hw = <0x04>;
+ 			clock-latency-ns = <200000>;
+ 		};
+ 		opp-1593600000 {
+ 			opp-hz = /bits/ 64 <1593600000>;
+-			opp-supported-hw = <0x7>;
++			opp-supported-hw = <0x1>;
+ 			clock-latency-ns = <200000>;
+ 		};
+ 	};
+@@ -328,29 +338,39 @@ opp-1785600000 {
+ 			opp-supported-hw = <0x7>;
+ 			clock-latency-ns = <200000>;
+ 		};
++		opp-1804800000 {
++			opp-hz = /bits/ 64 <1804800000>;
++			opp-supported-hw = <0x6>;
++			clock-latency-ns = <200000>;
++		};
+ 		opp-1824000000 {
+ 			opp-hz = /bits/ 64 <1824000000>;
+-			opp-supported-hw = <0x7>;
++			opp-supported-hw = <0x1>;
++			clock-latency-ns = <200000>;
++		};
++		opp-1900800000 {
++			opp-hz = /bits/ 64 <1900800000>;
++			opp-supported-hw = <0x4>;
+ 			clock-latency-ns = <200000>;
+ 		};
+ 		opp-1920000000 {
+ 			opp-hz = /bits/ 64 <1920000000>;
+-			opp-supported-hw = <0x7>;
++			opp-supported-hw = <0x1>;
+ 			clock-latency-ns = <200000>;
+ 		};
+ 		opp-1996800000 {
+ 			opp-hz = /bits/ 64 <1996800000>;
+-			opp-supported-hw = <0x7>;
++			opp-supported-hw = <0x1>;
+ 			clock-latency-ns = <200000>;
+ 		};
+ 		opp-2073600000 {
+ 			opp-hz = /bits/ 64 <2073600000>;
+-			opp-supported-hw = <0x7>;
++			opp-supported-hw = <0x1>;
+ 			clock-latency-ns = <200000>;
+ 		};
+ 		opp-2150400000 {
+ 			opp-hz = /bits/ 64 <2150400000>;
+-			opp-supported-hw = <0x7>;
++			opp-supported-hw = <0x1>;
+ 			clock-latency-ns = <200000>;
+ 		};
+ 	};
 -- 
 2.35.1
 
