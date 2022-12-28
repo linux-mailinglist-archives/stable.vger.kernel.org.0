@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03EBA6578B2
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:53:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ACD0657FB3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:08:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233037AbiL1Ox2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:53:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40970 "EHLO
+        id S234429AbiL1QH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:07:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233184AbiL1OxI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:53:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52B0029B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:53:07 -0800 (PST)
+        with ESMTP id S234371AbiL1QHg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:07:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B17E19281
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:07:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E9B6DB8171E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:53:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61F3FC433EF;
-        Wed, 28 Dec 2022 14:53:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A62461576
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:07:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACE63C433D2;
+        Wed, 28 Dec 2022 16:07:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239184;
-        bh=SV5LhaawseBh+yKbh/cBXc6ffUDb4S/FyC7lELOu978=;
+        s=korg; t=1672243654;
+        bh=7XPu/FveaBDsf0v0ufuB4CiGqQY1IlC0UjHdGN7iiAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=us+PD0CfZnYWThawLuanSEl2WHXw+ZUWVjvjbBxqLD9SUFNIHHVHoe2QE6qBAfPbP
-         Q6haD3LepxRcYzvsCMU29COjmvypNul22n2eqd8HGU9qc0o1c+OFeL9DeNKnRBvb9/
-         tT1sd6852mikB/450Nay/ICrt13oZ9QDaKFjLPfA=
+        b=BL1Ajo73rmQkMhpoZLEQfzCPFCL2WI55Ka+qMlKu0vDICUPBVSeWsPOrODMu3ZdDD
+         CLj/TKTLLAfQUfEJpeZ++jUfmke71ddZsEEe48x0FEU7fiNN+ibYoISRgElb1rN+PJ
+         bXmrFs059orxGmmpsLiou9mEByJvogyxEYqqsFsg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alan Maguire <alan.maguire@oracle.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        patches@lists.linux.dev,
+        Artem Chernyshev <artem.chernyshev@red-soft.ru>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Vishnu Dasa <vdasa@vmware.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 160/731] libbpf: Btf dedup identical struct test needs check for nested structs/arrays
+Subject: [PATCH 6.1 0528/1146] net: vmw_vsock: vmci: Check memcpy_from_msg()
 Date:   Wed, 28 Dec 2022 15:34:27 +0100
-Message-Id: <20221228144301.202100666@linuxfoundation.org>
+Message-Id: <20221228144344.517511513@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,91 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Maguire <alan.maguire@oracle.com>
+From: Artem Chernyshev <artem.chernyshev@red-soft.ru>
 
-[ Upstream commit f3c51fe02c55bd944662714e5b91b96dc271ad9f ]
+[ Upstream commit 44aa5a6dba8283bfda28b1517af4de711c5652a4 ]
 
-When examining module BTF, it is common to see core kernel structures
-such as sk_buff, net_device duplicated in the module.  After adding
-debug messaging to BTF it turned out that much of the problem
-was down to the identical struct test failing during deduplication;
-sometimes the compiler adds identical structs.  However
-it turns out sometimes that type ids of identical struct members
-can also differ, even when the containing structs are still identical.
+vmci_transport_dgram_enqueue() does not check the return value
+of memcpy_from_msg().  If memcpy_from_msg() fails, it is possible that
+uninitialized memory contents are sent unintentionally instead of user's
+message in the datagram to the destination.  Return with an error if
+memcpy_from_msg() fails.
 
-To take an example, for struct sk_buff, debug messaging revealed
-that the identical struct matching was failing for the anon
-struct "headers"; specifically for the first field:
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-__u8       __pkt_type_offset[0]; /*   128     0 */
-
-Looking at the code in BTF deduplication, we have code that guards
-against the possibility of identical struct definitions, down to
-type ids, and identical array definitions.  However in this case
-we have a struct which is being defined twice but does not have
-identical type ids since each duplicate struct has separate type
-ids for the above array member.   A similar problem (though not
-observed) could occur for struct-in-struct.
-
-The solution is to make the "identical struct" test check members
-not just for matching ids, but to also check if they in turn are
-identical structs or arrays.
-
-The results of doing this are quite dramatic (for some modules
-at least); I see the number of type ids drop from around 10000
-to just over 1000 in one module for example.
-
-For testing use latest pahole or apply [1], otherwise dedups
-can fail for the reasons described there.
-
-Also fix return type of btf_dedup_identical_arrays() as
-suggested by Andrii to match boolean return type used
-elsewhere.
-
-Fixes: efdd3eb8015e ("libbpf: Accommodate DWARF/compiler bug with duplicated structs")
-Signed-off-by: Alan Maguire <alan.maguire@oracle.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/1666622309-22289-1-git-send-email-alan.maguire@oracle.com
-
-[1] https://lore.kernel.org/bpf/1666364523-9648-1-git-send-email-alan.maguire
-
+Fixes: 0f7db23a07af ("vmci_transport: switch ->enqeue_dgram, ->enqueue_stream and ->dequeue_stream to msghdr")
+Signed-off-by: Artem Chernyshev <artem.chernyshev@red-soft.ru>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/btf.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/vmw_vsock/vmci_transport.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/tools/lib/bpf/btf.c b/tools/lib/bpf/btf.c
-index 5f3d20ae66d5..3ed759f53e7c 100644
---- a/tools/lib/bpf/btf.c
-+++ b/tools/lib/bpf/btf.c
-@@ -3718,14 +3718,14 @@ static inline __u16 btf_fwd_kind(struct btf_type *t)
- }
+diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+index 842c94286d31..36eb16a40745 100644
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -1711,7 +1711,11 @@ static int vmci_transport_dgram_enqueue(
+ 	if (!dg)
+ 		return -ENOMEM;
  
- /* Check if given two types are identical ARRAY definitions */
--static int btf_dedup_identical_arrays(struct btf_dedup *d, __u32 id1, __u32 id2)
-+static bool btf_dedup_identical_arrays(struct btf_dedup *d, __u32 id1, __u32 id2)
- {
- 	struct btf_type *t1, *t2;
+-	memcpy_from_msg(VMCI_DG_PAYLOAD(dg), msg, len);
++	err = memcpy_from_msg(VMCI_DG_PAYLOAD(dg), msg, len);
++	if (err) {
++		kfree(dg);
++		return err;
++	}
  
- 	t1 = btf_type_by_id(d->btf, id1);
- 	t2 = btf_type_by_id(d->btf, id2);
- 	if (!btf_is_array(t1) || !btf_is_array(t2))
--		return 0;
-+		return false;
- 
- 	return btf_equal_array(t1, t2);
- }
-@@ -3749,7 +3749,9 @@ static bool btf_dedup_identical_structs(struct btf_dedup *d, __u32 id1, __u32 id
- 	m1 = btf_members(t1);
- 	m2 = btf_members(t2);
- 	for (i = 0, n = btf_vlen(t1); i < n; i++, m1++, m2++) {
--		if (m1->type != m2->type)
-+		if (m1->type != m2->type &&
-+		    !btf_dedup_identical_arrays(d, m1->type, m2->type) &&
-+		    !btf_dedup_identical_structs(d, m1->type, m2->type))
- 			return false;
- 	}
- 	return true;
+ 	dg->dst = vmci_make_handle(remote_addr->svm_cid,
+ 				   remote_addr->svm_port);
 -- 
 2.35.1
 
