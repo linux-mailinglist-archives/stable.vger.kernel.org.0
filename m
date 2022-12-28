@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B268B658191
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:29:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE688657C2B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:29:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233545AbiL1Q3j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:29:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50050 "EHLO
+        id S233425AbiL1P3j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:29:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233315AbiL1Q3Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:29:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D9D41AD8C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:25:27 -0800 (PST)
+        with ESMTP id S233761AbiL1P3h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:29:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8849915807
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:29:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C5F85B81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:25:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BA87C433EF;
-        Wed, 28 Dec 2022 16:25:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E283B816D9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:29:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91ED7C433D2;
+        Wed, 28 Dec 2022 15:29:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244724;
-        bh=IyrntQKuf7TDG7H4RdY3zYDDX97jtif1m/HabaYSVMA=;
+        s=korg; t=1672241373;
+        bh=tCKhIKES01vCm26ZLEvARUQHAFuL/43QG7Or5OiUYno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VMGtfrHuj/mosl/211GClinJxe0IKTCAkw5ZuUeeilGXUTNW9vTYLKT1Y/5BjJAPL
-         R/ynqQE73wrDgpeK+Zfi/X0GOUg6bYO7WN7oEtTgX8udAAPSrD6/IS1GN6ntm4ZXBI
-         igK/66DtIjfldkPeGxVHfFQ7N+Fa9g5l6+X/WDAo=
+        b=aCU5kk0+o/4Z3p4wEcWG4arP5eyhDGJI4dM7ZTwyJU12bANk97TjMO6np2foFYQTU
+         JEUzkTv+TbkG+5lCpN9MVVz03Y7C1rDzhVqHbJ/lDft07Na9i3jKk/IS3hyTr1LkbA
+         bl28kyx5HmsJMCB2359CEsuk5e4HKvuL/MUuXlQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0763/1073] phy: qcom-qmp-pcie: drop bogus register update
-Date:   Wed, 28 Dec 2022 15:39:11 +0100
-Message-Id: <20221228144348.738683356@linuxfoundation.org>
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 445/731] usb: fotg210-udc: Fix ages old endianness issues
+Date:   Wed, 28 Dec 2022 15:39:12 +0100
+Message-Id: <20221228144309.455018826@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +53,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 2d93887cb4bac0a36ce9e146956f631ab7994680 ]
+[ Upstream commit 46ed6026ca2181c917c8334a82e3eaf40a6234dd ]
 
-Since commit 0d58280cf1e6 ("phy: Update PHY power control sequence") the
-PHY is powered on before configuring the registers and only the MSM8996
-PCIe PHY, which includes the POWER_DOWN_CONTROL register in its PCS
-initialisation table, may possibly require a second update afterwards.
+The code in the FOTG210 driver isn't entirely endianness-agnostic
+as reported by the kernel robot sparse testing. This came to
+the surface while moving the files around.
 
-To make things worse, the POWER_DOWN_CONTROL register lies at a
-different offset on more recent SoCs so that the second update, which
-still used a hard-coded offset, would write to an unrelated register
-(e.g. a revision-id register on SC8280XP).
+The driver is only used on little-endian systems, so this causes
+no real-world regression, but it is nice to be strict and have
+some compile coverage also on big endian machines, so fix it
+up with the right LE accessors.
 
-As the MSM8996 PCIe PHY is now handled by a separate driver, simply drop
-the bogus register update.
-
-Fixes: e4d8b05ad5f9 ("phy: qcom-qmp: Use proper PWRDOWN offset for sm8150 USB") added support
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Tested-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org> #RB3
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20221017065013.19647-12-johan+linaro@kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: b84a8dee23fd ("usb: gadget: add Faraday fotg210_udc driver")
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/linux-usb/202211110910.0dJ7nZCn-lkp@intel.com/
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20221111090317.94228-1-linus.walleij@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/qualcomm/phy-qcom-qmp-pcie.c | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/usb/gadget/udc/fotg210-udc.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c b/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
-index 2d65e1f56bfc..6d790f2107f5 100644
---- a/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
-+++ b/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
-@@ -2077,12 +2077,6 @@ static int qcom_qmp_phy_pcie_power_on(struct phy *phy)
- 		qcom_qmp_phy_pcie_configure(pcs_misc, cfg->regs, cfg->pcs_misc_tbl_sec,
- 				       cfg->pcs_misc_tbl_num_sec);
+diff --git a/drivers/usb/gadget/udc/fotg210-udc.c b/drivers/usb/gadget/udc/fotg210-udc.c
+index fdca28e72a3b..d0e051beb3af 100644
+--- a/drivers/usb/gadget/udc/fotg210-udc.c
++++ b/drivers/usb/gadget/udc/fotg210-udc.c
+@@ -629,10 +629,10 @@ static void fotg210_request_error(struct fotg210_udc *fotg210)
+ static void fotg210_set_address(struct fotg210_udc *fotg210,
+ 				struct usb_ctrlrequest *ctrl)
+ {
+-	if (ctrl->wValue >= 0x0100) {
++	if (le16_to_cpu(ctrl->wValue) >= 0x0100) {
+ 		fotg210_request_error(fotg210);
+ 	} else {
+-		fotg210_set_dev_addr(fotg210, ctrl->wValue);
++		fotg210_set_dev_addr(fotg210, le16_to_cpu(ctrl->wValue));
+ 		fotg210_set_cxdone(fotg210);
+ 	}
+ }
+@@ -713,17 +713,17 @@ static void fotg210_get_status(struct fotg210_udc *fotg210,
  
--	/*
--	 * Pull out PHY from POWER DOWN state.
--	 * This is active low enable signal to power-down PHY.
--	 */
--	qphy_setbits(pcs, QPHY_V2_PCS_POWER_DOWN_CONTROL, cfg->pwrdn_ctrl);
--
- 	if (cfg->has_pwrdn_delay)
- 		usleep_range(cfg->pwrdn_delay_min, cfg->pwrdn_delay_max);
- 
+ 	switch (ctrl->bRequestType & USB_RECIP_MASK) {
+ 	case USB_RECIP_DEVICE:
+-		fotg210->ep0_data = 1 << USB_DEVICE_SELF_POWERED;
++		fotg210->ep0_data = cpu_to_le16(1 << USB_DEVICE_SELF_POWERED);
+ 		break;
+ 	case USB_RECIP_INTERFACE:
+-		fotg210->ep0_data = 0;
++		fotg210->ep0_data = cpu_to_le16(0);
+ 		break;
+ 	case USB_RECIP_ENDPOINT:
+ 		epnum = ctrl->wIndex & USB_ENDPOINT_NUMBER_MASK;
+ 		if (epnum)
+ 			fotg210->ep0_data =
+-				fotg210_is_epnstall(fotg210->ep[epnum])
+-				<< USB_ENDPOINT_HALT;
++				cpu_to_le16(fotg210_is_epnstall(fotg210->ep[epnum])
++					    << USB_ENDPOINT_HALT);
+ 		else
+ 			fotg210_request_error(fotg210);
+ 		break;
 -- 
 2.35.1
 
