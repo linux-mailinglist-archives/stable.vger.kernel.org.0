@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C32F7658332
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31E3D658279
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:37:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234999AbiL1Qo5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:44:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35498 "EHLO
+        id S235066AbiL1QhC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:37:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232974AbiL1Qoc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3C551CB07
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:40:06 -0800 (PST)
+        with ESMTP id S234845AbiL1Qfq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:35:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2718C1D0F8
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:32:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 42D31B817AC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:40:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DD28C433EF;
-        Wed, 28 Dec 2022 16:40:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B7A9C6157C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:32:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C64F2C433D2;
+        Wed, 28 Dec 2022 16:32:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245603;
-        bh=oDORo2k92wxdXaMm6FSFsNgHkqkEuO+GDd9FWTrYO/I=;
+        s=korg; t=1672245146;
+        bh=3xfmAbgDp0pb9e+o8FWPcwq7g1r+c+qVzn4YvrQLp08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=icodC0YA0NS5+5J2Wlb8KnaXDYxD+z0QXTBgQ0G2M50aadFWQbivKi9H+tv3bUxK+
-         mu07SsrU9+Km6gzdmfGFYJOkJHZRKrz8IimN5aJLsa3ReTaXwt531q5UwsVomx/JQk
-         UhluUy/9agVVLygnAxdDdg6J6nOnj+QZmASXneiI=
+        b=z2GUcJrjYwUc+oWZ0kJtTqICQ0tYqr4fhTqpuvMGdWX/TCXD7oRLHUC9Pa/dUnfOK
+         Lx1GYNNpF1fp5wJKuHkLGMKT2nnrxrM06oOt0x7+S6AimamLIB420OEpm56YYT1o+N
+         0YkCnS3PXN1emXEUGrmtRy8XaKpMTlqlTfjbdD3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Raed Salem <raeds@nvidia.com>,
-        Emeel Hakim <ehakim@nvidia.com>,
+        patches@lists.linux.dev, Liang Li <liali@redhat.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0888/1146] net: macsec: fix net device access prior to holding a lock
-Date:   Wed, 28 Dec 2022 15:40:27 +0100
-Message-Id: <20221228144354.299037535@linuxfoundation.org>
+Subject: [PATCH 6.0 0840/1073] bonding: do failover when high prio link up
+Date:   Wed, 28 Dec 2022 15:40:28 +0100
+Message-Id: <20221228144350.836586427@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,94 +54,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emeel Hakim <ehakim@nvidia.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit f3b4a00f0f62da252c598310698dfc82ef2f2e2e ]
+[ Upstream commit e95cc44763a41d5c715ef16742bcb1d8e6524a62 ]
 
-Currently macsec offload selection update routine accesses
-the net device prior to holding the relevant lock.
-Fix by holding the lock prior to the device access.
+Currently, when a high prio link enslaved, or when current link down,
+the high prio port could be selected. But when high prio link up, the
+new active slave reselection is not triggered. Fix it by checking link's
+prio when getting up. Making the do_failover after looping all slaves as
+there may be multi high prio slaves up.
 
-Fixes: dcb780fb2795 ("net: macsec: add nla support for changing the offloading selection")
-Reviewed-by: Raed Salem <raeds@nvidia.com>
-Signed-off-by: Emeel Hakim <ehakim@nvidia.com>
-Link: https://lore.kernel.org/r/20221211075532.28099-1-ehakim@nvidia.com
+Reported-by: Liang Li <liali@redhat.com>
+Fixes: 0a2ff7cc8ad4 ("Bonding: add per-port priority for failover re-selection")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c | 34 +++++++++++++++++++++-------------
- 1 file changed, 21 insertions(+), 13 deletions(-)
+ drivers/net/bonding/bond_main.c | 24 +++++++++++++++---------
+ 1 file changed, 15 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index 2fbac51b9b19..038a78794392 100644
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -2593,7 +2593,7 @@ static int macsec_upd_offload(struct sk_buff *skb, struct genl_info *info)
- 	const struct macsec_ops *ops;
- 	struct macsec_context ctx;
- 	struct macsec_dev *macsec;
--	int ret;
-+	int ret = 0;
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 36a8db140388..771f2a533d3f 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -2653,8 +2653,9 @@ static void bond_miimon_link_change(struct bonding *bond,
  
- 	if (!attrs[MACSEC_ATTR_IFINDEX])
- 		return -EINVAL;
-@@ -2606,28 +2606,36 @@ static int macsec_upd_offload(struct sk_buff *skb, struct genl_info *info)
- 					macsec_genl_offload_policy, NULL))
- 		return -EINVAL;
+ static void bond_miimon_commit(struct bonding *bond)
+ {
+-	struct list_head *iter;
+ 	struct slave *slave, *primary;
++	bool do_failover = false;
++	struct list_head *iter;
  
-+	rtnl_lock();
-+
- 	dev = get_dev_from_nl(genl_info_net(info), attrs);
--	if (IS_ERR(dev))
--		return PTR_ERR(dev);
-+	if (IS_ERR(dev)) {
-+		ret = PTR_ERR(dev);
-+		goto out;
-+	}
- 	macsec = macsec_priv(dev);
+ 	bond_for_each_slave(bond, slave, iter) {
+ 		switch (slave->link_new_state) {
+@@ -2698,8 +2699,9 @@ static void bond_miimon_commit(struct bonding *bond)
  
--	if (!tb_offload[MACSEC_OFFLOAD_ATTR_TYPE])
--		return -EINVAL;
-+	if (!tb_offload[MACSEC_OFFLOAD_ATTR_TYPE]) {
-+		ret = -EINVAL;
-+		goto out;
-+	}
+ 			bond_miimon_link_change(bond, slave, BOND_LINK_UP);
  
- 	offload = nla_get_u8(tb_offload[MACSEC_OFFLOAD_ATTR_TYPE]);
- 	if (macsec->offload == offload)
--		return 0;
-+		goto out;
+-			if (!rcu_access_pointer(bond->curr_active_slave) || slave == primary)
+-				goto do_failover;
++			if (!rcu_access_pointer(bond->curr_active_slave) || slave == primary ||
++			    slave->prio > rcu_dereference(bond->curr_active_slave)->prio)
++				do_failover = true;
  
- 	/* Check if the offloading mode is supported by the underlying layers */
- 	if (offload != MACSEC_OFFLOAD_OFF &&
--	    !macsec_check_offload(offload, macsec))
--		return -EOPNOTSUPP;
-+	    !macsec_check_offload(offload, macsec)) {
-+		ret = -EOPNOTSUPP;
-+		goto out;
+ 			continue;
+ 
+@@ -2720,7 +2722,7 @@ static void bond_miimon_commit(struct bonding *bond)
+ 			bond_miimon_link_change(bond, slave, BOND_LINK_DOWN);
+ 
+ 			if (slave == rcu_access_pointer(bond->curr_active_slave))
+-				goto do_failover;
++				do_failover = true;
+ 
+ 			continue;
+ 
+@@ -2731,8 +2733,9 @@ static void bond_miimon_commit(struct bonding *bond)
+ 
+ 			continue;
+ 		}
 +	}
  
- 	/* Check if the net device is busy. */
--	if (netif_running(dev))
--		return -EBUSY;
--
--	rtnl_lock();
-+	if (netif_running(dev)) {
-+		ret = -EBUSY;
-+		goto out;
+-do_failover:
++	if (do_failover) {
+ 		block_netpoll_tx();
+ 		bond_select_active_slave(bond);
+ 		unblock_netpoll_tx();
+@@ -3530,6 +3533,7 @@ static int bond_ab_arp_inspect(struct bonding *bond)
+  */
+ static void bond_ab_arp_commit(struct bonding *bond)
+ {
++	bool do_failover = false;
+ 	struct list_head *iter;
+ 	unsigned long last_tx;
+ 	struct slave *slave;
+@@ -3559,8 +3563,9 @@ static void bond_ab_arp_commit(struct bonding *bond)
+ 				slave_info(bond->dev, slave->dev, "link status definitely up\n");
+ 
+ 				if (!rtnl_dereference(bond->curr_active_slave) ||
+-				    slave == rtnl_dereference(bond->primary_slave))
+-					goto do_failover;
++				    slave == rtnl_dereference(bond->primary_slave) ||
++				    slave->prio > rtnl_dereference(bond->curr_active_slave)->prio)
++					do_failover = true;
+ 
+ 			}
+ 
+@@ -3579,7 +3584,7 @@ static void bond_ab_arp_commit(struct bonding *bond)
+ 
+ 			if (slave == rtnl_dereference(bond->curr_active_slave)) {
+ 				RCU_INIT_POINTER(bond->current_arp_slave, NULL);
+-				goto do_failover;
++				do_failover = true;
+ 			}
+ 
+ 			continue;
+@@ -3603,8 +3608,9 @@ static void bond_ab_arp_commit(struct bonding *bond)
+ 				  slave->link_new_state);
+ 			continue;
+ 		}
 +	}
  
- 	prev_offload = macsec->offload;
- 	macsec->offload = offload;
-@@ -2662,7 +2670,7 @@ static int macsec_upd_offload(struct sk_buff *skb, struct genl_info *info)
- 
- rollback:
- 	macsec->offload = prev_offload;
--
-+out:
- 	rtnl_unlock();
- 	return ret;
- }
+-do_failover:
++	if (do_failover) {
+ 		block_netpoll_tx();
+ 		bond_select_active_slave(bond);
+ 		unblock_netpoll_tx();
 -- 
 2.35.1
 
