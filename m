@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38DFE657838
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91309657D00
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:38:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232946AbiL1Osk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:48:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36020 "EHLO
+        id S233916AbiL1PiT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:38:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233036AbiL1OsP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:48:15 -0500
+        with ESMTP id S233920AbiL1PiS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:38:18 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B6D6BC4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:48:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 303BD164B9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:38:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C99961541
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:48:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9BD3C433D2;
-        Wed, 28 Dec 2022 14:48:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BFC5561542
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:38:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D461AC433D2;
+        Wed, 28 Dec 2022 15:38:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238893;
-        bh=ALNukN2dRNbIAVjpUxR7D7WeQiGprg9S5qb39oh4RJs=;
+        s=korg; t=1672241897;
+        bh=vRLkE86fpirHqul2CUIg/o2NFoI2q2mrfmZebt6V5PA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cJ5GYR+QdK+Nc1Bm1Q+IffpGVKf8KPw60YCWeKoouJtcE6MVOOelnXhw5qCdypw+Z
-         zi2Xd4Ub2SxM4+64mKobBUDinLqrRTFi2aqQChoRCytvS890BoOv5WK/m12lOTCTe8
-         XGEtYUYh46tn/ATw/V7RM0BwBp3lZ+LZcJfEi+y4=
+        b=faxhM2sDYq04aOY7LNqhE2VpYDfY2vDumeFO07sTTMDptUa1yIi3lBz8eNpp4od0b
+         Es12nq4ITmrHugWOnktvBLPyB8hFC7YudMBc6yNG7dRCeQw0AV8t7T46TojG+jUnBm
+         jckbpCplP+tnRc5p6cslXV43StBGjH1aQnoDlP20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev, Ming Qian <ming.qian@nxp.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 022/731] arm64: dts: qcom: sm8350: fix UFS PHY registers
+Subject: [PATCH 6.0 0341/1073] media: amphion: add lock around vdec_g_fmt
 Date:   Wed, 28 Dec 2022 15:32:09 +0100
-Message-Id: <20221228144257.187558966@linuxfoundation.org>
+Message-Id: <20221228144337.268656126@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Ming Qian <ming.qian@nxp.com>
 
-[ Upstream commit b3c7839b698cc617e97dd2e4f1eeb4adc280fe58 ]
+[ Upstream commit 8480dd5fb3c82b5887d456b3fbe4201d99231814 ]
 
-The sizes of the UFS PHY register regions are too small and does
-specifically not cover all registers used by the Linux driver.
+the capture format may be changed when
+sequence header is parsed,
+it may be read and write in the same time,
+add lock around vdec_g_fmt to synchronize it
 
-As Linux maps these regions as full pages this is currently not an issue
-on Linux, but let's update the sizes to match the vendor driver.
-
-Fixes: 59c7cf814783 ("arm64: dts: qcom: sm8350: Add UFS nodes")
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221024091507.20342-4-johan+linaro@kernel.org
+Fixes: 6de8d628df6e ("media: amphion: add v4l2 m2m vpu decoder stateful driver")
+Signed-off-by: Ming Qian <ming.qian@nxp.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sm8350.dtsi | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/media/platform/amphion/vdec.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm8350.dtsi b/arch/arm64/boot/dts/qcom/sm8350.dtsi
-index d6dc55687c2a..1ef16975d13a 100644
---- a/arch/arm64/boot/dts/qcom/sm8350.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm8350.dtsi
-@@ -1124,11 +1124,11 @@ ufs_mem_phy: phy@1d87000 {
- 			status = "disabled";
+diff --git a/drivers/media/platform/amphion/vdec.c b/drivers/media/platform/amphion/vdec.c
+index 84c90ce265f2..b27e6bed85f0 100644
+--- a/drivers/media/platform/amphion/vdec.c
++++ b/drivers/media/platform/amphion/vdec.c
+@@ -286,6 +286,7 @@ static int vdec_g_fmt(struct file *file, void *fh, struct v4l2_format *f)
+ 	struct vpu_format *cur_fmt;
+ 	int i;
  
- 			ufs_mem_phy_lanes: phy@1d87400 {
--				reg = <0 0x01d87400 0 0x108>,
--				      <0 0x01d87600 0 0x1e0>,
--				      <0 0x01d87c00 0 0x1dc>,
--				      <0 0x01d87800 0 0x108>,
--				      <0 0x01d87a00 0 0x1e0>;
-+				reg = <0 0x01d87400 0 0x188>,
-+				      <0 0x01d87600 0 0x200>,
-+				      <0 0x01d87c00 0 0x200>,
-+				      <0 0x01d87800 0 0x188>,
-+				      <0 0x01d87a00 0 0x200>;
- 				#phy-cells = <0>;
- 				#clock-cells = <0>;
- 			};
++	vpu_inst_lock(inst);
+ 	cur_fmt = vpu_get_format(inst, f->type);
+ 
+ 	pixmp->pixelformat = cur_fmt->pixfmt;
+@@ -303,6 +304,7 @@ static int vdec_g_fmt(struct file *file, void *fh, struct v4l2_format *f)
+ 	f->fmt.pix_mp.xfer_func = vdec->codec_info.transfer_chars;
+ 	f->fmt.pix_mp.ycbcr_enc = vdec->codec_info.matrix_coeffs;
+ 	f->fmt.pix_mp.quantization = vdec->codec_info.full_range;
++	vpu_inst_unlock(inst);
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
