@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F4BF657D9C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:45:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7918D657EB9
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:56:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233979AbiL1PpB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:45:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33206 "EHLO
+        id S234173AbiL1P4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:56:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234001AbiL1PpA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:45:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 210641759F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:45:00 -0800 (PST)
+        with ESMTP id S234178AbiL1P4p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:56:45 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BE78165B8
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:56:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B13C56155B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:44:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFE26C433D2;
-        Wed, 28 Dec 2022 15:44:58 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 02CE5CE1369
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:56:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA949C433EF;
+        Wed, 28 Dec 2022 15:56:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242299;
-        bh=PkRZ+5E/QkjOJ/PWYL2le7UQYhBZe46413TgpDr4zKI=;
+        s=korg; t=1672243001;
+        bh=bJJ6Zp2quwahM0XtjAChBt0n2I78Wy17pydxmk6KLDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oP28YrKnDxjUr5HwXdaqWzwsbzyzFFUxzra+L0BepCN6VXjlywxRZi95vvnh9LSYu
-         3y4N/uJL06fvXho6LwmgR1rQ2v9EH+mVeF0I6AirbkNMfJKxPKdUfGW59FQF4U8iF4
-         r0y6ZNfd2Dj1VFo2M608O4+GlqSaZhtHMbSkPaU8=
+        b=NolR8u5+0JLRNkZ/RBHzZO0ocTUU+Oxz3qnFFVbPOsjQkPxpA6MRy2Fe0ADk6TVwZ
+         eZTRDXWKTi58HOi78bkwMJ8MUWBypi8vS+oIGEPidSdxJ0z4XmWP0mqZk+ANKgKykj
+         z0Nh+4MogNg0jWZQ0zM/cCQA2+CWJEpEqpLlxemE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Konstantin Meskhidze <konstantin.meskhidze@huawei.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0390/1073] media: sun6i-mipi-csi2: Require both pads to be connected for streaming
+Subject: [PATCH 6.1 0439/1146] drm/amdkfd: Fix memory leakage
 Date:   Wed, 28 Dec 2022 15:32:58 +0100
-Message-Id: <20221228144338.613428917@linuxfoundation.org>
+Message-Id: <20221228144342.105325202@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+From: Konstantin Meskhidze <konstantin.meskhidze@huawei.com>
 
-[ Upstream commit f042b08b833de3be810f8769d88ca44aeefd7eba ]
+[ Upstream commit 75818afff631e1ea785a82c3e8bb82eb0dee539c ]
 
-The bridge needs both its pads connected to be able to stream data.
-Enforcing this is useful to produce an error when no sensor is
-connected.
+This patch fixes potential memory leakage and seg fault
+in  _gpuvm_import_dmabuf() function
 
-Fixes: af54b4f4c17f ("media: sunxi: Add support for the A31 MIPI CSI-2 controller")
-Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: d4ec4bdc0bd5 ("drm/amdkfd: Allow access for mmapping KFD BOs")
+Signed-off-by: Konstantin Meskhidze <konstantin.meskhidze@huawei.com>
+Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c  | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c b/drivers/media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c
-index 30d6c0c5161f..340380a5f66f 100644
---- a/drivers/media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c
-+++ b/drivers/media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c
-@@ -519,8 +519,10 @@ static int sun6i_mipi_csi2_bridge_setup(struct sun6i_mipi_csi2_device *csi2_dev)
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
+index 1f76e27f1a35..fe87b3402f06 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
+@@ -2256,7 +2256,7 @@ int amdgpu_amdkfd_gpuvm_import_dmabuf(struct amdgpu_device *adev,
  
- 	/* Media Pads */
+ 	ret = drm_vma_node_allow(&obj->vma_node, drm_priv);
+ 	if (ret) {
+-		kfree(mem);
++		kfree(*mem);
+ 		return ret;
+ 	}
  
--	pads[SUN6I_MIPI_CSI2_PAD_SINK].flags = MEDIA_PAD_FL_SINK;
--	pads[SUN6I_MIPI_CSI2_PAD_SOURCE].flags = MEDIA_PAD_FL_SOURCE;
-+	pads[SUN6I_MIPI_CSI2_PAD_SINK].flags = MEDIA_PAD_FL_SINK |
-+					       MEDIA_PAD_FL_MUST_CONNECT;
-+	pads[SUN6I_MIPI_CSI2_PAD_SOURCE].flags = MEDIA_PAD_FL_SOURCE |
-+						 MEDIA_PAD_FL_MUST_CONNECT;
- 
- 	ret = media_entity_pads_init(&subdev->entity, SUN6I_MIPI_CSI2_PAD_COUNT,
- 				     pads);
 -- 
 2.35.1
 
