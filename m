@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F15246579C4
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:04:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAA056578DA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:55:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233505AbiL1PEa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:04:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52052 "EHLO
+        id S233255AbiL1OzB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:55:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233498AbiL1PE3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:04:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F8CC13D3D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:04:28 -0800 (PST)
+        with ESMTP id S233234AbiL1Oyw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:54:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AC4F12631
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:54:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E260861544
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:04:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFE36C433EF;
-        Wed, 28 Dec 2022 15:04:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0796B61551
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:54:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1598BC433D2;
+        Wed, 28 Dec 2022 14:54:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239867;
-        bh=0GQc4wQs5aK27rPJQJ98L0crID95I3l/htv6HJjJQV0=;
+        s=korg; t=1672239287;
+        bh=1bTQlCowzIbz6sSX1fGKwlqMPW5qpHYyPsR9Ib0WUNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k833/106k1TNFBRvD2CAz5LKpUB5ZcQqkElaP0zYZkOUS+jWQIIXnn9xI0C9w+vG/
-         FySNAQn1fBh93xWGy0W/6spd23fcpuKbfm+5SRn0H3X0e2OBtwEGUNyJ3aEQjxG7ga
-         YZQ6Gfg2vyIaXNDNMgsphY57Jv+bqsXWV6W/pKnk=
+        b=Y1z5ovEpvtcnLvajGDxdMj8sV7tLOAsOSzMBiDDs8ETDldT5kKuH4CLnKXcCtIAZN
+         gc604fYADBC/g2YRBvFAkhBFKbYiHoStmdOnbeNCiwtuVeHHorX/9c1/O4zIsqE4eP
+         k5GxS5S5nY2Uv4YgwINdjEvmtsZP8mrc1ZVR6s4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sumit Gupta <sumitg@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0052/1146] soc/tegra: cbb: Check firewall before enabling error reporting
+        patches@lists.linux.dev, Michael Straube <straube.linux@gmail.com>,
+        Martin Kaiser <martin@kaiser.cx>,
+        Sasha Levin <sashal@kernel.org>,
+        Philipp Hortmann <philipp.g.hortmann@gmail.com>
+Subject: [PATCH 6.0 0003/1073] staging: r8188eu: fix led register settings
 Date:   Wed, 28 Dec 2022 15:26:31 +0100
-Message-Id: <20221228144331.577890684@linuxfoundation.org>
+Message-Id: <20221228144328.262411769@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,206 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sumit Gupta <sumitg@nvidia.com>
+From: Martin Kaiser <martin@kaiser.cx>
 
-[ Upstream commit 2927cf85f4877f417f884919de8e04ab9b362d32 ]
+[ Upstream commit 12c6223fc1804fd9295dc50d358294539b4a4184 ]
 
-To enable error reporting for a fabric to CCPLEX, we need to write its
-register for enabling error interrupt to CCPLEX during boot and later
-clear the error status register after error occurs. If a fabric's
-registers are protected and not accessible from CCPLEX, then accessing
-the registers will cause CBB firewall error.
+Using an InterTech DMG-02 dongle, the led remains on when the system goes
+into standby mode. After wakeup, it's no longer possible to control the
+led.
 
-Add support to check whether write access from CCPLEX to the registers
-of a fabric is not blocked by it's firewall before enabling error
-reporting to CCPLEX for that fabric.
+It turned out that the register settings to enable or disable the led were
+not correct. They worked for some dongles like the Edimax V2 but not for
+others like the InterTech DMG-02.
 
-Fixes: fc2f151d2314 ("soc/tegra: cbb: Add driver for Tegra234 CBB 2.0")
-Signed-off-by: Sumit Gupta <sumitg@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+This patch fixes the register settings. Bit 3 in the led_cfg2 register
+controls the led status, bit 5 must always be set to be able to control
+the led, bit 6 has no influence on the led. Setting the mac_pinmux_cfg
+register is not necessary.
+
+These settings were tested with Edimax V2 and InterTech DMG-02.
+
+Cc: stable@vger.kernel.org
+Fixes: 8cd574e6af54 ("staging: r8188eu: introduce new hal dir for RTL8188eu driver")
+Suggested-by: Michael Straube <straube.linux@gmail.com>
+Signed-off-by: Martin Kaiser <martin@kaiser.cx>
+Tested-by: Michael Straube <straube.linux@gmail.com> # InterTech DMG-02,
+Tested-by: Philipp Hortmann <philipp.g.hortmann@gmail.com> # Edimax N150
+Link: https://lore.kernel.org/r/20221015151115.232095-2-martin@kaiser.cx
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/tegra/cbb/tegra234-cbb.c | 83 +++++++++++++++++++++++++++-
- 1 file changed, 81 insertions(+), 2 deletions(-)
+ drivers/staging/r8188eu/core/rtw_led.c | 25 ++-----------------------
+ 1 file changed, 2 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/soc/tegra/cbb/tegra234-cbb.c b/drivers/soc/tegra/cbb/tegra234-cbb.c
-index 0fab9e21d677..f33d094e5ea6 100644
---- a/drivers/soc/tegra/cbb/tegra234-cbb.c
-+++ b/drivers/soc/tegra/cbb/tegra234-cbb.c
-@@ -72,6 +72,11 @@
+diff --git a/drivers/staging/r8188eu/core/rtw_led.c b/drivers/staging/r8188eu/core/rtw_led.c
+index 42e35953fd7b..1993c3993b3d 100644
+--- a/drivers/staging/r8188eu/core/rtw_led.c
++++ b/drivers/staging/r8188eu/core/rtw_led.c
+@@ -34,40 +34,19 @@ static void ResetLedStatus(struct led_priv *pLed)
  
- #define REQ_SOCKET_ID			GENMASK(27, 24)
- 
-+#define CCPLEX_MSTRID			0x1
-+#define FIREWALL_APERTURE_SZ		0x10000
-+/* Write firewall check enable */
-+#define WEN				0x20000
-+
- enum tegra234_cbb_fabric_ids {
- 	CBB_FAB_ID,
- 	SCE_FAB_ID,
-@@ -92,6 +97,9 @@ struct tegra234_slave_lookup {
- struct tegra234_cbb_fabric {
- 	const char *name;
- 	phys_addr_t off_mask_erd;
-+	phys_addr_t firewall_base;
-+	unsigned int firewall_ctl;
-+	unsigned int firewall_wr_ctl;
- 	const char * const *master_id;
- 	unsigned int notifier_offset;
- 	const struct tegra_cbb_error *errors;
-@@ -129,6 +137,44 @@ static inline struct tegra234_cbb *to_tegra234_cbb(struct tegra_cbb *cbb)
- static LIST_HEAD(cbb_list);
- static DEFINE_SPINLOCK(cbb_lock);
- 
-+static bool
-+tegra234_cbb_write_access_allowed(struct platform_device *pdev, struct tegra234_cbb *cbb)
-+{
-+	u32 val;
-+
-+	if (!cbb->fabric->firewall_base ||
-+	    !cbb->fabric->firewall_ctl ||
-+	    !cbb->fabric->firewall_wr_ctl) {
-+		dev_info(&pdev->dev, "SoC data missing for firewall\n");
-+		return false;
-+	}
-+
-+	if ((cbb->fabric->firewall_ctl > FIREWALL_APERTURE_SZ) ||
-+	    (cbb->fabric->firewall_wr_ctl > FIREWALL_APERTURE_SZ)) {
-+		dev_err(&pdev->dev, "wrong firewall offset value\n");
-+		return false;
-+	}
-+
-+	val = readl(cbb->regs + cbb->fabric->firewall_base + cbb->fabric->firewall_ctl);
-+	/*
-+	 * If the firewall check feature for allowing or blocking the
-+	 * write accesses through the firewall of a fabric is disabled
-+	 * then CCPLEX can write to the registers of that fabric.
-+	 */
-+	if (!(val & WEN))
-+		return true;
-+
-+	/*
-+	 * If the firewall check is enabled then check whether CCPLEX
-+	 * has write access to the fabric's error notifier registers
-+	 */
-+	val = readl(cbb->regs + cbb->fabric->firewall_base + cbb->fabric->firewall_wr_ctl);
-+	if (val & (BIT(CCPLEX_MSTRID)))
-+		return true;
-+
-+	return false;
-+}
-+
- static void tegra234_cbb_fault_enable(struct tegra_cbb *cbb)
+ static void SwLedOn(struct adapter *padapter, struct led_priv *pLed)
  {
- 	struct tegra234_cbb *priv = to_tegra234_cbb(cbb);
-@@ -551,7 +597,7 @@ static irqreturn_t tegra234_cbb_isr(int irq, void *data)
- 			 */
- 			if (priv->fabric->off_mask_erd) {
- 				mstr_id =  FIELD_GET(USRBITS_MSTR_ID, priv->mn_user_bits);
--				if (mstr_id == 0x1)
-+				if (mstr_id == CCPLEX_MSTRID)
- 					is_inband_err = 1;
- 			}
- 		}
-@@ -665,6 +711,9 @@ static const struct tegra234_cbb_fabric tegra234_aon_fabric = {
- 	.errors = tegra234_cbb_errors,
- 	.max_errors = ARRAY_SIZE(tegra234_cbb_errors),
- 	.notifier_offset = 0x17000,
-+	.firewall_base = 0x30000,
-+	.firewall_ctl = 0x8d0,
-+	.firewall_wr_ctl = 0x8c8,
- };
+-	u8	LedCfg;
+-	int res;
+-
+ 	if (padapter->bDriverStopped)
+ 		return;
  
- static const struct tegra234_slave_lookup tegra234_bpmp_slave_map[] = {
-@@ -683,6 +732,9 @@ static const struct tegra234_cbb_fabric tegra234_bpmp_fabric = {
- 	.errors = tegra234_cbb_errors,
- 	.max_errors = ARRAY_SIZE(tegra234_cbb_errors),
- 	.notifier_offset = 0x19000,
-+	.firewall_base = 0x30000,
-+	.firewall_ctl = 0x8f0,
-+	.firewall_wr_ctl = 0x8e8,
- };
+-	res = rtw_read8(padapter, REG_LEDCFG2, &LedCfg);
+-	if (res)
+-		return;
+-
+-	rtw_write8(padapter, REG_LEDCFG2, (LedCfg & 0xf0) | BIT(5) | BIT(6)); /*  SW control led0 on. */
++	rtw_write8(padapter, REG_LEDCFG2, BIT(5)); /*  SW control led0 on. */
+ 	pLed->bLedOn = true;
+ }
  
- static const struct tegra234_slave_lookup tegra234_cbb_slave_map[] = {
-@@ -757,7 +809,10 @@ static const struct tegra234_cbb_fabric tegra234_cbb_fabric = {
- 	.errors = tegra234_cbb_errors,
- 	.max_errors = ARRAY_SIZE(tegra234_cbb_errors),
- 	.notifier_offset = 0x60000,
--	.off_mask_erd = 0x3a004
-+	.off_mask_erd = 0x3a004,
-+	.firewall_base = 0x10000,
-+	.firewall_ctl = 0x23f0,
-+	.firewall_wr_ctl = 0x23e8,
- };
+ static void SwLedOff(struct adapter *padapter, struct led_priv *pLed)
+ {
+-	u8	LedCfg;
+-	int res;
+-
+ 	if (padapter->bDriverStopped)
+ 		goto exit;
  
- static const struct tegra234_slave_lookup tegra234_common_slave_map[] = {
-@@ -777,6 +832,9 @@ static const struct tegra234_cbb_fabric tegra234_dce_fabric = {
- 	.errors = tegra234_cbb_errors,
- 	.max_errors = ARRAY_SIZE(tegra234_cbb_errors),
- 	.notifier_offset = 0x19000,
-+	.firewall_base = 0x30000,
-+	.firewall_ctl = 0x290,
-+	.firewall_wr_ctl = 0x288,
- };
- 
- static const struct tegra234_cbb_fabric tegra234_rce_fabric = {
-@@ -787,6 +845,9 @@ static const struct tegra234_cbb_fabric tegra234_rce_fabric = {
- 	.errors = tegra234_cbb_errors,
- 	.max_errors = ARRAY_SIZE(tegra234_cbb_errors),
- 	.notifier_offset = 0x19000,
-+	.firewall_base = 0x30000,
-+	.firewall_ctl = 0x290,
-+	.firewall_wr_ctl = 0x288,
- };
- 
- static const struct tegra234_cbb_fabric tegra234_sce_fabric = {
-@@ -797,6 +858,9 @@ static const struct tegra234_cbb_fabric tegra234_sce_fabric = {
- 	.errors = tegra234_cbb_errors,
- 	.max_errors = ARRAY_SIZE(tegra234_cbb_errors),
- 	.notifier_offset = 0x19000,
-+	.firewall_base = 0x30000,
-+	.firewall_ctl = 0x290,
-+	.firewall_wr_ctl = 0x288,
- };
- 
- static const char * const tegra241_master_id[] = {
-@@ -979,6 +1043,9 @@ static const struct tegra234_cbb_fabric tegra241_cbb_fabric = {
- 	.max_errors = ARRAY_SIZE(tegra241_cbb_errors),
- 	.notifier_offset = 0x60000,
- 	.off_mask_erd = 0x40004,
-+	.firewall_base = 0x20000,
-+	.firewall_ctl = 0x2370,
-+	.firewall_wr_ctl = 0x2368,
- };
- 
- static const struct tegra234_slave_lookup tegra241_bpmp_slave_map[] = {
-@@ -1000,6 +1067,9 @@ static const struct tegra234_cbb_fabric tegra241_bpmp_fabric = {
- 	.errors = tegra241_cbb_errors,
- 	.max_errors = ARRAY_SIZE(tegra241_cbb_errors),
- 	.notifier_offset = 0x19000,
-+	.firewall_base = 0x30000,
-+	.firewall_ctl = 0x8f0,
-+	.firewall_wr_ctl = 0x8e8,
- };
- 
- static const struct of_device_id tegra234_cbb_dt_ids[] = {
-@@ -1084,6 +1154,15 @@ static int tegra234_cbb_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, cbb);
- 
-+	/*
-+	 * Don't enable error reporting for a Fabric if write to it's registers
-+	 * is blocked by CBB firewall.
-+	 */
-+	if (!tegra234_cbb_write_access_allowed(pdev, cbb)) {
-+		dev_info(&pdev->dev, "error reporting not enabled due to firewall\n");
-+		return 0;
-+	}
-+
- 	spin_lock_irqsave(&cbb_lock, flags);
- 	list_add(&cbb->base.node, &cbb_list);
- 	spin_unlock_irqrestore(&cbb_lock, flags);
+-	res = rtw_read8(padapter, REG_LEDCFG2, &LedCfg);/* 0x4E */
+-	if (res)
+-		goto exit;
+-
+-	LedCfg &= 0x90; /*  Set to software control. */
+-	rtw_write8(padapter, REG_LEDCFG2, (LedCfg | BIT(3)));
+-	res = rtw_read8(padapter, REG_MAC_PINMUX_CFG, &LedCfg);
+-	if (res)
+-		goto exit;
+-
+-	LedCfg &= 0xFE;
+-	rtw_write8(padapter, REG_MAC_PINMUX_CFG, LedCfg);
++	rtw_write8(padapter, REG_LEDCFG2, BIT(5) | BIT(3));
+ exit:
+ 	pLed->bLedOn = false;
+ }
 -- 
 2.35.1
 
