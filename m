@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB770658407
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:54:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C62B0657DFA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:49:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235225AbiL1QyA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:54:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44944 "EHLO
+        id S234085AbiL1Ps7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:48:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235245AbiL1QxI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:53:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB66519012
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:48:26 -0800 (PST)
+        with ESMTP id S234077AbiL1Psp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:48:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D13EA17E3B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:48:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64DBCB816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:48:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1002C433D2;
-        Wed, 28 Dec 2022 16:48:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EBE3613E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:48:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80586C433F0;
+        Wed, 28 Dec 2022 15:48:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246104;
-        bh=XYhhBFQ3h933BRDT9ElSaPmnMb3bxsOPM08S84+TfPw=;
+        s=korg; t=1672242522;
+        bh=w2VH7BR6TdFoK2qaCSRHDnGx24GePt9+BKxsLt61T5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N0TSsTaaX43hMSn3LNC8OZGQv89vKXKbqJwmS4LsAZ1U00rr4+HH80f5i9ZRJWWRp
-         JjJkgB3eZvLSBbFYUme2pr2kKLTTc4Mmf3Qt0g2NyJW31ZTORomvLkTiLGL1VXCGwV
-         D0M60wsAyWXbSWiwTE1HHp+2JAeRMtYJNnUPVGMY=
+        b=L07h53kMVMj22TtYovQWneg/cilLXCIFFvS4CWj1h+N9mfxLlhNwbTy9MbE/xr2gR
+         daECvMEduJkigItvIQSlmiU9+fSTs/+1PU+gimFaCfF9TTFTMeyRBY9HQFz5hWp8NW
+         X5UpzK2YbrFrtlLSQ1FecuIfRBbe9DwNvqBKZP7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stefan Hajnoczi <stefanha@redhat.com>,
-        Keith Busch <kbusch@kernel.org>,
-        virtualization@lists.linux-foundation.org,
-        Bart Van Assche <bvanassche@acm.org>,
-        David Jeffery <djeffery@redhat.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        patches@lists.linux.dev, Changheon Lee <darklight2357@icloud.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0981/1146] blk-mq: avoid double ->queue_rq() because of early timeout
+Subject: [PATCH 5.15 613/731] net: stream: purge sk_error_queue in sk_stream_kill_queues()
 Date:   Wed, 28 Dec 2022 15:42:00 +0100
-Message-Id: <20221228144357.007832616@linuxfoundation.org>
+Message-Id: <20221228144314.303640263@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,146 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Jeffery <djeffery@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 82c229476b8f6afd7e09bc4dc77d89dc19ff7688 ]
+[ Upstream commit e0c8bccd40fc1c19e1d246c39bcf79e357e1ada3 ]
 
-David Jeffery found one double ->queue_rq() issue, so far it can
-be triggered in VM use case because of long vmexit latency or preempt
-latency of vCPU pthread or long page fault in vCPU pthread, then block
-IO req could be timed out before queuing the request to hardware but after
-calling blk_mq_start_request() during ->queue_rq(), then timeout handler
-may handle it by requeue, then double ->queue_rq() is caused, and kernel
-panic.
+Changheon Lee reported TCP socket leaks, with a nice repro.
 
-So far, it is driver's responsibility to cover the race between timeout
-and completion, so it seems supposed to be solved in driver in theory,
-given driver has enough knowledge.
+It seems we leak TCP sockets with the following sequence:
 
-But it is really one common problem, lots of driver could have similar
-issue, and could be hard to fix all affected drivers, even it isn't easy
-for driver to handle the race. So David suggests this patch by draining
-in-progress ->queue_rq() for solving this issue.
+1) SOF_TIMESTAMPING_TX_ACK is enabled on the socket.
 
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Keith Busch <kbusch@kernel.org>
-Cc: virtualization@lists.linux-foundation.org
-Cc: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: David Jeffery <djeffery@redhat.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Link: https://lore.kernel.org/r/20221026051957.358818-1-ming.lei@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+   Each ACK will cook an skb put in error queue, from __skb_tstamp_tx().
+   __skb_tstamp_tx() is using skb_clone(), unless
+   SOF_TIMESTAMPING_OPT_TSONLY was also requested.
+
+2) If the application is also using MSG_ZEROCOPY, then we put in the
+   error queue cloned skbs that had a struct ubuf_info attached to them.
+
+   Whenever an struct ubuf_info is allocated, sock_zerocopy_alloc()
+   does a sock_hold().
+
+   As long as the cloned skbs are still in sk_error_queue,
+   socket refcount is kept elevated.
+
+3) Application closes the socket, while error queue is not empty.
+
+Since tcp_close() no longer purges the socket error queue,
+we might end up with a TCP socket with at least one skb in
+error queue keeping the socket alive forever.
+
+This bug can be (ab)used to consume all kernel memory
+and freeze the host.
+
+We need to purge the error queue, with proper synchronization
+against concurrent writers.
+
+Fixes: 24bcbe1cc69f ("net: stream: don't purge sk_error_queue in sk_stream_kill_queues()")
+Reported-by: Changheon Lee <darklight2357@icloud.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c | 56 +++++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 44 insertions(+), 12 deletions(-)
+ net/core/stream.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 4f1c259138e8..a23026099284 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -1529,7 +1529,13 @@ static void blk_mq_rq_timed_out(struct request *req)
- 	blk_add_timer(req);
- }
+diff --git a/net/core/stream.c b/net/core/stream.c
+index a61130504827..d7c5413d16d5 100644
+--- a/net/core/stream.c
++++ b/net/core/stream.c
+@@ -196,6 +196,12 @@ void sk_stream_kill_queues(struct sock *sk)
+ 	/* First the read buffer. */
+ 	__skb_queue_purge(&sk->sk_receive_queue);
  
--static bool blk_mq_req_expired(struct request *rq, unsigned long *next)
-+struct blk_expired_data {
-+	bool has_timedout_rq;
-+	unsigned long next;
-+	unsigned long timeout_start;
-+};
++	/* Next, the error queue.
++	 * We need to use queue lock, because other threads might
++	 * add packets to the queue without socket lock being held.
++	 */
++	skb_queue_purge(&sk->sk_error_queue);
 +
-+static bool blk_mq_req_expired(struct request *rq, struct blk_expired_data *expired)
- {
- 	unsigned long deadline;
+ 	/* Next, the write queue. */
+ 	WARN_ON(!skb_queue_empty(&sk->sk_write_queue));
  
-@@ -1539,13 +1545,13 @@ static bool blk_mq_req_expired(struct request *rq, unsigned long *next)
- 		return false;
- 
- 	deadline = READ_ONCE(rq->deadline);
--	if (time_after_eq(jiffies, deadline))
-+	if (time_after_eq(expired->timeout_start, deadline))
- 		return true;
- 
--	if (*next == 0)
--		*next = deadline;
--	else if (time_after(*next, deadline))
--		*next = deadline;
-+	if (expired->next == 0)
-+		expired->next = deadline;
-+	else if (time_after(expired->next, deadline))
-+		expired->next = deadline;
- 	return false;
- }
- 
-@@ -1561,7 +1567,7 @@ void blk_mq_put_rq_ref(struct request *rq)
- 
- static bool blk_mq_check_expired(struct request *rq, void *priv)
- {
--	unsigned long *next = priv;
-+	struct blk_expired_data *expired = priv;
- 
- 	/*
- 	 * blk_mq_queue_tag_busy_iter() has locked the request, so it cannot
-@@ -1570,7 +1576,18 @@ static bool blk_mq_check_expired(struct request *rq, void *priv)
- 	 * it was completed and reallocated as a new request after returning
- 	 * from blk_mq_check_expired().
- 	 */
--	if (blk_mq_req_expired(rq, next))
-+	if (blk_mq_req_expired(rq, expired)) {
-+		expired->has_timedout_rq = true;
-+		return false;
-+	}
-+	return true;
-+}
-+
-+static bool blk_mq_handle_expired(struct request *rq, void *priv)
-+{
-+	struct blk_expired_data *expired = priv;
-+
-+	if (blk_mq_req_expired(rq, expired))
- 		blk_mq_rq_timed_out(rq);
- 	return true;
- }
-@@ -1579,7 +1596,9 @@ static void blk_mq_timeout_work(struct work_struct *work)
- {
- 	struct request_queue *q =
- 		container_of(work, struct request_queue, timeout_work);
--	unsigned long next = 0;
-+	struct blk_expired_data expired = {
-+		.timeout_start = jiffies,
-+	};
- 	struct blk_mq_hw_ctx *hctx;
- 	unsigned long i;
- 
-@@ -1599,10 +1618,23 @@ static void blk_mq_timeout_work(struct work_struct *work)
- 	if (!percpu_ref_tryget(&q->q_usage_counter))
- 		return;
- 
--	blk_mq_queue_tag_busy_iter(q, blk_mq_check_expired, &next);
-+	/* check if there is any timed-out request */
-+	blk_mq_queue_tag_busy_iter(q, blk_mq_check_expired, &expired);
-+	if (expired.has_timedout_rq) {
-+		/*
-+		 * Before walking tags, we must ensure any submit started
-+		 * before the current time has finished. Since the submit
-+		 * uses srcu or rcu, wait for a synchronization point to
-+		 * ensure all running submits have finished
-+		 */
-+		blk_mq_wait_quiesce_done(q);
-+
-+		expired.next = 0;
-+		blk_mq_queue_tag_busy_iter(q, blk_mq_handle_expired, &expired);
-+	}
- 
--	if (next != 0) {
--		mod_timer(&q->timeout, next);
-+	if (expired.next != 0) {
-+		mod_timer(&q->timeout, expired.next);
- 	} else {
- 		/*
- 		 * Request timeouts are handled as a forward rolling timer. If
 -- 
 2.35.1
 
