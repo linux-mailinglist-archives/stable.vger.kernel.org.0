@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA621658124
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC18B657B5E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:20:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234652AbiL1QZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:25:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45950 "EHLO
+        id S233212AbiL1PUt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:20:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234802AbiL1QYZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:24:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 619B519C06
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:21:44 -0800 (PST)
+        with ESMTP id S233308AbiL1PUs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:20:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EB8BBA0
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:20:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F16FE61578
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:21:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC27BC433D2;
-        Wed, 28 Dec 2022 16:21:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D073AB816D9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:20:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 432A8C433EF;
+        Wed, 28 Dec 2022 15:20:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244503;
-        bh=GtikZnRZ4OaT2m0mUo8jo9s7mJwxMQk3RZknu1q13mo=;
+        s=korg; t=1672240844;
+        bh=zjFIJkCz3oOe0Gx5mrgHSHt97IArqt35YJEJbgTvRB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jYgcrDZkolcKrYofZ7Vb2vsFdt/BSyqnEYmJgMbf/0Ag1AZo/b9gXKYZdBguwJhoc
-         HLd9Z7Ud0alEgMwnRoRiqLc5YFdiz+yRye0Y6BQsqx+PiB/DjAW2tEbeWqvpnxG5Fu
-         sqcMEJSuk6m/p713H/mhDYz46i1rekfu7I3b/p2M=
+        b=mtfy29wI3wc6mMFGwaT8TdpEqqZQv8T1iUidCBPgryOvB+EfCWPQcNAH/D/AxEClW
+         TYT7bHsaMc8ZVOHx4r2J7x4P0X0PhzvTI50QFYwulhhLI/MPOVylwVRhCplcWJtTjU
+         +BnWK3sC4y6ZWwE+Ppe4tj7/e9RGsEzRYfZQH//M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>,
+        patches@lists.linux.dev, Zhang Yiqun <zhangyiqun@phytium.com.cn>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0723/1073] ksmbd: Fix resource leak in ksmbd_session_rpc_open()
+Subject: [PATCH 5.15 404/731] crypto: tcrypt - Fix multibuffer skcipher speed test mem leak
 Date:   Wed, 28 Dec 2022 15:38:31 +0100
-Message-Id: <20221228144347.663307005@linuxfoundation.org>
+Message-Id: <20221228144308.277930720@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Zhang Yiqun <zhangyiqun@phytium.com.cn>
 
-[ Upstream commit bc044414fa0326a4e5c3c509c00b1fcaf621b5f4 ]
+[ Upstream commit 1aa33fc8d4032227253ceb736f47c52b859d9683 ]
 
-When ksmbd_rpc_open() fails then it must call ksmbd_rpc_id_free() to
-undo the result of ksmbd_ipc_id_alloc().
+In the past, the data for mb-skcipher test has been allocated
+twice, that means the first allcated memory area is without
+free, which may cause a potential memory leakage. So this
+patch is to remove one allocation to fix this error.
 
-Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Acked-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: e161c5930c15 ("crypto: tcrypt - add multibuf skcipher...")
+Signed-off-by: Zhang Yiqun <zhangyiqun@phytium.com.cn>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/mgmt/user_session.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ crypto/tcrypt.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/fs/ksmbd/mgmt/user_session.c b/fs/ksmbd/mgmt/user_session.c
-index 3fa2139a0b30..92b1603b5abe 100644
---- a/fs/ksmbd/mgmt/user_session.c
-+++ b/fs/ksmbd/mgmt/user_session.c
-@@ -108,15 +108,17 @@ int ksmbd_session_rpc_open(struct ksmbd_session *sess, char *rpc_name)
- 	entry->method = method;
- 	entry->id = ksmbd_ipc_id_alloc();
- 	if (entry->id < 0)
--		goto error;
-+		goto free_entry;
+diff --git a/crypto/tcrypt.c b/crypto/tcrypt.c
+index 3362897bf61b..4ada7e749390 100644
+--- a/crypto/tcrypt.c
++++ b/crypto/tcrypt.c
+@@ -1295,15 +1295,6 @@ static void test_mb_skcipher_speed(const char *algo, int enc, int secs,
+ 			goto out_free_tfm;
+ 		}
  
- 	resp = ksmbd_rpc_open(sess, entry->id);
- 	if (!resp)
--		goto error;
-+		goto free_id;
- 
- 	kvfree(resp);
- 	return entry->id;
--error:
-+free_id:
-+	ksmbd_rpc_id_free(entry->id);
-+free_entry:
- 	list_del(&entry->list);
- 	kfree(entry);
- 	return -EINVAL;
+-
+-	for (i = 0; i < num_mb; ++i)
+-		if (testmgr_alloc_buf(data[i].xbuf)) {
+-			while (i--)
+-				testmgr_free_buf(data[i].xbuf);
+-			goto out_free_tfm;
+-		}
+-
+-
+ 	for (i = 0; i < num_mb; ++i) {
+ 		data[i].req = skcipher_request_alloc(tfm, GFP_KERNEL);
+ 		if (!data[i].req) {
 -- 
 2.35.1
 
