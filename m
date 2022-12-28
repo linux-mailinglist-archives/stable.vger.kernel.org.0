@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 051FE658372
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:47:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 098D8657E2F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:51:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234508AbiL1Qrz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:47:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36966 "EHLO
+        id S234104AbiL1Pu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:50:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233732AbiL1Qrb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:47:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0190B2E8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:42:39 -0800 (PST)
+        with ESMTP id S234109AbiL1Pu7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:50:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13AFB186B2
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:50:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ADCDCB8188B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:42:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03C01C433F0;
-        Wed, 28 Dec 2022 16:42:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9477E61563
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:50:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6FC9C433D2;
+        Wed, 28 Dec 2022 15:50:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245756;
-        bh=GnX5r4rtuSSdm3opD1+RXVhwmIfbX0Z+JhXm+ZCYRKs=;
+        s=korg; t=1672242657;
+        bh=5+ZQXrFg6ZmJxZDs0YrFxEzV/Yh9SfNFj2b9O/xjFBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yMKlEA+NEKC12G7RTsYPcbxM+gKcl9pmNotj2gLsFoK9eVso0+A73G/bwrEyx9cl+
-         2iaqAmuDkAZZP50ZJC4sKZMmaukI4Cw37BjvZCHnsBxqdCBlXoeLZgHA/YVEZc2qpy
-         Niv6lelfw+f6+TWO6XVjbGEHeYuDVx2tvl7Q1CtI=
+        b=FTyXxsAZM5+dTf8GPI12G677HSs5hB9GYPWeddc1LHMlcW11YadoJGYx32CjjFb2s
+         sUYeoZcznQdA2Y8RpNA31HuX5d57FZyoFiHOT/X7WZurJERVyrUtuiV7MudITZzsXB
+         RkbvAvOKfd3dQ1QzPOZJSXhjQZLeKetC443gC6lc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+6fd64001c20aa99e34a4@syzkaller.appspotmail.com,
-        Schspa Shi <schspa@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Ming Qian <ming.qian@nxp.com>,
+        Mirela Rabulea <mirela.rabulea@nxp.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0949/1073] mrp: introduce active flags to prevent UAF when applicant uninit
+Subject: [PATCH 5.15 630/731] media: imx-jpeg: Disable useless interrupt to avoid kernel panic
 Date:   Wed, 28 Dec 2022 15:42:17 +0100
-Message-Id: <20221228144353.812792152@linuxfoundation.org>
+Message-Id: <20221228144314.788806079@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,124 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Schspa Shi <schspa@gmail.com>
+From: Ming Qian <ming.qian@nxp.com>
 
-[ Upstream commit ab0377803dafc58f1e22296708c1c28e309414d6 ]
+[ Upstream commit c3720e65c9013a7b2a5dbb63e6bf6d74a35dd894 ]
 
-The caller of del_timer_sync must prevent restarting of the timer, If
-we have no this synchronization, there is a small probability that the
-cancellation will not be successful.
+There is a hardware bug that the interrupt STMBUF_HALF may be triggered
+after or when disable interrupt.
+It may led to unexpected kernel panic.
+And interrupt STMBUF_HALF and STMBUF_RTND have no other effect.
+So disable them and the unused interrupts.
 
-And syzbot report the fellowing crash:
-==================================================================
-BUG: KASAN: use-after-free in hlist_add_head include/linux/list.h:929 [inline]
-BUG: KASAN: use-after-free in enqueue_timer+0x18/0xa4 kernel/time/timer.c:605
-Write at addr f9ff000024df6058 by task syz-fuzzer/2256
-Pointer tag: [f9], memory tag: [fe]
+meanwhile clear the interrupt status when disable interrupt.
 
-CPU: 1 PID: 2256 Comm: syz-fuzzer Not tainted 6.1.0-rc5-syzkaller-00008-
-ge01d50cbd6ee #0
-Hardware name: linux,dummy-virt (DT)
-Call trace:
- dump_backtrace.part.0+0xe0/0xf0 arch/arm64/kernel/stacktrace.c:156
- dump_backtrace arch/arm64/kernel/stacktrace.c:162 [inline]
- show_stack+0x18/0x40 arch/arm64/kernel/stacktrace.c:163
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0x68/0x84 lib/dump_stack.c:106
- print_address_description mm/kasan/report.c:284 [inline]
- print_report+0x1a8/0x4a0 mm/kasan/report.c:395
- kasan_report+0x94/0xb4 mm/kasan/report.c:495
- __do_kernel_fault+0x164/0x1e0 arch/arm64/mm/fault.c:320
- do_bad_area arch/arm64/mm/fault.c:473 [inline]
- do_tag_check_fault+0x78/0x8c arch/arm64/mm/fault.c:749
- do_mem_abort+0x44/0x94 arch/arm64/mm/fault.c:825
- el1_abort+0x40/0x60 arch/arm64/kernel/entry-common.c:367
- el1h_64_sync_handler+0xd8/0xe4 arch/arm64/kernel/entry-common.c:427
- el1h_64_sync+0x64/0x68 arch/arm64/kernel/entry.S:576
- hlist_add_head include/linux/list.h:929 [inline]
- enqueue_timer+0x18/0xa4 kernel/time/timer.c:605
- mod_timer+0x14/0x20 kernel/time/timer.c:1161
- mrp_periodic_timer_arm net/802/mrp.c:614 [inline]
- mrp_periodic_timer+0xa0/0xc0 net/802/mrp.c:627
- call_timer_fn.constprop.0+0x24/0x80 kernel/time/timer.c:1474
- expire_timers+0x98/0xc4 kernel/time/timer.c:1519
-
-To fix it, we can introduce a new active flags to make sure the timer will
-not restart.
-
-Reported-by: syzbot+6fd64001c20aa99e34a4@syzkaller.appspotmail.com
-
-Signed-off-by: Schspa Shi <schspa@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ming Qian <ming.qian@nxp.com>
+Reviewed-by: Mirela Rabulea <mirela.rabulea@nxp.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/mrp.h |  1 +
- net/802/mrp.c     | 18 +++++++++++++-----
- 2 files changed, 14 insertions(+), 5 deletions(-)
+ drivers/media/platform/imx-jpeg/mxc-jpeg-hw.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/include/net/mrp.h b/include/net/mrp.h
-index 92cd3fb6cf9d..b28915ffea28 100644
---- a/include/net/mrp.h
-+++ b/include/net/mrp.h
-@@ -124,6 +124,7 @@ struct mrp_applicant {
- 	struct sk_buff		*pdu;
- 	struct rb_root		mad;
- 	struct rcu_head		rcu;
-+	bool			active;
- };
+diff --git a/drivers/media/platform/imx-jpeg/mxc-jpeg-hw.c b/drivers/media/platform/imx-jpeg/mxc-jpeg-hw.c
+index 718b7b08f93e..8936d5ce886c 100644
+--- a/drivers/media/platform/imx-jpeg/mxc-jpeg-hw.c
++++ b/drivers/media/platform/imx-jpeg/mxc-jpeg-hw.c
+@@ -76,12 +76,14 @@ void print_wrapper_info(struct device *dev, void __iomem *reg)
  
- struct mrp_port {
-diff --git a/net/802/mrp.c b/net/802/mrp.c
-index 35e04cc5390c..c10a432a5b43 100644
---- a/net/802/mrp.c
-+++ b/net/802/mrp.c
-@@ -606,7 +606,10 @@ static void mrp_join_timer(struct timer_list *t)
- 	spin_unlock(&app->lock);
- 
- 	mrp_queue_xmit(app);
--	mrp_join_timer_arm(app);
-+	spin_lock(&app->lock);
-+	if (likely(app->active))
-+		mrp_join_timer_arm(app);
-+	spin_unlock(&app->lock);
+ void mxc_jpeg_enable_irq(void __iomem *reg, int slot)
+ {
+-	writel(0xFFFFFFFF, reg + MXC_SLOT_OFFSET(slot, SLOT_IRQ_EN));
++	writel(0xFFFFFFFF, reg + MXC_SLOT_OFFSET(slot, SLOT_STATUS));
++	writel(0xF0C, reg + MXC_SLOT_OFFSET(slot, SLOT_IRQ_EN));
  }
  
- static void mrp_periodic_timer_arm(struct mrp_applicant *app)
-@@ -620,11 +623,12 @@ static void mrp_periodic_timer(struct timer_list *t)
- 	struct mrp_applicant *app = from_timer(app, t, periodic_timer);
- 
- 	spin_lock(&app->lock);
--	mrp_mad_event(app, MRP_EVENT_PERIODIC);
--	mrp_pdu_queue(app);
-+	if (likely(app->active)) {
-+		mrp_mad_event(app, MRP_EVENT_PERIODIC);
-+		mrp_pdu_queue(app);
-+		mrp_periodic_timer_arm(app);
-+	}
- 	spin_unlock(&app->lock);
--
--	mrp_periodic_timer_arm(app);
+ void mxc_jpeg_disable_irq(void __iomem *reg, int slot)
+ {
+ 	writel(0x0, reg + MXC_SLOT_OFFSET(slot, SLOT_IRQ_EN));
++	writel(0xFFFFFFFF, reg + MXC_SLOT_OFFSET(slot, SLOT_STATUS));
  }
  
- static int mrp_pdu_parse_end_mark(struct sk_buff *skb, int *offset)
-@@ -872,6 +876,7 @@ int mrp_init_applicant(struct net_device *dev, struct mrp_application *appl)
- 	app->dev = dev;
- 	app->app = appl;
- 	app->mad = RB_ROOT;
-+	app->active = true;
- 	spin_lock_init(&app->lock);
- 	skb_queue_head_init(&app->queue);
- 	rcu_assign_pointer(dev->mrp_port->applicants[appl->type], app);
-@@ -900,6 +905,9 @@ void mrp_uninit_applicant(struct net_device *dev, struct mrp_application *appl)
- 
- 	RCU_INIT_POINTER(port->applicants[appl->type], NULL);
- 
-+	spin_lock_bh(&app->lock);
-+	app->active = false;
-+	spin_unlock_bh(&app->lock);
- 	/* Delete timer and generate a final TX event to flush out
- 	 * all pending messages before the applicant is gone.
- 	 */
+ void mxc_jpeg_sw_reset(void __iomem *reg)
 -- 
 2.35.1
 
