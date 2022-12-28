@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02E6865845C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B4DB6584DB
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:03:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235339AbiL1Q5X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:57:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46896 "EHLO
+        id S235132AbiL1RDV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:03:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235290AbiL1Q4h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:56:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE20A1DA51
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:52:32 -0800 (PST)
+        with ESMTP id S235373AbiL1RDD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:03:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9E911FCC6
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:57:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96E82B816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:52:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12143C433D2;
-        Wed, 28 Dec 2022 16:52:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 704CEB8172A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:57:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF8E1C433D2;
+        Wed, 28 Dec 2022 16:57:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246350;
-        bh=IerjXX365DYcnfR/jRen1Q0ECeyCt0UxU7/9wvV6y34=;
+        s=korg; t=1672246623;
+        bh=mpxhm3WwiWR1yI6Z7dfSSCK3d/XpiW+WSTrFtijRPgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0luQvoaX9S209V5zQs453r4KNO7CREew5j2YlUJ16kqicuOHgIhCuQiLM49i5o3D/
-         fCYcm7o//MEH/FZawR6Q7pI72I6iyBnnCBDQ7BGlzDyjA4yO7ar9Q0hLcp2iYZSTJr
-         7Ptoeu94u2o5HoMoPpQ+J065O/ShFjKkCShwWUs0=
+        b=RgH9SCTvyYZWSuJTD1gCCpPUbVHUku2wJNjV49nNW4D/rMCgokG4gQyMjnzxhfd9v
+         QFAhrOEsATrOBoIf8NQ2V/i/YJmXzmz4g78sRRO+qsQj7fRhjlN5yqCzeXOPm1rQrW
+         UqZNlrEczr1zI7UjnLWgdZzC2cDH2E18iLrSxMA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot <syzbot+25bdb7b1703639abd498@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 6.0 1054/1073] fbdev: fbcon: release buffer when fbcon_do_set_font() failed
-Date:   Wed, 28 Dec 2022 15:44:02 +0100
-Message-Id: <20221228144356.853980106@linuxfoundation.org>
+        patches@lists.linux.dev, Chunfeng Yun <chunfeng.yun@mediatek.com>
+Subject: [PATCH 6.1 1104/1146] usb: xhci-mtk: fix leakage of shared hcd when fail to set wakeup irq
+Date:   Wed, 28 Dec 2022 15:44:03 +0100
+Message-Id: <20221228144400.146343384@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +51,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-commit 3c3bfb8586f848317ceba5d777e11204ba3e5758 upstream.
+commit 03a88b0bafbe3f548729d970d8366f48718c9b19 upstream.
 
-syzbot is reporting memory leak at fbcon_do_set_font() [1], for
-commit a5a923038d70 ("fbdev: fbcon: Properly revert changes when
-vc_resize() failed") missed that the buffer might be newly allocated
-by fbcon_set_font().
+Can not set the @shared_hcd to NULL before decrease the usage count
+by usb_put_hcd(), this will cause the shared hcd not released.
 
-Link: https://syzkaller.appspot.com/bug?extid=25bdb7b1703639abd498 [1]
-Reported-by: syzbot <syzbot+25bdb7b1703639abd498@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Tested-by: syzbot <syzbot+25bdb7b1703639abd498@syzkaller.appspotmail.com>
-Fixes: a5a923038d70 ("fbdev: fbcon: Properly revert changes when vc_resize() failed")
-CC: stable@vger.kernel.org # 5.15+
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: 04284eb74e0c ("usb: xhci-mtk: add support runtime PM")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/20221128063337.18124-1-chunfeng.yun@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/core/fbcon.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/host/xhci-mtk.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -2450,7 +2450,8 @@ err_out:
+--- a/drivers/usb/host/xhci-mtk.c
++++ b/drivers/usb/host/xhci-mtk.c
+@@ -639,7 +639,6 @@ static int xhci_mtk_probe(struct platfor
  
- 	if (userfont) {
- 		p->userfont = old_userfont;
--		REFCOUNT(data)--;
-+		if (--REFCOUNT(data) == 0)
-+			kfree(data - FONT_EXTRA_WORDS * sizeof(int));
- 	}
+ dealloc_usb3_hcd:
+ 	usb_remove_hcd(xhci->shared_hcd);
+-	xhci->shared_hcd = NULL;
  
- 	vc->vc_font.width = old_width;
+ dealloc_usb2_hcd:
+ 	usb_remove_hcd(hcd);
 
 
