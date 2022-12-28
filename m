@@ -2,47 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7538B657F97
+	by mail.lfdr.de (Postfix) with ESMTP id BF80D657F98
 	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:07:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233046AbiL1QHG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:07:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53908 "EHLO
+        id S234363AbiL1QHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:07:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234413AbiL1QGb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:06:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8B7F1868A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:06:19 -0800 (PST)
+        with ESMTP id S234385AbiL1QGi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:06:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FBC4167C0
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:06:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BAD0061560
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:06:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A54E8C433D2;
-        Wed, 28 Dec 2022 16:06:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C74DDB81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:06:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EA69C433D2;
+        Wed, 28 Dec 2022 16:06:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243579;
-        bh=494EGiQmBY6UEFxiPqEY8hqBwlqe0QqQNwvEp8R4d0I=;
+        s=korg; t=1672243584;
+        bh=9GhVi5S/ntl8yUJgZdZO7PlCP74bB2vSDM3QOK8pGA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iTpLcU7WduylzSClw0fq1inpxej7StgyWr5XG6IGXoh7polyBBt661e8CHfD80Tzc
-         DzZgME3N+/Ir7R44ncx0ie00Lynj3uoMdhJoROsUSDsr5llCmul0CYYoJYjCuC3rrq
-         470BwwOiYQ5+mmuUZnZOK0bexSx2/Wst4Vk64QL8=
+        b=EkflIH45BBXmrD6mM472JBFU7TlG6FBIa6TCedOR//hjB7dQTQpMEjuxqDuMzXbDt
+         V0PbxiXDrrX/o9YtUBU3OfylINfvczs9kGu/Jcp5tHxYn3VlR84ye8cg3sJpl+Co24
+         DKgWjc2EmPLXULk+tEAOcz9avE3Mryp5GAa9we+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Bartosz Staszewski <bartoszx.staszewski@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Shwetha Nagaraju <Shwetha.nagaraju@intel.com>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Saeed Mahameed <saeed@kernel.com>,
+        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0551/1073] i40e: Fix the inability to attach XDP program on downed interface
-Date:   Wed, 28 Dec 2022 15:35:39 +0100
-Message-Id: <20221228144343.020754973@linuxfoundation.org>
+Subject: [PATCH 6.0 0552/1073] net: dsa: tag_8021q: avoid leaking ctx on dsa_tag_8021q_register() error path
+Date:   Wed, 28 Dec 2022 15:35:40 +0100
+Message-Id: <20221228144343.047524609@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -59,100 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Staszewski <bartoszx.staszewski@intel.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 0c87b545a2ed5cd8a6318011f1c92b188c2d74bc ]
+[ Upstream commit e095493091e850d5292ad01d8fbf5cde1d89ac53 ]
 
-Whenever trying to load XDP prog on downed interface, function i40e_xdp
-was passing vsi->rx_buf_len field to i40e_xdp_setup() which was equal 0.
-i40e_open() calls i40e_vsi_configure_rx() which configures that field,
-but that only happens when interface is up. When it is down, i40e_open()
-is not being called, thus vsi->rx_buf_len is not set.
+If dsa_tag_8021q_setup() fails, for example due to the inability of the
+device to install a VLAN, the tag_8021q context of the switch will leak.
+Make sure it is freed on the error path.
 
-Solution for this is calculate buffer length in newly created
-function - i40e_calculate_vsi_rx_buf_len() that return actual buffer
-length. Buffer length is being calculated based on the same rules
-applied previously in i40e_vsi_configure_rx() function.
-
-Fixes: 613142b0bb88 ("i40e: Log error for oversized MTU on device")
-Fixes: 0c8493d90b6b ("i40e: add XDP support for pass and drop actions")
-Signed-off-by: Bartosz Staszewski <bartoszx.staszewski@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Shwetha Nagaraju <Shwetha.nagaraju@intel.com>
-Reviewed-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Reviewed-by: Saeed Mahameed <saeed@kernel.com>
-Link: https://lore.kernel.org/r/20221209185411.2519898-1-anthony.l.nguyen@intel.com
+Fixes: 328621f6131f ("net: dsa: tag_8021q: absorb dsa_8021q_setup into dsa_tag_8021q_{,un}register")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20221209235242.480344-1-vladimir.oltean@nxp.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 36 ++++++++++++++-------
- 1 file changed, 24 insertions(+), 12 deletions(-)
+ net/dsa/tag_8021q.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index e53ea7ed0b1d..8c07d92a6574 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -3692,6 +3692,24 @@ static int i40e_vsi_configure_tx(struct i40e_vsi *vsi)
- 	return err;
+diff --git a/net/dsa/tag_8021q.c b/net/dsa/tag_8021q.c
+index 01a427800797..6de53f5b40a7 100644
+--- a/net/dsa/tag_8021q.c
++++ b/net/dsa/tag_8021q.c
+@@ -400,6 +400,7 @@ static void dsa_tag_8021q_teardown(struct dsa_switch *ds)
+ int dsa_tag_8021q_register(struct dsa_switch *ds, __be16 proto)
+ {
+ 	struct dsa_8021q_context *ctx;
++	int err;
+ 
+ 	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
+ 	if (!ctx)
+@@ -412,7 +413,15 @@ int dsa_tag_8021q_register(struct dsa_switch *ds, __be16 proto)
+ 
+ 	ds->tag_8021q_ctx = ctx;
+ 
+-	return dsa_tag_8021q_setup(ds);
++	err = dsa_tag_8021q_setup(ds);
++	if (err)
++		goto err_free;
++
++	return 0;
++
++err_free:
++	kfree(ctx);
++	return err;
  }
+ EXPORT_SYMBOL_GPL(dsa_tag_8021q_register);
  
-+/**
-+ * i40e_calculate_vsi_rx_buf_len - Calculates buffer length
-+ *
-+ * @vsi: VSI to calculate rx_buf_len from
-+ */
-+static u16 i40e_calculate_vsi_rx_buf_len(struct i40e_vsi *vsi)
-+{
-+	if (!vsi->netdev || (vsi->back->flags & I40E_FLAG_LEGACY_RX))
-+		return I40E_RXBUFFER_2048;
-+
-+#if (PAGE_SIZE < 8192)
-+	if (!I40E_2K_TOO_SMALL_WITH_PADDING && vsi->netdev->mtu <= ETH_DATA_LEN)
-+		return I40E_RXBUFFER_1536 - NET_IP_ALIGN;
-+#endif
-+
-+	return PAGE_SIZE < 8192 ? I40E_RXBUFFER_3072 : I40E_RXBUFFER_2048;
-+}
-+
- /**
-  * i40e_vsi_configure_rx - Configure the VSI for Rx
-  * @vsi: the VSI being configured
-@@ -3703,20 +3721,14 @@ static int i40e_vsi_configure_rx(struct i40e_vsi *vsi)
- 	int err = 0;
- 	u16 i;
- 
--	if (!vsi->netdev || (vsi->back->flags & I40E_FLAG_LEGACY_RX)) {
--		vsi->max_frame = I40E_MAX_RXBUFFER;
--		vsi->rx_buf_len = I40E_RXBUFFER_2048;
-+	vsi->max_frame = I40E_MAX_RXBUFFER;
-+	vsi->rx_buf_len = i40e_calculate_vsi_rx_buf_len(vsi);
-+
- #if (PAGE_SIZE < 8192)
--	} else if (!I40E_2K_TOO_SMALL_WITH_PADDING &&
--		   (vsi->netdev->mtu <= ETH_DATA_LEN)) {
-+	if (vsi->netdev && !I40E_2K_TOO_SMALL_WITH_PADDING &&
-+	    vsi->netdev->mtu <= ETH_DATA_LEN)
- 		vsi->max_frame = I40E_RXBUFFER_1536 - NET_IP_ALIGN;
--		vsi->rx_buf_len = I40E_RXBUFFER_1536 - NET_IP_ALIGN;
- #endif
--	} else {
--		vsi->max_frame = I40E_MAX_RXBUFFER;
--		vsi->rx_buf_len = (PAGE_SIZE < 8192) ? I40E_RXBUFFER_3072 :
--						       I40E_RXBUFFER_2048;
--	}
- 
- 	/* set up individual rings */
- 	for (i = 0; i < vsi->num_queue_pairs && !err; i++)
-@@ -13290,7 +13302,7 @@ static int i40e_xdp_setup(struct i40e_vsi *vsi, struct bpf_prog *prog,
- 	int i;
- 
- 	/* Don't allow frames that span over multiple buffers */
--	if (frame_size > vsi->rx_buf_len) {
-+	if (frame_size > i40e_calculate_vsi_rx_buf_len(vsi)) {
- 		NL_SET_ERR_MSG_MOD(extack, "MTU too large to enable XDP");
- 		return -EINVAL;
- 	}
 -- 
 2.35.1
 
