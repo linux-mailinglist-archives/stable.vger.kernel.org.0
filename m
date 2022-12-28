@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED8CF65789B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:53:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEC88657E1D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:50:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233209AbiL1Ows (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:52:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39142 "EHLO
+        id S234096AbiL1PuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:50:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233171AbiL1OwU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:52:20 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D613120A9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:52:10 -0800 (PST)
+        with ESMTP id S234087AbiL1PuM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:50:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61903183A2
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:50:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E8D8BCE1355
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:52:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8D29C433EF;
-        Wed, 28 Dec 2022 14:52:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1BE78B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:50:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A044C433D2;
+        Wed, 28 Dec 2022 15:50:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239127;
-        bh=MRRDvQOL8lj3sucljXqlR9D/FN4CMn0v/x5HzQ03ZHg=;
+        s=korg; t=1672242608;
+        bh=ukl/UUUyQv5isEgSUCnKLX5i9xKeHluyYZsSNRReM1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wvR1hICJOrQ+U2Yomhzmpus8il//PtQDOEgzSzk7gpiaS5TSJBnIQ6PRorFh88DcB
-         UW67l2LD3fik+S3S3Hmrrt8KJXI5sMmbs/Ul8WZqGhdf3OdRibdo2DKHuC0Rim6lVf
-         sB2bB4nj7xazioa60FOfkTId0kytxYP3hTyD+C7Q=
+        b=o95tn7wVbOfKvePE/1hAN3MhvwNtlkpx7AkE6tQ2wnbwZd+I1aaKlWhKrWi5RCAhZ
+         r2gdiBk8YGk08DuV1Y4wdP9cKVle+hy9tFTH8cku5t5rik5ns95qiwG6CjgLYRAYCG
+         NfDnbNvJgrTK/dNVFfZglrUxiHcLSFF5W9dbfHZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        patches@lists.linux.dev, Pengcheng Yang <yangpc@wangsu.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 112/731] clocksource/drivers/sh_cmt: Access registers according to spec
+Subject: [PATCH 6.0 0431/1073] bpf, sockmap: Fix missing BPF_F_INGRESS flag when using apply_bytes
 Date:   Wed, 28 Dec 2022 15:33:39 +0100
-Message-Id: <20221228144259.797581406@linuxfoundation.org>
+Message-Id: <20221228144339.733742976@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,193 +54,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Pengcheng Yang <yangpc@wangsu.com>
 
-[ Upstream commit 3f44f7156f59cae06e9160eafb5d8b2dfd09e639 ]
+[ Upstream commit a351d6087bf7d3d8440d58d3bf244ec64b89394a ]
 
-Documentation for most CMTs say that it takes two input clocks before
-changes propagate to the timer. This is especially relevant when the timer
-is stopped to change further settings.
+When redirecting, we use sk_msg_to_ingress() to get the BPF_F_INGRESS
+flag from the msg->flags. If apply_bytes is used and it is larger than
+the current data being processed, sk_psock_msg_verdict() will not be
+called when sendmsg() is called again. At this time, the msg->flags is 0,
+and we lost the BPF_F_INGRESS flag.
 
-Implement the delays according to the spec. To avoid unnecessary delays in
-atomic mode, also check if the to-be-written value actually differs.
+So we need to save the BPF_F_INGRESS flag in sk_psock and use it when
+redirection.
 
-CMCNT is a bit special because testing showed that it requires 3 cycles to
-propagate, which affects all CMTs. Also, the WRFLAG needs to be checked
-before writing. This fixes "cannot clear CMCNT" messages which occur often
-on R-Car Gen4 SoCs, but only very rarely on older SoCs for some reason.
-
-Fixes: 81b3b2711072 ("clocksource: sh_cmt: Add support for multiple channels per device")
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20221130210609.7718-1-wsa+renesas@sang-engineering.com
+Fixes: 8934ce2fd081 ("bpf: sockmap redirect ingress support")
+Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
+Link: https://lore.kernel.org/bpf/1669718441-2654-3-git-send-email-yangpc@wangsu.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/sh_cmt.c | 88 ++++++++++++++++++++++--------------
- 1 file changed, 55 insertions(+), 33 deletions(-)
+ include/linux/skmsg.h |  1 +
+ include/net/tcp.h     |  4 ++--
+ net/core/skmsg.c      |  9 ++++++---
+ net/ipv4/tcp_bpf.c    | 11 ++++++-----
+ net/tls/tls_sw.c      |  6 ++++--
+ 5 files changed, 19 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/clocksource/sh_cmt.c b/drivers/clocksource/sh_cmt.c
-index dd0956ad969c..d35548aa026f 100644
---- a/drivers/clocksource/sh_cmt.c
-+++ b/drivers/clocksource/sh_cmt.c
-@@ -13,6 +13,7 @@
- #include <linux/init.h>
- #include <linux/interrupt.h>
- #include <linux/io.h>
-+#include <linux/iopoll.h>
- #include <linux/ioport.h>
- #include <linux/irq.h>
- #include <linux/module.h>
-@@ -116,6 +117,7 @@ struct sh_cmt_device {
- 	void __iomem *mapbase;
- 	struct clk *clk;
- 	unsigned long rate;
-+	unsigned int reg_delay;
+diff --git a/include/linux/skmsg.h b/include/linux/skmsg.h
+index 70d6cb94e580..84f787416a54 100644
+--- a/include/linux/skmsg.h
++++ b/include/linux/skmsg.h
+@@ -82,6 +82,7 @@ struct sk_psock {
+ 	u32				apply_bytes;
+ 	u32				cork_bytes;
+ 	u32				eval;
++	bool				redir_ingress; /* undefined if sk_redir is null */
+ 	struct sk_msg			*cork;
+ 	struct sk_psock_progs		progs;
+ #if IS_ENABLED(CONFIG_BPF_STREAM_PARSER)
+diff --git a/include/net/tcp.h b/include/net/tcp.h
+index 95c1d51393ac..3cde7b4a401f 100644
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -2284,8 +2284,8 @@ int tcp_bpf_update_proto(struct sock *sk, struct sk_psock *psock, bool restore);
+ void tcp_bpf_clone(const struct sock *sk, struct sock *newsk);
+ #endif /* CONFIG_BPF_SYSCALL */
  
- 	raw_spinlock_t lock; /* Protect the shared start/stop register */
+-int tcp_bpf_sendmsg_redir(struct sock *sk, struct sk_msg *msg, u32 bytes,
+-			  int flags);
++int tcp_bpf_sendmsg_redir(struct sock *sk, bool ingress,
++			  struct sk_msg *msg, u32 bytes, int flags);
+ #endif /* CONFIG_NET_SOCK_MSG */
  
-@@ -247,10 +249,17 @@ static inline u32 sh_cmt_read_cmstr(struct sh_cmt_channel *ch)
- 
- static inline void sh_cmt_write_cmstr(struct sh_cmt_channel *ch, u32 value)
- {
--	if (ch->iostart)
--		ch->cmt->info->write_control(ch->iostart, 0, value);
--	else
--		ch->cmt->info->write_control(ch->cmt->mapbase, 0, value);
-+	u32 old_value = sh_cmt_read_cmstr(ch);
-+
-+	if (value != old_value) {
-+		if (ch->iostart) {
-+			ch->cmt->info->write_control(ch->iostart, 0, value);
-+			udelay(ch->cmt->reg_delay);
-+		} else {
-+			ch->cmt->info->write_control(ch->cmt->mapbase, 0, value);
-+			udelay(ch->cmt->reg_delay);
+ #if !defined(CONFIG_BPF_SYSCALL) || !defined(CONFIG_NET_SOCK_MSG)
+diff --git a/net/core/skmsg.c b/net/core/skmsg.c
+index e6b9ced3eda8..53d0251788aa 100644
+--- a/net/core/skmsg.c
++++ b/net/core/skmsg.c
+@@ -886,13 +886,16 @@ int sk_psock_msg_verdict(struct sock *sk, struct sk_psock *psock,
+ 	ret = sk_psock_map_verd(ret, msg->sk_redir);
+ 	psock->apply_bytes = msg->apply_bytes;
+ 	if (ret == __SK_REDIRECT) {
+-		if (psock->sk_redir)
++		if (psock->sk_redir) {
+ 			sock_put(psock->sk_redir);
+-		psock->sk_redir = msg->sk_redir;
+-		if (!psock->sk_redir) {
++			psock->sk_redir = NULL;
 +		}
-+	}
- }
- 
- static inline u32 sh_cmt_read_cmcsr(struct sh_cmt_channel *ch)
-@@ -260,7 +269,12 @@ static inline u32 sh_cmt_read_cmcsr(struct sh_cmt_channel *ch)
- 
- static inline void sh_cmt_write_cmcsr(struct sh_cmt_channel *ch, u32 value)
- {
--	ch->cmt->info->write_control(ch->ioctrl, CMCSR, value);
-+	u32 old_value = sh_cmt_read_cmcsr(ch);
-+
-+	if (value != old_value) {
-+		ch->cmt->info->write_control(ch->ioctrl, CMCSR, value);
-+		udelay(ch->cmt->reg_delay);
-+	}
- }
- 
- static inline u32 sh_cmt_read_cmcnt(struct sh_cmt_channel *ch)
-@@ -268,14 +282,33 @@ static inline u32 sh_cmt_read_cmcnt(struct sh_cmt_channel *ch)
- 	return ch->cmt->info->read_count(ch->ioctrl, CMCNT);
- }
- 
--static inline void sh_cmt_write_cmcnt(struct sh_cmt_channel *ch, u32 value)
-+static inline int sh_cmt_write_cmcnt(struct sh_cmt_channel *ch, u32 value)
- {
-+	/* Tests showed that we need to wait 3 clocks here */
-+	unsigned int cmcnt_delay = DIV_ROUND_UP(3 * ch->cmt->reg_delay, 2);
-+	u32 reg;
-+
-+	if (ch->cmt->info->model > SH_CMT_16BIT) {
-+		int ret = read_poll_timeout_atomic(sh_cmt_read_cmcsr, reg,
-+						   !(reg & SH_CMT32_CMCSR_WRFLG),
-+						   1, cmcnt_delay, false, ch);
-+		if (ret < 0)
-+			return ret;
-+	}
-+
- 	ch->cmt->info->write_count(ch->ioctrl, CMCNT, value);
-+	udelay(cmcnt_delay);
-+	return 0;
- }
- 
- static inline void sh_cmt_write_cmcor(struct sh_cmt_channel *ch, u32 value)
- {
--	ch->cmt->info->write_count(ch->ioctrl, CMCOR, value);
-+	u32 old_value = ch->cmt->info->read_count(ch->ioctrl, CMCOR);
-+
-+	if (value != old_value) {
-+		ch->cmt->info->write_count(ch->ioctrl, CMCOR, value);
-+		udelay(ch->cmt->reg_delay);
-+	}
- }
- 
- static u32 sh_cmt_get_counter(struct sh_cmt_channel *ch, u32 *has_wrapped)
-@@ -319,7 +352,7 @@ static void sh_cmt_start_stop_ch(struct sh_cmt_channel *ch, int start)
- 
- static int sh_cmt_enable(struct sh_cmt_channel *ch)
- {
--	int k, ret;
-+	int ret;
- 
- 	dev_pm_syscore_device(&ch->cmt->pdev->dev, true);
- 
-@@ -347,26 +380,9 @@ static int sh_cmt_enable(struct sh_cmt_channel *ch)
++		if (!msg->sk_redir) {
+ 			ret = __SK_DROP;
+ 			goto out;
+ 		}
++		psock->redir_ingress = sk_msg_to_ingress(msg);
++		psock->sk_redir = msg->sk_redir;
+ 		sock_hold(psock->sk_redir);
  	}
+ out:
+diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
+index f3e868f4cd9e..275c5ca9e04d 100644
+--- a/net/ipv4/tcp_bpf.c
++++ b/net/ipv4/tcp_bpf.c
+@@ -131,10 +131,9 @@ static int tcp_bpf_push_locked(struct sock *sk, struct sk_msg *msg,
+ 	return ret;
+ }
  
- 	sh_cmt_write_cmcor(ch, 0xffffffff);
--	sh_cmt_write_cmcnt(ch, 0);
--
--	/*
--	 * According to the sh73a0 user's manual, as CMCNT can be operated
--	 * only by the RCLK (Pseudo 32 kHz), there's one restriction on
--	 * modifying CMCNT register; two RCLK cycles are necessary before
--	 * this register is either read or any modification of the value
--	 * it holds is reflected in the LSI's actual operation.
--	 *
--	 * While at it, we're supposed to clear out the CMCNT as of this
--	 * moment, so make sure it's processed properly here.  This will
--	 * take RCLKx2 at maximum.
--	 */
--	for (k = 0; k < 100; k++) {
--		if (!sh_cmt_read_cmcnt(ch))
--			break;
--		udelay(1);
--	}
-+	ret = sh_cmt_write_cmcnt(ch, 0);
- 
--	if (sh_cmt_read_cmcnt(ch)) {
-+	if (ret || sh_cmt_read_cmcnt(ch)) {
- 		dev_err(&ch->cmt->pdev->dev, "ch%u: cannot clear CMCNT\n",
- 			ch->index);
- 		ret = -ETIMEDOUT;
-@@ -987,8 +1003,8 @@ MODULE_DEVICE_TABLE(of, sh_cmt_of_table);
- 
- static int sh_cmt_setup(struct sh_cmt_device *cmt, struct platform_device *pdev)
+-int tcp_bpf_sendmsg_redir(struct sock *sk, struct sk_msg *msg,
+-			  u32 bytes, int flags)
++int tcp_bpf_sendmsg_redir(struct sock *sk, bool ingress,
++			  struct sk_msg *msg, u32 bytes, int flags)
  {
--	unsigned int mask;
--	unsigned int i;
-+	unsigned int mask, i;
-+	unsigned long rate;
+-	bool ingress = sk_msg_to_ingress(msg);
+ 	struct sk_psock *psock = sk_psock_get(sk);
  	int ret;
  
- 	cmt->pdev = pdev;
-@@ -1024,10 +1040,16 @@ static int sh_cmt_setup(struct sh_cmt_device *cmt, struct platform_device *pdev)
- 	if (ret < 0)
- 		goto err_clk_unprepare;
+@@ -276,7 +275,7 @@ static int tcp_bpf_recvmsg(struct sock *sk, struct msghdr *msg, size_t len,
+ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
+ 				struct sk_msg *msg, int *copied, int flags)
+ {
+-	bool cork = false, enospc = sk_msg_full(msg);
++	bool cork = false, enospc = sk_msg_full(msg), redir_ingress;
+ 	struct sock *sk_redir;
+ 	u32 tosend, origsize, sent, delta = 0;
+ 	u32 eval;
+@@ -322,6 +321,7 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
+ 		sk_msg_apply_bytes(psock, tosend);
+ 		break;
+ 	case __SK_REDIRECT:
++		redir_ingress = psock->redir_ingress;
+ 		sk_redir = psock->sk_redir;
+ 		sk_msg_apply_bytes(psock, tosend);
+ 		if (!psock->apply_bytes) {
+@@ -338,7 +338,8 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
+ 		release_sock(sk);
  
--	if (cmt->info->width == 16)
--		cmt->rate = clk_get_rate(cmt->clk) / 512;
--	else
--		cmt->rate = clk_get_rate(cmt->clk) / 8;
-+	rate = clk_get_rate(cmt->clk);
-+	if (!rate) {
-+		ret = -EINVAL;
-+		goto err_clk_disable;
-+	}
-+
-+	/* We shall wait 2 input clks after register writes */
-+	if (cmt->info->model >= SH_CMT_48BIT)
-+		cmt->reg_delay = DIV_ROUND_UP(2UL * USEC_PER_SEC, rate);
-+	cmt->rate = rate / (cmt->info->width == 16 ? 512 : 8);
+ 		origsize = msg->sg.size;
+-		ret = tcp_bpf_sendmsg_redir(sk_redir, msg, tosend, flags);
++		ret = tcp_bpf_sendmsg_redir(sk_redir, redir_ingress,
++					    msg, tosend, flags);
+ 		sent = origsize - msg->sg.size;
  
- 	/* Map the memory resource(s). */
- 	ret = sh_cmt_map_memory(cmt);
+ 		if (eval == __SK_REDIRECT)
+diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
+index fe27241cd13f..0ee1df154fee 100644
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -792,7 +792,7 @@ static int bpf_exec_tx_verdict(struct sk_msg *msg, struct sock *sk,
+ 	struct sk_psock *psock;
+ 	struct sock *sk_redir;
+ 	struct tls_rec *rec;
+-	bool enospc, policy;
++	bool enospc, policy, redir_ingress;
+ 	int err = 0, send;
+ 	u32 delta = 0;
+ 
+@@ -837,6 +837,7 @@ static int bpf_exec_tx_verdict(struct sk_msg *msg, struct sock *sk,
+ 		}
+ 		break;
+ 	case __SK_REDIRECT:
++		redir_ingress = psock->redir_ingress;
+ 		sk_redir = psock->sk_redir;
+ 		memcpy(&msg_redir, msg, sizeof(*msg));
+ 		if (msg->apply_bytes < send)
+@@ -846,7 +847,8 @@ static int bpf_exec_tx_verdict(struct sk_msg *msg, struct sock *sk,
+ 		sk_msg_return_zero(sk, msg, send);
+ 		msg->sg.size -= send;
+ 		release_sock(sk);
+-		err = tcp_bpf_sendmsg_redir(sk_redir, &msg_redir, send, flags);
++		err = tcp_bpf_sendmsg_redir(sk_redir, redir_ingress,
++					    &msg_redir, send, flags);
+ 		lock_sock(sk);
+ 		if (err < 0) {
+ 			*copied -= sk_msg_free_nocharge(sk, &msg_redir);
 -- 
 2.35.1
 
