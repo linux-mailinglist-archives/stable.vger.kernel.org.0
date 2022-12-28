@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86EC5658351
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:46:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E48CF658416
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:54:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233132AbiL1Qqa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:46:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38388 "EHLO
+        id S231472AbiL1QyG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:54:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234923AbiL1Qp4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:45:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DA821DA49
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:41:11 -0800 (PST)
+        with ESMTP id S235147AbiL1Qxf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:53:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01B111DF0C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:48:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7504961563
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:41:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82BC2C433D2;
-        Wed, 28 Dec 2022 16:41:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7E310B81889
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:48:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB9BDC433F0;
+        Wed, 28 Dec 2022 16:48:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245670;
-        bh=bylQ92nndUsQDEdsR7BlnEBaPmFt2kKNmE0KssvA6Mg=;
+        s=korg; t=1672246126;
+        bh=AlYS/l6ElL7QqRBU9A8AzkmpdKoqNyTen6wL+yZBCuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YrCh0/n2IHT8bgCHPDJbrMqEC8Z+DhGBmUoU3txbplOrl67aKamsxHdNcyMLc49fO
-         UnFxGgfRv15gmMbpdDj1xFfQzomBWyUKIQJmcK5MDuPDS7aKPTF8ZOcBmpEOvrU2qe
-         XJa9IkjB4JFjlOEJ7Rj+fCBGKU+bu7RAjsOw/mzo=
+        b=g83vqsNs37a8E5lEO63v+OmVUIj7TVg+05nzPUWfwhIgj2kt5sKxbElsARq/1h2q7
+         T6dMWubjxOY+dvlk0RQ96BVACB800o1dN8gOJfWbQ+XKbyZB2ENqpA2RQ074PV11Dd
+         yBMNmQJ7GK2b1v/1vVR72KDE+QCv8Fas/oF0+dNo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexandra Winter <wintera@linux.ibm.com>,
-        Kees Cook <keescook@chromium.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Martin Liska <mliska@suse.cz>,
+        Ariel Elior <aelior@marvell.com>,
+        Manish Chopra <manishc@marvell.com>,
+        "Jiri Slaby (SUSE)" <jirislaby@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0935/1073] s390/lcs: Fix return type of lcs_start_xmit()
-Date:   Wed, 28 Dec 2022 15:42:03 +0100
-Message-Id: <20221228144353.424437895@linuxfoundation.org>
+Subject: [PATCH 6.1 0985/1146] qed (gcc13): use u16 for fid to be big enough
+Date:   Wed, 28 Dec 2022 15:42:04 +0100
+Message-Id: <20221228144357.119910404@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,66 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Jiri Slaby (SUSE) <jirislaby@kernel.org>
 
-[ Upstream commit bb16db8393658e0978c3f0d30ae069e878264fa3 ]
+[ Upstream commit 7d84118229bf7f7290438c85caa8e49de52d50c1 ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed. A
-proposed warning in clang aims to catch these at compile time, which
-reveals:
+gcc 13 correctly reports overflow in qed_grc_dump_addr_range():
+In file included from drivers/net/ethernet/qlogic/qed/qed.h:23,
+                 from drivers/net/ethernet/qlogic/qed/qed_debug.c:10:
+drivers/net/ethernet/qlogic/qed/qed_debug.c: In function 'qed_grc_dump_addr_range':
+include/linux/qed/qed_if.h:1217:9: error: overflow in conversion from 'int' to 'u8' {aka 'unsigned char'} changes value from '(int)vf_id << 8 | 128' to '128' [-Werror=overflow]
 
-  drivers/s390/net/lcs.c:2090:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .ndo_start_xmit         = lcs_start_xmit,
-                                    ^~~~~~~~~~~~~~
-  drivers/s390/net/lcs.c:2097:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .ndo_start_xmit         = lcs_start_xmit,
-                                    ^~~~~~~~~~~~~~
+We do:
+  u8 fid;
+  ...
+  fid = vf_id << 8 | 128;
 
-->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
-'netdev_tx_t', not 'int'. Adjust the return type of lcs_start_xmit() to
-match the prototype's to resolve the warning and potential CFI failure,
-should s390 select ARCH_SUPPORTS_CFI_CLANG in the future.
+Since fid is 16bit (and the stored value above too), fid should be u16,
+not u8. Fix that.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1750
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Martin Liska <mliska@suse.cz>
+Cc: Ariel Elior <aelior@marvell.com>
+Cc: Manish Chopra <manishc@marvell.com>
+Signed-off-by: Jiri Slaby (SUSE) <jirislaby@kernel.org>
+Link: https://lore.kernel.org/r/20221031114354.10398-1-jirislaby@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/lcs.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/qlogic/qed/qed_debug.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
-index 84c8981317b4..38f312664ce7 100644
---- a/drivers/s390/net/lcs.c
-+++ b/drivers/s390/net/lcs.c
-@@ -1519,9 +1519,8 @@ lcs_txbuffer_cb(struct lcs_channel *channel, struct lcs_buffer *buffer)
- /*
-  * Packet transmit function called by network stack
-  */
--static int
--__lcs_start_xmit(struct lcs_card *card, struct sk_buff *skb,
--		 struct net_device *dev)
-+static netdev_tx_t __lcs_start_xmit(struct lcs_card *card, struct sk_buff *skb,
-+				    struct net_device *dev)
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_debug.c b/drivers/net/ethernet/qlogic/qed/qed_debug.c
+index 5250d1d1e49c..86ecb080b153 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_debug.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_debug.c
+@@ -1972,9 +1972,10 @@ static u32 qed_grc_dump_addr_range(struct qed_hwfn *p_hwfn,
+ 				   u8 split_id)
  {
- 	struct lcs_header *header;
- 	int rc = NETDEV_TX_OK;
-@@ -1582,8 +1581,7 @@ __lcs_start_xmit(struct lcs_card *card, struct sk_buff *skb,
- 	return rc;
- }
+ 	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
+-	u8 port_id = 0, pf_id = 0, vf_id = 0, fid = 0;
++	u8 port_id = 0, pf_id = 0, vf_id = 0;
+ 	bool read_using_dmae = false;
+ 	u32 thresh;
++	u16 fid;
  
--static int
--lcs_start_xmit(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t lcs_start_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct lcs_card *card;
- 	int rc;
+ 	if (!dump)
+ 		return len;
 -- 
 2.35.1
 
