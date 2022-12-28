@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3B70657DD9
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:47:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F0766583EC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:53:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234031AbiL1Prj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:47:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35024 "EHLO
+        id S235122AbiL1Qxa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:53:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234079AbiL1PrS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:47:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0641F0B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:47:17 -0800 (PST)
+        with ESMTP id S231839AbiL1Qwm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:52:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 985201DDEE
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:47:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D7A2B8172A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:47:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB9F0C433D2;
-        Wed, 28 Dec 2022 15:47:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 35EBE60D41
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:47:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DF05C433D2;
+        Wed, 28 Dec 2022 16:47:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242435;
-        bh=X05hHJXyqY+n4R2ll0NBD+mFE/k09gI9iYjsIvAVQnk=;
+        s=korg; t=1672246043;
+        bh=94mJ4ktmnNf7/RYeKm5j2AXaLYPBiO/CeY1y913/4sU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zbcFb3lGYX7QP9wFzLDS7E4QV3MJtfUgGtCbm06oc7ETrWZQvDk+vNiFdp9Gd0LIF
-         otOIzgzn0Ici+skr8Vn4y0b2WyWEcCp2roYfMz/uGBLY1+fD5JQPtMn+e47RIBcxmv
-         mqMGiaUjkVPKgqaYxZPINSFFPqd6WvSZJwDf77ME=
+        b=rjJFumqOh8w58MUNJ04mDPgK1bN0lw1uYYfqlAp/2u8ccvzbFiR6n8T8i7dmOfuHI
+         LXj6bCDSwaowu/uQ/w+EmODZKiLc0LiACpX8s+WtZ3QaUBqR04hLn3sdXe9PdzZkai
+         vCO/Zr3M1ATAv76eCCjLHj0z7Omn3mJta7AltONk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eelco Chaudron <echaudro@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@linux.intel.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 603/731] openvswitch: Fix flow lookup to use unmasked key
+Subject: [PATCH 6.1 0971/1146] ASoC: Intel: avs: Add quirk for KBL-R RVP platform
 Date:   Wed, 28 Dec 2022 15:41:50 +0100
-Message-Id: <20221228144314.016839574@linuxfoundation.org>
+Message-Id: <20221228144356.712896239@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,119 +56,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eelco Chaudron <echaudro@redhat.com>
+From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
 
-[ Upstream commit 68bb10101e6b0a6bb44e9c908ef795fc4af99eae ]
+[ Upstream commit 9d0737fa0e7530313634c0ecd75f09a95ba8d44a ]
 
-The commit mentioned below causes the ovs_flow_tbl_lookup() function
-to be called with the masked key. However, it's supposed to be called
-with the unmasked key. This due to the fact that the datapath supports
-installing wider flows, and OVS relies on this behavior. For example
-if ipv4(src=1.1.1.1/192.0.0.0, dst=1.1.1.2/192.0.0.0) exists, a wider
-flow (smaller mask) of ipv4(src=192.1.1.1/128.0.0.0,dst=192.1.1.2/
-128.0.0.0) is allowed to be added.
+KBL-R RVPs contain built-in rt298 codec which requires different PLL
+clock and .dai_fmt configuration than seen on other boards.
 
-However, if we try to add a wildcard rule, the installation fails:
-
-$ ovs-appctl dpctl/add-flow system@myDP "in_port(1),eth_type(0x0800), \
-  ipv4(src=1.1.1.1/192.0.0.0,dst=1.1.1.2/192.0.0.0,frag=no)" 2
-$ ovs-appctl dpctl/add-flow system@myDP "in_port(1),eth_type(0x0800), \
-  ipv4(src=192.1.1.1/0.0.0.0,dst=49.1.1.2/0.0.0.0,frag=no)" 2
-ovs-vswitchd: updating flow table (File exists)
-
-The reason is that the key used to determine if the flow is already
-present in the system uses the original key ANDed with the mask.
-This results in the IP address not being part of the (miniflow) key,
-i.e., being substituted with an all-zero value. When doing the actual
-lookup, this results in the key wrongfully matching the first flow,
-and therefore the flow does not get installed.
-
-This change reverses the commit below, but rather than having the key
-on the stack, it's allocated.
-
-Fixes: 190aa3e77880 ("openvswitch: Fix Frame-size larger than 1024 bytes warning.")
-
-Signed-off-by: Eelco Chaudron <echaudro@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Link: https://lore.kernel.org/r/20221010121955.718168-5-cezary.rojewski@intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/openvswitch/datapath.c | 25 ++++++++++++++++---------
- 1 file changed, 16 insertions(+), 9 deletions(-)
+ sound/soc/intel/avs/boards/rt298.c | 24 ++++++++++++++++++++++--
+ 1 file changed, 22 insertions(+), 2 deletions(-)
 
-diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
-index 94c48122fdc3..795a25ecb893 100644
---- a/net/openvswitch/datapath.c
-+++ b/net/openvswitch/datapath.c
-@@ -946,6 +946,7 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
- 	struct sw_flow_mask mask;
- 	struct sk_buff *reply;
- 	struct datapath *dp;
-+	struct sw_flow_key *key;
- 	struct sw_flow_actions *acts;
- 	struct sw_flow_match match;
- 	u32 ufid_flags = ovs_nla_get_ufid_flags(a[OVS_FLOW_ATTR_UFID_FLAGS]);
-@@ -973,24 +974,26 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
- 	}
+diff --git a/sound/soc/intel/avs/boards/rt298.c b/sound/soc/intel/avs/boards/rt298.c
+index b28d36872dcb..58c9d9edecf0 100644
+--- a/sound/soc/intel/avs/boards/rt298.c
++++ b/sound/soc/intel/avs/boards/rt298.c
+@@ -6,6 +6,7 @@
+ //          Amadeusz Slawinski <amadeuszx.slawinski@linux.intel.com>
+ //
  
- 	/* Extract key. */
--	ovs_match_init(&match, &new_flow->key, false, &mask);
-+	key = kzalloc(sizeof(*key), GFP_KERNEL);
-+	if (!key) {
-+		error = -ENOMEM;
-+		goto err_kfree_key;
-+	}
++#include <linux/dmi.h>
+ #include <linux/module.h>
+ #include <sound/jack.h>
+ #include <sound/pcm.h>
+@@ -14,6 +15,16 @@
+ #include <sound/soc-acpi.h>
+ #include "../../../codecs/rt298.h"
+ 
++static const struct dmi_system_id kblr_dmi_table[] = {
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Intel Corporation"),
++			DMI_MATCH(DMI_BOARD_NAME, "Kabylake R DDR4 RVP"),
++		},
++	},
++	{}
++};
 +
-+	ovs_match_init(&match, key, false, &mask);
- 	error = ovs_nla_get_match(net, &match, a[OVS_FLOW_ATTR_KEY],
- 				  a[OVS_FLOW_ATTR_MASK], log);
- 	if (error)
- 		goto err_kfree_flow;
+ static const struct snd_kcontrol_new card_controls[] = {
+ 	SOC_DAPM_PIN_SWITCH("Headphone Jack"),
+ 	SOC_DAPM_PIN_SWITCH("Mic Jack"),
+@@ -96,9 +107,15 @@ avs_rt298_hw_params(struct snd_pcm_substream *substream, struct snd_pcm_hw_param
+ {
+ 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
+ 	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
++	unsigned int clk_freq;
+ 	int ret;
  
-+	ovs_flow_mask_key(&new_flow->key, key, true, &mask);
+-	ret = snd_soc_dai_set_sysclk(codec_dai, RT298_SCLK_S_PLL, 19200000, SND_SOC_CLOCK_IN);
++	if (dmi_first_match(kblr_dmi_table))
++		clk_freq = 24000000;
++	else
++		clk_freq = 19200000;
 +
- 	/* Extract flow identifier. */
- 	error = ovs_nla_get_identifier(&new_flow->id, a[OVS_FLOW_ATTR_UFID],
--				       &new_flow->key, log);
-+				       key, log);
- 	if (error)
- 		goto err_kfree_flow;
++	ret = snd_soc_dai_set_sysclk(codec_dai, RT298_SCLK_S_PLL, clk_freq, SND_SOC_CLOCK_IN);
+ 	if (ret < 0)
+ 		dev_err(rtd->dev, "Set codec sysclk failed: %d\n", ret);
  
--	/* unmasked key is needed to match when ufid is not used. */
--	if (ovs_identifier_is_key(&new_flow->id))
--		match.key = new_flow->id.unmasked_key;
--
--	ovs_flow_mask_key(&new_flow->key, &new_flow->key, true, &mask);
--
- 	/* Validate actions. */
- 	error = ovs_nla_copy_actions(net, a[OVS_FLOW_ATTR_ACTIONS],
- 				     &new_flow->key, &acts, log);
-@@ -1017,7 +1020,7 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
- 	if (ovs_identifier_is_ufid(&new_flow->id))
- 		flow = ovs_flow_tbl_lookup_ufid(&dp->table, &new_flow->id);
- 	if (!flow)
--		flow = ovs_flow_tbl_lookup(&dp->table, &new_flow->key);
-+		flow = ovs_flow_tbl_lookup(&dp->table, key);
- 	if (likely(!flow)) {
- 		rcu_assign_pointer(new_flow->sf_acts, acts);
- 
-@@ -1087,6 +1090,8 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
- 
- 	if (reply)
- 		ovs_notify(&dp_flow_genl_family, reply, info);
-+
-+	kfree(key);
- 	return 0;
- 
- err_unlock_ovs:
-@@ -1096,6 +1101,8 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
- 	ovs_nla_free_flow_actions(acts);
- err_kfree_flow:
- 	ovs_flow_free(new_flow, false);
-+err_kfree_key:
-+	kfree(key);
- error:
- 	return error;
- }
+@@ -139,7 +156,10 @@ static int avs_create_dai_link(struct device *dev, const char *platform_name, in
+ 	dl->platforms = platform;
+ 	dl->num_platforms = 1;
+ 	dl->id = 0;
+-	dl->dai_fmt = SND_SOC_DAIFMT_DSP_A | SND_SOC_DAIFMT_NB_NF | SND_SOC_DAIFMT_CBS_CFS;
++	if (dmi_first_match(kblr_dmi_table))
++		dl->dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF | SND_SOC_DAIFMT_CBS_CFS;
++	else
++		dl->dai_fmt = SND_SOC_DAIFMT_DSP_A | SND_SOC_DAIFMT_NB_NF | SND_SOC_DAIFMT_CBS_CFS;
+ 	dl->init = avs_rt298_codec_init;
+ 	dl->be_hw_params_fixup = avs_rt298_be_fixup;
+ 	dl->ops = &avs_rt298_ops;
 -- 
 2.35.1
 
