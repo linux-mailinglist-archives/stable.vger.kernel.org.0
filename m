@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06F796583A1
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:49:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D450E658304
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235102AbiL1Qt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:49:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40224 "EHLO
+        id S233287AbiL1QoD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:44:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235062AbiL1QtG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:49:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE3FC1BE94
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:44:26 -0800 (PST)
+        with ESMTP id S234993AbiL1Qnk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 352B8101FB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:38:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B04261562
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:44:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 931E4C433D2;
-        Wed, 28 Dec 2022 16:44:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C9D9AB81707
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:38:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2035DC433D2;
+        Wed, 28 Dec 2022 16:38:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245865;
-        bh=n+UO3JEjJNtE6E7bl5JwaGCjw+WpyVJcpCgHb+zK70g=;
+        s=korg; t=1672245484;
+        bh=EG+e9gZtWBtSxd40PAuJyMF+fz0eBwH1KLEtrXDgJ8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CofhFlf9s+80h2UB7KVjTKqc6m+D9jj5A/Hk2TAXHzyXNicw6yLogfUGLGOEMeXuo
-         67H30su6pj+mG31SCXKnKfEjzZ0iUguaPRqo2WKfC5PQuHv0mwFHno98q0TNgRoNtV
-         HSXWaGQ3LQVHHH3sp9fTLneUqta5usbNO44BCKW8=
+        b=cm5FeJugZriOyz/Eq7cNxeCsD2rlsHAsK981wlX+OZgjVD+vJPmRVaVnAWqd57SUc
+         Gsl6pcwkZoc+mog9NTkYxMykhEsNdrUKyMeZkL13qwabJiDCIfSPPt6KV1Py58VfE4
+         FYy86ZQw4oyATnMnm0YyX8zTCmaR+It2TKmeyqok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0938/1146] arm64: make is_ttbrX_addr() noinstr-safe
-Date:   Wed, 28 Dec 2022 15:41:17 +0100
-Message-Id: <20221228144355.783093949@linuxfoundation.org>
+        patches@lists.linux.dev, Liu Shixin <liushixin2@huawei.com>,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0890/1073] binfmt_misc: fix shift-out-of-bounds in check_special_flags
+Date:   Wed, 28 Dec 2022 15:41:18 +0100
+Message-Id: <20221228144352.202048329@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Liu Shixin <liushixin2@huawei.com>
 
-[ Upstream commit d8c1d798a2e5091128c391c6dadcc9be334af3f5 ]
+[ Upstream commit 6a46bf558803dd2b959ca7435a5c143efe837217 ]
 
-We use is_ttbr0_addr() in noinstr code, but as it's only marked as
-inline, it's theoretically possible for the compiler to place it
-out-of-line and instrument it, which would be problematic.
+UBSAN reported a shift-out-of-bounds warning:
 
-Mark is_ttbr0_addr() as __always_inline such that that can safely be
-used from noinstr code. For consistency, do the same to is_ttbr1_addr().
-Note that while is_ttbr1_addr() calls arch_kasan_reset_tag(), this is a
-macro (and its callees are either macros or __always_inline), so there
-is not a risk of transient instrumentation.
+ left shift of 1 by 31 places cannot be represented in type 'int'
+ Call Trace:
+  <TASK>
+  __dump_stack lib/dump_stack.c:88 [inline]
+  dump_stack_lvl+0x8d/0xcf lib/dump_stack.c:106
+  ubsan_epilogue+0xa/0x44 lib/ubsan.c:151
+  __ubsan_handle_shift_out_of_bounds+0x1e7/0x208 lib/ubsan.c:322
+  check_special_flags fs/binfmt_misc.c:241 [inline]
+  create_entry fs/binfmt_misc.c:456 [inline]
+  bm_register_write+0x9d3/0xa20 fs/binfmt_misc.c:654
+  vfs_write+0x11e/0x580 fs/read_write.c:582
+  ksys_write+0xcf/0x120 fs/read_write.c:637
+  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+  do_syscall_64+0x34/0x80 arch/x86/entry/common.c:80
+  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ RIP: 0033:0x4194e1
 
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20221114144042.3001140-1-mark.rutland@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Since the type of Node's flags is unsigned long, we should define these
+macros with same type too.
+
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221102025123.1117184-1-liushixin2@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/processor.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/binfmt_misc.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/include/asm/processor.h b/arch/arm64/include/asm/processor.h
-index 445aa3af3b76..400f8956328b 100644
---- a/arch/arm64/include/asm/processor.h
-+++ b/arch/arm64/include/asm/processor.h
-@@ -308,13 +308,13 @@ static inline void compat_start_thread(struct pt_regs *regs, unsigned long pc,
- }
- #endif
+diff --git a/fs/binfmt_misc.c b/fs/binfmt_misc.c
+index e1eae7ea823a..bb202ad369d5 100644
+--- a/fs/binfmt_misc.c
++++ b/fs/binfmt_misc.c
+@@ -44,10 +44,10 @@ static LIST_HEAD(entries);
+ static int enabled = 1;
  
--static inline bool is_ttbr0_addr(unsigned long addr)
-+static __always_inline bool is_ttbr0_addr(unsigned long addr)
- {
- 	/* entry assembly clears tags for TTBR0 addrs */
- 	return addr < TASK_SIZE;
- }
+ enum {Enabled, Magic};
+-#define MISC_FMT_PRESERVE_ARGV0 (1 << 31)
+-#define MISC_FMT_OPEN_BINARY (1 << 30)
+-#define MISC_FMT_CREDENTIALS (1 << 29)
+-#define MISC_FMT_OPEN_FILE (1 << 28)
++#define MISC_FMT_PRESERVE_ARGV0 (1UL << 31)
++#define MISC_FMT_OPEN_BINARY (1UL << 30)
++#define MISC_FMT_CREDENTIALS (1UL << 29)
++#define MISC_FMT_OPEN_FILE (1UL << 28)
  
--static inline bool is_ttbr1_addr(unsigned long addr)
-+static __always_inline bool is_ttbr1_addr(unsigned long addr)
- {
- 	/* TTBR1 addresses may have a tag if KASAN_SW_TAGS is in use */
- 	return arch_kasan_reset_tag(addr) >= PAGE_OFFSET;
+ typedef struct {
+ 	struct list_head list;
 -- 
 2.35.1
 
