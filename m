@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CD43657C57
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:31:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8322B65830F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233831AbiL1Pbv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:31:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48934 "EHLO
+        id S235011AbiL1QoR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:44:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233829AbiL1Pbb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:31:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5084915FE3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:31:29 -0800 (PST)
+        with ESMTP id S234876AbiL1Qnt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9825140AB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:38:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 940996155A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:31:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A232EC433F0;
-        Wed, 28 Dec 2022 15:31:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8452061578
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:38:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94C89C433D2;
+        Wed, 28 Dec 2022 16:38:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241488;
-        bh=NMLplV8+tik5i9bld9wYG10i8yTe1yADLHxiNGjEeRs=;
+        s=korg; t=1672245517;
+        bh=dRCMaNydInFQ/tG2XTzF+1HqvwiZ6fy+vxvxIUa9J6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q0DQa+41ydtckS5S2gdkF7UkcEUiTSjchdYbzT3mj/4/bwO4UEC0J1dVMs137lTpW
-         bz2cxwdiSTLYRcSVzwVPadMjKV5P7SCY6oKyxou9R9+CAwaXz/LlcbnMO/DrSIoNbe
-         892EiVhBkhQ48Jy5iKXS6xv9HFtDj0galhBS/6zQ=
+        b=JbHV3V9fbDWHnTcBSvGdX/BHc9390nwG6XjsJJhW22OeIIOuUQzuP4FW69mZZO4vd
+         f/51GCL3ZsqJrDe/OCJqOQdEJhAnU8COfoFY3C+ZMCyxtYJk3/JjqcAMLM9Yv1hp6k
+         IfBvHYD7qNLW3ili+/LXM1QpROzSE2kA6cKkw9oI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 488/731] staging: rtl8192e: Fix potential use-after-free in rtllib_rx_Monitor()
+Subject: [PATCH 6.1 0856/1146] powerpc: dts: turris1x.dts: Add channel labels for temperature sensor
 Date:   Wed, 28 Dec 2022 15:39:55 +0100
-Message-Id: <20221228144310.693548066@linuxfoundation.org>
+Message-Id: <20221228144353.405571033@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,38 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit d30f4436f364b4ad915ca2c09be07cd0f93ceb44 ]
+[ Upstream commit 67bbb62f61e810734da0a1577a9802ddaed24140 ]
 
-The skb is delivered to netif_rx() in rtllib_monitor_rx(), which may free it,
-after calling this, dereferencing skb may trigger use-after-free.
-Found by Smatch.
+Channel 0 of SA56004ED chip refers to internal SA56004ED chip sensor (chip
+itself is located on the board) and channel 1 of SA56004ED chip refers to
+external sensor which is connected to temperature diode of the P2020 CPU.
 
-Fixes: 94a799425eee ("From: wlanfae <wlanfae@realtek.com> [PATCH 1/8] rtl8192e: Import new version of driver from realtek")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20221123081253.22296-1-yuehaibing@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 54c15ec3b738 ("powerpc: dts: Add DTS file for CZ.NIC Turris 1.x routers")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220930123901.10251-1-pali@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8192e/rtllib_rx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/boot/dts/turris1x.dts | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/staging/rtl8192e/rtllib_rx.c b/drivers/staging/rtl8192e/rtllib_rx.c
-index e3d0a361d370..98e90670560b 100644
---- a/drivers/staging/rtl8192e/rtllib_rx.c
-+++ b/drivers/staging/rtl8192e/rtllib_rx.c
-@@ -1489,9 +1489,9 @@ static int rtllib_rx_Monitor(struct rtllib_device *ieee, struct sk_buff *skb,
- 		hdrlen += 4;
- 	}
+diff --git a/arch/powerpc/boot/dts/turris1x.dts b/arch/powerpc/boot/dts/turris1x.dts
+index 045af668e928..e9cda34a140e 100644
+--- a/arch/powerpc/boot/dts/turris1x.dts
++++ b/arch/powerpc/boot/dts/turris1x.dts
+@@ -69,6 +69,20 @@ temperature-sensor@4c {
+ 				interrupt-parent = <&gpio>;
+ 				interrupts = <12 IRQ_TYPE_LEVEL_LOW>, /* GPIO12 - ALERT pin */
+ 					     <13 IRQ_TYPE_LEVEL_LOW>; /* GPIO13 - CRIT pin */
++				#address-cells = <1>;
++				#size-cells = <0>;
++
++				/* Local temperature sensor (SA56004ED internal) */
++				channel@0 {
++					reg = <0>;
++					label = "board";
++				};
++
++				/* Remote temperature sensor (D+/D- connected to P2020 CPU Temperature Diode) */
++				channel@1 {
++					reg = <1>;
++					label = "cpu";
++				};
+ 			};
  
--	rtllib_monitor_rx(ieee, skb, rx_stats, hdrlen);
- 	ieee->stats.rx_packets++;
- 	ieee->stats.rx_bytes += skb->len;
-+	rtllib_monitor_rx(ieee, skb, rx_stats, hdrlen);
- 
- 	return 1;
- }
+ 			/* DDR3 SPD/EEPROM */
 -- 
 2.35.1
 
