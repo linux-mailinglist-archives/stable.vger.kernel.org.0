@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D89906583D7
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:52:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DC3F657E4F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:52:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234879AbiL1Qwv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:52:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45372 "EHLO
+        id S233727AbiL1Pwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:52:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235195AbiL1Qw1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:52:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF0D71B787
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:46:48 -0800 (PST)
+        with ESMTP id S233678AbiL1Pwf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:52:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B169B15F29
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:52:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C4956157C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:46:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5822FC433D2;
-        Wed, 28 Dec 2022 16:46:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6CBE7B81730
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:52:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C376DC43392;
+        Wed, 28 Dec 2022 15:52:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246007;
-        bh=2z+F95vK9xmILr9GtTPCrdh3zuzMsw/9bsWbAfXOKuc=;
+        s=korg; t=1672242752;
+        bh=HvhBXNttaTTCxIN6/c+CJYTilJvv/u7LgQqCqzGcXGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H1GM6PospJa2C7ZBTXKZFUPEemTIH8eHNJWiEQwUfDCr/g+TE2VSQ3tGFtzv2E4B8
-         3M4Y7WUk9GMdUcJhRyh4WpQnzn6cBr+yZoEiotTTH1aVF3dtmc+oppTz79C991ng9K
-         nR9VQUtILjS97JNAPoK18tg91GHd5xHOXYtRkg+8=
+        b=BSdmhy/Uni2kjbL1RzClDcrFHb0wDhJ4/DqPUlhDgdZ6INa2uoe5PoN+wgTqmOTjm
+         visYMd7gmhh/66AIsrdpmpij2z0quN6ZzR06CBIjNZte0JL7kgZUGf+BdXiqeXODRH
+         tvKpenGbC3tKXqvM+/5C5NyXy0sgdHSBpJ/kAjC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ye Bin <yebin10@huawei.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0959/1073] blk-mq: fix possible memleak when register hctx failed
-Date:   Wed, 28 Dec 2022 15:42:27 +0100
-Message-Id: <20221228144354.085038815@linuxfoundation.org>
+Subject: [PATCH 5.15 641/731] hamradio: baycom_epp: Fix return type of baycom_send_packet()
+Date:   Wed, 28 Dec 2022 15:42:28 +0100
+Message-Id: <20221228144315.088354209@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,83 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 4b7a21c57b14fbcd0e1729150189e5933f5088e9 ]
+[ Upstream commit c5733e5b15d91ab679646ec3149e192996a27d5d ]
 
-There's issue as follows when do fault injection test:
-unreferenced object 0xffff888132a9f400 (size 512):
-  comm "insmod", pid 308021, jiffies 4324277909 (age 509.733s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 08 f4 a9 32 81 88 ff ff  ...........2....
-    08 f4 a9 32 81 88 ff ff 00 00 00 00 00 00 00 00  ...2............
-  backtrace:
-    [<00000000e8952bb4>] kmalloc_node_trace+0x22/0xa0
-    [<00000000f9980e0f>] blk_mq_alloc_and_init_hctx+0x3f1/0x7e0
-    [<000000002e719efa>] blk_mq_realloc_hw_ctxs+0x1e6/0x230
-    [<000000004f1fda40>] blk_mq_init_allocated_queue+0x27e/0x910
-    [<00000000287123ec>] __blk_mq_alloc_disk+0x67/0xf0
-    [<00000000a2a34657>] 0xffffffffa2ad310f
-    [<00000000b173f718>] 0xffffffffa2af824a
-    [<0000000095a1dabb>] do_one_initcall+0x87/0x2a0
-    [<00000000f32fdf93>] do_init_module+0xdf/0x320
-    [<00000000cbe8541e>] load_module+0x3006/0x3390
-    [<0000000069ed1bdb>] __do_sys_finit_module+0x113/0x1b0
-    [<00000000a1a29ae8>] do_syscall_64+0x35/0x80
-    [<000000009cd878b0>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed. A
+proposed warning in clang aims to catch these at compile time, which
+reveals:
 
-Fault injection context as follows:
- kobject_add
- blk_mq_register_hctx
- blk_mq_sysfs_register
- blk_register_queue
- device_add_disk
- null_add_dev.part.0 [null_blk]
+  drivers/net/hamradio/baycom_epp.c:1119:25: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .ndo_start_xmit      = baycom_send_packet,
+                                ^~~~~~~~~~~~~~~~~~
+  1 error generated.
 
-As 'blk_mq_register_hctx' may already add some objects when failed halfway,
-but there isn't do fallback, caller don't know which objects add failed.
-To solve above issue just do fallback when add objects failed halfway in
-'blk_mq_register_hctx'.
+->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
+'netdev_tx_t', not 'int'. Adjust the return type of baycom_send_packet()
+to match the prototype's to resolve the warning and CFI failure.
 
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20221117022940.873959-1-yebin@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1750
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221102160610.1186145-1-nathan@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq-sysfs.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/net/hamradio/baycom_epp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/blk-mq-sysfs.c b/block/blk-mq-sysfs.c
-index 93997d297d42..4515288fbe35 100644
---- a/block/blk-mq-sysfs.c
-+++ b/block/blk-mq-sysfs.c
-@@ -185,7 +185,7 @@ static int blk_mq_register_hctx(struct blk_mq_hw_ctx *hctx)
+diff --git a/drivers/net/hamradio/baycom_epp.c b/drivers/net/hamradio/baycom_epp.c
+index 6b6f28d5b8d5..f9d03f7b9101 100644
+--- a/drivers/net/hamradio/baycom_epp.c
++++ b/drivers/net/hamradio/baycom_epp.c
+@@ -758,7 +758,7 @@ static void epp_bh(struct work_struct *work)
+  * ===================== network driver interface =========================
+  */
+ 
+-static int baycom_send_packet(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t baycom_send_packet(struct sk_buff *skb, struct net_device *dev)
  {
- 	struct request_queue *q = hctx->queue;
- 	struct blk_mq_ctx *ctx;
--	int i, ret;
-+	int i, j, ret;
- 
- 	if (!hctx->nr_ctx)
- 		return 0;
-@@ -197,9 +197,16 @@ static int blk_mq_register_hctx(struct blk_mq_hw_ctx *hctx)
- 	hctx_for_each_ctx(hctx, ctx, i) {
- 		ret = kobject_add(&ctx->kobj, &hctx->kobj, "cpu%u", ctx->cpu);
- 		if (ret)
--			break;
-+			goto out;
- 	}
- 
-+	return 0;
-+out:
-+	hctx_for_each_ctx(hctx, ctx, j) {
-+		if (j < i)
-+			kobject_del(&ctx->kobj);
-+	}
-+	kobject_del(&hctx->kobj);
- 	return ret;
- }
+ 	struct baycom_state *bc = netdev_priv(dev);
  
 -- 
 2.35.1
