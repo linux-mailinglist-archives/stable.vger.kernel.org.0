@@ -2,47 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C1E3658324
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFCA96583A8
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:49:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234994AbiL1Qoa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:44:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37008 "EHLO
+        id S234992AbiL1Qtq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:49:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235005AbiL1QoH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:07 -0500
+        with ESMTP id S235043AbiL1QtV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:49:21 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 394551C131
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:39:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E4491EC6D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:44:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C7B6A61562
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:39:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB6CBC433D2;
-        Wed, 28 Dec 2022 16:39:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF8D460D41
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:44:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E756C43396;
+        Wed, 28 Dec 2022 16:44:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245548;
-        bh=P0AAa5vLK8QMUrH2gel01TSSKSZDDVa7R1ltx0gUzGQ=;
+        s=korg; t=1672245877;
+        bh=QXFJjwL5QHZLB/hlgSMPbbYclmXMVAq2cPuMoGw/+WY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j3aNGXxJwT001hM5UzJrQerM70XXwgv4U4llb+uphr7E93O8QbMGVkGamXkOUM2hP
-         Wbj9A7jFF58y78ToE6aQWfSa9frEtS9IbvC0PEHUAm8/WtVwL6lBWbzCILA1yDOUQM
-         w8ukHd1urWuckQw3aukyivCaqS5+vo9T2Hfn7+ig=
+        b=HheHysnxy6tQYGLhkcYPUoxWlvBmrhrcQw2pctUIOkazDv5lUKvGNJYKZBN48MN94
+         FNWqxSkJYIciVrvmeEQaYYWf4PZ+LlPqP8tOObsYpZ9N9mc8FoJ0mQ8gR81Y/KLX+p
+         diYqtHE7sDY55l84n7gYT/lmTsjf3mzHUo6uWUbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Luca Weiss <luca.weiss@fairphone.com>,
-        Bjorn Andersson <andersson@kernel.org>,
+        "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>,
+        Fabio A M Martins <fabiomirmar@gmail.com>,
+        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0891/1073] arm64: dts: qcom: sm6350: Add apps_smmu with streamID to SDHCI 1/2 nodes
+Subject: [PATCH 6.1 0940/1146] video: hyperv_fb: Avoid taking busy spinlock on panic path
 Date:   Wed, 28 Dec 2022 15:41:19 +0100
-Message-Id: <20221228144352.230885030@linuxfoundation.org>
+Message-Id: <20221228144355.843137160@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,51 +62,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Guilherme G. Piccoli <gpiccoli@igalia.com>
 
-[ Upstream commit 7372b944a6ba5ac86628eaacc89ed4f103435cb9 ]
+[ Upstream commit 1d044ca035dc22df0d3b39e56f2881071d9118bd ]
 
-When enabling the APPS SMMU the mainline driver reconfigures the SMMU
-from its bootloader configuration, losing the stream mapping for (among
-which) the SDHCI hardware and breaking its ADMA feature.  This feature
-can be disabled with:
+The Hyper-V framebuffer code registers a panic notifier in order
+to try updating its fbdev if the kernel crashed. The notifier
+callback is straightforward, but it calls the vmbus_sendpacket()
+routine eventually, and such function takes a spinlock for the
+ring buffer operations.
 
-    sdhci.debug_quirks=0x40
+Panic path runs in atomic context, with local interrupts and
+preemption disabled, and all secondary CPUs shutdown. That said,
+taking a spinlock might cause a lockup if a secondary CPU was
+disabled with such lock taken. Fix it here by checking if the
+ring buffer spinlock is busy on Hyper-V framebuffer panic notifier;
+if so, bail-out avoiding the potential lockup scenario.
 
-But it is of course desired to have this feature enabled and working
-through the SMMU.
-
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-Reviewed-by: Luca Weiss <luca.weiss@fairphone.com>
-Tested-by: Luca Weiss <luca.weiss@fairphone.com> # sm7225-fairphone-fp4
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221030073232.22726-11-marijn.suijten@somainline.org
+Cc: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
+Cc: Dexuan Cui <decui@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: Michael Kelley <mikelley@microsoft.com>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>
+Cc: Tianyu Lan <Tianyu.Lan@microsoft.com>
+Cc: Wei Liu <wei.liu@kernel.org>
+Tested-by: Fabio A M Martins <fabiomirmar@gmail.com>
+Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/20220819221731.480795-10-gpiccoli@igalia.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sm6350.dtsi | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hv/ring_buffer.c        | 13 +++++++++++++
+ drivers/video/fbdev/hyperv_fb.c |  8 +++++++-
+ include/linux/hyperv.h          |  2 ++
+ 3 files changed, 22 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm6350.dtsi b/arch/arm64/boot/dts/qcom/sm6350.dtsi
-index ec64b6a12e20..4ec19f8ba928 100644
---- a/arch/arm64/boot/dts/qcom/sm6350.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm6350.dtsi
-@@ -482,6 +482,7 @@ sdhc_1: mmc@7c4000 {
- 			interrupts = <GIC_SPI 641 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 644 IRQ_TYPE_LEVEL_HIGH>;
- 			interrupt-names = "hc_irq", "pwr_irq";
-+			iommus = <&apps_smmu 0x60 0x0>;
+diff --git a/drivers/hv/ring_buffer.c b/drivers/hv/ring_buffer.c
+index 59a4aa86d1f3..c6692fd5ab15 100644
+--- a/drivers/hv/ring_buffer.c
++++ b/drivers/hv/ring_buffer.c
+@@ -280,6 +280,19 @@ void hv_ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info)
+ 	ring_info->pkt_buffer_size = 0;
+ }
  
- 			clocks = <&gcc GCC_SDCC1_AHB_CLK>,
- 				 <&gcc GCC_SDCC1_APPS_CLK>,
-@@ -928,6 +929,7 @@ sdhc_2: mmc@8804000 {
- 			interrupts = <GIC_SPI 204 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 222 IRQ_TYPE_LEVEL_HIGH>;
- 			interrupt-names = "hc_irq", "pwr_irq";
-+			iommus = <&apps_smmu 0x560 0x0>;
++/*
++ * Check if the ring buffer spinlock is available to take or not; used on
++ * atomic contexts, like panic path (see the Hyper-V framebuffer driver).
++ */
++
++bool hv_ringbuffer_spinlock_busy(struct vmbus_channel *channel)
++{
++	struct hv_ring_buffer_info *rinfo = &channel->outbound;
++
++	return spin_is_locked(&rinfo->ring_lock);
++}
++EXPORT_SYMBOL_GPL(hv_ringbuffer_spinlock_busy);
++
+ /* Write to the ring buffer. */
+ int hv_ringbuffer_write(struct vmbus_channel *channel,
+ 			const struct kvec *kv_list, u32 kv_count,
+diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
+index 072ce07ba9e0..4ff25dfc865d 100644
+--- a/drivers/video/fbdev/hyperv_fb.c
++++ b/drivers/video/fbdev/hyperv_fb.c
+@@ -780,12 +780,18 @@ static void hvfb_ondemand_refresh_throttle(struct hvfb_par *par,
+ static int hvfb_on_panic(struct notifier_block *nb,
+ 			 unsigned long e, void *p)
+ {
++	struct hv_device *hdev;
+ 	struct hvfb_par *par;
+ 	struct fb_info *info;
  
- 			clocks = <&gcc GCC_SDCC2_AHB_CLK>,
- 				 <&gcc GCC_SDCC2_APPS_CLK>,
+ 	par = container_of(nb, struct hvfb_par, hvfb_panic_nb);
+-	par->synchronous_fb = true;
+ 	info = par->info;
++	hdev = device_to_hv_device(info->device);
++
++	if (hv_ringbuffer_spinlock_busy(hdev->channel))
++		return NOTIFY_DONE;
++
++	par->synchronous_fb = true;
+ 	if (par->need_docopy)
+ 		hvfb_docopy(par, 0, dio_fb_size);
+ 	synthvid_update(info, 0, 0, INT_MAX, INT_MAX);
+diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
+index 3b42264333ef..646f1da9f27e 100644
+--- a/include/linux/hyperv.h
++++ b/include/linux/hyperv.h
+@@ -1341,6 +1341,8 @@ struct hv_ring_buffer_debug_info {
+ int hv_ringbuffer_get_debuginfo(struct hv_ring_buffer_info *ring_info,
+ 				struct hv_ring_buffer_debug_info *debug_info);
+ 
++bool hv_ringbuffer_spinlock_busy(struct vmbus_channel *channel);
++
+ /* Vmbus interface */
+ #define vmbus_driver_register(driver)	\
+ 	__vmbus_driver_register(driver, THIS_MODULE, KBUILD_MODNAME)
 -- 
 2.35.1
 
