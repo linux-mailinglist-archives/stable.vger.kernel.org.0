@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B35CB6580A3
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:19:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29876657FE2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:11:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234584AbiL1QTI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:19:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36734 "EHLO
+        id S234483AbiL1QLk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:11:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234630AbiL1QSk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:18:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E323419C02
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:17:16 -0800 (PST)
+        with ESMTP id S234525AbiL1QLL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:11:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 935CD1AD87
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:09:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9DD4BB81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:17:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CA94C433D2;
-        Wed, 28 Dec 2022 16:17:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DEE8061577
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:09:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F14E0C433D2;
+        Wed, 28 Dec 2022 16:09:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244234;
-        bh=WWPsSeepMj9dU7XEy/RR7i+5U38bMl9c8y4cnteUs9U=;
+        s=korg; t=1672243763;
+        bh=cIG+b7oz0ag4bmz9oA82CvOdSzxhBnQsHmyAQz7rd20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aSMg/Nmzmah62ysEC2Sj4EnZLQnr+1Uw0keuqzIhIwuQ5BxDwKxrrhCFgvka4QfHw
-         f2QbzwPTuMhUWT0HLFQFcMIQyrcB4veSLmGDo3e9o9qKz3v9d4JOCEFThqqCXW2VLD
-         /ORVu+nR5QJcXWBXLPX0svKjM5blSmwkAsHQEH9I=
+        b=xvcvamzD11do94OacSv5GZo7lbGQ+sWbT8snsTjaWjovrt3Fdp0vmGEqrjdtgFaai
+         H1I72k86bnRCMv/kHafOzo8S/I9mnBb6V2NKihRtS+Jc1PIjwXfmxRCO/FXm5vWmDz
+         IItOcZdw3Km1kvE6TQEPUzGVj+tx59OapPQ9PcYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+bc05445bc14148d51915@syzkaller.appspotmail.com,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        patches@lists.linux.dev, Kamal Heib <kamalheib1@gmail.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0633/1146] padata: Always leave BHs disabled when running ->parallel()
+Subject: [PATCH 6.0 0584/1073] RDMA/irdma: Report the correct link speed
 Date:   Wed, 28 Dec 2022 15:36:12 +0100
-Message-Id: <20221228144347.359775527@linuxfoundation.org>
+Message-Id: <20221228144343.909532533@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,63 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
+From: Shiraz Saleem <shiraz.saleem@intel.com>
 
-[ Upstream commit 34c3a47d20ae55b3600fed733bf96eafe9c500d5 ]
+[ Upstream commit 4eace75e0853273755b878ffa9cce6de84df975a ]
 
-A deadlock can happen when an overloaded system runs ->parallel() in the
-context of the current task:
+The active link speed is currently hard-coded in irdma_query_port due
+to which the port rate in ibstatus does reflect the active link speed.
 
-    padata_do_parallel
-      ->parallel()
-        pcrypt_aead_enc/dec
-          padata_do_serial
-            spin_lock(&reorder->lock) // BHs still enabled
-              <interrupt>
-                ...
-                  __do_softirq
-                    ...
-                      padata_do_serial
-                        spin_lock(&reorder->lock)
+Call ib_get_eth_speed in irdma_query_port to get the active link speed.
 
-It's a bug for BHs to be on in _do_serial as Steffen points out, so
-ensure they're off in the "current task" case like they are in
-padata_parallel_worker to avoid this situation.
-
-Reported-by: syzbot+bc05445bc14148d51915@syzkaller.appspotmail.com
-Fixes: 4611ce224688 ("padata: allocate work structures for parallel jobs from a pool")
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Acked-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: b48c24c2d710 ("RDMA/irdma: Implement device supported verb APIs")
+Reported-by: Kamal Heib <kamalheib1@gmail.com>
+Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Link: https://lore.kernel.org/r/20221104234957.1135-1-shiraz.saleem@intel.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/padata.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/infiniband/hw/irdma/verbs.c | 35 +++--------------------------
+ 1 file changed, 3 insertions(+), 32 deletions(-)
 
-diff --git a/kernel/padata.c b/kernel/padata.c
-index e5819bb8bd1d..97f51e0c1776 100644
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -207,14 +207,16 @@ int padata_do_parallel(struct padata_shell *ps,
- 	pw = padata_work_alloc();
- 	spin_unlock(&padata_works_lock);
- 
-+	if (!pw) {
-+		/* Maximum works limit exceeded, run in the current task. */
-+		padata->parallel(padata);
-+	}
-+
- 	rcu_read_unlock_bh();
- 
- 	if (pw) {
- 		padata_work_init(pw, padata_parallel_worker, padata, 0);
- 		queue_work(pinst->parallel_wq, &pw->pw_work);
--	} else {
--		/* Maximum works limit exceeded, run in the current task. */
--		padata->parallel(padata);
- 	}
- 
+diff --git a/drivers/infiniband/hw/irdma/verbs.c b/drivers/infiniband/hw/irdma/verbs.c
+index a22afbb25bc5..434241789f12 100644
+--- a/drivers/infiniband/hw/irdma/verbs.c
++++ b/drivers/infiniband/hw/irdma/verbs.c
+@@ -63,36 +63,6 @@ static int irdma_query_device(struct ib_device *ibdev,
  	return 0;
+ }
+ 
+-/**
+- * irdma_get_eth_speed_and_width - Get IB port speed and width from netdev speed
+- * @link_speed: netdev phy link speed
+- * @active_speed: IB port speed
+- * @active_width: IB port width
+- */
+-static void irdma_get_eth_speed_and_width(u32 link_speed, u16 *active_speed,
+-					  u8 *active_width)
+-{
+-	if (link_speed <= SPEED_1000) {
+-		*active_width = IB_WIDTH_1X;
+-		*active_speed = IB_SPEED_SDR;
+-	} else if (link_speed <= SPEED_10000) {
+-		*active_width = IB_WIDTH_1X;
+-		*active_speed = IB_SPEED_FDR10;
+-	} else if (link_speed <= SPEED_20000) {
+-		*active_width = IB_WIDTH_4X;
+-		*active_speed = IB_SPEED_DDR;
+-	} else if (link_speed <= SPEED_25000) {
+-		*active_width = IB_WIDTH_1X;
+-		*active_speed = IB_SPEED_EDR;
+-	} else if (link_speed <= SPEED_40000) {
+-		*active_width = IB_WIDTH_4X;
+-		*active_speed = IB_SPEED_FDR10;
+-	} else {
+-		*active_width = IB_WIDTH_4X;
+-		*active_speed = IB_SPEED_EDR;
+-	}
+-}
+-
+ /**
+  * irdma_query_port - get port attributes
+  * @ibdev: device pointer from stack
+@@ -120,8 +90,9 @@ static int irdma_query_port(struct ib_device *ibdev, u32 port,
+ 		props->state = IB_PORT_DOWN;
+ 		props->phys_state = IB_PORT_PHYS_STATE_DISABLED;
+ 	}
+-	irdma_get_eth_speed_and_width(SPEED_100000, &props->active_speed,
+-				      &props->active_width);
++
++	ib_get_eth_speed(ibdev, port, &props->active_speed,
++			 &props->active_width);
+ 
+ 	if (rdma_protocol_roce(ibdev, 1)) {
+ 		props->gid_tbl_len = 32;
 -- 
 2.35.1
 
