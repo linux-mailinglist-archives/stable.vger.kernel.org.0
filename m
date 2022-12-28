@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 288D56579B1
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:03:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADC7E657ACC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:15:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233473AbiL1PDu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:03:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51500 "EHLO
+        id S233083AbiL1PPL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:15:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233462AbiL1PDt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:03:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28F77120B4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:03:48 -0800 (PST)
+        with ESMTP id S233132AbiL1PO6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:14:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16B6413F30
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:14:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B08D3B816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:03:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2148AC433D2;
-        Wed, 28 Dec 2022 15:03:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A7FB66155C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:14:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB4B8C433D2;
+        Wed, 28 Dec 2022 15:14:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239825;
-        bh=fMD8Sb1Pj7jtG5iZx6XGc5u0kRMcDMqqu1MlTv2aI0c=;
+        s=korg; t=1672240497;
+        bh=L9uaAJVPkUxFgkF0AHkAQx6gIJFm08x9VflOILVfPm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wX8cI7pFCNYWkeZUzx/YLSWjNkC8+8bd8inEtplpfK6ReB+G6qkDXwDJkxHJbyIYh
-         AJAFHhnRj9zCcDAwju/wvtqcZ6+xUP1mxvF2Tw9wTQY7+AxUpVFpAv7peGvmpnW98o
-         m1reXybegvA+fmglThj11gaMnVco4YFhrOSgTo08=
+        b=0CejVpCoHn2IROoxZ+1HrAAEYR8oKSIpHvX9zAdJzXF9AYcIZW3FU6ryAylqG92vi
+         3LmvpbrQgq2TgWwTXg98cLMgjgZilsdzK/HVxb9oqHfMw8FD5Nnduzcnwte+tQqzZO
+         IEhfYFjV0UVKuzj7WmcLqjCYJttAXVRs5ZNCBpfQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+ab17848fe269b573eb71@syzkaller.appspotmail.com,
-        Ayushman Dutta <ayudutta@amazon.com>,
-        Kees Cook <keescook@chromium.org>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        patches@lists.linux.dev, Sudeep Holla <sudeep.holla@arm.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0083/1073] seccomp: Move copy_seccomp() to no failure path.
+Subject: [PATCH 6.1 0132/1146] cpufreq: qcom-hw: Fix the frequency returned by cpufreq_driver->get()
 Date:   Wed, 28 Dec 2022 15:27:51 +0100
-Message-Id: <20221228144330.317826338@linuxfoundation.org>
+Message-Id: <20221228144333.736941252@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,177 +54,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-[ Upstream commit a1140cb215fa13dcec06d12ba0c3ee105633b7c4 ]
+[ Upstream commit c72cf0cb1d77f6b1b58c334dcc3d09fa13111c4c ]
 
-Our syzbot instance reported memory leaks in do_seccomp() [0], similar
-to the report [1].  It shows that we miss freeing struct seccomp_filter
-and some objects included in it.
+The cpufreq_driver->get() callback is supposed to return the current
+frequency of the CPU and not the one requested by the CPUFreq core.
+Fix it by returning the frequency that gets supplied to the CPU after
+the DCVS operation of EPSS/OSM.
 
-We can reproduce the issue with the program below [2] which calls one
-seccomp() and two clone() syscalls.
-
-The first clone()d child exits earlier than its parent and sends a
-signal to kill it during the second clone(), more precisely before the
-fatal_signal_pending() test in copy_process().  When the parent receives
-the signal, it has to destroy the embryonic process and return -EINTR to
-user space.  In the failure path, we have to call seccomp_filter_release()
-to decrement the filter's refcount.
-
-Initially, we called it in free_task() called from the failure path, but
-the commit 3a15fb6ed92c ("seccomp: release filter after task is fully
-dead") moved it to release_task() to notify user space as early as possible
-that the filter is no longer used.
-
-To keep the change and current seccomp refcount semantics, let's move
-copy_seccomp() just after the signal check and add a WARN_ON_ONCE() in
-free_task() for future debugging.
-
-[0]:
-unreferenced object 0xffff8880063add00 (size 256):
-  comm "repro_seccomp", pid 230, jiffies 4294687090 (age 9.914s)
-  hex dump (first 32 bytes):
-    01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00  ................
-    ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................
-  backtrace:
-    do_seccomp (./include/linux/slab.h:600 ./include/linux/slab.h:733 kernel/seccomp.c:666 kernel/seccomp.c:708 kernel/seccomp.c:1871 kernel/seccomp.c:1991)
-    do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
-    entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
-unreferenced object 0xffffc90000035000 (size 4096):
-  comm "repro_seccomp", pid 230, jiffies 4294687090 (age 9.915s)
-  hex dump (first 32 bytes):
-    01 00 00 00 00 00 00 00 00 00 00 00 05 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    __vmalloc_node_range (mm/vmalloc.c:3226)
-    __vmalloc_node (mm/vmalloc.c:3261 (discriminator 4))
-    bpf_prog_alloc_no_stats (kernel/bpf/core.c:91)
-    bpf_prog_alloc (kernel/bpf/core.c:129)
-    bpf_prog_create_from_user (net/core/filter.c:1414)
-    do_seccomp (kernel/seccomp.c:671 kernel/seccomp.c:708 kernel/seccomp.c:1871 kernel/seccomp.c:1991)
-    do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
-    entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
-unreferenced object 0xffff888003fa1000 (size 1024):
-  comm "repro_seccomp", pid 230, jiffies 4294687090 (age 9.915s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    bpf_prog_alloc_no_stats (./include/linux/slab.h:600 ./include/linux/slab.h:733 kernel/bpf/core.c:95)
-    bpf_prog_alloc (kernel/bpf/core.c:129)
-    bpf_prog_create_from_user (net/core/filter.c:1414)
-    do_seccomp (kernel/seccomp.c:671 kernel/seccomp.c:708 kernel/seccomp.c:1871 kernel/seccomp.c:1991)
-    do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
-    entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
-unreferenced object 0xffff888006360240 (size 16):
-  comm "repro_seccomp", pid 230, jiffies 4294687090 (age 9.915s)
-  hex dump (first 16 bytes):
-    01 00 37 00 76 65 72 6c e0 83 01 06 80 88 ff ff  ..7.verl........
-  backtrace:
-    bpf_prog_store_orig_filter (net/core/filter.c:1137)
-    bpf_prog_create_from_user (net/core/filter.c:1428)
-    do_seccomp (kernel/seccomp.c:671 kernel/seccomp.c:708 kernel/seccomp.c:1871 kernel/seccomp.c:1991)
-    do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
-    entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
-unreferenced object 0xffff8880060183e0 (size 8):
-  comm "repro_seccomp", pid 230, jiffies 4294687090 (age 9.915s)
-  hex dump (first 8 bytes):
-    06 00 00 00 00 00 ff 7f                          ........
-  backtrace:
-    kmemdup (mm/util.c:129)
-    bpf_prog_store_orig_filter (net/core/filter.c:1144)
-    bpf_prog_create_from_user (net/core/filter.c:1428)
-    do_seccomp (kernel/seccomp.c:671 kernel/seccomp.c:708 kernel/seccomp.c:1871 kernel/seccomp.c:1991)
-    do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
-    entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
-
-[1]: https://syzkaller.appspot.com/bug?id=2809bb0ac77ad9aa3f4afe42d6a610aba594a987
-
-[2]:
-#define _GNU_SOURCE
-#include <sched.h>
-#include <signal.h>
-#include <unistd.h>
-#include <sys/syscall.h>
-#include <linux/filter.h>
-#include <linux/seccomp.h>
-
-void main(void)
-{
-	struct sock_filter filter[] = {
-		BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ALLOW),
-	};
-	struct sock_fprog fprog = {
-		.len = sizeof(filter) / sizeof(filter[0]),
-		.filter = filter,
-	};
-	long i, pid;
-
-	syscall(__NR_seccomp, SECCOMP_SET_MODE_FILTER, 0, &fprog);
-
-	for (i = 0; i < 2; i++) {
-		pid = syscall(__NR_clone, CLONE_NEWNET | SIGKILL, NULL, NULL, 0);
-		if (pid == 0)
-			return;
-	}
-}
-
-Fixes: 3a15fb6ed92c ("seccomp: release filter after task is fully dead")
-Reported-by: syzbot+ab17848fe269b573eb71@syzkaller.appspotmail.com
-Reported-by: Ayushman Dutta <ayudutta@amazon.com>
-Suggested-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20220823154532.82913-1-kuniyu@amazon.com
+Fixes: 2849dd8bc72b ("cpufreq: qcom-hw: Add support for QCOM cpufreq HW driver")
+Reported-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/fork.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ drivers/cpufreq/qcom-cpufreq-hw.c | 42 +++++++++++++++++++++----------
+ 1 file changed, 29 insertions(+), 13 deletions(-)
 
-diff --git a/kernel/fork.c b/kernel/fork.c
-index 2b6bd511c6ed..f925d2b96e0a 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -537,6 +537,9 @@ void put_task_stack(struct task_struct *tsk)
+diff --git a/drivers/cpufreq/qcom-cpufreq-hw.c b/drivers/cpufreq/qcom-cpufreq-hw.c
+index d15097549e8c..3c623a0bc147 100644
+--- a/drivers/cpufreq/qcom-cpufreq-hw.c
++++ b/drivers/cpufreq/qcom-cpufreq-hw.c
+@@ -125,7 +125,35 @@ static int qcom_cpufreq_hw_target_index(struct cpufreq_policy *policy,
+ 	return 0;
+ }
  
- void free_task(struct task_struct *tsk)
++static unsigned long qcom_lmh_get_throttle_freq(struct qcom_cpufreq_data *data)
++{
++	unsigned int lval;
++
++	if (data->soc_data->reg_current_vote)
++		lval = readl_relaxed(data->base + data->soc_data->reg_current_vote) & 0x3ff;
++	else
++		lval = readl_relaxed(data->base + data->soc_data->reg_domain_state) & 0xff;
++
++	return lval * xo_rate;
++}
++
++/* Get the current frequency of the CPU (after throttling) */
+ static unsigned int qcom_cpufreq_hw_get(unsigned int cpu)
++{
++	struct qcom_cpufreq_data *data;
++	struct cpufreq_policy *policy;
++
++	policy = cpufreq_cpu_get_raw(cpu);
++	if (!policy)
++		return 0;
++
++	data = policy->driver_data;
++
++	return qcom_lmh_get_throttle_freq(data) / HZ_PER_KHZ;
++}
++
++/* Get the frequency requested by the cpufreq core for the CPU */
++static unsigned int qcom_cpufreq_get_freq(unsigned int cpu)
  {
-+#ifdef CONFIG_SECCOMP
-+	WARN_ON_ONCE(tsk->seccomp.filter);
-+#endif
- 	release_user_cpus_ptr(tsk);
- 	scs_release(tsk);
- 
-@@ -2407,12 +2410,6 @@ static __latent_entropy struct task_struct *copy_process(
- 
- 	spin_lock(&current->sighand->siglock);
- 
--	/*
--	 * Copy seccomp details explicitly here, in case they were changed
--	 * before holding sighand lock.
--	 */
--	copy_seccomp(p);
--
- 	rv_task_fork(p);
- 
- 	rseq_fork(p, clone_flags);
-@@ -2429,6 +2426,14 @@ static __latent_entropy struct task_struct *copy_process(
- 		goto bad_fork_cancel_cgroup;
+ 	struct qcom_cpufreq_data *data;
+ 	const struct qcom_cpufreq_soc_data *soc_data;
+@@ -287,18 +315,6 @@ static void qcom_get_related_cpus(int index, struct cpumask *m)
  	}
+ }
  
-+	/* No more failure paths after this point. */
-+
-+	/*
-+	 * Copy seccomp details explicitly here, in case they were changed
-+	 * before holding sighand lock.
-+	 */
-+	copy_seccomp(p);
-+
- 	init_task_pid_links(p);
- 	if (likely(p->pid)) {
- 		ptrace_init_task(p, (clone_flags & CLONE_PTRACE) || trace);
+-static unsigned long qcom_lmh_get_throttle_freq(struct qcom_cpufreq_data *data)
+-{
+-	unsigned int lval;
+-
+-	if (data->soc_data->reg_current_vote)
+-		lval = readl_relaxed(data->base + data->soc_data->reg_current_vote) & 0x3ff;
+-	else
+-		lval = readl_relaxed(data->base + data->soc_data->reg_domain_state) & 0xff;
+-
+-	return lval * xo_rate;
+-}
+-
+ static void qcom_lmh_dcvs_notify(struct qcom_cpufreq_data *data)
+ {
+ 	struct cpufreq_policy *policy = data->policy;
+@@ -342,7 +358,7 @@ static void qcom_lmh_dcvs_notify(struct qcom_cpufreq_data *data)
+ 	 * If h/w throttled frequency is higher than what cpufreq has requested
+ 	 * for, then stop polling and switch back to interrupt mechanism.
+ 	 */
+-	if (throttled_freq >= qcom_cpufreq_hw_get(cpu))
++	if (throttled_freq >= qcom_cpufreq_get_freq(cpu))
+ 		enable_irq(data->throttle_irq);
+ 	else
+ 		mod_delayed_work(system_highpri_wq, &data->throttle_work,
 -- 
 2.35.1
 
