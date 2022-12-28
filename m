@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12D766579FC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:06:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4877E657B19
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:18:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233561AbiL1PGq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:06:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54114 "EHLO
+        id S233199AbiL1PSH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:18:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233572AbiL1PGo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:06:44 -0500
+        with ESMTP id S233203AbiL1PSG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:18:06 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B6561006B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:06:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46E2213F77
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:18:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CED6F61553
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:06:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB2CDC433EF;
-        Wed, 28 Dec 2022 15:06:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D5ED361555
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:18:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3086C433EF;
+        Wed, 28 Dec 2022 15:18:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240002;
-        bh=4gnc21u2MeC9tksPega8MnAeysAZlSBrzqq0p5EGUWg=;
+        s=korg; t=1672240684;
+        bh=0W5PciXOOC4YYnnlUwPHAcov1CTEah3PwDTi+Nvw6/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bx0nDjCsSLaS6C9Nz6o9pcEUu2lkiGS8urnaT5mEvw7Y67itdkS4ztuIqoH43ncjc
-         4KacLkja8rReWchJmQd3Wa+Mfpip7E7pIwznHrv7rqrxiG8ju9z+/LxtrwEA1p46/V
-         kYDAssoYQxPNtWwY98GEjKHg/OyKsicaUdFDsT+Y=
+        b=Vg76RTdi/9LF0nhz8NSSBkRhQrRyBF2zv6wMm4zuRIelcW59lZ9QKxTV/E7TpXzmu
+         3Ho1E3uz4MdIIAmAknx7ygGbccrDiFK+iZC3MeaF3oLulzT3HbMjbJQNI3okBTohAQ
+         Xjo5C+Ue5qG+drZPj/ZKyJKlcHc1vtVy8tqxsOEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Md Iqbal Hossain <md.iqbal.hossain@intel.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0106/1073] x86/sgx: Reduce delay and interference of enclave release
+Subject: [PATCH 6.1 0155/1146] cpufreq: amd_freq_sensitivity: Add missing pci_dev_put()
 Date:   Wed, 28 Dec 2022 15:28:14 +0100
-Message-Id: <20221228144330.923835383@linuxfoundation.org>
+Message-Id: <20221228144334.368667327@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,140 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reinette Chatre <reinette.chatre@intel.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 7b72c823ddf8aaaec4e9fb28e6fbe4d511e7dad1 ]
+[ Upstream commit 91fda1f88c0968f1491ab150bb01690525af150a ]
 
-commit 8795359e35bc ("x86/sgx: Silence softlockup detection when
-releasing large enclaves") introduced a cond_resched() during enclave
-release where the EREMOVE instruction is applied to every 4k enclave
-page. Giving other tasks an opportunity to run while tearing down a
-large enclave placates the soft lockup detector but Iqbal found
-that the fix causes a 25% performance degradation of a workload
-run using Gramine.
+pci_get_device() will increase the reference count for the returned
+pci_dev. We need to use pci_dev_put() to decrease the reference count
+after using pci_get_device(). Let's add it.
 
-Gramine maintains a 1:1 mapping between processes and SGX enclaves.
-That means if a workload in an enclave creates a subprocess then
-Gramine creates a duplicate enclave for that subprocess to run in.
-The consequence is that the release of the enclave used to run
-the subprocess can impact the performance of the workload that is
-run in the original enclave, especially in large enclaves when
-SGX2 is not in use.
-
-The workload run by Iqbal behaves as follows:
-Create enclave (enclave "A")
-/* Initialize workload in enclave "A" */
-Create enclave (enclave "B")
-/* Run subprocess in enclave "B" and send result to enclave "A" */
-Release enclave (enclave "B")
-/* Run workload in enclave "A" */
-Release enclave (enclave "A")
-
-The performance impact of releasing enclave "B" in the above scenario
-is amplified when there is a lot of SGX memory and the enclave size
-matches the SGX memory. When there is 128GB SGX memory and an enclave
-size of 128GB, from the time enclave "B" starts the 128GB SGX memory
-is oversubscribed with a combined demand for 256GB from the two
-enclaves.
-
-Before commit 8795359e35bc ("x86/sgx: Silence softlockup detection when
-releasing large enclaves") enclave release was done in a tight loop
-without giving other tasks a chance to run. Even though the system
-experienced soft lockups the workload (run in enclave "A") obtained
-good performance numbers because when the workload started running
-there was no interference.
-
-Commit 8795359e35bc ("x86/sgx: Silence softlockup detection when
-releasing large enclaves") gave other tasks opportunity to run while an
-enclave is released. The impact of this in this scenario is that while
-enclave "B" is released and needing to access each page that belongs
-to it in order to run the SGX EREMOVE instruction on it, enclave "A"
-is attempting to run the workload needing to access the enclave
-pages that belong to it. This causes a lot of swapping due to the
-demand for the oversubscribed SGX memory. Longer latencies are
-experienced by the workload in enclave "A" while enclave "B" is
-released.
-
-Improve the performance of enclave release while still avoiding the
-soft lockup detector with two enhancements:
-- Only call cond_resched() after XA_CHECK_SCHED iterations.
-- Use the xarray advanced API to keep the xarray locked for
-  XA_CHECK_SCHED iterations instead of locking and unlocking
-  at every iteration.
-
-This batching solution is copied from sgx_encl_may_map() that
-also iterates through all enclave pages using this technique.
-
-With this enhancement the workload experiences a 5%
-performance degradation when compared to a kernel without
-commit 8795359e35bc ("x86/sgx: Silence softlockup detection when
-releasing large enclaves"), an improvement to the reported 25%
-degradation, while still placating the soft lockup detector.
-
-Scenarios with poor performance are still possible even with these
-enhancements. For example, short workloads creating sub processes
-while running in large enclaves. Further performance improvements
-are pursued in user space through avoiding to create duplicate enclaves
-for certain sub processes, and using SGX2 that will do lazy allocation
-of pages as needed so enclaves created for sub processes start quickly
-and release quickly.
-
-Fixes: 8795359e35bc ("x86/sgx: Silence softlockup detection when releasing large enclaves")
-Reported-by: Md Iqbal Hossain <md.iqbal.hossain@intel.com>
-Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Tested-by: Md Iqbal Hossain <md.iqbal.hossain@intel.com>
-Link: https://lore.kernel.org/all/00efa80dd9e35dc85753e1c5edb0344ac07bb1f0.1667236485.git.reinette.chatre%40intel.com
+Fixes: 59a3b3a8db16 ("cpufreq: AMD: Ignore the check for ProcFeedback in ST/CZ")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/sgx/encl.c | 23 +++++++++++++++++++----
- 1 file changed, 19 insertions(+), 4 deletions(-)
+ drivers/cpufreq/amd_freq_sensitivity.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/x86/kernel/cpu/sgx/encl.c b/arch/x86/kernel/cpu/sgx/encl.c
-index 8bdeae2fc309..6942a3d8b578 100644
---- a/arch/x86/kernel/cpu/sgx/encl.c
-+++ b/arch/x86/kernel/cpu/sgx/encl.c
-@@ -677,11 +677,15 @@ const struct vm_operations_struct sgx_vm_ops = {
- void sgx_encl_release(struct kref *ref)
- {
- 	struct sgx_encl *encl = container_of(ref, struct sgx_encl, refcount);
-+	unsigned long max_page_index = PFN_DOWN(encl->base + encl->size - 1);
- 	struct sgx_va_page *va_page;
- 	struct sgx_encl_page *entry;
--	unsigned long index;
-+	unsigned long count = 0;
-+
-+	XA_STATE(xas, &encl->page_array, PFN_DOWN(encl->base));
- 
--	xa_for_each(&encl->page_array, index, entry) {
-+	xas_lock(&xas);
-+	xas_for_each(&xas, entry, max_page_index) {
- 		if (entry->epc_page) {
- 			/*
- 			 * The page and its radix tree entry cannot be freed
-@@ -696,9 +700,20 @@ void sgx_encl_release(struct kref *ref)
- 		}
- 
- 		kfree(entry);
--		/* Invoke scheduler to prevent soft lockups. */
--		cond_resched();
-+		/*
-+		 * Invoke scheduler on every XA_CHECK_SCHED iteration
-+		 * to prevent soft lockups.
-+		 */
-+		if (!(++count % XA_CHECK_SCHED)) {
-+			xas_pause(&xas);
-+			xas_unlock(&xas);
-+
-+			cond_resched();
-+
-+			xas_lock(&xas);
-+		}
+diff --git a/drivers/cpufreq/amd_freq_sensitivity.c b/drivers/cpufreq/amd_freq_sensitivity.c
+index 6448e03bcf48..59b19b9975e8 100644
+--- a/drivers/cpufreq/amd_freq_sensitivity.c
++++ b/drivers/cpufreq/amd_freq_sensitivity.c
+@@ -125,6 +125,8 @@ static int __init amd_freq_sensitivity_init(void)
+ 	if (!pcidev) {
+ 		if (!boot_cpu_has(X86_FEATURE_PROC_FEEDBACK))
+ 			return -ENODEV;
++	} else {
++		pci_dev_put(pcidev);
  	}
-+	xas_unlock(&xas);
  
- 	xa_destroy(&encl->page_array);
- 
+ 	if (rdmsrl_safe(MSR_AMD64_FREQ_SENSITIVITY_ACTUAL, &val))
 -- 
 2.35.1
 
