@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1CE8657D74
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:43:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 210E8657E64
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:53:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233555AbiL1PnY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:43:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60142 "EHLO
+        id S234134AbiL1PxY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:53:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233423AbiL1PnX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:43:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3BD91706D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:43:22 -0800 (PST)
+        with ESMTP id S234153AbiL1PxM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:53:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD30E186CB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:53:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 23EC96155E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:43:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3363CC433EF;
-        Wed, 28 Dec 2022 15:43:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90A33B81732
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:53:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2798C433F1;
+        Wed, 28 Dec 2022 15:53:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242201;
-        bh=KHzEcZE2k1pRm8RztkLsclhbLBR1oLAIU4UFuSVxwr4=;
+        s=korg; t=1672242787;
+        bh=6WPVI2RzqdiPWNz6u8FMFbRCToeTpaZF137s1wsRmk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GJ7e4Y2fnsoUV1PAx88xcEOsS4YX19Dg5kPPwJCROx0WeXfzJCW8Ptq2nb9gAbbcZ
-         zHssnVXi6wNdVszEP5h0nvM1D0/LCEcRU9fE0rdbaUxQYm12yxjXQ9O5GvxtbyGjky
-         jLAFmqLXvflfYEW6fcTuKZE7hE2n1fL1eiBCADXk=
+        b=YAveAhLr8WHxkqG6/Wxu66G6g3HQLaI1Zyi/RKW0ifImvIzXKdPZVTujcXYwuEdCu
+         Q/DYC+lva5spn+pmXi2FNyzOx3KZIBWY2S3JKu+P2/tF6oP7lPwp68u5LDiVpGFZUr
+         KLts3b/byYYR4YWL4PhFwC766k11NkeUJAwHg6zo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Baisong Zhong <zhongbaisong@huawei.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0364/1073] ALSA: seq: fix undefined behavior in bit shift for SNDRV_SEQ_FILTER_USE_EVENT
+        patches@lists.linux.dev, Yunfei Dong <yunfei.dong@mediatek.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0413/1146] media: mediatek: vcodec: Fix getting NULL pointer for dst buffer
 Date:   Wed, 28 Dec 2022 15:32:32 +0100
-Message-Id: <20221228144337.889352806@linuxfoundation.org>
+Message-Id: <20221228144341.386152893@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,63 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baisong Zhong <zhongbaisong@huawei.com>
+From: Yunfei Dong <yunfei.dong@mediatek.com>
 
-[ Upstream commit cf59e1e4c79bf741905484cdb13c130b53576a16 ]
+[ Upstream commit d879f770e4d1d5f0d9b692d3a2702f23ee441dbb ]
 
-Shifting signed 32-bit value by 31 bits is undefined, so changing
-significant bit to unsigned. The UBSAN warning calltrace like below:
+The driver may can't get v4l2 buffer when lat or core decode timeout,
+will lead to crash when call v4l2_m2m_buf_done to set dst buffer
+(NULL pointer) done.
 
-UBSAN: shift-out-of-bounds in sound/core/seq/seq_clientmgr.c:509:22
-left shift of 1 by 31 places cannot be represented in type 'int'
-...
-Call Trace:
- <TASK>
- dump_stack_lvl+0x8d/0xcf
- ubsan_epilogue+0xa/0x44
- __ubsan_handle_shift_out_of_bounds+0x1e7/0x208
- snd_seq_deliver_single_event.constprop.21+0x191/0x2f0
- snd_seq_deliver_event+0x1a2/0x350
- snd_seq_kernel_client_dispatch+0x8b/0xb0
- snd_seq_client_notify_subscription+0x72/0xa0
- snd_seq_ioctl_subscribe_port+0x128/0x160
- snd_seq_kernel_client_ctl+0xce/0xf0
- snd_seq_oss_create_client+0x109/0x15b
- alsa_seq_oss_init+0x11c/0x1aa
- do_one_initcall+0x80/0x440
- kernel_init_freeable+0x370/0x3c3
- kernel_init+0x1b/0x190
- ret_from_fork+0x1f/0x30
- </TASK>
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Baisong Zhong <zhongbaisong@huawei.com>
-Link: https://lore.kernel.org/r/20221121111630.3119259-1-zhongbaisong@huawei.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 7b182b8d9c85 ("media: mediatek: vcodec: Refactor get and put capture buffer flow")
+Signed-off-by: Yunfei Dong <yunfei.dong@mediatek.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/sound/asequencer.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ .../mediatek/vcodec/mtk_vcodec_dec_stateless.c        | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/include/uapi/sound/asequencer.h b/include/uapi/sound/asequencer.h
-index a75e14edc957..dbd60f48b4b0 100644
---- a/include/uapi/sound/asequencer.h
-+++ b/include/uapi/sound/asequencer.h
-@@ -344,10 +344,10 @@ typedef int __bitwise snd_seq_client_type_t;
- #define	KERNEL_CLIENT	((__force snd_seq_client_type_t) 2)
-                         
- 	/* event filter flags */
--#define SNDRV_SEQ_FILTER_BROADCAST	(1<<0)	/* accept broadcast messages */
--#define SNDRV_SEQ_FILTER_MULTICAST	(1<<1)	/* accept multicast messages */
--#define SNDRV_SEQ_FILTER_BOUNCE		(1<<2)	/* accept bounce event in error */
--#define SNDRV_SEQ_FILTER_USE_EVENT	(1<<31)	/* use event filter */
-+#define SNDRV_SEQ_FILTER_BROADCAST	(1U<<0)	/* accept broadcast messages */
-+#define SNDRV_SEQ_FILTER_MULTICAST	(1U<<1)	/* accept multicast messages */
-+#define SNDRV_SEQ_FILTER_BOUNCE		(1U<<2)	/* accept bounce event in error */
-+#define SNDRV_SEQ_FILTER_USE_EVENT	(1U<<31)	/* use event filter */
+diff --git a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c
+index c45bd2599bb2..e86809052a9f 100644
+--- a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c
++++ b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c
+@@ -138,10 +138,13 @@ static void mtk_vdec_stateless_cap_to_disp(struct mtk_vcodec_ctx *ctx, int error
+ 		state = VB2_BUF_STATE_DONE;
  
- struct snd_seq_client_info {
- 	int client;			/* client number to inquire */
+ 	vb2_dst = v4l2_m2m_dst_buf_remove(ctx->m2m_ctx);
+-	v4l2_m2m_buf_done(vb2_dst, state);
+-
+-	mtk_v4l2_debug(2, "free frame buffer id:%d to done list",
+-		       vb2_dst->vb2_buf.index);
++	if (vb2_dst) {
++		v4l2_m2m_buf_done(vb2_dst, state);
++		mtk_v4l2_debug(2, "free frame buffer id:%d to done list",
++			       vb2_dst->vb2_buf.index);
++	} else {
++		mtk_v4l2_err("dst buffer is NULL");
++	}
+ 
+ 	if (src_buf_req)
+ 		v4l2_ctrl_request_complete(src_buf_req, &ctx->ctrl_hdl);
 -- 
 2.35.1
 
