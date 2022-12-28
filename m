@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 901AD6583F5
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:53:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB1F1658496
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:58:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235175AbiL1Qxk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:53:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45012 "EHLO
+        id S235316AbiL1Q63 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:58:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235179AbiL1Qww (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:52:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3D1DFC4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:47:53 -0800 (PST)
+        with ESMTP id S235280AbiL1Q5y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:57:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B62D1FF87
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:54:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 86C24B8172A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:47:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C97DDC433D2;
-        Wed, 28 Dec 2022 16:47:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A61276156E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:54:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B15D5C433EF;
+        Wed, 28 Dec 2022 16:54:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246071;
-        bh=LTIEMs3jUwd4MNBCGFtthpNq7nlSQdLSupImvk5ZNcw=;
+        s=korg; t=1672246454;
+        bh=NR1KHJq5MOKt4EP/CbVWkTiDQtdI+ZXlOGWYGcjxais=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cfD9qmd/VlOd5hHiAuGUejebyiZdjm71yYHsG8UYPzBHXMYr1qFMXMyrC+gkLW2ou
-         7z3VnX5mpNtYRt0m/XKRj0bZJNJIXsnFGJ2FkLdIOXv+3GLQ5Z3BGLloLZl3lT21u5
-         8IDtSXZ6wezF5GgRUw6Dz5nl5Wt0aW2D1FKUZC3Y=
+        b=yZbFA8grejoouyE9iVZdP1tGLcjIicfhSxy7yCf2yuVwpHyLTZ3u2Kee07Oh4vSyI
+         Y8QVSmaDIkH5b5389IzaoE0lE4XUmtS9jaLX5HwhXVXhlDzbInPXiKepNV0V343rxJ
+         eAr9hCTfOaCzWN6be5ihqAm+eTLzPCLdowN4cbtE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Patrice Chotard <patrice.chotard@foss.st.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0994/1073] clk: renesas: r8a779f0: Add SDH0 clock
+Subject: [PATCH 6.1 1043/1146] clk: st: Fix memory leak in st_of_quadfs_setup()
 Date:   Wed, 28 Dec 2022 15:43:02 +0100
-Message-Id: <20221228144355.118782601@linuxfoundation.org>
+Message-Id: <20221228144358.665463566@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-[ Upstream commit 9b5dd1ff705c68549f7a2a91dd8beee14bc543e1 ]
+[ Upstream commit cfd3ffb36f0d566846163118651d868e607300ba ]
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Tested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/20220711134656.277730-2-wsa+renesas@sang-engineering.com
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Stable-dep-of: 1e56ebc9872f ("clk: renesas: r8a779f0: Add TMU and parent SASYNC clocks")
+If st_clk_register_quadfs_pll() fails, @lock should be freed before goto
+@err_exit, otherwise will cause meory leak issue, fix it.
+
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+Link: https://lore.kernel.org/r/20221122133614.184910-1-xiujianfeng@huawei.com
+Reviewed-by: Patrice Chotard <patrice.chotard@foss.st.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/renesas/r8a779f0-cpg-mssr.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/clk/st/clkgen-fsyn.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/renesas/r8a779f0-cpg-mssr.c b/drivers/clk/renesas/r8a779f0-cpg-mssr.c
-index b7936f422c27..9bd6746e6a07 100644
---- a/drivers/clk/renesas/r8a779f0-cpg-mssr.c
-+++ b/drivers/clk/renesas/r8a779f0-cpg-mssr.c
-@@ -108,7 +108,8 @@ static const struct cpg_core_clk r8a779f0_core_clks[] __initconst = {
- 	DEF_FIXED("cbfusa",	R8A779F0_CLK_CBFUSA,	CLK_EXTAL,	2, 1),
- 	DEF_FIXED("cpex",	R8A779F0_CLK_CPEX,	CLK_EXTAL,	2, 1),
+diff --git a/drivers/clk/st/clkgen-fsyn.c b/drivers/clk/st/clkgen-fsyn.c
+index d820292a381d..40df1db102a7 100644
+--- a/drivers/clk/st/clkgen-fsyn.c
++++ b/drivers/clk/st/clkgen-fsyn.c
+@@ -1020,9 +1020,10 @@ static void __init st_of_quadfs_setup(struct device_node *np,
  
--	DEF_GEN4_SD("sd0",	R8A779F0_CLK_SD0,	CLK_SDSRC,	0x870),
-+	DEF_GEN4_SDH("sdh0",	R8A779F0_CLK_SD0H,	CLK_SDSRC,	   0x870),
-+	DEF_GEN4_SD("sd0",	R8A779F0_CLK_SD0,	R8A779F0_CLK_SD0H, 0x870),
- 
- 	DEF_BASE("rpc",		R8A779F0_CLK_RPC,	CLK_TYPE_GEN4_RPC, CLK_RPCSRC),
- 	DEF_BASE("rpcd2",	R8A779F0_CLK_RPCD2,	CLK_TYPE_GEN4_RPCD2, R8A779F0_CLK_RPC),
+ 	clk = st_clk_register_quadfs_pll(pll_name, clk_parent_name, datac->data,
+ 			reg, lock);
+-	if (IS_ERR(clk))
++	if (IS_ERR(clk)) {
++		kfree(lock);
+ 		goto err_exit;
+-	else
++	} else
+ 		pr_debug("%s: parent %s rate %u\n",
+ 			__clk_get_name(clk),
+ 			__clk_get_name(clk_get_parent(clk)),
 -- 
 2.35.1
 
