@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25D81658227
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:33:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07B896582FE
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234851AbiL1Qd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:33:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51726 "EHLO
+        id S234975AbiL1Qn5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:43:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234850AbiL1QdF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D5031AF11
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:30:25 -0800 (PST)
+        with ESMTP id S234977AbiL1Qn1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:27 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE05D1FCED
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 537D3B8171E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:30:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BA05C433D2;
-        Wed, 28 Dec 2022 16:30:22 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DF2A3CE1367
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:37:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3658C433EF;
+        Wed, 28 Dec 2022 16:37:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245023;
-        bh=XgXKQ4lJt3xgbn4wnwUGVj4qQSLeGJDxzzr5jcmLDYI=;
+        s=korg; t=1672245466;
+        bh=Qll6mOLQd9hFyC0J26Qi2x/DiIHIBkr6XZaVbG0YleM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tH3eyOPGJGOohZtFepFR6822fByGTpzpEDyi54JPgF8iukxyKfXB+t22l+ab5T30r
-         4Enu2IXtRhJQ9NRhZlS+TBZe6nOJZ+rkO3KumnZfkFdD6wbSnU4k0a7jTaO5w4YLvg
-         2FPhC9/ztI62ALVAKIMsWt+G93wYoyvgoJpy3Y2E=
+        b=0QuffnIUdw1CBG5D7+ZjxQzLuVqQmivpI0Fo0pCXkvOzrekRzl9ixe23dA0qs2upo
+         sg8VeF8e/IU+j8byoZzr7BYfn0Qs8Gs/BAcHk+TUzHSwwEV+ggXCRhIZz9I6dBs4Gf
+         xdS3ckCa7lLi2xm4/zPib4dKEkFVGpN7cGy58HIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, xinlei lee <xinlei.lee@mediatek.com>,
+        patches@lists.linux.dev,
+        Emil Renner Berthing <emil.renner.berthing@canonical.com>,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
         Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0817/1073] pwm: mtk-disp: Fix the parameters calculated by the enabled flag of disp_pwm
+Subject: [PATCH 6.1 0866/1146] pwm: sifive: Call pwm_sifive_update_clock() while mutex is held
 Date:   Wed, 28 Dec 2022 15:40:05 +0100
-Message-Id: <20221228144350.203092401@linuxfoundation.org>
+Message-Id: <20221228144353.686192961@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,50 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: xinlei lee <xinlei.lee@mediatek.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 0b5ef3429d8f78427558ab0dcbfd862098ba2a63 ]
+[ Upstream commit 45558b3abb87eeb2cedb8a59cb2699c120b5102a ]
 
-In the original mtk_disp_pwm_get_state() function wrongly uses bit 0 of
-CON0 to judge if the PWM is enabled.
-However that is indicated by a bit (at a machine dependent position) in
-the DISP_PWM_EN register. Fix this accordingly.
+As was documented in commit 0f02f491b786 ("pwm: sifive: Reduce time the
+controller lock is held") a caller of pwm_sifive_update_clock() must
+hold the mutex. So fix pwm_sifive_clock_notifier() to grab the lock.
 
-Fixes: 3f2b16734914 ("pwm: mtk-disp: Implement atomic API .get_state()")
-Signed-off-by: xinlei lee <xinlei.lee@mediatek.com>
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/1666172538-11652-1-git-send-email-xinlei.lee@mediatek.com
+While this necessity was only documented later, the race exists since
+the driver was introduced.
+
+Fixes: 9e37a53eb051 ("pwm: sifive: Add a driver for SiFive SoC PWM")
+Reported-by: Emil Renner Berthing <emil.renner.berthing@canonical.com>
+Reviewed-by: Emil Renner Berthing <emil.renner.berthing@canonical.com>
+Link: https://lore.kernel.org/r/20221018061656.1428111-1-u.kleine-koenig@pengutronix.de
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-mtk-disp.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/pwm/pwm-sifive.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pwm/pwm-mtk-disp.c b/drivers/pwm/pwm-mtk-disp.c
-index c605013e4114..3fbb4bae93a4 100644
---- a/drivers/pwm/pwm-mtk-disp.c
-+++ b/drivers/pwm/pwm-mtk-disp.c
-@@ -178,7 +178,7 @@ static void mtk_disp_pwm_get_state(struct pwm_chip *chip,
- {
- 	struct mtk_disp_pwm *mdp = to_mtk_disp_pwm(chip);
- 	u64 rate, period, high_width;
--	u32 clk_div, con0, con1;
-+	u32 clk_div, pwm_en, con0, con1;
- 	int err;
+diff --git a/drivers/pwm/pwm-sifive.c b/drivers/pwm/pwm-sifive.c
+index 2d4fa5e5fdd4..bb7239313401 100644
+--- a/drivers/pwm/pwm-sifive.c
++++ b/drivers/pwm/pwm-sifive.c
+@@ -204,8 +204,11 @@ static int pwm_sifive_clock_notifier(struct notifier_block *nb,
+ 	struct pwm_sifive_ddata *ddata =
+ 		container_of(nb, struct pwm_sifive_ddata, notifier);
  
- 	err = clk_prepare_enable(mdp->clk_main);
-@@ -197,7 +197,8 @@ static void mtk_disp_pwm_get_state(struct pwm_chip *chip,
- 	rate = clk_get_rate(mdp->clk_main);
- 	con0 = readl(mdp->base + mdp->data->con0);
- 	con1 = readl(mdp->base + mdp->data->con1);
--	state->enabled = !!(con0 & BIT(0));
-+	pwm_en = readl(mdp->base + DISP_PWM_EN);
-+	state->enabled = !!(pwm_en & mdp->data->enable_mask);
- 	clk_div = FIELD_GET(PWM_CLKDIV_MASK, con0);
- 	period = FIELD_GET(PWM_PERIOD_MASK, con1);
- 	/*
+-	if (event == POST_RATE_CHANGE)
++	if (event == POST_RATE_CHANGE) {
++		mutex_lock(&ddata->lock);
+ 		pwm_sifive_update_clock(ddata, ndata->new_rate);
++		mutex_unlock(&ddata->lock);
++	}
+ 
+ 	return NOTIFY_OK;
+ }
 -- 
 2.35.1
 
