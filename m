@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F137657FF5
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:12:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60DFE657F19
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:01:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234397AbiL1QM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:12:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59704 "EHLO
+        id S234269AbiL1QBR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:01:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234529AbiL1QLq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:11:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD0591A235
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:09:50 -0800 (PST)
+        with ESMTP id S234253AbiL1QBG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:01:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96EA012AA0
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:01:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BF3B661560
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:09:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2BA2C433D2;
-        Wed, 28 Dec 2022 16:09:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2C127B8172B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:01:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F70BC433EF;
+        Wed, 28 Dec 2022 16:01:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243790;
-        bh=gkL0b+bGDw0cxEvJWCLvHZNREAm743J0byI/YJOd0Rc=;
+        s=korg; t=1672243262;
+        bh=Ct+mYGhl3hN88rg24PYTXGECb/qTwT8CyWyh/9w1Ojg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1yICVRJZnlursmeS1SGasOTGbXOmohNaJJDjll1jeOmffj2E1RSWSsrQg0+fY5lTf
-         e9D/bUNbq7TTMhW6tIlTy2FXFcMoYjt9dGaWBL1DnGQDCK7uwrR810h98bjKCR2RuL
-         ppJucgE/1IJt2/bS5JD4OmBGIAcy2TpeA9bHwS+I=
+        b=X+1oHC2BjCznzJHqATCcd7TsHgoGXibeYY9gbkyMh9uQe8Yfxmpu9d4UWUL56ZQHO
+         7mnpa7dRT/vACdsT8sK85fVQ8mdD+AAMTH2LCJeFYfbsaaAfmCuCXMlqOG3nNJXyp9
+         KXI2frNbi0buOK/4ZFxx3I8HdlPiJ5pWfAzSo3h8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Inga Stotland <inga.stotland@intel.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0556/1146] Bluetooth: MGMT: Fix error report for ADD_EXT_ADV_PARAMS
+        patches@lists.linux.dev, Yang Jihong <yangjihong1@huawei.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0507/1073] blktrace: Fix output non-blktrace event when blk_classic option enabled
 Date:   Wed, 28 Dec 2022 15:34:55 +0100
-Message-Id: <20221228144345.271466579@linuxfoundation.org>
+Message-Id: <20221228144341.819410129@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Inga Stotland <inga.stotland@intel.com>
+From: Yang Jihong <yangjihong1@huawei.com>
 
-[ Upstream commit 3b1c7c00b8c22b3cb79532252c59eb0b287bb86d ]
+[ Upstream commit f596da3efaf4130ff61cd029558845808df9bf99 ]
 
-When validating the parameter length for MGMT_OP_ADD_EXT_ADV_PARAMS
-command, use the correct op code in error status report:
-was MGMT_OP_ADD_ADVERTISING, changed to MGMT_OP_ADD_EXT_ADV_PARAMS.
+When the blk_classic option is enabled, non-blktrace events must be
+filtered out. Otherwise, events of other types are output in the blktrace
+classic format, which is unexpected.
 
-Fixes: 12410572833a2 ("Bluetooth: Break add adv into two mgmt commands")
-Signed-off-by: Inga Stotland <inga.stotland@intel.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+The problem can be triggered in the following ways:
+
+  # echo 1 > /sys/kernel/debug/tracing/options/blk_classic
+  # echo 1 > /sys/kernel/debug/tracing/events/enable
+  # echo blk > /sys/kernel/debug/tracing/current_tracer
+  # cat /sys/kernel/debug/tracing/trace_pipe
+
+Fixes: c71a89615411 ("blktrace: add ftrace plugin")
+Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
+Link: https://lore.kernel.org/r/20221122040410.85113-1-yangjihong1@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/mgmt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/blktrace.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
-index a92e7e485feb..0dd30a3beb77 100644
---- a/net/bluetooth/mgmt.c
-+++ b/net/bluetooth/mgmt.c
-@@ -8859,7 +8859,7 @@ static int add_ext_adv_params(struct sock *sk, struct hci_dev *hdev,
- 	 * extra parameters we don't know about will be ignored in this request.
- 	 */
- 	if (data_len < MGMT_ADD_EXT_ADV_PARAMS_MIN_SIZE)
--		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_ADD_ADVERTISING,
-+		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_ADD_EXT_ADV_PARAMS,
- 				       MGMT_STATUS_INVALID_PARAMS);
+diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
+index 7f5eb295fe19..ee22a3b1c181 100644
+--- a/kernel/trace/blktrace.c
++++ b/kernel/trace/blktrace.c
+@@ -1546,7 +1546,8 @@ blk_trace_event_print_binary(struct trace_iterator *iter, int flags,
  
- 	flags = __le32_to_cpu(cp->flags);
+ static enum print_line_t blk_tracer_print_line(struct trace_iterator *iter)
+ {
+-	if (!(blk_tracer_flags.val & TRACE_BLK_OPT_CLASSIC))
++	if ((iter->ent->type != TRACE_BLK) ||
++	    !(blk_tracer_flags.val & TRACE_BLK_OPT_CLASSIC))
+ 		return TRACE_TYPE_UNHANDLED;
+ 
+ 	return print_one_line(iter, true);
 -- 
 2.35.1
 
