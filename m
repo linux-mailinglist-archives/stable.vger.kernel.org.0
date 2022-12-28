@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 407C065817E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:29:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1D4E657BC1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:25:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234714AbiL1Q3A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:29:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46362 "EHLO
+        id S233373AbiL1PZH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:25:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231252AbiL1Q2c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:28:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBDA6165B4;
-        Wed, 28 Dec 2022 08:24:46 -0800 (PST)
+        with ESMTP id S233753AbiL1PY7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:24:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4282B1403F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:24:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7C079B8171E;
-        Wed, 28 Dec 2022 16:24:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEEC3C433EF;
-        Wed, 28 Dec 2022 16:24:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D3D0D61544
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:24:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAC77C433D2;
+        Wed, 28 Dec 2022 15:24:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244684;
-        bh=/a+SXPPtV/sZYt6jUgZnWoKDg+jEjL4j84pPZqvDavE=;
+        s=korg; t=1672241098;
+        bh=JHJyKlY87Qy81zBY9v339lqbKvF9+rFMK2/AGZ6o9pg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XTR7VBaMt9ufJ+yVwQPDZ4zjZcBsLTi/AfuxuQ3HqG7Kb3cQ+c+Eo4kSbVuMEC6H5
-         QI2AGiN/QVSUJiwTkBr4Xrr/emGHxTQ+1/0rJ0IhbW7ZDcLaC763wN4lhrk4zGoPCm
-         L90fJs6+9SrY7pxQUmWFzXY24qX0ut90Rk6tqU8w=
+        b=LdZrOgqisxTWTvo4Y3pF0+Dd61fXtcdEIB/SVit1UdWitNrxKpC0mvO2Ok10xqQHb
+         csWZ/LGS4kP2BK6HOvY+othUhE2+m/ifFS7t7+sGg2KIpaJ5BIZ87SNOFBOElw1jue
+         5ZHd+ewooJCR1fEzpUP+uP5lyJoNZnxwNy9rdvr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Namhyung Kim <namhyung@kernel.org>,
-        Adrian Hunter <adrian.hunter@intel.com>, bpf@vger.kernel.org,
-        Ian Rogers <irogers@google.com>,
-        Ingo Molnar <mingo@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <song@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        patches@lists.linux.dev, Jisheng Zhang <jszhang@kernel.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0756/1073] perf off_cpu: Fix a typo in BTF tracepoint name, it should be btf_trace_sched_switch
+Subject: [PATCH 5.15 437/731] RISC-V: Align the shadow stack
 Date:   Wed, 28 Dec 2022 15:39:04 +0100
-Message-Id: <20221228144348.551905899@linuxfoundation.org>
+Message-Id: <20221228144309.227108726@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,45 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namhyung Kim <namhyung@kernel.org>
+From: Palmer Dabbelt <palmer@rivosinc.com>
 
-[ Upstream commit 167b266bf66c5b93171011ef9d1f09b070c2c537 ]
+[ Upstream commit b003b3b77d65133a0011ae3b7b255347438c12f6 ]
 
-In BTF, tracepoint definitions have the "btf_trace_" prefix.  The
-off-cpu profiler needs to check the signature of the sched_switch event
-using that definition.  But there's a typo (s/bpf/btf/) so it failed
-always.
+The standard RISC-V ABIs all require 16-byte stack alignment.  We're
+only calling that one function on the shadow stack so I doubt it'd
+result in a real issue, but might as well keep this lined up.
 
-Fixes: b36888f71c8542cd ("perf record: Handle argument change in sched_switch")
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: bpf@vger.kernel.org
-Cc: Ian Rogers <irogers@google.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <song@kernel.org>
-Link: https://lore.kernel.org/r/20221208182636.524139-1-namhyung@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 31da94c25aea ("riscv: add VMAP_STACK overflow detection")
+Reviewed-by: Jisheng Zhang <jszhang@kernel.org>
+Link: https://lore.kernel.org/r/20221130023515.20217-1-palmer@rivosinc.com
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/bpf_off_cpu.c | 2 +-
+ arch/riscv/kernel/traps.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/bpf_off_cpu.c b/tools/perf/util/bpf_off_cpu.c
-index c257813e674e..01f70b8e705a 100644
---- a/tools/perf/util/bpf_off_cpu.c
-+++ b/tools/perf/util/bpf_off_cpu.c
-@@ -102,7 +102,7 @@ static void check_sched_switch_args(void)
- 	const struct btf_type *t1, *t2, *t3;
- 	u32 type_id;
- 
--	type_id = btf__find_by_name_kind(btf, "bpf_trace_sched_switch",
-+	type_id = btf__find_by_name_kind(btf, "btf_trace_sched_switch",
- 					 BTF_KIND_TYPEDEF);
- 	if ((s32)type_id < 0)
- 		return;
+diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
+index 2f4cd85fb651..4102c97309cc 100644
+--- a/arch/riscv/kernel/traps.c
++++ b/arch/riscv/kernel/traps.c
+@@ -211,7 +211,7 @@ static DEFINE_PER_CPU(unsigned long [OVERFLOW_STACK_SIZE/sizeof(long)],
+  * shadow stack, handled_ kernel_ stack_ overflow(in kernel/entry.S) is used
+  * to get per-cpu overflow stack(get_overflow_stack).
+  */
+-long shadow_stack[SHADOW_OVERFLOW_STACK_SIZE/sizeof(long)];
++long shadow_stack[SHADOW_OVERFLOW_STACK_SIZE/sizeof(long)] __aligned(16);
+ asmlinkage unsigned long get_overflow_stack(void)
+ {
+ 	return (unsigned long)this_cpu_ptr(overflow_stack) +
 -- 
 2.35.1
 
