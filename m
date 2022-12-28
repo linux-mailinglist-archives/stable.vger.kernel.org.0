@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D30F26578AE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:53:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC66E657FAC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:07:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233083AbiL1OxS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:53:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40826 "EHLO
+        id S234389AbiL1QHn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:07:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233092AbiL1OxA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:53:00 -0500
+        with ESMTP id S234407AbiL1QHT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:07:19 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9B3210546
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:52:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06BDEB07
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:07:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 440B2B81719
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:52:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 961CCC433F0;
-        Wed, 28 Dec 2022 14:52:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93506B81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:07:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9FA4C433D2;
+        Wed, 28 Dec 2022 16:07:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239177;
-        bh=F6Pp5K6BVJ1HgJ6ijH1H1A0noAGfd+AdOdCF/arKOZY=;
+        s=korg; t=1672243635;
+        bh=Im+3gM728uRYqBPQJw1yPeuW1QFVizrZxO8ndmQXP5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bOls14SxedkLyMjMnDXIV9G5lgKm2DWj9g/LMgmJUg8bH/HBWeob1YssObpXzebcf
-         4wRKu25XbQGSsrI/8ZzxWj8FQL/OsdFf043ctIPn7MQiXi/mPxmWRUvR0vTUK6Ks+7
-         S5FrOFPqvwG/uXFT3BvZOCOwy6kkRYCMSMCvleUE=
+        b=TEY7tzbrNhXZrQbxrLFJLZVrIvx5Ew57e5qJGUNLczne6AOr0ZMYAep/FjU2zccZ4
+         qwjNtXf0citGh8SUKUKx89bOy0xLoZ0CuCLbPEQBwhZItYpvViZZFpw0LZgaB0lYpK
+         xl/D4zBV3kNSIWXxcUVECJzYXSkuAweYoLfdEH/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tang Bin <tangbin@cmss.chinamobile.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 157/731] venus: pm_helpers: Fix error check in vcodec_domains_get()
+        patches@lists.linux.dev, Yang Jihong <yangjihong1@huawei.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0525/1146] blktrace: Fix output non-blktrace event when blk_classic option enabled
 Date:   Wed, 28 Dec 2022 15:34:24 +0100
-Message-Id: <20221228144301.108872800@linuxfoundation.org>
+Message-Id: <20221228144344.436264476@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,36 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tang Bin <tangbin@cmss.chinamobile.com>
+From: Yang Jihong <yangjihong1@huawei.com>
 
-[ Upstream commit 0f6e8d8c94a82e85e1b9b62a7671990740dc6f70 ]
+[ Upstream commit f596da3efaf4130ff61cd029558845808df9bf99 ]
 
-In the function vcodec_domains_get(), dev_pm_domain_attach_by_name()
-may return NULL in some cases, so IS_ERR() doesn't meet the
-requirements. Thus fix it.
+When the blk_classic option is enabled, non-blktrace events must be
+filtered out. Otherwise, events of other types are output in the blktrace
+classic format, which is unexpected.
 
-Fixes: 7482a983dea3 ("media: venus: redesign clocks and pm domains control")
-Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
+The problem can be triggered in the following ways:
+
+  # echo 1 > /sys/kernel/debug/tracing/options/blk_classic
+  # echo 1 > /sys/kernel/debug/tracing/events/enable
+  # echo blk > /sys/kernel/debug/tracing/current_tracer
+  # cat /sys/kernel/debug/tracing/trace_pipe
+
+Fixes: c71a89615411 ("blktrace: add ftrace plugin")
+Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
+Link: https://lore.kernel.org/r/20221122040410.85113-1-yangjihong1@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/qcom/venus/pm_helpers.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/trace/blktrace.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/qcom/venus/pm_helpers.c b/drivers/media/platform/qcom/venus/pm_helpers.c
-index 03fc82cb3fea..055513a7301f 100644
---- a/drivers/media/platform/qcom/venus/pm_helpers.c
-+++ b/drivers/media/platform/qcom/venus/pm_helpers.c
-@@ -869,8 +869,8 @@ static int vcodec_domains_get(struct venus_core *core)
- 	for (i = 0; i < res->vcodec_pmdomains_num; i++) {
- 		pd = dev_pm_domain_attach_by_name(dev,
- 						  res->vcodec_pmdomains[i]);
--		if (IS_ERR(pd))
--			return PTR_ERR(pd);
-+		if (IS_ERR_OR_NULL(pd))
-+			return PTR_ERR(pd) ? : -ENODATA;
- 		core->pmdomains[i] = pd;
- 	}
+diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
+index a995ea1ef849..a66cff5a1857 100644
+--- a/kernel/trace/blktrace.c
++++ b/kernel/trace/blktrace.c
+@@ -1548,7 +1548,8 @@ blk_trace_event_print_binary(struct trace_iterator *iter, int flags,
  
+ static enum print_line_t blk_tracer_print_line(struct trace_iterator *iter)
+ {
+-	if (!(blk_tracer_flags.val & TRACE_BLK_OPT_CLASSIC))
++	if ((iter->ent->type != TRACE_BLK) ||
++	    !(blk_tracer_flags.val & TRACE_BLK_OPT_CLASSIC))
+ 		return TRACE_TYPE_UNHANDLED;
+ 
+ 	return print_one_line(iter, true);
 -- 
 2.35.1
 
