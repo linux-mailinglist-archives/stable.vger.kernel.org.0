@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEBF76579DE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:05:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE45E658086
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:18:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233538AbiL1PFi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:05:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53044 "EHLO
+        id S234555AbiL1QRw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:17:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233530AbiL1PFh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:05:37 -0500
+        with ESMTP id S234641AbiL1QRE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:17:04 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AF9D13D56
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:05:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFFFE11478
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:14:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 28FCAB816D6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:05:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73355C433EF;
-        Wed, 28 Dec 2022 15:05:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 91A50B81707
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:14:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08A5EC433D2;
+        Wed, 28 Dec 2022 16:14:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239933;
-        bh=qSiqquunoJ0aGUAm1AIRON6dTUrRV12eAZIHknHyHL4=;
+        s=korg; t=1672244096;
+        bh=FDnY9memHDK08dNNfY/561sVbx1C03QW5gMzHUsYe7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VKvm1Ps8n+tYGeAf683ZAvzrrqYGcENYq0bpFNxmUAbGuUpRE85WHmm9R1FyzoFng
-         27cs3ecXaMIeHrOmSCkMUwZCm2C8jW5CBtZ7eue/1nZUsh0U1WP80myDhKRysWOcKT
-         eZ+l3quWXhcOABNIAlcuF+LD5F5GQfE0Aqp4ZVoA=
+        b=xjtzsjvrNkY+6TYntNvSbjTPW36vxpb2pn83/+kRLyvrhc7t6Enn3t90N+3Gz/lMU
+         vDrdq01ClE78z2s5oksk0lOqbD8VH9WrdzDJ/r5X1zB8OUWe/xuXJTHxUe1wXGAbFJ
+         pesBcTAClorw/oYFnzWu9r1lknugbc8rscoIWb00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 287/731] xprtrdma: Fix regbuf data not freed in rpcrdma_req_create()
-Date:   Wed, 28 Dec 2022 15:36:34 +0100
-Message-Id: <20221228144304.889935125@linuxfoundation.org>
+Subject: [PATCH 6.0 0607/1073] crypto: ccree - Make cc_debugfs_global_fini() available for module init function
+Date:   Wed, 28 Dec 2022 15:36:35 +0100
+Message-Id: <20221228144344.533327950@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 9181f40fb2952fd59ecb75e7158620c9c669eee3 ]
+[ Upstream commit 8e96729fc26c8967db45a3fb7a60387619f77a22 ]
 
-If rdma receive buffer allocate failed, should call rpcrdma_regbuf_free()
-to free the send buffer, otherwise, the buffer data will be leaked.
+ccree_init() calls cc_debugfs_global_fini(), the former is an init
+function and the latter an exit function though.
 
-Fixes: bb93a1ae2bf4 ("xprtrdma: Allocate req's regbufs at xprt create time")
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+A modular build emits:
+
+	WARNING: modpost: drivers/crypto/ccree/ccree.o: section mismatch in reference: init_module (section: .init.text) -> cc_debugfs_global_fini (section: .exit.text)
+
+(with CONFIG_DEBUG_SECTION_MISMATCH=y).
+
+Fixes: 4f1c596df706 ("crypto: ccree - Remove debugfs when platform_driver_register failed")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprtrdma/verbs.c | 2 +-
+ drivers/crypto/ccree/cc_debugfs.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
-index 1295f9ab839f..507ba8b79992 100644
---- a/net/sunrpc/xprtrdma/verbs.c
-+++ b/net/sunrpc/xprtrdma/verbs.c
-@@ -858,7 +858,7 @@ struct rpcrdma_req *rpcrdma_req_create(struct rpcrdma_xprt *r_xprt, size_t size,
- 	return req;
+diff --git a/drivers/crypto/ccree/cc_debugfs.c b/drivers/crypto/ccree/cc_debugfs.c
+index 7083767602fc..8f008f024f8f 100644
+--- a/drivers/crypto/ccree/cc_debugfs.c
++++ b/drivers/crypto/ccree/cc_debugfs.c
+@@ -55,7 +55,7 @@ void __init cc_debugfs_global_init(void)
+ 	cc_debugfs_dir = debugfs_create_dir("ccree", NULL);
+ }
  
- out3:
--	kfree(req->rl_sendbuf);
-+	rpcrdma_regbuf_free(req->rl_sendbuf);
- out2:
- 	kfree(req);
- out1:
+-void __exit cc_debugfs_global_fini(void)
++void cc_debugfs_global_fini(void)
+ {
+ 	debugfs_remove(cc_debugfs_dir);
+ }
 -- 
 2.35.1
 
