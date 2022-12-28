@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C622657938
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:59:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57A1765793B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:59:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233346AbiL1O7C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:59:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45116 "EHLO
+        id S233355AbiL1O7G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:59:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233434AbiL1O6q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:58:46 -0500
+        with ESMTP id S233317AbiL1O6x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:58:53 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8818212746
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:58:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AFD812612
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:58:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47183B81717
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:58:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB59FC433EF;
-        Wed, 28 Dec 2022 14:58:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 254E6B81710
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:58:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94330C433D2;
+        Wed, 28 Dec 2022 14:58:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239522;
-        bh=y8bmNZP1v1LIBAKCzIrbu+60g3SGdFjRORkJgh5IiDs=;
+        s=korg; t=1672239529;
+        bh=PM5GTuthM+VY8X6eS+/TJUOiGsL4DzmLrac7ERzPjSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E9kaAnkOwEn3I+CQiIWTF36TrLvdwMRDhBFP+TFuqwBMuH2LOaGkyo+S7CSw2oDRf
-         KLLy9MF19QEUkckzmgRtdebZPHAnWms4AjUbxzroCYGC9zGPzNn0xKKbWBYXA5zkeC
-         VJXKIAU3HOczOq9ciWDUYx5GeOkuE+DP1N9H5iQ8=
+        b=13R2YrxV6lGthbIytqMRifH0HscHy5Uah/pQHKTHLJqdnyJ56d9XCN+jKGkou1utH
+         NarLP9j0ckdyiSkP6dxv2DJZU2TKxwD9mA0JNaNzZ62AW6BIBS/+Dg1Ij/msqwUiMQ
+         eAA5nTEc2rgy6mulpHA7kZc5ODAl4IbKzPqWeh2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0008/1146] arm64: dts: qcom: msm8996: fix supported-hw in cpufreq OPP tables
-Date:   Wed, 28 Dec 2022 15:25:47 +0100
-Message-Id: <20221228144330.408727274@linuxfoundation.org>
+Subject: [PATCH 6.1 0009/1146] arm64: dts: qcom: msm8996: fix GPU OPP table
+Date:   Wed, 28 Dec 2022 15:25:48 +0100
+Message-Id: <20221228144330.435138187@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -57,109 +57,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 0154caaa2b748e7414a4ec3c6ee60e8f483b2d4f ]
+[ Upstream commit 0d440d811e6e2f37093e54db55bc27fe66678170 ]
 
-Adjust MSM8996 cpufreq tables according to tables in msm-3.18. Some of
-the frequencies are not supported on speed bins other than 0. Also other
-speed bins support intermediate topmost frequencies, not supported on
-speed bin 0. Implement all these differencies.
+Fix Adreno OPP table according to the msm-3.18. Enable 624 MHz for the
+speed bin 3 and 560 MHz for bins 2 and 3.
 
-Fixes: 90173a954a22 ("arm64: dts: qcom: msm8996: Add CPU opps")
+Fixes: 69cc3114ab0f ("arm64: dts: Add Adreno GPU definitions")
 Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20220724140421.1933004-5-dmitry.baryshkov@linaro.org
+Link: https://lore.kernel.org/r/20220724140421.1933004-7-dmitry.baryshkov@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8996.dtsi | 38 ++++++++++++++++++++-------
- 1 file changed, 29 insertions(+), 9 deletions(-)
+ arch/arm64/boot/dts/qcom/msm8996.dtsi | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/qcom/msm8996.dtsi b/arch/arm64/boot/dts/qcom/msm8996.dtsi
-index 069b5c494e2e..7cc93329b93c 100644
+index 7cc93329b93c..67f0167dfda2 100644
 --- a/arch/arm64/boot/dts/qcom/msm8996.dtsi
 +++ b/arch/arm64/boot/dts/qcom/msm8996.dtsi
-@@ -204,22 +204,32 @@ opp-1228800000 {
- 		};
- 		opp-1324800000 {
- 			opp-hz = /bits/ 64 <1324800000>;
--			opp-supported-hw = <0x7>;
-+			opp-supported-hw = <0x5>;
-+			clock-latency-ns = <200000>;
-+		};
-+		opp-1363200000 {
-+			opp-hz = /bits/ 64 <1363200000>;
-+			opp-supported-hw = <0x2>;
- 			clock-latency-ns = <200000>;
- 		};
- 		opp-1401600000 {
- 			opp-hz = /bits/ 64 <1401600000>;
--			opp-supported-hw = <0x7>;
-+			opp-supported-hw = <0x5>;
- 			clock-latency-ns = <200000>;
- 		};
- 		opp-1478400000 {
- 			opp-hz = /bits/ 64 <1478400000>;
--			opp-supported-hw = <0x7>;
-+			opp-supported-hw = <0x1>;
-+			clock-latency-ns = <200000>;
-+		};
-+		opp-1497600000 {
-+			opp-hz = /bits/ 64 <1497600000>;
-+			opp-supported-hw = <0x04>;
- 			clock-latency-ns = <200000>;
- 		};
- 		opp-1593600000 {
- 			opp-hz = /bits/ 64 <1593600000>;
--			opp-supported-hw = <0x7>;
-+			opp-supported-hw = <0x1>;
- 			clock-latency-ns = <200000>;
- 		};
- 	};
-@@ -330,29 +340,39 @@ opp-1785600000 {
- 			opp-supported-hw = <0x7>;
- 			clock-latency-ns = <200000>;
- 		};
-+		opp-1804800000 {
-+			opp-hz = /bits/ 64 <1804800000>;
-+			opp-supported-hw = <0x6>;
-+			clock-latency-ns = <200000>;
-+		};
- 		opp-1824000000 {
- 			opp-hz = /bits/ 64 <1824000000>;
--			opp-supported-hw = <0x7>;
-+			opp-supported-hw = <0x1>;
-+			clock-latency-ns = <200000>;
-+		};
-+		opp-1900800000 {
-+			opp-hz = /bits/ 64 <1900800000>;
-+			opp-supported-hw = <0x4>;
- 			clock-latency-ns = <200000>;
- 		};
- 		opp-1920000000 {
- 			opp-hz = /bits/ 64 <1920000000>;
--			opp-supported-hw = <0x7>;
-+			opp-supported-hw = <0x1>;
- 			clock-latency-ns = <200000>;
- 		};
- 		opp-1996800000 {
- 			opp-hz = /bits/ 64 <1996800000>;
--			opp-supported-hw = <0x7>;
-+			opp-supported-hw = <0x1>;
- 			clock-latency-ns = <200000>;
- 		};
- 		opp-2073600000 {
- 			opp-hz = /bits/ 64 <2073600000>;
--			opp-supported-hw = <0x7>;
-+			opp-supported-hw = <0x1>;
- 			clock-latency-ns = <200000>;
- 		};
- 		opp-2150400000 {
- 			opp-hz = /bits/ 64 <2150400000>;
--			opp-supported-hw = <0x7>;
-+			opp-supported-hw = <0x1>;
- 			clock-latency-ns = <200000>;
- 		};
- 	};
+@@ -1233,17 +1233,17 @@ gpu_opp_table: opp-table {
+ 				compatible = "operating-points-v2";
+ 
+ 				/*
+-				 * 624Mhz and 560Mhz are only available on speed
+-				 * bin (1 << 0). All the rest are available on
+-				 * all bins of the hardware
++				 * 624Mhz is only available on speed bins 0 and 3.
++				 * 560Mhz is only available on speed bins 0, 2 and 3.
++				 * All the rest are available on all bins of the hardware.
+ 				 */
+ 				opp-624000000 {
+ 					opp-hz = /bits/ 64 <624000000>;
+-					opp-supported-hw = <0x01>;
++					opp-supported-hw = <0x09>;
+ 				};
+ 				opp-560000000 {
+ 					opp-hz = /bits/ 64 <560000000>;
+-					opp-supported-hw = <0x01>;
++					opp-supported-hw = <0x0d>;
+ 				};
+ 				opp-510000000 {
+ 					opp-hz = /bits/ 64 <510000000>;
 -- 
 2.35.1
 
