@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EDB86579EE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:06:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3463C657AC0
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:14:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233560AbiL1PGK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:06:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53674 "EHLO
+        id S230230AbiL1POo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:14:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233561AbiL1PGH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:06:07 -0500
+        with ESMTP id S233117AbiL1PO1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:14:27 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4031A12630
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:06:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13C5213EBB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:14:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B6F0F6154E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:06:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8A96C433EF;
-        Wed, 28 Dec 2022 15:06:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A4A0A6155F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:14:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B52C5C433D2;
+        Wed, 28 Dec 2022 15:14:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239965;
-        bh=rsvbKeLYFHMBzZ88M14YxHvEvbSs2E2fLFjhKoLXicw=;
+        s=korg; t=1672240465;
+        bh=NJFNp4F21/1fDeKzHeY4xY5wc0AAoHfUqzNFDzZmiX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OQbPgQtY69q5qu/yn5tD3vb3Ff5lfGaTI+hZiYpCzUMAcDLgp0CcgEaM4SXDaRaPa
-         85nAdz7us+FzpM1bhTuY6wRYXpZYTP4jhCvfzxoD48+m9n3RjLgPxr2To6dYbLgoTQ
-         DXLTK05C1iQdhlpG6vbbgi94+msq7Q6LBJk+w3Ng=
+        b=uP88o9d9ElOL55xsTZ8rzBGnPIt7ENgadaOj7/jJOAl4cv4oY25YAUt69n5xUBxVq
+         HfK66A15ccnh+TSHubA2oxLJbgK6vIepbWnRpGlXWpc8G76BuM+ZFhqkOGB8SKa8jw
+         o+4QFbaoPClVhML9fGUyMbWLdEE6KW45xYtjR5wM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0073/1073] ARM: dts: armada-38x: Fix assigned-addresses for every PCIe Root Port
+Subject: [PATCH 6.1 0122/1146] ACPI: irq: Fix some kernel-doc issues
 Date:   Wed, 28 Dec 2022 15:27:41 +0100
-Message-Id: <20221228144330.062812982@linuxfoundation.org>
+Message-Id: <20221228144333.470034820@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,76 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 44f47b7a8fa4678ce4c38ea74837e4996b9df6d6 ]
+[ Upstream commit ebb92d58b90753e658059f5d8590d9048395491a ]
 
-BDF of resource in DT assigned-addresses property of Marvell PCIe Root Port
-(PCI-to-PCI bridge) should match BDF in address part in that DT node name
-as specified resource belongs to Marvell PCIe Root Port itself.
+The following commit change the second parameter of acpi_set_irq_model()
+but forgot to update the function description. Let's fix it.
 
-Fixes: 0d3d96ab0059 ("ARM: mvebu: add Device Tree description of the Armada 380/385 SoCs")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+  commit 7327b16f5f56 ("APCI: irq: Add support for multiple GSI domains")
+
+Also add description of parameter 'gsi' for
+acpi_get_irq_source_fwhandle() to avoid the following build W=1 warning.
+
+  drivers/acpi/irq.c:108: warning: Function parameter or member 'gsi' not described in 'acpi_get_irq_source_fwhandle'
+
+Fixes: 7327b16f5f56 ("APCI: irq: Add support for multiple GSI domains")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/armada-380.dtsi | 4 ++--
- arch/arm/boot/dts/armada-385.dtsi | 6 +++---
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/acpi/irq.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/armada-380.dtsi b/arch/arm/boot/dts/armada-380.dtsi
-index cff1269f3fbf..7146cc8f082a 100644
---- a/arch/arm/boot/dts/armada-380.dtsi
-+++ b/arch/arm/boot/dts/armada-380.dtsi
-@@ -79,7 +79,7 @@ pcie@1,0 {
- 			/* x1 port */
- 			pcie@2,0 {
- 				device_type = "pci";
--				assigned-addresses = <0x82000800 0 0x40000 0 0x2000>;
-+				assigned-addresses = <0x82001000 0 0x40000 0 0x2000>;
- 				reg = <0x1000 0 0 0 0>;
- 				#address-cells = <3>;
- 				#size-cells = <2>;
-@@ -98,7 +98,7 @@ pcie@2,0 {
- 			/* x1 port */
- 			pcie@3,0 {
- 				device_type = "pci";
--				assigned-addresses = <0x82000800 0 0x44000 0 0x2000>;
-+				assigned-addresses = <0x82001800 0 0x44000 0 0x2000>;
- 				reg = <0x1800 0 0 0 0>;
- 				#address-cells = <3>;
- 				#size-cells = <2>;
-diff --git a/arch/arm/boot/dts/armada-385.dtsi b/arch/arm/boot/dts/armada-385.dtsi
-index 83392b92dae2..be8d607c59b2 100644
---- a/arch/arm/boot/dts/armada-385.dtsi
-+++ b/arch/arm/boot/dts/armada-385.dtsi
-@@ -93,7 +93,7 @@ pcie1_intc: interrupt-controller {
- 			/* x1 port */
- 			pcie2: pcie@2,0 {
- 				device_type = "pci";
--				assigned-addresses = <0x82000800 0 0x40000 0 0x2000>;
-+				assigned-addresses = <0x82001000 0 0x40000 0 0x2000>;
- 				reg = <0x1000 0 0 0 0>;
- 				#address-cells = <3>;
- 				#size-cells = <2>;
-@@ -121,7 +121,7 @@ pcie2_intc: interrupt-controller {
- 			/* x1 port */
- 			pcie3: pcie@3,0 {
- 				device_type = "pci";
--				assigned-addresses = <0x82000800 0 0x44000 0 0x2000>;
-+				assigned-addresses = <0x82001800 0 0x44000 0 0x2000>;
- 				reg = <0x1800 0 0 0 0>;
- 				#address-cells = <3>;
- 				#size-cells = <2>;
-@@ -152,7 +152,7 @@ pcie3_intc: interrupt-controller {
- 			 */
- 			pcie4: pcie@4,0 {
- 				device_type = "pci";
--				assigned-addresses = <0x82000800 0 0x48000 0 0x2000>;
-+				assigned-addresses = <0x82002000 0 0x48000 0 0x2000>;
- 				reg = <0x2000 0 0 0 0>;
- 				#address-cells = <3>;
- 				#size-cells = <2>;
+diff --git a/drivers/acpi/irq.c b/drivers/acpi/irq.c
+index 1cc4647f78b8..c2c786eb95ab 100644
+--- a/drivers/acpi/irq.c
++++ b/drivers/acpi/irq.c
+@@ -94,6 +94,7 @@ EXPORT_SYMBOL_GPL(acpi_unregister_gsi);
+ /**
+  * acpi_get_irq_source_fwhandle() - Retrieve fwhandle from IRQ resource source.
+  * @source: acpi_resource_source to use for the lookup.
++ * @gsi: GSI IRQ number
+  *
+  * Description:
+  * Retrieve the fwhandle of the device referenced by the given IRQ resource
+@@ -297,8 +298,8 @@ EXPORT_SYMBOL_GPL(acpi_irq_get);
+ /**
+  * acpi_set_irq_model - Setup the GSI irqdomain information
+  * @model: the value assigned to acpi_irq_model
+- * @fwnode: the irq_domain identifier for mapping and looking up
+- *          GSI interrupts
++ * @fn: a dispatcher function that will return the domain fwnode
++ *	for a given GSI
+  */
+ void __init acpi_set_irq_model(enum acpi_irq_model_id model,
+ 			       struct fwnode_handle *(*fn)(u32))
 -- 
 2.35.1
 
