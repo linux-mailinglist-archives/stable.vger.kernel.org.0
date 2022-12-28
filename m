@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BF7A657D50
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:42:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0565F657840
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:49:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233563AbiL1PmU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:42:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58186 "EHLO
+        id S233057AbiL1Os7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:48:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233537AbiL1PmA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:42:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 379C317411
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:41:48 -0800 (PST)
+        with ESMTP id S233085AbiL1Osg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:48:36 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C581A3AB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:48:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0F1BB81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:41:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F810C433D2;
-        Wed, 28 Dec 2022 15:41:44 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 13CD5CE134B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:48:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07194C433EF;
+        Wed, 28 Dec 2022 14:48:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242105;
-        bh=SClkrmNjl9BiacFl33xQGVQVYpd8Ndhx0npwfmRUNmM=;
+        s=korg; t=1672238911;
+        bh=3vwFcaieluRi6q0iYneGoYE0UQMjzAZ7MNAi9XLmY6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gy/BTj83YOSLS3DJGBVtPlHFgpMvArjPkCMH3zWO21nLOyqbg+CM1Fx2DesVsxEss
-         AMX+qXplpYULjMeDNJ7qbWM1XUOYgRxFyxAYzBm0NfuLt4BAUgpL0s59oy39SRdTaI
-         SK5DeL36239AshQLnaemrZ5jOFby+A64njUDE508=
+        b=NGq42FO0Ykx/IBYtC//RxkeJZkyCo3w7EA+o448zfGK9L3XI55CYf5MpzvweJg8g3
+         ZwsbcmWSYWe0l+XJQcNJaT863+MJKroreIc/LWxobYJI0S7Y1fQ2YZboUAyoqqSP8O
+         Z89wikoR69nOIP6Ybvkz4+FuZlOomxacQR/f4M/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Alan Previn <alan.previn.teres.alexis@intel.com>,
-        Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>,
-        Lucas De Marchi <lucas.demarchi@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0368/1073] drm/i915/guc: make default_lists const data
+Subject: [PATCH 5.15 049/731] ARM: dts: armada-375: Fix assigned-addresses for every PCIe Root Port
 Date:   Wed, 28 Dec 2022 15:32:36 +0100
-Message-Id: <20221228144337.999409317@linuxfoundation.org>
+Message-Id: <20221228144257.977280756@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,39 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jani Nikula <jani.nikula@intel.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit dfa5e6ef3ccefff9fa8a70d9f5fa6ef6244aa312 ]
+[ Upstream commit 823956d2436f70ced74c0fe8ab99facd8abfc060 ]
 
-The default_lists array should be in rodata.
+BDF of resource in DT assigned-addresses property of Marvell PCIe Root Port
+(PCI-to-PCI bridge) should match BDF in address part in that DT node name
+as specified resource belongs to Marvell PCIe Root Port itself.
 
-Fixes: dce2bd542337 ("drm/i915/guc: Add Gen9 registers for GuC error state capture.")
-Cc: Alan Previn <alan.previn.teres.alexis@intel.com>
-Cc: Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>
-Cc: Lucas De Marchi <lucas.demarchi@intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Reviewed-by: Lucas De Marchi <lucas.demarchi@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221122141616.3469214-1-jani.nikula@intel.com
-(cherry picked from commit 8b7f7a9b10b704ba7d73199ff0f01354e0bad7a5)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Fixes: 4de59085091f ("ARM: mvebu: add Device Tree description of the Armada 375 SoC")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c | 2 +-
+ arch/arm/boot/dts/armada-375.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
-index 34e72675b7e4..4c51888fd78b 100644
---- a/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
-+++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
-@@ -165,7 +165,7 @@ static const struct __guc_mmio_reg_descr empty_regs_list[] = {
- 	}
+diff --git a/arch/arm/boot/dts/armada-375.dtsi b/arch/arm/boot/dts/armada-375.dtsi
+index 7f2f24a29e6c..352a2f7ba311 100644
+--- a/arch/arm/boot/dts/armada-375.dtsi
++++ b/arch/arm/boot/dts/armada-375.dtsi
+@@ -582,7 +582,7 @@ pcie0: pcie@1,0 {
  
- /* List of lists */
--static struct __guc_mmio_reg_descr_group default_lists[] = {
-+static const struct __guc_mmio_reg_descr_group default_lists[] = {
- 	MAKE_REGLIST(default_global_regs, PF, GLOBAL, 0),
- 	MAKE_REGLIST(default_rc_class_regs, PF, ENGINE_CLASS, GUC_RENDER_CLASS),
- 	MAKE_REGLIST(xe_lpd_rc_inst_regs, PF, ENGINE_INSTANCE, GUC_RENDER_CLASS),
+ 			pcie1: pcie@2,0 {
+ 				device_type = "pci";
+-				assigned-addresses = <0x82000800 0 0x44000 0 0x2000>;
++				assigned-addresses = <0x82001000 0 0x44000 0 0x2000>;
+ 				reg = <0x1000 0 0 0 0>;
+ 				#address-cells = <3>;
+ 				#size-cells = <2>;
 -- 
 2.35.1
 
