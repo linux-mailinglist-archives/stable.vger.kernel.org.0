@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33A74657CD5
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:36:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2091E657BCA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:25:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233893AbiL1Pgc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:36:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54214 "EHLO
+        id S233808AbiL1PZd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:25:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233468AbiL1Pgb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:36:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0D38140E6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:36:30 -0800 (PST)
+        with ESMTP id S233763AbiL1PZT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:25:19 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91EB9140C1
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:25:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F6B3B81719
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:36:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D67A5C433D2;
-        Wed, 28 Dec 2022 15:36:27 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0C324CE1368
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:25:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BE9CC433D2;
+        Wed, 28 Dec 2022 15:25:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241788;
-        bh=a+A0/hU1/71tOtzTGsNnSczq7KsazouMZgYqwLVWedI=;
+        s=korg; t=1672241114;
+        bh=OvuDAZCYkMmEL1dhU8haUAx29v9SUcJq7cF7xXpcilo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gAxMACaDvJrvffnfJtpTK+4rYcJgofFUKOwSIWT4cfI2jnYM/GmJ+r0199NejZws5
-         j5vGpZ5NuS9G+IKeGhYdy+HmDLXcq0eRe5NyeKjl/04wRS9K9g/WQzQkVZA7aejoVh
-         T9Y8coW6mlS64BHsteEcemfrOh5x0KULAAc0HYpg=
+        b=CCB1gkPq4qAIZpWb+5nhxO2krVBQKT8bNc4bHleC3yXRYLKfGqhjkmB8r0CZGSmZE
+         7wQ0qAryi24/Sx0dj9tR/sndwWHGJTsXJ+vTtMcanp19MC/RU3oESR7wsuO38urIM8
+         yPeTUHTTt54tFzoOsouZFyU6nVsLKif2MJ99dk2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Moudy Ho <moudy.ho@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        patches@lists.linux.dev, Anssi Hannula <anssi.hannula@bitwise.fi>,
+        Jimmy Assarsson <extja@kvaser.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0289/1146] media: platform: mtk-mdp3: fix error handling in mdp_probe()
-Date:   Wed, 28 Dec 2022 15:30:28 +0100
-Message-Id: <20221228144337.989758953@linuxfoundation.org>
+Subject: [PATCH 6.0 0241/1073] can: kvaser_usb: kvaser_usb_leaf: Get capabilities from device
+Date:   Wed, 28 Dec 2022 15:30:29 +0100
+Message-Id: <20221228144334.573796121@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,74 +54,229 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moudy Ho <moudy.ho@mediatek.com>
+From: Jimmy Assarsson <extja@kvaser.com>
 
-[ Upstream commit 82b7d4b5d393d6654148e885efca0a3df63806f6 ]
+[ Upstream commit 35364f5b41a4917fe94a3f393d149b63ec583297 ]
 
-Adjust label "err_return" order to avoid double freeing, and
-add two labels for easy traceability.
+Use the CMD_GET_CAPABILITIES_REQ command to query the device for certain
+capabilities. We are only interested in LISTENONLY mode and wither the
+device reports CAN error counters.
 
-Fixes: 61890ccaefaf ("media: platform: mtk-mdp3: add MediaTek MDP3 driver")
-Signed-off-by: Moudy Ho <moudy.ho@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
+Reported-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Tested-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
+Link: https://lore.kernel.org/all/20221010185237.319219-3-extja@kvaser.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../media/platform/mediatek/mdp3/mtk-mdp3-core.c  | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ .../net/can/usb/kvaser_usb/kvaser_usb_leaf.c  | 144 +++++++++++++++++-
+ 1 file changed, 143 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/mediatek/mdp3/mtk-mdp3-core.c b/drivers/media/platform/mediatek/mdp3/mtk-mdp3-core.c
-index c413e59d4286..2d1f6ae9f080 100644
---- a/drivers/media/platform/mediatek/mdp3/mtk-mdp3-core.c
-+++ b/drivers/media/platform/mediatek/mdp3/mtk-mdp3-core.c
-@@ -196,27 +196,27 @@ static int mdp_probe(struct platform_device *pdev)
- 	mm_pdev = __get_pdev_by_id(pdev, MDP_INFRA_MMSYS);
- 	if (!mm_pdev) {
- 		ret = -ENODEV;
--		goto err_return;
-+		goto err_destroy_device;
- 	}
- 	mdp->mdp_mmsys = &mm_pdev->dev;
+diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+index 19958037720f..33ff62cd1729 100644
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+@@ -74,6 +74,8 @@
+ #define CMD_TX_ACKNOWLEDGE		50
+ #define CMD_CAN_ERROR_EVENT		51
+ #define CMD_FLUSH_QUEUE_REPLY		68
++#define CMD_GET_CAPABILITIES_REQ	95
++#define CMD_GET_CAPABILITIES_RESP	96
  
- 	mm_pdev = __get_pdev_by_id(pdev, MDP_INFRA_MUTEX);
- 	if (WARN_ON(!mm_pdev)) {
- 		ret = -ENODEV;
--		goto err_return;
-+		goto err_destroy_device;
- 	}
- 	for (i = 0; i < MDP_PIPE_MAX; i++) {
- 		mdp->mdp_mutex[i] = mtk_mutex_get(&mm_pdev->dev);
- 		if (!mdp->mdp_mutex[i]) {
- 			ret = -ENODEV;
--			goto err_return;
-+			goto err_free_mutex;
- 		}
- 	}
+ #define CMD_LEAF_LOG_MESSAGE		106
  
- 	ret = mdp_comp_config(mdp);
- 	if (ret) {
- 		dev_err(dev, "Failed to config mdp components\n");
--		goto err_return;
-+		goto err_free_mutex;
- 	}
+@@ -83,6 +85,8 @@
+ #define KVASER_USB_LEAF_SWOPTION_FREQ_32_MHZ_CLK BIT(5)
+ #define KVASER_USB_LEAF_SWOPTION_FREQ_24_MHZ_CLK BIT(6)
  
- 	mdp->job_wq = alloc_workqueue(MDP_MODULE_NAME, WQ_FREEZABLE, 0);
-@@ -287,11 +287,12 @@ static int mdp_probe(struct platform_device *pdev)
- 	destroy_workqueue(mdp->job_wq);
- err_deinit_comp:
- 	mdp_comp_destroy(mdp);
--err_return:
-+err_free_mutex:
- 	for (i = 0; i < MDP_PIPE_MAX; i++)
--		if (mdp)
--			mtk_mutex_put(mdp->mdp_mutex[i]);
-+		mtk_mutex_put(mdp->mdp_mutex[i]);
-+err_destroy_device:
- 	kfree(mdp);
-+err_return:
- 	dev_dbg(dev, "Errno %d\n", ret);
- 	return ret;
++#define KVASER_USB_LEAF_SWOPTION_EXT_CAP BIT(12)
++
+ /* error factors */
+ #define M16C_EF_ACKE			BIT(0)
+ #define M16C_EF_CRCE			BIT(1)
+@@ -278,6 +282,28 @@ struct leaf_cmd_log_message {
+ 	u8 data[8];
+ } __packed;
+ 
++/* Sub commands for cap_req and cap_res */
++#define KVASER_USB_LEAF_CAP_CMD_LISTEN_MODE 0x02
++#define KVASER_USB_LEAF_CAP_CMD_ERR_REPORT 0x05
++struct kvaser_cmd_cap_req {
++	__le16 padding0;
++	__le16 cap_cmd;
++	__le16 padding1;
++	__le16 channel;
++} __packed;
++
++/* Status codes for cap_res */
++#define KVASER_USB_LEAF_CAP_STAT_OK 0x00
++#define KVASER_USB_LEAF_CAP_STAT_NOT_IMPL 0x01
++#define KVASER_USB_LEAF_CAP_STAT_UNAVAIL 0x02
++struct kvaser_cmd_cap_res {
++	__le16 padding;
++	__le16 cap_cmd;
++	__le16 status;
++	__le32 mask;
++	__le32 value;
++} __packed;
++
+ struct kvaser_cmd {
+ 	u8 len;
+ 	u8 id;
+@@ -295,6 +321,8 @@ struct kvaser_cmd {
+ 			struct leaf_cmd_chip_state_event chip_state_event;
+ 			struct leaf_cmd_error_event error_event;
+ 			struct leaf_cmd_log_message log_message;
++			struct kvaser_cmd_cap_req cap_req;
++			struct kvaser_cmd_cap_res cap_res;
+ 		} __packed leaf;
+ 
+ 		union {
+@@ -324,6 +352,7 @@ static const u8 kvaser_usb_leaf_cmd_sizes_leaf[] = {
+ 	[CMD_LEAF_LOG_MESSAGE]		= kvaser_fsize(u.leaf.log_message),
+ 	[CMD_CHIP_STATE_EVENT]		= kvaser_fsize(u.leaf.chip_state_event),
+ 	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.leaf.error_event),
++	[CMD_GET_CAPABILITIES_RESP]	= kvaser_fsize(u.leaf.cap_res),
+ 	/* ignored events: */
+ 	[CMD_FLUSH_QUEUE_REPLY]		= CMD_SIZE_ANY,
+ };
+@@ -606,6 +635,9 @@ static void kvaser_usb_leaf_get_software_info_leaf(struct kvaser_usb *dev,
+ 	dev->fw_version = le32_to_cpu(softinfo->fw_version);
+ 	dev->max_tx_urbs = le16_to_cpu(softinfo->max_outstanding_tx);
+ 
++	if (sw_options & KVASER_USB_LEAF_SWOPTION_EXT_CAP)
++		dev->card_data.capabilities |= KVASER_USB_CAP_EXT_CAP;
++
+ 	if (dev->driver_info->quirks & KVASER_USB_QUIRK_IGNORE_CLK_FREQ) {
+ 		/* Firmware expects bittiming parameters calculated for 16MHz
+ 		 * clock, regardless of the actual clock
+@@ -693,6 +725,116 @@ static int kvaser_usb_leaf_get_card_info(struct kvaser_usb *dev)
+ 	return 0;
  }
+ 
++static int kvaser_usb_leaf_get_single_capability(struct kvaser_usb *dev,
++						 u16 cap_cmd_req, u16 *status)
++{
++	struct kvaser_usb_dev_card_data *card_data = &dev->card_data;
++	struct kvaser_cmd *cmd;
++	u32 value = 0;
++	u32 mask = 0;
++	u16 cap_cmd_res;
++	int err;
++	int i;
++
++	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
++	if (!cmd)
++		return -ENOMEM;
++
++	cmd->id = CMD_GET_CAPABILITIES_REQ;
++	cmd->u.leaf.cap_req.cap_cmd = cpu_to_le16(cap_cmd_req);
++	cmd->len = CMD_HEADER_LEN + sizeof(struct kvaser_cmd_cap_req);
++
++	err = kvaser_usb_send_cmd(dev, cmd, cmd->len);
++	if (err)
++		goto end;
++
++	err = kvaser_usb_leaf_wait_cmd(dev, CMD_GET_CAPABILITIES_RESP, cmd);
++	if (err)
++		goto end;
++
++	*status = le16_to_cpu(cmd->u.leaf.cap_res.status);
++
++	if (*status != KVASER_USB_LEAF_CAP_STAT_OK)
++		goto end;
++
++	cap_cmd_res = le16_to_cpu(cmd->u.leaf.cap_res.cap_cmd);
++	switch (cap_cmd_res) {
++	case KVASER_USB_LEAF_CAP_CMD_LISTEN_MODE:
++	case KVASER_USB_LEAF_CAP_CMD_ERR_REPORT:
++		value = le32_to_cpu(cmd->u.leaf.cap_res.value);
++		mask = le32_to_cpu(cmd->u.leaf.cap_res.mask);
++		break;
++	default:
++		dev_warn(&dev->intf->dev, "Unknown capability command %u\n",
++			 cap_cmd_res);
++		break;
++	}
++
++	for (i = 0; i < dev->nchannels; i++) {
++		if (BIT(i) & (value & mask)) {
++			switch (cap_cmd_res) {
++			case KVASER_USB_LEAF_CAP_CMD_LISTEN_MODE:
++				card_data->ctrlmode_supported |=
++						CAN_CTRLMODE_LISTENONLY;
++				break;
++			case KVASER_USB_LEAF_CAP_CMD_ERR_REPORT:
++				card_data->capabilities |=
++						KVASER_USB_CAP_BERR_CAP;
++				break;
++			}
++		}
++	}
++
++end:
++	kfree(cmd);
++
++	return err;
++}
++
++static int kvaser_usb_leaf_get_capabilities_leaf(struct kvaser_usb *dev)
++{
++	int err;
++	u16 status;
++
++	if (!(dev->card_data.capabilities & KVASER_USB_CAP_EXT_CAP)) {
++		dev_info(&dev->intf->dev,
++			 "No extended capability support. Upgrade device firmware.\n");
++		return 0;
++	}
++
++	err = kvaser_usb_leaf_get_single_capability(dev,
++						    KVASER_USB_LEAF_CAP_CMD_LISTEN_MODE,
++						    &status);
++	if (err)
++		return err;
++	if (status)
++		dev_info(&dev->intf->dev,
++			 "KVASER_USB_LEAF_CAP_CMD_LISTEN_MODE failed %u\n",
++			 status);
++
++	err = kvaser_usb_leaf_get_single_capability(dev,
++						    KVASER_USB_LEAF_CAP_CMD_ERR_REPORT,
++						    &status);
++	if (err)
++		return err;
++	if (status)
++		dev_info(&dev->intf->dev,
++			 "KVASER_USB_LEAF_CAP_CMD_ERR_REPORT failed %u\n",
++			 status);
++
++	return 0;
++}
++
++static int kvaser_usb_leaf_get_capabilities(struct kvaser_usb *dev)
++{
++	int err = 0;
++
++	if (dev->driver_info->family == KVASER_LEAF)
++		err = kvaser_usb_leaf_get_capabilities_leaf(dev);
++
++	return err;
++}
++
+ static void kvaser_usb_leaf_tx_acknowledge(const struct kvaser_usb *dev,
+ 					   const struct kvaser_cmd *cmd)
+ {
+@@ -1486,7 +1628,7 @@ const struct kvaser_usb_dev_ops kvaser_usb_leaf_dev_ops = {
+ 	.dev_get_software_info = kvaser_usb_leaf_get_software_info,
+ 	.dev_get_software_details = NULL,
+ 	.dev_get_card_info = kvaser_usb_leaf_get_card_info,
+-	.dev_get_capabilities = NULL,
++	.dev_get_capabilities = kvaser_usb_leaf_get_capabilities,
+ 	.dev_set_opt_mode = kvaser_usb_leaf_set_opt_mode,
+ 	.dev_start_chip = kvaser_usb_leaf_start_chip,
+ 	.dev_stop_chip = kvaser_usb_leaf_stop_chip,
 -- 
 2.35.1
 
