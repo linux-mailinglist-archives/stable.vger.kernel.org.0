@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B8E16584BD
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:01:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42984658483
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:58:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233417AbiL1RBX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:01:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55680 "EHLO
+        id S235366AbiL1Q5o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:57:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235335AbiL1RAp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:00:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89FA110B76;
-        Wed, 28 Dec 2022 08:55:52 -0800 (PST)
+        with ESMTP id S235396AbiL1Q44 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:56:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E356FEF
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:53:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 21B8661572;
-        Wed, 28 Dec 2022 16:55:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35F4DC433EF;
-        Wed, 28 Dec 2022 16:55:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C9ECDB81707
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:53:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3556EC433D2;
+        Wed, 28 Dec 2022 16:53:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246551;
-        bh=kCD7HIioD2lG850CCyOVW4T7rE7c2036hA/ylMNGFi0=;
+        s=korg; t=1672246400;
+        bh=4TVCKaRbeWhAEp0UoBc2bJjHD+aZbl8euEkU9XFh75U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=It8zd2XtqFOxq9/PV3CKjSfZtNi8BSHav1AcXrfYkS801fEVdKuNG18FI4mtLN+zp
-         oAKcA8bX/K/vk9njUewpuQmboOykFG9IXj/OrjxykptGu0nr0k+NY7ijd1QAhH8Egy
-         eEcNtA1tgFtGW6IEg+9AAbFkbRJp3jefAK0obips=
+        b=JU2O9Fmrf+kX3FzFf23NMtfXyZtO1ewkBbDRfNrtFyFwTMrkGvLBnX1VRvzaVsEnL
+         /PMld5TGifoikB3/vCwZz1rGi4wtsMC3itjUM5KDHPtyN9ZxbjCU/jibQKKMBqNOVy
+         r7FZXfAr90LyXu9uTAoBsP8EWG0DN6+ZsY1qiJ70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paul Moore <paul@paul-moore.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        linux-security-module@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1079/1146] LoadPin: Ignore the "contents" argument of the LSM hooks
+        patches@lists.linux.dev, Jiao Zhou <jiaozhou@google.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 6.0 1030/1073] ALSA: hda/hdmi: Add HP Device 0x8711 to force connect list
 Date:   Wed, 28 Dec 2022 15:43:38 +0100
-Message-Id: <20221228144359.524935039@linuxfoundation.org>
+Message-Id: <20221228144356.169891248@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,85 +52,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Jiao Zhou <jiaozhou@google.com>
 
-[ Upstream commit 1a17e5b513ceebf21100027745b8731b4728edf7 ]
+commit 31b573946ea55e1ea0e08ae8e83bcf879b30f83a upstream.
 
-LoadPin only enforces the read-only origin of kernel file reads. Whether
-or not it was a partial read isn't important. Remove the overly
-conservative checks so that things like partial firmware reads will
-succeed (i.e. reading a firmware header).
+HDMI audio is not working on the HP EliteDesk 800 G6 because the pin is
+unconnected. This issue can be resolved by using the 'hdajackretask'
+tool to override the unconnected pin to force it to connect.
 
-Fixes: 2039bda1fa8d ("LSM: Add "contents" flag to kernel_read_file hook")
-Cc: Paul Moore <paul@paul-moore.com>
-Cc: James Morris <jmorris@namei.org>
-Cc: "Serge E. Hallyn" <serge@hallyn.com>
-Cc: linux-security-module@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Acked-by: Serge Hallyn <serge@hallyn.com>
-Tested-by: Ping-Ke Shih <pkshih@realtek.com>
-Link: https://lore.kernel.org/r/20221209195453.never.494-kees@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Jiao Zhou <jiaozhou@google.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20221206185311.3669950-1-jiaozhou@google.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/loadpin/loadpin.c | 30 ++++++++++++++++++------------
- 1 file changed, 18 insertions(+), 12 deletions(-)
+ sound/pci/hda/patch_hdmi.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/security/loadpin/loadpin.c b/security/loadpin/loadpin.c
-index de41621f4998..110a5ab2b46b 100644
---- a/security/loadpin/loadpin.c
-+++ b/security/loadpin/loadpin.c
-@@ -122,21 +122,11 @@ static void loadpin_sb_free_security(struct super_block *mnt_sb)
- 	}
- }
- 
--static int loadpin_read_file(struct file *file, enum kernel_read_file_id id,
--			     bool contents)
-+static int loadpin_check(struct file *file, enum kernel_read_file_id id)
- {
- 	struct super_block *load_root;
- 	const char *origin = kernel_read_file_id_str(id);
- 
--	/*
--	 * If we will not know that we'll be seeing the full contents
--	 * then we cannot trust a load will be complete and unchanged
--	 * off disk. Treat all contents=false hooks as if there were
--	 * no associated file struct.
--	 */
--	if (!contents)
--		file = NULL;
--
- 	/* If the file id is excluded, ignore the pinning. */
- 	if ((unsigned int)id < ARRAY_SIZE(ignore_read_file_id) &&
- 	    ignore_read_file_id[id]) {
-@@ -192,9 +182,25 @@ static int loadpin_read_file(struct file *file, enum kernel_read_file_id id,
- 	return 0;
- }
- 
-+static int loadpin_read_file(struct file *file, enum kernel_read_file_id id,
-+			     bool contents)
-+{
-+	/*
-+	 * LoadPin only cares about the _origin_ of a file, not its
-+	 * contents, so we can ignore the "are full contents available"
-+	 * argument here.
-+	 */
-+	return loadpin_check(file, id);
-+}
-+
- static int loadpin_load_data(enum kernel_load_data_id id, bool contents)
- {
--	return loadpin_read_file(NULL, (enum kernel_read_file_id) id, contents);
-+	/*
-+	 * LoadPin only cares about the _origin_ of a file, not its
-+	 * contents, so a NULL file is passed, and we can ignore the
-+	 * state of "contents".
-+	 */
-+	return loadpin_check(NULL, (enum kernel_read_file_id) id);
- }
- 
- static struct security_hook_list loadpin_hooks[] __lsm_ro_after_init = {
--- 
-2.35.1
-
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -1976,6 +1976,7 @@ static int hdmi_add_cvt(struct hda_codec
+ static const struct snd_pci_quirk force_connect_list[] = {
+ 	SND_PCI_QUIRK(0x103c, 0x870f, "HP", 1),
+ 	SND_PCI_QUIRK(0x103c, 0x871a, "HP", 1),
++	SND_PCI_QUIRK(0x103c, 0x8711, "HP", 1),
+ 	SND_PCI_QUIRK(0x1462, 0xec94, "MS-7C94", 1),
+ 	SND_PCI_QUIRK(0x8086, 0x2081, "Intel NUC 10", 1),
+ 	{}
 
 
