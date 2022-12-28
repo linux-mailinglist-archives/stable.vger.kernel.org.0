@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BF82657B13
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:17:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EDB86579EE
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:06:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233181AbiL1PR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:17:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36766 "EHLO
+        id S233560AbiL1PGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:06:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233194AbiL1PRw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:17:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13A1913F75
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:17:51 -0800 (PST)
+        with ESMTP id S233561AbiL1PGH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:06:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4031A12630
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:06:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8808CB816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:17:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0507CC433D2;
-        Wed, 28 Dec 2022 15:17:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B6F0F6154E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:06:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8A96C433EF;
+        Wed, 28 Dec 2022 15:06:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240668;
-        bh=9xynk3OSKRRy/cMulId0mogaKE1AWyLFT4l69RpJo6M=;
+        s=korg; t=1672239965;
+        bh=rsvbKeLYFHMBzZ88M14YxHvEvbSs2E2fLFjhKoLXicw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZpK8a6uwfNa6g982Od7OVpxuuS1vt/Hm+9q/tLcPfrt1vqMEmAGaMRYQH72so3LiV
-         1DGuQ94S5PEzjZ+9ZihR12sFIXcJSYI/lS3F/uQ1BVlzCtNQH7cM7joCpEqdmC27bl
-         QjG3kThOuBwy/dPy+5bY13+I8Px7wpB/TPEL2PJo=
+        b=OQbPgQtY69q5qu/yn5tD3vb3Ff5lfGaTI+hZiYpCzUMAcDLgp0CcgEaM4SXDaRaPa
+         85nAdz7us+FzpM1bhTuY6wRYXpZYTP4jhCvfzxoD48+m9n3RjLgPxr2To6dYbLgoTQ
+         DXLTK05C1iQdhlpG6vbbgi94+msq7Q6LBJk+w3Ng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thomas Gleixner <tglx@linutronix.de>,
-        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Andre Almeida <andrealmeid@igalia.com>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0121/1146] x86/split_lock: Add sysctl to control the misery mode
-Date:   Wed, 28 Dec 2022 15:27:40 +0100
-Message-Id: <20221228144333.443425746@linuxfoundation.org>
+Subject: [PATCH 6.0 0073/1073] ARM: dts: armada-38x: Fix assigned-addresses for every PCIe Root Port
+Date:   Wed, 28 Dec 2022 15:27:41 +0100
+Message-Id: <20221228144330.062812982@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,196 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guilherme G. Piccoli <gpiccoli@igalia.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 727209376f4998bc84db1d5d8af15afea846a92b ]
+[ Upstream commit 44f47b7a8fa4678ce4c38ea74837e4996b9df6d6 ]
 
-Commit b041b525dab9 ("x86/split_lock: Make life miserable for split lockers")
-changed the way the split lock detector works when in "warn" mode;
-basically, it not only shows the warn message, but also intentionally
-introduces a slowdown through sleeping plus serialization mechanism
-on such task. Based on discussions in [0], seems the warning alone
-wasn't enough motivation for userspace developers to fix their
-applications.
+BDF of resource in DT assigned-addresses property of Marvell PCIe Root Port
+(PCI-to-PCI bridge) should match BDF in address part in that DT node name
+as specified resource belongs to Marvell PCIe Root Port itself.
 
-This slowdown is enough to totally break some proprietary (aka.
-unfixable) userspace[1].
-
-Happens that originally the proposal in [0] was to add a new mode
-which would warns + slowdown the "split locking" task, keeping the
-old warn mode untouched. In the end, that idea was discarded and
-the regular/default "warn" mode now slows down the applications. This
-is quite aggressive with regards proprietary/legacy programs that
-basically are unable to properly run in kernel with this change.
-While it is understandable that a malicious application could DoS
-by split locking, it seems unacceptable to regress old/proprietary
-userspace programs through a default configuration that previously
-worked. An example of such breakage was reported in [1].
-
-Add a sysctl to allow controlling the "misery mode" behavior, as per
-Thomas suggestion on [2]. This way, users running legacy and/or
-proprietary software are allowed to still execute them with a decent
-performance while still observing the warning messages on kernel log.
-
-[0] https://lore.kernel.org/lkml/20220217012721.9694-1-tony.luck@intel.com/
-[1] https://github.com/doitsujin/dxvk/issues/2938
-[2] https://lore.kernel.org/lkml/87pmf4bter.ffs@tglx/
-
-[ dhansen: minor changelog tweaks, including clarifying the actual
-  	   problem ]
-
-Fixes: b041b525dab9 ("x86/split_lock: Make life miserable for split lockers")
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Tested-by: Andre Almeida <andrealmeid@igalia.com>
-Link: https://lore.kernel.org/all/20221024200254.635256-1-gpiccoli%40igalia.com
+Fixes: 0d3d96ab0059 ("ARM: mvebu: add Device Tree description of the Armada 380/385 SoCs")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/admin-guide/sysctl/kernel.rst | 23 ++++++++
- arch/x86/kernel/cpu/intel.c                 | 63 +++++++++++++++++----
- 2 files changed, 76 insertions(+), 10 deletions(-)
+ arch/arm/boot/dts/armada-380.dtsi | 4 ++--
+ arch/arm/boot/dts/armada-385.dtsi | 6 +++---
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/admin-guide/sysctl/kernel.rst b/Documentation/admin-guide/sysctl/kernel.rst
-index 98d1b198b2b4..c2c64c1b706f 100644
---- a/Documentation/admin-guide/sysctl/kernel.rst
-+++ b/Documentation/admin-guide/sysctl/kernel.rst
-@@ -1314,6 +1314,29 @@ watchdog work to be queued by the watchdog timer function, otherwise the NMI
- watchdog — if enabled — can detect a hard lockup condition.
- 
- 
-+split_lock_mitigate (x86 only)
-+==============================
-+
-+On x86, each "split lock" imposes a system-wide performance penalty. On larger
-+systems, large numbers of split locks from unprivileged users can result in
-+denials of service to well-behaved and potentially more important users.
-+
-+The kernel mitigates these bad users by detecting split locks and imposing
-+penalties: forcing them to wait and only allowing one core to execute split
-+locks at a time.
-+
-+These mitigations can make those bad applications unbearably slow. Setting
-+split_lock_mitigate=0 may restore some application performance, but will also
-+increase system exposure to denial of service attacks from split lock users.
-+
-+= ===================================================================
-+0 Disable the mitigation mode - just warns the split lock on kernel log
-+  and exposes the system to denials of service from the split lockers.
-+1 Enable the mitigation mode (this is the default) - penalizes the split
-+  lockers with intentional performance degradation.
-+= ===================================================================
-+
-+
- stack_erasing
- =============
- 
-diff --git a/arch/x86/kernel/cpu/intel.c b/arch/x86/kernel/cpu/intel.c
-index 2d7ea5480ec3..427899650483 100644
---- a/arch/x86/kernel/cpu/intel.c
-+++ b/arch/x86/kernel/cpu/intel.c
-@@ -1034,8 +1034,32 @@ static const struct {
- 
- static struct ratelimit_state bld_ratelimit;
- 
-+static unsigned int sysctl_sld_mitigate = 1;
- static DEFINE_SEMAPHORE(buslock_sem);
- 
-+#ifdef CONFIG_PROC_SYSCTL
-+static struct ctl_table sld_sysctls[] = {
-+	{
-+		.procname       = "split_lock_mitigate",
-+		.data           = &sysctl_sld_mitigate,
-+		.maxlen         = sizeof(unsigned int),
-+		.mode           = 0644,
-+		.proc_handler	= proc_douintvec_minmax,
-+		.extra1         = SYSCTL_ZERO,
-+		.extra2         = SYSCTL_ONE,
-+	},
-+	{}
-+};
-+
-+static int __init sld_mitigate_sysctl_init(void)
-+{
-+	register_sysctl_init("kernel", sld_sysctls);
-+	return 0;
-+}
-+
-+late_initcall(sld_mitigate_sysctl_init);
-+#endif
-+
- static inline bool match_option(const char *arg, int arglen, const char *opt)
- {
- 	int len = strlen(opt), ratelimit;
-@@ -1146,12 +1170,20 @@ static void split_lock_init(void)
- 		split_lock_verify_msr(sld_state != sld_off);
- }
- 
--static void __split_lock_reenable(struct work_struct *work)
-+static void __split_lock_reenable_unlock(struct work_struct *work)
- {
- 	sld_update_msr(true);
- 	up(&buslock_sem);
- }
- 
-+static DECLARE_DELAYED_WORK(sl_reenable_unlock, __split_lock_reenable_unlock);
-+
-+static void __split_lock_reenable(struct work_struct *work)
-+{
-+	sld_update_msr(true);
-+}
-+static DECLARE_DELAYED_WORK(sl_reenable, __split_lock_reenable);
-+
- /*
-  * If a CPU goes offline with pending delayed work to re-enable split lock
-  * detection then the delayed work will be executed on some other CPU. That
-@@ -1169,10 +1201,9 @@ static int splitlock_cpu_offline(unsigned int cpu)
- 	return 0;
- }
- 
--static DECLARE_DELAYED_WORK(split_lock_reenable, __split_lock_reenable);
--
- static void split_lock_warn(unsigned long ip)
- {
-+	struct delayed_work *work;
- 	int cpu;
- 
- 	if (!current->reported_split_lock)
-@@ -1180,14 +1211,26 @@ static void split_lock_warn(unsigned long ip)
- 				    current->comm, current->pid, ip);
- 	current->reported_split_lock = 1;
- 
--	/* misery factor #1, sleep 10ms before trying to execute split lock */
--	if (msleep_interruptible(10) > 0)
--		return;
--	/* Misery factor #2, only allow one buslocked disabled core at a time */
--	if (down_interruptible(&buslock_sem) == -EINTR)
--		return;
-+	if (sysctl_sld_mitigate) {
-+		/*
-+		 * misery factor #1:
-+		 * sleep 10ms before trying to execute split lock.
-+		 */
-+		if (msleep_interruptible(10) > 0)
-+			return;
-+		/*
-+		 * Misery factor #2:
-+		 * only allow one buslocked disabled core at a time.
-+		 */
-+		if (down_interruptible(&buslock_sem) == -EINTR)
-+			return;
-+		work = &sl_reenable_unlock;
-+	} else {
-+		work = &sl_reenable;
-+	}
-+
- 	cpu = get_cpu();
--	schedule_delayed_work_on(cpu, &split_lock_reenable, 2);
-+	schedule_delayed_work_on(cpu, work, 2);
- 
- 	/* Disable split lock detection on this CPU to make progress */
- 	sld_update_msr(false);
+diff --git a/arch/arm/boot/dts/armada-380.dtsi b/arch/arm/boot/dts/armada-380.dtsi
+index cff1269f3fbf..7146cc8f082a 100644
+--- a/arch/arm/boot/dts/armada-380.dtsi
++++ b/arch/arm/boot/dts/armada-380.dtsi
+@@ -79,7 +79,7 @@ pcie@1,0 {
+ 			/* x1 port */
+ 			pcie@2,0 {
+ 				device_type = "pci";
+-				assigned-addresses = <0x82000800 0 0x40000 0 0x2000>;
++				assigned-addresses = <0x82001000 0 0x40000 0 0x2000>;
+ 				reg = <0x1000 0 0 0 0>;
+ 				#address-cells = <3>;
+ 				#size-cells = <2>;
+@@ -98,7 +98,7 @@ pcie@2,0 {
+ 			/* x1 port */
+ 			pcie@3,0 {
+ 				device_type = "pci";
+-				assigned-addresses = <0x82000800 0 0x44000 0 0x2000>;
++				assigned-addresses = <0x82001800 0 0x44000 0 0x2000>;
+ 				reg = <0x1800 0 0 0 0>;
+ 				#address-cells = <3>;
+ 				#size-cells = <2>;
+diff --git a/arch/arm/boot/dts/armada-385.dtsi b/arch/arm/boot/dts/armada-385.dtsi
+index 83392b92dae2..be8d607c59b2 100644
+--- a/arch/arm/boot/dts/armada-385.dtsi
++++ b/arch/arm/boot/dts/armada-385.dtsi
+@@ -93,7 +93,7 @@ pcie1_intc: interrupt-controller {
+ 			/* x1 port */
+ 			pcie2: pcie@2,0 {
+ 				device_type = "pci";
+-				assigned-addresses = <0x82000800 0 0x40000 0 0x2000>;
++				assigned-addresses = <0x82001000 0 0x40000 0 0x2000>;
+ 				reg = <0x1000 0 0 0 0>;
+ 				#address-cells = <3>;
+ 				#size-cells = <2>;
+@@ -121,7 +121,7 @@ pcie2_intc: interrupt-controller {
+ 			/* x1 port */
+ 			pcie3: pcie@3,0 {
+ 				device_type = "pci";
+-				assigned-addresses = <0x82000800 0 0x44000 0 0x2000>;
++				assigned-addresses = <0x82001800 0 0x44000 0 0x2000>;
+ 				reg = <0x1800 0 0 0 0>;
+ 				#address-cells = <3>;
+ 				#size-cells = <2>;
+@@ -152,7 +152,7 @@ pcie3_intc: interrupt-controller {
+ 			 */
+ 			pcie4: pcie@4,0 {
+ 				device_type = "pci";
+-				assigned-addresses = <0x82000800 0 0x48000 0 0x2000>;
++				assigned-addresses = <0x82002000 0 0x48000 0 0x2000>;
+ 				reg = <0x2000 0 0 0 0>;
+ 				#address-cells = <3>;
+ 				#size-cells = <2>;
 -- 
 2.35.1
 
