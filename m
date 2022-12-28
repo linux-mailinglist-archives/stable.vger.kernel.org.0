@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05EA5657858
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:49:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6091657ECA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:57:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233017AbiL1Otg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:49:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37402 "EHLO
+        id S233436AbiL1P5h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:57:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233015AbiL1Otf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:49:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94053B41
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:49:34 -0800 (PST)
+        with ESMTP id S234197AbiL1P5f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:57:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 415D718388
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:57:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 375CEB81707
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:49:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90035C433EF;
-        Wed, 28 Dec 2022 14:49:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D0F2861563
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:57:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDA8EC433D2;
+        Wed, 28 Dec 2022 15:57:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238971;
-        bh=GTyT3Gsdj3O9rooX4E5gnCkYl0Njd4C0l6NxWWZlrQE=;
+        s=korg; t=1672243053;
+        bh=URn9+hK/TYZ9Zq5m9sW01gGXoJoLjp84gOBJllEv81A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J5eV+hBui6odKRY/Fmug45dnOdRlG2MM05o/3slvLFOArmcFsscaSWA57StfTJLxU
-         yjmoLRnxlfdSfPv6fVAIuxR6mIETQMTEQG86OXXBDIsf++HsPxxr9gq212Ukcf23wX
-         8QTLWw8YCi1/k2AlZcGG2DhIp1/IuuWFZjvybCDQ=
+        b=tlKbWr68E9NryeEr2CUBoKc9YG/DWOYApZXm/IEUCthkunxcgD22V7VqxmxNf2LCx
+         7NgvptaFSGUFSp0jk7SDWSPU5kUdzoWeMBj1eYz97wGjjQ/l7LbZ5HIUQpkzJPf0Jd
+         s1gzdo/c2WP0scxcgA84nK5XzLeGPsvmWhzGs4X8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, xiongxin <xiongxin@kylinos.cn>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Pengcheng Yang <yangpc@wangsu.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 078/731] PM: hibernate: Fix mistake in kerneldoc comment
+Subject: [PATCH 6.1 0446/1146] bpf, sockmap: Fix missing BPF_F_INGRESS flag when using apply_bytes
 Date:   Wed, 28 Dec 2022 15:33:05 +0100
-Message-Id: <20221228144258.813267138@linuxfoundation.org>
+Message-Id: <20221228144342.296010671@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +54,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: xiongxin <xiongxin@kylinos.cn>
+From: Pengcheng Yang <yangpc@wangsu.com>
 
-[ Upstream commit 6e5d7300cbe7c3541bc31f16db3e9266e6027b4b ]
+[ Upstream commit a351d6087bf7d3d8440d58d3bf244ec64b89394a ]
 
-The actual maximum image size formula in hibernate_preallocate_memory()
-is as follows:
+When redirecting, we use sk_msg_to_ingress() to get the BPF_F_INGRESS
+flag from the msg->flags. If apply_bytes is used and it is larger than
+the current data being processed, sk_psock_msg_verdict() will not be
+called when sendmsg() is called again. At this time, the msg->flags is 0,
+and we lost the BPF_F_INGRESS flag.
 
-max_size = (count - (size + PAGES_FOR_IO)) / 2
-	    - 2 * DIV_ROUND_UP(reserved_size, PAGE_SIZE);
+So we need to save the BPF_F_INGRESS flag in sk_psock and use it when
+redirection.
 
-but the one in the kerneldoc comment of the function is different and
-incorrect.
-
-Fixes: ddeb64870810 ("PM / Hibernate: Add sysfs knob to control size of memory for drivers")
-Signed-off-by: xiongxin <xiongxin@kylinos.cn>
-[ rjw: Subject and changelog rewrite ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 8934ce2fd081 ("bpf: sockmap redirect ingress support")
+Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
+Link: https://lore.kernel.org/bpf/1669718441-2654-3-git-send-email-yangpc@wangsu.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/power/snapshot.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/skmsg.h |  1 +
+ include/net/tcp.h     |  4 ++--
+ net/core/skmsg.c      |  9 ++++++---
+ net/ipv4/tcp_bpf.c    | 11 ++++++-----
+ net/tls/tls_sw.c      |  6 ++++--
+ 5 files changed, 19 insertions(+), 12 deletions(-)
 
-diff --git a/kernel/power/snapshot.c b/kernel/power/snapshot.c
-index 330d49937692..475d630e650f 100644
---- a/kernel/power/snapshot.c
-+++ b/kernel/power/snapshot.c
-@@ -1719,8 +1719,8 @@ static unsigned long minimum_image_size(unsigned long saveable)
-  * /sys/power/reserved_size, respectively).  To make this happen, we compute the
-  * total number of available page frames and allocate at least
-  *
-- * ([page frames total] + PAGES_FOR_IO + [metadata pages]) / 2
-- *  + 2 * DIV_ROUND_UP(reserved_size, PAGE_SIZE)
-+ * ([page frames total] - PAGES_FOR_IO - [metadata pages]) / 2
-+ *  - 2 * DIV_ROUND_UP(reserved_size, PAGE_SIZE)
-  *
-  * of them, which corresponds to the maximum size of a hibernation image.
-  *
+diff --git a/include/linux/skmsg.h b/include/linux/skmsg.h
+index 70d6cb94e580..84f787416a54 100644
+--- a/include/linux/skmsg.h
++++ b/include/linux/skmsg.h
+@@ -82,6 +82,7 @@ struct sk_psock {
+ 	u32				apply_bytes;
+ 	u32				cork_bytes;
+ 	u32				eval;
++	bool				redir_ingress; /* undefined if sk_redir is null */
+ 	struct sk_msg			*cork;
+ 	struct sk_psock_progs		progs;
+ #if IS_ENABLED(CONFIG_BPF_STREAM_PARSER)
+diff --git a/include/net/tcp.h b/include/net/tcp.h
+index 14d45661a84d..5b70b241ce71 100644
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -2291,8 +2291,8 @@ int tcp_bpf_update_proto(struct sock *sk, struct sk_psock *psock, bool restore);
+ void tcp_bpf_clone(const struct sock *sk, struct sock *newsk);
+ #endif /* CONFIG_BPF_SYSCALL */
+ 
+-int tcp_bpf_sendmsg_redir(struct sock *sk, struct sk_msg *msg, u32 bytes,
+-			  int flags);
++int tcp_bpf_sendmsg_redir(struct sock *sk, bool ingress,
++			  struct sk_msg *msg, u32 bytes, int flags);
+ #endif /* CONFIG_NET_SOCK_MSG */
+ 
+ #if !defined(CONFIG_BPF_SYSCALL) || !defined(CONFIG_NET_SOCK_MSG)
+diff --git a/net/core/skmsg.c b/net/core/skmsg.c
+index e6b9ced3eda8..53d0251788aa 100644
+--- a/net/core/skmsg.c
++++ b/net/core/skmsg.c
+@@ -886,13 +886,16 @@ int sk_psock_msg_verdict(struct sock *sk, struct sk_psock *psock,
+ 	ret = sk_psock_map_verd(ret, msg->sk_redir);
+ 	psock->apply_bytes = msg->apply_bytes;
+ 	if (ret == __SK_REDIRECT) {
+-		if (psock->sk_redir)
++		if (psock->sk_redir) {
+ 			sock_put(psock->sk_redir);
+-		psock->sk_redir = msg->sk_redir;
+-		if (!psock->sk_redir) {
++			psock->sk_redir = NULL;
++		}
++		if (!msg->sk_redir) {
+ 			ret = __SK_DROP;
+ 			goto out;
+ 		}
++		psock->redir_ingress = sk_msg_to_ingress(msg);
++		psock->sk_redir = msg->sk_redir;
+ 		sock_hold(psock->sk_redir);
+ 	}
+ out:
+diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
+index f3e868f4cd9e..275c5ca9e04d 100644
+--- a/net/ipv4/tcp_bpf.c
++++ b/net/ipv4/tcp_bpf.c
+@@ -131,10 +131,9 @@ static int tcp_bpf_push_locked(struct sock *sk, struct sk_msg *msg,
+ 	return ret;
+ }
+ 
+-int tcp_bpf_sendmsg_redir(struct sock *sk, struct sk_msg *msg,
+-			  u32 bytes, int flags)
++int tcp_bpf_sendmsg_redir(struct sock *sk, bool ingress,
++			  struct sk_msg *msg, u32 bytes, int flags)
+ {
+-	bool ingress = sk_msg_to_ingress(msg);
+ 	struct sk_psock *psock = sk_psock_get(sk);
+ 	int ret;
+ 
+@@ -276,7 +275,7 @@ static int tcp_bpf_recvmsg(struct sock *sk, struct msghdr *msg, size_t len,
+ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
+ 				struct sk_msg *msg, int *copied, int flags)
+ {
+-	bool cork = false, enospc = sk_msg_full(msg);
++	bool cork = false, enospc = sk_msg_full(msg), redir_ingress;
+ 	struct sock *sk_redir;
+ 	u32 tosend, origsize, sent, delta = 0;
+ 	u32 eval;
+@@ -322,6 +321,7 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
+ 		sk_msg_apply_bytes(psock, tosend);
+ 		break;
+ 	case __SK_REDIRECT:
++		redir_ingress = psock->redir_ingress;
+ 		sk_redir = psock->sk_redir;
+ 		sk_msg_apply_bytes(psock, tosend);
+ 		if (!psock->apply_bytes) {
+@@ -338,7 +338,8 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
+ 		release_sock(sk);
+ 
+ 		origsize = msg->sg.size;
+-		ret = tcp_bpf_sendmsg_redir(sk_redir, msg, tosend, flags);
++		ret = tcp_bpf_sendmsg_redir(sk_redir, redir_ingress,
++					    msg, tosend, flags);
+ 		sent = origsize - msg->sg.size;
+ 
+ 		if (eval == __SK_REDIRECT)
+diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
+index 264cf367e265..9ed978634125 100644
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -792,7 +792,7 @@ static int bpf_exec_tx_verdict(struct sk_msg *msg, struct sock *sk,
+ 	struct sk_psock *psock;
+ 	struct sock *sk_redir;
+ 	struct tls_rec *rec;
+-	bool enospc, policy;
++	bool enospc, policy, redir_ingress;
+ 	int err = 0, send;
+ 	u32 delta = 0;
+ 
+@@ -837,6 +837,7 @@ static int bpf_exec_tx_verdict(struct sk_msg *msg, struct sock *sk,
+ 		}
+ 		break;
+ 	case __SK_REDIRECT:
++		redir_ingress = psock->redir_ingress;
+ 		sk_redir = psock->sk_redir;
+ 		memcpy(&msg_redir, msg, sizeof(*msg));
+ 		if (msg->apply_bytes < send)
+@@ -846,7 +847,8 @@ static int bpf_exec_tx_verdict(struct sk_msg *msg, struct sock *sk,
+ 		sk_msg_return_zero(sk, msg, send);
+ 		msg->sg.size -= send;
+ 		release_sock(sk);
+-		err = tcp_bpf_sendmsg_redir(sk_redir, &msg_redir, send, flags);
++		err = tcp_bpf_sendmsg_redir(sk_redir, redir_ingress,
++					    &msg_redir, send, flags);
+ 		lock_sock(sk);
+ 		if (err < 0) {
+ 			*copied -= sk_msg_free_nocharge(sk, &msg_redir);
 -- 
 2.35.1
 
