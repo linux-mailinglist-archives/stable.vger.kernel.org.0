@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FA32657EB1
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:56:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF1856584B0
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:01:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233480AbiL1P4f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:56:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44214 "EHLO
+        id S235212AbiL1RAj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:00:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232960AbiL1P4W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:56:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6F0C2BA
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:56:21 -0800 (PST)
+        with ESMTP id S235394AbiL1Q7z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:59:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF1CC1BEB5
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:55:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 54E8AB8172B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:56:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A755CC433D2;
-        Wed, 28 Dec 2022 15:56:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BE2861558
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:55:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67AE1C433F1;
+        Wed, 28 Dec 2022 16:55:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242979;
-        bh=jAGMBJQ8iKFm4a6UjusnlvElGzGbYmjlZEsQBr9PFdQ=;
+        s=korg; t=1672246514;
+        bh=wE2XrpPeJUTqefW0cp6dsPgxCFB6idxcSUHfgSjbmQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xhtwAehfsRiB6FoOnT6I4OnumSFvBRQXFrr+vyEvtvjVd8c9zEX1+AWsZxJiTHtv+
-         RSuAtiTCIiSXtJJ4eqHlfXjoaZojKB4bxrp7REHulv4/G/bInHT4HWcrgnmIWwizez
-         AbXqV4ZnqOclm3nyrM51HUpfa5s9kq9crNrTktXA=
+        b=pzGeCbLcc2EIYtjGj5LiTJaEWcF7QJmASQPfNbBX1HU1oxctvIGMWz35hRg1eoDRZ
+         Rh87qKyp8KwKSPci+t/LYHGSoNvOF+dBel19dnwXqBH7R9PX7t+LvY1stMT+KZP5+K
+         To/AczTvTfO0mjCjsnXuNaYjvKSoda96tuOxLj3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        patches@lists.linux.dev, Denis Pauk <pauk.denis@gmail.com>,
+        yutesdb <mundanedefoliation@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 667/731] libbpf: Avoid enum forward-declarations in public API in C++ mode
+Subject: [PATCH 6.1 1035/1146] hwmon: (nct6775) add ASUS CROSSHAIR VIII/TUF/ProArt B550M
 Date:   Wed, 28 Dec 2022 15:42:54 +0100
-Message-Id: <20221228144315.825660727@linuxfoundation.org>
+Message-Id: <20221228144358.469548779@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,69 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Denis Pauk <pauk.denis@gmail.com>
 
-[ Upstream commit b42693415b86f608049cf1b4870adc1dc65e58b0 ]
+[ Upstream commit 1864069c695d475e0ce98a335c62274b81be57b4 ]
 
-C++ enum forward declarations are fundamentally not compatible with pure
-C enum definitions, and so libbpf's use of `enum bpf_stats_type;`
-forward declaration in libbpf/bpf.h public API header is causing C++
-compilation issues.
+Boards such as
+* ProArt B550-CREATOR
+* ProArt Z490-CREATOR 10G
+* ROG CROSSHAIR VIII EXTREME
+* ROG CROSSHAIR VIII HERO (WI-FI)
+* TUF GAMING B550M-E
+* TUF GAMING B550M-E (WI-FI)
+* TUF GAMING B550M-PLUS WIFI II
+have got a nct6775 chip, but by default there's no use of it
+because of resource conflict with WMI method.
 
-More details can be found in [0], but it comes down to C++ supporting
-enum forward declaration only with explicitly specified backing type:
+This commit adds such boards to the WMI monitoring list.
 
-  enum bpf_stats_type: int;
-
-In C (and I believe it's a GCC extension also), such forward declaration
-is simply:
-
-  enum bpf_stats_type;
-
-Further, in Linux UAPI this enum is defined in pure C way:
-
-enum bpf_stats_type { BPF_STATS_RUN_TIME = 0; }
-
-And even though in both cases backing type is int, which can be
-confirmed by looking at DWARF information, for C++ compiler actual enum
-definition and forward declaration are incompatible.
-
-To eliminate this problem, for C++ mode define input argument as int,
-which makes enum unnecessary in libbpf public header. This solves the
-issue and as demonstrated by next patch doesn't cause any unwanted
-compiler warnings, at least with default warnings setting.
-
-  [0] https://stackoverflow.com/questions/42766839/c11-enum-forward-causes-underlying-type-mismatch
-  [1] Closes: https://github.com/libbpf/libbpf/issues/249
-
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20221130200013.2997831-1-andrii@kernel.org
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204807
+Signed-off-by: Denis Pauk <pauk.denis@gmail.com>
+Reported-by: yutesdb <mundanedefoliation@gmail.com>
+Tested-by: yutesdb <mundanedefoliation@gmail.com>
+Link: https://lore.kernel.org/r/20221114214456.3891-1-pauk.denis@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/bpf.h | 7 +++++++
+ drivers/hwmon/nct6775-platform.c | 7 +++++++
  1 file changed, 7 insertions(+)
 
-diff --git a/tools/lib/bpf/bpf.h b/tools/lib/bpf/bpf.h
-index 6fffb3cdf39b..49bd43b998c8 100644
---- a/tools/lib/bpf/bpf.h
-+++ b/tools/lib/bpf/bpf.h
-@@ -249,8 +249,15 @@ LIBBPF_API int bpf_task_fd_query(int pid, int fd, __u32 flags, char *buf,
- 				 __u32 *buf_len, __u32 *prog_id, __u32 *fd_type,
- 				 __u64 *probe_offset, __u64 *probe_addr);
+diff --git a/drivers/hwmon/nct6775-platform.c b/drivers/hwmon/nct6775-platform.c
+index b34783784213..bf43f73dc835 100644
+--- a/drivers/hwmon/nct6775-platform.c
++++ b/drivers/hwmon/nct6775-platform.c
+@@ -1043,7 +1043,9 @@ static struct platform_device *pdev[2];
  
-+#ifdef __cplusplus
-+/* forward-declaring enums in C++ isn't compatible with pure C enums, so
-+ * instead define bpf_enable_stats() as accepting int as an input
-+ */
-+LIBBPF_API int bpf_enable_stats(int type);
-+#else
- enum bpf_stats_type; /* defined in up-to-date linux/bpf.h */
- LIBBPF_API int bpf_enable_stats(enum bpf_stats_type type);
-+#endif
- 
- struct bpf_prog_bind_opts {
- 	size_t sz; /* size of this struct for forward/backward compatibility */
+ static const char * const asus_wmi_boards[] = {
+ 	"PRO H410T",
++	"ProArt B550-CREATOR",
+ 	"ProArt X570-CREATOR WIFI",
++	"ProArt Z490-CREATOR 10G",
+ 	"Pro B550M-C",
+ 	"Pro WS X570-ACE",
+ 	"PRIME B360-PLUS",
+@@ -1055,8 +1057,10 @@ static const char * const asus_wmi_boards[] = {
+ 	"PRIME X570-P",
+ 	"PRIME X570-PRO",
+ 	"ROG CROSSHAIR VIII DARK HERO",
++	"ROG CROSSHAIR VIII EXTREME",
+ 	"ROG CROSSHAIR VIII FORMULA",
+ 	"ROG CROSSHAIR VIII HERO",
++	"ROG CROSSHAIR VIII HERO (WI-FI)",
+ 	"ROG CROSSHAIR VIII IMPACT",
+ 	"ROG STRIX B550-A GAMING",
+ 	"ROG STRIX B550-E GAMING",
+@@ -1080,8 +1084,11 @@ static const char * const asus_wmi_boards[] = {
+ 	"ROG STRIX Z490-G GAMING (WI-FI)",
+ 	"ROG STRIX Z490-H GAMING",
+ 	"ROG STRIX Z490-I GAMING",
++	"TUF GAMING B550M-E",
++	"TUF GAMING B550M-E (WI-FI)",
+ 	"TUF GAMING B550M-PLUS",
+ 	"TUF GAMING B550M-PLUS (WI-FI)",
++	"TUF GAMING B550M-PLUS WIFI II",
+ 	"TUF GAMING B550-PLUS",
+ 	"TUF GAMING B550-PLUS WIFI II",
+ 	"TUF GAMING B550-PRO",
 -- 
 2.35.1
 
