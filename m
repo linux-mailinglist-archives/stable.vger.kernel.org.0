@@ -2,118 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FFCB657454
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 09:50:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FB6465746B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 10:06:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232596AbiL1Iui (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 03:50:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53828 "EHLO
+        id S229868AbiL1JGg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 04:06:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232731AbiL1IuX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 03:50:23 -0500
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 856B9324;
-        Wed, 28 Dec 2022 00:50:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1672217422; x=1703753422;
-  h=from:to:cc:subject:in-reply-to:references:date:
-   message-id:mime-version:content-transfer-encoding;
-  bh=VQip/Z99parCgodreX+wts8zbKulSZQgR4ewC+MO0lI=;
-  b=FQops5M7C/KzzCOBiFpCjxIPxOUdUi3rsBtLM1iSvnjfNCum6DXHZ6fE
-   s1/HlfJwEwLnUfVvKyZ6GIPhKD0gvFCT++O48cRijt8xOp8jxDFEyWzfh
-   JVAyOngA934aFpHg9ehD2bVJrn93+eRoKpW4kHLGc76CPLMn+CNc4e+9y
-   uJyeI8/nwvTxVnPsI0yH4T2g0adtc4NHEvFKcHOEXuD1SCEsi82NPBnTs
-   HmxAW+Gn/tNhZY0xQycGpTbikV7nJrbeJlaBytbQiqL1R5XUbKcrJBCRf
-   wstbZjpR8OlT2ZsvOs6wC51ACixYc6jhZ2fhr/E/x+l3g3pjc+PnrG+a1
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10573"; a="322815663"
-X-IronPort-AV: E=Sophos;i="5.96,280,1665471600"; 
-   d="scan'208";a="322815663"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Dec 2022 00:50:20 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10573"; a="655251298"
-X-IronPort-AV: E=Sophos;i="5.96,280,1665471600"; 
-   d="scan'208";a="655251298"
-Received: from kvkhairn-mobl2.ger.corp.intel.com (HELO localhost) ([10.252.23.135])
-  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Dec 2022 00:50:17 -0800
-From:   Jani Nikula <jani.nikula@linux.intel.com>
-To:     Alexey Lukyachuk <skif@skif-web.ru>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc:     tvrtko.ursulin@linux.intel.com,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, dri-devel@lists.freedesktop.org
-Subject: Re: [Intel-gfx] [PATCH v2] drm/i915: dell wyse 3040 shutdown fix
-In-Reply-To: <20221227204003.6b0abe65@alexey-Swift-SF314-42>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-References: <20221225184413.146916-1-skif@skif-web.ru>
- <20221225185507.149677-1-skif@skif-web.ru> <Y6sfvUJmrb73AeJh@intel.com>
- <20221227204003.6b0abe65@alexey-Swift-SF314-42>
-Date:   Wed, 28 Dec 2022 10:50:15 +0200
-Message-ID: <875ydv29q0.fsf@intel.com>
+        with ESMTP id S229740AbiL1JGf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 04:06:35 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53E9FBD7
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 01:06:34 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B5327CE0B8B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 09:06:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E837C433EF;
+        Wed, 28 Dec 2022 09:06:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1672218390;
+        bh=kLSnp3Ao7WMfRJ2WreKL3nDHNPRIKK/ip2c7/gdgimQ=;
+        h=Subject:To:Cc:From:Date:From;
+        b=SpbXsQRCId/aT9eQ+e6i6COPhHG2+EXhxdPo8eXpoeaWqTpriPvfJ6fqkmgt4OEX7
+         /3JqjnlJS+Vem1hch+zKeRrLkXLa0gdu27ZDtwsEfBnyDJ8TGURn1ee2buLg82fo+X
+         LMZkHgltuqUj9cgNw1MG5Jb+ceNS1Bo7IjUsWi/c=
+Subject: FAILED: patch "[PATCH] usb: dwc3: Fix race between dwc3_set_mode and __dwc3_set_mode" failed to apply to 5.4-stable tree
+To:     sven@svenpeter.dev, Thinh.Nguyen@synopsys.com,
+        gregkh@linuxfoundation.org, stable@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 28 Dec 2022 10:06:26 +0100
+Message-ID: <16722183868728@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 27 Dec 2022, Alexey Lukyachuk <skif@skif-web.ru> wrote:
-> On Tue, 27 Dec 2022 11:39:25 -0500
-> Rodrigo Vivi <rodrigo.vivi@intel.com> wrote:
->
->> On Sun, Dec 25, 2022 at 09:55:08PM +0300, Alexey Lukyanchuk wrote:
->> > dell wyse 3040 doesn't peform poweroff properly, but instead remains i=
-n=20
->> > turned power on state.
->>=20
->> okay, the motivation is explained in the commit msg..
->>=20
->> > Additional mutex_lock and=20
->> > intel_crtc_wait_for_next_vblank=20
->> > feature 6.2 kernel resolve this trouble.
->>=20
->> but this why is not very clear... seems that by magic it was found,
->> without explaining what race we are really protecting here.
->>=20
->> but even worse is:
->> what about those many random vblank waits in the code? what's the
->> reasoning?
->>=20
-> I would like to say, that this solution was found in drm-tip repository:
-> link: git://anongit.freedesktop.org/drm-tip
-> I will quotate original commit message from Ville Syrj=C3=A4l=C3=A4=20
-> <ville.syrjala@linux.intel.com>: "The spec tells us to do a bunch of=20
-> vblank waits in the audio enable/disable sequences. Make it so."
-> So it's just a backport of accepted patch.
-> Which i wanna to propagate to stable versions
 
-This is not how stable kernel backports work. Please read [1].
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Does v6.2-rc1 work for you? It has all the relevant commits. Which
-stable kernel are you trying to backport them to?
+Possible dependencies:
 
-Though I must say I find it surprising that these changes would fix a
-poweroff issue, and it certainly was not the goal. I'm wondering if it's
-just a coincidence due to timing and/or locking changes.
+62c73bfea048 ("usb: dwc3: Fix race between dwc3_set_mode and __dwc3_set_mode")
+07903626d988 ("usb: dwc3: core: Do not perform GCTL_CORE_SOFTRESET during bootup")
+afbd04e66e5d ("usb: dwc3: core: Deprecate GCTL.CORESOFTRESET")
+f88359e1588b ("usb: dwc3: core: Do core softreset when switch mode")
+f580170f135a ("usb: dwc3: Add splitdisable quirk for Hisilicon Kirin Soc")
+dc336b19e82d ("usb: dwc3: core: do not queue work if dr_mode is not USB_DR_MODE_OTG")
+c2cd3452d5f8 ("usb: dwc3: support continuous runtime PM with dual role")
 
-Have you reported an issue at fdo gitlab [2]?
+thanks,
 
+greg k-h
 
-BR,
-Jani.
+------------------ original commit in Linus's tree ------------------
 
+From 62c73bfea048e66168df09da6d3e4510ecda40bb Mon Sep 17 00:00:00 2001
+From: Sven Peter <sven@svenpeter.dev>
+Date: Mon, 28 Nov 2022 17:15:26 +0100
+Subject: [PATCH] usb: dwc3: Fix race between dwc3_set_mode and __dwc3_set_mode
 
+dwc->desired_dr_role is changed by dwc3_set_mode inside a spinlock but
+then read by __dwc3_set_mode outside of that lock. This can lead to a
+race condition when very quick successive role switch events happen:
 
-[1] https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-[2] https://gitlab.freedesktop.org/drm/intel/wikis/How-to-file-i915-bugs
+CPU A
+	dwc3_set_mode(DWC3_GCTL_PRTCAP_HOST) // first role switch event
+		spin_lock_irqsave(&dwc->lock, flags);
+		dwc->desired_dr_role = mode; // DWC3_GCTL_PRTCAP_HOST
+		spin_unlock_irqrestore(&dwc->lock, flags);
+		queue_work(system_freezable_wq, &dwc->drd_work);
 
+CPU B
+	__dwc3_set_mode
+		// ....
+		spin_lock_irqsave(&dwc->lock, flags);
+		// desired_dr_role is DWC3_GCTL_PRTCAP_HOST
+		dwc3_set_prtcap(dwc, dwc->desired_dr_role);
+		spin_unlock_irqrestore(&dwc->lock, flags);
 
---=20
-Jani Nikula, Intel Open Source Graphics Center
+CPU A
+	dwc3_set_mode(DWC3_GCTL_PRTCAP_DEVICE) // second event
+		spin_lock_irqsave(&dwc->lock, flags);
+		dwc->desired_dr_role = mode; // DWC3_GCTL_PRTCAP_DEVICE
+		spin_unlock_irqrestore(&dwc->lock, flags);
+
+CPU B (continues running __dwc3_set_mode)
+	switch (dwc->desired_dr_role) { // DWC3_GCTL_PRTCAP_DEVICE
+	// ....
+	case DWC3_GCTL_PRTCAP_DEVICE:
+		// ....
+		ret = dwc3_gadget_init(dwc);
+
+We then have DWC3_GCTL.DWC3_GCTL_PRTCAPDIR = DWC3_GCTL_PRTCAP_HOST and
+dwc->current_dr_role = DWC3_GCTL_PRTCAP_HOST but initialized the
+controller in device mode. It's also possible to get into a state
+where both host and device are intialized at the same time.
+Fix this race by creating a local copy of desired_dr_role inside
+__dwc3_set_mode while holding dwc->lock.
+
+Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work properly")
+Cc: stable <stable@kernel.org>
+Acked-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Signed-off-by: Sven Peter <sven@svenpeter.dev>
+Link: https://lore.kernel.org/r/20221128161526.79730-1-sven@svenpeter.dev
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
+index 1f348bc867c2..fc38a8b13efa 100644
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -122,21 +122,25 @@ static void __dwc3_set_mode(struct work_struct *work)
+ 	unsigned long flags;
+ 	int ret;
+ 	u32 reg;
++	u32 desired_dr_role;
+ 
+ 	mutex_lock(&dwc->mutex);
++	spin_lock_irqsave(&dwc->lock, flags);
++	desired_dr_role = dwc->desired_dr_role;
++	spin_unlock_irqrestore(&dwc->lock, flags);
+ 
+ 	pm_runtime_get_sync(dwc->dev);
+ 
+ 	if (dwc->current_dr_role == DWC3_GCTL_PRTCAP_OTG)
+ 		dwc3_otg_update(dwc, 0);
+ 
+-	if (!dwc->desired_dr_role)
++	if (!desired_dr_role)
+ 		goto out;
+ 
+-	if (dwc->desired_dr_role == dwc->current_dr_role)
++	if (desired_dr_role == dwc->current_dr_role)
+ 		goto out;
+ 
+-	if (dwc->desired_dr_role == DWC3_GCTL_PRTCAP_OTG && dwc->edev)
++	if (desired_dr_role == DWC3_GCTL_PRTCAP_OTG && dwc->edev)
+ 		goto out;
+ 
+ 	switch (dwc->current_dr_role) {
+@@ -164,7 +168,7 @@ static void __dwc3_set_mode(struct work_struct *work)
+ 	 */
+ 	if (dwc->current_dr_role && ((DWC3_IP_IS(DWC3) ||
+ 			DWC3_VER_IS_PRIOR(DWC31, 190A)) &&
+-			dwc->desired_dr_role != DWC3_GCTL_PRTCAP_OTG)) {
++			desired_dr_role != DWC3_GCTL_PRTCAP_OTG)) {
+ 		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
+ 		reg |= DWC3_GCTL_CORESOFTRESET;
+ 		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
+@@ -184,11 +188,11 @@ static void __dwc3_set_mode(struct work_struct *work)
+ 
+ 	spin_lock_irqsave(&dwc->lock, flags);
+ 
+-	dwc3_set_prtcap(dwc, dwc->desired_dr_role);
++	dwc3_set_prtcap(dwc, desired_dr_role);
+ 
+ 	spin_unlock_irqrestore(&dwc->lock, flags);
+ 
+-	switch (dwc->desired_dr_role) {
++	switch (desired_dr_role) {
+ 	case DWC3_GCTL_PRTCAP_HOST:
+ 		ret = dwc3_host_init(dwc);
+ 		if (ret) {
+
