@@ -2,57 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE0A2657F12
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:01:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4686D65840E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:54:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234262AbiL1QAz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:00:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47510 "EHLO
+        id S235154AbiL1Qy2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:54:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234255AbiL1QAt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:00:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2DCC12A80
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:00:47 -0800 (PST)
+        with ESMTP id S235202AbiL1Qxn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:53:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 203BB1DF3A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:49:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C91A61572
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:00:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ABE3C433D2;
-        Wed, 28 Dec 2022 16:00:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8207B8172A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:48:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12824C433D2;
+        Wed, 28 Dec 2022 16:48:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243246;
-        bh=77Ax692QPbClaw5Sew2l0xTyYFdYyuwdAt/P++1XU+I=;
+        s=korg; t=1672246137;
+        bh=vWvS77y3aOqKyCHgi+CB3rdVEMh/eS0ZGnwOuYNBRR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0QG8d61NldqEMxXVfGeJiBiPRyLE14POiUuFS6D4xRGgNWYm2BtDUf+0N+4Ssyc6O
-         J8N5MYZjk3BP8GILLwdrEHcO5sdWDLAdqv/2NKqzRgg5jaR6a03UOlXp9ZOZLYP4WU
-         gQA0Q1vQwszWr0FP0ivlx9R7SDDawBxJgP3cEADc=
+        b=li2nH8xSDKKZnBbVd9j+G5enNoGfHN8GlG21murVLLoNALUUv44dBXe74/4YGpm4n
+         KOnlEGTAlQzjQrFuPMRux6VzXjrGmn54DyGZwbm/vw8Y9B4/pwdbcAj25ImrVHQfoH
+         bb8ehnawvsC+KWDpUJZeWP1FZdt/xAv7phx/xX2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Adrian Hunter <adrian.hunter@intel.com>,
-        Yang Jihong <yangjihong1@huawei.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Carsten Haitzler <carsten.haitzler@arm.com>,
+        patches@lists.linux.dev, Michael Petlan <mpetlan@redhat.com>,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        Disha Goel <disgoel@linux.vnet.ibm.com>,
         Ian Rogers <irogers@google.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Leo Yan <leo.yan@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>, martin.lau@kernel.org,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ravi Bangoria <ravi.bangoria@amd.com>,
-        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nageswara R Sastry <rnsastry@linux.ibm.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 699/731] perf debug: Set debug_peo_args and redirect_to_stderr variable to correct values in perf_quiet_option()
+Subject: [PATCH 6.0 1018/1073] perf test: Fix "all PMU test" to skip parametrized events
 Date:   Wed, 28 Dec 2022 15:43:26 +0100
-Message-Id: <20221228144316.722750056@linuxfoundation.org>
+Message-Id: <20221228144355.834739696@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,87 +58,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Jihong <yangjihong1@huawei.com>
+From: Michael Petlan <mpetlan@redhat.com>
 
-[ Upstream commit 188ac720d364035008a54d249cf47b4cc100f819 ]
+[ Upstream commit b50d691e50e600fab82b423be871860537d75dc9 ]
 
-When perf uses quiet mode, perf_quiet_option() sets the 'debug_peo_args'
-variable to -1, and display_attr() incorrectly determines the value of
-'debug_peo_args'.  As a result, unexpected information is displayed.
+Parametrized events are not only a powerpc domain. They occur on other
+platforms too (e.g. aarch64). They should be ignored in this testcase,
+since proper setup of the parameters is out of scope of this script.
 
-Before:
+Let's not filter them out by PMU name, but rather based on the fact that
+they expect a parameter.
 
-  # perf record --quiet -- ls > /dev/null
-  ------------------------------------------------------------
-  perf_event_attr:
-    size                             128
-    { sample_period, sample_freq }   4000
-    sample_type                      IP|TID|TIME|PERIOD
-    read_format                      ID|LOST
-    disabled                         1
-    inherit                          1
-    mmap                             1
-    comm                             1
-    freq                             1
-    enable_on_exec                   1
-    task                             1
-    precise_ip                       3
-    sample_id_all                    1
-    exclude_guest                    1
-    mmap2                            1
-    comm_exec                        1
-    ksymbol                          1
-    bpf_event                        1
-  ------------------------------------------------------------
-  ...
-
-After:
-  # perf record --quiet -- ls > /dev/null
-  #
-
-redirect_to_stderr is a similar problem.
-
-Fixes: f78eaef0e0493f60 ("perf tools: Allow to force redirect pr_debug to stderr.")
-Fixes: ccd26741f5e6bdf2 ("perf tool: Provide an option to print perf_event_open args and return value")
-Suggested-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Carsten Haitzler <carsten.haitzler@arm.com>
+Fixes: 451ed8058c69a3fe ("perf test: Fix "all PMU test" to skip hv_24x7/hv_gpci tests on powerpc")
+Signed-off-by: Michael Petlan <mpetlan@redhat.com>
+Cc: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+Cc: Disha Goel <disgoel@linux.vnet.ibm.com>
 Cc: Ian Rogers <irogers@google.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: martin.lau@kernel.org
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ravi Bangoria <ravi.bangoria@amd.com>
-Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
-Link: https://lore.kernel.org/r/20221220035702.188413-2-yangjihong1@huawei.com
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Nageswara R Sastry <rnsastry@linux.ibm.com>
+Link: https://lore.kernel.org/r/20221219163008.9691-1-mpetlan@redhat.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/debug.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ tools/perf/tests/shell/stat_all_pmu.sh | 13 ++-----------
+ 1 file changed, 2 insertions(+), 11 deletions(-)
 
-diff --git a/tools/perf/util/debug.c b/tools/perf/util/debug.c
-index 65e6c22f38e4..190e818a0717 100644
---- a/tools/perf/util/debug.c
-+++ b/tools/perf/util/debug.c
-@@ -241,6 +241,10 @@ int perf_quiet_option(void)
- 		opt++;
- 	}
+diff --git a/tools/perf/tests/shell/stat_all_pmu.sh b/tools/perf/tests/shell/stat_all_pmu.sh
+index 9c9ef33e0b3c..c77955419173 100755
+--- a/tools/perf/tests/shell/stat_all_pmu.sh
++++ b/tools/perf/tests/shell/stat_all_pmu.sh
+@@ -4,17 +4,8 @@
  
-+	/* For debug variables that are used as bool types, set to 0. */
-+	redirect_to_stderr = 0;
-+	debug_peo_args = 0;
-+
- 	return 0;
- }
+ set -e
  
+-for p in $(perf list --raw-dump pmu); do
+-  # In powerpc, skip the events for hv_24x7 and hv_gpci.
+-  # These events needs input values to be filled in for
+-  # core, chip, partition id based on system.
+-  # Example: hv_24x7/CPM_ADJUNCT_INST,domain=?,core=?/
+-  # hv_gpci/event,partition_id=?/
+-  # Hence skip these events for ppc.
+-  if echo "$p" |grep -Eq 'hv_24x7|hv_gpci' ; then
+-    echo "Skipping: Event '$p' in powerpc"
+-    continue
+-  fi
++# Test all PMU events; however exclude parametrized ones (name contains '?')
++for p in $(perf list --raw-dump pmu | sed 's/[[:graph:]]\+?[[:graph:]]\+[[:space:]]//g'); do
+   echo "Testing $p"
+   result=$(perf stat -e "$p" true 2>&1)
+   if ! echo "$result" | grep -q "$p" && ! echo "$result" | grep -q "<not supported>" ; then
 -- 
 2.35.1
 
