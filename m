@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C62B0657DFA
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:49:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1605658349
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:46:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234085AbiL1Ps7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:48:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36778 "EHLO
+        id S233036AbiL1Qp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:45:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234077AbiL1Psp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:48:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D13EA17E3B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:48:43 -0800 (PST)
+        with ESMTP id S234966AbiL1Qon (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07AF7EA3
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:40:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EBE3613E9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:48:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80586C433F0;
-        Wed, 28 Dec 2022 15:48:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B88661563
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:40:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A89F4C433EF;
+        Wed, 28 Dec 2022 16:40:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242522;
-        bh=w2VH7BR6TdFoK2qaCSRHDnGx24GePt9+BKxsLt61T5A=;
+        s=korg; t=1672245651;
+        bh=qyKiVUx5zu3jpD5VHqL60Pcg8UYVn/ip1Dbjq39eS0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L07h53kMVMj22TtYovQWneg/cilLXCIFFvS4CWj1h+N9mfxLlhNwbTy9MbE/xr2gR
-         daECvMEduJkigItvIQSlmiU9+fSTs/+1PU+gimFaCfF9TTFTMeyRBY9HQFz5hWp8NW
-         X5UpzK2YbrFrtlLSQ1FecuIfRBbe9DwNvqBKZP7s=
+        b=LnGFmhb/cym80lTkGEBUMj/rvS4jtWAcvesrksAjCrLH/SBDUaAleOegq34ytRswS
+         ddPfThzWi3wfNtZCj3zOjEV5w6SISSRn7+d+hMcBZgRohiKrNOzvF8O2C6U2xq3LuO
+         SgEK0qp/Lm/D968e5nF87xP9+7tmUp/r+k2kBxc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Changheon Lee <darklight2357@icloud.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Sami Tolvanen <samitolvanen@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 613/731] net: stream: purge sk_error_queue in sk_stream_kill_queues()
+Subject: [PATCH 6.0 0932/1073] drm/amdgpu: Fix type of second parameter in odn_edit_dpm_table() callback
 Date:   Wed, 28 Dec 2022 15:42:00 +0100
-Message-Id: <20221228144314.303640263@linuxfoundation.org>
+Message-Id: <20221228144353.343786775@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit e0c8bccd40fc1c19e1d246c39bcf79e357e1ada3 ]
+[ Upstream commit e4d0ef752081e7aa6ffb7ccac11c499c732a2e05 ]
 
-Changheon Lee reported TCP socket leaks, with a nice repro.
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed. A
+proposed warning in clang aims to catch these at compile time, which
+reveals:
 
-It seems we leak TCP sockets with the following sequence:
+  drivers/gpu/drm/amd/amdgpu/../pm/swsmu/amdgpu_smu.c:3008:29: error: incompatible function pointer types initializing 'int (*)(void *, uint32_t, long *, uint32_t)' (aka 'int (*)(void *, unsigned int, long *, unsigned int)') with an expression of type 'int (void *, enum PP_OD_DPM_TABLE_COMMAND, long *, uint32_t)' (aka 'int (void *, enum PP_OD_DPM_TABLE_COMMAND, long *, unsigned int)') [-Werror,-Wincompatible-function-pointer-types-strict]
+          .odn_edit_dpm_table      = smu_od_edit_dpm_table,
+                                     ^~~~~~~~~~~~~~~~~~~~~
+  1 error generated.
 
-1) SOF_TIMESTAMPING_TX_ACK is enabled on the socket.
+There are only two implementations of ->odn_edit_dpm_table() in 'struct
+amd_pm_funcs': smu_od_edit_dpm_table() and pp_odn_edit_dpm_table(). One
+has a second parameter type of 'enum PP_OD_DPM_TABLE_COMMAND' and the
+other uses 'u32'. Ultimately, smu_od_edit_dpm_table() calls
+->od_edit_dpm_table() from 'struct pptable_funcs' and
+pp_odn_edit_dpm_table() calls ->odn_edit_dpm_table() from 'struct
+pp_hwmgr_func', which both have a second parameter type of 'enum
+PP_OD_DPM_TABLE_COMMAND'.
 
-   Each ACK will cook an skb put in error queue, from __skb_tstamp_tx().
-   __skb_tstamp_tx() is using skb_clone(), unless
-   SOF_TIMESTAMPING_OPT_TSONLY was also requested.
+Update the type parameter in both the prototype in 'struct amd_pm_funcs'
+and pp_odn_edit_dpm_table() to 'enum PP_OD_DPM_TABLE_COMMAND', which
+cleans up the warning.
 
-2) If the application is also using MSG_ZEROCOPY, then we put in the
-   error queue cloned skbs that had a struct ubuf_info attached to them.
-
-   Whenever an struct ubuf_info is allocated, sock_zerocopy_alloc()
-   does a sock_hold().
-
-   As long as the cloned skbs are still in sk_error_queue,
-   socket refcount is kept elevated.
-
-3) Application closes the socket, while error queue is not empty.
-
-Since tcp_close() no longer purges the socket error queue,
-we might end up with a TCP socket with at least one skb in
-error queue keeping the socket alive forever.
-
-This bug can be (ab)used to consume all kernel memory
-and freeze the host.
-
-We need to purge the error queue, with proper synchronization
-against concurrent writers.
-
-Fixes: 24bcbe1cc69f ("net: stream: don't purge sk_error_queue in sk_stream_kill_queues()")
-Reported-by: Changheon Lee <darklight2357@icloud.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1750
+Reported-by: Sami Tolvanen <samitolvanen@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/stream.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/amd/include/kgd_pp_interface.h   | 3 ++-
+ drivers/gpu/drm/amd/pm/powerplay/amd_powerplay.c | 3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/stream.c b/net/core/stream.c
-index a61130504827..d7c5413d16d5 100644
---- a/net/core/stream.c
-+++ b/net/core/stream.c
-@@ -196,6 +196,12 @@ void sk_stream_kill_queues(struct sock *sk)
- 	/* First the read buffer. */
- 	__skb_queue_purge(&sk->sk_receive_queue);
+diff --git a/drivers/gpu/drm/amd/include/kgd_pp_interface.h b/drivers/gpu/drm/amd/include/kgd_pp_interface.h
+index 7e3231c2191c..ffe19883b2ee 100644
+--- a/drivers/gpu/drm/amd/include/kgd_pp_interface.h
++++ b/drivers/gpu/drm/amd/include/kgd_pp_interface.h
+@@ -354,7 +354,8 @@ struct amd_pm_funcs {
+ 	int (*get_power_profile_mode)(void *handle, char *buf);
+ 	int (*set_power_profile_mode)(void *handle, long *input, uint32_t size);
+ 	int (*set_fine_grain_clk_vol)(void *handle, uint32_t type, long *input, uint32_t size);
+-	int (*odn_edit_dpm_table)(void *handle, uint32_t type, long *input, uint32_t size);
++	int (*odn_edit_dpm_table)(void *handle, enum PP_OD_DPM_TABLE_COMMAND type,
++				  long *input, uint32_t size);
+ 	int (*set_mp1_state)(void *handle, enum pp_mp1_state mp1_state);
+ 	int (*smu_i2c_bus_access)(void *handle, bool acquire);
+ 	int (*gfx_state_change_set)(void *handle, uint32_t state);
+diff --git a/drivers/gpu/drm/amd/pm/powerplay/amd_powerplay.c b/drivers/gpu/drm/amd/pm/powerplay/amd_powerplay.c
+index 1eb4e613b27a..6562978de84a 100644
+--- a/drivers/gpu/drm/amd/pm/powerplay/amd_powerplay.c
++++ b/drivers/gpu/drm/amd/pm/powerplay/amd_powerplay.c
+@@ -838,7 +838,8 @@ static int pp_set_fine_grain_clk_vol(void *handle, uint32_t type, long *input, u
+ 	return hwmgr->hwmgr_func->set_fine_grain_clk_vol(hwmgr, type, input, size);
+ }
  
-+	/* Next, the error queue.
-+	 * We need to use queue lock, because other threads might
-+	 * add packets to the queue without socket lock being held.
-+	 */
-+	skb_queue_purge(&sk->sk_error_queue);
-+
- 	/* Next, the write queue. */
- 	WARN_ON(!skb_queue_empty(&sk->sk_write_queue));
+-static int pp_odn_edit_dpm_table(void *handle, uint32_t type, long *input, uint32_t size)
++static int pp_odn_edit_dpm_table(void *handle, enum PP_OD_DPM_TABLE_COMMAND type,
++				 long *input, uint32_t size)
+ {
+ 	struct pp_hwmgr *hwmgr = handle;
  
 -- 
 2.35.1
