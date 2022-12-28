@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A4CC6579F9
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:06:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50CC06580F9
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:23:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233465AbiL1PGj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:06:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53852 "EHLO
+        id S231635AbiL1QXe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:23:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233578AbiL1PGg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:06:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8757512ADC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:06:35 -0800 (PST)
+        with ESMTP id S234978AbiL1QWm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:22:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF1FB1C10C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:20:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BB5361553
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:06:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DC95C433D2;
-        Wed, 28 Dec 2022 15:06:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 671EAB816F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:20:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D28E7C433EF;
+        Wed, 28 Dec 2022 16:20:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239994;
-        bh=xUQTlc1D4KPn3pxvsRl1F29e784Z/ZcyQb7a0L/HTl4=;
+        s=korg; t=1672244411;
+        bh=GmCXSwPE5NP+SaO5s7kju7LigtOKyGlQFSX61WElufY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ehbmH1SZMaW+2jutkkZM6woIwp08ndxRd1WwzAhQHUw+rjenA+W9lHM3x15Ttv3iH
-         sXn9lG1/P7mKFaNfY15MMZjVsOfpYx7GEd/8mX1LL36ZZFFYOAko9ibBHAXjLywGNF
-         48kMZsk46BePMGbLMs0YMoeWn+VUjJajiPPBcTDo=
+        b=t44ORpTiDSDa776QHbcnH60CVlN4By90so++gj4vhXSZYEwABAAIl9rM3P/cGwH/V
+         8Nc91lhOPPwMGgjZri67b/am8qeMZSYshKwp3HwJ5f87nd7FmWAG25agffr2w6Ane3
+         hokHql7iOvlAp39rq5a1eOm46rDdYhRIMBqyJ2Ek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        patches@lists.linux.dev, Tong Tiangen <tongtiangen@huawei.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 297/731] mmc: toshsd: fix return value check of mmc_add_host()
+Subject: [PATCH 6.1 0665/1146] riscv/mm: add arch hook arch_clear_hugepage_flags
 Date:   Wed, 28 Dec 2022 15:36:44 +0100
-Message-Id: <20221228144305.183175304@linuxfoundation.org>
+Message-Id: <20221228144348.214959183@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Tong Tiangen <tongtiangen@huawei.com>
 
-[ Upstream commit f670744a316ea983113a65313dcd387b5a992444 ]
+[ Upstream commit d8bf77a1dc3079692f54be3087a5fd16d90027b0 ]
 
-mmc_add_host() may return error, if we ignore its return value, the memory
-that allocated in mmc_alloc_host() will be leaked and it will lead a kernel
-crash because of deleting not added device in the remove path.
+With the PG_arch_1 we keep track if the page's data cache is clean,
+architecture rely on this property to treat new pages as dirty with
+respect to the data cache and perform the flushing before mapping the pages
+into userspace.
 
-So fix this by checking the return value and goto error path which will call
-mmc_free_host(), besides, free_irq() also needs be called.
+This patch adds a new architecture hook, arch_clear_hugepage_flags,so that
+architectures which rely on the page flags being in a particular state for
+fresh allocations can adjust the flags accordingly when a page is freed
+into the pool.
 
-Fixes: a5eb8bbd66cc ("mmc: add Toshiba PCI SD controller driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221101063023.1664968-8-yangyingliang@huawei.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 9e953cda5cdf ("riscv: Introduce huge page support for 32/64bit kernel")
+Signed-off-by: Tong Tiangen <tongtiangen@huawei.com>
+Link: https://lore.kernel.org/r/20221024094725.3054311-3-tongtiangen@huawei.com
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/toshsd.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/riscv/include/asm/hugetlb.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/mmc/host/toshsd.c b/drivers/mmc/host/toshsd.c
-index 8d037c2071ab..497791ffada6 100644
---- a/drivers/mmc/host/toshsd.c
-+++ b/drivers/mmc/host/toshsd.c
-@@ -651,7 +651,9 @@ static int toshsd_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	if (ret)
- 		goto unmap;
+diff --git a/arch/riscv/include/asm/hugetlb.h b/arch/riscv/include/asm/hugetlb.h
+index a5c2ca1d1cd8..ec19d6afc896 100644
+--- a/arch/riscv/include/asm/hugetlb.h
++++ b/arch/riscv/include/asm/hugetlb.h
+@@ -5,4 +5,10 @@
+ #include <asm-generic/hugetlb.h>
+ #include <asm/page.h>
  
--	mmc_add_host(mmc);
-+	ret = mmc_add_host(mmc);
-+	if (ret)
-+		goto free_irq;
- 
- 	base = pci_resource_start(pdev, 0);
- 	dev_dbg(&pdev->dev, "MMIO %pa, IRQ %d\n", &base, pdev->irq);
-@@ -660,6 +662,8 @@ static int toshsd_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 
- 	return 0;
- 
-+free_irq:
-+	free_irq(pdev->irq, host);
- unmap:
- 	pci_iounmap(pdev, host->ioaddr);
- release:
++static inline void arch_clear_hugepage_flags(struct page *page)
++{
++	clear_bit(PG_dcache_clean, &page->flags);
++}
++#define arch_clear_hugepage_flags arch_clear_hugepage_flags
++
+ #endif /* _ASM_RISCV_HUGETLB_H */
 -- 
 2.35.1
 
