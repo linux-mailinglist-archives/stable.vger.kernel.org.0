@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8655F657AD0
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:15:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B316D6579B8
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:04:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233067AbiL1PPU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:15:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59066 "EHLO
+        id S233466AbiL1PD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:03:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233119AbiL1PPI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:15:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DC1A13E94
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:15:07 -0800 (PST)
+        with ESMTP id S233468AbiL1PD5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:03:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C662E12097
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:03:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 56664B81647
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:15:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8509C433F0;
-        Wed, 28 Dec 2022 15:15:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 65AAF61541
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:03:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 771D8C433EF;
+        Wed, 28 Dec 2022 15:03:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240505;
-        bh=J7FwzpysjjsFN+SjVMjARPC9GfDv8COCLZ5rdinsQKo=;
+        s=korg; t=1672239835;
+        bh=c4hsV7i8ymG8pi0rs0ItIYG7BfhreTpAMJMVsu1akkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QuK2JEDk8Iv41+wMmUoCG8tp+aWvgRtHmXfRlN5fUbWaoJpMouOM5XOtOQzqrUjIf
-         yB58Mk/MfW3QcVrnfdijm1E3G/2d8GwfoIQmsGLcXCkU6SbzQfDvYnlUtVEeYC+cMk
-         el/PuKCis2tdC2DbKntbkr7mhuUnJrSR30otBgM0=
+        b=CKozXE/TSLfx0Rn4dCYJh2qVEsyFd+Cb9Nk2QAp2W9lZnodgXrbP4Te6TrUlmaPqq
+         iBJA58vSNu9GI0/8VQs4fMMj5mmXiFPDkOxq3P44xn3k+WFY/VZ8zHAY9boDYmVlM/
+         jsSUjZe5dpSVtsk+VJtpFrsPiMU9uwiZORXM8AO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0133/1146] MIPS: vpe-mt: fix possible memory leak while module exiting
+Subject: [PATCH 6.0 0084/1073] pstore/ram: Fix error return code in ramoops_probe()
 Date:   Wed, 28 Dec 2022 15:27:52 +0100
-Message-Id: <20221228144333.763933304@linuxfoundation.org>
+Message-Id: <20221228144330.343853344@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit 5822e8cc84ee37338ab0bdc3124f6eec04dc232d ]
+[ Upstream commit e1fce564900f8734edf15b87f028c57e14f6e28d ]
 
-Afer commit 1fa5ae857bb1 ("driver core: get rid of struct device's
-bus_id string array"), the name of device is allocated dynamically,
-it need be freed when module exiting, call put_device() to give up
-reference, so that it can be freed in kobject_cleanup() when the
-refcount hit to 0. The vpe_device is static, so remove kfree() from
-vpe_device_release().
+In the if (dev_of_node(dev) && !pdata) path, the "err" may be assigned a
+value of 0, so the error return code -EINVAL may be incorrectly set
+to 0. To fix set valid return code before calling to goto.
 
-Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 35da60941e44 ("pstore/ram: add Device Tree bindings")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/1669969374-46582-1-git-send-email-wangyufen@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/vpe-mt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/pstore/ram.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/mips/kernel/vpe-mt.c b/arch/mips/kernel/vpe-mt.c
-index bad6b0891b2b..84a82b551ec3 100644
---- a/arch/mips/kernel/vpe-mt.c
-+++ b/arch/mips/kernel/vpe-mt.c
-@@ -313,7 +313,6 @@ ATTRIBUTE_GROUPS(vpe);
+diff --git a/fs/pstore/ram.c b/fs/pstore/ram.c
+index fefe3d391d3a..74e4d93f3e08 100644
+--- a/fs/pstore/ram.c
++++ b/fs/pstore/ram.c
+@@ -735,6 +735,7 @@ static int ramoops_probe(struct platform_device *pdev)
+ 	/* Make sure we didn't get bogus platform data pointer. */
+ 	if (!pdata) {
+ 		pr_err("NULL platform data\n");
++		err = -EINVAL;
+ 		goto fail_out;
+ 	}
  
- static void vpe_device_release(struct device *cd)
- {
--	kfree(cd);
- }
- 
- static struct class vpe_class = {
-@@ -497,6 +496,7 @@ int __init vpe_module_init(void)
- 	device_del(&vpe_device);
- 
- out_class:
-+	put_device(&vpe_device);
- 	class_unregister(&vpe_class);
- 
- out_chrdev:
-@@ -509,7 +509,7 @@ void __exit vpe_module_exit(void)
- {
- 	struct vpe *v, *n;
- 
--	device_del(&vpe_device);
-+	device_unregister(&vpe_device);
- 	class_unregister(&vpe_class);
- 	unregister_chrdev(major, VPE_MODULE_NAME);
+@@ -742,6 +743,7 @@ static int ramoops_probe(struct platform_device *pdev)
+ 			!pdata->ftrace_size && !pdata->pmsg_size)) {
+ 		pr_err("The memory size and the record/console size must be "
+ 			"non-zero\n");
++		err = -EINVAL;
+ 		goto fail_out;
+ 	}
  
 -- 
 2.35.1
