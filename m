@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94A1C657D05
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:38:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B52E5658290
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:38:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233506AbiL1Pie (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:38:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55734 "EHLO
+        id S234883AbiL1QiO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:38:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233926AbiL1Pic (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:38:32 -0500
+        with ESMTP id S234910AbiL1QhU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:37:20 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72A3D165A3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:38:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEFA81AD8F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:33:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BF6661553
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:38:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17D66C433D2;
-        Wed, 28 Dec 2022 15:38:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D00F61576
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:33:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D3E8C433EF;
+        Wed, 28 Dec 2022 16:33:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241910;
-        bh=+BcBWFIfmpfxX+bozeJww/U2XiKBWratuyo/4KW339o=;
+        s=korg; t=1672245209;
+        bh=rkLDDgAOGPJYP8K4DcvTlQlbi/zxL+lTGy/3tNRIcJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ze8Gn9UHGJaDMDvLL7bF5jYvs8zLfDbSKellXUqVHRZpmmmXyoPoyRP09FAs6+b5d
-         6eQcWzhlVG4rooTNS7KThuEBzsObE6K7GW8jYscJVNFL0YLBetBL+LMdbqrulAbGK2
-         Dd6hC5aSlQSI1cthol3ann8SjBIGAaA55+ohwPY8=
+        b=fgY48zf1S0w+47jk4ZiNRCN6QXqhft2dAbFJ3GGjetrI5hmajCmwvJiyFgHWT32dk
+         Fl9M+cbXlGcMzzUyZTXEdgqp1oJnhpXIzNK7Ek1r0LznjuvVlMICgOONbmxVKIC7Fq
+         e8uwuFv+Z+U8C2nx41FIP5SnsM69AGPZIRD6+gdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Michael Riesch <michael.riesch@wolfvision.net>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 532/731] iommu/rockchip: fix permission bits in page table entries v2
+        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0851/1073] r6040: Fix kmemleak in probe and remove
 Date:   Wed, 28 Dec 2022 15:40:39 +0100
-Message-Id: <20221228144311.963677707@linuxfoundation.org>
+Message-Id: <20221228144351.133862503@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +54,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Riesch <michael.riesch@wolfvision.net>
+From: Li Zetao <lizetao1@huawei.com>
 
-[ Upstream commit 7eb99841f340b80be0d0973b0deb592d75fb8928 ]
+[ Upstream commit 7e43039a49c2da45edc1d9d7c9ede4003ab45a5f ]
 
-As pointed out in the corresponding downstream fix [0], the permission bits
-of the page table entries are compatible between v1 and v2 of the IOMMU.
-This is in contrast to the current mainline code that incorrectly assumes
-that the read and write permission bits are switched. Fix the permission
-bits by reusing the v1 bit defines.
+There is a memory leaks reported by kmemleak:
 
-[0] https://github.com/rockchip-linux/kernel/commit/e3bc123a2260145e34b57454da3db0edd117eb8e
+  unreferenced object 0xffff888116111000 (size 2048):
+    comm "modprobe", pid 817, jiffies 4294759745 (age 76.502s)
+    hex dump (first 32 bytes):
+      00 c4 0a 04 81 88 ff ff 08 10 11 16 81 88 ff ff  ................
+      08 10 11 16 81 88 ff ff 00 00 00 00 00 00 00 00  ................
+    backtrace:
+      [<ffffffff815bcd82>] kmalloc_trace+0x22/0x60
+      [<ffffffff827e20ee>] phy_device_create+0x4e/0x90
+      [<ffffffff827e6072>] get_phy_device+0xd2/0x220
+      [<ffffffff827e7844>] mdiobus_scan+0xa4/0x2e0
+      [<ffffffff827e8be2>] __mdiobus_register+0x482/0x8b0
+      [<ffffffffa01f5d24>] r6040_init_one+0x714/0xd2c [r6040]
+      ...
 
-Fixes: c55356c534aa ("iommu: rockchip: Add support for iommu v2")
-Signed-off-by: Michael Riesch <michael.riesch@wolfvision.net>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://lore.kernel.org/r/20221102063553.2464161-1-michael.riesch@wolfvision.net
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+The problem occurs in probe process as follows:
+  r6040_init_one:
+    mdiobus_register
+      mdiobus_scan    <- alloc and register phy_device,
+                         the reference count of phy_device is 3
+    r6040_mii_probe
+      phy_connect     <- connect to the first phy_device,
+                         so the reference count of the first
+                         phy_device is 4, others are 3
+    register_netdev   <- fault inject succeeded, goto error handling path
+
+    // error handling path
+    err_out_mdio_unregister:
+      mdiobus_unregister(lp->mii_bus);
+    err_out_mdio:
+      mdiobus_free(lp->mii_bus);    <- the reference count of the first
+                                       phy_device is 1, it is not released
+                                       and other phy_devices are released
+  // similarly, the remove process also has the same problem
+
+The root cause is traced to the phy_device is not disconnected when
+removes one r6040 device in r6040_remove_one() or on error handling path
+after r6040_mii probed successfully. In r6040_mii_probe(), a net ethernet
+device is connected to the first PHY device of mii_bus, in order to
+notify the connected driver when the link status changes, which is the
+default behavior of the PHY infrastructure to handle everything.
+Therefore the phy_device should be disconnected when removes one r6040
+device or on error handling path.
+
+Fix it by adding phy_disconnect() when removes one r6040 device or on
+error handling path after r6040_mii probed successfully.
+
+Fixes: 3831861b4ad8 ("r6040: implement phylib")
+Signed-off-by: Li Zetao <lizetao1@huawei.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/20221213125614.927754-1-lizetao1@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/rockchip-iommu.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/rdc/r6040.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/rockchip-iommu.c b/drivers/iommu/rockchip-iommu.c
-index 7f23ad61c094..823f1a7d8c6e 100644
---- a/drivers/iommu/rockchip-iommu.c
-+++ b/drivers/iommu/rockchip-iommu.c
-@@ -280,19 +280,17 @@ static u32 rk_mk_pte(phys_addr_t page, int prot)
-  *  11:9 - Page address bit 34:32
-  *   8:4 - Page address bit 39:35
-  *     3 - Security
-- *     2 - Readable
-- *     1 - Writable
-+ *     2 - Writable
-+ *     1 - Readable
-  *     0 - 1 if Page @ Page address is valid
-  */
--#define RK_PTE_PAGE_READABLE_V2      BIT(2)
--#define RK_PTE_PAGE_WRITABLE_V2      BIT(1)
+diff --git a/drivers/net/ethernet/rdc/r6040.c b/drivers/net/ethernet/rdc/r6040.c
+index a6bf7d505178..322d4d72d2e0 100644
+--- a/drivers/net/ethernet/rdc/r6040.c
++++ b/drivers/net/ethernet/rdc/r6040.c
+@@ -1159,10 +1159,12 @@ static int r6040_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	err = register_netdev(dev);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "Failed to register net device\n");
+-		goto err_out_mdio_unregister;
++		goto err_out_phy_disconnect;
+ 	}
+ 	return 0;
  
- static u32 rk_mk_pte_v2(phys_addr_t page, int prot)
- {
- 	u32 flags = 0;
++err_out_phy_disconnect:
++	phy_disconnect(dev->phydev);
+ err_out_mdio_unregister:
+ 	mdiobus_unregister(lp->mii_bus);
+ err_out_mdio:
+@@ -1186,6 +1188,7 @@ static void r6040_remove_one(struct pci_dev *pdev)
+ 	struct r6040_private *lp = netdev_priv(dev);
  
--	flags |= (prot & IOMMU_READ) ? RK_PTE_PAGE_READABLE_V2 : 0;
--	flags |= (prot & IOMMU_WRITE) ? RK_PTE_PAGE_WRITABLE_V2 : 0;
-+	flags |= (prot & IOMMU_READ) ? RK_PTE_PAGE_READABLE : 0;
-+	flags |= (prot & IOMMU_WRITE) ? RK_PTE_PAGE_WRITABLE : 0;
- 
- 	return rk_mk_dte_v2(page) | flags;
- }
+ 	unregister_netdev(dev);
++	phy_disconnect(dev->phydev);
+ 	mdiobus_unregister(lp->mii_bus);
+ 	mdiobus_free(lp->mii_bus);
+ 	netif_napi_del(&lp->napi);
 -- 
 2.35.1
 
