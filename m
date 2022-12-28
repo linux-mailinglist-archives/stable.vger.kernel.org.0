@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FA22657B7A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D47D657CEC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:37:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233598AbiL1PXD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:23:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40852 "EHLO
+        id S233909AbiL1Ph2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:37:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233713AbiL1PWh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:22:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 009BDB9B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:22:09 -0800 (PST)
+        with ESMTP id S233502AbiL1Ph2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:37:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B61351583A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:37:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ABF2AB8170E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:22:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19525C433D2;
-        Wed, 28 Dec 2022 15:22:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 50FA061553
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:37:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 641DAC433F0;
+        Wed, 28 Dec 2022 15:37:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240927;
-        bh=+JSkrY5qRzZ4jTK0wCeoTUHJxkbwBCPYvU/9LC3D+IM=;
+        s=korg; t=1672241846;
+        bh=4ACBcbDJ6Ctcg/srlEdFd2WrfFh78XgoTZQLLlxPVTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I5P0uc1ay9V3Hy2ucPYOiuRuqHVLv/p4FPXiwMVTbqzhV6QwD50rfYU94BRLQOPUs
-         vN4Y1cyfft4mv9UT6Vq1F6i3KckTWefX9+NWYydcPTuar7KkhN+5c/PyAueuhlIwJ+
-         ESR5i9RDLeU1lm0CbOEnDYbp+VNase50YMt9PcOc=
+        b=Z7nC41eAA4iFqvwyoyFNCGToYq5RJbkzQsbtq0h8kBKiuZWC3iZ3raeGzxg8NAKeS
+         dpuZm/ZKEPZrqSmtE21rXIeykZVc5vP+Fj1UDn3mmP8vhOpv/i1xKg8wjrdixR5DJY
+         /hSglr6YknU56eNp4UT8q85cnw3jSG3Udh8ku3+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pin-yen Lin <treapking@chromium.org>,
-        Robert Foss <robert.foss@linaro.org>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0220/1073] drm/bridge: it6505: Initialize AUX channel in it6505_i2c_probe
+Subject: [PATCH 6.1 0269/1146] spi: Update reference to struct spi_controller
 Date:   Wed, 28 Dec 2022 15:30:08 +0100
-Message-Id: <20221228144333.993025822@linuxfoundation.org>
+Message-Id: <20221228144337.443536409@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pin-yen Lin <treapking@chromium.org>
+From: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
 
-[ Upstream commit e577d4b13064c337b83fe7edecb3f34e87144821 ]
+[ Upstream commit bf585ccee22faf469d82727cf375868105b362f7 ]
 
-During device boot, the HPD interrupt could be triggered before the DRM
-subsystem registers it6505 as a DRM bridge. In such cases, the driver
-tries to access AUX channel and causes NULL pointer dereference.
-Initializing the AUX channel earlier to prevent such error.
+struct spi_master has been renamed to struct spi_controller. Update the
+reference in spi.rst to make it clickable again.
 
-Fixes: b5c84a9edcd4 ("drm/bridge: add it6505 driver")
-Signed-off-by: Pin-yen Lin <treapking@chromium.org>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221013110411.1674359-2-treapking@chromium.org
+Fixes: 8caab75fd2c2 ("spi: Generalize SPI "master" to "controller"")
+Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+Link: https://lore.kernel.org/r/20221101173252.1069294-1-j.neuschaefer@gmx.net
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/ite-it6505.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ Documentation/driver-api/spi.rst | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/ite-it6505.c b/drivers/gpu/drm/bridge/ite-it6505.c
-index a09d1a39ab0a..711f403afe7c 100644
---- a/drivers/gpu/drm/bridge/ite-it6505.c
-+++ b/drivers/gpu/drm/bridge/ite-it6505.c
-@@ -2854,10 +2854,7 @@ static int it6505_bridge_attach(struct drm_bridge *bridge,
- 	}
- 
- 	/* Register aux channel */
--	it6505->aux.name = "DP-AUX";
--	it6505->aux.dev = dev;
- 	it6505->aux.drm_dev = bridge->dev;
--	it6505->aux.transfer = it6505_aux_transfer;
- 
- 	ret = drm_dp_aux_register(&it6505->aux);
- 
-@@ -3310,6 +3307,11 @@ static int it6505_i2c_probe(struct i2c_client *client,
- 	DRM_DEV_DEBUG_DRIVER(dev, "it6505 device name: %s", dev_name(dev));
- 	debugfs_init(it6505);
- 
-+	it6505->aux.name = "DP-AUX";
-+	it6505->aux.dev = dev;
-+	it6505->aux.transfer = it6505_aux_transfer;
-+	drm_dp_aux_init(&it6505->aux);
-+
- 	it6505->bridge.funcs = &it6505_bridge_funcs;
- 	it6505->bridge.type = DRM_MODE_CONNECTOR_DisplayPort;
- 	it6505->bridge.ops = DRM_BRIDGE_OP_DETECT | DRM_BRIDGE_OP_EDID |
+diff --git a/Documentation/driver-api/spi.rst b/Documentation/driver-api/spi.rst
+index f64cb666498a..f28887045049 100644
+--- a/Documentation/driver-api/spi.rst
++++ b/Documentation/driver-api/spi.rst
+@@ -25,8 +25,8 @@ hardware, which may be as simple as a set of GPIO pins or as complex as
+ a pair of FIFOs connected to dual DMA engines on the other side of the
+ SPI shift register (maximizing throughput). Such drivers bridge between
+ whatever bus they sit on (often the platform bus) and SPI, and expose
+-the SPI side of their device as a :c:type:`struct spi_master
+-<spi_master>`. SPI devices are children of that master,
++the SPI side of their device as a :c:type:`struct spi_controller
++<spi_controller>`. SPI devices are children of that master,
+ represented as a :c:type:`struct spi_device <spi_device>` and
+ manufactured from :c:type:`struct spi_board_info
+ <spi_board_info>` descriptors which are usually provided by
 -- 
 2.35.1
 
