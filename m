@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBA2C657907
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:56:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 866F0657A0F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:07:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233268AbiL1O4w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:56:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44218 "EHLO
+        id S233587AbiL1PHY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:07:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233270AbiL1O4s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:56:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EB6ADCD
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:56:47 -0800 (PST)
+        with ESMTP id S233588AbiL1PHX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:07:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B69C613D7C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:07:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EA5E614B2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:56:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43BADC433D2;
-        Wed, 28 Dec 2022 14:56:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5351A61541
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:07:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BE94C433D2;
+        Wed, 28 Dec 2022 15:07:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239406;
-        bh=jV+jo97mkdKvm8iSkp3Cpt/piH5zPWbhM9ZmxXg4gDA=;
+        s=korg; t=1672240041;
+        bh=omBc3ScJUWtsOWSPluRFNtly+g4OLl7z5Xs4Hj3y6IQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PLzowEjx04Il7MwzptIilzDovwYojI/K0UmyMr2w8Gg1uaol2pvg/JYtOccqJqStt
-         y1DwWV58Nb0Go58+jX3ME+b3C7HfeOTtX95fKR9HLQ1SxvgNrmWenL8KqieiQUvitF
-         /ZdEvO7FcBiQxHmh3gn39Wk8/Gf2azNkzUvexOjQ=
+        b=MA7A7FNcVo2XhAayOFlVu72AKs9mbumOS9vwuMENF39Ddnpp1p84K+dMyVkOHkw/f
+         v2UlympR9CIuG3fCiJ2CR2llvcVJCsKJmqh/J9ZrBIYp7TDfhUaG9jJfYu9ldOilxn
+         FG5qHa2/jR7zqfNbFM4fiolgfQsJRFd+TYQN2CyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marek Vasut <marex@denx.de>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        patches@lists.linux.dev,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0024/1073] ARM: dts: stm32: Fix AV96 WLAN regulator gpio property
-Date:   Wed, 28 Dec 2022 15:26:52 +0100
-Message-Id: <20221228144328.807638523@linuxfoundation.org>
+Subject: [PATCH 6.1 0074/1146] arm64: dts: mt2712-evb: Fix vproc fixed regulators unit names
+Date:   Wed, 28 Dec 2022 15:26:53 +0100
+Message-Id: <20221228144332.162789696@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit d5d577e3d50713ad11d98dbdaa48bb494346c26d ]
+[ Upstream commit 377063156893bf6c088309ac799fe5c6dce2822d ]
 
-The WLAN regulator uses 'gpios' property instead of 'gpio' to specify
-regulator enable GPIO. While the former is also currently handled by
-the Linux kernel regulator-fixed driver, the later is the correct one
-per DT bindings. Update the DT to use the later.
+Update the names to regulator-vproc-buck{0,1} to fix unit_addres_vs_reg
+warnings for those.
 
-Fixes: 7dd5cbba42c93 ("ARM: dts: stm32: Enable WiFi on AV96")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Fixes: f75dd8bdd344 ("arm64: dts: mediatek: add mt2712 cpufreq related device nodes")
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221013152212.416661-6-angelogioacchino.delregno@collabora.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/mediatek/mt2712-evb.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi
-index 90933077d66d..b6957cbdeff5 100644
---- a/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi
-+++ b/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi
-@@ -100,7 +100,7 @@ wlan_pwr: regulator-wlan {
- 		regulator-min-microvolt = <3300000>;
- 		regulator-max-microvolt = <3300000>;
- 
--		gpios = <&gpioz 3 GPIO_ACTIVE_HIGH>;
-+		gpio = <&gpioz 3 GPIO_ACTIVE_HIGH>;
- 		enable-active-high;
+diff --git a/arch/arm64/boot/dts/mediatek/mt2712-evb.dts b/arch/arm64/boot/dts/mediatek/mt2712-evb.dts
+index 9b1af9c80130..638908773706 100644
+--- a/arch/arm64/boot/dts/mediatek/mt2712-evb.dts
++++ b/arch/arm64/boot/dts/mediatek/mt2712-evb.dts
+@@ -26,14 +26,14 @@ chosen {
+ 		stdout-path = "serial0:921600n8";
  	};
- };
+ 
+-	cpus_fixed_vproc0: fixedregulator@0 {
++	cpus_fixed_vproc0: regulator-vproc-buck0 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "vproc_buck0";
+ 		regulator-min-microvolt = <1000000>;
+ 		regulator-max-microvolt = <1000000>;
+ 	};
+ 
+-	cpus_fixed_vproc1: fixedregulator@1 {
++	cpus_fixed_vproc1: regulator-vproc-buck1 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "vproc_buck1";
+ 		regulator-min-microvolt = <1000000>;
 -- 
 2.35.1
 
