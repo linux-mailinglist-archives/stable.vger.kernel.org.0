@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E608657B11
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:17:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87155657A4A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:10:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233184AbiL1PR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:17:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36792 "EHLO
+        id S233584AbiL1PKF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:10:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233204AbiL1PRq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:17:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A5FF13F8B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:17:45 -0800 (PST)
+        with ESMTP id S233670AbiL1PJf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:09:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C10F913E1E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:09:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1D86EB816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:17:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A20CC433F1;
-        Wed, 28 Dec 2022 15:17:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5EF1F6155A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:09:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71DD6C433EF;
+        Wed, 28 Dec 2022 15:09:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240662;
-        bh=fWJpkAd0AO7VPPeA4CRut39wbJSmhU5YwQ1sckF+ZA4=;
+        s=korg; t=1672240173;
+        bh=qY16RBtuxcD3RstD6hVr5F6RiT/+hNpK2zQhV3Y6A1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A/9PgneUUx9FXynpWCre0CA3devfQPKrfZEC9EtkUIWFOaFVyDkN/AsuZiO2NB62K
-         59yhdz1LT4TQoFIrFDwgtS2BlSeOwdTcj5TP1uCd809ZnZobvRz7Du3cXAv3U9MSFm
-         zxmWYCPe+WtdSYmus4S2dTUEhcXDiaQJpz0M35kU=
+        b=C5rHa/Gfo1zTJlsngVmEfaInC1l3qNhsGChFOEQTkbi8P6PAt24DjlhZQYgEL1F03
+         Gv/PoSReODG1rUpOGBYWSBwMkgxVSuT9HqxnJVL3AmWToLCsm9jg6c8NDB6xV1hmIF
+         BsFl1TdOezvo9QMZaCPvNg6YQKiAeVZPWLQ8pK9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeff Layton <jlayton@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        patches@lists.linux.dev, Ulf Hansson <ulf.hansson@linaro.org>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0151/1146] NFSD: Finish converting the NFSv2 GETACL result encoder
+Subject: [PATCH 6.0 0102/1073] cpuidle: dt: Return the correct numbers of parsed idle states
 Date:   Wed, 28 Dec 2022 15:28:10 +0100
-Message-Id: <20221228144334.255950291@linuxfoundation.org>
+Message-Id: <20221228144330.817855877@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit ea5021e911d3479346a75ac9b7d9dcd751b0fb99 ]
+[ Upstream commit ee3c2c8ad6ba6785f14a60e4081d7c82e88162a2 ]
 
-The xdr_stream conversion inadvertently left some code that set the
-page_len of the send buffer. The XDR stream encoders should handle
-this automatically now.
+While we correctly skips to initialize an idle state from a disabled idle
+state node in DT, the returned value from dt_init_idle_driver() don't get
+adjusted accordingly. Instead the number of found idle state nodes are
+returned, while the callers are expecting the number of successfully
+initialized idle states from DT.
 
-This oversight adds garbage past the end of the Reply message.
-Clients typically ignore the garbage, but NFSD does not need to send
-it, as it leaks stale memory contents onto the wire.
+This leads to cpuidle drivers unnecessarily continues to initialize their
+idle state specific data. Moreover, in the case when all idle states have
+been disabled in DT, we would end up registering a cpuidle driver, rather
+than relying on the default arch specific idle call.
 
-Fixes: f8cba47344f7 ("NFSD: Update the NFSv2 GETACL result encoder to use struct xdr_stream")
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: 9f14da345599 ("drivers: cpuidle: implement DT based idle states infrastructure")
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs2acl.c | 10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/cpuidle/dt_idle_states.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfsd/nfs2acl.c b/fs/nfsd/nfs2acl.c
-index 13e6e6897f6c..65d4511b7af0 100644
---- a/fs/nfsd/nfs2acl.c
-+++ b/fs/nfsd/nfs2acl.c
-@@ -246,7 +246,6 @@ nfsaclsvc_encode_getaclres(struct svc_rqst *rqstp, struct xdr_stream *xdr)
- 	struct nfsd3_getaclres *resp = rqstp->rq_resp;
- 	struct dentry *dentry = resp->fh.fh_dentry;
- 	struct inode *inode;
--	int w;
- 
- 	if (!svcxdr_encode_stat(xdr, resp->status))
- 		return false;
-@@ -260,15 +259,6 @@ nfsaclsvc_encode_getaclres(struct svc_rqst *rqstp, struct xdr_stream *xdr)
- 	if (xdr_stream_encode_u32(xdr, resp->mask) < 0)
- 		return false;
- 
--	rqstp->rq_res.page_len = w = nfsacl_size(
--		(resp->mask & NFS_ACL)   ? resp->acl_access  : NULL,
--		(resp->mask & NFS_DFACL) ? resp->acl_default : NULL);
--	while (w > 0) {
--		if (!*(rqstp->rq_next_page++))
--			return true;
--		w -= PAGE_SIZE;
--	}
--
- 	if (!nfs_stream_encode_acl(xdr, inode, resp->acl_access,
- 				   resp->mask & NFS_ACL, 0))
- 		return false;
+diff --git a/drivers/cpuidle/dt_idle_states.c b/drivers/cpuidle/dt_idle_states.c
+index 252f2a9686a6..448bc796b0b4 100644
+--- a/drivers/cpuidle/dt_idle_states.c
++++ b/drivers/cpuidle/dt_idle_states.c
+@@ -223,6 +223,6 @@ int dt_init_idle_driver(struct cpuidle_driver *drv,
+ 	 * also be 0 on platforms with missing DT idle states or legacy DT
+ 	 * configuration predating the DT idle states bindings.
+ 	 */
+-	return i;
++	return state_idx - start_idx;
+ }
+ EXPORT_SYMBOL_GPL(dt_init_idle_driver);
 -- 
 2.35.1
 
