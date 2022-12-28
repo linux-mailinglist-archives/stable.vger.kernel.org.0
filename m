@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92B8C65849B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:59:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00225657ECC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:57:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235214AbiL1Q7A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:59:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46828 "EHLO
+        id S234202AbiL1P5l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:57:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235356AbiL1Q6T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:58:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3A0620342
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:54:27 -0800 (PST)
+        with ESMTP id S230508AbiL1P5k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:57:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FAFC18390
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:57:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90F9AB8171E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:54:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02BBFC433EF;
-        Wed, 28 Dec 2022 16:54:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CCA76155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:57:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32EB8C433EF;
+        Wed, 28 Dec 2022 15:57:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246465;
-        bh=r1Tr7Ex1lfuWB1lk5cCRThE2qppV0fzq6eYgqDGwVGc=;
+        s=korg; t=1672243058;
+        bh=NEUP6zN9OADZm5zNxMnUdUs2DJSQYC2jc+XVsX3Rf54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C1K/uGjRk8SwivjVzgwfXu3iMJPTqczwPWGnT3EoZxxMmVqxCNFcQEHMcXcJy4C4h
-         j0A6RRmhEt5isOLGTP2cbfiMPYG3IOlHCTRPl0hp9OW5yavkLXZiXQC2sqehs2L0DY
-         MTEShdfEDlnd5dQglQCcGBEb9qIb0Ce2sozmPtFI=
+        b=A5AgzSNbiS8KcCGJh3MA6g+kxXReDO710sNNCvnQHJUPRZ2YkKA0kzZ3j0k8CZ75L
+         hxxc4UmwkoZEs/AQSMMMIqV2IXXWPa3IbRbKOD6BVZPmenkhS9WPfogCTPClgfPoe3
+         RAp1ceNon/JLgmAVvsvyD7dh5nMezhdyC5LHfNk8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sven Peter <sven@svenpeter.dev>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev, Sami Tolvanen <samitolvanen@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1047/1146] Bluetooth: Add quirk to disable extended scanning
+Subject: [PATCH 5.15 679/731] drm/fsl-dcu: Fix return type of fsl_dcu_drm_connector_mode_valid()
 Date:   Wed, 28 Dec 2022 15:43:06 +0100
-Message-Id: <20221228144358.762922328@linuxfoundation.org>
+Message-Id: <20221228144316.156707525@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,81 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Peter <sven@svenpeter.dev>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 392fca352c7a95e2828d49e7500e26d0c87ca265 ]
+[ Upstream commit 96d845a67b7e406cfed7880a724c8ca6121e022e ]
 
-Broadcom 4377 controllers found in Apple x86 Macs with the T2 chip
-claim to support extended scanning when querying supported states,
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed. A
+proposed warning in clang aims to catch these at compile time, which
+reveals:
 
-< HCI Command: LE Read Supported St.. (0x08|0x001c) plen 0
-> HCI Event: Command Complete (0x0e) plen 12
-      LE Read Supported States (0x08|0x001c) ncmd 1
-        Status: Success (0x00)
-        States: 0x000003ffffffffff
-[...]
-          LE Set Extended Scan Parameters (Octet 37 - Bit 5)
-          LE Set Extended Scan Enable (Octet 37 - Bit 6)
-[...]
+  drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c:74:16: error: incompatible function pointer types initializing 'enum drm_mode_status (*)(struct drm_connector *, struct drm_display_mode *)' with an expression of type 'int (struct drm_connector *, struct drm_display_mode *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .mode_valid = fsl_dcu_drm_connector_mode_valid,
+                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  1 error generated.
 
-, but then fail to actually implement the extended scanning:
+->mode_valid() in 'struct drm_connector_helper_funcs' expects a return
+type of 'enum drm_mode_status', not 'int'. Adjust the return type of
+fsl_dcu_drm_connector_mode_valid() to match the prototype's to resolve
+the warning and CFI failure.
 
-< HCI Command: LE Set Extended Sca.. (0x08|0x0041) plen 8
-        Own address type: Random (0x01)
-        Filter policy: Accept all advertisement (0x00)
-        PHYs: 0x01
-        Entry 0: LE 1M
-          Type: Active (0x01)
-          Interval: 11.250 msec (0x0012)
-          Window: 11.250 msec (0x0012)
-> HCI Event: Command Complete (0x0e) plen 4
-      LE Set Extended Scan Parameters (0x08|0x0041) ncmd 1
-        Status: Unknown HCI Command (0x01)
-
-Signed-off-by: Sven Peter <sven@svenpeter.dev>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1750
+Reported-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221102154215.78059-1-nathan@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/bluetooth/hci.h      | 10 ++++++++++
- include/net/bluetooth/hci_core.h |  4 +++-
- 2 files changed, 13 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/include/net/bluetooth/hci.h b/include/net/bluetooth/hci.h
-index 684f1cd28730..d8abeac2fc1e 100644
---- a/include/net/bluetooth/hci.h
-+++ b/include/net/bluetooth/hci.h
-@@ -274,6 +274,16 @@ enum {
- 	 * during the hdev->setup vendor callback.
- 	 */
- 	HCI_QUIRK_BROKEN_ENHANCED_SETUP_SYNC_CONN,
-+
-+	/*
-+	 * When this quirk is set, the HCI_OP_LE_SET_EXT_SCAN_ENABLE command is
-+	 * disabled. This is required for some Broadcom controllers which
-+	 * erroneously claim to support extended scanning.
-+	 *
-+	 * This quirk can be set before hci_register_dev is called or
-+	 * during the hdev->setup vendor callback.
-+	 */
-+	HCI_QUIRK_BROKEN_EXT_SCAN,
- };
+diff --git a/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c b/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c
+index 4d4a715b429d..2c2b92324a2e 100644
+--- a/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c
++++ b/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c
+@@ -60,8 +60,9 @@ static int fsl_dcu_drm_connector_get_modes(struct drm_connector *connector)
+ 	return drm_panel_get_modes(fsl_connector->panel, connector);
+ }
  
- /* HCI device flags */
-diff --git a/include/net/bluetooth/hci_core.h b/include/net/bluetooth/hci_core.h
-index c54bc71254af..3cd00be0fcd2 100644
---- a/include/net/bluetooth/hci_core.h
-+++ b/include/net/bluetooth/hci_core.h
-@@ -1689,7 +1689,9 @@ void hci_conn_del_sysfs(struct hci_conn *conn);
- 
- /* Use ext scanning if set ext scan param and ext scan enable is supported */
- #define use_ext_scan(dev) (((dev)->commands[37] & 0x20) && \
--			   ((dev)->commands[37] & 0x40))
-+			   ((dev)->commands[37] & 0x40) && \
-+			   !test_bit(HCI_QUIRK_BROKEN_EXT_SCAN, &(dev)->quirks))
-+
- /* Use ext create connection if command is supported */
- #define use_ext_conn(dev) ((dev)->commands[37] & 0x80)
- 
+-static int fsl_dcu_drm_connector_mode_valid(struct drm_connector *connector,
+-					    struct drm_display_mode *mode)
++static enum drm_mode_status
++fsl_dcu_drm_connector_mode_valid(struct drm_connector *connector,
++				 struct drm_display_mode *mode)
+ {
+ 	if (mode->hdisplay & 0xf)
+ 		return MODE_ERROR;
 -- 
 2.35.1
 
