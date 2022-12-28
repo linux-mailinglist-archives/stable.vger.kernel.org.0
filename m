@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6015658311
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 599CE65823B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:34:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234896AbiL1QoT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:44:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37152 "EHLO
+        id S233259AbiL1QeR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:34:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234958AbiL1Qnw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C6D11AF29
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:38:44 -0800 (PST)
+        with ESMTP id S234848AbiL1Qd3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0C951BEB6
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:31:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C01FD61578
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:38:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D17D2C433F2;
-        Wed, 28 Dec 2022 16:38:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 39FB261576
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:31:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C419C433F0;
+        Wed, 28 Dec 2022 16:31:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245523;
-        bh=j0yrMKeJO2r/tfnUtHUOregZlgkJhmlss1ORUpzt048=;
+        s=korg; t=1672245061;
+        bh=BRj+vj95WFv8M5utjgkr7BywBbDyiGst/9oYhliNUUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HEpqQ073I9HqqJA8IfqR3jQaRXCwkoCDcARx7HO7Epcf9TaDKe3598SSsIsGgOg7x
-         wGY9xilDUQIqZX04bIORkv+NlgdFPZTEvkVkn/oD3xc8RWFTymSTVGr0cVjDzhhkbZ
-         M+tVPfCq6U01FMXuCPLmeJ4/XovIaI3ssC9x3Z+s=
+        b=DR70nQO3l9EaDFSSyg8Ru3PtIA6/64hL60yTIGPisHL4hVRxphDzLMchFkACCP1lb
+         Pk4nOBE3fpkMNe8elmL/T0qAHg4pmA3Ya28CLYD0JltX8GBdroeHeF67M6BXPh8dJ1
+         Xvq1ERVf5aiuwMHTLC+StqxpTlfDxbh1R46Bh5lE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev, Nathan Lynch <nathanl@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0875/1146] remoteproc: qcom: q6v5: Fix missing clk_disable_unprepare() in q6v5_wcss_qcs404_power_on()
+Subject: [PATCH 6.0 0826/1073] powerpc/pseries/eeh: use correct API for error log size
 Date:   Wed, 28 Dec 2022 15:40:14 +0100
-Message-Id: <20221228144353.932643309@linuxfoundation.org>
+Message-Id: <20221228144350.449898734@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Nathan Lynch <nathanl@linux.ibm.com>
 
-[ Upstream commit 7ff5d60f18bba5cbaf17b2926aa9da44d5beca01 ]
+[ Upstream commit 9aafbfa5f57a4b75bafd3bed0191e8429c5fa618 ]
 
-q6v5_wcss_qcs404_power_on() have no fail path for readl_poll_timeout().
-Add fail path for readl_poll_timeout().
+rtas-error-log-max is not the name of an RTAS function, so rtas_token()
+is not the appropriate API for retrieving its value. We already have
+rtas_get_error_log_max() which returns a sensible value if the property
+is absent for any reason, so use that instead.
 
-Fixes: 0af65b9b915e ("remoteproc: qcom: wcss: Add non pas wcss Q6 support for QCS404")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221204082757.18850-1-shangxiaojing@huawei.com
+Fixes: 8d633291b4fc ("powerpc/eeh: pseries platform EEH error log retrieval")
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+[mpe: Drop no-longer possible error handling as noticed by ajd]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20221118150751.469393-6-nathanl@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/qcom_q6v5_wcss.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/platforms/pseries/eeh_pseries.c | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
 
-diff --git a/drivers/remoteproc/qcom_q6v5_wcss.c b/drivers/remoteproc/qcom_q6v5_wcss.c
-index de232337e082..ba24d745b2d6 100644
---- a/drivers/remoteproc/qcom_q6v5_wcss.c
-+++ b/drivers/remoteproc/qcom_q6v5_wcss.c
-@@ -351,7 +351,7 @@ static int q6v5_wcss_qcs404_power_on(struct q6v5_wcss *wcss)
- 	if (ret) {
- 		dev_err(wcss->dev,
- 			"xo cbcr enabling timed out (rc:%d)\n", ret);
--		return ret;
-+		goto disable_xo_cbcr_clk;
+diff --git a/arch/powerpc/platforms/pseries/eeh_pseries.c b/arch/powerpc/platforms/pseries/eeh_pseries.c
+index 8e40ccac0f44..e5a58a9b2fe9 100644
+--- a/arch/powerpc/platforms/pseries/eeh_pseries.c
++++ b/arch/powerpc/platforms/pseries/eeh_pseries.c
+@@ -848,16 +848,7 @@ static int __init eeh_pseries_init(void)
  	}
  
- 	writel(0, wcss->reg_base + Q6SS_CGC_OVERRIDE);
-@@ -417,6 +417,7 @@ static int q6v5_wcss_qcs404_power_on(struct q6v5_wcss *wcss)
- 	val = readl(wcss->reg_base + Q6SS_SLEEP_CBCR);
- 	val &= ~Q6SS_CLK_ENABLE;
- 	writel(val, wcss->reg_base + Q6SS_SLEEP_CBCR);
-+disable_xo_cbcr_clk:
- 	val = readl(wcss->reg_base + Q6SS_XO_CBCR);
- 	val &= ~Q6SS_CLK_ENABLE;
- 	writel(val, wcss->reg_base + Q6SS_XO_CBCR);
+ 	/* Initialize error log size */
+-	eeh_error_buf_size = rtas_token("rtas-error-log-max");
+-	if (eeh_error_buf_size == RTAS_UNKNOWN_SERVICE) {
+-		pr_info("%s: unknown EEH error log size\n",
+-			__func__);
+-		eeh_error_buf_size = 1024;
+-	} else if (eeh_error_buf_size > RTAS_ERROR_LOG_MAX) {
+-		pr_info("%s: EEH error log size %d exceeds the maximal %d\n",
+-			__func__, eeh_error_buf_size, RTAS_ERROR_LOG_MAX);
+-		eeh_error_buf_size = RTAS_ERROR_LOG_MAX;
+-	}
++	eeh_error_buf_size = rtas_get_error_log_max();
+ 
+ 	/* Set EEH probe mode */
+ 	eeh_add_flag(EEH_PROBE_MODE_DEVTREE | EEH_ENABLE_IO_FOR_LOG);
 -- 
 2.35.1
 
