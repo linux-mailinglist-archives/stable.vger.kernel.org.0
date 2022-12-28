@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E8256581A2
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:30:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6960657AE1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:15:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234683AbiL1QaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:30:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48590 "EHLO
+        id S233103AbiL1PPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:15:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234674AbiL1Q3v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:29:51 -0500
+        with ESMTP id S233052AbiL1PPw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:15:52 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC7141B798
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:26:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CE43228
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:15:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6732A6157A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:26:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75B88C433EF;
-        Wed, 28 Dec 2022 16:26:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 07CF46155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:15:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18B63C433D2;
+        Wed, 28 Dec 2022 15:15:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244769;
-        bh=HuhbE6NE4mxiR3nqkrr9+D4M4gR4/rGw8e7UU0+8XNQ=;
+        s=korg; t=1672240550;
+        bh=u3NVQJKNF+rnowNpShBaEAVRDQot1+kMKFAa4ZHhWoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XH9CKxPwv4ytwchbCw2KXqCf24iEV9a6voeGzE8btS2RaIBnDDYI1N6bhj0mebsK4
-         vQavwvp0i2nrC32p5Hx+2OBbd4xeVEm6o7Bdpfga+2cbUIkb/oTioDew8dy85HzPbc
-         9hnh2iiZHyeipXG+K3DThoZ0E7BmFS7Vmk1cPhTE=
+        b=iC1Zq/pxCOi5oYoUtdtSBtMcFvAMQI83MzxXT1KDBtVgfJ27UHR2fcwaVANQl3XK+
+         QwzVxKV5Z0V20GAvQf2Qhvi54AzHozaD6OstXwa8mVuNm59S/gZ6Ja2gO6viGLVYlk
+         Mj2zU+D3dXT06WmMR7QqAUaJfKTr6PF8lSEFxjtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johannes Thumshirn <jth@kernel.org>,
-        Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev, Vidya Sagar <vidyas@nvidia.com>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Jingoo Han <jingoohan1@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0733/1146] mcb: mcb-parse: fix error handing in chameleon_parse_gdd()
-Date:   Wed, 28 Dec 2022 15:37:52 +0100
-Message-Id: <20221228144350.056205462@linuxfoundation.org>
+Subject: [PATCH 5.15 366/731] PCI: dwc: Fix n_fts[] array overrun
+Date:   Wed, 28 Dec 2022 15:37:53 +0100
+Message-Id: <20221228144307.170130048@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Vidya Sagar <vidyas@nvidia.com>
 
-[ Upstream commit 728ac3389296caf68638628c987aeae6c8851e2d ]
+[ Upstream commit 66110361281b2f7da0c8bd51eaf1f152f4236035 ]
 
-If mcb_device_register() returns error in chameleon_parse_gdd(), the refcount
-of bus and device name are leaked. Fix this by calling put_device() to give up
-the reference, so they can be released in mcb_release_dev() and kobject_cleanup().
+commit aeaa0bfe89654 ("PCI: dwc: Move N_FTS setup to common setup")
+incorrectly uses pci->link_gen in deriving the index to the
+n_fts[] array also introducing the issue of accessing beyond the
+boundaries of array for greater than Gen-2 speeds. This change fixes
+that issue.
 
-Fixes: 3764e82e5150 ("drivers: Introduce MEN Chameleon Bus")
-Reviewed-by: Johannes Thumshirn <jth@kernel.org>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Johannes Thumshirn <jth@kernel.org>
-Link: https://lore.kernel.org/r/ebfb06e39b19272f0197fa9136b5e4b6f34ad732.1669624063.git.johannes.thumshirn@wdc.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220926111923.22487-1-vidyas@nvidia.com
+Fixes: aeaa0bfe8965 ("PCI: dwc: Move N_FTS setup to common setup")
+Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
+Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Acked-by: Jingoo Han <jingoohan1@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mcb/mcb-parse.c | 2 +-
+ drivers/pci/controller/dwc/pcie-designware.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mcb/mcb-parse.c b/drivers/mcb/mcb-parse.c
-index 0266bfddfbe2..aa6938da0db8 100644
---- a/drivers/mcb/mcb-parse.c
-+++ b/drivers/mcb/mcb-parse.c
-@@ -108,7 +108,7 @@ static int chameleon_parse_gdd(struct mcb_bus *bus,
- 	return 0;
+diff --git a/drivers/pci/controller/dwc/pcie-designware.c b/drivers/pci/controller/dwc/pcie-designware.c
+index e408ebf5bd73..00972a7bc976 100644
+--- a/drivers/pci/controller/dwc/pcie-designware.c
++++ b/drivers/pci/controller/dwc/pcie-designware.c
+@@ -730,7 +730,7 @@ void dw_pcie_setup(struct dw_pcie *pci)
+ 	if (pci->n_fts[1]) {
+ 		val = dw_pcie_readl_dbi(pci, PCIE_LINK_WIDTH_SPEED_CONTROL);
+ 		val &= ~PORT_LOGIC_N_FTS_MASK;
+-		val |= pci->n_fts[pci->link_gen - 1];
++		val |= pci->n_fts[1];
+ 		dw_pcie_writel_dbi(pci, PCIE_LINK_WIDTH_SPEED_CONTROL, val);
+ 	}
  
- err:
--	mcb_free_dev(mdev);
-+	put_device(&mdev->dev);
- 
- 	return ret;
- }
 -- 
 2.35.1
 
