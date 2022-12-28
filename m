@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52B5B657ADF
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:15:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEE95657BF8
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:27:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233098AbiL1PPu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:15:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34936 "EHLO
+        id S233215AbiL1P1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:27:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233082AbiL1PPr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:15:47 -0500
+        with ESMTP id S233773AbiL1P1W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:27:22 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 698683A2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:15:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E400140A7
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:27:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B56AF6155C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:15:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C88A6C43396;
-        Wed, 28 Dec 2022 15:15:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DFB026155C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:27:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F01FEC433EF;
+        Wed, 28 Dec 2022 15:27:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240545;
-        bh=Y1DO5o7BuAe5s+ybFJLesPQquWluBXAXBGwYrizFhzo=;
+        s=korg; t=1672241240;
+        bh=+PCmEb79SDjjzISklcarpKZ+wzHHePAD6e0LLyP0dxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D2lQ2Zncp44AwUncZkZ0u6RSVuJzwjgD9KsmT7pOzWTGnc4QYfp01A9Aj9jFSJGTy
-         dSLwPAAffBiaxfwZn6iIwhxqEEu/ztiBci1MwWquCw0cSF89Y0K3zZ5om47P6EqexN
-         uLZu9kXrf18MIWHQfHpL6fgbVjuTGFZMeZAvK/wU=
+        b=DCyc+JyUrwr4tfvrPUurmZdzkeSirSyyd12vWYfhvncoXojce64ApHogRX+03SCwX
+         s3CHFKZR8VpzDJqKEOVcR6xUKbuS2WjgXrbkPkdGV7SffepbeH/KJt9eFFISsv/gis
+         R9m+CCyFHsj+JgzA+ppBhwMRKzIWh2rfk6eT0djw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yu Liao <liaoyu15@huawei.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev,
+        Alexandru Tachici <alexandru.tachici@analog.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0173/1073] platform/x86: mxm-wmi: fix memleak in mxm_wmi_call_mx[ds|mx]()
-Date:   Wed, 28 Dec 2022 15:29:21 +0100
-Message-Id: <20221228144332.711839579@linuxfoundation.org>
+Subject: [PATCH 6.1 0223/1146] net: ethernet: adi: adin1110: Fix SPI transfers
+Date:   Wed, 28 Dec 2022 15:29:22 +0100
+Message-Id: <20221228144336.200559895@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +54,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Liao <liaoyu15@huawei.com>
+From: Alexandru Tachici <alexandru.tachici@analog.com>
 
-[ Upstream commit 727cc0147f5066e359aca65cc6cc5e6d64cc15d8 ]
+[ Upstream commit a526a3cc9c8d426713f8bebc18ebbe39a8495d82 ]
 
-The ACPI buffer memory (out.pointer) returned by wmi_evaluate_method()
-is not freed after the call, so it leads to memory leak.
+No need to use more than one SPI transfer for reads.
+Use only one from now as ADIN1110/2111 does not tolerate
+CS changes during reads.
 
-The method results in ACPI buffer is not used, so just pass NULL to
-wmi_evaluate_method() which fixes the memory leak.
+The BCM2711/2708 SPI controllers worked fine, but the NXP
+IMX8MM could not keep CS lowered during SPI bursts.
 
-Fixes: 99b38b4acc0d ("platform/x86: add MXM WMI driver.")
-Signed-off-by: Yu Liao <liaoyu15@huawei.com>
-Link: https://lore.kernel.org/r/20221129011101.2042315-1-liaoyu15@huawei.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+This change aims to make the ADIN1110/2111 driver compatible
+with both SPI controllers, without any loss of bandwidth/other
+capabilities.
+
+Fixes: bc93e19d088b ("net: ethernet: adi: Add ADIN1110 support")
+Signed-off-by: Alexandru Tachici <alexandru.tachici@analog.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/mxm-wmi.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/adi/adin1110.c | 37 +++++++++++++----------------
+ 1 file changed, 16 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/platform/x86/mxm-wmi.c b/drivers/platform/x86/mxm-wmi.c
-index 9a19fbd2f734..9a457956025a 100644
---- a/drivers/platform/x86/mxm-wmi.c
-+++ b/drivers/platform/x86/mxm-wmi.c
-@@ -35,13 +35,11 @@ int mxm_wmi_call_mxds(int adapter)
- 		.xarg = 1,
- 	};
- 	struct acpi_buffer input = { (acpi_size)sizeof(args), &args };
--	struct acpi_buffer output = { ACPI_ALLOCATE_BUFFER, NULL };
- 	acpi_status status;
+diff --git a/drivers/net/ethernet/adi/adin1110.c b/drivers/net/ethernet/adi/adin1110.c
+index 606c97610808..9d8dfe172994 100644
+--- a/drivers/net/ethernet/adi/adin1110.c
++++ b/drivers/net/ethernet/adi/adin1110.c
+@@ -196,7 +196,7 @@ static int adin1110_read_reg(struct adin1110_priv *priv, u16 reg, u32 *val)
+ {
+ 	u32 header_len = ADIN1110_RD_HEADER_LEN;
+ 	u32 read_len = ADIN1110_REG_LEN;
+-	struct spi_transfer t[2] = {0};
++	struct spi_transfer t = {0};
+ 	int ret;
  
- 	printk("calling mux switch %d\n", adapter);
+ 	priv->data[0] = ADIN1110_CD | FIELD_GET(GENMASK(12, 8), reg);
+@@ -209,17 +209,15 @@ static int adin1110_read_reg(struct adin1110_priv *priv, u16 reg, u32 *val)
+ 		header_len++;
+ 	}
  
--	status = wmi_evaluate_method(MXM_WMMX_GUID, 0x0, adapter, &input,
--				     &output);
-+	status = wmi_evaluate_method(MXM_WMMX_GUID, 0x0, adapter, &input, NULL);
+-	t[0].tx_buf = &priv->data[0];
+-	t[0].len = header_len;
+-
+ 	if (priv->append_crc)
+ 		read_len++;
  
- 	if (ACPI_FAILURE(status))
- 		return status;
-@@ -60,13 +58,11 @@ int mxm_wmi_call_mxmx(int adapter)
- 		.xarg = 1,
- 	};
- 	struct acpi_buffer input = { (acpi_size)sizeof(args), &args };
--	struct acpi_buffer output = { ACPI_ALLOCATE_BUFFER, NULL };
- 	acpi_status status;
+ 	memset(&priv->data[header_len], 0, read_len);
+-	t[1].rx_buf = &priv->data[header_len];
+-	t[1].len = read_len;
++	t.tx_buf = &priv->data[0];
++	t.rx_buf = &priv->data[0];
++	t.len = read_len + header_len;
  
- 	printk("calling mux switch %d\n", adapter);
+-	ret = spi_sync_transfer(priv->spidev, t, 2);
++	ret = spi_sync_transfer(priv->spidev, &t, 1);
+ 	if (ret)
+ 		return ret;
  
--	status = wmi_evaluate_method(MXM_WMMX_GUID, 0x0, adapter, &input,
--				     &output);
-+	status = wmi_evaluate_method(MXM_WMMX_GUID, 0x0, adapter, &input, NULL);
+@@ -296,7 +294,7 @@ static int adin1110_read_fifo(struct adin1110_port_priv *port_priv)
+ {
+ 	struct adin1110_priv *priv = port_priv->priv;
+ 	u32 header_len = ADIN1110_RD_HEADER_LEN;
+-	struct spi_transfer t[2] = {0};
++	struct spi_transfer t;
+ 	u32 frame_size_no_fcs;
+ 	struct sk_buff *rxb;
+ 	u32 frame_size;
+@@ -327,12 +325,7 @@ static int adin1110_read_fifo(struct adin1110_port_priv *port_priv)
+ 		return ret;
  
- 	if (ACPI_FAILURE(status))
- 		return status;
+ 	frame_size_no_fcs = frame_size - ADIN1110_FRAME_HEADER_LEN - ADIN1110_FEC_LEN;
+-
+-	rxb = netdev_alloc_skb(port_priv->netdev, round_len);
+-	if (!rxb)
+-		return -ENOMEM;
+-
+-	memset(priv->data, 0, round_len + ADIN1110_RD_HEADER_LEN);
++	memset(priv->data, 0, ADIN1110_RD_HEADER_LEN);
+ 
+ 	priv->data[0] = ADIN1110_CD | FIELD_GET(GENMASK(12, 8), reg);
+ 	priv->data[1] = FIELD_GET(GENMASK(7, 0), reg);
+@@ -342,21 +335,23 @@ static int adin1110_read_fifo(struct adin1110_port_priv *port_priv)
+ 		header_len++;
+ 	}
+ 
+-	skb_put(rxb, frame_size_no_fcs + ADIN1110_FRAME_HEADER_LEN);
++	rxb = netdev_alloc_skb(port_priv->netdev, round_len + header_len);
++	if (!rxb)
++		return -ENOMEM;
+ 
+-	t[0].tx_buf = &priv->data[0];
+-	t[0].len = header_len;
++	skb_put(rxb, frame_size_no_fcs + header_len + ADIN1110_FRAME_HEADER_LEN);
+ 
+-	t[1].rx_buf = &rxb->data[0];
+-	t[1].len = round_len;
++	t.tx_buf = &priv->data[0];
++	t.rx_buf = &rxb->data[0];
++	t.len = header_len + round_len;
+ 
+-	ret = spi_sync_transfer(priv->spidev, t, 2);
++	ret = spi_sync_transfer(priv->spidev, &t, 1);
+ 	if (ret) {
+ 		kfree_skb(rxb);
+ 		return ret;
+ 	}
+ 
+-	skb_pull(rxb, ADIN1110_FRAME_HEADER_LEN);
++	skb_pull(rxb, header_len + ADIN1110_FRAME_HEADER_LEN);
+ 	rxb->protocol = eth_type_trans(rxb, port_priv->netdev);
+ 
+ 	if ((port_priv->flags & IFF_ALLMULTI && rxb->pkt_type == PACKET_MULTICAST) ||
 -- 
 2.35.1
 
