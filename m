@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DE41657C15
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:28:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63EC8657B05
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:17:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233413AbiL1P2k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:28:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46480 "EHLO
+        id S233065AbiL1PR0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:17:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233551AbiL1P2j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:28:39 -0500
+        with ESMTP id S233194AbiL1PRO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:17:14 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6864114D30
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:28:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4519713F2B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:17:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 03CA761551
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:28:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1744BC433EF;
-        Wed, 28 Dec 2022 15:28:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D8E0361551
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:17:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDB77C433F0;
+        Wed, 28 Dec 2022 15:17:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241317;
-        bh=Hde8ztJAGCanVAl6Rfu/OkUXsy61SOw4nTBUErOeMfI=;
+        s=korg; t=1672240633;
+        bh=jzV4UF/h9tnDBh+40WAtV8w1KpGaDSx9Fexjcfl9WpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bUkXfDjRkUt3IJUAdjzA18M0nR9PmK1V51Dwv6bceFEqOV58y0yyiHlWxlZvWPhqn
-         RR744yZQohSz/KSUbImDsD1+FbtcTbqGRLdYCSlXMjnf1lAPKPNyMZLWV8+evsNfDo
-         edqa5AOWKvKe7rdCGSQiuUORRsGFFjkx/+nHILmo=
+        b=VdYIthnJIcdZDuLHrjkN3eNzDdAgNcGDFYMLqeXsqI3KG0dHCEHoTvMXWlK2G+GL/
+         9qKg2LfD/Qs2tcjf8jVpAMcbuEzmWUlzVidXNwS7naq8QACyoqTO51ItYofN6Ib5u1
+         bNOEdT4e57DEXxMxi9e8COV1l955Ob5w2/qzuL5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        "Ilia.Gavrilov" <Ilia.Gavrilov@infotecs.ru>,
+        Colin Ian King <colin.i.king@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, wuchi <wuchi.zero@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0232/1146] media: adv748x: afe: Select input port when initializing AFE
+Subject: [PATCH 6.0 0183/1073] relay: fix type mismatch when allocating memory in relay_create_buf()
 Date:   Wed, 28 Dec 2022 15:29:31 +0100
-Message-Id: <20221228144336.441429424@linuxfoundation.org>
+Message-Id: <20221228144332.984099483@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,43 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+From: Gavrilov Ilia <Ilia.Gavrilov@infotecs.ru>
 
-[ Upstream commit 23ddb85dafefdace1ad79d1a30b0a4e7c4b5cd8d ]
+[ Upstream commit 4d8586e04602fe42f0a782d2005956f8b6302678 ]
 
-When moving the input selection to adv748x_reset() it was missed that
-during probe the device is reset _before_ the initialization and parsing
-of DT by the AFE subdevice. This can lead to the wrong input port (in
-case it's not port 0) being selected until the device is reset for the
-first time.
+The 'padding' field of the 'rchan_buf' structure is an array of 'size_t'
+elements, but the memory is allocated for an array of 'size_t *' elements.
 
-Fix this by restoring the call to adv748x_afe_s_input() in the AFE
-initialization while also keeping it in the adv748x_reset().
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-Fixes: c30ed81afe89 ("media: adv748x: afe: Select input port when device is reset")
-Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Link: https://lkml.kernel.org/r/20221129092002.3538384-1-Ilia.Gavrilov@infotecs.ru
+Fixes: b86ff981a825 ("[PATCH] relay: migrate from relayfs to a generic relay API")
+Signed-off-by: Ilia.Gavrilov <Ilia.Gavrilov@infotecs.ru>
+Cc: Colin Ian King <colin.i.king@gmail.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: wuchi <wuchi.zero@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/adv748x/adv748x-afe.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ kernel/relay.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/i2c/adv748x/adv748x-afe.c b/drivers/media/i2c/adv748x/adv748x-afe.c
-index 02eabe10ab97..00095c7762c2 100644
---- a/drivers/media/i2c/adv748x/adv748x-afe.c
-+++ b/drivers/media/i2c/adv748x/adv748x-afe.c
-@@ -521,6 +521,10 @@ int adv748x_afe_init(struct adv748x_afe *afe)
- 		}
- 	}
+diff --git a/kernel/relay.c b/kernel/relay.c
+index 6a611e779e95..fd1d196e04d4 100644
+--- a/kernel/relay.c
++++ b/kernel/relay.c
+@@ -151,13 +151,13 @@ static struct rchan_buf *relay_create_buf(struct rchan *chan)
+ {
+ 	struct rchan_buf *buf;
  
-+	adv748x_afe_s_input(afe, afe->input);
-+
-+	adv_dbg(state, "AFE Default input set to %d\n", afe->input);
-+
- 	/* Entity pads and sinks are 0-indexed to match the pads */
- 	for (i = ADV748X_AFE_SINK_AIN0; i <= ADV748X_AFE_SINK_AIN7; i++)
- 		afe->pads[i].flags = MEDIA_PAD_FL_SINK;
+-	if (chan->n_subbufs > KMALLOC_MAX_SIZE / sizeof(size_t *))
++	if (chan->n_subbufs > KMALLOC_MAX_SIZE / sizeof(size_t))
+ 		return NULL;
+ 
+ 	buf = kzalloc(sizeof(struct rchan_buf), GFP_KERNEL);
+ 	if (!buf)
+ 		return NULL;
+-	buf->padding = kmalloc_array(chan->n_subbufs, sizeof(size_t *),
++	buf->padding = kmalloc_array(chan->n_subbufs, sizeof(size_t),
+ 				     GFP_KERNEL);
+ 	if (!buf->padding)
+ 		goto free_buf;
 -- 
 2.35.1
 
