@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A2C365802E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:14:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BA40657A03
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:07:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234395AbiL1QOs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:14:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59122 "EHLO
+        id S233577AbiL1PHH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:07:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233128AbiL1QO0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:14:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20DAB14D33
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:12:22 -0800 (PST)
+        with ESMTP id S233581AbiL1PHD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:07:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC09F13D6C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:07:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B478A61577
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:12:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6BCCC433EF;
-        Wed, 28 Dec 2022 16:12:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8910461541
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:07:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B799C433F1;
+        Wed, 28 Dec 2022 15:07:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243941;
-        bh=GQQoqsWxINXLAuto5/4CBdsU9UUk9QEIksc3iqnFy0A=;
+        s=korg; t=1672240021;
+        bh=eFHU17HzWdntTuZi5lZESvb7qKTPfB29SHmGQPBHy00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EDjGpRyALxyaZSR62QD4yhcHwzbYzyfZXShCFm9LKnCGo8WgTqxzqXQOKpaRENoEs
-         gbqg0gtmq0cGK/iIIaMugA8iVXjumRiSL2k79eJpgdP2SKxBAPiofxNAxmQbFhuO+N
-         6+f5Z0oJWu1bRKTi+39gTGCU/6cPPoPbdo2IGDEc=
+        b=r/L1RsxNeXOFSu46Up+2ZHRvBEhUOiTKkjsnkvEt5GmyL2znnhiwoIIcLtW+Asl6n
+         iFz3LJKzrAiw7ps3Qn4RAOZ1tvXAUivEtFVzoPpiJaQGh6dAXlyTN808oIarFyC1hH
+         2Vpc8jsBfmXSVKXfTP0admQebQhYHTOOADWviy9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0619/1073] scsi: hpsa: Fix error handling in hpsa_add_sas_host()
+Subject: [PATCH 5.15 300/731] mmc: atmel-mci: fix return value check of mmc_add_host()
 Date:   Wed, 28 Dec 2022 15:36:47 +0100
-Message-Id: <20221228144344.857666519@linuxfoundation.org>
+Message-Id: <20221228144305.272606255@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +55,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 4ef174a3ad9b5d73c1b6573e244ebba2b0d86eac ]
+[ Upstream commit 9e6e8c43726673ca2abcaac87640b9215fd72f4c ]
 
-hpsa_sas_port_add_phy() does:
-  ...
-  sas_phy_add()  -> may return error here
-  sas_port_add_phy()
-  ...
+mmc_add_host() may return error, if we ignore its return value,
+it will lead two issues:
+1. The memory that allocated in mmc_alloc_host() is leaked.
+2. In the remove() path, mmc_remove_host() will be called to
+   delete device, but it's not added yet, it will lead a kernel
+   crash because of null-ptr-deref in device_del().
 
-Whereas hpsa_free_sas_phy() does:
-  ...
-  sas_port_delete_phy()
-  sas_phy_delete()
-  ...
+So fix this by checking the return value and calling mmc_free_host()
+in the error path.
 
-If hpsa_sas_port_add_phy() returns an error, hpsa_free_sas_phy() can not be
-called to free the memory because the port and the phy have not been added
-yet.
-
-Replace hpsa_free_sas_phy() with sas_phy_free() and kfree() to avoid kernel
-crash in this case.
-
-Fixes: d04e62b9d63a ("hpsa: add in sas transport class")
+Fixes: 7d2be0749a59 ("atmel-mci: Driver for Atmel on-chip MMC controllers")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221110151129.394389-1-yangyingliang@huawei.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: https://lore.kernel.org/r/20221108122819.429975-1-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hpsa.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mmc/host/atmel-mci.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
-index 99dbb48fc94f..0feb58fe73d2 100644
---- a/drivers/scsi/hpsa.c
-+++ b/drivers/scsi/hpsa.c
-@@ -9790,7 +9790,8 @@ static int hpsa_add_sas_host(struct ctlr_info *h)
- 	return 0;
+diff --git a/drivers/mmc/host/atmel-mci.c b/drivers/mmc/host/atmel-mci.c
+index 807177c953f3..6f971a3e7e49 100644
+--- a/drivers/mmc/host/atmel-mci.c
++++ b/drivers/mmc/host/atmel-mci.c
+@@ -2223,6 +2223,7 @@ static int atmci_init_slot(struct atmel_mci *host,
+ {
+ 	struct mmc_host			*mmc;
+ 	struct atmel_mci_slot		*slot;
++	int ret;
  
- free_sas_phy:
--	hpsa_free_sas_phy(hpsa_sas_phy);
-+	sas_phy_free(hpsa_sas_phy->phy);
-+	kfree(hpsa_sas_phy);
- free_sas_port:
- 	hpsa_free_sas_port(hpsa_sas_port);
- free_sas_node:
+ 	mmc = mmc_alloc_host(sizeof(struct atmel_mci_slot), &host->pdev->dev);
+ 	if (!mmc)
+@@ -2306,11 +2307,13 @@ static int atmci_init_slot(struct atmel_mci *host,
+ 
+ 	host->slot[id] = slot;
+ 	mmc_regulator_get_supply(mmc);
+-	mmc_add_host(mmc);
++	ret = mmc_add_host(mmc);
++	if (ret) {
++		mmc_free_host(mmc);
++		return ret;
++	}
+ 
+ 	if (gpio_is_valid(slot->detect_pin)) {
+-		int ret;
+-
+ 		timer_setup(&slot->detect_timer, atmci_detect_change, 0);
+ 
+ 		ret = request_irq(gpio_to_irq(slot->detect_pin),
 -- 
 2.35.1
 
