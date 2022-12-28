@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F08F3657FFE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:13:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37F72657F69
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:04:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234451AbiL1QNE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:13:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55596 "EHLO
+        id S234277AbiL1QEl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:04:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234618AbiL1QMI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:12:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1317018390
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:10:21 -0800 (PST)
+        with ESMTP id S234309AbiL1QEf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:04:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECBECF58C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:04:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A4D4C6155B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:10:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7690C433EF;
-        Wed, 28 Dec 2022 16:10:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8C01B81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:04:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26AE6C433D2;
+        Wed, 28 Dec 2022 16:04:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243820;
-        bh=3hK324ZcW3L3UmJ5zVrnhE+fsbEoUoe3fn6JuXVY6fc=;
+        s=korg; t=1672243472;
+        bh=Jjmn+cly577mIBtdrHbVjmakA1xfXxsj/1hf5RIR99I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PlZLR08M9ObUBQW/x5JT3WB3tkwJ/rqxHkEYzJjIS7ar0l9mhTwVXRcKDEJleGI1F
-         coAAHpoz6Q6DeN9VKciflP78FWmIiog/J2TmXj+DmxzfhYVDwAuq30KOsPI4IKKq7l
-         Hxi8i0hTz1mSlHEgQcfrTX+xBnnCGCQpnBOj4T74=
+        b=p8ucSPbzuRHLN01fUNMh/oqCCFBG2oNZ6rx3MQIy9RLxTorfSPnw8yy6UV+gbt2Ne
+         lkdSRklNjCVxXdHszLp/biHYk03QFCE11f2WE4h94DjwJSg9zWvIBS1zn8rFAvRxdU
+         BhTLLBO6veH3B24jml9Ym4NpfaD+eTaXct7zwtB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0561/1146] Bluetooth: hci_qca: dont call kfree_skb() under spin_lock_irqsave()
+Subject: [PATCH 6.0 0512/1073] net: stmmac: selftests: fix potential memleak in stmmac_test_arpoffload()
 Date:   Wed, 28 Dec 2022 15:35:00 +0100
-Message-Id: <20221228144345.406500104@linuxfoundation.org>
+Message-Id: <20221228144341.953392524@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit df4cfc91208e0a98f078223793f5871b1a82cc54 ]
+[ Upstream commit f150b63f3fa5fdd81e0dd6151e8850268e29438c ]
 
-It is not allowed to call kfree_skb() from hardware interrupt
-context or with interrupts being disabled. So replace kfree_skb()
-with dev_kfree_skb_irq() under spin_lock_irqsave().
+The skb allocated by stmmac_test_get_arp_skb() hasn't been released in
+some error handling case, which will lead to a memory leak. Fix this up
+by adding kfree_skb() to release skb.
 
-Fixes: 0ff252c1976d ("Bluetooth: hciuart: Add support QCA chipset for UART")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Compile tested only.
+
+Fixes: 5e3fb0a6e2b3 ("net: stmmac: selftests: Implement the ARP Offload test")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_qca.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/bluetooth/hci_qca.c b/drivers/bluetooth/hci_qca.c
-index 8df11016fd51..bae9b2a408d9 100644
---- a/drivers/bluetooth/hci_qca.c
-+++ b/drivers/bluetooth/hci_qca.c
-@@ -912,7 +912,7 @@ static int qca_enqueue(struct hci_uart *hu, struct sk_buff *skb)
- 	default:
- 		BT_ERR("Illegal tx state: %d (losing packet)",
- 		       qca->tx_ibs_state);
--		kfree_skb(skb);
-+		dev_kfree_skb_irq(skb);
- 		break;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c
+index 49af7e78b7f5..687f43cd466c 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c
+@@ -1654,12 +1654,16 @@ static int stmmac_test_arpoffload(struct stmmac_priv *priv)
  	}
  
+ 	ret = stmmac_set_arp_offload(priv, priv->hw, true, ip_addr);
+-	if (ret)
++	if (ret) {
++		kfree_skb(skb);
+ 		goto cleanup;
++	}
+ 
+ 	ret = dev_set_promiscuity(priv->dev, 1);
+-	if (ret)
++	if (ret) {
++		kfree_skb(skb);
+ 		goto cleanup;
++	}
+ 
+ 	ret = dev_direct_xmit(skb, 0);
+ 	if (ret)
 -- 
 2.35.1
 
