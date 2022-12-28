@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DD5D657F21
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:01:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E67DA658499
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:59:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234266AbiL1QBy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:01:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48522 "EHLO
+        id S235210AbiL1Q67 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:58:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234261AbiL1QB0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:01:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F867192A8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:01:25 -0800 (PST)
+        with ESMTP id S235315AbiL1Q6L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:58:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 332DB201AB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:54:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 19A8260D41
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:01:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01FFFC433EF;
-        Wed, 28 Dec 2022 16:01:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C9242B8188B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:54:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3720DC433EF;
+        Wed, 28 Dec 2022 16:54:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243284;
-        bh=iZwilCZPwFxW4zw6txHPVtYalv07cIEoOcj980Lb6Wk=;
+        s=korg; t=1672246462;
+        bh=zf7RAbo9htvu/+5dLGrdZRXxBzlJZ32Qyt64KwWEkBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rRVHgwqY7JE9fNzJm7FDT4U8vF/9mTpYtfUdRo8rmBtoG+kox3aZtpLF5gufjrxCx
-         RXxl+Z+ibQRqiHn0aoUavf54jGz7DEZWYSEiSfFLgvH4b+4PdhY093NoQoF7u551IZ
-         e9ygK+KJFs8lsRN25W9gGTIYVTmOnGZ/aKXZM4nU=
+        b=EunwvR75ugUvbeF9mFe4/zP5240mRxV3L67ou47Wjzs0A1vno1NAb+2hcHBZfUWtR
+         ZsHRfSFViog7tAMqQ5NFBSgoukcBkJpCL+fv5Ic+Fzu7XAkNO9MfWHc0VttJI2nV+W
+         2hZlO4NG4BWg529yWGBpExmJzxBrJOGOfPvN8CQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sami Tolvanen <samitolvanen@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Linus Walleij <linus.walleij@linaro.org>,
+        Marek Vasut <marex@denx.de>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 677/731] scsi: elx: libefc: Fix second parameter type in state callbacks
-Date:   Wed, 28 Dec 2022 15:43:04 +0100
-Message-Id: <20221228144316.099512211@linuxfoundation.org>
+Subject: [PATCH 6.1 1046/1146] Bluetooth: hci_bcm: Add CYW4373A0 support
+Date:   Wed, 28 Dec 2022 15:43:05 +0100
+Message-Id: <20221228144358.738698922@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,79 +54,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 3d75e766b58a7410d4e835c534e1b4664a8f62d0 ]
+[ Upstream commit 02d056a3404e20245a69dcb4022a0930085fc5ec ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function pointer
-prototype to make sure the call target is valid to help mitigate ROP
-attacks. If they are not identical, there is a failure at run time, which
-manifests as either a kernel panic or thread getting killed. A proposed
-warning in clang aims to catch these at compile time, which reveals:
+CYW4373A0 is a Wi-Fi + Bluetooth combo device from Cypress.
+This chip is present e.g. on muRata 2AE module.
 
-  drivers/scsi/elx/libefc/efc_node.c:811:22: error: incompatible function pointer types assigning to 'void (*)(struct efc_sm_ctx *, u32, void *)' (aka 'void (*)(struct efc_sm_ctx *, unsigned int, void *)') from 'void (*)(struct efc_sm_ctx *, enum efc_sm_event, void *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-                  ctx->current_state = state;
-                                    ^ ~~~~~
-  drivers/scsi/elx/libefc/efc_node.c:878:21: error: incompatible function pointer types assigning to 'void (*)(struct efc_sm_ctx *, u32, void *)' (aka 'void (*)(struct efc_sm_ctx *, unsigned int, void *)') from 'void (*)(struct efc_sm_ctx *, enum efc_sm_event, void *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          node->nodedb_state = state;
-                            ^ ~~~~~
-  drivers/scsi/elx/libefc/efc_node.c:905:6: error: incompatible function pointer types assigning to 'void (*)(struct efc_sm_ctx *, enum efc_sm_event, void *)' from 'void (*)(struct efc_sm_ctx *, u32, void *)' (aka 'void (*)(struct efc_sm_ctx *, unsigned int, void *)') [-Werror,-Wincompatible-function-pointer-types-strict]
-                  pf = node->nodedb_state;
-                    ^ ~~~~~~~~~~~~~~~~~~
+This chip has additional quirk where the HCI command 0xfc45, used on
+older chips to switch UART clock from 24 MHz to 48 MHz, to support
+baudrates over 3 Mbdps, is no longer recognized by this newer chip.
+This newer chip can configure the 4 Mbdps baudrate without the need
+to issue HCI command 0xfc45, so add flag to indicate this and do not
+issue the command on this chip to avoid failure to set 4 Mbdps baud
+rate.
 
-  drivers/scsi/elx/libefc/efc_device.c:455:22: error: incompatible function pointer types assigning to 'void (*)(struct efc_sm_ctx *, u32, void *)' (aka 'void (*)(struct efc_sm_ctx *, unsigned int, void *)') from 'void (struct efc_sm_ctx *, enum efc_sm_event, void *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-                  node->nodedb_state = __efc_d_init;
-                                    ^ ~~~~~~~~~~~~
+It is not clear whether there is a way to determine which chip does
+and which chip does not support the HCI command 0xfc45, other than
+trial and error.
 
-  drivers/scsi/elx/libefc/efc_sm.c:41:22: error: incompatible function pointer types assigning to 'void (*)(struct efc_sm_ctx *, u32, void *)' (aka 'void (*)(struct efc_sm_ctx *, unsigned int, void *)') from 'void (*)(struct efc_sm_ctx *, enum efc_sm_event, void *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-                  ctx->current_state = state;
-                                    ^ ~~~~~
-
-The type of the second parameter in the prototypes of ->current_state() and
-->nodedb_state() ('u32') does not match the implementations, which have a
-second parameter type of 'enum efc_sm_event'. Update the prototypes to have
-the correct second parameter type, clearing up all the warnings and CFI
-failures.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1750
-Reported-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/20221102161906.2781508-1-nathan@kernel.org
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/elx/libefc/efclib.h | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/bluetooth/hci_bcm.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/elx/libefc/efclib.h b/drivers/scsi/elx/libefc/efclib.h
-index ee291cabf7e0..b14e516be7d5 100644
---- a/drivers/scsi/elx/libefc/efclib.h
-+++ b/drivers/scsi/elx/libefc/efclib.h
-@@ -58,10 +58,12 @@ enum efc_node_send_ls_acc {
- #define EFC_LINK_STATUS_UP		0
- #define EFC_LINK_STATUS_DOWN		1
+diff --git a/drivers/bluetooth/hci_bcm.c b/drivers/bluetooth/hci_bcm.c
+index d7e0b75db8a6..2b6c0e1922cb 100644
+--- a/drivers/bluetooth/hci_bcm.c
++++ b/drivers/bluetooth/hci_bcm.c
+@@ -53,11 +53,13 @@
+  * struct bcm_device_data - device specific data
+  * @no_early_set_baudrate: Disallow set baudrate before driver setup()
+  * @drive_rts_on_open: drive RTS signal on ->open() when platform requires it
++ * @no_uart_clock_set: UART clock set command for >3Mbps mode is unavailable
+  * @max_autobaud_speed: max baudrate supported by device in autobaud mode
+  */
+ struct bcm_device_data {
+ 	bool	no_early_set_baudrate;
+ 	bool	drive_rts_on_open;
++	bool	no_uart_clock_set;
+ 	u32	max_autobaud_speed;
+ };
  
-+enum efc_sm_event;
+@@ -100,6 +102,7 @@ struct bcm_device_data {
+  * @is_suspended: whether flow control is currently disabled
+  * @no_early_set_baudrate: don't set_baudrate before setup()
+  * @drive_rts_on_open: drive RTS signal on ->open() when platform requires it
++ * @no_uart_clock_set: UART clock set command for >3Mbps mode is unavailable
+  * @pcm_int_params: keep the initial PCM configuration
+  * @use_autobaud_mode: start Bluetooth device in autobaud mode
+  * @max_autobaud_speed: max baudrate supported by device in autobaud mode
+@@ -140,6 +143,7 @@ struct bcm_device {
+ #endif
+ 	bool			no_early_set_baudrate;
+ 	bool			drive_rts_on_open;
++	bool			no_uart_clock_set;
+ 	bool			use_autobaud_mode;
+ 	u8			pcm_int_params[5];
+ 	u32			max_autobaud_speed;
+@@ -172,10 +176,11 @@ static inline void host_set_baudrate(struct hci_uart *hu, unsigned int speed)
+ static int bcm_set_baudrate(struct hci_uart *hu, unsigned int speed)
+ {
+ 	struct hci_dev *hdev = hu->hdev;
++	struct bcm_data *bcm = hu->priv;
+ 	struct sk_buff *skb;
+ 	struct bcm_update_uart_baud_rate param;
+ 
+-	if (speed > 3000000) {
++	if (speed > 3000000 && !bcm->dev->no_uart_clock_set) {
+ 		struct bcm_write_uart_clock_setting clock;
+ 
+ 		clock.type = BCM_UART_CLOCK_48MHZ;
+@@ -1529,6 +1534,7 @@ static int bcm_serdev_probe(struct serdev_device *serdev)
+ 		bcmdev->max_autobaud_speed = data->max_autobaud_speed;
+ 		bcmdev->no_early_set_baudrate = data->no_early_set_baudrate;
+ 		bcmdev->drive_rts_on_open = data->drive_rts_on_open;
++		bcmdev->no_uart_clock_set = data->no_uart_clock_set;
+ 	}
+ 
+ 	return hci_uart_register_device(&bcmdev->serdev_hu, &bcm_proto);
+@@ -1550,6 +1556,10 @@ static struct bcm_device_data bcm43438_device_data = {
+ 	.drive_rts_on_open = true,
+ };
+ 
++static struct bcm_device_data cyw4373a0_device_data = {
++	.no_uart_clock_set = true,
++};
 +
- /* State machine context header  */
- struct efc_sm_ctx {
- 	void (*current_state)(struct efc_sm_ctx *ctx,
--			      u32 evt, void *arg);
-+			      enum efc_sm_event evt, void *arg);
- 
- 	const char	*description;
- 	void		*app;
-@@ -364,7 +366,7 @@ struct efc_node {
- 	int			prev_evt;
- 
- 	void (*nodedb_state)(struct efc_sm_ctx *ctx,
--			     u32 evt, void *arg);
-+			     enum efc_sm_event evt, void *arg);
- 	struct timer_list	gidpt_delay_timer;
- 	u64			time_last_gidpt_msec;
- 
+ static struct bcm_device_data cyw55572_device_data = {
+ 	.max_autobaud_speed = 921600,
+ };
+@@ -1566,6 +1576,7 @@ static const struct of_device_id bcm_bluetooth_of_match[] = {
+ 	{ .compatible = "brcm,bcm4349-bt", .data = &bcm43438_device_data },
+ 	{ .compatible = "brcm,bcm43540-bt", .data = &bcm4354_device_data },
+ 	{ .compatible = "brcm,bcm4335a0" },
++	{ .compatible = "cypress,cyw4373a0-bt", .data = &cyw4373a0_device_data },
+ 	{ .compatible = "infineon,cyw55572-bt", .data = &cyw55572_device_data },
+ 	{ },
+ };
 -- 
 2.35.1
 
