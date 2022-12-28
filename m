@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21B7A657E86
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:54:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1219A657E8A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:54:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234143AbiL1Pyg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:54:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42132 "EHLO
+        id S233690AbiL1Pyu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:54:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234150AbiL1Pyf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:54:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40C83186BC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:54:34 -0800 (PST)
+        with ESMTP id S233669AbiL1Pys (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:54:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C84DD186E8
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:54:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC64C61570
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:54:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8168C433F0;
-        Wed, 28 Dec 2022 15:54:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 657A8B81733
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:54:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A069AC433EF;
+        Wed, 28 Dec 2022 15:54:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242873;
-        bh=qp7B+F3bAXjUgqB7rewPe3vD9GL/v8171nFNDWQ4BOQ=;
+        s=korg; t=1672242884;
+        bh=Qs8z/eMb9zZap8vuy7TCJ7fXrIA0nWBv7Nf/yamGJUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xpdn2mPuq1saIQ8xVxHrWDNfTC854XAjUMLfzUSEPqpgtpBySZvDQpWi15N6sJp3G
-         iLxOa9Axw5lbNDxuo3NmQydMaKslPGw6qRJ9AYtm+N4/EDT6BUh/6sSQNZScoPjDr7
-         tNzGyiqR6jdSPGlkhYUacdT1CUT0PWXghi2wsRSo=
+        b=LuX/XJfwJipEEy7hsWdda/0mcQ9TsUt+2fTbwSB3xJRl7yDECIYMU+4Cp72uFKqxe
+         3tgpyYqQQK5WRl+ACoLW1TU712Sm5q3FMeM2pHicvVNC4LJsJIL3vCBSUBOuB6ww+f
+         ozF6XmNQcu6roKUfDf3p+4nS7OtG2IT0ncJRVDFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 656/731] net: add atomic_long_t to net_device_stats fields
-Date:   Wed, 28 Dec 2022 15:42:43 +0100
-Message-Id: <20221228144315.512176708@linuxfoundation.org>
+Subject: [PATCH 5.15 657/731] ipv6/sit: use DEV_STATS_INC() to avoid data-races
+Date:   Wed, 28 Dec 2022 15:42:44 +0100
+Message-Id: <20221228144315.539101661@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
 References: <20221228144256.536395940@linuxfoundation.org>
@@ -55,160 +56,118 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 6c1c5097781f563b70a81683ea6fdac21637573b ]
+[ Upstream commit cb34b7cf17ecf33499c9298943f85af247abc1e9 ]
 
-Long standing KCSAN issues are caused by data-race around
-some dev->stats changes.
+syzbot/KCSAN reported that multiple cpus are updating dev->stats.tx_error
+concurrently.
 
-Most performance critical paths already use per-cpu
-variables, or per-queue ones.
+This is because sit tunnels are NETIF_F_LLTX, meaning their ndo_start_xmit()
+is not protected by a spinlock.
 
-It is reasonable (and more correct) to use atomic operations
-for the slow paths.
+While original KCSAN report was about tx path, rx path has the same issue.
 
-This patch adds an union for each field of net_device_stats,
-so that we can convert paths that are not yet protected
-by a spinlock or a mutex.
-
-netdev_stats_to_stats64() no longer has an #if BITS_PER_LONG==64
-
-Note that the memcpy() we were using on 64bit arches
-had no provision to avoid load-tearing,
-while atomic_long_read() is providing the needed protection
-at no cost.
-
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netdevice.h | 58 +++++++++++++++++++++++----------------
- include/net/dst.h         |  5 ++--
- net/core/dev.c            | 14 ++--------
- 3 files changed, 40 insertions(+), 37 deletions(-)
+ net/ipv6/sit.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index 3b97438afe3e..3a75d644a120 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -167,31 +167,38 @@ static inline bool dev_xmit_complete(int rc)
-  *	(unsigned long) so they can be read and written atomically.
-  */
+diff --git a/net/ipv6/sit.c b/net/ipv6/sit.c
+index 946871741f12..d4cdc2b1b468 100644
+--- a/net/ipv6/sit.c
++++ b/net/ipv6/sit.c
+@@ -696,7 +696,7 @@ static int ipip6_rcv(struct sk_buff *skb)
+ 		skb->dev = tunnel->dev;
  
-+#define NET_DEV_STAT(FIELD)			\
-+	union {					\
-+		unsigned long FIELD;		\
-+		atomic_long_t __##FIELD;	\
-+	}
-+
- struct net_device_stats {
--	unsigned long	rx_packets;
--	unsigned long	tx_packets;
--	unsigned long	rx_bytes;
--	unsigned long	tx_bytes;
--	unsigned long	rx_errors;
--	unsigned long	tx_errors;
--	unsigned long	rx_dropped;
--	unsigned long	tx_dropped;
--	unsigned long	multicast;
--	unsigned long	collisions;
--	unsigned long	rx_length_errors;
--	unsigned long	rx_over_errors;
--	unsigned long	rx_crc_errors;
--	unsigned long	rx_frame_errors;
--	unsigned long	rx_fifo_errors;
--	unsigned long	rx_missed_errors;
--	unsigned long	tx_aborted_errors;
--	unsigned long	tx_carrier_errors;
--	unsigned long	tx_fifo_errors;
--	unsigned long	tx_heartbeat_errors;
--	unsigned long	tx_window_errors;
--	unsigned long	rx_compressed;
--	unsigned long	tx_compressed;
-+	NET_DEV_STAT(rx_packets);
-+	NET_DEV_STAT(tx_packets);
-+	NET_DEV_STAT(rx_bytes);
-+	NET_DEV_STAT(tx_bytes);
-+	NET_DEV_STAT(rx_errors);
-+	NET_DEV_STAT(tx_errors);
-+	NET_DEV_STAT(rx_dropped);
-+	NET_DEV_STAT(tx_dropped);
-+	NET_DEV_STAT(multicast);
-+	NET_DEV_STAT(collisions);
-+	NET_DEV_STAT(rx_length_errors);
-+	NET_DEV_STAT(rx_over_errors);
-+	NET_DEV_STAT(rx_crc_errors);
-+	NET_DEV_STAT(rx_frame_errors);
-+	NET_DEV_STAT(rx_fifo_errors);
-+	NET_DEV_STAT(rx_missed_errors);
-+	NET_DEV_STAT(tx_aborted_errors);
-+	NET_DEV_STAT(tx_carrier_errors);
-+	NET_DEV_STAT(tx_fifo_errors);
-+	NET_DEV_STAT(tx_heartbeat_errors);
-+	NET_DEV_STAT(tx_window_errors);
-+	NET_DEV_STAT(rx_compressed);
-+	NET_DEV_STAT(tx_compressed);
- };
-+#undef NET_DEV_STAT
+ 		if (packet_is_spoofed(skb, iph, tunnel)) {
+-			tunnel->dev->stats.rx_errors++;
++			DEV_STATS_INC(tunnel->dev, rx_errors);
+ 			goto out;
+ 		}
  
+@@ -716,8 +716,8 @@ static int ipip6_rcv(struct sk_buff *skb)
+ 				net_info_ratelimited("non-ECT from %pI4 with TOS=%#x\n",
+ 						     &iph->saddr, iph->tos);
+ 			if (err > 1) {
+-				++tunnel->dev->stats.rx_frame_errors;
+-				++tunnel->dev->stats.rx_errors;
++				DEV_STATS_INC(tunnel->dev, rx_frame_errors);
++				DEV_STATS_INC(tunnel->dev, rx_errors);
+ 				goto out;
+ 			}
+ 		}
+@@ -948,7 +948,7 @@ static netdev_tx_t ipip6_tunnel_xmit(struct sk_buff *skb,
+ 	if (!rt) {
+ 		rt = ip_route_output_flow(tunnel->net, &fl4, NULL);
+ 		if (IS_ERR(rt)) {
+-			dev->stats.tx_carrier_errors++;
++			DEV_STATS_INC(dev, tx_carrier_errors);
+ 			goto tx_error_icmp;
+ 		}
+ 		dst_cache_set_ip4(&tunnel->dst_cache, &rt->dst, fl4.saddr);
+@@ -956,14 +956,14 @@ static netdev_tx_t ipip6_tunnel_xmit(struct sk_buff *skb,
  
- #include <linux/cache.h>
-@@ -5477,4 +5484,9 @@ extern struct list_head ptype_base[PTYPE_HASH_SIZE] __read_mostly;
+ 	if (rt->rt_type != RTN_UNICAST) {
+ 		ip_rt_put(rt);
+-		dev->stats.tx_carrier_errors++;
++		DEV_STATS_INC(dev, tx_carrier_errors);
+ 		goto tx_error_icmp;
+ 	}
+ 	tdev = rt->dst.dev;
  
- extern struct net_device *blackhole_netdev;
+ 	if (tdev == dev) {
+ 		ip_rt_put(rt);
+-		dev->stats.collisions++;
++		DEV_STATS_INC(dev, collisions);
+ 		goto tx_error;
+ 	}
  
-+/* Note: Avoid these macros in fast path, prefer per-cpu or per-queue counters. */
-+#define DEV_STATS_INC(DEV, FIELD) atomic_long_inc(&(DEV)->stats.__##FIELD)
-+#define DEV_STATS_ADD(DEV, FIELD, VAL) 	\
-+		atomic_long_add((VAL), &(DEV)->stats.__##FIELD)
-+
- #endif	/* _LINUX_NETDEVICE_H */
-diff --git a/include/net/dst.h b/include/net/dst.h
-index a057319aabef..17697ec79949 100644
---- a/include/net/dst.h
-+++ b/include/net/dst.h
-@@ -361,9 +361,8 @@ static inline void __skb_tunnel_rx(struct sk_buff *skb, struct net_device *dev,
- static inline void skb_tunnel_rx(struct sk_buff *skb, struct net_device *dev,
- 				 struct net *net)
- {
--	/* TODO : stats should be SMP safe */
--	dev->stats.rx_packets++;
--	dev->stats.rx_bytes += skb->len;
-+	DEV_STATS_INC(dev, rx_packets);
-+	DEV_STATS_ADD(dev, rx_bytes, skb->len);
- 	__skb_tunnel_rx(skb, dev, net);
+@@ -976,7 +976,7 @@ static netdev_tx_t ipip6_tunnel_xmit(struct sk_buff *skb,
+ 		mtu = dst_mtu(&rt->dst) - t_hlen;
+ 
+ 		if (mtu < IPV4_MIN_MTU) {
+-			dev->stats.collisions++;
++			DEV_STATS_INC(dev, collisions);
+ 			ip_rt_put(rt);
+ 			goto tx_error;
+ 		}
+@@ -1015,7 +1015,7 @@ static netdev_tx_t ipip6_tunnel_xmit(struct sk_buff *skb,
+ 		struct sk_buff *new_skb = skb_realloc_headroom(skb, max_headroom);
+ 		if (!new_skb) {
+ 			ip_rt_put(rt);
+-			dev->stats.tx_dropped++;
++			DEV_STATS_INC(dev, tx_dropped);
+ 			kfree_skb(skb);
+ 			return NETDEV_TX_OK;
+ 		}
+@@ -1045,7 +1045,7 @@ static netdev_tx_t ipip6_tunnel_xmit(struct sk_buff *skb,
+ 	dst_link_failure(skb);
+ tx_error:
+ 	kfree_skb(skb);
+-	dev->stats.tx_errors++;
++	DEV_STATS_INC(dev, tx_errors);
+ 	return NETDEV_TX_OK;
  }
  
-diff --git a/net/core/dev.c b/net/core/dev.c
-index be51644e95da..33d6b691e15e 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -10640,24 +10640,16 @@ void netdev_run_todo(void)
- void netdev_stats_to_stats64(struct rtnl_link_stats64 *stats64,
- 			     const struct net_device_stats *netdev_stats)
- {
--#if BITS_PER_LONG == 64
--	BUILD_BUG_ON(sizeof(*stats64) < sizeof(*netdev_stats));
--	memcpy(stats64, netdev_stats, sizeof(*netdev_stats));
--	/* zero out counters that only exist in rtnl_link_stats64 */
--	memset((char *)stats64 + sizeof(*netdev_stats), 0,
--	       sizeof(*stats64) - sizeof(*netdev_stats));
--#else
--	size_t i, n = sizeof(*netdev_stats) / sizeof(unsigned long);
--	const unsigned long *src = (const unsigned long *)netdev_stats;
-+	size_t i, n = sizeof(*netdev_stats) / sizeof(atomic_long_t);
-+	const atomic_long_t *src = (atomic_long_t *)netdev_stats;
- 	u64 *dst = (u64 *)stats64;
- 
- 	BUILD_BUG_ON(n > sizeof(*stats64) / sizeof(u64));
- 	for (i = 0; i < n; i++)
--		dst[i] = src[i];
-+		dst[i] = atomic_long_read(&src[i]);
- 	/* zero out counters that only exist in rtnl_link_stats64 */
- 	memset((char *)stats64 + n * sizeof(u64), 0,
- 	       sizeof(*stats64) - n * sizeof(u64));
--#endif
+@@ -1064,7 +1064,7 @@ static netdev_tx_t sit_tunnel_xmit__(struct sk_buff *skb,
+ 	return NETDEV_TX_OK;
+ tx_error:
+ 	kfree_skb(skb);
+-	dev->stats.tx_errors++;
++	DEV_STATS_INC(dev, tx_errors);
+ 	return NETDEV_TX_OK;
  }
- EXPORT_SYMBOL(netdev_stats_to_stats64);
+ 
+@@ -1093,7 +1093,7 @@ static netdev_tx_t sit_tunnel_xmit(struct sk_buff *skb,
+ 	return NETDEV_TX_OK;
+ 
+ tx_err:
+-	dev->stats.tx_errors++;
++	DEV_STATS_INC(dev, tx_errors);
+ 	kfree_skb(skb);
+ 	return NETDEV_TX_OK;
  
 -- 
 2.35.1
