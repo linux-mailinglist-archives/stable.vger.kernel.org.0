@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDE6A657F47
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A76A65792E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:58:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234361AbiL1QD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:03:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47584 "EHLO
+        id S233302AbiL1O6z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:58:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234298AbiL1QDF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:03:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 033A518B09
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:03:04 -0800 (PST)
+        with ESMTP id S233398AbiL1O6V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:58:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46A1112D0D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:58:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97530B81719
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:03:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 047BFC433EF;
-        Wed, 28 Dec 2022 16:03:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DA8556154E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:58:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA0DBC433F0;
+        Wed, 28 Dec 2022 14:58:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243381;
-        bh=nuhgNwAkISOMVefjFTxIVp/3YECikFWFhUdihRwdp2Q=;
+        s=korg; t=1672239498;
+        bh=UdG7QiJygTiMMda7IGG6h6/bVahLIEclrvlPsHKeqKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NV+wDc1/3wGMg0Yxe2OT70DIFNWKoUcs5dCFor2eeNQZbxBhX02gETGjsw8z/Tc+V
-         D0u0ygjTNEkdf6DHADjWv8wDeVHaemd/5Er5YM/bAmcXCu7hM1pTplhhzKWmhHdTcm
-         NBp+5Io6nKV5DvDDwJoQutnKQNCP8Sl0uBRvrr6Q=
+        b=NIGr5IPN7Vf8FkIpBIMDjrYw1mOTvY6Q+QmVBe4FJdCrRmxOsu1La5qrrUnblSKsy
+         sC8slipPq+4kgCC/Q/zfG1Y8DVCpZ/HpCAn8dL1XyGHYz4jx8bL70DetaTNxJLQErK
+         KcEMAoTClYGxXTAayU39pY4PRAnBI4vmyhI+JVWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, GUO Zihua <guozihua@huawei.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0523/1073] net: emaclite: dont call dev_kfree_skb() under spin_lock_irqsave()
+Subject: [PATCH 5.15 204/731] integrity: Fix memory leakage in keyring allocation error path
 Date:   Wed, 28 Dec 2022 15:35:11 +0100
-Message-Id: <20221228144342.250414513@linuxfoundation.org>
+Message-Id: <20221228144302.473554173@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: GUO Zihua <guozihua@huawei.com>
 
-[ Upstream commit d1678bf45f21fa5ae4a456f821858679556ea5f8 ]
+[ Upstream commit 39419ef7af0916cc3620ecf1ed42d29659109bf3 ]
 
-It is not allowed to call kfree_skb() or consume_skb() from hardware
-interrupt context or with hardware interrupts being disabled.
+Key restriction is allocated in integrity_init_keyring(). However, if
+keyring allocation failed, it is not freed, causing memory leaks.
 
-It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
-The difference between them is free reason, dev_kfree_skb_irq() means
-the SKB is dropped in error and dev_consume_skb_irq() means the SKB
-is consumed in normal.
-
-In this case, dev_kfree_skb() is called in xemaclite_tx_timeout() to
-drop the SKB, when tx timeout, so replace it with dev_kfree_skb_irq().
-
-Fixes: bb81b2ddfa19 ("net: add Xilinx emac lite device driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2b6aa412ff23 ("KEYS: Use structure to capture key restriction function and data")
+Signed-off-by: GUO Zihua <guozihua@huawei.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/xilinx/xilinx_emaclite.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/integrity/digsig.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/xilinx/xilinx_emaclite.c b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-index 016a9c4f2c6c..ce0444b09664 100644
---- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-@@ -536,7 +536,7 @@ static void xemaclite_tx_timeout(struct net_device *dev, unsigned int txqueue)
- 	xemaclite_enable_interrupts(lp);
+diff --git a/security/integrity/digsig.c b/security/integrity/digsig.c
+index 3b06a01bd0fd..aa93b750a9f3 100644
+--- a/security/integrity/digsig.c
++++ b/security/integrity/digsig.c
+@@ -122,6 +122,7 @@ int __init integrity_init_keyring(const unsigned int id)
+ {
+ 	struct key_restriction *restriction;
+ 	key_perm_t perm;
++	int ret;
  
- 	if (lp->deferred_skb) {
--		dev_kfree_skb(lp->deferred_skb);
-+		dev_kfree_skb_irq(lp->deferred_skb);
- 		lp->deferred_skb = NULL;
- 		dev->stats.tx_errors++;
- 	}
+ 	perm = (KEY_POS_ALL & ~KEY_POS_SETATTR) | KEY_USR_VIEW
+ 		| KEY_USR_READ | KEY_USR_SEARCH;
+@@ -142,7 +143,10 @@ int __init integrity_init_keyring(const unsigned int id)
+ 	perm |= KEY_USR_WRITE;
+ 
+ out:
+-	return __integrity_init_keyring(id, perm, restriction);
++	ret = __integrity_init_keyring(id, perm, restriction);
++	if (ret)
++		kfree(restriction);
++	return ret;
+ }
+ 
+ static int __init integrity_add_key(const unsigned int id, const void *data,
 -- 
 2.35.1
 
