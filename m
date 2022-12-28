@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3889F657D5A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:42:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 545FF657D5C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:42:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233437AbiL1Pmj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:42:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58356 "EHLO
+        id S233565AbiL1Pml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:42:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233977AbiL1PmO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:42:14 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77B6217062
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:42:13 -0800 (PST)
+        with ESMTP id S233260AbiL1PmU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:42:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CD351706D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:42:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DFFADCE1369
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:42:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4441C433EF;
-        Wed, 28 Dec 2022 15:42:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AADCC6156F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:42:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB4AAC433D2;
+        Wed, 28 Dec 2022 15:42:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242130;
-        bh=/CAQNq+QTcBM5KOL1Sc6/ynFJBWsurVNYbhvrr3CQXM=;
+        s=korg; t=1672242138;
+        bh=YhdJUr/yiDtp6hcz22L6YBYwTibof4XunRJF0UhvGyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kcNLeSxpuoHI7dhQNKbUHW5Sa0eqzuwy6KfVYlQ3O6ArhS9wksk5kkAjH4cIe5qum
-         5zno1NUYLwYGwbROq4paXWl6CedPowFhMz/f3RNMLt5ELViAAaa46kjuR2YbY8OtPP
-         q+ymXP+lhQNAn3PJ+Aty/DILuVv1Ofl22ohMSeAs=
+        b=ZhXpWjJqjxRs8O6ZqhYrA4gukLWm1tJQ8FssmFm2LcHsAvI+dkaNh9XzkuGY8bj3S
+         6v0bq3FPy9u3scUIuHNIDdh9CxK0JoeNrvULjDcRVJfHDr1blw5pb0NHxqlF9bqNmF
+         kGC7VRH66qzc+SYn+hiXFFsWJdEYK89RAUvP8w54=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
         Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 566/731] remoteproc: sysmon: fix memory leak in qcom_add_sysmon_subdev()
-Date:   Wed, 28 Dec 2022 15:41:13 +0100
-Message-Id: <20221228144312.966781841@linuxfoundation.org>
+Subject: [PATCH 5.15 567/731] remoteproc: qcom: q6v5: Fix potential null-ptr-deref in q6v5_wcss_init_mmio()
+Date:   Wed, 28 Dec 2022 15:41:14 +0100
+Message-Id: <20221228144312.993823752@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
 References: <20221228144256.536395940@linuxfoundation.org>
@@ -53,46 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit e01ce676aaef3b13d02343d7e70f9637d93a3367 ]
+[ Upstream commit f360e2b275efbb745ba0af8b47d9ef44221be586 ]
 
-The kfree() should be called when of_irq_get_byname() fails or
-devm_request_threaded_irq() fails in qcom_add_sysmon_subdev(),
-otherwise there will be a memory leak, so add kfree() to fix it.
+q6v5_wcss_init_mmio() will call platform_get_resource_byname() that may
+fail and return NULL. devm_ioremap() will use res->start as input, which
+may causes null-ptr-deref. Check the ret value of
+platform_get_resource_byname() to avoid the null-ptr-deref.
 
-Fixes: 027045a6e2b7 ("remoteproc: qcom: Add shutdown-ack irq")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Fixes: 0af65b9b915e ("remoteproc: qcom: wcss: Add non pas wcss Q6 support for QCS404")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
 Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221129105650.1539187-1-cuigaosheng1@huawei.com
+Link: https://lore.kernel.org/r/20221125021641.29392-1-shangxiaojing@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/qcom_sysmon.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/remoteproc/qcom_q6v5_wcss.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/remoteproc/qcom_sysmon.c b/drivers/remoteproc/qcom_sysmon.c
-index a9f04dd83ab6..fbfaf2637a91 100644
---- a/drivers/remoteproc/qcom_sysmon.c
-+++ b/drivers/remoteproc/qcom_sysmon.c
-@@ -650,7 +650,9 @@ struct qcom_sysmon *qcom_add_sysmon_subdev(struct rproc *rproc,
- 		if (sysmon->shutdown_irq != -ENODATA) {
- 			dev_err(sysmon->dev,
- 				"failed to retrieve shutdown-ack IRQ\n");
--			return ERR_PTR(sysmon->shutdown_irq);
-+			ret = sysmon->shutdown_irq;
-+			kfree(sysmon);
-+			return ERR_PTR(ret);
- 		}
- 	} else {
- 		ret = devm_request_threaded_irq(sysmon->dev,
-@@ -661,6 +663,7 @@ struct qcom_sysmon *qcom_add_sysmon_subdev(struct rproc *rproc,
- 		if (ret) {
- 			dev_err(sysmon->dev,
- 				"failed to acquire shutdown-ack IRQ\n");
-+			kfree(sysmon);
- 			return ERR_PTR(ret);
- 		}
- 	}
+diff --git a/drivers/remoteproc/qcom_q6v5_wcss.c b/drivers/remoteproc/qcom_q6v5_wcss.c
+index 20d50ec7eff1..9e67e323a55a 100644
+--- a/drivers/remoteproc/qcom_q6v5_wcss.c
++++ b/drivers/remoteproc/qcom_q6v5_wcss.c
+@@ -827,6 +827,9 @@ static int q6v5_wcss_init_mmio(struct q6v5_wcss *wcss,
+ 	int ret;
+ 
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "qdsp6");
++	if (!res)
++		return -EINVAL;
++
+ 	wcss->reg_base = devm_ioremap(&pdev->dev, res->start,
+ 				      resource_size(res));
+ 	if (!wcss->reg_base)
 -- 
 2.35.1
 
