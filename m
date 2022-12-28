@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9173657BE9
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:27:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1C47657CFF
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:38:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233758AbiL1P06 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:26:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45092 "EHLO
+        id S233517AbiL1PiT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:38:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233391AbiL1P0k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:26:40 -0500
+        with ESMTP id S233916AbiL1PiR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:38:17 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E5FDB05
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:26:39 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2740216598
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:38:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2CE49B81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:26:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68FD2C433EF;
-        Wed, 28 Dec 2022 15:26:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B855DB81710
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:38:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32B93C433EF;
+        Wed, 28 Dec 2022 15:38:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241196;
-        bh=gb2+8WEVCParMDt/c+JhBcm5qkrAhe164cAQF9O891U=;
+        s=korg; t=1672241894;
+        bh=ds3eCcpdginc4ug2YeaenO+SBOWQllEdDcqHmmnSRko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ernk3HwIKUkHUN77x5TM2sj2tDdLbcCU2M4Sjov94aLB2E98RY6GGLcLGEWc+0Nxl
-         B69Gf2tLJhSrBssWDnKehepbiCvktKvhLJVY7yFehg5J8dn/Q0SwGAziY5jaw2J/tt
-         Mb9lGgYSh20gjWuTDEdgsXXIN7A+D3O2iAOM1vlc=
+        b=eRJKcpAyf0AsoFq6Rqhdt6lxpqRwMdlQxypSPwkvVVvRWbTlyBQz5HFIy0repfCQd
+         LoE+7t+TMh3roa5DUvIbnqZ8sbkTRuMy8KNGfb/HKoF0Tdd6A38fjXvlHUVskW21GF
+         nTu0HuNx5TYEhQnL1E/7M/QFwcSW1yZbyBUD7BNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Alan Previn <alan.previn.teres.alexis@intel.com>,
-        John Harrison <John.C.Harrison@Intel.com>,
-        Matthew Brost <matthew.brost@intel.com>,
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Robert Foss <robert.foss@linaro.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0252/1073] drm/i915/guc: Add a helper for log buffer size
-Date:   Wed, 28 Dec 2022 15:30:40 +0100
-Message-Id: <20221228144334.865340615@linuxfoundation.org>
+Subject: [PATCH 6.1 0302/1146] media: camss: Clean up received buffers on failed start of streaming
+Date:   Wed, 28 Dec 2022 15:30:41 +0100
+Message-Id: <20221228144338.350638089@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,94 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Previn <alan.previn.teres.alexis@intel.com>
+From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
 
-[ Upstream commit 5ce27d6210018e972197ff7e5da6309f919fd61b ]
+[ Upstream commit c8f3582345e6a69da65ab588f7c4c2d1685b0e80 ]
 
-Add a helper to get GuC log buffer size.
+It is required to return the received buffers, if streaming can not be
+started. For instance media_pipeline_start() may fail with EPIPE, if
+a link validation between entities is not passed, and in such a case
+a user gets a kernel warning:
 
-Signed-off-by: Alan Previn <alan.previn.teres.alexis@intel.com>
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Reviewed-by: Matthew Brost <matthew.brost@intel.com>
-Reviewed-by: Alan Previn <alan.previn.teres.alexis@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220728022028.2190627-2-John.C.Harrison@Intel.com
-Stable-dep-of: befb231d5de2 ("drm/i915/guc: Fix GuC error capture sizing estimation and reporting")
+  WARNING: CPU: 1 PID: 520 at drivers/media/common/videobuf2/videobuf2-core.c:1592 vb2_start_streaming+0xec/0x160
+  <snip>
+  Call trace:
+   vb2_start_streaming+0xec/0x160
+   vb2_core_streamon+0x9c/0x1a0
+   vb2_ioctl_streamon+0x68/0xbc
+   v4l_streamon+0x30/0x3c
+   __video_do_ioctl+0x184/0x3e0
+   video_usercopy+0x37c/0x7b0
+   video_ioctl2+0x24/0x40
+   v4l2_ioctl+0x4c/0x70
+
+The fix is to correct the error path in video_start_streaming() of camss.
+
+Fixes: 0ac2586c410f ("media: camss: Add files which handle the video device nodes")
+Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/uc/intel_guc_log.c | 49 ++++++++++++----------
- 1 file changed, 27 insertions(+), 22 deletions(-)
+ drivers/media/platform/qcom/camss/camss-video.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_log.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_log.c
-index 25b2d7ce6640..492bbf419d4d 100644
---- a/drivers/gpu/drm/i915/gt/uc/intel_guc_log.c
-+++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_log.c
-@@ -15,6 +15,32 @@
+diff --git a/drivers/media/platform/qcom/camss/camss-video.c b/drivers/media/platform/qcom/camss/camss-video.c
+index 81fb3a5bc1d5..41deda232e4a 100644
+--- a/drivers/media/platform/qcom/camss/camss-video.c
++++ b/drivers/media/platform/qcom/camss/camss-video.c
+@@ -495,7 +495,7 @@ static int video_start_streaming(struct vb2_queue *q, unsigned int count)
  
- static void guc_log_copy_debuglogs_for_relay(struct intel_guc_log *log);
+ 	ret = video_device_pipeline_start(vdev, &video->pipe);
+ 	if (ret < 0)
+-		return ret;
++		goto flush_buffers;
  
-+static u32 intel_guc_log_size(struct intel_guc_log *log)
-+{
-+	/*
-+	 *  GuC Log buffer Layout:
-+	 *
-+	 *  NB: Ordering must follow "enum guc_log_buffer_type".
-+	 *
-+	 *  +===============================+ 00B
-+	 *  |      Debug state header       |
-+	 *  +-------------------------------+ 32B
-+	 *  |    Crash dump state header    |
-+	 *  +-------------------------------+ 64B
-+	 *  |     Capture state header      |
-+	 *  +-------------------------------+ 96B
-+	 *  |                               |
-+	 *  +===============================+ PAGE_SIZE (4KB)
-+	 *  |          Debug logs           |
-+	 *  +===============================+ + DEBUG_SIZE
-+	 *  |        Crash Dump logs        |
-+	 *  +===============================+ + CRASH_SIZE
-+	 *  |         Capture logs          |
-+	 *  +===============================+ + CAPTURE_SIZE
-+	 */
-+	return PAGE_SIZE + CRASH_BUFFER_SIZE + DEBUG_BUFFER_SIZE + CAPTURE_BUFFER_SIZE;
-+}
-+
- /**
-  * DOC: GuC firmware log
-  *
-@@ -461,32 +487,11 @@ int intel_guc_log_create(struct intel_guc_log *log)
+ 	ret = video_check_format(video);
+ 	if (ret < 0)
+@@ -524,6 +524,7 @@ static int video_start_streaming(struct vb2_queue *q, unsigned int count)
+ error:
+ 	video_device_pipeline_stop(vdev);
  
- 	GEM_BUG_ON(log->vma);
++flush_buffers:
+ 	video->ops->flush_buffers(video, VB2_BUF_STATE_QUEUED);
  
--	/*
--	 *  GuC Log buffer Layout
--	 * (this ordering must follow "enum guc_log_buffer_type" definition)
--	 *
--	 *  +===============================+ 00B
--	 *  |      Debug state header       |
--	 *  +-------------------------------+ 32B
--	 *  |    Crash dump state header    |
--	 *  +-------------------------------+ 64B
--	 *  |     Capture state header      |
--	 *  +-------------------------------+ 96B
--	 *  |                               |
--	 *  +===============================+ PAGE_SIZE (4KB)
--	 *  |          Debug logs           |
--	 *  +===============================+ + DEBUG_SIZE
--	 *  |        Crash Dump logs        |
--	 *  +===============================+ + CRASH_SIZE
--	 *  |         Capture logs          |
--	 *  +===============================+ + CAPTURE_SIZE
--	 */
- 	if (intel_guc_capture_output_min_size_est(guc) > CAPTURE_BUFFER_SIZE)
- 		DRM_WARN("GuC log buffer for state_capture maybe too small. %d < %d\n",
- 			 CAPTURE_BUFFER_SIZE, intel_guc_capture_output_min_size_est(guc));
- 
--	guc_log_size = PAGE_SIZE + CRASH_BUFFER_SIZE + DEBUG_BUFFER_SIZE +
--		       CAPTURE_BUFFER_SIZE;
-+	guc_log_size = intel_guc_log_size(log);
- 
- 	vma = intel_guc_allocate_vma(guc, guc_log_size);
- 	if (IS_ERR(vma)) {
+ 	return ret;
 -- 
 2.35.1
 
