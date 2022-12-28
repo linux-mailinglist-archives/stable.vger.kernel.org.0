@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D89B6582DE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F0A56581FD
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:32:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235111AbiL1QnH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:43:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33560 "EHLO
+        id S234828AbiL1Qcn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:32:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234903AbiL1QmO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:42:14 -0500
+        with ESMTP id S234765AbiL1QcP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:32:15 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2FB41F62E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:36:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B72F71D0D3
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:28:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F860B81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:36:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC25CC433D2;
-        Wed, 28 Dec 2022 16:36:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 46625B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:28:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7531C433D2;
+        Wed, 28 Dec 2022 16:28:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245388;
-        bh=td1nQZGRejRUOszUsoW+P8+Im1nKoFmTgQ/JODahWIg=;
+        s=korg; t=1672244930;
+        bh=Lw4hn/Jernb32hTCgisRANQ4N/Uaj2mNKeJosIodLEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=spTG0c0tmYraXXmMjqUcc+Kk+bzsKOf/8G15U8meCA+WSaRzltA4zUKevgwxi8A77
-         DXngl3mimnDcgxdhFDGfWanGHlbzRYhSUwWTQSipf/0HRf/Yd/feGVqNmY5Z17a8WA
-         EDsT0q9iHDUF/2RaCa2wIZJ0Kb+KyPuIfDXI9+z8=
+        b=BxFjU/oSpDlyWOrMUv7Ooc6MlKrzOev3AHuDjNeqoZNSicEOi4n6tI691iGKM5b51
+         txmYSdKpHdhiZwXITCXHi85YyWC7k/B0rGZzj6pveIw+APMxzVGf4er+u+qBt8Nr9H
+         hmUBGekINlw/t4UTQiFYxGj9wcd4CKDt6cl8lwjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        patches@lists.linux.dev, Nayna Jain <nayna@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0850/1146] powerpc/xive: add missing iounmap() in error path in xive_spapr_populate_irq_data()
+Subject: [PATCH 6.0 0801/1073] powerpc/pseries: fix the object owners enum value in plpks driver
 Date:   Wed, 28 Dec 2022 15:39:49 +0100
-Message-Id: <20221228144353.242832966@linuxfoundation.org>
+Message-Id: <20221228144349.766705076@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Nayna Jain <nayna@linux.ibm.com>
 
-[ Upstream commit 8b49670f3bb3f10cd4d5a6dca17f5a31b173ecdc ]
+[ Upstream commit 2330757e0be0acad88852e211dcd6106390a729b ]
 
-If remapping 'data->trig_page' fails, the 'data->eoi_mmio' need be unmapped
-before returning from xive_spapr_populate_irq_data().
+OS_VAR_LINUX enum in PLPKS driver should be 0x02 instead of 0x01.
 
-Fixes: eac1e731b59e ("powerpc/xive: guest exploitation of the XIVE interrupt controller")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Cédric Le Goater <clg@kaod.org>
+Fixes: 2454a7af0f2a ("powerpc/pseries: define driver for Platform KeyStore")
+Signed-off-by: Nayna Jain <nayna@linux.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20221017032333.1852406-1-yangyingliang@huawei.com
+Link: https://lore.kernel.org/r/20221106205839.600442-2-nayna@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/xive/spapr.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/platforms/pseries/plpks.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/sysdev/xive/spapr.c b/arch/powerpc/sysdev/xive/spapr.c
-index e2c8f93b535b..e45419264391 100644
---- a/arch/powerpc/sysdev/xive/spapr.c
-+++ b/arch/powerpc/sysdev/xive/spapr.c
-@@ -439,6 +439,7 @@ static int xive_spapr_populate_irq_data(u32 hw_irq, struct xive_irq_data *data)
+diff --git a/arch/powerpc/platforms/pseries/plpks.h b/arch/powerpc/platforms/pseries/plpks.h
+index c6a291367bb1..275ccd86bfb5 100644
+--- a/arch/powerpc/platforms/pseries/plpks.h
++++ b/arch/powerpc/platforms/pseries/plpks.h
+@@ -17,7 +17,7 @@
+ #define WORLDREADABLE 0x08000000
+ #define SIGNEDUPDATE 0x01000000
  
- 	data->trig_mmio = ioremap(data->trig_page, 1u << data->esb_shift);
- 	if (!data->trig_mmio) {
-+		iounmap(data->eoi_mmio);
- 		pr_err("Failed to map trigger page for irq 0x%x\n", hw_irq);
- 		return -ENOMEM;
- 	}
+-#define PLPKS_VAR_LINUX	0x01
++#define PLPKS_VAR_LINUX	0x02
+ #define PLPKS_VAR_COMMON	0x04
+ 
+ struct plpks_var {
 -- 
 2.35.1
 
