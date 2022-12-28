@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E664657B39
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:19:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B2E4658110
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233279AbiL1PTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:19:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38572 "EHLO
+        id S234684AbiL1QYm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:24:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233736AbiL1PTQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:19:16 -0500
+        with ESMTP id S234754AbiL1QX6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:23:58 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AEA613F8B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:19:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD3FAFCD2
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:20:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1757961544
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:19:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24FD1C433EF;
-        Wed, 28 Dec 2022 15:19:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 495A161568
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:20:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F0CDC433D2;
+        Wed, 28 Dec 2022 16:20:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240748;
-        bh=WI6CcsguI3tWGJBsi5fp+QL1JRy9bMscPPgNgEOfYAY=;
+        s=korg; t=1672244451;
+        bh=2s8+8v+kwfXxbFXzf6BDPF3hKKV7A9BpshUDpveIOhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dKwguqxObfmxrRv2a5fsrd+POZu10ATywK8ODDz6jMTPSIAFTDZr5aT8vXofTGfgx
-         I5d4eaZi3U/fdiTiNqG5On9/GUBuDF8N99tTwtwNjEnxpAU/kZPT4iKkKdQI4WAIdo
-         cWnnrosFrusQwaCw1l5LvWjbM2ZcQWJL+Ul21fmE=
+        b=KyqDpmC1xjhuJGQYCedX4P1C4iLxR/RPCEtkepc7yQaIZWYTW1b1FYNZICugcbxnW
+         dq9CTSuOehyF3ecuJUG7w8XNFs6jPxsQIPE7ghO72gy93sa9ZtcVRE+XVgBD8+koJI
+         Cn0zDT5IZ9m6NBVPvcFfyazi7kFg9LNdzQOLWoMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Weili Qian <qianweili@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 393/731] crypto: hisilicon/qm - add missing pci_dev_put() in q_num_set()
+        patches@lists.linux.dev, Hui Tang <tanghui20@huawei.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0712/1073] i2c: pxa-pci: fix missing pci_disable_device() on error in ce4100_i2c_probe
 Date:   Wed, 28 Dec 2022 15:38:20 +0100
-Message-Id: <20221228144307.951318228@linuxfoundation.org>
+Message-Id: <20221228144347.369600216@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Hui Tang <tanghui20@huawei.com>
 
-[ Upstream commit cc7710d0d4ebc6998f04035cde4f32c5ddbe9d7f ]
+[ Upstream commit d78a167332e1ca8113268ed922c1212fd71b73ad ]
 
-pci_get_device() will increase the reference count for the returned
-pci_dev. We need to use pci_dev_put() to decrease the reference count
-before q_num_set() returns.
+Using pcim_enable_device() to avoid missing pci_disable_device().
 
-Fixes: c8b4b477079d ("crypto: hisilicon - add HiSilicon HPRE accelerator")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Reviewed-by: Weili Qian <qianweili@huawei.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 7e94dd154e93 ("i2c-pxa2xx: Add PCI support for PXA I2C controller")
+Signed-off-by: Hui Tang <tanghui20@huawei.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/hisilicon/qm.h | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-pxa-pci.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/crypto/hisilicon/qm.h b/drivers/crypto/hisilicon/qm.h
-index 3068093229a5..bbb35de994eb 100644
---- a/drivers/crypto/hisilicon/qm.h
-+++ b/drivers/crypto/hisilicon/qm.h
-@@ -318,14 +318,14 @@ struct hisi_qp {
- static inline int q_num_set(const char *val, const struct kernel_param *kp,
- 			    unsigned int device)
- {
--	struct pci_dev *pdev = pci_get_device(PCI_VENDOR_ID_HUAWEI,
--					      device, NULL);
-+	struct pci_dev *pdev;
- 	u32 n, q_num;
- 	int ret;
+diff --git a/drivers/i2c/busses/i2c-pxa-pci.c b/drivers/i2c/busses/i2c-pxa-pci.c
+index f614cade432b..30e38bc8b6db 100644
+--- a/drivers/i2c/busses/i2c-pxa-pci.c
++++ b/drivers/i2c/busses/i2c-pxa-pci.c
+@@ -105,7 +105,7 @@ static int ce4100_i2c_probe(struct pci_dev *dev,
+ 	int i;
+ 	struct ce4100_devices *sds;
  
- 	if (!val)
+-	ret = pci_enable_device_mem(dev);
++	ret = pcim_enable_device(dev);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -114,10 +114,8 @@ static int ce4100_i2c_probe(struct pci_dev *dev,
  		return -EINVAL;
- 
-+	pdev = pci_get_device(PCI_VENDOR_ID_HUAWEI, device, NULL);
- 	if (!pdev) {
- 		q_num = min_t(u32, QM_QNUM_V1, QM_QNUM_V2);
- 		pr_info("No device found currently, suppose queue number is %u\n",
-@@ -335,6 +335,8 @@ static inline int q_num_set(const char *val, const struct kernel_param *kp,
- 			q_num = QM_QNUM_V1;
- 		else
- 			q_num = QM_QNUM_V2;
-+
-+		pci_dev_put(pdev);
  	}
+ 	sds = kzalloc(sizeof(*sds), GFP_KERNEL);
+-	if (!sds) {
+-		ret = -ENOMEM;
+-		goto err_mem;
+-	}
++	if (!sds)
++		return -ENOMEM;
  
- 	ret = kstrtou32(val, 10, &n);
+ 	for (i = 0; i < ARRAY_SIZE(sds->pdev); i++) {
+ 		sds->pdev[i] = add_i2c_device(dev, i);
+@@ -133,8 +131,6 @@ static int ce4100_i2c_probe(struct pci_dev *dev,
+ 
+ err_dev_add:
+ 	kfree(sds);
+-err_mem:
+-	pci_disable_device(dev);
+ 	return ret;
+ }
+ 
 -- 
 2.35.1
 
