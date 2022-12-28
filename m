@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC29B657D8B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:44:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D85F657EAC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:56:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233577AbiL1PoS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:44:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60888 "EHLO
+        id S233556AbiL1P43 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:56:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233572AbiL1PoR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:44:17 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40D6A17431
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:44:17 -0800 (PST)
+        with ESMTP id S234167AbiL1P4Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:56:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E92216597
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:56:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8C21ECE136C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:44:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81012C433EF;
-        Wed, 28 Dec 2022 15:44:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C6E24B817B0
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:56:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34962C433D2;
+        Wed, 28 Dec 2022 15:56:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242253;
-        bh=JehI8lHjyA+rDPC7y/veHkX6Zg9KtWooSzccuAqeEWY=;
+        s=korg; t=1672242965;
+        bh=TysLWZxsnVb8erUgU7pXb3w5UkFrysFkGEmLXlYnk4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nobqesvpgi3Hgv97rZ9uYXyuV0al5x5AT+8dM2wZXrJMHWqp38WkccwDeRBhq4WM6
-         ICDhp59z5sn/UNyZvA/yLlNB5G56SIW7cL8MrQlH58G6BX2xUeladtpV24PqSXJbzg
-         sJ1+iHbZlRaq/pKpqWmoTTpmL5WJTgGwn2koaZJI=
+        b=FM9CVDQEDoWeH7w/GrkvMIRETPjXvBh0q044+mo8UqXPT6ISqOLnbnxE/i/u9NStn
+         grFUOVLbIrbwEDSB5JLS5l7zECf+Ejs4pP+6BZ6SKoZOAG4LoFQoitPchUc1pGrjon
+         Wd4SNCvP845QCg3YqEX0L5yGjFOoW0oK4xZFQD9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dario Binacchi <dario.binacchi@amarulasolutions.com>,
-        Marco Felsch <m.felsch@pengutronix.de>,
-        Abel Vesa <abel.vesa@linaro.org>,
+        patches@lists.linux.dev, Lijo Lazar <lijo.lazar@amd.com>,
+        Guchun Chen <guchun.chen@amd.com>,
+        Evan Quan <evan.quan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0385/1073] clk: imx8mn: fix imx8mn_enet_phy_sels clocks list
-Date:   Wed, 28 Dec 2022 15:32:53 +0100
-Message-Id: <20221228144338.466112485@linuxfoundation.org>
+Subject: [PATCH 6.1 0435/1146] drm/amd/pm/smu11: BACO is supported when its in BACO state
+Date:   Wed, 28 Dec 2022 15:32:54 +0100
+Message-Id: <20221228144341.996457193@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+From: Guchun Chen <guchun.chen@amd.com>
 
-[ Upstream commit 2626cf67f20b28446dfc3a5b9493dd535cdb747b ]
+[ Upstream commit 6dca7efe6e522bf213c7dab691fa580d82f48f74 ]
 
-According to the "Clock Root" table of the reference manual (document
-IMX8MNRM Rev 2, 07/2022):
+Return true early if ASIC is in BACO state already, no need
+to talk to SMU. It can fix the issue that driver was not
+calling BACO exit at all in runtime pm resume, and a timing
+issue leading to a PCI AER error happened eventually.
 
-     Clock Root         offset     Source Select (CCM_TARGET_ROOTn[MUX])
-        ...              ...                    ...
- ENET_PHY_REF_CLK_ROOT  0xAA80            000 - 24M_REF_CLK
-                                          001 - SYSTEM_PLL2_DIV20
-                                          010 - SYSTEM_PLL2_DIV8
-                                          011 - SYSTEM_PLL2_DIV5
-                                          100 - SYSTEM_PLL2_DIV2
-                                          101 - AUDIO_PLL1_CLK
-                                          110 - VIDEO_PLL_CLK
-                                          111 - AUDIO_PLL2_CLK
-        ...              ...                    ...
-
-while the imx8mn_enet_phy_sels list didn't contained audio_pll1_out for
-source select bits 101b.
-
-Fixes: 96d6392b54dbb ("clk: imx: Add support for i.MX8MN clock driver")
-Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
-Acked-by: Marco Felsch <m.felsch@pengutronix.de>
-Reviewed-by: Abel Vesa <abel.vesa@linaro.org>
-Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
-Link: https://lore.kernel.org/r/20221117113637.1978703-6-dario.binacchi@amarulasolutions.com
+Fixes: 8795e182b02d ("PCI/portdrv: Don't disable AER reporting in get_port_device_capability()")
+Suggested-by: Lijo Lazar <lijo.lazar@amd.com>
+Signed-off-by: Guchun Chen <guchun.chen@amd.com>
+Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
+Reviewed-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-imx8mn.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/clk/imx/clk-imx8mn.c b/drivers/clk/imx/clk-imx8mn.c
-index 37128c35198d..2afea905f7f3 100644
---- a/drivers/clk/imx/clk-imx8mn.c
-+++ b/drivers/clk/imx/clk-imx8mn.c
-@@ -140,8 +140,8 @@ static const char * const imx8mn_enet_timer_sels[] = {"osc_24m", "sys_pll2_100m"
- 						      "clk_ext4", "video_pll_out", };
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c
+index 70b560737687..ad5f6a15a1d7 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c
+@@ -1588,6 +1588,10 @@ bool smu_v11_0_baco_is_support(struct smu_context *smu)
+ 	if (amdgpu_sriov_vf(smu->adev) || !smu_baco->platform_support)
+ 		return false;
  
- static const char * const imx8mn_enet_phy_sels[] = {"osc_24m", "sys_pll2_50m", "sys_pll2_125m",
--						    "sys_pll2_200m", "sys_pll2_500m", "video_pll_out",
--						    "audio_pll2_out", };
-+						    "sys_pll2_200m", "sys_pll2_500m", "audio_pll1_out",
-+						    "video_pll_out", "audio_pll2_out", };
- 
- static const char * const imx8mn_nand_sels[] = {"osc_24m", "sys_pll2_500m", "audio_pll1_out",
- 						"sys_pll1_400m", "audio_pll2_out", "sys_pll3_out",
++	/* return true if ASIC is in BACO state already */
++	if (smu_v11_0_baco_get_state(smu) == SMU_BACO_STATE_ENTER)
++		return true;
++
+ 	/* Arcturus does not support this bit mask */
+ 	if (smu_cmn_feature_is_supported(smu, SMU_FEATURE_BACO_BIT) &&
+ 	   !smu_cmn_feature_is_enabled(smu, SMU_FEATURE_BACO_BIT))
 -- 
 2.35.1
 
