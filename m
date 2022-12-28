@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75061657CEF
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:37:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B7FF657814
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233149AbiL1Phj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:37:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55156 "EHLO
+        id S232658AbiL1OsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:48:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233505AbiL1Phi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:37:38 -0500
+        with ESMTP id S233033AbiL1Org (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:47:36 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9695716586
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:37:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C1A411C34
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:46:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2B10FB81719
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:37:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72B8AC43392;
-        Wed, 28 Dec 2022 15:37:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DF8C0B8171A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:46:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C1F8C433D2;
+        Wed, 28 Dec 2022 14:46:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241854;
-        bh=0qMlYFCk1BMuRAlt8vvWrnHD2OMbPoPtB3GbqDp3dTY=;
+        s=korg; t=1672238805;
+        bh=X6pIe/vcPlIeOVVKFsNobKb7x1C8QXWcFn0Z17KpYos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h4lloWqgdI21Qg2riUelNUPiHMcZhLbEEmHiiAGFFQPokISVSwDkj+t/Cl4fSbdto
-         QiTfmLgdM481D/VyDXnAsdWt9K7MGqS00+yErg+rvX85ZU41WPrIdmikov6i9l2XAk
-         4x/2IPHJaW0cUM5rGsX8tP0JlI4AtPUggztOB8OE=
+        b=CafY/RU6wtfVlIuwbOZkaFP3WHuFmQ8PMznXLnuMysAmKsmx0N1J0r/YiTCU7Ka0J
+         HOLzCDTcvRWAc1XhnZ7Sj/F4Llb2FBp/gs0KUQzDnNRJckT5mEYYTlGLT1S8Mt8TFH
+         54Nv6ivX+9vyx+NfmotDSYPfCpN7RydslNSYt2k4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Jeff Johnson <quic_jjohnson@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0336/1073] wifi: ath10k: Fix return value in ath10k_pci_init()
+Subject: [PATCH 5.15 017/731] arm64: dts: qcom: sm8250: correct LPASS pin pull down
 Date:   Wed, 28 Dec 2022 15:32:04 +0100
-Message-Id: <20221228144337.128436875@linuxfoundation.org>
+Message-Id: <20221228144257.037556023@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 2af7749047d8d6ad43feff69f555a13a6a6c2831 ]
+[ Upstream commit 195a0a11d66d6c696cbcf398d6bc3f3a3a462f7c ]
 
-This driver is attempting to register to support two different buses.
-if either of these is successful then ath10k_pci_init() should return 0
-so that hardware attached to the successful bus can be probed and
-supported. only if both of these are unsuccessful should ath10k_pci_init()
-return an errno.
+The pull-down property is actually bias-pull-down.
 
-Fixes: 0b523ced9a3c ("ath10k: add basic skeleton to support ahb")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Reviewed-by: Jeff Johnson <quic_jjohnson@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20221110061926.18163-1-xiujianfeng@huawei.com
+Fixes: 3160c1b894d9 ("arm64: dts: qcom: sm8250: add lpass lpi pin controller node")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20220927153429.55365-4-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/pci.c | 20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ arch/arm64/boot/dts/qcom/sm8250.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
-index bf1c938be7d0..8015b457a870 100644
---- a/drivers/net/wireless/ath/ath10k/pci.c
-+++ b/drivers/net/wireless/ath/ath10k/pci.c
-@@ -3793,18 +3793,22 @@ static struct pci_driver ath10k_pci_driver = {
- 
- static int __init ath10k_pci_init(void)
- {
--	int ret;
-+	int ret1, ret2;
- 
--	ret = pci_register_driver(&ath10k_pci_driver);
--	if (ret)
-+	ret1 = pci_register_driver(&ath10k_pci_driver);
-+	if (ret1)
- 		printk(KERN_ERR "failed to register ath10k pci driver: %d\n",
--		       ret);
-+		       ret1);
- 
--	ret = ath10k_ahb_init();
--	if (ret)
--		printk(KERN_ERR "ahb init failed: %d\n", ret);
-+	ret2 = ath10k_ahb_init();
-+	if (ret2)
-+		printk(KERN_ERR "ahb init failed: %d\n", ret2);
- 
--	return ret;
-+	if (ret1 && ret2)
-+		return ret1;
-+
-+	/* registered to at least one bus */
-+	return 0;
- }
- module_init(ath10k_pci_init);
- 
+diff --git a/arch/arm64/boot/dts/qcom/sm8250.dtsi b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+index b710bca45648..9a95c15c7e8b 100644
+--- a/arch/arm64/boot/dts/qcom/sm8250.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+@@ -1933,7 +1933,7 @@ data {
+ 					pins = "gpio7";
+ 					function = "dmic1_data";
+ 					drive-strength = <2>;
+-					pull-down;
++					bias-pull-down;
+ 					input-enable;
+ 				};
+ 			};
 -- 
 2.35.1
 
