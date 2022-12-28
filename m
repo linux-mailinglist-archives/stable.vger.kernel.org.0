@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB829657FC4
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:09:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A14D0658082
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:18:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232871AbiL1QI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:08:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55430 "EHLO
+        id S234599AbiL1QSF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:18:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234432AbiL1QH7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:07:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C65D6186CD
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:07:58 -0800 (PST)
+        with ESMTP id S234716AbiL1QRT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:17:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EA5A1869A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:15:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6378F6155B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:07:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43CAEC433EF;
-        Wed, 28 Dec 2022 16:07:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B08D96156C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:15:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF1CBC433D2;
+        Wed, 28 Dec 2022 16:15:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243677;
-        bh=aVQDBF5UZRcD4LY+cDsLA6JkPaJ954vkwqWl5qyAyyU=;
+        s=korg; t=1672244136;
+        bh=+4Zvaa0MdZ8E7XuqalKiyLuNju0/wJug6N0636E/LTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NpMA1KTjoEiRXoPi6LPnyOuHSnYqO8zxg8vKKt9HwEPDbFPTrOK/NJJdcnDjH8c7I
-         QAi1IM6O8eiZSzm2lYb1PzYIAScZnPIZkUJ6la8bJ5qJiKh564elQvmamLof4hHNJR
-         GU/M1Fby0xv0UADyaETTW6g9F+3+uMmB2uAuBGMY=
+        b=Eb/ypVkMsBxFK4AMOyp22qxwRIdrOrxPhjevkgl+Lc5LaKD2uzLdHJcvz4Rkgqk5f
+         xQQ9xwWOnBSWERZNOXps4shpTUsQFiOgdWcHJHcYMcshA6a4IEzQX4yyfgo5Tu3YOA
+         H2T26JBP4YIIV7zG1iZyPUQvj/xmxqLOtUcB8r1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Zhang Qilong <zhangqilong3@huawei.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        patches@lists.linux.dev, Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0568/1073] f2fs: Fix the race condition of resize flag between resizefs
+Subject: [PATCH 6.1 0617/1146] crypto: cryptd - Use request context instead of stack for sub-request
 Date:   Wed, 28 Dec 2022 15:35:56 +0100
-Message-Id: <20221228144343.483025561@linuxfoundation.org>
+Message-Id: <20221228144346.928267123@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +52,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit 28fc4e9077ce59ab28c89c20dc6be5154473218f ]
+[ Upstream commit 3a58c231172537f7b0e19d93ed33decd04f80eab ]
 
-Because the set/clear SBI_IS_RESIZEFS flag not between any locks,
-In the following case:
-  thread1			thread2
-   ->ioctl(resizefs)
-    ->set RESIZEFS flag		 ->ioctl(resizefs)
-    ...                   	  ->set RESIZEFS flag
-    ->clear RESIZEFS flag
-    				  ->resizefs stream
-				    # No RESIZEFS flag in the stream
+cryptd is buggy as it tries to use sync_skcipher without going
+through the proper sync_skcipher interface.  In fact it doesn't
+even need sync_skcipher since it's already a proper skcipher and
+can easily access the request context instead of using something
+off the stack.
 
-Also before freeze_super, the resizefs not started, we should not set
-the SBI_IS_RESIZEFS flag.
-
-So move the set/clear SBI_IS_RESIZEFS flag between the cp_mutex and
-gc_lock.
-
-Fixes: b4b10061ef98 ("f2fs: refactor resize_fs to avoid meta updates in progress")
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: 36b3875a97b8 ("crypto: cryptd - Remove VLA usage of skcipher")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/gc.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ crypto/cryptd.c | 36 +++++++++++++++++++-----------------
+ 1 file changed, 19 insertions(+), 17 deletions(-)
 
-diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
-index 73881314bdda..af915f801455 100644
---- a/fs/f2fs/gc.c
-+++ b/fs/f2fs/gc.c
-@@ -2127,8 +2127,6 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
- 	if (err)
- 		return err;
+diff --git a/crypto/cryptd.c b/crypto/cryptd.c
+index 668095eca0fa..ca3a40fc7da9 100644
+--- a/crypto/cryptd.c
++++ b/crypto/cryptd.c
+@@ -68,11 +68,12 @@ struct aead_instance_ctx {
  
--	set_sbi_flag(sbi, SBI_IS_RESIZEFS);
--
- 	freeze_super(sbi->sb);
- 	f2fs_down_write(&sbi->gc_lock);
- 	f2fs_down_write(&sbi->cp_global_sem);
-@@ -2144,6 +2142,7 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
- 	if (err)
- 		goto out_err;
+ struct cryptd_skcipher_ctx {
+ 	refcount_t refcnt;
+-	struct crypto_sync_skcipher *child;
++	struct crypto_skcipher *child;
+ };
  
-+	set_sbi_flag(sbi, SBI_IS_RESIZEFS);
- 	err = free_segment_range(sbi, secs, false);
- 	if (err)
- 		goto recover_out;
-@@ -2167,6 +2166,7 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
- 		f2fs_commit_super(sbi, false);
- 	}
- recover_out:
-+	clear_sbi_flag(sbi, SBI_IS_RESIZEFS);
- 	if (err) {
- 		set_sbi_flag(sbi, SBI_NEED_FSCK);
- 		f2fs_err(sbi, "resize_fs failed, should run fsck to repair!");
-@@ -2179,6 +2179,5 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
- 	f2fs_up_write(&sbi->cp_global_sem);
- 	f2fs_up_write(&sbi->gc_lock);
- 	thaw_super(sbi->sb);
--	clear_sbi_flag(sbi, SBI_IS_RESIZEFS);
- 	return err;
+ struct cryptd_skcipher_request_ctx {
+ 	crypto_completion_t complete;
++	struct skcipher_request req;
+ };
+ 
+ struct cryptd_hash_ctx {
+@@ -227,13 +228,13 @@ static int cryptd_skcipher_setkey(struct crypto_skcipher *parent,
+ 				  const u8 *key, unsigned int keylen)
+ {
+ 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(parent);
+-	struct crypto_sync_skcipher *child = ctx->child;
++	struct crypto_skcipher *child = ctx->child;
+ 
+-	crypto_sync_skcipher_clear_flags(child, CRYPTO_TFM_REQ_MASK);
+-	crypto_sync_skcipher_set_flags(child,
+-				       crypto_skcipher_get_flags(parent) &
+-					 CRYPTO_TFM_REQ_MASK);
+-	return crypto_sync_skcipher_setkey(child, key, keylen);
++	crypto_skcipher_clear_flags(child, CRYPTO_TFM_REQ_MASK);
++	crypto_skcipher_set_flags(child,
++				  crypto_skcipher_get_flags(parent) &
++				  CRYPTO_TFM_REQ_MASK);
++	return crypto_skcipher_setkey(child, key, keylen);
  }
+ 
+ static void cryptd_skcipher_complete(struct skcipher_request *req, int err)
+@@ -258,13 +259,13 @@ static void cryptd_skcipher_encrypt(struct crypto_async_request *base,
+ 	struct cryptd_skcipher_request_ctx *rctx = skcipher_request_ctx(req);
+ 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+ 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(tfm);
+-	struct crypto_sync_skcipher *child = ctx->child;
+-	SYNC_SKCIPHER_REQUEST_ON_STACK(subreq, child);
++	struct skcipher_request *subreq = &rctx->req;
++	struct crypto_skcipher *child = ctx->child;
+ 
+ 	if (unlikely(err == -EINPROGRESS))
+ 		goto out;
+ 
+-	skcipher_request_set_sync_tfm(subreq, child);
++	skcipher_request_set_tfm(subreq, child);
+ 	skcipher_request_set_callback(subreq, CRYPTO_TFM_REQ_MAY_SLEEP,
+ 				      NULL, NULL);
+ 	skcipher_request_set_crypt(subreq, req->src, req->dst, req->cryptlen,
+@@ -286,13 +287,13 @@ static void cryptd_skcipher_decrypt(struct crypto_async_request *base,
+ 	struct cryptd_skcipher_request_ctx *rctx = skcipher_request_ctx(req);
+ 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+ 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(tfm);
+-	struct crypto_sync_skcipher *child = ctx->child;
+-	SYNC_SKCIPHER_REQUEST_ON_STACK(subreq, child);
++	struct skcipher_request *subreq = &rctx->req;
++	struct crypto_skcipher *child = ctx->child;
+ 
+ 	if (unlikely(err == -EINPROGRESS))
+ 		goto out;
+ 
+-	skcipher_request_set_sync_tfm(subreq, child);
++	skcipher_request_set_tfm(subreq, child);
+ 	skcipher_request_set_callback(subreq, CRYPTO_TFM_REQ_MAY_SLEEP,
+ 				      NULL, NULL);
+ 	skcipher_request_set_crypt(subreq, req->src, req->dst, req->cryptlen,
+@@ -343,9 +344,10 @@ static int cryptd_skcipher_init_tfm(struct crypto_skcipher *tfm)
+ 	if (IS_ERR(cipher))
+ 		return PTR_ERR(cipher);
+ 
+-	ctx->child = (struct crypto_sync_skcipher *)cipher;
++	ctx->child = cipher;
+ 	crypto_skcipher_set_reqsize(
+-		tfm, sizeof(struct cryptd_skcipher_request_ctx));
++		tfm, sizeof(struct cryptd_skcipher_request_ctx) +
++		     crypto_skcipher_reqsize(cipher));
+ 	return 0;
+ }
+ 
+@@ -353,7 +355,7 @@ static void cryptd_skcipher_exit_tfm(struct crypto_skcipher *tfm)
+ {
+ 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(tfm);
+ 
+-	crypto_free_sync_skcipher(ctx->child);
++	crypto_free_skcipher(ctx->child);
+ }
+ 
+ static void cryptd_skcipher_free(struct skcipher_instance *inst)
+@@ -931,7 +933,7 @@ struct crypto_skcipher *cryptd_skcipher_child(struct cryptd_skcipher *tfm)
+ {
+ 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(&tfm->base);
+ 
+-	return &ctx->child->base;
++	return ctx->child;
+ }
+ EXPORT_SYMBOL_GPL(cryptd_skcipher_child);
+ 
 -- 
 2.35.1
 
