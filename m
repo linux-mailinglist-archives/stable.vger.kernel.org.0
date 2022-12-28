@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A01AE657FEA
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:12:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D0876580BA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:20:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233117AbiL1QLs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:11:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59710 "EHLO
+        id S234520AbiL1QTN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:19:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234397AbiL1QLU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:11:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F70B1A202
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:09:29 -0800 (PST)
+        with ESMTP id S233244AbiL1QSo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:18:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FFCF19C1A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:17:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D22A6156E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:09:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41077C433EF;
-        Wed, 28 Dec 2022 16:09:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F77FB81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:17:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9653DC433D2;
+        Wed, 28 Dec 2022 16:17:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243768;
-        bh=rgDDXvLmK/pigaz2RKJ6fZoY3tnXuj3SIImzHUOvatU=;
+        s=korg; t=1672244245;
+        bh=8eDiZnpoVyGp1Wn/OiEOQMkqTSKufieerMiv1MdhCz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ID4OLpz9MmH/Eh+TwyulpafFRU7wmDbICWBjUC5pzS/ev9gDLrflkWJ51qTkaLUcy
-         Kt/EK+KVoS8n4mbyExtLGGbyD+vqrzZtDL+SJU7cWn0HrZtnMdbGuZyUyph6J3h+E1
-         pY6GmcmsvVa/Z9BNf7UPsnPhZdkYtphfcYGu4aDk=
+        b=OHexxYVyLsFsAgkgLf+hIu803biGlFErb3RBXpMya5qmlqKEhAP2WY8mGrczHWMLh
+         pfkn22Exf3G7JCXTSZDfE16ghKfNVcavQIuvZK5yd8mRvMfiuVsZEMUN4JWksbnFVr
+         hyGIuWPfrWMDqFD030NzLnbDsSOGFQ3cC9qupT4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Arun Easi <arun.easi@qlogic.com>,
-        Giridhar Malavali <giridhar.malavali@qlogic.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0585/1073] scsi: qla2xxx: Fix set-but-not-used variable warnings
-Date:   Wed, 28 Dec 2022 15:36:13 +0100
-Message-Id: <20221228144343.936303585@linuxfoundation.org>
+Subject: [PATCH 6.1 0635/1146] crypto: x86/aegis128 - fix possible crash with CFI enabled
+Date:   Wed, 28 Dec 2022 15:36:14 +0100
+Message-Id: <20221228144347.412551398@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,141 +56,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 4fb2169d66b837a2986f569f5d5b81f79e6e4a4c ]
+[ Upstream commit 8bd9974b6bfcd1e14a001deeca051aed7295559a ]
 
-Fix the following two compiler warnings:
+crypto_aegis128_aesni_enc(), crypto_aegis128_aesni_enc_tail(),
+crypto_aegis128_aesni_dec(), and crypto_aegis128_aesni_dec_tail() are
+called via indirect function calls.  Therefore they need to use
+SYM_TYPED_FUNC_START instead of SYM_FUNC_START to cause their type
+hashes to be emitted when the kernel is built with CONFIG_CFI_CLANG=y.
+Otherwise, the code crashes with a CFI failure (if the compiler didn't
+happen to optimize out the indirect calls).
 
-drivers/scsi/qla2xxx/qla_init.c: In function ‘qla24xx_async_abort_cmd’:
-drivers/scsi/qla2xxx/qla_init.c:171:17: warning: variable ‘bail’ set but not used [-Wunused-but-set-variable]
-  171 |         uint8_t bail;
-      |                 ^~~~
-drivers/scsi/qla2xxx/qla_init.c: In function ‘qla2x00_async_tm_cmd’:
-drivers/scsi/qla2xxx/qla_init.c:2023:17: warning: variable ‘bail’ set but not used [-Wunused-but-set-variable]
- 2023 |         uint8_t bail;
-      |                 ^~~~
-
-Cc: Arun Easi <arun.easi@qlogic.com>
-Cc: Giridhar Malavali <giridhar.malavali@qlogic.com>
-Fixes: feafb7b1714c ("[SCSI] qla2xxx: Fix vport delete issues")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Link: https://lore.kernel.org/r/20221031224818.2607882-1-bvanassche@acm.org
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: ccace936eec7 ("x86: Add types to indirectly called assembly functions")
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_def.h    | 22 +++++++++++-----------
- drivers/scsi/qla2xxx/qla_init.c   |  6 ++----
- drivers/scsi/qla2xxx/qla_inline.h |  4 +---
- drivers/scsi/qla2xxx/qla_os.c     |  4 +---
- 4 files changed, 15 insertions(+), 21 deletions(-)
+ arch/x86/crypto/aegis128-aesni-asm.S | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_def.h b/drivers/scsi/qla2xxx/qla_def.h
-index 3ec6a200942e..01ca440ce620 100644
---- a/drivers/scsi/qla2xxx/qla_def.h
-+++ b/drivers/scsi/qla2xxx/qla_def.h
-@@ -5129,17 +5129,17 @@ struct secure_flash_update_block_pk {
- 		(test_bit(ISP_ABORT_NEEDED, &ha->dpc_flags) || \
- 			 test_bit(LOOP_RESYNC_NEEDED, &ha->dpc_flags))
+diff --git a/arch/x86/crypto/aegis128-aesni-asm.S b/arch/x86/crypto/aegis128-aesni-asm.S
+index b48ddebb4748..cdf3215ec272 100644
+--- a/arch/x86/crypto/aegis128-aesni-asm.S
++++ b/arch/x86/crypto/aegis128-aesni-asm.S
+@@ -7,6 +7,7 @@
+  */
  
--#define QLA_VHA_MARK_BUSY(__vha, __bail) do {		\
--	atomic_inc(&__vha->vref_count);			\
--	mb();						\
--	if (__vha->flags.delete_progress) {		\
--		atomic_dec(&__vha->vref_count);		\
--		wake_up(&__vha->vref_waitq);		\
--		__bail = 1;				\
--	} else {					\
--		__bail = 0;				\
--	}						\
--} while (0)
-+static inline bool qla_vha_mark_busy(scsi_qla_host_t *vha)
-+{
-+	atomic_inc(&vha->vref_count);
-+	mb();
-+	if (vha->flags.delete_progress) {
-+		atomic_dec(&vha->vref_count);
-+		wake_up(&vha->vref_waitq);
-+		return true;
-+	}
-+	return false;
-+}
+ #include <linux/linkage.h>
++#include <linux/cfi_types.h>
+ #include <asm/frame.h>
  
- #define QLA_VHA_MARK_NOT_BUSY(__vha) do {		\
- 	atomic_dec(&__vha->vref_count);			\
-diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
-index e7fe0e52c11d..11598edfb39b 100644
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -168,7 +168,6 @@ int qla24xx_async_abort_cmd(srb_t *cmd_sp, bool wait)
- 	struct srb_iocb *abt_iocb;
- 	srb_t *sp;
- 	int rval = QLA_FUNCTION_FAILED;
--	uint8_t bail;
+ #define STATE0	%xmm0
+@@ -402,7 +403,7 @@ SYM_FUNC_END(crypto_aegis128_aesni_ad)
+  * void crypto_aegis128_aesni_enc(void *state, unsigned int length,
+  *                                const void *src, void *dst);
+  */
+-SYM_FUNC_START(crypto_aegis128_aesni_enc)
++SYM_TYPED_FUNC_START(crypto_aegis128_aesni_enc)
+ 	FRAME_BEGIN
  
- 	/* ref: INIT for ABTS command */
- 	sp = qla2xxx_get_qpair_sp(cmd_sp->vha, cmd_sp->qpair, cmd_sp->fcport,
-@@ -176,7 +175,7 @@ int qla24xx_async_abort_cmd(srb_t *cmd_sp, bool wait)
- 	if (!sp)
- 		return QLA_MEMORY_ALLOC_FAILED;
+ 	cmp $0x10, LEN
+@@ -499,7 +500,7 @@ SYM_FUNC_END(crypto_aegis128_aesni_enc)
+  * void crypto_aegis128_aesni_enc_tail(void *state, unsigned int length,
+  *                                     const void *src, void *dst);
+  */
+-SYM_FUNC_START(crypto_aegis128_aesni_enc_tail)
++SYM_TYPED_FUNC_START(crypto_aegis128_aesni_enc_tail)
+ 	FRAME_BEGIN
  
--	QLA_VHA_MARK_BUSY(vha, bail);
-+	qla_vha_mark_busy(vha);
- 	abt_iocb = &sp->u.iocb_cmd;
- 	sp->type = SRB_ABT_CMD;
- 	sp->name = "abort";
-@@ -2020,14 +2019,13 @@ qla2x00_async_tm_cmd(fc_port_t *fcport, uint32_t flags, uint32_t lun,
- 	struct srb_iocb *tm_iocb;
- 	srb_t *sp;
- 	int rval = QLA_FUNCTION_FAILED;
--	uint8_t bail;
+ 	/* load the state: */
+@@ -556,7 +557,7 @@ SYM_FUNC_END(crypto_aegis128_aesni_enc_tail)
+  * void crypto_aegis128_aesni_dec(void *state, unsigned int length,
+  *                                const void *src, void *dst);
+  */
+-SYM_FUNC_START(crypto_aegis128_aesni_dec)
++SYM_TYPED_FUNC_START(crypto_aegis128_aesni_dec)
+ 	FRAME_BEGIN
  
- 	/* ref: INIT */
- 	sp = qla2x00_get_sp(vha, fcport, GFP_KERNEL);
- 	if (!sp)
- 		goto done;
+ 	cmp $0x10, LEN
+@@ -653,7 +654,7 @@ SYM_FUNC_END(crypto_aegis128_aesni_dec)
+  * void crypto_aegis128_aesni_dec_tail(void *state, unsigned int length,
+  *                                     const void *src, void *dst);
+  */
+-SYM_FUNC_START(crypto_aegis128_aesni_dec_tail)
++SYM_TYPED_FUNC_START(crypto_aegis128_aesni_dec_tail)
+ 	FRAME_BEGIN
  
--	QLA_VHA_MARK_BUSY(vha, bail);
-+	qla_vha_mark_busy(vha);
- 	sp->type = SRB_TM_CMD;
- 	sp->name = "tmf";
- 	qla2x00_init_async_sp(sp, qla2x00_get_async_timeout(vha),
-diff --git a/drivers/scsi/qla2xxx/qla_inline.h b/drivers/scsi/qla2xxx/qla_inline.h
-index db17f7f410cd..5185dc5daf80 100644
---- a/drivers/scsi/qla2xxx/qla_inline.h
-+++ b/drivers/scsi/qla2xxx/qla_inline.h
-@@ -225,11 +225,9 @@ static inline srb_t *
- qla2x00_get_sp(scsi_qla_host_t *vha, fc_port_t *fcport, gfp_t flag)
- {
- 	srb_t *sp = NULL;
--	uint8_t bail;
- 	struct qla_qpair *qpair;
- 
--	QLA_VHA_MARK_BUSY(vha, bail);
--	if (unlikely(bail))
-+	if (unlikely(qla_vha_mark_busy(vha)))
- 		return NULL;
- 
- 	qpair = vha->hw->base_qpair;
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index 1c7fb6484db2..5e5d1a6c51d5 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -5039,13 +5039,11 @@ struct qla_work_evt *
- qla2x00_alloc_work(struct scsi_qla_host *vha, enum qla_work_type type)
- {
- 	struct qla_work_evt *e;
--	uint8_t bail;
- 
- 	if (test_bit(UNLOADING, &vha->dpc_flags))
- 		return NULL;
- 
--	QLA_VHA_MARK_BUSY(vha, bail);
--	if (bail)
-+	if (qla_vha_mark_busy(vha))
- 		return NULL;
- 
- 	e = kzalloc(sizeof(struct qla_work_evt), GFP_ATOMIC);
+ 	/* load the state: */
 -- 
 2.35.1
 
