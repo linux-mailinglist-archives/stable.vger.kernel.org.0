@@ -2,51 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85ADB658067
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:17:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65F23657AAA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:14:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234499AbiL1QRm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:17:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36648 "EHLO
+        id S232994AbiL1POK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:14:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233113AbiL1QQp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:16:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D8E01A07C;
-        Wed, 28 Dec 2022 08:14:32 -0800 (PST)
+        with ESMTP id S232543AbiL1PNh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:13:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4B1813E3A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:13:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69837B81730;
-        Wed, 28 Dec 2022 16:14:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 967FAC433D2;
-        Wed, 28 Dec 2022 16:14:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F5C961544
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:13:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60A70C433D2;
+        Wed, 28 Dec 2022 15:13:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244070;
-        bh=kRTk6nDVGgy/CNk4BdTNcr95TadAdi4NeD1/gJZGOy4=;
+        s=korg; t=1672240406;
+        bh=e3vJ42jmL8muRjEOdKQJSOzG4nGphFTTRiXaAuPWlWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xQ+d3ZBR+gZXp58Ww6HB66erW3F66DZ8Qle5N8gUVH+/nWaUk6JzDlJpkmiNByabZ
-         3/Y7pQUubgnI3gotnak4F/5P76tHrCZf40fYqOqsASVYzQob1oRamjY4eQmNlp5l6R
-         PYyuYJ6SutFgGDuncyUalZEmwXyM+UUA1bvUMXzg=
+        b=11Iabwx1xR/b2rAImRBTgom2Bb5TpLh8794hsXt8mvYmSLdGwDRpzEiZ05Wus8bYC
+         SvIywp1b4nCEAg9qBn8lXHsdJ90Issozx3uFrGLXkbZDkCU8djfkcHMxULIrG12OIg
+         OiCo4sSTejRPyUeOLg+ut+Lw9A7WGTxzxY0yflTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-rdma@vger.kernel.org, Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        linux-um@lists.infradead.org, Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev,
+        Artem Chernyshev <artem.chernyshev@red-soft.ru>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Vishnu Dasa <vdasa@vmware.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0641/1073] RDMA: Disable IB HW for UML
+Subject: [PATCH 5.15 322/731] net: vmw_vsock: vmci: Check memcpy_from_msg()
 Date:   Wed, 28 Dec 2022 15:37:09 +0100
-Message-Id: <20221228144345.450630069@linuxfoundation.org>
+Message-Id: <20221228144305.908307631@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,53 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Artem Chernyshev <artem.chernyshev@red-soft.ru>
 
-[ Upstream commit 323a74fc20f53c0d0e13a16aee703a30d9751235 ]
+[ Upstream commit 44aa5a6dba8283bfda28b1517af4de711c5652a4 ]
 
-Disable all of drivers/infiniband/hw/ and rdmavt for UML builds until
-someone needs it and provides patches to support it.
+vmci_transport_dgram_enqueue() does not check the return value
+of memcpy_from_msg().  If memcpy_from_msg() fails, it is possible that
+uninitialized memory contents are sent unintentionally instead of user's
+message in the datagram to the destination.  Return with an error if
+memcpy_from_msg() fails.
 
-This prevents build errors in hw/qib/qib_wc_x86_64.c.
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-Fixes: 68f5d3f3b654 ("um: add PCI over virtio emulation driver")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: linux-rdma@vger.kernel.org
-Cc: Jeff Dike <jdike@addtoit.com>
-Cc: Richard Weinberger <richard@nod.at>
-Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Cc: Johannes Berg <johannes@sipsolutions.net>
-Cc: linux-um@lists.infradead.org
-Link: https://lore.kernel.org/r/20221202211940.29111-1-rdunlap@infradead.org
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Fixes: 0f7db23a07af ("vmci_transport: switch ->enqeue_dgram, ->enqueue_stream and ->dequeue_stream to msghdr")
+Signed-off-by: Artem Chernyshev <artem.chernyshev@red-soft.ru>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/Kconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ net/vmw_vsock/vmci_transport.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/Kconfig b/drivers/infiniband/Kconfig
-index aa36ac618e72..17a227415277 100644
---- a/drivers/infiniband/Kconfig
-+++ b/drivers/infiniband/Kconfig
-@@ -78,6 +78,7 @@ config INFINIBAND_VIRT_DMA
- 	def_bool !HIGHMEM
+diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+index b17dc9745188..94c1112f1c8c 100644
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -1711,7 +1711,11 @@ static int vmci_transport_dgram_enqueue(
+ 	if (!dg)
+ 		return -ENOMEM;
  
- if INFINIBAND_USER_ACCESS || !INFINIBAND_USER_ACCESS
-+if !UML
- source "drivers/infiniband/hw/bnxt_re/Kconfig"
- source "drivers/infiniband/hw/cxgb4/Kconfig"
- source "drivers/infiniband/hw/efa/Kconfig"
-@@ -94,6 +95,7 @@ source "drivers/infiniband/hw/qib/Kconfig"
- source "drivers/infiniband/hw/usnic/Kconfig"
- source "drivers/infiniband/hw/vmw_pvrdma/Kconfig"
- source "drivers/infiniband/sw/rdmavt/Kconfig"
-+endif # !UML
- source "drivers/infiniband/sw/rxe/Kconfig"
- source "drivers/infiniband/sw/siw/Kconfig"
- endif
+-	memcpy_from_msg(VMCI_DG_PAYLOAD(dg), msg, len);
++	err = memcpy_from_msg(VMCI_DG_PAYLOAD(dg), msg, len);
++	if (err) {
++		kfree(dg);
++		return err;
++	}
+ 
+ 	dg->dst = vmci_make_handle(remote_addr->svm_cid,
+ 				   remote_addr->svm_port);
 -- 
 2.35.1
 
