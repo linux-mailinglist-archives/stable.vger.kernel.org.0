@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BBA065819E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:30:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73A7F657BE2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:27:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233384AbiL1QaD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:30:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50090 "EHLO
+        id S233716AbiL1P0y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:26:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234730AbiL1Q3n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:29:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 267BD1AF18
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:26:00 -0800 (PST)
+        with ESMTP id S233763AbiL1P01 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:26:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19FA4C34
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:26:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B81AD61578
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:25:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCA9EC433D2;
-        Wed, 28 Dec 2022 16:25:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F52C6152F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:26:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F9CFC433D2;
+        Wed, 28 Dec 2022 15:26:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244759;
-        bh=JfW3wOTCX+swmeAf6RGK+HFaTDza7VvIR6GBU/NEFIE=;
+        s=korg; t=1672241185;
+        bh=SQKDysGymzgVK+IS8HVsZSd60O6qAgSzzMMTcmRj2lE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a6qaLvL1b0DkHhpQUJvH4kCzhKr98yt1tnwlHArwAB2vNuOGw8SlcNSfdhcez5+Ah
-         BTnZ+aDzKQLs7B1o3jSbjqb0iu90SXr+FBrw/VlBphev/q/E/wjEBoofSEoXn/Q9GL
-         uCbsSrQYOVQ5m1MLg36dOHRrOVGFOkbvDmGE6IYw=
+        b=QR+eA3R5sP2uv8eN4f7RzMbf4ulsZfa1iSc6S15sxvhKy3JZluu4/EC1sGl1+bUlb
+         JctQ0PPUw7RhxXACT8BCVVHrs65lm3+WmrGnJs+MBPDr1roKsuqJtfQI333oyT1pdV
+         jXGx8t1dmCwk8yP0TWqjslvkxsFLdd91PulcjRhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0769/1073] iommu/sun50i: Consider all fault sources for reset
+        patches@lists.linux.dev, Sven Peter <sven@svenpeter.dev>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 450/731] usb: typec: tipd: Fix spurious fwnode_handle_put in error path
 Date:   Wed, 28 Dec 2022 15:39:17 +0100
-Message-Id: <20221228144348.900308369@linuxfoundation.org>
+Message-Id: <20221228144309.599013032@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,58 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@gmail.com>
+From: Sven Peter <sven@svenpeter.dev>
 
-[ Upstream commit cef20703e2b2276aaa402ec5a65ec9a09963b83e ]
+[ Upstream commit 782c70edc4852a5d39be12377a85501546236212 ]
 
-We have to reset masters for all faults - permissions, L1 fault or L2
-fault. Currently it's done only for permissions. If other type of fault
-happens, master is in locked up state. Fix that by really considering
-all fault sources.
+The err_role_put error path always calls fwnode_handle_put to release
+the fwnode. This path can be reached after probe itself has already
+released that fwnode though. Fix that by moving fwnode_handle_put in the
+happy path to the very end.
 
-Fixes: 4100b8c229b3 ("iommu: Add Allwinner H6 IOMMU driver")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20221025165415.307591-3-jernej.skrabec@gmail.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: 18a6c866bb19 ("usb: typec: tps6598x: Add USB role switching logic")
+Signed-off-by: Sven Peter <sven@svenpeter.dev>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20221114174449.34634-2-sven@svenpeter.dev
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/sun50i-iommu.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/usb/typec/tipd/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/sun50i-iommu.c b/drivers/iommu/sun50i-iommu.c
-index c777882d0ec2..38d1069cf383 100644
---- a/drivers/iommu/sun50i-iommu.c
-+++ b/drivers/iommu/sun50i-iommu.c
-@@ -869,8 +869,8 @@ static phys_addr_t sun50i_iommu_handle_perm_irq(struct sun50i_iommu *iommu)
+diff --git a/drivers/usb/typec/tipd/core.c b/drivers/usb/typec/tipd/core.c
+index dd35b3ee2c5a..2f32c3fceef8 100644
+--- a/drivers/usb/typec/tipd/core.c
++++ b/drivers/usb/typec/tipd/core.c
+@@ -691,7 +691,6 @@ static int tps6598x_probe(struct i2c_client *client)
+ 		ret = PTR_ERR(tps->port);
+ 		goto err_role_put;
+ 	}
+-	fwnode_handle_put(fwnode);
  
- static irqreturn_t sun50i_iommu_irq(int irq, void *dev_id)
- {
-+	u32 status, l1_status, l2_status, resets;
- 	struct sun50i_iommu *iommu = dev_id;
--	u32 status;
- 
- 	spin_lock(&iommu->iommu_lock);
- 
-@@ -880,6 +880,9 @@ static irqreturn_t sun50i_iommu_irq(int irq, void *dev_id)
- 		return IRQ_NONE;
+ 	if (status & TPS_STATUS_PLUG_PRESENT) {
+ 		ret = tps6598x_connect(tps, status);
+@@ -710,6 +709,7 @@ static int tps6598x_probe(struct i2c_client *client)
  	}
  
-+	l1_status = iommu_read(iommu, IOMMU_L1PG_INT_REG);
-+	l2_status = iommu_read(iommu, IOMMU_L2PG_INT_REG);
-+
- 	if (status & IOMMU_INT_INVALID_L2PG)
- 		sun50i_iommu_handle_pt_irq(iommu,
- 					    IOMMU_INT_ERR_ADDR_L2_REG,
-@@ -893,7 +896,8 @@ static irqreturn_t sun50i_iommu_irq(int irq, void *dev_id)
+ 	i2c_set_clientdata(client, tps);
++	fwnode_handle_put(fwnode);
  
- 	iommu_write(iommu, IOMMU_INT_CLR_REG, status);
+ 	return 0;
  
--	iommu_write(iommu, IOMMU_RESET_REG, ~status);
-+	resets = (status | l1_status | l2_status) & IOMMU_INT_MASTER_MASK;
-+	iommu_write(iommu, IOMMU_RESET_REG, ~resets);
- 	iommu_write(iommu, IOMMU_RESET_REG, IOMMU_RESET_RELEASE_ALL);
- 
- 	spin_unlock(&iommu->iommu_lock);
 -- 
 2.35.1
 
