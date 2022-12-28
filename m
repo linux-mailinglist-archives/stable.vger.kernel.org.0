@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0ADB657863
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:50:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A8DF657DD7
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:47:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233071AbiL1OuB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:50:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37660 "EHLO
+        id S234036AbiL1Pri (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:47:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233072AbiL1OuA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:50:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B91AB60
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:49:59 -0800 (PST)
+        with ESMTP id S234062AbiL1PrN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:47:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BCDE165B3
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:47:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE86E61365
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:49:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF5D3C433D2;
-        Wed, 28 Dec 2022 14:49:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 06BF4B8172B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:47:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48C1CC433EF;
+        Wed, 28 Dec 2022 15:47:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238998;
-        bh=lx1ls6BJYhsGptyycfrqrX5A8rYuX6cFVvKtRoB/R/M=;
+        s=korg; t=1672242429;
+        bh=3x2I4Yrc0I2Ml1JwaVLPHPuRGOL+MNwPBNq/LS4raYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OIPQPZyliwoaHbnL/kGMc25OSaIgyG873RYxHHK+uHXjPWfxePtNgcJYDSDrk/qBU
-         6y/cnq0IdrQvHVxUje4VUSrf0sfmt0DLGm54OJNEBMGs7S8qYBvt2U6/T5omYxUB+Q
-         N0MgRnKmmq7eKHgwwN/fDXfv59oa9hKIuZ96+7k8=
+        b=XoyDjxhoNODk0txCGc/E5GzjQLTOcGKuho42uYTK7ahsv50QvaWRPao5mmZ6HI+WU
+         2EWec//fKtR853pDGRJDeLtLOHmTs40z4Lr7h0bl4H39DIqOG/AKLSpFxU6nmflxXW
+         uQbV2tiTJp+N3qdKV5+ojBp9C+kG/0IBy0ilcFoU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        patches@lists.linux.dev,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 090/731] MIPS: vpe-cmp: fix possible memory leak while module exiting
+Subject: [PATCH 6.0 0409/1073] NFSv4.2: Fix initialisation of struct nfs4_label
 Date:   Wed, 28 Dec 2022 15:33:17 +0100
-Message-Id: <20221228144259.158848186@linuxfoundation.org>
+Message-Id: <20221228144339.129298862@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit c5ed1fe0801f0c66b0fbce2785239a5664629057 ]
+[ Upstream commit c528f70f504434eaff993a5ddd52203a2010d51f ]
 
-dev_set_name() allocates memory for name, it need be freed
-when module exiting, call put_device() to give up reference,
-so that it can be freed in kobject_cleanup() when the refcount
-hit to 0. The vpe_device is static, so remove kfree() from
-vpe_device_release().
+The call to nfs4_label_init_security() should return a fully initialised
+label.
 
-Fixes: 17a1d523aa58 ("MIPS: APRP: Add VPE loader support for CMP platforms.")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: aa9c2669626c ("NFS: Client implementation of Labeled-NFS")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/vpe-cmp.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/nfs/nfs4proc.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/arch/mips/kernel/vpe-cmp.c b/arch/mips/kernel/vpe-cmp.c
-index e673603e11e5..92140edb3ce3 100644
---- a/arch/mips/kernel/vpe-cmp.c
-+++ b/arch/mips/kernel/vpe-cmp.c
-@@ -75,7 +75,6 @@ ATTRIBUTE_GROUPS(vpe);
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 313e9145b6c9..0500da4dab57 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -122,6 +122,11 @@ nfs4_label_init_security(struct inode *dir, struct dentry *dentry,
+ 	if (nfs_server_capable(dir, NFS_CAP_SECURITY_LABEL) == 0)
+ 		return NULL;
  
- static void vpe_device_release(struct device *cd)
++	label->lfs = 0;
++	label->pi = 0;
++	label->len = 0;
++	label->label = NULL;
++
+ 	err = security_dentry_init_security(dentry, sattr->ia_mode,
+ 				&dentry->d_name, NULL,
+ 				(void **)&label->label, &label->len);
+@@ -3795,7 +3800,7 @@ nfs4_atomic_open(struct inode *dir, struct nfs_open_context *ctx,
+ 		int open_flags, struct iattr *attr, int *opened)
  {
--	kfree(cd);
- }
+ 	struct nfs4_state *state;
+-	struct nfs4_label l = {0, 0, 0, NULL}, *label = NULL;
++	struct nfs4_label l, *label;
  
- static struct class vpe_class = {
-@@ -157,6 +156,7 @@ int __init vpe_module_init(void)
- 	device_del(&vpe_device);
+ 	label = nfs4_label_init_security(dir, ctx->dentry, attr, &l);
  
- out_class:
-+	put_device(&vpe_device);
- 	class_unregister(&vpe_class);
- 
- out_chrdev:
-@@ -169,7 +169,7 @@ void __exit vpe_module_exit(void)
+@@ -4681,7 +4686,7 @@ nfs4_proc_create(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
+ 		 int flags)
  {
- 	struct vpe *v, *n;
+ 	struct nfs_server *server = NFS_SERVER(dir);
+-	struct nfs4_label l, *ilabel = NULL;
++	struct nfs4_label l, *ilabel;
+ 	struct nfs_open_context *ctx;
+ 	struct nfs4_state *state;
+ 	int status = 0;
+@@ -5032,7 +5037,7 @@ static int nfs4_proc_symlink(struct inode *dir, struct dentry *dentry,
+ 	struct nfs4_exception exception = {
+ 		.interruptible = true,
+ 	};
+-	struct nfs4_label l, *label = NULL;
++	struct nfs4_label l, *label;
+ 	int err;
  
--	device_del(&vpe_device);
-+	device_unregister(&vpe_device);
- 	class_unregister(&vpe_class);
- 	unregister_chrdev(major, VPE_MODULE_NAME);
+ 	label = nfs4_label_init_security(dir, dentry, sattr, &l);
+@@ -5073,7 +5078,7 @@ static int nfs4_proc_mkdir(struct inode *dir, struct dentry *dentry,
+ 	struct nfs4_exception exception = {
+ 		.interruptible = true,
+ 	};
+-	struct nfs4_label l, *label = NULL;
++	struct nfs4_label l, *label;
+ 	int err;
  
+ 	label = nfs4_label_init_security(dir, dentry, sattr, &l);
+@@ -5192,7 +5197,7 @@ static int nfs4_proc_mknod(struct inode *dir, struct dentry *dentry,
+ 	struct nfs4_exception exception = {
+ 		.interruptible = true,
+ 	};
+-	struct nfs4_label l, *label = NULL;
++	struct nfs4_label l, *label;
+ 	int err;
+ 
+ 	label = nfs4_label_init_security(dir, dentry, sattr, &l);
 -- 
 2.35.1
 
