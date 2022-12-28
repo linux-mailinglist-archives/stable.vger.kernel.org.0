@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B38C657AE9
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:16:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E057657BFD
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:28:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229835AbiL1PQP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:16:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35516 "EHLO
+        id S233769AbiL1P1v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:27:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233052AbiL1PQN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:16:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C20D729C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:16:12 -0800 (PST)
+        with ESMTP id S233795AbiL1P1j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:27:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D208D14038
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:27:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 603DD61365
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:16:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7165FC433EF;
-        Wed, 28 Dec 2022 15:16:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8694EB816D9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:27:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4D65C433F2;
+        Wed, 28 Dec 2022 15:27:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240571;
-        bh=bStODH//uoNgIQzokissAlAGcDFttmQ5PfzEbyo0UUc=;
+        s=korg; t=1672241256;
+        bh=QSM/P7uHKbIBIyOmWg1RBOnaRqFfbonn7XTW45BAUyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aNETw6J/d1yq1tOMG4hA/F+UGqV3JvXPMoGDmI6Swkx5Z4UUqI4BWBJlwJl1W4zZo
-         etKj1c4SetrCFI+Zzlxdh9D7wTnzDDtc3kNr3/lN/NtIuZ4Sxpw4+v14IxyBA5G1gB
-         bl0cC3pBuwDnjhIiOrK9JN5CeXHnw787V20b6mKg=
+        b=HFfA79ZPjp+WM+7CWfhzT64JmBOh9dbFLravlksRj5ccKLpQasf4MIfljhz9Bgvqd
+         96gAhLclZnewSlsj5hx+Z3lbFZdTFIa0G2NbaHMP2QqxaenYX0a9S/kD1eaINBfjnJ
+         auKAYCOvGAmkqYU8qePe6DgcRaeDSfyswE8PxUEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ladislav Michl <ladis@linux-mips.org>,
-        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@linaro.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        patches@lists.linux.dev,
+        Gerhard Engleder <gerhard@engleder-embedded.com>,
+        Andy Gospodarek <gospo@broadcom.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0176/1073] MIPS: OCTEON: warn only once if deprecated link status is being used
+Subject: [PATCH 6.1 0225/1146] samples/bpf: Fix MAC address swapping in xdp2_kern
 Date:   Wed, 28 Dec 2022 15:29:24 +0100
-Message-Id: <20221228144332.791632964@linuxfoundation.org>
+Message-Id: <20221228144336.254724826@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ladislav Michl <ladis@linux-mips.org>
+From: Gerhard Engleder <gerhard@engleder-embedded.com>
 
-[ Upstream commit 4c587a982603d7e7e751b4925809a1512099a690 ]
+[ Upstream commit 7a698edf954cb3f8b6e8dacdb77615355170420c ]
 
-Avoid flooding kernel log with warnings.
+xdp2_kern rewrites and forwards packets out on the same interface.
+Forwarding still works but rewrite got broken when xdp multibuffer
+support has been added.
 
-Fixes: 2c0756d306c2 ("MIPS: OCTEON: warn if deprecated link status is being used")
-Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
-Reviewed-by: Philippe Mathieu-Daudé <philmd@linaro.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+With xdp multibuffer a local copy of the packet has been introduced. The
+MAC address is now swapped in the local copy, but the local copy in not
+written back.
+
+Fix MAC address swapping be adding write back of modified packet.
+
+Fixes: 772251742262 ("samples/bpf: fixup some tools to be able to support xdp multibuffer")
+Signed-off-by: Gerhard Engleder <gerhard@engleder-embedded.com>
+Reviewed-by: Andy Gospodarek <gospo@broadcom.com>
+Link: https://lore.kernel.org/r/20221015213050.65222-1-gerhard@engleder-embedded.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/cavium-octeon/executive/cvmx-helper-board.c | 2 +-
- arch/mips/cavium-octeon/executive/cvmx-helper.c       | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ samples/bpf/xdp2_kern.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/mips/cavium-octeon/executive/cvmx-helper-board.c b/arch/mips/cavium-octeon/executive/cvmx-helper-board.c
-index d09d0769f549..0fd9ac76eb74 100644
---- a/arch/mips/cavium-octeon/executive/cvmx-helper-board.c
-+++ b/arch/mips/cavium-octeon/executive/cvmx-helper-board.c
-@@ -211,7 +211,7 @@ union cvmx_helper_link_info __cvmx_helper_board_link_get(int ipd_port)
- {
- 	union cvmx_helper_link_info result;
+diff --git a/samples/bpf/xdp2_kern.c b/samples/bpf/xdp2_kern.c
+index 3332ba6bb95f..67804ecf7ce3 100644
+--- a/samples/bpf/xdp2_kern.c
++++ b/samples/bpf/xdp2_kern.c
+@@ -112,6 +112,10 @@ int xdp_prog1(struct xdp_md *ctx)
  
--	WARN(!octeon_is_simulation(),
-+	WARN_ONCE(!octeon_is_simulation(),
- 	     "Using deprecated link status - please update your DT");
+ 	if (ipproto == IPPROTO_UDP) {
+ 		swap_src_dst_mac(data);
++
++		if (bpf_xdp_store_bytes(ctx, 0, pkt, sizeof(pkt)))
++			return rc;
++
+ 		rc = XDP_TX;
+ 	}
  
- 	/* Unless we fix it later, all links are defaulted to down */
-diff --git a/arch/mips/cavium-octeon/executive/cvmx-helper.c b/arch/mips/cavium-octeon/executive/cvmx-helper.c
-index 6f49fd9be1f3..9abfc4bf9bd8 100644
---- a/arch/mips/cavium-octeon/executive/cvmx-helper.c
-+++ b/arch/mips/cavium-octeon/executive/cvmx-helper.c
-@@ -1096,7 +1096,7 @@ union cvmx_helper_link_info cvmx_helper_link_get(int ipd_port)
- 		if (index == 0)
- 			result = __cvmx_helper_rgmii_link_get(ipd_port);
- 		else {
--			WARN(1, "Using deprecated link status - please update your DT");
-+			WARN_ONCE(1, "Using deprecated link status - please update your DT");
- 			result.s.full_duplex = 1;
- 			result.s.link_up = 1;
- 			result.s.speed = 1000;
 -- 
 2.35.1
 
