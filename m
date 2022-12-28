@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72874657B8C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E2FF657B8F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233305AbiL1PXT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:23:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40200 "EHLO
+        id S233335AbiL1PXW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:23:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233345AbiL1PWt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:22:49 -0500
+        with ESMTP id S233674AbiL1PXB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:23:01 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E4071401D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:22:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D23C13F5A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:22:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C0CC6152F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:22:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3082CC433EF;
-        Wed, 28 Dec 2022 15:22:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C21061544
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:22:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A1B3C433EF;
+        Wed, 28 Dec 2022 15:22:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240967;
-        bh=VsAfz6RwV2NWd5fjLXoz7wWwuvsmCnqCERCZA5jhWnI=;
+        s=korg; t=1672240975;
+        bh=GmCXSwPE5NP+SaO5s7kju7LigtOKyGlQFSX61WElufY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OJKpJKDGoyEzG1UgBPquNu4yKPcjBG/xFlVUFS37OMEuyUqcgaYoHm5HbWrJCvlCq
-         W8bGFq35SkII+dB9tdX05TERgh2jM2YZsctc0H//50CCUmnay6KIxYoZikFN5L7vWb
-         mWRzVy6MYMWoKtoEPpmBhRnMnb8OdeoQGmZwX3y4=
+        b=L6ZyAlxiLGB5L64nFQqNTa4nZGb83246heH6+NHvhMRZjbgDvQarDffcjRy0sFzyb
+         cx+iZBDfoiIncueAP5DkQTWc2P7ffZbTqOd6baJ3+JTvFUSK5VxaZMaxgNAd0OzL1y
+         dHIE54d+9YQV80ae9QMbQN1Y+xH52FbR+c/JQaQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        Mark Greer <mgreer@animalcreek.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        patches@lists.linux.dev, Tong Tiangen <tongtiangen@huawei.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 422/731] crypto: omap-sham - Use pm_runtime_resume_and_get() in omap_sham_probe()
-Date:   Wed, 28 Dec 2022 15:38:49 +0100
-Message-Id: <20221228144308.802772275@linuxfoundation.org>
+Subject: [PATCH 5.15 423/731] riscv/mm: add arch hook arch_clear_hugepage_flags
+Date:   Wed, 28 Dec 2022 15:38:50 +0100
+Message-Id: <20221228144308.830342918@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
 References: <20221228144256.536395940@linuxfoundation.org>
@@ -54,38 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Tong Tiangen <tongtiangen@huawei.com>
 
-[ Upstream commit 7bcceb4c9896b1b672b636ae70fe75110d6bf1ad ]
+[ Upstream commit d8bf77a1dc3079692f54be3087a5fd16d90027b0 ]
 
-omap_sham_probe() calls pm_runtime_get_sync() and calls
-pm_runtime_put_sync() latter to put usage_counter. However,
-pm_runtime_get_sync() will increment usage_counter even it failed. Fix
-it by replacing it with pm_runtime_resume_and_get() to keep usage
-counter balanced.
+With the PG_arch_1 we keep track if the page's data cache is clean,
+architecture rely on this property to treat new pages as dirty with
+respect to the data cache and perform the flushing before mapping the pages
+into userspace.
 
-Fixes: b359f034c8bf ("crypto: omap-sham - Convert to use pm_runtime API")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Acked-by: Mark Greer <mgreer@animalcreek.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+This patch adds a new architecture hook, arch_clear_hugepage_flags,so that
+architectures which rely on the page flags being in a particular state for
+fresh allocations can adjust the flags accordingly when a page is freed
+into the pool.
+
+Fixes: 9e953cda5cdf ("riscv: Introduce huge page support for 32/64bit kernel")
+Signed-off-by: Tong Tiangen <tongtiangen@huawei.com>
+Link: https://lore.kernel.org/r/20221024094725.3054311-3-tongtiangen@huawei.com
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/omap-sham.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/riscv/include/asm/hugetlb.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/crypto/omap-sham.c b/drivers/crypto/omap-sham.c
-index f6bf53c00b61..4ec6949a7ca9 100644
---- a/drivers/crypto/omap-sham.c
-+++ b/drivers/crypto/omap-sham.c
-@@ -2114,7 +2114,7 @@ static int omap_sham_probe(struct platform_device *pdev)
+diff --git a/arch/riscv/include/asm/hugetlb.h b/arch/riscv/include/asm/hugetlb.h
+index a5c2ca1d1cd8..ec19d6afc896 100644
+--- a/arch/riscv/include/asm/hugetlb.h
++++ b/arch/riscv/include/asm/hugetlb.h
+@@ -5,4 +5,10 @@
+ #include <asm-generic/hugetlb.h>
+ #include <asm/page.h>
  
- 	pm_runtime_enable(dev);
- 
--	err = pm_runtime_get_sync(dev);
-+	err = pm_runtime_resume_and_get(dev);
- 	if (err < 0) {
- 		dev_err(dev, "failed to get sync: %d\n", err);
- 		goto err_pm;
++static inline void arch_clear_hugepage_flags(struct page *page)
++{
++	clear_bit(PG_dcache_clean, &page->flags);
++}
++#define arch_clear_hugepage_flags arch_clear_hugepage_flags
++
+ #endif /* _ASM_RISCV_HUGETLB_H */
 -- 
 2.35.1
 
