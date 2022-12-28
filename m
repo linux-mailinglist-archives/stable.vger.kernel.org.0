@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20DBC657A78
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:11:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 080BD658158
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:27:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232951AbiL1PLl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:11:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58802 "EHLO
+        id S232678AbiL1Q1w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:27:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233714AbiL1PL0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:11:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2445E13E00
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:11:26 -0800 (PST)
+        with ESMTP id S234826AbiL1Q1H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:27:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 024A51A813
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:23:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B523B6155C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:11:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB6E1C433D2;
-        Wed, 28 Dec 2022 15:11:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94A9C6157F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:23:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5450C433D2;
+        Wed, 28 Dec 2022 16:23:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240285;
-        bh=gmRKBULf56ziykZZhfQ8sd3G8y0trbOp9Vhqe9IeIqE=;
+        s=korg; t=1672244601;
+        bh=7rVoRjTFX0hQJ158Wkr7FJhoA8XfOb/Y56W1k8hZyQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pZ1aHAbnqH7S6n0BRJ3yPFoqnjCHgdRzDY/pbhSJfQ/3uyIZCGtvXk38+ifYk0A1I
-         v7Md1Er7UPzs8hN51qoTymQYuELDKYDZfiUrGnQOPYa5jn29gojDcTqXHtMoo6yftS
-         PXYMGaDG+kGCVb6LMjEP9LmH3oh5OLj9bhdbvmbg=
+        b=lV7Wc2/IV7lugjlp0jEpYt8UFF5vFQHfd4ok5AhryNSYk69QS8bVSgopcWCILIDcM
+         2R9fCcy77u9TM68AVq4u4oGFXD9Ay6kOU1iOb5UBJZ0+y0zaOFsnlLDofqw3BxFxyi
+         8cj47opHo74snqD/ZHh18OXzbV/Itm8KNDC4BnN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Sven Peter <sven@svenpeter.dev>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 332/731] net: apple: bmac: dont call dev_kfree_skb() under spin_lock_irqsave()
-Date:   Wed, 28 Dec 2022 15:37:19 +0100
-Message-Id: <20221228144306.194666503@linuxfoundation.org>
+Subject: [PATCH 6.1 0701/1146] usb: typec: tipd: Cleanup resources if devm_tps6598_psy_register fails
+Date:   Wed, 28 Dec 2022 15:37:20 +0100
+Message-Id: <20221228144349.185834107@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Sven Peter <sven@svenpeter.dev>
 
-[ Upstream commit 5fe02e046e6422c4adfdbc50206ec7186077da24 ]
+[ Upstream commit 19c220e9ab00f50edefb9667e3101e84a5112df2 ]
 
-It is not allowed to call kfree_skb() or consume_skb() from hardware
-interrupt context or with hardware interrupts being disabled.
+We can't just return if devm_tps6598_psy_register fails since previous
+resources are not devres managed and have yet to be cleaned up.
 
-It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
-The difference between them is free reason, dev_kfree_skb_irq() means
-the SKB is dropped in error and dev_consume_skb_irq() means the SKB
-is consumed in normal.
-
-In this case, dev_kfree_skb() is called in bmac_tx_timeout() to drop
-the SKB, when tx timeout, so replace it with dev_kfree_skb_irq().
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 10eb0b6ac63a ("usb: typec: tps6598x: Export some power supply properties")
+Signed-off-by: Sven Peter <sven@svenpeter.dev>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20221114174449.34634-1-sven@svenpeter.dev
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/apple/bmac.c | 2 +-
+ drivers/usb/typec/tipd/core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/apple/bmac.c b/drivers/net/ethernet/apple/bmac.c
-index a989d2df59ad..7a966361d83f 100644
---- a/drivers/net/ethernet/apple/bmac.c
-+++ b/drivers/net/ethernet/apple/bmac.c
-@@ -1511,7 +1511,7 @@ static void bmac_tx_timeout(struct timer_list *t)
- 	i = bp->tx_empty;
- 	++dev->stats.tx_errors;
- 	if (i != bp->tx_fill) {
--		dev_kfree_skb(bp->tx_bufs[i]);
-+		dev_kfree_skb_irq(bp->tx_bufs[i]);
- 		bp->tx_bufs[i] = NULL;
- 		if (++i >= N_TX_RING) i = 0;
- 		bp->tx_empty = i;
+diff --git a/drivers/usb/typec/tipd/core.c b/drivers/usb/typec/tipd/core.c
+index 2a77bab948f5..83a7a82e55f1 100644
+--- a/drivers/usb/typec/tipd/core.c
++++ b/drivers/usb/typec/tipd/core.c
+@@ -814,7 +814,7 @@ static int tps6598x_probe(struct i2c_client *client)
+ 
+ 	ret = devm_tps6598_psy_register(tps);
+ 	if (ret)
+-		return ret;
++		goto err_role_put;
+ 
+ 	tps->port = typec_register_port(&client->dev, &typec_cap);
+ 	if (IS_ERR(tps->port)) {
 -- 
 2.35.1
 
