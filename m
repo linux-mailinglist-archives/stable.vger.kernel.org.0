@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18F24657CA6
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:34:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 964EA658319
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233860AbiL1Pej (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:34:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52468 "EHLO
+        id S233217AbiL1Qo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:44:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233854AbiL1Pei (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:34:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A507216488
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:34:37 -0800 (PST)
+        with ESMTP id S235003AbiL1QoD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B76481BEAC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:39:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 40E9B6154D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:34:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 576FFC433F1;
-        Wed, 28 Dec 2022 15:34:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59D87B8171F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:39:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 969DBC433D2;
+        Wed, 28 Dec 2022 16:38:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241676;
-        bh=j46zpKOl6k0n7AFT8PXbXAe/Di5YT7Br9fHCHK91+k4=;
+        s=korg; t=1672245540;
+        bh=c25+kbYfNpd8xPvTch9vIqkTNYBqRyqfYiC+xIWBuTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m3xbYnuGdoilMS0dVbJmK6zuEe3YSLGg9AbyJbetXYYOEW8JlPtn3eBU1Tra/poQq
-         v7BWOC8KIuM+FnU2aKSJ183pGV+TJZWf6Wje1HVtLrQbz4/2X2hkiFmH5HSF6UL8fD
-         hPLDHwBqvFNloI2zi0/5HegVbygRC29UlCO4cyzs=
+        b=k6uyOURlytJdynseVF2m8jCKB5KYudtVZemNCDzbsnp+6Yz++qsn/hJE4hejfy8QC
+         VRsTu4LBM7jadg29IGmEVLz/zT2UsHkTBZsNU4zYqi+T0W3h3ic53IFnqitR2V8E25
+         qYGuT/2M7IuU0LCdUVPOLPG4wx5rLqSDvafDh88I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 510/731] fbdev: uvesafb: Fixes an error handling path in uvesafb_probe()
+        patches@lists.linux.dev, Samuel Holland <samuel@sholland.org>,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0878/1146] mfd: axp20x: Do not sleep in the power off handler
 Date:   Wed, 28 Dec 2022 15:40:17 +0100
-Message-Id: <20221228144311.329647240@linuxfoundation.org>
+Message-Id: <20221228144354.011022538@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Samuel Holland <samuel@sholland.org>
 
-[ Upstream commit a94371040712031ba129c7e9d8ff04a06a2f8207 ]
+[ Upstream commit 3f37d4f695cff180033254b9ed5adc8ab927cba9 ]
 
-If an error occurs after a successful uvesafb_init_mtrr() call, it must be
-undone by a corresponding arch_phys_wc_del() call, as already done in the
-remove function.
+Since commit 856c288b0039 ("ARM: Use do_kernel_power_off()"), the
+function axp20x_power_off() now runs inside a RCU read-side critical
+section, so it is not allowed to call msleep(). Use mdelay() instead.
 
-This has been added in the remove function in commit 63e28a7a5ffc
-("uvesafb: Clean up MTRR code")
-
-Fixes: 8bdb3a2d7df4 ("uvesafb: the driver core")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: 856c288b0039 ("ARM: Use do_kernel_power_off()")
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Signed-off-by: Lee Jones <lee@kernel.org>
+Link: https://lore.kernel.org/r/20221105212909.6526-1-samuel@sholland.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/uvesafb.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mfd/axp20x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/uvesafb.c b/drivers/video/fbdev/uvesafb.c
-index 4df6772802d7..1f3b7e013568 100644
---- a/drivers/video/fbdev/uvesafb.c
-+++ b/drivers/video/fbdev/uvesafb.c
-@@ -1758,6 +1758,7 @@ static int uvesafb_probe(struct platform_device *dev)
- out_unmap:
- 	iounmap(info->screen_base);
- out_mem:
-+	arch_phys_wc_del(par->mtrr_handle);
- 	release_mem_region(info->fix.smem_start, info->fix.smem_len);
- out_reg:
- 	release_region(0x3c0, 32);
+diff --git a/drivers/mfd/axp20x.c b/drivers/mfd/axp20x.c
+index 88a212a8168c..880c41fa7021 100644
+--- a/drivers/mfd/axp20x.c
++++ b/drivers/mfd/axp20x.c
+@@ -842,7 +842,7 @@ static void axp20x_power_off(void)
+ 		     AXP20X_OFF);
+ 
+ 	/* Give capacitors etc. time to drain to avoid kernel panic msg. */
+-	msleep(500);
++	mdelay(500);
+ }
+ 
+ int axp20x_match_device(struct axp20x_dev *axp20x)
 -- 
 2.35.1
 
