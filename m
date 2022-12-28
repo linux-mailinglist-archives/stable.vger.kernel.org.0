@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A67D658014
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:13:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04141657F3D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234539AbiL1QNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:13:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55430 "EHLO
+        id S234224AbiL1QDP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:03:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233111AbiL1QMv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:12:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B489B1A839
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:11:17 -0800 (PST)
+        with ESMTP id S234349AbiL1QCr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:02:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1439618B0E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:02:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 55788B81710
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:11:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4B0FC433D2;
-        Wed, 28 Dec 2022 16:11:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B1E26155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:02:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EB3AC433D2;
+        Wed, 28 Dec 2022 16:02:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243875;
-        bh=n63OJlO5NFLIXrQiDUEKqQoYYsMh666UlNW/XdXI1lw=;
+        s=korg; t=1672243362;
+        bh=5iqSBlOnwynat1aGwPMl3fxEZQdgGlLXUiz1C0BZWC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PnElnfkOItP2Q0y5cGxZRefhAAANglz8zEC072ERB/Z8S8uAbX+t3cwc5K2nxTG6p
-         p6sfnTpqLyL+O9OZEtxzrTAmnuK8CgmIosn6oPcoZaX8nECiQkXBIry9wnc7b5C0C7
-         AgUngTbDU7WPwLh6nsAxG0OUW7+15dzt2xtCKF+w=
+        b=Phr8JdLN+6F+6HjUnFn0yHnJwjuhPqE4R1XZMkZe7k3b3E1EZ6X4UQmqgMRTvC7Uk
+         JeVxGxv6M1Q5uJAjdfSKc+XOYz9sMb+jltMIAzlHhIE664NlX6wZ6IizyT7FFEvGZs
+         MN6ER6rn04U3aJvbDIGkoUx0MsbnnG+8qj3qRXR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0570/1146] net: dsa: tag_8021q: avoid leaking ctx on dsa_tag_8021q_register() error path
+Subject: [PATCH 6.0 0521/1073] net: apple: mace: dont call dev_kfree_skb() under spin_lock_irqsave()
 Date:   Wed, 28 Dec 2022 15:35:09 +0100
-Message-Id: <20221228144345.656411570@linuxfoundation.org>
+Message-Id: <20221228144342.193966509@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit e095493091e850d5292ad01d8fbf5cde1d89ac53 ]
+[ Upstream commit 3dfe3486c1cd4f82b466b7d307f23777137b8acc ]
 
-If dsa_tag_8021q_setup() fails, for example due to the inability of the
-device to install a VLAN, the tag_8021q context of the switch will leak.
-Make sure it is freed on the error path.
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-Fixes: 328621f6131f ("net: dsa: tag_8021q: absorb dsa_8021q_setup into dsa_tag_8021q_{,un}register")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20221209235242.480344-1-vladimir.oltean@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
+The difference between them is free reason, dev_kfree_skb_irq() means
+the SKB is dropped in error and dev_consume_skb_irq() means the SKB
+is consumed in normal.
+
+In this case, dev_kfree_skb() is called in mace_tx_timeout() to drop
+the SKB, when tx timeout, so replace it with dev_kfree_skb_irq().
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/tag_8021q.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/apple/mace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/dsa/tag_8021q.c b/net/dsa/tag_8021q.c
-index 34e5ec5d3e23..89371b16416e 100644
---- a/net/dsa/tag_8021q.c
-+++ b/net/dsa/tag_8021q.c
-@@ -398,6 +398,7 @@ static void dsa_tag_8021q_teardown(struct dsa_switch *ds)
- int dsa_tag_8021q_register(struct dsa_switch *ds, __be16 proto)
- {
- 	struct dsa_8021q_context *ctx;
-+	int err;
- 
- 	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
- 	if (!ctx)
-@@ -410,7 +411,15 @@ int dsa_tag_8021q_register(struct dsa_switch *ds, __be16 proto)
- 
- 	ds->tag_8021q_ctx = ctx;
- 
--	return dsa_tag_8021q_setup(ds);
-+	err = dsa_tag_8021q_setup(ds);
-+	if (err)
-+		goto err_free;
-+
-+	return 0;
-+
-+err_free:
-+	kfree(ctx);
-+	return err;
- }
- EXPORT_SYMBOL_GPL(dsa_tag_8021q_register);
- 
+diff --git a/drivers/net/ethernet/apple/mace.c b/drivers/net/ethernet/apple/mace.c
+index d0a771b65e88..fd1b008b7208 100644
+--- a/drivers/net/ethernet/apple/mace.c
++++ b/drivers/net/ethernet/apple/mace.c
+@@ -846,7 +846,7 @@ static void mace_tx_timeout(struct timer_list *t)
+     if (mp->tx_bad_runt) {
+ 	mp->tx_bad_runt = 0;
+     } else if (i != mp->tx_fill) {
+-	dev_kfree_skb(mp->tx_bufs[i]);
++	dev_kfree_skb_irq(mp->tx_bufs[i]);
+ 	if (++i >= N_TX_RING)
+ 	    i = 0;
+ 	mp->tx_empty = i;
 -- 
 2.35.1
 
