@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 429B5657C84
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:33:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46E4B65822C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:33:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233842AbiL1Pdb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:33:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51210 "EHLO
+        id S233723AbiL1Qdd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:33:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233884AbiL1PdT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:33:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B44415FE9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:33:16 -0800 (PST)
+        with ESMTP id S234055AbiL1QdK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96ADC1B1F8
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:30:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6A3E8B81710
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:33:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0D5FC433D2;
-        Wed, 28 Dec 2022 15:33:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3219161568
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:30:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4193EC433EF;
+        Wed, 28 Dec 2022 16:30:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241594;
-        bh=72Wh5J16EpVtZQMTyye0rh1CNnnfej2Qm+l0VhW9Oa0=;
+        s=korg; t=1672245033;
+        bh=Y8jTkRw+6lWQWFh5nfucOHw37zihfy+8O3tV5BJBYxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uw2vUXu0PdeaBQsGW6UUKpdS1HB9KZuBD2JDdhT8RyCgpiSBxSEN3eDKC6R9J9rib
-         W8+iv/+OwazMM98BNn9cSramqZtsuZdZTzJc2rR7LM2GpgoqwUIGClQ1LoeES5SDFC
-         6sTLzJ9oz+iGpgtXbQ8RCDw2yK4uX2qAJkqliPaY=
+        b=DlHCzDotftpY7/4gkFfVJqinlVcFCvJb9Cywmh4EXmbHEXCQwXyHtHJHxvDCLVAyD
+         Jc9d3CLWdJyMF5h+06x2B4x5S4iBAFQ4c9r2fDXfDCY8XNOhouCx7JbCVpMp3vqi15
+         YMkZS8VL+HPG4U+zgDfv/4gqxfn6/OwSxDxhBZ+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Marcus Folkesson <marcus.folkesson@gmail.com>,
-        Jacky Bai <ping.bai@nxp.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        patches@lists.linux.dev, Anup Patel <apatel@ventanamicro.com>,
+        Andrew Jones <ajones@ventanamicro.com>,
+        Atish Patra <atishp@rivosinc.com>,
+        Anup Patel <anup@brainfault.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 500/731] thermal/drivers/imx8mm_thermal: Validate temperature range
+Subject: [PATCH 6.0 0819/1073] RISC-V: KVM: Fix reg_val check in kvm_riscv_vcpu_set_reg_config()
 Date:   Wed, 28 Dec 2022 15:40:07 +0100
-Message-Id: <20221228144311.041052589@linuxfoundation.org>
+Message-Id: <20221228144350.255928527@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
+From: Anup Patel <apatel@ventanamicro.com>
 
-[ Upstream commit d37edc7370273306d8747097fafa62436c1cfe16 ]
+[ Upstream commit e482d9e33d5b0f222cbef7341dcd52cead6b9edc ]
 
-Check against the upper temperature limit (125 degrees C) before
-consider the temperature valid.
+The reg_val check in kvm_riscv_vcpu_set_reg_config() should only
+be done for isa config register.
 
-Fixes: 5eed800a6811 ("thermal: imx8mm: Add support for i.MX8MM thermal monitoring unit")
-Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
-Reviewed-by: Jacky Bai <ping.bai@nxp.com>
-Link: https://lore.kernel.org/r/20221014073507.1594844-1-marcus.folkesson@gmail.com
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Fixes: 9bfd900beeec ("RISC-V: KVM: Improve ISA extension by using a bitmap")
+Signed-off-by: Anup Patel <apatel@ventanamicro.com>
+Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
+Reviewed-by: Atish Patra <atishp@rivosinc.com>
+Signed-off-by: Anup Patel <anup@brainfault.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/imx8mm_thermal.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/riscv/kvm/vcpu.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/thermal/imx8mm_thermal.c b/drivers/thermal/imx8mm_thermal.c
-index af666bd9e8d4..c5cd873c6e01 100644
---- a/drivers/thermal/imx8mm_thermal.c
-+++ b/drivers/thermal/imx8mm_thermal.c
-@@ -65,8 +65,14 @@ static int imx8mm_tmu_get_temp(void *data, int *temp)
- 	u32 val;
+diff --git a/arch/riscv/kvm/vcpu.c b/arch/riscv/kvm/vcpu.c
+index f692c0716aa7..aa7ae6327044 100644
+--- a/arch/riscv/kvm/vcpu.c
++++ b/arch/riscv/kvm/vcpu.c
+@@ -286,12 +286,15 @@ static int kvm_riscv_vcpu_set_reg_config(struct kvm_vcpu *vcpu,
+ 	if (copy_from_user(&reg_val, uaddr, KVM_REG_SIZE(reg->id)))
+ 		return -EFAULT;
  
- 	val = readl_relaxed(tmu->base + TRITSR) & TRITSR_TEMP0_VAL_MASK;
+-	/* This ONE REG interface is only defined for single letter extensions */
+-	if (fls(reg_val) >= RISCV_ISA_EXT_BASE)
+-		return -EINVAL;
+-
+ 	switch (reg_num) {
+ 	case KVM_REG_RISCV_CONFIG_REG(isa):
++		/*
++		 * This ONE REG interface is only defined for
++		 * single letter extensions.
++		 */
++		if (fls(reg_val) >= RISCV_ISA_EXT_BASE)
++			return -EINVAL;
 +
-+	/*
-+	 * Do not validate against the V bit (bit 31) due to errata
-+	 * ERR051272: TMU: Bit 31 of registers TMU_TSCR/TMU_TRITSR/TMU_TRATSR invalid
-+	 */
-+
- 	*temp = val * 1000;
--	if (*temp < VER1_TEMP_LOW_LIMIT)
-+	if (*temp < VER1_TEMP_LOW_LIMIT || *temp > VER2_TEMP_HIGH_LIMIT)
- 		return -EAGAIN;
- 
- 	return 0;
+ 		if (!vcpu->arch.ran_atleast_once) {
+ 			/* Ignore the enable/disable request for certain extensions */
+ 			for (i = 0; i < RISCV_ISA_EXT_BASE; i++) {
 -- 
 2.35.1
 
