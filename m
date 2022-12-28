@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A818657E65
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:53:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB4C2658391
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:49:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232982AbiL1PxY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:53:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41184 "EHLO
+        id S235153AbiL1Qs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:48:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234156AbiL1PxN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:53:13 -0500
+        with ESMTP id S235093AbiL1QsS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:48:18 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0192F186EE
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:53:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D10411EC4A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:43:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E77A6155B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:53:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A032EC433EF;
-        Wed, 28 Dec 2022 15:53:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA42861582
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:43:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9679C433EF;
+        Wed, 28 Dec 2022 16:43:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242790;
-        bh=XxQQLr0tUW5kW3XWYe6ahiX6YhC3EZPRsH+zK9vC2sk=;
+        s=korg; t=1672245833;
+        bh=ipKdulpmmSmjZ0WXk55vOzU802/+Oml+uBFJbdoVsIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tYAjItzLmugrNRpsdHY8IPD8lQOeCLZaOWSng5FvtjFKWB6DUTiC8mJMbWxoCvkYi
-         bkNhC7DpK8R2AXMq77qRUmG0zMBNbZUkEUtDJNWPdZAG9uOkUXXPv5oummslsQL98c
-         mUWx442HAGbW5COmQ92WPBim6Ord27bJWDaqHonw=
+        b=tEyQnU7H4p0nAZL7v1HLVRUFsMKxW0r6FfGmdqYDo5WHEcmjDVQkSQXqMDGiM+XxZ
+         FuOB0WIes0MqOHR8dx/LxDhuqBs0tuGAugteEtOnkwQ0mr0fKD2nDxg//WO4BN0TEW
+         dpBW302Gh3POAHr9iowImq6hdl6mA2yvB0HGPADM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexandra Winter <wintera@linux.ibm.com>,
-        Kees Cook <keescook@chromium.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Denis Pauk <pauk.denis@gmail.com>,
+        yutesdb <mundanedefoliation@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 647/731] s390/netiucv: Fix return type of netiucv_tx()
+Subject: [PATCH 6.0 0966/1073] hwmon: (nct6775) add ASUS CROSSHAIR VIII/TUF/ProArt B550M
 Date:   Wed, 28 Dec 2022 15:42:34 +0100
-Message-Id: <20221228144315.263664441@linuxfoundation.org>
+Message-Id: <20221228144354.290178409@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,61 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Denis Pauk <pauk.denis@gmail.com>
 
-[ Upstream commit 88d86d18d7cf7e9137c95f9d212bb9fff8a1b4be ]
+[ Upstream commit 1864069c695d475e0ce98a335c62274b81be57b4 ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed. A
-proposed warning in clang aims to catch these at compile time, which
-reveals:
+Boards such as
+* ProArt B550-CREATOR
+* ProArt Z490-CREATOR 10G
+* ROG CROSSHAIR VIII EXTREME
+* ROG CROSSHAIR VIII HERO (WI-FI)
+* TUF GAMING B550M-E
+* TUF GAMING B550M-E (WI-FI)
+* TUF GAMING B550M-PLUS WIFI II
+have got a nct6775 chip, but by default there's no use of it
+because of resource conflict with WMI method.
 
-  drivers/s390/net/netiucv.c:1854:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .ndo_start_xmit         = netiucv_tx,
-                                    ^~~~~~~~~~
+This commit adds such boards to the WMI monitoring list.
 
-->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
-'netdev_tx_t', not 'int'. Adjust the return type of netiucv_tx() to
-match the prototype's to resolve the warning and potential CFI failure,
-should s390 select ARCH_SUPPORTS_CFI_CLANG in the future.
-
-Additionally, while in the area, remove a comment block that is no
-longer relevant.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1750
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204807
+Signed-off-by: Denis Pauk <pauk.denis@gmail.com>
+Reported-by: yutesdb <mundanedefoliation@gmail.com>
+Tested-by: yutesdb <mundanedefoliation@gmail.com>
+Link: https://lore.kernel.org/r/20221114214456.3891-1-pauk.denis@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/netiucv.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ drivers/hwmon/nct6775-platform.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
-index 5a0c2f07a3a2..ce5f0ffd6cc8 100644
---- a/drivers/s390/net/netiucv.c
-+++ b/drivers/s390/net/netiucv.c
-@@ -1252,15 +1252,8 @@ static int netiucv_close(struct net_device *dev)
- /**
-  * Start transmission of a packet.
-  * Called from generic network device layer.
-- *
-- * @param skb Pointer to buffer containing the packet.
-- * @param dev Pointer to interface struct.
-- *
-- * @return 0 if packet consumed, !0 if packet rejected.
-- *         Note: If we return !0, then the packet is free'd by
-- *               the generic network layer.
-  */
--static int netiucv_tx(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t netiucv_tx(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct netiucv_priv *privptr = netdev_priv(dev);
- 	int rc;
+diff --git a/drivers/hwmon/nct6775-platform.c b/drivers/hwmon/nct6775-platform.c
+index 41c97cfacfb8..50fe9533cf43 100644
+--- a/drivers/hwmon/nct6775-platform.c
++++ b/drivers/hwmon/nct6775-platform.c
+@@ -1043,7 +1043,9 @@ static struct platform_device *pdev[2];
+ 
+ static const char * const asus_wmi_boards[] = {
+ 	"PRO H410T",
++	"ProArt B550-CREATOR",
+ 	"ProArt X570-CREATOR WIFI",
++	"ProArt Z490-CREATOR 10G",
+ 	"Pro B550M-C",
+ 	"Pro WS X570-ACE",
+ 	"PRIME B360-PLUS",
+@@ -1055,8 +1057,10 @@ static const char * const asus_wmi_boards[] = {
+ 	"PRIME X570-P",
+ 	"PRIME X570-PRO",
+ 	"ROG CROSSHAIR VIII DARK HERO",
++	"ROG CROSSHAIR VIII EXTREME",
+ 	"ROG CROSSHAIR VIII FORMULA",
+ 	"ROG CROSSHAIR VIII HERO",
++	"ROG CROSSHAIR VIII HERO (WI-FI)",
+ 	"ROG CROSSHAIR VIII IMPACT",
+ 	"ROG STRIX B550-A GAMING",
+ 	"ROG STRIX B550-E GAMING",
+@@ -1080,8 +1084,11 @@ static const char * const asus_wmi_boards[] = {
+ 	"ROG STRIX Z490-G GAMING (WI-FI)",
+ 	"ROG STRIX Z490-H GAMING",
+ 	"ROG STRIX Z490-I GAMING",
++	"TUF GAMING B550M-E",
++	"TUF GAMING B550M-E (WI-FI)",
+ 	"TUF GAMING B550M-PLUS",
+ 	"TUF GAMING B550M-PLUS (WI-FI)",
++	"TUF GAMING B550M-PLUS WIFI II",
+ 	"TUF GAMING B550-PLUS",
+ 	"TUF GAMING B550-PLUS WIFI II",
+ 	"TUF GAMING B550-PRO",
 -- 
 2.35.1
 
