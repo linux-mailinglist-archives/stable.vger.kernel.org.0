@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36457657BA3
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73C3A65826A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:36:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233370AbiL1PXz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:23:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42678 "EHLO
+        id S234154AbiL1QfX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:35:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233685AbiL1PXx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:23:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A159D13F53
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:23:51 -0800 (PST)
+        with ESMTP id S234743AbiL1QeT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:34:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AC2B1A80F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:31:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 57FBCB8170E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:23:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 921EEC433F2;
-        Wed, 28 Dec 2022 15:23:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CFAD761576
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:31:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4E12C433F0;
+        Wed, 28 Dec 2022 16:31:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241028;
-        bh=ln6sAnXo8QtLbXs9g6fTWwpDph2q6sSNhpQjYfhdyVY=;
+        s=korg; t=1672245109;
+        bh=fyf/AUwpeERim+pSg+b1WAwBttKkzLTuXlkOCczk2pE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dFY0ZObPNF+1C+5+Xu4X+FrywprY1UODs2xUbsutzoYHt7TOmUzZVUqaFwgK5lEpR
-         owDSJe54QFCrcNZqZZcWEQeXEQqTP7DWrEI/8Jy1D9xOTpR7sv2ivwWEPkH5GpYkdS
-         EgJlq/3kaRvm8EHCA25tT53h1c0hW5fr3Ab+JRMA=
+        b=Z1NDnAr/jg4hwP58VCPXGbyZ9R5XFmNNXzp1fcnQLTXhaTuOQXFN0rzu7ussk3QUC
+         xyBov5nVzKGu8PxJu/XJovr5Ex9Lnjqr85eW86ZzuYl9Hv/FZp45Vq63R3/1IXx91N
+         hsQO42WUAKajY+2fwgkhn2/J22b/0B7BTwO8Y/kQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Chengchang Tang <tangchengchang@huawei.com>,
-        Haoyue Xu <xuhaoyue1@hisilicon.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 429/731] RDMA/hns: Fix AH attr queried by query_qp
-Date:   Wed, 28 Dec 2022 15:38:56 +0100
-Message-Id: <20221228144309.000734739@linuxfoundation.org>
+        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0798/1146] phy: qcom-qmp-pcie: replace power-down delay
+Date:   Wed, 28 Dec 2022 15:38:57 +0100
+Message-Id: <20221228144351.824253742@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +53,185 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengchang Tang <tangchengchang@huawei.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit bc34c04f7b97c3794dec5a6d6d27ffd5f0e4f5c8 ]
+[ Upstream commit 51bd33069f80705aba5f4725287bc5688ca6d92a ]
 
-The queried AH attr is invalid. This patch fix it.
+The power-down delay was included in the first version of the QMP driver
+as an optional delay after powering on the PHY (using
+POWER_DOWN_CONTROL) and just before starting it. Later changes modified
+this sequence by powering on before initialising the PHY, but the
+optional delay stayed where it was (i.e. before starting the PHY).
 
-This problem is found by rdma-core test test_mr_rereg_pd
+The vendor driver does not use a delay before starting the PHY and this
+is likely not needed on any platform unless there is a corresponding
+delay in the vendor kernel init sequence tables (i.e. in devicetree).
 
-ERROR: test_mr_rereg_pd (tests.test_mr.MRTest)
-Test that cover rereg MR's PD with this flow:
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "./tests/test_mr.py", line 157, in test_mr_rereg_pd
-    self.restate_qps()
-  File "./tests/test_mr.py", line 113, in restate_qps
-    self.server.qp.to_rts(self.server_qp_attr)
-  File "qp.pyx", line 1137, in pyverbs.qp.QP.to_rts
-  File "qp.pyx", line 1123, in pyverbs.qp.QP.to_rtr
-pyverbs.pyverbs_error.PyverbsRDMAError: Failed to modify QP state to RTR.
-Errno: 22, Invalid argument
+But as the vendor kernel do have a 1 ms delay *after* starting the PHY
+and before starting to poll the status it is possible that later
+contributors have simply not noticed that the mainline power-down delay
+is not equivalent.
 
-Fixes: 926a01dc000d ("RDMA/hns: Add QP operations support for hip08 SoC")
-Link: https://lore.kernel.org/r/20221126102911.2921820-3-xuhaoyue1@hisilicon.com
-Signed-off-by: Chengchang Tang <tangchengchang@huawei.com>
-Signed-off-by: Haoyue Xu <xuhaoyue1@hisilicon.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+As the current delay before even starting the PHY is pretty much
+pointless and likely a mistake, move the delay after starting the PHY
+which avoids a few iterations of polling and speeds up startup by 1 ms
+(the poll loop otherwise takes about 1.8 ms).
+
+Note that MSM8998 has never used a power-down delay so add a flag to
+skip the delay in case starting the PHY is faster on MSM8998. This can
+be removed after someone takes a measurement.
+
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20221012081241.18273-10-johan+linaro@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Stable-dep-of: 4a9eac5ae220 ("phy: qcom-qmp-pcie: fix sc8180x initialisation")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/phy/qualcomm/phy-qcom-qmp-pcie.c | 33 +++++-------------------
+ 1 file changed, 6 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index 94f3a0a87dfd..155ae202b1ec 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -5129,6 +5129,8 @@ static int hns_roce_v2_query_qp(struct ib_qp *ibqp, struct ib_qp_attr *qp_attr,
+diff --git a/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c b/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
+index c64026888e3a..764029b3a26b 100644
+--- a/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
++++ b/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
+@@ -1344,8 +1344,7 @@ struct qmp_phy_cfg {
+ 	/* bit offset of PHYSTATUS in QPHY_PCS_STATUS register */
+ 	unsigned int phy_status;
  
- 		rdma_ah_set_sl(&qp_attr->ah_attr,
- 			       hr_reg_read(&context, QPC_SL));
-+		rdma_ah_set_port_num(&qp_attr->ah_attr, hr_qp->port + 1);
-+		rdma_ah_set_ah_flags(&qp_attr->ah_attr, IB_AH_GRH);
- 		grh->flow_label = hr_reg_read(&context, QPC_FL);
- 		grh->sgid_index = hr_reg_read(&context, QPC_GMV_IDX);
- 		grh->hop_limit = hr_reg_read(&context, QPC_HOPLIMIT);
+-	/* true, if PHY needs delay after POWER_DOWN */
+-	bool has_pwrdn_delay;
++	bool skip_start_delay;
+ 
+ 	/* QMP PHY pipe clock interface rate */
+ 	unsigned long pipe_clock_rate;
+@@ -1475,8 +1474,6 @@ static const struct qmp_phy_cfg ipq8074_pciephy_cfg = {
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN | REFCLK_DRV_DSBL,
+ 	.phy_status		= PHYSTATUS,
+-
+-	.has_pwrdn_delay	= true,
+ };
+ 
+ static const struct qmp_phy_cfg ipq8074_pciephy_gen3_cfg = {
+@@ -1501,8 +1498,6 @@ static const struct qmp_phy_cfg ipq8074_pciephy_gen3_cfg = {
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN | REFCLK_DRV_DSBL,
+ 
+-	.has_pwrdn_delay	= true,
+-
+ 	.pipe_clock_rate	= 250000000,
+ };
+ 
+@@ -1529,8 +1524,6 @@ static const struct qmp_phy_cfg ipq6018_pciephy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN | REFCLK_DRV_DSBL,
+-
+-	.has_pwrdn_delay	= true,
+ };
+ 
+ static const struct qmp_phy_cfg sdm845_qmp_pciephy_cfg = {
+@@ -1557,8 +1550,6 @@ static const struct qmp_phy_cfg sdm845_qmp_pciephy_cfg = {
+ 	.start_ctrl		= PCS_START | SERDES_START,
+ 	.pwrdn_ctrl		= SW_PWRDN | REFCLK_DRV_DSBL,
+ 	.phy_status		= PHYSTATUS,
+-
+-	.has_pwrdn_delay	= true,
+ };
+ 
+ static const struct qmp_phy_cfg sdm845_qhp_pciephy_cfg = {
+@@ -1583,8 +1574,6 @@ static const struct qmp_phy_cfg sdm845_qhp_pciephy_cfg = {
+ 	.start_ctrl		= PCS_START | SERDES_START,
+ 	.pwrdn_ctrl		= SW_PWRDN | REFCLK_DRV_DSBL,
+ 	.phy_status		= PHYSTATUS,
+-
+-	.has_pwrdn_delay	= true,
+ };
+ 
+ static const struct qmp_phy_cfg sm8250_qmp_gen3x1_pciephy_cfg = {
+@@ -1619,8 +1608,6 @@ static const struct qmp_phy_cfg sm8250_qmp_gen3x1_pciephy_cfg = {
+ 	.start_ctrl		= PCS_START | SERDES_START,
+ 	.pwrdn_ctrl		= SW_PWRDN | REFCLK_DRV_DSBL,
+ 	.phy_status		= PHYSTATUS,
+-
+-	.has_pwrdn_delay	= true,
+ };
+ 
+ static const struct qmp_phy_cfg sm8250_qmp_gen3x2_pciephy_cfg = {
+@@ -1655,8 +1642,6 @@ static const struct qmp_phy_cfg sm8250_qmp_gen3x2_pciephy_cfg = {
+ 	.start_ctrl		= PCS_START | SERDES_START,
+ 	.pwrdn_ctrl		= SW_PWRDN | REFCLK_DRV_DSBL,
+ 	.phy_status		= PHYSTATUS,
+-
+-	.has_pwrdn_delay	= true,
+ };
+ 
+ static const struct qmp_phy_cfg msm8998_pciephy_cfg = {
+@@ -1681,6 +1666,8 @@ static const struct qmp_phy_cfg msm8998_pciephy_cfg = {
+ 	.start_ctrl             = SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN | REFCLK_DRV_DSBL,
+ 	.phy_status		= PHYSTATUS,
++
++	.skip_start_delay	= true,
+ };
+ 
+ static const struct qmp_phy_cfg sc8180x_pciephy_cfg = {
+@@ -1706,8 +1693,6 @@ static const struct qmp_phy_cfg sc8180x_pciephy_cfg = {
+ 
+ 	.start_ctrl		= PCS_START | SERDES_START,
+ 	.pwrdn_ctrl		= SW_PWRDN | REFCLK_DRV_DSBL,
+-
+-	.has_pwrdn_delay	= true,
+ };
+ 
+ static const struct qmp_phy_cfg sdx55_qmp_pciephy_cfg = {
+@@ -1734,8 +1719,6 @@ static const struct qmp_phy_cfg sdx55_qmp_pciephy_cfg = {
+ 	.start_ctrl		= PCS_START | SERDES_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+ 	.phy_status		= PHYSTATUS_4_20,
+-
+-	.has_pwrdn_delay	= true,
+ };
+ 
+ static const struct qmp_phy_cfg sm8450_qmp_gen3x1_pciephy_cfg = {
+@@ -1762,8 +1745,6 @@ static const struct qmp_phy_cfg sm8450_qmp_gen3x1_pciephy_cfg = {
+ 	.start_ctrl             = SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN | REFCLK_DRV_DSBL,
+ 	.phy_status		= PHYSTATUS,
+-
+-	.has_pwrdn_delay	= true,
+ };
+ 
+ static const struct qmp_phy_cfg sm8450_qmp_gen4x2_pciephy_cfg = {
+@@ -1790,8 +1771,6 @@ static const struct qmp_phy_cfg sm8450_qmp_gen4x2_pciephy_cfg = {
+ 	.start_ctrl             = SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN | REFCLK_DRV_DSBL,
+ 	.phy_status		= PHYSTATUS_4_20,
+-
+-	.has_pwrdn_delay	= true,
+ };
+ 
+ static void qmp_pcie_configure_lane(void __iomem *base,
+@@ -1950,15 +1929,15 @@ static int qmp_pcie_power_on(struct phy *phy)
+ 	qmp_pcie_configure(pcs_misc, cfg->regs, cfg->pcs_misc_tbl, cfg->pcs_misc_tbl_num);
+ 	qmp_pcie_configure(pcs_misc, cfg->regs, cfg->pcs_misc_tbl_sec, cfg->pcs_misc_tbl_num_sec);
+ 
+-	if (cfg->has_pwrdn_delay)
+-		usleep_range(1000, 1200);
+-
+ 	/* Pull PHY out of reset state */
+ 	qphy_clrbits(pcs, cfg->regs[QPHY_SW_RESET], SW_RESET);
+ 
+ 	/* start SerDes and Phy-Coding-Sublayer */
+ 	qphy_setbits(pcs, cfg->regs[QPHY_START_CTRL], cfg->start_ctrl);
+ 
++	if (!cfg->skip_start_delay)
++		usleep_range(1000, 1200);
++
+ 	status = pcs + cfg->regs[QPHY_PCS_STATUS];
+ 	mask = cfg->phy_status;
+ 	ready = 0;
 -- 
 2.35.1
 
