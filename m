@@ -2,53 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD144657B29
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:18:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3694657A0D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:07:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233243AbiL1PSg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:18:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37460 "EHLO
+        id S233586AbiL1PHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:07:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233214AbiL1PSf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:18:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7F6413F18
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:18:33 -0800 (PST)
+        with ESMTP id S233588AbiL1PHS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:07:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AE6813D79
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:07:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 79409B816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:18:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A966AC433EF;
-        Wed, 28 Dec 2022 15:18:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2477461541
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:07:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3440AC43396;
+        Wed, 28 Dec 2022 15:07:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240711;
-        bh=czY5fFUobZe4djTQze+1Ku0RbqxKIEMWMj4BSLxAV2I=;
+        s=korg; t=1672240036;
+        bh=+l30k4sPS/RTvIpYlmLvqieVws7K2sfM+5jDMPEwG/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K3tosQtQRc05s4uGUYmNVgnpkgjXCztMDtaM+uQAIvCBorbQtRYBleEWYPUIA24Fm
-         gcZCZFTB1MoRhLZIG4/xvTBLliuWMYWkrlwIiHOAJDzkNOhxH8JTo36GTwtD1MqvbX
-         6ZAqFy5/A4BZT1yxMQLCxnB1sZsZcBsUA3G6qoV8=
+        b=lL9HIAehQJvaFaY/1Owc+gHindNREGFWbRRQkpA8ECfBy0I0QHtoODM2YIPvjuXW9
+         deO2VK430Fenn4mgW+y2zMISZzUc8kIo5LQLHqgHTGQc+Wvs5mNzOb5UsM3XeQzeae
+         FHdBgZi23IkH8IQ3/jHPa9H6ctT7ms7S80c2F2AM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Akinobu Mita <akinobu.mita@gmail.com>,
-        Zhao Gongyi <zhaogongyi@huawei.com>,
-        David Hildenbrand <david@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Oscar Salvador <osalvador@suse.de>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Yicong Yang <yangyicong@hisilicon.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        patches@lists.linux.dev, Thomas Gleixner <tglx@linutronix.de>,
+        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Andre Almeida <andrealmeid@igalia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0158/1146] debugfs: fix error when writing negative value to atomic_t debugfs file
-Date:   Wed, 28 Dec 2022 15:28:17 +0100
-Message-Id: <20221228144334.450137015@linuxfoundation.org>
+Subject: [PATCH 6.0 0110/1073] x86/split_lock: Add sysctl to control the misery mode
+Date:   Wed, 28 Dec 2022 15:28:18 +0100
+Message-Id: <20221228144331.030844945@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,195 +56,196 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akinobu Mita <akinobu.mita@gmail.com>
+From: Guilherme G. Piccoli <gpiccoli@igalia.com>
 
-[ Upstream commit d472cf797c4e268613dbce5ec9b95d0bcae19ecb ]
+[ Upstream commit 727209376f4998bc84db1d5d8af15afea846a92b ]
 
-The simple attribute files do not accept a negative value since the commit
-488dac0c9237 ("libfs: fix error cast of negative value in
-simple_attr_write()"), so we have to use a 64-bit value to write a
-negative value for a debugfs file created by debugfs_create_atomic_t().
+Commit b041b525dab9 ("x86/split_lock: Make life miserable for split lockers")
+changed the way the split lock detector works when in "warn" mode;
+basically, it not only shows the warn message, but also intentionally
+introduces a slowdown through sleeping plus serialization mechanism
+on such task. Based on discussions in [0], seems the warning alone
+wasn't enough motivation for userspace developers to fix their
+applications.
 
-This restores the previous behaviour by introducing
-DEFINE_DEBUGFS_ATTRIBUTE_SIGNED for a signed value.
+This slowdown is enough to totally break some proprietary (aka.
+unfixable) userspace[1].
 
-Link: https://lkml.kernel.org/r/20220919172418.45257-4-akinobu.mita@gmail.com
-Fixes: 488dac0c9237 ("libfs: fix error cast of negative value in simple_attr_write()")
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Reported-by: Zhao Gongyi <zhaogongyi@huawei.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Rafael J. Wysocki <rafael@kernel.org>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: Wei Yongjun <weiyongjun1@huawei.com>
-Cc: Yicong Yang <yangyicong@hisilicon.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Happens that originally the proposal in [0] was to add a new mode
+which would warns + slowdown the "split locking" task, keeping the
+old warn mode untouched. In the end, that idea was discarded and
+the regular/default "warn" mode now slows down the applications. This
+is quite aggressive with regards proprietary/legacy programs that
+basically are unable to properly run in kernel with this change.
+While it is understandable that a malicious application could DoS
+by split locking, it seems unacceptable to regress old/proprietary
+userspace programs through a default configuration that previously
+worked. An example of such breakage was reported in [1].
+
+Add a sysctl to allow controlling the "misery mode" behavior, as per
+Thomas suggestion on [2]. This way, users running legacy and/or
+proprietary software are allowed to still execute them with a decent
+performance while still observing the warning messages on kernel log.
+
+[0] https://lore.kernel.org/lkml/20220217012721.9694-1-tony.luck@intel.com/
+[1] https://github.com/doitsujin/dxvk/issues/2938
+[2] https://lore.kernel.org/lkml/87pmf4bter.ffs@tglx/
+
+[ dhansen: minor changelog tweaks, including clarifying the actual
+  	   problem ]
+
+Fixes: b041b525dab9 ("x86/split_lock: Make life miserable for split lockers")
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Tested-by: Andre Almeida <andrealmeid@igalia.com>
+Link: https://lore.kernel.org/all/20221024200254.635256-1-gpiccoli%40igalia.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../fault-injection/fault-injection.rst       | 10 +++----
- fs/debugfs/file.c                             | 28 +++++++++++++++----
- include/linux/debugfs.h                       | 19 +++++++++++--
- 3 files changed, 43 insertions(+), 14 deletions(-)
+ Documentation/admin-guide/sysctl/kernel.rst | 23 ++++++++
+ arch/x86/kernel/cpu/intel.c                 | 63 +++++++++++++++++----
+ 2 files changed, 76 insertions(+), 10 deletions(-)
 
-diff --git a/Documentation/fault-injection/fault-injection.rst b/Documentation/fault-injection/fault-injection.rst
-index 17779a2772e5..5f6454b9dbd4 100644
---- a/Documentation/fault-injection/fault-injection.rst
-+++ b/Documentation/fault-injection/fault-injection.rst
-@@ -83,9 +83,7 @@ configuration of fault-injection capabilities.
- - /sys/kernel/debug/fail*/times:
+diff --git a/Documentation/admin-guide/sysctl/kernel.rst b/Documentation/admin-guide/sysctl/kernel.rst
+index ee6572b1edad..66d1b23ca64f 100644
+--- a/Documentation/admin-guide/sysctl/kernel.rst
++++ b/Documentation/admin-guide/sysctl/kernel.rst
+@@ -1298,6 +1298,29 @@ watchdog work to be queued by the watchdog timer function, otherwise the NMI
+ watchdog — if enabled — can detect a hard lockup condition.
  
- 	specifies how many times failures may happen at most. A value of -1
--	means "no limit". Note, though, that this file only accepts unsigned
--	values. So, if you want to specify -1, you better use 'printf' instead
--	of 'echo', e.g.: $ printf %#x -1 > times
-+	means "no limit".
  
- - /sys/kernel/debug/fail*/space:
++split_lock_mitigate (x86 only)
++==============================
++
++On x86, each "split lock" imposes a system-wide performance penalty. On larger
++systems, large numbers of split locks from unprivileged users can result in
++denials of service to well-behaved and potentially more important users.
++
++The kernel mitigates these bad users by detecting split locks and imposing
++penalties: forcing them to wait and only allowing one core to execute split
++locks at a time.
++
++These mitigations can make those bad applications unbearably slow. Setting
++split_lock_mitigate=0 may restore some application performance, but will also
++increase system exposure to denial of service attacks from split lock users.
++
++= ===================================================================
++0 Disable the mitigation mode - just warns the split lock on kernel log
++  and exposes the system to denials of service from the split lockers.
++1 Enable the mitigation mode (this is the default) - penalizes the split
++  lockers with intentional performance degradation.
++= ===================================================================
++
++
+ stack_erasing
+ =============
  
-@@ -284,7 +282,7 @@ Application Examples
-     echo Y > /sys/kernel/debug/$FAILTYPE/task-filter
-     echo 10 > /sys/kernel/debug/$FAILTYPE/probability
-     echo 100 > /sys/kernel/debug/$FAILTYPE/interval
--    printf %#x -1 > /sys/kernel/debug/$FAILTYPE/times
-+    echo -1 > /sys/kernel/debug/$FAILTYPE/times
-     echo 0 > /sys/kernel/debug/$FAILTYPE/space
-     echo 2 > /sys/kernel/debug/$FAILTYPE/verbose
-     echo Y > /sys/kernel/debug/$FAILTYPE/ignore-gfp-wait
-@@ -338,7 +336,7 @@ Application Examples
-     echo N > /sys/kernel/debug/$FAILTYPE/task-filter
-     echo 10 > /sys/kernel/debug/$FAILTYPE/probability
-     echo 100 > /sys/kernel/debug/$FAILTYPE/interval
--    printf %#x -1 > /sys/kernel/debug/$FAILTYPE/times
-+    echo -1 > /sys/kernel/debug/$FAILTYPE/times
-     echo 0 > /sys/kernel/debug/$FAILTYPE/space
-     echo 2 > /sys/kernel/debug/$FAILTYPE/verbose
-     echo Y > /sys/kernel/debug/$FAILTYPE/ignore-gfp-wait
-@@ -369,7 +367,7 @@ Application Examples
-     echo N > /sys/kernel/debug/$FAILTYPE/task-filter
-     echo 100 > /sys/kernel/debug/$FAILTYPE/probability
-     echo 0 > /sys/kernel/debug/$FAILTYPE/interval
--    printf %#x -1 > /sys/kernel/debug/$FAILTYPE/times
-+    echo -1 > /sys/kernel/debug/$FAILTYPE/times
-     echo 0 > /sys/kernel/debug/$FAILTYPE/space
-     echo 1 > /sys/kernel/debug/$FAILTYPE/verbose
+diff --git a/arch/x86/kernel/cpu/intel.c b/arch/x86/kernel/cpu/intel.c
+index 2d7ea5480ec3..427899650483 100644
+--- a/arch/x86/kernel/cpu/intel.c
++++ b/arch/x86/kernel/cpu/intel.c
+@@ -1034,8 +1034,32 @@ static const struct {
  
-diff --git a/fs/debugfs/file.c b/fs/debugfs/file.c
-index ddb3fc258df9..b54f470e0d03 100644
---- a/fs/debugfs/file.c
-+++ b/fs/debugfs/file.c
-@@ -378,8 +378,8 @@ ssize_t debugfs_attr_read(struct file *file, char __user *buf,
- }
- EXPORT_SYMBOL_GPL(debugfs_attr_read);
+ static struct ratelimit_state bld_ratelimit;
  
--ssize_t debugfs_attr_write(struct file *file, const char __user *buf,
--			 size_t len, loff_t *ppos)
-+static ssize_t debugfs_attr_write_xsigned(struct file *file, const char __user *buf,
-+			 size_t len, loff_t *ppos, bool is_signed)
++static unsigned int sysctl_sld_mitigate = 1;
+ static DEFINE_SEMAPHORE(buslock_sem);
+ 
++#ifdef CONFIG_PROC_SYSCTL
++static struct ctl_table sld_sysctls[] = {
++	{
++		.procname       = "split_lock_mitigate",
++		.data           = &sysctl_sld_mitigate,
++		.maxlen         = sizeof(unsigned int),
++		.mode           = 0644,
++		.proc_handler	= proc_douintvec_minmax,
++		.extra1         = SYSCTL_ZERO,
++		.extra2         = SYSCTL_ONE,
++	},
++	{}
++};
++
++static int __init sld_mitigate_sysctl_init(void)
++{
++	register_sysctl_init("kernel", sld_sysctls);
++	return 0;
++}
++
++late_initcall(sld_mitigate_sysctl_init);
++#endif
++
+ static inline bool match_option(const char *arg, int arglen, const char *opt)
  {
- 	struct dentry *dentry = F_DENTRY(file);
- 	ssize_t ret;
-@@ -387,12 +387,28 @@ ssize_t debugfs_attr_write(struct file *file, const char __user *buf,
- 	ret = debugfs_file_get(dentry);
- 	if (unlikely(ret))
- 		return ret;
--	ret = simple_attr_write(file, buf, len, ppos);
-+	if (is_signed)
-+		ret = simple_attr_write_signed(file, buf, len, ppos);
-+	else
-+		ret = simple_attr_write(file, buf, len, ppos);
- 	debugfs_file_put(dentry);
- 	return ret;
+ 	int len = strlen(opt), ratelimit;
+@@ -1146,12 +1170,20 @@ static void split_lock_init(void)
+ 		split_lock_verify_msr(sld_state != sld_off);
  }
-+
-+ssize_t debugfs_attr_write(struct file *file, const char __user *buf,
-+			 size_t len, loff_t *ppos)
-+{
-+	return debugfs_attr_write_xsigned(file, buf, len, ppos, false);
-+}
- EXPORT_SYMBOL_GPL(debugfs_attr_write);
  
-+ssize_t debugfs_attr_write_signed(struct file *file, const char __user *buf,
-+			 size_t len, loff_t *ppos)
-+{
-+	return debugfs_attr_write_xsigned(file, buf, len, ppos, true);
-+}
-+EXPORT_SYMBOL_GPL(debugfs_attr_write_signed);
+-static void __split_lock_reenable(struct work_struct *work)
++static void __split_lock_reenable_unlock(struct work_struct *work)
+ {
+ 	sld_update_msr(true);
+ 	up(&buslock_sem);
+ }
+ 
++static DECLARE_DELAYED_WORK(sl_reenable_unlock, __split_lock_reenable_unlock);
 +
- static struct dentry *debugfs_create_mode_unsafe(const char *name, umode_t mode,
- 					struct dentry *parent, void *value,
- 					const struct file_operations *fops,
-@@ -738,11 +754,11 @@ static int debugfs_atomic_t_get(void *data, u64 *val)
- 	*val = atomic_read((atomic_t *)data);
++static void __split_lock_reenable(struct work_struct *work)
++{
++	sld_update_msr(true);
++}
++static DECLARE_DELAYED_WORK(sl_reenable, __split_lock_reenable);
++
+ /*
+  * If a CPU goes offline with pending delayed work to re-enable split lock
+  * detection then the delayed work will be executed on some other CPU. That
+@@ -1169,10 +1201,9 @@ static int splitlock_cpu_offline(unsigned int cpu)
  	return 0;
  }
--DEFINE_DEBUGFS_ATTRIBUTE(fops_atomic_t, debugfs_atomic_t_get,
-+DEFINE_DEBUGFS_ATTRIBUTE_SIGNED(fops_atomic_t, debugfs_atomic_t_get,
- 			debugfs_atomic_t_set, "%lld\n");
--DEFINE_DEBUGFS_ATTRIBUTE(fops_atomic_t_ro, debugfs_atomic_t_get, NULL,
-+DEFINE_DEBUGFS_ATTRIBUTE_SIGNED(fops_atomic_t_ro, debugfs_atomic_t_get, NULL,
- 			"%lld\n");
--DEFINE_DEBUGFS_ATTRIBUTE(fops_atomic_t_wo, NULL, debugfs_atomic_t_set,
-+DEFINE_DEBUGFS_ATTRIBUTE_SIGNED(fops_atomic_t_wo, NULL, debugfs_atomic_t_set,
- 			"%lld\n");
  
- /**
-diff --git a/include/linux/debugfs.h b/include/linux/debugfs.h
-index f60674692d36..ea2d919fd9c7 100644
---- a/include/linux/debugfs.h
-+++ b/include/linux/debugfs.h
-@@ -45,7 +45,7 @@ struct debugfs_u32_array {
- 
- extern struct dentry *arch_debugfs_dir;
- 
--#define DEFINE_DEBUGFS_ATTRIBUTE(__fops, __get, __set, __fmt)		\
-+#define DEFINE_DEBUGFS_ATTRIBUTE_XSIGNED(__fops, __get, __set, __fmt, __is_signed)	\
- static int __fops ## _open(struct inode *inode, struct file *file)	\
- {									\
- 	__simple_attr_check_format(__fmt, 0ull);			\
-@@ -56,10 +56,16 @@ static const struct file_operations __fops = {				\
- 	.open	 = __fops ## _open,					\
- 	.release = simple_attr_release,					\
- 	.read	 = debugfs_attr_read,					\
--	.write	 = debugfs_attr_write,					\
-+	.write	 = (__is_signed) ? debugfs_attr_write_signed : debugfs_attr_write,	\
- 	.llseek  = no_llseek,						\
- }
- 
-+#define DEFINE_DEBUGFS_ATTRIBUTE(__fops, __get, __set, __fmt)		\
-+	DEFINE_DEBUGFS_ATTRIBUTE_XSIGNED(__fops, __get, __set, __fmt, false)
-+
-+#define DEFINE_DEBUGFS_ATTRIBUTE_SIGNED(__fops, __get, __set, __fmt)	\
-+	DEFINE_DEBUGFS_ATTRIBUTE_XSIGNED(__fops, __get, __set, __fmt, true)
-+
- typedef struct vfsmount *(*debugfs_automount_t)(struct dentry *, void *);
- 
- #if defined(CONFIG_DEBUG_FS)
-@@ -102,6 +108,8 @@ ssize_t debugfs_attr_read(struct file *file, char __user *buf,
- 			size_t len, loff_t *ppos);
- ssize_t debugfs_attr_write(struct file *file, const char __user *buf,
- 			size_t len, loff_t *ppos);
-+ssize_t debugfs_attr_write_signed(struct file *file, const char __user *buf,
-+			size_t len, loff_t *ppos);
- 
- struct dentry *debugfs_rename(struct dentry *old_dir, struct dentry *old_dentry,
-                 struct dentry *new_dir, const char *new_name);
-@@ -254,6 +262,13 @@ static inline ssize_t debugfs_attr_write(struct file *file,
- 	return -ENODEV;
- }
- 
-+static inline ssize_t debugfs_attr_write_signed(struct file *file,
-+					const char __user *buf,
-+					size_t len, loff_t *ppos)
-+{
-+	return -ENODEV;
-+}
-+
- static inline struct dentry *debugfs_rename(struct dentry *old_dir, struct dentry *old_dentry,
-                 struct dentry *new_dir, char *new_name)
+-static DECLARE_DELAYED_WORK(split_lock_reenable, __split_lock_reenable);
+-
+ static void split_lock_warn(unsigned long ip)
  {
++	struct delayed_work *work;
+ 	int cpu;
+ 
+ 	if (!current->reported_split_lock)
+@@ -1180,14 +1211,26 @@ static void split_lock_warn(unsigned long ip)
+ 				    current->comm, current->pid, ip);
+ 	current->reported_split_lock = 1;
+ 
+-	/* misery factor #1, sleep 10ms before trying to execute split lock */
+-	if (msleep_interruptible(10) > 0)
+-		return;
+-	/* Misery factor #2, only allow one buslocked disabled core at a time */
+-	if (down_interruptible(&buslock_sem) == -EINTR)
+-		return;
++	if (sysctl_sld_mitigate) {
++		/*
++		 * misery factor #1:
++		 * sleep 10ms before trying to execute split lock.
++		 */
++		if (msleep_interruptible(10) > 0)
++			return;
++		/*
++		 * Misery factor #2:
++		 * only allow one buslocked disabled core at a time.
++		 */
++		if (down_interruptible(&buslock_sem) == -EINTR)
++			return;
++		work = &sl_reenable_unlock;
++	} else {
++		work = &sl_reenable;
++	}
++
+ 	cpu = get_cpu();
+-	schedule_delayed_work_on(cpu, &split_lock_reenable, 2);
++	schedule_delayed_work_on(cpu, work, 2);
+ 
+ 	/* Disable split lock detection on this CPU to make progress */
+ 	sld_update_msr(false);
 -- 
 2.35.1
 
