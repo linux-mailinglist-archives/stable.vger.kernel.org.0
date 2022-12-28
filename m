@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1B20657B65
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:21:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E823B657B68
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:21:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233326AbiL1PVO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:21:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40170 "EHLO
+        id S233711AbiL1PV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:21:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233406AbiL1PVI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:21:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B311513F5C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:21:05 -0800 (PST)
+        with ESMTP id S233380AbiL1PVP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:21:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E3C014021
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:21:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F0C2B81647
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:21:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3FF6C433D2;
-        Wed, 28 Dec 2022 15:21:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D8BCF61544
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:21:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBA1AC433D2;
+        Wed, 28 Dec 2022 15:21:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240863;
-        bh=SpplAcP5SsV8jObAZEOlluCC6KQaKtQuIXsUf0AWnBQ=;
+        s=korg; t=1672240871;
+        bh=pvlQrj2X9CHWoDjKElzDkcTQ3pvjEyggMdRDMY+TNDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1PUa9FIeGY9wnpDiAVca1GCTLNcvqbmA9Lf86UKHgbyFyGG0B2TOFKRyyfsD9YMcN
-         jl75aIMthV253fomg0yM5PdsLBQ0/YEj+E7rx+c9Htsys1s9+0s8jVnjG+GDHUyFfN
-         ttxBW8VeGSy5U32qjk42Qk1v1rxqjwbemMoRMDhQ=
+        b=pKBBLFfNUWusBeZFhOKYtQR4RwgsAZxZypXhC3hVWDLVFD4+B0gma8HLwYr2pcImX
+         /SB0gBv4PJ24rXrfkX2hYraFC+TPjnK6V2l0yTwGk6lr4lAmsryCro3Y8fkM9cfThv
+         VUjiDY7tXJtIlh4E8QM93vaY7/pFi8xbNFQPTnQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 406/731] padata: Fix list iterator in padata_do_serial()
-Date:   Wed, 28 Dec 2022 15:38:33 +0100
-Message-Id: <20221228144308.336193822@linuxfoundation.org>
+Subject: [PATCH 5.15 407/731] scsi: mpt3sas: Fix possible resource leaks in mpt3sas_transport_port_add()
+Date:   Wed, 28 Dec 2022 15:38:34 +0100
+Message-Id: <20221228144308.364806720@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
 References: <20221228144256.536395940@linuxfoundation.org>
@@ -54,49 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 57ddfecc72a6c9941d159543e1c0c0a74fe9afdd ]
+[ Upstream commit 78316e9dfc24906dd474630928ed1d3c562b568e ]
 
-list_for_each_entry_reverse() assumes that the iterated list is nonempty
-and that every list_head is embedded in the same type, but its use in
-padata_do_serial() breaks both rules.
+In mpt3sas_transport_port_add(), if sas_rphy_add() returns error,
+sas_rphy_free() needs be called to free the resource allocated in
+sas_end_device_alloc(). Otherwise a kernel crash will happen:
 
-This doesn't cause any issues now because padata_priv and padata_list
-happen to have their list fields at the same offset, but we really
-shouldn't be relying on that.
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000108
+CPU: 45 PID: 37020 Comm: bash Kdump: loaded Tainted: G        W          6.1.0-rc1+ #189
+pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+pc : device_del+0x54/0x3d0
+lr : device_del+0x37c/0x3d0
+Call trace:
+ device_del+0x54/0x3d0
+ attribute_container_class_device_del+0x28/0x38
+ transport_remove_classdev+0x6c/0x80
+ attribute_container_device_trigger+0x108/0x110
+ transport_remove_device+0x28/0x38
+ sas_rphy_remove+0x50/0x78 [scsi_transport_sas]
+ sas_port_delete+0x30/0x148 [scsi_transport_sas]
+ do_sas_phy_delete+0x78/0x80 [scsi_transport_sas]
+ device_for_each_child+0x68/0xb0
+ sas_remove_children+0x30/0x50 [scsi_transport_sas]
+ sas_rphy_remove+0x38/0x78 [scsi_transport_sas]
+ sas_port_delete+0x30/0x148 [scsi_transport_sas]
+ do_sas_phy_delete+0x78/0x80 [scsi_transport_sas]
+ device_for_each_child+0x68/0xb0
+ sas_remove_children+0x30/0x50 [scsi_transport_sas]
+ sas_remove_host+0x20/0x38 [scsi_transport_sas]
+ scsih_remove+0xd8/0x420 [mpt3sas]
 
-Fixes: bfde23ce200e ("padata: unbind parallel jobs from specific CPUs")
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Because transport_add_device() is not called when sas_rphy_add() fails, the
+device is not added. When sas_rphy_remove() is subsequently called to
+remove the device in the remove() path, a NULL pointer dereference happens.
+
+Fixes: f92363d12359 ("[SCSI] mpt3sas: add new driver supporting 12GB SAS")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221109032403.1636422-1-yangyingliang@huawei.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/padata.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/scsi/mpt3sas/mpt3sas_transport.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/padata.c b/kernel/padata.c
-index 9395b77fabb1..c17f772cc315 100644
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -390,13 +390,16 @@ void padata_do_serial(struct padata_priv *padata)
- 	int hashed_cpu = padata_cpu_hash(pd, padata->seq_nr);
- 	struct padata_list *reorder = per_cpu_ptr(pd->reorder_list, hashed_cpu);
- 	struct padata_priv *cur;
-+	struct list_head *pos;
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_transport.c b/drivers/scsi/mpt3sas/mpt3sas_transport.c
+index 0681daee6c14..e5ecd6ada6cd 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_transport.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_transport.c
+@@ -829,6 +829,8 @@ mpt3sas_transport_port_add(struct MPT3SAS_ADAPTER *ioc, u16 handle,
+ 	if ((sas_rphy_add(rphy))) {
+ 		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+ 			__FILE__, __LINE__, __func__);
++		sas_rphy_free(rphy);
++		rphy = NULL;
+ 	}
  
- 	spin_lock(&reorder->lock);
- 	/* Sort in ascending order of sequence number. */
--	list_for_each_entry_reverse(cur, &reorder->list, list)
-+	list_for_each_prev(pos, &reorder->list) {
-+		cur = list_entry(pos, struct padata_priv, list);
- 		if (cur->seq_nr < padata->seq_nr)
- 			break;
--	list_add(&padata->list, &cur->list);
-+	}
-+	list_add(&padata->list, pos);
- 	spin_unlock(&reorder->lock);
- 
- 	/*
+ 	if (mpt3sas_port->remote_identify.device_type == SAS_END_DEVICE) {
 -- 
 2.35.1
 
