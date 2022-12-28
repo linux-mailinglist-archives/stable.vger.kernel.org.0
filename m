@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54F61657B2B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:18:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16866657C3D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:30:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233252AbiL1PSu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:18:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37490 "EHLO
+        id S233796AbiL1Pa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:30:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233253AbiL1PSi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:18:38 -0500
+        with ESMTP id S233795AbiL1PaX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:30:23 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64D6713F35
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:18:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE3E51582D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:30:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 021EDB81647
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:18:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73F43C433D2;
-        Wed, 28 Dec 2022 15:18:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4C25DB816D9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:30:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80896C433EF;
+        Wed, 28 Dec 2022 15:30:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240713;
-        bh=rhHQfXxjoX9OHe7i94dNZqWIDqimZljx2CQ1aW+3dVI=;
+        s=korg; t=1672241419;
+        bh=xNoU7NTr0kGWQZE8bzcq4Lq8MYZaAKLZd0qCwQNS2y4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sd2Vdptg4umT0KJmX/FC4rkkFlN19tpjBZUhqWsMdly+zLmi77YrlJGSwehaNz5nD
-         ob6sq4hpELHSBe8jq11IK3CwnPLuvYwJE1SvIUnEA6R09ZAvr9ENM3fydNte8Qbbjz
-         lwILnQBNx2XGfQBMisGYju4TCyAGfp/wZ5x2c9/s=
+        b=M5QXUuPZiKVB7Cb+CayEwCQfshTeQp+JXsRiMNBsVuMqXO9bD0C2IV0lWV+w+L7SE
+         90ei2xsOcZGnWr/H4eVxUR80zr++yf7707yxmg10hapMkoP198kRxL1nkqkbWuk4x4
+         m9cFbeu1po4o8fHna2lt2cj7tvGJLXd5+XW72dXE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Fedor Pchelkin <pchelkin@ispras.ru>,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        patches@lists.linux.dev, Alan Maguire <alan.maguire@oracle.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0194/1073] wifi: ath9k: hif_usb: Fix use-after-free in ath9k_hif_usb_reg_in_cb()
-Date:   Wed, 28 Dec 2022 15:29:42 +0100
-Message-Id: <20221228144333.284218956@linuxfoundation.org>
+Subject: [PATCH 6.1 0244/1146] libbpf: Btf dedup identical struct test needs check for nested structs/arrays
+Date:   Wed, 28 Dec 2022 15:29:43 +0100
+Message-Id: <20221228144336.763224788@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,113 +53,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
+From: Alan Maguire <alan.maguire@oracle.com>
 
-[ Upstream commit dd95f2239fc846795fc926787c3ae0ca701c9840 ]
+[ Upstream commit f3c51fe02c55bd944662714e5b91b96dc271ad9f ]
 
-It is possible that skb is freed in ath9k_htc_rx_msg(), then
-usb_submit_urb() fails and we try to free skb again. It causes
-use-after-free bug. Moreover, if alloc_skb() fails, urb->context becomes
-NULL but rx_buf is not freed and there can be a memory leak.
+When examining module BTF, it is common to see core kernel structures
+such as sk_buff, net_device duplicated in the module.  After adding
+debug messaging to BTF it turned out that much of the problem
+was down to the identical struct test failing during deduplication;
+sometimes the compiler adds identical structs.  However
+it turns out sometimes that type ids of identical struct members
+can also differ, even when the containing structs are still identical.
 
-The patch removes unnecessary nskb and makes skb processing more clear: it
-is supposed that ath9k_htc_rx_msg() either frees old skb or passes its
-managing to another callback function.
+To take an example, for struct sk_buff, debug messaging revealed
+that the identical struct matching was failing for the anon
+struct "headers"; specifically for the first field:
 
-Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
+__u8       __pkt_type_offset[0]; /*   128     0 */
 
-Fixes: 3deff76095c4 ("ath9k_htc: Increase URB count for REG_IN pipe")
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20221008114917.21404-1-pchelkin@ispras.ru
+Looking at the code in BTF deduplication, we have code that guards
+against the possibility of identical struct definitions, down to
+type ids, and identical array definitions.  However in this case
+we have a struct which is being defined twice but does not have
+identical type ids since each duplicate struct has separate type
+ids for the above array member.   A similar problem (though not
+observed) could occur for struct-in-struct.
+
+The solution is to make the "identical struct" test check members
+not just for matching ids, but to also check if they in turn are
+identical structs or arrays.
+
+The results of doing this are quite dramatic (for some modules
+at least); I see the number of type ids drop from around 10000
+to just over 1000 in one module for example.
+
+For testing use latest pahole or apply [1], otherwise dedups
+can fail for the reasons described there.
+
+Also fix return type of btf_dedup_identical_arrays() as
+suggested by Andrii to match boolean return type used
+elsewhere.
+
+Fixes: efdd3eb8015e ("libbpf: Accommodate DWARF/compiler bug with duplicated structs")
+Signed-off-by: Alan Maguire <alan.maguire@oracle.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/1666622309-22289-1-git-send-email-alan.maguire@oracle.com
+
+[1] https://lore.kernel.org/bpf/1666364523-9648-1-git-send-email-alan.maguire
+
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/hif_usb.c | 28 +++++++++++++-----------
- 1 file changed, 15 insertions(+), 13 deletions(-)
+ tools/lib/bpf/btf.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
-index b6b5ce9b9b68..6c653d46136e 100644
---- a/drivers/net/wireless/ath/ath9k/hif_usb.c
-+++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
-@@ -708,14 +708,13 @@ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
- 	struct rx_buf *rx_buf = (struct rx_buf *)urb->context;
- 	struct hif_device_usb *hif_dev = rx_buf->hif_dev;
- 	struct sk_buff *skb = rx_buf->skb;
--	struct sk_buff *nskb;
- 	int ret;
- 
- 	if (!skb)
- 		return;
- 
- 	if (!hif_dev)
--		goto free;
-+		goto free_skb;
- 
- 	switch (urb->status) {
- 	case 0:
-@@ -724,7 +723,7 @@ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
- 	case -ECONNRESET:
- 	case -ENODEV:
- 	case -ESHUTDOWN:
--		goto free;
-+		goto free_skb;
- 	default:
- 		skb_reset_tail_pointer(skb);
- 		skb_trim(skb, 0);
-@@ -735,25 +734,27 @@ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
- 	if (likely(urb->actual_length != 0)) {
- 		skb_put(skb, urb->actual_length);
- 
--		/* Process the command first */
-+		/*
-+		 * Process the command first.
-+		 * skb is either freed here or passed to be
-+		 * managed to another callback function.
-+		 */
- 		ath9k_htc_rx_msg(hif_dev->htc_handle, skb,
- 				 skb->len, USB_REG_IN_PIPE);
- 
--
--		nskb = alloc_skb(MAX_REG_IN_BUF_SIZE, GFP_ATOMIC);
--		if (!nskb) {
-+		skb = alloc_skb(MAX_REG_IN_BUF_SIZE, GFP_ATOMIC);
-+		if (!skb) {
- 			dev_err(&hif_dev->udev->dev,
- 				"ath9k_htc: REG_IN memory allocation failure\n");
--			urb->context = NULL;
--			return;
-+			goto free_rx_buf;
- 		}
- 
--		rx_buf->skb = nskb;
-+		rx_buf->skb = skb;
- 
- 		usb_fill_int_urb(urb, hif_dev->udev,
- 				 usb_rcvintpipe(hif_dev->udev,
- 						 USB_REG_IN_PIPE),
--				 nskb->data, MAX_REG_IN_BUF_SIZE,
-+				 skb->data, MAX_REG_IN_BUF_SIZE,
- 				 ath9k_hif_usb_reg_in_cb, rx_buf, 1);
- 	}
- 
-@@ -762,12 +763,13 @@ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
- 	ret = usb_submit_urb(urb, GFP_ATOMIC);
- 	if (ret) {
- 		usb_unanchor_urb(urb);
--		goto free;
-+		goto free_skb;
- 	}
- 
- 	return;
--free:
-+free_skb:
- 	kfree_skb(skb);
-+free_rx_buf:
- 	kfree(rx_buf);
- 	urb->context = NULL;
+diff --git a/tools/lib/bpf/btf.c b/tools/lib/bpf/btf.c
+index d88647da2c7f..675a0df5c840 100644
+--- a/tools/lib/bpf/btf.c
++++ b/tools/lib/bpf/btf.c
+@@ -3887,14 +3887,14 @@ static inline __u16 btf_fwd_kind(struct btf_type *t)
  }
+ 
+ /* Check if given two types are identical ARRAY definitions */
+-static int btf_dedup_identical_arrays(struct btf_dedup *d, __u32 id1, __u32 id2)
++static bool btf_dedup_identical_arrays(struct btf_dedup *d, __u32 id1, __u32 id2)
+ {
+ 	struct btf_type *t1, *t2;
+ 
+ 	t1 = btf_type_by_id(d->btf, id1);
+ 	t2 = btf_type_by_id(d->btf, id2);
+ 	if (!btf_is_array(t1) || !btf_is_array(t2))
+-		return 0;
++		return false;
+ 
+ 	return btf_equal_array(t1, t2);
+ }
+@@ -3918,7 +3918,9 @@ static bool btf_dedup_identical_structs(struct btf_dedup *d, __u32 id1, __u32 id
+ 	m1 = btf_members(t1);
+ 	m2 = btf_members(t2);
+ 	for (i = 0, n = btf_vlen(t1); i < n; i++, m1++, m2++) {
+-		if (m1->type != m2->type)
++		if (m1->type != m2->type &&
++		    !btf_dedup_identical_arrays(d, m1->type, m2->type) &&
++		    !btf_dedup_identical_structs(d, m1->type, m2->type))
+ 			return false;
+ 	}
+ 	return true;
 -- 
 2.35.1
 
