@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3A2A657EB3
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:56:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B2FF657EB7
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:56:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229603AbiL1P4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:56:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44244 "EHLO
+        id S234184AbiL1P4k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:56:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234183AbiL1P43 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:56:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED6E31183F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:56:28 -0800 (PST)
+        with ESMTP id S234177AbiL1P4h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:56:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEC681409F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:56:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 875B561562
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:56:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 934E1C433EF;
-        Wed, 28 Dec 2022 15:56:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E5AF61560
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:56:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BB77C433D2;
+        Wed, 28 Dec 2022 15:56:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242988;
-        bh=D058oxPQ51un2OnUbpf454pNPcNdKXmynhBE0t71zlk=;
+        s=korg; t=1672242995;
+        bh=tH6ZpV0L4UGuIzGbBfIQemffggo8wHMlaWF05gu9Ygk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bnQxWIqgmYZ0JdoO7/fPTLDR2gauL1SLAJwEqExUwiYBa5E5TAB8AQlcPpqfjX3g1
-         6vN+L2VOQHIhQc79HMo3CU94TxFlJBzkKgX8spnGC6ZKANYhU8GqW+MLplFiFwJv65
-         OTPx0kbn066z1hUP1d58gibvT2UzzgjqXZ/HKvRY=
+        b=v3WqPvQ8PzHR61/Jj7M1xnOHXAwNMGdJVog38STkW8nCdys4iQRLGhEisxNTOgVLZ
+         O+NQ++5aIR8I1v2JXyQuvomSzwBDgCOXWJE0O+yskpxMu51k7daMBgeAaLG8WfsTut
+         uofXaiHl6F2bLBPFzvtekDVpUcwXPU4jYfYG1u3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rui Zhang <zr.zhang@vivo.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 668/731] regulator: core: fix use_count leakage when handling boot-on
-Date:   Wed, 28 Dec 2022 15:42:55 +0100
-Message-Id: <20221228144315.852806292@linuxfoundation.org>
+        patches@lists.linux.dev, Dokyung Song <dokyungs@yonsei.ac.kr>,
+        Deren Wu <deren.wu@mediatek.com>,
+        Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 669/731] wifi: mt76: do not run mt76u_status_worker if the device is not running
+Date:   Wed, 28 Dec 2022 15:42:56 +0100
+Message-Id: <20221228144315.879672214@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
 References: <20221228144256.536395940@linuxfoundation.org>
@@ -53,57 +54,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rui Zhang <zr.zhang@vivo.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 0591b14ce0398125439c759f889647369aa616a0 ]
+[ Upstream commit bd5dac7ced5a7c9faa4dc468ac9560c3256df845 ]
 
-I found a use_count leakage towards supply regulator of rdev with
-boot-on option.
+Fix the following NULL pointer dereference avoiding to run
+mt76u_status_worker thread if the device is not running yet.
 
-┌───────────────────┐           ┌───────────────────┐
-│  regulator_dev A  │           │  regulator_dev B  │
-│     (boot-on)     │           │     (boot-on)     │
-│    use_count=0    │◀──supply──│    use_count=1    │
-│                   │           │                   │
-└───────────────────┘           └───────────────────┘
+KASAN: null-ptr-deref in range
+[0x0000000000000000-0x0000000000000007]
+CPU: 0 PID: 98 Comm: kworker/u2:2 Not tainted 5.14.0+ #78 Hardware
+name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+Workqueue: mt76 mt76u_tx_status_data
+RIP: 0010:mt76x02_mac_fill_tx_status.isra.0+0x82c/0x9e0
+Code: c5 48 b8 00 00 00 00 00 fc ff df 80 3c 02 00 0f 85 94 01 00 00
+48 b8 00 00 00 00 00 fc ff df 4d 8b 34 24 4c 89 f2 48 c1 ea 03 <0f>
+b6
+04 02 84 c0 74 08 3c 03 0f 8e 89 01 00 00 41 8b 16 41 0f b7
+RSP: 0018:ffffc900005af988 EFLAGS: 00010246
+RAX: dffffc0000000000 RBX: ffffc900005afae8 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffffffff832fc661 RDI: ffffc900005afc2a
+RBP: ffffc900005afae0 R08: 0000000000000001 R09: fffff520000b5f3c
+R10: 0000000000000003 R11: fffff520000b5f3b R12: ffff88810b6132d8
+R13: 000000000000ffff R14: 0000000000000000 R15: ffffc900005afc28
+FS:  0000000000000000(0000) GS:ffff88811aa00000(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fa0eda6a000 CR3: 0000000118f17000 CR4: 0000000000750ef0
+PKRU: 55555554
+Call Trace:
+ mt76x02_send_tx_status+0x1d2/0xeb0
+ mt76x02_tx_status_data+0x8e/0xd0
+ mt76u_tx_status_data+0xe1/0x240
+ process_one_work+0x92b/0x1460
+ worker_thread+0x95/0xe00
+ kthread+0x3a1/0x480
+ ret_from_fork+0x1f/0x30
+Modules linked in:
+--[ end trace 8df5d20fc5040f65 ]--
+RIP: 0010:mt76x02_mac_fill_tx_status.isra.0+0x82c/0x9e0
+Code: c5 48 b8 00 00 00 00 00 fc ff df 80 3c 02 00 0f 85 94 01 00 00
+48 b8 00 00 00 00 00 fc ff df 4d 8b 34 24 4c 89 f2 48 c1 ea 03 <0f>
+b6
+04 02 84 c0 74 08 3c 03 0f 8e 89 01 00 00 41 8b 16 41 0f b7
+RSP: 0018:ffffc900005af988 EFLAGS: 00010246
+RAX: dffffc0000000000 RBX: ffffc900005afae8 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffffffff832fc661 RDI: ffffc900005afc2a
+RBP: ffffc900005afae0 R08: 0000000000000001 R09: fffff520000b5f3c
+R10: 0000000000000003 R11: fffff520000b5f3b R12: ffff88810b6132d8
+R13: 000000000000ffff R14: 0000000000000000 R15: ffffc900005afc28
+FS:  0000000000000000(0000) GS:ffff88811aa00000(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fa0eda6a000 CR3: 0000000118f17000 CR4: 0000000000750ef0
+PKRU: 55555554
 
-In case of rdev(A) configured with `regulator-boot-on', the use_count
-of supplying regulator(B) will increment inside
-regulator_enable(rdev->supply).
+Moreover move stat_work schedule out of the for loop.
 
-Thus, B will acts like always-on, and further balanced
-regulator_enable/disable cannot actually disable it anymore.
-
-However, B was also configured with `regulator-boot-on', we wish it
-could be disabled afterwards.
-
-Signed-off-by: Rui Zhang <zr.zhang@vivo.com>
-Link: https://lore.kernel.org/r/20221201033806.2567812-1-zr.zhang@vivo.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Dokyung Song <dokyungs@yonsei.ac.kr>
+Co-developed-by: Deren Wu <deren.wu@mediatek.com>
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/usb.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 1a5aeb4868aa..eababed938a0 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -1531,7 +1531,13 @@ static int set_machine_constraints(struct regulator_dev *rdev)
- 		if (rdev->supply_name && !rdev->supply)
- 			return -EPROBE_DEFER;
+diff --git a/drivers/net/wireless/mediatek/mt76/usb.c b/drivers/net/wireless/mediatek/mt76/usb.c
+index 1e9f60bb811a..b47343e321b8 100644
+--- a/drivers/net/wireless/mediatek/mt76/usb.c
++++ b/drivers/net/wireless/mediatek/mt76/usb.c
+@@ -814,6 +814,9 @@ static void mt76u_status_worker(struct mt76_worker *w)
+ 	struct mt76_queue *q;
+ 	int i;
  
--		if (rdev->supply) {
-+		/* If supplying regulator has already been enabled,
-+		 * it's not intended to have use_count increment
-+		 * when rdev is only boot-on.
-+		 */
-+		if (rdev->supply &&
-+		    (rdev->constraints->always_on ||
-+		     !regulator_is_enabled(rdev->supply))) {
- 			ret = regulator_enable(rdev->supply);
- 			if (ret < 0) {
- 				_regulator_put(rdev->supply);
++	if (!test_bit(MT76_STATE_RUNNING, &dev->phy.state))
++		return;
++
+ 	for (i = 0; i < IEEE80211_NUM_ACS; i++) {
+ 		q = dev->phy.q_tx[i];
+ 		if (!q)
+@@ -833,11 +836,11 @@ static void mt76u_status_worker(struct mt76_worker *w)
+ 			wake_up(&dev->tx_wait);
+ 
+ 		mt76_worker_schedule(&dev->tx_worker);
+-
+-		if (dev->drv->tx_status_data &&
+-		    !test_and_set_bit(MT76_READING_STATS, &dev->phy.state))
+-			queue_work(dev->wq, &dev->usb.stat_work);
+ 	}
++
++	if (dev->drv->tx_status_data &&
++	    !test_and_set_bit(MT76_READING_STATS, &dev->phy.state))
++		queue_work(dev->wq, &dev->usb.stat_work);
+ }
+ 
+ static void mt76u_tx_status_data(struct work_struct *work)
 -- 
 2.35.1
 
