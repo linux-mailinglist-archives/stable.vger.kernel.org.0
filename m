@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A585C65845E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF62B6583AA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:49:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235289AbiL1Q5S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:57:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46860 "EHLO
+        id S235048AbiL1Qtv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:49:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235145AbiL1Q4d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:56:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC62E1F63D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:52:17 -0800 (PST)
+        with ESMTP id S235133AbiL1Qt1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:49:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB1EE1C923
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:44:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 67A756156C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:52:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 713E2C433EF;
-        Wed, 28 Dec 2022 16:52:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 88B89B817AC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:44:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD33EC433EF;
+        Wed, 28 Dec 2022 16:44:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246336;
-        bh=Nwq5g1ESTYBgC8neDArqnPYL2KjnIiBaNb43AqgfEWs=;
+        s=korg; t=1672245888;
+        bh=zf7RAbo9htvu/+5dLGrdZRXxBzlJZ32Qyt64KwWEkBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j5ouA/CaUMocURANq+CrrI3YwioCPsHbLzlKbuKF6Rt4TaK2cfjYmxAnfZTq7aJWc
-         vI5cF3PAgpDQWue8X0BviJxQnGYrc5Ic6vz5iQXOY7l6xqB2c0XgYM7KEVNe3KIbHu
-         /iRDe4Fh5It2I9HosVDVvNkt0vZYJs0QB6kcaKRk=
+        b=uR/ADi/zp00dQDgEMrEFytnWJoHgAeStrEbsk39sikwm+WVOIkkV55VKIu3Dvxmvm
+         SIQ9y08OiJ2Ptm5ttRB5JuJxxDB72x+XO/VjZAVigeKoyTICtAunDHkaZFt+I5AwGE
+         eDMCvpDlR1YhJLrsS33HSifX/ABu7Mvhw2mgr350=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lin Ma <linma@zju.edu.cn>,
-        kernel test robot <lkp@intel.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Linus Walleij <linus.walleij@linaro.org>,
+        Marek Vasut <marex@denx.de>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1023/1146] media: dvbdev: adopts refcnt to avoid UAF
-Date:   Wed, 28 Dec 2022 15:42:42 +0100
-Message-Id: <20221228144358.155650456@linuxfoundation.org>
+Subject: [PATCH 6.0 0975/1073] Bluetooth: hci_bcm: Add CYW4373A0 support
+Date:   Wed, 28 Dec 2022 15:42:43 +0100
+Message-Id: <20221228144354.554789092@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,208 +54,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 0fc044b2b5e2d05a1fa1fb0d7f270367a7855d79 ]
+[ Upstream commit 02d056a3404e20245a69dcb4022a0930085fc5ec ]
 
-dvb_unregister_device() is known that prone to use-after-free.
-That is, the cleanup from dvb_unregister_device() releases the dvb_device
-even if there are pointers stored in file->private_data still refer to it.
+CYW4373A0 is a Wi-Fi + Bluetooth combo device from Cypress.
+This chip is present e.g. on muRata 2AE module.
 
-This patch adds a reference counter into struct dvb_device and delays its
-deallocation until no pointer refers to the object.
+This chip has additional quirk where the HCI command 0xfc45, used on
+older chips to switch UART clock from 24 MHz to 48 MHz, to support
+baudrates over 3 Mbdps, is no longer recognized by this newer chip.
+This newer chip can configure the 4 Mbdps baudrate without the need
+to issue HCI command 0xfc45, so add flag to indicate this and do not
+issue the command on this chip to avoid failure to set 4 Mbdps baud
+rate.
 
-Link: https://lore.kernel.org/linux-media/20220807145952.10368-1-linma@zju.edu.cn
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+It is not clear whether there is a way to determine which chip does
+and which chip does not support the HCI command 0xfc45, other than
+trial and error.
+
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-core/dvb_ca_en50221.c |  2 +-
- drivers/media/dvb-core/dvb_frontend.c   |  2 +-
- drivers/media/dvb-core/dvbdev.c         | 32 +++++++++++++++++++------
- include/media/dvbdev.h                  | 31 +++++++++++++-----------
- 4 files changed, 44 insertions(+), 23 deletions(-)
+ drivers/bluetooth/hci_bcm.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/dvb-core/dvb_ca_en50221.c b/drivers/media/dvb-core/dvb_ca_en50221.c
-index 15a08d8c69ef..c2d2792227f8 100644
---- a/drivers/media/dvb-core/dvb_ca_en50221.c
-+++ b/drivers/media/dvb-core/dvb_ca_en50221.c
-@@ -157,7 +157,7 @@ static void dvb_ca_private_free(struct dvb_ca_private *ca)
- {
- 	unsigned int i;
- 
--	dvb_free_device(ca->dvbdev);
-+	dvb_device_put(ca->dvbdev);
- 	for (i = 0; i < ca->slot_count; i++)
- 		vfree(ca->slot_info[i].rx_buffer.data);
- 
-diff --git a/drivers/media/dvb-core/dvb_frontend.c b/drivers/media/dvb-core/dvb_frontend.c
-index a7792ef4baf8..c41a7e5c2b92 100644
---- a/drivers/media/dvb-core/dvb_frontend.c
-+++ b/drivers/media/dvb-core/dvb_frontend.c
-@@ -136,7 +136,7 @@ static void __dvb_frontend_free(struct dvb_frontend *fe)
- 	struct dvb_frontend_private *fepriv = fe->frontend_priv;
- 
- 	if (fepriv)
--		dvb_free_device(fepriv->dvbdev);
-+		dvb_device_put(fepriv->dvbdev);
- 
- 	dvb_frontend_invoke_release(fe, fe->ops.release);
- 
-diff --git a/drivers/media/dvb-core/dvbdev.c b/drivers/media/dvb-core/dvbdev.c
-index 675d877a67b2..14f0e140d541 100644
---- a/drivers/media/dvb-core/dvbdev.c
-+++ b/drivers/media/dvb-core/dvbdev.c
-@@ -97,7 +97,7 @@ static int dvb_device_open(struct inode *inode, struct file *file)
- 		new_fops = fops_get(dvbdev->fops);
- 		if (!new_fops)
- 			goto fail;
--		file->private_data = dvbdev;
-+		file->private_data = dvb_device_get(dvbdev);
- 		replace_fops(file, new_fops);
- 		if (file->f_op->open)
- 			err = file->f_op->open(inode, file);
-@@ -161,6 +161,9 @@ int dvb_generic_release(struct inode *inode, struct file *file)
- 	}
- 
- 	dvbdev->users++;
-+
-+	dvb_device_put(dvbdev);
-+
- 	return 0;
- }
- EXPORT_SYMBOL(dvb_generic_release);
-@@ -477,6 +480,7 @@ int dvb_register_device(struct dvb_adapter *adap, struct dvb_device **pdvbdev,
- 		return -ENOMEM;
- 	}
- 
-+	kref_init(&dvbdev->ref);
- 	memcpy(dvbdev, template, sizeof(struct dvb_device));
- 	dvbdev->type = type;
- 	dvbdev->id = id;
-@@ -508,7 +512,7 @@ int dvb_register_device(struct dvb_adapter *adap, struct dvb_device **pdvbdev,
- #endif
- 
- 	dvbdev->minor = minor;
--	dvb_minors[minor] = dvbdev;
-+	dvb_minors[minor] = dvb_device_get(dvbdev);
- 	up_write(&minor_rwsem);
- 
- 	ret = dvb_register_media_device(dvbdev, type, minor, demux_sink_pads);
-@@ -553,6 +557,7 @@ void dvb_remove_device(struct dvb_device *dvbdev)
- 
- 	down_write(&minor_rwsem);
- 	dvb_minors[dvbdev->minor] = NULL;
-+	dvb_device_put(dvbdev);
- 	up_write(&minor_rwsem);
- 
- 	dvb_media_device_free(dvbdev);
-@@ -564,21 +569,34 @@ void dvb_remove_device(struct dvb_device *dvbdev)
- EXPORT_SYMBOL(dvb_remove_device);
- 
- 
--void dvb_free_device(struct dvb_device *dvbdev)
-+static void dvb_free_device(struct kref *ref)
- {
--	if (!dvbdev)
--		return;
-+	struct dvb_device *dvbdev = container_of(ref, struct dvb_device, ref);
- 
- 	kfree (dvbdev->fops);
- 	kfree (dvbdev);
- }
--EXPORT_SYMBOL(dvb_free_device);
-+
-+
-+struct dvb_device *dvb_device_get(struct dvb_device *dvbdev)
-+{
-+	kref_get(&dvbdev->ref);
-+	return dvbdev;
-+}
-+EXPORT_SYMBOL(dvb_device_get);
-+
-+
-+void dvb_device_put(struct dvb_device *dvbdev)
-+{
-+	if (dvbdev)
-+		kref_put(&dvbdev->ref, dvb_free_device);
-+}
- 
- 
- void dvb_unregister_device(struct dvb_device *dvbdev)
- {
- 	dvb_remove_device(dvbdev);
--	dvb_free_device(dvbdev);
-+	dvb_device_put(dvbdev);
- }
- EXPORT_SYMBOL(dvb_unregister_device);
- 
-diff --git a/include/media/dvbdev.h b/include/media/dvbdev.h
-index 2f6b0861322a..149b3d33c24b 100644
---- a/include/media/dvbdev.h
-+++ b/include/media/dvbdev.h
-@@ -156,6 +156,7 @@ struct dvb_adapter {
+diff --git a/drivers/bluetooth/hci_bcm.c b/drivers/bluetooth/hci_bcm.c
+index d7e0b75db8a6..2b6c0e1922cb 100644
+--- a/drivers/bluetooth/hci_bcm.c
++++ b/drivers/bluetooth/hci_bcm.c
+@@ -53,11 +53,13 @@
+  * struct bcm_device_data - device specific data
+  * @no_early_set_baudrate: Disallow set baudrate before driver setup()
+  * @drive_rts_on_open: drive RTS signal on ->open() when platform requires it
++ * @no_uart_clock_set: UART clock set command for >3Mbps mode is unavailable
+  * @max_autobaud_speed: max baudrate supported by device in autobaud mode
   */
- struct dvb_device {
- 	struct list_head list_head;
-+	struct kref ref;
- 	const struct file_operations *fops;
- 	struct dvb_adapter *adapter;
- 	enum dvb_device_type type;
-@@ -187,6 +188,20 @@ struct dvb_device {
- 	void *priv;
+ struct bcm_device_data {
+ 	bool	no_early_set_baudrate;
+ 	bool	drive_rts_on_open;
++	bool	no_uart_clock_set;
+ 	u32	max_autobaud_speed;
  };
  
-+/**
-+ * dvb_device_get - Increase dvb_device reference
-+ *
-+ * @dvbdev:	pointer to struct dvb_device
-+ */
-+struct dvb_device *dvb_device_get(struct dvb_device *dvbdev);
-+
-+/**
-+ * dvb_device_get - Decrease dvb_device reference
-+ *
-+ * @dvbdev:	pointer to struct dvb_device
-+ */
-+void dvb_device_put(struct dvb_device *dvbdev);
-+
- /**
-  * dvb_register_adapter - Registers a new DVB adapter
-  *
-@@ -231,29 +246,17 @@ int dvb_register_device(struct dvb_adapter *adap,
- /**
-  * dvb_remove_device - Remove a registered DVB device
-  *
-- * This does not free memory.  To do that, call dvb_free_device().
-+ * This does not free memory. dvb_free_device() will do that when
-+ * reference counter is empty
-  *
-  * @dvbdev:	pointer to struct dvb_device
-  */
- void dvb_remove_device(struct dvb_device *dvbdev);
+@@ -100,6 +102,7 @@ struct bcm_device_data {
+  * @is_suspended: whether flow control is currently disabled
+  * @no_early_set_baudrate: don't set_baudrate before setup()
+  * @drive_rts_on_open: drive RTS signal on ->open() when platform requires it
++ * @no_uart_clock_set: UART clock set command for >3Mbps mode is unavailable
+  * @pcm_int_params: keep the initial PCM configuration
+  * @use_autobaud_mode: start Bluetooth device in autobaud mode
+  * @max_autobaud_speed: max baudrate supported by device in autobaud mode
+@@ -140,6 +143,7 @@ struct bcm_device {
+ #endif
+ 	bool			no_early_set_baudrate;
+ 	bool			drive_rts_on_open;
++	bool			no_uart_clock_set;
+ 	bool			use_autobaud_mode;
+ 	u8			pcm_int_params[5];
+ 	u32			max_autobaud_speed;
+@@ -172,10 +176,11 @@ static inline void host_set_baudrate(struct hci_uart *hu, unsigned int speed)
+ static int bcm_set_baudrate(struct hci_uart *hu, unsigned int speed)
+ {
+ 	struct hci_dev *hdev = hu->hdev;
++	struct bcm_data *bcm = hu->priv;
+ 	struct sk_buff *skb;
+ 	struct bcm_update_uart_baud_rate param;
  
--/**
-- * dvb_free_device - Free memory occupied by a DVB device.
-- *
-- * Call dvb_unregister_device() before calling this function.
-- *
-- * @dvbdev:	pointer to struct dvb_device
-- */
--void dvb_free_device(struct dvb_device *dvbdev);
+-	if (speed > 3000000) {
++	if (speed > 3000000 && !bcm->dev->no_uart_clock_set) {
+ 		struct bcm_write_uart_clock_setting clock;
  
- /**
-  * dvb_unregister_device - Unregisters a DVB device
-  *
-- * This is a combination of dvb_remove_device() and dvb_free_device().
-- * Using this function is usually a mistake, and is often an indicator
-- * for a use-after-free bug (when a userspace process keeps a file
-- * handle to a detached device).
-- *
-  * @dvbdev:	pointer to struct dvb_device
-  */
- void dvb_unregister_device(struct dvb_device *dvbdev);
+ 		clock.type = BCM_UART_CLOCK_48MHZ;
+@@ -1529,6 +1534,7 @@ static int bcm_serdev_probe(struct serdev_device *serdev)
+ 		bcmdev->max_autobaud_speed = data->max_autobaud_speed;
+ 		bcmdev->no_early_set_baudrate = data->no_early_set_baudrate;
+ 		bcmdev->drive_rts_on_open = data->drive_rts_on_open;
++		bcmdev->no_uart_clock_set = data->no_uart_clock_set;
+ 	}
+ 
+ 	return hci_uart_register_device(&bcmdev->serdev_hu, &bcm_proto);
+@@ -1550,6 +1556,10 @@ static struct bcm_device_data bcm43438_device_data = {
+ 	.drive_rts_on_open = true,
+ };
+ 
++static struct bcm_device_data cyw4373a0_device_data = {
++	.no_uart_clock_set = true,
++};
++
+ static struct bcm_device_data cyw55572_device_data = {
+ 	.max_autobaud_speed = 921600,
+ };
+@@ -1566,6 +1576,7 @@ static const struct of_device_id bcm_bluetooth_of_match[] = {
+ 	{ .compatible = "brcm,bcm4349-bt", .data = &bcm43438_device_data },
+ 	{ .compatible = "brcm,bcm43540-bt", .data = &bcm4354_device_data },
+ 	{ .compatible = "brcm,bcm4335a0" },
++	{ .compatible = "cypress,cyw4373a0-bt", .data = &cyw4373a0_device_data },
+ 	{ .compatible = "infineon,cyw55572-bt", .data = &cyw55572_device_data },
+ 	{ },
+ };
 -- 
 2.35.1
 
