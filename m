@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD6E2657F93
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:07:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3840A6578BE
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:53:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233068AbiL1QHD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:07:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52498 "EHLO
+        id S233152AbiL1Oxo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:53:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233101AbiL1QGW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:06:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1554618390
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:06:12 -0800 (PST)
+        with ESMTP id S233158AbiL1Oxm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:53:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA2FC18C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:53:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A9BE16156B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:06:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA379C433EF;
-        Wed, 28 Dec 2022 16:06:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E8DCB816D6
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:53:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B50EFC433D2;
+        Wed, 28 Dec 2022 14:53:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243571;
-        bh=s6fayNqqatLK37mt00Hs0aWVIfXz4k3CCqLNpoB4HG8=;
+        s=korg; t=1672239219;
+        bh=XFzw9d3opGIEk5q8nLsMdcWl1Q6pZHkzpEUBhS4nD5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U9muxKWwukEQdrWGeHx6cUq0UBb8dkpR/jMkZup2Hc2kvsvsNiXxH/xp1vOzDNoM2
-         QnJDIoBKnizWkIvAQ7hNAGQp1Tn0B+w9UtBjXj5LIkBRK67sR0juTZi9B3RkON3x+v
-         lkyZC4g2rU5OmzCmjPop8ChMGb1fEv6cGj7GbGSI=
+        b=P6kVczTypmshU2Ru/HjPfyNvZANg9OjIiuUS/l3bNKmOPohxIve2y6tnJNFyIbfjA
+         1UkFlhM65trkzLxo+yuH7djoqZgS9vvY1JCLApaH/JRA2nlBNxJb78G3mZDI6YqiMs
+         VNUSxR+SIQpVFkF0MGn6XQ/PZ5GVg+pkVIJDySig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
+        patches@lists.linux.dev, Shung-Hsi Yu <shung-hsi.yu@suse.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0514/1146] nvme: pass nr_maps explicitly to nvme_alloc_io_tag_set
+Subject: [PATCH 5.15 146/731] libbpf: Fix null-pointer dereference in find_prog_by_sec_insn()
 Date:   Wed, 28 Dec 2022 15:34:13 +0100
-Message-Id: <20221228144344.136491692@linuxfoundation.org>
+Message-Id: <20221228144300.787754453@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,117 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Shung-Hsi Yu <shung-hsi.yu@suse.com>
 
-[ Upstream commit dcef77274ae52136925287b6b59d5c6e6a4adfb9 ]
+[ Upstream commit d0d382f95a9270dcf803539d6781d6bd67e3f5b2 ]
 
-Don't look at ctrl->ops as only RDMA and TCP actually support multiple
-maps.
+When there are no program sections, obj->programs is left unallocated,
+and find_prog_by_sec_insn()'s search lands on &obj->programs[0] == NULL,
+and will cause null-pointer dereference in the following access to
+prog->sec_idx.
 
-Fixes: 6dfba1c09c10 ("nvme-fc: use the tagset alloc/free helpers")
-Fixes: ceee1953f923 ("nvme-loop: use the tagset alloc/free helpers")
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Guard the search with obj->nr_programs similar to what's being done in
+__bpf_program__iter() to prevent null-pointer access from happening.
+
+Fixes: db2b8b06423c ("libbpf: Support CO-RE relocations for multi-prog sections")
+Signed-off-by: Shung-Hsi Yu <shung-hsi.yu@suse.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20221012022353.7350-4-shung-hsi.yu@suse.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c   | 5 ++---
- drivers/nvme/host/fc.c     | 2 +-
- drivers/nvme/host/nvme.h   | 2 +-
- drivers/nvme/host/rdma.c   | 4 +++-
- drivers/nvme/host/tcp.c    | 1 +
- drivers/nvme/target/loop.c | 2 +-
- 6 files changed, 9 insertions(+), 7 deletions(-)
+ tools/lib/bpf/libbpf.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index a4ea0607bc98..95b73b386719 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -4867,7 +4867,7 @@ EXPORT_SYMBOL_GPL(nvme_remove_admin_tag_set);
+diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
+index 050622649797..f87a15bbf53b 100644
+--- a/tools/lib/bpf/libbpf.c
++++ b/tools/lib/bpf/libbpf.c
+@@ -3763,6 +3763,9 @@ static struct bpf_program *find_prog_by_sec_insn(const struct bpf_object *obj,
+ 	int l = 0, r = obj->nr_programs - 1, m;
+ 	struct bpf_program *prog;
  
- int nvme_alloc_io_tag_set(struct nvme_ctrl *ctrl, struct blk_mq_tag_set *set,
- 		const struct blk_mq_ops *ops, unsigned int flags,
--		unsigned int cmd_size)
-+		unsigned int nr_maps, unsigned int cmd_size)
- {
- 	int ret;
- 
-@@ -4881,8 +4881,7 @@ int nvme_alloc_io_tag_set(struct nvme_ctrl *ctrl, struct blk_mq_tag_set *set,
- 	set->driver_data = ctrl;
- 	set->nr_hw_queues = ctrl->queue_count - 1;
- 	set->timeout = NVME_IO_TIMEOUT;
--	if (ops->map_queues)
--		set->nr_maps = ctrl->opts->nr_poll_queues ? HCTX_MAX_TYPES : 2;
-+	set->nr_maps = nr_maps;
- 	ret = blk_mq_alloc_tag_set(set);
- 	if (ret)
- 		return ret;
-diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
-index 5d57a042dbca..20b0c29a9a34 100644
---- a/drivers/nvme/host/fc.c
-+++ b/drivers/nvme/host/fc.c
-@@ -2903,7 +2903,7 @@ nvme_fc_create_io_queues(struct nvme_fc_ctrl *ctrl)
- 	nvme_fc_init_io_queues(ctrl);
- 
- 	ret = nvme_alloc_io_tag_set(&ctrl->ctrl, &ctrl->tag_set,
--			&nvme_fc_mq_ops, BLK_MQ_F_SHOULD_MERGE,
-+			&nvme_fc_mq_ops, BLK_MQ_F_SHOULD_MERGE, 1,
- 			struct_size((struct nvme_fcp_op_w_sgl *)NULL, priv,
- 				    ctrl->lport->ops->fcprqst_priv_sz));
- 	if (ret)
-diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
-index a29877217ee6..8a0db9e06dc6 100644
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -743,7 +743,7 @@ int nvme_alloc_admin_tag_set(struct nvme_ctrl *ctrl, struct blk_mq_tag_set *set,
- void nvme_remove_admin_tag_set(struct nvme_ctrl *ctrl);
- int nvme_alloc_io_tag_set(struct nvme_ctrl *ctrl, struct blk_mq_tag_set *set,
- 		const struct blk_mq_ops *ops, unsigned int flags,
--		unsigned int cmd_size);
-+		unsigned int nr_maps, unsigned int cmd_size);
- void nvme_remove_io_tag_set(struct nvme_ctrl *ctrl);
- 
- void nvme_remove_namespaces(struct nvme_ctrl *ctrl);
-diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index 6e079abb22ee..a55d3e8b607d 100644
---- a/drivers/nvme/host/rdma.c
-+++ b/drivers/nvme/host/rdma.c
-@@ -798,7 +798,9 @@ static int nvme_rdma_alloc_tag_set(struct nvme_ctrl *ctrl)
- 			    NVME_RDMA_METADATA_SGL_SIZE;
- 
- 	return nvme_alloc_io_tag_set(ctrl, &to_rdma_ctrl(ctrl)->tag_set,
--			&nvme_rdma_mq_ops, BLK_MQ_F_SHOULD_MERGE, cmd_size);
-+			&nvme_rdma_mq_ops, BLK_MQ_F_SHOULD_MERGE,
-+			ctrl->opts->nr_poll_queues ? HCTX_MAX_TYPES : 2,
-+			cmd_size);
- }
- 
- static void nvme_rdma_destroy_admin_queue(struct nvme_rdma_ctrl *ctrl)
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 9b47dcb2a7d9..83735c52d34a 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -1868,6 +1868,7 @@ static int nvme_tcp_configure_io_queues(struct nvme_ctrl *ctrl, bool new)
- 		ret = nvme_alloc_io_tag_set(ctrl, &to_tcp_ctrl(ctrl)->tag_set,
- 				&nvme_tcp_mq_ops,
- 				BLK_MQ_F_SHOULD_MERGE | BLK_MQ_F_BLOCKING,
-+				ctrl->opts->nr_poll_queues ? HCTX_MAX_TYPES : 2,
- 				sizeof(struct nvme_tcp_request));
- 		if (ret)
- 			goto out_free_io_queues;
-diff --git a/drivers/nvme/target/loop.c b/drivers/nvme/target/loop.c
-index b45fe3adf015..08c583258e90 100644
---- a/drivers/nvme/target/loop.c
-+++ b/drivers/nvme/target/loop.c
-@@ -494,7 +494,7 @@ static int nvme_loop_create_io_queues(struct nvme_loop_ctrl *ctrl)
- 		return ret;
- 
- 	ret = nvme_alloc_io_tag_set(&ctrl->ctrl, &ctrl->tag_set,
--			&nvme_loop_mq_ops, BLK_MQ_F_SHOULD_MERGE,
-+			&nvme_loop_mq_ops, BLK_MQ_F_SHOULD_MERGE, 1,
- 			sizeof(struct nvme_loop_iod) +
- 			NVME_INLINE_SG_CNT * sizeof(struct scatterlist));
- 	if (ret)
++	if (!obj->nr_programs)
++		return NULL;
++
+ 	while (l < r) {
+ 		m = l + (r - l + 1) / 2;
+ 		prog = &obj->programs[m];
 -- 
 2.35.1
 
