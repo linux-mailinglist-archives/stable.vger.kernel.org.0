@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 180D9657B92
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF62B658245
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:34:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233617AbiL1PXY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:23:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40980 "EHLO
+        id S234764AbiL1QeU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:34:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233316AbiL1PXF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:23:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86CAF14032
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:23:04 -0800 (PST)
+        with ESMTP id S234877AbiL1Qdl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C76231C411
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:31:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 262D36152F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:23:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33A31C433F0;
-        Wed, 28 Dec 2022 15:23:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 647AF6157C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:31:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74CF2C433D2;
+        Wed, 28 Dec 2022 16:31:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240983;
-        bh=4xWzO25yKAwrZVQzrnUup2pMc6HbbTZB6NYWqInom50=;
+        s=korg; t=1672245074;
+        bh=OO/IKjdkhfzXgaba/1sSlehygQc52J/jkKERn6B57+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F9DWRZMhTsoqqavHgF2Rd93YF8/3UsjKYK/aYNuhzv8l81NhMf72ru4PynwHSifV0
-         aLIw7FaSGHvX4jCZxQxSEziFJ5ncvcktuaJvljeQlppPc+CozpQQfReRPuVG2VQszG
-         xt7dXHzOFLxdr9VtFItAeHS8/xhhilRCiiIYW2iQ=
+        b=XS0ADVPzOqacbQyPZoQKmfMjXNzxgM6SVPlumnDNB6aXiT7g3nunsnXb9BERvDnxa
+         2Akr0fT/ZVSEEMS7K4hFeKyh3tsplKxncBcT17zqZNoq96AaJwOq2o4WOQHYAXa5bt
+         ZMYb/3IrSAE4Vt3U08Oj6KAnmcqd3KY0ezpdeFfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 424/731] RDMA/hfi1: Fix error return code in parse_platform_config()
+        patches@lists.linux.dev,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0792/1146] phy: marvell: phy-mvebu-a3700-comphy: Reset COMPHY registers before USB 3.0 power on
 Date:   Wed, 28 Dec 2022 15:38:51 +0100
-Message-Id: <20221228144308.859254737@linuxfoundation.org>
+Message-Id: <20221228144351.660712528@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,76 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 725349f8ba1e78a146c6ff8f3ee5e2712e517106 ]
+[ Upstream commit b01d622d76134e9401970ffd3fbbb9a7051f976a ]
 
-In the previous iteration of the while loop, the "ret" may have been
-assigned a value of 0, so the error return code -EINVAL may have been
-incorrectly set to 0. To fix set valid return code before calling to
-goto.
+Turris MOX board with older ARM Trusted Firmware version v1.5 is not able
+to detect any USB 3.0 device connected to USB-A port on Mox-A module after
+commit 0a6fc70d76bd ("phy: marvell: phy-mvebu-a3700-comphy: Remove broken
+reset support"). On the other hand USB 2.0 devices connected to the same
+USB-A port are working fine.
 
-Fixes: 97167e813415 ("staging/rdma/hfi1: Tune for unknown channel if configuration file is absent")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Link: https://lore.kernel.org/r/1669953638-11747-1-git-send-email-wangyufen@huawei.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+It looks as if the older firmware configures COMPHY registers for USB 3.0
+somehow incompatibly for kernel driver. Experiments show that resetting
+COMPHY registers via setting SFT_RST auto-clearing bit in COMPHY_SFT_RESET
+register fixes this issue.
+
+Reset the COMPHY in mvebu_a3700_comphy_usb3_power_on() function as a first
+step after selecting COMPHY lane and USB 3.0 function. With this change
+Turris MOX board can successfully detect USB 3.0 devices again.
+
+Before the above mentioned commit this reset was implemented in PHY reset
+method, so this is the reason why there was no issue with older firmware
+version then.
+
+Fixes: 0a6fc70d76bd ("phy: marvell: phy-mvebu-a3700-comphy: Remove broken reset support")
+Reported-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Tested-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Link: https://lore.kernel.org/r/20220920121154.30115-1-pali@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/firmware.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/phy/marvell/phy-mvebu-a3700-comphy.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/infiniband/hw/hfi1/firmware.c b/drivers/infiniband/hw/hfi1/firmware.c
-index 31e63e245ea9..ddf3217893f8 100644
---- a/drivers/infiniband/hw/hfi1/firmware.c
-+++ b/drivers/infiniband/hw/hfi1/firmware.c
-@@ -1744,6 +1744,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
+diff --git a/drivers/phy/marvell/phy-mvebu-a3700-comphy.c b/drivers/phy/marvell/phy-mvebu-a3700-comphy.c
+index 67712c77d806..d641b345afa3 100644
+--- a/drivers/phy/marvell/phy-mvebu-a3700-comphy.c
++++ b/drivers/phy/marvell/phy-mvebu-a3700-comphy.c
+@@ -826,6 +826,9 @@ mvebu_a3700_comphy_usb3_power_on(struct mvebu_a3700_comphy_lane *lane)
+ 	if (ret)
+ 		return ret;
  
- 	if (!dd->platform_config.data) {
- 		dd_dev_err(dd, "%s: Missing config file\n", __func__);
-+		ret = -EINVAL;
- 		goto bail;
- 	}
- 	ptr = (u32 *)dd->platform_config.data;
-@@ -1752,6 +1753,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
- 	ptr++;
- 	if (magic_num != PLATFORM_CONFIG_MAGIC_NUM) {
- 		dd_dev_err(dd, "%s: Bad config file\n", __func__);
-+		ret = -EINVAL;
- 		goto bail;
- 	}
- 
-@@ -1775,6 +1777,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
- 	if (file_length > dd->platform_config.size) {
- 		dd_dev_info(dd, "%s:File claims to be larger than read size\n",
- 			    __func__);
-+		ret = -EINVAL;
- 		goto bail;
- 	} else if (file_length < dd->platform_config.size) {
- 		dd_dev_info(dd,
-@@ -1795,6 +1798,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
- 			dd_dev_err(dd, "%s: Failed validation at offset %ld\n",
- 				   __func__, (ptr - (u32 *)
- 					      dd->platform_config.data));
-+			ret = -EINVAL;
- 			goto bail;
- 		}
- 
-@@ -1838,6 +1842,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
- 					   __func__, table_type,
- 					   (ptr - (u32 *)
- 					    dd->platform_config.data));
-+				ret = -EINVAL;
- 				goto bail; /* We don't trust this file now */
- 			}
- 			pcfgcache->config_tables[table_type].table = ptr;
-@@ -1857,6 +1862,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
- 					   __func__, table_type,
- 					   (ptr -
- 					    (u32 *)dd->platform_config.data));
-+				ret = -EINVAL;
- 				goto bail; /* We don't trust this file now */
- 			}
- 			pcfgcache->config_tables[table_type].table_metadata =
++	/* COMPHY register reset (cleared automatically) */
++	comphy_lane_reg_set(lane, COMPHY_SFT_RESET, SFT_RST, SFT_RST);
++
+ 	/*
+ 	 * 0. Set PHY OTG Control(0x5d034), bit 4, Power up OTG module The
+ 	 * register belong to UTMI module, so it is set in UTMI phy driver.
 -- 
 2.35.1
 
