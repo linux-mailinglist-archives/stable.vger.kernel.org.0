@@ -2,45 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69815657A87
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:13:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85ADB658067
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:17:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230239AbiL1PNA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:13:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59864 "EHLO
+        id S234499AbiL1QRm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:17:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230080AbiL1PMZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:12:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A08913EA2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:12:00 -0800 (PST)
+        with ESMTP id S233113AbiL1QQp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:16:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D8E01A07C;
+        Wed, 28 Dec 2022 08:14:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BCBE861562
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:11:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDF07C433D2;
-        Wed, 28 Dec 2022 15:11:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 69837B81730;
+        Wed, 28 Dec 2022 16:14:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 967FAC433D2;
+        Wed, 28 Dec 2022 16:14:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240319;
-        bh=rhCB+WaL4XZfaMPn3n25f3dMxAmtvJ2BFmgERi8/Aco=;
+        s=korg; t=1672244070;
+        bh=kRTk6nDVGgy/CNk4BdTNcr95TadAdi4NeD1/gJZGOy4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bKERqvHbNLlKLA9S68HmDg1fvgttNiqWHBKCm04p/zKTzhXlorHV16H9BOiHMFzMi
-         Wie1sIr1yNnZ3kZDRNYiRC+bXTuf3vJtiD87WE2t5hK6JlN5OlLdWA9j5nxhIEPCjw
-         7vFhW7MZb9JrdurMK6hZm0nb6UG8A/jp9gSVS4F0=
+        b=xQ+d3ZBR+gZXp58Ww6HB66erW3F66DZ8Qle5N8gUVH+/nWaUk6JzDlJpkmiNByabZ
+         3/Y7pQUubgnI3gotnak4F/5P76tHrCZf40fYqOqsASVYzQob1oRamjY4eQmNlp5l6R
+         PYyuYJ6SutFgGDuncyUalZEmwXyM+UUA1bvUMXzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        linux-rdma@vger.kernel.org, Jeff Dike <jdike@addtoit.com>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        linux-um@lists.infradead.org, Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 321/731] clk: socfpga: Fix memory leak in socfpga_gate_init()
-Date:   Wed, 28 Dec 2022 15:37:08 +0100
-Message-Id: <20221228144305.880010115@linuxfoundation.org>
+Subject: [PATCH 6.0 0641/1073] RDMA: Disable IB HW for UML
+Date:   Wed, 28 Dec 2022 15:37:09 +0100
+Message-Id: <20221228144345.450630069@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +60,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 0b8ba891ad4d1ef6bfa4c72efc83f9f9f855f68b ]
+[ Upstream commit 323a74fc20f53c0d0e13a16aee703a30d9751235 ]
 
-Free @socfpga_clk and @ops on the error path to avoid memory leak issue.
+Disable all of drivers/infiniband/hw/ and rdmavt for UML builds until
+someone needs it and provides patches to support it.
 
-Fixes: a30a67be7b6e ("clk: socfpga: Don't have get_parent for single parent ops")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Link: https://lore.kernel.org/r/20221123031622.63171-1-xiujianfeng@huawei.com
-Acked-by: Dinh Nguyen <dinguyen@kernel.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+This prevents build errors in hw/qib/qib_wc_x86_64.c.
+
+Fixes: 68f5d3f3b654 ("um: add PCI over virtio emulation driver")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: linux-rdma@vger.kernel.org
+Cc: Jeff Dike <jdike@addtoit.com>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Cc: Johannes Berg <johannes@sipsolutions.net>
+Cc: linux-um@lists.infradead.org
+Link: https://lore.kernel.org/r/20221202211940.29111-1-rdunlap@infradead.org
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/socfpga/clk-gate.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/infiniband/Kconfig | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/clk/socfpga/clk-gate.c b/drivers/clk/socfpga/clk-gate.c
-index 1ec9678d8cd3..ee2a2d284113 100644
---- a/drivers/clk/socfpga/clk-gate.c
-+++ b/drivers/clk/socfpga/clk-gate.c
-@@ -188,8 +188,10 @@ void __init socfpga_gate_init(struct device_node *node)
- 		return;
+diff --git a/drivers/infiniband/Kconfig b/drivers/infiniband/Kconfig
+index aa36ac618e72..17a227415277 100644
+--- a/drivers/infiniband/Kconfig
++++ b/drivers/infiniband/Kconfig
+@@ -78,6 +78,7 @@ config INFINIBAND_VIRT_DMA
+ 	def_bool !HIGHMEM
  
- 	ops = kmemdup(&gateclk_ops, sizeof(gateclk_ops), GFP_KERNEL);
--	if (WARN_ON(!ops))
-+	if (WARN_ON(!ops)) {
-+		kfree(socfpga_clk);
- 		return;
-+	}
- 
- 	rc = of_property_read_u32_array(node, "clk-gate", clk_gate, 2);
- 	if (rc)
-@@ -243,6 +245,7 @@ void __init socfpga_gate_init(struct device_node *node)
- 
- 	err = clk_hw_register(NULL, hw_clk);
- 	if (err) {
-+		kfree(ops);
- 		kfree(socfpga_clk);
- 		return;
- 	}
+ if INFINIBAND_USER_ACCESS || !INFINIBAND_USER_ACCESS
++if !UML
+ source "drivers/infiniband/hw/bnxt_re/Kconfig"
+ source "drivers/infiniband/hw/cxgb4/Kconfig"
+ source "drivers/infiniband/hw/efa/Kconfig"
+@@ -94,6 +95,7 @@ source "drivers/infiniband/hw/qib/Kconfig"
+ source "drivers/infiniband/hw/usnic/Kconfig"
+ source "drivers/infiniband/hw/vmw_pvrdma/Kconfig"
+ source "drivers/infiniband/sw/rdmavt/Kconfig"
++endif # !UML
+ source "drivers/infiniband/sw/rxe/Kconfig"
+ source "drivers/infiniband/sw/siw/Kconfig"
+ endif
 -- 
 2.35.1
 
