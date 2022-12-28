@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 577BA6580F3
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:23:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEC89657B18
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:18:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234665AbiL1QXN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:23:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43418 "EHLO
+        id S233191AbiL1PSF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:18:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234859AbiL1QWV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:22:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AA4A1A21A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:19:58 -0800 (PST)
+        with ESMTP id S233204AbiL1PSD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:18:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C71613F79
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:18:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B0D0E61577
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:19:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF2F3C433D2;
-        Wed, 28 Dec 2022 16:19:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2855661554
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:18:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35DE1C433F0;
+        Wed, 28 Dec 2022 15:18:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244397;
-        bh=2q1vrMX8UCs1gsDCdclOCLM0Gx3S0BaTH5j2LUQGrb8=;
+        s=korg; t=1672240681;
+        bh=hxW1T+7rmElCLh/bcg/yD1KBOcng6fuFfC/0VhCe+T8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bw2d0Y3ntjdE/5mFTb/XHZoJcjBrKf8VMTbh1B5Gxcrw9FZ+0VD0KD9sLHWG0uWyp
-         0G6IBdnN2g8ImNJB4vQvllkeHjiN/uisnE7jYU7wzt9h/nqvZrKHH08kXSR5SmhVMj
-         wJgCxjnCaiI1xtJfuqGg2Jxcs3sGC7ACBWy5K5GQ=
+        b=rBiyhBgdll9DjhXCmFEfl88hSMtVTxfb7paDIbVf8wlgsPB8tAA+yYEfgzM69oV4k
+         ZkWCmRgO+zzvA6KtoZWR1bUfWEBmcTW7Jlrrtw8L7brxNRiNarbCocKSlhx5wO1IMc
+         V8BP4oa+NJl/d/mqCUjEd1xm/H7QHXwSphBvoEzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Yang Shen <shenyang39@huawei.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Nirmal Patel <nirmal.patel@linux.intel.com>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        Francisco Munoz <francisco.munoz.ruiz@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0703/1073] coresight: trbe: remove cpuhp instance node before remove cpuhp state
-Date:   Wed, 28 Dec 2022 15:38:11 +0100
-Message-Id: <20221228144347.126510652@linuxfoundation.org>
+Subject: [PATCH 5.15 385/731] PCI: vmd: Disable MSI remapping after suspend
+Date:   Wed, 28 Dec 2022 15:38:12 +0100
+Message-Id: <20221228144307.721149212@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Shen <shenyang39@huawei.com>
+From: Nirmal Patel <nirmal.patel@linux.intel.com>
 
-[ Upstream commit 20ee8c223f792947378196307d8e707c9cdc2d61 ]
+[ Upstream commit d899aa668498c07ff217b666ae9712990306e682 ]
 
-cpuhp_state_add_instance() and cpuhp_state_remove_instance() should
-be used in pairs. Or there will lead to the warn on
-cpuhp_remove_multi_state() since the cpuhp_step list is not empty.
+MSI remapping is disabled by VMD driver for Intel's Icelake and
+newer systems in order to improve performance by setting
+VMCONFIG_MSI_REMAP. By design VMCONFIG_MSI_REMAP register is cleared
+by firmware during boot. The same register gets cleared when system
+is put in S3 power state. VMD driver needs to set this register again
+in order to avoid interrupt issues with devices behind VMD if MSI
+remapping was disabled before.
 
-The following is the error log with 'rmmod coresight-trbe':
-Error: Removing state 215 which has instances left.
-Call trace:
-  __cpuhp_remove_state_cpuslocked+0x144/0x160
-  __cpuhp_remove_state+0xac/0x100
-  arm_trbe_device_remove+0x2c/0x60 [coresight_trbe]
-  platform_remove+0x34/0x70
-  device_remove+0x54/0x90
-  device_release_driver_internal+0x1e4/0x250
-  driver_detach+0x5c/0xb0
-  bus_remove_driver+0x64/0xc0
-  driver_unregister+0x3c/0x70
-  platform_driver_unregister+0x20/0x30
-  arm_trbe_exit+0x1c/0x658 [coresight_trbe]
-  __arm64_sys_delete_module+0x1ac/0x24c
-  invoke_syscall+0x50/0x120
-  el0_svc_common.constprop.0+0x58/0x1a0
-  do_el0_svc+0x38/0xd0
-  el0_svc+0x2c/0xc0
-  el0t_64_sync_handler+0x1ac/0x1b0
-  el0t_64_sync+0x19c/0x1a0
- ---[ end trace 0000000000000000 ]---
-
-Fixes: 3fbf7f011f24 ("coresight: sink: Add TRBE driver")
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Signed-off-by: Yang Shen <shenyang39@huawei.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Link: https://lore.kernel.org/r/20221122090355.23533-1-shenyang39@huawei.com
+Link: https://lore.kernel.org/r/20221109142652.450998-1-nirmal.patel@linux.intel.com
+Fixes: ee81ee84f873 ("PCI: vmd: Disable MSI-X remapping when possible")
+Signed-off-by: Nirmal Patel <nirmal.patel@linux.intel.com>
+Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Reviewed-by: Francisco Munoz <francisco.munoz.ruiz@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/coresight/coresight-trbe.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/pci/controller/vmd.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/hwtracing/coresight/coresight-trbe.c b/drivers/hwtracing/coresight/coresight-trbe.c
-index 2b386bb848f8..1fc4fd79a1c6 100644
---- a/drivers/hwtracing/coresight/coresight-trbe.c
-+++ b/drivers/hwtracing/coresight/coresight-trbe.c
-@@ -1434,6 +1434,7 @@ static int arm_trbe_probe_cpuhp(struct trbe_drvdata *drvdata)
+diff --git a/drivers/pci/controller/vmd.c b/drivers/pci/controller/vmd.c
+index a5987e52700e..8dce71142e10 100644
+--- a/drivers/pci/controller/vmd.c
++++ b/drivers/pci/controller/vmd.c
+@@ -900,6 +900,11 @@ static int vmd_resume(struct device *dev)
+ 	struct vmd_dev *vmd = pci_get_drvdata(pdev);
+ 	int err, i;
  
- static void arm_trbe_remove_cpuhp(struct trbe_drvdata *drvdata)
- {
-+	cpuhp_state_remove_instance(drvdata->trbe_online, &drvdata->hotplug_node);
- 	cpuhp_remove_multi_state(drvdata->trbe_online);
- }
- 
++       if (vmd->irq_domain)
++               vmd_set_msi_remapping(vmd, true);
++       else
++               vmd_set_msi_remapping(vmd, false);
++
+ 	for (i = 0; i < vmd->msix_count; i++) {
+ 		err = devm_request_irq(dev, pci_irq_vector(pdev, i),
+ 				       vmd_irq, IRQF_NO_THREAD,
 -- 
 2.35.1
 
