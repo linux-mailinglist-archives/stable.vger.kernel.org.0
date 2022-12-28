@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FB83658001
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:13:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59FC56579B3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:03:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234463AbiL1QNI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:13:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59654 "EHLO
+        id S233478AbiL1PDx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:03:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234629AbiL1QMK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:12:10 -0500
+        with ESMTP id S233464AbiL1PDw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:03:52 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6BBC17E18
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:10:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96FDE120B4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:03:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6023A60D41
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:10:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 778F0C433D2;
-        Wed, 28 Dec 2022 16:10:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 36A9D6153C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:03:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DF0FC433EF;
+        Wed, 28 Dec 2022 15:03:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243822;
-        bh=xMobtsmCGjNa1Bbse22VCLUmguIjGM+69x3VdDMZzrg=;
+        s=korg; t=1672239830;
+        bh=+05C59kCO7vMNOAUq/y/TcusDWvrixih8JU47hiWncU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oD7YiVS8MEqkiWRaSBD274mfi9eFJqY5RAvqaQcWgJiaaaQKMVnA6UrMLMjumH/Ss
-         rbquLG6irvc/2SKW7+cKUNEGmbMandJV/lKppDSEguERpIau6DNMwckufLT5EP/Sx1
-         W6A9u4YUe0j0bhzsAKkTVgIJ5IaU6sWDsUOq//iQ=
+        b=zbu814Uy1o6aEPDiifE8AScAJA/Lbr4fxvvY0uJWSWkkdYkGqUaOUIt6PptsPZBGI
+         g87PGPyZmJg78syFYspIStQktBu8xhvBW0Ook5IKv17/KsROagPlj/WRQ0nQWyech6
+         zOYVEsRqtGRoi1xXzsXmycOrCA9xTL7r75QC0o5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mustafa Ismail <mustafa.ismail@intel.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0594/1073] RDMA/irdma: Fix inline for multiple SGEs
+Subject: [PATCH 5.15 275/731] hsr: Avoid double remove of a node.
 Date:   Wed, 28 Dec 2022 15:36:22 +0100
-Message-Id: <20221228144344.181396496@linuxfoundation.org>
+Message-Id: <20221228144304.544359350@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,389 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mustafa Ismail <mustafa.ismail@intel.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-[ Upstream commit 4f44e519b6a945068755708119cca5b74d01d1f6 ]
+[ Upstream commit 0c74d9f79ec4299365bbe803baa736ae0068179e ]
 
-Currently, inline send and inline write assume a single
-SGE and only copy data from the first one. Add support
-for multiple SGE's.
+Due to the hashed-MAC optimisation one problem become visible:
+hsr_handle_sup_frame() walks over the list of available nodes and merges
+two node entries into one if based on the information in the supervision
+both MAC addresses belong to one node. The list-walk happens on a RCU
+protected list and delete operation happens under a lock.
 
-Fixes: b48c24c2d710 ("RDMA/irdma: Implement device supported verb APIs")
-Signed-off-by: Mustafa Ismail <mustafa.ismail@intel.com>
-Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Link: https://lore.kernel.org/r/20221115011701.1379-2-shiraz.saleem@intel.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+If the supervision arrives on both slave interfaces at the same time
+then this delete operation can occur simultaneously on two CPUs. The
+result is the first-CPU deletes the from the list and the second CPUs
+BUGs while attempting to dereference a poisoned list-entry. This happens
+more likely with the optimisation because a new node for the mac_B entry
+is created once a packet has been received and removed (merged) once the
+supervision frame has been received.
+
+Avoid removing/ cleaning up a hsr_node twice by adding a `removed' field
+which is set to true after the removal and checked before the removal.
+
+Fixes: f266a683a4804 ("net/hsr: Better frame dispatch")
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/irdma/uk.c    | 149 ++++++++++++++++++----------
- drivers/infiniband/hw/irdma/user.h  |  19 +---
- drivers/infiniband/hw/irdma/verbs.c |  55 ++++------
- 3 files changed, 119 insertions(+), 104 deletions(-)
+ net/hsr/hsr_framereg.c | 16 +++++++++++-----
+ net/hsr/hsr_framereg.h |  1 +
+ 2 files changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/infiniband/hw/irdma/uk.c b/drivers/infiniband/hw/irdma/uk.c
-index a6e5d350a94c..1a57ed9d77ff 100644
---- a/drivers/infiniband/hw/irdma/uk.c
-+++ b/drivers/infiniband/hw/irdma/uk.c
-@@ -566,21 +566,37 @@ static void irdma_set_mw_bind_wqe_gen_1(__le64 *wqe,
+diff --git a/net/hsr/hsr_framereg.c b/net/hsr/hsr_framereg.c
+index e31949479305..440788e5b3e2 100644
+--- a/net/hsr/hsr_framereg.c
++++ b/net/hsr/hsr_framereg.c
+@@ -326,9 +326,12 @@ void hsr_handle_sup_frame(struct hsr_frame_info *frame)
+ 	node_real->addr_B_port = port_rcv->type;
  
- /**
-  * irdma_copy_inline_data_gen_1 - Copy inline data to wqe
-- * @dest: pointer to wqe
-- * @src: pointer to inline data
-- * @len: length of inline data to copy
-+ * @wqe: pointer to wqe
-+ * @sge_list: table of pointers to inline data
-+ * @num_sges: Total inline data length
-  * @polarity: compatibility parameter
-  */
--static void irdma_copy_inline_data_gen_1(u8 *dest, u8 *src, u32 len,
--					 u8 polarity)
-+static void irdma_copy_inline_data_gen_1(u8 *wqe, struct ib_sge *sge_list,
-+					 u32 num_sges, u8 polarity)
- {
--	if (len <= 16) {
--		memcpy(dest, src, len);
--	} else {
--		memcpy(dest, src, 16);
--		src += 16;
--		dest = dest + 32;
--		memcpy(dest, src, len - 16);
-+	u32 quanta_bytes_remaining = 16;
-+	int i;
-+
-+	for (i = 0; i < num_sges; i++) {
-+		u8 *cur_sge = (u8 *)(uintptr_t)sge_list[i].addr;
-+		u32 sge_len = sge_list[i].length;
-+
-+		while (sge_len) {
-+			u32 bytes_copied;
-+
-+			bytes_copied = min(sge_len, quanta_bytes_remaining);
-+			memcpy(wqe, cur_sge, bytes_copied);
-+			wqe += bytes_copied;
-+			cur_sge += bytes_copied;
-+			quanta_bytes_remaining -= bytes_copied;
-+			sge_len -= bytes_copied;
-+
-+			if (!quanta_bytes_remaining) {
-+				/* Remaining inline bytes reside after hdr */
-+				wqe += 16;
-+				quanta_bytes_remaining = 32;
+ 	spin_lock_bh(&hsr->list_lock);
+-	list_del_rcu(&node_curr->mac_list);
++	if (!node_curr->removed) {
++		list_del_rcu(&node_curr->mac_list);
++		node_curr->removed = true;
++		kfree_rcu(node_curr, rcu_head);
++	}
+ 	spin_unlock_bh(&hsr->list_lock);
+-	kfree_rcu(node_curr, rcu_head);
+ 
+ done:
+ 	/* PRP uses v0 header */
+@@ -502,9 +505,12 @@ void hsr_prune_nodes(struct timer_list *t)
+ 		if (time_is_before_jiffies(timestamp +
+ 				msecs_to_jiffies(HSR_NODE_FORGET_TIME))) {
+ 			hsr_nl_nodedown(hsr, node->macaddress_A);
+-			list_del_rcu(&node->mac_list);
+-			/* Note that we need to free this entry later: */
+-			kfree_rcu(node, rcu_head);
++			if (!node->removed) {
++				list_del_rcu(&node->mac_list);
++				node->removed = true;
++				/* Note that we need to free this entry later: */
++				kfree_rcu(node, rcu_head);
 +			}
-+		}
+ 		}
  	}
- }
- 
-@@ -612,35 +628,51 @@ static void irdma_set_mw_bind_wqe(__le64 *wqe,
- 
- /**
-  * irdma_copy_inline_data - Copy inline data to wqe
-- * @dest: pointer to wqe
-- * @src: pointer to inline data
-- * @len: length of inline data to copy
-+ * @wqe: pointer to wqe
-+ * @sge_list: table of pointers to inline data
-+ * @num_sges: number of SGE's
-  * @polarity: polarity of wqe valid bit
-  */
--static void irdma_copy_inline_data(u8 *dest, u8 *src, u32 len, u8 polarity)
-+static void irdma_copy_inline_data(u8 *wqe, struct ib_sge *sge_list,
-+				   u32 num_sges, u8 polarity)
- {
- 	u8 inline_valid = polarity << IRDMA_INLINE_VALID_S;
--	u32 copy_size;
--
--	dest += 8;
--	if (len <= 8) {
--		memcpy(dest, src, len);
--		return;
--	}
--
--	*((u64 *)dest) = *((u64 *)src);
--	len -= 8;
--	src += 8;
--	dest += 24; /* point to additional 32 byte quanta */
--
--	while (len) {
--		copy_size = len < 31 ? len : 31;
--		memcpy(dest, src, copy_size);
--		*(dest + 31) = inline_valid;
--		len -= copy_size;
--		dest += 32;
--		src += copy_size;
-+	u32 quanta_bytes_remaining = 8;
-+	bool first_quanta = true;
-+	int i;
-+
-+	wqe += 8;
-+
-+	for (i = 0; i < num_sges; i++) {
-+		u8 *cur_sge = (u8 *)(uintptr_t)sge_list[i].addr;
-+		u32 sge_len = sge_list[i].length;
-+
-+		while (sge_len) {
-+			u32 bytes_copied;
-+
-+			bytes_copied = min(sge_len, quanta_bytes_remaining);
-+			memcpy(wqe, cur_sge, bytes_copied);
-+			wqe += bytes_copied;
-+			cur_sge += bytes_copied;
-+			quanta_bytes_remaining -= bytes_copied;
-+			sge_len -= bytes_copied;
-+
-+			if (!quanta_bytes_remaining) {
-+				quanta_bytes_remaining = 31;
-+
-+				/* Remaining inline bytes reside after hdr */
-+				if (first_quanta) {
-+					first_quanta = false;
-+					wqe += 16;
-+				} else {
-+					*wqe = inline_valid;
-+					wqe++;
-+				}
-+			}
-+		}
- 	}
-+	if (!first_quanta && quanta_bytes_remaining < 31)
-+		*(wqe + quanta_bytes_remaining) = inline_valid;
- }
- 
- /**
-@@ -679,20 +711,27 @@ int irdma_uk_inline_rdma_write(struct irdma_qp_uk *qp,
- 			       struct irdma_post_sq_info *info, bool post_sq)
- {
- 	__le64 *wqe;
--	struct irdma_inline_rdma_write *op_info;
-+	struct irdma_rdma_write *op_info;
- 	u64 hdr = 0;
- 	u32 wqe_idx;
- 	bool read_fence = false;
-+	u32 i, total_size = 0;
- 	u16 quanta;
- 
- 	info->push_wqe = qp->push_db ? true : false;
--	op_info = &info->op.inline_rdma_write;
-+	op_info = &info->op.rdma_write;
-+
-+	if (unlikely(qp->max_sq_frag_cnt < op_info->num_lo_sges))
-+		return -EINVAL;
- 
--	if (op_info->len > qp->max_inline_data)
-+	for (i = 0; i < op_info->num_lo_sges; i++)
-+		total_size += op_info->lo_sg_list[i].length;
-+
-+	if (unlikely(total_size > qp->max_inline_data))
- 		return -EINVAL;
- 
--	quanta = qp->wqe_ops.iw_inline_data_size_to_quanta(op_info->len);
--	wqe = irdma_qp_get_next_send_wqe(qp, &wqe_idx, quanta, op_info->len,
-+	quanta = qp->wqe_ops.iw_inline_data_size_to_quanta(total_size);
-+	wqe = irdma_qp_get_next_send_wqe(qp, &wqe_idx, quanta, total_size,
- 					 info);
- 	if (!wqe)
- 		return -ENOMEM;
-@@ -705,7 +744,7 @@ int irdma_uk_inline_rdma_write(struct irdma_qp_uk *qp,
- 
- 	hdr = FIELD_PREP(IRDMAQPSQ_REMSTAG, op_info->rem_addr.lkey) |
- 	      FIELD_PREP(IRDMAQPSQ_OPCODE, info->op_type) |
--	      FIELD_PREP(IRDMAQPSQ_INLINEDATALEN, op_info->len) |
-+	      FIELD_PREP(IRDMAQPSQ_INLINEDATALEN, total_size) |
- 	      FIELD_PREP(IRDMAQPSQ_REPORTRTT, info->report_rtt ? 1 : 0) |
- 	      FIELD_PREP(IRDMAQPSQ_INLINEDATAFLAG, 1) |
- 	      FIELD_PREP(IRDMAQPSQ_IMMDATAFLAG, info->imm_data_valid ? 1 : 0) |
-@@ -719,7 +758,8 @@ int irdma_uk_inline_rdma_write(struct irdma_qp_uk *qp,
- 		set_64bit_val(wqe, 0,
- 			      FIELD_PREP(IRDMAQPSQ_IMMDATA, info->imm_data));
- 
--	qp->wqe_ops.iw_copy_inline_data((u8 *)wqe, op_info->data, op_info->len,
-+	qp->wqe_ops.iw_copy_inline_data((u8 *)wqe, op_info->lo_sg_list,
-+					op_info->num_lo_sges,
- 					qp->swqe_polarity);
- 	dma_wmb(); /* make sure WQE is populated before valid bit is set */
- 
-@@ -745,20 +785,27 @@ int irdma_uk_inline_send(struct irdma_qp_uk *qp,
- 			 struct irdma_post_sq_info *info, bool post_sq)
- {
- 	__le64 *wqe;
--	struct irdma_post_inline_send *op_info;
-+	struct irdma_post_send *op_info;
- 	u64 hdr;
- 	u32 wqe_idx;
- 	bool read_fence = false;
-+	u32 i, total_size = 0;
- 	u16 quanta;
- 
- 	info->push_wqe = qp->push_db ? true : false;
--	op_info = &info->op.inline_send;
-+	op_info = &info->op.send;
- 
--	if (op_info->len > qp->max_inline_data)
-+	if (unlikely(qp->max_sq_frag_cnt < op_info->num_sges))
- 		return -EINVAL;
- 
--	quanta = qp->wqe_ops.iw_inline_data_size_to_quanta(op_info->len);
--	wqe = irdma_qp_get_next_send_wqe(qp, &wqe_idx, quanta, op_info->len,
-+	for (i = 0; i < op_info->num_sges; i++)
-+		total_size += op_info->sg_list[i].length;
-+
-+	if (unlikely(total_size > qp->max_inline_data))
-+		return -EINVAL;
-+
-+	quanta = qp->wqe_ops.iw_inline_data_size_to_quanta(total_size);
-+	wqe = irdma_qp_get_next_send_wqe(qp, &wqe_idx, quanta, total_size,
- 					 info);
- 	if (!wqe)
- 		return -ENOMEM;
-@@ -773,7 +820,7 @@ int irdma_uk_inline_send(struct irdma_qp_uk *qp,
- 	hdr = FIELD_PREP(IRDMAQPSQ_REMSTAG, info->stag_to_inv) |
- 	      FIELD_PREP(IRDMAQPSQ_AHID, op_info->ah_id) |
- 	      FIELD_PREP(IRDMAQPSQ_OPCODE, info->op_type) |
--	      FIELD_PREP(IRDMAQPSQ_INLINEDATALEN, op_info->len) |
-+	      FIELD_PREP(IRDMAQPSQ_INLINEDATALEN, total_size) |
- 	      FIELD_PREP(IRDMAQPSQ_IMMDATAFLAG,
- 			 (info->imm_data_valid ? 1 : 0)) |
- 	      FIELD_PREP(IRDMAQPSQ_REPORTRTT, (info->report_rtt ? 1 : 0)) |
-@@ -789,8 +836,8 @@ int irdma_uk_inline_send(struct irdma_qp_uk *qp,
- 	if (info->imm_data_valid)
- 		set_64bit_val(wqe, 0,
- 			      FIELD_PREP(IRDMAQPSQ_IMMDATA, info->imm_data));
--	qp->wqe_ops.iw_copy_inline_data((u8 *)wqe, op_info->data, op_info->len,
--					qp->swqe_polarity);
-+	qp->wqe_ops.iw_copy_inline_data((u8 *)wqe, op_info->sg_list,
-+					op_info->num_sges, qp->swqe_polarity);
- 
- 	dma_wmb(); /* make sure WQE is populated before valid bit is set */
- 
-diff --git a/drivers/infiniband/hw/irdma/user.h b/drivers/infiniband/hw/irdma/user.h
-index 2ef61923c926..424d4aa8cdcd 100644
---- a/drivers/infiniband/hw/irdma/user.h
-+++ b/drivers/infiniband/hw/irdma/user.h
-@@ -173,14 +173,6 @@ struct irdma_post_send {
- 	u32 ah_id;
+ 	spin_unlock_bh(&hsr->list_lock);
+diff --git a/net/hsr/hsr_framereg.h b/net/hsr/hsr_framereg.h
+index d9628e7a5f05..f9c83dc02ca5 100644
+--- a/net/hsr/hsr_framereg.h
++++ b/net/hsr/hsr_framereg.h
+@@ -80,6 +80,7 @@ struct hsr_node {
+ 	bool			san_a;
+ 	bool			san_b;
+ 	u16			seq_out[HSR_PT_PORTS];
++	bool			removed;
+ 	struct rcu_head		rcu_head;
  };
  
--struct irdma_post_inline_send {
--	void *data;
--	u32 len;
--	u32 qkey;
--	u32 dest_qp;
--	u32 ah_id;
--};
--
- struct irdma_post_rq_info {
- 	u64 wr_id;
- 	struct ib_sge *sg_list;
-@@ -193,12 +185,6 @@ struct irdma_rdma_write {
- 	struct ib_sge rem_addr;
- };
- 
--struct irdma_inline_rdma_write {
--	void *data;
--	u32 len;
--	struct ib_sge rem_addr;
--};
--
- struct irdma_rdma_read {
- 	struct ib_sge *lo_sg_list;
- 	u32 num_lo_sges;
-@@ -241,8 +227,6 @@ struct irdma_post_sq_info {
- 		struct irdma_rdma_read rdma_read;
- 		struct irdma_bind_window bind_window;
- 		struct irdma_inv_local_stag inv_local_stag;
--		struct irdma_inline_rdma_write inline_rdma_write;
--		struct irdma_post_inline_send inline_send;
- 	} op;
- };
- 
-@@ -291,7 +275,8 @@ int irdma_uk_stag_local_invalidate(struct irdma_qp_uk *qp,
- 				   bool post_sq);
- 
- struct irdma_wqe_uk_ops {
--	void (*iw_copy_inline_data)(u8 *dest, u8 *src, u32 len, u8 polarity);
-+	void (*iw_copy_inline_data)(u8 *dest, struct ib_sge *sge_list,
-+				    u32 num_sges, u8 polarity);
- 	u16 (*iw_inline_data_size_to_quanta)(u32 data_size);
- 	void (*iw_set_fragment)(__le64 *wqe, u32 offset, struct ib_sge *sge,
- 				u8 valid);
-diff --git a/drivers/infiniband/hw/irdma/verbs.c b/drivers/infiniband/hw/irdma/verbs.c
-index 434241789f12..e252f431e2ac 100644
---- a/drivers/infiniband/hw/irdma/verbs.c
-+++ b/drivers/infiniband/hw/irdma/verbs.c
-@@ -3136,30 +3136,20 @@ static int irdma_post_send(struct ib_qp *ibqp,
- 				info.stag_to_inv = ib_wr->ex.invalidate_rkey;
- 			}
- 
--			if (ib_wr->send_flags & IB_SEND_INLINE) {
--				info.op.inline_send.data = (void *)(unsigned long)
--							   ib_wr->sg_list[0].addr;
--				info.op.inline_send.len = ib_wr->sg_list[0].length;
--				if (iwqp->ibqp.qp_type == IB_QPT_UD ||
--				    iwqp->ibqp.qp_type == IB_QPT_GSI) {
--					ah = to_iwah(ud_wr(ib_wr)->ah);
--					info.op.inline_send.ah_id = ah->sc_ah.ah_info.ah_idx;
--					info.op.inline_send.qkey = ud_wr(ib_wr)->remote_qkey;
--					info.op.inline_send.dest_qp = ud_wr(ib_wr)->remote_qpn;
--				}
-+			info.op.send.num_sges = ib_wr->num_sge;
-+			info.op.send.sg_list = ib_wr->sg_list;
-+			if (iwqp->ibqp.qp_type == IB_QPT_UD ||
-+			    iwqp->ibqp.qp_type == IB_QPT_GSI) {
-+				ah = to_iwah(ud_wr(ib_wr)->ah);
-+				info.op.send.ah_id = ah->sc_ah.ah_info.ah_idx;
-+				info.op.send.qkey = ud_wr(ib_wr)->remote_qkey;
-+				info.op.send.dest_qp = ud_wr(ib_wr)->remote_qpn;
-+			}
-+
-+			if (ib_wr->send_flags & IB_SEND_INLINE)
- 				err = irdma_uk_inline_send(ukqp, &info, false);
--			} else {
--				info.op.send.num_sges = ib_wr->num_sge;
--				info.op.send.sg_list = ib_wr->sg_list;
--				if (iwqp->ibqp.qp_type == IB_QPT_UD ||
--				    iwqp->ibqp.qp_type == IB_QPT_GSI) {
--					ah = to_iwah(ud_wr(ib_wr)->ah);
--					info.op.send.ah_id = ah->sc_ah.ah_info.ah_idx;
--					info.op.send.qkey = ud_wr(ib_wr)->remote_qkey;
--					info.op.send.dest_qp = ud_wr(ib_wr)->remote_qpn;
--				}
-+			else
- 				err = irdma_uk_send(ukqp, &info, false);
--			}
- 			break;
- 		case IB_WR_RDMA_WRITE_WITH_IMM:
- 			if (ukqp->qp_caps & IRDMA_WRITE_WITH_IMM) {
-@@ -3176,22 +3166,15 @@ static int irdma_post_send(struct ib_qp *ibqp,
- 			else
- 				info.op_type = IRDMA_OP_TYPE_RDMA_WRITE;
- 
--			if (ib_wr->send_flags & IB_SEND_INLINE) {
--				info.op.inline_rdma_write.data = (void *)(uintptr_t)ib_wr->sg_list[0].addr;
--				info.op.inline_rdma_write.len =
--						ib_wr->sg_list[0].length;
--				info.op.inline_rdma_write.rem_addr.addr =
--						rdma_wr(ib_wr)->remote_addr;
--				info.op.inline_rdma_write.rem_addr.lkey =
--						rdma_wr(ib_wr)->rkey;
-+			info.op.rdma_write.num_lo_sges = ib_wr->num_sge;
-+			info.op.rdma_write.lo_sg_list = ib_wr->sg_list;
-+			info.op.rdma_write.rem_addr.addr =
-+				rdma_wr(ib_wr)->remote_addr;
-+			info.op.rdma_write.rem_addr.lkey = rdma_wr(ib_wr)->rkey;
-+			if (ib_wr->send_flags & IB_SEND_INLINE)
- 				err = irdma_uk_inline_rdma_write(ukqp, &info, false);
--			} else {
--				info.op.rdma_write.lo_sg_list = (void *)ib_wr->sg_list;
--				info.op.rdma_write.num_lo_sges = ib_wr->num_sge;
--				info.op.rdma_write.rem_addr.addr = rdma_wr(ib_wr)->remote_addr;
--				info.op.rdma_write.rem_addr.lkey = rdma_wr(ib_wr)->rkey;
-+			else
- 				err = irdma_uk_rdma_write(ukqp, &info, false);
--			}
- 			break;
- 		case IB_WR_RDMA_READ_WITH_INV:
- 			inv_stag = true;
 -- 
 2.35.1
 
