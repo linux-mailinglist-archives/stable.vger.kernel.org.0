@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 545E7658239
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:34:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8E91657B88
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234762AbiL1Qd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:33:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53576 "EHLO
+        id S233346AbiL1PXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:23:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234749AbiL1Qd1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:27 -0500
+        with ESMTP id S233744AbiL1PWq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:22:46 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FA241B9FA
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:30:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F0F713F41
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:22:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8AF2261541
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:30:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E510C433F0;
-        Wed, 28 Dec 2022 16:30:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F75C6155C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:22:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9158BC433D2;
+        Wed, 28 Dec 2022 15:22:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245059;
-        bh=qNLVgOCpTLN32DhSLdvueH8qqG8sjzSc6ai5ptu6FbM=;
+        s=korg; t=1672240956;
+        bh=AwSq+tNbqhVUBJhHq2Il+ctNtr0VGa4hvH3SnZp8t+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E8gXBOR29v3ASOEsvNEUuTKUKy2KHo4Qr/J2R3RFVC6hG1K2eo3Wt0nQx3o/SBv6V
-         otYDsObHYA/wN7ZzPcbninOE3TAOneGmEciBTqxi7QHiMbL5hxCyk5KPHTAopm7uj0
-         4nO/X1C8Clr8xL8ubxFqqdll7zxiVfCWc103pb5k=
+        b=ePAuHV8ahBS18vjL0ldMjGOIQlEULLHNoXaM6ng2SFmpZy+CMsfIHtcZEQk8ViduA
+         ue+tn6JUe5qOMV/NeoMM0yRF/mM/3JATGogo1i43MvefxshMW9U+ipUSPmebob6io/
+         Ij2d91yoCpYNixDQvx+aO/vTYKxhKarQhMooBI14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
-        Bernard Metzler <bmt@zurich.ibm.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        patches@lists.linux.dev,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0789/1146] RDMA/siw: Fix pointer cast warning
+Subject: [PATCH 5.15 421/731] crypto: amlogic - Remove kcalloc without check
 Date:   Wed, 28 Dec 2022 15:38:48 +0100
-Message-Id: <20221228144351.578482649@linuxfoundation.org>
+Message-Id: <20221228144308.774532774@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 5244ca88671a1981ceec09c5c8809f003e6a62aa ]
+[ Upstream commit 3d780c8a9850ad60dee47a8d971ba7888f3d1bd3 ]
 
-The previous build fix left a remaining issue in configurations with
-64-bit dma_addr_t on 32-bit architectures:
+There is no real point in allocating dedicated memory for the irqs array.
+MAXFLOW is only 2, so it is easier to allocated the needed space
+directly within the 'meson_dev' structure.
 
-drivers/infiniband/sw/siw/siw_qp_tx.c: In function 'siw_get_pblpage':
-drivers/infiniband/sw/siw/siw_qp_tx.c:32:37: error: cast to pointer from integer of different size [-Werror=int-to-pointer-cast]
-   32 |                 return virt_to_page((void *)paddr);
-      |                                     ^
+This saves some memory allocation and avoids an indirection when using the
+irqs array.
 
-Use the same double cast here that the driver uses elsewhere to convert
-between dma_addr_t and void*.
-
-Fixes: 0d1b756acf60 ("RDMA/siw: Pass a pointer to virt_to_page()")
-Link: https://lore.kernel.org/r/20221215170347.2612403-1-arnd@kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Bernard Metzler <bmt@zurich.ibm.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 48fe583fe541 ("crypto: amlogic - Add crypto accelerator...")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/siw/siw_qp_tx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/amlogic/amlogic-gxl-core.c | 1 -
+ drivers/crypto/amlogic/amlogic-gxl.h      | 2 +-
+ 2 files changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/sw/siw/siw_qp_tx.c b/drivers/infiniband/sw/siw/siw_qp_tx.c
-index 7d47b521070b..05052b49107f 100644
---- a/drivers/infiniband/sw/siw/siw_qp_tx.c
-+++ b/drivers/infiniband/sw/siw/siw_qp_tx.c
-@@ -29,7 +29,7 @@ static struct page *siw_get_pblpage(struct siw_mem *mem, u64 addr, int *idx)
- 	dma_addr_t paddr = siw_pbl_get_buffer(pbl, offset, NULL, idx);
+diff --git a/drivers/crypto/amlogic/amlogic-gxl-core.c b/drivers/crypto/amlogic/amlogic-gxl-core.c
+index 6e7ae896717c..937187027ad5 100644
+--- a/drivers/crypto/amlogic/amlogic-gxl-core.c
++++ b/drivers/crypto/amlogic/amlogic-gxl-core.c
+@@ -237,7 +237,6 @@ static int meson_crypto_probe(struct platform_device *pdev)
+ 		return err;
+ 	}
  
- 	if (paddr)
--		return virt_to_page((void *)paddr);
-+		return virt_to_page((void *)(uintptr_t)paddr);
- 
- 	return NULL;
- }
+-	mc->irqs = devm_kcalloc(mc->dev, MAXFLOW, sizeof(int), GFP_KERNEL);
+ 	for (i = 0; i < MAXFLOW; i++) {
+ 		mc->irqs[i] = platform_get_irq(pdev, i);
+ 		if (mc->irqs[i] < 0)
+diff --git a/drivers/crypto/amlogic/amlogic-gxl.h b/drivers/crypto/amlogic/amlogic-gxl.h
+index dc0f142324a3..8c0746a1d6d4 100644
+--- a/drivers/crypto/amlogic/amlogic-gxl.h
++++ b/drivers/crypto/amlogic/amlogic-gxl.h
+@@ -95,7 +95,7 @@ struct meson_dev {
+ 	struct device *dev;
+ 	struct meson_flow *chanlist;
+ 	atomic_t flow;
+-	int *irqs;
++	int irqs[MAXFLOW];
+ #ifdef CONFIG_CRYPTO_DEV_AMLOGIC_GXL_DEBUG
+ 	struct dentry *dbgfs_dir;
+ #endif
 -- 
 2.35.1
 
