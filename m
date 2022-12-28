@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ABD065788F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:52:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54E52657899
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:53:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233103AbiL1Owi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:52:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38342 "EHLO
+        id S233150AbiL1Owr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:52:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233034AbiL1OwH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:52:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04C611274D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:51:39 -0800 (PST)
+        with ESMTP id S233165AbiL1OwR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:52:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22F28120A0
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:52:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1543661365
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:51:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B0DAC433EF;
-        Wed, 28 Dec 2022 14:51:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CD02DB8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:52:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D3E2C433EF;
+        Wed, 28 Dec 2022 14:52:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239098;
-        bh=D7vWAd2QM3x++CDRAcyaA6IESMGrPik27SkSHuvJR38=;
+        s=korg; t=1672239124;
+        bh=B+qOLWrrcjScKG5mowKSnO1AwUThhJxyTge94gyLfJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jDB8toj2HQT3m1HXWlKKYM3H9dcqcpOzZ3sdLmEQWLcvLKHLNQhRFJ7xNYD7TQGVA
-         zzup/phqnAA5DIqxNqJ4uLiUq31+PzRp0S+TUOvjUP0H03GxWJmQ1G2LBMK7zn6Lll
-         3ZFbrwyVZoPGEoEmNtIksIakFZGch5Ghda+KzBLk=
+        b=X//RHw9meV2gEu9YkR5bwhBPZ6YIsbhcTu8dhOwBSRpjSi9lmAKgpZ0S/kUOD5xGR
+         taS0wSJEKYAt+nwj7ErXJ9PWSg8fD3t/x6Z58iz1Gf4mSTnZk9pyXoKoEg1eUJSrjn
+         fDre/fIHxwQN/FDaU5BDwLFMYySHbCNG30TS++gk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Matt Porter <mporter@kernel.crashing.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 110/731] rapidio: fix possible name leaks when rio_add_device() fails
-Date:   Wed, 28 Dec 2022 15:33:37 +0100
-Message-Id: <20221228144259.736883234@linuxfoundation.org>
+Subject: [PATCH 5.15 111/731] rapidio: rio: fix possible name leak in rio_register_mport()
+Date:   Wed, 28 Dec 2022 15:33:38 +0100
+Message-Id: <20221228144259.768349372@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
 References: <20221228144256.536395940@linuxfoundation.org>
@@ -57,72 +57,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit f9574cd48679926e2a569e1957a5a1bcc8a719ac ]
+[ Upstream commit e92a216d16bde65d21a3227e0fb2aa0794576525 ]
 
-Patch series "rapidio: fix three possible memory leaks".
-
-This patchset fixes three name leaks in error handling.
- - patch #1 fixes two name leaks while rio_add_device() fails.
- - patch #2 fixes a name leak while  rio_register_mport() fails.
-
-This patch (of 2):
-
-If rio_add_device() returns error, the name allocated by dev_set_name()
+If device_register() returns error, the name allocated by dev_set_name()
 need be freed.  It should use put_device() to give up the reference in the
-error path, so that the name can be freed in kobject_cleanup(), and the
-'rdev' can be freed in rio_release_dev().
+error path, so that the name can be freed in kobject_cleanup(), and
+list_del() is called to delete the port from rio_mports.
 
-Link: https://lkml.kernel.org/r/20221114152636.2939035-1-yangyingliang@huawei.com
-Link: https://lkml.kernel.org/r/20221114152636.2939035-2-yangyingliang@huawei.com
-Fixes: e8de370188d0 ("rapidio: add mport char device driver")
-Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
+Link: https://lkml.kernel.org/r/20221114152636.2939035-3-yangyingliang@huawei.com
+Fixes: 2aaf308b95b2 ("rapidio: rework device hierarchy and introduce mport class of devices")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 Cc: Alexandre Bounine <alex.bou9@gmail.com>
 Cc: Matt Porter <mporter@kernel.crashing.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rapidio/devices/rio_mport_cdev.c | 7 +++++--
- drivers/rapidio/rio-scan.c               | 8 ++++++--
- 2 files changed, 11 insertions(+), 4 deletions(-)
+ drivers/rapidio/rio.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rapidio/devices/rio_mport_cdev.c b/drivers/rapidio/devices/rio_mport_cdev.c
-index 94331d999d27..48cd9b7f3b89 100644
---- a/drivers/rapidio/devices/rio_mport_cdev.c
-+++ b/drivers/rapidio/devices/rio_mport_cdev.c
-@@ -1803,8 +1803,11 @@ static int rio_mport_add_riodev(struct mport_cdev_priv *priv,
- 		rio_init_dbell_res(&rdev->riores[RIO_DOORBELL_RESOURCE],
- 				   0, 0xffff);
- 	err = rio_add_device(rdev);
--	if (err)
--		goto cleanup;
-+	if (err) {
-+		put_device(&rdev->dev);
-+		return err;
-+	}
-+
- 	rio_dev_get(rdev);
+diff --git a/drivers/rapidio/rio.c b/drivers/rapidio/rio.c
+index e74cf09eeff0..9544b8ee0c96 100644
+--- a/drivers/rapidio/rio.c
++++ b/drivers/rapidio/rio.c
+@@ -2186,11 +2186,16 @@ int rio_register_mport(struct rio_mport *port)
+ 	atomic_set(&port->state, RIO_DEVICE_RUNNING);
  
- 	return 0;
-diff --git a/drivers/rapidio/rio-scan.c b/drivers/rapidio/rio-scan.c
-index 19b0c33f4a62..fdcf742b2adb 100644
---- a/drivers/rapidio/rio-scan.c
-+++ b/drivers/rapidio/rio-scan.c
-@@ -454,8 +454,12 @@ static struct rio_dev *rio_setup_device(struct rio_net *net,
- 				   0, 0xffff);
- 
- 	ret = rio_add_device(rdev);
--	if (ret)
--		goto cleanup;
-+	if (ret) {
-+		if (rswitch)
-+			kfree(rswitch->route_table);
-+		put_device(&rdev->dev);
-+		return NULL;
+ 	res = device_register(&port->dev);
+-	if (res)
++	if (res) {
+ 		dev_err(&port->dev, "RIO: mport%d registration failed ERR=%d\n",
+ 			port->id, res);
+-	else
++		mutex_lock(&rio_mport_list_lock);
++		list_del(&port->node);
++		mutex_unlock(&rio_mport_list_lock);
++		put_device(&port->dev);
++	} else {
+ 		dev_dbg(&port->dev, "RIO: registered mport%d\n", port->id);
 +	}
  
- 	rio_dev_get(rdev);
- 
+ 	return res;
+ }
 -- 
 2.35.1
 
