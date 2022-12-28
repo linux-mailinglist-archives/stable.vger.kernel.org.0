@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00225657ECC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:57:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47F95657ECF
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:57:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234202AbiL1P5l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:57:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45112 "EHLO
+        id S234201AbiL1P5t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:57:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230508AbiL1P5k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:57:40 -0500
+        with ESMTP id S232644AbiL1P5s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:57:48 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FAFC18390
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:57:39 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B913818392
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:57:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CCA76155B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:57:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32EB8C433EF;
-        Wed, 28 Dec 2022 15:57:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 571E160D41
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:57:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DC3FC433D2;
+        Wed, 28 Dec 2022 15:57:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243058;
-        bh=NEUP6zN9OADZm5zNxMnUdUs2DJSQYC2jc+XVsX3Rf54=;
+        s=korg; t=1672243066;
+        bh=2uKkYMb4hr3Xmc84zS4ejGuv2VjEpN70QbBuCFkqqGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A5AgzSNbiS8KcCGJh3MA6g+kxXReDO710sNNCvnQHJUPRZ2YkKA0kzZ3j0k8CZ75L
-         hxxc4UmwkoZEs/AQSMMMIqV2IXXWPa3IbRbKOD6BVZPmenkhS9WPfogCTPClgfPoe3
-         RAp1ceNon/JLgmAVvsvyD7dh5nMezhdyC5LHfNk8=
+        b=BIjyPAHS21l09cHjA/mq2vsopjjrEP/NaEiM2WCr6/o2KtVD8qyEdKQIQgUTXSV9r
+         IeLsAeKZYHifltNdltiJBHY8qyJoG8qEm7Byzf8YhS84Gt7WEcQVOcT7li4eeDsuNU
+         4VARlxR7y7b8HLPBIUncJuUxSQ3arK2xUbnS0gow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sami Tolvanen <samitolvanen@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
+        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
         Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 679/731] drm/fsl-dcu: Fix return type of fsl_dcu_drm_connector_mode_valid()
-Date:   Wed, 28 Dec 2022 15:43:06 +0100
-Message-Id: <20221228144316.156707525@linuxfoundation.org>
+Subject: [PATCH 5.15 680/731] drm/sti: Fix return type of sti_{dvo,hda,hdmi}_connector_mode_valid()
+Date:   Wed, 28 Dec 2022 15:43:07 +0100
+Message-Id: <20221228144316.185006185@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
 References: <20221228144256.536395940@linuxfoundation.org>
@@ -56,7 +55,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 96d845a67b7e406cfed7880a724c8ca6121e022e ]
+[ Upstream commit 0ad811cc08a937d875cbad0149c1bab17f84ba05 ]
 
 With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
 indirect call targets are validated against the expected function
@@ -66,43 +65,81 @@ which manifests as either a kernel panic or thread getting killed. A
 proposed warning in clang aims to catch these at compile time, which
 reveals:
 
-  drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c:74:16: error: incompatible function pointer types initializing 'enum drm_mode_status (*)(struct drm_connector *, struct drm_display_mode *)' with an expression of type 'int (struct drm_connector *, struct drm_display_mode *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .mode_valid = fsl_dcu_drm_connector_mode_valid,
-                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  1 error generated.
+  drivers/gpu/drm/sti/sti_hda.c:637:16: error: incompatible function pointer types initializing 'enum drm_mode_status (*)(struct drm_connector *, struct drm_display_mode *)' with an expression of type 'int (struct drm_connector *, struct drm_display_mode *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .mode_valid = sti_hda_connector_mode_valid,
+                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  drivers/gpu/drm/sti/sti_dvo.c:376:16: error: incompatible function pointer types initializing 'enum drm_mode_status (*)(struct drm_connector *, struct drm_display_mode *)' with an expression of type 'int (struct drm_connector *, struct drm_display_mode *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .mode_valid = sti_dvo_connector_mode_valid,
+                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  drivers/gpu/drm/sti/sti_hdmi.c:1035:16: error: incompatible function pointer types initializing 'enum drm_mode_status (*)(struct drm_connector *, struct drm_display_mode *)' with an expression of type 'int (struct drm_connector *, struct drm_display_mode *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .mode_valid = sti_hdmi_connector_mode_valid,
+                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ->mode_valid() in 'struct drm_connector_helper_funcs' expects a return
 type of 'enum drm_mode_status', not 'int'. Adjust the return type of
-fsl_dcu_drm_connector_mode_valid() to match the prototype's to resolve
-the warning and CFI failure.
+sti_{dvo,hda,hdmi}_connector_mode_valid() to match the prototype's to
+resolve the warning and CFI failure.
 
 Link: https://github.com/ClangBuiltLinux/linux/issues/1750
-Reported-by: Sami Tolvanen <samitolvanen@google.com>
 Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Reviewed-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221102154215.78059-1-nathan@kernel.org
+Link: https://lore.kernel.org/r/20221102155623.3042869-1-nathan@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/sti/sti_dvo.c  | 5 +++--
+ drivers/gpu/drm/sti/sti_hda.c  | 5 +++--
+ drivers/gpu/drm/sti/sti_hdmi.c | 5 +++--
+ 3 files changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c b/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c
-index 4d4a715b429d..2c2b92324a2e 100644
---- a/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c
-+++ b/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c
-@@ -60,8 +60,9 @@ static int fsl_dcu_drm_connector_get_modes(struct drm_connector *connector)
- 	return drm_panel_get_modes(fsl_connector->panel, connector);
- }
+diff --git a/drivers/gpu/drm/sti/sti_dvo.c b/drivers/gpu/drm/sti/sti_dvo.c
+index f3a5616b7daf..577c477b5f46 100644
+--- a/drivers/gpu/drm/sti/sti_dvo.c
++++ b/drivers/gpu/drm/sti/sti_dvo.c
+@@ -346,8 +346,9 @@ static int sti_dvo_connector_get_modes(struct drm_connector *connector)
  
--static int fsl_dcu_drm_connector_mode_valid(struct drm_connector *connector,
--					    struct drm_display_mode *mode)
+ #define CLK_TOLERANCE_HZ 50
+ 
+-static int sti_dvo_connector_mode_valid(struct drm_connector *connector,
+-					struct drm_display_mode *mode)
 +static enum drm_mode_status
-+fsl_dcu_drm_connector_mode_valid(struct drm_connector *connector,
-+				 struct drm_display_mode *mode)
++sti_dvo_connector_mode_valid(struct drm_connector *connector,
++			     struct drm_display_mode *mode)
  {
- 	if (mode->hdisplay & 0xf)
- 		return MODE_ERROR;
+ 	int target = mode->clock * 1000;
+ 	int target_min = target - CLK_TOLERANCE_HZ;
+diff --git a/drivers/gpu/drm/sti/sti_hda.c b/drivers/gpu/drm/sti/sti_hda.c
+index c9e6db15ab66..aa54a6400ab8 100644
+--- a/drivers/gpu/drm/sti/sti_hda.c
++++ b/drivers/gpu/drm/sti/sti_hda.c
+@@ -600,8 +600,9 @@ static int sti_hda_connector_get_modes(struct drm_connector *connector)
+ 
+ #define CLK_TOLERANCE_HZ 50
+ 
+-static int sti_hda_connector_mode_valid(struct drm_connector *connector,
+-					struct drm_display_mode *mode)
++static enum drm_mode_status
++sti_hda_connector_mode_valid(struct drm_connector *connector,
++			     struct drm_display_mode *mode)
+ {
+ 	int target = mode->clock * 1000;
+ 	int target_min = target - CLK_TOLERANCE_HZ;
+diff --git a/drivers/gpu/drm/sti/sti_hdmi.c b/drivers/gpu/drm/sti/sti_hdmi.c
+index bb2a2868de2d..36bea1551ef8 100644
+--- a/drivers/gpu/drm/sti/sti_hdmi.c
++++ b/drivers/gpu/drm/sti/sti_hdmi.c
+@@ -1003,8 +1003,9 @@ static int sti_hdmi_connector_get_modes(struct drm_connector *connector)
+ 
+ #define CLK_TOLERANCE_HZ 50
+ 
+-static int sti_hdmi_connector_mode_valid(struct drm_connector *connector,
+-					struct drm_display_mode *mode)
++static enum drm_mode_status
++sti_hdmi_connector_mode_valid(struct drm_connector *connector,
++			      struct drm_display_mode *mode)
+ {
+ 	int target = mode->clock * 1000;
+ 	int target_min = target - CLK_TOLERANCE_HZ;
 -- 
 2.35.1
 
