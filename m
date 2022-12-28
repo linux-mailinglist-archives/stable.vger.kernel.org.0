@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DC52658361
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:47:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 078516582A1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:39:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235005AbiL1Qrk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:47:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40228 "EHLO
+        id S233695AbiL1QjN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:39:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235007AbiL1QrN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:47:13 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 969B81099
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:41:52 -0800 (PST)
+        with ESMTP id S235093AbiL1Qii (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:38:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5779C1C427
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:34:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E52C9CE136B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:41:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE1C7C433D2;
-        Wed, 28 Dec 2022 16:41:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E19AF61562
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:34:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02A36C433D2;
+        Wed, 28 Dec 2022 16:34:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245709;
-        bh=GuXTu5/hidCC2R7hOxAOtJdnLMXTgANkXwXB3AxJ2ps=;
+        s=korg; t=1672245249;
+        bh=+aXCmwXs+uqOZ1eRtgmRmSNmXqLTFfjXkgefY15ukC0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cODfe/eqTw2MJTV41JYDbPWV+MpRsaVrN9N0E5FJfiZKkS6W3ftQiaXSI6Rs3YuEB
-         U6+4mFALVUZ1q0PLvbNMtg1UAePpIM0yYlJG7qSMIKkSvQl6GygdXqMLe22mJETsfX
-         3++vA8h6tWkPmYlmXUVH3VH/kc6iTdrBDA8X7K+g=
+        b=2I3F8icU8rhpdJPoCAPbt7jFeVV3UR8q6i1B9YPLMyzzr9aG5rIg/9HYdUF0eHQC4
+         lKrW7qJ7YtQEpp7hXNxkgn7ctl0Dbc0vD1QzrH9HeifdlLTisyo4a+r7qWsMVGLDHU
+         mSaVONatZ4LcOeXcUAWV7vITYnsqf+t62ZJcTU2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,20 +35,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Vladimir Oltean <vladimir.oltean@nxp.com>,
         Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0909/1146] net: dsa: mv88e6xxx: avoid reg_lock deadlock in mv88e6xxx_setup_port()
+Subject: [PATCH 6.0 0860/1073] net: dsa: mv88e6xxx: avoid reg_lock deadlock in mv88e6xxx_setup_port()
 Date:   Wed, 28 Dec 2022 15:40:48 +0100
-Message-Id: <20221228144354.917454331@linuxfoundation.org>
+Message-Id: <20221228144351.378690278@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -122,7 +121,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index 937cb22cb3d4..3b8b2d0fbafa 100644
+index 546d90dae933..0fd978e3ce2d 100644
 --- a/drivers/net/dsa/mv88e6xxx/chip.c
 +++ b/drivers/net/dsa/mv88e6xxx/chip.c
 @@ -689,13 +689,12 @@ static void mv88e6352_phylink_get_caps(struct mv88e6xxx_chip *chip, int port,
@@ -149,7 +148,7 @@ index 937cb22cb3d4..3b8b2d0fbafa 100644
  	}
  }
  
-@@ -831,7 +828,9 @@ static void mv88e6xxx_get_caps(struct dsa_switch *ds, int port,
+@@ -823,7 +820,9 @@ static void mv88e6xxx_get_caps(struct dsa_switch *ds, int port,
  {
  	struct mv88e6xxx_chip *chip = ds->priv;
  
@@ -159,7 +158,7 @@ index 937cb22cb3d4..3b8b2d0fbafa 100644
  
  	if (mv88e6xxx_phy_is_internal(ds, port)) {
  		__set_bit(PHY_INTERFACE_MODE_INTERNAL,
-@@ -3307,7 +3306,7 @@ static int mv88e6xxx_setup_port(struct mv88e6xxx_chip *chip, int port)
+@@ -3299,7 +3298,7 @@ static int mv88e6xxx_setup_port(struct mv88e6xxx_chip *chip, int port)
  		struct phylink_config pl_config = {};
  		unsigned long caps;
  
