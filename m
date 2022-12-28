@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BCAC657F0B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:00:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C244657EC7
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:57:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234247AbiL1QAe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:00:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47202 "EHLO
+        id S234187AbiL1P53 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:57:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234242AbiL1QAb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:00:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D28218E23
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:00:30 -0800 (PST)
+        with ESMTP id S233436AbiL1P51 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:57:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D306317E36
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:57:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1920661563
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:00:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA81FC433F1;
-        Wed, 28 Dec 2022 16:00:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 67CC2B8172B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:57:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACA40C433F0;
+        Wed, 28 Dec 2022 15:57:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243229;
-        bh=otFveWaqV2lUR8YzwahqjNHQ6/nJvhCF7rnHkC2Cx0s=;
+        s=korg; t=1672243044;
+        bh=t8zlbSGSsooAWtq4TLVBiXeczbyuDynXBmG8sjChtnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YXjepNGnA1h4B8bTJ6jGvVcGaemYLZCG80EjiXmM+wkGvUrSTLWtSMuVah1UEGaX2
-         iVpFgvk/ibPQlS0+Kf9KkOnml+t827yez2j6mgKnqlv46+xwdo0d8AxpflXCAsfcac
-         4zDM3BnIeVP53zDWvhDS/xr4gTtJMr/0ZErp938o=
+        b=xO+V3OM+aP4AiUPbOcYr6uo24/hr34IT1Hzp+5uPv+JBAIVNX5ae6ppwTf83BtoYy
+         KwuZNafLmBW4J9YnOm2eCprH9nz2tPBL9RNNJ0feM352/ym/a4CsN8UosKWOGJwmMn
+         tOlFrVMh61SRzEdHIl4mx1g5PkPRi1IT22u1JtKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        patches@lists.linux.dev, Pengcheng Yang <yangpc@wangsu.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0444/1146] Input: wistron_btns - disable on UML
-Date:   Wed, 28 Dec 2022 15:33:03 +0100
-Message-Id: <20221228144342.239719880@linuxfoundation.org>
+Subject: [PATCH 6.1 0445/1146] bpf, sockmap: Fix repeated calls to sock_put() when msg has more_data
+Date:   Wed, 28 Dec 2022 15:33:04 +0100
+Message-Id: <20221228144342.267666039@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -53,40 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Pengcheng Yang <yangpc@wangsu.com>
 
-[ Upstream commit b2b80d9dd14cb5b70dc254bddbc4eea932694791 ]
+[ Upstream commit 7a9841ca025275b5b0edfb0b618934abb6ceec15 ]
 
-The wistron_btns driver calls rtc_cmos_read(), which isn't
-available with UML builds, so disable this driver on UML.
+In tcp_bpf_send_verdict() redirection, the eval variable is assigned to
+__SK_REDIRECT after the apply_bytes data is sent, if msg has more_data,
+sock_put() will be called multiple times.
 
-Prevents this build error:
+We should reset the eval variable to __SK_NONE every time more_data
+starts.
 
-ld: drivers/input/misc/wistron_btns.o: in function `poll_bios':
-wistron_btns.c:(.text+0x4be): undefined reference to `rtc_cmos_read'
+This causes:
 
-Fixes: 0bbadafdc49d ("um: allow disabling NO_IOMEM") # v5.14+
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Link: https://lore.kernel.org/r/20221130161604.1879-1-rdunlap@infradead.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+IPv4: Attempt to release TCP socket in state 1 00000000b4c925d7
+------------[ cut here ]------------
+refcount_t: addition on 0; use-after-free.
+WARNING: CPU: 5 PID: 4482 at lib/refcount.c:25 refcount_warn_saturate+0x7d/0x110
+Modules linked in:
+CPU: 5 PID: 4482 Comm: sockhash_bypass Kdump: loaded Not tainted 6.0.0 #1
+Hardware name: Red Hat KVM, BIOS 1.11.0-2.el7 04/01/2014
+Call Trace:
+ <TASK>
+ __tcp_transmit_skb+0xa1b/0xb90
+ ? __alloc_skb+0x8c/0x1a0
+ ? __kmalloc_node_track_caller+0x184/0x320
+ tcp_write_xmit+0x22a/0x1110
+ __tcp_push_pending_frames+0x32/0xf0
+ do_tcp_sendpages+0x62d/0x640
+ tcp_bpf_push+0xae/0x2c0
+ tcp_bpf_sendmsg_redir+0x260/0x410
+ ? preempt_count_add+0x70/0xa0
+ tcp_bpf_send_verdict+0x386/0x4b0
+ tcp_bpf_sendmsg+0x21b/0x3b0
+ sock_sendmsg+0x58/0x70
+ __sys_sendto+0xfa/0x170
+ ? xfd_validate_state+0x1d/0x80
+ ? switch_fpu_return+0x59/0xe0
+ __x64_sys_sendto+0x24/0x30
+ do_syscall_64+0x37/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Fixes: cd9733f5d75c ("tcp_bpf: Fix one concurrency problem in the tcp_bpf_send_verdict function")
+Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
+Link: https://lore.kernel.org/bpf/1669718441-2654-2-git-send-email-yangpc@wangsu.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/misc/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/tcp_bpf.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 9f088900f863..fa942651619d 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -330,7 +330,7 @@ config INPUT_CPCAP_PWRBUTTON
+diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
+index cf9c3e8f7ccb..f3e868f4cd9e 100644
+--- a/net/ipv4/tcp_bpf.c
++++ b/net/ipv4/tcp_bpf.c
+@@ -279,7 +279,7 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
+ 	bool cork = false, enospc = sk_msg_full(msg);
+ 	struct sock *sk_redir;
+ 	u32 tosend, origsize, sent, delta = 0;
+-	u32 eval = __SK_NONE;
++	u32 eval;
+ 	int ret;
  
- config INPUT_WISTRON_BTNS
- 	tristate "x86 Wistron laptop button interface"
--	depends on X86_32
-+	depends on X86_32 && !UML
- 	select INPUT_SPARSEKMAP
- 	select NEW_LEDS
- 	select LEDS_CLASS
+ more_data:
+@@ -310,6 +310,7 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
+ 	tosend = msg->sg.size;
+ 	if (psock->apply_bytes && psock->apply_bytes < tosend)
+ 		tosend = psock->apply_bytes;
++	eval = __SK_NONE;
+ 
+ 	switch (psock->eval) {
+ 	case __SK_PASS:
 -- 
 2.35.1
 
