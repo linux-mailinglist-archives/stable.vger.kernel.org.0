@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C244657EC7
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:57:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9BB0657DFB
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:49:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234187AbiL1P53 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:57:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45018 "EHLO
+        id S234064AbiL1PtB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:49:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233436AbiL1P51 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:57:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D306317E36
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:57:26 -0800 (PST)
+        with ESMTP id S234072AbiL1Ps6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:48:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58ADE18398
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:48:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67CC2B8172B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:57:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACA40C433F0;
-        Wed, 28 Dec 2022 15:57:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EFD89B81733
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:48:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A6D8C433D2;
+        Wed, 28 Dec 2022 15:48:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243044;
-        bh=t8zlbSGSsooAWtq4TLVBiXeczbyuDynXBmG8sjChtnU=;
+        s=korg; t=1672242525;
+        bh=g6uAbsg2/4nBl/Qb5jnuKJIGeIlTrVa/TjSijcSD0FA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xO+V3OM+aP4AiUPbOcYr6uo24/hr34IT1Hzp+5uPv+JBAIVNX5ae6ppwTf83BtoYy
-         KwuZNafLmBW4J9YnOm2eCprH9nz2tPBL9RNNJ0feM352/ym/a4CsN8UosKWOGJwmMn
-         tOlFrVMh61SRzEdHIl4mx1g5PkPRi1IT22u1JtKM=
+        b=Y4bByUxKszDrS7IjoRHJQWgXdahr9DlqxvBiAhZuv8TCLsRUrmFfBVjxFD/EoEAdP
+         ub23rcN8+Deoh6dV3Oup7RBj4PcJwauGRApfNvxGy+T7PROVmHdxZn0wtxaOCuIqQd
+         1bgiiT5aYZorEMF/EGXrCIUxty9sPh0ugfPSt8hw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pengcheng Yang <yangpc@wangsu.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
+        patches@lists.linux.dev, Ming Qian <ming.qian@nxp.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0445/1146] bpf, sockmap: Fix repeated calls to sock_put() when msg has more_data
+Subject: [PATCH 6.0 0396/1073] media: amphion: lock and check m2m_ctx in event handler
 Date:   Wed, 28 Dec 2022 15:33:04 +0100
-Message-Id: <20221228144342.267666039@linuxfoundation.org>
+Message-Id: <20221228144338.773250817@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pengcheng Yang <yangpc@wangsu.com>
+From: Ming Qian <ming.qian@nxp.com>
 
-[ Upstream commit 7a9841ca025275b5b0edfb0b618934abb6ceec15 ]
+[ Upstream commit 1ade3f3f16986cd7c6fce02feede957f03eb8a42 ]
 
-In tcp_bpf_send_verdict() redirection, the eval variable is assigned to
-__SK_REDIRECT after the apply_bytes data is sent, if msg has more_data,
-sock_put() will be called multiple times.
+driver needs to cancel vpu before releasing the vpu instance,
+so call v4l2_m2m_ctx_release() first,
+to handle the redundant event triggered after m2m_ctx is released.
 
-We should reset the eval variable to __SK_NONE every time more_data
-starts.
+lock and check m2m_ctx in the event handler.
 
-This causes:
-
-IPv4: Attempt to release TCP socket in state 1 00000000b4c925d7
-------------[ cut here ]------------
-refcount_t: addition on 0; use-after-free.
-WARNING: CPU: 5 PID: 4482 at lib/refcount.c:25 refcount_warn_saturate+0x7d/0x110
-Modules linked in:
-CPU: 5 PID: 4482 Comm: sockhash_bypass Kdump: loaded Not tainted 6.0.0 #1
-Hardware name: Red Hat KVM, BIOS 1.11.0-2.el7 04/01/2014
-Call Trace:
- <TASK>
- __tcp_transmit_skb+0xa1b/0xb90
- ? __alloc_skb+0x8c/0x1a0
- ? __kmalloc_node_track_caller+0x184/0x320
- tcp_write_xmit+0x22a/0x1110
- __tcp_push_pending_frames+0x32/0xf0
- do_tcp_sendpages+0x62d/0x640
- tcp_bpf_push+0xae/0x2c0
- tcp_bpf_sendmsg_redir+0x260/0x410
- ? preempt_count_add+0x70/0xa0
- tcp_bpf_send_verdict+0x386/0x4b0
- tcp_bpf_sendmsg+0x21b/0x3b0
- sock_sendmsg+0x58/0x70
- __sys_sendto+0xfa/0x170
- ? xfd_validate_state+0x1d/0x80
- ? switch_fpu_return+0x59/0xe0
- __x64_sys_sendto+0x24/0x30
- do_syscall_64+0x37/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Fixes: cd9733f5d75c ("tcp_bpf: Fix one concurrency problem in the tcp_bpf_send_verdict function")
-Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/1669718441-2654-2-git-send-email-yangpc@wangsu.com
+Fixes: 3cd084519c6f ("media: amphion: add vpu v4l2 m2m support")
+Signed-off-by: Ming Qian <ming.qian@nxp.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_bpf.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/platform/amphion/vpu_msgs.c | 2 ++
+ drivers/media/platform/amphion/vpu_v4l2.c | 8 ++++++--
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
-index cf9c3e8f7ccb..f3e868f4cd9e 100644
---- a/net/ipv4/tcp_bpf.c
-+++ b/net/ipv4/tcp_bpf.c
-@@ -279,7 +279,7 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
- 	bool cork = false, enospc = sk_msg_full(msg);
- 	struct sock *sk_redir;
- 	u32 tosend, origsize, sent, delta = 0;
--	u32 eval = __SK_NONE;
-+	u32 eval;
- 	int ret;
+diff --git a/drivers/media/platform/amphion/vpu_msgs.c b/drivers/media/platform/amphion/vpu_msgs.c
+index d8247f36d84b..92672a802b49 100644
+--- a/drivers/media/platform/amphion/vpu_msgs.c
++++ b/drivers/media/platform/amphion/vpu_msgs.c
+@@ -43,6 +43,7 @@ static void vpu_session_handle_mem_request(struct vpu_inst *inst, struct vpu_rpc
+ 		  req_data.ref_frame_num,
+ 		  req_data.act_buf_size,
+ 		  req_data.act_buf_num);
++	vpu_inst_lock(inst);
+ 	call_void_vop(inst, mem_request,
+ 		      req_data.enc_frame_size,
+ 		      req_data.enc_frame_num,
+@@ -50,6 +51,7 @@ static void vpu_session_handle_mem_request(struct vpu_inst *inst, struct vpu_rpc
+ 		      req_data.ref_frame_num,
+ 		      req_data.act_buf_size,
+ 		      req_data.act_buf_num);
++	vpu_inst_unlock(inst);
+ }
  
- more_data:
-@@ -310,6 +310,7 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
- 	tosend = msg->sg.size;
- 	if (psock->apply_bytes && psock->apply_bytes < tosend)
- 		tosend = psock->apply_bytes;
-+	eval = __SK_NONE;
+ static void vpu_session_handle_stop_done(struct vpu_inst *inst, struct vpu_rpc_event *pkt)
+diff --git a/drivers/media/platform/amphion/vpu_v4l2.c b/drivers/media/platform/amphion/vpu_v4l2.c
+index a24e2d0e9542..590d1084e5a5 100644
+--- a/drivers/media/platform/amphion/vpu_v4l2.c
++++ b/drivers/media/platform/amphion/vpu_v4l2.c
+@@ -242,8 +242,12 @@ int vpu_process_capture_buffer(struct vpu_inst *inst)
  
- 	switch (psock->eval) {
- 	case __SK_PASS:
+ struct vb2_v4l2_buffer *vpu_next_src_buf(struct vpu_inst *inst)
+ {
+-	struct vb2_v4l2_buffer *src_buf = v4l2_m2m_next_src_buf(inst->fh.m2m_ctx);
++	struct vb2_v4l2_buffer *src_buf = NULL;
+ 
++	if (!inst->fh.m2m_ctx)
++		return NULL;
++
++	src_buf = v4l2_m2m_next_src_buf(inst->fh.m2m_ctx);
+ 	if (!src_buf || vpu_get_buffer_state(src_buf) == VPU_BUF_STATE_IDLE)
+ 		return NULL;
+ 
+@@ -266,7 +270,7 @@ void vpu_skip_frame(struct vpu_inst *inst, int count)
+ 	enum vb2_buffer_state state;
+ 	int i = 0;
+ 
+-	if (count <= 0)
++	if (count <= 0 || !inst->fh.m2m_ctx)
+ 		return;
+ 
+ 	while (i < count) {
 -- 
 2.35.1
 
