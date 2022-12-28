@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81A18657B64
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:21:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31D36657C76
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:33:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233486AbiL1PVI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:21:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40088 "EHLO
+        id S233835AbiL1PdB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:33:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233619AbiL1PVG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:21:06 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE2F413D20
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:21:03 -0800 (PST)
+        with ESMTP id S233961AbiL1Pci (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:32:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 126F416480
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:32:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2C33FCE1369
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:21:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D030C433EF;
-        Wed, 28 Dec 2022 15:20:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A42C661553
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:32:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAC13C433EF;
+        Wed, 28 Dec 2022 15:32:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240860;
-        bh=cERqdDbN7Qk86FVzwMQRD2qmuDXA3OEdZrfIZCaxJTc=;
+        s=korg; t=1672241557;
+        bh=oH3Yn3RG1RL7+LAJRrVN/24gat48NxpxvU3vePCLfmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KDyrqNLYv0+ejGtLss4wZDqU2AlNRyUtyRTA/DMS8HIKkE6P0Qwmi24SGR8xDL3vf
-         IW1VWU25L8Ax0tCUyDNVK0edIXjXRzTi4PlX65AnUxcVXYi/MorExJ1IrYBFzPZka/
-         +5iXFpazH9d+oooLcA2qJKrZxXQRYQVMEuafyduY=
+        b=QdE3YW+UbSG+1eu5CCKc73Dx+NR3kQIBvQpLkAnAp0GjwyQC7zUUbEOHVx2j77yqO
+         CztgNWiqnXNZCfzZeKp2hd9ZW+IeDbsyiyWP1fLdHzST/SLd7pfFW4LptJOFX+7bIz
+         AxcoSqEVTc9g5yYtkTcv/pImjr9fWDjBwfi2sVP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Niklas Cassel <niklas.cassel@wdc.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        patches@lists.linux.dev, Mark Broadworth <mark.broadworth@amd.com>,
+        Martin Leung <Martin.Leung@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Haiyi Zhou <Haiyi.Zhou@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0211/1073] ata: libata: fix NCQ autosense logic
+Subject: [PATCH 6.1 0260/1146] drm/amd/display: wait for vblank during pipe programming
 Date:   Wed, 28 Dec 2022 15:29:59 +0100
-Message-Id: <20221228144333.750062028@linuxfoundation.org>
+Message-Id: <20221228144337.199217914@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,74 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+From: Haiyi Zhou <Haiyi.Zhou@amd.com>
 
-[ Upstream commit 7390896b3484d44cbdb8bc4859964314ac66d3c9 ]
+[ Upstream commit 203ccaf586446b578909de1b763278033fb74b51 ]
 
-Currently, the logic if we should call ata_scsi_set_sense()
-(and set flag ATA_QCFLAG_SENSE_VALID to indicate that we have
-successfully added sense data to the struct ata_queued_cmd)
-looks like this:
+[WHY]
+Skipping vblank during global sync update request can result in
+underflow on certain displays.
 
-if (dev->class == ATA_DEV_ZAC &&
-    ((qc->result_tf.status & ATA_SENSE) || qc->result_tf.auxiliary))
+[HOW]
+Roll back to the previous behavior where DC waits for vblank during pipe
+programming.
 
-The problem with this is that a drive can support the NCQ command
-error log without supporting NCQ autosense.
-
-On such a drive, if the failing command has sense data, the status
-field in the NCQ command error log will have the ATA_SENSE bit set.
-
-It is just that this sense data is not included in the NCQ command
-error log when NCQ autosense is not supported. Instead the sense
-data has to be fetched using the REQUEST SENSE DATA EXT command.
-
-Therefore, we should only add the sense data if the drive supports
-NCQ autosense AND the ATA_SENSE bit is set in the status field.
-
-Fix this, and at the same time, remove the duplicated ATA_DEV_ZAC
-check. The struct ata_taskfile supplied to ata_eh_read_log_10h()
-is memset:ed before calling the function, so simply checking if
-qc->result_tf.auxiliary is set is sufficient to tell us that the
-log actually contained sense data.
-
-Fixes: d238ffd59d3c ("libata: do not attempt to retrieve sense code twice")
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Fixes: 5d3e14421410 ("drm/amd/display: do not wait for vblank during pipe programming")
+Tested-by: Mark Broadworth <mark.broadworth@amd.com>
+Reviewed-by: Martin Leung <Martin.Leung@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Haiyi Zhou <Haiyi.Zhou@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-sata.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/ata/libata-sata.c b/drivers/ata/libata-sata.c
-index 13b9d0fdd42c..8e292e2abb04 100644
---- a/drivers/ata/libata-sata.c
-+++ b/drivers/ata/libata-sata.c
-@@ -1392,7 +1392,8 @@ static int ata_eh_read_log_10h(struct ata_device *dev,
- 	tf->hob_lbah = buf[10];
- 	tf->nsect = buf[12];
- 	tf->hob_nsect = buf[13];
--	if (dev->class == ATA_DEV_ZAC && ata_id_has_ncq_autosense(dev->id))
-+	if (dev->class == ATA_DEV_ZAC && ata_id_has_ncq_autosense(dev->id) &&
-+	    (tf->status & ATA_SENSE))
- 		tf->auxiliary = buf[14] << 16 | buf[15] << 8 | buf[16];
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
+index a7e0001a8f46..a34c2cd78dd5 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
+@@ -1640,10 +1640,8 @@ static void dcn20_program_pipe(
+ 				pipe_ctx->pipe_dlg_param.vupdate_width);
  
- 	return 0;
-@@ -1456,8 +1457,12 @@ void ata_eh_analyze_ncq_error(struct ata_link *link)
- 	memcpy(&qc->result_tf, &tf, sizeof(tf));
- 	qc->result_tf.flags = ATA_TFLAG_ISADDR | ATA_TFLAG_LBA | ATA_TFLAG_LBA48;
- 	qc->err_mask |= AC_ERR_DEV | AC_ERR_NCQ;
--	if (dev->class == ATA_DEV_ZAC &&
--	    ((qc->result_tf.status & ATA_SENSE) || qc->result_tf.auxiliary)) {
-+
-+	/*
-+	 * If the device supports NCQ autosense, ata_eh_read_log_10h() will have
-+	 * stored the sense data in qc->result_tf.auxiliary.
-+	 */
-+	if (qc->result_tf.auxiliary) {
- 		char sense_key, asc, ascq;
+ 		if (pipe_ctx->stream->mall_stream_config.type != SUBVP_PHANTOM) {
+-			pipe_ctx->stream_res.tg->funcs->wait_for_state(
+-				pipe_ctx->stream_res.tg, CRTC_STATE_VBLANK);
+-			pipe_ctx->stream_res.tg->funcs->wait_for_state(
+-				pipe_ctx->stream_res.tg, CRTC_STATE_VACTIVE);
++			pipe_ctx->stream_res.tg->funcs->wait_for_state(pipe_ctx->stream_res.tg, CRTC_STATE_VBLANK);
++			pipe_ctx->stream_res.tg->funcs->wait_for_state(pipe_ctx->stream_res.tg, CRTC_STATE_VACTIVE);
+ 		}
  
- 		sense_key = (qc->result_tf.auxiliary >> 16) & 0xff;
+ 		pipe_ctx->stream_res.tg->funcs->set_vtg_params(
 -- 
 2.35.1
 
