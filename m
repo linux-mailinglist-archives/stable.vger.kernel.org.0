@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10CB265781B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA245657DF5
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:48:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232938AbiL1OsF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:48:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35942 "EHLO
+        id S233635AbiL1Psk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:48:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232982AbiL1Ori (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:47:38 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5848012087
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:47:05 -0800 (PST)
+        with ESMTP id S234082AbiL1Psd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:48:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A48F17E33
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:48:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A4828CE1355
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:47:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 983B3C433D2;
-        Wed, 28 Dec 2022 14:47:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB5B761572
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:48:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00FF5C433D2;
+        Wed, 28 Dec 2022 15:48:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238822;
-        bh=EVIRmycrq7EgxvgiWQPgGpfjcPhVCltD8XjPtFhB/5w=;
+        s=korg; t=1672242512;
+        bh=6O+tJBAgNb1qG4Bb09pcxdwc2LV1uEwiAiUk4IjyR7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SCrb9HvBmGKzxrlpcJ8EsZCmg3VpCkq4laUhGbJD5flu9nJnc4lNPWGSlKgpYRaCP
-         XHomqFkbXiyXesP8a2QJ6BFsgvbWTHTG5KNKyQfHkVtyCKQUKomzysCEm196BV1rwo
-         72LkqKxAiG/phq/KRptMnNMkk1LbAciLk49z1qBo=
+        b=azeyW5fC2hexoZV8UO0hPu56GKIilUHmi5Lsa1MTPsIkxCV7oTssaiGmjlBiI5haw
+         AEu1mu8BSAxJvU3x2GOQRqxrQQuUhuQ3+lmhbtH1XQWUK53xcJaNrZ0kVU9DntcpXQ
+         LrVi0I6WtfDCx0i0qrGd1vWRXDWqNhsaKjzq/laM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 010/731] arm64: dts: qcom: sdm845-cheza: fix AP suspend pin bias
+Subject: [PATCH 6.1 0378/1146] regulator: core: use kfree_const() to free space conditionally
 Date:   Wed, 28 Dec 2022 15:31:57 +0100
-Message-Id: <20221228144256.839171493@linuxfoundation.org>
+Message-Id: <20221228144340.433896333@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Wang ShaoBo <bobo.shaobowang@huawei.com>
 
-[ Upstream commit 9bce41fab14da8f21027dc9847535ef5e22cbe8b ]
+[ Upstream commit dc8d006d15b623c1d80b90b45d6dcb6e890dad09 ]
 
-There is no "bias-no-pull" property.  Assume intentions were disabling
-bias.
+Use kfree_const() to free supply_name conditionally in create_regulator()
+as supply_name may be allocated from kmalloc() or directly from .rodata
+section.
 
-Fixes: 79e7739f7b87 ("arm64: dts: qcom: sdm845-cheza: add initial cheza dt")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221010114417.29859-3-krzysztof.kozlowski@linaro.org
+Fixes: 87fe29b61f95 ("regulator: push allocations in create_regulator() outside of lock")
+Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Link: https://lore.kernel.org/r/20221123034616.3609537-1-bobo.shaobowang@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/regulator/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi b/arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi
-index dfd1b42c07fd..3566db1d7357 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi
-@@ -1299,7 +1299,7 @@ ap_suspend_l_assert: ap_suspend_l_assert {
- 		config {
- 			pins = "gpio126";
- 			function = "gpio";
--			bias-no-pull;
-+			bias-disable;
- 			drive-strength = <2>;
- 			output-low;
- 		};
-@@ -1309,7 +1309,7 @@ ap_suspend_l_deassert: ap_suspend_l_deassert {
- 		config {
- 			pins = "gpio126";
- 			function = "gpio";
--			bias-no-pull;
-+			bias-disable;
- 			drive-strength = <2>;
- 			output-high;
- 		};
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index bc4bba899aea..78b6469e74d5 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -1813,7 +1813,7 @@ static struct regulator *create_regulator(struct regulator_dev *rdev,
+ 
+ 	regulator = kzalloc(sizeof(*regulator), GFP_KERNEL);
+ 	if (regulator == NULL) {
+-		kfree(supply_name);
++		kfree_const(supply_name);
+ 		return NULL;
+ 	}
+ 
 -- 
 2.35.1
 
