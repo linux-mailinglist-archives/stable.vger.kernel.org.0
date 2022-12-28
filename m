@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DCD6657989
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:02:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CECBE65798C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:02:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233439AbiL1PCw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:02:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48728 "EHLO
+        id S233446AbiL1PCz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:02:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233459AbiL1PCY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:02:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F2B412A8D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:02:05 -0800 (PST)
+        with ESMTP id S233469AbiL1PC1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:02:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EACA12D3F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:02:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AAE48B8171A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:02:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EFAFC433D2;
-        Wed, 28 Dec 2022 15:02:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E1A436153C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:02:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00D44C433EF;
+        Wed, 28 Dec 2022 15:02:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239722;
-        bh=/LwiEVsMHxiCwIBQRqfirym4OWaQMf+8G/ygFjOrNOA=;
+        s=korg; t=1672239730;
+        bh=XVoSdK8260yXeH93s7NZlS9+BxbdpXSUO5DzpwF9pHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c9mkVCxblw29Gia/e/O+EusrB8l+mZrbCp1qgVZn5h82M0dwRAMyVHiA0hV7s5ze5
-         tcNYs7s0qoj+zNNn7b2emBWxOUwjHT3Q7zYSBmS7/ydWcui3AFinSCF4ZngBjzFjYM
-         LWjd0B/FYMwX9LrsJp03Df0O+44DsbDZ8OYzKLPg=
+        b=x+VepysU3JX7xGgzj8/q+9Q6AfrjEKV/SkPF1jCbY6G56MszBpVaQErYM7KfRUjIp
+         lOQZYGxrLjcb5f54rH6aKWWag64IqAXTRrfaSN8odIgptNz73GiQSVCPRHYEkss92T
+         hUXWmmR+KPOcLsTLhXBL6ehHKu9m70hZyP+L1Vyk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0068/1073] arm64: dts: mediatek: mt6797: Fix 26M oscillator unit name
-Date:   Wed, 28 Dec 2022 15:27:36 +0100
-Message-Id: <20221228144329.934057841@linuxfoundation.org>
+Subject: [PATCH 6.0 0069/1073] ARM: dts: dove: Fix assigned-addresses for every PCIe Root Port
+Date:   Wed, 28 Dec 2022 15:27:37 +0100
+Message-Id: <20221228144329.959950093@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -55,35 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 5f535cc583759c9c60d4cc9b8d221762e2d75387 ]
+[ Upstream commit dcc7d8c72b64a479b8017e4332d99179deb8802d ]
 
-Update its unit name to oscillator-26m and remove the unneeded unit
-address to fix a unit_address_vs_reg warning.
+BDF of resource in DT assigned-addresses property of Marvell PCIe Root Port
+(PCI-to-PCI bridge) should match BDF in address part in that DT node name
+as specified resource belongs to Marvell PCIe Root Port itself.
 
-Fixes: 464c510f60c6 ("arm64: dts: mediatek: add mt6797 support")
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20221013152212.416661-9-angelogioacchino.delregno@collabora.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Fixes: 74ecaa403a74 ("ARM: dove: add PCIe controllers to SoC DT")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/mt6797.dtsi | 2 +-
+ arch/arm/boot/dts/dove.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt6797.dtsi b/arch/arm64/boot/dts/mediatek/mt6797.dtsi
-index 15616231022a..c3677d77e0a4 100644
---- a/arch/arm64/boot/dts/mediatek/mt6797.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/mt6797.dtsi
-@@ -95,7 +95,7 @@ cpu9: cpu@201 {
- 		};
- 	};
- 
--	clk26m: oscillator@0 {
-+	clk26m: oscillator-26m {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <26000000>;
+diff --git a/arch/arm/boot/dts/dove.dtsi b/arch/arm/boot/dts/dove.dtsi
+index 89e0bdaf3a85..726d353eda68 100644
+--- a/arch/arm/boot/dts/dove.dtsi
++++ b/arch/arm/boot/dts/dove.dtsi
+@@ -129,7 +129,7 @@ pcie0: pcie@1 {
+ 			pcie1: pcie@2 {
+ 				device_type = "pci";
+ 				status = "disabled";
+-				assigned-addresses = <0x82002800 0 0x80000 0 0x2000>;
++				assigned-addresses = <0x82001000 0 0x80000 0 0x2000>;
+ 				reg = <0x1000 0 0 0 0>;
+ 				clocks = <&gate_clk 5>;
+ 				marvell,pcie-port = <1>;
 -- 
 2.35.1
 
