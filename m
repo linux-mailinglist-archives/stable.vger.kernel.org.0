@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCF7065828D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:38:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AB2D658195
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:29:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234849AbiL1QiN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:38:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53602 "EHLO
+        id S234022AbiL1Q3r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:29:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234880AbiL1QhM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:37:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17FF7101FB
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:33:23 -0800 (PST)
+        with ESMTP id S233299AbiL1Q3Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:29:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5714C1B1C8
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:25:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A7D4461541
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:33:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B87C5C433F0;
-        Wed, 28 Dec 2022 16:33:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0C6DCB81887
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:25:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5748BC433D2;
+        Wed, 28 Dec 2022 16:25:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245202;
-        bh=fw++7RX2Jh6jaWeiTi+IiOF0NuEYx/2Xj+uHqo9B5Xk=;
+        s=korg; t=1672244737;
+        bh=4Vt7PO/WOAKdP95wWFydWytnncuro/MWNqc47PVpqCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TFNc3vZsrKTRqQuX44B07hesAR3u4vae9Re4cASxnJX4Zj2NPmstENnS+odyyn9J0
-         1aU0qyvLCdRkPGXPmBnSw1mNm0YTB01XYiWO3lI87c4+wWvNZQioxiMv52SG78akck
-         9BYghhcEEpdYXSkSFDAgH6IL+iv9EewCN562eNYQ=
+        b=R5Ca+p5H4cITbo4VKlZedUTPFLWjJhDvSys2y7S6mxBk6AnKqdnibcIO9fDgR80IF
+         DLuOafSmFHSJjyv0Y17pgov0WKf/jmdkelrc1jOoflRyOvsOn5EVKSRzovz34ys8md
+         B5A5VySNXyNO6/b6WqC1aTElQgNyDJxhHzKgv28I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Michael Riesch <michael.riesch@wolfvision.net>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0814/1146] iommu/rockchip: fix permission bits in page table entries v2
+        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0765/1073] dmaengine: apple-admac: Allocate cache SRAM to channels
 Date:   Wed, 28 Dec 2022 15:39:13 +0100
-Message-Id: <20221228144352.262573288@linuxfoundation.org>
+Message-Id: <20221228144348.793642475@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +53,212 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Riesch <michael.riesch@wolfvision.net>
+From: Martin Povišer <povik+lin@cutebit.org>
 
-[ Upstream commit 7eb99841f340b80be0d0973b0deb592d75fb8928 ]
+[ Upstream commit 568aa6dd641f63166bb60d769e256789b3ac42d4 ]
 
-As pointed out in the corresponding downstream fix [0], the permission bits
-of the page table entries are compatible between v1 and v2 of the IOMMU.
-This is in contrast to the current mainline code that incorrectly assumes
-that the read and write permission bits are switched. Fix the permission
-bits by reusing the v1 bit defines.
+There's a previously unknown part of the controller interface: We have
+to assign SRAM carveouts to channels to store their in-flight samples
+in. So, obtain the size of the SRAM from a read-only register and divide
+it into 2K blocks for allocation to channels. The FIFO depths we
+configure will always fit into 2K.
 
-[0] https://github.com/rockchip-linux/kernel/commit/e3bc123a2260145e34b57454da3db0edd117eb8e
+(This fixes audio artifacts during simultaneous playback/capture on
+multiple channels -- which looking back is fully accounted for by having
+had the caches in the DMA controller overlap in memory.)
 
-Fixes: c55356c534aa ("iommu: rockchip: Add support for iommu v2")
-Signed-off-by: Michael Riesch <michael.riesch@wolfvision.net>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://lore.kernel.org/r/20221102063553.2464161-1-michael.riesch@wolfvision.net
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: b127315d9a78 ("dmaengine: apple-admac: Add Apple ADMAC driver")
+Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
+Link: https://lore.kernel.org/r/20221019132324.8585-2-povik+lin@cutebit.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/rockchip-iommu.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/dma/apple-admac.c | 102 +++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 101 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/rockchip-iommu.c b/drivers/iommu/rockchip-iommu.c
-index a3fc59b814ab..a68eadd64f38 100644
---- a/drivers/iommu/rockchip-iommu.c
-+++ b/drivers/iommu/rockchip-iommu.c
-@@ -280,19 +280,17 @@ static u32 rk_mk_pte(phys_addr_t page, int prot)
-  *  11:9 - Page address bit 34:32
-  *   8:4 - Page address bit 39:35
-  *     3 - Security
-- *     2 - Readable
-- *     1 - Writable
-+ *     2 - Writable
-+ *     1 - Readable
-  *     0 - 1 if Page @ Page address is valid
-  */
--#define RK_PTE_PAGE_READABLE_V2      BIT(2)
--#define RK_PTE_PAGE_WRITABLE_V2      BIT(1)
+diff --git a/drivers/dma/apple-admac.c b/drivers/dma/apple-admac.c
+index d69ed9c93648..e3334762be85 100644
+--- a/drivers/dma/apple-admac.c
++++ b/drivers/dma/apple-admac.c
+@@ -20,6 +20,12 @@
+ #define NCHANNELS_MAX	64
+ #define IRQ_NOUTPUTS	4
  
- static u32 rk_mk_pte_v2(phys_addr_t page, int prot)
++/*
++ * For allocation purposes we split the cache
++ * memory into blocks of fixed size (given in bytes).
++ */
++#define SRAM_BLOCK	2048
++
+ #define RING_WRITE_SLOT		GENMASK(1, 0)
+ #define RING_READ_SLOT		GENMASK(5, 4)
+ #define RING_FULL		BIT(9)
+@@ -35,6 +41,9 @@
+ #define REG_TX_STOP		0x0004
+ #define REG_RX_START		0x0008
+ #define REG_RX_STOP		0x000c
++#define REG_IMPRINT		0x0090
++#define REG_TX_SRAM_SIZE	0x0094
++#define REG_RX_SRAM_SIZE	0x0098
+ 
+ #define REG_CHAN_CTL(ch)	(0x8000 + (ch) * 0x200)
+ #define REG_CHAN_CTL_RST_RINGS	BIT(0)
+@@ -52,7 +61,9 @@
+ #define BUS_WIDTH_FRAME_2_WORDS	0x10
+ #define BUS_WIDTH_FRAME_4_WORDS	0x20
+ 
+-#define CHAN_BUFSIZE		0x8000
++#define REG_CHAN_SRAM_CARVEOUT(ch)	(0x8050 + (ch) * 0x200)
++#define CHAN_SRAM_CARVEOUT_SIZE		GENMASK(31, 16)
++#define CHAN_SRAM_CARVEOUT_BASE		GENMASK(15, 0)
+ 
+ #define REG_CHAN_FIFOCTL(ch)	(0x8054 + (ch) * 0x200)
+ #define CHAN_FIFOCTL_LIMIT	GENMASK(31, 16)
+@@ -75,6 +86,8 @@ struct admac_chan {
+ 	struct dma_chan chan;
+ 	struct tasklet_struct tasklet;
+ 
++	u32 carveout;
++
+ 	spinlock_t lock;
+ 	struct admac_tx *current_tx;
+ 	int nperiod_acks;
+@@ -91,11 +104,23 @@ struct admac_chan {
+ 	struct list_head to_free;
+ };
+ 
++struct admac_sram {
++	u32 size;
++	/*
++	 * SRAM_CARVEOUT has 16-bit fields, so the SRAM cannot be larger than
++	 * 64K and a 32-bit bitfield over 2K blocks covers it.
++	 */
++	u32 allocated;
++};
++
+ struct admac_data {
+ 	struct dma_device dma;
+ 	struct device *dev;
+ 	__iomem void *base;
+ 
++	struct mutex cache_alloc_lock;
++	struct admac_sram txcache, rxcache;
++
+ 	int irq;
+ 	int irq_index;
+ 	int nchannels;
+@@ -116,6 +141,60 @@ struct admac_tx {
+ 	struct list_head node;
+ };
+ 
++static int admac_alloc_sram_carveout(struct admac_data *ad,
++				     enum dma_transfer_direction dir,
++				     u32 *out)
++{
++	struct admac_sram *sram;
++	int i, ret = 0, nblocks;
++
++	if (dir == DMA_MEM_TO_DEV)
++		sram = &ad->txcache;
++	else
++		sram = &ad->rxcache;
++
++	mutex_lock(&ad->cache_alloc_lock);
++
++	nblocks = sram->size / SRAM_BLOCK;
++	for (i = 0; i < nblocks; i++)
++		if (!(sram->allocated & BIT(i)))
++			break;
++
++	if (i < nblocks) {
++		*out = FIELD_PREP(CHAN_SRAM_CARVEOUT_BASE, i * SRAM_BLOCK) |
++			FIELD_PREP(CHAN_SRAM_CARVEOUT_SIZE, SRAM_BLOCK);
++		sram->allocated |= BIT(i);
++	} else {
++		ret = -EBUSY;
++	}
++
++	mutex_unlock(&ad->cache_alloc_lock);
++
++	return ret;
++}
++
++static void admac_free_sram_carveout(struct admac_data *ad,
++				     enum dma_transfer_direction dir,
++				     u32 carveout)
++{
++	struct admac_sram *sram;
++	u32 base = FIELD_GET(CHAN_SRAM_CARVEOUT_BASE, carveout);
++	int i;
++
++	if (dir == DMA_MEM_TO_DEV)
++		sram = &ad->txcache;
++	else
++		sram = &ad->rxcache;
++
++	if (WARN_ON(base >= sram->size))
++		return;
++
++	mutex_lock(&ad->cache_alloc_lock);
++	i = base / SRAM_BLOCK;
++	sram->allocated &= ~BIT(i);
++	mutex_unlock(&ad->cache_alloc_lock);
++}
++
+ static void admac_modify(struct admac_data *ad, int reg, u32 mask, u32 val)
  {
- 	u32 flags = 0;
+ 	void __iomem *addr = ad->base + reg;
+@@ -464,15 +543,28 @@ static void admac_synchronize(struct dma_chan *chan)
+ static int admac_alloc_chan_resources(struct dma_chan *chan)
+ {
+ 	struct admac_chan *adchan = to_admac_chan(chan);
++	struct admac_data *ad = adchan->host;
++	int ret;
  
--	flags |= (prot & IOMMU_READ) ? RK_PTE_PAGE_READABLE_V2 : 0;
--	flags |= (prot & IOMMU_WRITE) ? RK_PTE_PAGE_WRITABLE_V2 : 0;
-+	flags |= (prot & IOMMU_READ) ? RK_PTE_PAGE_READABLE : 0;
-+	flags |= (prot & IOMMU_WRITE) ? RK_PTE_PAGE_WRITABLE : 0;
- 
- 	return rk_mk_dte_v2(page) | flags;
+ 	dma_cookie_init(&adchan->chan);
++	ret = admac_alloc_sram_carveout(ad, admac_chan_direction(adchan->no),
++					&adchan->carveout);
++	if (ret < 0)
++		return ret;
++
++	writel_relaxed(adchan->carveout,
++		       ad->base + REG_CHAN_SRAM_CARVEOUT(adchan->no));
+ 	return 0;
  }
+ 
+ static void admac_free_chan_resources(struct dma_chan *chan)
+ {
++	struct admac_chan *adchan = to_admac_chan(chan);
++
+ 	admac_terminate_all(chan);
+ 	admac_synchronize(chan);
++	admac_free_sram_carveout(adchan->host, admac_chan_direction(adchan->no),
++				 adchan->carveout);
+ }
+ 
+ static struct dma_chan *admac_dma_of_xlate(struct of_phandle_args *dma_spec,
+@@ -710,6 +802,7 @@ static int admac_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, ad);
+ 	ad->dev = &pdev->dev;
+ 	ad->nchannels = nchannels;
++	mutex_init(&ad->cache_alloc_lock);
+ 
+ 	/*
+ 	 * The controller has 4 IRQ outputs. Try them all until
+@@ -788,6 +881,13 @@ static int admac_probe(struct platform_device *pdev)
+ 		goto free_irq;
+ 	}
+ 
++	ad->txcache.size = readl_relaxed(ad->base + REG_TX_SRAM_SIZE);
++	ad->rxcache.size = readl_relaxed(ad->base + REG_RX_SRAM_SIZE);
++
++	dev_info(&pdev->dev, "Audio DMA Controller\n");
++	dev_info(&pdev->dev, "imprint %x TX cache %u RX cache %u\n",
++		 readl_relaxed(ad->base + REG_IMPRINT), ad->txcache.size, ad->rxcache.size);
++
+ 	return 0;
+ 
+ free_irq:
 -- 
 2.35.1
 
