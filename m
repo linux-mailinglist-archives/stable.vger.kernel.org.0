@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A3CC658418
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:54:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5170865849D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:59:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233360AbiL1QyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:54:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45828 "EHLO
+        id S235288AbiL1Q6d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:58:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235179AbiL1Qxl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:53:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25A1B1DF20
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:48:54 -0800 (PST)
+        with ESMTP id S235277AbiL1Q6I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:58:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89BA320193
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:54:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5920DB8188B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:48:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89C99C433EF;
-        Wed, 28 Dec 2022 16:48:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2CC69B8188D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:54:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 949D6C433F0;
+        Wed, 28 Dec 2022 16:54:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246132;
-        bh=87Fm83zzhdCo40yLR2Qb9vfcz28VPo8F2EtMDVbNYOs=;
+        s=korg; t=1672246459;
+        bh=B6WGf5Mz8SgeST3xpYSXXRbwW/Ae6pRLshq8wjtPeVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cCrjurD8WfJqWoy7cP0OvBzHJoGg3R/Ist82mgcP/eNS84Vcz8ZvF8ZOAIy/Q0D2i
-         L7UE9DJHrcTN9vxNtc5HBwheG/1vmo5VUH4ZDHOai3MaCPEnsQQTvlVPxLi5wM9UbI
-         7A0GeaGYylRyGzKYFmiX8oKXtYsBYElPsq+NVdr8=
+        b=ddyI287lmblXM19mGw75V7kpyk8CDrrbxVW9npzzusptA1tbPWanV1XhQOIAAnNqi
+         dh0eWaGPG/6cz5Khfg3wsROc8ieam+rEcWDUpA+I/ZV1WtXh0ow8O0MzQZCGrDHPWJ
+         v6iKJQzSJOuc8QZu1PzBSITh4xETqsqt+UANKpa8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0995/1073] clk: renesas: r8a779f0: Add TMU and parent SASYNC clocks
-Date:   Wed, 28 Dec 2022 15:43:03 +0100
-Message-Id: <20221228144355.151108173@linuxfoundation.org>
+        patches@lists.linux.dev, Jacob Keller <jacob.e.keller@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan G <gurucharanx.g@intel.com>
+Subject: [PATCH 6.1 1045/1146] ice: synchronize the misc IRQ when tearing down Tx tracker
+Date:   Wed, 28 Dec 2022 15:43:04 +0100
+Message-Id: <20221228144358.713924763@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-[ Upstream commit 1e56ebc9872feb2cf9a002c0a23d79a68f6493cb ]
+[ Upstream commit f0ae124019faaa03f8b4c3fbe52ae35ab3a8dbda ]
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Link: https://lore.kernel.org/r/20220726210110.1444-2-wsa+renesas@sang-engineering.com
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Since commit 1229b33973c7 ("ice: Add low latency Tx timestamp read") the
+ice driver has used a threaded IRQ for handling Tx timestamps. This change
+did not add a call to synchronize_irq during ice_ptp_release_tx_tracker.
+Thus it is possible that an interrupt could occur just as the tracker is
+being removed. This could lead to a use-after-free of the Tx tracker
+structure data.
+
+Fix this by calling sychronize_irq in ice_ptp_release_tx_tracker after
+we've cleared the init flag. In addition, make sure that we re-check the
+init flag at the end of ice_ptp_tx_tstamp before we exit ensuring that we
+will stop polling for new timestamps once the tracker de-initialization has
+begun.
+
+Refactor the ts_handled variable into "more_timestamps" so that we can
+simply directly assign this boolean instead of relying on an initialized
+value of true. This makes the new combined check easier to read.
+
+With this change, the ice_ptp_release_tx_tracker function will now wait for
+the threaded interrupt to complete if it was executing while the init flag
+was cleared.
+
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/renesas/r8a779f0-cpg-mssr.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/net/ethernet/intel/ice/ice_ptp.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/renesas/r8a779f0-cpg-mssr.c b/drivers/clk/renesas/r8a779f0-cpg-mssr.c
-index 9bd6746e6a07..738f71556621 100644
---- a/drivers/clk/renesas/r8a779f0-cpg-mssr.c
-+++ b/drivers/clk/renesas/r8a779f0-cpg-mssr.c
-@@ -108,6 +108,11 @@ static const struct cpg_core_clk r8a779f0_core_clks[] __initconst = {
- 	DEF_FIXED("cbfusa",	R8A779F0_CLK_CBFUSA,	CLK_EXTAL,	2, 1),
- 	DEF_FIXED("cpex",	R8A779F0_CLK_CPEX,	CLK_EXTAL,	2, 1),
+diff --git a/drivers/net/ethernet/intel/ice/ice_ptp.c b/drivers/net/ethernet/intel/ice/ice_ptp.c
+index 0f668468d141..53fec5bbe6e0 100644
+--- a/drivers/net/ethernet/intel/ice/ice_ptp.c
++++ b/drivers/net/ethernet/intel/ice/ice_ptp.c
+@@ -639,7 +639,7 @@ static u64 ice_ptp_extend_40b_ts(struct ice_pf *pf, u64 in_tstamp)
+ static bool ice_ptp_tx_tstamp(struct ice_ptp_tx *tx)
+ {
+ 	struct ice_ptp_port *ptp_port;
+-	bool ts_handled = true;
++	bool more_timestamps;
+ 	struct ice_pf *pf;
+ 	u8 idx;
  
-+	DEF_FIXED("sasyncrt",	R8A779F0_CLK_SASYNCRT,	CLK_PLL5_DIV4,	48, 1),
-+	DEF_FIXED("sasyncperd1", R8A779F0_CLK_SASYNCPERD1, CLK_PLL5_DIV4, 3, 1),
-+	DEF_FIXED("sasyncperd2", R8A779F0_CLK_SASYNCPERD2, R8A779F0_CLK_SASYNCPERD1, 2, 1),
-+	DEF_FIXED("sasyncperd4", R8A779F0_CLK_SASYNCPERD4, R8A779F0_CLK_SASYNCPERD1, 4, 1),
+@@ -701,11 +701,10 @@ static bool ice_ptp_tx_tstamp(struct ice_ptp_tx *tx)
+ 	 * poll for remaining timestamps.
+ 	 */
+ 	spin_lock(&tx->lock);
+-	if (!bitmap_empty(tx->in_use, tx->len))
+-		ts_handled = false;
++	more_timestamps = tx->init && !bitmap_empty(tx->in_use, tx->len);
+ 	spin_unlock(&tx->lock);
+ 
+-	return ts_handled;
++	return !more_timestamps;
+ }
+ 
+ /**
+@@ -776,6 +775,9 @@ ice_ptp_release_tx_tracker(struct ice_pf *pf, struct ice_ptp_tx *tx)
+ {
+ 	tx->init = 0;
+ 
++	/* wait for potentially outstanding interrupt to complete */
++	synchronize_irq(pf->msix_entries[pf->oicr_idx].vector);
 +
- 	DEF_GEN4_SDH("sdh0",	R8A779F0_CLK_SD0H,	CLK_SDSRC,	   0x870),
- 	DEF_GEN4_SD("sd0",	R8A779F0_CLK_SD0,	R8A779F0_CLK_SD0H, 0x870),
+ 	ice_ptp_flush_tx_tracker(pf, tx);
  
-@@ -140,6 +145,11 @@ static const struct mssr_mod_clk r8a779f0_mod_clks[] __initconst = {
- 	DEF_MOD("sdhi0",        706,    R8A779F0_CLK_SD0),
- 	DEF_MOD("sys-dmac0",	709,	R8A779F0_CLK_S0D3_PER),
- 	DEF_MOD("sys-dmac1",	710,	R8A779F0_CLK_S0D3_PER),
-+	DEF_MOD("tmu0",		713,	R8A779F0_CLK_SASYNCRT),
-+	DEF_MOD("tmu1",		714,	R8A779F0_CLK_SASYNCPERD2),
-+	DEF_MOD("tmu2",		715,	R8A779F0_CLK_SASYNCPERD2),
-+	DEF_MOD("tmu3",		716,	R8A779F0_CLK_SASYNCPERD2),
-+	DEF_MOD("tmu4",		717,	R8A779F0_CLK_SASYNCPERD2),
- 	DEF_MOD("wdt",		907,	R8A779F0_CLK_R),
- 	DEF_MOD("pfc0",		915,	R8A779F0_CLK_CL16M),
- 	DEF_MOD("tsc",		919,	R8A779F0_CLK_CL16M),
+ 	kfree(tx->tstamps);
 -- 
 2.35.1
 
