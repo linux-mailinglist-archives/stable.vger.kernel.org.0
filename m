@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E8B865781C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85EEB657DF9
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:48:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232953AbiL1OsF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:48:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36054 "EHLO
+        id S233631AbiL1Psy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:48:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233049AbiL1Orj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:47:39 -0500
+        with ESMTP id S234072AbiL1Pso (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:48:44 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A4C4120A1
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:47:07 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C56F617E39
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:48:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C5F3AB81717
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:47:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D7CBC433EF;
-        Wed, 28 Dec 2022 14:47:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 80112B81733
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:48:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9450C433D2;
+        Wed, 28 Dec 2022 15:48:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238824;
-        bh=HWxsBJe9i8Mk+VtC8Gc2vXYKrFegR25UE1RIBfChVvg=;
+        s=korg; t=1672242520;
+        bh=EyQ++/BKTEpOyoxOhcI6CKqke6ZcQmhSGSi5ClADbY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IlEYrjb1o8/G/0sIVXBTD2TnSbxp6YTTMNIG8iLI8KZ/A5+k8NC+so/z4SSCixC/T
-         03dltyL+8SRQC63mOXR176JdGymSSGP+ma60tVHlvKFBIBwiRCIiIpyUqvw5yG4IBL
-         xG6gd2tyZ5KfI85YvwNnNaRzqawh7l8Lbh3Hah18=
+        b=BeFUNwB2HuJeT8P34w37EVI2UGduZPncosX/htL77sZ1sp5fm10cIdu5qT6tZteHx
+         R7y3/YhE52gc2xBXGvKqvO29w5CHCF241db/qCDLfDrikUL2dR9DwTuTbI7W44edR2
+         4ZFDjI5+ip21sn+D3Glcg/9OjBf6QOjKcw4XhKVU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 011/731] arm64: dts: qcom: msm8916: Drop MSS fallback compatible
+Subject: [PATCH 6.1 0379/1146] clk: rockchip: Fix memory leak in rockchip_clk_register_pll()
 Date:   Wed, 28 Dec 2022 15:31:58 +0100
-Message-Id: <20221228144256.866892481@linuxfoundation.org>
+Message-Id: <20221228144340.460430848@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-[ Upstream commit ff02ac621634e82c0c34d02a79d402ae700cdfd0 ]
+[ Upstream commit 739a6a6bbdb793bd57938cb24aa5a6df89983546 ]
 
-MSM8916 was originally using the "qcom,q6v5-pil" compatible for the
-MSS remoteproc. Later it was decided to use SoC-specific compatibles
-instead, so "qcom,msm8916-mss-pil" is now the preferred compatible.
+If clk_register() fails, @pll->rate_table may have allocated memory by
+kmemdup(), so it needs to be freed, otherwise will cause memory leak
+issue, this patch fixes it.
 
-Commit 60a05ed059a0 ("arm64: dts: qcom: msm8916: Add MSM8916-specific
-compatibles to SCM/MSS") updated the MSM8916 device tree to make use of
-the new compatible but still kept the old "qcom,q6v5-pil" as fallback.
-
-This is inconsistent with other SoCs and conflicts with the description
-in the binding documentation (which says that only one compatible should
-be present). Also, it has no functional advantage since older kernels
-could not handle this DT anyway (e.g. "power-domains" in the MSS node is
-only supported by kernels that also support "qcom,msm8916-mss-pil").
-
-Make this consistent with other SoCs by using only the
-"qcom,msm8916-mss-pil" compatible.
-
-Fixes: 60a05ed059a0 ("arm64: dts: qcom: msm8916: Add MSM8916-specific compatibles to SCM/MSS")
-Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20220718140344.1831731-2-stephan.gerhold@kernkonzept.com
+Fixes: 90c590254051 ("clk: rockchip: add clock type for pll clocks and pll used on rk3066")
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+Link: https://lore.kernel.org/r/20221123091201.199819-1-xiujianfeng@huawei.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8916.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/rockchip/clk-pll.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8916.dtsi b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-index 19e201f52b16..b967dbfba3b8 100644
---- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-@@ -1307,7 +1307,7 @@ spmi_bus: spmi@200f000 {
- 		};
+diff --git a/drivers/clk/rockchip/clk-pll.c b/drivers/clk/rockchip/clk-pll.c
+index f7827b3b7fc1..6e5e502be44a 100644
+--- a/drivers/clk/rockchip/clk-pll.c
++++ b/drivers/clk/rockchip/clk-pll.c
+@@ -981,6 +981,7 @@ struct clk *rockchip_clk_register_pll(struct rockchip_clk_provider *ctx,
+ 	return mux_clk;
  
- 		mpss: remoteproc@4080000 {
--			compatible = "qcom,msm8916-mss-pil", "qcom,q6v5-pil";
-+			compatible = "qcom,msm8916-mss-pil";
- 			reg = <0x04080000 0x100>,
- 			      <0x04020000 0x040>;
- 
+ err_pll:
++	kfree(pll->rate_table);
+ 	clk_unregister(mux_clk);
+ 	mux_clk = pll_clk;
+ err_mux:
 -- 
 2.35.1
 
