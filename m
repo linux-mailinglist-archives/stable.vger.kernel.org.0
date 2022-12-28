@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 066426581A6
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:30:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBFAF6580CD
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:21:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234757AbiL1QaW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:30:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50050 "EHLO
+        id S233256AbiL1QVV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:21:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234726AbiL1Q37 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:29:59 -0500
+        with ESMTP id S233263AbiL1QUg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:20:36 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09DC51A21E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:26:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6B051AF3E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:18:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9D16CB81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:26:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 007A6C433EF;
-        Wed, 28 Dec 2022 16:26:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5906CB81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:18:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDBFBC433D2;
+        Wed, 28 Dec 2022 16:18:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244780;
-        bh=/pDDlATTEz2kV0cZYGFDWVoDagRz9bk136d7yrb2bR0=;
+        s=korg; t=1672244300;
+        bh=Epcd0hG9bjQ6EmjXOX9Lt/Te4kfyUZcwutwROJnJ+4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k1q8f+GIdLHic0Pj6e43E/U8pT/t9ZuI3aL9igwV9prJxPXL6ld8xrIUu0sbKRn/+
-         M/8Um6LuKKwyRc2UGWVIZjmkvQhUU5DnvdS0QtiH+B+5POW9oG1jF7I6p/HmAgf6z5
-         LRyBQMUFT+Pekf3jT8X5jD7yQQVkpI2w9QaPF7Os=
+        b=yEB0LpHkbegcg0arzOU18ghBe5fNSD7g2wzXMRNbfblNVyUKne9D07NUJavGo36/+
+         6qw6T9bIBYlOzlO9h2fuD+KV3H8UBnF0Ff8E4TUZzfva5zDAD8opLrncwa8nTbZmit
+         K9gzr9D5H+zxOuxmRnA6hYkj8qSUL1RTFXRpEv+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Avihai Horon <avihaih@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Joao Martins <joao.m.martins@oracle.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        patches@lists.linux.dev,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0735/1146] vfio/iova_bitmap: refactor iova_bitmap_set() to better handle page boundaries
-Date:   Wed, 28 Dec 2022 15:37:54 +0100
-Message-Id: <20221228144350.112889489@linuxfoundation.org>
+Subject: [PATCH 6.0 0687/1073] serial: pch: Fix PCI device refcount leak in pch_request_dma()
+Date:   Wed, 28 Dec 2022 15:37:55 +0100
+Message-Id: <20221228144346.696177052@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,97 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joao Martins <joao.m.martins@oracle.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit b058ea3ab5afea873ab8d976277539ca9e43869a ]
+[ Upstream commit 8be3a7bf773700534a6e8f87f6ed2ed111254be5 ]
 
-Commit f38044e5ef58 ("vfio/iova_bitmap: Fix PAGE_SIZE unaligned bitmaps")
-had fixed the unaligned bitmaps by capping the remaining iterable set at
-the start of the bitmap. Although, that mistakenly worked around
-iova_bitmap_set() incorrectly setting bits across page boundary.
+As comment of pci_get_slot() says, it returns a pci_device with its
+refcount increased. The caller must decrement the reference count by
+calling pci_dev_put().
 
-Fix this by reworking the loop inside iova_bitmap_set() to iterate over a
-range of bits to set (cur_bit .. last_bit) which may span different pinned
-pages, thus updating @page_idx and @offset as it sets the bits. The
-previous cap to the first page is now adjusted to be always accounted
-rather than when there's only a non-zero pgoff.
+Since 'dma_dev' is only used to filter the channel in filter(), we can
+call pci_dev_put() before exiting from pch_request_dma(). Add the
+missing pci_dev_put() for the normal and error path.
 
-While at it, make @page_idx , @offset and @nbits to be unsigned int given
-that it won't be more than 512 and 4096 respectively (even a bigger
-PAGE_SIZE or a smaller struct page size won't make this bigger than the
-above 32-bit max). Also, delete the stale kdoc on Return type.
-
-Cc: Avihai Horon <avihaih@nvidia.com>
-Fixes: f38044e5ef58 ("vfio/iova_bitmap: Fix PAGE_SIZE unaligned bitmaps")
-Co-developed-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Joao Martins <joao.m.martins@oracle.com>
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Tested-by: Avihai Horon <avihaih@nvidia.com>
-Link: https://lore.kernel.org/r/20221129131235.38880-1-joao.m.martins@oracle.com
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: 3c6a483275f4 ("Serial: EG20T: add PCH_UART driver")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Link: https://lore.kernel.org/r/20221122114559.27692-1-wangxiongfeng2@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/iova_bitmap.c | 30 +++++++++++++-----------------
- 1 file changed, 13 insertions(+), 17 deletions(-)
+ drivers/tty/serial/pch_uart.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/vfio/iova_bitmap.c b/drivers/vfio/iova_bitmap.c
-index 2dd65f040127..0f19d502f351 100644
---- a/drivers/vfio/iova_bitmap.c
-+++ b/drivers/vfio/iova_bitmap.c
-@@ -297,9 +297,7 @@ static unsigned long iova_bitmap_mapped_remaining(struct iova_bitmap *bitmap)
- {
- 	unsigned long remaining, bytes;
+diff --git a/drivers/tty/serial/pch_uart.c b/drivers/tty/serial/pch_uart.c
+index 8a9065e4a903..ec501c3ce033 100644
+--- a/drivers/tty/serial/pch_uart.c
++++ b/drivers/tty/serial/pch_uart.c
+@@ -694,6 +694,7 @@ static void pch_request_dma(struct uart_port *port)
+ 	if (!chan) {
+ 		dev_err(priv->port.dev, "%s:dma_request_channel FAILS(Tx)\n",
+ 			__func__);
++		pci_dev_put(dma_dev);
+ 		return;
+ 	}
+ 	priv->chan_tx = chan;
+@@ -710,6 +711,7 @@ static void pch_request_dma(struct uart_port *port)
+ 			__func__);
+ 		dma_release_channel(priv->chan_tx);
+ 		priv->chan_tx = NULL;
++		pci_dev_put(dma_dev);
+ 		return;
+ 	}
  
--	/* Cap to one page in the first iteration, if PAGE_SIZE unaligned. */
--	bytes = !bitmap->mapped.pgoff ? bitmap->mapped.npages << PAGE_SHIFT :
--					PAGE_SIZE - bitmap->mapped.pgoff;
-+	bytes = (bitmap->mapped.npages << PAGE_SHIFT) - bitmap->mapped.pgoff;
- 
- 	remaining = bitmap->mapped_total_index - bitmap->mapped_base_index;
- 	remaining = min_t(unsigned long, remaining,
-@@ -398,29 +396,27 @@ int iova_bitmap_for_each(struct iova_bitmap *bitmap, void *opaque,
-  * Set the bits corresponding to the range [iova .. iova+length-1] in
-  * the user bitmap.
-  *
-- * Return: The number of bits set.
-  */
- void iova_bitmap_set(struct iova_bitmap *bitmap,
- 		     unsigned long iova, size_t length)
- {
- 	struct iova_bitmap_map *mapped = &bitmap->mapped;
--	unsigned long offset = (iova - mapped->iova) >> mapped->pgshift;
--	unsigned long nbits = max_t(unsigned long, 1, length >> mapped->pgshift);
--	unsigned long page_idx = offset / BITS_PER_PAGE;
--	unsigned long page_offset = mapped->pgoff;
--	void *kaddr;
--
--	offset = offset % BITS_PER_PAGE;
-+	unsigned long cur_bit = ((iova - mapped->iova) >>
-+			mapped->pgshift) + mapped->pgoff * BITS_PER_BYTE;
-+	unsigned long last_bit = (((iova + length - 1) - mapped->iova) >>
-+			mapped->pgshift) + mapped->pgoff * BITS_PER_BYTE;
- 
- 	do {
--		unsigned long size = min(BITS_PER_PAGE - offset, nbits);
-+		unsigned int page_idx = cur_bit / BITS_PER_PAGE;
-+		unsigned int offset = cur_bit % BITS_PER_PAGE;
-+		unsigned int nbits = min(BITS_PER_PAGE - offset,
-+					 last_bit - cur_bit + 1);
-+		void *kaddr;
- 
- 		kaddr = kmap_local_page(mapped->pages[page_idx]);
--		bitmap_set(kaddr + page_offset, offset, size);
-+		bitmap_set(kaddr, offset, nbits);
- 		kunmap_local(kaddr);
--		page_offset = offset = 0;
--		nbits -= size;
--		page_idx++;
--	} while (nbits > 0);
-+		cur_bit += nbits;
-+	} while (cur_bit <= last_bit);
+@@ -717,6 +719,8 @@ static void pch_request_dma(struct uart_port *port)
+ 	priv->rx_buf_virt = dma_alloc_coherent(port->dev, port->fifosize,
+ 				    &priv->rx_buf_dma, GFP_KERNEL);
+ 	priv->chan_rx = chan;
++
++	pci_dev_put(dma_dev);
  }
- EXPORT_SYMBOL_GPL(iova_bitmap_set);
+ 
+ static void pch_dma_rx_complete(void *arg)
 -- 
 2.35.1
 
