@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 549B5657CA7
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:34:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2933657B98
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233856AbiL1Peo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:34:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52512 "EHLO
+        id S233526AbiL1PX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:23:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233449AbiL1Pem (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:34:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E55F915FF3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:34:41 -0800 (PST)
+        with ESMTP id S233355AbiL1PXX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:23:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A47C13E18
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:23:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 955ACB81647
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:34:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E352EC433D2;
-        Wed, 28 Dec 2022 15:34:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AE3BBB816D9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:23:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22D5CC433D2;
+        Wed, 28 Dec 2022 15:23:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241679;
-        bh=dI78X4+JRfwLn7DLho4ytF6hGZAUmP8/pHSuFy7Fho0=;
+        s=korg; t=1672240999;
+        bh=Hde8ztJAGCanVAl6Rfu/OkUXsy61SOw4nTBUErOeMfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QTAvxq9sfYbDiHh2Ojsv9+IuLPSb8syK8+iFz7I2IXCLuvrSkQzy519JymHkNc0DQ
-         u61SGpe236SYQruwxJy2jwKr8zvu+Uf4BlhQL+FRYr6C0+kMDRd9FJTpOR6d83oIn6
-         XVd4+vO54JRrV+gE/Pa53FEWm4wCdlLgrWfRHX+Y=
+        b=DMnZWpIraLHgfbJ/4AkKNBh9eB9iVLVXQ1RqQuOhhzvLxeHDb9GSRbRuzAT5LCtFL
+         YdWze0aIHmp7zr3RxYuqLI0K893rx0Yc/hIDixuxfQQfQxNCrBQhJcIpW2N4rzK/y2
+         Z5WtoMAIBnVMhT0ah9MC6s8tY1NjY/JunZ8g2d7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0276/1146] bpf: Fix slot type check in check_stack_write_var_off
-Date:   Wed, 28 Dec 2022 15:30:15 +0100
-Message-Id: <20221228144337.632432018@linuxfoundation.org>
+Subject: [PATCH 6.0 0228/1073] media: adv748x: afe: Select input port when initializing AFE
+Date:   Wed, 28 Dec 2022 15:30:16 +0100
+Message-Id: <20221228144334.217832054@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
 
-[ Upstream commit f5e477a861e4a20d8a1c5f7a245f3a3c3c376b03 ]
+[ Upstream commit 23ddb85dafefdace1ad79d1a30b0a4e7c4b5cd8d ]
 
-For the case where allow_ptr_leaks is false, code is checking whether
-slot type is STACK_INVALID and STACK_SPILL and rejecting other cases.
-This is a consequence of incorrectly checking for register type instead
-of the slot type (NOT_INIT and SCALAR_VALUE respectively). Fix the
-check.
+When moving the input selection to adv748x_reset() it was missed that
+during probe the device is reset _before_ the initialization and parsing
+of DT by the AFE subdevice. This can lead to the wrong input port (in
+case it's not port 0) being selected until the device is reset for the
+first time.
 
-Fixes: 01f810ace9ed ("bpf: Allow variable-offset stack access")
-Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Link: https://lore.kernel.org/r/20221103191013.1236066-5-memxor@gmail.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Fix this by restoring the call to adv748x_afe_s_input() in the AFE
+initialization while also keeping it in the adv748x_reset().
+
+Fixes: c30ed81afe89 ("media: adv748x: afe: Select input port when device is reset")
+Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ drivers/media/i2c/adv748x/adv748x-afe.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 146056c79cc9..d533488b75c6 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -3186,14 +3186,17 @@ static int check_stack_write_var_off(struct bpf_verifier_env *env,
- 		stype = &state->stack[spi].slot_type[slot % BPF_REG_SIZE];
- 		mark_stack_slot_scratched(env, spi);
+diff --git a/drivers/media/i2c/adv748x/adv748x-afe.c b/drivers/media/i2c/adv748x/adv748x-afe.c
+index 02eabe10ab97..00095c7762c2 100644
+--- a/drivers/media/i2c/adv748x/adv748x-afe.c
++++ b/drivers/media/i2c/adv748x/adv748x-afe.c
+@@ -521,6 +521,10 @@ int adv748x_afe_init(struct adv748x_afe *afe)
+ 		}
+ 	}
  
--		if (!env->allow_ptr_leaks
--				&& *stype != NOT_INIT
--				&& *stype != SCALAR_VALUE) {
--			/* Reject the write if there's are spilled pointers in
--			 * range. If we didn't reject here, the ptr status
--			 * would be erased below (even though not all slots are
--			 * actually overwritten), possibly opening the door to
--			 * leaks.
-+		if (!env->allow_ptr_leaks && *stype != STACK_MISC && *stype != STACK_ZERO) {
-+			/* Reject the write if range we may write to has not
-+			 * been initialized beforehand. If we didn't reject
-+			 * here, the ptr status would be erased below (even
-+			 * though not all slots are actually overwritten),
-+			 * possibly opening the door to leaks.
-+			 *
-+			 * We do however catch STACK_INVALID case below, and
-+			 * only allow reading possibly uninitialized memory
-+			 * later for CAP_PERFMON, as the write may not happen to
-+			 * that slot.
- 			 */
- 			verbose(env, "spilled ptr in range of var-offset stack write; insn %d, ptr off: %d",
- 				insn_idx, i);
++	adv748x_afe_s_input(afe, afe->input);
++
++	adv_dbg(state, "AFE Default input set to %d\n", afe->input);
++
+ 	/* Entity pads and sinks are 0-indexed to match the pads */
+ 	for (i = ADV748X_AFE_SINK_AIN0; i <= ADV748X_AFE_SINK_AIN7; i++)
+ 		afe->pads[i].flags = MEDIA_PAD_FL_SINK;
 -- 
 2.35.1
 
