@@ -2,50 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47F49657882
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:52:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B63F6657EEB
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:59:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233089AbiL1OwF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:52:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37710 "EHLO
+        id S232968AbiL1P7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:59:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233214AbiL1Ov3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:51:29 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9355711C3A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:51:07 -0800 (PST)
+        with ESMTP id S234219AbiL1P7M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:59:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12A5818B31
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:59:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DDECACE134E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:51:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8E86C433D2;
-        Wed, 28 Dec 2022 14:51:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A21D1B8172B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:59:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F284CC433EF;
+        Wed, 28 Dec 2022 15:59:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239064;
-        bh=bhefCoveFalYjvW0k7lZd7xEECoo+RCh7S24bZQWBws=;
+        s=korg; t=1672243149;
+        bh=yIf4KSem7E/fWvBQLQCsiwU7oK+kb5gqbt+mhSoTSqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d0q4ZSjm+9m4rSeVhYA6r08FK3huLjKq0WyttTA+Soqxg+msY5cv6Fh0L586U0nOl
-         iVL7Wi0dQrABn6NsPmu5CzoptNpWnFR+qtSCsxXurFK+EC6Gnaym5DQcybYqzTFN7q
-         Orxi9p0yI7zypEhgriDJwVkzIkQ55CV/IkUxH6vs=
+        b=r7VY6PGg6lcZN1etcPeYqIXatACoAdyH8RovS2qrJEJcygOM++0LDbZ32MJo9kUUY
+         D3a8Gf5Dgeh93GxvUiWlN7XEcW8V7IeJRXLShQSkQpGZyOrRfmaDwBeRbj3ZOTbynL
+         Z9wchba60Lb49pUAxaVy++UXeNCXG/V253wTLC0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 088/731] ocfs2: fix memory leak in ocfs2_stack_glue_init()
+        patches@lists.linux.dev, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0456/1146] wifi: mt76: mt7915: fix reporting of TX AGGR histogram
 Date:   Wed, 28 Dec 2022 15:33:15 +0100
-Message-Id: <20221228144259.102369486@linuxfoundation.org>
+Message-Id: <20221228144342.567501682@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,71 +52,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 13b6269dd022aaa69ca8d1df374ab327504121cf ]
+[ Upstream commit 528d13e7f033b54d50e0077922dd52f005d648cf ]
 
-ocfs2_table_header should be free in ocfs2_stack_glue_init() if
-ocfs2_sysfs_init() failed, otherwise kmemleak will report memleak.
+Fix stats clash between bins [4-7] in 802.11 tx aggregation histogram.
 
-BUG: memory leak
-unreferenced object 0xffff88810eeb5800 (size 128):
-  comm "modprobe", pid 4507, jiffies 4296182506 (age 55.888s)
-  hex dump (first 32 bytes):
-    c0 40 14 a0 ff ff ff ff 00 00 00 00 01 00 00 00  .@..............
-    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000001e59e1cd>] __register_sysctl_table+0xca/0xef0
-    [<00000000c04f70f7>] 0xffffffffa0050037
-    [<000000001bd12912>] do_one_initcall+0xdb/0x480
-    [<0000000064f766c9>] do_init_module+0x1cf/0x680
-    [<000000002ba52db0>] load_module+0x6441/0x6f20
-    [<000000009772580d>] __do_sys_finit_module+0x12f/0x1c0
-    [<00000000380c1f22>] do_syscall_64+0x3f/0x90
-    [<000000004cf473bc>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Link: https://lkml.kernel.org/r/41651ca1-432a-db34-eb97-d35744559de1@linux.alibaba.com
-Fixes: 3878f110f71a ("ocfs2: Move the hb_ctl_path sysctl into the stack glue.")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: e57b7901469fc ("mt76: add mac80211 driver for MT7915 PCIe-based chipsets")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/stackglue.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt7915/mac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ocfs2/stackglue.c b/fs/ocfs2/stackglue.c
-index 16f1bfc407f2..955f475f9aca 100644
---- a/fs/ocfs2/stackglue.c
-+++ b/fs/ocfs2/stackglue.c
-@@ -703,6 +703,8 @@ static struct ctl_table_header *ocfs2_table_header;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
+index 7ae9c4bd9c86..e6bf6e04d4b9 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
+@@ -1609,7 +1609,7 @@ void mt7915_mac_update_stats(struct mt7915_phy *phy)
  
- static int __init ocfs2_stack_glue_init(void)
- {
-+	int ret;
-+
- 	strcpy(cluster_stack_name, OCFS2_STACK_PLUGIN_O2CB);
- 
- 	ocfs2_table_header = register_sysctl_table(ocfs2_root_table);
-@@ -712,7 +714,11 @@ static int __init ocfs2_stack_glue_init(void)
- 		return -ENOMEM; /* or something. */
- 	}
- 
--	return ocfs2_sysfs_init();
-+	ret = ocfs2_sysfs_init();
-+	if (ret)
-+		unregister_sysctl_table(ocfs2_table_header);
-+
-+	return ret;
- }
- 
- static void __exit ocfs2_stack_glue_exit(void)
+ 	aggr0 = phy->band_idx ? ARRAY_SIZE(dev->mt76.aggr_stats) / 2 : 0;
+ 	if (is_mt7915(&dev->mt76)) {
+-		for (i = 0, aggr1 = aggr0 + 4; i < 4; i++) {
++		for (i = 0, aggr1 = aggr0 + 8; i < 4; i++) {
+ 			val = mt76_rr(dev, MT_MIB_MB_SDR1(phy->band_idx, (i << 4)));
+ 			mib->ba_miss_cnt +=
+ 				FIELD_GET(MT_MIB_BA_MISS_COUNT_MASK, val);
 -- 
 2.35.1
 
