@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44718657AFC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:17:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B3F76579E6
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:05:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233226AbiL1PRC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:17:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36174 "EHLO
+        id S233553AbiL1PFy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:05:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233144AbiL1PQ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:16:56 -0500
+        with ESMTP id S233546AbiL1PFw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:05:52 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45B5113F35
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:16:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61297B6E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:05:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE552B8170E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:16:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24B76C433D2;
-        Wed, 28 Dec 2022 15:16:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF954B816D9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:05:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 294ACC433EF;
+        Wed, 28 Dec 2022 15:05:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240609;
-        bh=vQWqMgVrE+j7saFA+O991G1zL/NHB6C6bXUO1rT5PYU=;
+        s=korg; t=1672239949;
+        bh=HL6mQPUmwJreVaGCN4UDXMfax8DjgiESGDxwshEOVag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g45oLLT5c+1oHT1NcHvLU4IjMbrIzpP9UyTzqTcGIswXozIo+HCWzMP2IlQ5iKvJY
-         kpNZ6409Mrk5yrDeMTrSZkrPkzJ3/uT44N+H3itVPB4O0n1Xe38texS6E658XAs68l
-         e160qoUPBLaU4OCvxGEMfCxsTsrON1X3Ji7X/nUI=
+        b=KxKxF/wfFKnN5X6ifwGtYQ0jZkqnf1bfWcRGy/D+z+jehkJVAO75+yPu3s8tDw2Fy
+         UKmHCo7sduaJcW8+Prf4eBCn7IFA2STUfTqtRulNICocV53Jn0W8H2uwA+2xJBFYp5
+         b8QtkTYlchl5M1cimszhZ6ORe0xPNIZjfaabAzTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0145/1146] thermal: core: fix some possible name leaks in error paths
-Date:   Wed, 28 Dec 2022 15:28:04 +0100
-Message-Id: <20221228144334.085809867@linuxfoundation.org>
+Subject: [PATCH 6.0 0097/1073] sched/uclamp: Make select_idle_capacity() use util_fits_cpu()
+Date:   Wed, 28 Dec 2022 15:28:05 +0100
+Message-Id: <20221228144330.684412056@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,73 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Qais Yousef <qais.yousef@arm.com>
 
-[ Upstream commit 4748f9687caaeefab8578285b97b2f30789fc4b4 ]
+[ Upstream commit b759caa1d9f667b94727b2ad12589cbc4ce13a82 ]
 
-In some error paths before device_register(), the names allocated
-by dev_set_name() are not freed. Move dev_set_name() front to
-device_register(), so the name can be freed while calling
-put_device().
+Use the new util_fits_cpu() to ensure migration margin and capacity
+pressure are taken into account correctly when uclamp is being used
+otherwise we will fail to consider CPUs as fitting in scenarios where
+they should.
 
-Fixes: 1dd7128b839f ("thermal/core: Fix null pointer dereference in thermal_release()")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: b4c9c9f15649 ("sched/fair: Prefer prev cpu in asymmetric wakeup path")
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220804143609.515789-5-qais.yousef@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/thermal_core.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ kernel/sched/fair.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/thermal/thermal_core.c b/drivers/thermal/thermal_core.c
-index 117eeaf7dd24..615fdda3a5de 100644
---- a/drivers/thermal/thermal_core.c
-+++ b/drivers/thermal/thermal_core.c
-@@ -883,10 +883,6 @@ __thermal_cooling_device_register(struct device_node *np,
- 	cdev->id = ret;
- 	id = ret;
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index abe0e6baaa2e..892ea83864a7 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -6603,21 +6603,23 @@ static int select_idle_cpu(struct task_struct *p, struct sched_domain *sd, bool
+ static int
+ select_idle_capacity(struct task_struct *p, struct sched_domain *sd, int target)
+ {
+-	unsigned long task_util, best_cap = 0;
++	unsigned long task_util, util_min, util_max, best_cap = 0;
+ 	int cpu, best_cpu = -1;
+ 	struct cpumask *cpus;
  
--	ret = dev_set_name(&cdev->device, "cooling_device%d", cdev->id);
--	if (ret)
--		goto out_ida_remove;
--
- 	cdev->type = kstrdup(type ? type : "", GFP_KERNEL);
- 	if (!cdev->type) {
- 		ret = -ENOMEM;
-@@ -901,6 +897,11 @@ __thermal_cooling_device_register(struct device_node *np,
- 	cdev->device.class = &thermal_class;
- 	cdev->devdata = devdata;
- 	thermal_cooling_device_setup_sysfs(cdev);
-+	ret = dev_set_name(&cdev->device, "cooling_device%d", cdev->id);
-+	if (ret) {
-+		thermal_cooling_device_destroy_sysfs(cdev);
-+		goto out_kfree_type;
-+	}
- 	ret = device_register(&cdev->device);
- 	if (ret)
- 		goto out_kfree_type;
-@@ -1234,10 +1235,6 @@ thermal_zone_device_register_with_trips(const char *type, struct thermal_trip *t
- 	tz->id = id;
- 	strscpy(tz->type, type, sizeof(tz->type));
+ 	cpus = this_cpu_cpumask_var_ptr(select_rq_mask);
+ 	cpumask_and(cpus, sched_domain_span(sd), p->cpus_ptr);
  
--	result = dev_set_name(&tz->device, "thermal_zone%d", tz->id);
--	if (result)
--		goto remove_id;
--
- 	if (!ops->critical)
- 		ops->critical = thermal_zone_device_critical;
+-	task_util = uclamp_task_util(p);
++	task_util = task_util_est(p);
++	util_min = uclamp_eff_value(p, UCLAMP_MIN);
++	util_max = uclamp_eff_value(p, UCLAMP_MAX);
  
-@@ -1260,6 +1257,11 @@ thermal_zone_device_register_with_trips(const char *type, struct thermal_trip *t
- 	/* A new thermal zone needs to be updated anyway. */
- 	atomic_set(&tz->need_update, 1);
+ 	for_each_cpu_wrap(cpu, cpus, target) {
+ 		unsigned long cpu_cap = capacity_of(cpu);
  
-+	result = dev_set_name(&tz->device, "thermal_zone%d", tz->id);
-+	if (result) {
-+		thermal_zone_destroy_device_groups(tz);
-+		goto remove_id;
-+	}
- 	result = device_register(&tz->device);
- 	if (result)
- 		goto release_device;
+ 		if (!available_idle_cpu(cpu) && !sched_idle_cpu(cpu))
+ 			continue;
+-		if (fits_capacity(task_util, cpu_cap))
++		if (util_fits_cpu(task_util, util_min, util_max, cpu))
+ 			return cpu;
+ 
+ 		if (cpu_cap > best_cap) {
 -- 
 2.35.1
 
