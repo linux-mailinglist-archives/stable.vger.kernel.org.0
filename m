@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BBA16579ED
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:06:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 323936578F0
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:55:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233558AbiL1PGI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:06:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53598 "EHLO
+        id S233245AbiL1Oz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:55:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233571AbiL1PGG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:06:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3445EB871
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:06:05 -0800 (PST)
+        with ESMTP id S233253AbiL1Ozw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:55:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FE92DD5
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:55:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BBC4CB816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:06:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35428C433D2;
-        Wed, 28 Dec 2022 15:06:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A0BC361541
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:55:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4F29C433D2;
+        Wed, 28 Dec 2022 14:55:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239962;
-        bh=WA8MtBXPsmOfc4X9Y5fEGDSvQo1SK7z+JRzUXyIdYYE=;
+        s=korg; t=1672239348;
+        bh=nrg5uLepJOiprDjSVWoMzJlcEOouFyraHN06Edfc+E0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g2e6zgXQWTnTPzTeydnAtT9P82BidnTQq9QOaZiQga5Q447mUEu5szQ7qKnxeRhTF
-         0dqc0GWZ1QMDas47JMekg8TlQ8pP5wFu/kREyKnrLWeTAHIng3g0+c0fkebKqIk4+l
-         ZeVlTZZPkI9MphMUC2expV6e+acjw8Z/vFLVN6wk=
+        b=afDiKKXMbplMyVcvKNnmDL3D3qTNOY2g9kggt6z8RVK7XGDreIYcTyM4OCrI4NTn+
+         VV0toyk/DgD58RNdLsPL4f2QnZ2ymZigXYc4kF/XPQ8tkfsBar4/HymB2vnPU/QSRO
+         tuZvPV2t2N8/AYdFzRdMnoTkatTovzqli9DR0QEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jayesh Choudhary <j-choudhary@ti.com>,
-        Nishanth Menon <nm@ti.com>,
-        Manorit Chawdhry <m-chawdhry@ti.com>,
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0063/1146] arm64: dts: ti: k3-am65-main: Drop dma-coherent in crypto node
+Subject: [PATCH 6.0 0014/1073] arm64: dts: qcom: msm8996: fix GPU OPP table
 Date:   Wed, 28 Dec 2022 15:26:42 +0100
-Message-Id: <20221228144331.871872192@linuxfoundation.org>
+Message-Id: <20221228144328.549863205@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jayesh Choudhary <j-choudhary@ti.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit b86833ab3653dbb0dc453eec4eef8615e63de4e2 ]
+[ Upstream commit 0d440d811e6e2f37093e54db55bc27fe66678170 ]
 
-crypto driver itself is not dma-coherent. So drop it.
+Fix Adreno OPP table according to the msm-3.18. Enable 624 MHz for the
+speed bin 3 and 560 MHz for bins 2 and 3.
 
-Fixes: b366b2409c97 ("arm64: dts: ti: k3-am6: Add crypto accelarator node")
-Signed-off-by: Jayesh Choudhary <j-choudhary@ti.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Reviewed-by: Manorit Chawdhry <m-chawdhry@ti.com>
-Link: https://lore.kernel.org/r/20221031152520.355653-2-j-choudhary@ti.com
+Fixes: 69cc3114ab0f ("arm64: dts: Add Adreno GPU definitions")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20220724140421.1933004-7-dmitry.baryshkov@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/ti/k3-am65-main.dtsi | 1 -
- 1 file changed, 1 deletion(-)
+ arch/arm64/boot/dts/qcom/msm8996.dtsi | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-index 4005a73cfea9..ebb1c5ce7aec 100644
---- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-@@ -120,7 +120,6 @@ crypto: crypto@4e00000 {
- 		dmas = <&main_udmap 0xc001>, <&main_udmap 0x4002>,
- 				<&main_udmap 0x4003>;
- 		dma-names = "tx", "rx1", "rx2";
--		dma-coherent;
+diff --git a/arch/arm64/boot/dts/qcom/msm8996.dtsi b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+index 24791ed436c5..c8b9d7d60774 100644
+--- a/arch/arm64/boot/dts/qcom/msm8996.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+@@ -1228,17 +1228,17 @@ gpu_opp_table: opp-table {
+ 				compatible = "operating-points-v2";
  
- 		rng: rng@4e10000 {
- 			compatible = "inside-secure,safexcel-eip76";
+ 				/*
+-				 * 624Mhz and 560Mhz are only available on speed
+-				 * bin (1 << 0). All the rest are available on
+-				 * all bins of the hardware
++				 * 624Mhz is only available on speed bins 0 and 3.
++				 * 560Mhz is only available on speed bins 0, 2 and 3.
++				 * All the rest are available on all bins of the hardware.
+ 				 */
+ 				opp-624000000 {
+ 					opp-hz = /bits/ 64 <624000000>;
+-					opp-supported-hw = <0x01>;
++					opp-supported-hw = <0x09>;
+ 				};
+ 				opp-560000000 {
+ 					opp-hz = /bits/ 64 <560000000>;
+-					opp-supported-hw = <0x01>;
++					opp-supported-hw = <0x0d>;
+ 				};
+ 				opp-510000000 {
+ 					opp-hz = /bits/ 64 <510000000>;
 -- 
 2.35.1
 
