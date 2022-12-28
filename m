@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A1826583AF
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:50:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC9F8657E8D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:55:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232875AbiL1QuA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:50:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42748 "EHLO
+        id S233642AbiL1PzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:55:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235165AbiL1Qtf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:49:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E8491EEE8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:45:00 -0800 (PST)
+        with ESMTP id S234151AbiL1Py4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:54:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E2E1186FA
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:54:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1BE861541
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:44:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7F9BC433D2;
-        Wed, 28 Dec 2022 16:44:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DAB18B81730
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:54:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E0D3C433D2;
+        Wed, 28 Dec 2022 15:54:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245899;
-        bh=V1iZjnY+Fu3/ryfiijjX5kukUbPZuFNdU84KcYkm+K4=;
+        s=korg; t=1672242892;
+        bh=GEMHxz9UeYpqBtx6PdRfOQw98dL7l1iH3y89uzKmimI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/G9zy2Lo5ayum8U1bnySTAYV4O3Iq7a1K04if+wDtpirWyBWkcyXmIwc5nDCsoOE
-         0YQXCsiQgvGvRQ3fVVhv0jyvkDyNYsX3MxjvbzO7blvovL/A5mbvxpKvszAdJhTzgO
-         XcjOfBGA3WqxL0dRMV8w5Ebx9JxAj4lhkd7+uH0w=
+        b=s4mGNJcI53u3rCnhotMw/CtkmQgZwLJ3jPH2UxhCd3NSD/Fe1U60p2x9Nqqmto5yn
+         3Q9bm8VJe6QKuUxOup5bgsBm4MjuEv5AkLWipRGKabbwOS1fdBGZdhpB2GcouY/Vne
+         ZfbZezVqxFFXM4jIrvpilRi8gEF64N457jvl4Ksw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sven Peter <sven@svenpeter.dev>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev,
+        syzbot+6fd64001c20aa99e34a4@syzkaller.appspotmail.com,
+        Schspa Shi <schspa@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0977/1073] Bluetooth: Add quirk to disable MWS Transport Configuration
+Subject: [PATCH 5.15 658/731] mrp: introduce active flags to prevent UAF when applicant uninit
 Date:   Wed, 28 Dec 2022 15:42:45 +0100
-Message-Id: <20221228144354.611474083@linuxfoundation.org>
+Message-Id: <20221228144315.567420688@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,87 +55,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Peter <sven@svenpeter.dev>
+From: Schspa Shi <schspa@gmail.com>
 
-[ Upstream commit ffcb0a445ec2d5753751437706aa0a7ea8351099 ]
+[ Upstream commit ab0377803dafc58f1e22296708c1c28e309414d6 ]
 
-Broadcom 4378/4387 controllers found in Apple Silicon Macs claim to
-support getting MWS Transport Layer Configuration,
+The caller of del_timer_sync must prevent restarting of the timer, If
+we have no this synchronization, there is a small probability that the
+cancellation will not be successful.
 
-< HCI Command: Read Local Supported... (0x04|0x0002) plen 0
-> HCI Event: Command Complete (0x0e) plen 68
-      Read Local Supported Commands (0x04|0x0002) ncmd 1
-        Status: Success (0x00)
-[...]
-          Get MWS Transport Layer Configuration (Octet 30 - Bit 3)]
-[...]
+And syzbot report the fellowing crash:
+==================================================================
+BUG: KASAN: use-after-free in hlist_add_head include/linux/list.h:929 [inline]
+BUG: KASAN: use-after-free in enqueue_timer+0x18/0xa4 kernel/time/timer.c:605
+Write at addr f9ff000024df6058 by task syz-fuzzer/2256
+Pointer tag: [f9], memory tag: [fe]
 
-, but then don't actually allow the required command:
+CPU: 1 PID: 2256 Comm: syz-fuzzer Not tainted 6.1.0-rc5-syzkaller-00008-
+ge01d50cbd6ee #0
+Hardware name: linux,dummy-virt (DT)
+Call trace:
+ dump_backtrace.part.0+0xe0/0xf0 arch/arm64/kernel/stacktrace.c:156
+ dump_backtrace arch/arm64/kernel/stacktrace.c:162 [inline]
+ show_stack+0x18/0x40 arch/arm64/kernel/stacktrace.c:163
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0x68/0x84 lib/dump_stack.c:106
+ print_address_description mm/kasan/report.c:284 [inline]
+ print_report+0x1a8/0x4a0 mm/kasan/report.c:395
+ kasan_report+0x94/0xb4 mm/kasan/report.c:495
+ __do_kernel_fault+0x164/0x1e0 arch/arm64/mm/fault.c:320
+ do_bad_area arch/arm64/mm/fault.c:473 [inline]
+ do_tag_check_fault+0x78/0x8c arch/arm64/mm/fault.c:749
+ do_mem_abort+0x44/0x94 arch/arm64/mm/fault.c:825
+ el1_abort+0x40/0x60 arch/arm64/kernel/entry-common.c:367
+ el1h_64_sync_handler+0xd8/0xe4 arch/arm64/kernel/entry-common.c:427
+ el1h_64_sync+0x64/0x68 arch/arm64/kernel/entry.S:576
+ hlist_add_head include/linux/list.h:929 [inline]
+ enqueue_timer+0x18/0xa4 kernel/time/timer.c:605
+ mod_timer+0x14/0x20 kernel/time/timer.c:1161
+ mrp_periodic_timer_arm net/802/mrp.c:614 [inline]
+ mrp_periodic_timer+0xa0/0xc0 net/802/mrp.c:627
+ call_timer_fn.constprop.0+0x24/0x80 kernel/time/timer.c:1474
+ expire_timers+0x98/0xc4 kernel/time/timer.c:1519
 
-> HCI Event: Command Complete (0x0e) plen 15
-      Get MWS Transport Layer Configuration (0x05|0x000c) ncmd 1
-        Status: Command Disallowed (0x0c)
-        Number of transports: 0
-        Baud rate list: 0 entries
-        00 00 00 00 00 00 00 00 00 00
+To fix it, we can introduce a new active flags to make sure the timer will
+not restart.
 
-Signed-off-by: Sven Peter <sven@svenpeter.dev>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Reported-by: syzbot+6fd64001c20aa99e34a4@syzkaller.appspotmail.com
+
+Signed-off-by: Schspa Shi <schspa@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/bluetooth/hci.h      | 10 ++++++++++
- include/net/bluetooth/hci_core.h |  3 +++
- net/bluetooth/hci_sync.c         |  2 +-
- 3 files changed, 14 insertions(+), 1 deletion(-)
+ include/net/mrp.h |  1 +
+ net/802/mrp.c     | 18 +++++++++++++-----
+ 2 files changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/include/net/bluetooth/hci.h b/include/net/bluetooth/hci.h
-index 78c55b69919d..dd455ce06770 100644
---- a/include/net/bluetooth/hci.h
-+++ b/include/net/bluetooth/hci.h
-@@ -284,6 +284,16 @@ enum {
- 	 * during the hdev->setup vendor callback.
- 	 */
- 	HCI_QUIRK_BROKEN_EXT_SCAN,
-+
-+	/*
-+	 * When this quirk is set, the HCI_OP_GET_MWS_TRANSPORT_CONFIG command is
-+	 * disabled. This is required for some Broadcom controllers which
-+	 * erroneously claim to support MWS Transport Layer Configuration.
-+	 *
-+	 * This quirk can be set before hci_register_dev is called or
-+	 * during the hdev->setup vendor callback.
-+	 */
-+	HCI_QUIRK_BROKEN_MWS_TRANSPORT_CONFIG,
+diff --git a/include/net/mrp.h b/include/net/mrp.h
+index 1c308c034e1a..a8102661fd61 100644
+--- a/include/net/mrp.h
++++ b/include/net/mrp.h
+@@ -120,6 +120,7 @@ struct mrp_applicant {
+ 	struct sk_buff		*pdu;
+ 	struct rb_root		mad;
+ 	struct rcu_head		rcu;
++	bool			active;
  };
  
- /* HCI device flags */
-diff --git a/include/net/bluetooth/hci_core.h b/include/net/bluetooth/hci_core.h
-index 29d1254f9856..6afb4771ce35 100644
---- a/include/net/bluetooth/hci_core.h
-+++ b/include/net/bluetooth/hci_core.h
-@@ -1711,6 +1711,9 @@ void hci_conn_del_sysfs(struct hci_conn *conn);
- 	((dev)->le_features[3] & HCI_LE_CIS_PERIPHERAL)
- #define bis_capable(dev) ((dev)->le_features[3] & HCI_LE_ISO_BROADCASTER)
+ struct mrp_port {
+diff --git a/net/802/mrp.c b/net/802/mrp.c
+index 35e04cc5390c..c10a432a5b43 100644
+--- a/net/802/mrp.c
++++ b/net/802/mrp.c
+@@ -606,7 +606,10 @@ static void mrp_join_timer(struct timer_list *t)
+ 	spin_unlock(&app->lock);
  
-+#define mws_transport_config_capable(dev) (((dev)->commands[30] & 0x08) && \
-+	(!test_bit(HCI_QUIRK_BROKEN_MWS_TRANSPORT_CONFIG, &(dev)->quirks)))
-+
- /* ----- HCI protocols ----- */
- #define HCI_PROTO_DEFER             0x01
+ 	mrp_queue_xmit(app);
+-	mrp_join_timer_arm(app);
++	spin_lock(&app->lock);
++	if (likely(app->active))
++		mrp_join_timer_arm(app);
++	spin_unlock(&app->lock);
+ }
  
-diff --git a/net/bluetooth/hci_sync.c b/net/bluetooth/hci_sync.c
-index a5e89e1b5452..117537f3e7ad 100644
---- a/net/bluetooth/hci_sync.c
-+++ b/net/bluetooth/hci_sync.c
-@@ -3940,7 +3940,7 @@ static int hci_read_local_pairing_opts_sync(struct hci_dev *hdev)
- /* Get MWS transport configuration if the HCI command is supported */
- static int hci_get_mws_transport_config_sync(struct hci_dev *hdev)
- {
--	if (!(hdev->commands[30] & 0x08))
-+	if (!mws_transport_config_capable(hdev))
- 		return 0;
+ static void mrp_periodic_timer_arm(struct mrp_applicant *app)
+@@ -620,11 +623,12 @@ static void mrp_periodic_timer(struct timer_list *t)
+ 	struct mrp_applicant *app = from_timer(app, t, periodic_timer);
  
- 	return __hci_cmd_sync_status(hdev, HCI_OP_GET_MWS_TRANSPORT_CONFIG,
+ 	spin_lock(&app->lock);
+-	mrp_mad_event(app, MRP_EVENT_PERIODIC);
+-	mrp_pdu_queue(app);
++	if (likely(app->active)) {
++		mrp_mad_event(app, MRP_EVENT_PERIODIC);
++		mrp_pdu_queue(app);
++		mrp_periodic_timer_arm(app);
++	}
+ 	spin_unlock(&app->lock);
+-
+-	mrp_periodic_timer_arm(app);
+ }
+ 
+ static int mrp_pdu_parse_end_mark(struct sk_buff *skb, int *offset)
+@@ -872,6 +876,7 @@ int mrp_init_applicant(struct net_device *dev, struct mrp_application *appl)
+ 	app->dev = dev;
+ 	app->app = appl;
+ 	app->mad = RB_ROOT;
++	app->active = true;
+ 	spin_lock_init(&app->lock);
+ 	skb_queue_head_init(&app->queue);
+ 	rcu_assign_pointer(dev->mrp_port->applicants[appl->type], app);
+@@ -900,6 +905,9 @@ void mrp_uninit_applicant(struct net_device *dev, struct mrp_application *appl)
+ 
+ 	RCU_INIT_POINTER(port->applicants[appl->type], NULL);
+ 
++	spin_lock_bh(&app->lock);
++	app->active = false;
++	spin_unlock_bh(&app->lock);
+ 	/* Delete timer and generate a final TX event to flush out
+ 	 * all pending messages before the applicant is gone.
+ 	 */
 -- 
 2.35.1
 
