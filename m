@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7828658364
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:47:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA409657E1F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:50:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235096AbiL1Qro (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:47:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38674 "EHLO
+        id S233694AbiL1PuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:50:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235021AbiL1QrQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:47:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64BB3FF5
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:42:01 -0800 (PST)
+        with ESMTP id S234087AbiL1PuP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:50:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2474618684
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:50:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 007BC61562
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:42:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18E2BC433D2;
-        Wed, 28 Dec 2022 16:41:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B5B0861562
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:50:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2D26C433EF;
+        Wed, 28 Dec 2022 15:50:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245720;
-        bh=5xvXsTOLzHlAJIewX3mcwQxGPCuRzuNZW0UpJ8JmGrk=;
+        s=korg; t=1672242614;
+        bh=qmrueYJijRJSOJtq3XPBXwwDuSzM496o343p/ZAk2Q8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P5pdFOk+8HoO+RO+GvuhKc7kmtjERLvBsn3ji2bjGIP+Xibabb/FngxaGMDYTXd6H
-         FcUpRZq4QNP2CGvsgWpnluuvZA2CI8G5k4oLc2jWALfYQH2xt4E2Ll1Xx4rqiYRNPb
-         zq/HFsWdcGsHE9QY+O0yK9yxvgvpSKB9qMujnBlA=
+        b=DpNoKfevCXxJpAnbaycca2dih5m890OjlenaQZkMqV/ZGzks2Ror9GsaWd09hNf4v
+         Kp4iXS9JcsNe+4qB06aLZrGsmu+Ak/siSvoTtmQ9NwUt60bKzPyFtRS4qP4MJ5B8Qo
+         tm0E21hkTwav+Sd/i6uh7q3rEbYlyUtTjwIwqALk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiang Li <jiang.li@ugreen.com>,
-        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0943/1073] md/raid1: stop mdx_raid1 thread when raid1 array run failed
-Date:   Wed, 28 Dec 2022 15:42:11 +0100
-Message-Id: <20221228144353.652140913@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+e91619dd4c11c4960706@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 625/731] nilfs2: fix shift-out-of-bounds/overflow in nilfs_sb2_bad_offset()
+Date:   Wed, 28 Dec 2022 15:42:12 +0100
+Message-Id: <20221228144314.646392508@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,69 +55,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiang Li <jiang.li@ugreen.com>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-[ Upstream commit b611ad14006e5be2170d9e8e611bf49dff288911 ]
+[ Upstream commit 610a2a3d7d8be3537458a378ec69396a76c385b6 ]
 
-fail run raid1 array when we assemble array with the inactive disk only,
-but the mdx_raid1 thread were not stop, Even if the associated resources
-have been released. it will caused a NULL dereference when we do poweroff.
+Patch series "nilfs2: fix UBSAN shift-out-of-bounds warnings on mount
+time".
 
-This causes the following Oops:
-    [  287.587787] BUG: kernel NULL pointer dereference, address: 0000000000000070
-    [  287.594762] #PF: supervisor read access in kernel mode
-    [  287.599912] #PF: error_code(0x0000) - not-present page
-    [  287.605061] PGD 0 P4D 0
-    [  287.607612] Oops: 0000 [#1] SMP NOPTI
-    [  287.611287] CPU: 3 PID: 5265 Comm: md0_raid1 Tainted: G     U            5.10.146 #0
-    [  287.619029] Hardware name: xxxxxxx/To be filled by O.E.M, BIOS 5.19 06/16/2022
-    [  287.626775] RIP: 0010:md_check_recovery+0x57/0x500 [md_mod]
-    [  287.632357] Code: fe 01 00 00 48 83 bb 10 03 00 00 00 74 08 48 89 ......
-    [  287.651118] RSP: 0018:ffffc90000433d78 EFLAGS: 00010202
-    [  287.656347] RAX: 0000000000000000 RBX: ffff888105986800 RCX: 0000000000000000
-    [  287.663491] RDX: ffffc90000433bb0 RSI: 00000000ffffefff RDI: ffff888105986800
-    [  287.670634] RBP: ffffc90000433da0 R08: 0000000000000000 R09: c0000000ffffefff
-    [  287.677771] R10: 0000000000000001 R11: ffffc90000433ba8 R12: ffff888105986800
-    [  287.684907] R13: 0000000000000000 R14: fffffffffffffe00 R15: ffff888100b6b500
-    [  287.692052] FS:  0000000000000000(0000) GS:ffff888277f80000(0000) knlGS:0000000000000000
-    [  287.700149] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-    [  287.705897] CR2: 0000000000000070 CR3: 000000000320a000 CR4: 0000000000350ee0
-    [  287.713033] Call Trace:
-    [  287.715498]  raid1d+0x6c/0xbbb [raid1]
-    [  287.719256]  ? __schedule+0x1ff/0x760
-    [  287.722930]  ? schedule+0x3b/0xb0
-    [  287.726260]  ? schedule_timeout+0x1ed/0x290
-    [  287.730456]  ? __switch_to+0x11f/0x400
-    [  287.734219]  md_thread+0xe9/0x140 [md_mod]
-    [  287.738328]  ? md_thread+0xe9/0x140 [md_mod]
-    [  287.742601]  ? wait_woken+0x80/0x80
-    [  287.746097]  ? md_register_thread+0xe0/0xe0 [md_mod]
-    [  287.751064]  kthread+0x11a/0x140
-    [  287.754300]  ? kthread_park+0x90/0x90
-    [  287.757974]  ret_from_fork+0x1f/0x30
+The first patch fixes a bug reported by syzbot, and the second one fixes
+the remaining bug of the same kind.  Although they are triggered by the
+same super block data anomaly, I divided it into the above two because the
+details of the issues and how to fix it are different.
 
-In fact, when raid1 array run fail, we need to do
-md_unregister_thread() before raid1_free().
+Both are required to eliminate the shift-out-of-bounds issues at mount
+time.
 
-Signed-off-by: Jiang Li <jiang.li@ugreen.com>
-Signed-off-by: Song Liu <song@kernel.org>
+This patch (of 2):
+
+If the block size exponent information written in an on-disk superblock is
+corrupted, nilfs_sb2_bad_offset helper function can trigger
+shift-out-of-bounds warning followed by a kernel panic (if panic_on_warn
+is set):
+
+ shift exponent 38983 is too large for 64-bit type 'unsigned long long'
+ Call Trace:
+  <TASK>
+  __dump_stack lib/dump_stack.c:88 [inline]
+  dump_stack_lvl+0x1b1/0x28e lib/dump_stack.c:106
+  ubsan_epilogue lib/ubsan.c:151 [inline]
+  __ubsan_handle_shift_out_of_bounds+0x33d/0x3b0 lib/ubsan.c:322
+  nilfs_sb2_bad_offset fs/nilfs2/the_nilfs.c:449 [inline]
+  nilfs_load_super_block+0xdf5/0xe00 fs/nilfs2/the_nilfs.c:523
+  init_nilfs+0xb7/0x7d0 fs/nilfs2/the_nilfs.c:577
+  nilfs_fill_super+0xb1/0x5d0 fs/nilfs2/super.c:1047
+  nilfs_mount+0x613/0x9b0 fs/nilfs2/super.c:1317
+  ...
+
+In addition, since nilfs_sb2_bad_offset() performs multiplication without
+considering the upper bound, the computation may overflow if the disk
+layout parameters are not normal.
+
+This fixes these issues by inserting preliminary sanity checks for those
+parameters and by converting the comparison from one involving
+multiplication and left bit-shifting to one using division and right
+bit-shifting.
+
+Link: https://lkml.kernel.org/r/20221027044306.42774-1-konishi.ryusuke@gmail.com
+Link: https://lkml.kernel.org/r/20221027044306.42774-2-konishi.ryusuke@gmail.com
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+e91619dd4c11c4960706@syzkaller.appspotmail.com
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid1.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/nilfs2/the_nilfs.c | 31 +++++++++++++++++++++++++++----
+ 1 file changed, 27 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
-index 05d8438cfec8..58f705f42948 100644
---- a/drivers/md/raid1.c
-+++ b/drivers/md/raid1.c
-@@ -3159,6 +3159,7 @@ static int raid1_run(struct mddev *mddev)
- 	 * RAID1 needs at least one disk in active
- 	 */
- 	if (conf->raid_disks - mddev->degraded < 1) {
-+		md_unregister_thread(&conf->thread);
- 		ret = -EINVAL;
- 		goto abort;
- 	}
+diff --git a/fs/nilfs2/the_nilfs.c b/fs/nilfs2/the_nilfs.c
+index 16994598a8db..6a86acd35696 100644
+--- a/fs/nilfs2/the_nilfs.c
++++ b/fs/nilfs2/the_nilfs.c
+@@ -13,6 +13,7 @@
+ #include <linux/blkdev.h>
+ #include <linux/backing-dev.h>
+ #include <linux/random.h>
++#include <linux/log2.h>
+ #include <linux/crc32.h>
+ #include "nilfs.h"
+ #include "segment.h"
+@@ -443,11 +444,33 @@ static int nilfs_valid_sb(struct nilfs_super_block *sbp)
+ 	return crc == le32_to_cpu(sbp->s_sum);
+ }
+ 
+-static int nilfs_sb2_bad_offset(struct nilfs_super_block *sbp, u64 offset)
++/**
++ * nilfs_sb2_bad_offset - check the location of the second superblock
++ * @sbp: superblock raw data buffer
++ * @offset: byte offset of second superblock calculated from device size
++ *
++ * nilfs_sb2_bad_offset() checks if the position on the second
++ * superblock is valid or not based on the filesystem parameters
++ * stored in @sbp.  If @offset points to a location within the segment
++ * area, or if the parameters themselves are not normal, it is
++ * determined to be invalid.
++ *
++ * Return Value: true if invalid, false if valid.
++ */
++static bool nilfs_sb2_bad_offset(struct nilfs_super_block *sbp, u64 offset)
+ {
+-	return offset < ((le64_to_cpu(sbp->s_nsegments) *
+-			  le32_to_cpu(sbp->s_blocks_per_segment)) <<
+-			 (le32_to_cpu(sbp->s_log_block_size) + 10));
++	unsigned int shift_bits = le32_to_cpu(sbp->s_log_block_size);
++	u32 blocks_per_segment = le32_to_cpu(sbp->s_blocks_per_segment);
++	u64 nsegments = le64_to_cpu(sbp->s_nsegments);
++	u64 index;
++
++	if (blocks_per_segment < NILFS_SEG_MIN_BLOCKS ||
++	    shift_bits > ilog2(NILFS_MAX_BLOCK_SIZE) - BLOCK_SIZE_BITS)
++		return true;
++
++	index = offset >> (shift_bits + BLOCK_SIZE_BITS);
++	do_div(index, blocks_per_segment);
++	return index < nsegments;
+ }
+ 
+ static void nilfs_release_super_block(struct the_nilfs *nilfs)
 -- 
 2.35.1
 
