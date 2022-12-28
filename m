@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C35E2658121
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDE7B657B58
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:20:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234603AbiL1QZP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:25:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45918 "EHLO
+        id S233291AbiL1PUc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:20:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234793AbiL1QYX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:24:23 -0500
+        with ESMTP id S233301AbiL1PUb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:20:31 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F8C519C17
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:21:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE8F113FB3
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:20:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3988CB816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:21:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3CBCC433F0;
-        Wed, 28 Dec 2022 16:21:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6C71B8170E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:20:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 155D3C433D2;
+        Wed, 28 Dec 2022 15:20:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244492;
-        bh=g4+UuLA7qg+bFjUCo5VqR0mTf7mvZQemDJgX5e7ZKXc=;
+        s=korg; t=1672240828;
+        bh=lV8BVZtD0eHnwAEuUs7Ehw9QERV+KVmNiw3i/+e3R00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cthT88XXgoN+Qb2FZaoRAEk7MYx87zg/n85YRtG6YxHEEIbXh/KMH7LJrzoKnctuJ
-         C1YF4j1pRoeAWo5uNDneI5/6p7lLLe+TFN4L0vKOPvqcIjCNXjJNYu95OnpSCD+2hW
-         A5tAKDWI1qkOg/W5fUwcUhpARY5SK71cpBqM2C08=
+        b=EhzFY9g4BA9Y0wEeymsmFeo3Uu0nIR3zr6CoNUl/QQ539UpwjEDLSz6ivyRd7/nlE
+         J5YGjqU8PFacS86VLSONBaccWBvN34QL4v+KSNKKn22/8Ow6mSaOZNafWRicN1vrhP
+         UE9MomeaYnxZvEeR7fKsb/jFFtfpp/0bSDxbMr+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0721/1073] usb: typec: wusb3801: fix fwnode refcount leak in wusb3801_probe()
+Subject: [PATCH 5.15 402/731] dt-bindings: visconti-pcie: Fix interrupts array max constraints
 Date:   Wed, 28 Dec 2022 15:38:29 +0100
-Message-Id: <20221228144347.609836393@linuxfoundation.org>
+Message-Id: <20221228144308.219933867@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +56,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit dc18a4c7b3bd447cef2395deeb1f6ac16dfaca0e ]
+[ Upstream commit 4cf4b9b70ab2785461190c08a3542d2d74c28b46 ]
 
-I got the following report while doing fault injection test:
+In accordance with the way the device DT-node is actually defined in
+arch/arm64/boot/dts/toshiba/tmpv7708.dtsi and the way the device is probed
+by the DW PCIe driver there are two IRQs it actually has. It's MSI IRQ the
+DT-bindings lack. Let's extend the interrupts property constraints then
+and fix the schema example so one would be acceptable by the actual device
+DT-bindings.
 
-  OF: ERROR: memory leak, expected refcount 1 instead of 4,
-  of_node_get()/of_node_put() unbalanced - destroy cset entry:
-  attach overlay node /i2c/tcpc@60/connector
-
-If wusb3801_hw_init() fails, fwnode_handle_put() needs be called to
-avoid refcount leak.
-
-Fixes: d016cbe4d7ac ("usb: typec: Support the WUSB3801 port controller")
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221203071027.3808308-1-yangyingliang@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20221113191301.5526-3-Sergey.Semin@baikalelectronics.ru
+Fixes: 17c1b16340f0 ("dt-bindings: pci: Add DT binding for Toshiba Visconti PCIe controller")
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Acked-by: Rob Herring <robh@kernel.org>
+Acked-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/wusb3801.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../devicetree/bindings/pci/toshiba,visconti-pcie.yaml     | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/typec/wusb3801.c b/drivers/usb/typec/wusb3801.c
-index e63509f8b01e..8e38f5d2ec89 100644
---- a/drivers/usb/typec/wusb3801.c
-+++ b/drivers/usb/typec/wusb3801.c
-@@ -364,7 +364,7 @@ static int wusb3801_probe(struct i2c_client *client)
- 	/* Initialize the hardware with the devicetree settings. */
- 	ret = wusb3801_hw_init(wusb3801);
- 	if (ret)
--		return ret;
-+		goto err_put_connector;
+diff --git a/Documentation/devicetree/bindings/pci/toshiba,visconti-pcie.yaml b/Documentation/devicetree/bindings/pci/toshiba,visconti-pcie.yaml
+index 30b6396d83c8..aea0e2bcdd77 100644
+--- a/Documentation/devicetree/bindings/pci/toshiba,visconti-pcie.yaml
++++ b/Documentation/devicetree/bindings/pci/toshiba,visconti-pcie.yaml
+@@ -36,7 +36,7 @@ properties:
+       - const: mpu
  
- 	wusb3801->cap.revision		= USB_TYPEC_REV_1_2;
- 	wusb3801->cap.accessory[0]	= TYPEC_ACCESSORY_AUDIO;
+   interrupts:
+-    maxItems: 1
++    maxItems: 2
+ 
+   clocks:
+     items:
+@@ -94,8 +94,9 @@ examples:
+             #interrupt-cells = <1>;
+             ranges = <0x81000000 0 0x40000000 0 0x40000000 0 0x00010000>,
+                      <0x82000000 0 0x50000000 0 0x50000000 0 0x20000000>;
+-            interrupts = <GIC_SPI 215 IRQ_TYPE_LEVEL_HIGH>;
+-            interrupt-names = "intr";
++            interrupts = <GIC_SPI 211 IRQ_TYPE_LEVEL_HIGH>,
++                         <GIC_SPI 215 IRQ_TYPE_LEVEL_HIGH>;
++            interrupt-names = "msi", "intr";
+             interrupt-map-mask = <0 0 0 7>;
+             interrupt-map =
+                 <0 0 0 1 &gic GIC_SPI 215 IRQ_TYPE_LEVEL_HIGH
 -- 
 2.35.1
 
