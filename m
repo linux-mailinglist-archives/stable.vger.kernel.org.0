@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B912657AEB
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:16:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 525CB6580CF
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:21:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233125AbiL1PQT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:16:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35572 "EHLO
+        id S233278AbiL1QVW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:21:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233052AbiL1PQS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:16:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C6FA228
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:16:18 -0800 (PST)
+        with ESMTP id S233372AbiL1QUk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:20:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 103B8165B8
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:18:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F11A614BA
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:16:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEAB0C433D2;
-        Wed, 28 Dec 2022 15:16:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3078B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:18:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2197AC433D2;
+        Wed, 28 Dec 2022 16:18:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240577;
-        bh=+X9WtXhLdC5G5eMLxL3ALLA5OJbtipaJ7scp4JEFKgc=;
+        s=korg; t=1672244305;
+        bh=6ynvoNBcRHIY+07gQO1b3IQel7Zzspk4k35kfzE0AZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0OR09Qk86Y9QQH9Z3fntB7cYCp+0wLfBWTob+2+lBo4nSZQWW7TdlJJhUlBs3wOfG
-         BF/zMtHm+fHuMHl3mYpwo4miw67M29Gr+jF5xPPWqwm855oy+YV0t6tq6rk5Q2mlRi
-         3C476K4P8JAtNhqTOxZIqbnJwg3VbBSEKNeUdlFM=
+        b=LX8ojNuJLqGb1Q4j8fciOu4PjYPFRpMcGMBrwLHkcFYMoGpxV6lgygQoaKYjCOGNe
+         MrwhUL38sC5lO0LMdw4R4fGbX2ZJfgRkCmFJXuWR/GXAhMK6urSe8vZylEfCejyQGI
+         ucr+5OL3PHwttH5M3CHYwXRS0MLXicQqczb1Bqzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Zhang Qilong <zhangqilong3@huawei.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 369/731] f2fs: Fix the race condition of resize flag between resizefs
+        patches@lists.linux.dev, Tobias Klauser <tklauser@distanz.ch>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Jiri Slaby <jslaby@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0688/1073] tty: serial: clean up stop-tx part in altera_uart_tx_chars()
 Date:   Wed, 28 Dec 2022 15:37:56 +0100
-Message-Id: <20221228144307.258237527@linuxfoundation.org>
+Message-Id: <20221228144346.722832827@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-[ Upstream commit 28fc4e9077ce59ab28c89c20dc6be5154473218f ]
+[ Upstream commit d9c128117da41cf4cb0e80ae565b5d3ac79dffac ]
 
-Because the set/clear SBI_IS_RESIZEFS flag not between any locks,
-In the following case:
-  thread1			thread2
-   ->ioctl(resizefs)
-    ->set RESIZEFS flag		 ->ioctl(resizefs)
-    ...                   	  ->set RESIZEFS flag
-    ->clear RESIZEFS flag
-    				  ->resizefs stream
-				    # No RESIZEFS flag in the stream
+The "stop TX" path in altera_uart_tx_chars() is open-coded, so:
+* use uart_circ_empty() to check if the buffer is empty, and
+* when true, call altera_uart_stop_tx().
 
-Also before freeze_super, the resizefs not started, we should not set
-the SBI_IS_RESIZEFS flag.
-
-So move the set/clear SBI_IS_RESIZEFS flag between the cp_mutex and
-gc_lock.
-
-Fixes: b4b10061ef98 ("f2fs: refactor resize_fs to avoid meta updates in progress")
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Cc: Tobias Klauser <tklauser@distanz.ch>
+Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Acked-by: Tobias Klauser <tklauser@distanz.ch>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20220920052049.20507-3-jslaby@suse.cz
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: 1307c5d33cce ("serial: altera_uart: fix locking in polling mode")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/gc.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/tty/serial/altera_uart.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
-index e75a276f5b9c..4cbaa6ab083f 100644
---- a/fs/f2fs/gc.c
-+++ b/fs/f2fs/gc.c
-@@ -2051,8 +2051,6 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
- 	if (err)
- 		return err;
+diff --git a/drivers/tty/serial/altera_uart.c b/drivers/tty/serial/altera_uart.c
+index 8b749ed557c6..71478d098c13 100644
+--- a/drivers/tty/serial/altera_uart.c
++++ b/drivers/tty/serial/altera_uart.c
+@@ -272,10 +272,8 @@ static void altera_uart_tx_chars(struct altera_uart *pp)
+ 	if (uart_circ_chars_pending(xmit) < WAKEUP_CHARS)
+ 		uart_write_wakeup(port);
  
--	set_sbi_flag(sbi, SBI_IS_RESIZEFS);
--
- 	freeze_super(sbi->sb);
- 	down_write(&sbi->gc_lock);
- 	down_write(&sbi->cp_global_sem);
-@@ -2068,6 +2066,7 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
- 	if (err)
- 		goto out_err;
- 
-+	set_sbi_flag(sbi, SBI_IS_RESIZEFS);
- 	err = free_segment_range(sbi, secs, false);
- 	if (err)
- 		goto recover_out;
-@@ -2091,6 +2090,7 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
- 		f2fs_commit_super(sbi, false);
- 	}
- recover_out:
-+	clear_sbi_flag(sbi, SBI_IS_RESIZEFS);
- 	if (err) {
- 		set_sbi_flag(sbi, SBI_NEED_FSCK);
- 		f2fs_err(sbi, "resize_fs failed, should run fsck to repair!");
-@@ -2103,6 +2103,5 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
- 	up_write(&sbi->cp_global_sem);
- 	up_write(&sbi->gc_lock);
- 	thaw_super(sbi->sb);
--	clear_sbi_flag(sbi, SBI_IS_RESIZEFS);
- 	return err;
+-	if (xmit->head == xmit->tail) {
+-		pp->imr &= ~ALTERA_UART_CONTROL_TRDY_MSK;
+-		altera_uart_update_ctrl_reg(pp);
+-	}
++	if (uart_circ_empty(xmit))
++		altera_uart_stop_tx(port);
  }
+ 
+ static irqreturn_t altera_uart_interrupt(int irq, void *data)
 -- 
 2.35.1
 
