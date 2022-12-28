@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34CCC658302
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 216A6658233
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:33:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234991AbiL1QoA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:44:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36862 "EHLO
+        id S234792AbiL1Qdk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:33:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234990AbiL1Qnc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DDFA60FC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:59 -0800 (PST)
+        with ESMTP id S234795AbiL1QdQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19FFB1AF3E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:30:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC82C61572
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:37:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1D1BC433F0;
-        Wed, 28 Dec 2022 16:37:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A0BE661541
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:30:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B58F9C433F0;
+        Wed, 28 Dec 2022 16:30:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245478;
-        bh=Mt3ekxmlDTqRJ1l1rjm3C8i3c0nhGxYJwi4DCc/D+TE=;
+        s=korg; t=1672245039;
+        bh=AJI6k/9Bs1e+aX6ppx/bBe1+BG7dZm6i6FA2mQ1gwcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xrAf3DHOzqC1f/uNtxskIK62CDZcc0kM/XfzXRe9UuCSDuBtPfxgFbie/De2VXqLa
-         Iwb4A9sTWhVMFrq06A7PSRjqHX32f67cGEcopg/QwtBaN4ismUgEvMTkUC4YRwmZBm
-         oZ5faZu+EUaCRawIjzJz+lJzJ/Yg47VmtJX8Lw/8=
+        b=xseF1uUmMFOWUQRDRnwOEEAEEkkJVdcgZOFd53ckY8PbNaq/8ZMwA7NvnteoD/B28
+         SH6tgZq5AXyTdlnlOzXUa1m0sI51ngzllA52ORjFobaPauUu7r7Y0DDEW52NqdQwQC
+         Qd1LSMnoY1hfuWvFx53GZVMV3dJFRBP5gfgaFiB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Daniel Golle <daniel@makrotopia.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0868/1146] pwm: mediatek: always use bus clock for PWM on MT7622
-Date:   Wed, 28 Dec 2022 15:40:07 +0100
-Message-Id: <20221228144353.745685991@linuxfoundation.org>
+Subject: [PATCH 6.0 0820/1073] remoteproc: sysmon: fix memory leak in qcom_add_sysmon_subdev()
+Date:   Wed, 28 Dec 2022 15:40:08 +0100
+Message-Id: <20221228144350.287030190@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,44 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Golle <daniel@makrotopia.org>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit aa3c668f2f98856af96e13f44da6ca4f26f0b98c ]
+[ Upstream commit e01ce676aaef3b13d02343d7e70f9637d93a3367 ]
 
-According to MT7622 Reference Manual for Development Board v1.0 the PWM
-unit found in the MT7622 SoC also comes with the PWM_CK_26M_SEL register
-at offset 0x210 just like other modern MediaTek ARM64 SoCs.
-And also MT7622 sets that register to 0x00000001 on reset which is
-described as 'Select 26M fix CLK as BCLK' in the datasheet.
-Hence set has_ck_26m_sel to true also for MT7622 which results in the
-driver writing 0 to the PWM_CK_26M_SEL register which is described as
-'Select bus CLK as BCLK'.
+The kfree() should be called when of_irq_get_byname() fails or
+devm_request_threaded_irq() fails in qcom_add_sysmon_subdev(),
+otherwise there will be a memory leak, so add kfree() to fix it.
 
-Fixes: 0c0ead76235db0 ("pwm: mediatek: Always use bus clock")
-Signed-off-by: Daniel Golle <daniel@makrotopia.org>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Link: https://lore.kernel.org/r/Y1iF2slvSblf6bYK@makrotopia.org
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Fixes: 027045a6e2b7 ("remoteproc: qcom: Add shutdown-ack irq")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221129105650.1539187-1-cuigaosheng1@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-mediatek.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/remoteproc/qcom_sysmon.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pwm/pwm-mediatek.c b/drivers/pwm/pwm-mediatek.c
-index 6901a44dc428..a337b47dc2f7 100644
---- a/drivers/pwm/pwm-mediatek.c
-+++ b/drivers/pwm/pwm-mediatek.c
-@@ -296,7 +296,7 @@ static const struct pwm_mediatek_of_data mt6795_pwm_data = {
- static const struct pwm_mediatek_of_data mt7622_pwm_data = {
- 	.num_pwms = 6,
- 	.pwm45_fixup = false,
--	.has_ck_26m_sel = false,
-+	.has_ck_26m_sel = true,
- };
- 
- static const struct pwm_mediatek_of_data mt7623_pwm_data = {
+diff --git a/drivers/remoteproc/qcom_sysmon.c b/drivers/remoteproc/qcom_sysmon.c
+index 57dde2a69b9d..15af52f8499e 100644
+--- a/drivers/remoteproc/qcom_sysmon.c
++++ b/drivers/remoteproc/qcom_sysmon.c
+@@ -652,7 +652,9 @@ struct qcom_sysmon *qcom_add_sysmon_subdev(struct rproc *rproc,
+ 		if (sysmon->shutdown_irq != -ENODATA) {
+ 			dev_err(sysmon->dev,
+ 				"failed to retrieve shutdown-ack IRQ\n");
+-			return ERR_PTR(sysmon->shutdown_irq);
++			ret = sysmon->shutdown_irq;
++			kfree(sysmon);
++			return ERR_PTR(ret);
+ 		}
+ 	} else {
+ 		ret = devm_request_threaded_irq(sysmon->dev,
+@@ -663,6 +665,7 @@ struct qcom_sysmon *qcom_add_sysmon_subdev(struct rproc *rproc,
+ 		if (ret) {
+ 			dev_err(sysmon->dev,
+ 				"failed to acquire shutdown-ack IRQ\n");
++			kfree(sysmon);
+ 			return ERR_PTR(ret);
+ 		}
+ 	}
 -- 
 2.35.1
 
