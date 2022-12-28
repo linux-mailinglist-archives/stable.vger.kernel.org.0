@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F17D9657CC7
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:35:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7D5A657BB2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:24:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233886AbiL1Pf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:35:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53804 "EHLO
+        id S233704AbiL1PYe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:24:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233883AbiL1Pf4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:35:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D19C013F79
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:35:54 -0800 (PST)
+        with ESMTP id S233714AbiL1PYc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:24:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAD0A1402A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:24:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6ED5261553
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:35:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8330DC433EF;
-        Wed, 28 Dec 2022 15:35:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4FFC6B8170E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:24:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B32AAC433D2;
+        Wed, 28 Dec 2022 15:24:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241753;
-        bh=papQIDW4JSpVVO8bJDvnuPBr9IByYZ+9llNrpSBn7Pg=;
+        s=korg; t=1672241069;
+        bh=QXKYNsCDpUrKazSGPEpHhKiCAaR7nZBQXGmDtT9xWz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cg8GgQn9EPr8ex9/HNNxC18YVWsHcxCEM6OvJ46+DyYyF/Xbdejx68Uyupljqc4BY
-         xnnwD6k7vIWii5p9B4EIBQxHPyiJTMtRhT3H2inenaH9rlarTVoabx18N1/2Uc9VnX
-         LdpW1AJuomRyFxG5xeiPXOQ1dIpz3Zm7uVa8L15o=
+        b=qaAoIpFBZYFbGaLMPBmNrQ7mMqAhgelFCnG2gQqgn1FUb3vvum1GHLmMxE54lJZk9
+         AWp48B3u2Ds2rHcUooz/7odzS7I7b0jCUvfW5k3yLJP4ZCkr9alHiVxJxQK1YUVYAR
+         Uk7Re+KZHxfVm9LqdF2KR4856oJ7SAIM/xHkatHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Marijn Suijten <marijn.suijten@somainline.org>,
+        patches@lists.linux.dev, Tang Bin <tangbin@cmss.chinamobile.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0285/1146] drm/msm/dsi: Disallow 8 BPC DSC configuration for alternative BPC values
+Subject: [PATCH 6.0 0236/1073] venus: pm_helpers: Fix error check in vcodec_domains_get()
 Date:   Wed, 28 Dec 2022 15:30:24 +0100
-Message-Id: <20221228144337.881757585@linuxfoundation.org>
+Message-Id: <20221228144334.437611464@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Tang Bin <tangbin@cmss.chinamobile.com>
 
-[ Upstream commit d053fbc449c47517b1f6516dbce2f917f2a9f51d ]
+[ Upstream commit 0f6e8d8c94a82e85e1b9b62a7671990740dc6f70 ]
 
-According to the `/* bpc 8 */` comment below only values for a
-bits_per_component of 8 are currently hardcoded in place.  This is
-further confirmed by downstream sources [1] containing different
-constants for other BPC values (and different initial_offset too,
-with an extra dependency on bits_per_pixel).  Prevent future mishaps by
-explicitly disallowing any other bits_per_component value until the
-right parameters are put in place and tested.
+In the function vcodec_domains_get(), dev_pm_domain_attach_by_name()
+may return NULL in some cases, so IS_ERR() doesn't meet the
+requirements. Thus fix it.
 
-[1]: https://git.codelinaro.org/clo/la/platform/vendor/opensource/display-drivers/-/blob/DISPLAY.LA.2.0.r1-08000-WAIPIO.0/msm/sde_dsc_helper.c#L110-139
-
-Fixes: b9080324d6ca ("drm/msm/dsi: add support for dsc data")
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Patchwork: https://patchwork.freedesktop.org/patch/508942/
-Link: https://lore.kernel.org/r/20221026182824.876933-9-marijn.suijten@somainline.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: 7482a983dea3 ("media: venus: redesign clocks and pm domains control")
+Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi_host.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/media/platform/qcom/venus/pm_helpers.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
-index de00925c94e8..c229cf6eeb9c 100644
---- a/drivers/gpu/drm/msm/dsi/dsi_host.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
-@@ -1761,6 +1761,11 @@ static int dsi_populate_dsc_params(struct msm_dsi_host *msm_host, struct drm_dsc
- 		return -EINVAL;
+diff --git a/drivers/media/platform/qcom/venus/pm_helpers.c b/drivers/media/platform/qcom/venus/pm_helpers.c
+index c93d2906e4c7..48c9084bb4db 100644
+--- a/drivers/media/platform/qcom/venus/pm_helpers.c
++++ b/drivers/media/platform/qcom/venus/pm_helpers.c
+@@ -869,8 +869,8 @@ static int vcodec_domains_get(struct venus_core *core)
+ 	for (i = 0; i < res->vcodec_pmdomains_num; i++) {
+ 		pd = dev_pm_domain_attach_by_name(dev,
+ 						  res->vcodec_pmdomains[i]);
+-		if (IS_ERR(pd))
+-			return PTR_ERR(pd);
++		if (IS_ERR_OR_NULL(pd))
++			return PTR_ERR(pd) ? : -ENODATA;
+ 		core->pmdomains[i] = pd;
  	}
  
-+	if (dsc->bits_per_component != 8) {
-+		DRM_DEV_ERROR(&msm_host->pdev->dev, "DSI does not support bits_per_component != 8 yet\n");
-+		return -EOPNOTSUPP;
-+	}
-+
- 	dsc->rc_model_size = 8192;
- 	dsc->first_line_bpg_offset = 12;
- 	dsc->rc_edge_factor = 6;
 -- 
 2.35.1
 
