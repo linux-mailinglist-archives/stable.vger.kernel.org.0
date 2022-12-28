@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFD4D657852
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:49:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D5DD657EC0
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:57:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232935AbiL1OtT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:49:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36958 "EHLO
+        id S234185AbiL1P5G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:57:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232944AbiL1OtR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:49:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BB35BCA
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:49:17 -0800 (PST)
+        with ESMTP id S232023AbiL1P5G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:57:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5833917E06
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:57:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD5E761130
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:49:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1810C433D2;
-        Wed, 28 Dec 2022 14:49:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 097A2B8172B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:57:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28B08C433EF;
+        Wed, 28 Dec 2022 15:57:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238956;
-        bh=Tcr/fbaPDctUwdeETfq69pAcKTvIiZpqQsJY9NYw3oU=;
+        s=korg; t=1672243022;
+        bh=/+UuJAjFEjapQYnf+bpUs6VXLAIZiYcE0CkzyaZZO3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pv7uC9dwuPYTavkgJ8SfknmcVAN0GsvV8wBtPwKZ7M+ZC0FrpgLB7hoQq8Qdvot39
-         eYVrvp8ThuEts09L1FI3x7kIo4gDxiV+cT5pYU/Z+L1RvCI/9BGZ7DAfPlDzxvSwbz
-         jx1u02fd34Rz+cLOS8mpgiDhlbPWXMSMkui1KCPc=
+        b=j0EwG60ktHL3u/E1fsYMbMyAsJMsCsDahPXbV5/9oFmOKSVnFr2ZheuwVA8tLv2uC
+         fRwQynQI29My5UV5Qt73zsKhnU4UNArlJyvJCyzIHp7Wy49cTGhzAZ+PwV1HUG6DDa
+         3jkDpOOsu8PfLBMSUbPfS0eP+wUwTnIJocMEWbZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 073/731] sched/uclamp: Make asym_fits_capacity() use util_fits_cpu()
+Subject: [PATCH 6.1 0441/1146] ASoC: pcm512x: Fix PM disable depth imbalance in pcm512x_probe
 Date:   Wed, 28 Dec 2022 15:33:00 +0100
-Message-Id: <20221228144258.669454782@linuxfoundation.org>
+Message-Id: <20221228144342.159003136@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,102 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qais Yousef <qais.yousef@arm.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit a2e7f03ed28fce26c78b985f87913b6ce3accf9d ]
+[ Upstream commit 97b801be6f8e53676b9f2b105f54e35c745c1b22 ]
 
-Use the new util_fits_cpu() to ensure migration margin and capacity
-pressure are taken into account correctly when uclamp is being used
-otherwise we will fail to consider CPUs as fitting in scenarios where
-they should.
+The pm_runtime_enable will increase power disable depth. Thus
+a pairing decrement is needed on the error handling path to
+keep it balanced according to context. We fix it by going to
+err_pm instead of err_clk.
 
-s/asym_fits_capacity/asym_fits_cpu/ to better reflect what it does now.
+Fixes:f086ba9d5389c ("ASoC: pcm512x: Support mastering BCLK/LRCLK using the PLL")
 
-Fixes: b4c9c9f15649 ("sched/fair: Prefer prev cpu in asymmetric wakeup path")
-Signed-off-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220804143609.515789-6-qais.yousef@arm.com
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20220928160402.126140-1-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ sound/soc/codecs/pcm512x.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 619fc7bd65e2..6648683cd964 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -6526,10 +6526,13 @@ select_idle_capacity(struct task_struct *p, struct sched_domain *sd, int target)
- 	return best_cpu;
- }
- 
--static inline bool asym_fits_capacity(unsigned long task_util, int cpu)
-+static inline bool asym_fits_cpu(unsigned long util,
-+				 unsigned long util_min,
-+				 unsigned long util_max,
-+				 int cpu)
- {
- 	if (sched_asym_cpucap_active())
--		return fits_capacity(task_util, capacity_of(cpu));
-+		return util_fits_cpu(util, util_min, util_max, cpu);
- 
- 	return true;
- }
-@@ -6541,7 +6544,7 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
- {
- 	bool has_idle_core = false;
- 	struct sched_domain *sd;
--	unsigned long task_util;
-+	unsigned long task_util, util_min, util_max;
- 	int i, recent_used_cpu;
- 
- 	/*
-@@ -6550,7 +6553,9 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
- 	 */
- 	if (sched_asym_cpucap_active()) {
- 		sync_entity_load_avg(&p->se);
--		task_util = uclamp_task_util(p);
-+		task_util = task_util_est(p);
-+		util_min = uclamp_eff_value(p, UCLAMP_MIN);
-+		util_max = uclamp_eff_value(p, UCLAMP_MAX);
+diff --git a/sound/soc/codecs/pcm512x.c b/sound/soc/codecs/pcm512x.c
+index 767463e82665..89059a673cf0 100644
+--- a/sound/soc/codecs/pcm512x.c
++++ b/sound/soc/codecs/pcm512x.c
+@@ -1634,7 +1634,7 @@ int pcm512x_probe(struct device *dev, struct regmap *regmap)
+ 			if (val > 6) {
+ 				dev_err(dev, "Invalid pll-in\n");
+ 				ret = -EINVAL;
+-				goto err_clk;
++				goto err_pm;
+ 			}
+ 			pcm512x->pll_in = val;
+ 		}
+@@ -1643,7 +1643,7 @@ int pcm512x_probe(struct device *dev, struct regmap *regmap)
+ 			if (val > 6) {
+ 				dev_err(dev, "Invalid pll-out\n");
+ 				ret = -EINVAL;
+-				goto err_clk;
++				goto err_pm;
+ 			}
+ 			pcm512x->pll_out = val;
+ 		}
+@@ -1652,12 +1652,12 @@ int pcm512x_probe(struct device *dev, struct regmap *regmap)
+ 			dev_err(dev,
+ 				"Error: both pll-in and pll-out, or none\n");
+ 			ret = -EINVAL;
+-			goto err_clk;
++			goto err_pm;
+ 		}
+ 		if (pcm512x->pll_in && pcm512x->pll_in == pcm512x->pll_out) {
+ 			dev_err(dev, "Error: pll-in == pll-out\n");
+ 			ret = -EINVAL;
+-			goto err_clk;
++			goto err_pm;
+ 		}
  	}
- 
- 	/*
-@@ -6559,7 +6564,7 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
- 	lockdep_assert_irqs_disabled();
- 
- 	if ((available_idle_cpu(target) || sched_idle_cpu(target)) &&
--	    asym_fits_capacity(task_util, target))
-+	    asym_fits_cpu(task_util, util_min, util_max, target))
- 		return target;
- 
- 	/*
-@@ -6567,7 +6572,7 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
- 	 */
- 	if (prev != target && cpus_share_cache(prev, target) &&
- 	    (available_idle_cpu(prev) || sched_idle_cpu(prev)) &&
--	    asym_fits_capacity(task_util, prev))
-+	    asym_fits_cpu(task_util, util_min, util_max, prev))
- 		return prev;
- 
- 	/*
-@@ -6582,7 +6587,7 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
- 	    in_task() &&
- 	    prev == smp_processor_id() &&
- 	    this_rq()->nr_running <= 1 &&
--	    asym_fits_capacity(task_util, prev)) {
-+	    asym_fits_cpu(task_util, util_min, util_max, prev)) {
- 		return prev;
- 	}
- 
-@@ -6594,7 +6599,7 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
- 	    cpus_share_cache(recent_used_cpu, target) &&
- 	    (available_idle_cpu(recent_used_cpu) || sched_idle_cpu(recent_used_cpu)) &&
- 	    cpumask_test_cpu(p->recent_used_cpu, p->cpus_ptr) &&
--	    asym_fits_capacity(task_util, recent_used_cpu)) {
-+	    asym_fits_cpu(task_util, util_min, util_max, recent_used_cpu)) {
- 		return recent_used_cpu;
- 	}
- 
+ #endif
 -- 
 2.35.1
 
