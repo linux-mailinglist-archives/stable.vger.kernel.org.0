@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B6B9657B56
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:20:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6514B657B59
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:20:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233310AbiL1PU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:20:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39346 "EHLO
+        id S233214AbiL1PUf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:20:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233291AbiL1PU0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:20:26 -0500
+        with ESMTP id S233301AbiL1PUe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:20:34 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9660913FB3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:20:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF0CB14001
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:20:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52EAAB816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:20:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2BE2C433D2;
-        Wed, 28 Dec 2022 15:20:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 706F2B81647
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:20:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5A09C433F0;
+        Wed, 28 Dec 2022 15:20:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240823;
-        bh=sjzpE6TxXOaGfUktNUd1mvH/NHxqVsA8dOzS25AlQig=;
+        s=korg; t=1672240831;
+        bh=/NaSotTAwrD8z9U1VL7XPtXS86Gn0ULgduHKE0jPs64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SWViMmjCToVUYnn0j+qezNy0VbsqwAfW0yG49F/DOv7V8qEV9zIzBOZ9fniqBngOB
-         X90zCGAdzdbJtIBLuXuyfSqbzfKTKnHN6jvZWjBF1k/YLZieAT6ygm6aahnVWcHWOF
-         VRO5i2zIn8ly8eFBEbZ5OqF5p/FrO16c5VZpxGS4=
+        b=UoDZ/IEdqShJxG3sKKqD8ugzy+ZRC68x6U9fWyOGplST7Izcz/Ls0OEPinHeWrKKC
+         2i3ArlA92PIdDc68EWSMmSFxEc2kBw/BDnNL4j2NP0s/soD06IQG3g92o4+ALkwNcg
+         tZfUR8zwQGeILuetGRKChGupEwJLmY/rO55+iMgQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
+        patches@lists.linux.dev,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
         Juergen Gross <jgross@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0171/1146] x86/xen: Fix memory leak in xen_init_lock_cpu()
-Date:   Wed, 28 Dec 2022 15:28:30 +0100
-Message-Id: <20221228144334.803412167@linuxfoundation.org>
+Subject: [PATCH 6.1 0172/1146] xen/privcmd: Fix a possible warning in privcmd_ioctl_mmap_resource()
+Date:   Wed, 28 Dec 2022 15:28:31 +0100
+Message-Id: <20221228144334.829722801@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -53,62 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 
-[ Upstream commit ca84ce153d887b1dc8b118029976cc9faf2a9b40 ]
+[ Upstream commit 8b997b2bb2c53b76a6db6c195930e9ab8e4b0c79 ]
 
-In xen_init_lock_cpu(), the @name has allocated new string by kasprintf(),
-if bind_ipi_to_irqhandler() fails, it should be freed, otherwise may lead
-to a memory leak issue, fix it.
+As 'kdata.num' is user-controlled data, if user tries to allocate
+memory larger than(>=) MAX_ORDER, then kcalloc() will fail, it
+creates a stack trace and messes up dmesg with a warning.
 
-Fixes: 2d9e1e2f58b5 ("xen: implement Xen-specific spinlocks")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+Call trace:
+-> privcmd_ioctl
+--> privcmd_ioctl_mmap_resource
+
+Add __GFP_NOWARN in order to avoid too large allocation warning.
+This is detected by static analysis using smatch.
+
+Fixes: 3ad0876554ca ("xen/privcmd: add IOCTL_PRIVCMD_MMAP_RESOURCE")
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20221123155858.11382-3-xiujianfeng@huawei.com
+Link: https://lore.kernel.org/r/20221126050745.778967-1-harshit.m.mogalapalli@oracle.com
 Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/spinlock.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/xen/privcmd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
-index 043c73dfd2c9..5c6fc16e4b92 100644
---- a/arch/x86/xen/spinlock.c
-+++ b/arch/x86/xen/spinlock.c
-@@ -75,6 +75,7 @@ void xen_init_lock_cpu(int cpu)
- 	     cpu, per_cpu(lock_kicker_irq, cpu));
- 
- 	name = kasprintf(GFP_KERNEL, "spinlock%d", cpu);
-+	per_cpu(irq_name, cpu) = name;
- 	irq = bind_ipi_to_irqhandler(XEN_SPIN_UNLOCK_VECTOR,
- 				     cpu,
- 				     dummy_handler,
-@@ -85,7 +86,6 @@ void xen_init_lock_cpu(int cpu)
- 	if (irq >= 0) {
- 		disable_irq(irq); /* make sure it's never delivered */
- 		per_cpu(lock_kicker_irq, cpu) = irq;
--		per_cpu(irq_name, cpu) = name;
+diff --git a/drivers/xen/privcmd.c b/drivers/xen/privcmd.c
+index fae50a24630b..1edf45ee9890 100644
+--- a/drivers/xen/privcmd.c
++++ b/drivers/xen/privcmd.c
+@@ -760,7 +760,7 @@ static long privcmd_ioctl_mmap_resource(struct file *file,
+ 		goto out;
  	}
  
- 	printk("cpu %d spinlock event irq %d\n", cpu, irq);
-@@ -98,6 +98,8 @@ void xen_uninit_lock_cpu(int cpu)
- 	if (!xen_pvspin)
- 		return;
- 
-+	kfree(per_cpu(irq_name, cpu));
-+	per_cpu(irq_name, cpu) = NULL;
- 	/*
- 	 * When booting the kernel with 'mitigations=auto,nosmt', the secondary
- 	 * CPUs are not activated, and lock_kicker_irq is not initialized.
-@@ -108,8 +110,6 @@ void xen_uninit_lock_cpu(int cpu)
- 
- 	unbind_from_irqhandler(irq, NULL);
- 	per_cpu(lock_kicker_irq, cpu) = -1;
--	kfree(per_cpu(irq_name, cpu));
--	per_cpu(irq_name, cpu) = NULL;
- }
- 
- PV_CALLEE_SAVE_REGS_THUNK(xen_vcpu_stolen);
+-	pfns = kcalloc(kdata.num, sizeof(*pfns), GFP_KERNEL);
++	pfns = kcalloc(kdata.num, sizeof(*pfns), GFP_KERNEL | __GFP_NOWARN);
+ 	if (!pfns) {
+ 		rc = -ENOMEM;
+ 		goto out;
 -- 
 2.35.1
 
