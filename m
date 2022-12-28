@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E67DA658499
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:59:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6ED89657EC9
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:57:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235210AbiL1Q67 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:58:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50488 "EHLO
+        id S234199AbiL1P5g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:57:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235315AbiL1Q6L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:58:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 332DB201AB
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:54:25 -0800 (PST)
+        with ESMTP id S233436AbiL1P5e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:57:34 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8A1B18386
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:57:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C9242B8188B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:54:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3720DC433EF;
-        Wed, 28 Dec 2022 16:54:22 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 22301CE1369
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:57:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14370C433EF;
+        Wed, 28 Dec 2022 15:57:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246462;
-        bh=zf7RAbo9htvu/+5dLGrdZRXxBzlJZ32Qyt64KwWEkBE=;
+        s=korg; t=1672243050;
+        bh=aQFaecaqcH30nHzpU+8RbcjuDn2x7otmuRN7p6ZP31U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EunwvR75ugUvbeF9mFe4/zP5240mRxV3L67ou47Wjzs0A1vno1NAb+2hcHBZfUWtR
-         ZsHRfSFViog7tAMqQ5NFBSgoukcBkJpCL+fv5Ic+Fzu7XAkNO9MfWHc0VttJI2nV+W
-         2hZlO4NG4BWg529yWGBpExmJzxBrJOGOfPvN8CQc=
+        b=D6pwrAH9FbqCDjWoflf2CYkD0Czs2hC0LxPwVYDyR//BLljRS6EWQ8GPQ5yR8I1dq
+         7pYCa+zU1MXYsqaFprSn2rSx9JZIpHetRgFoOI1LBeF3PAuw84dZAy2RsRYdKMNfHQ
+         GqJX9Q+kPU6U+EexB6aKEfNYEaRi3HhfRPP/n8eU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Linus Walleij <linus.walleij@linaro.org>,
-        Marek Vasut <marex@denx.de>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev,
+        syzbot+a3e6acd85ded5c16a709@syzkaller.appspotmail.com,
+        Hawkins Jiawei <yin31149@gmail.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Ian Kent <raven@themaw.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1046/1146] Bluetooth: hci_bcm: Add CYW4373A0 support
+Subject: [PATCH 5.15 678/731] hugetlbfs: fix null-ptr-deref in hugetlbfs_parse_param()
 Date:   Wed, 28 Dec 2022 15:43:05 +0100
-Message-Id: <20221228144358.738698922@linuxfoundation.org>
+Message-Id: <20221228144316.128020522@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,107 +58,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Hawkins Jiawei <yin31149@gmail.com>
 
-[ Upstream commit 02d056a3404e20245a69dcb4022a0930085fc5ec ]
+[ Upstream commit 26215b7ee923b9251f7bb12c4e5f09dc465d35f2 ]
 
-CYW4373A0 is a Wi-Fi + Bluetooth combo device from Cypress.
-This chip is present e.g. on muRata 2AE module.
+Syzkaller reports a null-ptr-deref bug as follows:
+======================================================
+KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+RIP: 0010:hugetlbfs_parse_param+0x1dd/0x8e0 fs/hugetlbfs/inode.c:1380
+[...]
+Call Trace:
+ <TASK>
+ vfs_parse_fs_param fs/fs_context.c:148 [inline]
+ vfs_parse_fs_param+0x1f9/0x3c0 fs/fs_context.c:129
+ vfs_parse_fs_string+0xdb/0x170 fs/fs_context.c:191
+ generic_parse_monolithic+0x16f/0x1f0 fs/fs_context.c:231
+ do_new_mount fs/namespace.c:3036 [inline]
+ path_mount+0x12de/0x1e20 fs/namespace.c:3370
+ do_mount fs/namespace.c:3383 [inline]
+ __do_sys_mount fs/namespace.c:3591 [inline]
+ __se_sys_mount fs/namespace.c:3568 [inline]
+ __x64_sys_mount+0x27f/0x300 fs/namespace.c:3568
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ [...]
+ </TASK>
+======================================================
 
-This chip has additional quirk where the HCI command 0xfc45, used on
-older chips to switch UART clock from 24 MHz to 48 MHz, to support
-baudrates over 3 Mbdps, is no longer recognized by this newer chip.
-This newer chip can configure the 4 Mbdps baudrate without the need
-to issue HCI command 0xfc45, so add flag to indicate this and do not
-issue the command on this chip to avoid failure to set 4 Mbdps baud
-rate.
+According to commit "vfs: parse: deal with zero length string value",
+kernel will set the param->string to null pointer in vfs_parse_fs_string()
+if fs string has zero length.
 
-It is not clear whether there is a way to determine which chip does
-and which chip does not support the HCI command 0xfc45, other than
-trial and error.
+Yet the problem is that, hugetlbfs_parse_param() will dereference the
+param->string, without checking whether it is a null pointer.  To be more
+specific, if hugetlbfs_parse_param() parses an illegal mount parameter,
+such as "size=,", kernel will constructs struct fs_parameter with null
+pointer in vfs_parse_fs_string(), then passes this struct fs_parameter to
+hugetlbfs_parse_param(), which triggers the above null-ptr-deref bug.
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Marek Vasut <marex@denx.de>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+This patch solves it by adding sanity check on param->string
+in hugetlbfs_parse_param().
+
+Link: https://lkml.kernel.org/r/20221020231609.4810-1-yin31149@gmail.com
+Reported-by: syzbot+a3e6acd85ded5c16a709@syzkaller.appspotmail.com
+Tested-by: syzbot+a3e6acd85ded5c16a709@syzkaller.appspotmail.com
+  Link: https://lore.kernel.org/all/0000000000005ad00405eb7148c6@google.com/
+Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Hawkins Jiawei <yin31149@gmail.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Ian Kent <raven@themaw.net>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_bcm.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ fs/hugetlbfs/inode.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/bluetooth/hci_bcm.c b/drivers/bluetooth/hci_bcm.c
-index d7e0b75db8a6..2b6c0e1922cb 100644
---- a/drivers/bluetooth/hci_bcm.c
-+++ b/drivers/bluetooth/hci_bcm.c
-@@ -53,11 +53,13 @@
-  * struct bcm_device_data - device specific data
-  * @no_early_set_baudrate: Disallow set baudrate before driver setup()
-  * @drive_rts_on_open: drive RTS signal on ->open() when platform requires it
-+ * @no_uart_clock_set: UART clock set command for >3Mbps mode is unavailable
-  * @max_autobaud_speed: max baudrate supported by device in autobaud mode
-  */
- struct bcm_device_data {
- 	bool	no_early_set_baudrate;
- 	bool	drive_rts_on_open;
-+	bool	no_uart_clock_set;
- 	u32	max_autobaud_speed;
- };
+diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+index be8deec29ebe..352230a011e0 100644
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -1250,7 +1250,7 @@ static int hugetlbfs_parse_param(struct fs_context *fc, struct fs_parameter *par
  
-@@ -100,6 +102,7 @@ struct bcm_device_data {
-  * @is_suspended: whether flow control is currently disabled
-  * @no_early_set_baudrate: don't set_baudrate before setup()
-  * @drive_rts_on_open: drive RTS signal on ->open() when platform requires it
-+ * @no_uart_clock_set: UART clock set command for >3Mbps mode is unavailable
-  * @pcm_int_params: keep the initial PCM configuration
-  * @use_autobaud_mode: start Bluetooth device in autobaud mode
-  * @max_autobaud_speed: max baudrate supported by device in autobaud mode
-@@ -140,6 +143,7 @@ struct bcm_device {
- #endif
- 	bool			no_early_set_baudrate;
- 	bool			drive_rts_on_open;
-+	bool			no_uart_clock_set;
- 	bool			use_autobaud_mode;
- 	u8			pcm_int_params[5];
- 	u32			max_autobaud_speed;
-@@ -172,10 +176,11 @@ static inline void host_set_baudrate(struct hci_uart *hu, unsigned int speed)
- static int bcm_set_baudrate(struct hci_uart *hu, unsigned int speed)
- {
- 	struct hci_dev *hdev = hu->hdev;
-+	struct bcm_data *bcm = hu->priv;
- 	struct sk_buff *skb;
- 	struct bcm_update_uart_baud_rate param;
+ 	case Opt_size:
+ 		/* memparse() will accept a K/M/G without a digit */
+-		if (!isdigit(param->string[0]))
++		if (!param->string || !isdigit(param->string[0]))
+ 			goto bad_val;
+ 		ctx->max_size_opt = memparse(param->string, &rest);
+ 		ctx->max_val_type = SIZE_STD;
+@@ -1260,7 +1260,7 @@ static int hugetlbfs_parse_param(struct fs_context *fc, struct fs_parameter *par
  
--	if (speed > 3000000) {
-+	if (speed > 3000000 && !bcm->dev->no_uart_clock_set) {
- 		struct bcm_write_uart_clock_setting clock;
+ 	case Opt_nr_inodes:
+ 		/* memparse() will accept a K/M/G without a digit */
+-		if (!isdigit(param->string[0]))
++		if (!param->string || !isdigit(param->string[0]))
+ 			goto bad_val;
+ 		ctx->nr_inodes = memparse(param->string, &rest);
+ 		return 0;
+@@ -1276,7 +1276,7 @@ static int hugetlbfs_parse_param(struct fs_context *fc, struct fs_parameter *par
  
- 		clock.type = BCM_UART_CLOCK_48MHZ;
-@@ -1529,6 +1534,7 @@ static int bcm_serdev_probe(struct serdev_device *serdev)
- 		bcmdev->max_autobaud_speed = data->max_autobaud_speed;
- 		bcmdev->no_early_set_baudrate = data->no_early_set_baudrate;
- 		bcmdev->drive_rts_on_open = data->drive_rts_on_open;
-+		bcmdev->no_uart_clock_set = data->no_uart_clock_set;
- 	}
- 
- 	return hci_uart_register_device(&bcmdev->serdev_hu, &bcm_proto);
-@@ -1550,6 +1556,10 @@ static struct bcm_device_data bcm43438_device_data = {
- 	.drive_rts_on_open = true,
- };
- 
-+static struct bcm_device_data cyw4373a0_device_data = {
-+	.no_uart_clock_set = true,
-+};
-+
- static struct bcm_device_data cyw55572_device_data = {
- 	.max_autobaud_speed = 921600,
- };
-@@ -1566,6 +1576,7 @@ static const struct of_device_id bcm_bluetooth_of_match[] = {
- 	{ .compatible = "brcm,bcm4349-bt", .data = &bcm43438_device_data },
- 	{ .compatible = "brcm,bcm43540-bt", .data = &bcm4354_device_data },
- 	{ .compatible = "brcm,bcm4335a0" },
-+	{ .compatible = "cypress,cyw4373a0-bt", .data = &cyw4373a0_device_data },
- 	{ .compatible = "infineon,cyw55572-bt", .data = &cyw55572_device_data },
- 	{ },
- };
+ 	case Opt_min_size:
+ 		/* memparse() will accept a K/M/G without a digit */
+-		if (!isdigit(param->string[0]))
++		if (!param->string || !isdigit(param->string[0]))
+ 			goto bad_val;
+ 		ctx->min_size_opt = memparse(param->string, &rest);
+ 		ctx->min_val_type = SIZE_STD;
 -- 
 2.35.1
 
