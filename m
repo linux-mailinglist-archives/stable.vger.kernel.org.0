@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E2E5657B30
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:19:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D59B657A12
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:07:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233259AbiL1PTI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:19:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37572 "EHLO
+        id S233588AbiL1PHd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:07:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233257AbiL1PTC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:19:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C724F13FA9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:18:45 -0800 (PST)
+        with ESMTP id S233594AbiL1PHc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:07:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D14C13D71
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:07:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0637B61551
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:18:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14130C433D2;
-        Wed, 28 Dec 2022 15:18:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EC0F6B8172B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:07:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45EC9C433F0;
+        Wed, 28 Dec 2022 15:07:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240724;
-        bh=Lez0XSHP/3AfL8wxzX79PzZk+p3Dw0gYxZGEGDraGYE=;
+        s=korg; t=1672240049;
+        bh=4AjZPYIngutGlWr0f4CqedX5psR2DyI2/NdMi8XVdgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E2nL1McnMfHsQMTSmTBp6KpJiOaQzHtmdv8De9EKvPhFNA3ydtXbV9u1T5fyc7D4L
-         0Rahgpt/ngWu1G7RzhHU3cJJtmNAubVRKUzYTTKhMZoAvW043XXGgS2ErrTRPBDZ1X
-         iEChpDQmny/4Puy/vagL3QiRZfSNz3rbB6wQJyjo=
+        b=KnEK4SaxEuewzJMrUt+FqX1wg8xVQSeSHC56SiK2bv+rU0oy5npOmmdMnc9vTebG/
+         FXKvzqhPok5X8wmGpI0m1FvtwKmNHZUkj1Y0T0Za2ZC9f4ssHVhxQZGCXXbeL6mdju
+         ZnAANhqxvA8wjROb1RCx25Ud4bA1CNtbuX4Rn2NY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Alexandre Bounine <alex.bou9@gmail.com>,
-        Matt Porter <mporter@kernel.crashing.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        patches@lists.linux.dev, Yipeng Zou <zouyipeng@huawei.com>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0160/1146] rapidio: fix possible name leaks when rio_add_device() fails
-Date:   Wed, 28 Dec 2022 15:28:19 +0100
-Message-Id: <20221228144334.505159984@linuxfoundation.org>
+Subject: [PATCH 6.0 0112/1073] selftests/ftrace: event_triggers: wait longer for test_event_enable
+Date:   Wed, 28 Dec 2022 15:28:20 +0100
+Message-Id: <20221228144331.083695812@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,74 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Yipeng Zou <zouyipeng@huawei.com>
 
-[ Upstream commit f9574cd48679926e2a569e1957a5a1bcc8a719ac ]
+[ Upstream commit a1d6cd88c8973cfb08ee85722488b1d6d5d16327 ]
 
-Patch series "rapidio: fix three possible memory leaks".
+In some platform, the schedule event may came slowly, delay 100ms can't
+cover it.
 
-This patchset fixes three name leaks in error handling.
- - patch #1 fixes two name leaks while rio_add_device() fails.
- - patch #2 fixes a name leak while  rio_register_mport() fails.
+I was notice that on my board which running in low cpu_freq,and this
+selftests allways gose fail.
 
-This patch (of 2):
+So maybe we can check more times here to wait longer.
 
-If rio_add_device() returns error, the name allocated by dev_set_name()
-need be freed.  It should use put_device() to give up the reference in the
-error path, so that the name can be freed in kobject_cleanup(), and the
-'rdev' can be freed in rio_release_dev().
-
-Link: https://lkml.kernel.org/r/20221114152636.2939035-1-yangyingliang@huawei.com
-Link: https://lkml.kernel.org/r/20221114152636.2939035-2-yangyingliang@huawei.com
-Fixes: e8de370188d0 ("rapidio: add mport char device driver")
-Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Cc: Alexandre Bounine <alex.bou9@gmail.com>
-Cc: Matt Porter <mporter@kernel.crashing.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 43bb45da82f9 ("selftests: ftrace: Add a selftest to test event enable/disable func trigger")
+Signed-off-by: Yipeng Zou <zouyipeng@huawei.com>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rapidio/devices/rio_mport_cdev.c | 7 +++++--
- drivers/rapidio/rio-scan.c               | 8 ++++++--
- 2 files changed, 11 insertions(+), 4 deletions(-)
+ .../ftrace/test.d/ftrace/func_event_triggers.tc   | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rapidio/devices/rio_mport_cdev.c b/drivers/rapidio/devices/rio_mport_cdev.c
-index 2cdc054e53a5..3cc83997a1f8 100644
---- a/drivers/rapidio/devices/rio_mport_cdev.c
-+++ b/drivers/rapidio/devices/rio_mport_cdev.c
-@@ -1804,8 +1804,11 @@ static int rio_mport_add_riodev(struct mport_cdev_priv *priv,
- 		rio_init_dbell_res(&rdev->riores[RIO_DOORBELL_RESOURCE],
- 				   0, 0xffff);
- 	err = rio_add_device(rdev);
--	if (err)
--		goto cleanup;
-+	if (err) {
-+		put_device(&rdev->dev);
-+		return err;
-+	}
+diff --git a/tools/testing/selftests/ftrace/test.d/ftrace/func_event_triggers.tc b/tools/testing/selftests/ftrace/test.d/ftrace/func_event_triggers.tc
+index 3145b0f1835c..27a68bbe778b 100644
+--- a/tools/testing/selftests/ftrace/test.d/ftrace/func_event_triggers.tc
++++ b/tools/testing/selftests/ftrace/test.d/ftrace/func_event_triggers.tc
+@@ -38,11 +38,18 @@ cnt_trace() {
+ 
+ test_event_enabled() {
+     val=$1
++    check_times=10		# wait for 10 * SLEEP_TIME at most
+ 
+-    e=`cat $EVENT_ENABLE`
+-    if [ "$e" != $val ]; then
+-	fail "Expected $val but found $e"
+-    fi
++    while [ $check_times -ne 0 ]; do
++	e=`cat $EVENT_ENABLE`
++	if [ "$e" == $val ]; then
++	    return 0
++	fi
++	sleep $SLEEP_TIME
++	check_times=$((check_times - 1))
++    done
 +
- 	rio_dev_get(rdev);
++    fail "Expected $val but found $e"
+ }
  
- 	return 0;
-diff --git a/drivers/rapidio/rio-scan.c b/drivers/rapidio/rio-scan.c
-index 19b0c33f4a62..fdcf742b2adb 100644
---- a/drivers/rapidio/rio-scan.c
-+++ b/drivers/rapidio/rio-scan.c
-@@ -454,8 +454,12 @@ static struct rio_dev *rio_setup_device(struct rio_net *net,
- 				   0, 0xffff);
- 
- 	ret = rio_add_device(rdev);
--	if (ret)
--		goto cleanup;
-+	if (ret) {
-+		if (rswitch)
-+			kfree(rswitch->route_table);
-+		put_device(&rdev->dev);
-+		return NULL;
-+	}
- 
- 	rio_dev_get(rdev);
- 
+ run_enable_disable() {
 -- 
 2.35.1
 
