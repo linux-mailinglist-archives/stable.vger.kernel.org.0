@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09754657CAE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:35:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DE3D657CB2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:35:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233459AbiL1PfC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:35:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52668 "EHLO
+        id S233864AbiL1PfN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:35:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233865AbiL1PfB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:35:01 -0500
+        with ESMTP id S233868AbiL1PfM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:35:12 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E33E16498
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:35:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F23E16498
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:35:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2944FB81647
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:34:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D904C433D2;
-        Wed, 28 Dec 2022 15:34:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D82CEB81647
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:35:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A4C2C433EF;
+        Wed, 28 Dec 2022 15:35:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241698;
-        bh=8zcx4+pxIdKZazB7sAWPppJwslZcmz8YqF8Kw51lHCc=;
+        s=korg; t=1672241708;
+        bh=Z8IlqknPx/sa6wj/y1s6KEd1TUYEWPZi3PG+vRcPg/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dCDtQt1s862dQMnKjUlW0PnFJ/8RueLELBYQbBHka3MeCV7jTYkXRUyCxWHoDyGFF
-         gE64N7qJ59sYnVgTZBPyzimUNfYhsa/ICyNjcgij2TDyhEn1tnHJWY3ncDmQKMSNgd
-         TD6+tAxZONBlZaX6LVRthPqsZxwrGJJb6Ituw4BI=
+        b=gx4q4FQtj9jgIoERsJhPchOIYgBm2ctJ1Az9fxwE6tez8I2sgEwIFGCsPfFeYesf8
+         Qule+Ls7oQxljIAAYFmVkOMk2jjsR7AA9kfJeVRv2LdvGMVk2qqRGLs0+5szfRs1j5
+         j320bxFJjAuAN0rLmvB38y03BuRWGG+wdwJctWA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Banajit Goswami <bgoswami@quicinc.com>,
-        Mark Brown <broonie@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        alsa-devel@alsa-project.org, Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0317/1073] ASoC: codecs: wsa883x: use correct header file
-Date:   Wed, 28 Dec 2022 15:31:45 +0100
-Message-Id: <20221228144336.619048474@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Jihong <yangjihong1@huawei.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0318/1073] selftests/bpf: Fix xdp_synproxy compilation failure in 32-bit arch
+Date:   Wed, 28 Dec 2022 15:31:46 +0100
+Message-Id: <20221228144336.646439338@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -58,51 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Yang Jihong <yangjihong1@huawei.com>
 
-[ Upstream commit 5f52ceddc40cd61b1dd2ecf735624deaf05f779f ]
+[ Upstream commit e4c9cf0ce8c413c2030e8fb215551d7e0582ee7b ]
 
-Fix build errors when GPIOLIB is not set/enabled:
+xdp_synproxy fails to be compiled in the 32-bit arch, log is as follows:
 
-../sound/soc/codecs/wsa883x.c: In function 'wsa883x_probe':
-../sound/soc/codecs/wsa883x.c:1394:25: error: implicit declaration of function 'devm_gpiod_get_optional'; did you mean 'devm_regulator_get_optional'? [-Werror=implicit-function-declaration]
-         wsa883x->sd_n = devm_gpiod_get_optional(&pdev->dev, "powerdown",
-../sound/soc/codecs/wsa883x.c:1395:49: error: 'GPIOD_FLAGS_BIT_NONEXCLUSIVE' undeclared (first use in this function)
-         GPIOD_FLAGS_BIT_NONEXCLUSIVE);
-../sound/soc/codecs/wsa883x.c:1414:9: error: implicit declaration of function 'gpiod_direction_output'; did you mean 'gpio_direction_output'? [-Werror=implicit-function-declaration]
-         gpiod_direction_output(wsa883x->sd_n, 1);
+  xdp_synproxy.c: In function 'parse_options':
+  xdp_synproxy.c:175:36: error: left shift count >= width of type [-Werror=shift-count-overflow]
+    175 |                 *tcpipopts = (mss6 << 32) | (ttl << 24) | (wscale << 16) | mss4;
+        |                                    ^~
+  xdp_synproxy.c: In function 'syncookie_open_bpf_maps':
+  xdp_synproxy.c:289:28: error: cast from pointer to integer of different size [-Werror=pointer-to-int-cast]
+    289 |                 .map_ids = (__u64)map_ids,
+        |                            ^
 
-Fixes: 43b8c7dc85a1 ("ASoC: codecs: add wsa883x amplifier support")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Cc: Banajit Goswami <bgoswami@quicinc.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Liam Girdwood <lgirdwood@gmail.com>
-Cc: alsa-devel@alsa-project.org
-Cc: Jaroslav Kysela <perex@perex.cz>
-Cc: Takashi Iwai <tiwai@suse.com>
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20221108001829.5100-1-rdunlap@infradead.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fix it.
+
+Fixes: fb5cd0ce70d4 ("selftests/bpf: Add selftests for raw syncookie helpers")
+Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20221111030836.37632-1-yangjihong1@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wsa883x.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/bpf/xdp_synproxy.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/wsa883x.c b/sound/soc/codecs/wsa883x.c
-index cb1d0a3e90e6..9dfa0ac08e6f 100644
---- a/sound/soc/codecs/wsa883x.c
-+++ b/sound/soc/codecs/wsa883x.c
-@@ -7,7 +7,7 @@
- #include <linux/debugfs.h>
- #include <linux/delay.h>
- #include <linux/device.h>
--#include <linux/gpio.h>
-+#include <linux/gpio/consumer.h>
- #include <linux/init.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
+diff --git a/tools/testing/selftests/bpf/xdp_synproxy.c b/tools/testing/selftests/bpf/xdp_synproxy.c
+index d874ddfb39c4..8432836f3be2 100644
+--- a/tools/testing/selftests/bpf/xdp_synproxy.c
++++ b/tools/testing/selftests/bpf/xdp_synproxy.c
+@@ -104,7 +104,8 @@ static void parse_options(int argc, char *argv[], unsigned int *ifindex, __u32 *
+ 		{ "tc", no_argument, NULL, 'c' },
+ 		{ NULL, 0, NULL, 0 },
+ 	};
+-	unsigned long mss4, mss6, wscale, ttl;
++	unsigned long mss4, wscale, ttl;
++	unsigned long long mss6;
+ 	unsigned int tcpipopts_mask = 0;
+ 
+ 	if (argc < 2)
+@@ -286,7 +287,7 @@ static int syncookie_open_bpf_maps(__u32 prog_id, int *values_map_fd, int *ports
+ 
+ 	prog_info = (struct bpf_prog_info) {
+ 		.nr_map_ids = 8,
+-		.map_ids = (__u64)map_ids,
++		.map_ids = (__u64)(unsigned long)map_ids,
+ 	};
+ 	info_len = sizeof(prog_info);
+ 
 -- 
 2.35.1
 
