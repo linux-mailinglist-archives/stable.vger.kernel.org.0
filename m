@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1A6A65845F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C745E657FD5
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:10:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235257AbiL1Q5O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:57:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50782 "EHLO
+        id S233045AbiL1QKl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:10:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235359AbiL1Q42 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:56:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 173051D0E1
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:52:03 -0800 (PST)
+        with ESMTP id S234547AbiL1QKA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:10:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80F321A380
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:08:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AC66FB8172A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:52:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BDC6C433D2;
-        Wed, 28 Dec 2022 16:51:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A8B3B6155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:08:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9CB4C433EF;
+        Wed, 28 Dec 2022 16:08:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246320;
-        bh=Beho72zEVdcA+Q/Ms4VmRxqwz4TJRsRFyog/dttscfs=;
+        s=korg; t=1672243718;
+        bh=BtLffO+3Gb4T0px8/3Ad1Wxi+x0cyol3HvDsLe14VPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jo2v4s5FKqdWQMr4fbS0JLbEwhhqYH56/hIkDyf40QL/bxJx1H8dx+ciFO5ZGi9tf
-         F9YKivqQqfvs/h0Cefo+tQkLjM2P11iBa4cSpL9polQccYPKLYqCcVZxVD1ApS60rI
-         YbZ2FLcHHQgNPjDJ3BEm2X6j29Iw5bQzsrVxRMqM=
+        b=EtVaMIPGrr5ESEKkTx9sMmNGul3pb5D0bgHKMA0W6KLn7OtF2PyteewavDNb4K2nd
+         YiEHiyUpNMRZt+QHXV73W5Fa0tezgbc42iqXphqtXZImCr4v7wJgVUHTYvGRHi5JlW
+         XaCb1IOK1ZV6fKxY7Vs5SvR0FGrBTnQ/9Wx9jlNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 6.0 1049/1073] iio: adc128s052: add proper .data members in adc128_of_match table
-Date:   Wed, 28 Dec 2022 15:43:57 +0100
-Message-Id: <20221228144356.706129151@linuxfoundation.org>
+        Yassine Oudjana <y.oudjana@protonmail.com>,
+        Marek Vasut <marex@denx.de>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Subject: [PATCH 5.15 731/731] extcon: usbc-tusb320: Call the Type-C IRQ handler only if a port is registered
+Date:   Wed, 28 Dec 2022 15:43:58 +0100
+Message-Id: <20221228144317.630974485@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+From: Yassine Oudjana <y.oudjana@protonmail.com>
 
-commit e2af60f5900c6ade53477b494ffb54690eee11f5 upstream.
+commit 341fd15e2e18c24d5c738496cfc3d7a272241201 upstream.
 
-Prior to commit bd5d54e4d49d ("iio: adc128s052: add ACPI _HID
-AANT1280"), the driver unconditionally used spi_get_device_id() to get
-the index into the adc128_config array.
+Commit bf7571c00dca ("extcon: usbc-tusb320: Add USB TYPE-C support")
+added an optional Type-C interface to the driver but missed to check
+if it is in use when calling the IRQ handler. This causes an oops on
+devices currently using the old extcon interface. Check if a Type-C
+port is registered before calling the Type-C IRQ handler.
 
-However, with that commit, OF-based boards now incorrectly treat all
-supported sensors as if they are an adc128s052, because all the .data
-members of the adc128_of_match table are implicitly 0. Our board,
-which has an adc122s021, thus exposes 8 channels whereas it really
-only has two.
-
-Fixes: bd5d54e4d49d ("iio: adc128s052: add ACPI _HID AANT1280")
-Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20221115132324.1078169-1-linux@rasmusvillemoes.dk
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: bf7571c00dca ("extcon: usbc-tusb320: Add USB TYPE-C support")
+Signed-off-by: Yassine Oudjana <y.oudjana@protonmail.com>
+Reviewed-by: Marek Vasut <marex@denx.de>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20221107153317.657803-1-y.oudjana@protonmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/ti-adc128s052.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/extcon/extcon-usbc-tusb320.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/adc/ti-adc128s052.c
-+++ b/drivers/iio/adc/ti-adc128s052.c
-@@ -181,13 +181,13 @@ static int adc128_probe(struct spi_devic
- }
+--- a/drivers/extcon/extcon-usbc-tusb320.c
++++ b/drivers/extcon/extcon-usbc-tusb320.c
+@@ -327,7 +327,13 @@ static irqreturn_t tusb320_state_update_
+ 		return IRQ_NONE;
  
- static const struct of_device_id adc128_of_match[] = {
--	{ .compatible = "ti,adc128s052", },
--	{ .compatible = "ti,adc122s021", },
--	{ .compatible = "ti,adc122s051", },
--	{ .compatible = "ti,adc122s101", },
--	{ .compatible = "ti,adc124s021", },
--	{ .compatible = "ti,adc124s051", },
--	{ .compatible = "ti,adc124s101", },
-+	{ .compatible = "ti,adc128s052", .data = (void*)0L, },
-+	{ .compatible = "ti,adc122s021", .data = (void*)1L, },
-+	{ .compatible = "ti,adc122s051", .data = (void*)1L, },
-+	{ .compatible = "ti,adc122s101", .data = (void*)1L, },
-+	{ .compatible = "ti,adc124s021", .data = (void*)2L, },
-+	{ .compatible = "ti,adc124s051", .data = (void*)2L, },
-+	{ .compatible = "ti,adc124s101", .data = (void*)2L, },
- 	{ /* sentinel */ },
- };
- MODULE_DEVICE_TABLE(of, adc128_of_match);
+ 	tusb320_extcon_irq_handler(priv, reg);
+-	tusb320_typec_irq_handler(priv, reg);
++
++	/*
++	 * Type-C support is optional. Only call the Type-C handler if a
++	 * port had been registered previously.
++	 */
++	if (priv->port)
++		tusb320_typec_irq_handler(priv, reg);
+ 
+ 	regmap_write(priv->regmap, TUSB320_REG9, reg);
+ 
 
 
