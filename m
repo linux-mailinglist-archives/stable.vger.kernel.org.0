@@ -2,47 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC4C9657927
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:58:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7538B657F97
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:07:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233092AbiL1O6u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:58:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44910 "EHLO
+        id S233046AbiL1QHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:07:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233336AbiL1O6D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:58:03 -0500
+        with ESMTP id S234413AbiL1QGb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:06:31 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3EBE13CCB
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:58:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8B7F1868A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:06:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62EFD61541
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:58:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79D43C433D2;
-        Wed, 28 Dec 2022 14:57:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BAD0061560
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:06:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A54E8C433D2;
+        Wed, 28 Dec 2022 16:06:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239479;
-        bh=hmDLBD3LdVKBntNpsRilYRDpyBGcsA/uqmcPj1QGDNE=;
+        s=korg; t=1672243579;
+        bh=494EGiQmBY6UEFxiPqEY8hqBwlqe0QqQNwvEp8R4d0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BZpAdCKaSfzaBd0An3Pp0rmrtpn4QaX7X14eApkRUdC5DbdjTvenRqHmzuLsk8gRh
-         SlWezeF0vFdWRMAe1ZWG2XyGm+fxVKM3218R+IfohahSzC+CDTkPZ0n0aFdJE044a6
-         q/Cmc/iYqvEDPQMbiUxsEJFiTp+6s6PemfTSSclM=
+        b=iTpLcU7WduylzSClw0fq1inpxej7StgyWr5XG6IGXoh7polyBBt661e8CHfD80Tzc
+         DzZgME3N+/Ir7R44ncx0ie00Lynj3uoMdhJoROsUSDsr5llCmul0CYYoJYjCuC3rrq
+         470BwwOiYQ5+mmuUZnZOK0bexSx2/Wst4Vk64QL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+0c3cb6dc05fbbdc3ad66@syzkaller.appspotmail.com,
-        Gautam Menghani <gautammenghani201@gmail.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Bartosz Staszewski <bartoszx.staszewski@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Shwetha Nagaraju <Shwetha.nagaraju@intel.com>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Saeed Mahameed <saeed@kernel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 232/731] media: imon: fix a race condition in send_packet()
+Subject: [PATCH 6.0 0551/1073] i40e: Fix the inability to attach XDP program on downed interface
 Date:   Wed, 28 Dec 2022 15:35:39 +0100
-Message-Id: <20221228144303.287766225@linuxfoundation.org>
+Message-Id: <20221228144343.020754973@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,77 +59,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gautam Menghani <gautammenghani201@gmail.com>
+From: Bartosz Staszewski <bartoszx.staszewski@intel.com>
 
-[ Upstream commit 813ceef062b53d68f296aa3cb944b21a091fabdb ]
+[ Upstream commit 0c87b545a2ed5cd8a6318011f1c92b188c2d74bc ]
 
-The function send_packet() has a race condition as follows:
+Whenever trying to load XDP prog on downed interface, function i40e_xdp
+was passing vsi->rx_buf_len field to i40e_xdp_setup() which was equal 0.
+i40e_open() calls i40e_vsi_configure_rx() which configures that field,
+but that only happens when interface is up. When it is down, i40e_open()
+is not being called, thus vsi->rx_buf_len is not set.
 
-func send_packet()
-{
-    // do work
-    call usb_submit_urb()
-    mutex_unlock()
-    wait_for_event_interruptible()  <-- lock gone
-    mutex_lock()
-}
+Solution for this is calculate buffer length in newly created
+function - i40e_calculate_vsi_rx_buf_len() that return actual buffer
+length. Buffer length is being calculated based on the same rules
+applied previously in i40e_vsi_configure_rx() function.
 
-func vfd_write()
-{
-    mutex_lock()
-    call send_packet()  <- prev call is not completed
-    mutex_unlock()
-}
-
-When the mutex is unlocked and the function send_packet() waits for the
-call to complete, vfd_write() can start another call, which leads to the
-"URB submitted while active" warning in usb_submit_urb().
-Fix this by removing the mutex_unlock() call in send_packet() and using
-mutex_lock_interruptible().
-
-Link: https://syzkaller.appspot.com/bug?id=e378e6a51fbe6c5cc43e34f131cc9a315ef0337e
-
-Fixes: 21677cfc562a ("V4L/DVB: ir-core: add imon driver")
-Reported-by: syzbot+0c3cb6dc05fbbdc3ad66@syzkaller.appspotmail.com
-Signed-off-by: Gautam Menghani <gautammenghani201@gmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 613142b0bb88 ("i40e: Log error for oversized MTU on device")
+Fixes: 0c8493d90b6b ("i40e: add XDP support for pass and drop actions")
+Signed-off-by: Bartosz Staszewski <bartoszx.staszewski@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Shwetha Nagaraju <Shwetha.nagaraju@intel.com>
+Reviewed-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reviewed-by: Saeed Mahameed <saeed@kernel.com>
+Link: https://lore.kernel.org/r/20221209185411.2519898-1-anthony.l.nguyen@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/imon.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 36 ++++++++++++++-------
+ 1 file changed, 24 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/media/rc/imon.c b/drivers/media/rc/imon.c
-index 97355e3ebdfd..72e4bb0fb71e 100644
---- a/drivers/media/rc/imon.c
-+++ b/drivers/media/rc/imon.c
-@@ -646,15 +646,14 @@ static int send_packet(struct imon_context *ictx)
- 		pr_err_ratelimited("error submitting urb(%d)\n", retval);
- 	} else {
- 		/* Wait for transmission to complete (or abort) */
--		mutex_unlock(&ictx->lock);
- 		retval = wait_for_completion_interruptible(
- 				&ictx->tx.finished);
- 		if (retval) {
- 			usb_kill_urb(ictx->tx_urb);
- 			pr_err_ratelimited("task interrupted\n");
- 		}
--		mutex_lock(&ictx->lock);
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index e53ea7ed0b1d..8c07d92a6574 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -3692,6 +3692,24 @@ static int i40e_vsi_configure_tx(struct i40e_vsi *vsi)
+ 	return err;
+ }
  
-+		ictx->tx.busy = false;
- 		retval = ictx->tx.status;
- 		if (retval)
- 			pr_err_ratelimited("packet tx failed (%d)\n", retval);
-@@ -955,7 +954,8 @@ static ssize_t vfd_write(struct file *file, const char __user *buf,
- 	if (ictx->disconnected)
- 		return -ENODEV;
++/**
++ * i40e_calculate_vsi_rx_buf_len - Calculates buffer length
++ *
++ * @vsi: VSI to calculate rx_buf_len from
++ */
++static u16 i40e_calculate_vsi_rx_buf_len(struct i40e_vsi *vsi)
++{
++	if (!vsi->netdev || (vsi->back->flags & I40E_FLAG_LEGACY_RX))
++		return I40E_RXBUFFER_2048;
++
++#if (PAGE_SIZE < 8192)
++	if (!I40E_2K_TOO_SMALL_WITH_PADDING && vsi->netdev->mtu <= ETH_DATA_LEN)
++		return I40E_RXBUFFER_1536 - NET_IP_ALIGN;
++#endif
++
++	return PAGE_SIZE < 8192 ? I40E_RXBUFFER_3072 : I40E_RXBUFFER_2048;
++}
++
+ /**
+  * i40e_vsi_configure_rx - Configure the VSI for Rx
+  * @vsi: the VSI being configured
+@@ -3703,20 +3721,14 @@ static int i40e_vsi_configure_rx(struct i40e_vsi *vsi)
+ 	int err = 0;
+ 	u16 i;
  
--	mutex_lock(&ictx->lock);
-+	if (mutex_lock_interruptible(&ictx->lock))
-+		return -ERESTARTSYS;
+-	if (!vsi->netdev || (vsi->back->flags & I40E_FLAG_LEGACY_RX)) {
+-		vsi->max_frame = I40E_MAX_RXBUFFER;
+-		vsi->rx_buf_len = I40E_RXBUFFER_2048;
++	vsi->max_frame = I40E_MAX_RXBUFFER;
++	vsi->rx_buf_len = i40e_calculate_vsi_rx_buf_len(vsi);
++
+ #if (PAGE_SIZE < 8192)
+-	} else if (!I40E_2K_TOO_SMALL_WITH_PADDING &&
+-		   (vsi->netdev->mtu <= ETH_DATA_LEN)) {
++	if (vsi->netdev && !I40E_2K_TOO_SMALL_WITH_PADDING &&
++	    vsi->netdev->mtu <= ETH_DATA_LEN)
+ 		vsi->max_frame = I40E_RXBUFFER_1536 - NET_IP_ALIGN;
+-		vsi->rx_buf_len = I40E_RXBUFFER_1536 - NET_IP_ALIGN;
+ #endif
+-	} else {
+-		vsi->max_frame = I40E_MAX_RXBUFFER;
+-		vsi->rx_buf_len = (PAGE_SIZE < 8192) ? I40E_RXBUFFER_3072 :
+-						       I40E_RXBUFFER_2048;
+-	}
  
- 	if (!ictx->dev_present_intf0) {
- 		pr_err_ratelimited("no iMON device present\n");
+ 	/* set up individual rings */
+ 	for (i = 0; i < vsi->num_queue_pairs && !err; i++)
+@@ -13290,7 +13302,7 @@ static int i40e_xdp_setup(struct i40e_vsi *vsi, struct bpf_prog *prog,
+ 	int i;
+ 
+ 	/* Don't allow frames that span over multiple buffers */
+-	if (frame_size > vsi->rx_buf_len) {
++	if (frame_size > i40e_calculate_vsi_rx_buf_len(vsi)) {
+ 		NL_SET_ERR_MSG_MOD(extack, "MTU too large to enable XDP");
+ 		return -EINVAL;
+ 	}
 -- 
 2.35.1
 
