@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF0A1657F40
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CFFE6578FD
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:56:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229989AbiL1QDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:03:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48206 "EHLO
+        id S233258AbiL1O4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:56:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234340AbiL1QCp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:02:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B477619286
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:02:35 -0800 (PST)
+        with ESMTP id S233256AbiL1O4Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:56:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B69B9DF1
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:56:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DEAEC6155B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:02:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F33E9C433EF;
-        Wed, 28 Dec 2022 16:02:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 50BE66151F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:56:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A7FEC433D2;
+        Wed, 28 Dec 2022 14:56:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243354;
-        bh=+dv6U6k+zo3I9RkD4oOmNd5x+Mt5n9OGC27boDoICd8=;
+        s=korg; t=1672239382;
+        bh=bKfpt6h0GlWOpQsLy7N74+aS0RnUo2HirQTk4nM5Xkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eyPeIwpsl7KwEaGdo2Dmm530/fvKymsLc3Z0d0LASw43JDfSi0Az5WTsmDTqFfDbl
-         87bWGkFKDkQpi+bl2+mPy3wqNKYIDdYt5cY7rkbVvoWZeXhSdYDLXCVFNkw09Nxu+A
-         1OlWh5/xcykXbq3r7oM6K5dk9S/gwuaYbDKRqFQ4=
+        b=PnrODgDwMGIuI9wxTsP4dRmEZE8IRI3EE5kAPs5q9KPjb/6Tv1ISRhocbEmgW7pKs
+         P6Cavj9O00WCZuJoUEJVvfFJ3SgtQAgnjPwMPvTTEunGK3yPNIBEcG9NM5hu9Kzjz9
+         2Ujr103RT6r927DE9k2wKPZdGpHxiHvq6GrsZy4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jianlin Shi <jishi@redhat.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        Jiri Pirko <jiri@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0520/1073] net/tunnel: wait until all sk_user_data reader finish before releasing the sock
-Date:   Wed, 28 Dec 2022 15:35:08 +0100
-Message-Id: <20221228144342.166520343@linuxfoundation.org>
+Subject: [PATCH 5.15 202/731] drm/fourcc: Add packed 10bit YUV 4:2:0 format
+Date:   Wed, 28 Dec 2022 15:35:09 +0100
+Message-Id: <20221228144302.417521877@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,72 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Dave Stevenson <dave.stevenson@raspberrypi.com>
 
-[ Upstream commit 3cf7203ca620682165706f70a1b12b5194607dce ]
+[ Upstream commit 006ea1b5822f9019bd722ffc6242bc0880879e3d ]
 
-There is a race condition in vxlan that when deleting a vxlan device
-during receiving packets, there is a possibility that the sock is
-released after getting vxlan_sock vs from sk_user_data. Then in
-later vxlan_ecn_decapsulate(), vxlan_get_sk_family() we will got
-NULL pointer dereference. e.g.
+Adds a format that is 3 10bit YUV 4:2:0 samples packed into
+a 32bit word (with 2 spare bits).
 
-   #0 [ffffa25ec6978a38] machine_kexec at ffffffff8c669757
-   #1 [ffffa25ec6978a90] __crash_kexec at ffffffff8c7c0a4d
-   #2 [ffffa25ec6978b58] crash_kexec at ffffffff8c7c1c48
-   #3 [ffffa25ec6978b60] oops_end at ffffffff8c627f2b
-   #4 [ffffa25ec6978b80] page_fault_oops at ffffffff8c678fcb
-   #5 [ffffa25ec6978bd8] exc_page_fault at ffffffff8d109542
-   #6 [ffffa25ec6978c00] asm_exc_page_fault at ffffffff8d200b62
-      [exception RIP: vxlan_ecn_decapsulate+0x3b]
-      RIP: ffffffffc1014e7b  RSP: ffffa25ec6978cb0  RFLAGS: 00010246
-      RAX: 0000000000000008  RBX: ffff8aa000888000  RCX: 0000000000000000
-      RDX: 000000000000000e  RSI: ffff8a9fc7ab803e  RDI: ffff8a9fd1168700
-      RBP: ffff8a9fc7ab803e   R8: 0000000000700000   R9: 00000000000010ae
-      R10: ffff8a9fcb748980  R11: 0000000000000000  R12: ffff8a9fd1168700
-      R13: ffff8aa000888000  R14: 00000000002a0000  R15: 00000000000010ae
-      ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
-   #7 [ffffa25ec6978ce8] vxlan_rcv at ffffffffc10189cd [vxlan]
-   #8 [ffffa25ec6978d90] udp_queue_rcv_one_skb at ffffffff8cfb6507
-   #9 [ffffa25ec6978dc0] udp_unicast_rcv_skb at ffffffff8cfb6e45
-  #10 [ffffa25ec6978dc8] __udp4_lib_rcv at ffffffff8cfb8807
-  #11 [ffffa25ec6978e20] ip_protocol_deliver_rcu at ffffffff8cf76951
-  #12 [ffffa25ec6978e48] ip_local_deliver at ffffffff8cf76bde
-  #13 [ffffa25ec6978ea0] __netif_receive_skb_one_core at ffffffff8cecde9b
-  #14 [ffffa25ec6978ec8] process_backlog at ffffffff8cece139
-  #15 [ffffa25ec6978f00] __napi_poll at ffffffff8ceced1a
-  #16 [ffffa25ec6978f28] net_rx_action at ffffffff8cecf1f3
-  #17 [ffffa25ec6978fa0] __softirqentry_text_start at ffffffff8d4000ca
-  #18 [ffffa25ec6978ff0] do_softirq at ffffffff8c6fbdc3
+Supported on Broadcom BCM2711 chips.
 
-Reproducer: https://github.com/Mellanox/ovs-tests/blob/master/test-ovs-vxlan-remove-tunnel-during-traffic.sh
-
-Fix this by waiting for all sk_user_data reader to finish before
-releasing the sock.
-
-Reported-by: Jianlin Shi <jishi@redhat.com>
-Suggested-by: Jakub Sitnicki <jakub@cloudflare.com>
-Fixes: 6a93cc905274 ("udp-tunnel: Add a few more UDP tunnel APIs")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://lore.kernel.org/r/20211215091739.135042-2-maxime@cerno.tech
+Stable-dep-of: b230555f3257 ("drm/fourcc: Fix vsub/hsub for Q410 and Q401")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/udp_tunnel_core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/drm_fourcc.c  |  3 +++
+ include/uapi/drm/drm_fourcc.h | 11 +++++++++++
+ 2 files changed, 14 insertions(+)
 
-diff --git a/net/ipv4/udp_tunnel_core.c b/net/ipv4/udp_tunnel_core.c
-index 8242c8947340..5f8104cf082d 100644
---- a/net/ipv4/udp_tunnel_core.c
-+++ b/net/ipv4/udp_tunnel_core.c
-@@ -176,6 +176,7 @@ EXPORT_SYMBOL_GPL(udp_tunnel_xmit_skb);
- void udp_tunnel_sock_release(struct socket *sock)
- {
- 	rcu_assign_sk_user_data(sock->sk, NULL);
-+	synchronize_rcu();
- 	kernel_sock_shutdown(sock, SHUT_RDWR);
- 	sock_release(sock);
- }
+diff --git a/drivers/gpu/drm/drm_fourcc.c b/drivers/gpu/drm/drm_fourcc.c
+index eda832f9200d..aa747111476f 100644
+--- a/drivers/gpu/drm/drm_fourcc.c
++++ b/drivers/gpu/drm/drm_fourcc.c
+@@ -266,6 +266,9 @@ const struct drm_format_info *__drm_format_info(u32 format)
+ 		  .num_planes = 3, .char_per_block = { 2, 2, 2 },
+ 		  .block_w = { 1, 1, 1 }, .block_h = { 1, 1, 1 }, .hsub = 0,
+ 		  .vsub = 0, .is_yuv = true },
++		{ .format = DRM_FORMAT_P030,            .depth = 0,  .num_planes = 2,
++		  .char_per_block = { 4, 8, 0 }, .block_w = { 3, 3, 0 }, .block_h = { 1, 1, 0 },
++		  .hsub = 2, .vsub = 2, .is_yuv = true},
+ 	};
+ 
+ 	unsigned int i;
+diff --git a/include/uapi/drm/drm_fourcc.h b/include/uapi/drm/drm_fourcc.h
+index 808c73c52820..a50e4646bd6d 100644
+--- a/include/uapi/drm/drm_fourcc.h
++++ b/include/uapi/drm/drm_fourcc.h
+@@ -308,6 +308,13 @@ extern "C" {
+  */
+ #define DRM_FORMAT_P016		fourcc_code('P', '0', '1', '6') /* 2x2 subsampled Cr:Cb plane 16 bits per channel */
+ 
++/* 2 plane YCbCr420.
++ * 3 10 bit components and 2 padding bits packed into 4 bytes.
++ * index 0 = Y plane, [31:0] x:Y2:Y1:Y0 2:10:10:10 little endian
++ * index 1 = Cr:Cb plane, [63:0] x:Cr2:Cb2:Cr1:x:Cb1:Cr0:Cb0 [2:10:10:10:2:10:10:10] little endian
++ */
++#define DRM_FORMAT_P030		fourcc_code('P', '0', '3', '0') /* 2x2 subsampled Cr:Cb plane 10 bits per channel packed */
++
+ /* 3 plane non-subsampled (444) YCbCr
+  * 16 bits per component, but only 10 bits are used and 6 bits are padded
+  * index 0: Y plane, [15:0] Y:x [10:6] little endian
+@@ -842,6 +849,10 @@ drm_fourcc_canonicalize_nvidia_format_mod(__u64 modifier)
+  * and UV.  Some SAND-using hardware stores UV in a separate tiled
+  * image from Y to reduce the column height, which is not supported
+  * with these modifiers.
++ *
++ * The DRM_FORMAT_MOD_BROADCOM_SAND128_COL_HEIGHT modifier is also
++ * supported for DRM_FORMAT_P030 where the columns remain as 128 bytes
++ * wide, but as this is a 10 bpp format that translates to 96 pixels.
+  */
+ 
+ #define DRM_FORMAT_MOD_BROADCOM_SAND32_COL_HEIGHT(v) \
 -- 
 2.35.1
 
