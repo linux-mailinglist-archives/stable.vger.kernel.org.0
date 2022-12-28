@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA4EB65781D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 591B4657E00
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:49:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232963AbiL1OsH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:48:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35364 "EHLO
+        id S234032AbiL1PtG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:49:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233067AbiL1Orl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:47:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6BEE120B4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:47:09 -0800 (PST)
+        with ESMTP id S233641AbiL1PtA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:49:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C684B1838D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:48:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64C4FB816D6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:47:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCB97C433D2;
-        Wed, 28 Dec 2022 14:47:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6366261563
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:48:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72A5DC433D2;
+        Wed, 28 Dec 2022 15:48:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238827;
-        bh=ZaqnCVXvRfvBgGBdprjY1ZCRDwWgX1YHg4G3R8sJ/J8=;
+        s=korg; t=1672242538;
+        bh=T7hT4a7GPAyQmZCF3BKZH3BCGdsLcX2t0ZMHj9GOTXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=id7XwOSP4dnoSu5/RkMG1Q/X1SmFOm+Lsq113SiEl1hY+C/+5DmqGo6OXIoNwXYGe
-         5PDjYNkIBGkKkNYqvXPREcKx5a2ZxTUuUSkhYfR4Gv+qaYfeMh3zljvs0MidL3lr8j
-         CvYVONvlcAlZupdCQ+pjUhRBrTT+1hGKx0iC0zr8=
+        b=QmgzdLQ5uzMoTcuodGcn/4tLdRgb5hBd8tkRyn93HklHR3TRRlHAqJmxLGgOv6gdR
+         GeaxnLXAr6gafceK643HYq481A8HEhXJmI9LHUzaEPI3dtmEDuW8N9qDJnVvk37fwT
+         899MSqkADMGxNiw6vNNqfX2UtCOP0QOtF3jbB4ig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marco Elver <elver@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        patches@lists.linux.dev,
+        Alan Previn <alan.previn.teres.alexis@intel.com>,
+        Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>,
+        Lucas De Marchi <lucas.demarchi@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 012/731] objtool, kcsan: Add volatile read/write instrumentation to whitelist
-Date:   Wed, 28 Dec 2022 15:31:59 +0100
-Message-Id: <20221228144256.895693286@linuxfoundation.org>
+Subject: [PATCH 6.1 0381/1146] drm/i915/guc: make default_lists const data
+Date:   Wed, 28 Dec 2022 15:32:00 +0100
+Message-Id: <20221228144340.515439559@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +57,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Jani Nikula <jani.nikula@intel.com>
 
-[ Upstream commit 63646fcba5bb4b59a19031c21913f94e46a3d0d4 ]
+[ Upstream commit dfa5e6ef3ccefff9fa8a70d9f5fa6ef6244aa312 ]
 
-Adds KCSAN's volatile instrumentation to objtool's uaccess whitelist.
+The default_lists array should be in rodata.
 
-Recent kernel change have shown that this was missing from the uaccess
-whitelist (since the first upstreamed version of KCSAN):
-
-  mm/gup.o: warning: objtool: fault_in_readable+0x101: call to __tsan_volatile_write1() with UACCESS enabled
-
-Fixes: 75d75b7a4d54 ("kcsan: Support distinguishing volatile accesses")
-Signed-off-by: Marco Elver <elver@google.com>
-Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: dce2bd542337 ("drm/i915/guc: Add Gen9 registers for GuC error state capture.")
+Cc: Alan Previn <alan.previn.teres.alexis@intel.com>
+Cc: Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>
+Cc: Lucas De Marchi <lucas.demarchi@intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Reviewed-by: Lucas De Marchi <lucas.demarchi@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221122141616.3469214-1-jani.nikula@intel.com
+(cherry picked from commit 8b7f7a9b10b704ba7d73199ff0f01354e0bad7a5)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/check.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 72e5d23f1ad8..edac5aaa2802 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -846,6 +846,16 @@ static const char *uaccess_safe_builtin[] = {
- 	"__tsan_read_write4",
- 	"__tsan_read_write8",
- 	"__tsan_read_write16",
-+	"__tsan_volatile_read1",
-+	"__tsan_volatile_read2",
-+	"__tsan_volatile_read4",
-+	"__tsan_volatile_read8",
-+	"__tsan_volatile_read16",
-+	"__tsan_volatile_write1",
-+	"__tsan_volatile_write2",
-+	"__tsan_volatile_write4",
-+	"__tsan_volatile_write8",
-+	"__tsan_volatile_write16",
- 	"__tsan_atomic8_load",
- 	"__tsan_atomic16_load",
- 	"__tsan_atomic32_load",
+diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
+index 2b75b2d53383..685ddccc0f26 100644
+--- a/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
++++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
+@@ -165,7 +165,7 @@ static const struct __guc_mmio_reg_descr empty_regs_list[] = {
+ 	}
+ 
+ /* List of lists */
+-static struct __guc_mmio_reg_descr_group default_lists[] = {
++static const struct __guc_mmio_reg_descr_group default_lists[] = {
+ 	MAKE_REGLIST(default_global_regs, PF, GLOBAL, 0),
+ 	MAKE_REGLIST(default_rc_class_regs, PF, ENGINE_CLASS, GUC_RENDER_CLASS),
+ 	MAKE_REGLIST(xe_lpd_rc_inst_regs, PF, ENGINE_INSTANCE, GUC_RENDER_CLASS),
 -- 
 2.35.1
 
