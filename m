@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0B34657F2D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:02:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A3236578D9
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:54:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233014AbiL1QCo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:02:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48204 "EHLO
+        id S233204AbiL1Oyz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:54:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234259AbiL1QCV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:02:21 -0500
+        with ESMTP id S233212AbiL1Oyu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:54:50 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63A8E18B0E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:01:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C608F1260A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:54:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D089E6155B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:01:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2BBEC433D2;
-        Wed, 28 Dec 2022 16:01:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6608761544
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:54:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 721F0C433D2;
+        Wed, 28 Dec 2022 14:54:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243316;
-        bh=L1ICOmezN/HAnWLrPH2HXhwqI9K9sqtnDxq5kNpIiJc=;
+        s=korg; t=1672239284;
+        bh=uYkr0ptwyMdaC2srWYnTT1MLtk7AGAAzURmQUDOvkHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wUoPNOssCkWMez5CxVPkJIz7CeCq7il/nZhjbOzko8t+3xdbNF+IhX5uhJZJFkna0
-         3GTJ+y7MeNz3c13IAu5+hnBisErOAiAu2u5+Kp9OGe9Vvq4BgykpZ2yKiv1Z53aa1Q
-         NVzH4Ucz00SsT4EIAcay2J23RsA98yZByDdy6Hjk=
+        b=uhv/pECdCSY9TabLDKNEC2v9fB7igqJHgCgcaYaBbFoYr8JpHgbvvclJlCLoqCOIw
+         CvegIsSOEySOopR7fmMEo9zyND1SYuWSWVlptu4wAKlqtReRlVUsL9nFp1ul+reNr0
+         +z0f7b/85O9m/A9nOSkPax4PIryQ/GmpOqA2s57o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Julian Anastasov <ja@ssi.bg>,
-        yunhong-cgl jiang <xintian1976@gmail.com>,
-        "dust.li" <dust.li@linux.alibaba.com>,
-        Jiri Wiesner <jwiesner@suse.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        Keith Busch <kbusch@kernel.org>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0516/1073] ipvs: use u64_stats_t for the per-cpu counters
+Subject: [PATCH 5.15 197/731] nvmet: only allocate a single slab for bvecs
 Date:   Wed, 28 Dec 2022 15:35:04 +0100
-Message-Id: <20221228144342.060076176@linuxfoundation.org>
+Message-Id: <20221228144302.269902737@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,189 +56,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Anastasov <ja@ssi.bg>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 1dbd8d9a82e3f26b9d063292d47ece673f48fce2 ]
+[ Upstream commit fa8f9ac42350edd3ce82d0d148a60f0fa088f995 ]
 
-Use the provided u64_stats_t type to avoid
-load/store tearing.
+There is no need to have a separate slab cache for each namespace,
+and having separate ones creates duplicate debugs file names as well.
 
-Fixes: 316580b69d0a ("u64_stats: provide u64_stats_t type")
-Signed-off-by: Julian Anastasov <ja@ssi.bg>
-Cc: yunhong-cgl jiang <xintian1976@gmail.com>
-Cc: "dust.li" <dust.li@linux.alibaba.com>
-Reviewed-by: Jiri Wiesner <jwiesner@suse.de>
-Tested-by: Jiri Wiesner <jwiesner@suse.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: d5eff33ee6f8 ("nvmet: add simple file backed ns support")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ip_vs.h             | 10 +++++-----
- net/netfilter/ipvs/ip_vs_core.c | 30 +++++++++++++++---------------
- net/netfilter/ipvs/ip_vs_ctl.c  | 10 +++++-----
- net/netfilter/ipvs/ip_vs_est.c  | 20 ++++++++++----------
- 4 files changed, 35 insertions(+), 35 deletions(-)
+ drivers/nvme/target/core.c        | 22 ++++++++++++++--------
+ drivers/nvme/target/io-cmd-file.c | 16 +++-------------
+ drivers/nvme/target/nvmet.h       |  3 ++-
+ 3 files changed, 19 insertions(+), 22 deletions(-)
 
-diff --git a/include/net/ip_vs.h b/include/net/ip_vs.h
-index ff1804a0c469..1fca6a88114a 100644
---- a/include/net/ip_vs.h
-+++ b/include/net/ip_vs.h
-@@ -351,11 +351,11 @@ struct ip_vs_seq {
+diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
+index 87a347248c38..cfd038551156 100644
+--- a/drivers/nvme/target/core.c
++++ b/drivers/nvme/target/core.c
+@@ -15,6 +15,7 @@
  
- /* counters per cpu */
- struct ip_vs_counters {
--	__u64		conns;		/* connections scheduled */
--	__u64		inpkts;		/* incoming packets */
--	__u64		outpkts;	/* outgoing packets */
--	__u64		inbytes;	/* incoming bytes */
--	__u64		outbytes;	/* outgoing bytes */
-+	u64_stats_t	conns;		/* connections scheduled */
-+	u64_stats_t	inpkts;		/* incoming packets */
-+	u64_stats_t	outpkts;	/* outgoing packets */
-+	u64_stats_t	inbytes;	/* incoming bytes */
-+	u64_stats_t	outbytes;	/* outgoing bytes */
- };
- /* Stats per cpu */
- struct ip_vs_cpu_stats {
-diff --git a/net/netfilter/ipvs/ip_vs_core.c b/net/netfilter/ipvs/ip_vs_core.c
-index 51ad557a525b..b5ae419661b8 100644
---- a/net/netfilter/ipvs/ip_vs_core.c
-+++ b/net/netfilter/ipvs/ip_vs_core.c
-@@ -132,21 +132,21 @@ ip_vs_in_stats(struct ip_vs_conn *cp, struct sk_buff *skb)
+ #include "nvmet.h"
  
- 		s = this_cpu_ptr(dest->stats.cpustats);
- 		u64_stats_update_begin(&s->syncp);
--		s->cnt.inpkts++;
--		s->cnt.inbytes += skb->len;
-+		u64_stats_inc(&s->cnt.inpkts);
-+		u64_stats_add(&s->cnt.inbytes, skb->len);
- 		u64_stats_update_end(&s->syncp);
++struct kmem_cache *nvmet_bvec_cache;
+ struct workqueue_struct *buffered_io_wq;
+ struct workqueue_struct *zbd_wq;
+ static const struct nvmet_fabrics_ops *nvmet_transports[NVMF_TRTYPE_MAX];
+@@ -1607,26 +1608,28 @@ void nvmet_subsys_put(struct nvmet_subsys *subsys)
  
- 		svc = rcu_dereference(dest->svc);
- 		s = this_cpu_ptr(svc->stats.cpustats);
- 		u64_stats_update_begin(&s->syncp);
--		s->cnt.inpkts++;
--		s->cnt.inbytes += skb->len;
-+		u64_stats_inc(&s->cnt.inpkts);
-+		u64_stats_add(&s->cnt.inbytes, skb->len);
- 		u64_stats_update_end(&s->syncp);
+ static int __init nvmet_init(void)
+ {
+-	int error;
++	int error = -ENOMEM;
  
- 		s = this_cpu_ptr(ipvs->tot_stats.cpustats);
- 		u64_stats_update_begin(&s->syncp);
--		s->cnt.inpkts++;
--		s->cnt.inbytes += skb->len;
-+		u64_stats_inc(&s->cnt.inpkts);
-+		u64_stats_add(&s->cnt.inbytes, skb->len);
- 		u64_stats_update_end(&s->syncp);
+ 	nvmet_ana_group_enabled[NVMET_DEFAULT_ANA_GRPID] = 1;
  
- 		local_bh_enable();
-@@ -168,21 +168,21 @@ ip_vs_out_stats(struct ip_vs_conn *cp, struct sk_buff *skb)
++	nvmet_bvec_cache = kmem_cache_create("nvmet-bvec",
++			NVMET_MAX_MPOOL_BVEC * sizeof(struct bio_vec), 0,
++			SLAB_HWCACHE_ALIGN, NULL);
++	if (!nvmet_bvec_cache)
++		return -ENOMEM;
++
+ 	zbd_wq = alloc_workqueue("nvmet-zbd-wq", WQ_MEM_RECLAIM, 0);
+ 	if (!zbd_wq)
+-		return -ENOMEM;
++		goto out_destroy_bvec_cache;
  
- 		s = this_cpu_ptr(dest->stats.cpustats);
- 		u64_stats_update_begin(&s->syncp);
--		s->cnt.outpkts++;
--		s->cnt.outbytes += skb->len;
-+		u64_stats_inc(&s->cnt.outpkts);
-+		u64_stats_add(&s->cnt.outbytes, skb->len);
- 		u64_stats_update_end(&s->syncp);
+ 	buffered_io_wq = alloc_workqueue("nvmet-buffered-io-wq",
+ 			WQ_MEM_RECLAIM, 0);
+-	if (!buffered_io_wq) {
+-		error = -ENOMEM;
++	if (!buffered_io_wq)
+ 		goto out_free_zbd_work_queue;
+-	}
  
- 		svc = rcu_dereference(dest->svc);
- 		s = this_cpu_ptr(svc->stats.cpustats);
- 		u64_stats_update_begin(&s->syncp);
--		s->cnt.outpkts++;
--		s->cnt.outbytes += skb->len;
-+		u64_stats_inc(&s->cnt.outpkts);
-+		u64_stats_add(&s->cnt.outbytes, skb->len);
- 		u64_stats_update_end(&s->syncp);
+ 	nvmet_wq = alloc_workqueue("nvmet-wq", WQ_MEM_RECLAIM, 0);
+-	if (!nvmet_wq) {
+-		error = -ENOMEM;
++	if (!nvmet_wq)
+ 		goto out_free_buffered_work_queue;
+-	}
  
- 		s = this_cpu_ptr(ipvs->tot_stats.cpustats);
- 		u64_stats_update_begin(&s->syncp);
--		s->cnt.outpkts++;
--		s->cnt.outbytes += skb->len;
-+		u64_stats_inc(&s->cnt.outpkts);
-+		u64_stats_add(&s->cnt.outbytes, skb->len);
- 		u64_stats_update_end(&s->syncp);
+ 	error = nvmet_init_discovery();
+ 	if (error)
+@@ -1645,6 +1648,8 @@ static int __init nvmet_init(void)
+ 	destroy_workqueue(buffered_io_wq);
+ out_free_zbd_work_queue:
+ 	destroy_workqueue(zbd_wq);
++out_destroy_bvec_cache:
++	kmem_cache_destroy(nvmet_bvec_cache);
+ 	return error;
+ }
  
- 		local_bh_enable();
-@@ -200,17 +200,17 @@ ip_vs_conn_stats(struct ip_vs_conn *cp, struct ip_vs_service *svc)
+@@ -1656,6 +1661,7 @@ static void __exit nvmet_exit(void)
+ 	destroy_workqueue(nvmet_wq);
+ 	destroy_workqueue(buffered_io_wq);
+ 	destroy_workqueue(zbd_wq);
++	kmem_cache_destroy(nvmet_bvec_cache);
  
- 	s = this_cpu_ptr(cp->dest->stats.cpustats);
- 	u64_stats_update_begin(&s->syncp);
--	s->cnt.conns++;
-+	u64_stats_inc(&s->cnt.conns);
- 	u64_stats_update_end(&s->syncp);
+ 	BUILD_BUG_ON(sizeof(struct nvmf_disc_rsp_page_entry) != 1024);
+ 	BUILD_BUG_ON(sizeof(struct nvmf_disc_rsp_page_hdr) != 1024);
+diff --git a/drivers/nvme/target/io-cmd-file.c b/drivers/nvme/target/io-cmd-file.c
+index 228871d48106..eadba13b276d 100644
+--- a/drivers/nvme/target/io-cmd-file.c
++++ b/drivers/nvme/target/io-cmd-file.c
+@@ -11,7 +11,6 @@
+ #include <linux/fs.h>
+ #include "nvmet.h"
  
- 	s = this_cpu_ptr(svc->stats.cpustats);
- 	u64_stats_update_begin(&s->syncp);
--	s->cnt.conns++;
-+	u64_stats_inc(&s->cnt.conns);
- 	u64_stats_update_end(&s->syncp);
+-#define NVMET_MAX_MPOOL_BVEC		16
+ #define NVMET_MIN_MPOOL_OBJ		16
  
- 	s = this_cpu_ptr(ipvs->tot_stats.cpustats);
- 	u64_stats_update_begin(&s->syncp);
--	s->cnt.conns++;
-+	u64_stats_inc(&s->cnt.conns);
- 	u64_stats_update_end(&s->syncp);
- 
- 	local_bh_enable();
-diff --git a/net/netfilter/ipvs/ip_vs_ctl.c b/net/netfilter/ipvs/ip_vs_ctl.c
-index 5a7349002508..65bda976845d 100644
---- a/net/netfilter/ipvs/ip_vs_ctl.c
-+++ b/net/netfilter/ipvs/ip_vs_ctl.c
-@@ -2297,11 +2297,11 @@ static int ip_vs_stats_percpu_show(struct seq_file *seq, void *v)
- 
- 		do {
- 			start = u64_stats_fetch_begin(&u->syncp);
--			conns = u->cnt.conns;
--			inpkts = u->cnt.inpkts;
--			outpkts = u->cnt.outpkts;
--			inbytes = u->cnt.inbytes;
--			outbytes = u->cnt.outbytes;
-+			conns = u64_stats_read(&u->cnt.conns);
-+			inpkts = u64_stats_read(&u->cnt.inpkts);
-+			outpkts = u64_stats_read(&u->cnt.outpkts);
-+			inbytes = u64_stats_read(&u->cnt.inbytes);
-+			outbytes = u64_stats_read(&u->cnt.outbytes);
- 		} while (u64_stats_fetch_retry(&u->syncp, start));
- 
- 		seq_printf(seq, "%3X %8LX %8LX %8LX %16LX %16LX\n",
-diff --git a/net/netfilter/ipvs/ip_vs_est.c b/net/netfilter/ipvs/ip_vs_est.c
-index 9a1a7af6a186..f53150d82a92 100644
---- a/net/netfilter/ipvs/ip_vs_est.c
-+++ b/net/netfilter/ipvs/ip_vs_est.c
-@@ -67,11 +67,11 @@ static void ip_vs_read_cpu_stats(struct ip_vs_kstats *sum,
- 		if (add) {
- 			do {
- 				start = u64_stats_fetch_begin(&s->syncp);
--				conns = s->cnt.conns;
--				inpkts = s->cnt.inpkts;
--				outpkts = s->cnt.outpkts;
--				inbytes = s->cnt.inbytes;
--				outbytes = s->cnt.outbytes;
-+				conns = u64_stats_read(&s->cnt.conns);
-+				inpkts = u64_stats_read(&s->cnt.inpkts);
-+				outpkts = u64_stats_read(&s->cnt.outpkts);
-+				inbytes = u64_stats_read(&s->cnt.inbytes);
-+				outbytes = u64_stats_read(&s->cnt.outbytes);
- 			} while (u64_stats_fetch_retry(&s->syncp, start));
- 			sum->conns += conns;
- 			sum->inpkts += inpkts;
-@@ -82,11 +82,11 @@ static void ip_vs_read_cpu_stats(struct ip_vs_kstats *sum,
- 			add = true;
- 			do {
- 				start = u64_stats_fetch_begin(&s->syncp);
--				sum->conns = s->cnt.conns;
--				sum->inpkts = s->cnt.inpkts;
--				sum->outpkts = s->cnt.outpkts;
--				sum->inbytes = s->cnt.inbytes;
--				sum->outbytes = s->cnt.outbytes;
-+				sum->conns = u64_stats_read(&s->cnt.conns);
-+				sum->inpkts = u64_stats_read(&s->cnt.inpkts);
-+				sum->outpkts = u64_stats_read(&s->cnt.outpkts);
-+				sum->inbytes = u64_stats_read(&s->cnt.inbytes);
-+				sum->outbytes = u64_stats_read(&s->cnt.outbytes);
- 			} while (u64_stats_fetch_retry(&s->syncp, start));
- 		}
+ int nvmet_file_ns_revalidate(struct nvmet_ns *ns)
+@@ -33,8 +32,6 @@ void nvmet_file_ns_disable(struct nvmet_ns *ns)
+ 			flush_workqueue(buffered_io_wq);
+ 		mempool_destroy(ns->bvec_pool);
+ 		ns->bvec_pool = NULL;
+-		kmem_cache_destroy(ns->bvec_cache);
+-		ns->bvec_cache = NULL;
+ 		fput(ns->file);
+ 		ns->file = NULL;
  	}
+@@ -68,16 +65,8 @@ int nvmet_file_ns_enable(struct nvmet_ns *ns)
+ 	ns->blksize_shift = min_t(u8,
+ 			file_inode(ns->file)->i_blkbits, 12);
+ 
+-	ns->bvec_cache = kmem_cache_create("nvmet-bvec",
+-			NVMET_MAX_MPOOL_BVEC * sizeof(struct bio_vec),
+-			0, SLAB_HWCACHE_ALIGN, NULL);
+-	if (!ns->bvec_cache) {
+-		ret = -ENOMEM;
+-		goto err;
+-	}
+-
+ 	ns->bvec_pool = mempool_create(NVMET_MIN_MPOOL_OBJ, mempool_alloc_slab,
+-			mempool_free_slab, ns->bvec_cache);
++			mempool_free_slab, nvmet_bvec_cache);
+ 
+ 	if (!ns->bvec_pool) {
+ 		ret = -ENOMEM;
+@@ -86,9 +75,10 @@ int nvmet_file_ns_enable(struct nvmet_ns *ns)
+ 
+ 	return ret;
+ err:
++	fput(ns->file);
++	ns->file = NULL;
+ 	ns->size = 0;
+ 	ns->blksize_shift = 0;
+-	nvmet_file_ns_disable(ns);
+ 	return ret;
+ }
+ 
+diff --git a/drivers/nvme/target/nvmet.h b/drivers/nvme/target/nvmet.h
+index dbeb0b8c1194..fdb06a9d430d 100644
+--- a/drivers/nvme/target/nvmet.h
++++ b/drivers/nvme/target/nvmet.h
+@@ -77,7 +77,6 @@ struct nvmet_ns {
+ 
+ 	struct completion	disable_done;
+ 	mempool_t		*bvec_pool;
+-	struct kmem_cache	*bvec_cache;
+ 
+ 	int			use_p2pmem;
+ 	struct pci_dev		*p2p_dev;
+@@ -363,6 +362,8 @@ struct nvmet_req {
+ 	u64			error_slba;
+ };
+ 
++#define NVMET_MAX_MPOOL_BVEC		16
++extern struct kmem_cache *nvmet_bvec_cache;
+ extern struct workqueue_struct *buffered_io_wq;
+ extern struct workqueue_struct *zbd_wq;
+ extern struct workqueue_struct *nvmet_wq;
 -- 
 2.35.1
 
