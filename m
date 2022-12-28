@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCC8E6584F2
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:04:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1A6A65845F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235356AbiL1REM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:04:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56440 "EHLO
+        id S235257AbiL1Q5O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:57:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235357AbiL1RDq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:03:46 -0500
+        with ESMTP id S235359AbiL1Q42 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:56:28 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8993C1DDE5
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:58:07 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 173051D0E1
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:52:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2BD63B81889
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:58:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EDECC433EF;
-        Wed, 28 Dec 2022 16:58:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AC66FB8172A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:52:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BDC6C433D2;
+        Wed, 28 Dec 2022 16:51:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246684;
-        bh=e1R0atgY+TKRwEJiLJwhtP27rBDBejXz4aDMOMqGQFQ=;
+        s=korg; t=1672246320;
+        bh=Beho72zEVdcA+Q/Ms4VmRxqwz4TJRsRFyog/dttscfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N9vVHXgpPVoSOdzZu35ed/S5uVYm2BPf5uJyFoWY6gPz3R/g3J2474GdrPtlMNpUV
-         0a9JvQp+b4Yud0WrCdAbgqqEUGfcd9C3x7SRI2EXytf6v5q7JBOK6tIKoz2ZaWgVPU
-         b8ot6iRBv8vVMssHFh3nQOuHSPHgKqSvJP30772g=
+        b=jo2v4s5FKqdWQMr4fbS0JLbEwhhqYH56/hIkDyf40QL/bxJx1H8dx+ciFO5ZGi9tf
+         F9YKivqQqfvs/h0Cefo+tQkLjM2P11iBa4cSpL9polQccYPKLYqCcVZxVD1ApS60rI
+         YbZ2FLcHHQgNPjDJ3BEm2X6j29Iw5bQzsrVxRMqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>,
-        Carl Hetherington <lists@carlh.net>
-Subject: [PATCH 6.1 1098/1146] ALSA: usb-audio: Workaround for XRUN at prepare
+        patches@lists.linux.dev,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 6.0 1049/1073] iio: adc128s052: add proper .data members in adc128_of_match table
 Date:   Wed, 28 Dec 2022 15:43:57 +0100
-Message-Id: <20221228144359.992612508@linuxfoundation.org>
+Message-Id: <20221228144356.706129151@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,76 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-commit 198dde085ecc0138e4f0b0b69d18a0c870f2dea6 upstream.
+commit e2af60f5900c6ade53477b494ffb54690eee11f5 upstream.
 
-Under certain situations (typically in the implicit feedback mode),
-USB-audio driver starts a playback stream already at PCM prepare call
-even before the actual PCM trigger-START call.  For implicit feedback
-mode, this effectively starts two streams for data and sync
-endpoints, and if a coupled sync stream gets XRUN at this point, it
-results in an error -EPIPE.
+Prior to commit bd5d54e4d49d ("iio: adc128s052: add ACPI _HID
+AANT1280"), the driver unconditionally used spi_get_device_id() to get
+the index into the adc128_config array.
 
-The problem is that currently we return -EPIPE error as is from the
-prepare.  Then application tries to recover again via the prepare
-call, but it'll fail again because the sync-stop is missing.  The
-sync-stop is missing because it's an internal trigger call (hence the
-PCM core isn't involved).
+However, with that commit, OF-based boards now incorrectly treat all
+supported sensors as if they are an adc128s052, because all the .data
+members of the adc128_of_match table are implicitly 0. Our board,
+which has an adc122s021, thus exposes 8 channels whereas it really
+only has two.
 
-Since we'll need to re-issue the prepare in anyway when trapped into
-this pitfall, this patch attempts to address it in a bit different
-way; namely, the driver tries to prepare once again after syncing the
-stop manually by itself -- so applications don't see the internal
-error.  At the second failure, we report the error as is, but this
-shouldn't happen in normal situations.
-
-Reported-and-tested-by: Carl Hetherington <lists@carlh.net>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/b4e71631-4a94-613-27b2-fb595792630@carlh.net
-Link: https://lore.kernel.org/r/20221205132124.11585-4-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: bd5d54e4d49d ("iio: adc128s052: add ACPI _HID AANT1280")
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20221115132324.1078169-1-linux@rasmusvillemoes.dk
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/pcm.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/iio/adc/ti-adc128s052.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -604,6 +604,7 @@ static int snd_usb_pcm_prepare(struct sn
- 	struct snd_pcm_runtime *runtime = substream->runtime;
- 	struct snd_usb_substream *subs = runtime->private_data;
- 	struct snd_usb_audio *chip = subs->stream->chip;
-+	int retry = 0;
- 	int ret;
+--- a/drivers/iio/adc/ti-adc128s052.c
++++ b/drivers/iio/adc/ti-adc128s052.c
+@@ -181,13 +181,13 @@ static int adc128_probe(struct spi_devic
+ }
  
- 	ret = snd_usb_lock_shutdown(chip);
-@@ -614,6 +615,7 @@ static int snd_usb_pcm_prepare(struct sn
- 		goto unlock;
- 	}
- 
-+ again:
- 	if (subs->sync_endpoint) {
- 		ret = snd_usb_endpoint_prepare(chip, subs->sync_endpoint);
- 		if (ret < 0)
-@@ -638,9 +640,16 @@ static int snd_usb_pcm_prepare(struct sn
- 
- 	subs->lowlatency_playback = lowlatency_playback_available(runtime, subs);
- 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK &&
--	    !subs->lowlatency_playback)
-+	    !subs->lowlatency_playback) {
- 		ret = start_endpoints(subs);
--
-+		/* if XRUN happens at starting streams (possibly with implicit
-+		 * fb case), restart again, but only try once.
-+		 */
-+		if (ret == -EPIPE && !retry++) {
-+			sync_pending_stops(subs);
-+			goto again;
-+		}
-+	}
-  unlock:
- 	snd_usb_unlock_shutdown(chip);
- 	return ret;
+ static const struct of_device_id adc128_of_match[] = {
+-	{ .compatible = "ti,adc128s052", },
+-	{ .compatible = "ti,adc122s021", },
+-	{ .compatible = "ti,adc122s051", },
+-	{ .compatible = "ti,adc122s101", },
+-	{ .compatible = "ti,adc124s021", },
+-	{ .compatible = "ti,adc124s051", },
+-	{ .compatible = "ti,adc124s101", },
++	{ .compatible = "ti,adc128s052", .data = (void*)0L, },
++	{ .compatible = "ti,adc122s021", .data = (void*)1L, },
++	{ .compatible = "ti,adc122s051", .data = (void*)1L, },
++	{ .compatible = "ti,adc122s101", .data = (void*)1L, },
++	{ .compatible = "ti,adc124s021", .data = (void*)2L, },
++	{ .compatible = "ti,adc124s051", .data = (void*)2L, },
++	{ .compatible = "ti,adc124s101", .data = (void*)2L, },
+ 	{ /* sentinel */ },
+ };
+ MODULE_DEVICE_TABLE(of, adc128_of_match);
 
 
