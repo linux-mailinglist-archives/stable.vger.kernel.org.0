@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 175C16583A9
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:49:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EE2865833A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:45:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233619AbiL1Qts (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:49:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38352 "EHLO
+        id S235044AbiL1Qo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:44:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234401AbiL1Qt0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:49:26 -0500
+        with ESMTP id S234468AbiL1Qoe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:34 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA4811EEC9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:44:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6A9E1CB19
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:40:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5289B8188B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:44:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC795C433EF;
-        Wed, 28 Dec 2022 16:44:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 980DDB8171E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:40:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E025BC433D2;
+        Wed, 28 Dec 2022 16:40:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245885;
-        bh=cbQ8SyZFREV8vFF9bRS676PytjnbqBvZbE1b8YYjSf8=;
+        s=korg; t=1672245612;
+        bh=oK4XDHowo8pk+fzEGgRwIFdrMEojl+jVI5Mt9gJlPyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qMPYqgLGDc0BvhdgAwXlQA5ZBs1yY4pGsx+T4J3ubUvoMGN1llcmgYztS/GpRUSPQ
-         r8lTdGy49hDo24IZmUGuQZJfaFILkHRRHDG8o5zXst3qCAd9wcldnVPmEoGHyGT+yp
-         6C2hiXB1BToiY4ZSW41D2K+bTQLJH2l2pYRhdCNw=
+        b=2uwUMVBf+O7egng9opFVuIG7ITetoME7KJdkuU08bMy3IIjjqIAHQxO45Uo5B9ajE
+         1QxCHlcWaxZhkWvf+yqf66Vz8DfQiitIrVghbwrY7ZT5qHr+73Uj32lfiPrisKICkD
+         bK0OGMKGGr7RkaBwaoIbp//EZOwHBTDuAkfUhwtk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Gaurav Kohli <gauravkohli@linux.microsoft.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0941/1146] x86/hyperv: Remove unregister syscore call from Hyper-V cleanup
+        syzbot+15342c1aa6a00fb7a438@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0892/1073] fs: jfs: fix shift-out-of-bounds in dbAllocAG
 Date:   Wed, 28 Dec 2022 15:41:20 +0100
-Message-Id: <20221228144355.872945429@linuxfoundation.org>
+Message-Id: <20221228144352.259095516@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaurav Kohli <gauravkohli@linux.microsoft.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 32c97d980e2eef25465d453f2956a9ca68926a3c ]
+[ Upstream commit 898f706695682b9954f280d95e49fa86ffa55d08 ]
 
-Hyper-V cleanup code comes under panic path where preemption and irq
-is already disabled. So calling of unregister_syscore_ops might schedule
-out the thread even for the case where mutex lock is free.
-hyperv_cleanup
-	unregister_syscore_ops
-			mutex_lock(&syscore_ops_lock)
-				might_sleep
-Here might_sleep might schedule out this thread, where voluntary preemption
-config is on and this thread will never comes back. And also this was added
-earlier to maintain the symmetry which is not required as this can comes
-during crash shutdown path only.
+Syzbot found a crash : UBSAN: shift-out-of-bounds in dbAllocAG. The
+underlying bug is the missing check of bmp->db_agl2size. The field can
+be greater than 64 and trigger the shift-out-of-bounds.
 
-To prevent the same, removing unregister_syscore_ops function call.
+Fix this bug by adding a check of bmp->db_agl2size in dbMount since this
+field is used in many following functions. The upper bound for this
+field is L2MAXL2SIZE - L2MAXAG, thanks for the help of Dave Kleikamp.
+Note that, for maintenance, I reorganized error handling code of dbMount.
 
-Signed-off-by: Gaurav Kohli <gauravkohli@linux.microsoft.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/1669443291-2575-1-git-send-email-gauravkohli@linux.microsoft.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Reported-by: syzbot+15342c1aa6a00fb7a438@syzkaller.appspotmail.com
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/hyperv/hv_init.c | 2 --
- 1 file changed, 2 deletions(-)
+ fs/jfs/jfs_dmap.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
-index a269049a43ce..85863b9c9e68 100644
---- a/arch/x86/hyperv/hv_init.c
-+++ b/arch/x86/hyperv/hv_init.c
-@@ -535,8 +535,6 @@ void hyperv_cleanup(void)
- 	union hv_x64_msr_hypercall_contents hypercall_msr;
- 	union hv_reference_tsc_msr tsc_msr;
+diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
+index 6b838d3ae7c2..e1cbfbb60303 100644
+--- a/fs/jfs/jfs_dmap.c
++++ b/fs/jfs/jfs_dmap.c
+@@ -155,7 +155,7 @@ int dbMount(struct inode *ipbmap)
+ 	struct bmap *bmp;
+ 	struct dbmap_disk *dbmp_le;
+ 	struct metapage *mp;
+-	int i;
++	int i, err;
  
--	unregister_syscore_ops(&hv_syscore_ops);
--
- 	/* Reset our OS id */
- 	wrmsrl(HV_X64_MSR_GUEST_OS_ID, 0);
- 	hv_ghcb_msr_write(HV_X64_MSR_GUEST_OS_ID, 0);
+ 	/*
+ 	 * allocate/initialize the in-memory bmap descriptor
+@@ -170,8 +170,8 @@ int dbMount(struct inode *ipbmap)
+ 			   BMAPBLKNO << JFS_SBI(ipbmap->i_sb)->l2nbperpage,
+ 			   PSIZE, 0);
+ 	if (mp == NULL) {
+-		kfree(bmp);
+-		return -EIO;
++		err = -EIO;
++		goto err_kfree_bmp;
+ 	}
+ 
+ 	/* copy the on-disk bmap descriptor to its in-memory version. */
+@@ -181,9 +181,8 @@ int dbMount(struct inode *ipbmap)
+ 	bmp->db_l2nbperpage = le32_to_cpu(dbmp_le->dn_l2nbperpage);
+ 	bmp->db_numag = le32_to_cpu(dbmp_le->dn_numag);
+ 	if (!bmp->db_numag) {
+-		release_metapage(mp);
+-		kfree(bmp);
+-		return -EINVAL;
++		err = -EINVAL;
++		goto err_release_metapage;
+ 	}
+ 
+ 	bmp->db_maxlevel = le32_to_cpu(dbmp_le->dn_maxlevel);
+@@ -194,6 +193,11 @@ int dbMount(struct inode *ipbmap)
+ 	bmp->db_agwidth = le32_to_cpu(dbmp_le->dn_agwidth);
+ 	bmp->db_agstart = le32_to_cpu(dbmp_le->dn_agstart);
+ 	bmp->db_agl2size = le32_to_cpu(dbmp_le->dn_agl2size);
++	if (bmp->db_agl2size > L2MAXL2SIZE - L2MAXAG) {
++		err = -EINVAL;
++		goto err_release_metapage;
++	}
++
+ 	for (i = 0; i < MAXAG; i++)
+ 		bmp->db_agfree[i] = le64_to_cpu(dbmp_le->dn_agfree[i]);
+ 	bmp->db_agsize = le64_to_cpu(dbmp_le->dn_agsize);
+@@ -214,6 +218,12 @@ int dbMount(struct inode *ipbmap)
+ 	BMAP_LOCK_INIT(bmp);
+ 
+ 	return (0);
++
++err_release_metapage:
++	release_metapage(mp);
++err_kfree_bmp:
++	kfree(bmp);
++	return err;
+ }
+ 
+ 
 -- 
 2.35.1
 
