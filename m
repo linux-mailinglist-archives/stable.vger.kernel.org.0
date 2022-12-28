@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCC1B657AD7
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:15:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 506E26580D5
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:21:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232983AbiL1PPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:15:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60036 "EHLO
+        id S233298AbiL1QV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:21:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233042AbiL1PPa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:15:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E79A513F05
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:15:28 -0800 (PST)
+        with ESMTP id S234550AbiL1QUy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:20:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5A2D1838F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:18:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A393B81647
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:15:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1099DC433D2;
-        Wed, 28 Dec 2022 15:15:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4FCB661568
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:18:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62842C433EF;
+        Wed, 28 Dec 2022 16:18:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240526;
-        bh=YWXyEml4yqDY5LK05CcTctoFxzyp7bkqjDqjGEZa82E=;
+        s=korg; t=1672244321;
+        bh=ggYCZCSu+o++irCI2zbzpAGM7+IKkejY1SenxfhOwMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MrUzqyk+wh7QMQTI5E5+QW0W8w42ArmBIKVv2k9KSoNgdG60nksy9U3B7tf4uvC+1
-         ShGNx1HwPoEHp0oirS44o/luW74L1iTC1FI4Hz8x7DgrQPAmkib7LKdL1+arQIGSic
-         D+2SDTq8mjPeWxTsg9zVNbG2iBt2aW18WuDVcLok=
+        b=yUD2Jqt/pHBKpLMsfTJBAzsXRjHDsHQuHv2l4su5cqVx0XADftWrSH56BmNXe1s2/
+         LaaCZfj1R+111XlXGntrqL3cgMiraV3F8biGPvf4HvPuBCc5vI/pvS/aIkpUDX0IqO
+         qhdBN2eC+XzFbUoGq2gFyx4qucIJjWiuDCb+/ApY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Natalia Petrova <n.petrova@fintech.ru>,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        patches@lists.linux.dev, Marek Vasut <marex@denx.de>,
+        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 363/731] crypto: nitrox - avoid double free on error path in nitrox_sriov_init()
+Subject: [PATCH 6.0 0682/1073] extcon: usbc-tusb320: Update state on probe even if no IRQ pending
 Date:   Wed, 28 Dec 2022 15:37:50 +0100
-Message-Id: <20221228144307.082713718@linuxfoundation.org>
+Message-Id: <20221228144346.560978139@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +54,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Natalia Petrova <n.petrova@fintech.ru>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 094528b6a5a755b1195a01e10b13597d67d1a0e6 ]
+[ Upstream commit 581c848b610dbf3fe1ed4d85fd53d0743c61faba ]
 
-If alloc_workqueue() fails in nitrox_mbox_init() it deallocates
-ndev->iov.vfdev and returns error code, but then nitrox_sriov_init()
-calls nitrox_sriov_cleanup() where ndev->iov.vfdev is deallocated
-again.
+Currently this driver triggers extcon and typec state update in its
+probe function, to read out current state reported by the chip and
+report the correct state to upper layers. This synchronization is
+performed correctly, but only in case the chip indicates a pending
+interrupt in reg09 register.
 
-Fix this by nulling ndev->iov.vfdev after the first deallocation.
+This fails to cover the situation where all interrupts reported by
+the chip were already handled by Linux before reboot, then the system
+rebooted, and then Linux starts again. In this case, the TUSB320 no
+longer reports any interrupts in reg09, and the state update does not
+perform any update as it depends on that interrupt indication.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+Fix this by turning tusb320_irq_handler() into a thin wrapper around
+tusb320_state_update_handler(), where the later now contains the bulk
+of the code of tusb320_irq_handler(), but adds new function parameter
+"force_update". The "force_update" parameter can be used by the probe
+function to assure that the state synchronization is always performed,
+independent of the interrupt indicated in reg09. The interrupt handler
+tusb320_irq_handler() callback uses force_update=false to avoid state
+updates on potential spurious interrupts and retain current behavior.
 
-Fixes: 9e5de3e06e54 ("crypto: cavium/nitrox - Add mailbox...")
-Signed-off-by: Natalia Petrova <n.petrova@fintech.ru>
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 06bc4ca115cdd ("extcon: Add driver for TI TUSB320")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Reviewed-by: Alvin Šipraga <alsi@bang-olufsen.dk>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20221120141509.81012-1-marex@denx.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/cavium/nitrox/nitrox_mbx.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/extcon/extcon-usbc-tusb320.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/crypto/cavium/nitrox/nitrox_mbx.c b/drivers/crypto/cavium/nitrox/nitrox_mbx.c
-index 2e9c0d214363..199fcec9b8d0 100644
---- a/drivers/crypto/cavium/nitrox/nitrox_mbx.c
-+++ b/drivers/crypto/cavium/nitrox/nitrox_mbx.c
-@@ -191,6 +191,7 @@ int nitrox_mbox_init(struct nitrox_device *ndev)
- 	ndev->iov.pf2vf_wq = alloc_workqueue("nitrox_pf2vf", 0, 0);
- 	if (!ndev->iov.pf2vf_wq) {
- 		kfree(ndev->iov.vfdev);
-+		ndev->iov.vfdev = NULL;
- 		return -ENOMEM;
+diff --git a/drivers/extcon/extcon-usbc-tusb320.c b/drivers/extcon/extcon-usbc-tusb320.c
+index edb8c3f997c9..b0f6e16ab0a9 100644
+--- a/drivers/extcon/extcon-usbc-tusb320.c
++++ b/drivers/extcon/extcon-usbc-tusb320.c
+@@ -313,9 +313,9 @@ static void tusb320_typec_irq_handler(struct tusb320_priv *priv, u8 reg9)
+ 		typec_set_pwr_opmode(port, TYPEC_PWR_MODE_USB);
+ }
+ 
+-static irqreturn_t tusb320_irq_handler(int irq, void *dev_id)
++static irqreturn_t tusb320_state_update_handler(struct tusb320_priv *priv,
++						bool force_update)
+ {
+-	struct tusb320_priv *priv = dev_id;
+ 	unsigned int reg;
+ 
+ 	if (regmap_read(priv->regmap, TUSB320_REG9, &reg)) {
+@@ -323,7 +323,7 @@ static irqreturn_t tusb320_irq_handler(int irq, void *dev_id)
+ 		return IRQ_NONE;
  	}
- 	/* enable pf2vf mailbox interrupts */
+ 
+-	if (!(reg & TUSB320_REG9_INTERRUPT_STATUS))
++	if (!force_update && !(reg & TUSB320_REG9_INTERRUPT_STATUS))
+ 		return IRQ_NONE;
+ 
+ 	tusb320_extcon_irq_handler(priv, reg);
+@@ -334,6 +334,13 @@ static irqreturn_t tusb320_irq_handler(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
++static irqreturn_t tusb320_irq_handler(int irq, void *dev_id)
++{
++	struct tusb320_priv *priv = dev_id;
++
++	return tusb320_state_update_handler(priv, false);
++}
++
+ static const struct regmap_config tusb320_regmap_config = {
+ 	.reg_bits = 8,
+ 	.val_bits = 8,
+@@ -460,7 +467,7 @@ static int tusb320_probe(struct i2c_client *client,
+ 		return ret;
+ 
+ 	/* update initial state */
+-	tusb320_irq_handler(client->irq, priv);
++	tusb320_state_update_handler(priv, true);
+ 
+ 	/* Reset chip to its default state */
+ 	ret = tusb320_reset(priv);
+@@ -471,7 +478,7 @@ static int tusb320_probe(struct i2c_client *client,
+ 		 * State and polarity might change after a reset, so update
+ 		 * them again and make sure the interrupt status bit is cleared.
+ 		 */
+-		tusb320_irq_handler(client->irq, priv);
++		tusb320_state_update_handler(priv, true);
+ 
+ 	ret = devm_request_threaded_irq(priv->dev, client->irq, NULL,
+ 					tusb320_irq_handler,
 -- 
 2.35.1
 
