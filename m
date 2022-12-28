@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB1FC65799E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:03:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6959E657FF4
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:12:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233450AbiL1PDM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:03:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50786 "EHLO
+        id S234366AbiL1QM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:12:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233466AbiL1PDA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:03:00 -0500
+        with ESMTP id S234525AbiL1QLp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:11:45 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C28F712D3C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:02:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EA351A227
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:09:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E7B961540
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:02:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 752F2C433EF;
-        Wed, 28 Dec 2022 15:02:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FE0360D41
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:09:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21B30C433D2;
+        Wed, 28 Dec 2022 16:09:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239777;
-        bh=PKck37gJHVxIdHbiJ16u4EeMeh839mOU25rw5kbdLl4=;
+        s=korg; t=1672243787;
+        bh=Jjc9H8ByxV5FEEeucXxpjQhNtP17Ff7Lp2ToEYiH7mE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jWCijak6iENV8iqij/KMx8MhVmr1OqPYPD1kJkIkZMlMFtn13CoWBiqfLkI6zjdOE
-         +4Q80KBeApBw3bCwT+vpU9omcX8O4UoYsOOEyL5SkNf2u8XU3bL1iO80QiDPIkyzsS
-         eurlJOE9MnQXIdUpZIzSnmEkRMJD1yspe/Y/Fdh8=
+        b=b0J03gbc21X3m6YX5Gtk0YRdcz9GLF6G7SbE+Bsh+U93vzIX38Jjd6Stt4pX2CtUX
+         M780WlUAeMk7JQ11Hq+VrBGUkr9ZPa/xFAba3NALQBFuwqUFayyEsXQ3Od4CM6E4a1
+         xPdlpBfS9d0OgSYP2X6kz8j4b2kJuEFWSCC1HXVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 269/731] wifi: mt76: mt7921: fix reporting of TX AGGR histogram
+        patches@lists.linux.dev,
+        Nirmal Patel <nirmal.patel@linux.intel.com>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        Francisco Munoz <francisco.munoz.ruiz@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0588/1073] PCI: vmd: Disable MSI remapping after suspend
 Date:   Wed, 28 Dec 2022 15:36:16 +0100
-Message-Id: <20221228144304.364312503@linuxfoundation.org>
+Message-Id: <20221228144344.018276579@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Nirmal Patel <nirmal.patel@linux.intel.com>
 
-[ Upstream commit 028b4f22b37b88821fd87b56ce47b180583c774e ]
+[ Upstream commit d899aa668498c07ff217b666ae9712990306e682 ]
 
-Similar to mt7915, fix stats clash between bins [4-7] in 802.11 tx
-aggregation histogram.
+MSI remapping is disabled by VMD driver for Intel's Icelake and
+newer systems in order to improve performance by setting
+VMCONFIG_MSI_REMAP. By design VMCONFIG_MSI_REMAP register is cleared
+by firmware during boot. The same register gets cleared when system
+is put in S3 power state. VMD driver needs to set this register again
+in order to avoid interrupt issues with devices behind VMD if MSI
+remapping was disabled before.
 
-Fixes: 163f4d22c118d ("mt76: mt7921: add MAC support")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20221109142652.450998-1-nirmal.patel@linux.intel.com
+Fixes: ee81ee84f873 ("PCI: vmd: Disable MSI-X remapping when possible")
+Signed-off-by: Nirmal Patel <nirmal.patel@linux.intel.com>
+Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Reviewed-by: Francisco Munoz <francisco.munoz.ruiz@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/mac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/vmd.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-index 426e7a32bdc8..6cf0c9b1b8b9 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-@@ -1476,7 +1476,7 @@ mt7921_mac_update_mib_stats(struct mt7921_phy *phy)
- 	mib->rts_retries_cnt += mt76_get_field(dev, MT_MIB_MB_BSDR1(0),
- 					       MT_MIB_RTS_FAIL_COUNT_MASK);
+diff --git a/drivers/pci/controller/vmd.c b/drivers/pci/controller/vmd.c
+index e06e9f4fc50f..98e0746e681c 100644
+--- a/drivers/pci/controller/vmd.c
++++ b/drivers/pci/controller/vmd.c
+@@ -980,6 +980,11 @@ static int vmd_resume(struct device *dev)
+ 	struct vmd_dev *vmd = pci_get_drvdata(pdev);
+ 	int err, i;
  
--	for (i = 0, aggr1 = aggr0 + 4; i < 4; i++) {
-+	for (i = 0, aggr1 = aggr0 + 8; i < 4; i++) {
- 		u32 val, val2;
- 
- 		val = mt76_rr(dev, MT_TX_AGG_CNT(0, i));
++       if (vmd->irq_domain)
++               vmd_set_msi_remapping(vmd, true);
++       else
++               vmd_set_msi_remapping(vmd, false);
++
+ 	for (i = 0; i < vmd->msix_count; i++) {
+ 		err = devm_request_irq(dev, vmd->irqs[i].virq,
+ 				       vmd_irq, IRQF_NO_THREAD,
 -- 
 2.35.1
 
