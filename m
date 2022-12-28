@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA3CA6578B8
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:53:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B747657F82
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:05:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233134AbiL1Oxh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:53:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41152 "EHLO
+        id S234333AbiL1QFk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:05:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233158AbiL1Ox0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:53:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE96A10064
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:53:25 -0800 (PST)
+        with ESMTP id S234243AbiL1QFi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:05:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05F69193D4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:05:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75A5DB8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:53:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCD68C433D2;
-        Wed, 28 Dec 2022 14:53:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9198F60D41
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:05:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A78ECC433D2;
+        Wed, 28 Dec 2022 16:05:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239203;
-        bh=ODsTsYmcglnQCN6gjPfBgID3WIYJsMRdwFXk/NMbGIA=;
+        s=korg; t=1672243536;
+        bh=W9wUOoN8RjUY0goWAA4qXdYTiG1MYt93A2fnmLO/5aI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EcJwDngBabtXeyx1vUNZZj/CUtCjqWAIkE83al0SeGbsnU9ue/ZQ3Cw6wXVrpecWG
-         /tp0lZ/5aumKJYocL2Om1gp73NbDOUFGP+zCqsLfXjlpJwKQiJh4GXhaTlLjAZO0Of
-         VvNuCQyiW/NAJd1hgrVJv45ALtmD/SNBTOhTjVik=
+        b=wEC+aICCZGZd0x6wtrBoM5OlmwGabQMt2c4TI3ZVmrGXKH4KyIsr/qo4tqz/a37za
+         6NhPU6SM+h+hlTm3wChOrfcCUktw1gv8xMxoK8bIej4d6S+DLdD0PPdSK+hsK1RdD2
+         PUXjn0XRHQpBIxHWGruFA/WGT4CpaLSnElZFWRP4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, James Hurley <jahurley@nvidia.com>,
-        David Thompson <davthompson@nvidia.com>,
-        Shravan Kumar Ramani <shravankr@nvidia.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 140/731] platform/mellanox: mlxbf-pmc: Fix event typo
+Subject: [PATCH 6.1 0508/1146] mmc: via-sdmmc: fix return value check of mmc_add_host()
 Date:   Wed, 28 Dec 2022 15:34:07 +0100
-Message-Id: <20221228144300.607345401@linuxfoundation.org>
+Message-Id: <20221228144343.973882410@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Hurley <jahurley@nvidia.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit b0b698b80c56b0712f0d4346d51bf0363ba03068 ]
+[ Upstream commit e4e46fb61e3bb4628170810d3f2b996b709b90d9 ]
 
-Had a duplicate event typo, so just fixed the 1 character typo.
+mmc_add_host() may return error, if we ignore its return value,
+it will lead two issues:
+1. The memory that allocated in mmc_alloc_host() is leaked.
+2. In the remove() path, mmc_remove_host() will be called to
+   delete device, but it's not added yet, it will lead a kernel
+   crash because of null-ptr-deref in device_del().
 
-Fixes: 1a218d312e65 ("platform/mellanox: mlxbf-pmc: Add Mellanox BlueField PMC driver")
-Signed-off-by: James Hurley <jahurley@nvidia.com>
-Reviewed-by: David Thompson <davthompson@nvidia.com>
-Reviewed-by: Shravan Kumar Ramani <shravankr@nvidia.com>
-Link: https://lore.kernel.org/r/aadacdbbd3186c55e74ea9456fe011b77938eb6c.1670535330.git.jahurley@nvidia.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fix this by checking the return value and goto error path which
+will call mmc_free_host().
+
+Fixes: f0bf7f61b840 ("mmc: Add new via-sdmmc host controller driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221108130949.1067699-1-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/mellanox/mlxbf-pmc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/host/via-sdmmc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/mellanox/mlxbf-pmc.c b/drivers/platform/mellanox/mlxbf-pmc.c
-index 65b4a819f1bd..c2c9b0d3244c 100644
---- a/drivers/platform/mellanox/mlxbf-pmc.c
-+++ b/drivers/platform/mellanox/mlxbf-pmc.c
-@@ -358,7 +358,7 @@ static const struct mlxbf_pmc_events mlxbf_pmc_hnfnet_events[] = {
- 	{ 0x32, "DDN_DIAG_W_INGRESS" },
- 	{ 0x33, "DDN_DIAG_C_INGRESS" },
- 	{ 0x34, "DDN_DIAG_CORE_SENT" },
--	{ 0x35, "NDN_DIAG_S_OUT_OF_CRED" },
-+	{ 0x35, "NDN_DIAG_N_OUT_OF_CRED" },
- 	{ 0x36, "NDN_DIAG_S_OUT_OF_CRED" },
- 	{ 0x37, "NDN_DIAG_E_OUT_OF_CRED" },
- 	{ 0x38, "NDN_DIAG_W_OUT_OF_CRED" },
+diff --git a/drivers/mmc/host/via-sdmmc.c b/drivers/mmc/host/via-sdmmc.c
+index 88662a90ed96..a2b0d9461665 100644
+--- a/drivers/mmc/host/via-sdmmc.c
++++ b/drivers/mmc/host/via-sdmmc.c
+@@ -1151,7 +1151,9 @@ static int via_sd_probe(struct pci_dev *pcidev,
+ 	    pcidev->subsystem_device == 0x3891)
+ 		sdhost->quirks = VIA_CRDR_QUIRK_300MS_PWRDELAY;
+ 
+-	mmc_add_host(mmc);
++	ret = mmc_add_host(mmc);
++	if (ret)
++		goto unmap;
+ 
+ 	return 0;
+ 
 -- 
 2.35.1
 
