@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA270657D53
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:42:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47B85657831
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233571AbiL1Pm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:42:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58002 "EHLO
+        id S232723AbiL1OsV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:48:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233965AbiL1PmE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:42:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07ABC1705B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:41:55 -0800 (PST)
+        with ESMTP id S232755AbiL1OsB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:48:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 042A311A18
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:48:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97C116155E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:41:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF7DDC433D2;
-        Wed, 28 Dec 2022 15:41:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 93C1C6153B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:48:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A543DC433EF;
+        Wed, 28 Dec 2022 14:47:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242114;
-        bh=q4sc++3K2GfvUAKwubTjvcqFLgZ2ewrtLeGPqSmaAzM=;
+        s=korg; t=1672238880;
+        bh=J2w4g/h/SHAQuuGTSvuU4kdSSXd9PpQSs1klVE/yScg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yvjnua6MfBaRLzXsDUO1XJuT9E/qQ2NFZ+B5Hx829S8xT4jBfu2a94n9nuZoqob2B
-         4ywjksizxZtrNmRPU5+Y/uAPYhIYkAY8x6CaUuvIzp8tlWlagefXghQ6vfZ47wbcd3
-         NIv4RrDBK2Ty4zekav/AwVkJf3bMrhV4wMF/9zMk=
+        b=f/Qlr/K6vG0HFQHk+qSrCeb0ACDwVuia+or/tJzyk3PWmPU7iBUBbzxSyqqmyqe30
+         hjfeBbEJzl8UPkmMIIWkCysxLJf8lG11mbHVXhf/GzPYVCHI7113h3qTQYhHj2GKsB
+         tsLFp8L/IkQuSr7RDKSwrphMPHkqwKaOv9u9ERCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0362/1073] ASoC: Intel: avs: Lock substream before snd_pcm_stop()
-Date:   Wed, 28 Dec 2022 15:32:30 +0100
-Message-Id: <20221228144337.834349728@linuxfoundation.org>
+Subject: [PATCH 5.15 044/731] arm64: dts: mediatek: pumpkin-common: Fix devicetree warnings
+Date:   Wed, 28 Dec 2022 15:32:31 +0100
+Message-Id: <20221228144257.832094203@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cezary Rojewski <cezary.rojewski@intel.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit c30c8f9d51ec24b36e2c65a6307a5c8cbc5a0ebc ]
+[ Upstream commit 509438336ce75c8b4e6ce8e8d507dc77d0783bdd ]
 
-snd_pcm_stop() shall be called with stream lock held to prevent any
-races between nonatomic streaming operations.
+Fix the pinctrl submodes and optee node to remove unneeded unit address,
+fixing all unit_address_vs_reg warnings.
 
-Fixes: 2f1f570cd730 ("ASoC: Intel: avs: Coredump and recovery flow")
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Link: https://lore.kernel.org/r/20221116115550.1100398-2-cezary.rojewski@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 9983822c8cf9 ("arm64: dts: mediatek: add pumpkin board dts")
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221013152212.416661-8-angelogioacchino.delregno@collabora.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/avs/ipc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/intel/avs/ipc.c b/sound/soc/intel/avs/ipc.c
-index 77da206f7dbb..306f0dc4eaf5 100644
---- a/sound/soc/intel/avs/ipc.c
-+++ b/sound/soc/intel/avs/ipc.c
-@@ -123,7 +123,10 @@ static void avs_dsp_recovery(struct avs_dev *adev)
- 				if (!substream || !substream->runtime)
- 					continue;
+diff --git a/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi b/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
+index fcddec14738d..54514d62398f 100644
+--- a/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
++++ b/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
+@@ -17,7 +17,7 @@ chosen {
+ 	};
  
-+				/* No need for _irq() as we are in nonatomic context. */
-+				snd_pcm_stream_lock(substream);
- 				snd_pcm_stop(substream, SNDRV_PCM_STATE_DISCONNECTED);
-+				snd_pcm_stream_unlock(substream);
- 			}
- 		}
- 	}
+ 	firmware {
+-		optee: optee@4fd00000 {
++		optee: optee {
+ 			compatible = "linaro,optee-tz";
+ 			method = "smc";
+ 		};
+@@ -210,7 +210,7 @@ pins_cmd_dat {
+ 		};
+ 	};
+ 
+-	i2c0_pins_a: i2c0@0 {
++	i2c0_pins_a: i2c0 {
+ 		pins1 {
+ 			pinmux = <MT8516_PIN_58_SDA0__FUNC_SDA0_0>,
+ 				 <MT8516_PIN_59_SCL0__FUNC_SCL0_0>;
+@@ -218,7 +218,7 @@ pins1 {
+ 		};
+ 	};
+ 
+-	i2c2_pins_a: i2c2@0 {
++	i2c2_pins_a: i2c2 {
+ 		pins1 {
+ 			pinmux = <MT8516_PIN_60_SDA2__FUNC_SDA2_0>,
+ 				 <MT8516_PIN_61_SCL2__FUNC_SCL2_0>;
 -- 
 2.35.1
 
