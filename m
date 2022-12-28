@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2C666576D6
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 14:12:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CC4D6576D7
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 14:12:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232081AbiL1NMB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 08:12:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36690 "EHLO
+        id S229603AbiL1NMO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 08:12:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232653AbiL1NLt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 08:11:49 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8989911838
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 05:11:47 -0800 (PST)
+        with ESMTP id S230225AbiL1NMN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 08:12:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9093D11811
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 05:12:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BBCF8CE12E3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 13:11:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D238C433EF;
-        Wed, 28 Dec 2022 13:11:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FDBC61338
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 13:12:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 225D7C433D2;
+        Wed, 28 Dec 2022 13:12:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672233103;
-        bh=8vuFPe8exqfGSL5Zn+2FOHbriws4cgM7qprtftQykXg=;
+        s=korg; t=1672233131;
+        bh=SVyYvM4vXu+qhuQCRdK3+JvAYbMjj4dpjJd7W+vjyQA=;
         h=Subject:To:Cc:From:Date:From;
-        b=xa8aiA2FFX2efU1IZZ2ChYdaCiHSseL2KVF0QmH5EpeQug7J2pGNUgfzhbI3UDwvw
-         P/LP77XxMLKH/YX9qwX9fJY3UaB35Kmcf0fnoQXVmYFTRFYT9Z8JMaSoxp+bCSGPaI
-         uOZzkWJL/lzRMXdKT8yHhPcB9I0fIiqMzMBHqstE=
-Subject: FAILED: patch "[PATCH] io_uring: pass in EPOLL_URING_WAKE for eventfd signaling and" failed to apply to 6.0-stable tree
-To:     axboe@kernel.dk
+        b=eSlE6aDqEbV630w6srw5gIcm69ZG9VSWHSPhgiomuYv9mQv4AI4Mw0mX2AFPvTJwq
+         MsjqdL0Kk3PLuaFvR1TVM/hjWDlSny61R5ECEzykB88oZdBvyl4h+aMdCfe421dNd0
+         9iWsuudv78vts3+y54TvDTbi1lPRm7gMBk5DkLSQ=
+Subject: FAILED: patch "[PATCH] io_uring: dont remove file from msg_ring reqs" failed to apply to 6.0-stable tree
+To:     asml.silence@gmail.com, axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 28 Dec 2022 14:11:40 +0100
-Message-ID: <16722331001489@kroah.com>
+Date:   Wed, 28 Dec 2022 14:12:07 +0100
+Message-ID: <16722331272159@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -54,12 +54,8 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-4464853277d0 ("io_uring: pass in EPOLL_URING_WAKE for eventfd signaling and wakeups")
-fc86f9d3bb49 ("io_uring: remove redundant memory barrier in io_req_local_work_add")
-21a091b970cd ("io_uring: signal registered eventfd to process deferred task work")
-d8e9214f119d ("io_uring: move io_eventfd_put")
-c0e0d6ba25f1 ("io_uring: add IORING_SETUP_DEFER_TASKRUN")
-b4c98d59a787 ("io_uring: introduce io_has_work")
+ef0ec1ad0311 ("io_uring: dont remove file from msg_ring reqs")
+5756a3a7e713 ("io_uring: add iopoll infrastructure for io_uring_cmd")
 
 thanks,
 
@@ -67,97 +63,119 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4464853277d0ccdb9914608dd1332f0fa2f9846f Mon Sep 17 00:00:00 2001
-From: Jens Axboe <axboe@kernel.dk>
-Date: Sun, 20 Nov 2022 10:18:45 -0700
-Subject: [PATCH] io_uring: pass in EPOLL_URING_WAKE for eventfd signaling and
- wakeups
+From ef0ec1ad03119b8b46b035dad42bca7d6da7c2e5 Mon Sep 17 00:00:00 2001
+From: Pavel Begunkov <asml.silence@gmail.com>
+Date: Wed, 7 Dec 2022 03:53:26 +0000
+Subject: [PATCH] io_uring: dont remove file from msg_ring reqs
 
-Pass in EPOLL_URING_WAKE when signaling eventfd or doing poll related
-wakups, so that we can check for a circular event dependency between
-eventfd and epoll. If this flag is set when our wakeup handlers are
-called, then we know we have a dependency that needs to terminate
-multishot requests.
+We should not be messing with req->file outside of core paths. Clearing
+it makes msg_ring non reentrant, i.e. luckily io_msg_send_fd() fails the
+request on failed io_double_lock_ctx() but clearly was originally
+intended to do retries instead.
 
-eventfd and epoll are the only such possible dependencies.
-
-Cc: stable@vger.kernel.org # 6.0
+Cc: stable@vger.kernel.org
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/e5ac9edadb574fe33f6d727cb8f14ce68262a684.1670384893.git.asml.silence@gmail.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
 diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
-index 1299f9c8567a..762ecab801f2 100644
+index c30765579a8e..5fa92170c373 100644
 --- a/io_uring/io_uring.c
 +++ b/io_uring/io_uring.c
-@@ -495,7 +495,7 @@ static void io_eventfd_ops(struct rcu_head *rcu)
- 	int ops = atomic_xchg(&ev_fd->ops, 0);
+@@ -1799,7 +1799,7 @@ static int io_issue_sqe(struct io_kiocb *req, unsigned int issue_flags)
+ 		return ret;
  
- 	if (ops & BIT(IO_EVENTFD_OP_SIGNAL_BIT))
--		eventfd_signal(ev_fd->cq_ev_fd, 1);
-+		eventfd_signal_mask(ev_fd->cq_ev_fd, 1, EPOLL_URING_WAKE);
+ 	/* If the op doesn't have a file, we're not polling for it */
+-	if ((req->ctx->flags & IORING_SETUP_IOPOLL) && req->file)
++	if ((req->ctx->flags & IORING_SETUP_IOPOLL) && def->iopoll_queue)
+ 		io_iopoll_req_issued(req, issue_flags);
  
- 	/* IO_EVENTFD_OP_FREE_BIT may not be set here depending on callback
- 	 * ordering in a race but if references are 0 we know we have to free
-@@ -531,7 +531,7 @@ static void io_eventfd_signal(struct io_ring_ctx *ctx)
- 		goto out;
- 
- 	if (likely(eventfd_signal_allowed())) {
--		eventfd_signal(ev_fd->cq_ev_fd, 1);
-+		eventfd_signal_mask(ev_fd->cq_ev_fd, 1, EPOLL_URING_WAKE);
- 	} else {
- 		atomic_inc(&ev_fd->refs);
- 		if (!atomic_fetch_or(BIT(IO_EVENTFD_OP_SIGNAL_BIT), &ev_fd->ops))
-diff --git a/io_uring/io_uring.h b/io_uring/io_uring.h
-index 69fbd27c7577..83013ee584d6 100644
---- a/io_uring/io_uring.h
-+++ b/io_uring/io_uring.h
-@@ -4,6 +4,7 @@
- #include <linux/errno.h>
- #include <linux/lockdep.h>
- #include <linux/io_uring_types.h>
-+#include <uapi/linux/eventpoll.h>
- #include "io-wq.h"
- #include "slist.h"
- #include "filetable.h"
-@@ -211,12 +212,18 @@ static inline void io_commit_cqring(struct io_ring_ctx *ctx)
- static inline void __io_cqring_wake(struct io_ring_ctx *ctx)
- {
- 	/*
--	 * wake_up_all() may seem excessive, but io_wake_function() and
--	 * io_should_wake() handle the termination of the loop and only
--	 * wake as many waiters as we need to.
-+	 * Trigger waitqueue handler on all waiters on our waitqueue. This
-+	 * won't necessarily wake up all the tasks, io_should_wake() will make
-+	 * that decision.
-+	 *
-+	 * Pass in EPOLLIN|EPOLL_URING_WAKE as the poll wakeup key. The latter
-+	 * set in the mask so that if we recurse back into our own poll
-+	 * waitqueue handlers, we know we have a dependency between eventfd or
-+	 * epoll and should terminate multishot poll at that point.
- 	 */
- 	if (waitqueue_active(&ctx->cq_wait))
--		wake_up_all(&ctx->cq_wait);
-+		__wake_up(&ctx->cq_wait, TASK_NORMAL, 0,
-+				poll_to_key(EPOLL_URING_WAKE | EPOLLIN));
+ 	return 0;
+diff --git a/io_uring/msg_ring.c b/io_uring/msg_ring.c
+index afb543aab9f6..615c85e164ab 100644
+--- a/io_uring/msg_ring.c
++++ b/io_uring/msg_ring.c
+@@ -167,9 +167,5 @@ int io_msg_ring(struct io_kiocb *req, unsigned int issue_flags)
+ 	if (ret < 0)
+ 		req_set_fail(req);
+ 	io_req_set_res(req, ret, 0);
+-	/* put file to avoid an attempt to IOPOLL the req */
+-	if (!(req->flags & REQ_F_FIXED_FILE))
+-		io_put_file(req->file);
+-	req->file = NULL;
+ 	return IOU_OK;
  }
- 
- static inline void io_cqring_wake(struct io_ring_ctx *ctx)
-diff --git a/io_uring/poll.c b/io_uring/poll.c
-index 8fb8e781c02d..22c9b2e0944a 100644
---- a/io_uring/poll.c
-+++ b/io_uring/poll.c
-@@ -389,6 +389,14 @@ static int io_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
- 		return 0;
- 
- 	if (io_poll_get_ownership(req)) {
-+		/*
-+		 * If we trigger a multishot poll off our own wakeup path,
-+		 * disable multishot as there is a circular dependency between
-+		 * CQ posting and triggering the event.
-+		 */
-+		if (mask & EPOLL_URING_WAKE)
-+			poll->events |= EPOLLONESHOT;
-+
- 		/* optional, saves extra locking for removal in tw handler */
- 		if (mask && poll->events & EPOLLONESHOT) {
- 			list_del_init(&poll->wait.entry);
+diff --git a/io_uring/opdef.c b/io_uring/opdef.c
+index 83dc0f9ad3b2..04dd2c983fce 100644
+--- a/io_uring/opdef.c
++++ b/io_uring/opdef.c
+@@ -63,6 +63,7 @@ const struct io_op_def io_op_defs[] = {
+ 		.audit_skip		= 1,
+ 		.ioprio			= 1,
+ 		.iopoll			= 1,
++		.iopoll_queue		= 1,
+ 		.async_size		= sizeof(struct io_async_rw),
+ 		.name			= "READV",
+ 		.prep			= io_prep_rw,
+@@ -80,6 +81,7 @@ const struct io_op_def io_op_defs[] = {
+ 		.audit_skip		= 1,
+ 		.ioprio			= 1,
+ 		.iopoll			= 1,
++		.iopoll_queue		= 1,
+ 		.async_size		= sizeof(struct io_async_rw),
+ 		.name			= "WRITEV",
+ 		.prep			= io_prep_rw,
+@@ -103,6 +105,7 @@ const struct io_op_def io_op_defs[] = {
+ 		.audit_skip		= 1,
+ 		.ioprio			= 1,
+ 		.iopoll			= 1,
++		.iopoll_queue		= 1,
+ 		.async_size		= sizeof(struct io_async_rw),
+ 		.name			= "READ_FIXED",
+ 		.prep			= io_prep_rw,
+@@ -118,6 +121,7 @@ const struct io_op_def io_op_defs[] = {
+ 		.audit_skip		= 1,
+ 		.ioprio			= 1,
+ 		.iopoll			= 1,
++		.iopoll_queue		= 1,
+ 		.async_size		= sizeof(struct io_async_rw),
+ 		.name			= "WRITE_FIXED",
+ 		.prep			= io_prep_rw,
+@@ -277,6 +281,7 @@ const struct io_op_def io_op_defs[] = {
+ 		.audit_skip		= 1,
+ 		.ioprio			= 1,
+ 		.iopoll			= 1,
++		.iopoll_queue		= 1,
+ 		.async_size		= sizeof(struct io_async_rw),
+ 		.name			= "READ",
+ 		.prep			= io_prep_rw,
+@@ -292,6 +297,7 @@ const struct io_op_def io_op_defs[] = {
+ 		.audit_skip		= 1,
+ 		.ioprio			= 1,
+ 		.iopoll			= 1,
++		.iopoll_queue		= 1,
+ 		.async_size		= sizeof(struct io_async_rw),
+ 		.name			= "WRITE",
+ 		.prep			= io_prep_rw,
+@@ -481,6 +487,7 @@ const struct io_op_def io_op_defs[] = {
+ 		.plug			= 1,
+ 		.name			= "URING_CMD",
+ 		.iopoll			= 1,
++		.iopoll_queue		= 1,
+ 		.async_size		= uring_cmd_pdu_size(1),
+ 		.prep			= io_uring_cmd_prep,
+ 		.issue			= io_uring_cmd,
+diff --git a/io_uring/opdef.h b/io_uring/opdef.h
+index 3efe06d25473..df7e13d9bfba 100644
+--- a/io_uring/opdef.h
++++ b/io_uring/opdef.h
+@@ -25,6 +25,8 @@ struct io_op_def {
+ 	unsigned		ioprio : 1;
+ 	/* supports iopoll */
+ 	unsigned		iopoll : 1;
++	/* have to be put into the iopoll list */
++	unsigned		iopoll_queue : 1;
+ 	/* opcode specific path will handle ->async_data allocation if needed */
+ 	unsigned		manual_alloc : 1;
+ 	/* size of async data needed, if any */
 
