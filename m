@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EB01657F96
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:07:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA08B657E8C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:54:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234288AbiL1QHE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:07:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53856 "EHLO
+        id S232182AbiL1Pyx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:54:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233046AbiL1QG1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:06:27 -0500
+        with ESMTP id S234150AbiL1Pyv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:54:51 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 976BF11A3F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:06:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECE89186F5
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:54:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 30D7961577
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:06:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CD52C433F0;
-        Wed, 28 Dec 2022 16:06:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7215C6155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:54:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F4D8C433EF;
+        Wed, 28 Dec 2022 15:54:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243576;
-        bh=W/Xnmc97F+AtLcG8E2pp6biNEpuKZmfhp14G8o0Nryc=;
+        s=korg; t=1672242889;
+        bh=EL0uAhSDzOTeYsadQ4iYaaTMTV8NMv9SkkCvDaWXLL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=klaeowJPk9L+mNapfiw80onytyhAJyXYgXSnQLvjyXsDjB+R8ocpvrWaQA3c3EWYn
-         /ob+Ej6lBBp5Hjkrpyxn+apoyid/hTQPFp9UncLO1sw8/kLzZ4Tp9A/5ldzwrROvnl
-         6OxnL6eglTd0UCbfQb6sTQyuBmcRTxQtVejLwYxA=
+        b=lhYwxupCj+u/Ee7iyv6nbPLbFqKZgYXnSlvcD+3IkGPZvFTuIF6rpf2s9c61dmBL8
+         0qOjYbGm1EyXpXSsE3GlWznRHAdn+Bwl1eFsm2xqHhEK+W1SGPhFLx20GXeVKQkJ57
+         pphs3g6cP8JvXDuz2+Nm+GdxiGl7YG/F/LIvDcho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0515/1146] regulator: qcom-labibb: Fix missing of_node_put() in qcom_labibb_regulator_probe()
+Subject: [PATCH 6.0 0466/1073] ALSA: pcm: Set missing stop_operating flag at undoing trigger start
 Date:   Wed, 28 Dec 2022 15:34:14 +0100
-Message-Id: <20221228144344.163200385@linuxfoundation.org>
+Message-Id: <20221228144340.693564842@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit cf34ac6aa2b12fb0c3aacfdcae8acd7904b949ec ]
+[ Upstream commit 5c8cc93b06d1ff860327a273abf3ac006290d242 ]
 
-The reg_node needs to be released through of_node_put() in the error
-handling path when of_irq_get_byname() failed.
+When a PCM trigger-start fails at snd_pcm_do_start(), PCM core tries
+to undo the action at snd_pcm_undo_start() by issuing the trigger STOP
+manually.  At that point, we forgot to set the stop_operating flag,
+hence the sync-stop won't be issued at the next prepare or other
+calls.
 
-Fixes: 390af53e0411 ("regulator: qcom-labibb: Implement short-circuit and over-current IRQs")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Link: https://lore.kernel.org/r/20221203062109.115043-1-yuancan@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This patch adds the missing stop_operating flag at
+snd_pcm_undo_start().
+
+Fixes: 1e850beea278 ("ALSA: pcm: Add the support for sync-stop operation")
+Link: https://lore.kernel.org/r/b4e71631-4a94-613-27b2-fb595792630@carlh.net
+Link: https://lore.kernel.org/r/20221205132124.11585-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/qcom-labibb-regulator.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/core/pcm_native.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/qcom-labibb-regulator.c b/drivers/regulator/qcom-labibb-regulator.c
-index 639b71eb41ff..bcf7140f3bc9 100644
---- a/drivers/regulator/qcom-labibb-regulator.c
-+++ b/drivers/regulator/qcom-labibb-regulator.c
-@@ -822,6 +822,7 @@ static int qcom_labibb_regulator_probe(struct platform_device *pdev)
- 			if (irq == 0)
- 				irq = -EINVAL;
+diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
+index ad0541e9e888..ac985cec5c16 100644
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -1432,8 +1432,10 @@ static int snd_pcm_do_start(struct snd_pcm_substream *substream,
+ static void snd_pcm_undo_start(struct snd_pcm_substream *substream,
+ 			       snd_pcm_state_t state)
+ {
+-	if (substream->runtime->trigger_master == substream)
++	if (substream->runtime->trigger_master == substream) {
+ 		substream->ops->trigger(substream, SNDRV_PCM_TRIGGER_STOP);
++		substream->runtime->stop_operating = true;
++	}
+ }
  
-+			of_node_put(reg_node);
- 			return dev_err_probe(vreg->dev, irq,
- 					     "Short-circuit irq not found.\n");
- 		}
+ static void snd_pcm_post_start(struct snd_pcm_substream *substream,
 -- 
 2.35.1
 
