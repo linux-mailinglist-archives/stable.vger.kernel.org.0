@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B52E5658290
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:38:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90F3B65834B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:46:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234883AbiL1QiO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:38:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57452 "EHLO
+        id S234937AbiL1Qp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:45:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234910AbiL1QhU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:37:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEFA81AD8F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:33:30 -0800 (PST)
+        with ESMTP id S233734AbiL1Qov (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2880E13D56
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:40:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D00F61576
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:33:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D3E8C433EF;
-        Wed, 28 Dec 2022 16:33:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 40D1461563
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:40:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EA7FC433D2;
+        Wed, 28 Dec 2022 16:40:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245209;
-        bh=rkLDDgAOGPJYP8K4DcvTlQlbi/zxL+lTGy/3tNRIcJU=;
+        s=korg; t=1672245653;
+        bh=Hln3OcNAJSj6OQZ6OZoMgGqi4OW8XP9X8jkvduahby0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fgY48zf1S0w+47jk4ZiNRCN6QXqhft2dAbFJ3GGjetrI5hmajCmwvJiyFgHWT32dk
-         Fl9M+cbXlGcMzzUyZTXEdgqp1oJnhpXIzNK7Ek1r0LznjuvVlMICgOONbmxVKIC7Fq
-         e8uwuFv+Z+U8C2nx41FIP5SnsM69AGPZIRD6+gdc=
+        b=SNuQZf0Bi0pI54QDyi/1Z9klsRGFO+y6lGcFUsWBZoreiGeYuMk3ol1VTtrnRAYvJ
+         /vxIfMn3rtPdCpS2UvncLuIZfyaBo7na3q47bD19AMQ51scV5hJvjGw4PfMq10HOuG
+         TwI8iR99UgXnsuN+5xu5RyYbrmiN2FW+9M86U8R0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
+        patches@lists.linux.dev, Kirill Tkhai <tkhai@ya.ru>,
         Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0851/1073] r6040: Fix kmemleak in probe and remove
+Subject: [PATCH 6.1 0900/1146] unix: Fix race in SOCK_SEQPACKETs unix_dgram_sendmsg()
 Date:   Wed, 28 Dec 2022 15:40:39 +0100
-Message-Id: <20221228144351.133862503@linuxfoundation.org>
+Message-Id: <20221228144354.652582564@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,94 +53,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zetao <lizetao1@huawei.com>
+From: Kirill Tkhai <tkhai@ya.ru>
 
-[ Upstream commit 7e43039a49c2da45edc1d9d7c9ede4003ab45a5f ]
+[ Upstream commit 3ff8bff704f4de125dca2262e5b5b963a3da1d87 ]
 
-There is a memory leaks reported by kmemleak:
+There is a race resulting in alive SOCK_SEQPACKET socket
+may change its state from TCP_ESTABLISHED to TCP_CLOSE:
 
-  unreferenced object 0xffff888116111000 (size 2048):
-    comm "modprobe", pid 817, jiffies 4294759745 (age 76.502s)
-    hex dump (first 32 bytes):
-      00 c4 0a 04 81 88 ff ff 08 10 11 16 81 88 ff ff  ................
-      08 10 11 16 81 88 ff ff 00 00 00 00 00 00 00 00  ................
-    backtrace:
-      [<ffffffff815bcd82>] kmalloc_trace+0x22/0x60
-      [<ffffffff827e20ee>] phy_device_create+0x4e/0x90
-      [<ffffffff827e6072>] get_phy_device+0xd2/0x220
-      [<ffffffff827e7844>] mdiobus_scan+0xa4/0x2e0
-      [<ffffffff827e8be2>] __mdiobus_register+0x482/0x8b0
-      [<ffffffffa01f5d24>] r6040_init_one+0x714/0xd2c [r6040]
-      ...
+unix_release_sock(peer)                  unix_dgram_sendmsg(sk)
+  sock_orphan(peer)
+    sock_set_flag(peer, SOCK_DEAD)
+                                           sock_alloc_send_pskb()
+                                             if !(sk->sk_shutdown & SEND_SHUTDOWN)
+                                               OK
+                                           if sock_flag(peer, SOCK_DEAD)
+                                             sk->sk_state = TCP_CLOSE
+  sk->sk_shutdown = SHUTDOWN_MASK
 
-The problem occurs in probe process as follows:
-  r6040_init_one:
-    mdiobus_register
-      mdiobus_scan    <- alloc and register phy_device,
-                         the reference count of phy_device is 3
-    r6040_mii_probe
-      phy_connect     <- connect to the first phy_device,
-                         so the reference count of the first
-                         phy_device is 4, others are 3
-    register_netdev   <- fault inject succeeded, goto error handling path
+After that socket sk remains almost normal: it is able to connect, listen, accept
+and recvmsg, while it can't sendmsg.
 
-    // error handling path
-    err_out_mdio_unregister:
-      mdiobus_unregister(lp->mii_bus);
-    err_out_mdio:
-      mdiobus_free(lp->mii_bus);    <- the reference count of the first
-                                       phy_device is 1, it is not released
-                                       and other phy_devices are released
-  // similarly, the remove process also has the same problem
+Since this is the only possibility for alive SOCK_SEQPACKET to change
+the state in such way, we should better fix this strange and potentially
+danger corner case.
 
-The root cause is traced to the phy_device is not disconnected when
-removes one r6040 device in r6040_remove_one() or on error handling path
-after r6040_mii probed successfully. In r6040_mii_probe(), a net ethernet
-device is connected to the first PHY device of mii_bus, in order to
-notify the connected driver when the link status changes, which is the
-default behavior of the PHY infrastructure to handle everything.
-Therefore the phy_device should be disconnected when removes one r6040
-device or on error handling path.
+Note, that we will return EPIPE here like this is normally done in sock_alloc_send_pskb().
+Originally used ECONNREFUSED looks strange, since it's strange to return
+a specific retval in dependence of race in kernel, when user can't affect on this.
 
-Fix it by adding phy_disconnect() when removes one r6040 device or on
-error handling path after r6040_mii probed successfully.
+Also, move TCP_CLOSE assignment for SOCK_DGRAM sockets under state lock
+to fix race with unix_dgram_connect():
 
-Fixes: 3831861b4ad8 ("r6040: implement phylib")
-Signed-off-by: Li Zetao <lizetao1@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Link: https://lore.kernel.org/r/20221213125614.927754-1-lizetao1@huawei.com
+unix_dgram_connect(other)            unix_dgram_sendmsg(sk)
+                                       unix_peer(sk) = NULL
+                                       unix_state_unlock(sk)
+  unix_state_double_lock(sk, other)
+  sk->sk_state  = TCP_ESTABLISHED
+  unix_peer(sk) = other
+  unix_state_double_unlock(sk, other)
+                                       sk->sk_state  = TCP_CLOSED
+
+This patch fixes both of these races.
+
+Fixes: 83301b5367a9 ("af_unix: Set TCP_ESTABLISHED for datagram sockets too")
+Signed-off-by: Kirill Tkhai <tkhai@ya.ru>
+Link: https://lore.kernel.org/r/135fda25-22d5-837a-782b-ceee50e19844@ya.ru
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/rdc/r6040.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/unix/af_unix.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/rdc/r6040.c b/drivers/net/ethernet/rdc/r6040.c
-index a6bf7d505178..322d4d72d2e0 100644
---- a/drivers/net/ethernet/rdc/r6040.c
-+++ b/drivers/net/ethernet/rdc/r6040.c
-@@ -1159,10 +1159,12 @@ static int r6040_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	err = register_netdev(dev);
- 	if (err) {
- 		dev_err(&pdev->dev, "Failed to register net device\n");
--		goto err_out_mdio_unregister;
-+		goto err_out_phy_disconnect;
- 	}
- 	return 0;
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index ede2b2a140a4..f0c2293f1d3b 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -1999,13 +1999,20 @@ static int unix_dgram_sendmsg(struct socket *sock, struct msghdr *msg,
+ 			unix_state_lock(sk);
  
-+err_out_phy_disconnect:
-+	phy_disconnect(dev->phydev);
- err_out_mdio_unregister:
- 	mdiobus_unregister(lp->mii_bus);
- err_out_mdio:
-@@ -1186,6 +1188,7 @@ static void r6040_remove_one(struct pci_dev *pdev)
- 	struct r6040_private *lp = netdev_priv(dev);
+ 		err = 0;
+-		if (unix_peer(sk) == other) {
++		if (sk->sk_type == SOCK_SEQPACKET) {
++			/* We are here only when racing with unix_release_sock()
++			 * is clearing @other. Never change state to TCP_CLOSE
++			 * unlike SOCK_DGRAM wants.
++			 */
++			unix_state_unlock(sk);
++			err = -EPIPE;
++		} else if (unix_peer(sk) == other) {
+ 			unix_peer(sk) = NULL;
+ 			unix_dgram_peer_wake_disconnect_wakeup(sk, other);
  
- 	unregister_netdev(dev);
-+	phy_disconnect(dev->phydev);
- 	mdiobus_unregister(lp->mii_bus);
- 	mdiobus_free(lp->mii_bus);
- 	netif_napi_del(&lp->napi);
++			sk->sk_state = TCP_CLOSE;
+ 			unix_state_unlock(sk);
+ 
+-			sk->sk_state = TCP_CLOSE;
+ 			unix_dgram_disconnected(sk, other);
+ 			sock_put(other);
+ 			err = -ECONNREFUSED;
 -- 
 2.35.1
 
