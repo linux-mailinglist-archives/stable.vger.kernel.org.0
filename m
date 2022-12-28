@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32F11657F9F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:07:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D85B65798E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:03:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234420AbiL1QHX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:07:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53382 "EHLO
+        id S233463AbiL1PC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:02:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234482AbiL1QHA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:07:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05D8511A03
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:06:44 -0800 (PST)
+        with ESMTP id S233487AbiL1PCb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:02:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64E4113D1D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:02:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9601561576
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:06:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EA43C433EF;
-        Wed, 28 Dec 2022 16:06:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00AA1B81710
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:02:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4775CC433EF;
+        Wed, 28 Dec 2022 15:02:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243603;
-        bh=NCDusXs63H3DTZi81Gd9ZlJEWUg7qva/XiXOrTJPvg4=;
+        s=korg; t=1672239735;
+        bh=5JJQazEZy9oKTh0SQs+GNRlnFhbY1GIwYmsbGaafbeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QkTjZYDxU6l+i1xbQ0+tf3WEgZnnTh/ZIjm2D47oONc3NfbDL27cb9krGulSAi9Xs
-         7CMKw5ZBQsUfQ01c5TPRNXiK1WfNRmkMZiwM+ohdYwYUkAW9o5eG8ICHNOhkfU7iB6
-         PgJAybKDNwkN73Y1tIR322HoC11/3ShZmK+9ftKY=
+        b=e+FjqyirGBE0mPUG5Uuo+lYfgxN/j8LUQIIEbQ8P/sF/r0Zl1mXHcUI0K2gPGUymH
+         SUjZyXTGLH/ubKYJLxdEbr90cScP/6ZdeptbD+MsBydgyxd6QKQt3BwCYCc8vxyiU8
+         IFnnVrEVcVVMPzvRMp/KXQ6bUj15k6noJlAqqp24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        John Johansen <john.johansen@canonical.com>,
+        patches@lists.linux.dev, ZhangPeng <zhangpeng362@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0555/1073] apparmor: Fix abi check to include v8 abi
-Date:   Wed, 28 Dec 2022 15:35:43 +0100
-Message-Id: <20221228144343.130558143@linuxfoundation.org>
+Subject: [PATCH 5.15 237/731] pinctrl: pinconf-generic: add missing of_node_put()
+Date:   Wed, 28 Dec 2022 15:35:44 +0100
+Message-Id: <20221228144303.434237517@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Johansen <john.johansen@canonical.com>
+From: ZhangPeng <zhangpeng362@huawei.com>
 
-[ Upstream commit 1b5a6198f5a9d0aa5497da0dc4bcd4fc166ee516 ]
+[ Upstream commit 5ead93289815a075d43c415e35c8beafafb801c9 ]
 
-The v8 abi is supported by the kernel but the userspace supported
-version check does not allow for it. This was missed when v8 was added
-due to a bug in the userspace compiler which was setting an older abi
-version for v8 encoding (which is forward compatible except on the
-network encoding). However it is possible to detect the network
-encoding by checking the policydb network support which the code
-does. The end result was that missing the abi flag worked until
-userspace was fixed and began correctly checking for the v8 abi
-version.
+of_node_put() needs to be called when jumping out of the loop, since
+for_each_available_child_of_node() will increase the refcount of node.
 
-Fixes: 56974a6fcfef ("apparmor: add base infastructure for socket mediation")
-Signed-off-by: John Johansen <john.johansen@canonical.com>
+Fixes: c7289500e29d ("pinctrl: pinconf-generic: scan also referenced phandle node")
+Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
+Link: https://lore.kernel.org/r/20221125070156.3535855-1-zhangpeng362@huawei.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/policy_unpack.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pinctrl/pinconf-generic.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/security/apparmor/policy_unpack.c b/security/apparmor/policy_unpack.c
-index 55d31bac4f35..9d26bbb90133 100644
---- a/security/apparmor/policy_unpack.c
-+++ b/security/apparmor/policy_unpack.c
-@@ -972,7 +972,7 @@ static int verify_header(struct aa_ext *e, int required, const char **ns)
- 	 * if not specified use previous version
- 	 * Mask off everything that is not kernel abi version
- 	 */
--	if (VERSION_LT(e->version, v5) || VERSION_GT(e->version, v7)) {
-+	if (VERSION_LT(e->version, v5) || VERSION_GT(e->version, v8)) {
- 		audit_iface(NULL, NULL, NULL, "unsupported interface version",
- 			    e, error);
- 		return error;
+diff --git a/drivers/pinctrl/pinconf-generic.c b/drivers/pinctrl/pinconf-generic.c
+index b1db28007986..e6fe1330eab9 100644
+--- a/drivers/pinctrl/pinconf-generic.c
++++ b/drivers/pinctrl/pinconf-generic.c
+@@ -393,8 +393,10 @@ int pinconf_generic_dt_node_to_map(struct pinctrl_dev *pctldev,
+ 	for_each_available_child_of_node(np_config, np) {
+ 		ret = pinconf_generic_dt_subnode_to_map(pctldev, np, map,
+ 					&reserved_maps, num_maps, type);
+-		if (ret < 0)
++		if (ret < 0) {
++			of_node_put(np);
+ 			goto exit;
++		}
+ 	}
+ 	return 0;
+ 
 -- 
 2.35.1
 
