@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B8CA658033
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:15:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05699657F73
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:05:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234481AbiL1QPc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:15:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59680 "EHLO
+        id S234344AbiL1QFL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:05:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233185AbiL1QPK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:15:10 -0500
+        with ESMTP id S234346AbiL1QFA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:05:00 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DDD21B79F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:12:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4F3619294
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:04:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 280DE61577
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:12:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 360C6C433EF;
-        Wed, 28 Dec 2022 16:12:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 81A8C6156E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:04:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9551CC433D2;
+        Wed, 28 Dec 2022 16:04:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243954;
-        bh=9ByHS5rdBQSK/3m+Pz9D9FtxqECs/qtdtiFHnVbC/ng=;
+        s=korg; t=1672243498;
+        bh=brn19ZLg/cpAoaQwT5sTcLIrLOZzT0hLAzJKqvAVzWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U8dFLRSev6DibasfbWiu2FYOCgd8c+gmNqABuS2JRfpr91Fdz3m0E5WE77aLsKdJS
-         6TizKS0iGz3/eeSwQGVflEXUB1GOPhiUflMf9o+FAdT9DAvNyuy2bKH+WCBcOyw/3x
-         PN7s9kXASm0U5xzLdeIgzw87JK6HAVClkLQBx1mY=
+        b=bV4D58Fpq/DqN809ENF6ExZuhWR7bwhHY02vQcvxgCkkQD0H6J+PN9BxpcXxCkEXc
+         HfrHw91fGtGQ3ot7X+xlwwEXE/xXRnp/yc+pQZloMpLVOvND4HuxVqHCmVT+ZoLxUO
+         CDC3mympKptCWltwA55IumjOH+xeqMcpX8R0woD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Zhang Qilong <zhangqilong3@huawei.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        patches@lists.linux.dev, Eric Pilmore <epilmore@gigaio.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0585/1146] f2fs: Fix the race condition of resize flag between resizefs
+Subject: [PATCH 6.0 0536/1073] ntb_netdev: Use dev_kfree_skb_any() in interrupt context
 Date:   Wed, 28 Dec 2022 15:35:24 +0100
-Message-Id: <20221228144346.062514599@linuxfoundation.org>
+Message-Id: <20221228144342.612654375@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Eric Pilmore <epilmore@gigaio.com>
 
-[ Upstream commit 28fc4e9077ce59ab28c89c20dc6be5154473218f ]
+[ Upstream commit 5f7d78b2b12a9d561f48fa00bab29b40f4616dad ]
 
-Because the set/clear SBI_IS_RESIZEFS flag not between any locks,
-In the following case:
-  thread1			thread2
-   ->ioctl(resizefs)
-    ->set RESIZEFS flag		 ->ioctl(resizefs)
-    ...                   	  ->set RESIZEFS flag
-    ->clear RESIZEFS flag
-    				  ->resizefs stream
-				    # No RESIZEFS flag in the stream
+TX/RX callback handlers (ntb_netdev_tx_handler(),
+ntb_netdev_rx_handler()) can be called in interrupt
+context via the DMA framework when the respective
+DMA operations have completed. As such, any calls
+by these routines to free skb's, should use the
+interrupt context safe dev_kfree_skb_any() function.
 
-Also before freeze_super, the resizefs not started, we should not set
-the SBI_IS_RESIZEFS flag.
+Previously, these callback handlers would call the
+interrupt unsafe version of dev_kfree_skb(). This has
+not presented an issue on Intel IOAT DMA engines as
+that driver utilizes tasklets rather than a hard
+interrupt handler, like the AMD PTDMA DMA driver.
+On AMD systems, a kernel WARNING message is
+encountered, which is being issued from
+skb_release_head_state() due to in_hardirq()
+being true.
 
-So move the set/clear SBI_IS_RESIZEFS flag between the cp_mutex and
-gc_lock.
+Besides the user visible WARNING from the kernel,
+the other symptom of this bug was that TCP/IP performance
+across the ntb_netdev interface was very poor, i.e.
+approximately an order of magnitude below what was
+expected. With the repair to use dev_kfree_skb_any(),
+kernel WARNINGs from skb_release_head_state() ceased
+and TCP/IP performance, as measured by iperf, was on
+par with expected results, approximately 20 Gb/s on
+AMD Milan based server. Note that this performance
+is comparable with Intel based servers.
 
-Fixes: b4b10061ef98 ("f2fs: refactor resize_fs to avoid meta updates in progress")
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: 765ccc7bc3d91 ("ntb_netdev: correct skb leak")
+Fixes: 548c237c0a997 ("net: Add support for NTB virtual ethernet device")
+Signed-off-by: Eric Pilmore <epilmore@gigaio.com>
+Reviewed-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/20221209000659.8318-1-epilmore@gigaio.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/gc.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/net/ntb_netdev.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
-index 4546e01b2ee0..2a9d825b84f7 100644
---- a/fs/f2fs/gc.c
-+++ b/fs/f2fs/gc.c
-@@ -2133,8 +2133,6 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
- 	if (err)
- 		return err;
- 
--	set_sbi_flag(sbi, SBI_IS_RESIZEFS);
--
- 	freeze_super(sbi->sb);
- 	f2fs_down_write(&sbi->gc_lock);
- 	f2fs_down_write(&sbi->cp_global_sem);
-@@ -2150,6 +2148,7 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
- 	if (err)
- 		goto out_err;
- 
-+	set_sbi_flag(sbi, SBI_IS_RESIZEFS);
- 	err = free_segment_range(sbi, secs, false);
- 	if (err)
- 		goto recover_out;
-@@ -2173,6 +2172,7 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
- 		f2fs_commit_super(sbi, false);
+diff --git a/drivers/net/ntb_netdev.c b/drivers/net/ntb_netdev.c
+index dd7e273c90cb..29b198472a2c 100644
+--- a/drivers/net/ntb_netdev.c
++++ b/drivers/net/ntb_netdev.c
+@@ -137,7 +137,7 @@ static void ntb_netdev_rx_handler(struct ntb_transport_qp *qp, void *qp_data,
+ enqueue_again:
+ 	rc = ntb_transport_rx_enqueue(qp, skb, skb->data, ndev->mtu + ETH_HLEN);
+ 	if (rc) {
+-		dev_kfree_skb(skb);
++		dev_kfree_skb_any(skb);
+ 		ndev->stats.rx_errors++;
+ 		ndev->stats.rx_fifo_errors++;
  	}
- recover_out:
-+	clear_sbi_flag(sbi, SBI_IS_RESIZEFS);
- 	if (err) {
- 		set_sbi_flag(sbi, SBI_NEED_FSCK);
- 		f2fs_err(sbi, "resize_fs failed, should run fsck to repair!");
-@@ -2185,6 +2185,5 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
- 	f2fs_up_write(&sbi->cp_global_sem);
- 	f2fs_up_write(&sbi->gc_lock);
- 	thaw_super(sbi->sb);
--	clear_sbi_flag(sbi, SBI_IS_RESIZEFS);
- 	return err;
- }
+@@ -192,7 +192,7 @@ static void ntb_netdev_tx_handler(struct ntb_transport_qp *qp, void *qp_data,
+ 		ndev->stats.tx_aborted_errors++;
+ 	}
+ 
+-	dev_kfree_skb(skb);
++	dev_kfree_skb_any(skb);
+ 
+ 	if (ntb_transport_tx_free_entry(dev->qp) >= tx_start) {
+ 		/* Make sure anybody stopping the queue after this sees the new
 -- 
 2.35.1
 
