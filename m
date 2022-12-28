@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DEFC6581AA
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:30:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B912657AEB
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:16:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234742AbiL1QaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:30:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50680 "EHLO
+        id S233125AbiL1PQT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:16:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234741AbiL1QaC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:30:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EBF41B9F3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:26:33 -0800 (PST)
+        with ESMTP id S233052AbiL1PQS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:16:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C6FA228
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:16:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2FD60B816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:26:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93D65C433EF;
-        Wed, 28 Dec 2022 16:26:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F11A614BA
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:16:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEAB0C433D2;
+        Wed, 28 Dec 2022 15:16:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244790;
-        bh=uY69BWEonealXJRxRIe5Mc0O8gFvWHAWmyGV5wrFU7k=;
+        s=korg; t=1672240577;
+        bh=+X9WtXhLdC5G5eMLxL3ALLA5OJbtipaJ7scp4JEFKgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xSmweU6n/zSVKrQl6tDXpODxuUnzu4Xoijy4t7LvdNCzdYhV4LzcddoM/aoAkKza9
-         qvLfVQjQm8Y0aUPernfIb7xBwhe3A65woKH1xa0gGtHoWizuhPKX+cNc6NhwA8RdAu
-         uX2+mRxQxcN5acvVEDyVffwKmCWCqGA3izYDOTqc=
+        b=0OR09Qk86Y9QQH9Z3fntB7cYCp+0wLfBWTob+2+lBo4nSZQWW7TdlJJhUlBs3wOfG
+         BF/zMtHm+fHuMHl3mYpwo4miw67M29Gr+jF5xPPWqwm855oy+YV0t6tq6rk5Q2mlRi
+         3C476K4P8JAtNhqTOxZIqbnJwg3VbBSEKNeUdlFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Zhang Qilong <zhangqilong3@huawei.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0737/1146] staging: rtl8192u: Fix use after free in ieee80211_rx()
+Subject: [PATCH 5.15 369/731] f2fs: Fix the race condition of resize flag between resizefs
 Date:   Wed, 28 Dec 2022 15:37:56 +0100
-Message-Id: <20221228144350.166633292@linuxfoundation.org>
+Message-Id: <20221228144307.258237527@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,39 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit bcc5e2dcf09089b337b76fc1a589f6ff95ca19ac ]
+[ Upstream commit 28fc4e9077ce59ab28c89c20dc6be5154473218f ]
 
-We cannot dereference the "skb" pointer after calling
-ieee80211_monitor_rx(), because it is a use after free.
+Because the set/clear SBI_IS_RESIZEFS flag not between any locks,
+In the following case:
+  thread1			thread2
+   ->ioctl(resizefs)
+    ->set RESIZEFS flag		 ->ioctl(resizefs)
+    ...                   	  ->set RESIZEFS flag
+    ->clear RESIZEFS flag
+    				  ->resizefs stream
+				    # No RESIZEFS flag in the stream
 
-Fixes: 8fc8598e61f6 ("Staging: Added Realtek rtl8192u driver to staging")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Link: https://lore.kernel.org/r/Y33BArx3k/aw6yv/@kili
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Also before freeze_super, the resizefs not started, we should not set
+the SBI_IS_RESIZEFS flag.
+
+So move the set/clear SBI_IS_RESIZEFS flag between the cp_mutex and
+gc_lock.
+
+Fixes: b4b10061ef98 ("f2fs: refactor resize_fs to avoid meta updates in progress")
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/f2fs/gc.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c b/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c
-index b58e75932ecd..3686b3c599ce 100644
---- a/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c
-+++ b/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c
-@@ -951,9 +951,11 @@ int ieee80211_rx(struct ieee80211_device *ieee, struct sk_buff *skb,
- #endif
+diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
+index e75a276f5b9c..4cbaa6ab083f 100644
+--- a/fs/f2fs/gc.c
++++ b/fs/f2fs/gc.c
+@@ -2051,8 +2051,6 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
+ 	if (err)
+ 		return err;
  
- 	if (ieee->iw_mode == IW_MODE_MONITOR) {
-+		unsigned int len = skb->len;
-+
- 		ieee80211_monitor_rx(ieee, skb, rx_stats);
- 		stats->rx_packets++;
--		stats->rx_bytes += skb->len;
-+		stats->rx_bytes += len;
- 		return 1;
+-	set_sbi_flag(sbi, SBI_IS_RESIZEFS);
+-
+ 	freeze_super(sbi->sb);
+ 	down_write(&sbi->gc_lock);
+ 	down_write(&sbi->cp_global_sem);
+@@ -2068,6 +2066,7 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
+ 	if (err)
+ 		goto out_err;
+ 
++	set_sbi_flag(sbi, SBI_IS_RESIZEFS);
+ 	err = free_segment_range(sbi, secs, false);
+ 	if (err)
+ 		goto recover_out;
+@@ -2091,6 +2090,7 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
+ 		f2fs_commit_super(sbi, false);
  	}
- 
+ recover_out:
++	clear_sbi_flag(sbi, SBI_IS_RESIZEFS);
+ 	if (err) {
+ 		set_sbi_flag(sbi, SBI_NEED_FSCK);
+ 		f2fs_err(sbi, "resize_fs failed, should run fsck to repair!");
+@@ -2103,6 +2103,5 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
+ 	up_write(&sbi->cp_global_sem);
+ 	up_write(&sbi->gc_lock);
+ 	thaw_super(sbi->sb);
+-	clear_sbi_flag(sbi, SBI_IS_RESIZEFS);
+ 	return err;
+ }
 -- 
 2.35.1
 
