@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93EE865789F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:53:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA934657E2E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:50:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233131AbiL1OxB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:53:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38848 "EHLO
+        id S234106AbiL1Pu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:50:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233191AbiL1Ow0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:52:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6624E1260D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:52:21 -0800 (PST)
+        with ESMTP id S234107AbiL1Pu5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:50:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC9E917886
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:50:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F330461551
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:52:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06BCDC433F0;
-        Wed, 28 Dec 2022 14:52:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9A71DB81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:50:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06622C433EF;
+        Wed, 28 Dec 2022 15:50:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239140;
-        bh=Q+y8zfkE5LlwwWBG4QK6ErHAQ+c8JfDt/6uVSPdlxsM=;
+        s=korg; t=1672242654;
+        bh=H7SQm+nsc6E7nY8m6I1Nzd5PkMSJcdD1Syg4IkKJv7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ixyRTmOYMQk6/4/3jfHeAE3c+0DQe7xSDus5dtYB7289mny+dQsmB5QuoyiFekPHo
-         Ji4tTh66KQ/MtAruj2x1MQ+Wh77eUH3mAfyh4Ic/5bVHXeVcMl8gqYPft3rAUtcY04
-         pqun82uYDoaCOTShsqvd8r7+fgj3zH+lbeQwWlIM=
+        b=iiu0x3y9v2k+3ufQ4mfihF5jYUb3heoqXpyiILSrSGxRILXoHQUTtD9PyKWOLIrIQ
+         /yo16lrksjFqbuazUS1z/AyHQm0Dv2lnR7GwunOtdiZjc7g3YUGZPnOZicjMPuop1n
+         qrCb4oY/mPuWxGfPjDfUsaOasqmII+hA0xCF6qzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexey Izbyshev <izbyshev@ispras.ru>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 117/731] futex: Resend potentially swallowed owner death notification
+Subject: [PATCH 6.0 0436/1073] wifi: mac80211: fix memory leak in ieee80211_if_add()
 Date:   Wed, 28 Dec 2022 15:33:44 +0100
-Message-Id: <20221228144259.944302153@linuxfoundation.org>
+Message-Id: <20221228144339.869825563@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,102 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Izbyshev <izbyshev@ispras.ru>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 90d758896787048fa3d4209309d4800f3920e66f ]
+[ Upstream commit 13e5afd3d773c6fc6ca2b89027befaaaa1ea7293 ]
 
-Commit ca16d5bee598 ("futex: Prevent robust futex exit race") addressed
-two cases when tasks waiting on a robust non-PI futex remained blocked
-despite the futex not being owned anymore:
+When register_netdevice() failed in ieee80211_if_add(), ndev->tstats
+isn't released. Fix it.
 
-* if the owner died after writing zero to the futex word, but before
-  waking up a waiter
-
-* if a task waiting on the futex was woken up, but died before updating
-  the futex word (effectively swallowing the notification without acting
-  on it)
-
-In the second case, the task could be woken up either by the previous
-owner (after the futex word was reset to zero) or by the kernel (after
-the OWNER_DIED bit was set and the TID part of the futex word was reset
-to zero) if the previous owner died without the resetting the futex.
-
-Because the referenced commit wakes up a potential waiter only if the
-whole futex word is zero, the latter subcase remains unaddressed.
-
-Fix this by looking only at the TID part of the futex when deciding
-whether a wake up is needed.
-
-Fixes: ca16d5bee598 ("futex: Prevent robust futex exit race")
-Signed-off-by: Alexey Izbyshev <izbyshev@ispras.ru>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20221111215439.248185-1-izbyshev@ispras.ru
+Fixes: 5a490510ba5f ("mac80211: use per-CPU TX/RX statistics")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Link: https://lore.kernel.org/r/20221117064500.319983-1-shaozhengchao@huawei.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/futex/core.c | 26 +++++++++++++++++---------
- 1 file changed, 17 insertions(+), 9 deletions(-)
+ net/mac80211/iface.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/futex/core.c b/kernel/futex/core.c
-index f9bc9aa0ce1e..764e73622b38 100644
---- a/kernel/futex/core.c
-+++ b/kernel/futex/core.c
-@@ -3632,6 +3632,7 @@ static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr,
- 			      bool pi, bool pending_op)
- {
- 	u32 uval, nval, mval;
-+	pid_t owner;
- 	int err;
+diff --git a/net/mac80211/iface.c b/net/mac80211/iface.c
+index 95b58c5cac07..c3eb08b5a47e 100644
+--- a/net/mac80211/iface.c
++++ b/net/mac80211/iface.c
+@@ -2414,6 +2414,7 @@ int ieee80211_if_add(struct ieee80211_local *local, const char *name,
  
- 	/* Futex address must be 32bit aligned */
-@@ -3653,6 +3654,10 @@ static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr,
- 	 * 2. A woken up waiter is killed before it can acquire the
- 	 *    futex in user space.
- 	 *
-+	 * In the second case, the wake up notification could be generated
-+	 * by the unlock path in user space after setting the futex value
-+	 * to zero or by the kernel after setting the OWNER_DIED bit below.
-+	 *
- 	 * In both cases the TID validation below prevents a wakeup of
- 	 * potential waiters which can cause these waiters to block
- 	 * forever.
-@@ -3661,24 +3666,27 @@ static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr,
- 	 *
- 	 *	1) task->robust_list->list_op_pending != NULL
- 	 *	   @pending_op == true
--	 *	2) User space futex value == 0
-+	 *	2) The owner part of user space futex value == 0
- 	 *	3) Regular futex: @pi == false
- 	 *
- 	 * If these conditions are met, it is safe to attempt waking up a
- 	 * potential waiter without touching the user space futex value and
--	 * trying to set the OWNER_DIED bit. The user space futex value is
--	 * uncontended and the rest of the user space mutex state is
--	 * consistent, so a woken waiter will just take over the
--	 * uncontended futex. Setting the OWNER_DIED bit would create
--	 * inconsistent state and malfunction of the user space owner died
--	 * handling.
-+	 * trying to set the OWNER_DIED bit. If the futex value is zero,
-+	 * the rest of the user space mutex state is consistent, so a woken
-+	 * waiter will just take over the uncontended futex. Setting the
-+	 * OWNER_DIED bit would create inconsistent state and malfunction
-+	 * of the user space owner died handling. Otherwise, the OWNER_DIED
-+	 * bit is already set, and the woken waiter is expected to deal with
-+	 * this.
- 	 */
--	if (pending_op && !pi && !uval) {
-+	owner = uval & FUTEX_TID_MASK;
-+
-+	if (pending_op && !pi && !owner) {
- 		futex_wake(uaddr, 1, 1, FUTEX_BITSET_MATCH_ANY);
- 		return 0;
- 	}
- 
--	if ((uval & FUTEX_TID_MASK) != task_pid_vnr(curr))
-+	if (owner != task_pid_vnr(curr))
- 		return 0;
- 
- 	/*
+ 		ret = cfg80211_register_netdevice(ndev);
+ 		if (ret) {
++			ieee80211_if_free(ndev);
+ 			free_netdev(ndev);
+ 			return ret;
+ 		}
 -- 
 2.35.1
 
