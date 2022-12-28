@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00552658402
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:54:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A80E16584B3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:01:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235222AbiL1Qx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:53:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43210 "EHLO
+        id S235305AbiL1RAm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:00:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230517AbiL1QxE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:53:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 575AB140B8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:48:14 -0800 (PST)
+        with ESMTP id S235433AbiL1RAB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:00:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DF9B1EAE7
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:55:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E54666157A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:48:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04B06C433EF;
-        Wed, 28 Dec 2022 16:48:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF19D6157D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:55:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB4B5C433D2;
+        Wed, 28 Dec 2022 16:55:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246093;
-        bh=OLs8Pml3TqJ/V5Bzno44tCKPFZ5jtxt1IjbVGJRPehI=;
+        s=korg; t=1672246523;
+        bh=meXrmIHc4uB22MVvnpTkZ0t6/lXPGSax7WRu1NPzbQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D1NseIquFLMo1z+sk9ie1+sDWDnQAP/Fo88e/+I3zCtaqzBy5tLvgJjOm663JciF6
-         CM/TCo/6us3ts55r6XvFEbVieh65QG4kyt0TocNJwbNdjrqxLfkAi0TkWH2uAiczVk
-         0pYHhxpGmS3qjSuxPgOcaKFzX5TunGtqmrpB6nEA=
+        b=1+BztY/A8cGPsYiB4eq0LtUrxM9RQHTNpZZQ55lsov3LuWGvx6aOiuTwWboLqnxzq
+         e6kCoaPG0cEGw/z3j3TNgnb6izbSSdBnUxaUtYmQ1XkNzBt5XPxdRT7d2YAKKphe09
+         qmIZstzDwPSThoMb5EpSbGsB0G/Wt3yJ+BUeIVPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Imre Deak <imre.deak@intel.com>,
-        Clint Taylor <clinton.a.taylor@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Khaled Almahallawy <khaled.almahallawy@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        patches@lists.linux.dev, Maurizio Lombardi <mlombard@redhat.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 1011/1073] drm/i915/display: Dont disable DDI/Transcoder when setting phy test pattern
-Date:   Wed, 28 Dec 2022 15:43:19 +0100
-Message-Id: <20221228144355.626134099@linuxfoundation.org>
+Subject: [PATCH 6.1 1061/1146] scsi: target: iscsi: Fix a race condition between login_work and the login thread
+Date:   Wed, 28 Dec 2022 15:43:20 +0100
+Message-Id: <20221228144359.099188882@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,119 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Khaled Almahallawy <khaled.almahallawy@intel.com>
+From: Maurizio Lombardi <mlombard@redhat.com>
 
-[ Upstream commit 3153eebb7a76e663ac76d6670dc113296de96622 ]
+[ Upstream commit fec1b2fa62c162d03f5dcd7b03e3c89d3116d49f ]
 
-Bspecs has updated recently to remove the restriction to disable
-DDI/Transcoder before setting PHY test pattern. This update is to
-address PHY compliance test failures observed on a port with LTTPR.
-The issue is that when Transc. is disabled, the main link signals fed
-to LTTPR will be dropped invalidating link training, which will affect
-the quality of the phy test pattern when the transcoder is enabled again.
+In case a malicious initiator sends some random data immediately after a
+login PDU; the iscsi_target_sk_data_ready() callback will schedule the
+login_work and, at the same time, the negotiation may end without clearing
+the LOGIN_FLAGS_INITIAL_PDU flag (because no additional PDU exchanges are
+required to complete the login).
 
-v2: Update commit message (Clint)
-v3: Add missing Signed-off in v2
-v4: Update Bspec and commit message for pre-gen12 (Jani)
+The login has been completed but the login_work function will find the
+LOGIN_FLAGS_INITIAL_PDU flag set and will never stop from rescheduling
+itself; at this point, if the initiator drops the connection, the
+iscsit_conn structure will be freed, login_work will dereference a released
+socket structure and the kernel crashes.
 
-Bspec: 50482, 7555
-Fixes: 8cdf72711928 ("drm/i915/dp: Program vswing, pre-emphasis, test-pattern")
-Cc: Imre Deak <imre.deak@intel.com>
-Cc: Clint Taylor <clinton.a.taylor@intel.com>
-CC: Jani Nikula <jani.nikula@intel.com>
-Tested-by: Khaled Almahallawy <khaled.almahallawy@intel.com>
-Reviewed-by: Clint Taylor <clinton.a.taylor@intel.com>
-Signed-off-by: Khaled Almahallawy <khaled.almahallawy@intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221123220926.170034-1-khaled.almahallawy@intel.com
-(cherry picked from commit be4a847652056b067d6dc6fe0fc024a9e2e987ca)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+BUG: kernel NULL pointer dereference, address: 0000000000000230
+PF: supervisor write access in kernel mode
+PF: error_code(0x0002) - not-present page
+Workqueue: events iscsi_target_do_login_rx [iscsi_target_mod]
+RIP: 0010:_raw_read_lock_bh+0x15/0x30
+Call trace:
+ iscsi_target_do_login_rx+0x75/0x3f0 [iscsi_target_mod]
+ process_one_work+0x1e8/0x3c0
+
+Fix this bug by forcing login_work to stop after the login has been
+completed and the socket callbacks have been restored.
+
+Add a comment to clearify the return values of iscsi_target_do_login()
+
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
+Link: https://lore.kernel.org/r/20221115125638.102517-1-mlombard@redhat.com
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_dp.c | 59 -------------------------
- 1 file changed, 59 deletions(-)
+ drivers/target/iscsi/iscsi_target_nego.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
-index 21ba510716b6..d852cfd1d6eb 100644
---- a/drivers/gpu/drm/i915/display/intel_dp.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp.c
-@@ -3641,61 +3641,6 @@ static void intel_dp_phy_pattern_update(struct intel_dp *intel_dp,
- 	}
+diff --git a/drivers/target/iscsi/iscsi_target_nego.c b/drivers/target/iscsi/iscsi_target_nego.c
+index f2919319ad38..ff49c8f3fe24 100644
+--- a/drivers/target/iscsi/iscsi_target_nego.c
++++ b/drivers/target/iscsi/iscsi_target_nego.c
+@@ -1018,6 +1018,13 @@ static int iscsi_target_handle_csg_one(struct iscsit_conn *conn, struct iscsi_lo
+ 	return 0;
  }
  
--static void
--intel_dp_autotest_phy_ddi_disable(struct intel_dp *intel_dp,
--				  const struct intel_crtc_state *crtc_state)
--{
--	struct intel_digital_port *dig_port = dp_to_dig_port(intel_dp);
--	struct drm_device *dev = dig_port->base.base.dev;
--	struct drm_i915_private *dev_priv = to_i915(dev);
--	struct intel_crtc *crtc = to_intel_crtc(dig_port->base.base.crtc);
--	enum pipe pipe = crtc->pipe;
--	u32 trans_ddi_func_ctl_value, trans_conf_value, dp_tp_ctl_value;
--
--	trans_ddi_func_ctl_value = intel_de_read(dev_priv,
--						 TRANS_DDI_FUNC_CTL(pipe));
--	trans_conf_value = intel_de_read(dev_priv, PIPECONF(pipe));
--	dp_tp_ctl_value = intel_de_read(dev_priv, TGL_DP_TP_CTL(pipe));
--
--	trans_ddi_func_ctl_value &= ~(TRANS_DDI_FUNC_ENABLE |
--				      TGL_TRANS_DDI_PORT_MASK);
--	trans_conf_value &= ~PIPECONF_ENABLE;
--	dp_tp_ctl_value &= ~DP_TP_CTL_ENABLE;
--
--	intel_de_write(dev_priv, PIPECONF(pipe), trans_conf_value);
--	intel_de_write(dev_priv, TRANS_DDI_FUNC_CTL(pipe),
--		       trans_ddi_func_ctl_value);
--	intel_de_write(dev_priv, TGL_DP_TP_CTL(pipe), dp_tp_ctl_value);
--}
--
--static void
--intel_dp_autotest_phy_ddi_enable(struct intel_dp *intel_dp,
--				 const struct intel_crtc_state *crtc_state)
--{
--	struct intel_digital_port *dig_port = dp_to_dig_port(intel_dp);
--	struct drm_device *dev = dig_port->base.base.dev;
--	struct drm_i915_private *dev_priv = to_i915(dev);
--	enum port port = dig_port->base.port;
--	struct intel_crtc *crtc = to_intel_crtc(dig_port->base.base.crtc);
--	enum pipe pipe = crtc->pipe;
--	u32 trans_ddi_func_ctl_value, trans_conf_value, dp_tp_ctl_value;
--
--	trans_ddi_func_ctl_value = intel_de_read(dev_priv,
--						 TRANS_DDI_FUNC_CTL(pipe));
--	trans_conf_value = intel_de_read(dev_priv, PIPECONF(pipe));
--	dp_tp_ctl_value = intel_de_read(dev_priv, TGL_DP_TP_CTL(pipe));
--
--	trans_ddi_func_ctl_value |= TRANS_DDI_FUNC_ENABLE |
--				    TGL_TRANS_DDI_SELECT_PORT(port);
--	trans_conf_value |= PIPECONF_ENABLE;
--	dp_tp_ctl_value |= DP_TP_CTL_ENABLE;
--
--	intel_de_write(dev_priv, PIPECONF(pipe), trans_conf_value);
--	intel_de_write(dev_priv, TGL_DP_TP_CTL(pipe), dp_tp_ctl_value);
--	intel_de_write(dev_priv, TRANS_DDI_FUNC_CTL(pipe),
--		       trans_ddi_func_ctl_value);
--}
--
- static void intel_dp_process_phy_request(struct intel_dp *intel_dp,
- 					 const struct intel_crtc_state *crtc_state)
++/*
++ * RETURN VALUE:
++ *
++ *  1 = Login successful
++ * -1 = Login failed
++ *  0 = More PDU exchanges required
++ */
+ static int iscsi_target_do_login(struct iscsit_conn *conn, struct iscsi_login *login)
  {
-@@ -3714,14 +3659,10 @@ static void intel_dp_process_phy_request(struct intel_dp *intel_dp,
- 	intel_dp_get_adjust_train(intel_dp, crtc_state, DP_PHY_DPRX,
- 				  link_status);
+ 	int pdu_count = 0;
+@@ -1363,12 +1370,13 @@ int iscsi_target_start_negotiation(
+ 		ret = -1;
  
--	intel_dp_autotest_phy_ddi_disable(intel_dp, crtc_state);
--
- 	intel_dp_set_signal_levels(intel_dp, crtc_state, DP_PHY_DPRX);
+ 	if (ret < 0) {
+-		cancel_delayed_work_sync(&conn->login_work);
+ 		iscsi_target_restore_sock_callbacks(conn);
+ 		iscsi_remove_failed_auth_entry(conn);
+ 	}
+-	if (ret != 0)
++	if (ret != 0) {
++		cancel_delayed_work_sync(&conn->login_work);
+ 		iscsi_target_nego_release(conn);
++	}
  
- 	intel_dp_phy_pattern_update(intel_dp, crtc_state);
- 
--	intel_dp_autotest_phy_ddi_enable(intel_dp, crtc_state);
--
- 	drm_dp_dpcd_write(&intel_dp->aux, DP_TRAINING_LANE0_SET,
- 			  intel_dp->train_set, crtc_state->lane_count);
- 
+ 	return ret;
+ }
 -- 
 2.35.1
 
