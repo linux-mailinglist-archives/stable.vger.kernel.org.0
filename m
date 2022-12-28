@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A197657F76
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:05:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C2106584F0
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:04:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234284AbiL1QFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:05:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51842 "EHLO
+        id S235343AbiL1REJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:04:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234318AbiL1QFF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:05:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 396771903B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:05:05 -0800 (PST)
+        with ESMTP id S234705AbiL1RDm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:03:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AF8F19012
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:58:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C9EBB6155B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:05:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEE7CC433D2;
-        Wed, 28 Dec 2022 16:05:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D1D48B81889
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:58:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40E0FC433D2;
+        Wed, 28 Dec 2022 16:57:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243504;
-        bh=CrhYTI12EfCuNJIiCDZ0o4WMBOwdSivhCuvyUCKXg8A=;
+        s=korg; t=1672246679;
+        bh=Wsda+XD+JwQsJLyyqlUbDKjCumuiyPp1cAJKGf+TYRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xh9x6FlXBzaNsqsj1W0BUBPUe/vtRDrP+XPpSz8FpLqh4kNCaUZHblAXbNc6POJ0m
-         SGn04Mf0LZ9mdaXb/Wot+V54kD3iQAx6aLnNj8Caw2qTFPBVnAwRV8UY34kJLHdwK5
-         4ZTQzMmIyg+afJshFZkz1104uxVJI9Top1HM9voo=
+        b=PObIXpUet5C/gztkc8Hy823sGFLU99eVlo1wl7M++tfzwc6wMiEg6z6aehDdXwEdk
+         CPRJzq15VfqH2qnoqkgXeYXGI1LZ2v4nO7QMNKgUIB79raVnOoMyA1esNMpC842Cje
+         LSQfY/YvNMF6+0O3UtEKgmTtyBYkZKxUpWSvsf/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.15 728/731] net: stmmac: fix errno when create_singlethread_workqueue() fails
+        patches@lists.linux.dev, Jeff LaBundy <jeff@labundy.com>,
+        Rob Herring <robh@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 1096/1146] dt-bindings: input: iqs7222: Correct minimum slider size
 Date:   Wed, 28 Dec 2022 15:43:55 +0100
-Message-Id: <20221228144317.543382738@linuxfoundation.org>
+Message-Id: <20221228144359.940746334@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Jeff LaBundy <jeff@labundy.com>
 
-commit 2cb815cfc78b137ee38bcd65e7c955d6cc2cc250 upstream.
+[ Upstream commit 99d03b54ef8506771c15deb714396665592f6adf ]
 
-We should set the return value to -ENOMEM explicitly when
-create_singlethread_workqueue() fails in stmmac_dvr_probe(),
-otherwise we'll lose the error value.
+The minimum slider size enforced by the driver is 1 or 16 for the
+IQS7222C or IQS7222A, respectively.
 
-Fixes: a137f3f27f92 ("net: stmmac: fix possible memory leak in stmmac_dvr_probe()")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Link: https://lore.kernel.org/r/20221214080117.3514615-1-cuigaosheng1@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 44dc42d254bf ("dt-bindings: input: Add bindings for Azoteq IQS7222A/B/C")
+Signed-off-by: Jeff LaBundy <jeff@labundy.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/Y1SRU37t74wRvZv3@nixie71
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    1 +
- 1 file changed, 1 insertion(+)
+ Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -7046,6 +7046,7 @@ int stmmac_dvr_probe(struct device *devi
- 	priv->wq = create_singlethread_workqueue("stmmac_wq");
- 	if (!priv->wq) {
- 		dev_err(priv->device, "failed to create workqueue\n");
-+		ret = -ENOMEM;
- 		goto error_wq_init;
- 	}
+diff --git a/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml b/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
+index b4eb650dbcb8..913fd2da9862 100644
+--- a/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
++++ b/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
+@@ -498,7 +498,7 @@ patternProperties:
  
+       azoteq,slider-size:
+         $ref: /schemas/types.yaml#/definitions/uint32
+-        minimum: 0
++        minimum: 1
+         maximum: 65535
+         description:
+           Specifies the slider's one-dimensional resolution, equal to the
+@@ -687,6 +687,7 @@ allOf:
+           properties:
+             azoteq,slider-size:
+               multipleOf: 16
++              minimum: 16
+               maximum: 4080
+ 
+             azoteq,top-speed:
+-- 
+2.35.1
+
 
 
