@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2679D658476
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 833D8657F35
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234672AbiL1Q5c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:57:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50156 "EHLO
+        id S232994AbiL1QDC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:03:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235319AbiL1Q4m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:56:42 -0500
+        with ESMTP id S234318AbiL1QCh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:02:37 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 208D41C91A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:52:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12C721902B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:02:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B5656B816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:52:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09381C433EF;
-        Wed, 28 Dec 2022 16:52:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8B37B8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:02:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 215F2C433D2;
+        Wed, 28 Dec 2022 16:02:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246368;
-        bh=2cM9sHk61kwFfoiBAilDqzfeyk7NEDtVTKGidPdFxlg=;
+        s=korg; t=1672243337;
+        bh=vKCceEtCG+j9139TOxtTjlTcNBL8YiZXWWL6QjbaQbE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZOyLq+eZVudkDQrEwefXZW0p+QSDYMxrMDgsWFNsPrscPfFN2c5w/D6qj9Q3toyk6
-         RtzItk/alSQ8xnf986tR3Li3RNhnm2fvbSxl3EimFlf10TjVIToAq0baHxMt5lXfje
-         EFsJHlRdpoSMrtDXTYeuRYwamTfoR1nP4JzWwkC8=
+        b=eDfjmhyNpaESIdTimhsVvWre2SV0AMCDSWLL2xnsLZUqs9/j13nGjzxAOS8bf6aQG
+         mNAWbHJ05j1spvcjQvT/6jIymRmpzeCjVc/dhjowvHHpQwBvOHDqg4Kgs7v9snzhvX
+         aVFeMxJh4GV6P1cMRzalpF8VPdUYhiOdgobhfODU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Edward Pacman <edward@edward-p.xyz>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 6.0 1029/1073] ALSA: hda/realtek: Add quirk for Lenovo TianYi510Pro-14IOB
+        patches@lists.linux.dev, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Ferry Toth <ftoth@exalondelft.nl>
+Subject: [PATCH 5.15 710/731] usb: dwc3: core: defer probe on ulpi_read_id timeout
 Date:   Wed, 28 Dec 2022 15:43:37 +0100
-Message-Id: <20221228144356.143112429@linuxfoundation.org>
+Message-Id: <20221228144317.030579841@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,79 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edward Pacman <edward@edward-p.xyz>
+From: Ferry Toth <ftoth@exalondelft.nl>
 
-commit 4bf5bf54476dffe60e6b6d8d539f67309ff599e2 upstream.
+commit 63130462c919ece0ad0d9bb5a1f795ef8d79687e upstream.
 
-Lenovo TianYi510Pro-14IOB (17aa:3742)
-require quirk for enabling headset-mic
+Since commit 0f0101719138 ("usb: dwc3: Don't switch OTG -> peripheral
+if extcon is present"), Dual Role support on Intel Merrifield platform
+broke due to rearranging the call to dwc3_get_extcon().
 
-Signed-off-by: Edward Pacman <edward@edward-p.xyz>
-Cc: <stable@vger.kernel.org>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216756
-Link: https://lore.kernel.org/r/20221207133218.18989-1-edward@edward-p.xyz
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+It appears to be caused by ulpi_read_id() masking the timeout on the first
+test write. In the past dwc3 probe continued by calling dwc3_core_soft_reset()
+followed by dwc3_get_extcon() which happend to return -EPROBE_DEFER.
+On deferred probe ulpi_read_id() finally succeeded. Due to above mentioned
+rearranging -EPROBE_DEFER is not returned and probe completes without phy.
+
+On Intel Merrifield the timeout on the first test write issue is reproducible
+but it is difficult to find the root cause. Using a mainline kernel and
+rootfs with buildroot ulpi_read_id() succeeds. As soon as adding
+ftrace / bootconfig to find out why, ulpi_read_id() fails and we can't
+analyze the flow. Using another rootfs ulpi_read_id() fails even without
+adding ftrace. We suspect the issue is some kind of timing / race, but
+merely retrying ulpi_read_id() does not resolve the issue.
+
+As we now changed ulpi_read_id() to return -ETIMEDOUT in this case, we
+need to handle the error by calling dwc3_core_soft_reset() and request
+-EPROBE_DEFER. On deferred probe ulpi_read_id() is retried and succeeds.
+
+Fixes: ef6a7bcfb01c ("usb: ulpi: Support device discovery via DT")
+Cc: stable@vger.kernel.org
+Acked-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Signed-off-by: Ferry Toth <ftoth@exalondelft.nl>
+Link: https://lore.kernel.org/r/20221205201527.13525-3-ftoth@exalondelft.nl
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ drivers/usb/dwc3/core.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -10984,6 +10984,17 @@ static void alc897_fixup_lenovo_headset_
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -963,8 +963,13 @@ static int dwc3_core_init(struct dwc3 *d
+ 
+ 	if (!dwc->ulpi_ready) {
+ 		ret = dwc3_core_ulpi_init(dwc);
+-		if (ret)
++		if (ret) {
++			if (ret == -ETIMEDOUT) {
++				dwc3_core_soft_reset(dwc);
++				ret = -EPROBE_DEFER;
++			}
+ 			goto err0;
++		}
+ 		dwc->ulpi_ready = true;
  	}
- }
  
-+static void alc897_fixup_lenovo_headset_mode(struct hda_codec *codec,
-+				     const struct hda_fixup *fix, int action)
-+{
-+	struct alc_spec *spec = codec->spec;
-+
-+	if (action == HDA_FIXUP_ACT_PRE_PROBE) {
-+		spec->parse_flags |= HDA_PINCFG_HEADSET_MIC;
-+		spec->gen.hp_automute_hook = alc897_hp_automute_hook;
-+	}
-+}
-+
- static const struct coef_fw alc668_coefs[] = {
- 	WRITE_COEF(0x01, 0xbebe), WRITE_COEF(0x02, 0xaaaa), WRITE_COEF(0x03,    0x0),
- 	WRITE_COEF(0x04, 0x0180), WRITE_COEF(0x06,    0x0), WRITE_COEF(0x07, 0x0f80),
-@@ -11067,6 +11078,8 @@ enum {
- 	ALC897_FIXUP_LENOVO_HEADSET_MIC,
- 	ALC897_FIXUP_HEADSET_MIC_PIN,
- 	ALC897_FIXUP_HP_HSMIC_VERB,
-+	ALC897_FIXUP_LENOVO_HEADSET_MODE,
-+	ALC897_FIXUP_HEADSET_MIC_PIN2,
- };
- 
- static const struct hda_fixup alc662_fixups[] = {
-@@ -11493,6 +11506,19 @@ static const struct hda_fixup alc662_fix
- 			{ }
- 		},
- 	},
-+	[ALC897_FIXUP_LENOVO_HEADSET_MODE] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc897_fixup_lenovo_headset_mode,
-+	},
-+	[ALC897_FIXUP_HEADSET_MIC_PIN2] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x1a, 0x01a11140 }, /* use as headset mic, without its own jack detect */
-+			{ }
-+		},
-+		.chained = true,
-+		.chain_id = ALC897_FIXUP_LENOVO_HEADSET_MODE
-+	},
- };
- 
- static const struct snd_pci_quirk alc662_fixup_tbl[] = {
-@@ -11545,6 +11571,7 @@ static const struct snd_pci_quirk alc662
- 	SND_PCI_QUIRK(0x17aa, 0x32cb, "Lenovo ThinkCentre M70", ALC897_FIXUP_HEADSET_MIC_PIN),
- 	SND_PCI_QUIRK(0x17aa, 0x32cf, "Lenovo ThinkCentre M950", ALC897_FIXUP_HEADSET_MIC_PIN),
- 	SND_PCI_QUIRK(0x17aa, 0x32f7, "Lenovo ThinkCentre M90", ALC897_FIXUP_HEADSET_MIC_PIN),
-+	SND_PCI_QUIRK(0x17aa, 0x3742, "Lenovo TianYi510Pro-14IOB", ALC897_FIXUP_HEADSET_MIC_PIN2),
- 	SND_PCI_QUIRK(0x17aa, 0x38af, "Lenovo Ideapad Y550P", ALC662_FIXUP_IDEAPAD),
- 	SND_PCI_QUIRK(0x17aa, 0x3a0d, "Lenovo Ideapad Y550", ALC662_FIXUP_IDEAPAD),
- 	SND_PCI_QUIRK(0x1849, 0x5892, "ASRock B150M", ALC892_FIXUP_ASROCK_MOBO),
 
 
