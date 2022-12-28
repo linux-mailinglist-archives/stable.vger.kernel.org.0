@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51FB36584E4
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:03:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 972E3658491
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:58:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235347AbiL1RDl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:03:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56750 "EHLO
+        id S235127AbiL1Q62 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:58:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234668AbiL1RDS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:03:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DE39E7F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:57:29 -0800 (PST)
+        with ESMTP id S235373AbiL1Q5p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:57:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 196DA1D31B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:54:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1AD7DB8188B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:57:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68F52C433EF;
-        Wed, 28 Dec 2022 16:57:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C70A5B8171E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:54:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43B42C433EF;
+        Wed, 28 Dec 2022 16:54:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246646;
-        bh=d5fnSVDgJngnhjxWWWq1gmIJVeBeItmoNzJotTT5wZ4=;
+        s=korg; t=1672246441;
+        bh=slyJE37SDOyRA6H47M3Y5FSvn7P7FZsg5FEcxjsOgR8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ro+Mnq1aUw6SO1z7BZ4PMNwpSjOPG+3s5/vwxn6iQHas5o5YYdJZsMQWj2Rri/UaG
-         +UYDhAL0GRT1Z40d+9uXRKjBmf+RvHymLvvG8ZlA0rHx1Aa/Qkn3G78qb39X+d4buc
-         Zlbq5GjvPZ037Vjjd5ZxnREiEf0mfw4pfqb6rmIY=
+        b=uawths0RU+jNdc6l55QIPClMXw+2AcDeGKVBuQg7glFZGi+8Cvz4wYvxKdqLpzfv3
+         IB/H07PxPlsgyNcWGLDO8Zul1wAqOTFKEslmyYzsuil6aAnhgX1TYJUbFR67waPTxI
+         FHhAoWFVp9X/oTBhcQjuHI7mVmuBsU9A6p6OOMqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Miaoqian Lin <linmq006@gmail.com>
-Subject: [PATCH 6.1 1111/1146] usb: dwc3: qcom: Fix memory leak in dwc3_qcom_interconnect_init
-Date:   Wed, 28 Dec 2022 15:44:10 +0100
-Message-Id: <20221228144400.331126567@linuxfoundation.org>
+        patches@lists.linux.dev, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 6.0 1063/1073] io_uring: remove iopoll spinlock
+Date:   Wed, 28 Dec 2022 15:44:11 +0100
+Message-Id: <20221228144357.108737456@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +52,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 97a48da1619ba6bd42a0e5da0a03aa490a9496b1 upstream.
+commit 2dac1a159216b39ced8d78dba590c5d2f4249586 upstream.
 
-of_icc_get() alloc resources for path handle, we should release it when not
-need anymore. Like the release in dwc3_qcom_interconnect_exit() function.
-Add icc_put() in error handling to fix this.
+This reverts commit 2ccc92f4effcfa1c51c4fcf1e34d769099d3cad4
 
-Fixes: bea46b981515 ("usb: dwc3: qcom: Add interconnect support in dwc3 driver")
-Cc: stable <stable@kernel.org>
-Acked-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20221206081731.818107-1-linmq006@gmail.com
+io_req_complete_post() should now behave well even in case of IOPOLL, we
+can remove completion_lock locking.
+
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/7e171c8b530656b14a671c59100ca260e46e7f2a.1669203009.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/dwc3-qcom.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ io_uring/rw.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/dwc3/dwc3-qcom.c
-+++ b/drivers/usb/dwc3/dwc3-qcom.c
-@@ -261,7 +261,8 @@ static int dwc3_qcom_interconnect_init(s
- 	if (IS_ERR(qcom->icc_path_apps)) {
- 		dev_err(dev, "failed to get apps-usb path: %ld\n",
- 				PTR_ERR(qcom->icc_path_apps));
--		return PTR_ERR(qcom->icc_path_apps);
-+		ret = PTR_ERR(qcom->icc_path_apps);
-+		goto put_path_ddr;
- 	}
+--- a/io_uring/rw.c
++++ b/io_uring/rw.c
+@@ -1063,7 +1063,6 @@ int io_do_iopoll(struct io_ring_ctx *ctx
+ 	else if (!pos)
+ 		return 0;
  
- 	max_speed = usb_get_maximum_speed(&qcom->dwc3->dev);
-@@ -274,16 +275,22 @@ static int dwc3_qcom_interconnect_init(s
+-	spin_lock(&ctx->completion_lock);
+ 	prev = start;
+ 	wq_list_for_each_resume(pos, prev) {
+ 		struct io_kiocb *req = container_of(pos, struct io_kiocb, comp_list);
+@@ -1078,11 +1077,11 @@ int io_do_iopoll(struct io_ring_ctx *ctx
+ 		req->cqe.flags = io_put_kbuf(req, 0);
+ 		__io_fill_cqe_req(req->ctx, req);
  	}
- 	if (ret) {
- 		dev_err(dev, "failed to set bandwidth for usb-ddr path: %d\n", ret);
--		return ret;
-+		goto put_path_apps;
- 	}
- 
- 	ret = icc_set_bw(qcom->icc_path_apps, APPS_USB_AVG_BW, APPS_USB_PEAK_BW);
- 	if (ret) {
- 		dev_err(dev, "failed to set bandwidth for apps-usb path: %d\n", ret);
--		return ret;
-+		goto put_path_apps;
- 	}
- 
- 	return 0;
+-	io_commit_cqring(ctx);
+-	spin_unlock(&ctx->completion_lock);
 +
-+put_path_apps:
-+	icc_put(qcom->icc_path_apps);
-+put_path_ddr:
-+	icc_put(qcom->icc_path_ddr);
-+	return ret;
- }
+ 	if (unlikely(!nr_events))
+ 		return 0;
  
- /**
++	io_commit_cqring(ctx);
+ 	io_cqring_ev_posted_iopoll(ctx);
+ 	pos = start ? start->next : ctx->iopoll_list.first;
+ 	wq_list_cut(&ctx->iopoll_list, prev, start);
 
 
