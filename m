@@ -2,53 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D60B965816B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:28:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE346657B9C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233648AbiL1Q2c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:28:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49428 "EHLO
+        id S233700AbiL1PXg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:23:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231252AbiL1Q14 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:27:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AABB22C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:23:56 -0800 (PST)
+        with ESMTP id S233692AbiL1PXb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:23:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 187C113FAC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:23:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB919B8171E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:23:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19AA8C433EF;
-        Wed, 28 Dec 2022 16:23:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 96F4561544
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:23:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5FE2C433D2;
+        Wed, 28 Dec 2022 15:23:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244633;
-        bh=5YTnHYb44Tvh0ZcmQw5FvxR0neV5vVJwQSLYSKZWTEA=;
+        s=korg; t=1672241010;
+        bh=vuLFL31CGgFpwrTJE2ZDeXdrPmuVfzUQ0rkFUZOnICE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L86/PM+EfrPK40+N4zkCX8+EOB3c4A3YE5vELuIGlmlJiuMigsY9IEA+dM/InnGmc
-         kMLq9xh689dVLkZsaMny30ZWDuIXn+oKzYtMHiWlzeI8CFWiPeXKKdxwvTg7AhRX1m
-         iqBEQeYh87HxtDdKhdnH6W/i3u1+Cu3GjLbhBAaU=
+        b=MMmUMm7ldOKnqLvu7+vuf2ZgRPXXugX78oC3w1Pa9niqwa9JxYN/cXwH/teBTIBJO
+         VStLJad2Er+93SmwyxbX6frgvrYhJSct4eVEFitwEVI7JM7LcWjvXs3nZ4udf5jtoy
+         2/4/ZwBPPcGuzPSe6qzGhcB9ewNUYvatiUJnwNXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ajay Kaher <akaher@vmware.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexey Makhalov <amakhalov@vmware.com>,
-        Jiri Olsa <jolsa@kernel.org>, Leo Yan <leo.yan@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Srivatsa S. Bhat" <srivatsab@vmware.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Vasavi Sirnapalli <vsirnapalli@vmware.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        patches@lists.linux.dev,
+        John Thomson <git@johnthomson.fastmail.com.au>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0745/1073] perf symbol: correction while adjusting symbol
-Date:   Wed, 28 Dec 2022 15:38:53 +0100
-Message-Id: <20221228144348.258923138@linuxfoundation.org>
+Subject: [PATCH 5.15 427/731] PCI: mt7621: Add sentinel to quirks table
+Date:   Wed, 28 Dec 2022 15:38:54 +0100
+Message-Id: <20221228144308.944618181@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,74 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ajay Kaher <akaher@vmware.com>
+From: John Thomson <git@johnthomson.fastmail.com.au>
 
-[ Upstream commit 6f520ce17920b3cdfbd2479b3ccf27f9706219d0 ]
+[ Upstream commit 19098934f910b4d47cb30251dd39ffa57bef9523 ]
 
-perf doesn't provide proper symbol information for specially crafted
-.debug files.
+Current driver is missing a sentinel in the struct soc_device_attribute
+array, which causes an oops when assessed by the
+soc_device_match(mt7621_pcie_quirks_match) call.
 
-Sometimes .debug file may not have similar program header as runtime
-ELF file. For example if we generate .debug file using objcopy
---only-keep-debug resulting file will not contain .text, .data and
-other runtime sections. That means corresponding program headers will
-have zero FileSiz and modified Offset.
+This was only exposed once the CONFIG_SOC_MT7621 mt7621 soc_dev_attr
+was fixed to register the SOC as a device, in:
 
-Example: program header of text section of libxxx.so:
+commit 7c18b64bba3b ("mips: ralink: mt7621: do not use kzalloc too early")
 
-Type           Offset             VirtAddr           PhysAddr
-               FileSiz            MemSiz              Flags  Align
-LOAD        0x00000000003d3000 0x00000000003d3000 0x00000000003d3000
-            0x000000000055ae80 0x000000000055ae80  R E    0x1000
+Fix it by adding the required sentinel.
 
-Same program header after executing:
-objcopy --only-keep-debug libxxx.so libxxx.so.debug
-
-LOAD        0x0000000000001000 0x00000000003d3000 0x00000000003d3000
-            0x0000000000000000 0x000000000055ae80  R E    0x1000
-
-Offset and FileSiz have been changed.
-
-Following formula will not provide correct value, if program header
-taken from .debug file (syms_ss):
-
-    sym.st_value -= phdr.p_vaddr - phdr.p_offset;
-
-Correct program header information is located inside runtime ELF
-file (runtime_ss).
-
-Fixes: 2d86612aacb7805f ("perf symbol: Correct address for bss symbols")
-Signed-off-by: Ajay Kaher <akaher@vmware.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexey Makhalov <amakhalov@vmware.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Srivatsa S. Bhat <srivatsab@vmware.com>
-Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Cc: Vasavi Sirnapalli <vsirnapalli@vmware.com>
-Link: http://lore.kernel.org/lkml/1669198696-50547-1-git-send-email-akaher@vmware.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Link: https://lore.kernel.org/lkml/26ebbed1-0fe9-4af9-8466-65f841d0b382@app.fastmail.com
+Link: https://lore.kernel.org/r/20221205204645.301301-1-git@johnthomson.fastmail.com.au
+Fixes: b483b4e4d3f6 ("staging: mt7621-pci: add quirks for 'E2' revision using 'soc_device_attribute'")
+Signed-off-by: John Thomson <git@johnthomson.fastmail.com.au>
+Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Acked-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/symbol-elf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/mt7621-pci/pci-mt7621.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/symbol-elf.c b/tools/perf/util/symbol-elf.c
-index 647b7dff8ef3..80345695b136 100644
---- a/tools/perf/util/symbol-elf.c
-+++ b/tools/perf/util/symbol-elf.c
-@@ -1303,7 +1303,7 @@ dso__load_sym_internal(struct dso *dso, struct map *map, struct symsrc *syms_ss,
- 			   (!used_opd && syms_ss->adjust_symbols)) {
- 			GElf_Phdr phdr;
+diff --git a/drivers/staging/mt7621-pci/pci-mt7621.c b/drivers/staging/mt7621-pci/pci-mt7621.c
+index c4f57bb63482..b520d1e0edd1 100644
+--- a/drivers/staging/mt7621-pci/pci-mt7621.c
++++ b/drivers/staging/mt7621-pci/pci-mt7621.c
+@@ -511,7 +511,8 @@ static int mt7621_pcie_register_host(struct pci_host_bridge *host)
+ }
  
--			if (elf_read_program_header(syms_ss->elf,
-+			if (elf_read_program_header(runtime_ss->elf,
- 						    (u64)sym.st_value, &phdr)) {
- 				pr_debug4("%s: failed to find program header for "
- 					   "symbol: %s st_value: %#" PRIx64 "\n",
+ static const struct soc_device_attribute mt7621_pcie_quirks_match[] = {
+-	{ .soc_id = "mt7621", .revision = "E2" }
++	{ .soc_id = "mt7621", .revision = "E2" },
++	{ /* sentinel */ }
+ };
+ 
+ static int mt7621_pcie_probe(struct platform_device *pdev)
 -- 
 2.35.1
 
