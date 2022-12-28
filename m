@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71BE46581B6
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:31:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89724658273
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:37:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234761AbiL1QbW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:31:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51142 "EHLO
+        id S234779AbiL1QgX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:36:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234779AbiL1QbE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:31:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EA571CB1D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:27:04 -0800 (PST)
+        with ESMTP id S234735AbiL1QfB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:35:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 033801C10E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:32:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A0817B81717
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:27:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11F2AC433D2;
-        Wed, 28 Dec 2022 16:27:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9267B61576
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:32:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 964D1C433F0;
+        Wed, 28 Dec 2022 16:32:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244822;
-        bh=2T2LJ59ayqgeEhm+nqeNL0q+bbd5bJDVPllt0w3at18=;
+        s=korg; t=1672245133;
+        bh=XM4x45EmFMVOn2KKw0Remez/+UuUsoNpzkDIXeCTrp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jLslj6yKnhwQGM/CYnHsVuhKG2ToRV2G3K3uROnxRPDmNfyt03ZesWP3sT4NT3ETv
-         TG2j6fE5NKo0ke9OS16/EW3rIVYoc4ZqUMxgIzP4+6lQzdST4C4zaqbIMAiPD46gdN
-         8aue98htuofRvz2CMXy0HioJwjqBFM3ICwn++ezI=
+        b=u/i8EW/ZfTpfuoH5emIamQLvzxb1k7U6v+G502f2MYAmvwHhNeATDHSovnV0Bm/fn
+         KcJblgQ6BoKNfW9DVph5qU8GYFVDYVQ+GUI3uvTp4vSReTpMsE3xQTQuhJVQSDeVhP
+         epxBSftcNR2LGfZIp9AvgJT1UgxyiUXY3pgHFCOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marek Vasut <marex@denx.de>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0753/1073] power: supply: bq25890: Ensure pump_express_work is cancelled on remove
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0802/1146] phy: qcom-qmp-usb: clean up power-down handling
 Date:   Wed, 28 Dec 2022 15:39:01 +0100
-Message-Id: <20221228144348.472698098@linuxfoundation.org>
+Message-Id: <20221228144351.933899687@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit a7aaa80098d5b7608b2dc1e883e3c3f929415243 ]
+[ Upstream commit 645d3d04702401e002928b934b830bd25be9e277 ]
 
-The pump_express_work which gets queued from an external_power_changed
-callback might be pending / running on remove() (or on probe failure).
+Always define the POWER_DOWN_CONTROL register instead of falling back to
+the v2 (and v3) offset during power on and power off.
 
-Add a devm action cancelling the work, to ensure that it is cancelled.
-
-Note the devm action is added before devm_power_supply_register(), making
-it run after devm unregisters the power_supply, so that the work cannot
-be queued anymore (this is also why a devm action is used for this).
-
-Fixes: 48f45b094dbb ("power: supply: bq25890: Support higher charging voltages through Pump Express+ protocol")
-Reviewed-by: Marek Vasut <marex@denx.de>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Link: https://lore.kernel.org/r/20221017065013.19647-10-johan+linaro@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Stable-dep-of: 922adfd59efd ("phy: qcom-qmp-usb: correct registers layout for IPQ8074 USB3 PHY")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/bq25890_charger.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/phy/qualcomm/phy-qcom-qmp-usb.c | 20 ++++++--------------
+ 1 file changed, 6 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/power/supply/bq25890_charger.c b/drivers/power/supply/bq25890_charger.c
-index b4c8481ea17b..92fab662a51d 100644
---- a/drivers/power/supply/bq25890_charger.c
-+++ b/drivers/power/supply/bq25890_charger.c
-@@ -1189,6 +1189,13 @@ static int bq25890_fw_probe(struct bq25890_device *bq)
+diff --git a/drivers/phy/qualcomm/phy-qcom-qmp-usb.c b/drivers/phy/qualcomm/phy-qcom-qmp-usb.c
+index b84c0d4b5754..866955a36315 100644
+--- a/drivers/phy/qualcomm/phy-qcom-qmp-usb.c
++++ b/drivers/phy/qualcomm/phy-qcom-qmp-usb.c
+@@ -126,6 +126,7 @@ static const unsigned int usb3phy_regs_layout[QPHY_LAYOUT_SIZE] = {
+ 	[QPHY_PCS_AUTONOMOUS_MODE_CTRL]	= 0x0d4,
+ 	[QPHY_PCS_LFPS_RXTERM_IRQ_CLEAR]  = 0x0d8,
+ 	[QPHY_PCS_LFPS_RXTERM_IRQ_STATUS] = 0x178,
++	[QPHY_PCS_POWER_DOWN_CONTROL]	= 0x04,
+ };
+ 
+ static const unsigned int qmp_v3_usb3phy_regs_layout[QPHY_LAYOUT_SIZE] = {
+@@ -135,6 +136,7 @@ static const unsigned int qmp_v3_usb3phy_regs_layout[QPHY_LAYOUT_SIZE] = {
+ 	[QPHY_PCS_AUTONOMOUS_MODE_CTRL]	= 0x0d8,
+ 	[QPHY_PCS_LFPS_RXTERM_IRQ_CLEAR]  = 0x0dc,
+ 	[QPHY_PCS_LFPS_RXTERM_IRQ_STATUS] = 0x170,
++	[QPHY_PCS_POWER_DOWN_CONTROL]	= 0x04,
+ };
+ 
+ static const unsigned int qmp_v4_usb3phy_regs_layout[QPHY_LAYOUT_SIZE] = {
+@@ -2164,13 +2166,8 @@ static int qmp_usb_init(struct phy *phy)
+ 		qphy_clrbits(dp_com, QPHY_V3_DP_COM_SW_RESET, SW_RESET);
+ 	}
+ 
+-	if (cfg->regs[QPHY_PCS_POWER_DOWN_CONTROL])
+-		qphy_setbits(pcs,
+-			     cfg->regs[QPHY_PCS_POWER_DOWN_CONTROL],
+-			     cfg->pwrdn_ctrl);
+-	else
+-		qphy_setbits(pcs, QPHY_V2_PCS_POWER_DOWN_CONTROL,
+-			     cfg->pwrdn_ctrl);
++	qphy_setbits(pcs, cfg->regs[QPHY_PCS_POWER_DOWN_CONTROL],
++			cfg->pwrdn_ctrl);
+ 
+ 	return 0;
+ 
+@@ -2277,13 +2274,8 @@ static int qmp_usb_power_off(struct phy *phy)
+ 	qphy_clrbits(qphy->pcs, cfg->regs[QPHY_START_CTRL], cfg->start_ctrl);
+ 
+ 	/* Put PHY into POWER DOWN state: active low */
+-	if (cfg->regs[QPHY_PCS_POWER_DOWN_CONTROL]) {
+-		qphy_clrbits(qphy->pcs, cfg->regs[QPHY_PCS_POWER_DOWN_CONTROL],
+-			     cfg->pwrdn_ctrl);
+-	} else {
+-		qphy_clrbits(qphy->pcs, QPHY_V2_PCS_POWER_DOWN_CONTROL,
+-				cfg->pwrdn_ctrl);
+-	}
++	qphy_clrbits(qphy->pcs, cfg->regs[QPHY_PCS_POWER_DOWN_CONTROL],
++			cfg->pwrdn_ctrl);
+ 
  	return 0;
  }
- 
-+static void bq25890_non_devm_cleanup(void *data)
-+{
-+	struct bq25890_device *bq = data;
-+
-+	cancel_delayed_work_sync(&bq->pump_express_work);
-+}
-+
- static int bq25890_probe(struct i2c_client *client)
- {
- 	struct device *dev = &client->dev;
-@@ -1244,6 +1251,14 @@ static int bq25890_probe(struct i2c_client *client)
- 	/* OTG reporting */
- 	bq->usb_phy = devm_usb_get_phy(dev, USB_PHY_TYPE_USB2);
- 
-+	/*
-+	 * This must be before bq25890_power_supply_init(), so that it runs
-+	 * after devm unregisters the power_supply.
-+	 */
-+	ret = devm_add_action_or_reset(dev, bq25890_non_devm_cleanup, bq);
-+	if (ret)
-+		return ret;
-+
- 	ret = bq25890_register_regulator(bq);
- 	if (ret)
- 		return ret;
 -- 
 2.35.1
 
