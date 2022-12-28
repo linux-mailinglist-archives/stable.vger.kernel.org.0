@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 483B26578AF
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:53:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3D91657EBF
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:57:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233141AbiL1OxY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:53:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39170 "EHLO
+        id S234182AbiL1P5C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:57:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233158AbiL1OxE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:53:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D9FB95
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:53:03 -0800 (PST)
+        with ESMTP id S232023AbiL1P5B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:57:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 233A317E05
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:57:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC27E61540
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:53:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C083AC433EF;
-        Wed, 28 Dec 2022 14:53:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D416FB81730
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:56:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1665CC433EF;
+        Wed, 28 Dec 2022 15:56:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239182;
-        bh=IPKUIKD38FhbrgGYIO+tHSeh1hEP8IUgY9a8J0dzUnI=;
+        s=korg; t=1672243018;
+        bh=pIvTbqYetTh7+SYJiQ8FiLsngdD7fn0kVTwx86Wz7hc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aZhI0D07YWArTkjBdjypDBc1KQCESaXzBNSb9ANE5LykvjCaP2dQubdfyqFlb/nYH
-         W+ObOmwVWAYNyTMBTwihqyeQX9iLhqyN6NxZNln1sWZB+env6EJPs70jEUNwPi6Flh
-         1xtXuyUrpScRwQP4XkBgRTKMEo72cBGX/aWuaMTc=
+        b=lPMaFE6KUKNy7RArF2pTSyCEUeTMVZUWiewzPTP7Af+XWFbjIBrsYZdXmVH8Kmz2e
+         YDefT+/W3DOGJXYYmMX1bXzevjBYLAg7aSJYeA0QmkEuP0yKvpOpN1srq0CjDkmkLC
+         XUsP6/0qYIoh2cBD4ri6LahMMaky0dUfR54XodJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Daniel Scally <djrscally@gmail.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 159/731] media: exynos4-is: dont rely on the v4l2_async_subdev internals
-Date:   Wed, 28 Dec 2022 15:34:26 +0100
-Message-Id: <20221228144301.172922939@linuxfoundation.org>
+Subject: [PATCH 6.0 0479/1073] mmc: moxart: fix return value check of mmc_add_host()
+Date:   Wed, 28 Dec 2022 15:34:27 +0100
+Message-Id: <20221228144341.046550286@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit f98a5c2e1c4396488c27274ba82afc11725a4bcc ]
+[ Upstream commit 0ca18d09c744fb030ae9bc5836c3e357e0237dea ]
 
-Commit 1f391df44607 ("media: v4l2-async: Use endpoints in
-__v4l2_async_nf_add_fwnode_remote()") changed the data that is stored in
-the v4l2_async_subdev internals from the fwnode pointer to the parent
-device to the fwnode pointer to the matched endpoint. This broke the
-sensor matching code, which relied on the particular fwnode data in the
-v4l2_async_subdev internals. Fix this by simply matching the
-v4l2_async_subdev pointer, which is already available there.
+mmc_add_host() may return error, if we ignore its return value, the memory
+that allocated in mmc_alloc_host() will be leaked and it will lead a kernel
+crash because of deleting not added device in the remove path.
 
-Reported-by: Daniel Scally <djrscally@gmail.com>
-Fixes: fa91f1056f17 ("[media] exynos4-is: Add support for asynchronous subdevices registration")
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Daniel Scally <djrscally@gmail.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+So fix this by checking the return value and goto error path which will call
+mmc_free_host().
+
+Fixes: 1b66e94e6b99 ("mmc: moxart: Add MOXA ART SD/MMC driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221101063023.1664968-3-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/exynos4-is/media-dev.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/mmc/host/moxart-mmc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/exynos4-is/media-dev.c b/drivers/media/platform/exynos4-is/media-dev.c
-index fa648721eaab..aa5982e32b2b 100644
---- a/drivers/media/platform/exynos4-is/media-dev.c
-+++ b/drivers/media/platform/exynos4-is/media-dev.c
-@@ -1380,9 +1380,7 @@ static int subdev_notifier_bound(struct v4l2_async_notifier *notifier,
+diff --git a/drivers/mmc/host/moxart-mmc.c b/drivers/mmc/host/moxart-mmc.c
+index dfc3ffd5b1f8..52ed30f2d9f4 100644
+--- a/drivers/mmc/host/moxart-mmc.c
++++ b/drivers/mmc/host/moxart-mmc.c
+@@ -665,7 +665,9 @@ static int moxart_probe(struct platform_device *pdev)
+ 		goto out;
  
- 	/* Find platform data for this sensor subdev */
- 	for (i = 0; i < ARRAY_SIZE(fmd->sensor); i++)
--		if (fmd->sensor[i].asd &&
--		    fmd->sensor[i].asd->match.fwnode ==
--		    of_fwnode_handle(subdev->dev->of_node))
-+		if (fmd->sensor[i].asd == asd)
- 			si = &fmd->sensor[i];
+ 	dev_set_drvdata(dev, mmc);
+-	mmc_add_host(mmc);
++	ret = mmc_add_host(mmc);
++	if (ret)
++		goto out;
  
- 	if (si == NULL)
+ 	dev_dbg(dev, "IRQ=%d, FIFO is %d bytes\n", irq, host->fifo_width);
+ 
 -- 
 2.35.1
 
