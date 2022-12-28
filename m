@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 618FC657E11
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:49:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5277658360
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:47:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234098AbiL1Pto (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:49:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37632 "EHLO
+        id S233759AbiL1Qrb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:47:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234082AbiL1Ptj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:49:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDA2A183A6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:49:38 -0800 (PST)
+        with ESMTP id S234571AbiL1QrG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:47:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EBC51E708
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:41:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 736C9B81732
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:49:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E10F0C433D2;
-        Wed, 28 Dec 2022 15:49:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD96061568
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:41:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF8F9C433EF;
+        Wed, 28 Dec 2022 16:41:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242576;
-        bh=WBSylKWzXsCQ90vpG6DNlzMS6ha4uJBzIU7RLo3BUGg=;
+        s=korg; t=1672245706;
+        bh=1C/btrXoj9FohJvdTnZDUNcU45dnEn6H8iX9b6YHpx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jLqF1p8zoK/21g/8b2HmlZNrmctUhM0yG6rwunCIzBckU5lZi1WQ104TwAnQNEBqJ
-         o9sLAgRkS+pcNSsF8gJMojcu2VRnWlAjv4t9Pnq+kVb8ak5FNIL3SiTzOD4PdliAf/
-         ou50xJ7MyU1GgZn6iC/e4KnMoNLqkt6+O8CQFWyc=
+        b=gbahUNFETAB/UoTQIWIHETznjJ7xRR3MIwSF8nl5nvzYLJG9MyQF+sFGC5/by0hC+
+         z342sb3iiNM5HlA6oCVGEj0pynv9H2HFvFpEf79J6ClOeMq/cDjh3/4DZkGKtuW57K
+         VWg9uZswpxc4byAItcjmCeQ7Js/+bMdScKqoFPUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+7902cd7684bc35306224@syzkaller.appspotmail.com,
-        Shigeru Yoshida <syoshida@redhat.com>, Jan Kara <jack@suse.cz>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 621/731] udf: Avoid double brelse() in udf_rename()
-Date:   Wed, 28 Dec 2022 15:42:08 +0100
-Message-Id: <20221228144314.533920032@linuxfoundation.org>
+        patches@lists.linux.dev, Li Zhong <floridsleeves@gmail.com>,
+        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0941/1073] drivers/md/md-bitmap: check the return value of md_bitmap_get_counter()
+Date:   Wed, 28 Dec 2022 15:42:09 +0100
+Message-Id: <20221228144353.596117508@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,91 +52,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shigeru Yoshida <syoshida@redhat.com>
+From: Li Zhong <floridsleeves@gmail.com>
 
-[ Upstream commit c791730f2554a9ebb8f18df9368dc27d4ebc38c2 ]
+[ Upstream commit 3bd548e5b819b8c0f2c9085de775c5c7bff9052f ]
 
-syzbot reported a warning like below [1]:
+Check the return value of md_bitmap_get_counter() in case it returns
+NULL pointer, which will result in a null pointer dereference.
 
-VFS: brelse: Trying to free free buffer
-WARNING: CPU: 2 PID: 7301 at fs/buffer.c:1145 __brelse+0x67/0xa0
-...
-Call Trace:
- <TASK>
- invalidate_bh_lru+0x99/0x150
- smp_call_function_many_cond+0xe2a/0x10c0
- ? generic_remap_file_range_prep+0x50/0x50
- ? __brelse+0xa0/0xa0
- ? __mutex_lock+0x21c/0x12d0
- ? smp_call_on_cpu+0x250/0x250
- ? rcu_read_lock_sched_held+0xb/0x60
- ? lock_release+0x587/0x810
- ? __brelse+0xa0/0xa0
- ? generic_remap_file_range_prep+0x50/0x50
- on_each_cpu_cond_mask+0x3c/0x80
- blkdev_flush_mapping+0x13a/0x2f0
- blkdev_put_whole+0xd3/0xf0
- blkdev_put+0x222/0x760
- deactivate_locked_super+0x96/0x160
- deactivate_super+0xda/0x100
- cleanup_mnt+0x222/0x3d0
- task_work_run+0x149/0x240
- ? task_work_cancel+0x30/0x30
- do_exit+0xb29/0x2a40
- ? reacquire_held_locks+0x4a0/0x4a0
- ? do_raw_spin_lock+0x12a/0x2b0
- ? mm_update_next_owner+0x7c0/0x7c0
- ? rwlock_bug.part.0+0x90/0x90
- ? zap_other_threads+0x234/0x2d0
- do_group_exit+0xd0/0x2a0
- __x64_sys_exit_group+0x3a/0x50
- do_syscall_64+0x34/0xb0
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
+v2: update the check to include other dereference
 
-The cause of the issue is that brelse() is called on both ofibh.sbh
-and ofibh.ebh by udf_find_entry() when it returns NULL.  However,
-brelse() is called by udf_rename(), too.  So, b_count on buffer_head
-becomes unbalanced.
-
-This patch fixes the issue by not calling brelse() by udf_rename()
-when udf_find_entry() returns NULL.
-
-Link: https://syzkaller.appspot.com/bug?id=8297f45698159c6bca8a1f87dc983667c1a1c851 [1]
-Reported-by: syzbot+7902cd7684bc35306224@syzkaller.appspotmail.com
-Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221023095741.271430-1-syoshida@redhat.com
+Signed-off-by: Li Zhong <floridsleeves@gmail.com>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/namei.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/md/md-bitmap.c | 27 +++++++++++++++------------
+ 1 file changed, 15 insertions(+), 12 deletions(-)
 
-diff --git a/fs/udf/namei.c b/fs/udf/namei.c
-index 865e658535b1..0e30a50060d9 100644
---- a/fs/udf/namei.c
-+++ b/fs/udf/namei.c
-@@ -1091,8 +1091,9 @@ static int udf_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
- 		return -EINVAL;
+diff --git a/drivers/md/md-bitmap.c b/drivers/md/md-bitmap.c
+index bf6dffadbe6f..63ece30114e5 100644
+--- a/drivers/md/md-bitmap.c
++++ b/drivers/md/md-bitmap.c
+@@ -2195,20 +2195,23 @@ int md_bitmap_resize(struct bitmap *bitmap, sector_t blocks,
  
- 	ofi = udf_find_entry(old_dir, &old_dentry->d_name, &ofibh, &ocfi);
--	if (IS_ERR(ofi)) {
--		retval = PTR_ERR(ofi);
-+	if (!ofi || IS_ERR(ofi)) {
-+		if (IS_ERR(ofi))
-+			retval = PTR_ERR(ofi);
- 		goto end_rename;
- 	}
- 
-@@ -1101,8 +1102,7 @@ static int udf_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
- 
- 	brelse(ofibh.sbh);
- 	tloc = lelb_to_cpu(ocfi.icb.extLocation);
--	if (!ofi || udf_get_lb_pblock(old_dir->i_sb, &tloc, 0)
--	    != old_inode->i_ino)
-+	if (udf_get_lb_pblock(old_dir->i_sb, &tloc, 0) != old_inode->i_ino)
- 		goto end_rename;
- 
- 	nfi = udf_find_entry(new_dir, &new_dentry->d_name, &nfibh, &ncfi);
+ 		if (set) {
+ 			bmc_new = md_bitmap_get_counter(&bitmap->counts, block, &new_blocks, 1);
+-			if (*bmc_new == 0) {
+-				/* need to set on-disk bits too. */
+-				sector_t end = block + new_blocks;
+-				sector_t start = block >> chunkshift;
+-				start <<= chunkshift;
+-				while (start < end) {
+-					md_bitmap_file_set_bit(bitmap, block);
+-					start += 1 << chunkshift;
++			if (bmc_new) {
++				if (*bmc_new == 0) {
++					/* need to set on-disk bits too. */
++					sector_t end = block + new_blocks;
++					sector_t start = block >> chunkshift;
++
++					start <<= chunkshift;
++					while (start < end) {
++						md_bitmap_file_set_bit(bitmap, block);
++						start += 1 << chunkshift;
++					}
++					*bmc_new = 2;
++					md_bitmap_count_page(&bitmap->counts, block, 1);
++					md_bitmap_set_pending(&bitmap->counts, block);
+ 				}
+-				*bmc_new = 2;
+-				md_bitmap_count_page(&bitmap->counts, block, 1);
+-				md_bitmap_set_pending(&bitmap->counts, block);
++				*bmc_new |= NEEDED_MASK;
+ 			}
+-			*bmc_new |= NEEDED_MASK;
+ 			if (new_blocks < old_blocks)
+ 				old_blocks = new_blocks;
+ 		}
 -- 
 2.35.1
 
