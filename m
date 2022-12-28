@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFF22657EF1
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:59:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18A36657864
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:50:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233069AbiL1P73 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:59:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46460 "EHLO
+        id S233072AbiL1OuG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:50:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234219AbiL1P73 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:59:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A14B18E05
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:59:28 -0800 (PST)
+        with ESMTP id S233081AbiL1OuE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:50:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 989F111A36
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:50:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D07E2B81730
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:59:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44418C433D2;
-        Wed, 28 Dec 2022 15:59:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1B0A1B81716
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:50:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71200C433EF;
+        Wed, 28 Dec 2022 14:50:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243165;
-        bh=bfVACty6wrQMY9FGTLJ2CbgpKEkw+xMGqWk0IQOrlSU=;
+        s=korg; t=1672239000;
+        bh=NwpmSBB8E6VbdEyBKNLEtjrA8uAaF0ZUtLvneo0GimE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gW6RjzL+bF0Mdhjv3HIrmLcQ+EzJdI/wkXMnRSkM6/P7Py6qRNtkVnxLFnSP708XP
-         jjpSH910D3RjjxQVv9uNNmblHaX2OY/nPWWSBRAAlqYShWKG2W1oNa0TEOF1+a1aWT
-         hkJICoUIKjuYeUhWtLq35K7w/2l3ccCuk1HOw1bE=
+        b=KzQ2wI0zGRV8/KEGR6XBlQCtCmz1PPu2bDyg0AIPLKiIm0kU6UeofKlMeJjUlVXHl
+         P+EA5Lbt9mrBOEzsCR6WqyEN8pWFOnflOjysmXBDF4rZF/d2dtxb6mBtES+wvUa43X
+         Ms/zODvT4BvUG1XUwuc0hoQjB5uEXti31+eAVVM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shayne Chen <shayne.chen@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0458/1146] wifi: mt76: mt7915: rework eeprom tx paths and streams init
-Date:   Wed, 28 Dec 2022 15:33:17 +0100
-Message-Id: <20221228144342.623004958@linuxfoundation.org>
+        patches@lists.linux.dev, Zhao Gongyi <zhaogongyi@huawei.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 091/731] selftests/efivarfs: Add checking of the test return value
+Date:   Wed, 28 Dec 2022 15:33:18 +0100
+Message-Id: <20221228144259.187475010@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,127 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shayne Chen <shayne.chen@mediatek.com>
+From: Zhao Gongyi <zhaogongyi@huawei.com>
 
-[ Upstream commit a7ec8bcf00034ce84d4c9a15dffd7577fbed4db2 ]
+[ Upstream commit c93924267fe6f2b44af1849f714ae9cd8117a9cd ]
 
-Rework tx paths and streams init part to improve readability, and make
-sure that the available tx streams should be smaller than or equal to
-the available tx paths.
+Add checking of the test return value, otherwise it will report success
+forever for test_create_read().
 
-Signed-off-by: Shayne Chen <shayne.chen@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Stable-dep-of: de147cc28985 ("wifi: mt76: mt7915: Fix chainmask calculation on mt7915 DBDC")
+Fixes: dff6d2ae56d0 ("selftests/efivarfs: clean up test files from test_create*()")
+Signed-off-by: Zhao Gongyi <zhaogongyi@huawei.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../wireless/mediatek/mt76/mt7915/eeprom.c    | 57 ++++++++-----------
- .../wireless/mediatek/mt76/mt7915/eeprom.h    |  5 --
- 2 files changed, 23 insertions(+), 39 deletions(-)
+ tools/testing/selftests/efivarfs/efivarfs.sh | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.c b/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.c
-index 4b1a9811646f..83bced0c0785 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.c
-@@ -173,60 +173,49 @@ static void mt7915_eeprom_parse_band_config(struct mt7915_phy *phy)
- void mt7915_eeprom_parse_hw_cap(struct mt7915_dev *dev,
- 				struct mt7915_phy *phy)
+diff --git a/tools/testing/selftests/efivarfs/efivarfs.sh b/tools/testing/selftests/efivarfs/efivarfs.sh
+index a90f394f9aa9..d374878cc0ba 100755
+--- a/tools/testing/selftests/efivarfs/efivarfs.sh
++++ b/tools/testing/selftests/efivarfs/efivarfs.sh
+@@ -87,6 +87,11 @@ test_create_read()
  {
--	u8 nss, nss_band, nss_band_max, *eeprom = dev->mt76.eeprom.data;
-+	u8 path, nss, nss_max = 4, *eeprom = dev->mt76.eeprom.data;
- 	struct mt76_phy *mphy = phy->mt76;
--	bool ext_phy = phy != &dev->phy;
- 
- 	mt7915_eeprom_parse_band_config(phy);
- 
--	/* read tx/rx mask from eeprom */
-+	/* read tx/rx path from eeprom */
- 	if (is_mt7915(&dev->mt76)) {
--		nss = FIELD_GET(MT_EE_WIFI_CONF0_TX_PATH,
--				eeprom[MT_EE_WIFI_CONF]);
-+		path = FIELD_GET(MT_EE_WIFI_CONF0_TX_PATH,
-+				 eeprom[MT_EE_WIFI_CONF]);
- 	} else {
--		nss = FIELD_GET(MT_EE_WIFI_CONF0_TX_PATH,
--				eeprom[MT_EE_WIFI_CONF + phy->band_idx]);
-+		path = FIELD_GET(MT_EE_WIFI_CONF0_TX_PATH,
-+				 eeprom[MT_EE_WIFI_CONF + phy->band_idx]);
- 	}
- 
--	if (!nss || nss > 4)
--		nss = 4;
-+	if (!path || path > 4)
-+		path = 4;
- 
- 	/* read tx/rx stream */
--	nss_band = nss;
--
-+	nss = path;
- 	if (dev->dbdc_support) {
- 		if (is_mt7915(&dev->mt76)) {
--			nss_band = FIELD_GET(MT_EE_WIFI_CONF3_TX_PATH_B0,
--					     eeprom[MT_EE_WIFI_CONF + 3]);
-+			nss = FIELD_GET(MT_EE_WIFI_CONF3_TX_PATH_B0,
-+					eeprom[MT_EE_WIFI_CONF + 3]);
- 			if (phy->band_idx)
--				nss_band = FIELD_GET(MT_EE_WIFI_CONF3_TX_PATH_B1,
--						     eeprom[MT_EE_WIFI_CONF + 3]);
-+				nss = FIELD_GET(MT_EE_WIFI_CONF3_TX_PATH_B1,
-+						eeprom[MT_EE_WIFI_CONF + 3]);
- 		} else {
--			nss_band = FIELD_GET(MT_EE_WIFI_CONF_STREAM_NUM,
--					     eeprom[MT_EE_WIFI_CONF + 2 + phy->band_idx]);
-+			nss = FIELD_GET(MT_EE_WIFI_CONF_STREAM_NUM,
-+					eeprom[MT_EE_WIFI_CONF + 2 + phy->band_idx]);
- 		}
- 
--		nss_band_max = is_mt7986(&dev->mt76) ?
--			       MT_EE_NSS_MAX_DBDC_MA7986 : MT_EE_NSS_MAX_DBDC_MA7915;
--	} else {
--		nss_band_max = is_mt7986(&dev->mt76) ?
--			       MT_EE_NSS_MAX_MA7986 : MT_EE_NSS_MAX_MA7915;
-+		if (!is_mt7986(&dev->mt76))
-+			nss_max = 2;
- 	}
- 
--	if (!nss_band || nss_band > nss_band_max)
--		nss_band = nss_band_max;
--
--	if (nss_band > nss) {
--		dev_warn(dev->mt76.dev,
--			 "nss mismatch, nss(%d) nss_band(%d) band(%d) ext_phy(%d)\n",
--			 nss, nss_band, phy->band_idx, ext_phy);
--		nss = nss_band;
--	}
-+	if (!nss)
-+		nss = nss_max;
-+	nss = min_t(u8, min_t(u8, nss_max, nss), path);
- 
--	mphy->chainmask = BIT(nss) - 1;
--	if (ext_phy)
-+	mphy->chainmask = BIT(path) - 1;
-+	if (phy->band_idx)
- 		mphy->chainmask <<= dev->chainshift;
--	mphy->antenna_mask = BIT(nss_band) - 1;
-+	mphy->antenna_mask = BIT(nss) - 1;
- 	dev->chainmask |= mphy->chainmask;
- 	dev->chainshift = hweight8(dev->mphy.chainmask);
+ 	local file=$efivarfs_mount/$FUNCNAME-$test_guid
+ 	./create-read $file
++	if [ $? -ne 0 ]; then
++		echo "create and read $file failed"
++		file_cleanup $file
++		exit 1
++	fi
+ 	file_cleanup $file
  }
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.h b/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.h
-index 7578ac6d0be6..f3e56817d36e 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.h
-@@ -58,11 +58,6 @@ enum mt7915_eeprom_field {
- #define MT_EE_RATE_DELTA_SIGN			BIT(6)
- #define MT_EE_RATE_DELTA_EN			BIT(7)
  
--#define MT_EE_NSS_MAX_MA7915			4
--#define MT_EE_NSS_MAX_DBDC_MA7915		2
--#define MT_EE_NSS_MAX_MA7986			4
--#define MT_EE_NSS_MAX_DBDC_MA7986		4
--
- enum mt7915_adie_sku {
- 	MT7976_ONE_ADIE_DBDC = 0x7,
- 	MT7975_ONE_ADIE	= 0x8,
 -- 
 2.35.1
 
