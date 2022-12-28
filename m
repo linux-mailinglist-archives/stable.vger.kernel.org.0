@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2262B6581DE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:32:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D4726582CF
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:42:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234754AbiL1QcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:32:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49998 "EHLO
+        id S233652AbiL1QmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:42:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234762AbiL1Qbp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:31:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C36571CFEB
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:28:03 -0800 (PST)
+        with ESMTP id S234438AbiL1QlY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:41:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AE942182
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:35:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 201206157A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:28:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31847C433EF;
-        Wed, 28 Dec 2022 16:28:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B379EB81889
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:35:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26952C433EF;
+        Wed, 28 Dec 2022 16:35:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244882;
+        s=korg; t=1672245345;
         bh=P/yqFWzpRP1MUCTMMFFZHoiJC4V0gyYh77CB16B4cZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P90Inyd9olBs3+O4BkLxWRPQo36PpjxcO3L1M1swAVTalbLU3hNpws9j/TvFdaGg9
-         53UXbLd/YNa3Es121plQpLZ5NTXSXYqIPFYVX7DPeqM7PC+ss3xQe4Wm4YBF4Sh+9N
-         XMbPoYimHb13GMX/dSeRF8ErV+aFE/cIWlSPWqFQ=
+        b=p+Dz59dEYHyIpxvwRhZ6PamRPos2/wwAQh++/Eq1nWg6oY3uB2wLDg/lJInj4QGXO
+         tIfcjXmsuBslIdefX38d/wC+VF13X/8XQYDjyaJF8N8Z6i//xviTPDNATYZKIHnLOC
+         t24Ucoz+Dbl/F9R5ph6FmcyAz0G+VA7SQm7XHUQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0793/1073] iommu/amd: Fix pci device refcount leak in ppr_notifier()
-Date:   Wed, 28 Dec 2022 15:39:41 +0100
-Message-Id: <20221228144349.549983124@linuxfoundation.org>
+Subject: [PATCH 6.1 0843/1146] iommu/amd: Fix pci device refcount leak in ppr_notifier()
+Date:   Wed, 28 Dec 2022 15:39:42 +0100
+Message-Id: <20221228144353.053329892@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
