@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B08B657EB2
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:56:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC654657EB5
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:56:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232960AbiL1P4f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:56:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43764 "EHLO
+        id S233661AbiL1P4i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:56:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234181AbiL1P4Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:56:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2782644F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:56:24 -0800 (PST)
+        with ESMTP id S234185AbiL1P4e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:56:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B1F7D98
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:56:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8694FB8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:56:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E61DBC433F1;
-        Wed, 28 Dec 2022 15:56:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CE246B8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:56:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CF07C433EF;
+        Wed, 28 Dec 2022 15:56:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242982;
-        bh=BBm+FXZcXc0LQpf3qvLlhqJJqR0w8aXAsxBE3rCarZo=;
+        s=korg; t=1672242990;
+        bh=Lmcw3TOe2AlptIzFhBZvvS38VLzYip5lBfUY/kKNdNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tOAB3Pg9xISDJxokFbuR5U/x/gMZmIRMPuyA/ROWaN1j++c2rnm+tPFtqcO5EO7QE
-         7H2zjqO10Ap3XE0hUkIyylfTJPorKIFC0uJqgLOP00wYsa6OBSG8k006V66wLrXugn
-         4brGqXnhm6oowYM0l5g3VSLYZYPy4moWSfxP9Vlc=
+        b=dW0bPJ1rj84pnTubB+FvwyqwK47dPoqaLVKDTeL6fbfo6hsJCUB+1Zm+fvtfhwt2X
+         AnEbDv5Ywf86gXrZPxLEa3TAYmZ7Q/8wCu+P6Hb8Vprcy0M2aCk/evNvxRa8hfIU+v
+         bEdhnbZLO4DPmIVhrldXae2qDzD/k59m4QaKEXlU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ChenXiaoSong <chenxiaosong2@huawei.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@rivosinc.com>,
+        Pu Lehui <pulehui@huawei.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0475/1073] NFSv4.x: Fail client initialisation if state manager thread cant run
-Date:   Wed, 28 Dec 2022 15:34:23 +0100
-Message-Id: <20221228144340.939773150@linuxfoundation.org>
+Subject: [PATCH 6.0 0476/1073] riscv, bpf: Emit fixed-length instructions for BPF_PSEUDO_FUNC
+Date:   Wed, 28 Dec 2022 15:34:24 +0100
+Message-Id: <20221228144340.965877667@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -53,35 +56,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Pu Lehui <pulehui@huawei.com>
 
-[ Upstream commit b4e4f66901658fae0614dea5bf91062a5387eda7 ]
+[ Upstream commit b54b6003612a376e7be32cbc5c1af3754bbbbb3d ]
 
-If the state manager thread fails to start, then we should just mark the
-client initialisation as failed so that other processes or threads don't
-get stuck in nfs_wait_client_init_complete().
+For BPF_PSEUDO_FUNC instruction, verifier will refill imm with
+correct addresses of bpf_calls and then run last pass of JIT.
+Since the emit_imm of RV64 is variable-length, which will emit
+appropriate length instructions accorroding to the imm, it may
+broke ctx->offset, and lead to unpredictable problem, such as
+inaccurate jump. So let's fix it with fixed-length instructions.
 
-Reported-by: ChenXiaoSong <chenxiaosong2@huawei.com>
-Fixes: 4697bd5e9419 ("NFSv4: Fix a race in the net namespace mount notification")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: 69c087ba6225 ("bpf: Add bpf_for_each_map_elem() helper")
+Suggested-by: Björn Töpel <bjorn@rivosinc.com>
+Signed-off-by: Pu Lehui <pulehui@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: Björn Töpel <bjorn@kernel.org>
+Acked-by: Björn Töpel <bjorn@kernel.org>
+Link: https://lore.kernel.org/bpf/20221206091410.1584784-1-pulehui@huaweicloud.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4state.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/riscv/net/bpf_jit_comp64.c | 29 ++++++++++++++++++++++++++++-
+ 1 file changed, 28 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index a629d7db9420..0774355249c9 100644
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -1232,6 +1232,8 @@ void nfs4_schedule_state_manager(struct nfs_client *clp)
- 	if (IS_ERR(task)) {
- 		printk(KERN_ERR "%s: kthread_run: %ld\n",
- 			__func__, PTR_ERR(task));
-+		if (!nfs_client_init_is_complete(clp))
-+			nfs_mark_client_ready(clp, PTR_ERR(task));
- 		nfs4_clear_state_manager_bit(clp);
- 		clear_bit(NFS4CLNT_MANAGER_AVAILABLE, &clp->cl_state);
- 		nfs_put_client(clp);
+diff --git a/arch/riscv/net/bpf_jit_comp64.c b/arch/riscv/net/bpf_jit_comp64.c
+index 00df3a8f92ac..f2417ac54edd 100644
+--- a/arch/riscv/net/bpf_jit_comp64.c
++++ b/arch/riscv/net/bpf_jit_comp64.c
+@@ -136,6 +136,25 @@ static bool in_auipc_jalr_range(s64 val)
+ 		val < ((1L << 31) - (1L << 11));
+ }
+ 
++/* Emit fixed-length instructions for address */
++static int emit_addr(u8 rd, u64 addr, bool extra_pass, struct rv_jit_context *ctx)
++{
++	u64 ip = (u64)(ctx->insns + ctx->ninsns);
++	s64 off = addr - ip;
++	s64 upper = (off + (1 << 11)) >> 12;
++	s64 lower = off & 0xfff;
++
++	if (extra_pass && !in_auipc_jalr_range(off)) {
++		pr_err("bpf-jit: target offset 0x%llx is out of range\n", off);
++		return -ERANGE;
++	}
++
++	emit(rv_auipc(rd, upper), ctx);
++	emit(rv_addi(rd, rd, lower), ctx);
++	return 0;
++}
++
++/* Emit variable-length instructions for 32-bit and 64-bit imm */
+ static void emit_imm(u8 rd, s64 val, struct rv_jit_context *ctx)
+ {
+ 	/* Note that the immediate from the add is sign-extended,
+@@ -1050,7 +1069,15 @@ int bpf_jit_emit_insn(const struct bpf_insn *insn, struct rv_jit_context *ctx,
+ 		u64 imm64;
+ 
+ 		imm64 = (u64)insn1.imm << 32 | (u32)imm;
+-		emit_imm(rd, imm64, ctx);
++		if (bpf_pseudo_func(insn)) {
++			/* fixed-length insns for extra jit pass */
++			ret = emit_addr(rd, imm64, extra_pass, ctx);
++			if (ret)
++				return ret;
++		} else {
++			emit_imm(rd, imm64, ctx);
++		}
++
+ 		return 1;
+ 	}
+ 
 -- 
 2.35.1
 
