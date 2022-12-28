@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83852657B8D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 279AE657A75
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:11:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233345AbiL1PXU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:23:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40320 "EHLO
+        id S232837AbiL1PLf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:11:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233312AbiL1PWv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:22:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 318F61402A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:22:51 -0800 (PST)
+        with ESMTP id S233231AbiL1PLQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:11:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB05213E10
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:11:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C2CC06154D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:22:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1976C433D2;
-        Wed, 28 Dec 2022 15:22:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 61C40B81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:11:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC1C5C433EF;
+        Wed, 28 Dec 2022 15:11:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240970;
-        bh=XZbEQknCyg1jcKzd9RfraxZOjt78kJ1E9oqPv1n3/h4=;
+        s=korg; t=1672240272;
+        bh=QSc7ICUxnojblo+gGNMCl4yx24zid3PlU/sjpWlAZ3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GW9Pf8fvxcNcC/8l9dpcQXH3lFyyhcOogTPvc3kOYpBSLfabxmBEW8fXKL8swD5/W
-         LDAlyMVB+SfEeDOA6WtyfkXjP5hGduIvy8Kq0lOVUj6yuh+g2ftRx+JLmH/dqhh/YS
-         sGPO7FMjBVcl/dXbHTHbJeNcVDraHEkeeUu+DL8s=
+        b=uiSADtDrndVnQ3YCtlbbts3ukmHjsGBRxiOTqGdPDoqirham2eMz/RaSXwrveBPuI
+         xUyqQnDvkZF0VLRb5B5ZS6NbIwQGXujwBcs0XPa+HGynxz+nCTvbn+Oialbh89BLKO
+         R8q5pktR3np/goQ2mGZpj1K6VzkmX7LEg0uOCLYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ZhangPeng <zhangpeng362@huawei.com>,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        syzbot+dc3b1cf9111ab5fe98e7@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>,
+        patches@lists.linux.dev, Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0190/1146] hfs: Fix OOB Write in hfs_asc2mac
+Subject: [PATCH 6.0 0141/1073] NFSD: Finish converting the NFSv3 GETACL result encoder
 Date:   Wed, 28 Dec 2022 15:28:49 +0100
-Message-Id: <20221228144335.310498975@linuxfoundation.org>
+Message-Id: <20221228144331.859197056@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhangPeng <zhangpeng362@huawei.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit c53ed55cb275344086e32a7080a6b19cb183650b ]
+[ Upstream commit 841fd0a3cb490eae5dfd262eccb8c8b11d57f8b8 ]
 
-Syzbot reported a OOB Write bug:
+For some reason, the NFSv2 GETACL result encoder was fully converted
+to use the new nfs_stream_encode_acl(), but the NFSv3 equivalent was
+not similarly converted.
 
-loop0: detected capacity change from 0 to 64
-==================================================================
-BUG: KASAN: slab-out-of-bounds in hfs_asc2mac+0x467/0x9a0
-fs/hfs/trans.c:133
-Write of size 1 at addr ffff88801848314e by task syz-executor391/3632
-
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0x1b1/0x28e lib/dump_stack.c:106
- print_address_description+0x74/0x340 mm/kasan/report.c:284
- print_report+0x107/0x1f0 mm/kasan/report.c:395
- kasan_report+0xcd/0x100 mm/kasan/report.c:495
- hfs_asc2mac+0x467/0x9a0 fs/hfs/trans.c:133
- hfs_cat_build_key+0x92/0x170 fs/hfs/catalog.c:28
- hfs_lookup+0x1ab/0x2c0 fs/hfs/dir.c:31
- lookup_open fs/namei.c:3391 [inline]
- open_last_lookups fs/namei.c:3481 [inline]
- path_openat+0x10e6/0x2df0 fs/namei.c:3710
- do_filp_open+0x264/0x4f0 fs/namei.c:3740
-
-If in->len is much larger than HFS_NAMELEN(31) which is the maximum
-length of an HFS filename, a OOB write could occur in hfs_asc2mac(). In
-that case, when the dst reaches the boundary, the srclen is still
-greater than 0, which causes a OOB write.
-Fix this by adding a check on dstlen in while() before writing to dst
-address.
-
-Link: https://lkml.kernel.org/r/20221202030038.1391945-1-zhangpeng362@huawei.com
-Fixes: 328b92278650 ("[PATCH] hfs: NLS support")
-Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
-Reviewed-by: Viacheslav Dubeyko <slava@dubeyko.com>
-Reported-by: <syzbot+dc3b1cf9111ab5fe98e7@syzkaller.appspotmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 20798dfe249a ("NFSD: Update the NFSv3 GETACL result encoder to use struct xdr_stream")
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfs/trans.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfsd/nfs3acl.c | 30 ++++++------------------------
+ 1 file changed, 6 insertions(+), 24 deletions(-)
 
-diff --git a/fs/hfs/trans.c b/fs/hfs/trans.c
-index 39f5e343bf4d..fdb0edb8a607 100644
---- a/fs/hfs/trans.c
-+++ b/fs/hfs/trans.c
-@@ -109,7 +109,7 @@ void hfs_asc2mac(struct super_block *sb, struct hfs_name *out, const struct qstr
- 	if (nls_io) {
- 		wchar_t ch;
+diff --git a/fs/nfsd/nfs3acl.c b/fs/nfsd/nfs3acl.c
+index 9446c6743664..7c798b5f4ec6 100644
+--- a/fs/nfsd/nfs3acl.c
++++ b/fs/nfsd/nfs3acl.c
+@@ -171,11 +171,7 @@ nfs3svc_encode_getaclres(struct svc_rqst *rqstp, struct xdr_stream *xdr)
+ {
+ 	struct nfsd3_getaclres *resp = rqstp->rq_resp;
+ 	struct dentry *dentry = resp->fh.fh_dentry;
+-	struct kvec *head = rqstp->rq_res.head;
+ 	struct inode *inode;
+-	unsigned int base;
+-	int n;
+-	int w;
  
--		while (srclen > 0) {
-+		while (srclen > 0 && dstlen > 0) {
- 			size = nls_io->char2uni(src, srclen, &ch);
- 			if (size < 0) {
- 				ch = '?';
+ 	if (!svcxdr_encode_nfsstat3(xdr, resp->status))
+ 		return false;
+@@ -187,26 +183,12 @@ nfs3svc_encode_getaclres(struct svc_rqst *rqstp, struct xdr_stream *xdr)
+ 		if (xdr_stream_encode_u32(xdr, resp->mask) < 0)
+ 			return false;
+ 
+-		base = (char *)xdr->p - (char *)head->iov_base;
+-
+-		rqstp->rq_res.page_len = w = nfsacl_size(
+-			(resp->mask & NFS_ACL)   ? resp->acl_access  : NULL,
+-			(resp->mask & NFS_DFACL) ? resp->acl_default : NULL);
+-		while (w > 0) {
+-			if (!*(rqstp->rq_next_page++))
+-				return false;
+-			w -= PAGE_SIZE;
+-		}
+-
+-		n = nfsacl_encode(&rqstp->rq_res, base, inode,
+-				  resp->acl_access,
+-				  resp->mask & NFS_ACL, 0);
+-		if (n > 0)
+-			n = nfsacl_encode(&rqstp->rq_res, base + n, inode,
+-					  resp->acl_default,
+-					  resp->mask & NFS_DFACL,
+-					  NFS_ACL_DEFAULT);
+-		if (n <= 0)
++		if (!nfs_stream_encode_acl(xdr, inode, resp->acl_access,
++					   resp->mask & NFS_ACL, 0))
++			return false;
++		if (!nfs_stream_encode_acl(xdr, inode, resp->acl_default,
++					   resp->mask & NFS_DFACL,
++					   NFS_ACL_DEFAULT))
+ 			return false;
+ 		break;
+ 	default:
 -- 
 2.35.1
 
