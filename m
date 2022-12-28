@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FF2F6579C1
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:04:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F15246579C4
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:04:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233493AbiL1PEX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:04:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52006 "EHLO
+        id S233505AbiL1PEa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:04:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233492AbiL1PEW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:04:22 -0500
+        with ESMTP id S233498AbiL1PE3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:04:29 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5485A13D1C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:04:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F8CC13D3D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:04:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E58D66154E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:04:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05FD5C433D2;
-        Wed, 28 Dec 2022 15:04:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E260861544
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:04:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFE36C433EF;
+        Wed, 28 Dec 2022 15:04:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239859;
-        bh=vcx5H1HFlMFS9H7dIWDCKvIHvDcFMR2Ft+FFeTJHQDk=;
+        s=korg; t=1672239867;
+        bh=0GQc4wQs5aK27rPJQJ98L0crID95I3l/htv6HJjJQV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J7GZ5oxtUnHAXwKxsu+L1yrSh/Bstwm27bv/s4k+Yd3dMQ21kO62rHxrx2xBiO4bh
-         kir6Hbs8yumSAed8HoC/qumfL5ziXR6r9NPO5QWiDNHkjvLC9yaf1LYj5CFdBqfO56
-         DRV6gdQnBZ/uRD9qkR2GYjKP/+pufMTPJenj0dt0=
+        b=k833/106k1TNFBRvD2CAz5LKpUB5ZcQqkElaP0zYZkOUS+jWQIIXnn9xI0C9w+vG/
+         FySNAQn1fBh93xWGy0W/6spd23fcpuKbfm+5SRn0H3X0e2OBtwEGUNyJ3aEQjxG7ga
+         YZQ6Gfg2vyIaXNDNMgsphY57Jv+bqsXWV6W/pKnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Sumit Gupta <sumitg@nvidia.com>,
         Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0051/1146] soc/tegra: cbb: Add checks for potential out of bound errors
-Date:   Wed, 28 Dec 2022 15:26:30 +0100
-Message-Id: <20221228144331.548573782@linuxfoundation.org>
+Subject: [PATCH 6.1 0052/1146] soc/tegra: cbb: Check firewall before enabling error reporting
+Date:   Wed, 28 Dec 2022 15:26:31 +0100
+Message-Id: <20221228144331.577890684@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -55,166 +55,204 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sumit Gupta <sumitg@nvidia.com>
 
-[ Upstream commit 55084947d6b48977c5122fbe443743a6c50c12bf ]
+[ Upstream commit 2927cf85f4877f417f884919de8e04ab9b362d32 ]
 
-Added checks to avoid potential out of bounds errors which can happen if
-the 'slave map' and 'CBB errors' arrays are not correct or latest where
-some entries are missing.
+To enable error reporting for a fabric to CCPLEX, we need to write its
+register for enabling error interrupt to CCPLEX during boot and later
+clear the error status register after error occurs. If a fabric's
+registers are protected and not accessible from CCPLEX, then accessing
+the registers will cause CBB firewall error.
+
+Add support to check whether write access from CCPLEX to the registers
+of a fabric is not blocked by it's firewall before enabling error
+reporting to CCPLEX for that fabric.
 
 Fixes: fc2f151d2314 ("soc/tegra: cbb: Add driver for Tegra234 CBB 2.0")
 Signed-off-by: Sumit Gupta <sumitg@nvidia.com>
 Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/tegra/cbb/tegra234-cbb.c | 42 ++++++++++++++++++++++++++--
- 1 file changed, 40 insertions(+), 2 deletions(-)
+ drivers/soc/tegra/cbb/tegra234-cbb.c | 83 +++++++++++++++++++++++++++-
+ 1 file changed, 81 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/soc/tegra/cbb/tegra234-cbb.c b/drivers/soc/tegra/cbb/tegra234-cbb.c
-index 04e12d9fdea5..0fab9e21d677 100644
+index 0fab9e21d677..f33d094e5ea6 100644
 --- a/drivers/soc/tegra/cbb/tegra234-cbb.c
 +++ b/drivers/soc/tegra/cbb/tegra234-cbb.c
-@@ -95,7 +95,9 @@ struct tegra234_cbb_fabric {
+@@ -72,6 +72,11 @@
+ 
+ #define REQ_SOCKET_ID			GENMASK(27, 24)
+ 
++#define CCPLEX_MSTRID			0x1
++#define FIREWALL_APERTURE_SZ		0x10000
++/* Write firewall check enable */
++#define WEN				0x20000
++
+ enum tegra234_cbb_fabric_ids {
+ 	CBB_FAB_ID,
+ 	SCE_FAB_ID,
+@@ -92,6 +97,9 @@ struct tegra234_slave_lookup {
+ struct tegra234_cbb_fabric {
+ 	const char *name;
+ 	phys_addr_t off_mask_erd;
++	phys_addr_t firewall_base;
++	unsigned int firewall_ctl;
++	unsigned int firewall_wr_ctl;
  	const char * const *master_id;
  	unsigned int notifier_offset;
  	const struct tegra_cbb_error *errors;
-+	const int max_errors;
- 	const struct tegra234_slave_lookup *slave_map;
-+	const int max_slaves;
- };
+@@ -129,6 +137,44 @@ static inline struct tegra234_cbb *to_tegra234_cbb(struct tegra_cbb *cbb)
+ static LIST_HEAD(cbb_list);
+ static DEFINE_SPINLOCK(cbb_lock);
  
- struct tegra234_cbb {
-@@ -270,6 +272,12 @@ static void tegra234_cbb_print_error(struct seq_file *file, struct tegra234_cbb
- 		tegra_cbb_print_err(file, "\t  Multiple type of errors reported\n");
- 
- 	while (status) {
-+		if (type >= cbb->fabric->max_errors) {
-+			tegra_cbb_print_err(file, "\t  Wrong type index:%u, status:%u\n",
-+					    type, status);
-+			return;
-+		}
++static bool
++tegra234_cbb_write_access_allowed(struct platform_device *pdev, struct tegra234_cbb *cbb)
++{
++	u32 val;
 +
- 		if (status & 0x1)
- 			tegra_cbb_print_err(file, "\t  Error Code\t\t: %s\n",
- 					    cbb->fabric->errors[type].code);
-@@ -281,6 +289,12 @@ static void tegra234_cbb_print_error(struct seq_file *file, struct tegra234_cbb
- 	type = 0;
- 
- 	while (overflow) {
-+		if (type >= cbb->fabric->max_errors) {
-+			tegra_cbb_print_err(file, "\t  Wrong type index:%u, overflow:%u\n",
-+					    type, overflow);
-+			return;
-+		}
-+
- 		if (overflow & 0x1)
- 			tegra_cbb_print_err(file, "\t  Overflow\t\t: Multiple %s\n",
- 					    cbb->fabric->errors[type].code);
-@@ -333,8 +347,11 @@ static void print_errlog_err(struct seq_file *file, struct tegra234_cbb *cbb)
- 	access_type = FIELD_GET(FAB_EM_EL_ACCESSTYPE, cbb->mn_attr0);
- 
- 	tegra_cbb_print_err(file, "\n");
--	tegra_cbb_print_err(file, "\t  Error Code\t\t: %s\n",
--			    cbb->fabric->errors[cbb->type].code);
-+	if (cbb->type < cbb->fabric->max_errors)
-+		tegra_cbb_print_err(file, "\t  Error Code\t\t: %s\n",
-+				    cbb->fabric->errors[cbb->type].code);
-+	else
-+		tegra_cbb_print_err(file, "\t  Wrong type index:%u\n", cbb->type);
- 
- 	tegra_cbb_print_err(file, "\t  MASTER_ID\t\t: %s\n", cbb->fabric->master_id[mstr_id]);
- 	tegra_cbb_print_err(file, "\t  Address\t\t: %#llx\n", cbb->access);
-@@ -373,6 +390,11 @@ static void print_errlog_err(struct seq_file *file, struct tegra234_cbb *cbb)
- 	if ((fab_id == PSC_FAB_ID) || (fab_id == FSI_FAB_ID))
- 		return;
- 
-+	if (slave_id >= cbb->fabric->max_slaves) {
-+		tegra_cbb_print_err(file, "\t  Invalid slave_id:%d\n", slave_id);
-+		return;
++	if (!cbb->fabric->firewall_base ||
++	    !cbb->fabric->firewall_ctl ||
++	    !cbb->fabric->firewall_wr_ctl) {
++		dev_info(&pdev->dev, "SoC data missing for firewall\n");
++		return false;
 +	}
 +
- 	if (!strcmp(cbb->fabric->errors[cbb->type].code, "TIMEOUT_ERR")) {
- 		tegra234_lookup_slave_timeout(file, cbb, slave_id, fab_id);
- 		return;
-@@ -639,7 +661,9 @@ static const struct tegra234_cbb_fabric tegra234_aon_fabric = {
- 	.name = "aon-fabric",
- 	.master_id = tegra234_master_id,
- 	.slave_map = tegra234_aon_slave_map,
-+	.max_slaves = ARRAY_SIZE(tegra234_aon_slave_map),
++	if ((cbb->fabric->firewall_ctl > FIREWALL_APERTURE_SZ) ||
++	    (cbb->fabric->firewall_wr_ctl > FIREWALL_APERTURE_SZ)) {
++		dev_err(&pdev->dev, "wrong firewall offset value\n");
++		return false;
++	}
++
++	val = readl(cbb->regs + cbb->fabric->firewall_base + cbb->fabric->firewall_ctl);
++	/*
++	 * If the firewall check feature for allowing or blocking the
++	 * write accesses through the firewall of a fabric is disabled
++	 * then CCPLEX can write to the registers of that fabric.
++	 */
++	if (!(val & WEN))
++		return true;
++
++	/*
++	 * If the firewall check is enabled then check whether CCPLEX
++	 * has write access to the fabric's error notifier registers
++	 */
++	val = readl(cbb->regs + cbb->fabric->firewall_base + cbb->fabric->firewall_wr_ctl);
++	if (val & (BIT(CCPLEX_MSTRID)))
++		return true;
++
++	return false;
++}
++
+ static void tegra234_cbb_fault_enable(struct tegra_cbb *cbb)
+ {
+ 	struct tegra234_cbb *priv = to_tegra234_cbb(cbb);
+@@ -551,7 +597,7 @@ static irqreturn_t tegra234_cbb_isr(int irq, void *data)
+ 			 */
+ 			if (priv->fabric->off_mask_erd) {
+ 				mstr_id =  FIELD_GET(USRBITS_MSTR_ID, priv->mn_user_bits);
+-				if (mstr_id == 0x1)
++				if (mstr_id == CCPLEX_MSTRID)
+ 					is_inband_err = 1;
+ 			}
+ 		}
+@@ -665,6 +711,9 @@ static const struct tegra234_cbb_fabric tegra234_aon_fabric = {
  	.errors = tegra234_cbb_errors,
-+	.max_errors = ARRAY_SIZE(tegra234_cbb_errors),
+ 	.max_errors = ARRAY_SIZE(tegra234_cbb_errors),
  	.notifier_offset = 0x17000,
++	.firewall_base = 0x30000,
++	.firewall_ctl = 0x8d0,
++	.firewall_wr_ctl = 0x8c8,
  };
  
-@@ -655,7 +679,9 @@ static const struct tegra234_cbb_fabric tegra234_bpmp_fabric = {
- 	.name = "bpmp-fabric",
- 	.master_id = tegra234_master_id,
- 	.slave_map = tegra234_bpmp_slave_map,
-+	.max_slaves = ARRAY_SIZE(tegra234_bpmp_slave_map),
+ static const struct tegra234_slave_lookup tegra234_bpmp_slave_map[] = {
+@@ -683,6 +732,9 @@ static const struct tegra234_cbb_fabric tegra234_bpmp_fabric = {
  	.errors = tegra234_cbb_errors,
-+	.max_errors = ARRAY_SIZE(tegra234_cbb_errors),
+ 	.max_errors = ARRAY_SIZE(tegra234_cbb_errors),
  	.notifier_offset = 0x19000,
++	.firewall_base = 0x30000,
++	.firewall_ctl = 0x8f0,
++	.firewall_wr_ctl = 0x8e8,
  };
  
-@@ -727,7 +753,9 @@ static const struct tegra234_cbb_fabric tegra234_cbb_fabric = {
- 	.name = "cbb-fabric",
- 	.master_id = tegra234_master_id,
- 	.slave_map = tegra234_cbb_slave_map,
-+	.max_slaves = ARRAY_SIZE(tegra234_cbb_slave_map),
+ static const struct tegra234_slave_lookup tegra234_cbb_slave_map[] = {
+@@ -757,7 +809,10 @@ static const struct tegra234_cbb_fabric tegra234_cbb_fabric = {
  	.errors = tegra234_cbb_errors,
-+	.max_errors = ARRAY_SIZE(tegra234_cbb_errors),
+ 	.max_errors = ARRAY_SIZE(tegra234_cbb_errors),
  	.notifier_offset = 0x60000,
- 	.off_mask_erd = 0x3a004
- };
-@@ -745,7 +773,9 @@ static const struct tegra234_cbb_fabric tegra234_dce_fabric = {
- 	.name = "dce-fabric",
- 	.master_id = tegra234_master_id,
- 	.slave_map = tegra234_common_slave_map,
-+	.max_slaves = ARRAY_SIZE(tegra234_common_slave_map),
- 	.errors = tegra234_cbb_errors,
-+	.max_errors = ARRAY_SIZE(tegra234_cbb_errors),
- 	.notifier_offset = 0x19000,
+-	.off_mask_erd = 0x3a004
++	.off_mask_erd = 0x3a004,
++	.firewall_base = 0x10000,
++	.firewall_ctl = 0x23f0,
++	.firewall_wr_ctl = 0x23e8,
  };
  
-@@ -753,7 +783,9 @@ static const struct tegra234_cbb_fabric tegra234_rce_fabric = {
- 	.name = "rce-fabric",
- 	.master_id = tegra234_master_id,
- 	.slave_map = tegra234_common_slave_map,
-+	.max_slaves = ARRAY_SIZE(tegra234_common_slave_map),
+ static const struct tegra234_slave_lookup tegra234_common_slave_map[] = {
+@@ -777,6 +832,9 @@ static const struct tegra234_cbb_fabric tegra234_dce_fabric = {
  	.errors = tegra234_cbb_errors,
-+	.max_errors = ARRAY_SIZE(tegra234_cbb_errors),
+ 	.max_errors = ARRAY_SIZE(tegra234_cbb_errors),
  	.notifier_offset = 0x19000,
++	.firewall_base = 0x30000,
++	.firewall_ctl = 0x290,
++	.firewall_wr_ctl = 0x288,
  };
  
-@@ -761,7 +793,9 @@ static const struct tegra234_cbb_fabric tegra234_sce_fabric = {
- 	.name = "sce-fabric",
- 	.master_id = tegra234_master_id,
- 	.slave_map = tegra234_common_slave_map,
-+	.max_slaves = ARRAY_SIZE(tegra234_common_slave_map),
+ static const struct tegra234_cbb_fabric tegra234_rce_fabric = {
+@@ -787,6 +845,9 @@ static const struct tegra234_cbb_fabric tegra234_rce_fabric = {
  	.errors = tegra234_cbb_errors,
-+	.max_errors = ARRAY_SIZE(tegra234_cbb_errors),
+ 	.max_errors = ARRAY_SIZE(tegra234_cbb_errors),
  	.notifier_offset = 0x19000,
++	.firewall_base = 0x30000,
++	.firewall_ctl = 0x290,
++	.firewall_wr_ctl = 0x288,
  };
  
-@@ -940,7 +974,9 @@ static const struct tegra234_cbb_fabric tegra241_cbb_fabric = {
- 	.name = "cbb-fabric",
- 	.master_id = tegra241_master_id,
- 	.slave_map = tegra241_cbb_slave_map,
-+	.max_slaves = ARRAY_SIZE(tegra241_cbb_slave_map),
- 	.errors = tegra241_cbb_errors,
-+	.max_errors = ARRAY_SIZE(tegra241_cbb_errors),
+ static const struct tegra234_cbb_fabric tegra234_sce_fabric = {
+@@ -797,6 +858,9 @@ static const struct tegra234_cbb_fabric tegra234_sce_fabric = {
+ 	.errors = tegra234_cbb_errors,
+ 	.max_errors = ARRAY_SIZE(tegra234_cbb_errors),
+ 	.notifier_offset = 0x19000,
++	.firewall_base = 0x30000,
++	.firewall_ctl = 0x290,
++	.firewall_wr_ctl = 0x288,
+ };
+ 
+ static const char * const tegra241_master_id[] = {
+@@ -979,6 +1043,9 @@ static const struct tegra234_cbb_fabric tegra241_cbb_fabric = {
+ 	.max_errors = ARRAY_SIZE(tegra241_cbb_errors),
  	.notifier_offset = 0x60000,
  	.off_mask_erd = 0x40004,
- };
-@@ -960,7 +996,9 @@ static const struct tegra234_cbb_fabric tegra241_bpmp_fabric = {
- 	.name = "bpmp-fabric",
- 	.master_id = tegra241_master_id,
- 	.slave_map = tegra241_bpmp_slave_map,
-+	.max_slaves = ARRAY_SIZE(tegra241_bpmp_slave_map),
- 	.errors = tegra241_cbb_errors,
-+	.max_errors = ARRAY_SIZE(tegra241_cbb_errors),
- 	.notifier_offset = 0x19000,
++	.firewall_base = 0x20000,
++	.firewall_ctl = 0x2370,
++	.firewall_wr_ctl = 0x2368,
  };
  
+ static const struct tegra234_slave_lookup tegra241_bpmp_slave_map[] = {
+@@ -1000,6 +1067,9 @@ static const struct tegra234_cbb_fabric tegra241_bpmp_fabric = {
+ 	.errors = tegra241_cbb_errors,
+ 	.max_errors = ARRAY_SIZE(tegra241_cbb_errors),
+ 	.notifier_offset = 0x19000,
++	.firewall_base = 0x30000,
++	.firewall_ctl = 0x8f0,
++	.firewall_wr_ctl = 0x8e8,
+ };
+ 
+ static const struct of_device_id tegra234_cbb_dt_ids[] = {
+@@ -1084,6 +1154,15 @@ static int tegra234_cbb_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, cbb);
+ 
++	/*
++	 * Don't enable error reporting for a Fabric if write to it's registers
++	 * is blocked by CBB firewall.
++	 */
++	if (!tegra234_cbb_write_access_allowed(pdev, cbb)) {
++		dev_info(&pdev->dev, "error reporting not enabled due to firewall\n");
++		return 0;
++	}
++
+ 	spin_lock_irqsave(&cbb_lock, flags);
+ 	list_add(&cbb->base.node, &cbb_list);
+ 	spin_unlock_irqrestore(&cbb_lock, flags);
 -- 
 2.35.1
 
