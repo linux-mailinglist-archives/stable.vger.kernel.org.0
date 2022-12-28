@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 786AC65812C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84C2F65805A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:17:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234784AbiL1QZY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:25:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43286 "EHLO
+        id S234362AbiL1QRi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:17:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234828AbiL1QYa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:24:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42C351A06F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:22:07 -0800 (PST)
+        with ESMTP id S234432AbiL1QQk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:16:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 982BC1AA0F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:14:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D68A7B817AC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:22:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40E56C433EF;
-        Wed, 28 Dec 2022 16:22:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3615A61542
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:14:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49172C433D2;
+        Wed, 28 Dec 2022 16:14:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244524;
-        bh=zMF/yGLZQKNDuBIMeUnyEoVVgDcMNlmXAoVofT5OfCQ=;
+        s=korg; t=1672244064;
+        bh=GmCXSwPE5NP+SaO5s7kju7LigtOKyGlQFSX61WElufY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OreqdSu/oTQYDSJThCCKKXlQm81FVnIyME9D/9lbUQOE4qSH423qPRT//9b02sj2z
-         Mvisz7kDhEX+70s3Jh8mRP+brEmOl4ODkRtdSrcMkJ3mEMgWgA1r+WMlD+4aebO0Hl
-         /rVSuHU4JwPZLSsmjKPS0dTrTkROz6A9xb8vTgus=
+        b=2RW0dK3W9p7hB/8NmZHfh6uXlfaVDSUJKfGMM3/JebK2E75Uiz0tKL9JjO4QGtOGK
+         MY9wqwxljG1IA+cGYubcqR8ciT0LW5N2bQqfrPtN3dvCK+pTxt/PmpUC/1uJnUtEfS
+         wyzjBk7J84Fh06VC/hb92+lGKX80was9Qsh6TwFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jon Hunter <jonathanh@nvidia.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Akhil R <akhilrajeev@nvidia.com>, Kartik <kkartik@nvidia.com>,
+        patches@lists.linux.dev, Tong Tiangen <tongtiangen@huawei.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0688/1146] serial: tegra: Read DMA status before terminating
-Date:   Wed, 28 Dec 2022 15:37:07 +0100
-Message-Id: <20221228144348.829794910@linuxfoundation.org>
+Subject: [PATCH 6.0 0640/1073] riscv/mm: add arch hook arch_clear_hugepage_flags
+Date:   Wed, 28 Dec 2022 15:37:08 +0100
+Message-Id: <20221228144345.423866209@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kartik <kkartik@nvidia.com>
+From: Tong Tiangen <tongtiangen@huawei.com>
 
-[ Upstream commit 109a951a9f1fd8a34ebd1896cbbd5d5cede880a7 ]
+[ Upstream commit d8bf77a1dc3079692f54be3087a5fd16d90027b0 ]
 
-Read the DMA status before terminating the DMA, as doing so deletes
-the DMA desc.
+With the PG_arch_1 we keep track if the page's data cache is clean,
+architecture rely on this property to treat new pages as dirty with
+respect to the data cache and perform the flushing before mapping the pages
+into userspace.
 
-Also, to get the correct transfer status information, pause the DMA
-using dmaengine_pause() before reading the DMA status.
+This patch adds a new architecture hook, arch_clear_hugepage_flags,so that
+architectures which rely on the page flags being in a particular state for
+fresh allocations can adjust the flags accordingly when a page is freed
+into the pool.
 
-Fixes: e9ea096dd225 ("serial: tegra: add serial driver")
-Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Akhil R <akhilrajeev@nvidia.com>
-Signed-off-by: Kartik <kkartik@nvidia.com>
-Link: https://lore.kernel.org/r/1666105086-17326-1-git-send-email-kkartik@nvidia.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9e953cda5cdf ("riscv: Introduce huge page support for 32/64bit kernel")
+Signed-off-by: Tong Tiangen <tongtiangen@huawei.com>
+Link: https://lore.kernel.org/r/20221024094725.3054311-3-tongtiangen@huawei.com
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/serial-tegra.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/riscv/include/asm/hugetlb.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/tty/serial/serial-tegra.c b/drivers/tty/serial/serial-tegra.c
-index b7170cb9a544..cda9cd4fa92c 100644
---- a/drivers/tty/serial/serial-tegra.c
-+++ b/drivers/tty/serial/serial-tegra.c
-@@ -619,8 +619,9 @@ static void tegra_uart_stop_tx(struct uart_port *u)
- 	if (tup->tx_in_progress != TEGRA_UART_TX_DMA)
- 		return;
+diff --git a/arch/riscv/include/asm/hugetlb.h b/arch/riscv/include/asm/hugetlb.h
+index a5c2ca1d1cd8..ec19d6afc896 100644
+--- a/arch/riscv/include/asm/hugetlb.h
++++ b/arch/riscv/include/asm/hugetlb.h
+@@ -5,4 +5,10 @@
+ #include <asm-generic/hugetlb.h>
+ #include <asm/page.h>
  
--	dmaengine_terminate_all(tup->tx_dma_chan);
-+	dmaengine_pause(tup->tx_dma_chan);
- 	dmaengine_tx_status(tup->tx_dma_chan, tup->tx_cookie, &state);
-+	dmaengine_terminate_all(tup->tx_dma_chan);
- 	count = tup->tx_bytes_requested - state.residue;
- 	async_tx_ack(tup->tx_dma_desc);
- 	uart_xmit_advance(&tup->uport, count);
-@@ -763,8 +764,9 @@ static void tegra_uart_terminate_rx_dma(struct tegra_uart_port *tup)
- 		return;
- 	}
- 
--	dmaengine_terminate_all(tup->rx_dma_chan);
-+	dmaengine_pause(tup->rx_dma_chan);
- 	dmaengine_tx_status(tup->rx_dma_chan, tup->rx_cookie, &state);
-+	dmaengine_terminate_all(tup->rx_dma_chan);
- 
- 	tegra_uart_rx_buffer_push(tup, state.residue);
- 	tup->rx_dma_active = false;
++static inline void arch_clear_hugepage_flags(struct page *page)
++{
++	clear_bit(PG_dcache_clean, &page->flags);
++}
++#define arch_clear_hugepage_flags arch_clear_hugepage_flags
++
+ #endif /* _ASM_RISCV_HUGETLB_H */
 -- 
 2.35.1
 
