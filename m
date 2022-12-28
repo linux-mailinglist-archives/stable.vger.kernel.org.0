@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23038658016
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:13:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 113D2657916
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:57:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234406AbiL1QNa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:13:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55596 "EHLO
+        id S233311AbiL1O53 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:57:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233226AbiL1QM6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:12:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 406811A058
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:11:21 -0800 (PST)
+        with ESMTP id S233297AbiL1O5Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:57:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2375312614
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:57:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D478561576
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:11:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3E20C433D2;
-        Wed, 28 Dec 2022 16:11:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B4EB8B8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:57:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BA1DC433D2;
+        Wed, 28 Dec 2022 14:57:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243880;
-        bh=Fur5jFiopM4rsM8Gi92ftfD6oHd7siyojgCUBjlYClc=;
+        s=korg; t=1672239440;
+        bh=omQNA+MOXCGB0hnqNGHrDoE8LzwnTXz8tfT2bGvnaT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QZ7XCRdh5x0VCQPYBxwgOlxV3KACls9ATazPilluTz3SQMGGvAQ2u4+yggDHWL7SS
-         y6ElRtQUuQYqQ9UZJ65PLau8CnOhdEiwwxv9Jtr+bp/Oj2IlozshxJtE3Xg0+i+Iag
-         53t4S71VndCDBwnGIZ8osIL9Y2kHgES1IYYv4uOI=
+        b=bDw7hTI9S5ZqQ12jhtQii1cfU/sqTsmyIvx7MTQLzFbNwRnC/C65EXg9NZ9P2VMAO
+         3zE8jz2o3dZbkAeV/Fzu7M38lh//zWNGgJsPQ8WBLwgMtq6RraG0sWYoqmWcVnDD4M
+         F8T/zSpHyRHXWG4o2ohMLwHI50XGxby7tOB76qDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        John Johansen <john.johansen@canonical.com>,
+        patches@lists.linux.dev,
+        George Kennedy <george.kennedy@oracle.com>,
+        butt3rflyh4ck <butterflyhuangxx@gmail.com>,
+        Brian Starkey <brian.starkey@arm.com>,
+        Liviu Dudau <liviu.dudau@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0571/1146] apparmor: fix a memleak in multi_transaction_new()
+Subject: [PATCH 5.15 203/731] drm/fourcc: Fix vsub/hsub for Q410 and Q401
 Date:   Wed, 28 Dec 2022 15:35:10 +0100
-Message-Id: <20221228144345.683383782@linuxfoundation.org>
+Message-Id: <20221228144302.445504572@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Brian Starkey <brian.starkey@arm.com>
 
-[ Upstream commit c73275cf6834787ca090317f1d20dbfa3b7f05aa ]
+[ Upstream commit b230555f3257f197dd98641ef6ebaf778b52dd51 ]
 
-In multi_transaction_new(), the variable t is not freed or passed out
-on the failure of copy_from_user(t->data, buf, size), which could lead
-to a memleak.
+These formats are not subsampled, but that means hsub and vsub should be
+1, not 0.
 
-Fix this bug by adding a put_multi_transaction(t) in the error path.
-
-Fixes: 1dea3b41e84c5 ("apparmor: speed up transactional queries")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Signed-off-by: John Johansen <john.johansen@canonical.com>
+Fixes: 94b292b27734 ("drm: drm_fourcc: add NV15, Q410, Q401 YUV formats")
+Reported-by: George Kennedy <george.kennedy@oracle.com>
+Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
+Signed-off-by: Brian Starkey <brian.starkey@arm.com>
+Reviewed-by: Liviu Dudau <liviu.dudau@arm.com>
+Signed-off-by: Liviu Dudau <liviu.dudau@arm.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220913144306.17279-1-brian.starkey@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/apparmorfs.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_fourcc.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/security/apparmor/apparmorfs.c b/security/apparmor/apparmorfs.c
-index d066ccc219e2..7160e7aa58b9 100644
---- a/security/apparmor/apparmorfs.c
-+++ b/security/apparmor/apparmorfs.c
-@@ -868,8 +868,10 @@ static struct multi_transaction *multi_transaction_new(struct file *file,
- 	if (!t)
- 		return ERR_PTR(-ENOMEM);
- 	kref_init(&t->count);
--	if (copy_from_user(t->data, buf, size))
-+	if (copy_from_user(t->data, buf, size)) {
-+		put_multi_transaction(t);
- 		return ERR_PTR(-EFAULT);
-+	}
- 
- 	return t;
- }
+diff --git a/drivers/gpu/drm/drm_fourcc.c b/drivers/gpu/drm/drm_fourcc.c
+index aa747111476f..32ee023aed26 100644
+--- a/drivers/gpu/drm/drm_fourcc.c
++++ b/drivers/gpu/drm/drm_fourcc.c
+@@ -260,12 +260,12 @@ const struct drm_format_info *__drm_format_info(u32 format)
+ 		  .vsub = 2, .is_yuv = true },
+ 		{ .format = DRM_FORMAT_Q410,		.depth = 0,
+ 		  .num_planes = 3, .char_per_block = { 2, 2, 2 },
+-		  .block_w = { 1, 1, 1 }, .block_h = { 1, 1, 1 }, .hsub = 0,
+-		  .vsub = 0, .is_yuv = true },
++		  .block_w = { 1, 1, 1 }, .block_h = { 1, 1, 1 }, .hsub = 1,
++		  .vsub = 1, .is_yuv = true },
+ 		{ .format = DRM_FORMAT_Q401,		.depth = 0,
+ 		  .num_planes = 3, .char_per_block = { 2, 2, 2 },
+-		  .block_w = { 1, 1, 1 }, .block_h = { 1, 1, 1 }, .hsub = 0,
+-		  .vsub = 0, .is_yuv = true },
++		  .block_w = { 1, 1, 1 }, .block_h = { 1, 1, 1 }, .hsub = 1,
++		  .vsub = 1, .is_yuv = true },
+ 		{ .format = DRM_FORMAT_P030,            .depth = 0,  .num_planes = 2,
+ 		  .char_per_block = { 4, 8, 0 }, .block_w = { 3, 3, 0 }, .block_h = { 1, 1, 0 },
+ 		  .hsub = 2, .vsub = 2, .is_yuv = true},
 -- 
 2.35.1
 
