@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C093D657BE6
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:27:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4908F657AD4
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:15:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233429AbiL1P05 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:26:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45080 "EHLO
+        id S230377AbiL1PPf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:15:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233767AbiL1P0h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:26:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B35A41BF
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:26:36 -0800 (PST)
+        with ESMTP id S233119AbiL1PPW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:15:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C67E13F3F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:15:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66DA4B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:26:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6F03C433EF;
-        Wed, 28 Dec 2022 15:26:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F4F0B8170E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:15:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16F29C433EF;
+        Wed, 28 Dec 2022 15:15:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241194;
-        bh=iOnKgnpLiisyLkJcXxs/tBEg9qzO+wCqirrBoqs5nbQ=;
+        s=korg; t=1672240518;
+        bh=MBw+4m148sjkCpRJcJqaBrrHpu2EVjEm0R6LTq4FONA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=daX/TB3nPwBVWe05JX/ez5pV07RVtcAw8I79fbxh8GtLdsWU5p375AlKuDPju3ZGg
-         zFYUGVx+iQ8Ptup2ODFg8HK41KtwOVjwQFxm6cS8CcORM4/2tgWEymy6eWOSDQG2HD
-         oprbkeyk990nP4tIvVFS7wHLf61LFwuctc/FeWm0=
+        b=2emvKYdKKykZVHYJQwAwXqlHKiDVScywDVPfH09BgiEgkQjjwMpIkkUYuslXj4YxQ
+         1tRONCxb1nl6rWwI7mpQkWHiyZelrHi8TGrgljVONXtejM7y8kOHSqVVy1+TnAoUIH
+         1jb74WFhZWaiZPvwgLwEAYesqf/0PzR/jgZwhzAM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, CoolStar <coolstarorganization@gmail.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Prashant Malani <pmalani@chromium.org>,
+        Tzung-Bi Shih <tzungbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0218/1146] ASoC: Intel: avs: Fix potential RX buffer overflow
-Date:   Wed, 28 Dec 2022 15:29:17 +0100
-Message-Id: <20221228144336.067627844@linuxfoundation.org>
+Subject: [PATCH 6.0 0170/1073] platform/chrome: cros_ec_typec: Cleanup switch handle return paths
+Date:   Wed, 28 Dec 2022 15:29:18 +0100
+Message-Id: <20221228144332.631620861@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cezary Rojewski <cezary.rojewski@intel.com>
+From: Prashant Malani <pmalani@chromium.org>
 
-[ Upstream commit 23ae34e033b2c0e5e88237af82b163b296fd6aa9 ]
+[ Upstream commit d5f66527db9e0e6a871d9005200b3394156cf16f ]
 
-If an event caused firmware to return invalid RX size for
-LARGE_CONFIG_GET, memcpy_fromio() could end up copying too many bytes.
-Fix by utilizing min_t().
+Some of the return paths for the cros_typec_get_switch_handles()
+aren't necessary. Clean up the return paths to only undo the handle
+get's which succeeded.
 
-Reported-by: CoolStar <coolstarorganization@gmail.com>
-Fixes: f14a1c5a9f83 ("ASoC: Intel: avs: Add module management requests")
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Link: https://lore.kernel.org/r/20221010121955.718168-3-cezary.rojewski@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Prashant Malani <pmalani@chromium.org>
+Reviewed-by: Tzung-Bi Shih <tzungbi@kernel.org>
+Link: https://lore.kernel.org/r/20220816214857.2088914-7-pmalani@chromium.org
+Stable-dep-of: 9a8aadcf0b45 ("platform/chrome: cros_ec_typec: zero out stale pointers")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/avs/ipc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/platform/chrome/cros_ec_typec.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/intel/avs/ipc.c b/sound/soc/intel/avs/ipc.c
-index 020d85c7520d..77da206f7dbb 100644
---- a/sound/soc/intel/avs/ipc.c
-+++ b/sound/soc/intel/avs/ipc.c
-@@ -192,7 +192,8 @@ static void avs_dsp_receive_rx(struct avs_dev *adev, u64 header)
- 		/* update size in case of LARGE_CONFIG_GET */
- 		if (msg.msg_target == AVS_MOD_MSG &&
- 		    msg.global_msg_type == AVS_MOD_LARGE_CONFIG_GET)
--			ipc->rx.size = msg.ext.large_config.data_off_size;
-+			ipc->rx.size = min_t(u32, AVS_MAILBOX_SIZE,
-+					     msg.ext.large_config.data_off_size);
+diff --git a/drivers/platform/chrome/cros_ec_typec.c b/drivers/platform/chrome/cros_ec_typec.c
+index dc5722db2066..fcfb98992920 100644
+--- a/drivers/platform/chrome/cros_ec_typec.c
++++ b/drivers/platform/chrome/cros_ec_typec.c
+@@ -159,12 +159,10 @@ static int cros_typec_get_switch_handles(struct cros_typec_port *port,
+ 	return 0;
  
- 		memcpy_fromio(ipc->rx.data, avs_uplink_addr(adev), ipc->rx.size);
- 		trace_avs_msg_payload(ipc->rx.data, ipc->rx.size);
+ role_sw_err:
+-	usb_role_switch_put(port->role_sw);
+-ori_sw_err:
+ 	typec_switch_put(port->ori_sw);
+-mux_err:
++ori_sw_err:
+ 	typec_mux_put(port->mux);
+-
++mux_err:
+ 	return -ENODEV;
+ }
+ 
 -- 
 2.35.1
 
