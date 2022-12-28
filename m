@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0565F657840
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:49:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 212C5657E66
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:53:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233057AbiL1Os7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:48:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36648 "EHLO
+        id S234110AbiL1Px1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:53:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233085AbiL1Osg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:48:36 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C581A3AB
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:48:34 -0800 (PST)
+        with ESMTP id S234139AbiL1PxR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:53:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 872B7186CC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:53:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 13CD5CE134B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:48:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07194C433EF;
-        Wed, 28 Dec 2022 14:48:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 23F3761563
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:53:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 315A4C433D2;
+        Wed, 28 Dec 2022 15:53:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238911;
-        bh=3vwFcaieluRi6q0iYneGoYE0UQMjzAZ7MNAi9XLmY6U=;
+        s=korg; t=1672242795;
+        bh=FuY29uJp6hIWZiVwJwcmwB4odqzVngFs/w6jXr5gCKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NGq42FO0Ykx/IBYtC//RxkeJZkyCo3w7EA+o448zfGK9L3XI55CYf5MpzvweJg8g3
-         ZwsbcmWSYWe0l+XJQcNJaT863+MJKroreIc/LWxobYJI0S7Y1fQ2YZboUAyoqqSP8O
-         Z89wikoR69nOIP6Ybvkz4+FuZlOomxacQR/f4M/Q=
+        b=q6K537WWE0SJH9bMp4gy+er3h5f2sT12LFyPmwIRlpMORsXqkloDVEDy9l3j08LqV
+         5N/5sIFx51Q5cgXLF/7cdqVDSGwa+jl2cNS0DWaLeMrAouQ5t5r/euSU4Mgjwscu97
+         7XBv60mdE6vO496jj4Tj4YGHekn44nEflTWw/9Ac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        patches@lists.linux.dev, Alim Akhtar <alim.akhtar@samsung.com>,
+        Aakarsh Jain <aakarsh.jain@samsung.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 049/731] ARM: dts: armada-375: Fix assigned-addresses for every PCIe Root Port
+Subject: [PATCH 6.1 0417/1146] media: s5p-mfc: Add variant data for MFC v7 hardware for Exynos 3250 SoC
 Date:   Wed, 28 Dec 2022 15:32:36 +0100
-Message-Id: <20221228144257.977280756@linuxfoundation.org>
+Message-Id: <20221228144341.497856956@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Aakarsh Jain <aakarsh.jain@samsung.com>
 
-[ Upstream commit 823956d2436f70ced74c0fe8ab99facd8abfc060 ]
+[ Upstream commit f50ebe10f5d8092c37e2bd430c78e03bf38b1e20 ]
 
-BDF of resource in DT assigned-addresses property of Marvell PCIe Root Port
-(PCI-to-PCI bridge) should match BDF in address part in that DT node name
-as specified resource belongs to Marvell PCIe Root Port itself.
+Commit 5441e9dafdfc6dc40 ("[media] s5p-mfc: Core support for MFC v7")
+which adds mfc v7 support for Exynos3250 and use the same compatible
+string as used by Exynos5240 but both the IPs are a bit different in
+terms of IP clock.
+Add variant driver data based on the new compatible string
+"samsung,exynos3250-mfc" for Exynos3250 SoC.
 
-Fixes: 4de59085091f ("ARM: mvebu: add Device Tree description of the Armada 375 SoC")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Suggested-by: Alim Akhtar <alim.akhtar@samsung.com>
+Fixes: 5441e9dafdfc ("[media] s5p-mfc: Core support for MFC v7")
+Signed-off-by: Aakarsh Jain <aakarsh.jain@samsung.com>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/armada-375.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../media/platform/samsung/s5p-mfc/s5p_mfc.c    | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/armada-375.dtsi b/arch/arm/boot/dts/armada-375.dtsi
-index 7f2f24a29e6c..352a2f7ba311 100644
---- a/arch/arm/boot/dts/armada-375.dtsi
-+++ b/arch/arm/boot/dts/armada-375.dtsi
-@@ -582,7 +582,7 @@ pcie0: pcie@1,0 {
+diff --git a/drivers/media/platform/samsung/s5p-mfc/s5p_mfc.c b/drivers/media/platform/samsung/s5p-mfc/s5p_mfc.c
+index fca5c6405eec..007c7dbee037 100644
+--- a/drivers/media/platform/samsung/s5p-mfc/s5p_mfc.c
++++ b/drivers/media/platform/samsung/s5p-mfc/s5p_mfc.c
+@@ -1576,8 +1576,18 @@ static struct s5p_mfc_variant mfc_drvdata_v7 = {
+ 	.port_num	= MFC_NUM_PORTS_V7,
+ 	.buf_size	= &buf_size_v7,
+ 	.fw_name[0]     = "s5p-mfc-v7.fw",
+-	.clk_names	= {"mfc", "sclk_mfc"},
+-	.num_clocks	= 2,
++	.clk_names	= {"mfc"},
++	.num_clocks	= 1,
++};
++
++static struct s5p_mfc_variant mfc_drvdata_v7_3250 = {
++	.version        = MFC_VERSION_V7,
++	.version_bit    = MFC_V7_BIT,
++	.port_num       = MFC_NUM_PORTS_V7,
++	.buf_size       = &buf_size_v7,
++	.fw_name[0]     = "s5p-mfc-v7.fw",
++	.clk_names      = {"mfc", "sclk_mfc"},
++	.num_clocks     = 2,
+ };
  
- 			pcie1: pcie@2,0 {
- 				device_type = "pci";
--				assigned-addresses = <0x82000800 0 0x44000 0 0x2000>;
-+				assigned-addresses = <0x82001000 0 0x44000 0 0x2000>;
- 				reg = <0x1000 0 0 0 0>;
- 				#address-cells = <3>;
- 				#size-cells = <2>;
+ static struct s5p_mfc_buf_size_v6 mfc_buf_size_v8 = {
+@@ -1647,6 +1657,9 @@ static const struct of_device_id exynos_mfc_match[] = {
+ 	}, {
+ 		.compatible = "samsung,mfc-v7",
+ 		.data = &mfc_drvdata_v7,
++	}, {
++		.compatible = "samsung,exynos3250-mfc",
++		.data = &mfc_drvdata_v7_3250,
+ 	}, {
+ 		.compatible = "samsung,mfc-v8",
+ 		.data = &mfc_drvdata_v8,
 -- 
 2.35.1
 
