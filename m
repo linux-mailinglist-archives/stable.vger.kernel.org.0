@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 830BD657E84
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:54:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77E4B65785F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:49:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234141AbiL1Pyb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:54:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41914 "EHLO
+        id S233067AbiL1Otu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:49:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233662AbiL1Py3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:54:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A12DC186CB
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:54:28 -0800 (PST)
+        with ESMTP id S233065AbiL1Ott (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:49:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6E04B7C6
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:49:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3DA9B61563
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:54:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25B2DC433D2;
-        Wed, 28 Dec 2022 15:54:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4538D6154E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:49:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B5C7C433D2;
+        Wed, 28 Dec 2022 14:49:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242867;
-        bh=+3N8A5ehwRNw1+D/NJfYjY1m1IDAkBhYXXBjXr/Pbu0=;
+        s=korg; t=1672238987;
+        bh=u1+ua6bRrzCAgLhVGGgqlNzXs5AEUGsyzaoN+9brq2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gabd3jQ3RWuajJZbdZZ7OAI37lVcYbPXIcwE1vJn1rZwHixbeUBstQkaBDVmFLajc
-         nKs6Mz5bMlTX2NFJztuYdkkgghKb6IWuhZSqOxOGvAq6ZT8uPLr2YP7f8fSNUruS7k
-         sxFnjjQR2lHYTpObe3yAySqFcaK65psCHsJRPaAI=
+        b=VVd7uAhUJylgM0uGfkc1+DB/3Lz4/mHHqEHjT88+02vEoCdqB5XFyFrg5HJf9rX7b
+         Fh4hCFEAKPlHjWdrUSB7nDHoQcxBY26gdHEiafyNWWRdr1Hs0hIqGDa4X/9n6RBS9H
+         ERxrbNFfnDLWjrqg5rykjZbviWkcVISD/pwp5xkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        syzbot+ab17848fe269b573eb71@syzkaller.appspotmail.com,
+        Ayushman Dutta <ayudutta@amazon.com>,
+        Kees Cook <keescook@chromium.org>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0425/1146] NFSv4.2: Fix initialisation of struct nfs4_label
+Subject: [PATCH 5.15 057/731] seccomp: Move copy_seccomp() to no failure path.
 Date:   Wed, 28 Dec 2022 15:32:44 +0100
-Message-Id: <20221228144341.719847079@linuxfoundation.org>
+Message-Id: <20221228144258.206702092@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,81 +57,170 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit c528f70f504434eaff993a5ddd52203a2010d51f ]
+[ Upstream commit a1140cb215fa13dcec06d12ba0c3ee105633b7c4 ]
 
-The call to nfs4_label_init_security() should return a fully initialised
-label.
+Our syzbot instance reported memory leaks in do_seccomp() [0], similar
+to the report [1].  It shows that we miss freeing struct seccomp_filter
+and some objects included in it.
 
-Fixes: aa9c2669626c ("NFS: Client implementation of Labeled-NFS")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+We can reproduce the issue with the program below [2] which calls one
+seccomp() and two clone() syscalls.
+
+The first clone()d child exits earlier than its parent and sends a
+signal to kill it during the second clone(), more precisely before the
+fatal_signal_pending() test in copy_process().  When the parent receives
+the signal, it has to destroy the embryonic process and return -EINTR to
+user space.  In the failure path, we have to call seccomp_filter_release()
+to decrement the filter's refcount.
+
+Initially, we called it in free_task() called from the failure path, but
+the commit 3a15fb6ed92c ("seccomp: release filter after task is fully
+dead") moved it to release_task() to notify user space as early as possible
+that the filter is no longer used.
+
+To keep the change and current seccomp refcount semantics, let's move
+copy_seccomp() just after the signal check and add a WARN_ON_ONCE() in
+free_task() for future debugging.
+
+[0]:
+unreferenced object 0xffff8880063add00 (size 256):
+  comm "repro_seccomp", pid 230, jiffies 4294687090 (age 9.914s)
+  hex dump (first 32 bytes):
+    01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00  ................
+    ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................
+  backtrace:
+    do_seccomp (./include/linux/slab.h:600 ./include/linux/slab.h:733 kernel/seccomp.c:666 kernel/seccomp.c:708 kernel/seccomp.c:1871 kernel/seccomp.c:1991)
+    do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
+    entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
+unreferenced object 0xffffc90000035000 (size 4096):
+  comm "repro_seccomp", pid 230, jiffies 4294687090 (age 9.915s)
+  hex dump (first 32 bytes):
+    01 00 00 00 00 00 00 00 00 00 00 00 05 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    __vmalloc_node_range (mm/vmalloc.c:3226)
+    __vmalloc_node (mm/vmalloc.c:3261 (discriminator 4))
+    bpf_prog_alloc_no_stats (kernel/bpf/core.c:91)
+    bpf_prog_alloc (kernel/bpf/core.c:129)
+    bpf_prog_create_from_user (net/core/filter.c:1414)
+    do_seccomp (kernel/seccomp.c:671 kernel/seccomp.c:708 kernel/seccomp.c:1871 kernel/seccomp.c:1991)
+    do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
+    entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
+unreferenced object 0xffff888003fa1000 (size 1024):
+  comm "repro_seccomp", pid 230, jiffies 4294687090 (age 9.915s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    bpf_prog_alloc_no_stats (./include/linux/slab.h:600 ./include/linux/slab.h:733 kernel/bpf/core.c:95)
+    bpf_prog_alloc (kernel/bpf/core.c:129)
+    bpf_prog_create_from_user (net/core/filter.c:1414)
+    do_seccomp (kernel/seccomp.c:671 kernel/seccomp.c:708 kernel/seccomp.c:1871 kernel/seccomp.c:1991)
+    do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
+    entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
+unreferenced object 0xffff888006360240 (size 16):
+  comm "repro_seccomp", pid 230, jiffies 4294687090 (age 9.915s)
+  hex dump (first 16 bytes):
+    01 00 37 00 76 65 72 6c e0 83 01 06 80 88 ff ff  ..7.verl........
+  backtrace:
+    bpf_prog_store_orig_filter (net/core/filter.c:1137)
+    bpf_prog_create_from_user (net/core/filter.c:1428)
+    do_seccomp (kernel/seccomp.c:671 kernel/seccomp.c:708 kernel/seccomp.c:1871 kernel/seccomp.c:1991)
+    do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
+    entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
+unreferenced object 0xffff8880060183e0 (size 8):
+  comm "repro_seccomp", pid 230, jiffies 4294687090 (age 9.915s)
+  hex dump (first 8 bytes):
+    06 00 00 00 00 00 ff 7f                          ........
+  backtrace:
+    kmemdup (mm/util.c:129)
+    bpf_prog_store_orig_filter (net/core/filter.c:1144)
+    bpf_prog_create_from_user (net/core/filter.c:1428)
+    do_seccomp (kernel/seccomp.c:671 kernel/seccomp.c:708 kernel/seccomp.c:1871 kernel/seccomp.c:1991)
+    do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
+    entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
+
+[1]: https://syzkaller.appspot.com/bug?id=2809bb0ac77ad9aa3f4afe42d6a610aba594a987
+
+[2]:
+
+void main(void)
+{
+	struct sock_filter filter[] = {
+		BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ALLOW),
+	};
+	struct sock_fprog fprog = {
+		.len = sizeof(filter) / sizeof(filter[0]),
+		.filter = filter,
+	};
+	long i, pid;
+
+	syscall(__NR_seccomp, SECCOMP_SET_MODE_FILTER, 0, &fprog);
+
+	for (i = 0; i < 2; i++) {
+		pid = syscall(__NR_clone, CLONE_NEWNET | SIGKILL, NULL, NULL, 0);
+		if (pid == 0)
+			return;
+	}
+}
+
+Fixes: 3a15fb6ed92c ("seccomp: release filter after task is fully dead")
+Reported-by: syzbot+ab17848fe269b573eb71@syzkaller.appspotmail.com
+Reported-by: Ayushman Dutta <ayudutta@amazon.com>
+Suggested-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220823154532.82913-1-kuniyu@amazon.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ kernel/fork.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 86ed5c0142c3..98a867092039 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -122,6 +122,11 @@ nfs4_label_init_security(struct inode *dir, struct dentry *dentry,
- 	if (nfs_server_capable(dir, NFS_CAP_SECURITY_LABEL) == 0)
- 		return NULL;
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 908ba3c93893..3fb7e9e6a7b9 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -446,6 +446,9 @@ void put_task_stack(struct task_struct *tsk)
  
-+	label->lfs = 0;
-+	label->pi = 0;
-+	label->len = 0;
-+	label->label = NULL;
+ void free_task(struct task_struct *tsk)
+ {
++#ifdef CONFIG_SECCOMP
++	WARN_ON_ONCE(tsk->seccomp.filter);
++#endif
+ 	release_user_cpus_ptr(tsk);
+ 	scs_release(tsk);
+ 
+@@ -2345,12 +2348,6 @@ static __latent_entropy struct task_struct *copy_process(
+ 
+ 	spin_lock(&current->sighand->siglock);
+ 
+-	/*
+-	 * Copy seccomp details explicitly here, in case they were changed
+-	 * before holding sighand lock.
+-	 */
+-	copy_seccomp(p);
+-
+ 	rseq_fork(p, clone_flags);
+ 
+ 	/* Don't start children in a dying pid namespace */
+@@ -2365,6 +2362,14 @@ static __latent_entropy struct task_struct *copy_process(
+ 		goto bad_fork_cancel_cgroup;
+ 	}
+ 
++	/* No more failure paths after this point. */
 +
- 	err = security_dentry_init_security(dentry, sattr->ia_mode,
- 				&dentry->d_name, NULL,
- 				(void **)&label->label, &label->len);
-@@ -3796,7 +3801,7 @@ nfs4_atomic_open(struct inode *dir, struct nfs_open_context *ctx,
- 		int open_flags, struct iattr *attr, int *opened)
- {
- 	struct nfs4_state *state;
--	struct nfs4_label l = {0, 0, 0, NULL}, *label = NULL;
-+	struct nfs4_label l, *label;
- 
- 	label = nfs4_label_init_security(dir, ctx->dentry, attr, &l);
- 
-@@ -4682,7 +4687,7 @@ nfs4_proc_create(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
- 		 int flags)
- {
- 	struct nfs_server *server = NFS_SERVER(dir);
--	struct nfs4_label l, *ilabel = NULL;
-+	struct nfs4_label l, *ilabel;
- 	struct nfs_open_context *ctx;
- 	struct nfs4_state *state;
- 	int status = 0;
-@@ -5033,7 +5038,7 @@ static int nfs4_proc_symlink(struct inode *dir, struct dentry *dentry,
- 	struct nfs4_exception exception = {
- 		.interruptible = true,
- 	};
--	struct nfs4_label l, *label = NULL;
-+	struct nfs4_label l, *label;
- 	int err;
- 
- 	label = nfs4_label_init_security(dir, dentry, sattr, &l);
-@@ -5074,7 +5079,7 @@ static int nfs4_proc_mkdir(struct inode *dir, struct dentry *dentry,
- 	struct nfs4_exception exception = {
- 		.interruptible = true,
- 	};
--	struct nfs4_label l, *label = NULL;
-+	struct nfs4_label l, *label;
- 	int err;
- 
- 	label = nfs4_label_init_security(dir, dentry, sattr, &l);
-@@ -5193,7 +5198,7 @@ static int nfs4_proc_mknod(struct inode *dir, struct dentry *dentry,
- 	struct nfs4_exception exception = {
- 		.interruptible = true,
- 	};
--	struct nfs4_label l, *label = NULL;
-+	struct nfs4_label l, *label;
- 	int err;
- 
- 	label = nfs4_label_init_security(dir, dentry, sattr, &l);
++	/*
++	 * Copy seccomp details explicitly here, in case they were changed
++	 * before holding sighand lock.
++	 */
++	copy_seccomp(p);
++
+ 	init_task_pid_links(p);
+ 	if (likely(p->pid)) {
+ 		ptrace_init_task(p, (clone_flags & CLONE_PTRACE) || trace);
 -- 
 2.35.1
 
