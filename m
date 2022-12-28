@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABDED657B31
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:19:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2533D657C41
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:30:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233159AbiL1PTd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:19:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37506 "EHLO
+        id S233426AbiL1Pag (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:30:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233298AbiL1PTE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:19:04 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4182813FB0
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:18:50 -0800 (PST)
+        with ESMTP id S233800AbiL1Pad (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:30:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C843F1583D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:30:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id F3071CE136C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:18:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B783EC433D2;
-        Wed, 28 Dec 2022 15:18:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38CF5B816D9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:30:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A71E2C433EF;
+        Wed, 28 Dec 2022 15:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240727;
-        bh=aJfkUkuXUF7EqR04rhyjaS7Hfv7ONuqyBVdhK/yieX8=;
+        s=korg; t=1672241427;
+        bh=OvuDAZCYkMmEL1dhU8haUAx29v9SUcJq7cF7xXpcilo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FdyhI1Zg84dliHd4ItDkpE/pahXyR1cKV0V65Vk1S1kzg6USkFc3o52e4lOTPM+YT
-         RCOrqu4LyGnzNm54GY5K1uvqIzVJpxLKrhCDLflfxWCwFwrS2lHcoSSFQv1K5QXTor
-         uxh7169tbmsiTWT3DnGxf5COsdrbbpHAx8dzless=
+        b=wy7E7TNbgiQ17q5qo9CevN79wNiYgc0DUoeWvoOmtAR+KwuNNPYfpu/XrOaMqZP0p
+         n6x5+zgAlCFR1qu5qLu85smltYkXAFpMcHs1oKsxIrrUIeqTD5iAjdvtm1pBvf6BVI
+         rEWWWfgHS+e97XDa/6BmIGbFanzs9uTDEA2DY61s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Aditya Kumar Singh <quic_adisi@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        patches@lists.linux.dev, Anssi Hannula <anssi.hannula@bitwise.fi>,
+        Jimmy Assarsson <extja@kvaser.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0196/1073] wifi: ath11k: move firmware stats out of debugfs
+Subject: [PATCH 6.1 0245/1146] can: kvaser_usb: kvaser_usb_leaf: Get capabilities from device
 Date:   Wed, 28 Dec 2022 15:29:44 +0100
-Message-Id: <20221228144333.338711527@linuxfoundation.org>
+Message-Id: <20221228144336.789680872@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,465 +54,229 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Kumar Singh <quic_adisi@quicinc.com>
+From: Jimmy Assarsson <extja@kvaser.com>
 
-[ Upstream commit ec8918f922b8a40a12cb86793245026f08b79812 ]
+[ Upstream commit 35364f5b41a4917fe94a3f393d149b63ec583297 ]
 
-Currently, firmware stats, comprising pdev, vdev and beacon stats are
-part of debugfs. In firmware pdev stats, firmware reports the final
-Tx power used to transmit each packet. If driver wants to know the
-final Tx power being used at firmware level, it can leverage from
-firmware pdev stats.
+Use the CMD_GET_CAPABILITIES_REQ command to query the device for certain
+capabilities. We are only interested in LISTENONLY mode and wither the
+device reports CAN error counters.
 
-Move firmware stats out of debugfs context in order to leverage
-the final Tx power reported in it even when debugfs is disabled.
-
-Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.5.0.1-01100-QCAHKSWPL_SILICONZ-1
-Tested-on: QCN9074 hw1.0 PCI WLAN.HK.2.5.0.1-01100-QCAHKSWPL_SILICONZ-1
-Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-03125-QCAHSPSWPL_V1_V2_SILICONZ_LITE-3
-
-Signed-off-by: Aditya Kumar Singh <quic_adisi@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220603082814.31466-2-quic_adisi@quicinc.com
-Stable-dep-of: 3ff51d7416ee ("wifi: ath11k: fix firmware assert during bandwidth change for peer sta")
+Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
+Reported-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Tested-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
+Link: https://lore.kernel.org/all/20221010185237.319219-3-extja@kvaser.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/core.c    |  46 +++++++
- drivers/net/wireless/ath/ath11k/core.h    |  12 +-
- drivers/net/wireless/ath/ath11k/debugfs.c | 139 +++++-----------------
- drivers/net/wireless/ath/ath11k/debugfs.h |   6 +-
- drivers/net/wireless/ath/ath11k/wmi.c     |  48 +++++++-
- 5 files changed, 137 insertions(+), 114 deletions(-)
+ .../net/can/usb/kvaser_usb/kvaser_usb_leaf.c  | 144 +++++++++++++++++-
+ 1 file changed, 143 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/core.c b/drivers/net/wireless/ath/ath11k/core.c
-index 9df6aaae8a44..1e9e4eae7a1e 100644
---- a/drivers/net/wireless/ath/ath11k/core.c
-+++ b/drivers/net/wireless/ath/ath11k/core.c
-@@ -535,6 +535,52 @@ static inline struct ath11k_pdev *ath11k_core_get_single_pdev(struct ath11k_base
- 	return &ab->pdevs[0];
- }
+diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+index 19958037720f..33ff62cd1729 100644
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+@@ -74,6 +74,8 @@
+ #define CMD_TX_ACKNOWLEDGE		50
+ #define CMD_CAN_ERROR_EVENT		51
+ #define CMD_FLUSH_QUEUE_REPLY		68
++#define CMD_GET_CAPABILITIES_REQ	95
++#define CMD_GET_CAPABILITIES_RESP	96
  
-+void ath11k_fw_stats_pdevs_free(struct list_head *head)
-+{
-+	struct ath11k_fw_stats_pdev *i, *tmp;
+ #define CMD_LEAF_LOG_MESSAGE		106
+ 
+@@ -83,6 +85,8 @@
+ #define KVASER_USB_LEAF_SWOPTION_FREQ_32_MHZ_CLK BIT(5)
+ #define KVASER_USB_LEAF_SWOPTION_FREQ_24_MHZ_CLK BIT(6)
+ 
++#define KVASER_USB_LEAF_SWOPTION_EXT_CAP BIT(12)
 +
-+	list_for_each_entry_safe(i, tmp, head, list) {
-+		list_del(&i->list);
-+		kfree(i);
-+	}
-+}
+ /* error factors */
+ #define M16C_EF_ACKE			BIT(0)
+ #define M16C_EF_CRCE			BIT(1)
+@@ -278,6 +282,28 @@ struct leaf_cmd_log_message {
+ 	u8 data[8];
+ } __packed;
+ 
++/* Sub commands for cap_req and cap_res */
++#define KVASER_USB_LEAF_CAP_CMD_LISTEN_MODE 0x02
++#define KVASER_USB_LEAF_CAP_CMD_ERR_REPORT 0x05
++struct kvaser_cmd_cap_req {
++	__le16 padding0;
++	__le16 cap_cmd;
++	__le16 padding1;
++	__le16 channel;
++} __packed;
 +
-+void ath11k_fw_stats_vdevs_free(struct list_head *head)
-+{
-+	struct ath11k_fw_stats_vdev *i, *tmp;
++/* Status codes for cap_res */
++#define KVASER_USB_LEAF_CAP_STAT_OK 0x00
++#define KVASER_USB_LEAF_CAP_STAT_NOT_IMPL 0x01
++#define KVASER_USB_LEAF_CAP_STAT_UNAVAIL 0x02
++struct kvaser_cmd_cap_res {
++	__le16 padding;
++	__le16 cap_cmd;
++	__le16 status;
++	__le32 mask;
++	__le32 value;
++} __packed;
 +
-+	list_for_each_entry_safe(i, tmp, head, list) {
-+		list_del(&i->list);
-+		kfree(i);
-+	}
-+}
-+
-+void ath11k_fw_stats_bcn_free(struct list_head *head)
-+{
-+	struct ath11k_fw_stats_bcn *i, *tmp;
-+
-+	list_for_each_entry_safe(i, tmp, head, list) {
-+		list_del(&i->list);
-+		kfree(i);
-+	}
-+}
-+
-+void ath11k_fw_stats_init(struct ath11k *ar)
-+{
-+	INIT_LIST_HEAD(&ar->fw_stats.pdevs);
-+	INIT_LIST_HEAD(&ar->fw_stats.vdevs);
-+	INIT_LIST_HEAD(&ar->fw_stats.bcn);
-+
-+	init_completion(&ar->fw_stats_complete);
-+}
-+
-+void ath11k_fw_stats_free(struct ath11k_fw_stats *stats)
-+{
-+	ath11k_fw_stats_pdevs_free(&stats->pdevs);
-+	ath11k_fw_stats_vdevs_free(&stats->vdevs);
-+	ath11k_fw_stats_bcn_free(&stats->bcn);
-+}
-+
- int ath11k_core_suspend(struct ath11k_base *ab)
- {
- 	int ret;
-diff --git a/drivers/net/wireless/ath/ath11k/core.h b/drivers/net/wireless/ath/ath11k/core.h
-index afad8f55e433..b4aac98497cb 100644
---- a/drivers/net/wireless/ath/ath11k/core.h
-+++ b/drivers/net/wireless/ath/ath11k/core.h
-@@ -545,9 +545,6 @@ struct ath11k_debug {
- 	struct dentry *debugfs_pdev;
- 	struct ath11k_dbg_htt_stats htt_stats;
- 	u32 extd_tx_stats;
--	struct ath11k_fw_stats fw_stats;
--	struct completion fw_stats_complete;
--	bool fw_stats_done;
- 	u32 extd_rx_stats;
- 	u32 pktlog_filter;
- 	u32 pktlog_mode;
-@@ -710,6 +707,9 @@ struct ath11k {
- 	u8 twt_enabled;
- 	bool nlo_enabled;
- 	u8 alpha2[REG_ALPHA2_LEN + 1];
-+	struct ath11k_fw_stats fw_stats;
-+	struct completion fw_stats_complete;
-+	bool fw_stats_done;
+ struct kvaser_cmd {
+ 	u8 len;
+ 	u8 id;
+@@ -295,6 +321,8 @@ struct kvaser_cmd {
+ 			struct leaf_cmd_chip_state_event chip_state_event;
+ 			struct leaf_cmd_error_event error_event;
+ 			struct leaf_cmd_log_message log_message;
++			struct kvaser_cmd_cap_req cap_req;
++			struct kvaser_cmd_cap_res cap_res;
+ 		} __packed leaf;
+ 
+ 		union {
+@@ -324,6 +352,7 @@ static const u8 kvaser_usb_leaf_cmd_sizes_leaf[] = {
+ 	[CMD_LEAF_LOG_MESSAGE]		= kvaser_fsize(u.leaf.log_message),
+ 	[CMD_CHIP_STATE_EVENT]		= kvaser_fsize(u.leaf.chip_state_event),
+ 	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.leaf.error_event),
++	[CMD_GET_CAPABILITIES_RESP]	= kvaser_fsize(u.leaf.cap_res),
+ 	/* ignored events: */
+ 	[CMD_FLUSH_QUEUE_REPLY]		= CMD_SIZE_ANY,
  };
+@@ -606,6 +635,9 @@ static void kvaser_usb_leaf_get_software_info_leaf(struct kvaser_usb *dev,
+ 	dev->fw_version = le32_to_cpu(softinfo->fw_version);
+ 	dev->max_tx_urbs = le16_to_cpu(softinfo->max_outstanding_tx);
  
- struct ath11k_band_cap {
-@@ -1112,6 +1112,12 @@ struct ath11k_fw_stats_bcn {
- 	u32 tx_bcn_outage_cnt;
- };
- 
-+void ath11k_fw_stats_init(struct ath11k *ar);
-+void ath11k_fw_stats_pdevs_free(struct list_head *head);
-+void ath11k_fw_stats_vdevs_free(struct list_head *head);
-+void ath11k_fw_stats_bcn_free(struct list_head *head);
-+void ath11k_fw_stats_free(struct ath11k_fw_stats *stats);
++	if (sw_options & KVASER_USB_LEAF_SWOPTION_EXT_CAP)
++		dev->card_data.capabilities |= KVASER_USB_CAP_EXT_CAP;
 +
- extern const struct ce_pipe_config ath11k_target_ce_config_wlan_ipq8074[];
- extern const struct service_to_pipe ath11k_target_service_to_ce_map_wlan_ipq8074[];
- extern const struct service_to_pipe ath11k_target_service_to_ce_map_wlan_ipq6018[];
-diff --git a/drivers/net/wireless/ath/ath11k/debugfs.c b/drivers/net/wireless/ath/ath11k/debugfs.c
-index 9648e0017393..649bf4495e4a 100644
---- a/drivers/net/wireless/ath/ath11k/debugfs.c
-+++ b/drivers/net/wireless/ath/ath11k/debugfs.c
-@@ -91,91 +91,35 @@ void ath11k_debugfs_add_dbring_entry(struct ath11k *ar,
- 	spin_unlock_bh(&dbr_data->lock);
+ 	if (dev->driver_info->quirks & KVASER_USB_QUIRK_IGNORE_CLK_FREQ) {
+ 		/* Firmware expects bittiming parameters calculated for 16MHz
+ 		 * clock, regardless of the actual clock
+@@ -693,6 +725,116 @@ static int kvaser_usb_leaf_get_card_info(struct kvaser_usb *dev)
+ 	return 0;
  }
  
--static void ath11k_fw_stats_pdevs_free(struct list_head *head)
--{
--	struct ath11k_fw_stats_pdev *i, *tmp;
--
--	list_for_each_entry_safe(i, tmp, head, list) {
--		list_del(&i->list);
--		kfree(i);
--	}
--}
--
--static void ath11k_fw_stats_vdevs_free(struct list_head *head)
--{
--	struct ath11k_fw_stats_vdev *i, *tmp;
--
--	list_for_each_entry_safe(i, tmp, head, list) {
--		list_del(&i->list);
--		kfree(i);
--	}
--}
--
--static void ath11k_fw_stats_bcn_free(struct list_head *head)
--{
--	struct ath11k_fw_stats_bcn *i, *tmp;
--
--	list_for_each_entry_safe(i, tmp, head, list) {
--		list_del(&i->list);
--		kfree(i);
--	}
--}
--
- static void ath11k_debugfs_fw_stats_reset(struct ath11k *ar)
- {
- 	spin_lock_bh(&ar->data_lock);
--	ar->debug.fw_stats_done = false;
--	ath11k_fw_stats_pdevs_free(&ar->debug.fw_stats.pdevs);
--	ath11k_fw_stats_vdevs_free(&ar->debug.fw_stats.vdevs);
-+	ar->fw_stats_done = false;
-+	ath11k_fw_stats_pdevs_free(&ar->fw_stats.pdevs);
-+	ath11k_fw_stats_vdevs_free(&ar->fw_stats.vdevs);
- 	spin_unlock_bh(&ar->data_lock);
- }
- 
--void ath11k_debugfs_fw_stats_process(struct ath11k_base *ab, struct sk_buff *skb)
-+void ath11k_debugfs_fw_stats_process(struct ath11k *ar, struct ath11k_fw_stats *stats)
- {
--	struct ath11k_fw_stats stats = {};
--	struct ath11k *ar;
-+	struct ath11k_base *ab = ar->ab;
- 	struct ath11k_pdev *pdev;
- 	bool is_end;
- 	static unsigned int num_vdev, num_bcn;
- 	size_t total_vdevs_started = 0;
--	int i, ret;
--
--	INIT_LIST_HEAD(&stats.pdevs);
--	INIT_LIST_HEAD(&stats.vdevs);
--	INIT_LIST_HEAD(&stats.bcn);
--
--	ret = ath11k_wmi_pull_fw_stats(ab, skb, &stats);
--	if (ret) {
--		ath11k_warn(ab, "failed to pull fw stats: %d\n", ret);
--		goto free;
--	}
--
--	rcu_read_lock();
--	ar = ath11k_mac_get_ar_by_pdev_id(ab, stats.pdev_id);
--	if (!ar) {
--		rcu_read_unlock();
--		ath11k_warn(ab, "failed to get ar for pdev_id %d: %d\n",
--			    stats.pdev_id, ret);
--		goto free;
--	}
++static int kvaser_usb_leaf_get_single_capability(struct kvaser_usb *dev,
++						 u16 cap_cmd_req, u16 *status)
++{
++	struct kvaser_usb_dev_card_data *card_data = &dev->card_data;
++	struct kvaser_cmd *cmd;
++	u32 value = 0;
++	u32 mask = 0;
++	u16 cap_cmd_res;
++	int err;
 +	int i;
- 
--	spin_lock_bh(&ar->data_lock);
-+	/* WMI_REQUEST_PDEV_STAT request has been already processed */
- 
--	if (stats.stats_id == WMI_REQUEST_PDEV_STAT) {
--		list_splice_tail_init(&stats.pdevs, &ar->debug.fw_stats.pdevs);
--		ar->debug.fw_stats_done = true;
--		goto complete;
--	}
--
--	if (stats.stats_id == WMI_REQUEST_RSSI_PER_CHAIN_STAT) {
--		ar->debug.fw_stats_done = true;
--		goto complete;
-+	if (stats->stats_id == WMI_REQUEST_RSSI_PER_CHAIN_STAT) {
-+		ar->fw_stats_done = true;
-+		return;
- 	}
- 
--	if (stats.stats_id == WMI_REQUEST_VDEV_STAT) {
--		if (list_empty(&stats.vdevs)) {
-+	if (stats->stats_id == WMI_REQUEST_VDEV_STAT) {
-+		if (list_empty(&stats->vdevs)) {
- 			ath11k_warn(ab, "empty vdev stats");
--			goto complete;
-+			return;
- 		}
- 		/* FW sends all the active VDEV stats irrespective of PDEV,
- 		 * hence limit until the count of all VDEVs started
-@@ -188,43 +132,34 @@ void ath11k_debugfs_fw_stats_process(struct ath11k_base *ab, struct sk_buff *skb
- 
- 		is_end = ((++num_vdev) == total_vdevs_started);
- 
--		list_splice_tail_init(&stats.vdevs,
--				      &ar->debug.fw_stats.vdevs);
-+		list_splice_tail_init(&stats->vdevs,
-+				      &ar->fw_stats.vdevs);
- 
- 		if (is_end) {
--			ar->debug.fw_stats_done = true;
-+			ar->fw_stats_done = true;
- 			num_vdev = 0;
- 		}
--		goto complete;
-+		return;
- 	}
- 
--	if (stats.stats_id == WMI_REQUEST_BCN_STAT) {
--		if (list_empty(&stats.bcn)) {
-+	if (stats->stats_id == WMI_REQUEST_BCN_STAT) {
-+		if (list_empty(&stats->bcn)) {
- 			ath11k_warn(ab, "empty bcn stats");
--			goto complete;
-+			return;
- 		}
- 		/* Mark end until we reached the count of all started VDEVs
- 		 * within the PDEV
- 		 */
- 		is_end = ((++num_bcn) == ar->num_started_vdevs);
- 
--		list_splice_tail_init(&stats.bcn,
--				      &ar->debug.fw_stats.bcn);
-+		list_splice_tail_init(&stats->bcn,
-+				      &ar->fw_stats.bcn);
- 
- 		if (is_end) {
--			ar->debug.fw_stats_done = true;
-+			ar->fw_stats_done = true;
- 			num_bcn = 0;
- 		}
- 	}
--complete:
--	complete(&ar->debug.fw_stats_complete);
--	rcu_read_unlock();
--	spin_unlock_bh(&ar->data_lock);
--
--free:
--	ath11k_fw_stats_pdevs_free(&stats.pdevs);
--	ath11k_fw_stats_vdevs_free(&stats.vdevs);
--	ath11k_fw_stats_bcn_free(&stats.bcn);
- }
- 
- static int ath11k_debugfs_fw_stats_request(struct ath11k *ar,
-@@ -245,7 +180,7 @@ static int ath11k_debugfs_fw_stats_request(struct ath11k *ar,
- 
- 	ath11k_debugfs_fw_stats_reset(ar);
- 
--	reinit_completion(&ar->debug.fw_stats_complete);
-+	reinit_completion(&ar->fw_stats_complete);
- 
- 	ret = ath11k_wmi_send_stats_request_cmd(ar, req_param);
- 
-@@ -255,9 +190,8 @@ static int ath11k_debugfs_fw_stats_request(struct ath11k *ar,
- 		return ret;
- 	}
- 
--	time_left =
--	wait_for_completion_timeout(&ar->debug.fw_stats_complete,
--				    1 * HZ);
-+	time_left = wait_for_completion_timeout(&ar->fw_stats_complete, 1 * HZ);
 +
- 	if (!time_left)
- 		return -ETIMEDOUT;
- 
-@@ -266,7 +200,7 @@ static int ath11k_debugfs_fw_stats_request(struct ath11k *ar,
- 			break;
- 
- 		spin_lock_bh(&ar->data_lock);
--		if (ar->debug.fw_stats_done) {
-+		if (ar->fw_stats_done) {
- 			spin_unlock_bh(&ar->data_lock);
- 			break;
- 		}
-@@ -338,8 +272,7 @@ static int ath11k_open_pdev_stats(struct inode *inode, struct file *file)
- 		goto err_free;
- 	}
- 
--	ath11k_wmi_fw_stats_fill(ar, &ar->debug.fw_stats, req_param.stats_id,
--				 buf);
-+	ath11k_wmi_fw_stats_fill(ar, &ar->fw_stats, req_param.stats_id, buf);
- 
- 	file->private_data = buf;
- 
-@@ -410,8 +343,7 @@ static int ath11k_open_vdev_stats(struct inode *inode, struct file *file)
- 		goto err_free;
- 	}
- 
--	ath11k_wmi_fw_stats_fill(ar, &ar->debug.fw_stats, req_param.stats_id,
--				 buf);
-+	ath11k_wmi_fw_stats_fill(ar, &ar->fw_stats, req_param.stats_id, buf);
- 
- 	file->private_data = buf;
- 
-@@ -488,14 +420,13 @@ static int ath11k_open_bcn_stats(struct inode *inode, struct file *file)
- 		}
- 	}
- 
--	ath11k_wmi_fw_stats_fill(ar, &ar->debug.fw_stats, req_param.stats_id,
--				 buf);
-+	ath11k_wmi_fw_stats_fill(ar, &ar->fw_stats, req_param.stats_id, buf);
- 
- 	/* since beacon stats request is looped for all active VDEVs, saved fw
- 	 * stats is not freed for each request until done for all active VDEVs
- 	 */
- 	spin_lock_bh(&ar->data_lock);
--	ath11k_fw_stats_bcn_free(&ar->debug.fw_stats.bcn);
-+	ath11k_fw_stats_bcn_free(&ar->fw_stats.bcn);
- 	spin_unlock_bh(&ar->data_lock);
- 
- 	file->private_data = buf;
-@@ -1025,7 +956,7 @@ void ath11k_debugfs_fw_stats_init(struct ath11k *ar)
- 	struct dentry *fwstats_dir = debugfs_create_dir("fw_stats",
- 							ar->debug.debugfs_pdev);
- 
--	ar->debug.fw_stats.debugfs_fwstats = fwstats_dir;
-+	ar->fw_stats.debugfs_fwstats = fwstats_dir;
- 
- 	/* all stats debugfs files created are under "fw_stats" directory
- 	 * created per PDEV
-@@ -1036,12 +967,6 @@ void ath11k_debugfs_fw_stats_init(struct ath11k *ar)
- 			    &fops_vdev_stats);
- 	debugfs_create_file("beacon_stats", 0600, fwstats_dir, ar,
- 			    &fops_bcn_stats);
--
--	INIT_LIST_HEAD(&ar->debug.fw_stats.pdevs);
--	INIT_LIST_HEAD(&ar->debug.fw_stats.vdevs);
--	INIT_LIST_HEAD(&ar->debug.fw_stats.bcn);
--
--	init_completion(&ar->debug.fw_stats_complete);
- }
- 
- static ssize_t ath11k_write_pktlog_filter(struct file *file,
-diff --git a/drivers/net/wireless/ath/ath11k/debugfs.h b/drivers/net/wireless/ath/ath11k/debugfs.h
-index 30c00cb28311..0a84645e2e06 100644
---- a/drivers/net/wireless/ath/ath11k/debugfs.h
-+++ b/drivers/net/wireless/ath/ath11k/debugfs.h
-@@ -269,7 +269,7 @@ int ath11k_debugfs_pdev_create(struct ath11k_base *ab);
- void ath11k_debugfs_pdev_destroy(struct ath11k_base *ab);
- int ath11k_debugfs_register(struct ath11k *ar);
- void ath11k_debugfs_unregister(struct ath11k *ar);
--void ath11k_debugfs_fw_stats_process(struct ath11k_base *ab, struct sk_buff *skb);
-+void ath11k_debugfs_fw_stats_process(struct ath11k *ar, struct ath11k_fw_stats *stats);
- 
- void ath11k_debugfs_fw_stats_init(struct ath11k *ar);
- int ath11k_debugfs_get_fw_stats(struct ath11k *ar, u32 pdev_id,
-@@ -341,8 +341,8 @@ static inline void ath11k_debugfs_unregister(struct ath11k *ar)
- {
- }
- 
--static inline void ath11k_debugfs_fw_stats_process(struct ath11k_base *ab,
--						   struct sk_buff *skb)
-+static inline void ath11k_debugfs_fw_stats_process(struct ath11k *ar,
-+						   struct ath11k_fw_stats *stats)
- {
- }
- 
-diff --git a/drivers/net/wireless/ath/ath11k/wmi.c b/drivers/net/wireless/ath/ath11k/wmi.c
-index b658ea60dcf7..ec9b7e954dfc 100644
---- a/drivers/net/wireless/ath/ath11k/wmi.c
-+++ b/drivers/net/wireless/ath/ath11k/wmi.c
-@@ -7409,7 +7409,53 @@ static void ath11k_peer_assoc_conf_event(struct ath11k_base *ab, struct sk_buff
- 
- static void ath11k_update_stats_event(struct ath11k_base *ab, struct sk_buff *skb)
- {
--	ath11k_debugfs_fw_stats_process(ab, skb);
-+	struct ath11k_fw_stats stats = {};
-+	struct ath11k *ar;
-+	int ret;
++	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
++	if (!cmd)
++		return -ENOMEM;
 +
-+	INIT_LIST_HEAD(&stats.pdevs);
-+	INIT_LIST_HEAD(&stats.vdevs);
-+	INIT_LIST_HEAD(&stats.bcn);
++	cmd->id = CMD_GET_CAPABILITIES_REQ;
++	cmd->u.leaf.cap_req.cap_cmd = cpu_to_le16(cap_cmd_req);
++	cmd->len = CMD_HEADER_LEN + sizeof(struct kvaser_cmd_cap_req);
 +
-+	ret = ath11k_wmi_pull_fw_stats(ab, skb, &stats);
-+	if (ret) {
-+		ath11k_warn(ab, "failed to pull fw stats: %d\n", ret);
-+		goto free;
++	err = kvaser_usb_send_cmd(dev, cmd, cmd->len);
++	if (err)
++		goto end;
++
++	err = kvaser_usb_leaf_wait_cmd(dev, CMD_GET_CAPABILITIES_RESP, cmd);
++	if (err)
++		goto end;
++
++	*status = le16_to_cpu(cmd->u.leaf.cap_res.status);
++
++	if (*status != KVASER_USB_LEAF_CAP_STAT_OK)
++		goto end;
++
++	cap_cmd_res = le16_to_cpu(cmd->u.leaf.cap_res.cap_cmd);
++	switch (cap_cmd_res) {
++	case KVASER_USB_LEAF_CAP_CMD_LISTEN_MODE:
++	case KVASER_USB_LEAF_CAP_CMD_ERR_REPORT:
++		value = le32_to_cpu(cmd->u.leaf.cap_res.value);
++		mask = le32_to_cpu(cmd->u.leaf.cap_res.mask);
++		break;
++	default:
++		dev_warn(&dev->intf->dev, "Unknown capability command %u\n",
++			 cap_cmd_res);
++		break;
 +	}
 +
-+	rcu_read_lock();
-+	ar = ath11k_mac_get_ar_by_pdev_id(ab, stats.pdev_id);
-+	if (!ar) {
-+		rcu_read_unlock();
-+		ath11k_warn(ab, "failed to get ar for pdev_id %d: %d\n",
-+			    stats.pdev_id, ret);
-+		goto free;
++	for (i = 0; i < dev->nchannels; i++) {
++		if (BIT(i) & (value & mask)) {
++			switch (cap_cmd_res) {
++			case KVASER_USB_LEAF_CAP_CMD_LISTEN_MODE:
++				card_data->ctrlmode_supported |=
++						CAN_CTRLMODE_LISTENONLY;
++				break;
++			case KVASER_USB_LEAF_CAP_CMD_ERR_REPORT:
++				card_data->capabilities |=
++						KVASER_USB_CAP_BERR_CAP;
++				break;
++			}
++		}
 +	}
 +
-+	spin_lock_bh(&ar->data_lock);
++end:
++	kfree(cmd);
 +
-+	/* WMI_REQUEST_PDEV_STAT can be requested via .get_txpower mac ops or via
-+	 * debugfs fw stats. Therefore, processing it separately.
-+	 */
-+	if (stats.stats_id == WMI_REQUEST_PDEV_STAT) {
-+		list_splice_tail_init(&stats.pdevs, &ar->fw_stats.pdevs);
-+		ar->fw_stats_done = true;
-+		goto complete;
++	return err;
++}
++
++static int kvaser_usb_leaf_get_capabilities_leaf(struct kvaser_usb *dev)
++{
++	int err;
++	u16 status;
++
++	if (!(dev->card_data.capabilities & KVASER_USB_CAP_EXT_CAP)) {
++		dev_info(&dev->intf->dev,
++			 "No extended capability support. Upgrade device firmware.\n");
++		return 0;
 +	}
 +
-+	/* WMI_REQUEST_VDEV_STAT, WMI_REQUEST_BCN_STAT and WMI_REQUEST_RSSI_PER_CHAIN_STAT
-+	 * are currently requested only via debugfs fw stats. Hence, processing these
-+	 * in debugfs context
-+	 */
-+	ath11k_debugfs_fw_stats_process(ar, &stats);
++	err = kvaser_usb_leaf_get_single_capability(dev,
++						    KVASER_USB_LEAF_CAP_CMD_LISTEN_MODE,
++						    &status);
++	if (err)
++		return err;
++	if (status)
++		dev_info(&dev->intf->dev,
++			 "KVASER_USB_LEAF_CAP_CMD_LISTEN_MODE failed %u\n",
++			 status);
 +
-+complete:
-+	complete(&ar->fw_stats_complete);
-+	rcu_read_unlock();
-+	spin_unlock_bh(&ar->data_lock);
++	err = kvaser_usb_leaf_get_single_capability(dev,
++						    KVASER_USB_LEAF_CAP_CMD_ERR_REPORT,
++						    &status);
++	if (err)
++		return err;
++	if (status)
++		dev_info(&dev->intf->dev,
++			 "KVASER_USB_LEAF_CAP_CMD_ERR_REPORT failed %u\n",
++			 status);
 +
-+free:
-+	ath11k_fw_stats_free(&stats);
- }
- 
- /* PDEV_CTL_FAILSAFE_CHECK_EVENT is received from FW when the frequency scanned
++	return 0;
++}
++
++static int kvaser_usb_leaf_get_capabilities(struct kvaser_usb *dev)
++{
++	int err = 0;
++
++	if (dev->driver_info->family == KVASER_LEAF)
++		err = kvaser_usb_leaf_get_capabilities_leaf(dev);
++
++	return err;
++}
++
+ static void kvaser_usb_leaf_tx_acknowledge(const struct kvaser_usb *dev,
+ 					   const struct kvaser_cmd *cmd)
+ {
+@@ -1486,7 +1628,7 @@ const struct kvaser_usb_dev_ops kvaser_usb_leaf_dev_ops = {
+ 	.dev_get_software_info = kvaser_usb_leaf_get_software_info,
+ 	.dev_get_software_details = NULL,
+ 	.dev_get_card_info = kvaser_usb_leaf_get_card_info,
+-	.dev_get_capabilities = NULL,
++	.dev_get_capabilities = kvaser_usb_leaf_get_capabilities,
+ 	.dev_set_opt_mode = kvaser_usb_leaf_set_opt_mode,
+ 	.dev_start_chip = kvaser_usb_leaf_start_chip,
+ 	.dev_stop_chip = kvaser_usb_leaf_stop_chip,
 -- 
 2.35.1
 
