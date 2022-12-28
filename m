@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCB8E6581B2
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:31:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A3AB657AFE
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:17:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234387AbiL1QbF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:31:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50000 "EHLO
+        id S233180AbiL1PRH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:17:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234753AbiL1Qag (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:30:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A2601C90A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:26:51 -0800 (PST)
+        with ESMTP id S233189AbiL1PQ6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:16:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B503013F65
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:16:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5C5FFB816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:26:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE0FDC433D2;
-        Wed, 28 Dec 2022 16:26:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5026A61365
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:16:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67C04C433D2;
+        Wed, 28 Dec 2022 15:16:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244809;
-        bh=FTq7ea7ymdVziKkaGnpntrUwIEMaVj4OfV9nQT74ryE=;
+        s=korg; t=1672240614;
+        bh=ekM7PxMiAF1QhFuSLHpNpPze+NPIKVh0kSGq6/Xp3+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J2i5ZxlBDJypyl2EIDPF4LO/YGxTFk2B3+JEgOIJ1QWbGmAiHuu2am3FejexHin6S
-         XSpZtfBHcRJCmoQNlf7l4wdA1d+UZXjv0pq92AtkfB3dn0ERafQWM8qxduqEoNyK20
-         mUuL4lp5RJau5CD8yGdFyVTY4Jn3ybYdfO1Gdhrs=
+        b=XBKQME0x9D1bWHYWOPHDnIBIfIsbhJuvQ3dzD+QOvJJT5DTUVfLD+p/FlxwsPvBPY
+         g/AqR+zzldrdpW/Fm0IGd7j6Q7oxqLdnl7Bv6dl4/DF4lSkPAlVFBoSB9MjDdQ+zPg
+         IwsrNaBHnqtzNQ+NM8wqR3kOFqYwmhsNFMXU+mCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        patches@lists.linux.dev, John Keeping <john@metanate.com>,
+        Corentin Labbe <clabbe@baylibre.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0740/1146] gpiolib: cdev: fix NULL-pointer dereferences
-Date:   Wed, 28 Dec 2022 15:37:59 +0100
-Message-Id: <20221228144350.248701029@linuxfoundation.org>
+Subject: [PATCH 5.15 373/731] crypto: rockchip - add fallback for ahash
+Date:   Wed, 28 Dec 2022 15:38:00 +0100
+Message-Id: <20221228144307.372641063@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,132 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit 533aae7c94dbc2b14301cfd68ae7e0e90f0c8438 ]
+[ Upstream commit 816600485cb597b3ff7d6806a95a78512839f775 ]
 
-There are several places where we can crash the kernel by requesting
-lines, unbinding the GPIO device, then calling any of the system calls
-relevant to the GPIO character device's annonymous file descriptors:
-ioctl(), read(), poll().
+Adds a fallback for all case hardware cannot handle.
 
-While I observed it with the GPIO simulator, it will also happen for any
-of the GPIO devices that can be hot-unplugged - for instance any HID GPIO
-expander (e.g. CP2112).
-
-This affects both v1 and v2 uAPI.
-
-This fixes it partially by checking if gdev->chip is not NULL but it
-doesn't entirely remedy the situation as we still have a race condition
-in which another thread can remove the device after the check.
-
-Fixes: d7c51b47ac11 ("gpio: userspace ABI for reading/writing GPIO lines")
-Fixes: 3c0d9c635ae2 ("gpiolib: cdev: support GPIO_V2_GET_LINE_IOCTL and GPIO_V2_LINE_GET_VALUES_IOCTL")
-Fixes: aad955842d1c ("gpiolib: cdev: support GPIO_V2_GET_LINEINFO_IOCTL and GPIO_V2_GET_LINEINFO_WATCH_IOCTL")
-Fixes: a54756cb24ea ("gpiolib: cdev: support GPIO_V2_LINE_SET_CONFIG_IOCTL")
-Fixes: 7b8e00d98168 ("gpiolib: cdev: support GPIO_V2_LINE_SET_VALUES_IOCTL")
-Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: ce0183cb6464b ("crypto: rockchip - switch to skcipher API")
+Reviewed-by: John Keeping <john@metanate.com>
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib-cdev.c | 27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ drivers/crypto/rockchip/rk3288_crypto_ahash.c | 38 +++++++++++++++++++
+ 1 file changed, 38 insertions(+)
 
-diff --git a/drivers/gpio/gpiolib-cdev.c b/drivers/gpio/gpiolib-cdev.c
-index 0cb6b468f364..6fa5c2169985 100644
---- a/drivers/gpio/gpiolib-cdev.c
-+++ b/drivers/gpio/gpiolib-cdev.c
-@@ -201,6 +201,9 @@ static long linehandle_ioctl(struct file *file, unsigned int cmd,
- 	unsigned int i;
- 	int ret;
+diff --git a/drivers/crypto/rockchip/rk3288_crypto_ahash.c b/drivers/crypto/rockchip/rk3288_crypto_ahash.c
+index 49017d1fb510..16009bb0bf16 100644
+--- a/drivers/crypto/rockchip/rk3288_crypto_ahash.c
++++ b/drivers/crypto/rockchip/rk3288_crypto_ahash.c
+@@ -16,6 +16,40 @@
+  * so we put the fixed hash out when met zero message.
+  */
  
-+	if (!lh->gdev->chip)
-+		return -ENODEV;
++static bool rk_ahash_need_fallback(struct ahash_request *req)
++{
++	struct scatterlist *sg;
 +
- 	switch (cmd) {
- 	case GPIOHANDLE_GET_LINE_VALUES_IOCTL:
- 		/* NOTE: It's okay to read values of output lines */
-@@ -1384,6 +1387,9 @@ static long linereq_ioctl(struct file *file, unsigned int cmd,
- 	struct linereq *lr = file->private_data;
- 	void __user *ip = (void __user *)arg;
- 
-+	if (!lr->gdev->chip)
-+		return -ENODEV;
++	sg = req->src;
++	while (sg) {
++		if (!IS_ALIGNED(sg->offset, sizeof(u32))) {
++			return true;
++		}
++		if (sg->length % 4) {
++			return true;
++		}
++		sg = sg_next(sg);
++	}
++	return false;
++}
 +
- 	switch (cmd) {
- 	case GPIO_V2_LINE_GET_VALUES_IOCTL:
- 		return linereq_get_values(lr, ip);
-@@ -1410,6 +1416,9 @@ static __poll_t linereq_poll(struct file *file,
- 	struct linereq *lr = file->private_data;
- 	__poll_t events = 0;
- 
-+	if (!lr->gdev->chip)
-+		return EPOLLHUP | EPOLLERR;
++static int rk_ahash_digest_fb(struct ahash_request *areq)
++{
++	struct rk_ahash_rctx *rctx = ahash_request_ctx(areq);
++	struct crypto_ahash *tfm = crypto_ahash_reqtfm(areq);
++	struct rk_ahash_ctx *tfmctx = crypto_ahash_ctx(tfm);
 +
- 	poll_wait(file, &lr->wait, wait);
- 
- 	if (!kfifo_is_empty_spinlocked_noirqsave(&lr->events,
-@@ -1429,6 +1438,9 @@ static ssize_t linereq_read(struct file *file,
- 	ssize_t bytes_read = 0;
- 	int ret;
- 
-+	if (!lr->gdev->chip)
-+		return -ENODEV;
++	ahash_request_set_tfm(&rctx->fallback_req, tfmctx->fallback_tfm);
++	rctx->fallback_req.base.flags = areq->base.flags &
++					CRYPTO_TFM_REQ_MAY_SLEEP;
 +
- 	if (count < sizeof(le))
- 		return -EINVAL;
- 
-@@ -1716,6 +1728,9 @@ static __poll_t lineevent_poll(struct file *file,
- 	struct lineevent_state *le = file->private_data;
- 	__poll_t events = 0;
- 
-+	if (!le->gdev->chip)
-+		return EPOLLHUP | EPOLLERR;
++	rctx->fallback_req.nbytes = areq->nbytes;
++	rctx->fallback_req.src = areq->src;
++	rctx->fallback_req.result = areq->result;
 +
- 	poll_wait(file, &le->wait, wait);
- 
- 	if (!kfifo_is_empty_spinlocked_noirqsave(&le->events, &le->wait.lock))
-@@ -1740,6 +1755,9 @@ static ssize_t lineevent_read(struct file *file,
- 	ssize_t ge_size;
- 	int ret;
- 
-+	if (!le->gdev->chip)
-+		return -ENODEV;
++	return crypto_ahash_digest(&rctx->fallback_req);
++}
 +
- 	/*
- 	 * When compatible system call is being used the struct gpioevent_data,
- 	 * in case of at least ia32, has different size due to the alignment
-@@ -1821,6 +1839,9 @@ static long lineevent_ioctl(struct file *file, unsigned int cmd,
- 	void __user *ip = (void __user *)arg;
- 	struct gpiohandle_data ghd;
+ static int zero_message_process(struct ahash_request *req)
+ {
+ 	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
+@@ -167,6 +201,9 @@ static int rk_ahash_digest(struct ahash_request *req)
+ 	struct rk_ahash_ctx *tctx = crypto_tfm_ctx(req->base.tfm);
+ 	struct rk_crypto_info *dev = tctx->dev;
  
-+	if (!le->gdev->chip)
-+		return -ENODEV;
++	if (rk_ahash_need_fallback(req))
++		return rk_ahash_digest_fb(req);
 +
- 	/*
- 	 * We can get the value for an event line but not set it,
- 	 * because it is input by definition.
-@@ -2407,6 +2428,9 @@ static __poll_t lineinfo_watch_poll(struct file *file,
- 	struct gpio_chardev_data *cdev = file->private_data;
- 	__poll_t events = 0;
+ 	if (!req->nbytes)
+ 		return zero_message_process(req);
+ 	else
+@@ -309,6 +346,7 @@ static void rk_cra_hash_exit(struct crypto_tfm *tfm)
+ 	struct rk_ahash_ctx *tctx = crypto_tfm_ctx(tfm);
  
-+	if (!cdev->gdev->chip)
-+		return EPOLLHUP | EPOLLERR;
-+
- 	poll_wait(file, &cdev->wait, pollt);
+ 	free_page((unsigned long)tctx->dev->addr_vir);
++	crypto_free_ahash(tctx->fallback_tfm);
+ }
  
- 	if (!kfifo_is_empty_spinlocked_noirqsave(&cdev->events,
-@@ -2425,6 +2449,9 @@ static ssize_t lineinfo_watch_read(struct file *file, char __user *buf,
- 	int ret;
- 	size_t event_size;
- 
-+	if (!cdev->gdev->chip)
-+		return -ENODEV;
-+
- #ifndef CONFIG_GPIO_CDEV_V1
- 	event_size = sizeof(struct gpio_v2_line_info_changed);
- 	if (count < event_size)
+ struct rk_crypto_tmp rk_ahash_sha1 = {
 -- 
 2.35.1
 
