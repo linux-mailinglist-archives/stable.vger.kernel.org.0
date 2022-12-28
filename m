@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEA17657EB0
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:56:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D0C9658396
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:49:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234186AbiL1P4e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:56:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44402 "EHLO
+        id S235109AbiL1Qs6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:48:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234227AbiL1P4V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:56:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5772911821
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:56:17 -0800 (PST)
+        with ESMTP id S235077AbiL1QsQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:48:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D1521C130
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:43:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E83286155B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:56:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04236C433D2;
-        Wed, 28 Dec 2022 15:56:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0438B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:43:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51C14C433D2;
+        Wed, 28 Dec 2022 16:43:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242976;
-        bh=JVxxHZ9SQ7h2QGln3ffdzdFW2g/qAn2mr5LedDU777s=;
+        s=korg; t=1672245827;
+        bh=CfKbLL0LbxEQvJZzheP7aK+XGhZExt/eZjZ9yt303GA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uAll6aZfGy2Qnsv6BAycHQfvg2XOqaeZ+E2vBQWvko1XMh3sknwU6dBSeHbTYj05s
-         ze3QwdT4GcuFO6+Gias9b2nYQ0gWGSOoq3Pb4Oiqh3fKs0oSir4fHxkhPvSRSnlSrV
-         BAEecBvkwlnwH0v/XBr5fKWbCzyGcLyXFF5Jjl9g=
+        b=kZ3bBQrFXGpg89xIGB7bHF+Dy8TwE601pflezmpKEL4dcuwxzcqJ93osuiIjBvB7s
+         xZlHQ5GgQV7rZdgAaiF2SbP38tWFfuXU1XsB3h/jQUuz6sUyh/2EqB+jgQMGTG3Dji
+         rqN9RrH28QuFnht8kaqgq+BKZ44F9j21rugkluOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexandra Winter <wintera@linux.ibm.com>,
-        Kees Cook <keescook@chromium.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 646/731] s390/ctcm: Fix return type of ctc{mp,}m_tx()
+        patches@lists.linux.dev, Dokyung Song <dokyungs@yonsei.ac.kr>,
+        Deren Wu <deren.wu@mediatek.com>,
+        Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0965/1073] wifi: mt76: do not run mt76u_status_worker if the device is not running
 Date:   Wed, 28 Dec 2022 15:42:33 +0100
-Message-Id: <20221228144315.236535257@linuxfoundation.org>
+Message-Id: <20221228144354.261139751@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,74 +54,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit aa5bf80c3c067b82b4362cd6e8e2194623bcaca6 ]
+[ Upstream commit bd5dac7ced5a7c9faa4dc468ac9560c3256df845 ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed. A
-proposed warning in clang aims to catch these at compile time, which
-reveals:
+Fix the following NULL pointer dereference avoiding to run
+mt76u_status_worker thread if the device is not running yet.
 
-  drivers/s390/net/ctcm_main.c:1064:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .ndo_start_xmit         = ctcm_tx,
-                                    ^~~~~~~
-  drivers/s390/net/ctcm_main.c:1072:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .ndo_start_xmit         = ctcmpc_tx,
-                                    ^~~~~~~~~
+KASAN: null-ptr-deref in range
+[0x0000000000000000-0x0000000000000007]
+CPU: 0 PID: 98 Comm: kworker/u2:2 Not tainted 5.14.0+ #78 Hardware
+name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+Workqueue: mt76 mt76u_tx_status_data
+RIP: 0010:mt76x02_mac_fill_tx_status.isra.0+0x82c/0x9e0
+Code: c5 48 b8 00 00 00 00 00 fc ff df 80 3c 02 00 0f 85 94 01 00 00
+48 b8 00 00 00 00 00 fc ff df 4d 8b 34 24 4c 89 f2 48 c1 ea 03 <0f>
+b6
+04 02 84 c0 74 08 3c 03 0f 8e 89 01 00 00 41 8b 16 41 0f b7
+RSP: 0018:ffffc900005af988 EFLAGS: 00010246
+RAX: dffffc0000000000 RBX: ffffc900005afae8 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffffffff832fc661 RDI: ffffc900005afc2a
+RBP: ffffc900005afae0 R08: 0000000000000001 R09: fffff520000b5f3c
+R10: 0000000000000003 R11: fffff520000b5f3b R12: ffff88810b6132d8
+R13: 000000000000ffff R14: 0000000000000000 R15: ffffc900005afc28
+FS:  0000000000000000(0000) GS:ffff88811aa00000(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fa0eda6a000 CR3: 0000000118f17000 CR4: 0000000000750ef0
+PKRU: 55555554
+Call Trace:
+ mt76x02_send_tx_status+0x1d2/0xeb0
+ mt76x02_tx_status_data+0x8e/0xd0
+ mt76u_tx_status_data+0xe1/0x240
+ process_one_work+0x92b/0x1460
+ worker_thread+0x95/0xe00
+ kthread+0x3a1/0x480
+ ret_from_fork+0x1f/0x30
+Modules linked in:
+--[ end trace 8df5d20fc5040f65 ]--
+RIP: 0010:mt76x02_mac_fill_tx_status.isra.0+0x82c/0x9e0
+Code: c5 48 b8 00 00 00 00 00 fc ff df 80 3c 02 00 0f 85 94 01 00 00
+48 b8 00 00 00 00 00 fc ff df 4d 8b 34 24 4c 89 f2 48 c1 ea 03 <0f>
+b6
+04 02 84 c0 74 08 3c 03 0f 8e 89 01 00 00 41 8b 16 41 0f b7
+RSP: 0018:ffffc900005af988 EFLAGS: 00010246
+RAX: dffffc0000000000 RBX: ffffc900005afae8 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffffffff832fc661 RDI: ffffc900005afc2a
+RBP: ffffc900005afae0 R08: 0000000000000001 R09: fffff520000b5f3c
+R10: 0000000000000003 R11: fffff520000b5f3b R12: ffff88810b6132d8
+R13: 000000000000ffff R14: 0000000000000000 R15: ffffc900005afc28
+FS:  0000000000000000(0000) GS:ffff88811aa00000(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fa0eda6a000 CR3: 0000000118f17000 CR4: 0000000000750ef0
+PKRU: 55555554
 
-->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
-'netdev_tx_t', not 'int'. Adjust the return type of ctc{mp,}m_tx() to
-match the prototype's to resolve the warning and potential CFI failure,
-should s390 select ARCH_SUPPORTS_CFI_CLANG in the future.
+Moreover move stat_work schedule out of the for loop.
 
-Additionally, while in the area, remove a comment block that is no
-longer relevant.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1750
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Dokyung Song <dokyungs@yonsei.ac.kr>
+Co-developed-by: Deren Wu <deren.wu@mediatek.com>
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/ctcm_main.c | 11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ drivers/net/wireless/mediatek/mt76/usb.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
-index fd705429708e..f91b6cfd7ed0 100644
---- a/drivers/s390/net/ctcm_main.c
-+++ b/drivers/s390/net/ctcm_main.c
-@@ -825,16 +825,9 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
- /**
-  * Start transmission of a packet.
-  * Called from generic network device layer.
-- *
-- *  skb		Pointer to buffer containing the packet.
-- *  dev		Pointer to interface struct.
-- *
-- * returns 0 if packet consumed, !0 if packet rejected.
-- *         Note: If we return !0, then the packet is free'd by
-- *               the generic network layer.
-  */
- /* first merge version - leaving both functions separated */
--static int ctcm_tx(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t ctcm_tx(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct ctcm_priv *priv = dev->ml_priv;
+diff --git a/drivers/net/wireless/mediatek/mt76/usb.c b/drivers/net/wireless/mediatek/mt76/usb.c
+index 6b8964c19f50..446429f4d944 100644
+--- a/drivers/net/wireless/mediatek/mt76/usb.c
++++ b/drivers/net/wireless/mediatek/mt76/usb.c
+@@ -761,6 +761,9 @@ static void mt76u_status_worker(struct mt76_worker *w)
+ 	struct mt76_queue *q;
+ 	int i;
  
-@@ -877,7 +870,7 @@ static int ctcm_tx(struct sk_buff *skb, struct net_device *dev)
++	if (!test_bit(MT76_STATE_RUNNING, &dev->phy.state))
++		return;
++
+ 	for (i = 0; i < IEEE80211_NUM_ACS; i++) {
+ 		q = dev->phy.q_tx[i];
+ 		if (!q)
+@@ -780,11 +783,11 @@ static void mt76u_status_worker(struct mt76_worker *w)
+ 			wake_up(&dev->tx_wait);
+ 
+ 		mt76_worker_schedule(&dev->tx_worker);
+-
+-		if (dev->drv->tx_status_data &&
+-		    !test_and_set_bit(MT76_READING_STATS, &dev->phy.state))
+-			queue_work(dev->wq, &dev->usb.stat_work);
+ 	}
++
++	if (dev->drv->tx_status_data &&
++	    !test_and_set_bit(MT76_READING_STATS, &dev->phy.state))
++		queue_work(dev->wq, &dev->usb.stat_work);
  }
  
- /* unmerged MPC variant of ctcm_tx */
--static int ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
- {
- 	int len = 0;
- 	struct ctcm_priv *priv = dev->ml_priv;
+ static void mt76u_tx_status_data(struct work_struct *work)
 -- 
 2.35.1
 
