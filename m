@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CF236579C7
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:04:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 302CF657AE0
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:15:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233507AbiL1PEw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:04:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52162 "EHLO
+        id S233045AbiL1PPw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:15:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233512AbiL1PEk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:04:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0301813D44
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:04:38 -0800 (PST)
+        with ESMTP id S232995AbiL1PPv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:15:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ED0D228
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:15:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FDA96153B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:04:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FAEBC433D2;
-        Wed, 28 Dec 2022 15:04:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 079FCB81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:15:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 781B1C433EF;
+        Wed, 28 Dec 2022 15:15:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239877;
-        bh=ZjtrfsprdOkf+S+ZZbLRs8+7HS8dh63QMFm//u2RRaU=;
+        s=korg; t=1672240547;
+        bh=XLnQrrv0n0qLt+falotwTKdhlXBgb5ff7UCWk2stfrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hsA64Rd7D68mBVDGUuXzd+sS/cCTx0YzrgD1uqURkaRzHXgxiZOHqvaZV69mccPl+
-         zeV3+X9EAMlFrQbIdn30o+c0LWJJGEPE/Pr1pQLcBBUEXjgFLMkRNLNXsQHoqSiuQ2
-         obbMztTdHI7Z8ATZNXCG0BoUoPUp0hTr26zJosbs=
+        b=QZdxx9QKWHmGejp4OMviGUtyK/HXAqnI1+jh3lBy2bCxxqxE1mtgB7bqBx2lIQ71P
+         /uwpPZBGzkWf1/Qo9ASxIVTc/abZRKTljAicPpMdZ9yvjHBv/wnIoBVFSf8mzVLce4
+         g9lr6fqAtNq/U3agIm9y1CLMBEzdIR8cl9hUkXvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eddie James <eajames@linux.ibm.com>,
-        Joel Stanley <joel@jms.id.au>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
+        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Chen Yu <yu.c.chen@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0089/1073] tpm: Add flag to use default cancellation policy
+Subject: [PATCH 6.1 0138/1146] ACPI: pfr_telemetry: use ACPI_FREE() to free acpi_object
 Date:   Wed, 28 Dec 2022 15:27:57 +0100
-Message-Id: <20221228144330.474907271@linuxfoundation.org>
+Message-Id: <20221228144333.897495866@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,86 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddie James <eajames@linux.ibm.com>
+From: Wang ShaoBo <bobo.shaobowang@huawei.com>
 
-[ Upstream commit 7bfda9c73fa9710a842a7d6f89b024351c80c19c ]
+[ Upstream commit 0f2aa7fc2a9aee05bafb965d5b1638d3e74b4c61 ]
 
-The check for cancelled request depends on the VID of the chip, but
-some chips share VID which shouldn't share their cancellation
-behavior. This is the case for the Nuvoton NPCT75X, which should use
-the default cancellation check, not the Winbond one.
-To avoid changing the existing behavior, add a new flag to indicate
-that the chip should use the default cancellation check and set it
-for the I2C TPM2 TIS driver.
+acpi_evaluate_dsm_typed()/acpi_evaluate_dsm() should be coupled
+with ACPI_FREE() to free the ACPI memory, because we need to
+track the allocation of acpi_object when ACPI_DBG_TRACK_ALLOCATIONS
+enabled, so use ACPI_FREE() instead of kfree().
 
-Fixes: bbc23a07b072 ("tpm: Add tpm_tis_i2c backend for tpm_tis_core")
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Tested-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Fixes: b0013e037a8b ("ACPI: Introduce Platform Firmware Runtime Telemetry driver")
+Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Reviewed-by: Chen Yu <yu.c.chen@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/tpm_tis_core.c | 20 ++++++++++++--------
- drivers/char/tpm/tpm_tis_core.h |  1 +
- drivers/char/tpm/tpm_tis_i2c.c  |  1 +
- 3 files changed, 14 insertions(+), 8 deletions(-)
+ drivers/acpi/pfr_telemetry.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
-index 757623bacfd5..3f98e587b3e8 100644
---- a/drivers/char/tpm/tpm_tis_core.c
-+++ b/drivers/char/tpm/tpm_tis_core.c
-@@ -682,15 +682,19 @@ static bool tpm_tis_req_canceled(struct tpm_chip *chip, u8 status)
- {
- 	struct tpm_tis_data *priv = dev_get_drvdata(&chip->dev);
+diff --git a/drivers/acpi/pfr_telemetry.c b/drivers/acpi/pfr_telemetry.c
+index 9abf350bd7a5..27fb6cdad75f 100644
+--- a/drivers/acpi/pfr_telemetry.c
++++ b/drivers/acpi/pfr_telemetry.c
+@@ -144,7 +144,7 @@ static int get_pfrt_log_data_info(struct pfrt_log_data_info *data_info,
+ 	ret = 0;
  
--	switch (priv->manufacturer_id) {
--	case TPM_VID_WINBOND:
--		return ((status == TPM_STS_VALID) ||
--			(status == (TPM_STS_VALID | TPM_STS_COMMAND_READY)));
--	case TPM_VID_STM:
--		return (status == (TPM_STS_VALID | TPM_STS_COMMAND_READY));
--	default:
--		return (status == TPM_STS_COMMAND_READY);
-+	if (!test_bit(TPM_TIS_DEFAULT_CANCELLATION, &priv->flags)) {
-+		switch (priv->manufacturer_id) {
-+		case TPM_VID_WINBOND:
-+			return ((status == TPM_STS_VALID) ||
-+				(status == (TPM_STS_VALID | TPM_STS_COMMAND_READY)));
-+		case TPM_VID_STM:
-+			return (status == (TPM_STS_VALID | TPM_STS_COMMAND_READY));
-+		default:
-+			break;
-+		}
- 	}
-+
-+	return status == TPM_STS_COMMAND_READY;
+ free_acpi_buffer:
+-	kfree(out_obj);
++	ACPI_FREE(out_obj);
+ 
+ 	return ret;
  }
+@@ -180,7 +180,7 @@ static int set_pfrt_log_level(int level, struct pfrt_log_device *pfrt_log_dev)
+ 		ret = -EBUSY;
+ 	}
  
- static irqreturn_t tis_int_handler(int dummy, void *dev_id)
-diff --git a/drivers/char/tpm/tpm_tis_core.h b/drivers/char/tpm/tpm_tis_core.h
-index 66a5a13cd1df..b68479e0de10 100644
---- a/drivers/char/tpm/tpm_tis_core.h
-+++ b/drivers/char/tpm/tpm_tis_core.h
-@@ -86,6 +86,7 @@ enum tis_defaults {
- enum tpm_tis_flags {
- 	TPM_TIS_ITPM_WORKAROUND		= BIT(0),
- 	TPM_TIS_INVALID_STATUS		= BIT(1),
-+	TPM_TIS_DEFAULT_CANCELLATION	= BIT(2),
- };
+-	kfree(out_obj);
++	ACPI_FREE(out_obj);
  
- struct tpm_tis_data {
-diff --git a/drivers/char/tpm/tpm_tis_i2c.c b/drivers/char/tpm/tpm_tis_i2c.c
-index 29f0db41c0b7..e728a61659f8 100644
---- a/drivers/char/tpm/tpm_tis_i2c.c
-+++ b/drivers/char/tpm/tpm_tis_i2c.c
-@@ -329,6 +329,7 @@ static int tpm_tis_i2c_probe(struct i2c_client *dev,
- 	if (!phy->io_buf)
- 		return -ENOMEM;
+ 	return ret;
+ }
+@@ -218,7 +218,7 @@ static int get_pfrt_log_level(struct pfrt_log_device *pfrt_log_dev)
+ 	ret = obj->integer.value;
  
-+	set_bit(TPM_TIS_DEFAULT_CANCELLATION, &phy->priv.flags);
- 	phy->i2c_client = dev;
+ free_acpi_buffer:
+-	kfree(out_obj);
++	ACPI_FREE(out_obj);
  
- 	/* must precede all communication with the tpm */
+ 	return ret;
+ }
 -- 
 2.35.1
 
