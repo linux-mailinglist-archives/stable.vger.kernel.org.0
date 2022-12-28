@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 759EE65827D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:37:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81CD065835E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:47:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234845AbiL1QhJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:37:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57488 "EHLO
+        id S235084AbiL1QrW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:47:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235011AbiL1QgL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:36:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BC311D326
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:32:37 -0800 (PST)
+        with ESMTP id S233305AbiL1Qq3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:46:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 738461DDFD
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:41:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3901561572
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:32:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A22AC433EF;
-        Wed, 28 Dec 2022 16:32:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E7C8D61572
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:41:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F4029C433D2;
+        Wed, 28 Dec 2022 16:41:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245156;
-        bh=CQLLyORBbIsh+JLk/hX2a2QxvM6QZEq71mvmyvFZBEk=;
+        s=korg; t=1672245687;
+        bh=DNy84Pr1TmAmxVnIUwRbp4yDVEism59aH63QuDKbLtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=prZFtRIIBAny8CeDCyY9Cf8X5elmSIgjaYyh4ANicTcegZN1uqJndOVgpeM3KzfYd
-         OP2KJMYXsNqQce4kgHhys2ibRxQhyim31FOtFqoEXyAjoDN21HjSqaARZONh3r7aRP
-         HRp9TD3tJcGW2dE8ICm73MnMPbbLkH0GYDfS14ZA=
+        b=Vh7X6FkgNfVvsw9qjUK9wRxs3Qu4+5tJyL23xd6D0LFl2Dx/62srb5NK77/us/4k/
+         5Wx2YYRNY7wgXIncuxWQ6fji2WVYxjCADt7JB9nzCUE+CNi3uyEp4iVe8OTFtfnpf6
+         4wRbZtufVJ+4LupgLN9fBjAtWYTQT+7jnPSC0tJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alexander Duyck <alexanderduyck@fb.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0842/1073] mISDN: hfcpci: dont call dev_kfree_skb/kfree_skb() under spin_lock_irqsave()
-Date:   Wed, 28 Dec 2022 15:40:30 +0100
-Message-Id: <20221228144350.892022481@linuxfoundation.org>
+Subject: [PATCH 6.1 0892/1146] mISDN: hfcpci: dont call dev_kfree_skb/kfree_skb() under spin_lock_irqsave()
+Date:   Wed, 28 Dec 2022 15:40:31 +0100
+Message-Id: <20221228144354.415267533@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -76,7 +76,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 9 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/isdn/hardware/mISDN/hfcpci.c b/drivers/isdn/hardware/mISDN/hfcpci.c
-index af17459c1a5c..eba58b99cd29 100644
+index e964a8dd8512..c0331b268010 100644
 --- a/drivers/isdn/hardware/mISDN/hfcpci.c
 +++ b/drivers/isdn/hardware/mISDN/hfcpci.c
 @@ -1617,16 +1617,19 @@ hfcpci_l2l1D(struct mISDNchannel *ch, struct sk_buff *skb)
