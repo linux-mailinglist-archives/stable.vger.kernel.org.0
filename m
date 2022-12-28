@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA9E1657D4D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:42:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B4CB657C37
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:30:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233989AbiL1PmL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:42:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58340 "EHLO
+        id S233788AbiL1PaN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:30:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233973AbiL1Pls (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:41:48 -0500
+        with ESMTP id S233810AbiL1PaH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:30:07 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BE2017062
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:41:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA40815827
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:30:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C67966154D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:41:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5996C433D2;
-        Wed, 28 Dec 2022 15:41:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 46C9E6152F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:30:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A701C433D2;
+        Wed, 28 Dec 2022 15:30:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242100;
-        bh=equXzBOScuNHFwsjvnhCbdOTD/DBMaXGysdemzxdUE8=;
+        s=korg; t=1672241405;
+        bh=B68q5T78n7dr+S61wMS3XTRFdpHHBm+HfEgSLaRmF0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PSbil2crLIWQfE0iy93bMInakua6cBJeR4kFJF+TX47HqWylZqTKKptaZOnGIPc6r
-         eCEpD996H9DuhxXBhvtahvbr6s0wNfST8sipozLOM9Nb0Tmay4+bRDRt+bMirnXwLm
-         RaVGc3+rbngHBp4/h1qi3UhJ72mw/uY6F9xT0iE0=
+        b=BwyeygwWmzgXgDAiffxGyW8KSM/gJi6KUKc0IiS47cQIxlLtWd8KRHFFuellQ8Xx5
+         XedPzUL9KwKa5bPsnuad4pxx1W+Cy6DG6goIevLOEwuXhfj0Ejh6maJanuCaJR8AXA
+         U9G8fBydljDc8LoaDEcU+s3w0bhcnm1wfoW4jg+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zeng Heng <zengheng4@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Marijn Suijten <marijn.suijten@somainline.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0329/1146] ASoC: pxa: fix null-pointer dereference in filter()
+Subject: [PATCH 6.0 0280/1073] drm/msm/dsi: Disallow 8 BPC DSC configuration for alternative BPC values
 Date:   Wed, 28 Dec 2022 15:31:08 +0100
-Message-Id: <20221228144339.095756985@linuxfoundation.org>
+Message-Id: <20221228144335.626537455@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zeng Heng <zengheng4@huawei.com>
+From: Marijn Suijten <marijn.suijten@somainline.org>
 
-[ Upstream commit ec7bf231aaa1bdbcb69d23bc50c753c80fb22429 ]
+[ Upstream commit d053fbc449c47517b1f6516dbce2f917f2a9f51d ]
 
-kasprintf() would return NULL pointer when kmalloc() fail to allocate.
-Need to check the return pointer before calling strcmp().
+According to the `/* bpc 8 */` comment below only values for a
+bits_per_component of 8 are currently hardcoded in place.  This is
+further confirmed by downstream sources [1] containing different
+constants for other BPC values (and different initial_offset too,
+with an extra dependency on bits_per_pixel).  Prevent future mishaps by
+explicitly disallowing any other bits_per_component value until the
+right parameters are put in place and tested.
 
-Fixes: 7a824e214e25 ("ASoC: mmp: add audio dma support")
-Signed-off-by: Zeng Heng <zengheng4@huawei.com>
-Link: https://lore.kernel.org/r/20221114085629.1910435-1-zengheng4@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+[1]: https://git.codelinaro.org/clo/la/platform/vendor/opensource/display-drivers/-/blob/DISPLAY.LA.2.0.r1-08000-WAIPIO.0/msm/sde_dsc_helper.c#L110-139
+
+Fixes: b9080324d6ca ("drm/msm/dsi: add support for dsc data")
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
+Patchwork: https://patchwork.freedesktop.org/patch/508942/
+Link: https://lore.kernel.org/r/20221026182824.876933-9-marijn.suijten@somainline.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/pxa/mmp-pcm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/msm/dsi/dsi_host.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/sound/soc/pxa/mmp-pcm.c b/sound/soc/pxa/mmp-pcm.c
-index 5d520e18e512..99b245e3079a 100644
---- a/sound/soc/pxa/mmp-pcm.c
-+++ b/sound/soc/pxa/mmp-pcm.c
-@@ -98,7 +98,7 @@ static bool filter(struct dma_chan *chan, void *param)
- 
- 	devname = kasprintf(GFP_KERNEL, "%s.%d", dma_data->dma_res->name,
- 		dma_data->ssp_id);
--	if ((strcmp(dev_name(chan->device->dev), devname) == 0) &&
-+	if (devname && (strcmp(dev_name(chan->device->dev), devname) == 0) &&
- 		(chan->chan_id == dma_data->dma_res->start)) {
- 		found = true;
+diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
+index 27fef5169bed..c5805416854f 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi_host.c
++++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
+@@ -1848,6 +1848,11 @@ static int dsi_populate_dsc_params(struct msm_dsi_host *msm_host, struct drm_dsc
+ 		return -EINVAL;
  	}
+ 
++	if (dsc->bits_per_component != 8) {
++		DRM_DEV_ERROR(&msm_host->pdev->dev, "DSI does not support bits_per_component != 8 yet\n");
++		return -EOPNOTSUPP;
++	}
++
+ 	dsc->rc_model_size = 8192;
+ 	dsc->first_line_bpg_offset = 12;
+ 	dsc->rc_edge_factor = 6;
 -- 
 2.35.1
 
