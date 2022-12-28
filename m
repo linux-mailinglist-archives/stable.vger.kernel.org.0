@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80DAA657A6E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:11:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9AE4658150
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:27:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233669AbiL1PLU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:11:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58430 "EHLO
+        id S233139AbiL1Q1U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:27:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233731AbiL1PLA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:11:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E082C13DEC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:10:59 -0800 (PST)
+        with ESMTP id S234707AbiL1Q0b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:26:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D6731CB04
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:23:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8041E614BA
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:10:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96F17C433EF;
-        Wed, 28 Dec 2022 15:10:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0898EB81886
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:23:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74D36C433D2;
+        Wed, 28 Dec 2022 16:22:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240258;
-        bh=4PNDDJZmArPkClOrlBSTTJGNXsNvzCzJ1ewJlq8/RAQ=;
+        s=korg; t=1672244579;
+        bh=HJTwop3gV7pytFYEfgRP0peWG4utb8Thn+6kYfYydBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YVzzNE/0bWeIuD4o3LYXGo9jPIp/yBwOyNWb+CBN+Qel4qNpnpecSqODB13z8Rw1W
-         l6TZvzqwFtZrBcaDYKCLy/+PYJpGNI3KjrlNKHamyb+C8fIM6e1jvTe58Metb9KBJ3
-         gBAKvO2WeMPg6DjCQXgoV09PE6AE2eySxT/XUzgQ=
+        b=CMSjlXrzEQHmlSb9BOft3bN2MjrDorUoPfV9XMkNxu9hD4ecdxXV6kGFiIfJTxwCC
+         CFUPbmZDFDE9sp5a2AxJPncbc4QgW7RKj3fniyTnnusD9LfKSLf+7fTq2ZV5qcALod
+         cQboQAVspL89WQiEEcO5dldOfafpBT/1N/9Om+qc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
-        Jiri Pirko <jiri@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Georgi Djakov <djakov@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 329/731] net: farsync: Fix kmemleak when rmmods farsync
+Subject: [PATCH 6.1 0697/1146] interconnect: qcom: sc7180: fix dropped const of qcom_icc_bcm
 Date:   Wed, 28 Dec 2022 15:37:16 +0100
-Message-Id: <20221228144306.108498849@linuxfoundation.org>
+Message-Id: <20221228144349.077227798@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,73 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zetao <lizetao1@huawei.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 2f623aaf9f31de968dea6169849706a2f9be444c ]
+[ Upstream commit f24227a640344f894522045f74bb2decbdc4f55e ]
 
-There are two memory leaks reported by kmemleak:
+Pointers to struct qcom_icc_bcm are const, but the change was dropped
+during merge.
 
-  unreferenced object 0xffff888114b20200 (size 128):
-    comm "modprobe", pid 4846, jiffies 4295146524 (age 401.345s)
-    hex dump (first 32 bytes):
-      e0 62 57 09 81 88 ff ff e0 62 57 09 81 88 ff ff  .bW......bW.....
-      01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    backtrace:
-      [<ffffffff815bcd82>] kmalloc_trace+0x22/0x60
-      [<ffffffff83d35c78>] __hw_addr_add_ex+0x198/0x6c0
-      [<ffffffff83d3989d>] dev_addr_init+0x13d/0x230
-      [<ffffffff83d1063d>] alloc_netdev_mqs+0x10d/0xe50
-      [<ffffffff82b4a06e>] alloc_hdlcdev+0x2e/0x80
-      [<ffffffffa016a741>] fst_add_one+0x601/0x10e0 [farsync]
-      ...
-
-  unreferenced object 0xffff88810b85b000 (size 1024):
-    comm "modprobe", pid 4846, jiffies 4295146523 (age 401.346s)
-    hex dump (first 32 bytes):
-      00 00 b0 02 00 c9 ff ff 00 70 0a 00 00 c9 ff ff  .........p......
-      00 00 00 f2 00 00 00 f3 0a 00 00 00 02 00 00 00  ................
-    backtrace:
-      [<ffffffff815bcd82>] kmalloc_trace+0x22/0x60
-      [<ffffffffa016a294>] fst_add_one+0x154/0x10e0 [farsync]
-      [<ffffffff82060e83>] local_pci_probe+0xd3/0x170
-      ...
-
-The root cause is traced to the netdev and fst_card_info are not freed
-when removes one fst in fst_remove_one(), which may trigger oom if
-repeated insmod and rmmod module.
-
-Fix it by adding free_netdev() and kfree() in fst_remove_one(), just as
-the operations on the error handling path in fst_add_one().
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Li Zetao <lizetao1@huawei.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 016fca59f95f ("Merge branch 'icc-const' into icc-next")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20221027154848.293523-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Georgi Djakov <djakov@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/farsync.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/interconnect/qcom/sc7180.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wan/farsync.c b/drivers/net/wan/farsync.c
-index 6a212c085435..5b01642ca44e 100644
---- a/drivers/net/wan/farsync.c
-+++ b/drivers/net/wan/farsync.c
-@@ -2545,6 +2545,7 @@ fst_remove_one(struct pci_dev *pdev)
- 		struct net_device *dev = port_to_dev(&card->ports[i]);
+diff --git a/drivers/interconnect/qcom/sc7180.c b/drivers/interconnect/qcom/sc7180.c
+index 35cd448efdfb..82d5e8a8c19e 100644
+--- a/drivers/interconnect/qcom/sc7180.c
++++ b/drivers/interconnect/qcom/sc7180.c
+@@ -369,7 +369,7 @@ static const struct qcom_icc_desc sc7180_gem_noc = {
+ 	.num_bcms = ARRAY_SIZE(gem_noc_bcms),
+ };
  
- 		unregister_hdlc_device(dev);
-+		free_netdev(dev);
- 	}
- 
- 	fst_disable_intr(card);
-@@ -2564,6 +2565,7 @@ fst_remove_one(struct pci_dev *pdev)
- 				  card->tx_dma_handle_card);
- 	}
- 	fst_card_array[card->card_no] = NULL;
-+	kfree(card);
- }
- 
- static struct pci_driver fst_driver = {
+-static struct qcom_icc_bcm *mc_virt_bcms[] = {
++static struct qcom_icc_bcm * const mc_virt_bcms[] = {
+ 	&bcm_acv,
+ 	&bcm_mc0,
+ };
 -- 
 2.35.1
 
