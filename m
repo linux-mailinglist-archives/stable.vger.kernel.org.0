@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6514B657B59
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:20:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 592BA657A3E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:09:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233214AbiL1PUf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:20:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39416 "EHLO
+        id S233556AbiL1PJd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:09:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233301AbiL1PUe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:20:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF0CB14001
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:20:33 -0800 (PST)
+        with ESMTP id S233640AbiL1PJL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:09:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00C8B13E00
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:09:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 706F2B81647
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:20:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5A09C433F0;
-        Wed, 28 Dec 2022 15:20:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 80CDDB81716
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:09:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7152C433EF;
+        Wed, 28 Dec 2022 15:09:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240831;
-        bh=/NaSotTAwrD8z9U1VL7XPtXS86Gn0ULgduHKE0jPs64=;
+        s=korg; t=1672240147;
+        bh=lx1ls6BJYhsGptyycfrqrX5A8rYuX6cFVvKtRoB/R/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UoDZ/IEdqShJxG3sKKqD8ugzy+ZRC68x6U9fWyOGplST7Izcz/Ls0OEPinHeWrKKC
-         2i3ArlA92PIdDc68EWSMmSFxEc2kBw/BDnNL4j2NP0s/soD06IQG3g92o4+ALkwNcg
-         tZfUR8zwQGeILuetGRKChGupEwJLmY/rO55+iMgQ=
+        b=Q6Hn7j0NW1uS4UtuSs01i5Vk+3vt7zPvCf0yv9wE367GzfoB1we5Gsu8HD/+Bizkx
+         f6Ib2vEES4uh5R1nppGClPjTkboJlUqp3vnZcLt4+rUPKCWoRIfBeOp4VxGTBa2qoN
+         /6LT3uZf6chQcn0wYE33CAXbojfAETXV16e9hDMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0172/1146] xen/privcmd: Fix a possible warning in privcmd_ioctl_mmap_resource()
+Subject: [PATCH 6.0 0123/1073] MIPS: vpe-cmp: fix possible memory leak while module exiting
 Date:   Wed, 28 Dec 2022 15:28:31 +0100
-Message-Id: <20221228144334.829722801@linuxfoundation.org>
+Message-Id: <20221228144331.378282800@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 8b997b2bb2c53b76a6db6c195930e9ab8e4b0c79 ]
+[ Upstream commit c5ed1fe0801f0c66b0fbce2785239a5664629057 ]
 
-As 'kdata.num' is user-controlled data, if user tries to allocate
-memory larger than(>=) MAX_ORDER, then kcalloc() will fail, it
-creates a stack trace and messes up dmesg with a warning.
+dev_set_name() allocates memory for name, it need be freed
+when module exiting, call put_device() to give up reference,
+so that it can be freed in kobject_cleanup() when the refcount
+hit to 0. The vpe_device is static, so remove kfree() from
+vpe_device_release().
 
-Call trace:
--> privcmd_ioctl
---> privcmd_ioctl_mmap_resource
-
-Add __GFP_NOWARN in order to avoid too large allocation warning.
-This is detected by static analysis using smatch.
-
-Fixes: 3ad0876554ca ("xen/privcmd: add IOCTL_PRIVCMD_MMAP_RESOURCE")
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20221126050745.778967-1-harshit.m.mogalapalli@oracle.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixes: 17a1d523aa58 ("MIPS: APRP: Add VPE loader support for CMP platforms.")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/privcmd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/kernel/vpe-cmp.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/xen/privcmd.c b/drivers/xen/privcmd.c
-index fae50a24630b..1edf45ee9890 100644
---- a/drivers/xen/privcmd.c
-+++ b/drivers/xen/privcmd.c
-@@ -760,7 +760,7 @@ static long privcmd_ioctl_mmap_resource(struct file *file,
- 		goto out;
- 	}
+diff --git a/arch/mips/kernel/vpe-cmp.c b/arch/mips/kernel/vpe-cmp.c
+index e673603e11e5..92140edb3ce3 100644
+--- a/arch/mips/kernel/vpe-cmp.c
++++ b/arch/mips/kernel/vpe-cmp.c
+@@ -75,7 +75,6 @@ ATTRIBUTE_GROUPS(vpe);
  
--	pfns = kcalloc(kdata.num, sizeof(*pfns), GFP_KERNEL);
-+	pfns = kcalloc(kdata.num, sizeof(*pfns), GFP_KERNEL | __GFP_NOWARN);
- 	if (!pfns) {
- 		rc = -ENOMEM;
- 		goto out;
+ static void vpe_device_release(struct device *cd)
+ {
+-	kfree(cd);
+ }
+ 
+ static struct class vpe_class = {
+@@ -157,6 +156,7 @@ int __init vpe_module_init(void)
+ 	device_del(&vpe_device);
+ 
+ out_class:
++	put_device(&vpe_device);
+ 	class_unregister(&vpe_class);
+ 
+ out_chrdev:
+@@ -169,7 +169,7 @@ void __exit vpe_module_exit(void)
+ {
+ 	struct vpe *v, *n;
+ 
+-	device_del(&vpe_device);
++	device_unregister(&vpe_device);
+ 	class_unregister(&vpe_class);
+ 	unregister_chrdev(major, VPE_MODULE_NAME);
+ 
 -- 
 2.35.1
 
