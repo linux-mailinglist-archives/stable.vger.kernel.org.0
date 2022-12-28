@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2646B6580BF
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:20:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A139658193
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:29:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234586AbiL1QUC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:20:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39466 "EHLO
+        id S234746AbiL1Q3q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:29:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234630AbiL1QTN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:19:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A0EF1A21F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:17:46 -0800 (PST)
+        with ESMTP id S233390AbiL1Q3V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:29:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D76B1B1CA
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:25:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3615B816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:17:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29D04C433F0;
-        Wed, 28 Dec 2022 16:17:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 99E9DB81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:25:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E75CC433D2;
+        Wed, 28 Dec 2022 16:25:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244263;
-        bh=F/0i3aK9Xtz5gEUzmTfMTfJBA5+YH/epPJZIIbstWpU=;
+        s=korg; t=1672244732;
+        bh=mN7b1bBfSuTcDQqVpqek5Dy9LYiuRHhhIF4+xO9/b+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DmiBxrnx5zdOYyt3Aa7xqhJMCZkKgbS20Ximt8B4t5k6GN1KRSPnGIA0ZED28KY89
-         W5YWS+R/HuaCMpdRMX70jjfOQLvqINlKx/jKiFIbqX9VSIj6hgGH22hULZUAoMMNKx
-         2nSnAZMWwDcAQuNlEbEoqCqvR3IUg64O5yUkdKBs=
+        b=uvfhjMma6Qt3g6SC2x358IW9iR/31G1z9HnUFi+6NKEbqXMjIw+7dp0wL6MATCzBP
+         4Rpl6xZmEFnQf/iRPiWZX1Y+c+vdTJIgELclUTi1YDwDZ56noGfsRTvVoQKcwZVZQq
+         PLc29/q9YGw91AIVNGaac8NRAE6MpuwnDTIqFLTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sven Peter <sven@svenpeter.dev>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        patches@lists.linux.dev, Beau Belgrave <beaub@linux.microsoft.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0678/1073] usb: typec: tipd: Fix typec_unregister_port error paths
+Subject: [PATCH 6.1 0727/1146] tracing/user_events: Fix call print_fmt leak
 Date:   Wed, 28 Dec 2022 15:37:46 +0100
-Message-Id: <20221228144346.453693684@linuxfoundation.org>
+Message-Id: <20221228144349.891986592@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Peter <sven@svenpeter.dev>
+From: Beau Belgrave <beaub@linux.microsoft.com>
 
-[ Upstream commit 4c8f27ba9ede0118cac9d775204f9b0ecdb877b0 ]
+[ Upstream commit 4bded7af8b9af6e97514b0521004f90267905aef ]
 
-typec_unregister_port is only called for some error paths after
-typec_register_port was successful. Ensure it's called in all
-cases.
+If user_event_trace_register() fails within user_event_parse() the
+call's print_fmt member is not freed. Add kfree call to fix this.
 
-Fixes: 92440202a880 ("usb: typec: tipd: Only update power status on IRQ")
-Signed-off-by: Sven Peter <sven@svenpeter.dev>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20221114174449.34634-3-sven@svenpeter.dev
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/20221123183248.554-1-beaub@linux.microsoft.com
+
+Fixes: aa3b2b4c6692 ("user_events: Add print_fmt generation support for basic types")
+Signed-off-by: Beau Belgrave <beaub@linux.microsoft.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/tipd/core.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ kernel/trace/trace_events_user.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/typec/tipd/core.c b/drivers/usb/typec/tipd/core.c
-index a5fbbae52525..513ac7e141a4 100644
---- a/drivers/usb/typec/tipd/core.c
-+++ b/drivers/usb/typec/tipd/core.c
-@@ -826,7 +826,7 @@ static int tps6598x_probe(struct i2c_client *client)
- 		ret = tps6598x_read16(tps, TPS_REG_POWER_STATUS, &tps->pwr_status);
- 		if (ret < 0) {
- 			dev_err(tps->dev, "failed to read power status: %d\n", ret);
--			goto err_role_put;
-+			goto err_unregister_port;
- 		}
- 		ret = tps6598x_connect(tps, status);
- 		if (ret)
-@@ -839,8 +839,7 @@ static int tps6598x_probe(struct i2c_client *client)
- 					dev_name(&client->dev), tps);
- 	if (ret) {
- 		tps6598x_disconnect(tps, 0);
--		typec_unregister_port(tps->port);
--		goto err_role_put;
-+		goto err_unregister_port;
- 	}
- 
- 	i2c_set_clientdata(client, tps);
-@@ -848,6 +847,8 @@ static int tps6598x_probe(struct i2c_client *client)
- 
- 	return 0;
- 
-+err_unregister_port:
-+	typec_unregister_port(tps->port);
- err_role_put:
- 	usb_role_switch_put(tps->role_sw);
- err_fwnode_put:
+diff --git a/kernel/trace/trace_events_user.c b/kernel/trace/trace_events_user.c
+index 539b08ae7020..9cb53182bb31 100644
+--- a/kernel/trace/trace_events_user.c
++++ b/kernel/trace/trace_events_user.c
+@@ -1359,6 +1359,7 @@ static int user_event_parse(struct user_event_group *group, char *name,
+ put_user:
+ 	user_event_destroy_fields(user);
+ 	user_event_destroy_validators(user);
++	kfree(user->call.print_fmt);
+ 	kfree(user);
+ 	return ret;
+ }
 -- 
 2.35.1
 
