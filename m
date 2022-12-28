@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E01A65800D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:13:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72036657F31
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232995AbiL1QNU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:13:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55116 "EHLO
+        id S229959AbiL1QC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:02:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234709AbiL1QMa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:12:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3D0119017
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:10:52 -0800 (PST)
+        with ESMTP id S234327AbiL1QCb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:02:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4BD219022
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:02:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A0DDB8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:10:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5478C433D2;
-        Wed, 28 Dec 2022 16:10:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 45850B8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:02:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82B5EC433EF;
+        Wed, 28 Dec 2022 16:02:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243850;
-        bh=bktM29YH+mPA5FP70SplWDHXMJ7rWJmJi2Y4vZ8tldo=;
+        s=korg; t=1672243327;
+        bh=VsuPFUIap1KyUr6iFwbtgk4TALLypXbcuFjLuAR3f4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cJsTahmJoToWro5Lgj62TnXrIvOeyhGCkeJqsMYY7TdYRTbRdUzmHno4INf0mvhSW
-         r+jgOWb0Q6ZhvICdsWi2UZpwrG+WRTUWzdePGv18Ou2xJbCreLUk2A+mlDXxaqeiAG
-         gSAz5Fg3VN32703Dtcb2UvOIsbm53Po5ARb1z17Y=
+        b=BpbrLUc6uE8008LEqR4ePFIg8UtszgLrr+/g0PmFrWkbzCy21WQu6/PemnGb4Ipzg
+         qERVptZwD7i80SPbKaj1WzTSvuZRvcIp9sZjfZacD4lT4/lnOYbBc5bof7ohGoGV7P
+         ZeaT/PNswtDuxRKhn1lSeWv3tnWjfyo/L6JSkGUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0566/1146] Bluetooth: RFCOMM: dont call kfree_skb() under spin_lock_irqsave()
+        patches@lists.linux.dev, ruanjinjie <ruanjinjie@huawei.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0517/1073] of: overlay: fix null pointer dereferencing in find_dup_cset_node_entry() and find_dup_cset_prop()
 Date:   Wed, 28 Dec 2022 15:35:05 +0100
-Message-Id: <20221228144345.540321760@linuxfoundation.org>
+Message-Id: <20221228144342.086870091@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: ruanjinjie <ruanjinjie@huawei.com>
 
-[ Upstream commit 0ba18967d4544955b2eff2fbc4f2a8750c4df90a ]
+[ Upstream commit ee9d7a0e754568180a2f8ebc4aad226278a9116f ]
 
-It is not allowed to call kfree_skb() from hardware interrupt
-context or with interrupts being disabled. So replace kfree_skb()
-with dev_kfree_skb_irq() under spin_lock_irqsave().
+When kmalloc() fail to allocate memory in kasprintf(), fn_1 or fn_2 will
+be NULL, and strcmp() will cause null pointer dereference.
 
-Fixes: 81be03e026dc ("Bluetooth: RFCOMM: Replace use of memcpy_from_msg with bt_skb_sendmmsg")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: 2fe0e8769df9 ("of: overlay: check prevents multiple fragments touching same property")
+Signed-off-by: ruanjinjie <ruanjinjie@huawei.com>
+Link: https://lore.kernel.org/r/20221211023337.592266-1-ruanjinjie@huawei.com
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/rfcomm/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/of/overlay.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/bluetooth/rfcomm/core.c b/net/bluetooth/rfcomm/core.c
-index 7324764384b6..8d6fce9005bd 100644
---- a/net/bluetooth/rfcomm/core.c
-+++ b/net/bluetooth/rfcomm/core.c
-@@ -590,7 +590,7 @@ int rfcomm_dlc_send(struct rfcomm_dlc *d, struct sk_buff *skb)
+diff --git a/drivers/of/overlay.c b/drivers/of/overlay.c
+index bd8ff4df723d..ed4e6c144a68 100644
+--- a/drivers/of/overlay.c
++++ b/drivers/of/overlay.c
+@@ -545,7 +545,7 @@ static int find_dup_cset_node_entry(struct overlay_changeset *ovcs,
  
- 		ret = rfcomm_dlc_send_frag(d, frag);
- 		if (ret < 0) {
--			kfree_skb(frag);
-+			dev_kfree_skb_irq(frag);
- 			goto unlock;
- 		}
+ 		fn_1 = kasprintf(GFP_KERNEL, "%pOF", ce_1->np);
+ 		fn_2 = kasprintf(GFP_KERNEL, "%pOF", ce_2->np);
+-		node_path_match = !strcmp(fn_1, fn_2);
++		node_path_match = !fn_1 || !fn_2 || !strcmp(fn_1, fn_2);
+ 		kfree(fn_1);
+ 		kfree(fn_2);
+ 		if (node_path_match) {
+@@ -580,7 +580,7 @@ static int find_dup_cset_prop(struct overlay_changeset *ovcs,
  
+ 		fn_1 = kasprintf(GFP_KERNEL, "%pOF", ce_1->np);
+ 		fn_2 = kasprintf(GFP_KERNEL, "%pOF", ce_2->np);
+-		node_path_match = !strcmp(fn_1, fn_2);
++		node_path_match = !fn_1 || !fn_2 || !strcmp(fn_1, fn_2);
+ 		kfree(fn_1);
+ 		kfree(fn_2);
+ 		if (node_path_match &&
 -- 
 2.35.1
 
