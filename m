@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BA12657B87
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A9D3657C94
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:34:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233348AbiL1PXP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:23:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40156 "EHLO
+        id S233452AbiL1PeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:34:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233742AbiL1PWo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:22:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 318FB13F57
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:22:35 -0800 (PST)
+        with ESMTP id S233455AbiL1PeG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:34:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D011815F0C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:34:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C259561564
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:22:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6B31C433D2;
-        Wed, 28 Dec 2022 15:22:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6837BB81647
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:34:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCE40C433EF;
+        Wed, 28 Dec 2022 15:34:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240954;
-        bh=ahkX3g/K1MMp0mk1+59PBxK05Pcv6gYp9EUN8D+oqiI=;
+        s=korg; t=1672241642;
+        bh=EcXksoM8Re/d5aHV+QElhZ1StwOq+x6n/do5HXugy9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u6CXwLMqQuEtctBR5//SZ9kqFAzaQ+EGy7ILKsyOaPT+29Fvew53DA6Cjkg0bdUZs
-         DJeHrrJIDf7A3dg1RaFcgzCplYccYMWYgNVODRMgLfPT7eT2D6TWs6yOERyo/GocTY
-         0QUXB+G42yDPs77T7YEsj0lXVnIe0n127xKB0YlY=
+        b=V2qbCQojEf0JGPMqqf98r5CQActFNzhwjpqRmOu/9Pyxn0YoNg66tKN37ske0HzR8
+         /AVGw5uEP3MLbk5KsZHdr0dGwjWsuZd6TTaa4zXn7aG/5oc4J120E9xYSNuuEvjViF
+         Xh1TBo1HKylDCsEAKCYnHV31PTpV16pmSIbLAdWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeff LaBundy <jeff@labundy.com>,
-        Mattijs Korpershoek <mkorpershoek@baylibre.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0223/1073] Input: iqs7222 - report malformed properties
+Subject: [PATCH 6.1 0272/1146] drm/msm/mdp5: stop overriding drvdata
 Date:   Wed, 28 Dec 2022 15:30:11 +0100
-Message-Id: <20221228144334.075477010@linuxfoundation.org>
+Message-Id: <20221228144337.523253791@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,137 +54,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff LaBundy <jeff@labundy.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 404f3b48e65f058d94429e4a1ec16a1f82ff3b2f ]
+[ Upstream commit c6122688f2652d7f8a44000ce21e84e82bae2b5e ]
 
-Nonzero return values of several calls to fwnode_property_read_u32()
-are silently ignored, leaving no way to know the properties were not
-applied in the event of an error.
+The rest of the code expects that master's device drvdata is the
+struct msm_drm_private instance. Do not override the mdp5's drvdata.
 
-Solve this problem by evaluating fwnode_property_read_u32()'s return
-value, and reporting an error for any nonzero return value not equal
-to -EINVAL which indicates the property was absent altogether.
-
-Fixes: e505edaedcb9 ("Input: add support for Azoteq IQS7222A/B/C")
-Signed-off-by: Jeff LaBundy <jeff@labundy.com>
-Reviewed-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
-Link: https://lore.kernel.org/r/Y1SRRrpQXvkETjfm@nixie71
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Stable-dep-of: 2f6fd2329789 ("Input: iqs7222 - protect against undefined slider size")
+Fixes: 6874f48bb8b0 ("drm/msm: make mdp5/dpu devices master components")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/508334/
+Link: https://lore.kernel.org/r/20221024152642.3213488-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/misc/iqs7222.c | 44 +++++++++++++++++++++++++++++-------
- 1 file changed, 36 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c | 32 +++++++++++++-----------
+ 1 file changed, 17 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/input/misc/iqs7222.c b/drivers/input/misc/iqs7222.c
-index 3b6e84689879..350be4f23f50 100644
---- a/drivers/input/misc/iqs7222.c
-+++ b/drivers/input/misc/iqs7222.c
-@@ -1807,8 +1807,9 @@ static int iqs7222_parse_chan(struct iqs7222_private *iqs7222,
- 		chan_setup[0] |= IQS7222_CHAN_SETUP_0_REF_MODE_FOLLOW;
- 		chan_setup[4] = val * 42 + 1048;
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
+index b0d21838a134..b46f983f2b46 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
+@@ -203,7 +203,7 @@ static int mdp5_set_split_display(struct msm_kms *kms,
+ 							  slave_encoder);
+ }
  
--		if (!fwnode_property_read_u32(chan_node, "azoteq,ref-weight",
--					      &val)) {
-+		error = fwnode_property_read_u32(chan_node, "azoteq,ref-weight",
-+						 &val);
-+		if (!error) {
- 			if (val > U16_MAX) {
- 				dev_err(&client->dev,
- 					"Invalid %s reference weight: %u\n",
-@@ -1817,6 +1818,11 @@ static int iqs7222_parse_chan(struct iqs7222_private *iqs7222,
- 			}
+-static void mdp5_destroy(struct platform_device *pdev);
++static void mdp5_destroy(struct mdp5_kms *mdp5_kms);
  
- 			chan_setup[5] = val;
-+		} else if (error != -EINVAL) {
-+			dev_err(&client->dev,
-+				"Failed to read %s reference weight: %d\n",
-+				fwnode_get_name(chan_node), error);
-+			return error;
- 		}
- 
- 		/*
-@@ -1889,9 +1895,10 @@ static int iqs7222_parse_chan(struct iqs7222_private *iqs7222,
- 		if (!event_node)
- 			continue;
- 
--		if (!fwnode_property_read_u32(event_node,
--					      "azoteq,timeout-press-ms",
--					      &val)) {
-+		error = fwnode_property_read_u32(event_node,
-+						 "azoteq,timeout-press-ms",
-+						 &val);
-+		if (!error) {
- 			/*
- 			 * The IQS7222B employs a global pair of press timeout
- 			 * registers as opposed to channel-specific registers.
-@@ -1911,6 +1918,12 @@ static int iqs7222_parse_chan(struct iqs7222_private *iqs7222,
- 
- 			*setup &= ~(U8_MAX << i * 8);
- 			*setup |= (val / 500 << i * 8);
-+		} else if (error != -EINVAL) {
-+			dev_err(&client->dev,
-+				"Failed to read %s press timeout: %d\n",
-+				fwnode_get_name(event_node), error);
-+			fwnode_handle_put(event_node);
-+			return error;
- 		}
- 
- 		error = iqs7222_parse_event(iqs7222, event_node, chan_index,
-@@ -2009,7 +2022,8 @@ static int iqs7222_parse_sldr(struct iqs7222_private *iqs7222,
- 	if (fwnode_property_present(sldr_node, "azoteq,use-prox"))
- 		sldr_setup[4 + reg_offset] -= 2;
- 
--	if (!fwnode_property_read_u32(sldr_node, "azoteq,slider-size", &val)) {
-+	error = fwnode_property_read_u32(sldr_node, "azoteq,slider-size", &val);
-+	if (!error) {
- 		if (!val || val > dev_desc->sldr_res) {
- 			dev_err(&client->dev, "Invalid %s size: %u\n",
- 				fwnode_get_name(sldr_node), val);
-@@ -2023,9 +2037,14 @@ static int iqs7222_parse_sldr(struct iqs7222_private *iqs7222,
- 			sldr_setup[2] |= (val / 16 <<
- 					  IQS7222_SLDR_SETUP_2_RES_SHIFT);
- 		}
-+	} else if (error != -EINVAL) {
-+		dev_err(&client->dev, "Failed to read %s size: %d\n",
-+			fwnode_get_name(sldr_node), error);
-+		return error;
+ static void mdp5_kms_destroy(struct msm_kms *kms)
+ {
+@@ -223,7 +223,7 @@ static void mdp5_kms_destroy(struct msm_kms *kms)
  	}
  
--	if (!fwnode_property_read_u32(sldr_node, "azoteq,top-speed", &val)) {
-+	error = fwnode_property_read_u32(sldr_node, "azoteq,top-speed", &val);
-+	if (!error) {
- 		if (val > (reg_offset ? U16_MAX : U8_MAX * 4)) {
- 			dev_err(&client->dev, "Invalid %s top speed: %u\n",
- 				fwnode_get_name(sldr_node), val);
-@@ -2038,9 +2057,14 @@ static int iqs7222_parse_sldr(struct iqs7222_private *iqs7222,
- 			sldr_setup[2] &= ~IQS7222_SLDR_SETUP_2_TOP_SPEED_MASK;
- 			sldr_setup[2] |= (val / 4);
- 		}
-+	} else if (error != -EINVAL) {
-+		dev_err(&client->dev, "Failed to read %s top speed: %d\n",
-+			fwnode_get_name(sldr_node), error);
-+		return error;
+ 	mdp_kms_destroy(&mdp5_kms->base);
+-	mdp5_destroy(mdp5_kms->pdev);
++	mdp5_destroy(mdp5_kms);
+ }
+ 
+ #ifdef CONFIG_DEBUG_FS
+@@ -519,9 +519,10 @@ static void read_mdp_hw_revision(struct mdp5_kms *mdp5_kms,
+ 	struct device *dev = &mdp5_kms->pdev->dev;
+ 	u32 version;
+ 
+-	pm_runtime_get_sync(dev);
++	/* Manually enable the MDP5, as pm runtime isn't usable yet. */
++	mdp5_enable(mdp5_kms);
+ 	version = mdp5_read(mdp5_kms, REG_MDP5_HW_VERSION);
+-	pm_runtime_put_sync(dev);
++	mdp5_disable(mdp5_kms);
+ 
+ 	*major = FIELD(version, MDP5_HW_VERSION_MAJOR);
+ 	*minor = FIELD(version, MDP5_HW_VERSION_MINOR);
+@@ -559,6 +560,8 @@ static int mdp5_kms_init(struct drm_device *dev)
+ 	int irq, i, ret;
+ 
+ 	ret = mdp5_init(to_platform_device(dev->dev), dev);
++	if (ret)
++		return ret;
+ 
+ 	/* priv->kms would have been populated by the MDP5 driver */
+ 	kms = priv->kms;
+@@ -632,9 +635,8 @@ static int mdp5_kms_init(struct drm_device *dev)
+ 	return ret;
+ }
+ 
+-static void mdp5_destroy(struct platform_device *pdev)
++static void mdp5_destroy(struct mdp5_kms *mdp5_kms)
+ {
+-	struct mdp5_kms *mdp5_kms = platform_get_drvdata(pdev);
+ 	int i;
+ 
+ 	if (mdp5_kms->ctlm)
+@@ -648,7 +650,7 @@ static void mdp5_destroy(struct platform_device *pdev)
+ 		kfree(mdp5_kms->intfs[i]);
+ 
+ 	if (mdp5_kms->rpm_enabled)
+-		pm_runtime_disable(&pdev->dev);
++		pm_runtime_disable(&mdp5_kms->pdev->dev);
+ 
+ 	drm_atomic_private_obj_fini(&mdp5_kms->glob_state);
+ 	drm_modeset_lock_fini(&mdp5_kms->glob_state_lock);
+@@ -797,8 +799,6 @@ static int mdp5_init(struct platform_device *pdev, struct drm_device *dev)
+ 		goto fail;
  	}
  
--	if (!fwnode_property_read_u32(sldr_node, "linux,axis", &val)) {
-+	error = fwnode_property_read_u32(sldr_node, "linux,axis", &val);
-+	if (!error) {
- 		u16 sldr_max = sldr_setup[3] - 1;
+-	platform_set_drvdata(pdev, mdp5_kms);
+-
+ 	spin_lock_init(&mdp5_kms->resource_lock);
  
- 		if (!reg_offset) {
-@@ -2054,6 +2078,10 @@ static int iqs7222_parse_sldr(struct iqs7222_private *iqs7222,
+ 	mdp5_kms->dev = dev;
+@@ -839,9 +839,6 @@ static int mdp5_init(struct platform_device *pdev, struct drm_device *dev)
+ 	 */
+ 	clk_set_rate(mdp5_kms->core_clk, 200000000);
  
- 		input_set_abs_params(iqs7222->keypad, val, 0, sldr_max, 0, 0);
- 		iqs7222->sl_axis[sldr_index] = val;
-+	} else if (error != -EINVAL) {
-+		dev_err(&client->dev, "Failed to read %s axis: %d\n",
-+			fwnode_get_name(sldr_node), error);
-+		return error;
- 	}
+-	pm_runtime_enable(&pdev->dev);
+-	mdp5_kms->rpm_enabled = true;
+-
+ 	read_mdp_hw_revision(mdp5_kms, &major, &minor);
  
- 	if (dev_desc->wheel_enable) {
+ 	mdp5_kms->cfg = mdp5_cfg_init(mdp5_kms, major, minor);
+@@ -893,10 +890,13 @@ static int mdp5_init(struct platform_device *pdev, struct drm_device *dev)
+ 	/* set uninit-ed kms */
+ 	priv->kms = &mdp5_kms->base.base;
+ 
++	pm_runtime_enable(&pdev->dev);
++	mdp5_kms->rpm_enabled = true;
++
+ 	return 0;
+ fail:
+ 	if (mdp5_kms)
+-		mdp5_destroy(pdev);
++		mdp5_destroy(mdp5_kms);
+ 	return ret;
+ }
+ 
+@@ -953,7 +953,8 @@ static int mdp5_dev_remove(struct platform_device *pdev)
+ static __maybe_unused int mdp5_runtime_suspend(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+-	struct mdp5_kms *mdp5_kms = platform_get_drvdata(pdev);
++	struct msm_drm_private *priv = platform_get_drvdata(pdev);
++	struct mdp5_kms *mdp5_kms = to_mdp5_kms(to_mdp_kms(priv->kms));
+ 
+ 	DBG("");
+ 
+@@ -963,7 +964,8 @@ static __maybe_unused int mdp5_runtime_suspend(struct device *dev)
+ static __maybe_unused int mdp5_runtime_resume(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+-	struct mdp5_kms *mdp5_kms = platform_get_drvdata(pdev);
++	struct msm_drm_private *priv = platform_get_drvdata(pdev);
++	struct mdp5_kms *mdp5_kms = to_mdp5_kms(to_mdp_kms(priv->kms));
+ 
+ 	DBG("");
+ 
 -- 
 2.35.1
 
