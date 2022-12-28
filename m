@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DF58657C71
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:33:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81A18657B64
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:21:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233850AbiL1Pc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:32:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49668 "EHLO
+        id S233486AbiL1PVI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:21:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233950AbiL1Pcb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:32:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8888B15F3E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:32:27 -0800 (PST)
+        with ESMTP id S233619AbiL1PVG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:21:06 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE2F413D20
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:21:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 25C896155C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:32:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37999C433D2;
-        Wed, 28 Dec 2022 15:32:26 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2C33FCE1369
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:21:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D030C433EF;
+        Wed, 28 Dec 2022 15:20:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241546;
-        bh=e0iugbZSA8YJy0JzlOv12gzQwF4jKIBTfD34kkqZM+M=;
+        s=korg; t=1672240860;
+        bh=cERqdDbN7Qk86FVzwMQRD2qmuDXA3OEdZrfIZCaxJTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RGIGXwmVmcCsV37Gi4m3Gj5brWyW5LLAiFusLGJdO/4/I2GuASeBvqxOIAOl6WdkT
-         XTRlzITDP2Th9tpgw2IRsSjjsTaLIn91VwJXXK3Rx+M8OG1FmVzPpKs9a0Smf5xkOW
-         u8z2kP8HKJgOoVzcQkZB0s/EyA/0lVJeXziR6u7w=
+        b=KDyrqNLYv0+ejGtLss4wZDqU2AlNRyUtyRTA/DMS8HIKkE6P0Qwmi24SGR8xDL3vf
+         IW1VWU25L8Ax0tCUyDNVK0edIXjXRzTi4PlX65AnUxcVXYi/MorExJ1IrYBFzPZka/
+         +5iXFpazH9d+oooLcA2qJKrZxXQRYQVMEuafyduY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        patches@lists.linux.dev, Niklas Cassel <niklas.cassel@wdc.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0259/1146] dw9768: Enable low-power probe on ACPI
-Date:   Wed, 28 Dec 2022 15:29:58 +0100
-Message-Id: <20221228144337.172368085@linuxfoundation.org>
+Subject: [PATCH 6.0 0211/1073] ata: libata: fix NCQ autosense logic
+Date:   Wed, 28 Dec 2022 15:29:59 +0100
+Message-Id: <20221228144333.750062028@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,103 +53,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-[ Upstream commit 5f9a089b6de34655318afe8e544d9a9cc0fc1d29 ]
+[ Upstream commit 7390896b3484d44cbdb8bc4859964314ac66d3c9 ]
 
-Add support for low-power probe to the driver. Also fix runtime PM API
-usage in the driver.
+Currently, the logic if we should call ata_scsi_set_sense()
+(and set flag ATA_QCFLAG_SENSE_VALID to indicate that we have
+successfully added sense data to the struct ata_queued_cmd)
+looks like this:
 
-Much of the hassle comes from different factors affecting device power
-states during probe for ACPI and DT.
+if (dev->class == ATA_DEV_ZAC &&
+    ((qc->result_tf.status & ATA_SENSE) || qc->result_tf.auxiliary))
 
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Fixes: 859891228e56 ("media: i2c: dw9768: Add DW9768 VCM driver")
+The problem with this is that a drive can support the NCQ command
+error log without supporting NCQ autosense.
+
+On such a drive, if the failing command has sense data, the status
+field in the NCQ command error log will have the ATA_SENSE bit set.
+
+It is just that this sense data is not included in the NCQ command
+error log when NCQ autosense is not supported. Instead the sense
+data has to be fetched using the REQUEST SENSE DATA EXT command.
+
+Therefore, we should only add the sense data if the drive supports
+NCQ autosense AND the ATA_SENSE bit is set in the status field.
+
+Fix this, and at the same time, remove the duplicated ATA_DEV_ZAC
+check. The struct ata_taskfile supplied to ata_eh_read_log_10h()
+is memset:ed before calling the function, so simply checking if
+qc->result_tf.auxiliary is set is sufficient to tell us that the
+log actually contained sense data.
+
+Fixes: d238ffd59d3c ("libata: do not attempt to retrieve sense code twice")
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/dw9768.c | 33 +++++++++++++++++++++++++--------
- 1 file changed, 25 insertions(+), 8 deletions(-)
+ drivers/ata/libata-sata.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/i2c/dw9768.c b/drivers/media/i2c/dw9768.c
-index 0f47ef015a1d..83a3ee275bbe 100644
---- a/drivers/media/i2c/dw9768.c
-+++ b/drivers/media/i2c/dw9768.c
-@@ -414,6 +414,7 @@ static int dw9768_probe(struct i2c_client *client)
- {
- 	struct device *dev = &client->dev;
- 	struct dw9768 *dw9768;
-+	bool full_power;
- 	unsigned int i;
- 	int ret;
+diff --git a/drivers/ata/libata-sata.c b/drivers/ata/libata-sata.c
+index 13b9d0fdd42c..8e292e2abb04 100644
+--- a/drivers/ata/libata-sata.c
++++ b/drivers/ata/libata-sata.c
+@@ -1392,7 +1392,8 @@ static int ata_eh_read_log_10h(struct ata_device *dev,
+ 	tf->hob_lbah = buf[10];
+ 	tf->nsect = buf[12];
+ 	tf->hob_nsect = buf[13];
+-	if (dev->class == ATA_DEV_ZAC && ata_id_has_ncq_autosense(dev->id))
++	if (dev->class == ATA_DEV_ZAC && ata_id_has_ncq_autosense(dev->id) &&
++	    (tf->status & ATA_SENSE))
+ 		tf->auxiliary = buf[14] << 16 | buf[15] << 8 | buf[16];
  
-@@ -469,13 +470,23 @@ static int dw9768_probe(struct i2c_client *client)
- 
- 	dw9768->sd.entity.function = MEDIA_ENT_F_LENS;
- 
-+	/*
-+	 * Figure out whether we're going to power up the device here. Generally
-+	 * this is done if CONFIG_PM is disabled in a DT system or the device is
-+	 * to be powered on in an ACPI system. Similarly for power off in
-+	 * remove.
-+	 */
- 	pm_runtime_enable(dev);
--	if (!pm_runtime_enabled(dev)) {
-+	full_power = (is_acpi_node(dev_fwnode(dev)) &&
-+		      acpi_dev_state_d0(dev)) ||
-+		     (is_of_node(dev_fwnode(dev)) && !pm_runtime_enabled(dev));
-+	if (full_power) {
- 		ret = dw9768_runtime_resume(dev);
- 		if (ret < 0) {
- 			dev_err(dev, "failed to power on: %d\n", ret);
- 			goto err_clean_entity;
- 		}
-+		pm_runtime_set_active(dev);
- 	}
- 
- 	ret = v4l2_async_register_subdev(&dw9768->sd);
-@@ -484,14 +495,17 @@ static int dw9768_probe(struct i2c_client *client)
- 		goto err_power_off;
- 	}
- 
-+	pm_runtime_idle(dev);
-+
  	return 0;
+@@ -1456,8 +1457,12 @@ void ata_eh_analyze_ncq_error(struct ata_link *link)
+ 	memcpy(&qc->result_tf, &tf, sizeof(tf));
+ 	qc->result_tf.flags = ATA_TFLAG_ISADDR | ATA_TFLAG_LBA | ATA_TFLAG_LBA48;
+ 	qc->err_mask |= AC_ERR_DEV | AC_ERR_NCQ;
+-	if (dev->class == ATA_DEV_ZAC &&
+-	    ((qc->result_tf.status & ATA_SENSE) || qc->result_tf.auxiliary)) {
++
++	/*
++	 * If the device supports NCQ autosense, ata_eh_read_log_10h() will have
++	 * stored the sense data in qc->result_tf.auxiliary.
++	 */
++	if (qc->result_tf.auxiliary) {
+ 		char sense_key, asc, ascq;
  
- err_power_off:
--	if (pm_runtime_enabled(dev))
--		pm_runtime_disable(dev);
--	else
-+	if (full_power) {
- 		dw9768_runtime_suspend(dev);
-+		pm_runtime_set_suspended(dev);
-+	}
- err_clean_entity:
-+	pm_runtime_disable(dev);
- 	media_entity_cleanup(&dw9768->sd.entity);
- err_free_handler:
- 	v4l2_ctrl_handler_free(&dw9768->ctrls);
-@@ -503,14 +517,17 @@ static void dw9768_remove(struct i2c_client *client)
- {
- 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
- 	struct dw9768 *dw9768 = sd_to_dw9768(sd);
-+	struct device *dev = &client->dev;
- 
- 	v4l2_async_unregister_subdev(&dw9768->sd);
- 	v4l2_ctrl_handler_free(&dw9768->ctrls);
- 	media_entity_cleanup(&dw9768->sd.entity);
--	pm_runtime_disable(&client->dev);
--	if (!pm_runtime_status_suspended(&client->dev))
--		dw9768_runtime_suspend(&client->dev);
--	pm_runtime_set_suspended(&client->dev);
-+	if ((is_acpi_node(dev_fwnode(dev)) && acpi_dev_state_d0(dev)) ||
-+	    (is_of_node(dev_fwnode(dev)) && !pm_runtime_enabled(dev))) {
-+		dw9768_runtime_suspend(dev);
-+		pm_runtime_set_suspended(dev);
-+	}
-+	pm_runtime_disable(dev);
- }
- 
- static const struct of_device_id dw9768_of_table[] = {
+ 		sense_key = (qc->result_tf.auxiliary >> 16) & 0xff;
 -- 
 2.35.1
 
