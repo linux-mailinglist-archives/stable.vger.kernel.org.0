@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A9A465839A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:49:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 516E96583A2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:49:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235098AbiL1Qt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:49:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43290 "EHLO
+        id S235139AbiL1Qt3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:49:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235102AbiL1QtF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:49:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE4321B9EB
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:44:25 -0800 (PST)
+        with ESMTP id S235158AbiL1QtI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:49:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B69C61BEB6
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:44:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7FF52B81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:44:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4D1FC433D2;
-        Wed, 28 Dec 2022 16:44:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 54BCD6155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:44:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6490AC433F1;
+        Wed, 28 Dec 2022 16:44:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245863;
-        bh=zitYujnXYzfo8JhZmUa2BzM6dDoIe9uWx+pHaggZLJI=;
+        s=korg; t=1672245868;
+        bh=L8aI6zpMCK6k+RVf1stpAquGtD/tHaTUqbsuYkzbmi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1wFyr3IUypUj6dIIH4LJCqvKbt8Xk8PyRH+bDWP/t8kdak71pztX2BhGD0mEHrWDO
-         1RZ6nGu8NfMSVLiUn564WITwCN/HWt6BaNqwB2kxS8dlEqXnA1oCvSEEdSLwCbDxAu
-         m6Wsd0Lb0ZuZAtfpgiZMbGOKH3/mazRFtd0+lZn8=
+        b=HdipC2fKhfl1qav5C/8NRBT2kHWes84ZxAuY0YWmiXENHHXnr+dUW6CzQRWfTUKhj
+         ZdrdwWrdD9q8D02894/R3WaEJK0lzC3HS1pJsa/491bhLDEvkRtPO7L55QbdMNNnFE
+         op6lsK9d4OzRBKbyEDlcz9sjUqq8h+i9E2H05Vvw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        syzbot+9ca7a12fd736d93e0232@syzkaller.appspotmail.com,
+        Shigeru Yoshida <syoshida@redhat.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0971/1073] mmc: renesas_sdhi: better reset from HS400 mode
-Date:   Wed, 28 Dec 2022 15:42:39 +0100
-Message-Id: <20221228144354.437278364@linuxfoundation.org>
+Subject: [PATCH 6.0 0972/1073] media: si470x: Fix use-after-free in si470x_int_in_callback()
+Date:   Wed, 28 Dec 2022 15:42:40 +0100
+Message-Id: <20221228144354.466133352@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -55,38 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-[ Upstream commit 0da69dd2155019ed4c444ede0e79ce7a4a6af627 ]
+[ Upstream commit 7d21e0b1b41b21d628bf2afce777727bd4479aa5 ]
 
-Up to now, HS400 adjustment mode was only disabled on soft reset when a
-calibration table was in use. It is safer, though, to disable it as soon
-as the instance has an adjustment related quirk set, i.e. bad taps or a
-calibration table.
+syzbot reported use-after-free in si470x_int_in_callback() [1].  This
+indicates that urb->context, which contains struct si470x_device
+object, is freed when si470x_int_in_callback() is called.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Tested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/20221120113457.42010-3-wsa+renesas@sang-engineering.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+The cause of this issue is that si470x_int_in_callback() is called for
+freed urb.
+
+si470x_usb_driver_probe() calls si470x_start_usb(), which then calls
+usb_submit_urb() and si470x_start().  If si470x_start_usb() fails,
+si470x_usb_driver_probe() doesn't kill urb, but it just frees struct
+si470x_device object, as depicted below:
+
+si470x_usb_driver_probe()
+  ...
+  si470x_start_usb()
+    ...
+    usb_submit_urb()
+    retval = si470x_start()
+    return retval
+  if (retval < 0)
+    free struct si470x_device object, but don't kill urb
+
+This patch fixes this issue by killing urb when si470x_start_usb()
+fails and urb is submitted.  If si470x_start_usb() fails and urb is
+not submitted, i.e. submitting usb fails, it just frees struct
+si470x_device object.
+
+Reported-by: syzbot+9ca7a12fd736d93e0232@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=94ed6dddd5a55e90fd4bab942aa4bb297741d977 [1]
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/renesas_sdhi_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/radio/si470x/radio-si470x-usb.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/renesas_sdhi_core.c b/drivers/mmc/host/renesas_sdhi_core.c
-index 22ccef7085f7..e38d0e8b8e0e 100644
---- a/drivers/mmc/host/renesas_sdhi_core.c
-+++ b/drivers/mmc/host/renesas_sdhi_core.c
-@@ -546,7 +546,7 @@ static void renesas_sdhi_reset_hs400_mode(struct tmio_mmc_host *host,
- 			 SH_MOBILE_SDHI_SCC_TMPPORT2_HS400OSEL) &
- 			sd_scc_read32(host, priv, SH_MOBILE_SDHI_SCC_TMPPORT2));
+diff --git a/drivers/media/radio/si470x/radio-si470x-usb.c b/drivers/media/radio/si470x/radio-si470x-usb.c
+index 6b2768623c88..aa7a580dbecc 100644
+--- a/drivers/media/radio/si470x/radio-si470x-usb.c
++++ b/drivers/media/radio/si470x/radio-si470x-usb.c
+@@ -727,8 +727,10 @@ static int si470x_usb_driver_probe(struct usb_interface *intf,
  
--	if (priv->adjust_hs400_calib_table)
-+	if (priv->quirks && (priv->quirks->hs400_calib_table || priv->quirks->hs400_bad_taps))
- 		renesas_sdhi_adjust_hs400_mode_disable(host);
+ 	/* start radio */
+ 	retval = si470x_start_usb(radio);
+-	if (retval < 0)
++	if (retval < 0 && !radio->int_in_running)
+ 		goto err_buf;
++	else if (retval < 0)	/* in case of radio->int_in_running == 1 */
++		goto err_all;
  
- 	sd_ctrl_write16(host, CTL_SD_CARD_CLK_CTL, CLK_CTL_SCLKEN |
+ 	/* set initial frequency */
+ 	si470x_set_freq(radio, 87.5 * FREQ_MUL); /* available in all regions */
 -- 
 2.35.1
 
