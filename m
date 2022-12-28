@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D37E1657D1B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:39:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07307657E2D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:50:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233522AbiL1Pj3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:39:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56346 "EHLO
+        id S233663AbiL1Pu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:50:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233933AbiL1Pj2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:39:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8F85167D3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:39:27 -0800 (PST)
+        with ESMTP id S234106AbiL1Puz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:50:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3567CF2
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:50:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 48B4A6155C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:39:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DF42C433D2;
-        Wed, 28 Dec 2022 15:39:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E45CCB81730
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:50:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CA6BC433D2;
+        Wed, 28 Dec 2022 15:50:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241966;
-        bh=DCIihgFT80+IqazgE7ukiBMeBXKr8+49+RDi5PHR/3A=;
+        s=korg; t=1672242651;
+        bh=ZXSA5oaRgfG2idKcke4QroHb3mxOgdIVEraQJ4fswjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OXssefUq0gzZHg9pHJDuMFeBrTyqv9fi9Nh7iB17Bjc6IcnIo1RNHfPyWCOI6f4Tp
-         A7wbef+PgqPHzC6VZX8WrvjzO6DAwn5vknZ1v9lDiulVGCUovf90MELbb7QfA7XK0P
-         NTzpSo6CiVUbDn2HrVkNOKAvpHfWPsAotTyj1fLo=
+        b=2FkVqph5fI9jOJ1ZCOCvUgOnAvkFv5ehDcaoAeRw5Z+fbjY0k60ynyX6EokB+qi+o
+         bVGydrB+h7nHfLnOCC1/gHHg28/eEVkFj6W6XeZcTaI6JCfahwkgjcnPS0oAhzeUlQ
+         cpPl3141/7PBHss25DeLjbPKC76jyRt4imxJv3kA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        Dario Binacchi <dario.binacchi@amarulasolutions.com>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Abel Vesa <abel.vesa@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0349/1073] udp: Clean up some functions.
+Subject: [PATCH 6.1 0398/1146] clk: imx: replace osc_hdmi with dummy
 Date:   Wed, 28 Dec 2022 15:32:17 +0100
-Message-Id: <20221228144337.485604300@linuxfoundation.org>
+Message-Id: <20221228144340.973859570@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,149 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Dario Binacchi <dario.binacchi@amarulasolutions.com>
 
-[ Upstream commit 919dfa0b20ae56060dce0436eb710717f8987d18 ]
+[ Upstream commit e7fa365ff66f16772dc06b480cd78f858d10856b ]
 
-This patch adds no functional change and cleans up some functions
-that the following patches touch around so that we make them tidy
-and easy to review/revert.  The change is mainly to keep reverse
-christmas tree order.
+There is no occurrence of the hdmi oscillator in the reference manual
+(document IMX8MNRM Rev 2, 07/2022). Further, if we consider the indexes
+76-81 and 134 of the "Clock Root" table of chapter 5 of the RM, there is
+no entry for the source select bits 101b, which is the setting referenced
+by "osc_hdmi".
+Fix by renaming "osc_hdmi" with "dummy", a clock which has already been
+used for missing source select bits.
 
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Stable-dep-of: 7a7160edf1bf ("net: Return errno in sk->sk_prot->get_port().")
+Tested on the BSH SystemMaster (SMM) S2 board.
+
+Fixes: 96d6392b54dbb ("clk: imx: Add support for i.MX8MN clock driver")
+Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+Acked-by: Marco Felsch <m.felsch@pengutronix.de>
+Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
+Link: https://lore.kernel.org/r/20221117113637.1978703-3-dario.binacchi@amarulasolutions.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/udp.c | 39 +++++++++++++++++++++++----------------
- net/ipv6/udp.c | 12 ++++++++----
- 2 files changed, 31 insertions(+), 20 deletions(-)
+ drivers/clk/imx/clk-imx8mn.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
-index d9099754ac69..c04a26339bd1 100644
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -232,16 +232,16 @@ static int udp_reuseport_add_sock(struct sock *sk, struct udp_hslot *hslot)
- int udp_lib_get_port(struct sock *sk, unsigned short snum,
- 		     unsigned int hash2_nulladdr)
- {
--	struct udp_hslot *hslot, *hslot2;
- 	struct udp_table *udptable = sk->sk_prot->h.udp_table;
--	int    error = 1;
-+	struct udp_hslot *hslot, *hslot2;
- 	struct net *net = sock_net(sk);
-+	int error = 1;
+diff --git a/drivers/clk/imx/clk-imx8mn.c b/drivers/clk/imx/clk-imx8mn.c
+index 72f9563a0ff6..0fae97e61e2c 100644
+--- a/drivers/clk/imx/clk-imx8mn.c
++++ b/drivers/clk/imx/clk-imx8mn.c
+@@ -108,27 +108,27 @@ static const char * const imx8mn_disp_pixel_sels[] = {"osc_24m", "video_pll1_out
+ 						      "sys_pll3_out", "clk_ext4", };
  
- 	if (!snum) {
-+		DECLARE_BITMAP(bitmap, PORTS_PER_CHAIN);
-+		unsigned short first, last;
- 		int low, high, remaining;
- 		unsigned int rand;
--		unsigned short first, last;
--		DECLARE_BITMAP(bitmap, PORTS_PER_CHAIN);
+ static const char * const imx8mn_sai2_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
+-						"video_pll1_out", "sys_pll1_133m", "osc_hdmi",
++						"video_pll1_out", "sys_pll1_133m", "dummy",
+ 						"clk_ext3", "clk_ext4", };
  
- 		inet_get_local_port_range(net, &low, &high);
- 		remaining = (high - low) + 1;
-@@ -2527,10 +2527,13 @@ static struct sock *__udp4_lib_mcast_demux_lookup(struct net *net,
- 						  __be16 rmt_port, __be32 rmt_addr,
- 						  int dif, int sdif)
- {
--	struct sock *sk, *result;
- 	unsigned short hnum = ntohs(loc_port);
--	unsigned int slot = udp_hashfn(net, hnum, udp_table.mask);
--	struct udp_hslot *hslot = &udp_table.hash[slot];
-+	struct sock *sk, *result;
-+	struct udp_hslot *hslot;
-+	unsigned int slot;
-+
-+	slot = udp_hashfn(net, hnum, udp_table.mask);
-+	hslot = &udp_table.hash[slot];
+ static const char * const imx8mn_sai3_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
+-						"video_pll1_out", "sys_pll1_133m", "osc_hdmi",
++						"video_pll1_out", "sys_pll1_133m", "dummy",
+ 						"clk_ext3", "clk_ext4", };
  
- 	/* Do not bother scanning a too big list */
- 	if (hslot->count > 10)
-@@ -2558,14 +2561,18 @@ static struct sock *__udp4_lib_demux_lookup(struct net *net,
- 					    __be16 rmt_port, __be32 rmt_addr,
- 					    int dif, int sdif)
- {
--	unsigned short hnum = ntohs(loc_port);
--	unsigned int hash2 = ipv4_portaddr_hash(net, loc_addr, hnum);
--	unsigned int slot2 = hash2 & udp_table.mask;
--	struct udp_hslot *hslot2 = &udp_table.hash2[slot2];
- 	INET_ADDR_COOKIE(acookie, rmt_addr, loc_addr);
--	const __portpair ports = INET_COMBINED_PORTS(rmt_port, hnum);
-+	unsigned short hnum = ntohs(loc_port);
-+	unsigned int hash2, slot2;
-+	struct udp_hslot *hslot2;
-+	__portpair ports;
- 	struct sock *sk;
+ static const char * const imx8mn_sai5_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
+-						"video_pll1_out", "sys_pll1_133m", "osc_hdmi",
++						"video_pll1_out", "sys_pll1_133m", "dummy",
+ 						"clk_ext2", "clk_ext3", };
  
-+	hash2 = ipv4_portaddr_hash(net, loc_addr, hnum);
-+	slot2 = hash2 & udp_table.mask;
-+	hslot2 = &udp_table.hash2[slot2];
-+	ports = INET_COMBINED_PORTS(rmt_port, hnum);
-+
- 	udp_portaddr_for_each_entry_rcu(sk, &hslot2->head) {
- 		if (inet_match(net, sk, acookie, ports, dif, sdif))
- 			return sk;
-@@ -2966,10 +2973,10 @@ EXPORT_SYMBOL(udp_prot);
+ static const char * const imx8mn_sai6_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
+-						"video_pll1_out", "sys_pll1_133m", "osc_hdmi",
++						"video_pll1_out", "sys_pll1_133m", "dummy",
+ 						"clk_ext3", "clk_ext4", };
  
- static struct sock *udp_get_first(struct seq_file *seq, int start)
- {
--	struct sock *sk;
--	struct udp_seq_afinfo *afinfo;
- 	struct udp_iter_state *state = seq->private;
- 	struct net *net = seq_file_net(seq);
-+	struct udp_seq_afinfo *afinfo;
-+	struct sock *sk;
+ static const char * const imx8mn_sai7_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
+-						"video_pll1_out", "sys_pll1_133m", "osc_hdmi",
++						"video_pll1_out", "sys_pll1_133m", "dummy",
+ 						"clk_ext3", "clk_ext4", };
  
- 	if (state->bpf_seq_afinfo)
- 		afinfo = state->bpf_seq_afinfo;
-@@ -3000,9 +3007,9 @@ static struct sock *udp_get_first(struct seq_file *seq, int start)
+ static const char * const imx8mn_spdif1_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
+-						  "video_pll1_out", "sys_pll1_133m", "osc_hdmi",
++						  "video_pll1_out", "sys_pll1_133m", "dummy",
+ 						  "clk_ext2", "clk_ext3", };
  
- static struct sock *udp_get_next(struct seq_file *seq, struct sock *sk)
- {
--	struct udp_seq_afinfo *afinfo;
- 	struct udp_iter_state *state = seq->private;
- 	struct net *net = seq_file_net(seq);
-+	struct udp_seq_afinfo *afinfo;
- 
- 	if (state->bpf_seq_afinfo)
- 		afinfo = state->bpf_seq_afinfo;
-@@ -3058,8 +3065,8 @@ EXPORT_SYMBOL(udp_seq_next);
- 
- void udp_seq_stop(struct seq_file *seq, void *v)
- {
--	struct udp_seq_afinfo *afinfo;
- 	struct udp_iter_state *state = seq->private;
-+	struct udp_seq_afinfo *afinfo;
- 
- 	if (state->bpf_seq_afinfo)
- 		afinfo = state->bpf_seq_afinfo;
-diff --git a/net/ipv6/udp.c b/net/ipv6/udp.c
-index fb667e02e976..d917d62e662d 100644
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -1039,12 +1039,16 @@ static struct sock *__udp6_lib_demux_lookup(struct net *net,
- 			int dif, int sdif)
- {
- 	unsigned short hnum = ntohs(loc_port);
--	unsigned int hash2 = ipv6_portaddr_hash(net, loc_addr, hnum);
--	unsigned int slot2 = hash2 & udp_table.mask;
--	struct udp_hslot *hslot2 = &udp_table.hash2[slot2];
--	const __portpair ports = INET_COMBINED_PORTS(rmt_port, hnum);
-+	unsigned int hash2, slot2;
-+	struct udp_hslot *hslot2;
-+	__portpair ports;
- 	struct sock *sk;
- 
-+	hash2 = ipv6_portaddr_hash(net, loc_addr, hnum);
-+	slot2 = hash2 & udp_table.mask;
-+	hslot2 = &udp_table.hash2[slot2];
-+	ports = INET_COMBINED_PORTS(rmt_port, hnum);
-+
- 	udp_portaddr_for_each_entry_rcu(sk, &hslot2->head) {
- 		if (sk->sk_state == TCP_ESTABLISHED &&
- 		    inet6_match(net, sk, rmt_addr, loc_addr, ports, dif, sdif))
+ static const char * const imx8mn_enet_ref_sels[] = {"osc_24m", "sys_pll2_125m", "sys_pll2_50m",
 -- 
 2.35.1
 
