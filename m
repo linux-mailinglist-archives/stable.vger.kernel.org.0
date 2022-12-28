@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 955DB6580CC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:21:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 736CE6579C3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:04:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233065AbiL1QVU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:21:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36658 "EHLO
+        id S233502AbiL1PE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:04:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234445AbiL1QUf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:20:35 -0500
+        with ESMTP id S233501AbiL1PE2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:04:28 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 283481AF2A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:18:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E33413D32
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:04:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B72ACB81707
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:18:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3953C433D2;
-        Wed, 28 Dec 2022 16:18:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DAF14B816F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:04:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EEE9C433D2;
+        Wed, 28 Dec 2022 15:04:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244297;
-        bh=CCyMzeNvQEmyjDp9BHbCeuZ8tCrT9rq9mH26MS4hnJM=;
+        s=korg; t=1672239864;
+        bh=ss+jQ5kl6mj6+G0f9dLPvAk08vCqGQW+r0073x108zc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eZUtdkM0oiAoiSA3ZQtX1hNhQJjGbMV1TJy6t3gFC7UsOvduT1nRjTsSnh7gM3V4o
-         G1gIEBgEPYXGACR4NVDZngPHlqY9rAky+gQF6eR9N+mwkpTs1OIcnAGbz7aQMvRdGW
-         a6oRjbAp/D69vnIGaG+PaDT+WA1sYpoRjH+0vn6U=
+        b=ZJsAwN5l8Yz7JUqM2sFzDcXaOAsiuB/NPreIsN5aEDaYDE/8HG2AMxdOqJzylSFbi
+         0UyH/OazsnfV39oJey3szqDI5CVzcl+RVZmLZ2fHZ9oHFzpyHivtxnM49aqzAd+4cA
+         DuxZtCo7gzhno6VWtFz/CWybK0V7SGQxGeZFeZe8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0646/1146] scsi: hpsa: Fix error handling in hpsa_add_sas_host()
-Date:   Wed, 28 Dec 2022 15:36:25 +0100
-Message-Id: <20221228144347.707457645@linuxfoundation.org>
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 279/731] configfs: fix possible memory leak in configfs_create_dir()
+Date:   Wed, 28 Dec 2022 15:36:26 +0100
+Message-Id: <20221228144304.660462495@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +52,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 4ef174a3ad9b5d73c1b6573e244ebba2b0d86eac ]
+[ Upstream commit c65234b283a65cfbfc94619655e820a5e55199eb ]
 
-hpsa_sas_port_add_phy() does:
-  ...
-  sas_phy_add()  -> may return error here
-  sas_port_add_phy()
-  ...
+kmemleak reported memory leaks in configfs_create_dir():
 
-Whereas hpsa_free_sas_phy() does:
-  ...
-  sas_port_delete_phy()
-  sas_phy_delete()
-  ...
+unreferenced object 0xffff888009f6af00 (size 192):
+  comm "modprobe", pid 3777, jiffies 4295537735 (age 233.784s)
+  backtrace:
+    kmem_cache_alloc (mm/slub.c:3250 mm/slub.c:3256 mm/slub.c:3263 mm/slub.c:3273)
+    new_fragment (./include/linux/slab.h:600 fs/configfs/dir.c:163)
+    configfs_register_subsystem (fs/configfs/dir.c:1857)
+    basic_write (drivers/hwtracing/stm/p_basic.c:14) stm_p_basic
+    do_one_initcall (init/main.c:1296)
+    do_init_module (kernel/module/main.c:2455)
+    ...
 
-If hpsa_sas_port_add_phy() returns an error, hpsa_free_sas_phy() can not be
-called to free the memory because the port and the phy have not been added
-yet.
+unreferenced object 0xffff888003ba7180 (size 96):
+  comm "modprobe", pid 3777, jiffies 4295537735 (age 233.784s)
+  backtrace:
+    kmem_cache_alloc (mm/slub.c:3250 mm/slub.c:3256 mm/slub.c:3263 mm/slub.c:3273)
+    configfs_new_dirent (./include/linux/slab.h:723 fs/configfs/dir.c:194)
+    configfs_make_dirent (fs/configfs/dir.c:248)
+    configfs_create_dir (fs/configfs/dir.c:296)
+    configfs_attach_group.isra.28 (fs/configfs/dir.c:816 fs/configfs/dir.c:852)
+    configfs_register_subsystem (fs/configfs/dir.c:1881)
+    basic_write (drivers/hwtracing/stm/p_basic.c:14) stm_p_basic
+    do_one_initcall (init/main.c:1296)
+    do_init_module (kernel/module/main.c:2455)
+    ...
 
-Replace hpsa_free_sas_phy() with sas_phy_free() and kfree() to avoid kernel
-crash in this case.
+This is because the refcount is not correct in configfs_make_dirent().
+For normal stage, the refcount is changing as:
 
-Fixes: d04e62b9d63a ("hpsa: add in sas transport class")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221110151129.394389-1-yangyingliang@huawei.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+configfs_register_subsystem()
+  configfs_create_dir()
+    configfs_make_dirent()
+      configfs_new_dirent() # set s_count = 1
+      dentry->d_fsdata = configfs_get(sd); # s_count = 2
+...
+configfs_unregister_subsystem()
+  configfs_remove_dir()
+    remove_dir()
+      configfs_remove_dirent() # s_count = 1
+    dput() ...
+      *dentry_unlink_inode()*
+        configfs_d_iput() # s_count = 0, release
+
+However, if we failed in configfs_create():
+
+configfs_register_subsystem()
+  configfs_create_dir()
+    configfs_make_dirent() # s_count = 2
+    ...
+    configfs_create() # fail
+    ->out_remove:
+    configfs_remove_dirent(dentry)
+      configfs_put(sd) # s_count = 1
+      return PTR_ERR(inode);
+
+There is no inode in the error path, so the configfs_d_iput() is lost
+and makes sd and fragment memory leaked.
+
+To fix this, when we failed in configfs_create(), manually call
+configfs_put(sd) to keep the refcount correct.
+
+Fixes: 7063fbf22611 ("[PATCH] configfs: User-driven configuration filesystem")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hpsa.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/configfs/dir.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
-index e5cbc97a5ea4..6696967c5192 100644
---- a/drivers/scsi/hpsa.c
-+++ b/drivers/scsi/hpsa.c
-@@ -9786,7 +9786,8 @@ static int hpsa_add_sas_host(struct ctlr_info *h)
+diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
+index d1f9d2632202..ec6519e1ca3b 100644
+--- a/fs/configfs/dir.c
++++ b/fs/configfs/dir.c
+@@ -316,6 +316,7 @@ static int configfs_create_dir(struct config_item *item, struct dentry *dentry,
  	return 0;
  
- free_sas_phy:
--	hpsa_free_sas_phy(hpsa_sas_phy);
-+	sas_phy_free(hpsa_sas_phy->phy);
-+	kfree(hpsa_sas_phy);
- free_sas_port:
- 	hpsa_free_sas_port(hpsa_sas_port);
- free_sas_node:
+ out_remove:
++	configfs_put(dentry->d_fsdata);
+ 	configfs_remove_dirent(dentry);
+ 	return PTR_ERR(inode);
+ }
+@@ -382,6 +383,7 @@ int configfs_create_link(struct configfs_dirent *target, struct dentry *parent,
+ 	return 0;
+ 
+ out_remove:
++	configfs_put(dentry->d_fsdata);
+ 	configfs_remove_dirent(dentry);
+ 	return PTR_ERR(inode);
+ }
 -- 
 2.35.1
 
