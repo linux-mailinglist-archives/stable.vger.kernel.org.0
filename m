@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1EFD657C93
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:34:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB007658232
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:33:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233433AbiL1PeE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:34:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52020 "EHLO
+        id S234858AbiL1Qdy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:33:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233829AbiL1PeD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:34:03 -0500
+        with ESMTP id S234721AbiL1QdZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:25 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2774415FFB
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:34:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AC011A232
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:30:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D3BECB81647
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:34:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36E47C433EF;
-        Wed, 28 Dec 2022 15:33:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E7631B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:30:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 564B8C433F0;
+        Wed, 28 Dec 2022 16:30:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241639;
-        bh=SFPTuRawkPrLeC4Xej53eDm7pPjGgreFXTjfdwfB+Qk=;
+        s=korg; t=1672245055;
+        bh=j0yrMKeJO2r/tfnUtHUOregZlgkJhmlss1ORUpzt048=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fBg5iJJ/ZcNLuoVpraMsNJZtFxpcV5aquVJwD08/8y3GCBAMPH8pFdIJRdQSndYPh
-         LsmxbY0JR6UwogvI/0l3EFrny/QJ2dt4IyiyQurNnn4e7yLSofve8oYwWCSUO0uTGb
-         yfvp9FxrxaWalnLebWsSKBrbgNxZst1uXYObCJU4=
+        b=hzXT+XxnStBnaevcTnG0apJ3xTuTEdvxq3zBE1Ij1P86M6RO7fX15UemdKEy8l2HJ
+         khdUg5DaWA18UC7rTeQtVBtg2HhSpA3oTf0AHPaiqvQoDu6BvYuE0DUz391sFkGla7
+         cGiIgdNTyMgf42lOJz6CFhscY2ytBYRym4f2S4iA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 506/731] fbdev: vermilion: decrease reference count in error path
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0825/1073] remoteproc: qcom: q6v5: Fix missing clk_disable_unprepare() in q6v5_wcss_qcs404_power_on()
 Date:   Wed, 28 Dec 2022 15:40:13 +0100
-Message-Id: <20221228144311.215345629@linuxfoundation.org>
+Message-Id: <20221228144350.423195240@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit 001f2cdb952a9566c77fb4b5470cc361db5601bb ]
+[ Upstream commit 7ff5d60f18bba5cbaf17b2926aa9da44d5beca01 ]
 
-pci_get_device() will increase the reference count for the returned
-pci_dev. For the error path, we need to use pci_dev_put() to decrease
-the reference count.
+q6v5_wcss_qcs404_power_on() have no fail path for readl_poll_timeout().
+Add fail path for readl_poll_timeout().
 
-Fixes: dbe7e429fedb ("vmlfb: framebuffer driver for Intel Vermilion Range")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: 0af65b9b915e ("remoteproc: qcom: wcss: Add non pas wcss Q6 support for QCS404")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221204082757.18850-1-shangxiaojing@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/vermilion/vermilion.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/remoteproc/qcom_q6v5_wcss.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/vermilion/vermilion.c b/drivers/video/fbdev/vermilion/vermilion.c
-index ff61605b8764..a543643ce014 100644
---- a/drivers/video/fbdev/vermilion/vermilion.c
-+++ b/drivers/video/fbdev/vermilion/vermilion.c
-@@ -277,8 +277,10 @@ static int vmlfb_get_gpu(struct vml_par *par)
+diff --git a/drivers/remoteproc/qcom_q6v5_wcss.c b/drivers/remoteproc/qcom_q6v5_wcss.c
+index de232337e082..ba24d745b2d6 100644
+--- a/drivers/remoteproc/qcom_q6v5_wcss.c
++++ b/drivers/remoteproc/qcom_q6v5_wcss.c
+@@ -351,7 +351,7 @@ static int q6v5_wcss_qcs404_power_on(struct q6v5_wcss *wcss)
+ 	if (ret) {
+ 		dev_err(wcss->dev,
+ 			"xo cbcr enabling timed out (rc:%d)\n", ret);
+-		return ret;
++		goto disable_xo_cbcr_clk;
+ 	}
  
- 	mutex_unlock(&vml_mutex);
- 
--	if (pci_enable_device(par->gpu) < 0)
-+	if (pci_enable_device(par->gpu) < 0) {
-+		pci_dev_put(par->gpu);
- 		return -ENODEV;
-+	}
- 
- 	return 0;
- }
+ 	writel(0, wcss->reg_base + Q6SS_CGC_OVERRIDE);
+@@ -417,6 +417,7 @@ static int q6v5_wcss_qcs404_power_on(struct q6v5_wcss *wcss)
+ 	val = readl(wcss->reg_base + Q6SS_SLEEP_CBCR);
+ 	val &= ~Q6SS_CLK_ENABLE;
+ 	writel(val, wcss->reg_base + Q6SS_SLEEP_CBCR);
++disable_xo_cbcr_clk:
+ 	val = readl(wcss->reg_base + Q6SS_XO_CBCR);
+ 	val &= ~Q6SS_CLK_ENABLE;
+ 	writel(val, wcss->reg_base + Q6SS_XO_CBCR);
 -- 
 2.35.1
 
