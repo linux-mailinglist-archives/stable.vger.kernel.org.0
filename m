@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C3BC657DCB
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:47:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FD71658327
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234035AbiL1PrE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:47:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35286 "EHLO
+        id S234958AbiL1Qoo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:44:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234077AbiL1Pqo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:46:44 -0500
+        with ESMTP id S234968AbiL1QoT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:19 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41489101D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:46:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B8BD1C434
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:39:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CF62F61542
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:46:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1515C433EF;
-        Wed, 28 Dec 2022 15:46:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF8316157D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:39:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E609BC433D2;
+        Wed, 28 Dec 2022 16:39:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242400;
-        bh=AqhIoQqnJwnFwAVvXarYmRsMbmKVynUhRUC2dEDf1nk=;
+        s=korg; t=1672245585;
+        bh=ic71UI3Iq3QBhbl9IBsyk7r3/Jf1+iWnxsPPPgm89vo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IPV9mBt8zYxKjRpbahDENO8akzMnuVbdK0kvuzB/i8Wn9WoQEupXRCwlK5cFc5U+k
-         lydE2EIk8T2EpA8LvJu9t+1HoczRB8g+ZohC2msIwjQf3XNbmBjztRuVuYyAuZQScr
-         DVL54PlRnQgBpQdd+GB3LcSp2CsKRXn1y62uREA8=
+        b=viR2aFeY06aoj5kx0EPibJaRiHbWENgWsGejb2Sr1dfD4ldUyXHm/IPMpjfvAEwCJ
+         NJmgLBlBd1qkYqB7ynQFDC4SG8B6e9LahQYDJpXCo3DTIL2tPPPNxGYJnPRf8Ezy6e
+         QIHYyh22+qA+cj5ek+ddZISAlNZmoCJlPX1bBWMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kurt Kanzenbach <kurt@linutronix.de>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Naama Meir <naamax.meir@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 599/731] igc: Lift TAPRIO schedule restriction
+Subject: [PATCH 6.0 0918/1073] drm/rockchip: use pm_runtime_resume_and_get() instead of pm_runtime_get_sync()
 Date:   Wed, 28 Dec 2022 15:41:46 +0100
-Message-Id: <20221228144313.902512110@linuxfoundation.org>
+Message-Id: <20221228144352.963570506@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,99 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kurt Kanzenbach <kurt@linutronix.de>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit a5fd39464a4081ce11c801d7e20c4551ba7cb983 ]
+[ Upstream commit e3558747ebe15306e6d0b75bd6d211436be4a7d5 ]
 
-Add support for Qbv schedules where one queue stays open
-in consecutive entries. Currently that's not supported.
+Replace pm_runtime_get_sync() with pm_runtime_resume_and_get() to avoid
+device usage counter leak.
 
-Example schedule:
-
-|tc qdisc replace dev ${INTERFACE} handle 100 parent root taprio num_tc 3 \
-|   map 2 2 1 0 2 2 2 2 2 2 2 2 2 2 2 2 \
-|   queues 1@0 1@1 2@2 \
-|   base-time ${BASETIME} \
-|   sched-entry S 0x01 300000 \ # Stream High/Low
-|   sched-entry S 0x06 500000 \ # Management and Best Effort
-|   sched-entry S 0x04 200000 \ # Best Effort
-|   flags 0x02
-
-Signed-off-by: Kurt Kanzenbach <kurt@linutronix.de>
-Reviewed-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Tested-by: Naama Meir <naamax.meir@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Stable-dep-of: 72abeedd8398 ("igc: Set Qbv start_time and end_time to end_time if not being configured in GCL")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220615062644.96837-1-yuancan@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igc/igc_main.c | 23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c | 2 +-
+ drivers/gpu/drm/rockchip/rockchip_drm_vop.c     | 4 ++--
+ drivers/gpu/drm/rockchip/rockchip_drm_vop2.c    | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
-index df78aa4fb44b..791f59d09d28 100644
---- a/drivers/net/ethernet/intel/igc/igc_main.c
-+++ b/drivers/net/ethernet/intel/igc/igc_main.c
-@@ -5919,9 +5919,10 @@ static bool validate_schedule(struct igc_adapter *adapter,
- 		return false;
- 
- 	for (n = 0; n < qopt->num_entries; n++) {
--		const struct tc_taprio_sched_entry *e;
-+		const struct tc_taprio_sched_entry *e, *prev;
- 		int i;
- 
-+		prev = n ? &qopt->entries[n - 1] : NULL;
- 		e = &qopt->entries[n];
- 
- 		/* i225 only supports "global" frame preemption
-@@ -5934,7 +5935,12 @@ static bool validate_schedule(struct igc_adapter *adapter,
- 			if (e->gate_mask & BIT(i))
- 				queue_uses[i]++;
- 
--			if (queue_uses[i] > 1)
-+			/* There are limitations: A single queue cannot be
-+			 * opened and closed multiple times per cycle unless the
-+			 * gate stays open. Check for it.
-+			 */
-+			if (queue_uses[i] > 1 &&
-+			    !(prev->gate_mask & BIT(i)))
- 				return false;
- 		}
+diff --git a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
+index 1aa3700551f4..1e1a8bc6c856 100644
+--- a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
++++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
+@@ -1201,7 +1201,7 @@ static int dw_mipi_dsi_dphy_power_on(struct phy *phy)
+ 		return i;
  	}
-@@ -5978,6 +5984,7 @@ static int igc_tsn_clear_schedule(struct igc_adapter *adapter)
- static int igc_save_qbv_schedule(struct igc_adapter *adapter,
- 				 struct tc_taprio_qopt_offload *qopt)
+ 
+-	ret = pm_runtime_get_sync(dsi->dev);
++	ret = pm_runtime_resume_and_get(dsi->dev);
+ 	if (ret < 0) {
+ 		DRM_DEV_ERROR(dsi->dev, "failed to enable device: %d\n", ret);
+ 		return ret;
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+index ad3958b6f8bf..9a039a31fe48 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+@@ -605,7 +605,7 @@ static int vop_enable(struct drm_crtc *crtc, struct drm_crtc_state *old_state)
+ 	struct vop *vop = to_vop(crtc);
+ 	int ret, i;
+ 
+-	ret = pm_runtime_get_sync(vop->dev);
++	ret = pm_runtime_resume_and_get(vop->dev);
+ 	if (ret < 0) {
+ 		DRM_DEV_ERROR(vop->dev, "failed to get pm runtime: %d\n", ret);
+ 		return ret;
+@@ -1953,7 +1953,7 @@ static int vop_initial(struct vop *vop)
+ 		return PTR_ERR(vop->dclk);
+ 	}
+ 
+-	ret = pm_runtime_get_sync(vop->dev);
++	ret = pm_runtime_resume_and_get(vop->dev);
+ 	if (ret < 0) {
+ 		DRM_DEV_ERROR(vop->dev, "failed to get pm runtime: %d\n", ret);
+ 		return ret;
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop2.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop2.c
+index 1fc04019dfd8..6dc14ea7f6fc 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_vop2.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop2.c
+@@ -823,7 +823,7 @@ static void vop2_enable(struct vop2 *vop2)
  {
-+	bool queue_configured[IGC_MAX_TX_QUEUES] = { };
- 	u32 start_time = 0, end_time = 0;
- 	size_t n;
+ 	int ret;
  
-@@ -5998,9 +6005,6 @@ static int igc_save_qbv_schedule(struct igc_adapter *adapter,
- 	adapter->cycle_time = qopt->cycle_time;
- 	adapter->base_time = qopt->base_time;
- 
--	/* FIXME: be a little smarter about cases when the gate for a
--	 * queue stays open for more than one entry.
--	 */
- 	for (n = 0; n < qopt->num_entries; n++) {
- 		struct tc_taprio_sched_entry *e = &qopt->entries[n];
- 		int i;
-@@ -6028,8 +6032,15 @@ static int igc_save_qbv_schedule(struct igc_adapter *adapter,
- 			if (!(e->gate_mask & BIT(i)))
- 				continue;
- 
--			ring->start_time = start_time;
-+			/* Check whether a queue stays open for more than one
-+			 * entry. If so, keep the start and advance the end
-+			 * time.
-+			 */
-+			if (!queue_configured[i])
-+				ring->start_time = start_time;
- 			ring->end_time = end_time;
-+
-+			queue_configured[i] = true;
- 		}
- 
- 		start_time += e->interval;
+-	ret = pm_runtime_get_sync(vop2->dev);
++	ret = pm_runtime_resume_and_get(vop2->dev);
+ 	if (ret < 0) {
+ 		drm_err(vop2->drm, "failed to get pm runtime: %d\n", ret);
+ 		return;
 -- 
 2.35.1
 
