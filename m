@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1842D657E82
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:54:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B9A96578BC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:53:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233612AbiL1Py2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:54:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41924 "EHLO
+        id S233133AbiL1Oxm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:53:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234150AbiL1Py0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:54:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FC1A186B7
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:54:25 -0800 (PST)
+        with ESMTP id S233195AbiL1Oxf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:53:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A17A7D93
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:53:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7BFBDB81730
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:54:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8377C433EF;
-        Wed, 28 Dec 2022 15:54:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EC1761540
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:53:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50A8EC433D2;
+        Wed, 28 Dec 2022 14:53:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242862;
-        bh=YAr+kd5PxmmuQ8AejKI4fTRMdn3P609ODV2HXt6aXaE=;
+        s=korg; t=1672239213;
+        bh=yI95gjedhCp+k7KEFMHacJCMVF3G0CcjNImGz8iBHUU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KnIIB4/QyD/YZTeIKx+hBVQ7gCMj1GI95mh7FWLDAf646L9rsuqijXJpNP/xi3de1
-         UXHfP2BxLmAxPz7dnzZJt1bmvJdsObSVldFsWDxe2DoQpzztq5ez43FVWczj3DWYJI
-         aAQFGB+bCmQHsb6mzDfxwC1rvkRnEj7QWtqTsgBw=
+        b=ZFMp0ka0vdAKlorBRrNeRG9uC7pEhMGNOQ5s4752X02/eUlIT/s1gH12U9TSg20B2
+         3LdCgO8FEf9qs2ggVE+Bj0hAutjAnZzaoHVuDHg3kZXn1xWTB8Mmqy9r5b8cajg3HH
+         3vGAiwVuLphMnbDVdxniwfBH9RUOyRiEN86OtBio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0463/1073] hwmon: (jc42) Convert register access and caching to regmap/regcache
+Subject: [PATCH 5.15 144/731] drm/bridge: adv7533: remove dynamic lane switching from adv7533 bridge
 Date:   Wed, 28 Dec 2022 15:34:11 +0100
-Message-Id: <20221228144340.611359739@linuxfoundation.org>
+Message-Id: <20221228144300.723628025@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,419 +55,225 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Abhinav Kumar <quic_abhinavk@quicinc.com>
 
-[ Upstream commit 8f2fa4726faf01094d7a5be7bd0c120c565f54d9 ]
+[ Upstream commit 9a0cdcd6649b76f0b7ceec0e55b0a718321e34d3 ]
 
-Switch the jc42 driver to use an I2C regmap to access the registers.
-Also move over to regmap's built-in caching instead of adding a
-custom caching implementation. This works for JC42_REG_TEMP_UPPER,
-JC42_REG_TEMP_LOWER and JC42_REG_TEMP_CRITICAL as these values never
-change except when explicitly written. The cache For JC42_REG_TEMP is
-dropped (regmap can't cache it because it's volatile, meaning it can
-change at any time) as well for simplicity and consistency with other
-drivers.
+adv7533 bridge tries to dynamically switch lanes based on the
+mode by detaching and attaching the mipi dsi device.
 
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Link: https://lore.kernel.org/r/20221023213157.11078-2-martin.blumenstingl@googlemail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Stable-dep-of: 084ed144c448 ("hwmon: (jc42) Restore the min/max/critical temperatures on resume")
+This approach is incorrect because this method of dynamic switch of
+detaching and attaching the mipi dsi device also results in removing
+and adding the component which is not necessary.
+
+This approach is also prone to deadlocks. So for example, on the
+db410c whenever this path is executed with lockdep enabled,
+this results in a deadlock due to below ordering of locks.
+
+-> #1 (crtc_ww_class_acquire){+.+.}-{0:0}:
+        lock_acquire+0x6c/0x90
+        drm_modeset_acquire_init+0xf4/0x150
+        drmm_mode_config_init+0x220/0x770
+        msm_drm_bind+0x13c/0x654
+        try_to_bring_up_aggregate_device+0x164/0x1d0
+        __component_add+0xa8/0x174
+        component_add+0x18/0x2c
+        dsi_dev_attach+0x24/0x30
+        dsi_host_attach+0x98/0x14c
+        devm_mipi_dsi_attach+0x38/0xb0
+        adv7533_attach_dsi+0x8c/0x110
+        adv7511_probe+0x5a0/0x930
+        i2c_device_probe+0x30c/0x350
+        really_probe.part.0+0x9c/0x2b0
+        __driver_probe_device+0x98/0x144
+        driver_probe_device+0xac/0x14c
+        __device_attach_driver+0xbc/0x124
+        bus_for_each_drv+0x78/0xd0
+        __device_attach+0xa8/0x1c0
+        device_initial_probe+0x18/0x24
+        bus_probe_device+0xa0/0xac
+        deferred_probe_work_func+0x90/0xd0
+        process_one_work+0x28c/0x6b0
+        worker_thread+0x240/0x444
+        kthread+0x110/0x114
+        ret_from_fork+0x10/0x20
+
+-> #0 (component_mutex){+.+.}-{3:3}:
+        __lock_acquire+0x1280/0x20ac
+        lock_acquire.part.0+0xe0/0x230
+        lock_acquire+0x6c/0x90
+        __mutex_lock+0x84/0x400
+        mutex_lock_nested+0x3c/0x70
+        component_del+0x34/0x170
+        dsi_dev_detach+0x24/0x30
+        dsi_host_detach+0x20/0x64
+        mipi_dsi_detach+0x2c/0x40
+        adv7533_mode_set+0x64/0x90
+        adv7511_bridge_mode_set+0x210/0x214
+        drm_bridge_chain_mode_set+0x5c/0x84
+        crtc_set_mode+0x18c/0x1dc
+        drm_atomic_helper_commit_modeset_disables+0x40/0x50
+        msm_atomic_commit_tail+0x1d0/0x6e0
+        commit_tail+0xa4/0x180
+        drm_atomic_helper_commit+0x178/0x3b0
+        drm_atomic_commit+0xa4/0xe0
+        drm_client_modeset_commit_atomic+0x228/0x284
+        drm_client_modeset_commit_locked+0x64/0x1d0
+        drm_client_modeset_commit+0x34/0x60
+        drm_fb_helper_lastclose+0x74/0xcc
+        drm_lastclose+0x3c/0x80
+        drm_release+0xfc/0x114
+        __fput+0x70/0x224
+        ____fput+0x14/0x20
+        task_work_run+0x88/0x1a0
+        do_exit+0x350/0xa50
+        do_group_exit+0x38/0xa4
+        __wake_up_parent+0x0/0x34
+        invoke_syscall+0x48/0x114
+        el0_svc_common.constprop.0+0x60/0x11c
+        do_el0_svc+0x30/0xc0
+        el0_svc+0x58/0x100
+        el0t_64_sync_handler+0x1b0/0x1bc
+        el0t_64_sync+0x18c/0x190
+
+Due to above reasons, remove the dynamic lane switching
+code from adv7533 bridge chip and filter out the modes
+which would need different number of lanes as compared
+to the initialization time using the mode_valid callback.
+
+This can be potentially re-introduced by using the pre_enable()
+callback but this needs to be evaluated first whether such an
+approach will work so this will be done with a separate change.
+
+changes since RFC:
+	- Fix commit text and add TODO comment
+
+changes in v2:
+	- Fix checkpatch formatting errors
+
+Fixes: 62b2f026cd8e ("drm/bridge: adv7533: Change number of DSI lanes dynamically")
+Closes: https://gitlab.freedesktop.org/drm/msm/-/issues/16
+Suggested-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Link: https://lore.kernel.org/r/1661797363-7564-1-git-send-email-quic_abhinavk@quicinc.com
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/1665522649-3423-1-git-send-email-quic_abhinavk@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/Kconfig |   1 +
- drivers/hwmon/jc42.c  | 233 ++++++++++++++++++++++++------------------
- 2 files changed, 132 insertions(+), 102 deletions(-)
+ drivers/gpu/drm/bridge/adv7511/adv7511.h     |  3 ++-
+ drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 18 ++++++++++----
+ drivers/gpu/drm/bridge/adv7511/adv7533.c     | 25 ++++++++++----------
+ 3 files changed, 29 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
-index e70d9614bec2..1533127960e7 100644
---- a/drivers/hwmon/Kconfig
-+++ b/drivers/hwmon/Kconfig
-@@ -798,6 +798,7 @@ config SENSORS_IT87
- config SENSORS_JC42
- 	tristate "JEDEC JC42.4 compliant memory module temperature sensors"
- 	depends on I2C
-+	select REGMAP_I2C
- 	help
- 	  If you say yes here, you get support for JEDEC JC42.4 compliant
- 	  temperature sensors, which are used on many DDR3 memory modules for
-diff --git a/drivers/hwmon/jc42.c b/drivers/hwmon/jc42.c
-index 07f7f8b5b73d..96bffd5b5866 100644
---- a/drivers/hwmon/jc42.c
-+++ b/drivers/hwmon/jc42.c
-@@ -19,6 +19,7 @@
- #include <linux/err.h>
- #include <linux/mutex.h>
- #include <linux/of.h>
-+#include <linux/regmap.h>
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511.h b/drivers/gpu/drm/bridge/adv7511/adv7511.h
+index aeeb09a27202..fdd8e3d3232e 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511.h
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511.h
+@@ -395,7 +395,8 @@ static inline int adv7511_cec_init(struct device *dev, struct adv7511 *adv7511)
  
- /* Addresses to scan */
- static const unsigned short normal_i2c[] = {
-@@ -199,31 +200,14 @@ static struct jc42_chips jc42_chips[] = {
- 	{ STM_MANID, STTS3000_DEVID, STTS3000_DEVID_MASK },
- };
- 
--enum temp_index {
--	t_input = 0,
--	t_crit,
--	t_min,
--	t_max,
--	t_num_temp
--};
--
--static const u8 temp_regs[t_num_temp] = {
--	[t_input] = JC42_REG_TEMP,
--	[t_crit] = JC42_REG_TEMP_CRITICAL,
--	[t_min] = JC42_REG_TEMP_LOWER,
--	[t_max] = JC42_REG_TEMP_UPPER,
--};
--
- /* Each client has this additional data */
- struct jc42_data {
--	struct i2c_client *client;
- 	struct mutex	update_lock;	/* protect register access */
-+	struct regmap	*regmap;
- 	bool		extended;	/* true if extended range supported */
- 	bool		valid;
--	unsigned long	last_updated;	/* In jiffies */
- 	u16		orig_config;	/* original configuration */
- 	u16		config;		/* current configuration */
--	u16		temp[t_num_temp];/* Temperatures */
- };
- 
- #define JC42_TEMP_MIN_EXTENDED	(-40000)
-@@ -248,85 +232,102 @@ static int jc42_temp_from_reg(s16 reg)
- 	return reg * 125 / 2;
+ void adv7533_dsi_power_on(struct adv7511 *adv);
+ void adv7533_dsi_power_off(struct adv7511 *adv);
+-void adv7533_mode_set(struct adv7511 *adv, const struct drm_display_mode *mode);
++enum drm_mode_status adv7533_mode_valid(struct adv7511 *adv,
++					const struct drm_display_mode *mode);
+ int adv7533_patch_registers(struct adv7511 *adv);
+ int adv7533_patch_cec_registers(struct adv7511 *adv);
+ int adv7533_attach_dsi(struct adv7511 *adv);
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+index 3dc551d223d6..44762116aac9 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+@@ -697,7 +697,7 @@ adv7511_detect(struct adv7511 *adv7511, struct drm_connector *connector)
  }
  
--static struct jc42_data *jc42_update_device(struct device *dev)
--{
--	struct jc42_data *data = dev_get_drvdata(dev);
--	struct i2c_client *client = data->client;
--	struct jc42_data *ret = data;
--	int i, val;
+ static enum drm_mode_status adv7511_mode_valid(struct adv7511 *adv7511,
+-			      struct drm_display_mode *mode)
++			      const struct drm_display_mode *mode)
+ {
+ 	if (mode->clock > 165000)
+ 		return MODE_CLOCK_HIGH;
+@@ -791,9 +791,6 @@ static void adv7511_mode_set(struct adv7511 *adv7511,
+ 	regmap_update_bits(adv7511->regmap, 0x17,
+ 		0x60, (vsync_polarity << 6) | (hsync_polarity << 5));
+ 
+-	if (adv7511->type == ADV7533 || adv7511->type == ADV7535)
+-		adv7533_mode_set(adv7511, adj_mode);
 -
--	mutex_lock(&data->update_lock);
+ 	drm_mode_copy(&adv7511->curr_mode, adj_mode);
+ 
+ 	/*
+@@ -913,6 +910,18 @@ static void adv7511_bridge_mode_set(struct drm_bridge *bridge,
+ 	adv7511_mode_set(adv, mode, adj_mode);
+ }
+ 
++static enum drm_mode_status adv7511_bridge_mode_valid(struct drm_bridge *bridge,
++						      const struct drm_display_info *info,
++		const struct drm_display_mode *mode)
++{
++	struct adv7511 *adv = bridge_to_adv7511(bridge);
++
++	if (adv->type == ADV7533 || adv->type == ADV7535)
++		return adv7533_mode_valid(adv, mode);
++	else
++		return adv7511_mode_valid(adv, mode);
++}
++
+ static int adv7511_bridge_attach(struct drm_bridge *bridge,
+ 				 enum drm_bridge_attach_flags flags)
+ {
+@@ -963,6 +972,7 @@ static const struct drm_bridge_funcs adv7511_bridge_funcs = {
+ 	.enable = adv7511_bridge_enable,
+ 	.disable = adv7511_bridge_disable,
+ 	.mode_set = adv7511_bridge_mode_set,
++	.mode_valid = adv7511_bridge_mode_valid,
+ 	.attach = adv7511_bridge_attach,
+ 	.detect = adv7511_bridge_detect,
+ 	.get_edid = adv7511_bridge_get_edid,
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7533.c b/drivers/gpu/drm/bridge/adv7511/adv7533.c
+index 59d718bde8c4..7eda12f338a1 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7533.c
++++ b/drivers/gpu/drm/bridge/adv7511/adv7533.c
+@@ -100,26 +100,27 @@ void adv7533_dsi_power_off(struct adv7511 *adv)
+ 	regmap_write(adv->regmap_cec, 0x27, 0x0b);
+ }
+ 
+-void adv7533_mode_set(struct adv7511 *adv, const struct drm_display_mode *mode)
++enum drm_mode_status adv7533_mode_valid(struct adv7511 *adv,
++					const struct drm_display_mode *mode)
+ {
++	int lanes;
+ 	struct mipi_dsi_device *dsi = adv->dsi;
+-	int lanes, ret;
 -
--	if (time_after(jiffies, data->last_updated + HZ) || !data->valid) {
--		for (i = 0; i < t_num_temp; i++) {
--			val = i2c_smbus_read_word_swapped(client, temp_regs[i]);
--			if (val < 0) {
--				ret = ERR_PTR(val);
--				goto abort;
--			}
--			data->temp[i] = val;
--		}
--		data->last_updated = jiffies;
--		data->valid = true;
+-	if (adv->num_dsi_lanes != 4)
+-		return;
+ 
+ 	if (mode->clock > 80000)
+ 		lanes = 4;
+ 	else
+ 		lanes = 3;
+ 
+-	if (lanes != dsi->lanes) {
+-		mipi_dsi_detach(dsi);
+-		dsi->lanes = lanes;
+-		ret = mipi_dsi_attach(dsi);
+-		if (ret)
+-			dev_err(&dsi->dev, "failed to change host lanes\n");
 -	}
--abort:
--	mutex_unlock(&data->update_lock);
--	return ret;
--}
--
- static int jc42_read(struct device *dev, enum hwmon_sensor_types type,
- 		     u32 attr, int channel, long *val)
- {
--	struct jc42_data *data = jc42_update_device(dev);
--	int temp, hyst;
-+	struct jc42_data *data = dev_get_drvdata(dev);
-+	unsigned int regval;
-+	int ret, temp, hyst;
- 
--	if (IS_ERR(data))
--		return PTR_ERR(data);
-+	mutex_lock(&data->update_lock);
- 
- 	switch (attr) {
- 	case hwmon_temp_input:
--		*val = jc42_temp_from_reg(data->temp[t_input]);
--		return 0;
-+		ret = regmap_read(data->regmap, JC42_REG_TEMP, &regval);
-+		if (ret)
-+			break;
++	/*
++	 * TODO: add support for dynamic switching of lanes
++	 * by using the bridge pre_enable() op . Till then filter
++	 * out the modes which shall need different number of lanes
++	 * than what was configured in the device tree.
++	 */
++	if (lanes != dsi->lanes)
++		return MODE_BAD;
 +
-+		*val = jc42_temp_from_reg(regval);
-+		break;
- 	case hwmon_temp_min:
--		*val = jc42_temp_from_reg(data->temp[t_min]);
--		return 0;
-+		ret = regmap_read(data->regmap, JC42_REG_TEMP_LOWER, &regval);
-+		if (ret)
-+			break;
-+
-+		*val = jc42_temp_from_reg(regval);
-+		break;
- 	case hwmon_temp_max:
--		*val = jc42_temp_from_reg(data->temp[t_max]);
--		return 0;
-+		ret = regmap_read(data->regmap, JC42_REG_TEMP_UPPER, &regval);
-+		if (ret)
-+			break;
-+
-+		*val = jc42_temp_from_reg(regval);
-+		break;
- 	case hwmon_temp_crit:
--		*val = jc42_temp_from_reg(data->temp[t_crit]);
--		return 0;
-+		ret = regmap_read(data->regmap, JC42_REG_TEMP_CRITICAL,
-+				  &regval);
-+		if (ret)
-+			break;
-+
-+		*val = jc42_temp_from_reg(regval);
-+		break;
- 	case hwmon_temp_max_hyst:
--		temp = jc42_temp_from_reg(data->temp[t_max]);
-+		ret = regmap_read(data->regmap, JC42_REG_TEMP_UPPER, &regval);
-+		if (ret)
-+			break;
-+
-+		temp = jc42_temp_from_reg(regval);
- 		hyst = jc42_hysteresis[(data->config & JC42_CFG_HYST_MASK)
- 						>> JC42_CFG_HYST_SHIFT];
- 		*val = temp - hyst;
--		return 0;
-+		break;
- 	case hwmon_temp_crit_hyst:
--		temp = jc42_temp_from_reg(data->temp[t_crit]);
-+		ret = regmap_read(data->regmap, JC42_REG_TEMP_CRITICAL,
-+				  &regval);
-+		if (ret)
-+			break;
-+
-+		temp = jc42_temp_from_reg(regval);
- 		hyst = jc42_hysteresis[(data->config & JC42_CFG_HYST_MASK)
- 						>> JC42_CFG_HYST_SHIFT];
- 		*val = temp - hyst;
--		return 0;
-+		break;
- 	case hwmon_temp_min_alarm:
--		*val = (data->temp[t_input] >> JC42_ALARM_MIN_BIT) & 1;
--		return 0;
-+		ret = regmap_read(data->regmap, JC42_REG_TEMP, &regval);
-+		if (ret)
-+			break;
-+
-+		*val = (regval >> JC42_ALARM_MIN_BIT) & 1;
-+		break;
- 	case hwmon_temp_max_alarm:
--		*val = (data->temp[t_input] >> JC42_ALARM_MAX_BIT) & 1;
--		return 0;
-+		ret = regmap_read(data->regmap, JC42_REG_TEMP, &regval);
-+		if (ret)
-+			break;
-+
-+		*val = (regval >> JC42_ALARM_MAX_BIT) & 1;
-+		break;
- 	case hwmon_temp_crit_alarm:
--		*val = (data->temp[t_input] >> JC42_ALARM_CRIT_BIT) & 1;
--		return 0;
-+		ret = regmap_read(data->regmap, JC42_REG_TEMP, &regval);
-+		if (ret)
-+			break;
-+
-+		*val = (regval >> JC42_ALARM_CRIT_BIT) & 1;
-+		break;
- 	default:
--		return -EOPNOTSUPP;
-+		ret = -EOPNOTSUPP;
-+		break;
- 	}
-+
-+	mutex_unlock(&data->update_lock);
-+
-+	return ret;
++	return MODE_OK;
  }
  
- static int jc42_write(struct device *dev, enum hwmon_sensor_types type,
- 		      u32 attr, int channel, long val)
- {
- 	struct jc42_data *data = dev_get_drvdata(dev);
--	struct i2c_client *client = data->client;
-+	unsigned int regval;
- 	int diff, hyst;
- 	int ret;
- 
-@@ -334,21 +335,23 @@ static int jc42_write(struct device *dev, enum hwmon_sensor_types type,
- 
- 	switch (attr) {
- 	case hwmon_temp_min:
--		data->temp[t_min] = jc42_temp_to_reg(val, data->extended);
--		ret = i2c_smbus_write_word_swapped(client, temp_regs[t_min],
--						   data->temp[t_min]);
-+		ret = regmap_write(data->regmap, JC42_REG_TEMP_LOWER,
-+				   jc42_temp_to_reg(val, data->extended));
- 		break;
- 	case hwmon_temp_max:
--		data->temp[t_max] = jc42_temp_to_reg(val, data->extended);
--		ret = i2c_smbus_write_word_swapped(client, temp_regs[t_max],
--						   data->temp[t_max]);
-+		ret = regmap_write(data->regmap, JC42_REG_TEMP_UPPER,
-+				   jc42_temp_to_reg(val, data->extended));
- 		break;
- 	case hwmon_temp_crit:
--		data->temp[t_crit] = jc42_temp_to_reg(val, data->extended);
--		ret = i2c_smbus_write_word_swapped(client, temp_regs[t_crit],
--						   data->temp[t_crit]);
-+		ret = regmap_write(data->regmap, JC42_REG_TEMP_CRITICAL,
-+				   jc42_temp_to_reg(val, data->extended));
- 		break;
- 	case hwmon_temp_crit_hyst:
-+		ret = regmap_read(data->regmap, JC42_REG_TEMP_CRITICAL,
-+				  &regval);
-+		if (ret)
-+			return ret;
-+
- 		/*
- 		 * JC42.4 compliant chips only support four hysteresis values.
- 		 * Pick best choice and go from there.
-@@ -356,7 +359,7 @@ static int jc42_write(struct device *dev, enum hwmon_sensor_types type,
- 		val = clamp_val(val, (data->extended ? JC42_TEMP_MIN_EXTENDED
- 						     : JC42_TEMP_MIN) - 6000,
- 				JC42_TEMP_MAX);
--		diff = jc42_temp_from_reg(data->temp[t_crit]) - val;
-+		diff = jc42_temp_from_reg(regval) - val;
- 		hyst = 0;
- 		if (diff > 0) {
- 			if (diff < 2250)
-@@ -368,9 +371,8 @@ static int jc42_write(struct device *dev, enum hwmon_sensor_types type,
- 		}
- 		data->config = (data->config & ~JC42_CFG_HYST_MASK) |
- 				(hyst << JC42_CFG_HYST_SHIFT);
--		ret = i2c_smbus_write_word_swapped(data->client,
--						   JC42_REG_CONFIG,
--						   data->config);
-+		ret = regmap_write(data->regmap, JC42_REG_CONFIG,
-+				   data->config);
- 		break;
- 	default:
- 		ret = -EOPNOTSUPP;
-@@ -470,51 +472,80 @@ static const struct hwmon_chip_info jc42_chip_info = {
- 	.info = jc42_info,
- };
- 
-+static bool jc42_readable_reg(struct device *dev, unsigned int reg)
-+{
-+	return (reg >= JC42_REG_CAP && reg <= JC42_REG_DEVICEID) ||
-+		reg == JC42_REG_SMBUS;
-+}
-+
-+static bool jc42_writable_reg(struct device *dev, unsigned int reg)
-+{
-+	return (reg >= JC42_REG_CONFIG && reg <= JC42_REG_TEMP_CRITICAL) ||
-+		reg == JC42_REG_SMBUS;
-+}
-+
-+static bool jc42_volatile_reg(struct device *dev, unsigned int reg)
-+{
-+	return reg == JC42_REG_CONFIG || reg == JC42_REG_TEMP;
-+}
-+
-+static const struct regmap_config jc42_regmap_config = {
-+	.reg_bits = 8,
-+	.val_bits = 16,
-+	.val_format_endian = REGMAP_ENDIAN_BIG,
-+	.max_register = JC42_REG_SMBUS,
-+	.writeable_reg = jc42_writable_reg,
-+	.readable_reg = jc42_readable_reg,
-+	.volatile_reg = jc42_volatile_reg,
-+	.cache_type = REGCACHE_RBTREE,
-+};
-+
- static int jc42_probe(struct i2c_client *client)
- {
- 	struct device *dev = &client->dev;
- 	struct device *hwmon_dev;
-+	unsigned int config, cap;
- 	struct jc42_data *data;
--	int config, cap;
-+	int ret;
- 
- 	data = devm_kzalloc(dev, sizeof(struct jc42_data), GFP_KERNEL);
- 	if (!data)
- 		return -ENOMEM;
- 
--	data->client = client;
-+	data->regmap = devm_regmap_init_i2c(client, &jc42_regmap_config);
-+	if (IS_ERR(data->regmap))
-+		return PTR_ERR(data->regmap);
-+
- 	i2c_set_clientdata(client, data);
- 	mutex_init(&data->update_lock);
- 
--	cap = i2c_smbus_read_word_swapped(client, JC42_REG_CAP);
--	if (cap < 0)
--		return cap;
-+	ret = regmap_read(data->regmap, JC42_REG_CAP, &cap);
-+	if (ret)
-+		return ret;
- 
- 	data->extended = !!(cap & JC42_CAP_RANGE);
- 
- 	if (device_property_read_bool(dev, "smbus-timeout-disable")) {
--		int smbus;
--
- 		/*
- 		 * Not all chips support this register, but from a
- 		 * quick read of various datasheets no chip appears
- 		 * incompatible with the below attempt to disable
- 		 * the timeout. And the whole thing is opt-in...
- 		 */
--		smbus = i2c_smbus_read_word_swapped(client, JC42_REG_SMBUS);
--		if (smbus < 0)
--			return smbus;
--		i2c_smbus_write_word_swapped(client, JC42_REG_SMBUS,
--					     smbus | SMBUS_STMOUT);
-+		ret = regmap_set_bits(data->regmap, JC42_REG_SMBUS,
-+				      SMBUS_STMOUT);
-+		if (ret)
-+			return ret;
- 	}
- 
--	config = i2c_smbus_read_word_swapped(client, JC42_REG_CONFIG);
--	if (config < 0)
--		return config;
-+	ret = regmap_read(data->regmap, JC42_REG_CONFIG, &config);
-+	if (ret)
-+		return ret;
- 
- 	data->orig_config = config;
- 	if (config & JC42_CFG_SHUTDOWN) {
- 		config &= ~JC42_CFG_SHUTDOWN;
--		i2c_smbus_write_word_swapped(client, JC42_REG_CONFIG, config);
-+		regmap_write(data->regmap, JC42_REG_CONFIG, config);
- 	}
- 	data->config = config;
- 
-@@ -535,7 +566,7 @@ static int jc42_remove(struct i2c_client *client)
- 
- 		config = (data->orig_config & ~JC42_CFG_HYST_MASK)
- 		  | (data->config & JC42_CFG_HYST_MASK);
--		i2c_smbus_write_word_swapped(client, JC42_REG_CONFIG, config);
-+		regmap_write(data->regmap, JC42_REG_CONFIG, config);
- 	}
- 	return 0;
- }
-@@ -547,8 +578,7 @@ static int jc42_suspend(struct device *dev)
- 	struct jc42_data *data = dev_get_drvdata(dev);
- 
- 	data->config |= JC42_CFG_SHUTDOWN;
--	i2c_smbus_write_word_swapped(data->client, JC42_REG_CONFIG,
--				     data->config);
-+	regmap_write(data->regmap, JC42_REG_CONFIG, data->config);
- 	return 0;
- }
- 
-@@ -557,8 +587,7 @@ static int jc42_resume(struct device *dev)
- 	struct jc42_data *data = dev_get_drvdata(dev);
- 
- 	data->config &= ~JC42_CFG_SHUTDOWN;
--	i2c_smbus_write_word_swapped(data->client, JC42_REG_CONFIG,
--				     data->config);
-+	regmap_write(data->regmap, JC42_REG_CONFIG, data->config);
- 	return 0;
- }
- 
+ int adv7533_patch_registers(struct adv7511 *adv)
 -- 
 2.35.1
 
