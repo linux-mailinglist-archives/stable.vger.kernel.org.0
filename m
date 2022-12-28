@@ -2,199 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63406657D08
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:38:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EA99658366
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:47:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233925AbiL1Pin (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:38:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55814 "EHLO
+        id S235104AbiL1Qrq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:47:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233060AbiL1Pim (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:38:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 207E8164B9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:38:41 -0800 (PST)
+        with ESMTP id S235038AbiL1QrR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:47:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9652262F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:42:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CAF44B81710
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:38:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AED9C433D2;
-        Wed, 28 Dec 2022 15:38:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63499B8171E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:42:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5B3DC433EF;
+        Wed, 28 Dec 2022 16:42:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241918;
-        bh=srbhyofZhUa3gEkfsQwea/xtykDIeRGFFJLXt2xcoOo=;
+        s=korg; t=1672245723;
+        bh=g5DWXgmezYnT/RO8YzVpE4jnKtnrAXeoJ9Yq5ZKvGXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LJRiRCxOkMQBkCPgaXcsOVVuaUwZBLPeWZsLgjj4Yaw/1cwDuPQXTfmSVic20JGQU
-         gvp9awUVgDjEpUK6QeWozIBdEkr6Bybisri7HtuakHMDThCpcEPVekb9Pgxa07G9Vz
-         RnGazL51S3QYMCJYUx8o0iGdqraz+jPEqxBZa4Fk=
+        b=Cwo3cMfLLUFhNKqnNC8ChJCQlFt/dZQxIEap9xrU45qY+TERyeYSaLaRsLCCq3adg
+         gFr8gPfvteFOLefFG9HIcsb3gc2VuMAGJr6oiaR95CaYmMH/xg72sQ2r+tRR+tgz6D
+         hgfgc40UIMntzHBFqqzsqrjgB569zqP5oe3uR1/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        Aravindhan Gunasekaran <aravindhan.gunasekaran@intel.com>,
+        Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>,
+        Naama Meir <naamax.meir@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 542/731] rtc: cmos: Call cmos_wake_setup() from cmos_do_probe()
-Date:   Wed, 28 Dec 2022 15:40:49 +0100
-Message-Id: <20221228144312.252489324@linuxfoundation.org>
+Subject: [PATCH 6.1 0911/1146] igc: Use strict cycles for Qbv scheduling
+Date:   Wed, 28 Dec 2022 15:40:50 +0100
+Message-Id: <20221228144354.976862108@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
 
-[ Upstream commit 508ccdfb86b21da37ad091003a4d4567709d5dfb ]
+[ Upstream commit d8f45be01dd9381065a3778a579385249ed011dc ]
 
-Notice that cmos_wake_setup() is the only user of acpi_rtc_info and it
-can operate on the cmos_rtc variable directly, so it need not set the
-platform_data pointer before cmos_do_probe() is called.  Instead, it
-can be called by cmos_do_probe() in the case when the platform_data
-pointer is not set to implement the default behavior (which is to use
-the FADT information as long as ACPI support is enabled).
+Configuring strict cycle mode in the controller forces more well
+behaved transmissions when taprio is offloaded.
 
-Modify the code accordingly.
+When set this strict_cycle and strict_end, transmission is not
+enabled if the whole packet cannot be completed before end of
+the Qbv cycle.
 
-While at it, drop a comment that doesn't really match the code it is
-supposed to be describing.
-
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Zhang Rui <rui.zhang@intel.com>
-Tested-by: Zhang Rui <rui.zhang@intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/4803444.31r3eYUQgx@kreacher
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Stable-dep-of: 83ebb7b3036d ("rtc: cmos: Disable ACPI RTC event on removal")
+Fixes: 82faa9b79950 ("igc: Add support for ETF offloading")
+Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Signed-off-by: Aravindhan Gunasekaran <aravindhan.gunasekaran@intel.com>
+Signed-off-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
+Tested-by: Naama Meir <naamax.meir@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-cmos.c | 47 ++++++++++++++++++++----------------------
- 1 file changed, 22 insertions(+), 25 deletions(-)
+ drivers/net/ethernet/intel/igc/igc_tsn.c | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index 58cc2bae2f8a..a84262265d6d 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -744,6 +744,8 @@ static irqreturn_t cmos_interrupt(int irq, void *p)
- 		return IRQ_NONE;
- }
+diff --git a/drivers/net/ethernet/intel/igc/igc_tsn.c b/drivers/net/ethernet/intel/igc/igc_tsn.c
+index 0fce22de2ab8..4a019954cadb 100644
+--- a/drivers/net/ethernet/intel/igc/igc_tsn.c
++++ b/drivers/net/ethernet/intel/igc/igc_tsn.c
+@@ -110,15 +110,8 @@ static int igc_tsn_enable_offload(struct igc_adapter *adapter)
+ 		wr32(IGC_STQT(i), ring->start_time);
+ 		wr32(IGC_ENDQT(i), ring->end_time);
  
-+static void cmos_wake_setup(struct device *dev);
-+
- #ifdef	CONFIG_PNP
- #define	INITSECTION
+-		if (adapter->base_time) {
+-			/* If we have a base_time we are in "taprio"
+-			 * mode and we need to be strict about the
+-			 * cycles: only transmit a packet if it can be
+-			 * completed during that cycle.
+-			 */
+-			txqctl |= IGC_TXQCTL_STRICT_CYCLE |
+-				IGC_TXQCTL_STRICT_END;
+-		}
++		txqctl |= IGC_TXQCTL_STRICT_CYCLE |
++			IGC_TXQCTL_STRICT_END;
  
-@@ -827,19 +829,27 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 		if (info->address_space)
- 			address_space = info->address_space;
- 
--		if (info->rtc_day_alarm && info->rtc_day_alarm < 128)
--			cmos_rtc.day_alrm = info->rtc_day_alarm;
--		if (info->rtc_mon_alarm && info->rtc_mon_alarm < 128)
--			cmos_rtc.mon_alrm = info->rtc_mon_alarm;
--		if (info->rtc_century && info->rtc_century < 128)
--			cmos_rtc.century = info->rtc_century;
-+		cmos_rtc.day_alrm = info->rtc_day_alarm;
-+		cmos_rtc.mon_alrm = info->rtc_mon_alarm;
-+		cmos_rtc.century = info->rtc_century;
- 
- 		if (info->wake_on && info->wake_off) {
- 			cmos_rtc.wake_on = info->wake_on;
- 			cmos_rtc.wake_off = info->wake_off;
- 		}
-+	} else {
-+		cmos_wake_setup(dev);
- 	}
- 
-+	if (cmos_rtc.day_alrm >= 128)
-+		cmos_rtc.day_alrm = 0;
-+
-+	if (cmos_rtc.mon_alrm >= 128)
-+		cmos_rtc.mon_alrm = 0;
-+
-+	if (cmos_rtc.century >= 128)
-+		cmos_rtc.century = 0;
-+
- 	cmos_rtc.dev = dev;
- 	dev_set_drvdata(dev, &cmos_rtc);
- 
-@@ -1275,13 +1285,6 @@ static void use_acpi_alarm_quirks(void)
- static inline void use_acpi_alarm_quirks(void) { }
- #endif
- 
--/* Every ACPI platform has a mc146818 compatible "cmos rtc".  Here we find
-- * its device node and pass extra config data.  This helps its driver use
-- * capabilities that the now-obsolete mc146818 didn't have, and informs it
-- * that this board's RTC is wakeup-capable (per ACPI spec).
-- */
--static struct cmos_rtc_board_info acpi_rtc_info;
--
- static void cmos_wake_setup(struct device *dev)
- {
- 	if (acpi_disabled)
-@@ -1289,26 +1292,23 @@ static void cmos_wake_setup(struct device *dev)
- 
- 	use_acpi_alarm_quirks();
- 
--	acpi_rtc_info.wake_on = rtc_wake_on;
--	acpi_rtc_info.wake_off = rtc_wake_off;
-+	cmos_rtc.wake_on = rtc_wake_on;
-+	cmos_rtc.wake_off = rtc_wake_off;
- 
--	/* workaround bug in some ACPI tables */
-+	/* ACPI tables bug workaround. */
- 	if (acpi_gbl_FADT.month_alarm && !acpi_gbl_FADT.day_alarm) {
- 		dev_dbg(dev, "bogus FADT month_alarm (%d)\n",
- 			acpi_gbl_FADT.month_alarm);
- 		acpi_gbl_FADT.month_alarm = 0;
- 	}
- 
--	acpi_rtc_info.rtc_day_alarm = acpi_gbl_FADT.day_alarm;
--	acpi_rtc_info.rtc_mon_alarm = acpi_gbl_FADT.month_alarm;
--	acpi_rtc_info.rtc_century = acpi_gbl_FADT.century;
-+	cmos_rtc.day_alrm = acpi_gbl_FADT.day_alarm;
-+	cmos_rtc.mon_alrm = acpi_gbl_FADT.month_alarm;
-+	cmos_rtc.century = acpi_gbl_FADT.century;
- 
--	/* NOTE:  S4_RTC_WAKE is NOT currently useful to Linux */
- 	if (acpi_gbl_FADT.flags & ACPI_FADT_S4_RTC_WAKE)
- 		dev_info(dev, "RTC can wake from S4\n");
- 
--	dev->platform_data = &acpi_rtc_info;
--
- 	/* RTC always wakes from S1/S2/S3, and often S4/STD */
- 	device_init_wakeup(dev, 1);
- }
-@@ -1359,8 +1359,6 @@ static int cmos_pnp_probe(struct pnp_dev *pnp, const struct pnp_device_id *id)
- {
- 	int irq, ret;
- 
--	cmos_wake_setup(&pnp->dev);
--
- 	if (pnp_port_start(pnp, 0) == 0x70 && !pnp_irq_valid(pnp, 0)) {
- 		irq = 0;
- #ifdef CONFIG_X86
-@@ -1468,7 +1466,6 @@ static int __init cmos_platform_probe(struct platform_device *pdev)
- 	int irq, ret;
- 
- 	cmos_of_init(pdev);
--	cmos_wake_setup(&pdev->dev);
- 
- 	if (RTC_IOMAPPED)
- 		resource = platform_get_resource(pdev, IORESOURCE_IO, 0);
+ 		if (ring->launchtime_enable)
+ 			txqctl |= IGC_TXQCTL_QUEUE_MODE_LAUNCHT;
 -- 
 2.35.1
 
