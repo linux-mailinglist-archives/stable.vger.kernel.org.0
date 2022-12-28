@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E86A765785E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:49:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDBC7657E81
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:54:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233050AbiL1Otr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:49:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37526 "EHLO
+        id S232992AbiL1Py1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:54:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233067AbiL1Otq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:49:46 -0500
+        with ESMTP id S234141AbiL1PyU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:54:20 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19EC7B7F1
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:49:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53CDA186E6
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:54:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA8056154C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:49:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B56B9C433D2;
-        Wed, 28 Dec 2022 14:49:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E156661560
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:54:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F06A9C433D2;
+        Wed, 28 Dec 2022 15:54:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238985;
-        bh=0ZNTA+dBDl03jPYhckp2sDMZHN8PG+maANnG6KiwoPg=;
+        s=korg; t=1672242859;
+        bh=D3Qpo4WvRoM3MQEmckjJHuzWqUjNIxWOpDs4bzQ4Zc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1yyG4GLPgTKNFMUJ0RJMkgnXaooWzn8BF5MXltZzz8WAsLlE6kLBEBBWLIHU2iVSi
-         PfoVU01s+vppKuRiwd2MiHvvq/uFIrZPvz6m7XznFa1SOirzeOMpizR4sPtp2LAj68
-         LZgrLDWMamTnmXppoOMi27/M7GOifu7D5NGAdMJ4=
+        b=F+XGysdHauJ/KfBY0Vq5TZRNepOwpLf2pUrg3i/22RX2yenTu9Xzpjn+wypqLy1vl
+         BxxXYmEFSF640vneHz5wzjcRpYALGavP/grFPqx0HesJMFdRIRnqSAQpNJ91sMj8/s
+         QKh1TLMa/F8eq+4Tfm5Rys/qW1rsKFTm+oOEp3+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 056/731] arm64: dts: armada-3720-turris-mox: Add missing interrupt for RTC
+Subject: [PATCH 6.1 0424/1146] NFSv4.2: Fix a memory stomp in decode_attr_security_label
 Date:   Wed, 28 Dec 2022 15:32:43 +0100
-Message-Id: <20221228144258.178005306@linuxfoundation.org>
+Message-Id: <20221228144341.693004244@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 21aad8ba615e9c39cee6c5d0b76726f63791926c ]
+[ Upstream commit 43c1031f7110967c240cb6e922adcfc4b8899183 ]
 
-MCP7940MT-I/MNY RTC has connected interrupt line to GPIO2_5.
+We must not change the value of label->len if it is zero, since that
+indicates we stored a label.
 
-Fixes: 7109d817db2e ("arm64: dts: marvell: add DTS for Turris Mox")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Fixes: b4487b935452 ("nfs: Fix getxattr kernel panic and memory overflow")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/nfs/nfs4xdr.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-index 1cee26479bfe..b276dd77df83 100644
---- a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-+++ b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-@@ -125,9 +125,12 @@ &i2c0 {
- 	/delete-property/ mrvl,i2c-fast-mode;
- 	status = "okay";
- 
-+	/* MCP7940MT-I/MNY RTC */
- 	rtc@6f {
- 		compatible = "microchip,mcp7940x";
- 		reg = <0x6f>;
-+		interrupt-parent = <&gpiosb>;
-+		interrupts = <5 0>; /* GPIO2_5 */
- 	};
- };
- 
+diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
+index 9103e022376a..deec76cf5afe 100644
+--- a/fs/nfs/nfs4xdr.c
++++ b/fs/nfs/nfs4xdr.c
+@@ -4236,12 +4236,10 @@ static int decode_attr_security_label(struct xdr_stream *xdr, uint32_t *bitmap,
+ 			return -EIO;
+ 		bitmap[2] &= ~FATTR4_WORD2_SECURITY_LABEL;
+ 		if (len < NFS4_MAXLABELLEN) {
+-			if (label) {
+-				if (label->len) {
+-					if (label->len < len)
+-						return -ERANGE;
+-					memcpy(label->label, p, len);
+-				}
++			if (label && label->len) {
++				if (label->len < len)
++					return -ERANGE;
++				memcpy(label->label, p, len);
+ 				label->len = len;
+ 				label->pi = pi;
+ 				label->lfs = lfs;
 -- 
 2.35.1
 
