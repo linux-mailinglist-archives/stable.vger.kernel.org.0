@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC51F65746C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 10:06:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F9E765746D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 10:07:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231533AbiL1JGq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 04:06:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58476 "EHLO
+        id S232483AbiL1JHS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 04:07:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229740AbiL1JGo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 04:06:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA487B7E1
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 01:06:43 -0800 (PST)
+        with ESMTP id S229740AbiL1JHR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 04:07:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDFFEBD7
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 01:07:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 763A2B80D17
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 09:06:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CFF4C433EF;
-        Wed, 28 Dec 2022 09:06:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C75BB8109E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 09:07:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDBF7C433EF;
+        Wed, 28 Dec 2022 09:07:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672218401;
-        bh=IYDsiismgEmOzBIc+wurXWRAobdSwRbb3hR55VYPmRs=;
+        s=korg; t=1672218433;
+        bh=9TQ/Yv5D2QgK210QXUqPyfKeaW5kqM8u8mc8uPo4wTk=;
         h=Subject:To:Cc:From:Date:From;
-        b=FtZ+vgZW4iGKh7If6GgUV72Cf/eM8BOGc9Zccckw7bO1Zkr9RfKof/3H+6kXF2XO+
-         d54Z9uEQ01KUepnYb/FNOvr+opwfx1DeyNkfjPvD2KeUCisqFQD4ahcpVJmKwdnlRj
-         rH4veBw5wqZkFV1CFqgTYrhVKpJtgQ0eCmhmQPM0=
-Subject: FAILED: patch "[PATCH] usb: dwc3: Fix race between dwc3_set_mode and __dwc3_set_mode" failed to apply to 4.19-stable tree
-To:     sven@svenpeter.dev, Thinh.Nguyen@synopsys.com,
+        b=fcdxljs0WkMIthCTSGCiK9WlL2sVyxIo+vnv7tc3PHa8T4Q4s/1ZbyKwpyO8oRafq
+         p5nMFTa275ZepouOO5wflTfLztl/P4DdGHDaWDUnGlQ4DZQtpAQxXvoY5KNuVtlyyH
+         thMQ+D7ixH6ycTIAiuJaTYUPbJmn21OWxS51pKq8=
+Subject: FAILED: patch "[PATCH] usb: dwc3: qcom: Fix memory leak in" failed to apply to 6.0-stable tree
+To:     linmq006@gmail.com, Thinh.Nguyen@synopsys.com,
         gregkh@linuxfoundation.org, stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 28 Dec 2022 10:06:28 +0100
-Message-ID: <16722183882893@kroah.com>
+Date:   Wed, 28 Dec 2022 10:07:09 +0100
+Message-ID: <1672218429113125@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,21 +48,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-62c73bfea048 ("usb: dwc3: Fix race between dwc3_set_mode and __dwc3_set_mode")
-07903626d988 ("usb: dwc3: core: Do not perform GCTL_CORE_SOFTRESET during bootup")
-afbd04e66e5d ("usb: dwc3: core: Deprecate GCTL.CORESOFTRESET")
-f88359e1588b ("usb: dwc3: core: Do core softreset when switch mode")
-f580170f135a ("usb: dwc3: Add splitdisable quirk for Hisilicon Kirin Soc")
-dc336b19e82d ("usb: dwc3: core: do not queue work if dr_mode is not USB_DR_MODE_OTG")
-c2cd3452d5f8 ("usb: dwc3: support continuous runtime PM with dual role")
-a0a465569b45 ("usb: dwc3: remove generic PHY calibrate() calls")
+97a48da1619b ("usb: dwc3: qcom: Fix memory leak in dwc3_qcom_interconnect_init")
 
 thanks,
 
@@ -70,111 +63,60 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 62c73bfea048e66168df09da6d3e4510ecda40bb Mon Sep 17 00:00:00 2001
-From: Sven Peter <sven@svenpeter.dev>
-Date: Mon, 28 Nov 2022 17:15:26 +0100
-Subject: [PATCH] usb: dwc3: Fix race between dwc3_set_mode and __dwc3_set_mode
+From 97a48da1619ba6bd42a0e5da0a03aa490a9496b1 Mon Sep 17 00:00:00 2001
+From: Miaoqian Lin <linmq006@gmail.com>
+Date: Tue, 6 Dec 2022 12:17:31 +0400
+Subject: [PATCH] usb: dwc3: qcom: Fix memory leak in
+ dwc3_qcom_interconnect_init
 
-dwc->desired_dr_role is changed by dwc3_set_mode inside a spinlock but
-then read by __dwc3_set_mode outside of that lock. This can lead to a
-race condition when very quick successive role switch events happen:
+of_icc_get() alloc resources for path handle, we should release it when not
+need anymore. Like the release in dwc3_qcom_interconnect_exit() function.
+Add icc_put() in error handling to fix this.
 
-CPU A
-	dwc3_set_mode(DWC3_GCTL_PRTCAP_HOST) // first role switch event
-		spin_lock_irqsave(&dwc->lock, flags);
-		dwc->desired_dr_role = mode; // DWC3_GCTL_PRTCAP_HOST
-		spin_unlock_irqrestore(&dwc->lock, flags);
-		queue_work(system_freezable_wq, &dwc->drd_work);
-
-CPU B
-	__dwc3_set_mode
-		// ....
-		spin_lock_irqsave(&dwc->lock, flags);
-		// desired_dr_role is DWC3_GCTL_PRTCAP_HOST
-		dwc3_set_prtcap(dwc, dwc->desired_dr_role);
-		spin_unlock_irqrestore(&dwc->lock, flags);
-
-CPU A
-	dwc3_set_mode(DWC3_GCTL_PRTCAP_DEVICE) // second event
-		spin_lock_irqsave(&dwc->lock, flags);
-		dwc->desired_dr_role = mode; // DWC3_GCTL_PRTCAP_DEVICE
-		spin_unlock_irqrestore(&dwc->lock, flags);
-
-CPU B (continues running __dwc3_set_mode)
-	switch (dwc->desired_dr_role) { // DWC3_GCTL_PRTCAP_DEVICE
-	// ....
-	case DWC3_GCTL_PRTCAP_DEVICE:
-		// ....
-		ret = dwc3_gadget_init(dwc);
-
-We then have DWC3_GCTL.DWC3_GCTL_PRTCAPDIR = DWC3_GCTL_PRTCAP_HOST and
-dwc->current_dr_role = DWC3_GCTL_PRTCAP_HOST but initialized the
-controller in device mode. It's also possible to get into a state
-where both host and device are intialized at the same time.
-Fix this race by creating a local copy of desired_dr_role inside
-__dwc3_set_mode while holding dwc->lock.
-
-Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work properly")
+Fixes: bea46b981515 ("usb: dwc3: qcom: Add interconnect support in dwc3 driver")
 Cc: stable <stable@kernel.org>
 Acked-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Signed-off-by: Sven Peter <sven@svenpeter.dev>
-Link: https://lore.kernel.org/r/20221128161526.79730-1-sven@svenpeter.dev
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20221206081731.818107-1-linmq006@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
-index 1f348bc867c2..fc38a8b13efa 100644
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -122,21 +122,25 @@ static void __dwc3_set_mode(struct work_struct *work)
- 	unsigned long flags;
- 	int ret;
- 	u32 reg;
-+	u32 desired_dr_role;
+diff --git a/drivers/usb/dwc3/dwc3-qcom.c b/drivers/usb/dwc3/dwc3-qcom.c
+index 7c40f3ffc054..b0a0351d2d8b 100644
+--- a/drivers/usb/dwc3/dwc3-qcom.c
++++ b/drivers/usb/dwc3/dwc3-qcom.c
+@@ -261,7 +261,8 @@ static int dwc3_qcom_interconnect_init(struct dwc3_qcom *qcom)
+ 	if (IS_ERR(qcom->icc_path_apps)) {
+ 		dev_err(dev, "failed to get apps-usb path: %ld\n",
+ 				PTR_ERR(qcom->icc_path_apps));
+-		return PTR_ERR(qcom->icc_path_apps);
++		ret = PTR_ERR(qcom->icc_path_apps);
++		goto put_path_ddr;
+ 	}
  
- 	mutex_lock(&dwc->mutex);
-+	spin_lock_irqsave(&dwc->lock, flags);
-+	desired_dr_role = dwc->desired_dr_role;
-+	spin_unlock_irqrestore(&dwc->lock, flags);
+ 	max_speed = usb_get_maximum_speed(&qcom->dwc3->dev);
+@@ -274,16 +275,22 @@ static int dwc3_qcom_interconnect_init(struct dwc3_qcom *qcom)
+ 	}
+ 	if (ret) {
+ 		dev_err(dev, "failed to set bandwidth for usb-ddr path: %d\n", ret);
+-		return ret;
++		goto put_path_apps;
+ 	}
  
- 	pm_runtime_get_sync(dwc->dev);
+ 	ret = icc_set_bw(qcom->icc_path_apps, APPS_USB_AVG_BW, APPS_USB_PEAK_BW);
+ 	if (ret) {
+ 		dev_err(dev, "failed to set bandwidth for apps-usb path: %d\n", ret);
+-		return ret;
++		goto put_path_apps;
+ 	}
  
- 	if (dwc->current_dr_role == DWC3_GCTL_PRTCAP_OTG)
- 		dwc3_otg_update(dwc, 0);
+ 	return 0;
++
++put_path_apps:
++	icc_put(qcom->icc_path_apps);
++put_path_ddr:
++	icc_put(qcom->icc_path_ddr);
++	return ret;
+ }
  
--	if (!dwc->desired_dr_role)
-+	if (!desired_dr_role)
- 		goto out;
- 
--	if (dwc->desired_dr_role == dwc->current_dr_role)
-+	if (desired_dr_role == dwc->current_dr_role)
- 		goto out;
- 
--	if (dwc->desired_dr_role == DWC3_GCTL_PRTCAP_OTG && dwc->edev)
-+	if (desired_dr_role == DWC3_GCTL_PRTCAP_OTG && dwc->edev)
- 		goto out;
- 
- 	switch (dwc->current_dr_role) {
-@@ -164,7 +168,7 @@ static void __dwc3_set_mode(struct work_struct *work)
- 	 */
- 	if (dwc->current_dr_role && ((DWC3_IP_IS(DWC3) ||
- 			DWC3_VER_IS_PRIOR(DWC31, 190A)) &&
--			dwc->desired_dr_role != DWC3_GCTL_PRTCAP_OTG)) {
-+			desired_dr_role != DWC3_GCTL_PRTCAP_OTG)) {
- 		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
- 		reg |= DWC3_GCTL_CORESOFTRESET;
- 		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
-@@ -184,11 +188,11 @@ static void __dwc3_set_mode(struct work_struct *work)
- 
- 	spin_lock_irqsave(&dwc->lock, flags);
- 
--	dwc3_set_prtcap(dwc, dwc->desired_dr_role);
-+	dwc3_set_prtcap(dwc, desired_dr_role);
- 
- 	spin_unlock_irqrestore(&dwc->lock, flags);
- 
--	switch (dwc->desired_dr_role) {
-+	switch (desired_dr_role) {
- 	case DWC3_GCTL_PRTCAP_HOST:
- 		ret = dwc3_host_init(dwc);
- 		if (ret) {
+ /**
 
