@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FFF6657937
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:59:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AA40657A9F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:13:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233345AbiL1O7C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:59:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45466 "EHLO
+        id S233066AbiL1PNp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:13:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233429AbiL1O6m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:58:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1929312744
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:58:42 -0800 (PST)
+        with ESMTP id S233101AbiL1PNU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:13:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B558313EA8
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:12:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0095B8171A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:58:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A69BC433D2;
-        Wed, 28 Dec 2022 14:58:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5291761551
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:12:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 627B8C433D2;
+        Wed, 28 Dec 2022 15:12:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239519;
-        bh=+Y2k4XNb1phLqqeVeTe/06TPXKKCp5VXlH2m2UFDNVk=;
+        s=korg; t=1672240377;
+        bh=Qnz2Q2W1D4s7Im2sMTjlrRPEJ7DyXob3fGrWZMetkvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R0gjXlFOhAII+XO1dsXHn090G/ZRkFN8T7EH0M4fV7VOg/ZG8NqhNz7jRHgM8MYhn
-         a13L8NDYqiD2FY4Sqhl9uGGcc+EaQKmP5y1aXetw/NLxQG5C9Gs6OEa23qfcnMkmkP
-         EhN00EUy2jNbwqVFX7XlNi5QBGCrbHww+HiWwd/w=
+        b=Nfsdg2FrCRBoGxEkfo++OndEJsJI/f89/dKOyb/OXreoroXulxb5ZfxYMFl55tNBB
+         YQTnBD9fOUy8etCSaIcwj6u//oxIhKfixV82yTP2UiHHkiw524lHK3on2Msuvfd+AU
+         /oSACVKZ3DhstbMokvfUKajLET+SPHcwmPAk+Y20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0045/1073] arm64: dts: renesas: r9a09g011: Fix unit address format error
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Yicong Yang <yangyicong@hisilicon.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0094/1146] drivers/perf: hisi: Fix some event id for hisi-pcie-pmu
 Date:   Wed, 28 Dec 2022 15:27:13 +0100
-Message-Id: <20221228144329.346677509@linuxfoundation.org>
+Message-Id: <20221228144332.696298975@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrizio Castro <fabrizio.castro.jz@renesas.com>
+From: Yicong Yang <yangyicong@hisilicon.com>
 
-[ Upstream commit 278f5015a3deaa2ea0db6070bbc2a8edf2455643 ]
+[ Upstream commit 6b4bb4f38dbfe85247f006f06135ba46450d5bf0 ]
 
-Although the HW User Manual for RZ/V2M states in the "Address Map"
-section that the interrupt controller is assigned addresses starting
-from 0x82000000, the memory locations from 0x82000000 0x0x8200FFFF
-are marked as reserved in the "Interrupt Controller (GIC)" section
-and are currently not used by the device tree, leading to the below
-warning:
+Some event id of hisi-pcie-pmu is incorrect, fix them.
 
-arch/arm64/boot/dts/renesas/r9a09g011.dtsi:51.38-63.5: Warning
-(simple_bus_reg): /soc/interrupt-controller@82000000: simple-bus unit
-address format error, expected "82010000"
-
-Fix the unit address accordingly.
-
-Fixes: fb1929b98f2e ("arm64: dts: renesas: Add initial DTSI for RZ/V2M SoC")
-Signed-off-by: Fabrizio Castro <fabrizio.castro.jz@renesas.com>
-Link: https://lore.kernel.org/r/20221103230648.53748-2-fabrizio.castro.jz@renesas.com
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Fixes: 8404b0fbc7fb ("drivers/perf: hisi: Add driver for HiSilicon PCIe PMU")
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+Link: https://lore.kernel.org/r/20221117084136.53572-2-yangyicong@huawei.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/renesas/r9a09g011.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/perf/hisilicon/hisi_pcie_pmu.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r9a09g011.dtsi b/arch/arm64/boot/dts/renesas/r9a09g011.dtsi
-index d4cc5459fbb7..4ce0f3944649 100644
---- a/arch/arm64/boot/dts/renesas/r9a09g011.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r9a09g011.dtsi
-@@ -48,7 +48,7 @@ soc: soc {
- 		#size-cells = <2>;
- 		ranges;
+diff --git a/drivers/perf/hisilicon/hisi_pcie_pmu.c b/drivers/perf/hisilicon/hisi_pcie_pmu.c
+index 21771708597d..071e63d9a9ac 100644
+--- a/drivers/perf/hisilicon/hisi_pcie_pmu.c
++++ b/drivers/perf/hisilicon/hisi_pcie_pmu.c
+@@ -693,10 +693,10 @@ static struct attribute *hisi_pcie_pmu_events_attr[] = {
+ 	HISI_PCIE_PMU_EVENT_ATTR(rx_mrd_cnt, 0x10210),
+ 	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_latency, 0x0011),
+ 	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_cnt, 0x10011),
+-	HISI_PCIE_PMU_EVENT_ATTR(rx_mrd_flux, 0x1005),
+-	HISI_PCIE_PMU_EVENT_ATTR(rx_mrd_time, 0x11005),
+-	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_flux, 0x2004),
+-	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_time, 0x12004),
++	HISI_PCIE_PMU_EVENT_ATTR(rx_mrd_flux, 0x0804),
++	HISI_PCIE_PMU_EVENT_ATTR(rx_mrd_time, 0x10804),
++	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_flux, 0x0405),
++	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_time, 0x10405),
+ 	NULL
+ };
  
--		gic: interrupt-controller@82000000 {
-+		gic: interrupt-controller@82010000 {
- 			compatible = "arm,gic-400";
- 			#interrupt-cells = <3>;
- 			#address-cells = <0>;
 -- 
 2.35.1
 
