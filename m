@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0396657F80
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:05:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E440657E02
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:49:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233169AbiL1QFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:05:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52244 "EHLO
+        id S233627AbiL1PtI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:49:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234326AbiL1QFc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:05:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B335F192BC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:05:31 -0800 (PST)
+        with ESMTP id S233641AbiL1PtH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:49:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A913418391
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:49:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 502896156E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:05:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 606DFC433D2;
-        Wed, 28 Dec 2022 16:05:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 61BFEB81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:49:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA224C433F2;
+        Wed, 28 Dec 2022 15:49:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243530;
-        bh=EFWRYaa315ZcgWkEslmF75YPQc+EnqURzZtIM6eliqw=;
+        s=korg; t=1672242544;
+        bh=i+rZrYsQF5L/j/g4JaaIbpwtUzmf4qv55bP3vVOFMHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k/vhhTSZwUllp7c51gWGq/DXRWtn5B9403o6DHVkpKsh66wxDfX0DgzXBTflc/epb
-         /2gTP53N0t9fJMbOpJGm/36kJsaQ2GAptFz8cOcbNwoMZtxgCIYpfUm65ecdZuPtwu
-         8fyLn4wYeH6SddMtU/butTKsE9sA0LEMdUCONnv4=
+        b=AT7GtYF/BZMyFgIHKP1xtVWp9hWJppdc5MpwB28T67mo1j9mVynDXRe6VoEPshjGT
+         WaE0nbUDaqgNo2gPaj2ICzvWfPGpgpynpnY3L9Jn2kqyKbfrcb+XYRNEQLdKFk3vmi
+         QdmzPJV102W6tjUInNl4efiXzz0tK/8c+X0mtI2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Jakub Kicinski <kuba@kernel.org>,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0471/1146] hsr: Avoid double remove of a node.
+Subject: [PATCH 6.0 0422/1073] drm/radeon: Fix PCI device refcount leak in radeon_atrm_get_bios()
 Date:   Wed, 28 Dec 2022 15:33:30 +0100
-Message-Id: <20221228144342.976664555@linuxfoundation.org>
+Message-Id: <20221228144339.484974998@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,83 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 0c74d9f79ec4299365bbe803baa736ae0068179e ]
+[ Upstream commit 725a521a18734f65de05b8d353b5bd0d3ca4c37a ]
 
-Due to the hashed-MAC optimisation one problem become visible:
-hsr_handle_sup_frame() walks over the list of available nodes and merges
-two node entries into one if based on the information in the supervision
-both MAC addresses belong to one node. The list-walk happens on a RCU
-protected list and delete operation happens under a lock.
+As comment of pci_get_class() says, it returns a pci_device with its
+refcount increased and decreased the refcount for the input parameter
+@from if it is not NULL.
 
-If the supervision arrives on both slave interfaces at the same time
-then this delete operation can occur simultaneously on two CPUs. The
-result is the first-CPU deletes the from the list and the second CPUs
-BUGs while attempting to dereference a poisoned list-entry. This happens
-more likely with the optimisation because a new node for the mac_B entry
-is created once a packet has been received and removed (merged) once the
-supervision frame has been received.
+If we break the loop in radeon_atrm_get_bios() with 'pdev' not NULL, we
+need to call pci_dev_put() to decrease the refcount. Add the missing
+pci_dev_put() to avoid refcount leak.
 
-Avoid removing/ cleaning up a hsr_node twice by adding a `removed' field
-which is set to true after the removal and checked before the removal.
-
-Fixes: f266a683a4804 ("net/hsr: Better frame dispatch")
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: d8ade3526b2a ("drm/radeon: handle non-VGA class pci devices with ATRM")
+Fixes: c61e2775873f ("drm/radeon: split ATRM support out from the ATPX handler (v3)")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/hsr/hsr_framereg.c | 16 +++++++++++-----
- net/hsr/hsr_framereg.h |  1 +
- 2 files changed, 12 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/radeon/radeon_bios.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/hsr/hsr_framereg.c b/net/hsr/hsr_framereg.c
-index 9b8eaebce254..f2dd846ff903 100644
---- a/net/hsr/hsr_framereg.c
-+++ b/net/hsr/hsr_framereg.c
-@@ -366,9 +366,12 @@ void hsr_handle_sup_frame(struct hsr_frame_info *frame)
- 	node_real->addr_B_port = port_rcv->type;
+diff --git a/drivers/gpu/drm/radeon/radeon_bios.c b/drivers/gpu/drm/radeon/radeon_bios.c
+index 1d99c9a2b56e..63bdc9f6fc24 100644
+--- a/drivers/gpu/drm/radeon/radeon_bios.c
++++ b/drivers/gpu/drm/radeon/radeon_bios.c
+@@ -227,6 +227,7 @@ static bool radeon_atrm_get_bios(struct radeon_device *rdev)
  
- 	spin_lock_bh(&hsr->list_lock);
--	list_del_rcu(&node_curr->mac_list);
-+	if (!node_curr->removed) {
-+		list_del_rcu(&node_curr->mac_list);
-+		node_curr->removed = true;
-+		kfree_rcu(node_curr, rcu_head);
-+	}
- 	spin_unlock_bh(&hsr->list_lock);
--	kfree_rcu(node_curr, rcu_head);
+ 	if (!found)
+ 		return false;
++	pci_dev_put(pdev);
  
- done:
- 	/* Push back here */
-@@ -539,9 +542,12 @@ void hsr_prune_nodes(struct timer_list *t)
- 		if (time_is_before_jiffies(timestamp +
- 				msecs_to_jiffies(HSR_NODE_FORGET_TIME))) {
- 			hsr_nl_nodedown(hsr, node->macaddress_A);
--			list_del_rcu(&node->mac_list);
--			/* Note that we need to free this entry later: */
--			kfree_rcu(node, rcu_head);
-+			if (!node->removed) {
-+				list_del_rcu(&node->mac_list);
-+				node->removed = true;
-+				/* Note that we need to free this entry later: */
-+				kfree_rcu(node, rcu_head);
-+			}
- 		}
- 	}
- 	spin_unlock_bh(&hsr->list_lock);
-diff --git a/net/hsr/hsr_framereg.h b/net/hsr/hsr_framereg.h
-index bdbb8c822ba1..b5f902397bf1 100644
---- a/net/hsr/hsr_framereg.h
-+++ b/net/hsr/hsr_framereg.h
-@@ -80,6 +80,7 @@ struct hsr_node {
- 	bool			san_a;
- 	bool			san_b;
- 	u16			seq_out[HSR_PT_PORTS];
-+	bool			removed;
- 	struct rcu_head		rcu_head;
- };
- 
+ 	rdev->bios = kmalloc(size, GFP_KERNEL);
+ 	if (!rdev->bios) {
 -- 
 2.35.1
 
