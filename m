@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC3B46578E4
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:55:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F2FF65801E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:14:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233252AbiL1Oze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:55:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42390 "EHLO
+        id S234535AbiL1QOG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:14:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233333AbiL1OzU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:55:20 -0500
+        with ESMTP id S233166AbiL1QNi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:13:38 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1D0511C12
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:55:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 903411AD8B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:11:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D8E2614B2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:55:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FE76C433D2;
-        Wed, 28 Dec 2022 14:55:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DA6E6157B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:11:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F8EFC433D2;
+        Wed, 28 Dec 2022 16:11:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239318;
-        bh=qxLfL6PH5BE+u79vv6Z/BWgrGcpUHMtSMSXtG1UgYZc=;
+        s=korg; t=1672243904;
+        bh=cX+wMTyhYScw4iy2M8vV03P9zVumoBhGCoBlIjXFqiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e6hS+SWoovWiuJgZsQtBXIYD5ZuYjLaW7FzZmZJhgZiBPHQqfWljFQL50vuwQOgWo
-         011FarFjUbznz2NlrDzUyR/A+kp6Obwg3dgIUMPhu26AeGB/9LhJUMxPAnnNB5ZNAW
-         LpL5KP76sLF1Z3/zuNbnEk+JK4jq7EJxMXMiWSvU=
+        b=lWxg5B/ODratJ6344vsaY1oZQ0moxd7I6bLZ2J7Ey/xGGkNZCQ4EP8viOG4WW0nxx
+         flFNDlzFUPnvY+AJ8bS36Pnc+oEdFT8uMe7yEWVTwkJ2yRzWou+HDFFa1ggK+SYm+p
+         581eMxp+DrabzNTWYS6TH65Z1GXRC88v/LZwELiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, GUO Zihua <guozihua@huawei.com>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        patches@lists.linux.dev, kernel test robot <oliver.sang@intel.com>,
+        Richard Gobert <richardbgobert@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 176/731] ima: Handle -ESTALE returned by ima_filter_rule_match()
+Subject: [PATCH 6.1 0544/1146] net: setsockopt: fix IPV6_UNICAST_IF option for connected sockets
 Date:   Wed, 28 Dec 2022 15:34:43 +0100
-Message-Id: <20221228144301.664603430@linuxfoundation.org>
+Message-Id: <20221228144344.949648745@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,112 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: GUO Zihua <guozihua@huawei.com>
+From: Richard Gobert <richardbgobert@gmail.com>
 
-[ Upstream commit c7423dbdbc9ecef7fff5239d144cad4b9887f4de ]
+[ Upstream commit 526682b458b1b56d2e0db027df535cb5cdcfde59 ]
 
-IMA relies on the blocking LSM policy notifier callback to update the
-LSM based IMA policy rules.
+Change the behaviour of ip6_datagram_connect to consider the interface
+set by the IPV6_UNICAST_IF socket option, similarly to udpv6_sendmsg.
 
-When SELinux update its policies, IMA would be notified and starts
-updating all its lsm rules one-by-one. During this time, -ESTALE would
-be returned by ima_filter_rule_match() if it is called with a LSM rule
-that has not yet been updated. In ima_match_rules(), -ESTALE is not
-handled, and the LSM rule is considered a match, causing extra files
-to be measured by IMA.
+This change is the IPv6 counterpart of the fix for IP_UNICAST_IF.
+The tests introduced by that patch showed that the incorrect
+behavior is present in IPv6 as well.
+This patch fixes the broken test.
 
-Fix it by re-initializing a temporary rule if -ESTALE is returned by
-ima_filter_rule_match(). The origin rule in the rule list would be
-updated by the LSM policy notifier callback.
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Link: https://lore.kernel.org/r/202210062117.c7eef1a3-oliver.sang@intel.com
+Fixes: 0e4d354762ce ("net-next: Fix IP_UNICAST_IF option behavior for connected sockets")
 
-Fixes: b16942455193 ("ima: use the lsm policy update notifier")
-Signed-off-by: GUO Zihua <guozihua@huawei.com>
-Reviewed-by: Roberto Sassu <roberto.sassu@huawei.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Richard Gobert <richardbgobert@gmail.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_policy.c | 41 ++++++++++++++++++++++-------
- 1 file changed, 32 insertions(+), 9 deletions(-)
+ net/ipv6/datagram.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index 748b97a2582a..844d69f6ac00 100644
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -542,6 +542,9 @@ static bool ima_match_rules(struct ima_rule_entry *rule,
- 			    const char *func_data)
+diff --git a/net/ipv6/datagram.c b/net/ipv6/datagram.c
+index 5ecb56522f9d..ba28aeb7cade 100644
+--- a/net/ipv6/datagram.c
++++ b/net/ipv6/datagram.c
+@@ -42,24 +42,29 @@ static void ip6_datagram_flow_key_init(struct flowi6 *fl6, struct sock *sk)
  {
- 	int i;
-+	bool result = false;
-+	struct ima_rule_entry *lsm_rule = rule;
-+	bool rule_reinitialized = false;
+ 	struct inet_sock *inet = inet_sk(sk);
+ 	struct ipv6_pinfo *np = inet6_sk(sk);
++	int oif = sk->sk_bound_dev_if;
  
- 	if ((rule->flags & IMA_FUNC) &&
- 	    (rule->func != func && func != POST_SETATTR))
-@@ -590,35 +593,55 @@ static bool ima_match_rules(struct ima_rule_entry *rule,
- 		int rc = 0;
- 		u32 osid;
+ 	memset(fl6, 0, sizeof(*fl6));
+ 	fl6->flowi6_proto = sk->sk_protocol;
+ 	fl6->daddr = sk->sk_v6_daddr;
+ 	fl6->saddr = np->saddr;
+-	fl6->flowi6_oif = sk->sk_bound_dev_if;
+ 	fl6->flowi6_mark = sk->sk_mark;
+ 	fl6->fl6_dport = inet->inet_dport;
+ 	fl6->fl6_sport = inet->inet_sport;
+ 	fl6->flowlabel = np->flow_label;
+ 	fl6->flowi6_uid = sk->sk_uid;
  
--		if (!rule->lsm[i].rule) {
--			if (!rule->lsm[i].args_p)
-+		if (!lsm_rule->lsm[i].rule) {
-+			if (!lsm_rule->lsm[i].args_p)
- 				continue;
- 			else
- 				return false;
- 		}
-+
-+retry:
- 		switch (i) {
- 		case LSM_OBJ_USER:
- 		case LSM_OBJ_ROLE:
- 		case LSM_OBJ_TYPE:
- 			security_inode_getsecid(inode, &osid);
--			rc = ima_filter_rule_match(osid, rule->lsm[i].type,
-+			rc = ima_filter_rule_match(osid, lsm_rule->lsm[i].type,
- 						   Audit_equal,
--						   rule->lsm[i].rule);
-+						   lsm_rule->lsm[i].rule);
- 			break;
- 		case LSM_SUBJ_USER:
- 		case LSM_SUBJ_ROLE:
- 		case LSM_SUBJ_TYPE:
--			rc = ima_filter_rule_match(secid, rule->lsm[i].type,
-+			rc = ima_filter_rule_match(secid, lsm_rule->lsm[i].type,
- 						   Audit_equal,
--						   rule->lsm[i].rule);
-+						   lsm_rule->lsm[i].rule);
- 			break;
- 		default:
- 			break;
- 		}
--		if (!rc)
--			return false;
-+
-+		if (rc == -ESTALE && !rule_reinitialized) {
-+			lsm_rule = ima_lsm_copy_rule(rule);
-+			if (lsm_rule) {
-+				rule_reinitialized = true;
-+				goto retry;
-+			}
-+		}
-+		if (!rc) {
-+			result = false;
-+			goto out;
-+		}
- 	}
--	return true;
-+	result = true;
-+
-+out:
-+	if (rule_reinitialized) {
-+		for (i = 0; i < MAX_LSM_RULES; i++)
-+			ima_filter_rule_free(lsm_rule->lsm[i].rule);
-+		kfree(lsm_rule);
+-	if (!fl6->flowi6_oif)
+-		fl6->flowi6_oif = np->sticky_pktinfo.ipi6_ifindex;
++	if (!oif)
++		oif = np->sticky_pktinfo.ipi6_ifindex;
+ 
+-	if (!fl6->flowi6_oif && ipv6_addr_is_multicast(&fl6->daddr))
+-		fl6->flowi6_oif = np->mcast_oif;
++	if (!oif) {
++		if (ipv6_addr_is_multicast(&fl6->daddr))
++			oif = np->mcast_oif;
++		else
++			oif = np->ucast_oif;
 +	}
-+	return result;
+ 
++	fl6->flowi6_oif = oif;
+ 	security_sk_classify_flow(sk, flowi6_to_flowi_common(fl6));
  }
  
- /*
 -- 
 2.35.1
 
