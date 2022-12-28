@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7830657AC1
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:14:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5C01657BDA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:27:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232845AbiL1POr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:14:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59650 "EHLO
+        id S233365AbiL1P0p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:26:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232871AbiL1POb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:14:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4243913E39
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:14:30 -0800 (PST)
+        with ESMTP id S233864AbiL1PZ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:25:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34EE413F71
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:25:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5D15B81647
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:14:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5446EC433D2;
-        Wed, 28 Dec 2022 15:14:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4259B8170E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:25:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CC41C433EF;
+        Wed, 28 Dec 2022 15:25:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240467;
-        bh=tm0898h3WOXG6oC8J3n1LMoBFSGJE7ZJ/sWPjZclCxA=;
+        s=korg; t=1672241151;
+        bh=2qceR9AcN3nFhGHT2+Op9iWgbpDKsdi52uZZXhTeoE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XIGqxiD4UxqJh4/6L0JlfZmzuf30n35scd3lXgbOmHLIJaVKrGBIiHoQ78HHhT6DT
-         qz4YkpxYlvUad1khGkiXdR5GBkI4uzh47LTnV0RWBq4JwBy3TTKCmY3CllwXsSQNpd
-         aamqdQyw1ue9gOOcn7nzGMKkAYWeM8qv2iao9tQA=
+        b=hnm7gKl1g/Cq0BdIVk7KV+EOEG/+u1gZcks+zvsgoRcHXR/7AV4itHVDRV3p3LDHK
+         ZGiGkPnlCw26DKeAu0RvojYdG7aEqWGdMG4TlHfibkfTOxkYr3d9vOqFZGQsBTcQrO
+         O028eVQRtOE/QoMt62lMNPVU2fgihXl4JYRZjjwE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
+        patches@lists.linux.dev, Shung-Hsi Yu <shung-hsi.yu@suse.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0164/1073] xen/privcmd: Fix a possible warning in privcmd_ioctl_mmap_resource()
+Subject: [PATCH 6.1 0213/1146] libbpf: Fix null-pointer dereference in find_prog_by_sec_insn()
 Date:   Wed, 28 Dec 2022 15:29:12 +0100
-Message-Id: <20221228144332.471103748@linuxfoundation.org>
+Message-Id: <20221228144335.932302242@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+From: Shung-Hsi Yu <shung-hsi.yu@suse.com>
 
-[ Upstream commit 8b997b2bb2c53b76a6db6c195930e9ab8e4b0c79 ]
+[ Upstream commit d0d382f95a9270dcf803539d6781d6bd67e3f5b2 ]
 
-As 'kdata.num' is user-controlled data, if user tries to allocate
-memory larger than(>=) MAX_ORDER, then kcalloc() will fail, it
-creates a stack trace and messes up dmesg with a warning.
+When there are no program sections, obj->programs is left unallocated,
+and find_prog_by_sec_insn()'s search lands on &obj->programs[0] == NULL,
+and will cause null-pointer dereference in the following access to
+prog->sec_idx.
 
-Call trace:
--> privcmd_ioctl
---> privcmd_ioctl_mmap_resource
+Guard the search with obj->nr_programs similar to what's being done in
+__bpf_program__iter() to prevent null-pointer access from happening.
 
-Add __GFP_NOWARN in order to avoid too large allocation warning.
-This is detected by static analysis using smatch.
-
-Fixes: 3ad0876554ca ("xen/privcmd: add IOCTL_PRIVCMD_MMAP_RESOURCE")
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20221126050745.778967-1-harshit.m.mogalapalli@oracle.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixes: db2b8b06423c ("libbpf: Support CO-RE relocations for multi-prog sections")
+Signed-off-by: Shung-Hsi Yu <shung-hsi.yu@suse.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20221012022353.7350-4-shung-hsi.yu@suse.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/privcmd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/lib/bpf/libbpf.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/xen/privcmd.c b/drivers/xen/privcmd.c
-index e88e8f6f0a33..719c5d1dda27 100644
---- a/drivers/xen/privcmd.c
-+++ b/drivers/xen/privcmd.c
-@@ -760,7 +760,7 @@ static long privcmd_ioctl_mmap_resource(struct file *file,
- 		goto out;
- 	}
+diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
+index a0d3cc39ea73..b9a29d105376 100644
+--- a/tools/lib/bpf/libbpf.c
++++ b/tools/lib/bpf/libbpf.c
+@@ -4115,6 +4115,9 @@ static struct bpf_program *find_prog_by_sec_insn(const struct bpf_object *obj,
+ 	int l = 0, r = obj->nr_programs - 1, m;
+ 	struct bpf_program *prog;
  
--	pfns = kcalloc(kdata.num, sizeof(*pfns), GFP_KERNEL);
-+	pfns = kcalloc(kdata.num, sizeof(*pfns), GFP_KERNEL | __GFP_NOWARN);
- 	if (!pfns) {
- 		rc = -ENOMEM;
- 		goto out;
++	if (!obj->nr_programs)
++		return NULL;
++
+ 	while (l < r) {
+ 		m = l + (r - l + 1) / 2;
+ 		prog = &obj->programs[m];
 -- 
 2.35.1
 
