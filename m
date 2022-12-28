@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF29B657A4E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:10:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F97B658128
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233663AbiL1PKI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:10:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56940 "EHLO
+        id S234776AbiL1QZW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:25:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233690AbiL1PJk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:09:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3892913E02
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:09:40 -0800 (PST)
+        with ESMTP id S234816AbiL1QY2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:24:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6469019C24
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:22:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C9E8961544
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:09:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB03AC433EF;
-        Wed, 28 Dec 2022 15:09:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EFD8461577
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:21:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B95DC433EF;
+        Wed, 28 Dec 2022 16:21:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240179;
-        bh=095ijK6dK7KGR4GzKlhZPUj70DOD/SG3NIiDCIcRLxA=;
+        s=korg; t=1672244519;
+        bh=UBiYZJQflnrX/ugP/38MqKoZqY7opr3fP4vuNNpSoPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RI2iibT1WciIPB+mlQd6ZviMXAXqow/Yr67oyWCMTYzTyY2xGUzF3ph7G8TTMArnO
-         O2JAFNyk3TFzcq/oqPjxYU1cI886iUcvQyAoDfwLeHXJsTYIaEj/8iDOe4RhoEX0R5
-         FVQ++tZy3h4Sjw4rXQH47nnSPaBL7K80R8BqSccY=
+        b=oA0+s3IfGHqtk62ZWAmfpMcHMQ0kc6VA1D8EfwFGLbyaH8+fYZijcp156XfBun+Kc
+         hGTisdMgS2rDuyB6NJnCnliMnM5Ksk0ApoROkEArvbr/f6soMHQp3goY2MuN8leqAO
+         yZZenqRtWSLWW3zHiHVJ8FA7OTzYzMVnmpbvHtdU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
-        Arend van Spriel <arend.vanspriel@broadcom.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 318/731] wifi: brcmfmac: Fix error return code in brcmf_sdio_download_firmware()
-Date:   Wed, 28 Dec 2022 15:37:05 +0100
-Message-Id: <20221228144305.793892306@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0687/1146] drivers: dio: fix possible memory leak in dio_init()
+Date:   Wed, 28 Dec 2022 15:37:06 +0100
+Message-Id: <20221228144348.802352627@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit c2f2924bc7f9ea75ef8d95863e710168f8196256 ]
+[ Upstream commit e63e99397b2613d50a5f4f02ed07307e67a190f1 ]
 
-Fix to return a negative error code instead of 0 when
-brcmf_chip_set_active() fails. In addition, change the return
-value for brcmf_pcie_exit_download_state() to keep consistent.
+If device_register() returns error, the 'dev' and name needs be
+freed. Add a release function, and then call put_device() in the
+error path, so the name is freed in kobject_cleanup() and to the
+'dev' is freed in release function.
 
-Fixes: d380ebc9b6fb ("brcmfmac: rename chip download functions")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/1669959342-27144-1-git-send-email-wangyufen@huawei.com
+Fixes: 2e4c77bea3d8 ("m68k: dio - Kill warn_unused_result warnings")
+Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221109064036.1835346-1-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c | 2 +-
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/dio/dio.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-index 3ff4997e1c97..358021a33b8a 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-@@ -626,7 +626,7 @@ static int brcmf_pcie_exit_download_state(struct brcmf_pciedev_info *devinfo,
- 	}
+diff --git a/drivers/dio/dio.c b/drivers/dio/dio.c
+index 0e5a5662d5a4..0a051d656880 100644
+--- a/drivers/dio/dio.c
++++ b/drivers/dio/dio.c
+@@ -109,6 +109,12 @@ static char dio_no_name[] = { 0 };
  
- 	if (!brcmf_chip_set_active(devinfo->ci, resetintr))
--		return -EINVAL;
-+		return -EIO;
- 	return 0;
- }
+ #endif /* CONFIG_DIO_CONSTANTS */
  
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-index f7961b22e051..5006aa831751 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-@@ -3411,6 +3411,7 @@ static int brcmf_sdio_download_firmware(struct brcmf_sdio *bus,
- 	/* Take arm out of reset */
- 	if (!brcmf_chip_set_active(bus->ci, rstvec)) {
- 		brcmf_err("error getting out of ARM core reset\n");
-+		bcmerror = -EIO;
- 		goto err;
- 	}
- 
++static void dio_dev_release(struct device *dev)
++{
++	struct dio_dev *ddev = container_of(dev, typeof(struct dio_dev), dev);
++	kfree(ddev);
++}
++
+ int __init dio_find(int deviceid)
+ {
+ 	/* Called to find a DIO device before the full bus scan has run.
+@@ -225,6 +231,7 @@ static int __init dio_init(void)
+ 		dev->bus = &dio_bus;
+ 		dev->dev.parent = &dio_bus.dev;
+ 		dev->dev.bus = &dio_bus_type;
++		dev->dev.release = dio_dev_release;
+ 		dev->scode = scode;
+ 		dev->resource.start = pa;
+ 		dev->resource.end = pa + DIO_SIZE(scode, va);
+@@ -252,6 +259,7 @@ static int __init dio_init(void)
+ 		if (error) {
+ 			pr_err("DIO: Error registering device %s\n",
+ 			       dev->name);
++			put_device(&dev->dev);
+ 			continue;
+ 		}
+ 		error = dio_create_sysfs_dev_files(dev);
 -- 
 2.35.1
 
