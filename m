@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED8D0658108
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3F876581E8
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:32:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231327AbiL1QYg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:24:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43156 "EHLO
+        id S234811AbiL1QcU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:32:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234730AbiL1QXa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:23:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 238DC1C410
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:20:34 -0800 (PST)
+        with ESMTP id S233711AbiL1Qbu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:31:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 310EEB30
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:28:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B002161568
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:20:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C41C2C433D2;
-        Wed, 28 Dec 2022 16:20:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C026DB81717
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:28:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18A96C433D2;
+        Wed, 28 Dec 2022 16:28:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244433;
-        bh=+bIk7tjtpkCEUlTW6HpqU00Mn2Wm+piJqHLtGfLD+A8=;
+        s=korg; t=1672244898;
+        bh=MtJxME0daBU8mxhlgoTcfsB+TZFPAlcvqI2POhUuFIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kLEarbVaqqLC6yj0camWivh8BpOyXmdQqHjNKMChbjJqKeEZ+IMREwwaKK58ANsuA
-         K5oYLHOZ4am2Vl0C2SjPL6LmXLXBYDm8IQ9q04kQjCZA4+abAZgZ62vsBSHx2G7itH
-         z7qGeSCrJxM1YghtWtXqndNbwSUeo1OI1/qCq8hw=
+        b=NP6b/ZYRJ3CSbdPUWUpMp8DDv0tVc+SKA2h9rvfwyn83JxVF58ogvdHfGTRaWYsGc
+         EozlR9bI24NEurBu4rVqda0TgHwA6OsA2IQ+EHuX6Vulf88vHlr0HYzP2nmXkzluTF
+         UnyLi0tBeCsWgMOJg6zMdKWgbQkIk0uV2+6SCHT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Johannes Thumshirn <jth@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0709/1073] drivers: mcb: fix resource leak in mcb_probe()
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0758/1146] fbdev: ep93xx-fb: Add missing clk_disable_unprepare in ep93xxfb_probe()
 Date:   Wed, 28 Dec 2022 15:38:17 +0100
-Message-Id: <20221228144347.290189372@linuxfoundation.org>
+Message-Id: <20221228144350.732963002@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +52,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit d7237462561fcd224fa687c56ccb68629f50fc0d ]
+[ Upstream commit c84bf485a5aaf9aa0764a58832b7ef4375c29f03 ]
 
-When probe hook function failed in mcb_probe(), it doesn't put the device.
-Compiled test only.
+The clk_disable_unprepare() should be called in the error handling
+of register_framebuffer(), fix it.
 
-Fixes: 7bc364097a89 ("mcb: Acquire reference to device in probe")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Signed-off-by: Johannes Thumshirn <jth@kernel.org>
-Link: https://lore.kernel.org/r/9f87de36bfb85158b506cb78c6fc9db3f6a3bad1.1669624063.git.johannes.thumshirn@wdc.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0937a7b3625d ("video: ep93xx: Prepare clock before using it")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mcb/mcb-core.c | 4 +++-
+ drivers/video/fbdev/ep93xx-fb.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mcb/mcb-core.c b/drivers/mcb/mcb-core.c
-index 338fc889b357..b8ad4f16b4ac 100644
---- a/drivers/mcb/mcb-core.c
-+++ b/drivers/mcb/mcb-core.c
-@@ -71,8 +71,10 @@ static int mcb_probe(struct device *dev)
+diff --git a/drivers/video/fbdev/ep93xx-fb.c b/drivers/video/fbdev/ep93xx-fb.c
+index 2398b3d48fed..305f1587bd89 100644
+--- a/drivers/video/fbdev/ep93xx-fb.c
++++ b/drivers/video/fbdev/ep93xx-fb.c
+@@ -552,12 +552,14 @@ static int ep93xxfb_probe(struct platform_device *pdev)
  
- 	get_device(dev);
- 	ret = mdrv->probe(mdev, found_id);
--	if (ret)
-+	if (ret) {
- 		module_put(carrier_mod);
-+		put_device(dev);
-+	}
+ 	err = register_framebuffer(info);
+ 	if (err)
+-		goto failed_check;
++		goto failed_framebuffer;
  
- 	return ret;
- }
+ 	dev_info(info->dev, "registered. Mode = %dx%d-%d\n",
+ 		 info->var.xres, info->var.yres, info->var.bits_per_pixel);
+ 	return 0;
+ 
++failed_framebuffer:
++	clk_disable_unprepare(fbi->clk);
+ failed_check:
+ 	if (fbi->mach_info->teardown)
+ 		fbi->mach_info->teardown(pdev);
 -- 
 2.35.1
 
