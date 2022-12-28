@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 159F7657CDD
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:36:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6BAE65836F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:47:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233901AbiL1Pgw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:36:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54524 "EHLO
+        id S235114AbiL1Qrx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:47:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233847AbiL1Pgv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:36:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45EE71580B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:36:51 -0800 (PST)
+        with ESMTP id S235090AbiL1QrX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:47:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C14A31403D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:42:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D60BD61542
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:36:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1727C433EF;
-        Wed, 28 Dec 2022 15:36:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5A55BB816F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:42:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C10DFC433D2;
+        Wed, 28 Dec 2022 16:42:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241810;
-        bh=341Irjy7OAyENGO9M+wnz4E3V61UtC3nXWZORmmWKjc=;
+        s=korg; t=1672245748;
+        bh=d0MDth/qfY9cxyxy3Zk9k5EtCVwww8sBDvtx9JZk5d8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jDrk3vV5EmMnuArafZchs0kd87h9jyCZzIqRXAhV5UBsX3m84loQGh1wmW4RfkO16
-         0Qqw1QbPtXXv4RS9U0lxiE9OL+p6ZoRr6NoCnSoqmSyGNrZhDpixwmI0heZSq0oDq0
-         DJ5uKeaSObCTo27DzGm7chO86TScVh8VyGXmkZqU=
+        b=q0KKiqxPkqdP+VWaakrhtmGWkJGpvNth8IgWoDxOmHU2iIjXYgXLSwi3ly/Ea+iQM
+         fEYjr8vhPu0PboZiRulrfpoHWsSgrLXFuajcr7XAP/rfAnxQTa8a/QLaff72brQdiy
+         MMBAHb4V/40yh03N9ozOlacsx1FOmR5FQdqnN2BI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Author: Randy Dunlap" <rdunlap@infradead.org>,
-        syzbot+35b87c668935bb55e666@syzkaller.appspotmail.com,
-        Shigeru Yoshida <syoshida@redhat.com>,
-        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 525/731] fs/ntfs3: Avoid UBSAN error on true_sectors_per_clst()
+Subject: [PATCH 6.1 0893/1146] mISDN: hfcmulti: dont call dev_kfree_skb/kfree_skb() under spin_lock_irqsave()
 Date:   Wed, 28 Dec 2022 15:40:32 +0100
-Message-Id: <20221228144311.764599251@linuxfoundation.org>
+Message-Id: <20221228144354.445126884@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,42 +54,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shigeru Yoshida <syoshida@redhat.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit caad9dd8792a2622737b7273cb34835fd9536cd2 ]
+[ Upstream commit 1232946cf522b8de9e398828bde325d7c41f29dd ]
 
-syzbot reported UBSAN error as below:
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-[   76.901829][ T6677] ================================================================================
-[   76.903908][ T6677] UBSAN: shift-out-of-bounds in fs/ntfs3/super.c:675:13
-[   76.905363][ T6677] shift exponent -247 is negative
+skb_queue_purge() is called under spin_lock_irqsave() in handle_dmsg()
+and hfcm_l1callback(), kfree_skb() is called in them, to fix this, use
+skb_queue_splice_init() to move the dch->squeue to a free queue, also
+enqueue the tx_skb and rx_skb, at last calling __skb_queue_purge() to
+free the SKBs afer unlock.
 
-This patch avoid this error.
-
-Link: https://syzkaller.appspot.com/bug?id=b0299c09a14aababf0f1c862dd4ebc8ab9eb0179
-Fixes: a3b774342fa7 (fs/ntfs3: validate BOOT sectors_per_clusters)
-Cc: Author: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: syzbot+35b87c668935bb55e666@syzkaller.appspotmail.com
-Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
-Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+Fixes: af69fb3a8ffa ("Add mISDN HFC multiport driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/super.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/isdn/hardware/mISDN/hfcmulti.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/fs/ntfs3/super.c b/fs/ntfs3/super.c
-index f3b88c7e35f7..39b09f32f4db 100644
---- a/fs/ntfs3/super.c
-+++ b/fs/ntfs3/super.c
-@@ -672,7 +672,7 @@ static u32 true_sectors_per_clst(const struct NTFS_BOOT *boot)
- 	if (boot->sectors_per_clusters <= 0x80)
- 		return boot->sectors_per_clusters;
- 	if (boot->sectors_per_clusters >= 0xf4) /* limit shift to 2MB max */
--		return 1U << (0 - boot->sectors_per_clusters);
-+		return 1U << -(s8)boot->sectors_per_clusters;
- 	return -EINVAL;
- }
+diff --git a/drivers/isdn/hardware/mISDN/hfcmulti.c b/drivers/isdn/hardware/mISDN/hfcmulti.c
+index 4f7eaa17fb27..e840609c50eb 100644
+--- a/drivers/isdn/hardware/mISDN/hfcmulti.c
++++ b/drivers/isdn/hardware/mISDN/hfcmulti.c
+@@ -3217,6 +3217,7 @@ static int
+ hfcm_l1callback(struct dchannel *dch, u_int cmd)
+ {
+ 	struct hfc_multi	*hc = dch->hw;
++	struct sk_buff_head	free_queue;
+ 	u_long	flags;
  
+ 	switch (cmd) {
+@@ -3245,6 +3246,7 @@ hfcm_l1callback(struct dchannel *dch, u_int cmd)
+ 		l1_event(dch->l1, HW_POWERUP_IND);
+ 		break;
+ 	case HW_DEACT_REQ:
++		__skb_queue_head_init(&free_queue);
+ 		/* start deactivation */
+ 		spin_lock_irqsave(&hc->lock, flags);
+ 		if (hc->ctype == HFC_TYPE_E1) {
+@@ -3264,20 +3266,21 @@ hfcm_l1callback(struct dchannel *dch, u_int cmd)
+ 				plxsd_checksync(hc, 0);
+ 			}
+ 		}
+-		skb_queue_purge(&dch->squeue);
++		skb_queue_splice_init(&dch->squeue, &free_queue);
+ 		if (dch->tx_skb) {
+-			dev_kfree_skb(dch->tx_skb);
++			__skb_queue_tail(&free_queue, dch->tx_skb);
+ 			dch->tx_skb = NULL;
+ 		}
+ 		dch->tx_idx = 0;
+ 		if (dch->rx_skb) {
+-			dev_kfree_skb(dch->rx_skb);
++			__skb_queue_tail(&free_queue, dch->rx_skb);
+ 			dch->rx_skb = NULL;
+ 		}
+ 		test_and_clear_bit(FLG_TX_BUSY, &dch->Flags);
+ 		if (test_and_clear_bit(FLG_BUSY_TIMER, &dch->Flags))
+ 			del_timer(&dch->timer);
+ 		spin_unlock_irqrestore(&hc->lock, flags);
++		__skb_queue_purge(&free_queue);
+ 		break;
+ 	case HW_POWERUP_REQ:
+ 		spin_lock_irqsave(&hc->lock, flags);
+@@ -3384,6 +3387,9 @@ handle_dmsg(struct mISDNchannel *ch, struct sk_buff *skb)
+ 	case PH_DEACTIVATE_REQ:
+ 		test_and_clear_bit(FLG_L2_ACTIVATED, &dch->Flags);
+ 		if (dch->dev.D.protocol != ISDN_P_TE_S0) {
++			struct sk_buff_head free_queue;
++
++			__skb_queue_head_init(&free_queue);
+ 			spin_lock_irqsave(&hc->lock, flags);
+ 			if (debug & DEBUG_HFCMULTI_MSG)
+ 				printk(KERN_DEBUG
+@@ -3405,14 +3411,14 @@ handle_dmsg(struct mISDNchannel *ch, struct sk_buff *skb)
+ 				/* deactivate */
+ 				dch->state = 1;
+ 			}
+-			skb_queue_purge(&dch->squeue);
++			skb_queue_splice_init(&dch->squeue, &free_queue);
+ 			if (dch->tx_skb) {
+-				dev_kfree_skb(dch->tx_skb);
++				__skb_queue_tail(&free_queue, dch->tx_skb);
+ 				dch->tx_skb = NULL;
+ 			}
+ 			dch->tx_idx = 0;
+ 			if (dch->rx_skb) {
+-				dev_kfree_skb(dch->rx_skb);
++				__skb_queue_tail(&free_queue, dch->rx_skb);
+ 				dch->rx_skb = NULL;
+ 			}
+ 			test_and_clear_bit(FLG_TX_BUSY, &dch->Flags);
+@@ -3424,6 +3430,7 @@ handle_dmsg(struct mISDNchannel *ch, struct sk_buff *skb)
+ #endif
+ 			ret = 0;
+ 			spin_unlock_irqrestore(&hc->lock, flags);
++			__skb_queue_purge(&free_queue);
+ 		} else
+ 			ret = l1_event(dch->l1, hh->prim);
+ 		break;
 -- 
 2.35.1
 
