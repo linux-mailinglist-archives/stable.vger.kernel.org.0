@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3C0565789D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:53:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F2F7657F3B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233011AbiL1OxA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:53:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38064 "EHLO
+        id S234312AbiL1QDI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:03:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233187AbiL1OwZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:52:25 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F2D0120BE
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:52:18 -0800 (PST)
+        with ESMTP id S234337AbiL1QCm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:02:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 399111902A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:02:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A91B8CE1355
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:52:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A0AFC433EF;
-        Wed, 28 Dec 2022 14:52:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E666EB8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:02:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32D8DC433D2;
+        Wed, 28 Dec 2022 16:02:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239135;
-        bh=nF/XfGomR10ZfWb1mzdu4ixPZPLKGnGcNCgCTPCvxUA=;
+        s=korg; t=1672243351;
+        bh=O06DxMDpDwReMJaTUXeOMuW1sdenikFy2frdIqBET2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B0a13cDEtSLBIfSvbBnpCrWZfaUmxixSf85nLXWxrW8Emgd3TW7Z4JhSD5UqHP1ya
-         1bMEkhbht6xyz78PYpddyYKCO/PkYAKkRmGC52QzYZ6E1V61EmVz6UeDwgN6Pk8OJL
-         QEUnVTF1Bsbg79xMH7kg8s/8m8wsLoW+UPaF6MjY=
+        b=XLvKbNiFqQ6zTC7dLxCDcPwM3HWZyDn4M7bjs2AZWBy30djzhB301wb02dxpqWysw
+         E8yOwvV79mWXz3V6A8NSwdL6+vtLOuXge9xyZGNKGZQBTsHvkKym4jyI1oyeC7MfAQ
+         5oJyTeuq9h/FbTBWRA+iCtYvzvZmyYTLg8uyRssk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        John Thomson <git@johnthomson.fastmail.com.au>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        patches@lists.linux.dev, "Guoniu.zhou" <guoniu.zhou@nxp.com>,
+        Jacopo Mondi <jacopo@jmondi.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 115/731] mips: ralink: mt7621: do not use kzalloc too early
+Subject: [PATCH 6.1 0483/1146] media: ov5640: set correct default link frequency
 Date:   Wed, 28 Dec 2022 15:33:42 +0100
-Message-Id: <20221228144259.886857387@linuxfoundation.org>
+Message-Id: <20221228144343.301873822@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,136 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Thomson <git@johnthomson.fastmail.com.au>
+From: Guoniu.zhou <guoniu.zhou@nxp.com>
 
-[ Upstream commit 7c18b64bba3bcad1be94b404f47b94a04b91ce79 ]
+[ Upstream commit d7b41196927ba2a2b5badad1a85f9087eb90b076 ]
 
-With CONFIG_SLUB=y, following commit 6edf2576a6cc ("mm/slub: enable
-debugging memory wasting of kmalloc") mt7621 failed to boot very early,
-without showing any console messages.
-This exposed the pre-existing bug of mt7621.c using kzalloc before normal
-memory management was available.
-Prior to this slub change, there existed the unintended protection against
-"kmem_cache *s" being NULL as slab_pre_alloc_hook() happened to
-return NULL and bailed out of slab_alloc_node().
-This allowed mt7621 prom_soc_init to fail in the soc_dev_init kzalloc,
-but continue booting without the SOC_BUS driver device registered.
+current_link_freq field in ov5640_dev structure is link frequency,
+not link frequency array index, so correct it.
 
-Console output from a DEBUG_ZBOOT vmlinuz kernel loading,
-with mm/slub modified to warn on kmem_cache zero or null:
-
-zimage at:     80B842A0 810B4BC0
-Uncompressing Linux at load address 80001000
-Copy device tree to address  80B80EE0
-Now, booting the kernel...
-
-[    0.000000] Linux version 6.1.0-rc3+ (john@john)
-(mipsel-buildroot-linux-gnu-gcc.br_real (Buildroot
-2021.11-4428-g6b6741b) 12.2.0, GNU ld (GNU Binutils) 2.39) #73 SMP Wed
-     Nov  2 05:10:01 AEST 2022
-[    0.000000] ------------[ cut here ]------------
-[    0.000000] WARNING: CPU: 0 PID: 0 at mm/slub.c:3416
-kmem_cache_alloc+0x5a4/0x5e8
-[    0.000000] Modules linked in:
-[    0.000000] CPU: 0 PID: 0 Comm: swapper Not tainted 6.1.0-rc3+ #73
-[    0.000000] Stack : 810fff78 80084d98 00000000 00000004 00000000
-00000000 80889d04 80c90000
-[    0.000000]         80920000 807bd328 8089d368 80923bd3 00000000
-00000001 80889cb0 00000000
-[    0.000000]         00000000 00000000 807bd328 8084bcb1 00000002
-00000002 00000001 6d6f4320
-[    0.000000]         00000000 80c97d3d 80c97d68 fffffffc 807bd328
-00000000 00000000 00000000
-[    0.000000]         00000000 a0000000 80910000 8110a0b4 00000000
-00000020 80010000 80010000
-[    0.000000]         ...
-[    0.000000] Call Trace:
-[    0.000000] [<80008260>] show_stack+0x28/0xf0
-[    0.000000] [<8070c958>] dump_stack_lvl+0x60/0x80
-[    0.000000] [<8002e184>] __warn+0xc4/0xf8
-[    0.000000] [<8002e210>] warn_slowpath_fmt+0x58/0xa4
-[    0.000000] [<801c0fac>] kmem_cache_alloc+0x5a4/0x5e8
-[    0.000000] [<8092856c>] prom_soc_init+0x1fc/0x2b4
-[    0.000000] [<80928060>] prom_init+0x44/0xf0
-[    0.000000] [<80929214>] setup_arch+0x4c/0x6a8
-[    0.000000] [<809257e0>] start_kernel+0x88/0x7c0
-[    0.000000]
-[    0.000000] ---[ end trace 0000000000000000 ]---
-[    0.000000] SoC Type: MediaTek MT7621 ver:1 eco:3
-[    0.000000] printk: bootconsole [early0] enabled
-
-Allowing soc_device_register to work exposed oops in the mt7621 phy pci,
-and pci controller drivers from soc_device_match_attr, due to missing
-sentinels in the quirks tables. These were fixed with:
-commit 819b885cd886 ("phy: ralink: mt7621-pci: add sentinel to quirks
-table")
-not yet applied ("PCI: mt7621: add sentinel to quirks table")
-
-Link: https://lore.kernel.org/linux-mm/becf2ac3-2a90-4f3a-96d9-a70f67c66e4a@app.fastmail.com/
-Fixes: 71b9b5e0130d ("MIPS: ralink: mt7621: introduce 'soc_device' initialization")
-Signed-off-by: John Thomson <git@johnthomson.fastmail.com.au>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 3c28588f35d3 ("media: ov5640: Update pixel_rate and link_freq")
+Signed-off-by: Guoniu.zhou <guoniu.zhou@nxp.com>
+Acked-by: Jacopo Mondi <jacopo@jmondi.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/ralink/mt7621.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/media/i2c/ov5640.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/ralink/mt7621.c b/arch/mips/ralink/mt7621.c
-index 6b4c291d6d1b..0db23bcf2a97 100644
---- a/arch/mips/ralink/mt7621.c
-+++ b/arch/mips/ralink/mt7621.c
-@@ -23,6 +23,7 @@
- #define MT7621_MEM_TEST_PATTERN         0xaa5555aa
+diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
+index 2d740397a5d4..3f6d715efa82 100644
+--- a/drivers/media/i2c/ov5640.c
++++ b/drivers/media/i2c/ov5640.c
+@@ -3817,7 +3817,8 @@ static int ov5640_probe(struct i2c_client *client)
+ 	sensor->current_mode =
+ 		&ov5640_mode_data[OV5640_MODE_VGA_640_480];
+ 	sensor->last_mode = sensor->current_mode;
+-	sensor->current_link_freq = OV5640_DEFAULT_LINK_FREQ;
++	sensor->current_link_freq =
++		ov5640_csi2_link_freqs[OV5640_DEFAULT_LINK_FREQ];
  
- static u32 detect_magic __initdata;
-+static struct ralink_soc_info *soc_info_ptr;
+ 	sensor->ae_target = 52;
  
- phys_addr_t mips_cpc_default_phys_base(void)
- {
-@@ -116,27 +117,30 @@ static const char __init *mt7621_get_soc_revision(void)
- 		return "E1";
- }
- 
--static void soc_dev_init(struct ralink_soc_info *soc_info)
-+static int __init mt7621_soc_dev_init(void)
- {
- 	struct soc_device *soc_dev;
- 	struct soc_device_attribute *soc_dev_attr;
- 
- 	soc_dev_attr = kzalloc(sizeof(*soc_dev_attr), GFP_KERNEL);
- 	if (!soc_dev_attr)
--		return;
-+		return -ENOMEM;
- 
- 	soc_dev_attr->soc_id = "mt7621";
- 	soc_dev_attr->family = "Ralink";
- 	soc_dev_attr->revision = mt7621_get_soc_revision();
- 
--	soc_dev_attr->data = soc_info;
-+	soc_dev_attr->data = soc_info_ptr;
- 
- 	soc_dev = soc_device_register(soc_dev_attr);
- 	if (IS_ERR(soc_dev)) {
- 		kfree(soc_dev_attr);
--		return;
-+		return PTR_ERR(soc_dev);
- 	}
-+
-+	return 0;
- }
-+device_initcall(mt7621_soc_dev_init);
- 
- void __init prom_soc_init(struct ralink_soc_info *soc_info)
- {
-@@ -178,7 +182,7 @@ void __init prom_soc_init(struct ralink_soc_info *soc_info)
- 
- 	soc_info->mem_detect = mt7621_memory_detect;
- 
--	soc_dev_init(soc_info);
-+	soc_info_ptr = soc_info;
- 
- 	if (!register_cps_smp_ops())
- 		return;
 -- 
 2.35.1
 
