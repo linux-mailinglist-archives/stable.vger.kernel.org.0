@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EE7F657B16
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:18:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12D766579FC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:06:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233196AbiL1PSA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:18:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36830 "EHLO
+        id S233561AbiL1PGq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:06:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233191AbiL1PR6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:17:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A65313F1F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:17:57 -0800 (PST)
+        with ESMTP id S233572AbiL1PGo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:06:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B6561006B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:06:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CBCE461554
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:17:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E05A7C433D2;
-        Wed, 28 Dec 2022 15:17:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CED6F61553
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:06:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB2CDC433EF;
+        Wed, 28 Dec 2022 15:06:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240676;
-        bh=Ep9axNm+95NhPhmqWzUR3+1g3g79x2VlYPQMtWm/ed4=;
+        s=korg; t=1672240002;
+        bh=4gnc21u2MeC9tksPega8MnAeysAZlSBrzqq0p5EGUWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1+NyBt6VgAcIcrqpKe8DczTSu2N75VP3pKQHTEmM4MZwlvAvsK0h1UkXv3v6DZ3Sw
-         rq/37vXlXh4AJobJAPDlT9CmtBGH1j+3q4IlF2avIdTw7BIlCo+l9b0T77qWihDBSd
-         6wzK6kvXILkpvzpBWhtqghl/TPxm6RqavKIxNBGA=
+        b=bx0nDjCsSLaS6C9Nz6o9pcEUu2lkiGS8urnaT5mEvw7Y67itdkS4ztuIqoH43ncjc
+         4KacLkja8rReWchJmQd3Wa+Mfpip7E7pIwznHrv7rqrxiG8ju9z+/LxtrwEA1p46/V
+         kYDAssoYQxPNtWwY98GEjKHg/OyKsicaUdFDsT+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        patches@lists.linux.dev,
+        Md Iqbal Hossain <md.iqbal.hossain@intel.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0154/1146] genirq/irqdesc: Dont try to remove non-existing sysfs files
-Date:   Wed, 28 Dec 2022 15:28:13 +0100
-Message-Id: <20221228144334.341853605@linuxfoundation.org>
+Subject: [PATCH 6.0 0106/1073] x86/sgx: Reduce delay and interference of enclave release
+Date:   Wed, 28 Dec 2022 15:28:14 +0100
+Message-Id: <20221228144330.923835383@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,112 +55,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Reinette Chatre <reinette.chatre@intel.com>
 
-[ Upstream commit 9049e1ca41983ab773d7ea244bee86d7835ec9f5 ]
+[ Upstream commit 7b72c823ddf8aaaec4e9fb28e6fbe4d511e7dad1 ]
 
-Fault injection tests trigger warnings like this:
+commit 8795359e35bc ("x86/sgx: Silence softlockup detection when
+releasing large enclaves") introduced a cond_resched() during enclave
+release where the EREMOVE instruction is applied to every 4k enclave
+page. Giving other tasks an opportunity to run while tearing down a
+large enclave placates the soft lockup detector but Iqbal found
+that the fix causes a 25% performance degradation of a workload
+run using Gramine.
 
-  kernfs: can not remove 'chip_name', no directory
-  WARNING: CPU: 0 PID: 253 at fs/kernfs/dir.c:1616 kernfs_remove_by_name_ns+0xce/0xe0
-  RIP: 0010:kernfs_remove_by_name_ns+0xce/0xe0
-  Call Trace:
-   <TASK>
-   remove_files.isra.1+0x3f/0xb0
-   sysfs_remove_group+0x68/0xe0
-   sysfs_remove_groups+0x41/0x70
-   __kobject_del+0x45/0xc0
-   kobject_del+0x29/0x40
-   free_desc+0x42/0x70
-   irq_free_descs+0x5e/0x90
+Gramine maintains a 1:1 mapping between processes and SGX enclaves.
+That means if a workload in an enclave creates a subprocess then
+Gramine creates a duplicate enclave for that subprocess to run in.
+The consequence is that the release of the enclave used to run
+the subprocess can impact the performance of the workload that is
+run in the original enclave, especially in large enclaves when
+SGX2 is not in use.
 
-The reason is that the interrupt descriptor sysfs handling does not roll
-back on a failing kobject_add() during allocation. If the descriptor is
-freed later on, kobject_del() is invoked with a not added kobject resulting
-in the above warnings.
+The workload run by Iqbal behaves as follows:
+Create enclave (enclave "A")
+/* Initialize workload in enclave "A" */
+Create enclave (enclave "B")
+/* Run subprocess in enclave "B" and send result to enclave "A" */
+Release enclave (enclave "B")
+/* Run workload in enclave "A" */
+Release enclave (enclave "A")
 
-A proper rollback in case of a kobject_add() failure would be the straight
-forward solution. But this is not possible due to the way how interrupt
-descriptor sysfs handling works.
+The performance impact of releasing enclave "B" in the above scenario
+is amplified when there is a lot of SGX memory and the enclave size
+matches the SGX memory. When there is 128GB SGX memory and an enclave
+size of 128GB, from the time enclave "B" starts the 128GB SGX memory
+is oversubscribed with a combined demand for 256GB from the two
+enclaves.
 
-Interrupt descriptors are allocated before sysfs becomes available. So the
-sysfs files for the early allocated descriptors are added later in the boot
-process. At this point there can be nothing useful done about a failing
-kobject_add(). For consistency the interrupt descriptor allocation always
-treats kobject_add() failures as non-critical and just emits a warning.
+Before commit 8795359e35bc ("x86/sgx: Silence softlockup detection when
+releasing large enclaves") enclave release was done in a tight loop
+without giving other tasks a chance to run. Even though the system
+experienced soft lockups the workload (run in enclave "A") obtained
+good performance numbers because when the workload started running
+there was no interference.
 
-To solve this problem, keep track in the interrupt descriptor whether
-kobject_add() was successful or not and make the invocation of
-kobject_del() conditional on that.
+Commit 8795359e35bc ("x86/sgx: Silence softlockup detection when
+releasing large enclaves") gave other tasks opportunity to run while an
+enclave is released. The impact of this in this scenario is that while
+enclave "B" is released and needing to access each page that belongs
+to it in order to run the SGX EREMOVE instruction on it, enclave "A"
+is attempting to run the workload needing to access the enclave
+pages that belong to it. This causes a lot of swapping due to the
+demand for the oversubscribed SGX memory. Longer latencies are
+experienced by the workload in enclave "A" while enclave "B" is
+released.
 
-[ tglx: Massage changelog, comments and use a state bit. ]
+Improve the performance of enclave release while still avoiding the
+soft lockup detector with two enhancements:
+- Only call cond_resched() after XA_CHECK_SCHED iterations.
+- Use the xarray advanced API to keep the xarray locked for
+  XA_CHECK_SCHED iterations instead of locking and unlocking
+  at every iteration.
 
-Fixes: ecb3f394c5db ("genirq: Expose interrupt information through sysfs")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20221128151612.1786122-1-yangyingliang@huawei.com
+This batching solution is copied from sgx_encl_may_map() that
+also iterates through all enclave pages using this technique.
+
+With this enhancement the workload experiences a 5%
+performance degradation when compared to a kernel without
+commit 8795359e35bc ("x86/sgx: Silence softlockup detection when
+releasing large enclaves"), an improvement to the reported 25%
+degradation, while still placating the soft lockup detector.
+
+Scenarios with poor performance are still possible even with these
+enhancements. For example, short workloads creating sub processes
+while running in large enclaves. Further performance improvements
+are pursued in user space through avoiding to create duplicate enclaves
+for certain sub processes, and using SGX2 that will do lazy allocation
+of pages as needed so enclaves created for sub processes start quickly
+and release quickly.
+
+Fixes: 8795359e35bc ("x86/sgx: Silence softlockup detection when releasing large enclaves")
+Reported-by: Md Iqbal Hossain <md.iqbal.hossain@intel.com>
+Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Tested-by: Md Iqbal Hossain <md.iqbal.hossain@intel.com>
+Link: https://lore.kernel.org/all/00efa80dd9e35dc85753e1c5edb0344ac07bb1f0.1667236485.git.reinette.chatre%40intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/internals.h |  2 ++
- kernel/irq/irqdesc.c   | 15 +++++++++------
- 2 files changed, 11 insertions(+), 6 deletions(-)
+ arch/x86/kernel/cpu/sgx/encl.c | 23 +++++++++++++++++++----
+ 1 file changed, 19 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/irq/internals.h b/kernel/irq/internals.h
-index f09c60393e55..5fdc0b557579 100644
---- a/kernel/irq/internals.h
-+++ b/kernel/irq/internals.h
-@@ -52,6 +52,7 @@ enum {
-  * IRQS_PENDING			- irq is pending and replayed later
-  * IRQS_SUSPENDED		- irq is suspended
-  * IRQS_NMI			- irq line is used to deliver NMIs
-+ * IRQS_SYSFS			- descriptor has been added to sysfs
-  */
- enum {
- 	IRQS_AUTODETECT		= 0x00000001,
-@@ -64,6 +65,7 @@ enum {
- 	IRQS_SUSPENDED		= 0x00000800,
- 	IRQS_TIMINGS		= 0x00001000,
- 	IRQS_NMI		= 0x00002000,
-+	IRQS_SYSFS		= 0x00004000,
- };
- 
- #include "debug.h"
-diff --git a/kernel/irq/irqdesc.c b/kernel/irq/irqdesc.c
-index a91f9001103c..fd0996274401 100644
---- a/kernel/irq/irqdesc.c
-+++ b/kernel/irq/irqdesc.c
-@@ -288,22 +288,25 @@ static void irq_sysfs_add(int irq, struct irq_desc *desc)
- 	if (irq_kobj_base) {
- 		/*
- 		 * Continue even in case of failure as this is nothing
--		 * crucial.
-+		 * crucial and failures in the late irq_sysfs_init()
-+		 * cannot be rolled back.
- 		 */
- 		if (kobject_add(&desc->kobj, irq_kobj_base, "%d", irq))
- 			pr_warn("Failed to add kobject for irq %d\n", irq);
-+		else
-+			desc->istate |= IRQS_SYSFS;
- 	}
- }
- 
- static void irq_sysfs_del(struct irq_desc *desc)
+diff --git a/arch/x86/kernel/cpu/sgx/encl.c b/arch/x86/kernel/cpu/sgx/encl.c
+index 8bdeae2fc309..6942a3d8b578 100644
+--- a/arch/x86/kernel/cpu/sgx/encl.c
++++ b/arch/x86/kernel/cpu/sgx/encl.c
+@@ -677,11 +677,15 @@ const struct vm_operations_struct sgx_vm_ops = {
+ void sgx_encl_release(struct kref *ref)
  {
- 	/*
--	 * If irq_sysfs_init() has not yet been invoked (early boot), then
--	 * irq_kobj_base is NULL and the descriptor was never added.
--	 * kobject_del() complains about a object with no parent, so make
--	 * it conditional.
-+	 * Only invoke kobject_del() when kobject_add() was successfully
-+	 * invoked for the descriptor. This covers both early boot, where
-+	 * sysfs is not initialized yet, and the case of a failed
-+	 * kobject_add() invocation.
- 	 */
--	if (irq_kobj_base)
-+	if (desc->istate & IRQS_SYSFS)
- 		kobject_del(&desc->kobj);
- }
+ 	struct sgx_encl *encl = container_of(ref, struct sgx_encl, refcount);
++	unsigned long max_page_index = PFN_DOWN(encl->base + encl->size - 1);
+ 	struct sgx_va_page *va_page;
+ 	struct sgx_encl_page *entry;
+-	unsigned long index;
++	unsigned long count = 0;
++
++	XA_STATE(xas, &encl->page_array, PFN_DOWN(encl->base));
+ 
+-	xa_for_each(&encl->page_array, index, entry) {
++	xas_lock(&xas);
++	xas_for_each(&xas, entry, max_page_index) {
+ 		if (entry->epc_page) {
+ 			/*
+ 			 * The page and its radix tree entry cannot be freed
+@@ -696,9 +700,20 @@ void sgx_encl_release(struct kref *ref)
+ 		}
+ 
+ 		kfree(entry);
+-		/* Invoke scheduler to prevent soft lockups. */
+-		cond_resched();
++		/*
++		 * Invoke scheduler on every XA_CHECK_SCHED iteration
++		 * to prevent soft lockups.
++		 */
++		if (!(++count % XA_CHECK_SCHED)) {
++			xas_pause(&xas);
++			xas_unlock(&xas);
++
++			cond_resched();
++
++			xas_lock(&xas);
++		}
+ 	}
++	xas_unlock(&xas);
+ 
+ 	xa_destroy(&encl->page_array);
  
 -- 
 2.35.1
