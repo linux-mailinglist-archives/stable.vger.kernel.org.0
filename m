@@ -2,43 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFF9C658114
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A3586581FC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:32:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234697AbiL1QYq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:24:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46012 "EHLO
+        id S234760AbiL1Qcm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:32:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234660AbiL1QYH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:24:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F58B165B4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:21:05 -0800 (PST)
+        with ESMTP id S234764AbiL1QcO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:32:14 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8C571AA05
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:28:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C9499B817AC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:21:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F08FC433F0;
-        Wed, 28 Dec 2022 16:21:02 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 43765CE1372
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:28:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2343C433D2;
+        Wed, 28 Dec 2022 16:28:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244462;
-        bh=3lwxasK5NkpFU4+l7wHqxiDULc6e1FGx/znr2yxZgU8=;
+        s=korg; t=1672244927;
+        bh=uYcjfxC+EUWYd+tu5aC8lOXvRXpPqqNzU6mUpcQAXD8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hI8WQ9C0hbc8TnkTVtIVQInh/FaDTmGUp0ku4zNBmiXz7CpyAUwCFE3P77Anweqtx
-         RrPASc+mS2svATgBJP9L9TjQ9KfwsuYHZlYuNksmnRLg8MJaXKgjuVIRabsfyUPXd7
-         1CAWwRWZIpcaTTfzCsGUJbYCtWlTo6rJsPeCwVfc=
+        b=ATQUYYT/w9t2ia7yvpLKUyOaeWK7v8UM51Q9lk+G7b+y6wtV2yZtXR3Q8YSFhSFxq
+         uX/1aWJ9FdyDTpfTHBQjSTUJZPBfsi/uzAWgLmJM+creVvKs267iNqSvhmkUBH1A0o
+         m0tg9mVPCpm+a4k/9n48kk2o8dOZc59WjvWnMZXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
+        patches@lists.linux.dev, James Clark <james.clark@arm.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0714/1073] staging: rtl8192e: Fix potential use-after-free in rtllib_rx_Monitor()
+Subject: [PATCH 6.1 0763/1146] perf tools: Fix "kernel lock contention analysis" test by not printing warnings in quiet mode
 Date:   Wed, 28 Dec 2022 15:38:22 +0100
-Message-Id: <20221228144347.421807720@linuxfoundation.org>
+Message-Id: <20221228144350.871240876@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,38 +60,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: James Clark <james.clark@arm.com>
 
-[ Upstream commit d30f4436f364b4ad915ca2c09be07cd0f93ceb44 ]
+[ Upstream commit 65319890c32db29fb56b41f84265a2c7029943f4 ]
 
-The skb is delivered to netif_rx() in rtllib_monitor_rx(), which may free it,
-after calling this, dereferencing skb may trigger use-after-free.
-Found by Smatch.
+Especially when CONFIG_LOCKDEP and other debug configs are enabled,
+Perf can print the following warning when running the "kernel lock
+contention analysis" test:
 
-Fixes: 94a799425eee ("From: wlanfae <wlanfae@realtek.com> [PATCH 1/8] rtl8192e: Import new version of driver from realtek")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20221123081253.22296-1-yuehaibing@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  Warning:
+  Processed 1378918 events and lost 4 chunks!
+
+  Check IO/CPU overload!
+
+  Warning:
+  Processed 4593325 samples and lost 70.00%!
+
+The test already supplies -q to run in quiet mode, so extend quiet mode
+to perf_stdio__warning() and also ui__warning() for consistency.
+
+This fixes the following failure due to the extra lines counted:
+
+  perf test "lock cont" -vvv
+
+  82: kernel lock contention analysis test                            :
+  --- start ---
+  test child forked, pid 3125
+  Testing perf lock record and perf lock contention
+  [Fail] Recorded result count is not 1: 9
+  test child finished with -1
+  ---- end ----
+  kernel lock contention analysis test: FAILED!
+
+Fixes: ec685de25b6718f8 ("perf test: Add kernel lock contention test")
+Signed-off-by: James Clark <james.clark@arm.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20221018094137.783081-2-james.clark@arm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8192e/rtllib_rx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/ui/util.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/staging/rtl8192e/rtllib_rx.c b/drivers/staging/rtl8192e/rtllib_rx.c
-index abe5c153f74e..b0ef9da43bc4 100644
---- a/drivers/staging/rtl8192e/rtllib_rx.c
-+++ b/drivers/staging/rtl8192e/rtllib_rx.c
-@@ -1489,9 +1489,9 @@ static int rtllib_rx_Monitor(struct rtllib_device *ieee, struct sk_buff *skb,
- 		hdrlen += 4;
- 	}
+diff --git a/tools/perf/ui/util.c b/tools/perf/ui/util.c
+index 689b27c34246..1d38ddf01b60 100644
+--- a/tools/perf/ui/util.c
++++ b/tools/perf/ui/util.c
+@@ -15,6 +15,9 @@ static int perf_stdio__error(const char *format, va_list args)
  
--	rtllib_monitor_rx(ieee, skb, rx_stats, hdrlen);
- 	ieee->stats.rx_packets++;
- 	ieee->stats.rx_bytes += skb->len;
-+	rtllib_monitor_rx(ieee, skb, rx_stats, hdrlen);
+ static int perf_stdio__warning(const char *format, va_list args)
+ {
++	if (quiet)
++		return 0;
++
+ 	fprintf(stderr, "Warning:\n");
+ 	vfprintf(stderr, format, args);
+ 	return 0;
+@@ -45,6 +48,8 @@ int ui__warning(const char *format, ...)
+ {
+ 	int ret;
+ 	va_list args;
++	if (quiet)
++		return 0;
  
- 	return 1;
- }
+ 	va_start(args, format);
+ 	ret = perf_eops->warning(format, args);
 -- 
 2.35.1
 
