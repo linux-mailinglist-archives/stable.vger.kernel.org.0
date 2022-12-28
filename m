@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39C00658105
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:24:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A2C365802E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:14:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234612AbiL1QYF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:24:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43666 "EHLO
+        id S234395AbiL1QOs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:14:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234705AbiL1QXV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:23:21 -0500
+        with ESMTP id S233128AbiL1QO0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:14:26 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C7F41C13F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:20:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20DAB14D33
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:12:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B38E61577
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:20:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 133B6C433D2;
-        Wed, 28 Dec 2022 16:20:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B478A61577
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:12:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6BCCC433EF;
+        Wed, 28 Dec 2022 16:12:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244430;
-        bh=3cZrr5+4uo2q8ckibh7QYhz9Znxvf2TKlxjxmqnpZbE=;
+        s=korg; t=1672243941;
+        bh=GQQoqsWxINXLAuto5/4CBdsU9UUk9QEIksc3iqnFy0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J5LKYAPrw/BVj9HAyatHYC8YSAp8x0h8xs1deeGGXdVYHjqHm6dHFToQNECRtYRf6
-         bhJrMq0IuhertKGCJcPxe7P3J28CVyddKr+REnHbayGYt1TR/myhfLnXgXK1222SSy
-         S1rJ39uiDjsGj/8zORFg0cxlcFkuxFZrHY8Ks8RU=
+        b=EDjGpRyALxyaZSR62QD4yhcHwzbYzyfZXShCFm9LKnCGo8WgTqxzqXQOKpaRENoEs
+         gbqg0gtmq0cGK/iIIaMugA8iVXjumRiSL2k79eJpgdP2SKxBAPiofxNAxmQbFhuO+N
+         6+f5Z0oJWu1bRKTi+39gTGCU/6cPPoPbdo2IGDEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0668/1146] RDMA/srp: Fix error return code in srp_parse_options()
+Subject: [PATCH 6.0 0619/1073] scsi: hpsa: Fix error handling in hpsa_add_sas_host()
 Date:   Wed, 28 Dec 2022 15:36:47 +0100
-Message-Id: <20221228144348.294696410@linuxfoundation.org>
+Message-Id: <20221228144344.857666519@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,239 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit ed461b30b22c8fa85c25189c14cb89f29595cd14 ]
+[ Upstream commit 4ef174a3ad9b5d73c1b6573e244ebba2b0d86eac ]
 
-In the previous iteration of the while loop, the "ret" may have been
-assigned a value of 0, so the error return code -EINVAL may have been
-incorrectly set to 0. To fix set valid return code before calling to
-goto. Also investigate each case separately as Andy suggessted.
+hpsa_sas_port_add_phy() does:
+  ...
+  sas_phy_add()  -> may return error here
+  sas_port_add_phy()
+  ...
 
-Fixes: e711f968c49c ("IB/srp: replace custom implementation of hex2bin()")
-Fixes: 2a174df0c602 ("IB/srp: Use kstrtoull() instead of simple_strtoull()")
-Fixes: 19f313438c77 ("IB/srp: Add RDMA/CM support")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Link: https://lore.kernel.org/r/1669953638-11747-2-git-send-email-wangyufen@huawei.com
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Whereas hpsa_free_sas_phy() does:
+  ...
+  sas_port_delete_phy()
+  sas_phy_delete()
+  ...
+
+If hpsa_sas_port_add_phy() returns an error, hpsa_free_sas_phy() can not be
+called to free the memory because the port and the phy have not been added
+yet.
+
+Replace hpsa_free_sas_phy() with sas_phy_free() and kfree() to avoid kernel
+crash in this case.
+
+Fixes: d04e62b9d63a ("hpsa: add in sas transport class")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221110151129.394389-1-yangyingliang@huawei.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/srp/ib_srp.c | 96 ++++++++++++++++++++++++-----
- 1 file changed, 82 insertions(+), 14 deletions(-)
+ drivers/scsi/hpsa.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
-index 1075c2ac8fe2..b4d6a4a5ae81 100644
---- a/drivers/infiniband/ulp/srp/ib_srp.c
-+++ b/drivers/infiniband/ulp/srp/ib_srp.c
-@@ -3410,7 +3410,8 @@ static int srp_parse_options(struct net *net, const char *buf,
- 			break;
+diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
+index 99dbb48fc94f..0feb58fe73d2 100644
+--- a/drivers/scsi/hpsa.c
++++ b/drivers/scsi/hpsa.c
+@@ -9790,7 +9790,8 @@ static int hpsa_add_sas_host(struct ctlr_info *h)
+ 	return 0;
  
- 		case SRP_OPT_PKEY:
--			if (match_hex(args, &token)) {
-+			ret = match_hex(args, &token);
-+			if (ret) {
- 				pr_warn("bad P_Key parameter '%s'\n", p);
- 				goto out;
- 			}
-@@ -3470,7 +3471,8 @@ static int srp_parse_options(struct net *net, const char *buf,
- 			break;
- 
- 		case SRP_OPT_MAX_SECT:
--			if (match_int(args, &token)) {
-+			ret = match_int(args, &token);
-+			if (ret) {
- 				pr_warn("bad max sect parameter '%s'\n", p);
- 				goto out;
- 			}
-@@ -3478,8 +3480,15 @@ static int srp_parse_options(struct net *net, const char *buf,
- 			break;
- 
- 		case SRP_OPT_QUEUE_SIZE:
--			if (match_int(args, &token) || token < 1) {
-+			ret = match_int(args, &token);
-+			if (ret) {
-+				pr_warn("match_int() failed for queue_size parameter '%s', Error %d\n",
-+					p, ret);
-+				goto out;
-+			}
-+			if (token < 1) {
- 				pr_warn("bad queue_size parameter '%s'\n", p);
-+				ret = -EINVAL;
- 				goto out;
- 			}
- 			target->scsi_host->can_queue = token;
-@@ -3490,25 +3499,40 @@ static int srp_parse_options(struct net *net, const char *buf,
- 			break;
- 
- 		case SRP_OPT_MAX_CMD_PER_LUN:
--			if (match_int(args, &token) || token < 1) {
-+			ret = match_int(args, &token);
-+			if (ret) {
-+				pr_warn("match_int() failed for max cmd_per_lun parameter '%s', Error %d\n",
-+					p, ret);
-+				goto out;
-+			}
-+			if (token < 1) {
- 				pr_warn("bad max cmd_per_lun parameter '%s'\n",
- 					p);
-+				ret = -EINVAL;
- 				goto out;
- 			}
- 			target->scsi_host->cmd_per_lun = token;
- 			break;
- 
- 		case SRP_OPT_TARGET_CAN_QUEUE:
--			if (match_int(args, &token) || token < 1) {
-+			ret = match_int(args, &token);
-+			if (ret) {
-+				pr_warn("match_int() failed for max target_can_queue parameter '%s', Error %d\n",
-+					p, ret);
-+				goto out;
-+			}
-+			if (token < 1) {
- 				pr_warn("bad max target_can_queue parameter '%s'\n",
- 					p);
-+				ret = -EINVAL;
- 				goto out;
- 			}
- 			target->target_can_queue = token;
- 			break;
- 
- 		case SRP_OPT_IO_CLASS:
--			if (match_hex(args, &token)) {
-+			ret = match_hex(args, &token);
-+			if (ret) {
- 				pr_warn("bad IO class parameter '%s'\n", p);
- 				goto out;
- 			}
-@@ -3517,6 +3541,7 @@ static int srp_parse_options(struct net *net, const char *buf,
- 				pr_warn("unknown IO class parameter value %x specified (use %x or %x).\n",
- 					token, SRP_REV10_IB_IO_CLASS,
- 					SRP_REV16A_IB_IO_CLASS);
-+				ret = -EINVAL;
- 				goto out;
- 			}
- 			target->io_class = token;
-@@ -3539,16 +3564,24 @@ static int srp_parse_options(struct net *net, const char *buf,
- 			break;
- 
- 		case SRP_OPT_CMD_SG_ENTRIES:
--			if (match_int(args, &token) || token < 1 || token > 255) {
-+			ret = match_int(args, &token);
-+			if (ret) {
-+				pr_warn("match_int() failed for max cmd_sg_entries parameter '%s', Error %d\n",
-+					p, ret);
-+				goto out;
-+			}
-+			if (token < 1 || token > 255) {
- 				pr_warn("bad max cmd_sg_entries parameter '%s'\n",
- 					p);
-+				ret = -EINVAL;
- 				goto out;
- 			}
- 			target->cmd_sg_cnt = token;
- 			break;
- 
- 		case SRP_OPT_ALLOW_EXT_SG:
--			if (match_int(args, &token)) {
-+			ret = match_int(args, &token);
-+			if (ret) {
- 				pr_warn("bad allow_ext_sg parameter '%s'\n", p);
- 				goto out;
- 			}
-@@ -3556,43 +3589,77 @@ static int srp_parse_options(struct net *net, const char *buf,
- 			break;
- 
- 		case SRP_OPT_SG_TABLESIZE:
--			if (match_int(args, &token) || token < 1 ||
--					token > SG_MAX_SEGMENTS) {
-+			ret = match_int(args, &token);
-+			if (ret) {
-+				pr_warn("match_int() failed for max sg_tablesize parameter '%s', Error %d\n",
-+					p, ret);
-+				goto out;
-+			}
-+			if (token < 1 || token > SG_MAX_SEGMENTS) {
- 				pr_warn("bad max sg_tablesize parameter '%s'\n",
- 					p);
-+				ret = -EINVAL;
- 				goto out;
- 			}
- 			target->sg_tablesize = token;
- 			break;
- 
- 		case SRP_OPT_COMP_VECTOR:
--			if (match_int(args, &token) || token < 0) {
-+			ret = match_int(args, &token);
-+			if (ret) {
-+				pr_warn("match_int() failed for comp_vector parameter '%s', Error %d\n",
-+					p, ret);
-+				goto out;
-+			}
-+			if (token < 0) {
- 				pr_warn("bad comp_vector parameter '%s'\n", p);
-+				ret = -EINVAL;
- 				goto out;
- 			}
- 			target->comp_vector = token;
- 			break;
- 
- 		case SRP_OPT_TL_RETRY_COUNT:
--			if (match_int(args, &token) || token < 2 || token > 7) {
-+			ret = match_int(args, &token);
-+			if (ret) {
-+				pr_warn("match_int() failed for tl_retry_count parameter '%s', Error %d\n",
-+					p, ret);
-+				goto out;
-+			}
-+			if (token < 2 || token > 7) {
- 				pr_warn("bad tl_retry_count parameter '%s' (must be a number between 2 and 7)\n",
- 					p);
-+				ret = -EINVAL;
- 				goto out;
- 			}
- 			target->tl_retry_count = token;
- 			break;
- 
- 		case SRP_OPT_MAX_IT_IU_SIZE:
--			if (match_int(args, &token) || token < 0) {
-+			ret = match_int(args, &token);
-+			if (ret) {
-+				pr_warn("match_int() failed for max it_iu_size parameter '%s', Error %d\n",
-+					p, ret);
-+				goto out;
-+			}
-+			if (token < 0) {
- 				pr_warn("bad maximum initiator to target IU size '%s'\n", p);
-+				ret = -EINVAL;
- 				goto out;
- 			}
- 			target->max_it_iu_size = token;
- 			break;
- 
- 		case SRP_OPT_CH_COUNT:
--			if (match_int(args, &token) || token < 1) {
-+			ret = match_int(args, &token);
-+			if (ret) {
-+				pr_warn("match_int() failed for channel count parameter '%s', Error %d\n",
-+					p, ret);
-+				goto out;
-+			}
-+			if (token < 1) {
- 				pr_warn("bad channel count %s\n", p);
-+				ret = -EINVAL;
- 				goto out;
- 			}
- 			target->ch_count = token;
-@@ -3601,6 +3668,7 @@ static int srp_parse_options(struct net *net, const char *buf,
- 		default:
- 			pr_warn("unknown parameter or missing value '%s' in target creation request\n",
- 				p);
-+			ret = -EINVAL;
- 			goto out;
- 		}
- 	}
+ free_sas_phy:
+-	hpsa_free_sas_phy(hpsa_sas_phy);
++	sas_phy_free(hpsa_sas_phy->phy);
++	kfree(hpsa_sas_phy);
+ free_sas_port:
+ 	hpsa_free_sas_port(hpsa_sas_port);
+ free_sas_node:
 -- 
 2.35.1
 
