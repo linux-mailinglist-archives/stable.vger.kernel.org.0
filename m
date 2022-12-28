@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95FD9657D33
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:40:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48EA8657D36
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:40:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233946AbiL1Pkd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:40:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57118 "EHLO
+        id S233944AbiL1Pkm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:40:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233121AbiL1Pkc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:40:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3547167DF
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:40:31 -0800 (PST)
+        with ESMTP id S233530AbiL1Pkm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:40:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CA18167DF
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:40:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 82A9861542
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:40:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AF1DC433EF;
-        Wed, 28 Dec 2022 15:40:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0AAC0B8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:40:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 757BCC433EF;
+        Wed, 28 Dec 2022 15:40:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242031;
-        bh=SH6F0mFkqLs3sX2KdaXvWAv/0Z0t7EwRNUkyKpQqVqE=;
+        s=korg; t=1672242038;
+        bh=abvTKPHtNCe91bPxc+wopG+ZQw5kxJU4RYXdzVXhRlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GY00vI8NtbFKcueFOBFRiM67aWcfhxodCCBUAmo24etZBtV5Ario3ngm37y+lOUj6
-         +y9hVR/AdyKcsZxaZMlvHsWfljqrak1fo8H1ol/GbXh+J0/dpKdwSYhPM15ntZEwd2
-         8Xwqn38zow2mx7T9Btxq+BqoUnIV/WKVYSeatBIg=
+        b=w1gTuoEFgyjnZAoHbkWJFUWD2jSIQkbmJ7coOysM0HhIFAD1spyoaiywKnS/tOfXM
+         vj4BJncc6fzJ1M7PwvNXwugxz/qdUljY9Hqj7pHcMcBmm2WosQA9rPqWgizn2P7Pt6
+         hsiz8ZLdhnfc3n54+ELW6tIGckv6lTlEAmxjceCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ye Li <ye.li@nxp.com>,
-        Peng Fan <peng.fan@nxp.com>, Abel Vesa <abel.vesa@linaro.org>,
+        patches@lists.linux.dev, Stanislav Fomichev <sdf@google.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0356/1073] clk: imx93: correct enet clock
-Date:   Wed, 28 Dec 2022 15:32:24 +0100
-Message-Id: <20221228144337.673383529@linuxfoundation.org>
+Subject: [PATCH 6.0 0357/1073] bpf: Move skb->len == 0 checks into __bpf_redirect
+Date:   Wed, 28 Dec 2022 15:32:25 +0100
+Message-Id: <20221228144337.699817109@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -53,37 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Stanislav Fomichev <sdf@google.com>
 
-[ Upstream commit 4be5d91b9433f1dc76de485e240ca6aaa2d19f65 ]
+[ Upstream commit 114039b342014680911c35bd6b72624180fd669a ]
 
-Per update Reference Mannual, correct the enet clock parent to
-wakeup_axi_root.
+To avoid potentially breaking existing users.
 
-Fixes: 24defbe194b6 ("clk: imx: add i.MX93 clk")
-Reviewed-by: Ye Li <ye.li@nxp.com>
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Reviewed-by: Abel Vesa <abel.vesa@linaro.org>
-Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
-Link: https://lore.kernel.org/r/20221028095211.2598312-3-peng.fan@oss.nxp.com
+Both mac/no-mac cases have to be amended; mac_header >= network_header
+is not enough (verified with a new test, see next patch).
+
+Fixes: fd1894224407 ("bpf: Don't redirect packets with invalid pkt_len")
+Signed-off-by: Stanislav Fomichev <sdf@google.com>
+Link: https://lore.kernel.org/r/20221121180340.1983627-1-sdf@google.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-imx93.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bpf/test_run.c | 3 ---
+ net/core/filter.c  | 7 ++++++-
+ 2 files changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/imx/clk-imx93.c b/drivers/clk/imx/clk-imx93.c
-index 8d67b065f7b6..2e99c3443d3c 100644
---- a/drivers/clk/imx/clk-imx93.c
-+++ b/drivers/clk/imx/clk-imx93.c
-@@ -229,7 +229,7 @@ static const struct imx93_clk_ccgr {
- 	{ IMX93_CLK_AUD_XCVR_GATE,	"aud_xcvr",	"audio_xcvr_root",	0x9b80, },
- 	{ IMX93_CLK_SPDIF_GATE,		"spdif",	"spdif_root",		0x9c00, },
- 	{ IMX93_CLK_HSIO_32K_GATE,	"hsio_32k",	"osc_32k",		0x9dc0, },
--	{ IMX93_CLK_ENET1_GATE,		"enet1",	"enet_root",		0x9e00, },
-+	{ IMX93_CLK_ENET1_GATE,		"enet1",	"wakeup_axi_root",	0x9e00, },
- 	{ IMX93_CLK_ENET_QOS_GATE,	"enet_qos",	"wakeup_axi_root",	0x9e40, },
- 	{ IMX93_CLK_SYS_CNT_GATE,	"sys_cnt",	"osc_24m",		0x9e80, },
- 	{ IMX93_CLK_TSTMR1_GATE,	"tstmr1",	"bus_aon_root",		0x9ec0, },
+diff --git a/net/bpf/test_run.c b/net/bpf/test_run.c
+index b422238f9f86..5d53332ea3c9 100644
+--- a/net/bpf/test_run.c
++++ b/net/bpf/test_run.c
+@@ -939,9 +939,6 @@ static int convert___skb_to_skb(struct sk_buff *skb, struct __sk_buff *__skb)
+ {
+ 	struct qdisc_skb_cb *cb = (struct qdisc_skb_cb *)skb->cb;
+ 
+-	if (!skb->len)
+-		return -EINVAL;
+-
+ 	if (!__skb)
+ 		return 0;
+ 
+diff --git a/net/core/filter.c b/net/core/filter.c
+index c191db80ce93..5ac3ecc2edb8 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -2123,6 +2123,11 @@ static int __bpf_redirect_no_mac(struct sk_buff *skb, struct net_device *dev,
+ {
+ 	unsigned int mlen = skb_network_offset(skb);
+ 
++	if (unlikely(skb->len <= mlen)) {
++		kfree_skb(skb);
++		return -ERANGE;
++	}
++
+ 	if (mlen) {
+ 		__skb_pull(skb, mlen);
+ 
+@@ -2144,7 +2149,7 @@ static int __bpf_redirect_common(struct sk_buff *skb, struct net_device *dev,
+ 				 u32 flags)
+ {
+ 	/* Verify that a link layer header is carried */
+-	if (unlikely(skb->mac_header >= skb->network_header)) {
++	if (unlikely(skb->mac_header >= skb->network_header || skb->len == 0)) {
+ 		kfree_skb(skb);
+ 		return -ERANGE;
+ 	}
 -- 
 2.35.1
 
