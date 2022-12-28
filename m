@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C44D657FA9
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:07:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2412D657EAE
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:56:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234355AbiL1QHd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:07:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53688 "EHLO
+        id S234179AbiL1P4c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:56:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234365AbiL1QHJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:07:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E25412AFB
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:07:07 -0800 (PST)
+        with ESMTP id S234200AbiL1P4V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:56:21 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26D7625D9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:56:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9E912B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:07:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D977C433D2;
-        Wed, 28 Dec 2022 16:07:03 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8D854CE1369
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:56:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F9B2C433D2;
+        Wed, 28 Dec 2022 15:56:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243624;
-        bh=xJkQVbE7K7jGXPJJOILonjE8IKncfp2TYi7RJBxEdBU=;
+        s=korg; t=1672242970;
+        bh=KU5932pjdhrvglRKigLEN1WSCikHdkmqEQYKAcOC468=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cd3q/nMfoPDgfy5RaQR6D+vJ3lWSQnpXn11WzBO4e4BnMYvyX7ZauWzLs2u7XFdOV
-         aZ5PMiWOCwTo22LZHi/VePcIee/GU3p8ANmkBDfx7oRzIRy6ixmb8t/vJQ4ffBd7xG
-         /I6dl7rD1h/vLuGd3uh96w1du/cT9zbwHj6Ygx1A=
+        b=TYYiz4lsdZ7GAVlXfGIpysrd6b9oiFnjeufDYB9yRfAkrLJWdFE9w9XLVKT6sSYRE
+         Czo0Lgeys/K2zWf3tGJuqmUs3d8r6P1nUloSvLVUFYdC472F9vCkHNk0bFL5Pmwy6q
+         rYYVJSIxI8b6wNiFrkLLbhzhF6qM1kHsiiEWBbhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Bitterblue Smith <rtl8821cerfe2@gmail.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0523/1146] wifi: rtl8xxxu: Fix the channel width reporting
+        patches@lists.linux.dev, Jeff Layton <jlayton@kernel.org>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0474/1073] NFS: Allow very small rsize & wsize again
 Date:   Wed, 28 Dec 2022 15:34:22 +0100
-Message-Id: <20221228144344.379882135@linuxfoundation.org>
+Message-Id: <20221228144340.909541821@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+From: Anna Schumaker <Anna.Schumaker@Netapp.com>
 
-[ Upstream commit 76c16af2cb10282274596e21add2c9f0b95c941b ]
+[ Upstream commit a60214c2465493aac0b014d87ee19327b6204c42 ]
 
-The gen 2 chips RTL8192EU and RTL8188FU periodically send the driver
-reports about the TX rate, and the driver passes these reports to
-sta_statistics. The reports from RTL8192EU may or may not include the
-channel width. The reports from RTL8188FU do not include it.
+940261a19508 introduced nfs_io_size() to clamp the iosize to a multiple
+of PAGE_SIZE. This had the unintended side effect of no longer allowing
+iosizes less than a page, which could be useful in some situations.
 
-Only access the c2h->ra_report.bw field if the report (skb) is big
-enough.
+UDP already has an exception that causes it to fall back on the
+power-of-two style sizes instead. This patch adds an additional
+exception for very small iosizes.
 
-The other problem fixed here is that the code was actually never
-changing the channel width initially reported by
-rtl8xxxu_bss_info_changed because the value of RATE_INFO_BW_20 is 0.
-
-Fixes: 0985d3a410ac ("rtl8xxxu: Feed current txrate information for mac80211")
-Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
-Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/5b41f1ae-72e7-6b7a-2459-b736399a1c40@gmail.com
+Reported-by: Jeff Layton <jlayton@kernel.org>
+Fixes: 940261a19508 ("NFS: Allow setting rsize / wsize to a multiple of PAGE_SIZE")
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ fs/nfs/internal.h | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-index 2d908296cf70..e9c1b62c9c3c 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -5574,7 +5574,6 @@ static void rtl8xxxu_c2hcmd_callback(struct work_struct *work)
- 			rarpt->txrate.flags = 0;
- 			rate = c2h->ra_report.rate;
- 			sgi = c2h->ra_report.sgi;
--			bw = c2h->ra_report.bw;
+diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
+index 898dd95bc7a7..c194a1e50f0b 100644
+--- a/fs/nfs/internal.h
++++ b/fs/nfs/internal.h
+@@ -741,12 +741,10 @@ unsigned long nfs_io_size(unsigned long iosize, enum xprt_transports proto)
+ 		iosize = NFS_DEF_FILE_IO_SIZE;
+ 	else if (iosize >= NFS_MAX_FILE_IO_SIZE)
+ 		iosize = NFS_MAX_FILE_IO_SIZE;
+-	else
+-		iosize = iosize & PAGE_MASK;
  
- 			if (rate < DESC_RATE_MCS0) {
- 				rarpt->txrate.legacy =
-@@ -5591,8 +5590,13 @@ static void rtl8xxxu_c2hcmd_callback(struct work_struct *work)
- 						RATE_INFO_FLAGS_SHORT_GI;
- 				}
+-	if (proto == XPRT_TRANSPORT_UDP)
++	if (proto == XPRT_TRANSPORT_UDP || iosize < PAGE_SIZE)
+ 		return nfs_block_bits(iosize, NULL);
+-	return iosize;
++	return iosize & PAGE_MASK;
+ }
  
--				if (bw == RATE_INFO_BW_20)
--					rarpt->txrate.bw |= RATE_INFO_BW_20;
-+				if (skb->len >= offsetofend(typeof(*c2h), ra_report.bw)) {
-+					if (c2h->ra_report.bw == RTL8XXXU_CHANNEL_WIDTH_40)
-+						bw = RATE_INFO_BW_40;
-+					else
-+						bw = RATE_INFO_BW_20;
-+					rarpt->txrate.bw = bw;
-+				}
- 			}
- 			bit_rate = cfg80211_calculate_bitrate(&rarpt->txrate);
- 			rarpt->bit_rate = bit_rate;
+ /*
 -- 
 2.35.1
 
