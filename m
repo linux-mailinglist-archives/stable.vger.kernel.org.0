@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C70F65850F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:05:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E254F6584F7
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:04:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235202AbiL1RF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:05:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58538 "EHLO
+        id S233561AbiL1REy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:04:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235259AbiL1RFC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:05:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1CD320982
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:59:23 -0800 (PST)
+        with ESMTP id S235076AbiL1RDz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:03:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FED021262
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:58:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7E5A0B8171F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:59:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE087C433EF;
-        Wed, 28 Dec 2022 16:59:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2901CB81889
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:58:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78DD5C433D2;
+        Wed, 28 Dec 2022 16:58:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246761;
-        bh=IerjXX365DYcnfR/jRen1Q0ECeyCt0UxU7/9wvV6y34=;
+        s=korg; t=1672246695;
+        bh=BIFGjKClbac489+GA+XbQXaq0314xfuSsCynpLbgrEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cVETspX9PIuGzE6A8JYGwiOqXIfwAOfLlImyQzbGhv3kYGBupY6vLH3JHDR8qGcZS
-         ab8rsWf0Oxhc1/Vsu4+cjRIYIK0ByW4RB++3jEvVh+2NrVUuNuTEycNvqIQblFCCso
-         U/yupYtzpABKUNKoFx9uQ4t9M+m+Z/Qf9tVrXXHM=
+        b=pk9cUmVOjjsG8/UNIFOEu2b97ym8zKfJwSfuKMPlmIq3cTVNgP1iKIyItgC/lpl2T
+         tH50CUJTwh1aGwZi5/RY7eD82Vfw78xHPQuTZK64BfjX7GK6iqaxVEqBgrf2FeNjGv
+         oEsYFhKCOqWKQbWwtBcEGoQz/fUQ9Ub8vK/O8xyY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot <syzbot+25bdb7b1703639abd498@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 6.1 1129/1146] fbdev: fbcon: release buffer when fbcon_do_set_font() failed
-Date:   Wed, 28 Dec 2022 15:44:28 +0100
-Message-Id: <20221228144400.809595328@linuxfoundation.org>
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        syzbot+a4055c78774bbf3498bb@syzkaller.appspotmail.com
+Subject: [PATCH 6.1 1130/1146] ovl: fix use inode directly in rcu-walk mode
+Date:   Wed, 28 Dec 2022 15:44:29 +0100
+Message-Id: <20221228144400.836615899@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -54,38 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-commit 3c3bfb8586f848317ceba5d777e11204ba3e5758 upstream.
+commit 672e4268b2863d7e4978dfed29552b31c2f9bd4e upstream.
 
-syzbot is reporting memory leak at fbcon_do_set_font() [1], for
-commit a5a923038d70 ("fbdev: fbcon: Properly revert changes when
-vc_resize() failed") missed that the buffer might be newly allocated
-by fbcon_set_font().
+ovl_dentry_revalidate_common() can be called in rcu-walk mode.  As document
+said, "in rcu-walk mode, d_parent and d_inode should not be used without
+care".
 
-Link: https://syzkaller.appspot.com/bug?extid=25bdb7b1703639abd498 [1]
-Reported-by: syzbot <syzbot+25bdb7b1703639abd498@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Tested-by: syzbot <syzbot+25bdb7b1703639abd498@syzkaller.appspotmail.com>
-Fixes: a5a923038d70 ("fbdev: fbcon: Properly revert changes when vc_resize() failed")
-CC: stable@vger.kernel.org # 5.15+
-Signed-off-by: Helge Deller <deller@gmx.de>
+Check inode here to protect access under rcu-walk mode.
+
+Fixes: bccece1ead36 ("ovl: allow remote upper")
+Reported-and-tested-by: syzbot+a4055c78774bbf3498bb@syzkaller.appspotmail.com
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Cc: <stable@vger.kernel.org> # v5.7
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/core/fbcon.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/overlayfs/super.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -2450,7 +2450,8 @@ err_out:
+--- a/fs/overlayfs/super.c
++++ b/fs/overlayfs/super.c
+@@ -139,11 +139,16 @@ static int ovl_dentry_revalidate_common(
+ 					unsigned int flags, bool weak)
+ {
+ 	struct ovl_entry *oe = dentry->d_fsdata;
++	struct inode *inode = d_inode_rcu(dentry);
+ 	struct dentry *upper;
+ 	unsigned int i;
+ 	int ret = 1;
  
- 	if (userfont) {
- 		p->userfont = old_userfont;
--		REFCOUNT(data)--;
-+		if (--REFCOUNT(data) == 0)
-+			kfree(data - FONT_EXTRA_WORDS * sizeof(int));
- 	}
+-	upper = ovl_dentry_upper(dentry);
++	/* Careful in RCU mode */
++	if (!inode)
++		return -ECHILD;
++
++	upper = ovl_i_dentry_upper(inode);
+ 	if (upper)
+ 		ret = ovl_revalidate_real(upper, flags, weak);
  
- 	vc->vc_font.width = old_width;
 
 
