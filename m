@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCBCE658166
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:28:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7969265807E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:18:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234677AbiL1Q2X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:28:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45984 "EHLO
+        id S234597AbiL1QSE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:18:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234725AbiL1Q1o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:27:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 828581D0DC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:23:46 -0800 (PST)
+        with ESMTP id S234711AbiL1QRS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:17:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED1D21ADB2
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:15:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 20C5B61582
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:23:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37973C433D2;
-        Wed, 28 Dec 2022 16:23:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A4689B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:15:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22BC4C433D2;
+        Wed, 28 Dec 2022 16:15:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244625;
-        bh=Me0tvVu2TDM8BnW/urNCRBzy7NHva6Q8o6b6aBdIYhg=;
+        s=korg; t=1672244133;
+        bh=C7fUcCl0MYG6C35XWcB0lDVuuWtKalbjDQBErs8rt1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BdfN1f+x7z0ZmRq8eKUnryrgofrmcBjk1XGH/GbQj0D5t0/IUGkzYDVAQV0SNrhVB
-         izqMK/OTOLJJ5GdIvfGIJubkS+4J43DrHbRpZPF73IGXQPAAoNEvVQn9TgWzpzuYab
-         lCXI3vlPK0PPeK2vhXpKzQzA/QheQ6me0NZjcopc=
+        b=NfmJ3ROUArQvInT1tvzSPubDvWPN/0sEw74hDxwoK3WcVzr9jmToVeR8+jiZzKGaO
+         LgDuCUtMM26Fk9d5Pst2QEmB2S8GXBxFfM/1NKYnZAaDIXbqFlLbJf56miQ0aaPjsz
+         jM0VNUB/gb8GdtO/Ua/WxowCp4jx74/lKOQIH1sU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marek Vasut <marex@denx.de>,
-        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0705/1146] extcon: usbc-tusb320: Update state on probe even if no IRQ pending
+Subject: [PATCH 6.0 0656/1073] crypto: img-hash - Fix variable dereferenced before check hdev->req
 Date:   Wed, 28 Dec 2022 15:37:24 +0100
-Message-Id: <20221228144349.296366286@linuxfoundation.org>
+Message-Id: <20221228144345.863138005@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,99 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit 581c848b610dbf3fe1ed4d85fd53d0743c61faba ]
+[ Upstream commit 04ba54e5af8f8f0137b08cb51a0b3a2e1ea46c94 ]
 
-Currently this driver triggers extcon and typec state update in its
-probe function, to read out current state reported by the chip and
-report the correct state to upper layers. This synchronization is
-performed correctly, but only in case the chip indicates a pending
-interrupt in reg09 register.
+Smatch report warning as follows:
 
-This fails to cover the situation where all interrupts reported by
-the chip were already handled by Linux before reboot, then the system
-rebooted, and then Linux starts again. In this case, the TUSB320 no
-longer reports any interrupts in reg09, and the state update does not
-perform any update as it depends on that interrupt indication.
+drivers/crypto/img-hash.c:366 img_hash_dma_task() warn: variable
+dereferenced before check 'hdev->req'
 
-Fix this by turning tusb320_irq_handler() into a thin wrapper around
-tusb320_state_update_handler(), where the later now contains the bulk
-of the code of tusb320_irq_handler(), but adds new function parameter
-"force_update". The "force_update" parameter can be used by the probe
-function to assure that the state synchronization is always performed,
-independent of the interrupt indicated in reg09. The interrupt handler
-tusb320_irq_handler() callback uses force_update=false to avoid state
-updates on potential spurious interrupts and retain current behavior.
+Variable dereferenced should be done after check 'hdev->req',
+fix it.
 
-Fixes: 06bc4ca115cdd ("extcon: Add driver for TI TUSB320")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Reviewed-by: Alvin Šipraga <alsi@bang-olufsen.dk>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20221120141509.81012-1-marex@denx.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d358f1abbf71 ("crypto: img-hash - Add Imagination Technologies hw hash accelerator")
+Fixes: 10badea259fa ("crypto: img-hash - Fix null pointer exception")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/extcon/extcon-usbc-tusb320.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/crypto/img-hash.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/extcon/extcon-usbc-tusb320.c b/drivers/extcon/extcon-usbc-tusb320.c
-index 2a120d8d3c27..9dfa545427ca 100644
---- a/drivers/extcon/extcon-usbc-tusb320.c
-+++ b/drivers/extcon/extcon-usbc-tusb320.c
-@@ -313,9 +313,9 @@ static void tusb320_typec_irq_handler(struct tusb320_priv *priv, u8 reg9)
- 		typec_set_pwr_opmode(port, TYPEC_PWR_MODE_USB);
- }
- 
--static irqreturn_t tusb320_irq_handler(int irq, void *dev_id)
-+static irqreturn_t tusb320_state_update_handler(struct tusb320_priv *priv,
-+						bool force_update)
+diff --git a/drivers/crypto/img-hash.c b/drivers/crypto/img-hash.c
+index d8e82d69745d..9629e98bd68b 100644
+--- a/drivers/crypto/img-hash.c
++++ b/drivers/crypto/img-hash.c
+@@ -358,12 +358,16 @@ static int img_hash_dma_init(struct img_hash_dev *hdev)
+ static void img_hash_dma_task(unsigned long d)
  {
--	struct tusb320_priv *priv = dev_id;
- 	unsigned int reg;
+ 	struct img_hash_dev *hdev = (struct img_hash_dev *)d;
+-	struct img_hash_request_ctx *ctx = ahash_request_ctx(hdev->req);
++	struct img_hash_request_ctx *ctx;
+ 	u8 *addr;
+ 	size_t nbytes, bleft, wsend, len, tbc;
+ 	struct scatterlist tsg;
  
- 	if (regmap_read(priv->regmap, TUSB320_REG9, &reg)) {
-@@ -323,7 +323,7 @@ static irqreturn_t tusb320_irq_handler(int irq, void *dev_id)
- 		return IRQ_NONE;
- 	}
- 
--	if (!(reg & TUSB320_REG9_INTERRUPT_STATUS))
-+	if (!force_update && !(reg & TUSB320_REG9_INTERRUPT_STATUS))
- 		return IRQ_NONE;
- 
- 	tusb320_extcon_irq_handler(priv, reg);
-@@ -340,6 +340,13 @@ static irqreturn_t tusb320_irq_handler(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
-+static irqreturn_t tusb320_irq_handler(int irq, void *dev_id)
-+{
-+	struct tusb320_priv *priv = dev_id;
+-	if (!hdev->req || !ctx->sg)
++	if (!hdev->req)
++		return;
 +
-+	return tusb320_state_update_handler(priv, false);
-+}
-+
- static const struct regmap_config tusb320_regmap_config = {
- 	.reg_bits = 8,
- 	.val_bits = 8,
-@@ -466,7 +473,7 @@ static int tusb320_probe(struct i2c_client *client,
- 		return ret;
++	ctx = ahash_request_ctx(hdev->req);
++	if (!ctx->sg)
+ 		return;
  
- 	/* update initial state */
--	tusb320_irq_handler(client->irq, priv);
-+	tusb320_state_update_handler(priv, true);
- 
- 	/* Reset chip to its default state */
- 	ret = tusb320_reset(priv);
-@@ -477,7 +484,7 @@ static int tusb320_probe(struct i2c_client *client,
- 		 * State and polarity might change after a reset, so update
- 		 * them again and make sure the interrupt status bit is cleared.
- 		 */
--		tusb320_irq_handler(client->irq, priv);
-+		tusb320_state_update_handler(priv, true);
- 
- 	ret = devm_request_threaded_irq(priv->dev, client->irq, NULL,
- 					tusb320_irq_handler,
+ 	addr = sg_virt(ctx->sg);
 -- 
 2.35.1
 
