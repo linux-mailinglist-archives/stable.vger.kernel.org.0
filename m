@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B843657F42
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 766B06584C1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:01:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234324AbiL1QDK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:03:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48210 "EHLO
+        id S235077AbiL1RBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:01:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234347AbiL1QCp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:02:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 220FC186B8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:02:38 -0800 (PST)
+        with ESMTP id S235373AbiL1RAz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:00:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC6E21AA11
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:55:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B0D1861576
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:02:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2D43C433D2;
-        Wed, 28 Dec 2022 16:02:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 60C5BB8188A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:55:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA056C433EF;
+        Wed, 28 Dec 2022 16:55:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243357;
-        bh=HNAX9+P+6yk4qTNS5e64QbAO2UljWqCcIS0FPbtKiic=;
+        s=korg; t=1672246557;
+        bh=UhnRP5xJv+eN8kx5sD6N7kKtsFqsuCQhb0p1qF5MzI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vIbFmEkq5XEM3fsHTc2hxYmkG6zAPbAQctvZpo6d5zKH8AcA871Mvki3iHEaPUvUK
-         /TETg55qJ+W/uPBWNYhtMqsgy63rpN0sKzBXatyjXk+//K/nUPLwUAmCd4C6XdfHHo
-         SzDAW5Ag5ON8PuKrcjpo03ZzFjqEgmDgwCY83iwk=
+        b=Dbwa+456zkJlv7I4pnPUN0f+dDNGfdiy3Fvc+UygY+/LPAvvrrKHnhdJynUQ9e71f
+         i8nT7KO6kIJ92fJ7V+nNT/UMzO1hF2FGWJoaYDcuQ7W+UhJHcg6b5d6KgUMHNOMxZb
+         L7/9gRiauzgiR3wbtK53DS0TENfNT0h7Ytip9wBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jason Gerecke <jason.gerecke@wacom.com>,
-        Tatsunosuke Tobita <tatsunosuke.tobita@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.15 712/731] HID: wacom: Ensure bootloader PID is usable in hidraw mode
+        patches@lists.linux.dev,
+        =?UTF-8?q?Daniel=20D=C3=ADaz?= <daniel.diaz@linaro.org>,
+        Kristina Martsenko <kristina.martsenko@arm.com>,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 1080/1146] lkdtm: cfi: Make PAC test work with GCC 7 and 8
 Date:   Wed, 28 Dec 2022 15:43:39 +0100
-Message-Id: <20221228144317.085392128@linuxfoundation.org>
+Message-Id: <20221228144359.549532291@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,89 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gerecke <killertofu@gmail.com>
+From: Kristina Martsenko <kristina.martsenko@arm.com>
 
-commit 1db1f392591aff13fd643f0ec7c1d5e27391d700 upstream.
+[ Upstream commit f68022ae0aeb0803450e05abc0e984027c33ef1b ]
 
-Some Wacom devices have a special "bootloader" mode that is used for
-firmware flashing. When operating in this mode, the device cannot be
-used for input, and the HID descriptor is not able to be processed by
-the driver. The driver generates an "Unknown device_type" warning and
-then returns an error code from wacom_probe(). This is a problem because
-userspace still needs to be able to interact with the device via hidraw
-to perform the firmware flash.
+The CFI test uses the branch-protection=none compiler attribute to
+disable PAC return address protection on a function. While newer GCC
+versions support this attribute, older versions (GCC 7 and 8) instead
+supported the sign-return-address=none attribute, leading to a build
+failure when the test is built with older compilers. Fix it by checking
+which attribute is supported and using the correct one.
 
-This commit adds a non-generic device definition for 056a:0094 which
-is used when devices are in "bootloader" mode. It marks the devices
-with a special BOOTLOADER type that is recognized by wacom_probe() and
-wacom_raw_event(). When we see this type we ensure a hidraw device is
-created and otherwise keep our hands off so that userspace is in full
-control.
-
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Tested-by: Tatsunosuke Tobita <tatsunosuke.tobita@wacom.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2e53b877dc12 ("lkdtm: Add CFI_BACKWARD to test ROP mitigations")
+Reported-by: Daniel Díaz <daniel.diaz@linaro.org>
+Signed-off-by: Kristina Martsenko <kristina.martsenko@arm.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/all/CAEUSe78kDPxQmQqCWW-_9LCgJDFhAeMoVBFnX9QLx18Z4uT4VQ@mail.gmail.com/
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/wacom_sys.c |    8 ++++++++
- drivers/hid/wacom_wac.c |    4 ++++
- drivers/hid/wacom_wac.h |    1 +
- 3 files changed, 13 insertions(+)
+ drivers/misc/lkdtm/cfi.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -160,6 +160,9 @@ static int wacom_raw_event(struct hid_de
- {
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 
-+	if (wacom->wacom_wac.features.type == BOOTLOADER)
-+		return 0;
-+
- 	if (size > WACOM_PKGLEN_MAX)
- 		return 1;
- 
-@@ -2792,6 +2795,11 @@ static int wacom_probe(struct hid_device
- 		return error;
- 	}
- 
-+	if (features->type == BOOTLOADER) {
-+		hid_warn(hdev, "Using device in hidraw-only mode");
-+		return hid_hw_start(hdev, HID_CONNECT_HIDRAW);
-+	}
-+
- 	error = wacom_parse_and_register(wacom, false);
- 	if (error)
- 		return error;
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -4813,6 +4813,9 @@ static const struct wacom_features wacom
- static const struct wacom_features wacom_features_HID_ANY_ID =
- 	{ "Wacom HID", .type = HID_GENERIC, .oVid = HID_ANY_ID, .oPid = HID_ANY_ID };
- 
-+static const struct wacom_features wacom_features_0x94 =
-+	{ "Wacom Bootloader", .type = BOOTLOADER };
-+
- #define USB_DEVICE_WACOM(prod)						\
- 	HID_DEVICE(BUS_USB, HID_GROUP_WACOM, USB_VENDOR_ID_WACOM, prod),\
- 	.driver_data = (kernel_ulong_t)&wacom_features_##prod
-@@ -4886,6 +4889,7 @@ const struct hid_device_id wacom_ids[] =
- 	{ USB_DEVICE_WACOM(0x84) },
- 	{ USB_DEVICE_WACOM(0x90) },
- 	{ USB_DEVICE_WACOM(0x93) },
-+	{ USB_DEVICE_WACOM(0x94) },
- 	{ USB_DEVICE_WACOM(0x97) },
- 	{ USB_DEVICE_WACOM(0x9A) },
- 	{ USB_DEVICE_WACOM(0x9F) },
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -242,6 +242,7 @@ enum {
- 	MTTPC,
- 	MTTPC_B,
- 	HID_GENERIC,
-+	BOOTLOADER,
- 	MAX_TYPE
- };
- 
+diff --git a/drivers/misc/lkdtm/cfi.c b/drivers/misc/lkdtm/cfi.c
+index 5245cf6013c9..fc28714ae3a6 100644
+--- a/drivers/misc/lkdtm/cfi.c
++++ b/drivers/misc/lkdtm/cfi.c
+@@ -54,7 +54,11 @@ static void lkdtm_CFI_FORWARD_PROTO(void)
+ # ifdef CONFIG_ARM64_BTI_KERNEL
+ #  define __no_pac             "branch-protection=bti"
+ # else
+-#  define __no_pac             "branch-protection=none"
++#  ifdef CONFIG_CC_HAS_BRANCH_PROT_PAC_RET
++#   define __no_pac            "branch-protection=none"
++#  else
++#   define __no_pac            "sign-return-address=none"
++#  endif
+ # endif
+ # define __no_ret_protection   __noscs __attribute__((__target__(__no_pac)))
+ #else
+-- 
+2.35.1
+
 
 
