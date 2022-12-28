@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 338246582FB
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A254D657D8A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:44:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234970AbiL1Qny (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:43:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36446 "EHLO
+        id S233975AbiL1PoR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:44:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234972AbiL1Qn0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:26 -0500
+        with ESMTP id S233572AbiL1PoO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:44:14 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7030B49
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC9A41743A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:44:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5FD7DB8171E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:37:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3BA8C433EF;
-        Wed, 28 Dec 2022 16:37:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 703D6B81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:44:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC147C433EF;
+        Wed, 28 Dec 2022 15:44:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245458;
-        bh=3UcKbcofwLkR8kAs0YAUDXkw+/DMlnfihZ75Bgz68dI=;
+        s=korg; t=1672242251;
+        bh=vguymVk6W8AEmYcmqZEk9CMx6BepfOetrT5xctjC3zo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kmiKV4oRq8AOKWuQI7rfvZQLXbP8HZeLC5zGIjju82CLvdwzyqSo+wZCc2HXhoc2G
-         T16dAco5RxFNrtsHUhkN/Dzxl60dgJxc8TIX4LvDPQuGCnTtJPGe7BH6NdE4TMX9vZ
-         o5UOi28yvycBQYLsPsQd1rp6dEH3bI25Qg2IU8Z4=
+        b=w+9dXwopec1MRM2gSux4g31zU1bOomAWW4CgseK4W9uJb+itsNeyIvo4HpbjFpvp3
+         qzKrMfiLMxErR5DlhNxQFCaBIABlVae7iFxpH2h6Q0qwobyDEreq+k9SNVpe+0fNjj
+         gpkb2YIGgTMS0PuvEZYHpXC8BZ2xCBdr3Psxr8JE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+e91619dd4c11c4960706@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0899/1073] nilfs2: fix shift-out-of-bounds/overflow in nilfs_sb2_bad_offset()
+Subject: [PATCH 5.15 580/731] rtc: pic32: Move devm_rtc_allocate_device earlier in pic32_rtc_probe()
 Date:   Wed, 28 Dec 2022 15:41:27 +0100
-Message-Id: <20221228144352.447847168@linuxfoundation.org>
+Message-Id: <20221228144313.364733178@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,112 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit 610a2a3d7d8be3537458a378ec69396a76c385b6 ]
+[ Upstream commit 90cd5c88830140c9fade92a8027e0fb2c6e4cc49 ]
 
-Patch series "nilfs2: fix UBSAN shift-out-of-bounds warnings on mount
-time".
+The pic32_rtc_enable(pdata, 0) and clk_disable_unprepare(pdata->clk)
+should be called in the error handling of devm_rtc_allocate_device(),
+so we should move devm_rtc_allocate_device earlier in pic32_rtc_probe()
+to fix it.
 
-The first patch fixes a bug reported by syzbot, and the second one fixes
-the remaining bug of the same kind.  Although they are triggered by the
-same super block data anomaly, I divided it into the above two because the
-details of the issues and how to fix it are different.
-
-Both are required to eliminate the shift-out-of-bounds issues at mount
-time.
-
-This patch (of 2):
-
-If the block size exponent information written in an on-disk superblock is
-corrupted, nilfs_sb2_bad_offset helper function can trigger
-shift-out-of-bounds warning followed by a kernel panic (if panic_on_warn
-is set):
-
- shift exponent 38983 is too large for 64-bit type 'unsigned long long'
- Call Trace:
-  <TASK>
-  __dump_stack lib/dump_stack.c:88 [inline]
-  dump_stack_lvl+0x1b1/0x28e lib/dump_stack.c:106
-  ubsan_epilogue lib/ubsan.c:151 [inline]
-  __ubsan_handle_shift_out_of_bounds+0x33d/0x3b0 lib/ubsan.c:322
-  nilfs_sb2_bad_offset fs/nilfs2/the_nilfs.c:449 [inline]
-  nilfs_load_super_block+0xdf5/0xe00 fs/nilfs2/the_nilfs.c:523
-  init_nilfs+0xb7/0x7d0 fs/nilfs2/the_nilfs.c:577
-  nilfs_fill_super+0xb1/0x5d0 fs/nilfs2/super.c:1047
-  nilfs_mount+0x613/0x9b0 fs/nilfs2/super.c:1317
-  ...
-
-In addition, since nilfs_sb2_bad_offset() performs multiplication without
-considering the upper bound, the computation may overflow if the disk
-layout parameters are not normal.
-
-This fixes these issues by inserting preliminary sanity checks for those
-parameters and by converting the comparison from one involving
-multiplication and left bit-shifting to one using division and right
-bit-shifting.
-
-Link: https://lkml.kernel.org/r/20221027044306.42774-1-konishi.ryusuke@gmail.com
-Link: https://lkml.kernel.org/r/20221027044306.42774-2-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+e91619dd4c11c4960706@syzkaller.appspotmail.com
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 6515e23b9fde ("rtc: pic32: convert to devm_rtc_allocate_device")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Link: https://lore.kernel.org/r/20221123015953.1998521-1-cuigaosheng1@huawei.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nilfs2/the_nilfs.c | 31 +++++++++++++++++++++++++++----
- 1 file changed, 27 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-pic32.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/nilfs2/the_nilfs.c b/fs/nilfs2/the_nilfs.c
-index c8b89b4f94e0..a7c829a7d4f1 100644
---- a/fs/nilfs2/the_nilfs.c
-+++ b/fs/nilfs2/the_nilfs.c
-@@ -13,6 +13,7 @@
- #include <linux/blkdev.h>
- #include <linux/backing-dev.h>
- #include <linux/random.h>
-+#include <linux/log2.h>
- #include <linux/crc32.h>
- #include "nilfs.h"
- #include "segment.h"
-@@ -443,11 +444,33 @@ static int nilfs_valid_sb(struct nilfs_super_block *sbp)
- 	return crc == le32_to_cpu(sbp->s_sum);
- }
+diff --git a/drivers/rtc/rtc-pic32.c b/drivers/rtc/rtc-pic32.c
+index 7fb9145c43bd..fa351ac20158 100644
+--- a/drivers/rtc/rtc-pic32.c
++++ b/drivers/rtc/rtc-pic32.c
+@@ -324,16 +324,16 @@ static int pic32_rtc_probe(struct platform_device *pdev)
  
--static int nilfs_sb2_bad_offset(struct nilfs_super_block *sbp, u64 offset)
-+/**
-+ * nilfs_sb2_bad_offset - check the location of the second superblock
-+ * @sbp: superblock raw data buffer
-+ * @offset: byte offset of second superblock calculated from device size
-+ *
-+ * nilfs_sb2_bad_offset() checks if the position on the second
-+ * superblock is valid or not based on the filesystem parameters
-+ * stored in @sbp.  If @offset points to a location within the segment
-+ * area, or if the parameters themselves are not normal, it is
-+ * determined to be invalid.
-+ *
-+ * Return Value: true if invalid, false if valid.
-+ */
-+static bool nilfs_sb2_bad_offset(struct nilfs_super_block *sbp, u64 offset)
- {
--	return offset < ((le64_to_cpu(sbp->s_nsegments) *
--			  le32_to_cpu(sbp->s_blocks_per_segment)) <<
--			 (le32_to_cpu(sbp->s_log_block_size) + 10));
-+	unsigned int shift_bits = le32_to_cpu(sbp->s_log_block_size);
-+	u32 blocks_per_segment = le32_to_cpu(sbp->s_blocks_per_segment);
-+	u64 nsegments = le64_to_cpu(sbp->s_nsegments);
-+	u64 index;
-+
-+	if (blocks_per_segment < NILFS_SEG_MIN_BLOCKS ||
-+	    shift_bits > ilog2(NILFS_MAX_BLOCK_SIZE) - BLOCK_SIZE_BITS)
-+		return true;
-+
-+	index = offset >> (shift_bits + BLOCK_SIZE_BITS);
-+	do_div(index, blocks_per_segment);
-+	return index < nsegments;
- }
+ 	spin_lock_init(&pdata->alarm_lock);
  
- static void nilfs_release_super_block(struct the_nilfs *nilfs)
++	pdata->rtc = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(pdata->rtc))
++		return PTR_ERR(pdata->rtc);
++
+ 	clk_prepare_enable(pdata->clk);
+ 
+ 	pic32_rtc_enable(pdata, 1);
+ 
+ 	device_init_wakeup(&pdev->dev, 1);
+ 
+-	pdata->rtc = devm_rtc_allocate_device(&pdev->dev);
+-	if (IS_ERR(pdata->rtc))
+-		return PTR_ERR(pdata->rtc);
+-
+ 	pdata->rtc->ops = &pic32_rtcops;
+ 	pdata->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+ 	pdata->rtc->range_max = RTC_TIMESTAMP_END_2099;
 -- 
 2.35.1
 
