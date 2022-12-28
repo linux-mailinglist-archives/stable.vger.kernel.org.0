@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 655BF6580DB
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:22:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3131C6581BD
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:31:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234533AbiL1QVd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:21:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38394 "EHLO
+        id S234724AbiL1Qbj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:31:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234700AbiL1QVB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:21:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B87C19022
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:19:01 -0800 (PST)
+        with ESMTP id S234084AbiL1QbQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:31:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41FEC1D31C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:27:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BCFF161562
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:19:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4454C433D2;
-        Wed, 28 Dec 2022 16:18:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93820B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:27:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E863AC433D2;
+        Wed, 28 Dec 2022 16:27:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244340;
-        bh=IEHtdTtIRZLVgA0FAEWcFUoxODgJWkPXHc+W3Kknhhc=;
+        s=korg; t=1672244830;
+        bh=yEZa6B1TZCsRS5KFKARCago1rBoKBQG73bW/2H4Z+v8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vUEomwBPNRptv+m6p/zY+9vA/wm19OLOmI9232ux7E1V/MyZCllmTsFnRW9qnH3Dk
-         gDmAFvXRXv1p+wYphRZu3svis9uZDyUItjCle5nLrrapvw2PQEugltKdLBZ0VN1gTa
-         out0IZ8R3ZC4bZdXlocxPuCVnSTTkY5n5c2EtDoE=
+        b=rrWMlrJUZz1Hgkl3AkUumuLBWv2JOnmOr9KLZ+JLAuhh8OicFVfVyptrw5vouOQjV
+         +UWDAa3mqW7+loWBrD1FJDa6IjU0R8pB49AFtObIYlVqNOCAewrsEih/UKLdrf+I+r
+         2LE12ygV+ok8zRU7jb6ow9Dt9NHrTMYZZVymWWIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrew Donnellan <ajd@linux.ibm.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0694/1073] ocxl: fix pci device refcount leak when calling get_function_0()
+        patches@lists.linux.dev, Zheyu Ma <zheyuma97@gmail.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0743/1146] i2c: ismt: Fix an out-of-bounds bug in ismt_access()
 Date:   Wed, 28 Dec 2022 15:38:02 +0100
-Message-Id: <20221228144346.882980778@linuxfoundation.org>
+Message-Id: <20221228144350.329736920@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,85 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 27158c72678b39ee01cc01de1aba6b51c71abe2f ]
+[ Upstream commit 39244cc754829bf707dccd12e2ce37510f5b1f8d ]
 
-get_function_0() calls pci_get_domain_bus_and_slot(), as comment
-says, it returns a pci device with refcount increment, so after
-using it, pci_dev_put() needs be called.
+When the driver does not check the data from the user, the variable
+'data->block[0]' may be very large to cause an out-of-bounds bug.
 
-Get the device reference when get_function_0() is not called, so
-pci_dev_put() can be called in the error path and callers
-unconditionally. And add comment above get_dvsec_vendor0() to tell
-callers to call pci_dev_put().
+The following log can reveal it:
 
-Fixes: 87db7579ebd5 ("ocxl: control via sysfs whether the FPGA is reloaded on a link reset")
-Suggested-by: Andrew Donnellan <ajd@linux.ibm.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Acked-by: Andrew Donnellan <ajd@linux.ibm.com>
-Link: https://lore.kernel.org/r/20221121154339.4088935-1-yangyingliang@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[   33.995542] i2c i2c-1: ioctl, cmd=0x720, arg=0x7ffcb3dc3a20
+[   33.995978] ismt_smbus 0000:00:05.0: I2C_SMBUS_BLOCK_DATA:  WRITE
+[   33.996475] ==================================================================
+[   33.996995] BUG: KASAN: out-of-bounds in ismt_access.cold+0x374/0x214b
+[   33.997473] Read of size 18446744073709551615 at addr ffff88810efcfdb1 by task ismt_poc/485
+[   33.999450] Call Trace:
+[   34.001849]  memcpy+0x20/0x60
+[   34.002077]  ismt_access.cold+0x374/0x214b
+[   34.003382]  __i2c_smbus_xfer+0x44f/0xfb0
+[   34.004007]  i2c_smbus_xfer+0x10a/0x390
+[   34.004291]  i2cdev_ioctl_smbus+0x2c8/0x710
+[   34.005196]  i2cdev_ioctl+0x5ec/0x74c
+
+Fix this bug by checking the size of 'data->block[0]' first.
+
+Fixes: 13f35ac14cd0 ("i2c: Adding support for Intel iSMT SMBus 2.0 host controller")
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/ocxl/config.c | 20 +++++++++++++++++++-
- 1 file changed, 19 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-ismt.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/misc/ocxl/config.c b/drivers/misc/ocxl/config.c
-index e401a51596b9..92ab49705f64 100644
---- a/drivers/misc/ocxl/config.c
-+++ b/drivers/misc/ocxl/config.c
-@@ -193,6 +193,18 @@ static int read_dvsec_vendor(struct pci_dev *dev)
- 	return 0;
- }
- 
-+/**
-+ * get_dvsec_vendor0() - Find a related PCI device (function 0)
-+ * @dev: PCI device to match
-+ * @dev0: The PCI device (function 0) found
-+ * @out_pos: The position of PCI device (function 0)
-+ *
-+ * Returns 0 on success, negative on failure.
-+ *
-+ * NOTE: If it's successful, the reference of dev0 is increased,
-+ * so after using it, the callers must call pci_dev_put() to give
-+ * up the reference.
-+ */
- static int get_dvsec_vendor0(struct pci_dev *dev, struct pci_dev **dev0,
- 			     int *out_pos)
- {
-@@ -202,10 +214,14 @@ static int get_dvsec_vendor0(struct pci_dev *dev, struct pci_dev **dev0,
- 		dev = get_function_0(dev);
- 		if (!dev)
- 			return -1;
-+	} else {
-+		dev = pci_dev_get(dev);
- 	}
- 	pos = find_dvsec(dev, OCXL_DVSEC_VENDOR_ID);
--	if (!pos)
-+	if (!pos) {
-+		pci_dev_put(dev);
- 		return -1;
-+	}
- 	*dev0 = dev;
- 	*out_pos = pos;
- 	return 0;
-@@ -222,6 +238,7 @@ int ocxl_config_get_reset_reload(struct pci_dev *dev, int *val)
- 
- 	pci_read_config_dword(dev0, pos + OCXL_DVSEC_VENDOR_RESET_RELOAD,
- 			      &reset_reload);
-+	pci_dev_put(dev0);
- 	*val = !!(reset_reload & BIT(0));
- 	return 0;
- }
-@@ -243,6 +260,7 @@ int ocxl_config_set_reset_reload(struct pci_dev *dev, int val)
- 		reset_reload &= ~BIT(0);
- 	pci_write_config_dword(dev0, pos + OCXL_DVSEC_VENDOR_RESET_RELOAD,
- 			       reset_reload);
-+	pci_dev_put(dev0);
- 	return 0;
- }
- 
+diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+index fe2349590f75..c74985d77b0e 100644
+--- a/drivers/i2c/busses/i2c-ismt.c
++++ b/drivers/i2c/busses/i2c-ismt.c
+@@ -509,6 +509,9 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+ 		if (read_write == I2C_SMBUS_WRITE) {
+ 			/* Block Write */
+ 			dev_dbg(dev, "I2C_SMBUS_BLOCK_DATA:  WRITE\n");
++			if (data->block[0] < 1 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
++				return -EINVAL;
++
+ 			dma_size = data->block[0] + 1;
+ 			dma_direction = DMA_TO_DEVICE;
+ 			desc->wr_len_cmd = dma_size;
 -- 
 2.35.1
 
