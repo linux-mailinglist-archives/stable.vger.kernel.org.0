@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBFAF6580CD
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:21:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AB826581A8
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:30:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233256AbiL1QVV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:21:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36302 "EHLO
+        id S230392AbiL1QaY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:30:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233263AbiL1QUg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:20:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6B051AF3E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:18:22 -0800 (PST)
+        with ESMTP id S233315AbiL1QaA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:30:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24DE51B9E8
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:26:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5906CB81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:18:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDBFBC433D2;
-        Wed, 28 Dec 2022 16:18:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D5E3FB81717
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:26:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46E92C433D2;
+        Wed, 28 Dec 2022 16:26:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244300;
-        bh=Epcd0hG9bjQ6EmjXOX9Lt/Te4kfyUZcwutwROJnJ+4g=;
+        s=korg; t=1672244785;
+        bh=2s8+8v+kwfXxbFXzf6BDPF3hKKV7A9BpshUDpveIOhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yEB0LpHkbegcg0arzOU18ghBe5fNSD7g2wzXMRNbfblNVyUKne9D07NUJavGo36/+
-         6qw6T9bIBYlOzlO9h2fuD+KV3H8UBnF0Ff8E4TUZzfva5zDAD8opLrncwa8nTbZmit
-         K9gzr9D5H+zxOuxmRnA6hYkj8qSUL1RTFXRpEv+g=
+        b=EpCSrM5SAqhbk+r1LtG2wDJpDKCkyjXAeIqBdDgpKRGGVz/+ntSI/386H6zEcOXlp
+         BWwFdTtmXAewe+G7skL3puB/8MoFEifFjwVHsrvL2kzQiQYSTwnBRTnxPS+K8MeMO9
+         Cpby2OQP1lGN+ggRG9nCkejEq17Dn/VnUl1tI8Ts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0687/1073] serial: pch: Fix PCI device refcount leak in pch_request_dma()
+        patches@lists.linux.dev, Hui Tang <tanghui20@huawei.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0736/1146] i2c: pxa-pci: fix missing pci_disable_device() on error in ce4100_i2c_probe
 Date:   Wed, 28 Dec 2022 15:37:55 +0100
-Message-Id: <20221228144346.696177052@linuxfoundation.org>
+Message-Id: <20221228144350.139836817@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Hui Tang <tanghui20@huawei.com>
 
-[ Upstream commit 8be3a7bf773700534a6e8f87f6ed2ed111254be5 ]
+[ Upstream commit d78a167332e1ca8113268ed922c1212fd71b73ad ]
 
-As comment of pci_get_slot() says, it returns a pci_device with its
-refcount increased. The caller must decrement the reference count by
-calling pci_dev_put().
+Using pcim_enable_device() to avoid missing pci_disable_device().
 
-Since 'dma_dev' is only used to filter the channel in filter(), we can
-call pci_dev_put() before exiting from pch_request_dma(). Add the
-missing pci_dev_put() for the normal and error path.
-
-Fixes: 3c6a483275f4 ("Serial: EG20T: add PCH_UART driver")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Link: https://lore.kernel.org/r/20221122114559.27692-1-wangxiongfeng2@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7e94dd154e93 ("i2c-pxa2xx: Add PCI support for PXA I2C controller")
+Signed-off-by: Hui Tang <tanghui20@huawei.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/pch_uart.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/i2c/busses/i2c-pxa-pci.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/tty/serial/pch_uart.c b/drivers/tty/serial/pch_uart.c
-index 8a9065e4a903..ec501c3ce033 100644
---- a/drivers/tty/serial/pch_uart.c
-+++ b/drivers/tty/serial/pch_uart.c
-@@ -694,6 +694,7 @@ static void pch_request_dma(struct uart_port *port)
- 	if (!chan) {
- 		dev_err(priv->port.dev, "%s:dma_request_channel FAILS(Tx)\n",
- 			__func__);
-+		pci_dev_put(dma_dev);
- 		return;
- 	}
- 	priv->chan_tx = chan;
-@@ -710,6 +711,7 @@ static void pch_request_dma(struct uart_port *port)
- 			__func__);
- 		dma_release_channel(priv->chan_tx);
- 		priv->chan_tx = NULL;
-+		pci_dev_put(dma_dev);
- 		return;
- 	}
+diff --git a/drivers/i2c/busses/i2c-pxa-pci.c b/drivers/i2c/busses/i2c-pxa-pci.c
+index f614cade432b..30e38bc8b6db 100644
+--- a/drivers/i2c/busses/i2c-pxa-pci.c
++++ b/drivers/i2c/busses/i2c-pxa-pci.c
+@@ -105,7 +105,7 @@ static int ce4100_i2c_probe(struct pci_dev *dev,
+ 	int i;
+ 	struct ce4100_devices *sds;
  
-@@ -717,6 +719,8 @@ static void pch_request_dma(struct uart_port *port)
- 	priv->rx_buf_virt = dma_alloc_coherent(port->dev, port->fifosize,
- 				    &priv->rx_buf_dma, GFP_KERNEL);
- 	priv->chan_rx = chan;
-+
-+	pci_dev_put(dma_dev);
+-	ret = pci_enable_device_mem(dev);
++	ret = pcim_enable_device(dev);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -114,10 +114,8 @@ static int ce4100_i2c_probe(struct pci_dev *dev,
+ 		return -EINVAL;
+ 	}
+ 	sds = kzalloc(sizeof(*sds), GFP_KERNEL);
+-	if (!sds) {
+-		ret = -ENOMEM;
+-		goto err_mem;
+-	}
++	if (!sds)
++		return -ENOMEM;
+ 
+ 	for (i = 0; i < ARRAY_SIZE(sds->pdev); i++) {
+ 		sds->pdev[i] = add_i2c_device(dev, i);
+@@ -133,8 +131,6 @@ static int ce4100_i2c_probe(struct pci_dev *dev,
+ 
+ err_dev_add:
+ 	kfree(sds);
+-err_mem:
+-	pci_disable_device(dev);
+ 	return ret;
  }
  
- static void pch_dma_rx_complete(void *arg)
 -- 
 2.35.1
 
