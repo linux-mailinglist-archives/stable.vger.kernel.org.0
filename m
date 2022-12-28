@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 551496583D5
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:52:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F446658450
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234990AbiL1Qwu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:52:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44980 "EHLO
+        id S235310AbiL1Q4l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:56:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235175AbiL1Qw0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:52:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87119180
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:46:44 -0800 (PST)
+        with ESMTP id S235312AbiL1Qzw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:55:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FA181D675
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:51:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3B90FB8171F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:46:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81560C433EF;
-        Wed, 28 Dec 2022 16:46:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C29BA6156B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:51:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1EBFC433D2;
+        Wed, 28 Dec 2022 16:51:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246001;
-        bh=kIPkRcL7vg8/igWD/iLUOEIINTGgR0Al5u+fgeEOQ8U=;
+        s=korg; t=1672246263;
+        bh=4ApDoPI9KAIhJt3hsL8Qr9YaZAjXHD7zpXUw/doM6Zk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qltWf1aWOGXeNAKUcZ9TsI2iYVvyC8+iL7UiFCxjgulx5Y5S+DZHiqmsFrHESnZbB
-         K4uWTQsIdw6TI3+M4URw8KDfQRWSZRw86e4RtzYvLlmLaLM0khECc4z4ntiDcrzXG2
-         ddSaUP5qZA0yUOJihqKlGaOHo7mJjUXOc23pwQTU=
+        b=Xqb7pn2+2QHzJ1VCMJYQGRcTAMhGDelHCEr8OEAm7N9CijfWVHwzM8P1QxgKUiqKW
+         D0GGOYnfOMueGzY7mQDhDwOXYddXwHma77kHtPV287V9hZUqZI0uHtRqsxAP166jl7
+         ba+rcTYYziOGYHBYIhw087lwNZiakZBZJbDupgO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0963/1073] libbpf: Avoid enum forward-declarations in public API in C++ mode
+Subject: [PATCH 6.1 1012/1146] net: add atomic_long_t to net_device_stats fields
 Date:   Wed, 28 Dec 2022 15:42:31 +0100
-Message-Id: <20221228144354.202101158@linuxfoundation.org>
+Message-Id: <20221228144357.854382376@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,69 +53,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit b42693415b86f608049cf1b4870adc1dc65e58b0 ]
+[ Upstream commit 6c1c5097781f563b70a81683ea6fdac21637573b ]
 
-C++ enum forward declarations are fundamentally not compatible with pure
-C enum definitions, and so libbpf's use of `enum bpf_stats_type;`
-forward declaration in libbpf/bpf.h public API header is causing C++
-compilation issues.
+Long standing KCSAN issues are caused by data-race around
+some dev->stats changes.
 
-More details can be found in [0], but it comes down to C++ supporting
-enum forward declaration only with explicitly specified backing type:
+Most performance critical paths already use per-cpu
+variables, or per-queue ones.
 
-  enum bpf_stats_type: int;
+It is reasonable (and more correct) to use atomic operations
+for the slow paths.
 
-In C (and I believe it's a GCC extension also), such forward declaration
-is simply:
+This patch adds an union for each field of net_device_stats,
+so that we can convert paths that are not yet protected
+by a spinlock or a mutex.
 
-  enum bpf_stats_type;
+netdev_stats_to_stats64() no longer has an #if BITS_PER_LONG==64
 
-Further, in Linux UAPI this enum is defined in pure C way:
+Note that the memcpy() we were using on 64bit arches
+had no provision to avoid load-tearing,
+while atomic_long_read() is providing the needed protection
+at no cost.
 
-enum bpf_stats_type { BPF_STATS_RUN_TIME = 0; }
-
-And even though in both cases backing type is int, which can be
-confirmed by looking at DWARF information, for C++ compiler actual enum
-definition and forward declaration are incompatible.
-
-To eliminate this problem, for C++ mode define input argument as int,
-which makes enum unnecessary in libbpf public header. This solves the
-issue and as demonstrated by next patch doesn't cause any unwanted
-compiler warnings, at least with default warnings setting.
-
-  [0] https://stackoverflow.com/questions/42766839/c11-enum-forward-causes-underlying-type-mismatch
-  [1] Closes: https://github.com/libbpf/libbpf/issues/249
-
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20221130200013.2997831-1-andrii@kernel.org
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/bpf.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+ include/linux/netdevice.h | 58 +++++++++++++++++++++++----------------
+ include/net/dst.h         |  5 ++--
+ net/core/dev.c            | 14 ++--------
+ 3 files changed, 40 insertions(+), 37 deletions(-)
 
-diff --git a/tools/lib/bpf/bpf.h b/tools/lib/bpf/bpf.h
-index 9c50beabdd14..fddc05c667b5 100644
---- a/tools/lib/bpf/bpf.h
-+++ b/tools/lib/bpf/bpf.h
-@@ -393,8 +393,15 @@ LIBBPF_API int bpf_task_fd_query(int pid, int fd, __u32 flags, char *buf,
- 				 __u32 *buf_len, __u32 *prog_id, __u32 *fd_type,
- 				 __u64 *probe_offset, __u64 *probe_addr);
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index eddf8ee270e7..ba2bd604359d 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -171,31 +171,38 @@ static inline bool dev_xmit_complete(int rc)
+  *	(unsigned long) so they can be read and written atomically.
+  */
  
-+#ifdef __cplusplus
-+/* forward-declaring enums in C++ isn't compatible with pure C enums, so
-+ * instead define bpf_enable_stats() as accepting int as an input
-+ */
-+LIBBPF_API int bpf_enable_stats(int type);
-+#else
- enum bpf_stats_type; /* defined in up-to-date linux/bpf.h */
- LIBBPF_API int bpf_enable_stats(enum bpf_stats_type type);
-+#endif
++#define NET_DEV_STAT(FIELD)			\
++	union {					\
++		unsigned long FIELD;		\
++		atomic_long_t __##FIELD;	\
++	}
++
+ struct net_device_stats {
+-	unsigned long	rx_packets;
+-	unsigned long	tx_packets;
+-	unsigned long	rx_bytes;
+-	unsigned long	tx_bytes;
+-	unsigned long	rx_errors;
+-	unsigned long	tx_errors;
+-	unsigned long	rx_dropped;
+-	unsigned long	tx_dropped;
+-	unsigned long	multicast;
+-	unsigned long	collisions;
+-	unsigned long	rx_length_errors;
+-	unsigned long	rx_over_errors;
+-	unsigned long	rx_crc_errors;
+-	unsigned long	rx_frame_errors;
+-	unsigned long	rx_fifo_errors;
+-	unsigned long	rx_missed_errors;
+-	unsigned long	tx_aborted_errors;
+-	unsigned long	tx_carrier_errors;
+-	unsigned long	tx_fifo_errors;
+-	unsigned long	tx_heartbeat_errors;
+-	unsigned long	tx_window_errors;
+-	unsigned long	rx_compressed;
+-	unsigned long	tx_compressed;
++	NET_DEV_STAT(rx_packets);
++	NET_DEV_STAT(tx_packets);
++	NET_DEV_STAT(rx_bytes);
++	NET_DEV_STAT(tx_bytes);
++	NET_DEV_STAT(rx_errors);
++	NET_DEV_STAT(tx_errors);
++	NET_DEV_STAT(rx_dropped);
++	NET_DEV_STAT(tx_dropped);
++	NET_DEV_STAT(multicast);
++	NET_DEV_STAT(collisions);
++	NET_DEV_STAT(rx_length_errors);
++	NET_DEV_STAT(rx_over_errors);
++	NET_DEV_STAT(rx_crc_errors);
++	NET_DEV_STAT(rx_frame_errors);
++	NET_DEV_STAT(rx_fifo_errors);
++	NET_DEV_STAT(rx_missed_errors);
++	NET_DEV_STAT(tx_aborted_errors);
++	NET_DEV_STAT(tx_carrier_errors);
++	NET_DEV_STAT(tx_fifo_errors);
++	NET_DEV_STAT(tx_heartbeat_errors);
++	NET_DEV_STAT(tx_window_errors);
++	NET_DEV_STAT(rx_compressed);
++	NET_DEV_STAT(tx_compressed);
+ };
++#undef NET_DEV_STAT
  
- struct bpf_prog_bind_opts {
- 	size_t sz; /* size of this struct for forward/backward compatibility */
+ /* per-cpu stats, allocated on demand.
+  * Try to fit them in a single cache line, for dev_get_stats() sake.
+@@ -5164,4 +5171,9 @@ extern struct list_head ptype_base[PTYPE_HASH_SIZE] __read_mostly;
+ 
+ extern struct net_device *blackhole_netdev;
+ 
++/* Note: Avoid these macros in fast path, prefer per-cpu or per-queue counters. */
++#define DEV_STATS_INC(DEV, FIELD) atomic_long_inc(&(DEV)->stats.__##FIELD)
++#define DEV_STATS_ADD(DEV, FIELD, VAL) 	\
++		atomic_long_add((VAL), &(DEV)->stats.__##FIELD)
++
+ #endif	/* _LINUX_NETDEVICE_H */
+diff --git a/include/net/dst.h b/include/net/dst.h
+index 00b479ce6b99..d67fda89cd0f 100644
+--- a/include/net/dst.h
++++ b/include/net/dst.h
+@@ -356,9 +356,8 @@ static inline void __skb_tunnel_rx(struct sk_buff *skb, struct net_device *dev,
+ static inline void skb_tunnel_rx(struct sk_buff *skb, struct net_device *dev,
+ 				 struct net *net)
+ {
+-	/* TODO : stats should be SMP safe */
+-	dev->stats.rx_packets++;
+-	dev->stats.rx_bytes += skb->len;
++	DEV_STATS_INC(dev, rx_packets);
++	DEV_STATS_ADD(dev, rx_bytes, skb->len);
+ 	__skb_tunnel_rx(skb, dev, net);
+ }
+ 
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 3be256051e99..70e06853ba25 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -10379,24 +10379,16 @@ void netdev_run_todo(void)
+ void netdev_stats_to_stats64(struct rtnl_link_stats64 *stats64,
+ 			     const struct net_device_stats *netdev_stats)
+ {
+-#if BITS_PER_LONG == 64
+-	BUILD_BUG_ON(sizeof(*stats64) < sizeof(*netdev_stats));
+-	memcpy(stats64, netdev_stats, sizeof(*netdev_stats));
+-	/* zero out counters that only exist in rtnl_link_stats64 */
+-	memset((char *)stats64 + sizeof(*netdev_stats), 0,
+-	       sizeof(*stats64) - sizeof(*netdev_stats));
+-#else
+-	size_t i, n = sizeof(*netdev_stats) / sizeof(unsigned long);
+-	const unsigned long *src = (const unsigned long *)netdev_stats;
++	size_t i, n = sizeof(*netdev_stats) / sizeof(atomic_long_t);
++	const atomic_long_t *src = (atomic_long_t *)netdev_stats;
+ 	u64 *dst = (u64 *)stats64;
+ 
+ 	BUILD_BUG_ON(n > sizeof(*stats64) / sizeof(u64));
+ 	for (i = 0; i < n; i++)
+-		dst[i] = src[i];
++		dst[i] = atomic_long_read(&src[i]);
+ 	/* zero out counters that only exist in rtnl_link_stats64 */
+ 	memset((char *)stats64 + n * sizeof(u64), 0,
+ 	       sizeof(*stats64) - n * sizeof(u64));
+-#endif
+ }
+ EXPORT_SYMBOL(netdev_stats_to_stats64);
+ 
 -- 
 2.35.1
 
