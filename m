@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09D276578BA
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:53:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 114A1657F8D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:06:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233148AbiL1Oxj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:53:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37922 "EHLO
+        id S234243AbiL1QGL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:06:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233174AbiL1Oxa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:53:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90735B60
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:53:29 -0800 (PST)
+        with ESMTP id S234379AbiL1QFu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:05:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8394F95B5
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:05:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 05E7A61552
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:53:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14956C433EF;
-        Wed, 28 Dec 2022 14:53:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 39625B81710
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:05:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A83C0C433EF;
+        Wed, 28 Dec 2022 16:05:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239208;
-        bh=IM5erb54z568krpX8fyJGzyCmMOBc6hLPqgUwXnQVyc=;
+        s=korg; t=1672243547;
+        bh=VKQfryT/iuoKXEWGlNMPXyOdVpScYOSuy2mBU3Mz0TY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JMGASGJh5g5C6feNBxp5t2bVcBIzz57UoSH1bNoJxFzvGTsyQ0nRKzK7dQ17gnS4+
-         oyOliMpsRxgIRdREZzpGrcqOLFTZGHuoZlgwvXUXJ3wzyoEF8A2H2TYxMzHpp8YOU/
-         9bz3OfPevAfKH7HFntOzd/xiLMgJZpJtUuS5FbSc=
+        b=PCWdtAUk8eZ0KDjvjPs1pSQC/b4e4N/t9TaDyBpOSeGhaqWedVxIznV+ZYTpBMpy0
+         sF0x4w2VKFmFbRZhZjUYnT7cXwSPKHr/cKPnakJp//W3tGBfnfnzqBOflKFS/754Zk
+         oWv1L7tcOep3npju2XOw3iBvWh92iIoc1W1Un7uc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Fedor Pchelkin <pchelkin@ispras.ru>,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 142/731] wifi: ath9k: hif_usb: Fix use-after-free in ath9k_hif_usb_reg_in_cb()
+Subject: [PATCH 6.1 0510/1146] mmc: mmci: fix return value check of mmc_add_host()
 Date:   Wed, 28 Dec 2022 15:34:09 +0100
-Message-Id: <20221228144300.666407652@linuxfoundation.org>
+Message-Id: <20221228144344.028756761@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,113 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit dd95f2239fc846795fc926787c3ae0ca701c9840 ]
+[ Upstream commit b38a20f29a49ae04d23750d104b25400b792b98c ]
 
-It is possible that skb is freed in ath9k_htc_rx_msg(), then
-usb_submit_urb() fails and we try to free skb again. It causes
-use-after-free bug. Moreover, if alloc_skb() fails, urb->context becomes
-NULL but rx_buf is not freed and there can be a memory leak.
+mmc_add_host() may return error, if we ignore its return value,
+it will lead two issues:
+1. The memory that allocated in mmc_alloc_host() is leaked.
+2. In the remove() path, mmc_remove_host() will be called to
+   delete device, but it's not added yet, it will lead a kernel
+   crash because of null-ptr-deref in device_del().
 
-The patch removes unnecessary nskb and makes skb processing more clear: it
-is supposed that ath9k_htc_rx_msg() either frees old skb or passes its
-managing to another callback function.
+So fix this by checking the return value and goto error path which
+will call mmc_free_host().
 
-Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
-
-Fixes: 3deff76095c4 ("ath9k_htc: Increase URB count for REG_IN pipe")
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20221008114917.21404-1-pchelkin@ispras.ru
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221109133539.3275664-1-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/hif_usb.c | 28 +++++++++++++-----------
- 1 file changed, 15 insertions(+), 13 deletions(-)
+ drivers/mmc/host/mmci.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
-index e66518d86882..e5d5b0761881 100644
---- a/drivers/net/wireless/ath/ath9k/hif_usb.c
-+++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
-@@ -709,14 +709,13 @@ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
- 	struct rx_buf *rx_buf = (struct rx_buf *)urb->context;
- 	struct hif_device_usb *hif_dev = rx_buf->hif_dev;
- 	struct sk_buff *skb = rx_buf->skb;
--	struct sk_buff *nskb;
- 	int ret;
+diff --git a/drivers/mmc/host/mmci.c b/drivers/mmc/host/mmci.c
+index 012aa85489d8..b9e5dfe74e5c 100644
+--- a/drivers/mmc/host/mmci.c
++++ b/drivers/mmc/host/mmci.c
+@@ -2256,7 +2256,9 @@ static int mmci_probe(struct amba_device *dev,
+ 	pm_runtime_set_autosuspend_delay(&dev->dev, 50);
+ 	pm_runtime_use_autosuspend(&dev->dev);
  
- 	if (!skb)
- 		return;
+-	mmc_add_host(mmc);
++	ret = mmc_add_host(mmc);
++	if (ret)
++		goto clk_disable;
  
- 	if (!hif_dev)
--		goto free;
-+		goto free_skb;
- 
- 	switch (urb->status) {
- 	case 0:
-@@ -725,7 +724,7 @@ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
- 	case -ECONNRESET:
- 	case -ENODEV:
- 	case -ESHUTDOWN:
--		goto free;
-+		goto free_skb;
- 	default:
- 		skb_reset_tail_pointer(skb);
- 		skb_trim(skb, 0);
-@@ -736,25 +735,27 @@ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
- 	if (likely(urb->actual_length != 0)) {
- 		skb_put(skb, urb->actual_length);
- 
--		/* Process the command first */
-+		/*
-+		 * Process the command first.
-+		 * skb is either freed here or passed to be
-+		 * managed to another callback function.
-+		 */
- 		ath9k_htc_rx_msg(hif_dev->htc_handle, skb,
- 				 skb->len, USB_REG_IN_PIPE);
- 
--
--		nskb = alloc_skb(MAX_REG_IN_BUF_SIZE, GFP_ATOMIC);
--		if (!nskb) {
-+		skb = alloc_skb(MAX_REG_IN_BUF_SIZE, GFP_ATOMIC);
-+		if (!skb) {
- 			dev_err(&hif_dev->udev->dev,
- 				"ath9k_htc: REG_IN memory allocation failure\n");
--			urb->context = NULL;
--			return;
-+			goto free_rx_buf;
- 		}
- 
--		rx_buf->skb = nskb;
-+		rx_buf->skb = skb;
- 
- 		usb_fill_int_urb(urb, hif_dev->udev,
- 				 usb_rcvintpipe(hif_dev->udev,
- 						 USB_REG_IN_PIPE),
--				 nskb->data, MAX_REG_IN_BUF_SIZE,
-+				 skb->data, MAX_REG_IN_BUF_SIZE,
- 				 ath9k_hif_usb_reg_in_cb, rx_buf, 1);
- 	}
- 
-@@ -763,12 +764,13 @@ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
- 	ret = usb_submit_urb(urb, GFP_ATOMIC);
- 	if (ret) {
- 		usb_unanchor_urb(urb);
--		goto free;
-+		goto free_skb;
- 	}
- 
- 	return;
--free:
-+free_skb:
- 	kfree_skb(skb);
-+free_rx_buf:
- 	kfree(rx_buf);
- 	urb->context = NULL;
- }
+ 	pm_runtime_put(&dev->dev);
+ 	return 0;
 -- 
 2.35.1
 
