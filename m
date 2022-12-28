@@ -2,44 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE6EB65826B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:36:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC73E657CC2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:35:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234799AbiL1Qf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:35:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52686 "EHLO
+        id S233473AbiL1Pfq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:35:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234841AbiL1Qe2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:34:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC7501A81C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:32:00 -0800 (PST)
+        with ESMTP id S233877AbiL1Pfp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:35:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 496F41B0
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:35:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5883D61562
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:32:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A3C8C433EF;
-        Wed, 28 Dec 2022 16:31:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D7C6DB81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:35:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25B62C433D2;
+        Wed, 28 Dec 2022 15:35:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245119;
-        bh=N1GJ3on9aKbYsh/vdzM70STSM2nIaOETM2ctPL68z2M=;
+        s=korg; t=1672241740;
+        bh=A6323jvDmhC2+1qRiHJup+KmUJxHXazqxMFikHkIEk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q0jOgGPNPcr2NKNNGKwGGgRy0qiEt4lPPzD89GT7r7xtDCdEOR5yxG47pKXAeEhdM
-         FaxfH0VgUb+OZy+KiLdZuyfkc2ym477Zn06R+Ug/UZ7s3wjD4H8Tz8THs8W318DYkF
-         FfLYMipjErbZoNgsnWqu5fce30tx1az7N7aKP738=
+        b=djRqcBmNS5i+1v7MsQnwTES+KfL5oS3haO+vYImxfD6F8Q7rYeNeWsKXdONkQ2mNp
+         MD/h/JEqn3FGHNGYKvXiAMMORqQrsE3B+jbWnGeVOuaG/L4JbTJaK9vwHro2yc1MU+
+         3p7S1Cc28YCvctD1r6DEPzg6S0iHpOr1KaZJgxFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Yong Wu <yong.wu@mediatek.com>, Joerg Roedel <jroedel@suse.de>,
+        patches@lists.linux.dev, Ajay Kaher <akaher@vmware.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexey Makhalov <amakhalov@vmware.com>,
+        Jiri Olsa <jolsa@kernel.org>, Leo Yan <leo.yan@linaro.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Srivatsa S. Bhat" <srivatsab@vmware.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Vasavi Sirnapalli <vsirnapalli@vmware.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0836/1073] iommu/mediatek: Fix forever loop in error handling
+Subject: [PATCH 5.15 517/731] perf symbol: correction while adjusting symbol
 Date:   Wed, 28 Dec 2022 15:40:24 +0100
-Message-Id: <20221228144350.725324424@linuxfoundation.org>
+Message-Id: <20221228144311.534545793@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +62,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Ajay Kaher <akaher@vmware.com>
 
-[ Upstream commit 462e768b55a2331324ff72e74706261134369826 ]
+[ Upstream commit 6f520ce17920b3cdfbd2479b3ccf27f9706219d0 ]
 
-There is a typo so this loop does i++ where i-- was intended.  It will
-result in looping until the kernel crashes.
+perf doesn't provide proper symbol information for specially crafted
+.debug files.
 
-Fixes: 26593928564c ("iommu/mediatek: Add error path for loop of mm_dts_parse")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Reviewed-by: Yong Wu <yong.wu@mediatek.com>
-Link: https://lore.kernel.org/r/Y5C3mTam2nkbaz6o@kili
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Sometimes .debug file may not have similar program header as runtime
+ELF file. For example if we generate .debug file using objcopy
+--only-keep-debug resulting file will not contain .text, .data and
+other runtime sections. That means corresponding program headers will
+have zero FileSiz and modified Offset.
+
+Example: program header of text section of libxxx.so:
+
+Type           Offset             VirtAddr           PhysAddr
+               FileSiz            MemSiz              Flags  Align
+LOAD        0x00000000003d3000 0x00000000003d3000 0x00000000003d3000
+            0x000000000055ae80 0x000000000055ae80  R E    0x1000
+
+Same program header after executing:
+objcopy --only-keep-debug libxxx.so libxxx.so.debug
+
+LOAD        0x0000000000001000 0x00000000003d3000 0x00000000003d3000
+            0x0000000000000000 0x000000000055ae80  R E    0x1000
+
+Offset and FileSiz have been changed.
+
+Following formula will not provide correct value, if program header
+taken from .debug file (syms_ss):
+
+    sym.st_value -= phdr.p_vaddr - phdr.p_offset;
+
+Correct program header information is located inside runtime ELF
+file (runtime_ss).
+
+Fixes: 2d86612aacb7805f ("perf symbol: Correct address for bss symbols")
+Signed-off-by: Ajay Kaher <akaher@vmware.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Alexey Makhalov <amakhalov@vmware.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Leo Yan <leo.yan@linaro.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Srivatsa S. Bhat <srivatsab@vmware.com>
+Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Vasavi Sirnapalli <vsirnapalli@vmware.com>
+Link: http://lore.kernel.org/lkml/1669198696-50547-1-git-send-email-akaher@vmware.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/mtk_iommu.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ tools/perf/util/symbol-elf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index 213fc8f5b6c1..ec73720e239b 100644
---- a/drivers/iommu/mtk_iommu.c
-+++ b/drivers/iommu/mtk_iommu.c
-@@ -1127,8 +1127,7 @@ static int mtk_iommu_mm_dts_parse(struct device *dev, struct component_match **m
- 	return 0;
+diff --git a/tools/perf/util/symbol-elf.c b/tools/perf/util/symbol-elf.c
+index 6c183df191aa..fd42f768e584 100644
+--- a/tools/perf/util/symbol-elf.c
++++ b/tools/perf/util/symbol-elf.c
+@@ -1292,7 +1292,7 @@ dso__load_sym_internal(struct dso *dso, struct map *map, struct symsrc *syms_ss,
+ 			   (!used_opd && syms_ss->adjust_symbols)) {
+ 			GElf_Phdr phdr;
  
- err_larbdev_put:
--	/* id may be not linear mapping, loop whole the array */
--	for (i = MTK_LARB_NR_MAX - 1; i >= 0; i++) {
-+	for (i = MTK_LARB_NR_MAX - 1; i >= 0; i--) {
- 		if (!data->larb_imu[i].dev)
- 			continue;
- 		put_device(data->larb_imu[i].dev);
+-			if (elf_read_program_header(syms_ss->elf,
++			if (elf_read_program_header(runtime_ss->elf,
+ 						    (u64)sym.st_value, &phdr)) {
+ 				pr_debug4("%s: failed to find program header for "
+ 					   "symbol: %s st_value: %#" PRIx64 "\n",
 -- 
 2.35.1
 
