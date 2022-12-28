@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AB46658470
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F29EF65846F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235287AbiL1Q5S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:57:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46862 "EHLO
+        id S235294AbiL1Q5T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:57:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235130AbiL1Q4d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:56:33 -0500
+        with ESMTP id S235238AbiL1Q4e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:56:34 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9666C1D0E2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:52:16 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11E4A1D67F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:52:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 39B08B8188B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:52:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7F44C433D2;
-        Wed, 28 Dec 2022 16:52:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A5E40B8188B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:52:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 195EBC433D2;
+        Wed, 28 Dec 2022 16:52:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246334;
-        bh=piS8tyGSI6BeipkkMuzxfgWTZq4RvjXEzat5xh+KRDk=;
+        s=korg; t=1672246339;
+        bh=dyDOPyg+jePFsFzNOFPEqmBLbY1R9nkzmMXaWUBtCLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nw0XezXhIRMiGlMopwEfHws8xvM/WjUXUTl/AaHck3ZDa39fGRs93DJ+I/1Oif/je
-         7Dky1GQrGAk6p3frdkCOwSRzntOrL3FMPUiYogS9ZZU0qOLeLhadvIKCJu860K/LQ9
-         EhxwWnWPA05CvGl/mQSgTmRzF/P08BbzDZDKAAuM=
+        b=RtNlybXBIoI4RhBlJJ7DpHYYP68rMOxs6KWyTx9Q/ALCdLkp/M9UN9XeT5zhBzgVg
+         2vT2VE3W2I/Rp+XyBmAGm7+I3XHTOpSgUewZ2VO9QkflgVr0mtCtjsBn6bQ+4czuLL
+         /8QzNj/Bg74eTopr028OTWtrzLJZA1eE2bGh4NGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 6.0 1051/1073] regulator: core: fix deadlock on regulator enable
-Date:   Wed, 28 Dec 2022 15:43:59 +0100
-Message-Id: <20221228144356.764690067@linuxfoundation.org>
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Denis Efremov <efremov@linux.com>
+Subject: [PATCH 6.0 1052/1073] floppy: Fix memory leak in do_floppy_init()
+Date:   Wed, 28 Dec 2022 15:44:00 +0100
+Message-Id: <20221228144356.795313888@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -52,65 +52,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Yuan Can <yuancan@huawei.com>
 
-commit cb3543cff90a4448ed560ac86c98033ad5fecda9 upstream.
+commit f8ace2e304c5dd8a7328db9cd2b8a4b1b98d83ec upstream.
 
-When updating the operating mode as part of regulator enable, the caller
-has already locked the regulator tree and drms_uA_update() must not try
-to do the same in order not to trigger a deadlock.
+A memory leak was reported when floppy_alloc_disk() failed in
+do_floppy_init().
 
-The lock inversion is reported by lockdep as:
+unreferenced object 0xffff888115ed25a0 (size 8):
+  comm "modprobe", pid 727, jiffies 4295051278 (age 25.529s)
+  hex dump (first 8 bytes):
+    00 ac 67 5b 81 88 ff ff                          ..g[....
+  backtrace:
+    [<000000007f457abb>] __kmalloc_node+0x4c/0xc0
+    [<00000000a87bfa9e>] blk_mq_realloc_tag_set_tags.part.0+0x6f/0x180
+    [<000000006f02e8b1>] blk_mq_alloc_tag_set+0x573/0x1130
+    [<0000000066007fd7>] 0xffffffffc06b8b08
+    [<0000000081f5ac40>] do_one_initcall+0xd0/0x4f0
+    [<00000000e26d04ee>] do_init_module+0x1a4/0x680
+    [<000000001bb22407>] load_module+0x6249/0x7110
+    [<00000000ad31ac4d>] __do_sys_finit_module+0x140/0x200
+    [<000000007bddca46>] do_syscall_64+0x35/0x80
+    [<00000000b5afec39>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+unreferenced object 0xffff88810fc30540 (size 32):
+  comm "modprobe", pid 727, jiffies 4295051278 (age 25.529s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<000000007f457abb>] __kmalloc_node+0x4c/0xc0
+    [<000000006b91eab4>] blk_mq_alloc_tag_set+0x393/0x1130
+    [<0000000066007fd7>] 0xffffffffc06b8b08
+    [<0000000081f5ac40>] do_one_initcall+0xd0/0x4f0
+    [<00000000e26d04ee>] do_init_module+0x1a4/0x680
+    [<000000001bb22407>] load_module+0x6249/0x7110
+    [<00000000ad31ac4d>] __do_sys_finit_module+0x140/0x200
+    [<000000007bddca46>] do_syscall_64+0x35/0x80
+    [<00000000b5afec39>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-  ======================================================
-  WARNING: possible circular locking dependency detected
-  6.1.0-next-20221215 #142 Not tainted
-  ------------------------------------------------------
-  udevd/154 is trying to acquire lock:
-  ffffc11f123d7e50 (regulator_list_mutex){+.+.}-{3:3}, at: regulator_lock_dependent+0x54/0x280
+If the floppy_alloc_disk() failed, disks of current drive will not be set,
+thus the lastest allocated set->tag cannot be freed in the error handling
+path. A simple call graph shown as below:
 
-  but task is already holding lock:
-  ffff80000e4c36e8 (regulator_ww_class_acquire){+.+.}-{0:0}, at: regulator_enable+0x34/0x80
+ floppy_module_init()
+   floppy_init()
+     do_floppy_init()
+       for (drive = 0; drive < N_DRIVE; drive++)
+         blk_mq_alloc_tag_set()
+           blk_mq_alloc_tag_set_tags()
+             blk_mq_realloc_tag_set_tags() # set->tag allocated
+         floppy_alloc_disk()
+           blk_mq_alloc_disk() # error occurred, disks failed to allocated
 
-  which lock already depends on the new lock.
+       ->out_put_disk:
+       for (drive = 0; drive < N_DRIVE; drive++)
+         if (!disks[drive][0]) # the last disks is not set and loop break
+           break;
+         blk_mq_free_tag_set() # the latest allocated set->tag leaked
 
-  ...
+Fix this problem by free the set->tag of current drive before jump to
+error handling path.
 
-   Possible unsafe locking scenario:
-
-         CPU0                    CPU1
-         ----                    ----
-    lock(regulator_ww_class_acquire);
-                                 lock(regulator_list_mutex);
-                                 lock(regulator_ww_class_acquire);
-    lock(regulator_list_mutex);
-
-   *** DEADLOCK ***
-
-just before probe of a Qualcomm UFS controller (occasionally) deadlocks
-when enabling one of its regulators.
-
-Fixes: 9243a195be7a ("regulator: core: Change voltage setting path")
-Fixes: f8702f9e4aa7 ("regulator: core: Use ww_mutex for regulators locking")
-Cc: stable@vger.kernel.org      # 5.0
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20221215104646.19818-1-johan+linaro@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 302cfee15029 ("floppy: use a separate gendisk for each media format")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+[efremov: added stable list, changed title]
+Signed-off-by: Denis Efremov <efremov@linux.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/regulator/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/block/floppy.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -987,7 +987,7 @@ static int drms_uA_update(struct regulat
- 		/* get input voltage */
- 		input_uV = 0;
- 		if (rdev->supply)
--			input_uV = regulator_get_voltage(rdev->supply);
-+			input_uV = regulator_get_voltage_rdev(rdev->supply->rdev);
- 		if (input_uV <= 0)
- 			input_uV = rdev->constraints->input_uV;
- 		if (input_uV <= 0) {
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -4593,8 +4593,10 @@ static int __init do_floppy_init(void)
+ 			goto out_put_disk;
+ 
+ 		err = floppy_alloc_disk(drive, 0);
+-		if (err)
++		if (err) {
++			blk_mq_free_tag_set(&tag_sets[drive]);
+ 			goto out_put_disk;
++		}
+ 
+ 		timer_setup(&motor_off_timer[drive], motor_off_callback, 0);
+ 	}
 
 
