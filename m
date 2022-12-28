@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D54D65848E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:58:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEC846583CD
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:52:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235264AbiL1Q6C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:58:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52484 "EHLO
+        id S235207AbiL1Qwa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:52:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235358AbiL1Q5b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:57:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D1151C10A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:53:57 -0800 (PST)
+        with ESMTP id S235259AbiL1QwJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:52:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2A09209B2
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:46:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D159C6156E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:53:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF8CDC433A1;
-        Wed, 28 Dec 2022 16:53:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8953061578
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:46:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EA4AC433D2;
+        Wed, 28 Dec 2022 16:46:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246436;
-        bh=zitYujnXYzfo8JhZmUa2BzM6dDoIe9uWx+pHaggZLJI=;
+        s=korg; t=1672245985;
+        bh=UO2KWIN9lEp9rlsay7SFYUnLpIwAJ6qTyqrbsgEsLyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ecOa3y+1K0+6mgkSOi98ZDHgKw6+eJo8SDqWq0C95MYt3AyOkU4HRWZ3yVe+lR138
-         vCo6sT628E59AWJ9SoTGkd4QpgnRrtWf7pBeoN9EJ5IcK93SC8HRubL6W1UgAWhezr
-         V9gUyi2m26++ognxWZ1T0AfQ5lqlf2s9yYq8U368=
+        b=KnVOcbsEnk+2m3pf9hXf+ovJo3XNJ5JQeLMXj8pCHoBGkS94VGpXpF4BZOj9r8iV/
+         IzMzRh0IZT3lCjb+0zRIw7jTM9vQyj3YWdbMSMozWVzNSosL2i9L5P+X4sbFOXFjNP
+         pCn8I422TCUNq29bZ5M09G7sKxjbbZNhUYOaaPlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Mike Marshall <hubcap@omnibond.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1040/1146] mmc: renesas_sdhi: better reset from HS400 mode
+Subject: [PATCH 6.0 0991/1073] orangefs: Fix kmemleak in orangefs_prepare_debugfs_help_string()
 Date:   Wed, 28 Dec 2022 15:42:59 +0100
-Message-Id: <20221228144358.592159355@linuxfoundation.org>
+Message-Id: <20221228144355.027195984@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit 0da69dd2155019ed4c444ede0e79ce7a4a6af627 ]
+[ Upstream commit d23417a5bf3a3afc55de5442eb46e1e60458b0a1 ]
 
-Up to now, HS400 adjustment mode was only disabled on soft reset when a
-calibration table was in use. It is safer, though, to disable it as soon
-as the instance has an adjustment related quirk set, i.e. bad taps or a
-calibration table.
+When insert and remove the orangefs module, then debug_help_string will
+be leaked:
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Tested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/20221120113457.42010-3-wsa+renesas@sang-engineering.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+  unreferenced object 0xffff8881652ba000 (size 4096):
+    comm "insmod", pid 1701, jiffies 4294893639 (age 13218.530s)
+    hex dump (first 32 bytes):
+      43 6c 69 65 6e 74 20 44 65 62 75 67 20 4b 65 79  Client Debug Key
+      77 6f 72 64 73 20 61 72 65 20 75 6e 6b 6e 6f 77  words are unknow
+    backtrace:
+      [<0000000004e6f8e3>] kmalloc_trace+0x27/0xa0
+      [<0000000006f75d85>] orangefs_prepare_debugfs_help_string+0x5e/0x480 [orangefs]
+      [<0000000091270a2a>] _sub_I_65535_1+0x57/0xf70 [crc_itu_t]
+      [<000000004b1ee1a3>] do_one_initcall+0x87/0x2a0
+      [<000000001d0614ae>] do_init_module+0xdf/0x320
+      [<00000000efef068c>] load_module+0x2f98/0x3330
+      [<000000006533b44d>] __do_sys_finit_module+0x113/0x1b0
+      [<00000000a0da6f99>] do_syscall_64+0x35/0x80
+      [<000000007790b19b>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+When remove the module, should always free debug_help_string. Should
+always free the allocated buffer when change the free_debug_help_string.
+
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Mike Marshall <hubcap@omnibond.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/renesas_sdhi_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/orangefs/orangefs-debugfs.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/mmc/host/renesas_sdhi_core.c b/drivers/mmc/host/renesas_sdhi_core.c
-index 22ccef7085f7..e38d0e8b8e0e 100644
---- a/drivers/mmc/host/renesas_sdhi_core.c
-+++ b/drivers/mmc/host/renesas_sdhi_core.c
-@@ -546,7 +546,7 @@ static void renesas_sdhi_reset_hs400_mode(struct tmio_mmc_host *host,
- 			 SH_MOBILE_SDHI_SCC_TMPPORT2_HS400OSEL) &
- 			sd_scc_read32(host, priv, SH_MOBILE_SDHI_SCC_TMPPORT2));
+diff --git a/fs/orangefs/orangefs-debugfs.c b/fs/orangefs/orangefs-debugfs.c
+index 29eaa4544372..a848b6ef9599 100644
+--- a/fs/orangefs/orangefs-debugfs.c
++++ b/fs/orangefs/orangefs-debugfs.c
+@@ -222,6 +222,8 @@ static void orangefs_kernel_debug_init(void)
+ void orangefs_debugfs_cleanup(void)
+ {
+ 	debugfs_remove_recursive(debug_dir);
++	kfree(debug_help_string);
++	debug_help_string = NULL;
+ }
  
--	if (priv->adjust_hs400_calib_table)
-+	if (priv->quirks && (priv->quirks->hs400_calib_table || priv->quirks->hs400_bad_taps))
- 		renesas_sdhi_adjust_hs400_mode_disable(host);
+ /* open ORANGEFS_KMOD_DEBUG_HELP_FILE */
+@@ -671,6 +673,7 @@ int orangefs_prepare_debugfs_help_string(int at_boot)
+ 		memset(debug_help_string, 0, DEBUG_HELP_STRING_SIZE);
+ 		strlcat(debug_help_string, new, string_size);
+ 		mutex_unlock(&orangefs_help_file_lock);
++		kfree(new);
+ 	}
  
- 	sd_ctrl_write16(host, CTL_SD_CARD_CLK_CTL, CLK_CTL_SCLKEN |
+ 	rc = 0;
 -- 
 2.35.1
 
