@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EBD56582A5
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:39:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B18C36582A8
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:39:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233276AbiL1QjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:39:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55504 "EHLO
+        id S233141AbiL1Qjo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:39:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234903AbiL1Qiu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:38:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECC501C904
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:34:23 -0800 (PST)
+        with ESMTP id S234464AbiL1QjF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:39:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E45F1DF2D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:34:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 89CBD61576
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:34:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95CBCC433D2;
-        Wed, 28 Dec 2022 16:34:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1BA3FB816F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:34:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84AE8C433EF;
+        Wed, 28 Dec 2022 16:34:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245263;
-        bh=twd48VYhk5PQ32nerOWLaaL7n5awpwjWnHNSo5j6Sd4=;
+        s=korg; t=1672245270;
+        bh=2xR+FY0mU6dVHRrzKzpcEePeObLJ26zvawZlZvrFB5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ht8oS8z0QDmuqvBm3uZJm/BtB4kp2TGeVZiqUfCoi3SioGDfa5isdcTm1TfWS6Eu6
-         8w22/epx4hzr58LFwRtpm0ZPiUZe90yfGy1nCQ7blvW6DfwbbvpdLEzJVGrj+uetDw
-         YSTDbeBqYsy1WL11CyoUP/X30GayqqydanF+2Wx8=
+        b=gNcGz4rlNgLes23A8iJ+z/LQAU+YfIXwU+UZX2aQqFA9SdKBnpAWIavZ91V8g/cBx
+         Yntibw104mK+RXopg9wBD9TnuoSKFYcxXt/UpK5VT0Y32w4vd1sfVfilFo1+9/c8q5
+         cstzXZs1/Kqbxrn5RI5D020QyzAS/sWy8HHKznes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+b892240eac461e488d51@syzkaller.appspotmail.com,
-        Abdun Nihaal <abdun.nihaal@gmail.com>,
-        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0829/1146] fs/ntfs3: Fix slab-out-of-bounds read in ntfs_trim_fs
-Date:   Wed, 28 Dec 2022 15:39:28 +0100
-Message-Id: <20221228144352.676642863@linuxfoundation.org>
+        patches@lists.linux.dev, Nirav N Shah <nirav.n.shah@intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0830/1146] dmaengine: idxd: Fix crc_val field for completion record
+Date:   Wed, 28 Dec 2022 15:39:29 +0100
+Message-Id: <20221228144352.703364238@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -55,40 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abdun Nihaal <abdun.nihaal@gmail.com>
+From: Fenghua Yu <fenghua.yu@intel.com>
 
-[ Upstream commit 557d19675a470bb0a98beccec38c5dc3735c20fa ]
+[ Upstream commit dc901d98b1fe6e52ab81cd3e0879379168e06daa ]
 
-Syzbot reports an out of bound access in ntfs_trim_fs.
-The cause of this is using a loop termination condition that compares
-window index (iw) with wnd->nbits instead of wnd->nwnd, due to which the
-index used for wnd->free_bits exceeds the size of the array allocated.
+The crc_val in the completion record should be 64 bits and not 32 bits.
 
-Fix the loop condition.
-
-Fixes: 3f3b442b5ad2 ("fs/ntfs3: Add bitmap")
-Link: https://syzkaller.appspot.com/bug?extid=b892240eac461e488d51
-Reported-by: syzbot+b892240eac461e488d51@syzkaller.appspotmail.com
-Signed-off-by: Abdun Nihaal <abdun.nihaal@gmail.com>
-Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+Fixes: 4ac823e9cd85 ("dmaengine: idxd: fix delta_rec and crc size field for completion record")
+Reported-by: Nirav N Shah <nirav.n.shah@intel.com>
+Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
+Reviewed-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/20221111012715.2031481-1-fenghua.yu@intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/bitmap.c | 2 +-
+ include/uapi/linux/idxd.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ntfs3/bitmap.c b/fs/ntfs3/bitmap.c
-index e92bbd754365..1930640be31a 100644
---- a/fs/ntfs3/bitmap.c
-+++ b/fs/ntfs3/bitmap.c
-@@ -1424,7 +1424,7 @@ int ntfs_trim_fs(struct ntfs_sb_info *sbi, struct fstrim_range *range)
+diff --git a/include/uapi/linux/idxd.h b/include/uapi/linux/idxd.h
+index 2b9e7feba3f3..1d553bedbdb5 100644
+--- a/include/uapi/linux/idxd.h
++++ b/include/uapi/linux/idxd.h
+@@ -295,7 +295,7 @@ struct dsa_completion_record {
+ 		};
  
- 	down_read_nested(&wnd->rw_lock, BITMAP_MUTEX_CLUSTERS);
+ 		uint32_t	delta_rec_size;
+-		uint32_t	crc_val;
++		uint64_t	crc_val;
  
--	for (; iw < wnd->nbits; iw++, wbit = 0) {
-+	for (; iw < wnd->nwnd; iw++, wbit = 0) {
- 		CLST lcn_wnd = iw * wbits;
- 		struct buffer_head *bh;
- 
+ 		/* DIF check & strip */
+ 		struct {
 -- 
 2.35.1
 
