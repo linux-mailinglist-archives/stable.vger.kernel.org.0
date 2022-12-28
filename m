@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FB6465746B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 10:06:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC51F65746C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 10:06:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229868AbiL1JGg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 04:06:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58458 "EHLO
+        id S231533AbiL1JGq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 04:06:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229740AbiL1JGf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 04:06:35 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53E9FBD7
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 01:06:34 -0800 (PST)
+        with ESMTP id S229740AbiL1JGo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 04:06:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA487B7E1
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 01:06:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B5327CE0B8B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 09:06:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E837C433EF;
-        Wed, 28 Dec 2022 09:06:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 763A2B80D17
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 09:06:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CFF4C433EF;
+        Wed, 28 Dec 2022 09:06:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672218390;
-        bh=kLSnp3Ao7WMfRJ2WreKL3nDHNPRIKK/ip2c7/gdgimQ=;
+        s=korg; t=1672218401;
+        bh=IYDsiismgEmOzBIc+wurXWRAobdSwRbb3hR55VYPmRs=;
         h=Subject:To:Cc:From:Date:From;
-        b=SpbXsQRCId/aT9eQ+e6i6COPhHG2+EXhxdPo8eXpoeaWqTpriPvfJ6fqkmgt4OEX7
-         /3JqjnlJS+Vem1hch+zKeRrLkXLa0gdu27ZDtwsEfBnyDJ8TGURn1ee2buLg82fo+X
-         LMZkHgltuqUj9cgNw1MG5Jb+ceNS1Bo7IjUsWi/c=
-Subject: FAILED: patch "[PATCH] usb: dwc3: Fix race between dwc3_set_mode and __dwc3_set_mode" failed to apply to 5.4-stable tree
+        b=FtZ+vgZW4iGKh7If6GgUV72Cf/eM8BOGc9Zccckw7bO1Zkr9RfKof/3H+6kXF2XO+
+         d54Z9uEQ01KUepnYb/FNOvr+opwfx1DeyNkfjPvD2KeUCisqFQD4ahcpVJmKwdnlRj
+         rH4veBw5wqZkFV1CFqgTYrhVKpJtgQ0eCmhmQPM0=
+Subject: FAILED: patch "[PATCH] usb: dwc3: Fix race between dwc3_set_mode and __dwc3_set_mode" failed to apply to 4.19-stable tree
 To:     sven@svenpeter.dev, Thinh.Nguyen@synopsys.com,
         gregkh@linuxfoundation.org, stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 28 Dec 2022 10:06:26 +0100
-Message-ID: <16722183868728@kroah.com>
+Date:   Wed, 28 Dec 2022 10:06:28 +0100
+Message-ID: <16722183882893@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -62,6 +62,7 @@ f88359e1588b ("usb: dwc3: core: Do core softreset when switch mode")
 f580170f135a ("usb: dwc3: Add splitdisable quirk for Hisilicon Kirin Soc")
 dc336b19e82d ("usb: dwc3: core: do not queue work if dr_mode is not USB_DR_MODE_OTG")
 c2cd3452d5f8 ("usb: dwc3: support continuous runtime PM with dual role")
+a0a465569b45 ("usb: dwc3: remove generic PHY calibrate() calls")
 
 thanks,
 
