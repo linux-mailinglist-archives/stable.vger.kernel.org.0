@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC6F765795B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:00:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7EDD657A7C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:12:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233365AbiL1PAL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:00:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47480 "EHLO
+        id S230225AbiL1PMO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:12:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233371AbiL1PAK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:00:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96A1E10053
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:00:09 -0800 (PST)
+        with ESMTP id S233066AbiL1PLp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:11:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FD3E13E9D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:11:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 364626153C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:00:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BD97C433EF;
-        Wed, 28 Dec 2022 15:00:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 88104B81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:11:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8856C433F0;
+        Wed, 28 Dec 2022 15:11:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239608;
-        bh=9r4fFwVoGBI/fvrBhj1o+J5lS3aanaQFi+cPjeG3BGI=;
+        s=korg; t=1672240293;
+        bh=Rfp7AMCvp0bNDDSxtNTlr+RB82gKVEOoFFZRmbtIkI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MX3InsrvY+A7SJAiD/IUTSZL+kkDV6GxdmbJD6jAo/uxHszNSEH1IOB5eUZqnXrE/
-         Ag1KG2e18M8pm016G0HAuter7e/1Sb5lxXEHQN07aLDjTenBXxVcKjKBMuo8sOcBnv
-         hDNqjwaq8SBZ7zzuD1e4J880jc/mjW2iw3ba+rt0=
+        b=JTtGFqbee7FZaWIzAXhnj8wsB5uwPeOeEH1NUUFKsxDL38Iy4POenaQF5NNounBwL
+         6bDaVouXY210+p1pIhSKN2xhr7kkz1SOSTR9yoD/GVtVvmUNg3GDdb+WKJWjlFvXgn
+         nIySg/EuL2O7iyHrW2Z50AWQXEPIqSWBfDF7wESE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        Punit Agrawal <punit.agrawal@bytedance.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0055/1073] perf/smmuv3: Fix hotplug callback leak in arm_smmu_pmu_init()
-Date:   Wed, 28 Dec 2022 15:27:23 +0100
-Message-Id: <20221228144329.599651407@linuxfoundation.org>
+        patches@lists.linux.dev, Miklos Szeredi <mszeredi@redhat.com>,
+        Amir Goldstein <amir73il@gmail.com>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0105/1146] ovl: remove privs in ovl_fallocate()
+Date:   Wed, 28 Dec 2022 15:27:24 +0100
+Message-Id: <20221228144333.000527217@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Amir Goldstein <amir73il@gmail.com>
 
-[ Upstream commit 6f2d566b46436a50a80d6445e82879686b89588c ]
+[ Upstream commit 23a8ce16419a3066829ad4a8b7032a75817af65b ]
 
-arm_smmu_pmu_init() won't remove the callback added by
-cpuhp_setup_state_multi() when platform_driver_register() failed. Remove
-the callback by cpuhp_remove_multi_state() in fail path.
+Underlying fs doesn't remove privs because fallocate is called with
+privileged mounter credentials.
 
-Similar to the handling of arm_ccn_init() in commit 26242b330093 ("bus:
-arm-ccn: Prevent hotplug callback leak")
+This fixes some failure in fstests generic/683..687.
 
-Fixes: 7d839b4b9e00 ("perf/smmuv3: Add arm64 smmuv3 pmu driver")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Reviewed-by: Punit Agrawal <punit.agrawal@bytedance.com>
-Link: https://lore.kernel.org/r/20221115115540.6245-3-shangxiaojing@huawei.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: aab8848cee5e ("ovl: add ovl_fallocate()")
+Acked-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/perf/arm_smmuv3_pmu.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ fs/overlayfs/file.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/perf/arm_smmuv3_pmu.c b/drivers/perf/arm_smmuv3_pmu.c
-index 00d4c45a8017..25a269d431e4 100644
---- a/drivers/perf/arm_smmuv3_pmu.c
-+++ b/drivers/perf/arm_smmuv3_pmu.c
-@@ -959,6 +959,8 @@ static struct platform_driver smmu_pmu_driver = {
+diff --git a/fs/overlayfs/file.c b/fs/overlayfs/file.c
+index 755a11c63596..d066be3b9226 100644
+--- a/fs/overlayfs/file.c
++++ b/fs/overlayfs/file.c
+@@ -517,9 +517,16 @@ static long ovl_fallocate(struct file *file, int mode, loff_t offset, loff_t len
+ 	const struct cred *old_cred;
+ 	int ret;
  
- static int __init arm_smmu_pmu_init(void)
- {
-+	int ret;
-+
- 	cpuhp_state_num = cpuhp_setup_state_multi(CPUHP_AP_ONLINE_DYN,
- 						  "perf/arm/pmcg:online",
- 						  NULL,
-@@ -966,7 +968,11 @@ static int __init arm_smmu_pmu_init(void)
- 	if (cpuhp_state_num < 0)
- 		return cpuhp_state_num;
- 
--	return platform_driver_register(&smmu_pmu_driver);
-+	ret = platform_driver_register(&smmu_pmu_driver);
++	inode_lock(inode);
++	/* Update mode */
++	ovl_copyattr(inode);
++	ret = file_remove_privs(file);
 +	if (ret)
-+		cpuhp_remove_multi_state(cpuhp_state_num);
++		goto out_unlock;
 +
-+	return ret;
+ 	ret = ovl_real_fdget(file, &real);
+ 	if (ret)
+-		return ret;
++		goto out_unlock;
+ 
+ 	old_cred = ovl_override_creds(file_inode(file)->i_sb);
+ 	ret = vfs_fallocate(real.file, mode, offset, len);
+@@ -530,6 +537,9 @@ static long ovl_fallocate(struct file *file, int mode, loff_t offset, loff_t len
+ 
+ 	fdput(real);
+ 
++out_unlock:
++	inode_unlock(inode);
++
+ 	return ret;
  }
- module_init(arm_smmu_pmu_init);
  
 -- 
 2.35.1
