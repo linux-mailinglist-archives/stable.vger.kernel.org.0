@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4488A658463
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E5A86584EF
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:04:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235215AbiL1Q5I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:57:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51404 "EHLO
+        id S234503AbiL1REE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:04:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235266AbiL1Q4U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:56:20 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAFD1186D4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:51:44 -0800 (PST)
+        with ESMTP id S233712AbiL1RDk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:03:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98F69183B3
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:57:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 26B8ACE1376
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:51:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DDE9C433D2;
-        Wed, 28 Dec 2022 16:51:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 385D0B8171E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:57:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CDE6C433D2;
+        Wed, 28 Dec 2022 16:57:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246301;
-        bh=L4T6co3qEhFUImBGVuk1Cgsr93LNnaOLn11IL9Q4Eqk=;
+        s=korg; t=1672246676;
+        bh=Q78Q/N8a6EdC1mmS50c7z2Q4OJhKO6FyuPTE8rhZRsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZW6jPlPyDwySLQzVciEXLCNSuV9KOKxvou+BzwbWGJi1dUtOO57tUQNrfLS+5BQ+u
-         gpDgzokmiu2EyTg13qbnifERTOPh7MBeWeQZ4OGh4hG8guZmcdFJY3AsQGUCGckG6A
-         M768a2j1swfsgrssozG8/c1mMDdp+8Kk/9Yl/1AA=
+        b=oK2jOz4FatOFLqk2ncwgBfyZ61OIcECeWIeNwOR5RwV5hNMKUYjsbEuPa0E3y8+GC
+         b9EnNy+SOAZVUYATJEuyGo/HefWNV8GEcGrR7zIgeS0nPq+yBTSK6LIxtk6P4QlOLO
+         ihD4TGQ+XOqOFdn1XxV7D9gZJ2FcCRbYNbg6j9U4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeff Mahoney <jeffm@suse.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 6.0 1046/1073] reiserfs: Add missing calls to reiserfs_security_free()
+        patches@lists.linux.dev, Jeff LaBundy <jeff@labundy.com>,
+        Rob Herring <robh@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 1095/1146] dt-bindings: input: iqs7222: Reduce linux,code to optional
 Date:   Wed, 28 Dec 2022 15:43:54 +0100
-Message-Id: <20221228144356.613381339@linuxfoundation.org>
+Message-Id: <20221228144359.915597858@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,89 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Jeff LaBundy <jeff@labundy.com>
 
-commit 572302af1258459e124437b8f3369357447afac7 upstream.
+[ Upstream commit ccad486525c49df2fe2e7090990522547dfd2785 ]
 
-Commit 57fe60df6241 ("reiserfs: add atomic addition of selinux attributes
-during inode creation") defined reiserfs_security_free() to free the name
-and value of a security xattr allocated by the active LSM through
-security_old_inode_init_security(). However, this function is not called
-in the reiserfs code.
+Following a recent refactor of the driver to properly drop unused
+device nodes, the 'linux,code' property is now optional. This can
+be useful for applications that define GPIO-mapped events that do
+not correspond to any keycode.
 
-Thus, add a call to reiserfs_security_free() whenever
-reiserfs_security_init() is called, and initialize value to NULL, to avoid
-to call kfree() on an uninitialized pointer.
-
-Finally, remove the kfree() for the xattr name, as it is not allocated
-anymore.
-
-Fixes: 57fe60df6241 ("reiserfs: add atomic addition of selinux attributes during inode creation")
-Cc: stable@vger.kernel.org
-Cc: Jeff Mahoney <jeffm@suse.com>
-Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Reported-by: Mimi Zohar <zohar@linux.ibm.com>
-Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 44dc42d254bf ("dt-bindings: input: Add bindings for Azoteq IQS7222A/B/C")
+Signed-off-by: Jeff LaBundy <jeff@labundy.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/Y1SROIrrC1LwX0Sd@nixie71
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/reiserfs/namei.c          |    4 ++++
- fs/reiserfs/xattr_security.c |    2 +-
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml | 6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/fs/reiserfs/namei.c
-+++ b/fs/reiserfs/namei.c
-@@ -696,6 +696,7 @@ static int reiserfs_create(struct user_n
+diff --git a/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml b/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
+index 02e605fac408..b4eb650dbcb8 100644
+--- a/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
++++ b/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
+@@ -473,9 +473,6 @@ patternProperties:
+               Specifies whether the event is to be interpreted as a key (1)
+               or a switch (5).
  
- out_failed:
- 	reiserfs_write_unlock(dir->i_sb);
-+	reiserfs_security_free(&security);
- 	return retval;
- }
+-        required:
+-          - linux,code
+-
+         additionalProperties: false
  
-@@ -779,6 +780,7 @@ static int reiserfs_mknod(struct user_na
+     dependencies:
+@@ -620,9 +617,6 @@ patternProperties:
+               GPIO, they must all be of the same type (proximity, touch or
+               slider gesture).
  
- out_failed:
- 	reiserfs_write_unlock(dir->i_sb);
-+	reiserfs_security_free(&security);
- 	return retval;
- }
+-        required:
+-          - linux,code
+-
+         additionalProperties: false
  
-@@ -878,6 +880,7 @@ static int reiserfs_mkdir(struct user_na
- 	retval = journal_end(&th);
- out_failed:
- 	reiserfs_write_unlock(dir->i_sb);
-+	reiserfs_security_free(&security);
- 	return retval;
- }
- 
-@@ -1194,6 +1197,7 @@ static int reiserfs_symlink(struct user_
- 	retval = journal_end(&th);
- out_failed:
- 	reiserfs_write_unlock(parent_dir->i_sb);
-+	reiserfs_security_free(&security);
- 	return retval;
- }
- 
---- a/fs/reiserfs/xattr_security.c
-+++ b/fs/reiserfs/xattr_security.c
-@@ -50,6 +50,7 @@ int reiserfs_security_init(struct inode
- 	int error;
- 
- 	sec->name = NULL;
-+	sec->value = NULL;
- 
- 	/* Don't add selinux attributes on xattrs - they'll never get used */
- 	if (IS_PRIVATE(dir))
-@@ -95,7 +96,6 @@ int reiserfs_security_write(struct reise
- 
- void reiserfs_security_free(struct reiserfs_security_handle *sec)
- {
--	kfree(sec->name);
- 	kfree(sec->value);
- 	sec->name = NULL;
- 	sec->value = NULL;
+     required:
+-- 
+2.35.1
+
 
 
