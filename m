@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 766EA657B57
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:20:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48E93657C6B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:32:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233331AbiL1PU2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:20:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39356 "EHLO
+        id S233364AbiL1Pcw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:32:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233291AbiL1PU1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:20:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD4B313FB3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:20:26 -0800 (PST)
+        with ESMTP id S233842AbiL1PcP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:32:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F4CE15FCE
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:32:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BABB6155A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:20:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B559C433D2;
-        Wed, 28 Dec 2022 15:20:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C772AB8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:32:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14AD2C433EF;
+        Wed, 28 Dec 2022 15:32:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240825;
-        bh=jfjp/KrRJr+yQlwZ0vq7i1pSXYJXqrDmU6xt2zQDhL8=;
+        s=korg; t=1672241530;
+        bh=TmDprlz8pw12EbcWV2h+ILlDD4lsz3LaTqcq3yRx4/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dB0HZ/q4ANjmdAXAxmi9AF+ZLLF6LBw7qaVFnqOx9xSz9XYnavCjWCPz72D3QqD8E
-         bI0rsiZaTAyrnZ46cfhrclE9l7ItGIEkYggb9BzFlwvl01KXVhHecfu0rwiPVcbHon
-         gYABCa6QadoFOVrUsaydP88sG5Kh3P4q0vpfmrNY=
+        b=uUOFc2hTxa21Gj6u1j5BLQb09jE005DvLUUAOKDQMq40pMZ2uivAEC5dVJt9Sx3Gp
+         X622/i1jb8By0uvYg33jNSLvxLrO6E7g7Q4VKRUOcE5T+ZkIkWheowciZ0QQfDZpn6
+         I/s5oOc0TGX3kbLAPprpJE15wBAM6XA3+0PTymAE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shung-Hsi Yu <shung-hsi.yu@suse.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        patches@lists.linux.dev,
+        Alan Previn <alan.previn.teres.alexis@intel.com>,
+        John Harrison <John.C.Harrison@Intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0207/1073] libbpf: Use elf_getshdrnum() instead of e_shnum
-Date:   Wed, 28 Dec 2022 15:29:55 +0100
-Message-Id: <20221228144333.642896355@linuxfoundation.org>
+Subject: [PATCH 6.1 0257/1146] drm/i915/guc: Add error-capture init warnings when needed
+Date:   Wed, 28 Dec 2022 15:29:56 +0100
+Message-Id: <20221228144337.118323814@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,85 +54,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shung-Hsi Yu <shung-hsi.yu@suse.com>
+From: Alan Previn <alan.previn.teres.alexis@intel.com>
 
-[ Upstream commit 51deedc9b8680953437dfe359e5268120de10e30 ]
+[ Upstream commit a894077890ad118de88c97c03f67a611ca60882a ]
 
-This commit replace e_shnum with the elf_getshdrnum() helper to fix two
-oss-fuzz-reported heap-buffer overflow in __bpf_object__open. Both
-reports are incorrectly marked as fixed and while still being
-reproducible in the latest libbpf.
+If GuC is being used and we initialized GuC-error-capture,
+we need to be warning if we don't provide an error-capture
+register list in the firmware ADS, for valid GT engines.
+A warning makes sense as this would impact debugability
+without realizing why a reglist wasn't retrieved and reported
+by GuC.
 
-  # clusterfuzz-testcase-minimized-bpf-object-fuzzer-5747922482888704
-  libbpf: loading object 'fuzz-object' from buffer
-  libbpf: sec_cnt is 0
-  libbpf: elf: section(1) .data, size 0, link 538976288, flags 2020202020202020, type=2
-  libbpf: elf: section(2) .data, size 32, link 538976288, flags 202020202020ff20, type=1
-  =================================================================
-  ==13==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x6020000000c0 at pc 0x0000005a7b46 bp 0x7ffd12214af0 sp 0x7ffd12214ae8
-  WRITE of size 4 at 0x6020000000c0 thread T0
-  SCARINESS: 46 (4-byte-write-heap-buffer-overflow-far-from-bounds)
-      #0 0x5a7b45 in bpf_object__elf_collect /src/libbpf/src/libbpf.c:3414:24
-      #1 0x5733c0 in bpf_object_open /src/libbpf/src/libbpf.c:7223:16
-      #2 0x5739fd in bpf_object__open_mem /src/libbpf/src/libbpf.c:7263:20
-      ...
+However, depending on the platform, we might have certain
+engines that have a register list for engine instance error state
+but not for engine class. Thus, add a check only to warn if the
+register list was non existent vs an empty list (use the
+empty lists to skip the warning).
 
-The issue lie in libbpf's direct use of e_shnum field in ELF header as
-the section header count. Where as libelf implemented an extra logic
-that, when e_shnum == 0 && e_shoff != 0, will use sh_size member of the
-initial section header as the real section header count (part of ELF
-spec to accommodate situation where section header counter is larger
-than SHN_LORESERVE).
+NOTE: if a future platform were to introduce new registers
+in place of what was an empty list on existing / legacy hardware
+engines no warning is provided as the empty list is meant
+to be used intentionally. As an example, if a future hardware
+were to add blitter engine-class-registers (new) on top
+of the legacy blitter engine-instance-register (HEAD, TAIL, etc.),
+no warning is generated.
 
-The above inconsistency lead to libbpf writing into a zero-entry calloc
-area. So intead of using e_shnum directly, use the elf_getshdrnum()
-helper provided by libelf to retrieve the section header counter into
-sec_cnt.
-
-Fixes: 0d6988e16a12 ("libbpf: Fix section counting logic")
-Fixes: 25bbbd7a444b ("libbpf: Remove assumptions about uniqueness of .rodata/.data/.bss maps")
-Signed-off-by: Shung-Hsi Yu <shung-hsi.yu@suse.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=40868
-Link: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=40957
-Link: https://lore.kernel.org/bpf/20221012022353.7350-2-shung-hsi.yu@suse.com
+Signed-off-by: Alan Previn <alan.previn.teres.alexis@intel.com>
+Reviewed-by: John Harrison <John.C.Harrison@Intel.com>
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221019072930.17755-2-alan.previn.teres.alexis@intel.com
+Stable-dep-of: befb231d5de2 ("drm/i915/guc: Fix GuC error capture sizing estimation and reporting")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ .../gpu/drm/i915/gt/uc/intel_guc_capture.c    | 78 ++++++++++++++++---
+ 1 file changed, 69 insertions(+), 9 deletions(-)
 
-diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-index 264790796001..7f3cec7e7349 100644
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -590,7 +590,7 @@ struct elf_state {
- 	size_t shstrndx; /* section index for section name strings */
- 	size_t strtabidx;
- 	struct elf_sec_desc *secs;
--	int sec_cnt;
-+	size_t sec_cnt;
- 	int btf_maps_shndx;
- 	__u32 btf_maps_sec_btf_id;
- 	int text_shndx;
-@@ -3282,10 +3282,15 @@ static int bpf_object__elf_collect(struct bpf_object *obj)
- 	Elf64_Shdr *sh;
+diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
+index 8f1165146013..006bb17140d4 100644
+--- a/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
++++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
+@@ -419,6 +419,44 @@ guc_capture_get_device_reglist(struct intel_guc *guc)
+ 	return default_lists;
+ }
  
- 	/* ELF section indices are 0-based, but sec #0 is special "invalid"
--	 * section. e_shnum does include sec #0, so e_shnum is the necessary
--	 * size of an array to keep all the sections.
-+	 * section. Since section count retrieved by elf_getshdrnum() does
-+	 * include sec #0, it is already the necessary size of an array to keep
-+	 * all the sections.
- 	 */
--	obj->efile.sec_cnt = obj->efile.ehdr->e_shnum;
-+	if (elf_getshdrnum(obj->efile.elf, &obj->efile.sec_cnt)) {
-+		pr_warn("elf: failed to get the number of sections for %s: %s\n",
-+			obj->path, elf_errmsg(-1));
-+		return -LIBBPF_ERRNO__FORMAT;
++static const char *
++__stringify_type(u32 type)
++{
++	switch (type) {
++	case GUC_CAPTURE_LIST_TYPE_GLOBAL:
++		return "Global";
++	case GUC_CAPTURE_LIST_TYPE_ENGINE_CLASS:
++		return "Class";
++	case GUC_CAPTURE_LIST_TYPE_ENGINE_INSTANCE:
++		return "Instance";
++	default:
++		break;
 +	}
- 	obj->efile.secs = calloc(obj->efile.sec_cnt, sizeof(*obj->efile.secs));
- 	if (!obj->efile.secs)
- 		return -ENOMEM;
++
++	return "unknown";
++}
++
++static const char *
++__stringify_engclass(u32 class)
++{
++	switch (class) {
++	case GUC_RENDER_CLASS:
++		return "Render";
++	case GUC_VIDEO_CLASS:
++		return "Video";
++	case GUC_VIDEOENHANCE_CLASS:
++		return "VideoEnhance";
++	case GUC_BLITTER_CLASS:
++		return "Blitter";
++	case GUC_COMPUTE_CLASS:
++		return "Compute";
++	default:
++		break;
++	}
++
++	return "unknown";
++}
++
+ static int
+ guc_capture_list_init(struct intel_guc *guc, u32 owner, u32 type, u32 classid,
+ 		      struct guc_mmio_reg *ptr, u16 num_entries)
+@@ -482,23 +520,38 @@ guc_cap_list_num_regs(struct intel_guc_state_capture *gc, u32 owner, u32 type, u
+ 	return num_regs;
+ }
+ 
+-int
+-intel_guc_capture_getlistsize(struct intel_guc *guc, u32 owner, u32 type, u32 classid,
+-			      size_t *size)
++static int
++guc_capture_getlistsize(struct intel_guc *guc, u32 owner, u32 type, u32 classid,
++			size_t *size, bool is_purpose_est)
+ {
+ 	struct intel_guc_state_capture *gc = guc->capture;
++	struct drm_i915_private *i915 = guc_to_gt(guc)->i915;
+ 	struct __guc_capture_ads_cache *cache = &gc->ads_cache[owner][type][classid];
+ 	int num_regs;
+ 
+-	if (!gc->reglists)
++	if (!gc->reglists) {
++		drm_warn(&i915->drm, "GuC-capture: No reglist on this device\n");
+ 		return -ENODEV;
++	}
+ 
+ 	if (cache->is_valid) {
+ 		*size = cache->size;
+ 		return cache->status;
+ 	}
+ 
++	if (!is_purpose_est && owner == GUC_CAPTURE_LIST_INDEX_PF &&
++	    !guc_capture_get_one_list(gc->reglists, owner, type, classid)) {
++		if (type == GUC_CAPTURE_LIST_TYPE_GLOBAL)
++			drm_warn(&i915->drm, "Missing GuC-Err-Cap reglist Global!\n");
++		else
++			drm_warn(&i915->drm, "Missing GuC-Err-Cap reglist %s(%u):%s(%u)!\n",
++				 __stringify_type(type), type,
++				 __stringify_engclass(classid), classid);
++		return -ENODATA;
++	}
++
+ 	num_regs = guc_cap_list_num_regs(gc, owner, type, classid);
++	/* intentional empty lists can exist depending on hw config */
+ 	if (!num_regs)
+ 		return -ENODATA;
+ 
+@@ -508,6 +561,13 @@ intel_guc_capture_getlistsize(struct intel_guc *guc, u32 owner, u32 type, u32 cl
+ 	return 0;
+ }
+ 
++int
++intel_guc_capture_getlistsize(struct intel_guc *guc, u32 owner, u32 type, u32 classid,
++			      size_t *size)
++{
++	return guc_capture_getlistsize(guc, owner, type, classid, size, false);
++}
++
+ static void guc_capture_create_prealloc_nodes(struct intel_guc *guc);
+ 
+ int
+@@ -627,15 +687,15 @@ guc_capture_output_min_size_est(struct intel_guc *guc)
+ 		worst_min_size += sizeof(struct guc_state_capture_group_header_t) +
+ 					 (3 * sizeof(struct guc_state_capture_header_t));
+ 
+-		if (!intel_guc_capture_getlistsize(guc, 0, GUC_CAPTURE_LIST_TYPE_GLOBAL, 0, &tmp))
++		if (!guc_capture_getlistsize(guc, 0, GUC_CAPTURE_LIST_TYPE_GLOBAL, 0, &tmp, true))
+ 			num_regs += tmp;
+ 
+-		if (!intel_guc_capture_getlistsize(guc, 0, GUC_CAPTURE_LIST_TYPE_ENGINE_CLASS,
+-						   engine->class, &tmp)) {
++		if (!guc_capture_getlistsize(guc, 0, GUC_CAPTURE_LIST_TYPE_ENGINE_CLASS,
++					     engine->class, &tmp, true)) {
+ 			num_regs += tmp;
+ 		}
+-		if (!intel_guc_capture_getlistsize(guc, 0, GUC_CAPTURE_LIST_TYPE_ENGINE_INSTANCE,
+-						   engine->class, &tmp)) {
++		if (!guc_capture_getlistsize(guc, 0, GUC_CAPTURE_LIST_TYPE_ENGINE_INSTANCE,
++					     engine->class, &tmp, true)) {
+ 			num_regs += tmp;
+ 		}
+ 	}
 -- 
 2.35.1
 
