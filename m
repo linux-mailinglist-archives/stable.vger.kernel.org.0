@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4074B657DFD
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:49:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA4EB65781D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234069AbiL1PtD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:49:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36940 "EHLO
+        id S232963AbiL1OsH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:48:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234082AbiL1Ps6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:48:58 -0500
+        with ESMTP id S233067AbiL1Orl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:47:41 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F98418390
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:48:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6BEE120B4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:47:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F0EEB81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:48:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B820C433D2;
-        Wed, 28 Dec 2022 15:48:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64C4FB816D6
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:47:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCB97C433D2;
+        Wed, 28 Dec 2022 14:47:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242531;
-        bh=jrcC32pe8Kolx3MaVTPjSS7wyKA9V9nxMWJ6XbOIkaY=;
+        s=korg; t=1672238827;
+        bh=ZaqnCVXvRfvBgGBdprjY1ZCRDwWgX1YHg4G3R8sJ/J8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fOP8oNABDkOkuHl7TqDjhnRybnow6I+lCPJeIvmxiMAMSuSxwg/XvuuYf8TuVrEwL
-         6vnUU2sp+PJYa2euyRdzpuLN958HQwxR5D9P0EJdYCSpeOEbLNcDqyBhuwkTY4qZrx
-         dPb4fLnZnsienubeVF+hx0ACdlQdsu8GOgL1UCh0=
+        b=id7XwOSP4dnoSu5/RkMG1Q/X1SmFOm+Lsq113SiEl1hY+C/+5DmqGo6OXIoNwXYGe
+         5PDjYNkIBGkKkNYqvXPREcKx5a2ZxTUuUSkhYfR4Gv+qaYfeMh3zljvs0MidL3lr8j
+         CvYVONvlcAlZupdCQ+pjUhRBrTT+1hGKx0iC0zr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Evan Quan <evan.quan@amd.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Marco Elver <elver@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0380/1146] drm/amdgpu: fix pci device refcount leak
+Subject: [PATCH 5.15 012/731] objtool, kcsan: Add volatile read/write instrumentation to whitelist
 Date:   Wed, 28 Dec 2022 15:31:59 +0100
-Message-Id: <20221228144340.488228515@linuxfoundation.org>
+Message-Id: <20221228144256.895693286@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Marco Elver <elver@google.com>
 
-[ Upstream commit b85e285e3d6352b02947fc1b72303673dfacb0aa ]
+[ Upstream commit 63646fcba5bb4b59a19031c21913f94e46a3d0d4 ]
 
-As comment of pci_get_domain_bus_and_slot() says, it returns
-a pci device with refcount increment, when finish using it,
-the caller must decrement the reference count by calling
-pci_dev_put().
+Adds KCSAN's volatile instrumentation to objtool's uaccess whitelist.
 
-So before returning from amdgpu_device_resume|suspend_display_audio(),
-pci_dev_put() is called to avoid refcount leak.
+Recent kernel change have shown that this was missing from the uaccess
+whitelist (since the first upstreamed version of KCSAN):
 
-Fixes: 3f12acc8d6d4 ("drm/amdgpu: put the audio codec into suspend state before gpu reset V3")
-Reviewed-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+  mm/gup.o: warning: objtool: fault_in_readable+0x101: call to __tsan_volatile_write1() with UACCESS enabled
+
+Fixes: 75d75b7a4d54 ("kcsan: Support distinguishing volatile accesses")
+Signed-off-by: Marco Elver <elver@google.com>
+Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ tools/objtool/check.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index f1e9663b4051..2cf72cfa2e60 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -5027,6 +5027,8 @@ static void amdgpu_device_resume_display_audio(struct amdgpu_device *adev)
- 		pm_runtime_enable(&(p->dev));
- 		pm_runtime_resume(&(p->dev));
- 	}
-+
-+	pci_dev_put(p);
- }
- 
- static int amdgpu_device_suspend_display_audio(struct amdgpu_device *adev)
-@@ -5065,6 +5067,7 @@ static int amdgpu_device_suspend_display_audio(struct amdgpu_device *adev)
- 
- 		if (expires < ktime_get_mono_fast_ns()) {
- 			dev_warn(adev->dev, "failed to suspend display audio\n");
-+			pci_dev_put(p);
- 			/* TODO: abort the succeeding gpu reset? */
- 			return -ETIMEDOUT;
- 		}
-@@ -5072,6 +5075,7 @@ static int amdgpu_device_suspend_display_audio(struct amdgpu_device *adev)
- 
- 	pm_runtime_disable(&(p->dev));
- 
-+	pci_dev_put(p);
- 	return 0;
- }
- 
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index 72e5d23f1ad8..edac5aaa2802 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -846,6 +846,16 @@ static const char *uaccess_safe_builtin[] = {
+ 	"__tsan_read_write4",
+ 	"__tsan_read_write8",
+ 	"__tsan_read_write16",
++	"__tsan_volatile_read1",
++	"__tsan_volatile_read2",
++	"__tsan_volatile_read4",
++	"__tsan_volatile_read8",
++	"__tsan_volatile_read16",
++	"__tsan_volatile_write1",
++	"__tsan_volatile_write2",
++	"__tsan_volatile_write4",
++	"__tsan_volatile_write8",
++	"__tsan_volatile_write16",
+ 	"__tsan_atomic8_load",
+ 	"__tsan_atomic16_load",
+ 	"__tsan_atomic32_load",
 -- 
 2.35.1
 
