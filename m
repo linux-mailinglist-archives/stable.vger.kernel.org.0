@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 210E8657E64
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:53:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4869657835
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234134AbiL1PxY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:53:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41072 "EHLO
+        id S229959AbiL1Osi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:48:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234153AbiL1PxM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:53:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD30E186CB
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:53:09 -0800 (PST)
+        with ESMTP id S232951AbiL1OsF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:48:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 513BD11C0D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:48:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90A33B81732
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:53:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2798C433F1;
-        Wed, 28 Dec 2022 15:53:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DAF561541
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:48:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F1F6C433D2;
+        Wed, 28 Dec 2022 14:48:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242787;
-        bh=6WPVI2RzqdiPWNz6u8FMFbRCToeTpaZF137s1wsRmk8=;
+        s=korg; t=1672238882;
+        bh=/LwiEVsMHxiCwIBQRqfirym4OWaQMf+8G/ygFjOrNOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YAveAhLr8WHxkqG6/Wxu66G6g3HQLaI1Zyi/RKW0ifImvIzXKdPZVTujcXYwuEdCu
-         Q/DYC+lva5spn+pmXi2FNyzOx3KZIBWY2S3JKu+P2/tF6oP7lPwp68u5LDiVpGFZUr
-         KLts3b/byYYR4YWL4PhFwC766k11NkeUJAwHg6zo=
+        b=JEkQIAhSn2m2Nzl1zs3mINKYcjA18VHx2HRpKs/cLJhrJJWd0Px/RLTWdblv5qMbT
+         WXWCDa8pATWi+OLjvInqKXOqsFUjftbAa29dRuLqlg3tug1WRZEkNlj+O220gBSwDc
+         DSREQwfKvCt3sKMYe2Oesc8clO15SFh5tOuufX38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yunfei Dong <yunfei.dong@mediatek.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0413/1146] media: mediatek: vcodec: Fix getting NULL pointer for dst buffer
+Subject: [PATCH 5.15 045/731] arm64: dts: mediatek: mt6797: Fix 26M oscillator unit name
 Date:   Wed, 28 Dec 2022 15:32:32 +0100
-Message-Id: <20221228144341.386152893@linuxfoundation.org>
+Message-Id: <20221228144257.860874504@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunfei Dong <yunfei.dong@mediatek.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit d879f770e4d1d5f0d9b692d3a2702f23ee441dbb ]
+[ Upstream commit 5f535cc583759c9c60d4cc9b8d221762e2d75387 ]
 
-The driver may can't get v4l2 buffer when lat or core decode timeout,
-will lead to crash when call v4l2_m2m_buf_done to set dst buffer
-(NULL pointer) done.
+Update its unit name to oscillator-26m and remove the unneeded unit
+address to fix a unit_address_vs_reg warning.
 
-Fixes: 7b182b8d9c85 ("media: mediatek: vcodec: Refactor get and put capture buffer flow")
-Signed-off-by: Yunfei Dong <yunfei.dong@mediatek.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 464c510f60c6 ("arm64: dts: mediatek: add mt6797 support")
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221013152212.416661-9-angelogioacchino.delregno@collabora.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../mediatek/vcodec/mtk_vcodec_dec_stateless.c        | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt6797.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c
-index c45bd2599bb2..e86809052a9f 100644
---- a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c
-+++ b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c
-@@ -138,10 +138,13 @@ static void mtk_vdec_stateless_cap_to_disp(struct mtk_vcodec_ctx *ctx, int error
- 		state = VB2_BUF_STATE_DONE;
+diff --git a/arch/arm64/boot/dts/mediatek/mt6797.dtsi b/arch/arm64/boot/dts/mediatek/mt6797.dtsi
+index 15616231022a..c3677d77e0a4 100644
+--- a/arch/arm64/boot/dts/mediatek/mt6797.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt6797.dtsi
+@@ -95,7 +95,7 @@ cpu9: cpu@201 {
+ 		};
+ 	};
  
- 	vb2_dst = v4l2_m2m_dst_buf_remove(ctx->m2m_ctx);
--	v4l2_m2m_buf_done(vb2_dst, state);
--
--	mtk_v4l2_debug(2, "free frame buffer id:%d to done list",
--		       vb2_dst->vb2_buf.index);
-+	if (vb2_dst) {
-+		v4l2_m2m_buf_done(vb2_dst, state);
-+		mtk_v4l2_debug(2, "free frame buffer id:%d to done list",
-+			       vb2_dst->vb2_buf.index);
-+	} else {
-+		mtk_v4l2_err("dst buffer is NULL");
-+	}
- 
- 	if (src_buf_req)
- 		v4l2_ctrl_request_complete(src_buf_req, &ctx->ctrl_hdl);
+-	clk26m: oscillator@0 {
++	clk26m: oscillator-26m {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <26000000>;
 -- 
 2.35.1
 
