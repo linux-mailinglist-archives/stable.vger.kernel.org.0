@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4CB66578F8
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:56:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC9F0657F66
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:04:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233250AbiL1O4N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:56:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43864 "EHLO
+        id S234254AbiL1QEb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:04:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233213AbiL1O4N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:56:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B57CDF1
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:56:12 -0800 (PST)
+        with ESMTP id S234256AbiL1QE1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:04:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7DDA1929D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:04:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BE306B8171E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:56:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C77EC433D2;
-        Wed, 28 Dec 2022 14:56:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 134B061560
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:04:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28D6DC433D2;
+        Wed, 28 Dec 2022 16:04:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239369;
-        bh=dkwj+6dc4AW/BlkokJ7uyTXVotXRzGd+90vyyE2mwcc=;
+        s=korg; t=1672243464;
+        bh=muOU84hpJwkJvVOXxaAjMrs9BddxS4K4voxHtLNyP80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M1bppHslqA7o1R2W0GyfY0s+dqRm+IKb07nkx6wC1l5rYKkgtbB2xrAYqJDt1RtYJ
-         Q7QCsr4OigAFXV4qlL5Lf7oULd1XNfbOB7f0p94ZjDEkkkDg+bDme9qhIvumINA0ib
-         QS9TAxgpWpusZB4UIwcb5GDLEqq0ouRicsKkwxrI=
+        b=TIdICHAfc2zVkGQhO1m3M4PFja3GT5L2PCbxmw+3fkZFznWg+pan5H4txZwf85uGe
+         5NJJ0fyu798x/fLfHwnL/x7taw8XK00AwyC3D8jbDKDWyMInCXL66cC6hwp8uuzKQy
+         ingTTKQHXoDa6okl/z9z5HyE6i7zfJ09NccvVRhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        patches@lists.linux.dev, Marc Kleine-Budde <mkl@pengutronix.de>,
+        Vivek Yadav <vivek.2311@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 213/731] media: platform: exynos4-is: Fix error handling in fimc_md_init()
+Subject: [PATCH 6.0 0532/1073] can: m_can: Call the RAM init directly from m_can_chip_config
 Date:   Wed, 28 Dec 2022 15:35:20 +0100
-Message-Id: <20221228144302.731522912@linuxfoundation.org>
+Message-Id: <20221228144342.502482462@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,73 +53,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Vivek Yadav <vivek.2311@samsung.com>
 
-[ Upstream commit b434422c45282a0573d8123239abc41fa72665d4 ]
+[ Upstream commit eaacfeaca7ad0804b9a6eff7afeba93a87db7638 ]
 
-A problem about modprobe s5p_fimc failed is triggered with the
-following log given:
+When we try to access the mcan message ram addresses during the probe,
+hclk is gated by any other drivers or disabled, because of that probe
+gets failed.
 
- [  272.075275] Error: Driver 'exynos4-fimc' is already registered, aborting...
- modprobe: ERROR: could not insert 's5p_fimc': Device or resource busy
+Move the mram init functionality to mcan chip config called by
+m_can_start from mcan open function, by that time clocks are
+enabled.
 
-The reason is that fimc_md_init() returns platform_driver_register()
-directly without checking its return value, if platform_driver_register()
-failed, it returns without unregister fimc_driver, resulting the
-s5p_fimc can never be installed later.
-A simple call graph is shown as below:
-
- fimc_md_init()
-   fimc_register_driver() # register fimc_driver
-   platform_driver_register()
-     platform_driver_register()
-       driver_register()
-         bus_add_driver()
-           dev = kzalloc(...) # OOM happened
-   # return without unregister fimc_driver
-
-Fix by unregister fimc_driver when platform_driver_register() returns
-error.
-
-Fixes: d3953223b090 ("[media] s5p-fimc: Add the media device driver")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Suggested-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Vivek Yadav <vivek.2311@samsung.com>
+Link: https://lore.kernel.org/all/20221207100632.96200-2-vivek.2311@samsung.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Stable-dep-of: 67727a17a6b3 ("can: tcan4x5x: Fix use of register error status mask")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/exynos4-is/fimc-core.c | 2 +-
- drivers/media/platform/exynos4-is/media-dev.c | 6 +++++-
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/can/m_can/m_can.c          | 32 +++++++++++++++++++++-----
+ drivers/net/can/m_can/m_can_platform.c |  4 ----
+ drivers/net/can/m_can/tcan4x5x-core.c  |  5 ----
+ 3 files changed, 26 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/media/platform/exynos4-is/fimc-core.c b/drivers/media/platform/exynos4-is/fimc-core.c
-index bfdee771cef9..4afe0b9b1773 100644
---- a/drivers/media/platform/exynos4-is/fimc-core.c
-+++ b/drivers/media/platform/exynos4-is/fimc-core.c
-@@ -1174,7 +1174,7 @@ int __init fimc_register_driver(void)
- 	return platform_driver_register(&fimc_driver);
+diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
+index 153d8fd08bd8..a562f36a99f8 100644
+--- a/drivers/net/can/m_can/m_can.c
++++ b/drivers/net/can/m_can/m_can.c
+@@ -1233,10 +1233,17 @@ static int m_can_set_bittiming(struct net_device *dev)
+  * - setup bittiming
+  * - configure timestamp generation
+  */
+-static void m_can_chip_config(struct net_device *dev)
++static int m_can_chip_config(struct net_device *dev)
+ {
+ 	struct m_can_classdev *cdev = netdev_priv(dev);
+ 	u32 cccr, test;
++	int err;
++
++	err = m_can_init_ram(cdev);
++	if (err) {
++		dev_err(cdev->dev, "Message RAM configuration failed\n");
++		return err;
++	}
+ 
+ 	m_can_config_endisable(cdev, true);
+ 
+@@ -1360,18 +1367,25 @@ static void m_can_chip_config(struct net_device *dev)
+ 
+ 	if (cdev->ops->init)
+ 		cdev->ops->init(cdev);
++
++	return 0;
  }
  
--void __exit fimc_unregister_driver(void)
-+void fimc_unregister_driver(void)
+-static void m_can_start(struct net_device *dev)
++static int m_can_start(struct net_device *dev)
  {
- 	platform_driver_unregister(&fimc_driver);
+ 	struct m_can_classdev *cdev = netdev_priv(dev);
++	int ret;
+ 
+ 	/* basic m_can configuration */
+-	m_can_chip_config(dev);
++	ret = m_can_chip_config(dev);
++	if (ret)
++		return ret;
+ 
+ 	cdev->can.state = CAN_STATE_ERROR_ACTIVE;
+ 
+ 	m_can_enable_all_interrupts(cdev);
++
++	return 0;
  }
-diff --git a/drivers/media/platform/exynos4-is/media-dev.c b/drivers/media/platform/exynos4-is/media-dev.c
-index 00225e16dd49..b19d7c8ddc06 100644
---- a/drivers/media/platform/exynos4-is/media-dev.c
-+++ b/drivers/media/platform/exynos4-is/media-dev.c
-@@ -1584,7 +1584,11 @@ static int __init fimc_md_init(void)
+ 
+ static int m_can_set_mode(struct net_device *dev, enum can_mode mode)
+@@ -1800,7 +1814,9 @@ static int m_can_open(struct net_device *dev)
+ 	}
+ 
+ 	/* start the m_can controller */
+-	m_can_start(dev);
++	err = m_can_start(dev);
++	if (err)
++		goto exit_irq_fail;
+ 
+ 	if (!cdev->is_peripheral)
+ 		napi_enable(&cdev->napi);
+@@ -2059,9 +2075,13 @@ int m_can_class_resume(struct device *dev)
+ 		ret = m_can_clk_start(cdev);
+ 		if (ret)
+ 			return ret;
++		ret  = m_can_start(ndev);
++		if (ret) {
++			m_can_clk_stop(cdev);
++
++			return ret;
++		}
+ 
+-		m_can_init_ram(cdev);
+-		m_can_start(ndev);
+ 		netif_device_attach(ndev);
+ 		netif_start_queue(ndev);
+ 	}
+diff --git a/drivers/net/can/m_can/m_can_platform.c b/drivers/net/can/m_can/m_can_platform.c
+index eee47bad0592..de6d8e01bf2e 100644
+--- a/drivers/net/can/m_can/m_can_platform.c
++++ b/drivers/net/can/m_can/m_can_platform.c
+@@ -140,10 +140,6 @@ static int m_can_plat_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, mcan_class);
+ 
+-	ret = m_can_init_ram(mcan_class);
+-	if (ret)
+-		goto probe_fail;
+-
+ 	pm_runtime_enable(mcan_class->dev);
+ 	ret = m_can_class_register(mcan_class);
+ 	if (ret)
+diff --git a/drivers/net/can/m_can/tcan4x5x-core.c b/drivers/net/can/m_can/tcan4x5x-core.c
+index 1fec394b3517..a77f4d4f6299 100644
+--- a/drivers/net/can/m_can/tcan4x5x-core.c
++++ b/drivers/net/can/m_can/tcan4x5x-core.c
+@@ -229,11 +229,6 @@ static int tcan4x5x_init(struct m_can_classdev *cdev)
  	if (ret)
  		return ret;
  
--	return platform_driver_register(&fimc_md_driver);
-+	ret = platform_driver_register(&fimc_md_driver);
-+	if (ret)
-+		fimc_unregister_driver();
-+
-+	return ret;
- }
- 
- static void __exit fimc_md_exit(void)
+-	/* Zero out the MCAN buffers */
+-	ret = m_can_init_ram(cdev);
+-	if (ret)
+-		return ret;
+-
+ 	ret = regmap_update_bits(tcan4x5x->regmap, TCAN4X5X_CONFIG,
+ 				 TCAN4X5X_MODE_SEL_MASK, TCAN4X5X_MODE_NORMAL);
+ 	if (ret)
 -- 
 2.35.1
 
