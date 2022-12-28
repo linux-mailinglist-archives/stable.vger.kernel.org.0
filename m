@@ -2,46 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA13B658482
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1A2A657E28
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:50:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235370AbiL1Q5p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:57:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46918 "EHLO
+        id S234099AbiL1Pun (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:50:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235404AbiL1Q46 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:56:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D444610FE2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:53:26 -0800 (PST)
+        with ESMTP id S233653AbiL1Pum (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:50:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 249961869B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:50:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C36461568
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:53:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 824BCC433D2;
-        Wed, 28 Dec 2022 16:53:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AC126B817B0
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:50:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D023FC433EF;
+        Wed, 28 Dec 2022 15:50:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246405;
-        bh=H23P28i1Gic5S2PHT2F+yKYlAsBVwd2RVFgih08qvJM=;
+        s=korg; t=1672242638;
+        bh=6Rt66En4YR4+WeH4ZMOpmV4L4n4yDPPXElFggyH37Wc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UIPwd/8Oz/aTsS/RweFKlNfzc4w3oFNBiQsdpFKVqJ4EJCoBTwcAa9OVbEQwm5ruV
-         Lgcs8AsMI/Z8MByEu56mu5zmVc1ci2qucgafjlgRm6DlxDeGOxoKroQQ4xLFmT2Wi4
-         jsdMnlxIA/K6+SjgFqotym+Bwe8pp4HE8poqs7Mw=
+        b=TUZHcvPNgAniTxN9J0yEhwxptIyEd5ZDWtJfBn7JQjWQfEIKNLUsKE7qixUFZjsfl
+         NNQcTVb+ZqfQyJjOvenH3s1T9JDnzOt7aJAAnnPjfDPz4WQJ+XaIZiTGuLfMqo1TJQ
+         8+X3XsaS3+I3LzQT/5NbaXdjsVMKgdaeCUOurxW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sami Tolvanen <samitolvanen@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, ZhangPeng <zhangpeng362@huawei.com>,
+        syzbot+e836ff7133ac02be825f@syzkaller.appspotmail.com,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Nanyong Sun <sunnanyong@huawei.com>,
+        Viacheslav Dubeyko <slava@dubeyko.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0996/1146] drm/amdgpu: Fix type of second parameter in odn_edit_dpm_table() callback
+Subject: [PATCH 5.15 628/731] hfs: fix OOB Read in __hfs_brec_find
 Date:   Wed, 28 Dec 2022 15:42:15 +0100
-Message-Id: <20221228144357.421887526@linuxfoundation.org>
+Message-Id: <20221228144314.727665133@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,75 +61,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: ZhangPeng <zhangpeng362@huawei.com>
 
-[ Upstream commit e4d0ef752081e7aa6ffb7ccac11c499c732a2e05 ]
+[ Upstream commit 8d824e69d9f3fa3121b2dda25053bae71e2460d2 ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed. A
-proposed warning in clang aims to catch these at compile time, which
-reveals:
+Syzbot reported a OOB read bug:
 
-  drivers/gpu/drm/amd/amdgpu/../pm/swsmu/amdgpu_smu.c:3008:29: error: incompatible function pointer types initializing 'int (*)(void *, uint32_t, long *, uint32_t)' (aka 'int (*)(void *, unsigned int, long *, unsigned int)') with an expression of type 'int (void *, enum PP_OD_DPM_TABLE_COMMAND, long *, uint32_t)' (aka 'int (void *, enum PP_OD_DPM_TABLE_COMMAND, long *, unsigned int)') [-Werror,-Wincompatible-function-pointer-types-strict]
-          .odn_edit_dpm_table      = smu_od_edit_dpm_table,
-                                     ^~~~~~~~~~~~~~~~~~~~~
-  1 error generated.
+==================================================================
+BUG: KASAN: slab-out-of-bounds in hfs_strcmp+0x117/0x190
+fs/hfs/string.c:84
+Read of size 1 at addr ffff88807eb62c4e by task kworker/u4:1/11
+CPU: 1 PID: 11 Comm: kworker/u4:1 Not tainted
+6.1.0-rc6-syzkaller-00308-g644e9524388a #0
+Workqueue: writeback wb_workfn (flush-7:0)
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0x1b1/0x28e lib/dump_stack.c:106
+ print_address_description+0x74/0x340 mm/kasan/report.c:284
+ print_report+0x107/0x1f0 mm/kasan/report.c:395
+ kasan_report+0xcd/0x100 mm/kasan/report.c:495
+ hfs_strcmp+0x117/0x190 fs/hfs/string.c:84
+ __hfs_brec_find+0x213/0x5c0 fs/hfs/bfind.c:75
+ hfs_brec_find+0x276/0x520 fs/hfs/bfind.c:138
+ hfs_write_inode+0x34c/0xb40 fs/hfs/inode.c:462
+ write_inode fs/fs-writeback.c:1440 [inline]
 
-There are only two implementations of ->odn_edit_dpm_table() in 'struct
-amd_pm_funcs': smu_od_edit_dpm_table() and pp_odn_edit_dpm_table(). One
-has a second parameter type of 'enum PP_OD_DPM_TABLE_COMMAND' and the
-other uses 'u32'. Ultimately, smu_od_edit_dpm_table() calls
-->od_edit_dpm_table() from 'struct pptable_funcs' and
-pp_odn_edit_dpm_table() calls ->odn_edit_dpm_table() from 'struct
-pp_hwmgr_func', which both have a second parameter type of 'enum
-PP_OD_DPM_TABLE_COMMAND'.
+If the input inode of hfs_write_inode() is incorrect:
+struct inode
+  struct hfs_inode_info
+    struct hfs_cat_key
+      struct hfs_name
+        u8 len # len is greater than HFS_NAMELEN(31) which is the
+maximum length of an HFS filename
 
-Update the type parameter in both the prototype in 'struct amd_pm_funcs'
-and pp_odn_edit_dpm_table() to 'enum PP_OD_DPM_TABLE_COMMAND', which
-cleans up the warning.
+OOB read occurred:
+hfs_write_inode()
+  hfs_brec_find()
+    __hfs_brec_find()
+      hfs_cat_keycmp()
+        hfs_strcmp() # OOB read occurred due to len is too large
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1750
-Reported-by: Sami Tolvanen <samitolvanen@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fix this by adding a Check on len in hfs_write_inode() before calling
+hfs_brec_find().
+
+Link: https://lkml.kernel.org/r/20221130065959.2168236-1-zhangpeng362@huawei.com
+Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
+Reported-by: <syzbot+e836ff7133ac02be825f@syzkaller.appspotmail.com>
+Cc: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Cc: Jeff Layton <jlayton@kernel.org>
+Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Nanyong Sun <sunnanyong@huawei.com>
+Cc: Viacheslav Dubeyko <slava@dubeyko.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/include/kgd_pp_interface.h   | 3 ++-
- drivers/gpu/drm/amd/pm/powerplay/amd_powerplay.c | 3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ fs/hfs/inode.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/include/kgd_pp_interface.h b/drivers/gpu/drm/amd/include/kgd_pp_interface.h
-index a40ead44778a..d18162e9ed1d 100644
---- a/drivers/gpu/drm/amd/include/kgd_pp_interface.h
-+++ b/drivers/gpu/drm/amd/include/kgd_pp_interface.h
-@@ -354,7 +354,8 @@ struct amd_pm_funcs {
- 	int (*get_power_profile_mode)(void *handle, char *buf);
- 	int (*set_power_profile_mode)(void *handle, long *input, uint32_t size);
- 	int (*set_fine_grain_clk_vol)(void *handle, uint32_t type, long *input, uint32_t size);
--	int (*odn_edit_dpm_table)(void *handle, uint32_t type, long *input, uint32_t size);
-+	int (*odn_edit_dpm_table)(void *handle, enum PP_OD_DPM_TABLE_COMMAND type,
-+				  long *input, uint32_t size);
- 	int (*set_mp1_state)(void *handle, enum pp_mp1_state mp1_state);
- 	int (*smu_i2c_bus_access)(void *handle, bool acquire);
- 	int (*gfx_state_change_set)(void *handle, uint32_t state);
-diff --git a/drivers/gpu/drm/amd/pm/powerplay/amd_powerplay.c b/drivers/gpu/drm/amd/pm/powerplay/amd_powerplay.c
-index ec055858eb95..1159ae114dd0 100644
---- a/drivers/gpu/drm/amd/pm/powerplay/amd_powerplay.c
-+++ b/drivers/gpu/drm/amd/pm/powerplay/amd_powerplay.c
-@@ -838,7 +838,8 @@ static int pp_set_fine_grain_clk_vol(void *handle, uint32_t type, long *input, u
- 	return hwmgr->hwmgr_func->set_fine_grain_clk_vol(hwmgr, type, input, size);
- }
+diff --git a/fs/hfs/inode.c b/fs/hfs/inode.c
+index 4a95a92546a0..a58a5b733224 100644
+--- a/fs/hfs/inode.c
++++ b/fs/hfs/inode.c
+@@ -456,6 +456,8 @@ int hfs_write_inode(struct inode *inode, struct writeback_control *wbc)
+ 		/* panic? */
+ 		return -EIO;
  
--static int pp_odn_edit_dpm_table(void *handle, uint32_t type, long *input, uint32_t size)
-+static int pp_odn_edit_dpm_table(void *handle, enum PP_OD_DPM_TABLE_COMMAND type,
-+				 long *input, uint32_t size)
- {
- 	struct pp_hwmgr *hwmgr = handle;
- 
++	if (HFS_I(main_inode)->cat_key.CName.len > HFS_NAMELEN)
++		return -EIO;
+ 	fd.search_key->cat = HFS_I(main_inode)->cat_key;
+ 	if (hfs_brec_find(&fd))
+ 		/* panic? */
 -- 
 2.35.1
 
