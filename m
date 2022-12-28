@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8259A657B81
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E32865828E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:38:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233629AbiL1PXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:23:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40254 "EHLO
+        id S234819AbiL1QiL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:38:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233624AbiL1PWl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:22:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF274140BA
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:22:21 -0800 (PST)
+        with ESMTP id S234876AbiL1QhL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:37:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12DA41AD8E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:33:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BA5261544
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:22:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CDACC433D2;
-        Wed, 28 Dec 2022 15:22:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9677B8171E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:33:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1868EC433D2;
+        Wed, 28 Dec 2022 16:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240940;
-        bh=Zi8O9t420gNKOhNMdn4jrylDdiDle4Pac//PLNkysZ0=;
+        s=korg; t=1672245199;
+        bh=OtbdnXf8AMHhVC2PqsqD5usQffCcLsQMlwfdyb+QX5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZgtXns/37nUjBqDlCTo2mdImBFismm8fSc9dmgl53AqKqa253bOKcbz5mZdsIY+7P
-         g0sgBDdgXtMrim8oTEXB5ntn25xPxwv2KUfdVc0ypETNOs2QV5UFtODS+AjrAPxVck
-         ZYqPGr//OtkXIWYE83+fv31S70vcSEVPwuUEUkoQ=
+        b=U575dmPISPRgFhECJILq/ymN22WkAxUnss+5BItfZltbvtpowzNYHb0txTfry+LgC
+         Vg3x8zbcUdFtESHCqmXERN8YNCkVZ0V74MLtfEmm1z7M9H8Vrax0JSYlEHDm42vCph
+         6gYs+G6livxGSY/e4g10+TZtQfRCMhJtjL+BFMV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yonggil Song <yonggil.song@samsung.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 419/731] f2fs: avoid victim selection from previous victim section
+        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0787/1146] ftrace: Allow WITH_ARGS flavour of graph tracer with shadow call stack
 Date:   Wed, 28 Dec 2022 15:38:46 +0100
-Message-Id: <20221228144308.717034591@linuxfoundation.org>
+Message-Id: <20221228144351.523602183@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonggil Song <yonggil.song@samsung.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit e219aecfd4b766c4e878a3769057e9809f7fcadc ]
+[ Upstream commit 38792972de4294163f44d6360fd221e6f2c22a05 ]
 
-When f2fs chooses GC victim in large section & LFS mode,
-next_victim_seg[gc_type] is referenced first. After segment is freed,
-next_victim_seg[gc_type] has the next segment number.
-However, next_victim_seg[gc_type] still has the last segment number
-even after the last segment of section is freed. In this case, when f2fs
-chooses a victim for the next GC round, the last segment of previous victim
-section is chosen as a victim.
+The recent switch on arm64 from DYNAMIC_FTRACE_WITH_REGS to
+DYNAMIC_FTRACE_WITH_ARGS failed to take into account that we currently
+require the former in order to allow the function graph tracer to be
+enabled in combination with shadow call stacks. This means that this is
+no longer permitted at all, in spite of the fact that either flavour of
+ftrace works perfectly fine in this combination.
 
-Initialize next_victim_seg[gc_type] to NULL_SEGNO for the last segment in
-large section.
+So permit WITH_ARGS as well as WITH_REGS.
 
-Fixes: e3080b0120a1 ("f2fs: support subsectional garbage collection")
-Signed-off-by: Yonggil Song <yonggil.song@samsung.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: ddc9863e9e90 ("scs: Disable when function graph tracing is enabled")
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Link: https://lore.kernel.org/r/20221213132407.1485025-1-ardb@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/gc.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
-index 4cbaa6ab083f..7863f8fd3b95 100644
---- a/fs/f2fs/gc.c
-+++ b/fs/f2fs/gc.c
-@@ -1673,8 +1673,9 @@ static int do_garbage_collect(struct f2fs_sb_info *sbi,
- 				get_valid_blocks(sbi, segno, false) == 0)
- 			seg_freed++;
- 
--		if (__is_large_section(sbi) && segno + 1 < end_segno)
--			sbi->next_victim_seg[gc_type] = segno + 1;
-+		if (__is_large_section(sbi))
-+			sbi->next_victim_seg[gc_type] =
-+				(segno + 1 < end_segno) ? segno + 1 : NULL_SEGNO;
- skip:
- 		f2fs_put_page(sum_page, 0);
- 	}
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 8f138e580d1a..81599f5c17b0 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -635,7 +635,7 @@ config ARCH_SUPPORTS_SHADOW_CALL_STACK
+ config SHADOW_CALL_STACK
+ 	bool "Shadow Call Stack"
+ 	depends on ARCH_SUPPORTS_SHADOW_CALL_STACK
+-	depends on DYNAMIC_FTRACE_WITH_REGS || !FUNCTION_GRAPH_TRACER
++	depends on DYNAMIC_FTRACE_WITH_ARGS || DYNAMIC_FTRACE_WITH_REGS || !FUNCTION_GRAPH_TRACER
+ 	help
+ 	  This option enables the compiler's Shadow Call Stack, which
+ 	  uses a shadow stack to protect function return addresses from
 -- 
 2.35.1
 
