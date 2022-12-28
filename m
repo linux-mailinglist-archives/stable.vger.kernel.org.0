@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E8BF657FAF
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:07:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 483B26578AF
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:53:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234318AbiL1QHw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:07:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54982 "EHLO
+        id S233141AbiL1OxY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:53:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234242AbiL1QH2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:07:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 330CA10B7A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:07:27 -0800 (PST)
+        with ESMTP id S233158AbiL1OxE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:53:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D9FB95
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:53:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C74A961577
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:07:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA7CAC433EF;
-        Wed, 28 Dec 2022 16:07:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AC27E61540
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:53:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C083AC433EF;
+        Wed, 28 Dec 2022 14:53:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243646;
-        bh=TuF4wUYdyFvLGY9SACynje///QzokDH5XG2EpqcTumw=;
+        s=korg; t=1672239182;
+        bh=IPKUIKD38FhbrgGYIO+tHSeh1hEP8IUgY9a8J0dzUnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z5uwyKelm++3ADoWpZaGJCTyLDf2v7/2A9s5FnKV1NajUIY3+KT2YLGDlhmwS6/zG
-         ENXAZHXHG4z4lKG+OU8Lwv2evX3AQz0uEKTO/3V2F321HRu5Ownl5EC2cVjXOCcPCS
-         t/TNQAUIEerrc2iN9TJsn0KLkEO+OJf5TrZAVYtY=
+        b=aZhI0D07YWArTkjBdjypDBc1KQCESaXzBNSb9ANE5LykvjCaP2dQubdfyqFlb/nYH
+         W+ObOmwVWAYNyTMBTwihqyeQX9iLhqyN6NxZNln1sWZB+env6EJPs70jEUNwPi6Flh
+         1xtXuyUrpScRwQP4XkBgRTKMEo72cBGX/aWuaMTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        patches@lists.linux.dev, Daniel Scally <djrscally@gmail.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0527/1146] clk: socfpga: Fix memory leak in socfpga_gate_init()
+Subject: [PATCH 5.15 159/731] media: exynos4-is: dont rely on the v4l2_async_subdev internals
 Date:   Wed, 28 Dec 2022 15:34:26 +0100
-Message-Id: <20221228144344.490879413@linuxfoundation.org>
+Message-Id: <20221228144301.172922939@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 0b8ba891ad4d1ef6bfa4c72efc83f9f9f855f68b ]
+[ Upstream commit f98a5c2e1c4396488c27274ba82afc11725a4bcc ]
 
-Free @socfpga_clk and @ops on the error path to avoid memory leak issue.
+Commit 1f391df44607 ("media: v4l2-async: Use endpoints in
+__v4l2_async_nf_add_fwnode_remote()") changed the data that is stored in
+the v4l2_async_subdev internals from the fwnode pointer to the parent
+device to the fwnode pointer to the matched endpoint. This broke the
+sensor matching code, which relied on the particular fwnode data in the
+v4l2_async_subdev internals. Fix this by simply matching the
+v4l2_async_subdev pointer, which is already available there.
 
-Fixes: a30a67be7b6e ("clk: socfpga: Don't have get_parent for single parent ops")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Link: https://lore.kernel.org/r/20221123031622.63171-1-xiujianfeng@huawei.com
-Acked-by: Dinh Nguyen <dinguyen@kernel.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Reported-by: Daniel Scally <djrscally@gmail.com>
+Fixes: fa91f1056f17 ("[media] exynos4-is: Add support for asynchronous subdevices registration")
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Daniel Scally <djrscally@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/socfpga/clk-gate.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/media/platform/exynos4-is/media-dev.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/clk/socfpga/clk-gate.c b/drivers/clk/socfpga/clk-gate.c
-index 53d6e3ec4309..c94b59b80dd4 100644
---- a/drivers/clk/socfpga/clk-gate.c
-+++ b/drivers/clk/socfpga/clk-gate.c
-@@ -188,8 +188,10 @@ void __init socfpga_gate_init(struct device_node *node)
- 		return;
+diff --git a/drivers/media/platform/exynos4-is/media-dev.c b/drivers/media/platform/exynos4-is/media-dev.c
+index fa648721eaab..aa5982e32b2b 100644
+--- a/drivers/media/platform/exynos4-is/media-dev.c
++++ b/drivers/media/platform/exynos4-is/media-dev.c
+@@ -1380,9 +1380,7 @@ static int subdev_notifier_bound(struct v4l2_async_notifier *notifier,
  
- 	ops = kmemdup(&gateclk_ops, sizeof(gateclk_ops), GFP_KERNEL);
--	if (WARN_ON(!ops))
-+	if (WARN_ON(!ops)) {
-+		kfree(socfpga_clk);
- 		return;
-+	}
+ 	/* Find platform data for this sensor subdev */
+ 	for (i = 0; i < ARRAY_SIZE(fmd->sensor); i++)
+-		if (fmd->sensor[i].asd &&
+-		    fmd->sensor[i].asd->match.fwnode ==
+-		    of_fwnode_handle(subdev->dev->of_node))
++		if (fmd->sensor[i].asd == asd)
+ 			si = &fmd->sensor[i];
  
- 	rc = of_property_read_u32_array(node, "clk-gate", clk_gate, 2);
- 	if (rc)
-@@ -243,6 +245,7 @@ void __init socfpga_gate_init(struct device_node *node)
- 
- 	err = clk_hw_register(NULL, hw_clk);
- 	if (err) {
-+		kfree(ops);
- 		kfree(socfpga_clk);
- 		return;
- 	}
+ 	if (si == NULL)
 -- 
 2.35.1
 
