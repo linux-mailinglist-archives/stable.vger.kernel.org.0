@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53834657E1C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:50:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7222765783B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234020AbiL1PuL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:50:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37654 "EHLO
+        id S230050AbiL1Osx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:48:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234087AbiL1PuH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:50:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 364BE18686
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:50:07 -0800 (PST)
+        with ESMTP id S233065AbiL1OsZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:48:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFA0BBCA
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:48:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C7BDB61562
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:50:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6ADCC433D2;
-        Wed, 28 Dec 2022 15:50:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 48CC7B8170E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:48:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98247C433D2;
+        Wed, 28 Dec 2022 14:48:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242606;
-        bh=xc5g3hhMpOjVMd7lC4dRQpGCbO6OwPueBGdfx8tJRWM=;
+        s=korg; t=1672238900;
+        bh=ZYqwG6CouYo5NQ+O+G/OelmPsdWeAGd5u5KwGMjn3DI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xzkas3nFs+bfYXwDwGWunOVid61m7z4TiXFYn1ZcMpdABJ8G7WvnZUbd7m8++2NDB
-         SxVgXi5GooMlvcb/C+nLPWTPdCZWJC26t5VXi4BZD62QIDJ34VD5eWI7VPE6Ym23el
-         LmGJ10bIzevwUzNYwdfDclKIk32k+dCvSAZjZbm8=
+        b=uhyWnVtBf5v08M+u/2rLltlYa3Adfb4a8ocQrC7bofRrxOZQ94uG/bCfeldz1RaQ+
+         yUgSDoG+op+065v0lHTdC8IlTSc3srxbKiQHFZT4sE+R8V0jaSX0ACylGZdTr5mP/w
+         PG/ATxTRU6aZ9SBD8z+XZuTc8B3kyAqP4T6m2qpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0393/1146] media: vimc: Fix wrong function called when vimc_init() fails
+Subject: [PATCH 5.15 025/731] soc: qcom: apr: Add check for idr_alloc and of_property_read_string_index
 Date:   Wed, 28 Dec 2022 15:32:12 +0100
-Message-Id: <20221228144340.839500959@linuxfoundation.org>
+Message-Id: <20221228144257.273920159@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit f74d3f326d1d5b8951ce263c59a121ecfa65e7c0 ]
+[ Upstream commit 6d7860f5750d73da2fa1a1f6c9405058a593fa32 ]
 
-In vimc_init(), when platform_driver_register(&vimc_pdrv) fails,
-platform_driver_unregister(&vimc_pdrv) is wrongly called rather than
-platform_device_unregister(&vimc_pdev), which causes kernel warning:
+As idr_alloc() and of_property_read_string_index() can return negative
+numbers, it should be better to check the return value and deal with
+the exception.
+Therefore, it should be better to use goto statement to stop and return
+error.
 
- Unexpected driver unregister!
- WARNING: CPU: 1 PID: 14517 at drivers/base/driver.c:270 driver_unregister+0x8f/0xb0
- RIP: 0010:driver_unregister+0x8f/0xb0
- Call Trace:
-  <TASK>
-  vimc_init+0x7d/0x1000 [vimc]
-  do_one_initcall+0xd0/0x4e0
-  do_init_module+0x1cf/0x6b0
-  load_module+0x65c2/0x7820
-
-Fixes: 4a29b7090749 ("[media] vimc: Subdevices as modules")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 6adba21eb434 ("soc: qcom: Add APR bus driver")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Bjorn Andersson <andersson@kernel.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221107014403.3606-1-jiasheng@iscas.ac.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/test-drivers/vimc/vimc-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/qcom/apr.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/test-drivers/vimc/vimc-core.c b/drivers/media/test-drivers/vimc/vimc-core.c
-index 2ae7a0f11ebf..e82cfa5ffbf4 100644
---- a/drivers/media/test-drivers/vimc/vimc-core.c
-+++ b/drivers/media/test-drivers/vimc/vimc-core.c
-@@ -433,7 +433,7 @@ static int __init vimc_init(void)
- 	if (ret) {
- 		dev_err(&vimc_pdev.dev,
- 			"platform driver registration failed (err=%d)\n", ret);
--		platform_driver_unregister(&vimc_pdrv);
-+		platform_device_unregister(&vimc_pdev);
- 		return ret;
+diff --git a/drivers/soc/qcom/apr.c b/drivers/soc/qcom/apr.c
+index 5687653fabd5..173427bbf916 100644
+--- a/drivers/soc/qcom/apr.c
++++ b/drivers/soc/qcom/apr.c
+@@ -310,11 +310,19 @@ static int apr_add_device(struct device *dev, struct device_node *np,
+ 	adev->dev.driver = NULL;
+ 
+ 	spin_lock(&apr->svcs_lock);
+-	idr_alloc(&apr->svcs_idr, svc, svc_id, svc_id + 1, GFP_ATOMIC);
++	ret = idr_alloc(&apr->svcs_idr, svc, svc_id, svc_id + 1, GFP_ATOMIC);
+ 	spin_unlock(&apr->svcs_lock);
++	if (ret < 0) {
++		dev_err(dev, "idr_alloc failed: %d\n", ret);
++		goto out;
++	}
+ 
+-	of_property_read_string_index(np, "qcom,protection-domain",
+-				      1, &adev->service_path);
++	ret = of_property_read_string_index(np, "qcom,protection-domain",
++					    1, &adev->service_path);
++	if (ret < 0) {
++		dev_err(dev, "Failed to read second value of qcom,protection-domain\n");
++		goto out;
++	}
+ 
+ 	dev_info(dev, "Adding APR dev: %s\n", dev_name(&adev->dev));
+ 
+@@ -324,6 +332,7 @@ static int apr_add_device(struct device *dev, struct device_node *np,
+ 		put_device(&adev->dev);
  	}
+ 
++out:
+ 	return ret;
+ }
  
 -- 
 2.35.1
