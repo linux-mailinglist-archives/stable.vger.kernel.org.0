@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33EDC6583B7
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:50:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C36D4657D87
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:44:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235105AbiL1Qu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:50:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43236 "EHLO
+        id S233986AbiL1PoN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:44:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235107AbiL1Quc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:50:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 082941FFB9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:45:22 -0800 (PST)
+        with ESMTP id S233978AbiL1PoH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:44:07 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1ED41707A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:44:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 972E16155B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:45:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4C6DC433EF;
-        Wed, 28 Dec 2022 16:45:20 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 22197CE136D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:44:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FCE8C433D2;
+        Wed, 28 Dec 2022 15:44:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245921;
-        bh=LjGOw9EVQXL+7ablo/MOtMWvynRlorjXYoMhwnC+Mds=;
+        s=korg; t=1672242243;
+        bh=yNMT92ZbzXNjoqChQJjK40MRe4b4PoN7RptVuUn+rVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kQmaYc42qpe3ge1/RL5kwWKy7TAaDbKCCPC5EGp85PSMTjVhwZJ5Pbse9fpkL2U/+
-         AhqQI+d3QNbIIMLrPcky6mEjVroAFCLGpOvs+gyd/BpyU6f9RwRDgI/tgD0LBk4hgD
-         p6FuV1JWH4+D8tHaczjP4ixfnS0cRDFaWcKCM6wE=
+        b=AWgrAkwK4/iSzfF2WsHtEuC9JUh5+IcCAgTbWORWwWMtYsHssFfDuyciTz6S/L9d4
+         tuqNZ2V4Fpz/yj24vZKwyd8H4pPDihiuFHpS/TegINoSaMr7Y2R+gw3RWN0tweCWqW
+         escV1UosSgpmoYgppirDFOnzbdLjOIeVsw5zelP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+5fc38b2ddbbca7f5c680@syzkaller.appspotmail.com,
-        "Dr. David Alan Gilbert" <linux@treblig.org>,
-        Kees Cook <keescook@chromium.org>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0947/1146] jfs: Fix fortify moan in symlink
+Subject: [PATCH 5.15 579/731] rtc: st-lpc: Add missing clk_disable_unprepare in st_rtc_probe()
 Date:   Wed, 28 Dec 2022 15:41:26 +0100
-Message-Id: <20221228144356.040343439@linuxfoundation.org>
+Message-Id: <20221228144313.336496077@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,58 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dr. David Alan Gilbert <linux@treblig.org>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit ebe060369f8d6e4588b115f252bebf5ba4d64350 ]
+[ Upstream commit 5fb733d7bd6949e90028efdce8bd528c6ab7cf1e ]
 
-JFS has in jfs_incore.h:
+The clk_disable_unprepare() should be called in the error handling
+of clk_get_rate(), fix it.
 
-      /* _inline may overflow into _inline_ea when needed */
-      /* _inline_ea may overlay the last part of
-       * file._xtroot if maxentry = XTROOTINITSLOT
-       */
-      union {
-        struct {
-          /* 128: inline symlink */
-          unchar _inline[128];
-          /* 128: inline extended attr */
-          unchar _inline_ea[128];
-        };
-        unchar _inline_all[256];
-
-and currently the symlink code copies into _inline;
-if this is larger than 128 bytes it triggers a fortify warning of the
-form:
-
-  memcpy: detected field-spanning write (size 132) of single field
-     "ip->i_link" at fs/jfs/namei.c:950 (size 18446744073709551615)
-
-when it's actually OK.
-
-Copy it into _inline_all instead.
-
-Reported-by: syzbot+5fc38b2ddbbca7f5c680@syzkaller.appspotmail.com
-Signed-off-by: Dr. David Alan Gilbert <linux@treblig.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Fixes: b5b2bdfc2893 ("rtc: st: Add new driver for ST's LPC RTC")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Link: https://lore.kernel.org/r/20221123014805.1993052-1-cuigaosheng1@huawei.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/namei.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-st-lpc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/jfs/namei.c b/fs/jfs/namei.c
-index 9db4f5789c0e..4fbbf88435e6 100644
---- a/fs/jfs/namei.c
-+++ b/fs/jfs/namei.c
-@@ -946,7 +946,7 @@ static int jfs_symlink(struct user_namespace *mnt_userns, struct inode *dip,
- 	if (ssize <= IDATASIZE) {
- 		ip->i_op = &jfs_fast_symlink_inode_operations;
+diff --git a/drivers/rtc/rtc-st-lpc.c b/drivers/rtc/rtc-st-lpc.c
+index bdb20f63254e..0f8e4231098e 100644
+--- a/drivers/rtc/rtc-st-lpc.c
++++ b/drivers/rtc/rtc-st-lpc.c
+@@ -238,6 +238,7 @@ static int st_rtc_probe(struct platform_device *pdev)
  
--		ip->i_link = JFS_IP(ip)->i_inline;
-+		ip->i_link = JFS_IP(ip)->i_inline_all;
- 		memcpy(ip->i_link, name, ssize);
- 		ip->i_size = ssize - 1;
- 
+ 	rtc->clkrate = clk_get_rate(rtc->clk);
+ 	if (!rtc->clkrate) {
++		clk_disable_unprepare(rtc->clk);
+ 		dev_err(&pdev->dev, "Unable to fetch clock rate\n");
+ 		return -EINVAL;
+ 	}
 -- 
 2.35.1
 
