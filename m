@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E4F9657FA2
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:07:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E850657EA6
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:56:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232845AbiL1QH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:07:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52946 "EHLO
+        id S234165AbiL1Pzz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:55:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233007AbiL1QHD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:07:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35DF411A3F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:06:51 -0800 (PST)
+        with ESMTP id S234177AbiL1Pzx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:55:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90ACECE2E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:55:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8AF3B6156E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:06:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B508C433D2;
-        Wed, 28 Dec 2022 16:06:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DC3E613E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:55:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40295C433D2;
+        Wed, 28 Dec 2022 15:55:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243611;
-        bh=3AtLsjgzJDvSm2EVzBLhC2WyZm9bM8+fvOs22Fr/sWc=;
+        s=korg; t=1672242951;
+        bh=8Fc6RDSpapJ/s2i9J8N0VINQXQmmwz3N6WlEk63rlFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M75/quX9hwcl7HFlgEtl0BSzWwt3vId6P66kbuf7K08MxYkef9HcPAFPFDZhCJ0jP
-         ijtdBuI98VfxVRgOwGd3A9oIJGGSsr3xnb0ioSGLj43kIw2V11sYziT8aLCrLMWOVl
-         4IJIIr0hCyY2QH9sMP6MswoD15ckHJEWH6uHW92Q=
+        b=CoEpGwVpIdf1mb7BGxb1sAbjA6MhOXhKlQBYsiG5OJY3esk/6UQb9w8yrci7JAPFY
+         qeFxbTTFySRePO/qhyomDYyqa27JiPfH9IKb6HeWNN6LXXhwxnI4pIqm6dANJiWE0j
+         QqXrlkv4AAlh7E2vL3i/NoR14gY4tUBZQwk+lQAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kris Bahnsen <kris@embeddedTS.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0521/1146] spi: spi-gpio: Dont set MOSI as an input if not 3WIRE mode
+Subject: [PATCH 6.0 0472/1073] SUNRPC: Fix missing release socket in rpc_sockname()
 Date:   Wed, 28 Dec 2022 15:34:20 +0100
-Message-Id: <20221228144344.326133355@linuxfoundation.org>
+Message-Id: <20221228144340.856249288@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kris Bahnsen <kris@embeddedTS.com>
+From: Wang ShaoBo <bobo.shaobowang@huawei.com>
 
-[ Upstream commit 3a6f994f848a69deb2bf3cd9d130dd0c09730e55 ]
+[ Upstream commit 50fa355bc0d75911fe9d5072a5ba52cdb803aff7 ]
 
-The addition of 3WIRE support would affect MOSI direction even
-when still in standard (4 wire) mode. This can lead to MOSI being
-at an invalid logic level when a device driver sets an SPI
-message with a NULL tx_buf.
+socket dynamically created is not released when getting an unintended
+address family type in rpc_sockname(), direct to out_release for calling
+sock_release().
 
-spi.h states that if tx_buf is NULL then "zeros will be shifted
-out ... " If MOSI is tristated then the data shifted out is subject
-to pull resistors, keepers, or in the absence of those, noise.
-
-This issue came to light when using spi-gpio connected to an
-ADS7843 touchscreen controller. MOSI pulled high when clocking
-MISO data in caused the SPI device to interpret this as a command
-which would put the device in an unexpected and non-functional
-state.
-
-Fixes: 4b859db2c606 ("spi: spi-gpio: add SPI_3WIRE support")
-Fixes: 5132b3d28371 ("spi: gpio: Support 3WIRE high-impedance turn-around")
-Signed-off-by: Kris Bahnsen <kris@embeddedTS.com>
-Link: https://lore.kernel.org/r/20221207230853.6174-1-kris@embeddedTS.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 2e738fdce22f ("SUNRPC: Add API to acquire source address")
+Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-gpio.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ net/sunrpc/clnt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-gpio.c b/drivers/spi/spi-gpio.c
-index 4b12c4964a66..9c8c7948044e 100644
---- a/drivers/spi/spi-gpio.c
-+++ b/drivers/spi/spi-gpio.c
-@@ -268,9 +268,19 @@ static int spi_gpio_set_direction(struct spi_device *spi, bool output)
- 	if (output)
- 		return gpiod_direction_output(spi_gpio->mosi, 1);
- 
--	ret = gpiod_direction_input(spi_gpio->mosi);
--	if (ret)
--		return ret;
-+	/*
-+	 * Only change MOSI to an input if using 3WIRE mode.
-+	 * Otherwise, MOSI could be left floating if there is
-+	 * no pull resistor connected to the I/O pin, or could
-+	 * be left logic high if there is a pull-up. Transmitting
-+	 * logic high when only clocking MISO data in can put some
-+	 * SPI devices in to a bad state.
-+	 */
-+	if (spi->mode & SPI_3WIRE) {
-+		ret = gpiod_direction_input(spi_gpio->mosi);
-+		if (ret)
-+			return ret;
-+	}
- 	/*
- 	 * Send a turnaround high impedance cycle when switching
- 	 * from output to input. Theoretically there should be
+diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
+index c284efa3d1ef..0918fa4cc933 100644
+--- a/net/sunrpc/clnt.c
++++ b/net/sunrpc/clnt.c
+@@ -1391,7 +1391,7 @@ static int rpc_sockname(struct net *net, struct sockaddr *sap, size_t salen,
+ 		break;
+ 	default:
+ 		err = -EAFNOSUPPORT;
+-		goto out;
++		goto out_release;
+ 	}
+ 	if (err < 0) {
+ 		dprintk("RPC:       can't bind UDP socket (%d)\n", err);
 -- 
 2.35.1
 
