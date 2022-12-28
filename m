@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 308226581BE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:31:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3BF06581C1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:31:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234739AbiL1Qbk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:31:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51326 "EHLO
+        id S234763AbiL1Qbp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:31:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234741AbiL1QbS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:31:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85A111D324
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:27:15 -0800 (PST)
+        with ESMTP id S234765AbiL1QbX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:31:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D5841D332
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:27:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3DD01B81717
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:27:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94092C433D2;
-        Wed, 28 Dec 2022 16:27:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CEC2B61577
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:27:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9EB1C433EF;
+        Wed, 28 Dec 2022 16:27:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244832;
-        bh=JyCSGoMuTjCo+OHkpDQzGIjdEzpnfyWLQo896a/g/Rs=;
+        s=korg; t=1672244838;
+        bh=eL3m/8xfE+bFpjCI8raGs3AKk6Wbbyt5gZi/AQeWkrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qDBDbR7KjoI6Ce15q9iV7wNha3OjLjr/0YNCuljZJ/bVW9a41SAr/Ais6KebM47DD
-         AoTZDngX0hSAOIaSino+7NGKsOTbvIQ+euLat6VALnHTs2WUX6czOoH3zOshiRpbh3
-         yua8l2KULa28XqoS0CPUw7J9ND8exiqEUgzD9eYw=
+        b=CbFluIn5HgNnT8FiMXtTvJCq/7xP7lSYuycYqOdHgfYOrZ8j0G9hB4e8szc4MQ8Sx
+         +yUPHK/jnPKEeS6g0j99BkSyWw23swSUlm7KtCCWeW0WowtTLzf2AEUByiHkzYZCRs
+         kUhS6yXU75G8DuokeJkmQQYfqtRP9QiiU5sRkVNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alan Stern <stern@rowland.harvard.edu>,
-        Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        patches@lists.linux.dev,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0744/1146] usb: storage: Add check for kcalloc
-Date:   Wed, 28 Dec 2022 15:38:03 +0100
-Message-Id: <20221228144350.356714451@linuxfoundation.org>
+Subject: [PATCH 6.1 0745/1146] usb: typec: wusb3801: fix fwnode refcount leak in wusb3801_probe()
+Date:   Wed, 28 Dec 2022 15:38:04 +0100
+Message-Id: <20221228144350.383017033@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -53,37 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit c35ca10f53c51eeb610d3f8fbc6dd6d511b58a58 ]
+[ Upstream commit dc18a4c7b3bd447cef2395deeb1f6ac16dfaca0e ]
 
-As kcalloc may return NULL pointer, the return value should
-be checked and return error if fails as same as the ones in
-alauda_read_map.
+I got the following report while doing fault injection test:
 
-Fixes: e80b0fade09e ("[PATCH] USB Storage: add alauda support")
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20221208110058.12983-1-jiasheng@iscas.ac.cn
+  OF: ERROR: memory leak, expected refcount 1 instead of 4,
+  of_node_get()/of_node_put() unbalanced - destroy cset entry:
+  attach overlay node /i2c/tcpc@60/connector
+
+If wusb3801_hw_init() fails, fwnode_handle_put() needs be called to
+avoid refcount leak.
+
+Fixes: d016cbe4d7ac ("usb: typec: Support the WUSB3801 port controller")
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221203071027.3808308-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/alauda.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/typec/wusb3801.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/storage/alauda.c b/drivers/usb/storage/alauda.c
-index 747be69e5e69..5e912dd29b4c 100644
---- a/drivers/usb/storage/alauda.c
-+++ b/drivers/usb/storage/alauda.c
-@@ -438,6 +438,8 @@ static int alauda_init_media(struct us_data *us)
- 		+ MEDIA_INFO(us).blockshift + MEDIA_INFO(us).pageshift);
- 	MEDIA_INFO(us).pba_to_lba = kcalloc(num_zones, sizeof(u16*), GFP_NOIO);
- 	MEDIA_INFO(us).lba_to_pba = kcalloc(num_zones, sizeof(u16*), GFP_NOIO);
-+	if (MEDIA_INFO(us).pba_to_lba == NULL || MEDIA_INFO(us).lba_to_pba == NULL)
-+		return USB_STOR_TRANSPORT_ERROR;
+diff --git a/drivers/usb/typec/wusb3801.c b/drivers/usb/typec/wusb3801.c
+index 3cc7a15ecbd3..a43a18d4b02e 100644
+--- a/drivers/usb/typec/wusb3801.c
++++ b/drivers/usb/typec/wusb3801.c
+@@ -364,7 +364,7 @@ static int wusb3801_probe(struct i2c_client *client)
+ 	/* Initialize the hardware with the devicetree settings. */
+ 	ret = wusb3801_hw_init(wusb3801);
+ 	if (ret)
+-		return ret;
++		goto err_put_connector;
  
- 	if (alauda_reset_media(us) != USB_STOR_XFER_GOOD)
- 		return USB_STOR_TRANSPORT_ERROR;
+ 	wusb3801->cap.revision		= USB_TYPEC_REV_1_2;
+ 	wusb3801->cap.accessory[0]	= TYPEC_ACCESSORY_AUDIO;
 -- 
 2.35.1
 
