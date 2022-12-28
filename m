@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FBF6657FAB
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:07:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5042E657941
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:59:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233017AbiL1QHl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:07:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53800 "EHLO
+        id S233348AbiL1O7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:59:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234400AbiL1QHP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:07:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56F4B140A9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:07:15 -0800 (PST)
+        with ESMTP id S233354AbiL1O7G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:59:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9692D11C18
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:59:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EB90DB8172A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:07:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 497C9C433D2;
-        Wed, 28 Dec 2022 16:07:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4C7D3B81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:59:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D24CC433EF;
+        Wed, 28 Dec 2022 14:59:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243632;
-        bh=vLwJ5Wj8axCvIbC5oeOyFVII/YVfpRFUVLM/eSPuv6g=;
+        s=korg; t=1672239543;
+        bh=OL+cv0St9jMXpPgEbPTLF+0V8YzYFAQojYPsfKnLWLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VjUtzfc/iGHUwTy1nUkedsG96p2Yb6zCm6JM6ItLebhESj7Zufv+z8UDlGYrjjlVm
-         Yp7iAdz/ZiI2nklhfhA0SiGMC8r24kOJ7l1H0SRl4fQgYZal5BXQoUeKFtI0nQWKoa
-         2GugUkrIPu2TIqiIAn+bx/JBtOMNOqqkuygnRods=
+        b=hkwzGEXnpzjJUAZsMHSdxvmNh18rpLoHR2Ap84ChK7M26XFPDoe5Oz/yc6h4s2DbM
+         bxV125I4g6T+lGPFWQSWWYuec10/yjshklobIbNf26B0yRS7kgzDsmKtO8rnoOcwHr
+         w5UolYXcXuY/RXfIsSiI8BrBn0YKW1ylZuJAx3ag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <dan.carpenter@oracle.com>,
-        Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        patches@lists.linux.dev, Zhang Zekun <zhangzekun11@huawei.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0560/1073] crypto: sun8i-ss - use dma_addr instead u32
+Subject: [PATCH 5.15 241/731] drm/tegra: Add missing clk_disable_unprepare() in tegra_dc_probe()
 Date:   Wed, 28 Dec 2022 15:35:48 +0100
-Message-Id: <20221228144343.265134900@linuxfoundation.org>
+Message-Id: <20221228144303.548689412@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Zhang Zekun <zhangzekun11@huawei.com>
 
-[ Upstream commit 839b8ae2fc10f205317bcc32c9de18456756e1f5 ]
+[ Upstream commit 7ad4384d53c67672a8720cdc2ef638d7d1710ab8 ]
 
-The DMA address need to be stored in a dma_addr_t
+Add the missing clk_disable_unprepare() before return from
+tegra_dc_probe() in the error handling path.
 
-Fixes: 359e893e8af4 ("crypto: sun8i-ss - rework handling of IV")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: f68ba6912bd2 ("drm/tegra: dc: Link DC1 to DC0 on Tegra20")
+Signed-off-by: Zhang Zekun <zhangzekun11@huawei.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/tegra/dc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c
-index 910d6751644c..902f6be057ec 100644
---- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c
-+++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c
-@@ -124,7 +124,7 @@ static int sun8i_ss_setup_ivs(struct skcipher_request *areq)
- 	unsigned int ivsize = crypto_skcipher_ivsize(tfm);
- 	struct sun8i_ss_flow *sf = &ss->flows[rctx->flow];
- 	int i = 0;
--	u32 a;
-+	dma_addr_t a;
- 	int err;
+diff --git a/drivers/gpu/drm/tegra/dc.c b/drivers/gpu/drm/tegra/dc.c
+index a29d64f87563..abb409b08bc6 100644
+--- a/drivers/gpu/drm/tegra/dc.c
++++ b/drivers/gpu/drm/tegra/dc.c
+@@ -3022,8 +3022,10 @@ static int tegra_dc_probe(struct platform_device *pdev)
+ 	usleep_range(2000, 4000);
  
- 	rctx->ivlen = ivsize;
+ 	err = reset_control_assert(dc->rst);
+-	if (err < 0)
++	if (err < 0) {
++		clk_disable_unprepare(dc->clk);
+ 		return err;
++	}
+ 
+ 	usleep_range(2000, 4000);
+ 
 -- 
 2.35.1
 
