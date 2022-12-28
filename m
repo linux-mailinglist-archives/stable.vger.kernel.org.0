@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9B17657AF6
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:16:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D278D657C07
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:28:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233152AbiL1PQn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:16:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35832 "EHLO
+        id S233114AbiL1P2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:28:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233155AbiL1PQk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:16:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD1DB2735
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:16:39 -0800 (PST)
+        with ESMTP id S233768AbiL1P2E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:28:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1E5714D07
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:28:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A75A614BA
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:16:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C185C433EF;
-        Wed, 28 Dec 2022 15:16:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DCBC61551
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:28:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88887C433D2;
+        Wed, 28 Dec 2022 15:28:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240598;
-        bh=wlE6Z9PLJ4n/mzSc4xq7z6FNlHs53XrIXJlMFtGpnpQ=;
+        s=korg; t=1672241282;
+        bh=A8WVT7WRXqXhvvoKfoq1Qi4nYTWg7ThAoNgd2nedtXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QTJbOA/ovNWBfrIpU2PTtLYioxtie9dx1ODMcXlLdeo5mAihJcLn/sMjjot0wUn1t
-         6+WDwx05z1rmWKD5ik+9xrdEk/ghAg+OhTwHpsuWOmRk8Pom+D4DwDtjPasbk5FQaB
-         I4JFY6/eiZMloE27Hn5Z4K50TSAf1Vzry8wnqBiM=
+        b=LdvegJgs0y479QSzTOvZzXtg1U2QN9JgZTRAt1tlIqbL960TSLOPggccLmsWdgwmx
+         VfQkeZOci1LCrtZEU7UF+NKb0iYUu3dp8KwhfnQb5O4q+mWISZzQPzjerHFXidNLXw
+         zezbINTNqHCAwh46HwRx7vlm6z08U9LtpDVfE9Qc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Brian Foster <bfoster@redhat.com>,
-        Dai Ngo <dai.ngo@oracle.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        patches@lists.linux.dev, Jeff LaBundy <jeff@labundy.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0179/1073] NFSD: pass range end to vfs_fsync_range() instead of count
+Subject: [PATCH 6.1 0228/1146] Input: iqs7222 - protect against undefined slider size
 Date:   Wed, 28 Dec 2022 15:29:27 +0100
-Message-Id: <20221228144332.871258656@linuxfoundation.org>
+Message-Id: <20221228144336.335003970@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: Jeff LaBundy <jeff@labundy.com>
 
-[ Upstream commit 79a1d88a36f77374c77fd41a4386d8c2736b8704 ]
+[ Upstream commit 2f6fd232978906f6fb054529210b9faec384bd45 ]
 
-_nfsd_copy_file_range() calls vfs_fsync_range() with an offset and
-count (bytes written), but the former wants the start and end bytes
-of the range to sync. Fix it up.
+Select variants of silicon do not define a default slider size, in
+which case the size must be specified in the device tree. If it is
+not, the axis's maximum value is reported as 65535 due to unsigned
+integer overflow.
 
-Fixes: eac0b17a77fb ("NFSD add vfs_fsync after async copy is done")
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Tested-by: Dai Ngo <dai.ngo@oracle.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+To solve this problem, move the existing zero-check outside of the
+conditional block that checks whether the property is present.
+
+Fixes: e505edaedcb9 ("Input: add support for Azoteq IQS7222A/B/C")
+Signed-off-by: Jeff LaBundy <jeff@labundy.com>
+Link: https://lore.kernel.org/r/Y1SRXEi7XMlncDWk@nixie71
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4proc.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/input/misc/iqs7222.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
-index b71a3c2d9409..cfc2da445658 100644
---- a/fs/nfsd/nfs4proc.c
-+++ b/fs/nfsd/nfs4proc.c
-@@ -1650,6 +1650,7 @@ static ssize_t _nfsd_copy_file_range(struct nfsd4_copy *copy,
- 	u64 src_pos = copy->cp_src_pos;
- 	u64 dst_pos = copy->cp_dst_pos;
- 	int status;
-+	loff_t end;
+diff --git a/drivers/input/misc/iqs7222.c b/drivers/input/misc/iqs7222.c
+index ddb863bf63ee..32515946bbca 100644
+--- a/drivers/input/misc/iqs7222.c
++++ b/drivers/input/misc/iqs7222.c
+@@ -2066,7 +2066,7 @@ static int iqs7222_parse_sldr(struct iqs7222_private *iqs7222, int sldr_index)
+ 		sldr_setup[4 + reg_offset] -= 2;
  
- 	/* See RFC 7862 p.67: */
- 	if (bytes_total == 0)
-@@ -1669,8 +1670,8 @@ static ssize_t _nfsd_copy_file_range(struct nfsd4_copy *copy,
- 	/* for a non-zero asynchronous copy do a commit of data */
- 	if (nfsd4_copy_is_async(copy) && copy->cp_res.wr_bytes_written > 0) {
- 		since = READ_ONCE(dst->f_wb_err);
--		status = vfs_fsync_range(dst, copy->cp_dst_pos,
--					 copy->cp_res.wr_bytes_written, 0);
-+		end = copy->cp_dst_pos + copy->cp_res.wr_bytes_written - 1;
-+		status = vfs_fsync_range(dst, copy->cp_dst_pos, end, 0);
- 		if (!status)
- 			status = filemap_check_wb_err(dst->f_mapping, since);
- 		if (!status)
+ 	if (!fwnode_property_read_u32(sldr_node, "azoteq,slider-size", &val)) {
+-		if (!val || val > dev_desc->sldr_res) {
++		if (val > dev_desc->sldr_res) {
+ 			dev_err(&client->dev, "Invalid %s size: %u\n",
+ 				fwnode_get_name(sldr_node), val);
+ 			return -EINVAL;
+@@ -2081,6 +2081,13 @@ static int iqs7222_parse_sldr(struct iqs7222_private *iqs7222, int sldr_index)
+ 		}
+ 	}
+ 
++	if (!(reg_offset ? sldr_setup[3]
++			 : sldr_setup[2] & IQS7222_SLDR_SETUP_2_RES_MASK)) {
++		dev_err(&client->dev, "Undefined %s size\n",
++			fwnode_get_name(sldr_node));
++		return -EINVAL;
++	}
++
+ 	if (!fwnode_property_read_u32(sldr_node, "azoteq,top-speed", &val)) {
+ 		if (val > (reg_offset ? U16_MAX : U8_MAX * 4)) {
+ 			dev_err(&client->dev, "Invalid %s top speed: %u\n",
 -- 
 2.35.1
 
