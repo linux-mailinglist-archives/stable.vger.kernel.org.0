@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EDD2658112
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60D3C657A15
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:07:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234687AbiL1QYo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:24:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45918 "EHLO
+        id S233595AbiL1PHj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:07:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234761AbiL1QYA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:24:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A8DD12764
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:20:57 -0800 (PST)
+        with ESMTP id S233599AbiL1PHi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:07:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7470F13D6D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:07:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E45FCB817AC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:20:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37F47C433EF;
-        Wed, 28 Dec 2022 16:20:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1438BB8171F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:07:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77195C433EF;
+        Wed, 28 Dec 2022 15:07:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244454;
-        bh=GhYvX4vhJILAVmlu8v7jLL61MXn0XygWVkKtAwxQ9WI=;
+        s=korg; t=1672240054;
+        bh=AskKKRRcQqzLYBTMTG/5uzaH5GQVZxK81UJLrVlqNPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oAcBIzwcztJ0yH2e9+1gsyE8u+V9dPepnTERqrWNeSckYe7R+mD3nMooGleN6beSJ
-         9ySXQ4+UEsMwuQ8IKBt6c+6kg9q73/lz05ZR0I1hda+WQsPdPcdBZ6lUnvOJ/IkNcF
-         TGjE2bhq4D0rWwZAZytktaT8wZoamz2PUD4qiRdI=
+        b=HEgpz3Mv1CshhJhkqSAnfFjJuYSDNSbBb/3GMhzUP+xSz2YAa9lwGrsYY2FvgNDrA
+         DhwPTZg5bYY4MU7AXKjcfFJ4gPRrDkg24Xt5q2te0Yu1TNXEfYz2jpyqyX8t4Eyofe
+         7aa/qmEyLSOoZH6opSPihe0wXYhpmuc3iEkU7Tzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Chengchang Tang <tangchengchang@huawei.com>,
-        Haoyue Xu <xuhaoyue1@hisilicon.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0672/1146] RDMA/hns: Fix AH attr queried by query_qp
+Subject: [PATCH 5.15 304/731] mmc: wbsd: fix return value check of mmc_add_host()
 Date:   Wed, 28 Dec 2022 15:36:51 +0100
-Message-Id: <20221228144348.401217304@linuxfoundation.org>
+Message-Id: <20221228144305.387096576@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengchang Tang <tangchengchang@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit bc34c04f7b97c3794dec5a6d6d27ffd5f0e4f5c8 ]
+[ Upstream commit dc5b9b50fc9d1334407e316e6e29a5097ef833bd ]
 
-The queried AH attr is invalid. This patch fix it.
+mmc_add_host() may return error, if we ignore its return value,
+it will lead two issues:
+1. The memory that allocated in mmc_alloc_host() is leaked.
+2. In the remove() path, mmc_remove_host() will be called to
+   delete device, but it's not added yet, it will lead a kernel
+   crash because of null-ptr-deref in device_del().
 
-This problem is found by rdma-core test test_mr_rereg_pd
+So fix this by checking the return value and goto error path which
+will call mmc_free_host(), besides, other resources also need be
+released.
 
-ERROR: test_mr_rereg_pd (tests.test_mr.MRTest)
-Test that cover rereg MR's PD with this flow:
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "./tests/test_mr.py", line 157, in test_mr_rereg_pd
-    self.restate_qps()
-  File "./tests/test_mr.py", line 113, in restate_qps
-    self.server.qp.to_rts(self.server_qp_attr)
-  File "qp.pyx", line 1137, in pyverbs.qp.QP.to_rts
-  File "qp.pyx", line 1123, in pyverbs.qp.QP.to_rtr
-pyverbs.pyverbs_error.PyverbsRDMAError: Failed to modify QP state to RTR.
-Errno: 22, Invalid argument
-
-Fixes: 926a01dc000d ("RDMA/hns: Add QP operations support for hip08 SoC")
-Link: https://lore.kernel.org/r/20221126102911.2921820-3-xuhaoyue1@hisilicon.com
-Signed-off-by: Chengchang Tang <tangchengchang@huawei.com>
-Signed-off-by: Haoyue Xu <xuhaoyue1@hisilicon.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221109133237.3273558-1-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mmc/host/wbsd.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index 621e6e927d61..6e08e733cde1 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -5463,6 +5463,8 @@ static int hns_roce_v2_query_qp(struct ib_qp *ibqp, struct ib_qp_attr *qp_attr,
+diff --git a/drivers/mmc/host/wbsd.c b/drivers/mmc/host/wbsd.c
+index 67ecd342fe5f..7c7ec8d10232 100644
+--- a/drivers/mmc/host/wbsd.c
++++ b/drivers/mmc/host/wbsd.c
+@@ -1698,7 +1698,17 @@ static int wbsd_init(struct device *dev, int base, int irq, int dma,
+ 	 */
+ 	wbsd_init_device(host);
  
- 		rdma_ah_set_sl(&qp_attr->ah_attr,
- 			       hr_reg_read(&context, QPC_SL));
-+		rdma_ah_set_port_num(&qp_attr->ah_attr, hr_qp->port + 1);
-+		rdma_ah_set_ah_flags(&qp_attr->ah_attr, IB_AH_GRH);
- 		grh->flow_label = hr_reg_read(&context, QPC_FL);
- 		grh->sgid_index = hr_reg_read(&context, QPC_GMV_IDX);
- 		grh->hop_limit = hr_reg_read(&context, QPC_HOPLIMIT);
+-	mmc_add_host(mmc);
++	ret = mmc_add_host(mmc);
++	if (ret) {
++		if (!pnp)
++			wbsd_chip_poweroff(host);
++
++		wbsd_release_resources(host);
++		wbsd_free_mmc(dev);
++
++		mmc_free_host(mmc);
++		return ret;
++	}
+ 
+ 	pr_info("%s: W83L51xD", mmc_hostname(mmc));
+ 	if (host->chip_id != 0)
 -- 
 2.35.1
 
