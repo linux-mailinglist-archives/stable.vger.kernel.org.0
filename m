@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DBD5657F67
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:04:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EAD2658459
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234296AbiL1QEf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:04:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51358 "EHLO
+        id S235094AbiL1Q5B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:57:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234317AbiL1QE3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:04:29 -0500
+        with ESMTP id S235182AbiL1Q4E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:56:04 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11CF519027
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:04:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88570A466
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:51:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A31F76156E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:04:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8EE5C433EF;
-        Wed, 28 Dec 2022 16:04:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9238C60D41
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:51:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4860C433EF;
+        Wed, 28 Dec 2022 16:51:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243467;
-        bh=0M/OPwvmJP+Idq8AfkXKDErqkYJNV34deQ165lkVVlo=;
+        s=korg; t=1672246279;
+        bh=kVrpkgJ8jEK4Nzl44Fbxx2v7MkW+pw/MyLbDCSS31LA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sbj2h6HyPokToy4hUFsh0cymMnVVaVVkE12bmRYL3r6291hDVggpcfIoeis5zibvc
-         +c6oMctnmsIVzz7pY3JG0xwjZNYMpfm1qF+C/24GUV+Wg1FqsAPtT0BCthSuib2fRt
-         hON8GSiotmVuY6qjZWMrHgpoytNWxkb25QsmwHGc=
+        b=DFBTgDgvgcAhoJhxFohNZ5iaGutdGDtmICGaesQtgGKLt1fyQYk4PNBEgLmQ/FINW
+         NeY9e0FqTlFg6WrRAvAn8tLEVJpFyNXNi4KEjB3TGDppUJQTE1uOzd29QuBlT27VOr
+         gn609DKyFSZmyK6qiVZnc/z50xlZPPI9aiPOs7rM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot <syzbot+25bdb7b1703639abd498@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.15 724/731] fbdev: fbcon: release buffer when fbcon_do_set_font() failed
+        patches@lists.linux.dev, Ken Chen <kenchen@google.com>,
+        "Isaac J. Manjarres" <isaacmanjarres@google.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 6.0 1043/1073] loop: Fix the max_loop commandline argument treatment when it is set to 0
 Date:   Wed, 28 Dec 2022 15:43:51 +0100
-Message-Id: <20221228144317.431290532@linuxfoundation.org>
+Message-Id: <20221228144356.525825953@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +53,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Isaac J. Manjarres <isaacmanjarres@google.com>
 
-commit 3c3bfb8586f848317ceba5d777e11204ba3e5758 upstream.
+commit 85c50197716c60fe57f411339c579462e563ac57 upstream.
 
-syzbot is reporting memory leak at fbcon_do_set_font() [1], for
-commit a5a923038d70 ("fbdev: fbcon: Properly revert changes when
-vc_resize() failed") missed that the buffer might be newly allocated
-by fbcon_set_font().
+Currently, the max_loop commandline argument can be used to specify how
+many loop block devices are created at init time. If it is not
+specified on the commandline, CONFIG_BLK_DEV_LOOP_MIN_COUNT loop block
+devices will be created.
 
-Link: https://syzkaller.appspot.com/bug?extid=25bdb7b1703639abd498 [1]
-Reported-by: syzbot <syzbot+25bdb7b1703639abd498@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Tested-by: syzbot <syzbot+25bdb7b1703639abd498@syzkaller.appspotmail.com>
-Fixes: a5a923038d70 ("fbdev: fbcon: Properly revert changes when vc_resize() failed")
-CC: stable@vger.kernel.org # 5.15+
-Signed-off-by: Helge Deller <deller@gmx.de>
+The max_loop commandline argument can be used to override the value of
+CONFIG_BLK_DEV_LOOP_MIN_COUNT. However, when max_loop is set to 0
+through the commandline, the current logic treats it as if it had not
+been set, and creates CONFIG_BLK_DEV_LOOP_MIN_COUNT devices anyway.
+
+Fix this by starting max_loop off as set to CONFIG_BLK_DEV_LOOP_MIN_COUNT.
+This preserves the intended behavior of creating
+CONFIG_BLK_DEV_LOOP_MIN_COUNT loop block devices if the max_loop
+commandline parameter is not specified, and allowing max_loop to
+be respected for all values, including 0.
+
+This allows environments that can create all of their required loop
+block devices on demand to not have to unnecessarily preallocate loop
+block devices.
+
+Fixes: 732850827450 ("remove artificial software max_loop limit")
+Cc: stable@vger.kernel.org
+Cc: Ken Chen <kenchen@google.com>
+Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
+Link: https://lore.kernel.org/r/20221208212902.765781-1-isaacmanjarres@google.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/core/fbcon.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/block/loop.c |   28 ++++++++++++----------------
+ 1 file changed, 12 insertions(+), 16 deletions(-)
 
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -2462,7 +2462,8 @@ err_out:
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1773,7 +1773,16 @@ static const struct block_device_operati
+ /*
+  * And now the modules code and kernel interface.
+  */
+-static int max_loop;
++
++/*
++ * If max_loop is specified, create that many devices upfront.
++ * This also becomes a hard limit. If max_loop is not specified,
++ * create CONFIG_BLK_DEV_LOOP_MIN_COUNT loop devices at module
++ * init time. Loop devices can be requested on-demand with the
++ * /dev/loop-control interface, or be instantiated by accessing
++ * a 'dead' device node.
++ */
++static int max_loop = CONFIG_BLK_DEV_LOOP_MIN_COUNT;
+ module_param(max_loop, int, 0444);
+ MODULE_PARM_DESC(max_loop, "Maximum number of loop devices");
+ module_param(max_part, int, 0444);
+@@ -2181,7 +2190,7 @@ MODULE_ALIAS("devname:loop-control");
  
- 	if (userfont) {
- 		p->userfont = old_userfont;
--		REFCOUNT(data)--;
-+		if (--REFCOUNT(data) == 0)
-+			kfree(data - FONT_EXTRA_WORDS * sizeof(int));
+ static int __init loop_init(void)
+ {
+-	int i, nr;
++	int i;
+ 	int err;
+ 
+ 	part_shift = 0;
+@@ -2209,19 +2218,6 @@ static int __init loop_init(void)
+ 		goto err_out;
  	}
  
- 	vc->vc_font.width = old_width;
+-	/*
+-	 * If max_loop is specified, create that many devices upfront.
+-	 * This also becomes a hard limit. If max_loop is not specified,
+-	 * create CONFIG_BLK_DEV_LOOP_MIN_COUNT loop devices at module
+-	 * init time. Loop devices can be requested on-demand with the
+-	 * /dev/loop-control interface, or be instantiated by accessing
+-	 * a 'dead' device node.
+-	 */
+-	if (max_loop)
+-		nr = max_loop;
+-	else
+-		nr = CONFIG_BLK_DEV_LOOP_MIN_COUNT;
+-
+ 	err = misc_register(&loop_misc);
+ 	if (err < 0)
+ 		goto err_out;
+@@ -2233,7 +2229,7 @@ static int __init loop_init(void)
+ 	}
+ 
+ 	/* pre-create number of devices given by config or max_loop */
+-	for (i = 0; i < nr; i++)
++	for (i = 0; i < max_loop; i++)
+ 		loop_add(i);
+ 
+ 	printk(KERN_INFO "loop: module loaded\n");
 
 
