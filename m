@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CAF0657A52
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:10:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE933657B69
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:21:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233697AbiL1PKM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:10:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56954 "EHLO
+        id S233760AbiL1PVf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:21:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233739AbiL1PJy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:09:54 -0500
+        with ESMTP id S233720AbiL1PVS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:21:18 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E31113E81
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:09:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA06214033
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:21:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EB455B81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:09:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5426BC433D2;
-        Wed, 28 Dec 2022 15:09:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D9A3B8170E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:21:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9DB8C433EF;
+        Wed, 28 Dec 2022 15:21:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240189;
-        bh=IqJZ+mc+y1zrA9Wz06cUVtD47RJVvdK8LZZdWL57Zj4=;
+        s=korg; t=1672240874;
+        bh=oAFmwgTa0iWjrNoNZpBerzG958B+wbIs72xunWuwJbc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d21jlaoSOs712G7u23uP7RC0alaRBALZHrgaXgg3i1NbOVRAoMl5ONpXVVu17MZPm
-         LLK991YT6ycELiOjrAD/9Gubq0QsxGUtRtQcsIFPLSq6ij/kzJoI+HCBkMKGBfo/Uh
-         epcVAhKmEFbqNTtVXjedd6IURu1+NcflMr0B7fgw=
+        b=P/I6xU0mSbNVI70Uqg3Rrbsou48mAnIpXf5i60r+Tj/ALkDd3eD1tLYgbXvjvzqmW
+         270Rs+TcmaYDtCfuckV7TquMmKVWwdC7gw7dtyUx3/OzNYSFWgew692hj8EodAWFcA
+         laRcq69mw4pm5xJoi04+/tGt71+rZOu1Mf140YkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Chen Yu <yu.c.chen@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev,
+        syzbot+2ae90e873e97f1faf6f2@syzkaller.appspotmail.com,
+        Chao Yu <chao@kernel.org>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0128/1073] ACPI: pfr_update: use ACPI_FREE() to free acpi_object
+Subject: [PATCH 6.1 0177/1146] erofs: validate the extent length for uncompressed pclusters
 Date:   Wed, 28 Dec 2022 15:28:36 +0100
-Message-Id: <20221228144331.512758976@linuxfoundation.org>
+Message-Id: <20221228144334.963687449@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang ShaoBo <bobo.shaobowang@huawei.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-[ Upstream commit e335beed78ec82656dcb554f9fe560709f0dc408 ]
+[ Upstream commit c505feba4c0d76084e56ec498ce819f02a7043ae ]
 
-acpi_evaluate_dsm_typed()/acpi_evaluate_dsm() should be coupled with
-ACPI_FREE() to free the ACPI memory, because we need to track the
-allocation of acpi_object when ACPI_DBG_TRACK_ALLOCATIONS enabled,
-so use ACPI_FREE() instead of kfree().
+syzkaller reported a KASAN use-after-free:
+https://syzkaller.appspot.com/bug?extid=2ae90e873e97f1faf6f2
 
-Fixes: 0db89fa243e5 ("ACPI: Introduce Platform Firmware Runtime Update device driver")
-Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Reviewed-by: Chen Yu <yu.c.chen@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+The referenced fuzzed image actually has two issues:
+ - m_pa == 0 as a non-inlined pcluster;
+ - The logical length is longer than its physical length.
+
+The first issue has already been addressed.  This patch addresses
+the second issue by checking the extent length validity.
+
+Reported-by: syzbot+2ae90e873e97f1faf6f2@syzkaller.appspotmail.com
+Fixes: 02827e1796b3 ("staging: erofs: add erofs_map_blocks_iter")
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20221205150050.47784-2-hsiangkao@linux.alibaba.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/pfr_update.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/erofs/zmap.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/acpi/pfr_update.c b/drivers/acpi/pfr_update.c
-index 6bb0b778b5da..9d2bdc13253a 100644
---- a/drivers/acpi/pfr_update.c
-+++ b/drivers/acpi/pfr_update.c
-@@ -178,7 +178,7 @@ static int query_capability(struct pfru_update_cap_info *cap_hdr,
- 	ret = 0;
+diff --git a/fs/erofs/zmap.c b/fs/erofs/zmap.c
+index f49295b9f2e1..e6d5d7a18fb0 100644
+--- a/fs/erofs/zmap.c
++++ b/fs/erofs/zmap.c
+@@ -698,6 +698,11 @@ static int z_erofs_do_map_blocks(struct inode *inode,
+ 	}
  
- free_acpi_buffer:
--	kfree(out_obj);
-+	ACPI_FREE(out_obj);
- 
- 	return ret;
- }
-@@ -224,7 +224,7 @@ static int query_buffer(struct pfru_com_buf_info *info,
- 	ret = 0;
- 
- free_acpi_buffer:
--	kfree(out_obj);
-+	ACPI_FREE(out_obj);
- 
- 	return ret;
- }
-@@ -385,7 +385,7 @@ static int start_update(int action, struct pfru_device *pfru_dev)
- 	ret = 0;
- 
- free_acpi_buffer:
--	kfree(out_obj);
-+	ACPI_FREE(out_obj);
- 
- 	return ret;
- }
+ 	if (m.headtype == Z_EROFS_VLE_CLUSTER_TYPE_PLAIN) {
++		if (map->m_llen > map->m_plen) {
++			DBG_BUGON(1);
++			err = -EFSCORRUPTED;
++			goto unmap_out;
++		}
+ 		if (vi->z_advise & Z_EROFS_ADVISE_INTERLACED_PCLUSTER)
+ 			map->m_algorithmformat =
+ 				Z_EROFS_COMPRESSION_INTERLACED;
 -- 
 2.35.1
 
