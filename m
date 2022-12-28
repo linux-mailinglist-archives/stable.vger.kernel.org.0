@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 251F2657A70
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:11:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 537CF657B8A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233690AbiL1PLV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:11:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58508 "EHLO
+        id S233344AbiL1PXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:23:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233741AbiL1PLF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:11:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FC4813E0B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:11:04 -0800 (PST)
+        with ESMTP id S233749AbiL1PWs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:22:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3997614017
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:22:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BCFF0B81719
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:11:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38E53C433D2;
-        Wed, 28 Dec 2022 15:11:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBCBF6154D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:22:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE509C433D2;
+        Wed, 28 Dec 2022 15:22:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240261;
-        bh=3A+SBrRFxWKVJUUDtRJhCLdZyBljL+UkRhtIduD9JIs=;
+        s=korg; t=1672240962;
+        bh=ZLE2dTYV+lTi+iWjawH28UFbuT+bslTSaaoHl5vZ0D4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tbGETk1yRb0No1OsdHFhy83zouSkXXXty2k4INUH8xBxGppmk4G0shsnhCrVZCvz4
-         3/Iat5/ugXR4IZXraanSKgikfDO4WRnYwzDr+kJmOi+cLxE0o3BdTx/GPz2czaKR5S
-         muTkI+6Z0iNPaXh2aRi1kuNZicw9WrpTkofFjr8s=
+        b=nT6TwR87pNWpnqQdcu//1OpmnQ1BlEDePpfDRNtzXP0dQWYFq3Il0/HiXVM+JjU73
+         5i5KRqXHGSRoRgUeu1/qdiCSclsQl1okmEN2+SY4dai5oChtlwlx/cVH5MIlKh8Bvm
+         ZhrUIFpkIk0lTTyzI3LpxlhxpweKN3iV597HZIE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Kan Liang <kan.liang@linux.intel.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0131/1073] perf/x86/intel/uncore: Fix reference count leak in snr_uncore_mmio_map()
+Subject: [PATCH 6.1 0180/1146] platform/x86: intel_scu_ipc: fix possible name leak in __intel_scu_ipc_register()
 Date:   Wed, 28 Dec 2022 15:28:39 +0100
-Message-Id: <20221228144331.593208211@linuxfoundation.org>
+Message-Id: <20221228144335.043297517@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 8ebd16c11c346751b3944d708e6c181ed4746c39 ]
+[ Upstream commit 0b3d0cb7c0bed2fd6454f77ed75e7a662c6efd12 ]
 
-pci_get_device() will increase the reference count for the returned
-pci_dev, so snr_uncore_get_mc_dev() will return a pci_dev with its
-reference count increased. We need to call pci_dev_put() to decrease the
-reference count. Let's add the missing pci_dev_put().
+In some error paths before device_register(), the names allocated
+by dev_set_name() are not freed. Move dev_set_name() front to
+device_register(), so the name can be freed while calling
+put_device().
 
-Fixes: ee49532b38dd ("perf/x86/intel/uncore: Add IMC uncore support for Snow Ridge")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-Link: https://lore.kernel.org/r/20221118063137.121512-4-wangxiongfeng2@huawei.com
+Fixes: 54b34aa0a729 ("platform/x86: intel_scu_ipc: Split out SCU IPC functionality from the SCU driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221208151916.2404977-1-yangyingliang@huawei.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/uncore_snbep.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/platform/x86/intel_scu_ipc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index f5d89d06c66a..fcd95e93f479 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -4860,6 +4860,8 @@ static int snr_uncore_mmio_map(struct intel_uncore_box *box,
+diff --git a/drivers/platform/x86/intel_scu_ipc.c b/drivers/platform/x86/intel_scu_ipc.c
+index 7cc9089d1e14..e7a3e3402817 100644
+--- a/drivers/platform/x86/intel_scu_ipc.c
++++ b/drivers/platform/x86/intel_scu_ipc.c
+@@ -583,7 +583,6 @@ __intel_scu_ipc_register(struct device *parent,
+ 	scu->dev.parent = parent;
+ 	scu->dev.class = &intel_scu_ipc_class;
+ 	scu->dev.release = intel_scu_ipc_release;
+-	dev_set_name(&scu->dev, "intel_scu_ipc");
  
- 	addr += box_ctl;
- 
-+	pci_dev_put(pdev);
-+
- 	box->io_addr = ioremap(addr, type->mmio_map_size);
- 	if (!box->io_addr) {
- 		pr_warn("perf uncore: Failed to ioremap for %s.\n", type->name);
+ 	if (!request_mem_region(scu_data->mem.start, resource_size(&scu_data->mem),
+ 				"intel_scu_ipc")) {
+@@ -612,6 +611,7 @@ __intel_scu_ipc_register(struct device *parent,
+ 	 * After this point intel_scu_ipc_release() takes care of
+ 	 * releasing the SCU IPC resources once refcount drops to zero.
+ 	 */
++	dev_set_name(&scu->dev, "intel_scu_ipc");
+ 	err = device_register(&scu->dev);
+ 	if (err) {
+ 		put_device(&scu->dev);
 -- 
 2.35.1
 
