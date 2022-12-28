@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEC89657B18
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:18:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DB3C6580F2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:23:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233191AbiL1PSF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:18:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36944 "EHLO
+        id S234679AbiL1QXO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:23:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233204AbiL1PSD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:18:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C71613F79
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:18:02 -0800 (PST)
+        with ESMTP id S234896AbiL1QW2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:22:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B05D1A223
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:20:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2855661554
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:18:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35DE1C433F0;
-        Wed, 28 Dec 2022 15:18:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E08D0B81707
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:20:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D130C433F0;
+        Wed, 28 Dec 2022 16:20:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240681;
-        bh=hxW1T+7rmElCLh/bcg/yD1KBOcng6fuFfC/0VhCe+T8=;
+        s=korg; t=1672244402;
+        bh=ysI6Yb/OMNb8xwQASwMNiKfVXdjs+etqZlgyn2qb+MY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rBiyhBgdll9DjhXCmFEfl88hSMtVTxfb7paDIbVf8wlgsPB8tAA+yYEfgzM69oV4k
-         ZkWCmRgO+zzvA6KtoZWR1bUfWEBmcTW7Jlrrtw8L7brxNRiNarbCocKSlhx5wO1IMc
-         V8BP4oa+NJl/d/mqCUjEd1xm/H7QHXwSphBvoEzs=
+        b=2uVsur+/eMiNP7QqYIa1gU4fU8C0kS/qFVDNVbBiXXda0kRItte+IiZLFcXlDt0Ou
+         RLUL8lskrYYyGJH1/Il9SvpqT/DUZg1kG0PABm4Iig1rZHZi3jsr7lyaaM6bv5acbJ
+         47VtxYJbNg3oPNSq0o/vrIiGgipIVOOx09Tp+mkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Nirmal Patel <nirmal.patel@linux.intel.com>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        Francisco Munoz <francisco.munoz.ruiz@linux.intel.com>,
+        patches@lists.linux.dev, Beau Belgrave <beaub@linux.microsoft.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 385/731] PCI: vmd: Disable MSI remapping after suspend
+Subject: [PATCH 6.0 0704/1073] tracing/user_events: Fix call print_fmt leak
 Date:   Wed, 28 Dec 2022 15:38:12 +0100
-Message-Id: <20221228144307.721149212@linuxfoundation.org>
+Message-Id: <20221228144347.154176363@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nirmal Patel <nirmal.patel@linux.intel.com>
+From: Beau Belgrave <beaub@linux.microsoft.com>
 
-[ Upstream commit d899aa668498c07ff217b666ae9712990306e682 ]
+[ Upstream commit 4bded7af8b9af6e97514b0521004f90267905aef ]
 
-MSI remapping is disabled by VMD driver for Intel's Icelake and
-newer systems in order to improve performance by setting
-VMCONFIG_MSI_REMAP. By design VMCONFIG_MSI_REMAP register is cleared
-by firmware during boot. The same register gets cleared when system
-is put in S3 power state. VMD driver needs to set this register again
-in order to avoid interrupt issues with devices behind VMD if MSI
-remapping was disabled before.
+If user_event_trace_register() fails within user_event_parse() the
+call's print_fmt member is not freed. Add kfree call to fix this.
 
-Link: https://lore.kernel.org/r/20221109142652.450998-1-nirmal.patel@linux.intel.com
-Fixes: ee81ee84f873 ("PCI: vmd: Disable MSI-X remapping when possible")
-Signed-off-by: Nirmal Patel <nirmal.patel@linux.intel.com>
-Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
-Reviewed-by: Francisco Munoz <francisco.munoz.ruiz@linux.intel.com>
+Link: https://lkml.kernel.org/r/20221123183248.554-1-beaub@linux.microsoft.com
+
+Fixes: aa3b2b4c6692 ("user_events: Add print_fmt generation support for basic types")
+Signed-off-by: Beau Belgrave <beaub@linux.microsoft.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/vmd.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ kernel/trace/trace_events_user.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pci/controller/vmd.c b/drivers/pci/controller/vmd.c
-index a5987e52700e..8dce71142e10 100644
---- a/drivers/pci/controller/vmd.c
-+++ b/drivers/pci/controller/vmd.c
-@@ -900,6 +900,11 @@ static int vmd_resume(struct device *dev)
- 	struct vmd_dev *vmd = pci_get_drvdata(pdev);
- 	int err, i;
- 
-+       if (vmd->irq_domain)
-+               vmd_set_msi_remapping(vmd, true);
-+       else
-+               vmd_set_msi_remapping(vmd, false);
-+
- 	for (i = 0; i < vmd->msix_count; i++) {
- 		err = devm_request_irq(dev, pci_irq_vector(pdev, i),
- 				       vmd_irq, IRQF_NO_THREAD,
+diff --git a/kernel/trace/trace_events_user.c b/kernel/trace/trace_events_user.c
+index a6621c52ce45..b885b6934893 100644
+--- a/kernel/trace/trace_events_user.c
++++ b/kernel/trace/trace_events_user.c
+@@ -1127,6 +1127,7 @@ static int user_event_parse(char *name, char *args, char *flags,
+ put_user:
+ 	user_event_destroy_fields(user);
+ 	user_event_destroy_validators(user);
++	kfree(user->call.print_fmt);
+ 	kfree(user);
+ 	return ret;
+ }
 -- 
 2.35.1
 
