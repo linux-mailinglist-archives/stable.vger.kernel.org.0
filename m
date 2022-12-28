@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 158FC65810F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F1D76581F1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:32:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234649AbiL1QYk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:24:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43502 "EHLO
+        id S234820AbiL1Qc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:32:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234750AbiL1QX5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:23:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64E81BC9B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:20:47 -0800 (PST)
+        with ESMTP id S233548AbiL1QcB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:32:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E58866456
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:28:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0450E61568
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:20:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13EB6C433F1;
-        Wed, 28 Dec 2022 16:20:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 96D87B8171E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:28:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8668C433D2;
+        Wed, 28 Dec 2022 16:28:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244446;
-        bh=rBurc719qreKJtfryobjI1i8Mmm+/tDZv21DfTcX+nM=;
+        s=korg; t=1672244914;
+        bh=BZjUdV8g9ITNbOjMeEjDQ2DiJce3cLs90Dh2tVEvlU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hgazDl95qlz0YqXXCz/o345QmSbFjLwKAsHX+Bxz0W29f44XHSqeKFNAGimJBZDU+
-         3F/sliXsxViem0j49UNwYb73Ee3oqcb4El3kAU/F79R6SaZvWmjG6OFf3FtgMrEEtc
-         yDpxdStJ4rv4DhgFwcg9Iamb7j7b0dQWATcb6cHI=
+        b=uoTMsrLCnFvKm+2OqqUWqOfRIyHra5coCxxOE+s43q0I0v5zF3U5ge+R7hgZ80XJQ
+         cmzswX2EM/DV8C3sv9zOl/IaTmuRR8eDxbrfX95Vj0/jFhoqkRBXIXkoS+1m3CHdv8
+         zlm+ndTFZixc9NmSFUM44sR3D7HtkcC8rWa5/1RE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0711/1073] chardev: fix error handling in cdev_device_add()
-Date:   Wed, 28 Dec 2022 15:38:19 +0100
-Message-Id: <20221228144347.343131493@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0761/1146] fbdev: uvesafb: Fixes an error handling path in uvesafb_probe()
+Date:   Wed, 28 Dec 2022 15:38:20 +0100
+Message-Id: <20221228144350.815083349@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,52 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 11fa7fefe3d8fac7da56bc9aa3dd5fb3081ca797 ]
+[ Upstream commit a94371040712031ba129c7e9d8ff04a06a2f8207 ]
 
-While doing fault injection test, I got the following report:
+If an error occurs after a successful uvesafb_init_mtrr() call, it must be
+undone by a corresponding arch_phys_wc_del() call, as already done in the
+remove function.
 
-------------[ cut here ]------------
-kobject: '(null)' (0000000039956980): is not initialized, yet kobject_put() is being called.
-WARNING: CPU: 3 PID: 6306 at kobject_put+0x23d/0x4e0
-CPU: 3 PID: 6306 Comm: 283 Tainted: G        W          6.1.0-rc2-00005-g307c1086d7c9 #1253
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
-RIP: 0010:kobject_put+0x23d/0x4e0
-Call Trace:
- <TASK>
- cdev_device_add+0x15e/0x1b0
- __iio_device_register+0x13b4/0x1af0 [industrialio]
- __devm_iio_device_register+0x22/0x90 [industrialio]
- max517_probe+0x3d8/0x6b4 [max517]
- i2c_device_probe+0xa81/0xc00
+This has been added in the remove function in commit 63e28a7a5ffc
+("uvesafb: Clean up MTRR code")
 
-When device_add() is injected fault and returns error, if dev->devt is not set,
-cdev_add() is not called, cdev_del() is not needed. Fix this by checking dev->devt
-in error path.
-
-Fixes: 233ed09d7fda ("chardev: add helper function to register char devs with a struct device")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221202030237.520280-1-yangyingliang@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 8bdb3a2d7df4 ("uvesafb: the driver core")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/char_dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/video/fbdev/uvesafb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/char_dev.c b/fs/char_dev.c
-index ba0ded7842a7..3f667292608c 100644
---- a/fs/char_dev.c
-+++ b/fs/char_dev.c
-@@ -547,7 +547,7 @@ int cdev_device_add(struct cdev *cdev, struct device *dev)
- 	}
- 
- 	rc = device_add(dev);
--	if (rc)
-+	if (rc && dev->devt)
- 		cdev_del(cdev);
- 
- 	return rc;
+diff --git a/drivers/video/fbdev/uvesafb.c b/drivers/video/fbdev/uvesafb.c
+index 00d789b6c0fa..0e3cabbec4b4 100644
+--- a/drivers/video/fbdev/uvesafb.c
++++ b/drivers/video/fbdev/uvesafb.c
+@@ -1758,6 +1758,7 @@ static int uvesafb_probe(struct platform_device *dev)
+ out_unmap:
+ 	iounmap(info->screen_base);
+ out_mem:
++	arch_phys_wc_del(par->mtrr_handle);
+ 	release_mem_region(info->fix.smem_start, info->fix.smem_len);
+ out_reg:
+ 	release_region(0x3c0, 32);
 -- 
 2.35.1
 
