@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6506A6580DE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:22:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 308226581BE
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:31:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234656AbiL1QVf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:21:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40752 "EHLO
+        id S234739AbiL1Qbk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:31:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234715AbiL1QVG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:21:06 -0500
+        with ESMTP id S234741AbiL1QbS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:31:18 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E2D9DC5
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:19:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85A111D324
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:27:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1634DB816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:19:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84348C433D2;
-        Wed, 28 Dec 2022 16:19:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3DD01B81717
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:27:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94092C433D2;
+        Wed, 28 Dec 2022 16:27:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244346;
-        bh=RJOBklZfdn/3YC9rVuulS/t8uNeco02yuuvSzdG+/go=;
+        s=korg; t=1672244832;
+        bh=JyCSGoMuTjCo+OHkpDQzGIjdEzpnfyWLQo896a/g/Rs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CagS/9feYzs8QDGtMLCelYZGroX15D5qt20Dggo3FGGzZR8E1kgjtyjptyktnHUxN
-         ZMK7mUwsr2M5qHlvGjVeDfzpZYenj2nioktSRKldil7EA/1tesg/Rmzl8TJ+PGzWyi
-         qcE+Gr5QTTpNqQoUmR9fBLl8M4Of1mrkhHaIdq/Y=
+        b=qDBDbR7KjoI6Ce15q9iV7wNha3OjLjr/0YNCuljZJ/bVW9a41SAr/Ais6KebM47DD
+         AoTZDngX0hSAOIaSino+7NGKsOTbvIQ+euLat6VALnHTs2WUX6czOoH3zOshiRpbh3
+         yua8l2KULa28XqoS0CPUw7J9ND8exiqEUgzD9eYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ruanjinjie <ruanjinjie@huawei.com>,
+        patches@lists.linux.dev, Alan Stern <stern@rowland.harvard.edu>,
+        Jiasheng Jiang <jiasheng@iscas.ac.cn>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0695/1073] misc: tifm: fix possible memory leak in tifm_7xx1_switch_media()
+Subject: [PATCH 6.1 0744/1146] usb: storage: Add check for kcalloc
 Date:   Wed, 28 Dec 2022 15:38:03 +0100
-Message-Id: <20221228144346.909820615@linuxfoundation.org>
+Message-Id: <20221228144350.356714451@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,40 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ruanjinjie <ruanjinjie@huawei.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit fd2c930cf6a5b9176382c15f9acb1996e76e25ad ]
+[ Upstream commit c35ca10f53c51eeb610d3f8fbc6dd6d511b58a58 ]
 
-If device_register() returns error in tifm_7xx1_switch_media(),
-name of kobject which is allocated in dev_set_name() called in device_add()
-is leaked.
+As kcalloc may return NULL pointer, the return value should
+be checked and return error if fails as same as the ones in
+alauda_read_map.
 
-Never directly free @dev after calling device_register(), even
-if it returned an error! Always use put_device() to give up the
-reference initialized.
-
-Fixes: 2428a8fe2261 ("tifm: move common device management tasks from tifm_7xx1 to tifm_core")
-Signed-off-by: ruanjinjie <ruanjinjie@huawei.com>
-Link: https://lore.kernel.org/r/20221117064725.3478402-1-ruanjinjie@huawei.com
+Fixes: e80b0fade09e ("[PATCH] USB Storage: add alauda support")
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20221208110058.12983-1-jiasheng@iscas.ac.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/tifm_7xx1.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/storage/alauda.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/misc/tifm_7xx1.c b/drivers/misc/tifm_7xx1.c
-index 017c2f7d6287..7dd86a9858ab 100644
---- a/drivers/misc/tifm_7xx1.c
-+++ b/drivers/misc/tifm_7xx1.c
-@@ -190,7 +190,7 @@ static void tifm_7xx1_switch_media(struct work_struct *work)
- 				spin_unlock_irqrestore(&fm->lock, flags);
- 			}
- 			if (sock)
--				tifm_free_device(&sock->dev);
-+				put_device(&sock->dev);
- 		}
- 		spin_lock_irqsave(&fm->lock, flags);
- 	}
+diff --git a/drivers/usb/storage/alauda.c b/drivers/usb/storage/alauda.c
+index 747be69e5e69..5e912dd29b4c 100644
+--- a/drivers/usb/storage/alauda.c
++++ b/drivers/usb/storage/alauda.c
+@@ -438,6 +438,8 @@ static int alauda_init_media(struct us_data *us)
+ 		+ MEDIA_INFO(us).blockshift + MEDIA_INFO(us).pageshift);
+ 	MEDIA_INFO(us).pba_to_lba = kcalloc(num_zones, sizeof(u16*), GFP_NOIO);
+ 	MEDIA_INFO(us).lba_to_pba = kcalloc(num_zones, sizeof(u16*), GFP_NOIO);
++	if (MEDIA_INFO(us).pba_to_lba == NULL || MEDIA_INFO(us).lba_to_pba == NULL)
++		return USB_STOR_TRANSPORT_ERROR;
+ 
+ 	if (alauda_reset_media(us) != USB_STOR_XFER_GOOD)
+ 		return USB_STOR_TRANSPORT_ERROR;
 -- 
 2.35.1
 
