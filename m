@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3E736582EC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C112657D66
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:42:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234625AbiL1QnT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:43:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35546 "EHLO
+        id S233553AbiL1Pmt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:42:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235011AbiL1Qmw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:42:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E6641FCD0
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:07 -0800 (PST)
+        with ESMTP id S233960AbiL1Pmq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:42:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91D65164BD
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:42:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 592CF61585
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:37:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B089C433D2;
-        Wed, 28 Dec 2022 16:37:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E6E86155E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:42:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F002C433D2;
+        Wed, 28 Dec 2022 15:42:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245422;
-        bh=y9bwSUuc+lA1U3NC4hPJWbpqyHp4QqmMJF7rGIqbdi8=;
+        s=korg; t=1672242164;
+        bh=pORzhurpnyJINmfDlDv544dzJqBFICxMlKo55g22jcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u6bFD6q5lgoxM23VxAUiErzHeyi8cj6z3XiNsBOMU2B71jbf6dpY8Kbl99OlTLQLn
-         v1+kxXb3Aiesauq1iP2c9OpTt2kTmtawFzLitqoswhl/xhp334nvdgz0BmTW1va4eh
-         29RnXotypMcbdiYgNp2bQ6CaaQbu5l2lcTpHq2l0=
+        b=eAy56BtdiXcJ9lVQsu2/rw7i5fy2F7VvWDQCJccaE4Fa6kbOcI5NOT8ObIjRJ0/2N
+         9tuRAmbg9a3D/MpX2LNq7sQUlKiard2LsraI92IfjT3Zb0QnyDCfhCBLYA3AbR04/P
+         KzmZdsuE/QCG9mfxUIG1SW4HSMkHbR42xEJ2Ky+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Gaurav Kohli <gauravkohli@linux.microsoft.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0889/1073] x86/hyperv: Remove unregister syscore call from Hyper-V cleanup
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 570/731] remoteproc: qcom_q6v5_pas: Fix missing of_node_put() in adsp_alloc_memory_region()
 Date:   Wed, 28 Dec 2022 15:41:17 +0100
-Message-Id: <20221228144352.174692000@linuxfoundation.org>
+Message-Id: <20221228144313.078774748@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaurav Kohli <gauravkohli@linux.microsoft.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 32c97d980e2eef25465d453f2956a9ca68926a3c ]
+[ Upstream commit 38e7d9c19276832ebb0277f415b9214bf7baeb37 ]
 
-Hyper-V cleanup code comes under panic path where preemption and irq
-is already disabled. So calling of unregister_syscore_ops might schedule
-out the thread even for the case where mutex lock is free.
-hyperv_cleanup
-	unregister_syscore_ops
-			mutex_lock(&syscore_ops_lock)
-				might_sleep
-Here might_sleep might schedule out this thread, where voluntary preemption
-config is on and this thread will never comes back. And also this was added
-earlier to maintain the symmetry which is not required as this can comes
-during crash shutdown path only.
+The pointer node is returned by of_parse_phandle() with refcount
+incremented. We should use of_node_put() on it when done.
 
-To prevent the same, removing unregister_syscore_ops function call.
-
-Signed-off-by: Gaurav Kohli <gauravkohli@linux.microsoft.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/1669443291-2575-1-git-send-email-gauravkohli@linux.microsoft.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Fixes: b9e718e950c3 ("remoteproc: Introduce Qualcomm ADSP PIL")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221203070639.15128-1-yuancan@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/hyperv/hv_init.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/remoteproc/qcom_q6v5_pas.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
-index a0165df3c4d8..d03561b2fffe 100644
---- a/arch/x86/hyperv/hv_init.c
-+++ b/arch/x86/hyperv/hv_init.c
-@@ -536,8 +536,6 @@ void hyperv_cleanup(void)
- {
- 	union hv_x64_msr_hypercall_contents hypercall_msr;
+diff --git a/drivers/remoteproc/qcom_q6v5_pas.c b/drivers/remoteproc/qcom_q6v5_pas.c
+index 8b82fd598dfa..fbcbc00f2e64 100644
+--- a/drivers/remoteproc/qcom_q6v5_pas.c
++++ b/drivers/remoteproc/qcom_q6v5_pas.c
+@@ -386,6 +386,7 @@ static int adsp_alloc_memory_region(struct qcom_adsp *adsp)
+ 	}
  
--	unregister_syscore_ops(&hv_syscore_ops);
--
- 	/* Reset our OS id */
- 	wrmsrl(HV_X64_MSR_GUEST_OS_ID, 0);
- 	hv_ghcb_msr_write(HV_X64_MSR_GUEST_OS_ID, 0);
+ 	ret = of_address_to_resource(node, 0, &r);
++	of_node_put(node);
+ 	if (ret)
+ 		return ret;
+ 
 -- 
 2.35.1
 
