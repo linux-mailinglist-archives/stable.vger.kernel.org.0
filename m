@@ -2,50 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48521658163
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:28:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 180D9657B92
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234546AbiL1Q2R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:28:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46134 "EHLO
+        id S233617AbiL1PXY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:23:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234704AbiL1Q1l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:27:41 -0500
+        with ESMTP id S233316AbiL1PXF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:23:05 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85DCB1D0C1;
-        Wed, 28 Dec 2022 08:23:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86CAF14032
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:23:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2321D6157E;
-        Wed, 28 Dec 2022 16:23:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EDB3C433D2;
-        Wed, 28 Dec 2022 16:23:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 262D36152F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:23:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33A31C433F0;
+        Wed, 28 Dec 2022 15:23:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244622;
-        bh=5D+FU38HJ61Q0nA/gbKigNP/idHncfMOIrDAREp0A4c=;
+        s=korg; t=1672240983;
+        bh=4xWzO25yKAwrZVQzrnUup2pMc6HbbTZB6NYWqInom50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Un+LHQDyz1E0ZNCFACxjmvumLWnSVVSkczo4/ayzILpelmWG1sVblu6v0lIaxf/4G
-         Jdvm0cVnSgJ0yVJGC71okp7H2e4DxHwu7c+TKbHexcz0kyS5H1gZttWlCC74hd+rYk
-         VIDWPhuggJluCUs3gJTCn45uH3xKkEexHpvSAWGM=
+        b=F9DWRZMhTsoqqavHgF2Rd93YF8/3UsjKYK/aYNuhzv8l81NhMf72ru4PynwHSifV0
+         aLIw7FaSGHvX4jCZxQxSEziFJ5ncvcktuaJvljeQlppPc+CozpQQfReRPuVG2VQszG
+         xt7dXHzOFLxdr9VtFItAeHS8/xhhilRCiiIYW2iQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Leo Yan <leo.yan@linaro.org>,
-        Ian Rogers <irogers@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>, bpf@vger.kernel.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0743/1073] perf trace: Use macro RAW_SYSCALL_ARGS_NUM to replace number
+Subject: [PATCH 5.15 424/731] RDMA/hfi1: Fix error return code in parse_platform_config()
 Date:   Wed, 28 Dec 2022 15:38:51 +0100
-Message-Id: <20221228144348.204958416@linuxfoundation.org>
+Message-Id: <20221228144308.859254737@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,80 +53,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit eadcab4c7a66e1df03d32da0db55d89fd9343fcc ]
+[ Upstream commit 725349f8ba1e78a146c6ff8f3ee5e2712e517106 ]
 
-This patch defines a macro RAW_SYSCALL_ARGS_NUM to replace the open
-coded number '6'.
+In the previous iteration of the while loop, the "ret" may have been
+assigned a value of 0, so the error return code -EINVAL may have been
+incorrectly set to 0. To fix set valid return code before calling to
+goto.
 
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Acked-by: Ian Rogers <irogers@google.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: bpf@vger.kernel.org
-Link: https://lore.kernel.org/r/20221121075237.127706-2-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Stable-dep-of: 03e9a5d8eb55 ("perf trace: Handle failure when trace point folder is missed")
+Fixes: 97167e813415 ("staging/rdma/hfi1: Tune for unknown channel if configuration file is absent")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Link: https://lore.kernel.org/r/1669953638-11747-1-git-send-email-wangyufen@huawei.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-trace.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/infiniband/hw/hfi1/firmware.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/tools/perf/builtin-trace.c b/tools/perf/builtin-trace.c
-index cf3b6ca4af96..cde14dfad200 100644
---- a/tools/perf/builtin-trace.c
-+++ b/tools/perf/builtin-trace.c
-@@ -88,6 +88,8 @@
- # define F_LINUX_SPECIFIC_BASE	1024
- #endif
+diff --git a/drivers/infiniband/hw/hfi1/firmware.c b/drivers/infiniband/hw/hfi1/firmware.c
+index 31e63e245ea9..ddf3217893f8 100644
+--- a/drivers/infiniband/hw/hfi1/firmware.c
++++ b/drivers/infiniband/hw/hfi1/firmware.c
+@@ -1744,6 +1744,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
  
-+#define RAW_SYSCALL_ARGS_NUM	6
-+
- /*
-  * strtoul: Go from a string to a value, i.e. for msr: MSR_FS_BASE to 0xc0000100
-  */
-@@ -108,7 +110,7 @@ struct syscall_fmt {
- 		const char *sys_enter,
- 			   *sys_exit;
- 	}	   bpf_prog_name;
--	struct syscall_arg_fmt arg[6];
-+	struct syscall_arg_fmt arg[RAW_SYSCALL_ARGS_NUM];
- 	u8	   nr_args;
- 	bool	   errpid;
- 	bool	   timeout;
-@@ -1229,7 +1231,7 @@ struct syscall {
-  */
- struct bpf_map_syscall_entry {
- 	bool	enabled;
--	u16	string_args_len[6];
-+	u16	string_args_len[RAW_SYSCALL_ARGS_NUM];
- };
- 
- /*
-@@ -1661,7 +1663,7 @@ static int syscall__alloc_arg_fmts(struct syscall *sc, int nr_args)
- {
- 	int idx;
- 
--	if (nr_args == 6 && sc->fmt && sc->fmt->nr_args != 0)
-+	if (nr_args == RAW_SYSCALL_ARGS_NUM && sc->fmt && sc->fmt->nr_args != 0)
- 		nr_args = sc->fmt->nr_args;
- 
- 	sc->arg_fmt = calloc(nr_args, sizeof(*sc->arg_fmt));
-@@ -1812,7 +1814,8 @@ static int trace__read_syscall_info(struct trace *trace, int id)
- 		sc->tp_format = trace_event__tp_format("syscalls", tp_name);
+ 	if (!dd->platform_config.data) {
+ 		dd_dev_err(dd, "%s: Missing config file\n", __func__);
++		ret = -EINVAL;
+ 		goto bail;
+ 	}
+ 	ptr = (u32 *)dd->platform_config.data;
+@@ -1752,6 +1753,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
+ 	ptr++;
+ 	if (magic_num != PLATFORM_CONFIG_MAGIC_NUM) {
+ 		dd_dev_err(dd, "%s: Bad config file\n", __func__);
++		ret = -EINVAL;
+ 		goto bail;
  	}
  
--	if (syscall__alloc_arg_fmts(sc, IS_ERR(sc->tp_format) ? 6 : sc->tp_format->format.nr_fields))
-+	if (syscall__alloc_arg_fmts(sc, IS_ERR(sc->tp_format) ?
-+					RAW_SYSCALL_ARGS_NUM : sc->tp_format->format.nr_fields))
- 		return -ENOMEM;
+@@ -1775,6 +1777,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
+ 	if (file_length > dd->platform_config.size) {
+ 		dd_dev_info(dd, "%s:File claims to be larger than read size\n",
+ 			    __func__);
++		ret = -EINVAL;
+ 		goto bail;
+ 	} else if (file_length < dd->platform_config.size) {
+ 		dd_dev_info(dd,
+@@ -1795,6 +1798,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
+ 			dd_dev_err(dd, "%s: Failed validation at offset %ld\n",
+ 				   __func__, (ptr - (u32 *)
+ 					      dd->platform_config.data));
++			ret = -EINVAL;
+ 			goto bail;
+ 		}
  
- 	if (IS_ERR(sc->tp_format))
+@@ -1838,6 +1842,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
+ 					   __func__, table_type,
+ 					   (ptr - (u32 *)
+ 					    dd->platform_config.data));
++				ret = -EINVAL;
+ 				goto bail; /* We don't trust this file now */
+ 			}
+ 			pcfgcache->config_tables[table_type].table = ptr;
+@@ -1857,6 +1862,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
+ 					   __func__, table_type,
+ 					   (ptr -
+ 					    (u32 *)dd->platform_config.data));
++				ret = -EINVAL;
+ 				goto bail; /* We don't trust this file now */
+ 			}
+ 			pcfgcache->config_tables[table_type].table_metadata =
 -- 
 2.35.1
 
