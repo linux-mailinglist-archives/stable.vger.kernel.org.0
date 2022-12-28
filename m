@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C049658474
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AABA86584F1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:04:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235016AbiL1Q5N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:57:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47140 "EHLO
+        id S235346AbiL1REK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:04:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235351AbiL1Q4Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:56:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7965F1E3F6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:51:57 -0800 (PST)
+        with ESMTP id S234943AbiL1RDo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:03:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF6BD1C129
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:58:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3610EB8188B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:51:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98E2FC433D2;
-        Wed, 28 Dec 2022 16:51:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 76099B8188B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:58:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8F46C433D2;
+        Wed, 28 Dec 2022 16:58:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246315;
-        bh=PWAOx/uPdeAVFzHXjcr55cEGzHjdl+ffaSB39FB4smY=;
+        s=korg; t=1672246682;
+        bh=RcWnq7GP/UzPFJHuOTgz5KeYcbscuCrl+RsL6vKS3p0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W5MmkFN0GuBSGl2hiOaZ9R2zZTB2SvQ9uIhliCqsnMqSoQpRw2k/KPhUKH+15/AWe
-         dcg7p9PhSTqHGJTNRqNwj8Lx5aXmZAKmhZSAAUlyY9QJLvus6pYmvcnLymk67UruSg
-         hGWMDiXMDcRkeoAB3jBokqRyR1C8gT9mFzU7MZJw=
+        b=CGnl2TgrWDEmyw9TrXjhuYLcGGtuU0XNnLmnN3nlWBwnOyTkEVlED0SzQJO3SE3rQ
+         Kh7PhWDh/P4D3XvEwjrKwnecI33tttrGXI+IBDWkGCD9djALjNjke+1ToX91QzYcDH
+         oJyEMaxeeEoD00yQJjinAECXJSrdP5Pv3Ftwxic0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Stable@vger.kernel.org
-Subject: [PATCH 6.0 1048/1073] iio: adc: ad_sigma_delta: do not use internal iio_dev lock
+        patches@lists.linux.dev, Jeff LaBundy <jeff@labundy.com>,
+        Rob Herring <robh@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 1097/1146] dt-bindings: input: iqs7222: Add support for IQS7222A v1.13+
 Date:   Wed, 28 Dec 2022 15:43:56 +0100
-Message-Id: <20221228144356.676136355@linuxfoundation.org>
+Message-Id: <20221228144359.966541143@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nuno Sá <nuno.sa@analog.com>
+From: Jeff LaBundy <jeff@labundy.com>
 
-commit 20228a1d5a55e7db0c6720840f2c7d2b48c55f69 upstream.
+[ Upstream commit 97384a65c5e304ccab0477751546f5519d9371c3 ]
 
-Drop 'mlock' usage by making use of iio_device_claim_direct_mode().
-This change actually makes sure we cannot do a single conversion while
-buffering is enable. Note there was a potential race in the previous
-code since we were only acquiring the lock after checking if the bus is
-enabled.
+IQS7222A revisions 1.13 and later widen the gesture multiplier from
+x4 ms to x16 ms; update the binding accordingly.
 
-Fixes: af3008485ea0 ("iio:adc: Add common code for ADI Sigma Delta devices")
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Cc: <Stable@vger.kernel.org> #No rush as race is very old.
-Link: https://lore.kernel.org/r/20220920112821.975359-2-nuno.sa@analog.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+As part of this change, refresh the corresponding properties in the
+example as well.
+
+Fixes: 44dc42d254bf ("dt-bindings: input: Add bindings for Azoteq IQS7222A/B/C")
+Signed-off-by: Jeff LaBundy <jeff@labundy.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/Y1SRaVGwj30z/g6r@nixie71
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ad_sigma_delta.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ .../bindings/input/azoteq,iqs7222.yaml           | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/iio/adc/ad_sigma_delta.c
-+++ b/drivers/iio/adc/ad_sigma_delta.c
-@@ -281,10 +281,10 @@ int ad_sigma_delta_single_conversion(str
- 	unsigned int data_reg;
- 	int ret = 0;
+diff --git a/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml b/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
+index 913fd2da9862..9ddba7f2e7aa 100644
+--- a/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
++++ b/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
+@@ -572,9 +572,9 @@ patternProperties:
+           linux,code: true
  
--	if (iio_buffer_enabled(indio_dev))
--		return -EBUSY;
-+	ret = iio_device_claim_direct_mode(indio_dev);
-+	if (ret)
-+		return ret;
+           azoteq,gesture-max-ms:
+-            multipleOf: 4
++            multipleOf: 16
+             minimum: 0
+-            maximum: 1020
++            maximum: 4080
+             description:
+               Specifies the length of time (in ms) within which a tap, swipe
+               or flick gesture must be completed in order to be acknowledged
+@@ -582,9 +582,9 @@ patternProperties:
+               gesture applies to all remaining swipe or flick gestures.
  
--	mutex_lock(&indio_dev->mlock);
- 	ad_sigma_delta_set_channel(sigma_delta, chan->address);
+           azoteq,gesture-min-ms:
+-            multipleOf: 4
++            multipleOf: 16
+             minimum: 0
+-            maximum: 124
++            maximum: 496
+             description:
+               Specifies the length of time (in ms) for which a tap gesture must
+               be held in order to be acknowledged by the device.
+@@ -930,14 +930,14 @@ examples:
  
- 	spi_bus_lock(sigma_delta->spi->master);
-@@ -323,7 +323,7 @@ out:
- 	ad_sigma_delta_set_mode(sigma_delta, AD_SD_MODE_IDLE);
- 	sigma_delta->bus_locked = false;
- 	spi_bus_unlock(sigma_delta->spi->master);
--	mutex_unlock(&indio_dev->mlock);
-+	iio_device_release_direct_mode(indio_dev);
+                             event-tap {
+                                     linux,code = <KEY_PLAYPAUSE>;
+-                                    azoteq,gesture-max-ms = <600>;
+-                                    azoteq,gesture-min-ms = <24>;
++                                    azoteq,gesture-max-ms = <400>;
++                                    azoteq,gesture-min-ms = <32>;
+                             };
  
- 	if (ret)
- 		return ret;
+                             event-flick-pos {
+                                     linux,code = <KEY_NEXTSONG>;
+-                                    azoteq,gesture-max-ms = <600>;
+-                                    azoteq,gesture-dist = <816>;
++                                    azoteq,gesture-max-ms = <800>;
++                                    azoteq,gesture-dist = <800>;
+                             };
+ 
+                             event-flick-neg {
+-- 
+2.35.1
+
 
 
