@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6310F657D0C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:38:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FD7F657BF9
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:27:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233498AbiL1Pix (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:38:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55904 "EHLO
+        id S232893AbiL1P1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:27:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233924AbiL1Piw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:38:52 -0500
+        with ESMTP id S233639AbiL1P10 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:27:26 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5E09165B2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:38:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B56A14038
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:27:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5510CB81710
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:38:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A87E9C433D2;
-        Wed, 28 Dec 2022 15:38:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E092B816D9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:27:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C324C433EF;
+        Wed, 28 Dec 2022 15:27:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241929;
-        bh=jPTkkaYuH0DswnGejV9IOCH+RcQYHlma1W2FmPDhEKY=;
+        s=korg; t=1672241243;
+        bh=r0oDJP/VvgWbOLRfHCpUr0l20Al1OnSvQYWkabodOYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g/OTTqWq0tKuEwNt/lMonD4NybyoRelMi+E2P8e/ODUbnoA9n8dFZXPpleEQsDrf7
-         ix4VAsFD46qICabKMCTVagKX8XUCQUvVXQcpFc3uo81ycbpyLVGsGAmqIzzo/8ub3V
-         y2N/zM33/kFn+WwHIVk3P5QbEb72FTwxqZrnIp9w=
+        b=IH9ae0RAbrtDs11FP1p0cIFpCS7eDqLHiLkh8lMZi1FBk+EGBqey8s5GY/+XmytCZ
+         ZAABEYQ2IvFDddY8be8icVg5ng0iDcxy5XAlc4mC9S6rWDZsgksok2lSjfG3ceWiHD
+         BrjfC0gcn2c0Z0GdYZHm4a/v7dTJpBPE4VC882T0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Cole Robinson <crobinso@redhat.com>,
-        Borislav Petkov <bp@suse.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
+        patches@lists.linux.dev,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0306/1146] virt/sev-guest: Add a MODULE_ALIAS
+Subject: [PATCH 6.0 0257/1073] dw9768: Enable low-power probe on ACPI
 Date:   Wed, 28 Dec 2022 15:30:45 +0100
-Message-Id: <20221228144338.466107745@linuxfoundation.org>
+Message-Id: <20221228144334.999733671@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +53,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cole Robinson <crobinso@redhat.com>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-[ Upstream commit 2874529b3513bdc90299c90f40713602da685e35 ]
+[ Upstream commit 5f9a089b6de34655318afe8e544d9a9cc0fc1d29 ]
 
-Autoload the driver when, for example, SNP init code creates the
-corresponding platform device.
+Add support for low-power probe to the driver. Also fix runtime PM API
+usage in the driver.
 
-  [ bp: Rewrite commit message. ]
+Much of the hassle comes from different factors affecting device power
+states during probe for ACPI and DT.
 
-Fixes: fce96cf04430 ("virt: Add SEV-SNP guest driver")
-Signed-off-by: Cole Robinson <crobinso@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Link: https://lore.kernel.org/r/ff480c5e688eb0a72a4db0a29c7b1bb54c45bfd4.1667594253.git.crobinso@redhat.com
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Fixes: 859891228e56 ("media: i2c: dw9768: Add DW9768 VCM driver")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virt/coco/sev-guest/sev-guest.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/i2c/dw9768.c | 33 +++++++++++++++++++++++++--------
+ 1 file changed, 25 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/virt/coco/sev-guest/sev-guest.c b/drivers/virt/coco/sev-guest/sev-guest.c
-index 1ea6d2e5b218..99d6062afe72 100644
---- a/drivers/virt/coco/sev-guest/sev-guest.c
-+++ b/drivers/virt/coco/sev-guest/sev-guest.c
-@@ -800,3 +800,4 @@ MODULE_AUTHOR("Brijesh Singh <brijesh.singh@amd.com>");
- MODULE_LICENSE("GPL");
- MODULE_VERSION("1.0.0");
- MODULE_DESCRIPTION("AMD SEV Guest Driver");
-+MODULE_ALIAS("platform:sev-guest");
+diff --git a/drivers/media/i2c/dw9768.c b/drivers/media/i2c/dw9768.c
+index c086580efac7..60ae0adf5174 100644
+--- a/drivers/media/i2c/dw9768.c
++++ b/drivers/media/i2c/dw9768.c
+@@ -414,6 +414,7 @@ static int dw9768_probe(struct i2c_client *client)
+ {
+ 	struct device *dev = &client->dev;
+ 	struct dw9768 *dw9768;
++	bool full_power;
+ 	unsigned int i;
+ 	int ret;
+ 
+@@ -469,13 +470,23 @@ static int dw9768_probe(struct i2c_client *client)
+ 
+ 	dw9768->sd.entity.function = MEDIA_ENT_F_LENS;
+ 
++	/*
++	 * Figure out whether we're going to power up the device here. Generally
++	 * this is done if CONFIG_PM is disabled in a DT system or the device is
++	 * to be powered on in an ACPI system. Similarly for power off in
++	 * remove.
++	 */
+ 	pm_runtime_enable(dev);
+-	if (!pm_runtime_enabled(dev)) {
++	full_power = (is_acpi_node(dev_fwnode(dev)) &&
++		      acpi_dev_state_d0(dev)) ||
++		     (is_of_node(dev_fwnode(dev)) && !pm_runtime_enabled(dev));
++	if (full_power) {
+ 		ret = dw9768_runtime_resume(dev);
+ 		if (ret < 0) {
+ 			dev_err(dev, "failed to power on: %d\n", ret);
+ 			goto err_clean_entity;
+ 		}
++		pm_runtime_set_active(dev);
+ 	}
+ 
+ 	ret = v4l2_async_register_subdev(&dw9768->sd);
+@@ -484,14 +495,17 @@ static int dw9768_probe(struct i2c_client *client)
+ 		goto err_power_off;
+ 	}
+ 
++	pm_runtime_idle(dev);
++
+ 	return 0;
+ 
+ err_power_off:
+-	if (pm_runtime_enabled(dev))
+-		pm_runtime_disable(dev);
+-	else
++	if (full_power) {
+ 		dw9768_runtime_suspend(dev);
++		pm_runtime_set_suspended(dev);
++	}
+ err_clean_entity:
++	pm_runtime_disable(dev);
+ 	media_entity_cleanup(&dw9768->sd.entity);
+ err_free_handler:
+ 	v4l2_ctrl_handler_free(&dw9768->ctrls);
+@@ -503,14 +517,17 @@ static int dw9768_remove(struct i2c_client *client)
+ {
+ 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
+ 	struct dw9768 *dw9768 = sd_to_dw9768(sd);
++	struct device *dev = &client->dev;
+ 
+ 	v4l2_async_unregister_subdev(&dw9768->sd);
+ 	v4l2_ctrl_handler_free(&dw9768->ctrls);
+ 	media_entity_cleanup(&dw9768->sd.entity);
+-	pm_runtime_disable(&client->dev);
+-	if (!pm_runtime_status_suspended(&client->dev))
+-		dw9768_runtime_suspend(&client->dev);
+-	pm_runtime_set_suspended(&client->dev);
++	if ((is_acpi_node(dev_fwnode(dev)) && acpi_dev_state_d0(dev)) ||
++	    (is_of_node(dev_fwnode(dev)) && !pm_runtime_enabled(dev))) {
++		dw9768_runtime_suspend(dev);
++		pm_runtime_set_suspended(dev);
++	}
++	pm_runtime_disable(dev);
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
