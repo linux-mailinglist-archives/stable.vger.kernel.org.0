@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E10B658172
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:28:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36457657BA3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233382AbiL1Q2k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:28:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45960 "EHLO
+        id S233370AbiL1PXz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:23:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234632AbiL1Q2U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:28:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0B63FD38
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:24:14 -0800 (PST)
+        with ESMTP id S233685AbiL1PXx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:23:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A159D13F53
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:23:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 60C67B81717
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:24:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C643AC433D2;
-        Wed, 28 Dec 2022 16:24:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 57FBCB8170E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:23:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 921EEC433F2;
+        Wed, 28 Dec 2022 15:23:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244652;
-        bh=LYR2MszpcfxALpm6QqqLQhYFaWt7DyQX8GcTxgD7xv4=;
+        s=korg; t=1672241028;
+        bh=ln6sAnXo8QtLbXs9g6fTWwpDph2q6sSNhpQjYfhdyVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fx5e9uizm12JqRK6XuDRRHZnrfDC9cFAPwaJjRrBQAqz6lUE0H19Fp+frSXe8hE0u
-         /MKz9P2sVm350JSZN9p5r/ZV38VxtxCKEF2T4XTybSHoPW1w5WaIggBTj2VQDEbUpL
-         jNxBYJ8SxyWebYLb2YFaFnLdi7JKZZbtPse9qeD4=
+        b=dFY0ZObPNF+1C+5+Xu4X+FrywprY1UODs2xUbsutzoYHt7TOmUzZVUqaFwgK5lEpR
+         owDSJe54QFCrcNZqZZcWEQeXEQqTP7DWrEI/8Jy1D9xOTpR7sv2ivwWEPkH5GpYkdS
+         EgJlq/3kaRvm8EHCA25tT53h1c0hW5fr3Ab+JRMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        patches@lists.linux.dev,
+        Chengchang Tang <tangchengchang@huawei.com>,
+        Haoyue Xu <xuhaoyue1@hisilicon.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0748/1073] power: supply: cw2015: Fix potential null-ptr-deref in cw_bat_probe()
+Subject: [PATCH 5.15 429/731] RDMA/hns: Fix AH attr queried by query_qp
 Date:   Wed, 28 Dec 2022 15:38:56 +0100
-Message-Id: <20221228144348.338920745@linuxfoundation.org>
+Message-Id: <20221228144309.000734739@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Chengchang Tang <tangchengchang@huawei.com>
 
-[ Upstream commit 97f2b4ddb0aa700d673691a7d5e44d226d22bab7 ]
+[ Upstream commit bc34c04f7b97c3794dec5a6d6d27ffd5f0e4f5c8 ]
 
-cw_bat_probe() calls create_singlethread_workqueue() and not checked the
-ret value, which may return NULL. And a null-ptr-deref may happen:
+The queried AH attr is invalid. This patch fix it.
 
-cw_bat_probe()
-    create_singlethread_workqueue() # failed, cw_bat->wq is NULL
-    queue_delayed_work()
-        queue_delayed_work_on()
-            __queue_delayed_work()  # warning here, but continue
-                __queue_work()      # access wq->flags, null-ptr-deref
+This problem is found by rdma-core test test_mr_rereg_pd
 
-Check the ret value and return -ENOMEM if it is NULL.
+ERROR: test_mr_rereg_pd (tests.test_mr.MRTest)
+Test that cover rereg MR's PD with this flow:
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "./tests/test_mr.py", line 157, in test_mr_rereg_pd
+    self.restate_qps()
+  File "./tests/test_mr.py", line 113, in restate_qps
+    self.server.qp.to_rts(self.server_qp_attr)
+  File "qp.pyx", line 1137, in pyverbs.qp.QP.to_rts
+  File "qp.pyx", line 1123, in pyverbs.qp.QP.to_rtr
+pyverbs.pyverbs_error.PyverbsRDMAError: Failed to modify QP state to RTR.
+Errno: 22, Invalid argument
 
-Fixes: b4c7715c10c1 ("power: supply: add CellWise cw2015 fuel gauge driver")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes: 926a01dc000d ("RDMA/hns: Add QP operations support for hip08 SoC")
+Link: https://lore.kernel.org/r/20221126102911.2921820-3-xuhaoyue1@hisilicon.com
+Signed-off-by: Chengchang Tang <tangchengchang@huawei.com>
+Signed-off-by: Haoyue Xu <xuhaoyue1@hisilicon.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/cw2015_battery.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/power/supply/cw2015_battery.c b/drivers/power/supply/cw2015_battery.c
-index 6d52641151d9..473522b4326a 100644
---- a/drivers/power/supply/cw2015_battery.c
-+++ b/drivers/power/supply/cw2015_battery.c
-@@ -699,6 +699,9 @@ static int cw_bat_probe(struct i2c_client *client)
- 	}
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index 94f3a0a87dfd..155ae202b1ec 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -5129,6 +5129,8 @@ static int hns_roce_v2_query_qp(struct ib_qp *ibqp, struct ib_qp_attr *qp_attr,
  
- 	cw_bat->battery_workqueue = create_singlethread_workqueue("rk_battery");
-+	if (!cw_bat->battery_workqueue)
-+		return -ENOMEM;
-+
- 	devm_delayed_work_autocancel(&client->dev,
- 							  &cw_bat->battery_delay_work, cw_bat_work);
- 	queue_delayed_work(cw_bat->battery_workqueue,
+ 		rdma_ah_set_sl(&qp_attr->ah_attr,
+ 			       hr_reg_read(&context, QPC_SL));
++		rdma_ah_set_port_num(&qp_attr->ah_attr, hr_qp->port + 1);
++		rdma_ah_set_ah_flags(&qp_attr->ah_attr, IB_AH_GRH);
+ 		grh->flow_label = hr_reg_read(&context, QPC_FL);
+ 		grh->sgid_index = hr_reg_read(&context, QPC_GMV_IDX);
+ 		grh->hop_limit = hr_reg_read(&context, QPC_HOPLIMIT);
 -- 
 2.35.1
 
