@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2B446579D5
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:05:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC29B657AF1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:16:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233525AbiL1PFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:05:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52776 "EHLO
+        id S233134AbiL1PQg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:16:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233536AbiL1PFQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:05:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D556B13D60
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:05:14 -0800 (PST)
+        with ESMTP id S233136AbiL1PQf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:16:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4904A2655
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:16:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F93EB816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:05:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D41CCC433D2;
-        Wed, 28 Dec 2022 15:05:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D81D8614BA
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:16:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E557DC433F0;
+        Wed, 28 Dec 2022 15:16:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239912;
-        bh=Zw2Qby8m7WjbAf0R9AFaJsdYj5Bdka2UBKP7EQwATxY=;
+        s=korg; t=1672240593;
+        bh=NaX9lVHV3ViQPF2J7kvtfOtQ0W+iwzMLAjy6GUNUaII=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U/4FVYTyug5tUzV6sdJkXkOo4RiOIJVbEmOIqg4o7i/c66PiMG+7sVmD/18LZaSXG
-         +Newaze5OHuwahTUoCKpf58/P7gI/XHrv9t9XWxCqH3j3676uOsipo3hGhKA7CXYW1
-         sAl3vpWbfUut1gmzXZjdB4dWGpR38FwlS3i3BIgk=
+        b=rGRhyQL1aRXJYOY+9RKi9tA5Gl6lO8xS4ZoJRZpJJXERSSIq+tiokJOdpXDY7qI9K
+         AS3kk9bOCMww7IVe6mtceVkwdywpLhIJc2Q1Sme8dElzm7dd/j7cegWav7NN9N0VxZ
+         gDDocptZhupt4z0tug1J67N8B42iIjNrKgCmFIR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miklos Szeredi <mszeredi@redhat.com>,
-        Amir Goldstein <amir73il@gmail.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        patches@lists.linux.dev,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Kan Liang <kan.liang@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0093/1073] ovl: remove privs in ovl_fallocate()
-Date:   Wed, 28 Dec 2022 15:28:01 +0100
-Message-Id: <20221228144330.577932810@linuxfoundation.org>
+Subject: [PATCH 6.1 0143/1146] perf/x86/intel/uncore: Fix reference count leak in __uncore_imc_init_box()
+Date:   Wed, 28 Dec 2022 15:28:02 +0100
+Message-Id: <20221228144334.029379527@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 23a8ce16419a3066829ad4a8b7032a75817af65b ]
+[ Upstream commit 17b8d847b92d815d1638f0de154654081d66b281 ]
 
-Underlying fs doesn't remove privs because fallocate is called with
-privileged mounter credentials.
+pci_get_device() will increase the reference count for the returned
+pci_dev, so tgl_uncore_get_mc_dev() will return a pci_dev with its
+reference count increased. We need to call pci_dev_put() to decrease the
+reference count before exiting from __uncore_imc_init_box(). Add
+pci_dev_put() for both normal and error path.
 
-This fixes some failure in fstests generic/683..687.
-
-Fixes: aab8848cee5e ("ovl: add ovl_fallocate()")
-Acked-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Fixes: fdb64822443e ("perf/x86: Add Intel Tiger Lake uncore support")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+Link: https://lore.kernel.org/r/20221118063137.121512-5-wangxiongfeng2@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/overlayfs/file.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ arch/x86/events/intel/uncore_snb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/overlayfs/file.c b/fs/overlayfs/file.c
-index 362a4eed92b5..a34f8042724c 100644
---- a/fs/overlayfs/file.c
-+++ b/fs/overlayfs/file.c
-@@ -517,9 +517,16 @@ static long ovl_fallocate(struct file *file, int mode, loff_t offset, loff_t len
- 	const struct cred *old_cred;
- 	int ret;
- 
-+	inode_lock(inode);
-+	/* Update mode */
-+	ovl_copyattr(inode);
-+	ret = file_remove_privs(file);
-+	if (ret)
-+		goto out_unlock;
+diff --git a/arch/x86/events/intel/uncore_snb.c b/arch/x86/events/intel/uncore_snb.c
+index 1ef4f7861e2e..1f4869227efb 100644
+--- a/arch/x86/events/intel/uncore_snb.c
++++ b/arch/x86/events/intel/uncore_snb.c
+@@ -1338,6 +1338,7 @@ static void __uncore_imc_init_box(struct intel_uncore_box *box,
+ 	/* MCHBAR is disabled */
+ 	if (!(mch_bar & BIT(0))) {
+ 		pr_warn("perf uncore: MCHBAR is disabled. Failed to map IMC free-running counters.\n");
++		pci_dev_put(pdev);
+ 		return;
+ 	}
+ 	mch_bar &= ~BIT(0);
+@@ -1352,6 +1353,8 @@ static void __uncore_imc_init_box(struct intel_uncore_box *box,
+ 	box->io_addr = ioremap(addr, type->mmio_map_size);
+ 	if (!box->io_addr)
+ 		pr_warn("perf uncore: Failed to ioremap for %s.\n", type->name);
 +
- 	ret = ovl_real_fdget(file, &real);
- 	if (ret)
--		return ret;
-+		goto out_unlock;
- 
- 	old_cred = ovl_override_creds(file_inode(file)->i_sb);
- 	ret = vfs_fallocate(real.file, mode, offset, len);
-@@ -530,6 +537,9 @@ static long ovl_fallocate(struct file *file, int mode, loff_t offset, loff_t len
- 
- 	fdput(real);
- 
-+out_unlock:
-+	inode_unlock(inode);
-+
- 	return ret;
++	pci_dev_put(pdev);
  }
  
+ static void tgl_uncore_imc_freerunning_init_box(struct intel_uncore_box *box)
 -- 
 2.35.1
 
