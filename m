@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CD7C6580C0
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:20:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7559658196
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:29:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234601AbiL1QUF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:20:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36972 "EHLO
+        id S233299AbiL1Q3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:29:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234665AbiL1QTX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:19:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40B4E1A388
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:17:50 -0800 (PST)
+        with ESMTP id S234387AbiL1Q3Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:29:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEF641F0
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:25:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE76C6156C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:17:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E39ECC433D2;
-        Wed, 28 Dec 2022 16:17:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 814AFB817AC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:25:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB390C433D2;
+        Wed, 28 Dec 2022 16:25:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244269;
-        bh=JgxFYTenMO74yrkIpVwBc94p+F9fD0CyR7c+sK9K6XY=;
+        s=korg; t=1672244740;
+        bh=inN9e4ytR+NXrAHnhQ1/s4gFHfne7lWj4TQ3jrvLG2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mBVXF1OQVqxiPNXf6J1d9ykwn1LIamg5W1N34+bc2LW8E566FxHr+3BG6XCkUagTi
-         92cIj2rrnkA4tUGESyV24EDqFXPXCD6mIoHm4hDqcNAVC9WdaZHgiNmA0Az3zKBQwC
-         ko/Pasu1hEGWAbeu7QPRh8wIRDztiJ2LwFfTg9Is=
+        b=HFkp5n+SecQIVtCFo9UvXwxHX9WBUR3k3gkGjYd3ybCO5Qf5t2HCVJB3HxZC3kfKC
+         FNvnprhPla6+zeJh9nQqYFjVSlys+2cCYgDWn0OuJ0ctti7xQbSxyPkzHoSK7aPGB/
+         TNsPDsAijDTMyXsmUeGiOKb8EehwxXVb1mkU81Q0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Sicelo Mhlongo <absicsz@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0679/1073] usb: musb: omap2430: Fix probe regression for missing resources
+Subject: [PATCH 6.1 0728/1146] usb: roles: fix of node refcount leak in usb_role_switch_is_parent()
 Date:   Wed, 28 Dec 2022 15:37:47 +0100
-Message-Id: <20221228144346.479634414@linuxfoundation.org>
+Message-Id: <20221228144349.919257800@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,128 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit ffbe2feac59b37c8dc536727552b4f375e1b9aec ]
+[ Upstream commit 1ab30c610630da5391a373cddb8a065bf4c4bc01 ]
 
-Probe for omap2430 glue layer is now broken for interrupt resources in
-all cases.
+I got the following report while doing device(mt6370-tcpc) load
+test with CONFIG_OF_UNITTEST and CONFIG_OF_DYNAMIC enabled:
 
-Commit  239071064732 ("partially Revert "usb: musb: Set the DT node on the
-child device"") broke probing for SoCs using ti-sysc interconnect target
-module as the dt node is not found.
+  OF: ERROR: memory leak, expected refcount 1 instead of 2,
+  of_node_get()/of_node_put() unbalanced - destroy cset entry:
+  attach overlay node /i2c/pmic@34
 
-Commit a1a2b7125e10 ("of/platform: Drop static setup of IRQ resource from
-DT core") caused omap3 to fail with error "-ENXIO: IRQ mc not found" as
-the IRQ resources are no longer automatically populated from devicetree.
+The 'parent' returned by fwnode_get_parent() with refcount incremented.
+it needs be put after using.
 
-Let's fix the issues by calling device_set_of_node_from_dev() only if the
-SoC has been updated to probe with ti-sysc. And for legacy SoCs, let's
-populate the resources manually as needed.
-
-Note that once we have updated the SoCs to probe with proper devicetree
-data in all cases, this is no longer needed. But doing that requires
-patching both devicetree and SoC code, so let's fix the probe issues first.
-
-Fixes: a1a2b7125e10 ("of/platform: Drop static setup of IRQ resource from DT core")
-Fixes: 239071064732 ("partially Revert "usb: musb: Set the DT node on the child device"")
-Cc: H. Nikolaus Schaller <hns@goldelico.com>
-Reported-by: Sicelo Mhlongo <absicsz@gmail.com>
-Tested-by: Sicelo Mhlongo <absicsz@gmail.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20221118102532.34458-1-tony@atomide.com
+Fixes: 6fadd72943b8 ("usb: roles: get usb-role-switch from parent")
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221122111226.251588-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/musb/omap2430.c | 54 +++++++++++++++++++++++++++++++++++++
- 1 file changed, 54 insertions(+)
+ drivers/usb/roles/class.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/musb/omap2430.c b/drivers/usb/musb/omap2430.c
-index f571a65ae6ee..476f55d1fec3 100644
---- a/drivers/usb/musb/omap2430.c
-+++ b/drivers/usb/musb/omap2430.c
-@@ -15,6 +15,7 @@
- #include <linux/list.h>
- #include <linux/io.h>
- #include <linux/of.h>
-+#include <linux/of_irq.h>
- #include <linux/platform_device.h>
- #include <linux/dma-mapping.h>
- #include <linux/pm_runtime.h>
-@@ -310,6 +311,7 @@ static int omap2430_probe(struct platform_device *pdev)
- 	struct device_node		*control_node;
- 	struct platform_device		*control_pdev;
- 	int				ret = -ENOMEM, val;
-+	bool				populate_irqs = false;
+diff --git a/drivers/usb/roles/class.c b/drivers/usb/roles/class.c
+index dfaed7eee94f..32e6d19f7011 100644
+--- a/drivers/usb/roles/class.c
++++ b/drivers/usb/roles/class.c
+@@ -106,10 +106,13 @@ usb_role_switch_is_parent(struct fwnode_handle *fwnode)
+ 	struct fwnode_handle *parent = fwnode_get_parent(fwnode);
+ 	struct device *dev;
  
- 	if (!np)
- 		return -ENODEV;
-@@ -328,6 +330,18 @@ static int omap2430_probe(struct platform_device *pdev)
- 	musb->dev.dma_mask		= &omap2430_dmamask;
- 	musb->dev.coherent_dma_mask	= omap2430_dmamask;
- 
-+	/*
-+	 * Legacy SoCs using omap_device get confused if node is moved
-+	 * because of interconnect properties mixed into the node.
-+	 */
-+	if (of_get_property(np, "ti,hwmods", NULL)) {
-+		dev_warn(&pdev->dev, "please update to probe with ti-sysc\n");
-+		populate_irqs = true;
-+	} else {
-+		device_set_of_node_from_dev(&musb->dev, &pdev->dev);
+-	if (!parent || !fwnode_property_present(parent, "usb-role-switch"))
++	if (!fwnode_property_present(parent, "usb-role-switch")) {
++		fwnode_handle_put(parent);
+ 		return NULL;
 +	}
-+	of_node_put(np);
-+
- 	glue->dev			= &pdev->dev;
- 	glue->musb			= musb;
- 	glue->status			= MUSB_UNKNOWN;
-@@ -389,6 +403,46 @@ static int omap2430_probe(struct platform_device *pdev)
- 		goto err2;
- 	}
  
-+	if (populate_irqs) {
-+		struct resource musb_res[3];
-+		struct resource *res;
-+		int i = 0;
-+
-+		memset(musb_res, 0, sizeof(*musb_res) * ARRAY_SIZE(musb_res));
-+
-+		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+		if (!res)
-+			goto err2;
-+
-+		musb_res[i].start = res->start;
-+		musb_res[i].end = res->end;
-+		musb_res[i].flags = res->flags;
-+		musb_res[i].name = res->name;
-+		i++;
-+
-+		ret = of_irq_get_byname(np, "mc");
-+		if (ret > 0) {
-+			musb_res[i].start = ret;
-+			musb_res[i].flags = IORESOURCE_IRQ;
-+			musb_res[i].name = "mc";
-+			i++;
-+		}
-+
-+		ret = of_irq_get_byname(np, "dma");
-+		if (ret > 0) {
-+			musb_res[i].start = ret;
-+			musb_res[i].flags = IORESOURCE_IRQ;
-+			musb_res[i].name = "dma";
-+			i++;
-+		}
-+
-+		ret = platform_device_add_resources(musb, musb_res, i);
-+		if (ret) {
-+			dev_err(&pdev->dev, "failed to add IRQ resources\n");
-+			goto err2;
-+		}
-+	}
-+
- 	ret = platform_device_add_data(musb, pdata, sizeof(*pdata));
- 	if (ret) {
- 		dev_err(&pdev->dev, "failed to add platform_data\n");
+ 	dev = class_find_device_by_fwnode(role_class, parent);
++	fwnode_handle_put(parent);
+ 	return dev ? to_role_switch(dev) : ERR_PTR(-EPROBE_DEFER);
+ }
+ 
 -- 
 2.35.1
 
