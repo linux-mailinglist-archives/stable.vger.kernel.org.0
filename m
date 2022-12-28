@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 866F0657A0F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:07:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C60B65790A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:56:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233587AbiL1PHY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:07:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55052 "EHLO
+        id S233276AbiL1O45 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:56:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233588AbiL1PHX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:07:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B69C613D7C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:07:22 -0800 (PST)
+        with ESMTP id S233278AbiL1O44 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:56:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32702DF1
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:56:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5351A61541
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:07:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BE94C433D2;
-        Wed, 28 Dec 2022 15:07:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BDA72614B2
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:56:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0CE7C433D2;
+        Wed, 28 Dec 2022 14:56:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240041;
-        bh=omBc3ScJUWtsOWSPluRFNtly+g4OLl7z5Xs4Hj3y6IQ=;
+        s=korg; t=1672239414;
+        bh=BI81VsQgUesnbRAeUXPSJMeE4jCEZUlWXKKX1VZNNp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MA7A7FNcVo2XhAayOFlVu72AKs9mbumOS9vwuMENF39Ddnpp1p84K+dMyVkOHkw/f
-         v2UlympR9CIuG3fCiJ2CR2llvcVJCsKJmqh/J9ZrBIYp7TDfhUaG9jJfYu9ldOilxn
-         FG5qHa2/jR7zqfNbFM4fiolgfQsJRFd+TYQN2CyI=
+        b=rQv/ZUpNVoGZw3QUw+nLEJdA5XLkygW5pUU6NjkjWGCFzEdee1jf3Br79D1U54gQh
+         SYlB+h2+vo8wqXS5A/FMBpuBNgTzi6w53GrCz74sTdlfMhzH2bW0ebRzX76ARj/tX2
+         yOI6Q6MCA5QiSD3zWqipPo/qUo9LRvnzl0mkkzW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0074/1146] arm64: dts: mt2712-evb: Fix vproc fixed regulators unit names
+        patches@lists.linux.dev, Chen Jiahao <chenjiahao16@huawei.com>,
+        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0025/1073] drivers: soc: ti: knav_qmss_queue: Mark knav_acc_firmwares as static
 Date:   Wed, 28 Dec 2022 15:26:53 +0100
-Message-Id: <20221228144332.162789696@linuxfoundation.org>
+Message-Id: <20221228144328.833462049@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Chen Jiahao <chenjiahao16@huawei.com>
 
-[ Upstream commit 377063156893bf6c088309ac799fe5c6dce2822d ]
+[ Upstream commit adf85adc2a7199b41e7a4da083bd17274a3d6969 ]
 
-Update the names to regulator-vproc-buck{0,1} to fix unit_addres_vs_reg
-warnings for those.
+There is a sparse warning shown below:
 
-Fixes: f75dd8bdd344 ("arm64: dts: mediatek: add mt2712 cpufreq related device nodes")
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20221013152212.416661-6-angelogioacchino.delregno@collabora.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+drivers/soc/ti/knav_qmss_queue.c:70:12: warning: symbol
+'knav_acc_firmwares' was not declared. Should it be static?
+
+Since 'knav_acc_firmwares' is only called within knav_qmss_queue.c,
+mark it as static to fix the warning.
+
+Fixes: 96ee19becc3b ("soc: ti: add firmware file name as part of the driver")
+Signed-off-by: Chen Jiahao <chenjiahao16@huawei.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Link: https://lore.kernel.org/r/20221019153212.72350-1-chenjiahao16@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/mt2712-evb.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/soc/ti/knav_qmss_queue.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt2712-evb.dts b/arch/arm64/boot/dts/mediatek/mt2712-evb.dts
-index 9b1af9c80130..638908773706 100644
---- a/arch/arm64/boot/dts/mediatek/mt2712-evb.dts
-+++ b/arch/arm64/boot/dts/mediatek/mt2712-evb.dts
-@@ -26,14 +26,14 @@ chosen {
- 		stdout-path = "serial0:921600n8";
- 	};
+diff --git a/drivers/soc/ti/knav_qmss_queue.c b/drivers/soc/ti/knav_qmss_queue.c
+index 92af7d1b6f5b..16a6d530a0d4 100644
+--- a/drivers/soc/ti/knav_qmss_queue.c
++++ b/drivers/soc/ti/knav_qmss_queue.c
+@@ -67,7 +67,7 @@ static DEFINE_MUTEX(knav_dev_lock);
+  * Newest followed by older ones. Search is done from start of the array
+  * until a firmware file is found.
+  */
+-const char *knav_acc_firmwares[] = {"ks2_qmss_pdsp_acc48.bin"};
++static const char * const knav_acc_firmwares[] = {"ks2_qmss_pdsp_acc48.bin"};
  
--	cpus_fixed_vproc0: fixedregulator@0 {
-+	cpus_fixed_vproc0: regulator-vproc-buck0 {
- 		compatible = "regulator-fixed";
- 		regulator-name = "vproc_buck0";
- 		regulator-min-microvolt = <1000000>;
- 		regulator-max-microvolt = <1000000>;
- 	};
- 
--	cpus_fixed_vproc1: fixedregulator@1 {
-+	cpus_fixed_vproc1: regulator-vproc-buck1 {
- 		compatible = "regulator-fixed";
- 		regulator-name = "vproc_buck1";
- 		regulator-min-microvolt = <1000000>;
+ static bool device_ready;
+ bool knav_qmss_device_ready(void)
 -- 
 2.35.1
 
