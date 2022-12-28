@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CFC1657F06
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:00:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F8E76584D0
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:03:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232935AbiL1QAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:00:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47084 "EHLO
+        id S234947AbiL1RDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:03:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232658AbiL1QAU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:00:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2958A18E23
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:00:19 -0800 (PST)
+        with ESMTP id S235358AbiL1RCi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:02:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF0F720F64
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:56:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B8AA9613E9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:00:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9E6AC433D2;
-        Wed, 28 Dec 2022 16:00:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 51E02B81707
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:56:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B54CC433D2;
+        Wed, 28 Dec 2022 16:56:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243218;
-        bh=t5mGLbpNT5DCWhg/P4ibk1NCU+6t0ogggYFa2OyyLpk=;
+        s=korg; t=1672246588;
+        bh=xadfa5UUa/VvR7/Q+w8xXinb6FW7rp5NXKRfhIxiI8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=im7AXQPVKA02GalvAN4m5rBbG6n943+uRFZBl9MH8sraQ/EZfaOJdD/GAeTa64DQn
-         l5oQDIeY4frSBTb1Eep03qQxl9qTHZmsxf+hkjo1HtWwZuUcNHe/J/zg+eULc8MTb/
-         ugj3NzUmGmDurxt6shiil/3fqryaxlfZ2EOoMAfE=
+        b=RbyxinK/0SwTatGs7zkjrpsSZ19pejoAsPQzTDCegHOuIM9fDUXupT3Rshvi/CSMj
+         lQwDqo9Mf2b1XUf3tP+Owgl61QluRs8t7zyehB6EHbHPxa+ZHDWdpEhaxVhk7pm/+d
+         WHufqiKCLNMc4t2f81iFz+lb7ILCD9802/NWUIBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Imre Deak <imre.deak@intel.com>,
-        Clint Taylor <clinton.a.taylor@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Khaled Almahallawy <khaled.almahallawy@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Mike Marshall <hubcap@omnibond.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 696/731] drm/i915/display: Dont disable DDI/Transcoder when setting phy test pattern
+Subject: [PATCH 6.1 1064/1146] orangefs: Fix kmemleak in orangefs_{kernel,client}_debug_init()
 Date:   Wed, 28 Dec 2022 15:43:23 +0100
-Message-Id: <20221228144316.639314377@linuxfoundation.org>
+Message-Id: <20221228144359.170809503@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,119 +53,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Khaled Almahallawy <khaled.almahallawy@intel.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit 3153eebb7a76e663ac76d6670dc113296de96622 ]
+[ Upstream commit 31720a2b109b3080eb77e97b8f6f50a27b4ae599 ]
 
-Bspecs has updated recently to remove the restriction to disable
-DDI/Transcoder before setting PHY test pattern. This update is to
-address PHY compliance test failures observed on a port with LTTPR.
-The issue is that when Transc. is disabled, the main link signals fed
-to LTTPR will be dropped invalidating link training, which will affect
-the quality of the phy test pattern when the transcoder is enabled again.
+When insert and remove the orangefs module, there are memory leaked
+as below:
 
-v2: Update commit message (Clint)
-v3: Add missing Signed-off in v2
-v4: Update Bspec and commit message for pre-gen12 (Jani)
+unreferenced object 0xffff88816b0cc000 (size 2048):
+  comm "insmod", pid 783, jiffies 4294813439 (age 65.512s)
+  hex dump (first 32 bytes):
+    6e 6f 6e 65 0a 00 00 00 00 00 00 00 00 00 00 00  none............
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<0000000031ab7788>] kmalloc_trace+0x27/0xa0
+    [<000000005b405fee>] orangefs_debugfs_init.cold+0xaf/0x17f
+    [<00000000e5a0085b>] 0xffffffffa02780f9
+    [<000000004232d9f7>] do_one_initcall+0x87/0x2a0
+    [<0000000054f22384>] do_init_module+0xdf/0x320
+    [<000000003263bdea>] load_module+0x2f98/0x3330
+    [<0000000052cd4153>] __do_sys_finit_module+0x113/0x1b0
+    [<00000000250ae02b>] do_syscall_64+0x35/0x80
+    [<00000000f11c03c7>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-Bspec: 50482, 7555
-Fixes: 8cdf72711928 ("drm/i915/dp: Program vswing, pre-emphasis, test-pattern")
-Cc: Imre Deak <imre.deak@intel.com>
-Cc: Clint Taylor <clinton.a.taylor@intel.com>
-CC: Jani Nikula <jani.nikula@intel.com>
-Tested-by: Khaled Almahallawy <khaled.almahallawy@intel.com>
-Reviewed-by: Clint Taylor <clinton.a.taylor@intel.com>
-Signed-off-by: Khaled Almahallawy <khaled.almahallawy@intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221123220926.170034-1-khaled.almahallawy@intel.com
-(cherry picked from commit be4a847652056b067d6dc6fe0fc024a9e2e987ca)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Use the golbal variable as the buffer rather than dynamic allocate to
+slove the problem.
+
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Mike Marshall <hubcap@omnibond.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_dp.c | 59 -------------------------
- 1 file changed, 59 deletions(-)
+ fs/orangefs/orangefs-debugfs.c | 26 +++-----------------------
+ 1 file changed, 3 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
-index 1ccdf2da042b..64a15b636e8d 100644
---- a/drivers/gpu/drm/i915/display/intel_dp.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp.c
-@@ -3245,61 +3245,6 @@ static void intel_dp_phy_pattern_update(struct intel_dp *intel_dp,
- 	}
+diff --git a/fs/orangefs/orangefs-debugfs.c b/fs/orangefs/orangefs-debugfs.c
+index a848b6ef9599..1b508f543384 100644
+--- a/fs/orangefs/orangefs-debugfs.c
++++ b/fs/orangefs/orangefs-debugfs.c
+@@ -194,15 +194,10 @@ void orangefs_debugfs_init(int debug_mask)
+  */
+ static void orangefs_kernel_debug_init(void)
+ {
+-	int rc = -ENOMEM;
+-	char *k_buffer = NULL;
++	static char k_buffer[ORANGEFS_MAX_DEBUG_STRING_LEN] = { };
+ 
+ 	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: start\n", __func__);
+ 
+-	k_buffer = kzalloc(ORANGEFS_MAX_DEBUG_STRING_LEN, GFP_KERNEL);
+-	if (!k_buffer)
+-		goto out;
+-
+ 	if (strlen(kernel_debug_string) + 1 < ORANGEFS_MAX_DEBUG_STRING_LEN) {
+ 		strcpy(k_buffer, kernel_debug_string);
+ 		strcat(k_buffer, "\n");
+@@ -213,9 +208,6 @@ static void orangefs_kernel_debug_init(void)
+ 
+ 	debugfs_create_file(ORANGEFS_KMOD_DEBUG_FILE, 0444, debug_dir, k_buffer,
+ 			    &kernel_debug_fops);
+-
+-out:
+-	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: rc:%d:\n", __func__, rc);
  }
  
--static void
--intel_dp_autotest_phy_ddi_disable(struct intel_dp *intel_dp,
--				  const struct intel_crtc_state *crtc_state)
--{
--	struct intel_digital_port *dig_port = dp_to_dig_port(intel_dp);
--	struct drm_device *dev = dig_port->base.base.dev;
--	struct drm_i915_private *dev_priv = to_i915(dev);
--	struct intel_crtc *crtc = to_intel_crtc(dig_port->base.base.crtc);
--	enum pipe pipe = crtc->pipe;
--	u32 trans_ddi_func_ctl_value, trans_conf_value, dp_tp_ctl_value;
--
--	trans_ddi_func_ctl_value = intel_de_read(dev_priv,
--						 TRANS_DDI_FUNC_CTL(pipe));
--	trans_conf_value = intel_de_read(dev_priv, PIPECONF(pipe));
--	dp_tp_ctl_value = intel_de_read(dev_priv, TGL_DP_TP_CTL(pipe));
--
--	trans_ddi_func_ctl_value &= ~(TRANS_DDI_FUNC_ENABLE |
--				      TGL_TRANS_DDI_PORT_MASK);
--	trans_conf_value &= ~PIPECONF_ENABLE;
--	dp_tp_ctl_value &= ~DP_TP_CTL_ENABLE;
--
--	intel_de_write(dev_priv, PIPECONF(pipe), trans_conf_value);
--	intel_de_write(dev_priv, TRANS_DDI_FUNC_CTL(pipe),
--		       trans_ddi_func_ctl_value);
--	intel_de_write(dev_priv, TGL_DP_TP_CTL(pipe), dp_tp_ctl_value);
--}
--
--static void
--intel_dp_autotest_phy_ddi_enable(struct intel_dp *intel_dp,
--				 const struct intel_crtc_state *crtc_state)
--{
--	struct intel_digital_port *dig_port = dp_to_dig_port(intel_dp);
--	struct drm_device *dev = dig_port->base.base.dev;
--	struct drm_i915_private *dev_priv = to_i915(dev);
--	enum port port = dig_port->base.port;
--	struct intel_crtc *crtc = to_intel_crtc(dig_port->base.base.crtc);
--	enum pipe pipe = crtc->pipe;
--	u32 trans_ddi_func_ctl_value, trans_conf_value, dp_tp_ctl_value;
--
--	trans_ddi_func_ctl_value = intel_de_read(dev_priv,
--						 TRANS_DDI_FUNC_CTL(pipe));
--	trans_conf_value = intel_de_read(dev_priv, PIPECONF(pipe));
--	dp_tp_ctl_value = intel_de_read(dev_priv, TGL_DP_TP_CTL(pipe));
--
--	trans_ddi_func_ctl_value |= TRANS_DDI_FUNC_ENABLE |
--				    TGL_TRANS_DDI_SELECT_PORT(port);
--	trans_conf_value |= PIPECONF_ENABLE;
--	dp_tp_ctl_value |= DP_TP_CTL_ENABLE;
--
--	intel_de_write(dev_priv, PIPECONF(pipe), trans_conf_value);
--	intel_de_write(dev_priv, TGL_DP_TP_CTL(pipe), dp_tp_ctl_value);
--	intel_de_write(dev_priv, TRANS_DDI_FUNC_CTL(pipe),
--		       trans_ddi_func_ctl_value);
--}
--
- static void intel_dp_process_phy_request(struct intel_dp *intel_dp,
- 					 const struct intel_crtc_state *crtc_state)
+ 
+@@ -299,18 +291,13 @@ static int help_show(struct seq_file *m, void *v)
+ /*
+  * initialize the client-debug file.
+  */
+-static int orangefs_client_debug_init(void)
++static void orangefs_client_debug_init(void)
  {
-@@ -3317,14 +3262,10 @@ static void intel_dp_process_phy_request(struct intel_dp *intel_dp,
- 	intel_dp_get_adjust_train(intel_dp, crtc_state, DP_PHY_DPRX,
- 				  link_status);
  
--	intel_dp_autotest_phy_ddi_disable(intel_dp, crtc_state);
+-	int rc = -ENOMEM;
+-	char *c_buffer = NULL;
++	static char c_buffer[ORANGEFS_MAX_DEBUG_STRING_LEN] = { };
+ 
+ 	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: start\n", __func__);
+ 
+-	c_buffer = kzalloc(ORANGEFS_MAX_DEBUG_STRING_LEN, GFP_KERNEL);
+-	if (!c_buffer)
+-		goto out;
 -
- 	intel_dp_set_signal_levels(intel_dp, crtc_state, DP_PHY_DPRX);
- 
- 	intel_dp_phy_pattern_update(intel_dp, crtc_state);
- 
--	intel_dp_autotest_phy_ddi_enable(intel_dp, crtc_state);
+ 	if (strlen(client_debug_string) + 1 < ORANGEFS_MAX_DEBUG_STRING_LEN) {
+ 		strcpy(c_buffer, client_debug_string);
+ 		strcat(c_buffer, "\n");
+@@ -324,13 +311,6 @@ static int orangefs_client_debug_init(void)
+ 						  debug_dir,
+ 						  c_buffer,
+ 						  &kernel_debug_fops);
 -
- 	drm_dp_dpcd_write(&intel_dp->aux, DP_TRAINING_LANE0_SET,
- 			  intel_dp->train_set, crtc_state->lane_count);
+-	rc = 0;
+-
+-out:
+-
+-	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: rc:%d:\n", __func__, rc);
+-	return rc;
+ }
  
+ /* open ORANGEFS_KMOD_DEBUG_FILE or ORANGEFS_CLIENT_DEBUG_FILE.*/
 -- 
 2.35.1
 
