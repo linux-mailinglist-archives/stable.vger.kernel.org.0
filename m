@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62D7765818F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:29:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6095E658190
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:29:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234651AbiL1Q3b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:29:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48568 "EHLO
+        id S234725AbiL1Q3i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:29:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234683AbiL1Q3K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:29:10 -0500
+        with ESMTP id S234727AbiL1Q3P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:29:15 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8D111ADB4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:25:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20BC21ADAD
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:25:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 87E306157B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:25:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 966C9C433D2;
-        Wed, 28 Dec 2022 16:25:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B4ACA6157E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:25:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C734BC433F0;
+        Wed, 28 Dec 2022 16:25:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244722;
-        bh=2q1vrMX8UCs1gsDCdclOCLM0Gx3S0BaTH5j2LUQGrb8=;
+        s=korg; t=1672244727;
+        bh=2XWfSZYbI6YoClcn96G8jqeqoBYnucAK5ZLC7NSZHsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2UtS2SUPizQf4M46EyAGtdt1XgbT6uiCRBHGofEwCahvhl1oH/2IvWJ7qvt10xQO4
-         xhlUgyo7zCe3QRLRxrhK7tIJMQ3WZyt5bJluMq5NwACjBX0tUHcvOwp0STMg9jJT7Z
-         FrnyPbH8C3tnfkVNvLJYcDapRcbs64bYVY06QvOI=
+        b=FcbaGDvgiPAWd0fCw8IFQKtep/MGlEaG0icGpFlB/le/A/VFz8OrM4j/mIMdzN/ow
+         xfvxoOQcC0sKLCHww7vtVTh5quZHxa0MS9o6ueTw/rIYHtCeQj9jpq+SqbVwQ+cuD/
+         P3gL0D0PizDqkGYfpJUROlozmC4/pZtzq+uk0xCA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Yang Shen <shenyang39@huawei.com>,
+        patches@lists.linux.dev, Mike Leach <mike.leach@linaro.org>,
         Suzuki K Poulose <suzuki.poulose@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0725/1146] coresight: trbe: remove cpuhp instance node before remove cpuhp state
-Date:   Wed, 28 Dec 2022 15:37:44 +0100
-Message-Id: <20221228144349.837683915@linuxfoundation.org>
+Subject: [PATCH 6.1 0726/1146] coresight: cti: Fix null pointer error on CTI init before ETM
+Date:   Wed, 28 Dec 2022 15:37:45 +0100
+Message-Id: <20221228144349.864572847@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -55,59 +53,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Shen <shenyang39@huawei.com>
+From: Mike Leach <mike.leach@linaro.org>
 
-[ Upstream commit 20ee8c223f792947378196307d8e707c9cdc2d61 ]
+[ Upstream commit 3dc228b35387803d9c43ed1b098aabb1d3ae9c7d ]
 
-cpuhp_state_add_instance() and cpuhp_state_remove_instance() should
-be used in pairs. Or there will lead to the warn on
-cpuhp_remove_multi_state() since the cpuhp_step list is not empty.
+When CTI is discovered first then the function
+coresight_set_assoc_ectdev_mutex() is called to set the association
+between CTI and ETM device. Recent lockdep fix passes a null pointer.
 
-The following is the error log with 'rmmod coresight-trbe':
-Error: Removing state 215 which has instances left.
-Call trace:
-  __cpuhp_remove_state_cpuslocked+0x144/0x160
-  __cpuhp_remove_state+0xac/0x100
-  arm_trbe_device_remove+0x2c/0x60 [coresight_trbe]
-  platform_remove+0x34/0x70
-  device_remove+0x54/0x90
-  device_release_driver_internal+0x1e4/0x250
-  driver_detach+0x5c/0xb0
-  bus_remove_driver+0x64/0xc0
-  driver_unregister+0x3c/0x70
-  platform_driver_unregister+0x20/0x30
-  arm_trbe_exit+0x1c/0x658 [coresight_trbe]
-  __arm64_sys_delete_module+0x1ac/0x24c
-  invoke_syscall+0x50/0x120
-  el0_svc_common.constprop.0+0x58/0x1a0
-  do_el0_svc+0x38/0xd0
-  el0_svc+0x2c/0xc0
-  el0t_64_sync_handler+0x1ac/0x1b0
-  el0t_64_sync+0x19c/0x1a0
- ---[ end trace 0000000000000000 ]---
+This patch passes the correct pointer.
 
-Fixes: 3fbf7f011f24 ("coresight: sink: Add TRBE driver")
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Signed-off-by: Yang Shen <shenyang39@huawei.com>
+Before patch: log of boot oops sequence with CTI discovered first:
+
+[   12.424091]  cs_system_cfg: CoreSight Configuration manager initialised
+[   12.483474] coresight cti_sys0: CTI initialized
+[   12.488109] coresight cti_sys1: CTI initialized
+[   12.503594] coresight cti_cpu0: CTI initialized
+[   12.517877] coresight-cpu-debug 850000.debug: Coresight debug-CPU0 initialized
+[   12.523479] coresight-cpu-debug 852000.debug: Coresight debug-CPU1 initialized
+[   12.529926] coresight-cpu-debug 854000.debug: Coresight debug-CPU2 initialized
+[   12.541808] coresight stm0: STM32 initialized
+[   12.544421] coresight-cpu-debug 856000.debug: Coresight debug-CPU3 initialized
+[   12.585639] coresight cti_cpu1: CTI initialized
+[   12.614028] coresight cti_cpu2: CTI initialized
+[   12.631679] CSCFG registered etm0
+[   12.633920] coresight etm0: CPU0: etm v4.0 initialized
+[   12.656392] coresight cti_cpu3: CTI initialized
+
+...
+
+[   12.708383] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000348
+
+...
+
+[   12.755094] Internal error: Oops: 0000000096000044 [#1] SMP
+[   12.761817] Modules linked in: coresight_etm4x(+) coresight_tmc coresight_cpu_debug coresight_replicator coresight_funnel coresight_cti coresight_tpiu coresight_stm coresight
+[   12.767210] CPU: 3 PID: 1346 Comm: systemd-udevd Not tainted 6.1.0-rc3tid-v6tid-v6-235166-gf7f7d7a2204a-dirty #498
+[   12.782827] Hardware name: Qualcomm Technologies, Inc. APQ 8016 SBC (DT)
+[   12.793154] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[   12.800010] pc : coresight_set_assoc_ectdev_mutex+0x30/0x50 [coresight]
+[   12.806694] lr : coresight_set_assoc_ectdev_mutex+0x30/0x50 [coresight]
+
+...
+
+[   12.885064] Call trace:
+[   12.892352]  coresight_set_assoc_ectdev_mutex+0x30/0x50 [coresight]
+[   12.894693]  cti_add_assoc_to_csdev+0x144/0x1b0 [coresight_cti]
+[   12.900943]  coresight_register+0x2c8/0x320 [coresight]
+[   12.906844]  etm4_add_coresight_dev.isra.27+0x148/0x280 [coresight_etm4x]
+[   12.912056]  etm4_probe+0x144/0x1c0 [coresight_etm4x]
+[   12.918998]  etm4_probe_amba+0x40/0x78 [coresight_etm4x]
+[   12.924032]  amba_probe+0x11c/0x1f0
+
+After patch: similar log
+
+[   12.444467]  cs_system_cfg: CoreSight Configuration manager initialised
+[   12.456329] coresight-cpu-debug 850000.debug: Coresight debug-CPU0 initialized
+[   12.456754] coresight-cpu-debug 852000.debug: Coresight debug-CPU1 initialized
+[   12.469672] coresight-cpu-debug 854000.debug: Coresight debug-CPU2 initialized
+[   12.476098] coresight-cpu-debug 856000.debug: Coresight debug-CPU3 initialized
+[   12.532409] coresight stm0: STM32 initialized
+[   12.533708] coresight cti_sys0: CTI initialized
+[   12.539478] coresight cti_sys1: CTI initialized
+[   12.550106] coresight cti_cpu0: CTI initialized
+[   12.633931] coresight cti_cpu1: CTI initialized
+[   12.634664] coresight cti_cpu2: CTI initialized
+[   12.638090] coresight cti_cpu3: CTI initialized
+[   12.721136] CSCFG registered etm0
+
+...
+
+[   12.762643] CSCFG registered etm1
+[   12.762666] coresight etm1: CPU1: etm v4.0 initialized
+[   12.776258] CSCFG registered etm2
+[   12.776282] coresight etm2: CPU2: etm v4.0 initialized
+[   12.784357] CSCFG registered etm3
+[   12.785455] coresight etm3: CPU3: etm v4.0 initialized
+
+Error can also be triggered by manually starting the modules using modprobe
+in the following order:
+
+root@linaro-developer:/home/linaro/cs-mods# modprobe coresight
+root@linaro-developer:/home/linaro/cs-mods# modprobe coresight-cti
+root@linaro-developer:/home/linaro/cs-mods# modprobe coresight-etm4x
+
+Tested on Dragonboard DB410c
+Applies to coresight/next
+
+Fixes: 23722fb46725 ("coresight: Fix possible deadlock with lock dependency")
+Signed-off-by: Mike Leach <mike.leach@linaro.org>
 Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Link: https://lore.kernel.org/r/20221122090355.23533-1-shenyang39@huawei.com
+Link: https://lore.kernel.org/r/20221123193818.6253-1-mike.leach@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/coresight/coresight-trbe.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hwtracing/coresight/coresight-cti-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwtracing/coresight/coresight-trbe.c b/drivers/hwtracing/coresight/coresight-trbe.c
-index 2b386bb848f8..1fc4fd79a1c6 100644
---- a/drivers/hwtracing/coresight/coresight-trbe.c
-+++ b/drivers/hwtracing/coresight/coresight-trbe.c
-@@ -1434,6 +1434,7 @@ static int arm_trbe_probe_cpuhp(struct trbe_drvdata *drvdata)
- 
- static void arm_trbe_remove_cpuhp(struct trbe_drvdata *drvdata)
- {
-+	cpuhp_state_remove_instance(drvdata->trbe_online, &drvdata->hotplug_node);
- 	cpuhp_remove_multi_state(drvdata->trbe_online);
- }
- 
+diff --git a/drivers/hwtracing/coresight/coresight-cti-core.c b/drivers/hwtracing/coresight/coresight-cti-core.c
+index c6e8c6542f24..d2cf4f4848e1 100644
+--- a/drivers/hwtracing/coresight/coresight-cti-core.c
++++ b/drivers/hwtracing/coresight/coresight-cti-core.c
+@@ -564,7 +564,7 @@ static void cti_add_assoc_to_csdev(struct coresight_device *csdev)
+ 			 * if we found a matching csdev then update the ECT
+ 			 * association pointer for the device with this CTI.
+ 			 */
+-			coresight_set_assoc_ectdev_mutex(csdev->ect_dev,
++			coresight_set_assoc_ectdev_mutex(csdev,
+ 							 ect_item->csdev);
+ 			break;
+ 		}
 -- 
 2.35.1
 
