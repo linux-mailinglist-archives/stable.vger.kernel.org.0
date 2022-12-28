@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39FF8658436
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:56:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D2C46584BA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:01:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235034AbiL1QzW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:55:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46852 "EHLO
+        id S234274AbiL1RBL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:01:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232974AbiL1Qy4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:54:56 -0500
+        with ESMTP id S235461AbiL1RA0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:00:26 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FBED1EAF5
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:49:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E453621831
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:55:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 23212B8188D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:49:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66C81C433D2;
-        Wed, 28 Dec 2022 16:49:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF38AB8188B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:55:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67906C433F0;
+        Wed, 28 Dec 2022 16:55:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246185;
-        bh=6gnQhmIdBmF6JNfN99H/3Ivsv7fp+DBKABhVpVZqLSM=;
+        s=korg; t=1672246540;
+        bh=p7M17QtkOfpTjx07OtOQxCfBZ+sTL5g2qbbgrrpU2RM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O88LKliQDLDo5gtArI7W4VSiQnV6/IfkHWkcwTCrkX6JS23wuTUGgvwZ4wiPrJKdu
-         eAFK0WZUJdasu46s5RP9wcFedQzM+M/GCtVs04ei95yvNF9VzG27y8KXaJFThDogu0
-         0o55lHRQiKFpiyhkwov1teSa1LV6T3Xca2j/U/6A=
+        b=PXfY98ZDIeNQ/GQkXwjs1fzUkIBvc5nz4KbpcSnJb4BoNF+ScCAbA3kJAoGLv+loI
+         FRNn77DDTd5PBfnTMwTH1jwd/pYPrUEUSO+4mZSE8OyLYGkXsumCk6JtEAFbj4Tvnv
+         cDUgjRNVT2uMty2W1OGQaux1EuaE24m1fqOYSR/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeff LaBundy <jeff@labundy.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        patches@lists.linux.dev,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 1026/1073] Input: iqs7222 - trim force communication command
+Subject: [PATCH 6.1 1075/1146] ASoC: wm8994: Fix potential deadlock
 Date:   Wed, 28 Dec 2022 15:43:34 +0100
-Message-Id: <20221228144356.059597201@linuxfoundation.org>
+Message-Id: <20221228144359.430818324@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff LaBundy <jeff@labundy.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 10e629d31aacb2348a1e9110c31a29e98b31ce38 ]
+[ Upstream commit 9529dc167ffcdfd201b9f0eda71015f174095f7e ]
 
-According to the datasheets, writing only 0xFF is sufficient to
-elicit a communication window. Remove the superfluous 0x00 from
-the force communication command.
+Fix this by dropping wm8994->accdet_lock while calling
+cancel_delayed_work_sync(&wm8994->mic_work) in wm1811_jackdet_irq().
 
-Fixes: e505edaedcb9 ("Input: add support for Azoteq IQS7222A/B/C")
-Signed-off-by: Jeff LaBundy <jeff@labundy.com>
-Link: https://lore.kernel.org/r/20220908131548.48120-6-jeff@labundy.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: c0cc3f166525 ("ASoC: wm8994: Allow a delay between jack insertion and microphone detect")
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20221209091657.1183-1-m.szyprowski@samsung.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/misc/iqs7222.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/wm8994.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/input/misc/iqs7222.c b/drivers/input/misc/iqs7222.c
-index 0b2bf471b3a0..6af25dfd1d2a 100644
---- a/drivers/input/misc/iqs7222.c
-+++ b/drivers/input/misc/iqs7222.c
-@@ -1077,7 +1077,7 @@ static int iqs7222_hard_reset(struct iqs7222_private *iqs7222)
+diff --git a/sound/soc/codecs/wm8994.c b/sound/soc/codecs/wm8994.c
+index d3cfd3788f2a..8fe9a75d1235 100644
+--- a/sound/soc/codecs/wm8994.c
++++ b/sound/soc/codecs/wm8994.c
+@@ -3853,7 +3853,12 @@ static irqreturn_t wm1811_jackdet_irq(int irq, void *data)
+ 	} else {
+ 		dev_dbg(component->dev, "Jack not detected\n");
  
- static int iqs7222_force_comms(struct iqs7222_private *iqs7222)
- {
--	u8 msg_buf[] = { 0xFF, 0x00, };
-+	u8 msg_buf[] = { 0xFF, };
- 	int ret;
++		/* Release wm8994->accdet_lock to avoid deadlock:
++		 * cancel_delayed_work_sync() takes wm8994->mic_work internal
++		 * lock and wm1811_mic_work takes wm8994->accdet_lock */
++		mutex_unlock(&wm8994->accdet_lock);
+ 		cancel_delayed_work_sync(&wm8994->mic_work);
++		mutex_lock(&wm8994->accdet_lock);
  
- 	/*
+ 		snd_soc_component_update_bits(component, WM8958_MICBIAS2,
+ 				    WM8958_MICB2_DISCH, WM8958_MICB2_DISCH);
 -- 
 2.35.1
 
