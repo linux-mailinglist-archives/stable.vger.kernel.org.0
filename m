@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96314658268
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:36:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E10B658172
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:28:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234459AbiL1QfX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:35:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53718 "EHLO
+        id S233382AbiL1Q2k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:28:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234154AbiL1QeS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:34:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1F0C1CB18
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:31:44 -0800 (PST)
+        with ESMTP id S234632AbiL1Q2U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:28:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0B63FD38
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:24:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8074B61572
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:31:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97A22C433F0;
-        Wed, 28 Dec 2022 16:31:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 60C67B81717
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:24:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C643AC433D2;
+        Wed, 28 Dec 2022 16:24:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245104;
-        bh=Q1LLrOSRXuviP1cfQ47Ot+sjOL7pSzi8I37COQZtzXI=;
+        s=korg; t=1672244652;
+        bh=LYR2MszpcfxALpm6QqqLQhYFaWt7DyQX8GcTxgD7xv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KqXS/h7THMl7rnmfRbfW9BOoVMMpGuFnio9FzY+WufRYkv9YMSXK2ZOlP+fsf67ip
-         6xYMhUBWGCpOU6hXPXbFJJ2PfgZWf8QwfElQV+K1tszNyTaBONAg7xtceqZg2Q/MuS
-         AZS3bJL8VYe/2Dl9DWxMK+ir+jAvWkwD7q+ZFcXc=
+        b=Fx5e9uizm12JqRK6XuDRRHZnrfDC9cFAPwaJjRrBQAqz6lUE0H19Fp+frSXe8hE0u
+         /MKz9P2sVm350JSZN9p5r/ZV38VxtxCKEF2T4XTybSHoPW1w5WaIggBTj2VQDEbUpL
+         jNxBYJ8SxyWebYLb2YFaFnLdi7JKZZbtPse9qeD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0797/1146] phy: qcom-qmp-pcie: drop power-down delay config
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0748/1073] power: supply: cw2015: Fix potential null-ptr-deref in cw_bat_probe()
 Date:   Wed, 28 Dec 2022 15:38:56 +0100
-Message-Id: <20221228144351.796911939@linuxfoundation.org>
+Message-Id: <20221228144348.338920745@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,156 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit e71906144b432135b483e228d65be59fbb44c310 ]
+[ Upstream commit 97f2b4ddb0aa700d673691a7d5e44d226d22bab7 ]
 
-The power-down delay was included in the first version of the QMP driver
-as an optional delay after powering on the PHY (using
-POWER_DOWN_CONTROL) and just before starting it. Later changes modified
-this sequence by powering on before initialising the PHY, but the
-optional delay stayed where it was (i.e. before starting the PHY).
+cw_bat_probe() calls create_singlethread_workqueue() and not checked the
+ret value, which may return NULL. And a null-ptr-deref may happen:
 
-The vendor driver does not use a delay before starting the PHY and this
-is likely not needed on any platform unless there is a corresponding
-delay in the vendor kernel init sequence tables (i.e. in devicetree).
+cw_bat_probe()
+    create_singlethread_workqueue() # failed, cw_bat->wq is NULL
+    queue_delayed_work()
+        queue_delayed_work_on()
+            __queue_delayed_work()  # warning here, but continue
+                __queue_work()      # access wq->flags, null-ptr-deref
 
-Let's keep the delay for now, but drop the redundant delay period
-configuration while increasing the unnecessarily low timer slack
-somewhat.
+Check the ret value and return -ENOMEM if it is NULL.
 
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20221012081241.18273-9-johan+linaro@kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Stable-dep-of: 4a9eac5ae220 ("phy: qcom-qmp-pcie: fix sc8180x initialisation")
+Fixes: b4c7715c10c1 ("power: supply: add CellWise cw2015 fuel gauge driver")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/qualcomm/phy-qcom-qmp-pcie.c | 27 +-----------------------
- 1 file changed, 1 insertion(+), 26 deletions(-)
+ drivers/power/supply/cw2015_battery.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c b/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
-index 9c8c30ee7c71..c64026888e3a 100644
---- a/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
-+++ b/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
-@@ -1346,9 +1346,6 @@ struct qmp_phy_cfg {
+diff --git a/drivers/power/supply/cw2015_battery.c b/drivers/power/supply/cw2015_battery.c
+index 6d52641151d9..473522b4326a 100644
+--- a/drivers/power/supply/cw2015_battery.c
++++ b/drivers/power/supply/cw2015_battery.c
+@@ -699,6 +699,9 @@ static int cw_bat_probe(struct i2c_client *client)
+ 	}
  
- 	/* true, if PHY needs delay after POWER_DOWN */
- 	bool has_pwrdn_delay;
--	/* power_down delay in usec */
--	int pwrdn_delay_min;
--	int pwrdn_delay_max;
- 
- 	/* QMP PHY pipe clock interface rate */
- 	unsigned long pipe_clock_rate;
-@@ -1480,8 +1477,6 @@ static const struct qmp_phy_cfg ipq8074_pciephy_cfg = {
- 	.phy_status		= PHYSTATUS,
- 
- 	.has_pwrdn_delay	= true,
--	.pwrdn_delay_min	= 995,		/* us */
--	.pwrdn_delay_max	= 1005,		/* us */
- };
- 
- static const struct qmp_phy_cfg ipq8074_pciephy_gen3_cfg = {
-@@ -1507,8 +1502,6 @@ static const struct qmp_phy_cfg ipq8074_pciephy_gen3_cfg = {
- 	.pwrdn_ctrl		= SW_PWRDN | REFCLK_DRV_DSBL,
- 
- 	.has_pwrdn_delay	= true,
--	.pwrdn_delay_min	= 995,		/* us */
--	.pwrdn_delay_max	= 1005,		/* us */
- 
- 	.pipe_clock_rate	= 250000000,
- };
-@@ -1538,8 +1531,6 @@ static const struct qmp_phy_cfg ipq6018_pciephy_cfg = {
- 	.pwrdn_ctrl		= SW_PWRDN | REFCLK_DRV_DSBL,
- 
- 	.has_pwrdn_delay	= true,
--	.pwrdn_delay_min	= 995,		/* us */
--	.pwrdn_delay_max	= 1005,		/* us */
- };
- 
- static const struct qmp_phy_cfg sdm845_qmp_pciephy_cfg = {
-@@ -1568,8 +1559,6 @@ static const struct qmp_phy_cfg sdm845_qmp_pciephy_cfg = {
- 	.phy_status		= PHYSTATUS,
- 
- 	.has_pwrdn_delay	= true,
--	.pwrdn_delay_min	= 995,		/* us */
--	.pwrdn_delay_max	= 1005,		/* us */
- };
- 
- static const struct qmp_phy_cfg sdm845_qhp_pciephy_cfg = {
-@@ -1596,8 +1585,6 @@ static const struct qmp_phy_cfg sdm845_qhp_pciephy_cfg = {
- 	.phy_status		= PHYSTATUS,
- 
- 	.has_pwrdn_delay	= true,
--	.pwrdn_delay_min	= 995,		/* us */
--	.pwrdn_delay_max	= 1005,		/* us */
- };
- 
- static const struct qmp_phy_cfg sm8250_qmp_gen3x1_pciephy_cfg = {
-@@ -1634,8 +1621,6 @@ static const struct qmp_phy_cfg sm8250_qmp_gen3x1_pciephy_cfg = {
- 	.phy_status		= PHYSTATUS,
- 
- 	.has_pwrdn_delay	= true,
--	.pwrdn_delay_min	= 995,		/* us */
--	.pwrdn_delay_max	= 1005,		/* us */
- };
- 
- static const struct qmp_phy_cfg sm8250_qmp_gen3x2_pciephy_cfg = {
-@@ -1672,8 +1657,6 @@ static const struct qmp_phy_cfg sm8250_qmp_gen3x2_pciephy_cfg = {
- 	.phy_status		= PHYSTATUS,
- 
- 	.has_pwrdn_delay	= true,
--	.pwrdn_delay_min	= 995,		/* us */
--	.pwrdn_delay_max	= 1005,		/* us */
- };
- 
- static const struct qmp_phy_cfg msm8998_pciephy_cfg = {
-@@ -1725,8 +1708,6 @@ static const struct qmp_phy_cfg sc8180x_pciephy_cfg = {
- 	.pwrdn_ctrl		= SW_PWRDN | REFCLK_DRV_DSBL,
- 
- 	.has_pwrdn_delay	= true,
--	.pwrdn_delay_min	= 995,		/* us */
--	.pwrdn_delay_max	= 1005,		/* us */
- };
- 
- static const struct qmp_phy_cfg sdx55_qmp_pciephy_cfg = {
-@@ -1755,8 +1736,6 @@ static const struct qmp_phy_cfg sdx55_qmp_pciephy_cfg = {
- 	.phy_status		= PHYSTATUS_4_20,
- 
- 	.has_pwrdn_delay	= true,
--	.pwrdn_delay_min	= 995,		/* us */
--	.pwrdn_delay_max	= 1005,		/* us */
- };
- 
- static const struct qmp_phy_cfg sm8450_qmp_gen3x1_pciephy_cfg = {
-@@ -1785,8 +1764,6 @@ static const struct qmp_phy_cfg sm8450_qmp_gen3x1_pciephy_cfg = {
- 	.phy_status		= PHYSTATUS,
- 
- 	.has_pwrdn_delay	= true,
--	.pwrdn_delay_min	= 995,		/* us */
--	.pwrdn_delay_max	= 1005,		/* us */
- };
- 
- static const struct qmp_phy_cfg sm8450_qmp_gen4x2_pciephy_cfg = {
-@@ -1815,8 +1792,6 @@ static const struct qmp_phy_cfg sm8450_qmp_gen4x2_pciephy_cfg = {
- 	.phy_status		= PHYSTATUS_4_20,
- 
- 	.has_pwrdn_delay	= true,
--	.pwrdn_delay_min	= 995,		/* us */
--	.pwrdn_delay_max	= 1005,		/* us */
- };
- 
- static void qmp_pcie_configure_lane(void __iomem *base,
-@@ -1976,7 +1951,7 @@ static int qmp_pcie_power_on(struct phy *phy)
- 	qmp_pcie_configure(pcs_misc, cfg->regs, cfg->pcs_misc_tbl_sec, cfg->pcs_misc_tbl_num_sec);
- 
- 	if (cfg->has_pwrdn_delay)
--		usleep_range(cfg->pwrdn_delay_min, cfg->pwrdn_delay_max);
-+		usleep_range(1000, 1200);
- 
- 	/* Pull PHY out of reset state */
- 	qphy_clrbits(pcs, cfg->regs[QPHY_SW_RESET], SW_RESET);
+ 	cw_bat->battery_workqueue = create_singlethread_workqueue("rk_battery");
++	if (!cw_bat->battery_workqueue)
++		return -ENOMEM;
++
+ 	devm_delayed_work_autocancel(&client->dev,
+ 							  &cw_bat->battery_delay_work, cw_bat_work);
+ 	queue_delayed_work(cw_bat->battery_workqueue,
 -- 
 2.35.1
 
