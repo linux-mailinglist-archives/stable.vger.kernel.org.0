@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AC8E657E45
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:52:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CD0E65782B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234214AbiL1Pwa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:52:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39442 "EHLO
+        id S233043AbiL1OsS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:48:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234266AbiL1PwL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:52:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0358C18B0C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:52:02 -0800 (PST)
+        with ESMTP id S233094AbiL1Orv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:47:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8663D1182C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:47:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9292A61563
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:52:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D86EC433EF;
-        Wed, 28 Dec 2022 15:52:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2AAC9B8170E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:47:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97AFDC433EF;
+        Wed, 28 Dec 2022 14:47:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242721;
-        bh=PkRZ+5E/QkjOJ/PWYL2le7UQYhBZe46413TgpDr4zKI=;
+        s=korg; t=1672238867;
+        bh=35cZwjIkshA2Ay9vlvOfvedHRYE1QOuN38cd7osSdl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VPJbrigdXq/U1F5jCPwmBD3ZcfOptbnCJaLfKwnEj+LM70tWyBq241jQoHG0sM69V
-         xpzWzr7FmhpGGC9mVYZsnYBY3HzDHFOC34KHhFTSlLyjHeE7QxX8JK8eZXZ+2Jo4ol
-         ksN0WX3UGSakQkT2bb8A9AiddsvfPtyYqT47pTYA=
+        b=hbG65LPjfjejLOipu47IjvLrr93Y7j2SybiltjCYm3bBKH5dcZROwyjqz8ZCoTQ3l
+         7xzb0sFa5gqclXawvO7RLZzVcm8r7pUrkFPEyPsObMlAiGFafw3QC7m+5st8wcTl4d
+         rHOs2NTtr5q5krbOehBlscfG81l0GzdaMwmTCzwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0406/1146] media: sun6i-mipi-csi2: Require both pads to be connected for streaming
-Date:   Wed, 28 Dec 2022 15:32:25 +0100
-Message-Id: <20221228144341.193762009@linuxfoundation.org>
+Subject: [PATCH 5.15 039/731] arm64: dts: mt6779: Fix devicetree build warnings
+Date:   Wed, 28 Dec 2022 15:32:26 +0100
+Message-Id: <20221228144257.687062734@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit f042b08b833de3be810f8769d88ca44aeefd7eba ]
+[ Upstream commit 4d759c524c15dc4151e40b9e3f368147fda7b789 ]
 
-The bridge needs both its pads connected to be able to stream data.
-Enforcing this is useful to produce an error when no sensor is
-connected.
+Rename fixed-clock oscillators to oscillator-26m and oscillator-32k
+and remove the unit address to fix the unit_address_vs_reg warning;
+fix the unit address for interrupt and intpol controllers by
+removing a leading zero in their unit address.
 
-Fixes: af54b4f4c17f ("media: sunxi: Add support for the A31 MIPI CSI-2 controller")
-Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+This commit fixes the following warnings:
+
+(unit_address_vs_reg): /oscillator@0: node has a unit name, but
+no reg or ranges property
+(unit_address_vs_reg): /oscillator@1: node has a unit name, but
+no reg or ranges property
+(simple_bus_reg): /soc/interrupt-controller@0c000000: simple-bus
+unit address format error, expected "c000000"
+(simple_bus_reg): /soc/intpol-controller@0c53a650: simple-bus
+unit address format error, expected "c53a650"
+
+Fixes: 4c7a6260775d ("arm64: dts: add dts nodes for MT6779")
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221013152212.416661-3-angelogioacchino.delregno@collabora.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c  | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt6779.dtsi | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c b/drivers/media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c
-index 30d6c0c5161f..340380a5f66f 100644
---- a/drivers/media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c
-+++ b/drivers/media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c
-@@ -519,8 +519,10 @@ static int sun6i_mipi_csi2_bridge_setup(struct sun6i_mipi_csi2_device *csi2_dev)
+diff --git a/arch/arm64/boot/dts/mediatek/mt6779.dtsi b/arch/arm64/boot/dts/mediatek/mt6779.dtsi
+index 9bdf5145966c..dde9ce137b4f 100644
+--- a/arch/arm64/boot/dts/mediatek/mt6779.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt6779.dtsi
+@@ -88,14 +88,14 @@ pmu {
+ 		interrupts = <GIC_PPI 7 IRQ_TYPE_LEVEL_LOW 0>;
+ 	};
  
- 	/* Media Pads */
+-	clk26m: oscillator@0 {
++	clk26m: oscillator-26m {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <26000000>;
+ 		clock-output-names = "clk26m";
+ 	};
  
--	pads[SUN6I_MIPI_CSI2_PAD_SINK].flags = MEDIA_PAD_FL_SINK;
--	pads[SUN6I_MIPI_CSI2_PAD_SOURCE].flags = MEDIA_PAD_FL_SOURCE;
-+	pads[SUN6I_MIPI_CSI2_PAD_SINK].flags = MEDIA_PAD_FL_SINK |
-+					       MEDIA_PAD_FL_MUST_CONNECT;
-+	pads[SUN6I_MIPI_CSI2_PAD_SOURCE].flags = MEDIA_PAD_FL_SOURCE |
-+						 MEDIA_PAD_FL_MUST_CONNECT;
+-	clk32k: oscillator@1 {
++	clk32k: oscillator-32k {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <32768>;
+@@ -117,7 +117,7 @@ soc {
+ 		compatible = "simple-bus";
+ 		ranges;
  
- 	ret = media_entity_pads_init(&subdev->entity, SUN6I_MIPI_CSI2_PAD_COUNT,
- 				     pads);
+-		gic: interrupt-controller@0c000000 {
++		gic: interrupt-controller@c000000 {
+ 			compatible = "arm,gic-v3";
+ 			#interrupt-cells = <4>;
+ 			interrupt-parent = <&gic>;
+@@ -138,7 +138,7 @@ ppi_cluster1: interrupt-partition-1 {
+ 
+ 		};
+ 
+-		sysirq: intpol-controller@0c53a650 {
++		sysirq: intpol-controller@c53a650 {
+ 			compatible = "mediatek,mt6779-sysirq",
+ 				     "mediatek,mt6577-sysirq";
+ 			interrupt-controller;
 -- 
 2.35.1
 
