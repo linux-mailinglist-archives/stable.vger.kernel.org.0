@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 078516582A1
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:39:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1768657D04
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:38:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233695AbiL1QjN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:39:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60786 "EHLO
+        id S233921AbiL1Pib (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:38:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235093AbiL1Qii (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:38:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5779C1C427
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:34:10 -0800 (PST)
+        with ESMTP id S233920AbiL1Pib (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:38:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A54916591
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:38:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E19AF61562
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:34:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02A36C433D2;
-        Wed, 28 Dec 2022 16:34:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B1EDB81647
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:38:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EA90C433D2;
+        Wed, 28 Dec 2022 15:38:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245249;
-        bh=+aXCmwXs+uqOZ1eRtgmRmSNmXqLTFfjXkgefY15ukC0=;
+        s=korg; t=1672241907;
+        bh=qtKCOpNDs6clThnZ2VvpYciND2sFhVaJ054d9J5CKTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2I3F8icU8rhpdJPoCAPbt7jFeVV3UR8q6i1B9YPLMyzzr9aG5rIg/9HYdUF0eHQC4
-         lKrW7qJ7YtQEpp7hXNxkgn7ctl0Dbc0vD1QzrH9HeifdlLTisyo4a+r7qWsMVGLDHU
-         mSaVONatZ4LcOeXcUAWV7vITYnsqf+t62ZJcTU2o=
+        b=l9vNe/w1ZNSQFiChTBZBwJPycjTbIClRLoheOmt7idejn4w5kKjIIZerwjpkdkTw2
+         I4v++GJ5xUHmRkkHHrWbLoaHDo+F87vO25F/pWL4a842VvxtsWdv5vgA34JY8FExgW
+         wKZORSNu5Pauh1oiN2FuEH0q/kN6Fj4qex2xY42w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maksim Kiselev <bigunclemax@gmail.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0860/1073] net: dsa: mv88e6xxx: avoid reg_lock deadlock in mv88e6xxx_setup_port()
+Subject: [PATCH 5.15 541/731] rtc: cmos: fix build on non-ACPI platforms
 Date:   Wed, 28 Dec 2022 15:40:48 +0100
-Message-Id: <20221228144351.378690278@linuxfoundation.org>
+Message-Id: <20221228144312.223723630@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,119 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-[ Upstream commit a7d82367daa6baa5e8399e6327e7f2f463534505 ]
+[ Upstream commit db4e955ae333567dea02822624106c0b96a2f84f ]
 
-In the blamed commit, it was not noticed that one implementation of
-chip->info->ops->phylink_get_caps(), called by mv88e6xxx_get_caps(),
-may access hardware registers, and in doing so, it takes the
-mv88e6xxx_reg_lock(). Namely, this is mv88e6352_phylink_get_caps().
+Now that rtc_wake_setup is called outside of cmos_wake_setup, it also need
+to be defined on non-ACPI platforms.
 
-This is a problem because mv88e6xxx_get_caps(), apart from being
-a top-level function (method invoked by dsa_switch_ops), is now also
-directly called from mv88e6xxx_setup_port(), which runs under the
-mv88e6xxx_reg_lock() taken by mv88e6xxx_setup(). Therefore, when running
-on mv88e6352, the reg_lock would be acquired a second time and the
-system would deadlock on driver probe.
-
-The things that mv88e6xxx_setup() can compete with in terms of register
-access with are the IRQ handlers and MDIO bus operations registered by
-mv88e6xxx_probe(). So there is a real need to acquire the register lock.
-
-The register lock can, in principle, be dropped and re-acquired pretty
-much at will within the driver, as long as no operations that involve
-waiting for indirect access to complete (essentially, callers of
-mv88e6xxx_smi_direct_wait() and mv88e6xxx_wait_mask()) are interrupted
-with the lock released. However, I would guess that in mv88e6xxx_setup(),
-the critical section is kept open for such a long time just in order to
-optimize away multiple lock/unlock operations on the registers.
-
-We could, in principle, drop the reg_lock right before the
-mv88e6xxx_setup_port() -> mv88e6xxx_get_caps() call, and
-re-acquire it immediately afterwards. But this would look ugly, because
-mv88e6xxx_setup_port() would release a lock which it didn't acquire, but
-the caller did.
-
-A cleaner solution to this issue comes from the observation that struct
-mv88e6xxxx_ops methods generally assume they are called with the
-reg_lock already acquired. Whereas mv88e6352_phylink_get_caps() is more
-the exception rather than the norm, in that it acquires the lock itself.
-
-Let's enforce the same locking pattern/convention for
-chip->info->ops->phylink_get_caps() as well, and make
-mv88e6xxx_get_caps(), the top-level function, acquire the register lock
-explicitly, for this one implementation that will access registers for
-port 4 to work properly.
-
-This means that mv88e6xxx_setup_port() will no longer call the top-level
-function, but the low-level mv88e6xxx_ops method which expects the
-correct calling context (register lock held).
-
-Compared to chip->info->ops->phylink_get_caps(), mv88e6xxx_get_caps()
-also fixes up the supported_interfaces bitmap for internal ports, since
-that can be done generically and does not require per-switch knowledge.
-That's code which will no longer execute, however mv88e6xxx_setup_port()
-doesn't need that. It just needs to look at the mac_capabilities bitmap.
-
-Fixes: cc1049ccee20 ("net: dsa: mv88e6xxx: fix speed setting for CPU/DSA ports")
-Reported-by: Maksim Kiselev <bigunclemax@gmail.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Tested-by: Maksim Kiselev <bigunclemax@gmail.com>
-Link: https://lore.kernel.org/r/20221214110120.3368472-1-vladimir.oltean@nxp.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/r/20221018203512.2532407-1-alexandre.belloni@bootlin.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Stable-dep-of: 83ebb7b3036d ("rtc: cmos: Disable ACPI RTC event on removal")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mv88e6xxx/chip.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/rtc/rtc-cmos.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index 546d90dae933..0fd978e3ce2d 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -689,13 +689,12 @@ static void mv88e6352_phylink_get_caps(struct mv88e6xxx_chip *chip, int port,
- 
- 	/* Port 4 supports automedia if the serdes is associated with it. */
- 	if (port == 4) {
--		mv88e6xxx_reg_lock(chip);
- 		err = mv88e6352_g2_scratch_port_has_serdes(chip, port);
- 		if (err < 0)
- 			dev_err(chip->dev, "p%d: failed to read scratch\n",
- 				port);
- 		if (err <= 0)
--			goto unlock;
-+			return;
- 
- 		cmode = mv88e6352_get_port4_serdes_cmode(chip);
- 		if (cmode < 0)
-@@ -703,8 +702,6 @@ static void mv88e6352_phylink_get_caps(struct mv88e6xxx_chip *chip, int port,
- 				port);
- 		else
- 			mv88e6xxx_translate_cmode(cmode, supported);
--unlock:
--		mv88e6xxx_reg_unlock(chip);
- 	}
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 01fb31f8e534..58cc2bae2f8a 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -1346,6 +1346,9 @@ static void cmos_check_acpi_rtc_status(struct device *dev,
+ {
  }
  
-@@ -823,7 +820,9 @@ static void mv88e6xxx_get_caps(struct dsa_switch *ds, int port,
- {
- 	struct mv88e6xxx_chip *chip = ds->priv;
++static void rtc_wake_setup(struct device *dev)
++{
++}
+ #endif
  
-+	mv88e6xxx_reg_lock(chip);
- 	chip->info->ops->phylink_get_caps(chip, port, config);
-+	mv88e6xxx_reg_unlock(chip);
- 
- 	if (mv88e6xxx_phy_is_internal(ds, port)) {
- 		__set_bit(PHY_INTERFACE_MODE_INTERNAL,
-@@ -3299,7 +3298,7 @@ static int mv88e6xxx_setup_port(struct mv88e6xxx_chip *chip, int port)
- 		struct phylink_config pl_config = {};
- 		unsigned long caps;
- 
--		mv88e6xxx_get_caps(ds, port, &pl_config);
-+		chip->info->ops->phylink_get_caps(chip, port, &pl_config);
- 
- 		caps = pl_config.mac_capabilities;
- 
+ #ifdef	CONFIG_PNP
 -- 
 2.35.1
 
