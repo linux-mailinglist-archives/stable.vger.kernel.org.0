@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1605658349
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:46:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31CBE65841D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:54:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233036AbiL1Qp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:45:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38212 "EHLO
+        id S235230AbiL1QyA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:54:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234966AbiL1Qon (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07AF7EA3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:40:52 -0800 (PST)
+        with ESMTP id S235254AbiL1QxK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:53:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4B091AF09
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:48:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B88661563
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:40:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A89F4C433EF;
-        Wed, 28 Dec 2022 16:40:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D5F761578
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:48:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4591DC433D2;
+        Wed, 28 Dec 2022 16:48:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245651;
-        bh=qyKiVUx5zu3jpD5VHqL60Pcg8UYVn/ip1Dbjq39eS0Y=;
+        s=korg; t=1672246109;
+        bh=8cNekZ4Ly99pLxeUE847IppAKRmEzQ5qOYdrADTmNG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LnGFmhb/cym80lTkGEBUMj/rvS4jtWAcvesrksAjCrLH/SBDUaAleOegq34ytRswS
-         ddPfThzWi3wfNtZCj3zOjEV5w6SISSRn7+d+hMcBZgRohiKrNOzvF8O2C6U2xq3LuO
-         SgEK0qp/Lm/D968e5nF87xP9+7tmUp/r+k2kBxc0=
+        b=OBl9M1h7V9KVBCO+9QDcvMoqbCaoQi2dLASpLlxFToYZktEProa4otiOMB1ZOzdl+
+         rATZsywhbkFyRKBj2Bw6o3JHwZGAdwFR+vCnuf8fHXd0OjzLHGYop3INMZ1DjC2SAe
+         Zfpi5ERHxQSfpjtxzi1moNyS/C/OaqMMAim8yDYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sami Tolvanen <samitolvanen@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0932/1073] drm/amdgpu: Fix type of second parameter in odn_edit_dpm_table() callback
-Date:   Wed, 28 Dec 2022 15:42:00 +0100
-Message-Id: <20221228144353.343786775@linuxfoundation.org>
+        patches@lists.linux.dev, Kerem Karabay <kekrby@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0982/1146] HID: apple: fix key translations where multiple quirks attempt to translate the same key
+Date:   Wed, 28 Dec 2022 15:42:01 +0100
+Message-Id: <20221228144357.037648075@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,75 +52,242 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Kerem Karabay <kekrby@gmail.com>
 
-[ Upstream commit e4d0ef752081e7aa6ffb7ccac11c499c732a2e05 ]
+[ Upstream commit 5476fcf7f7b901db1cea92acb1abdd12609e30e1 ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed. A
-proposed warning in clang aims to catch these at compile time, which
-reveals:
+The hid-apple driver does not support chaining translations or
+dependencies on other translations. This creates two problems:
 
-  drivers/gpu/drm/amd/amdgpu/../pm/swsmu/amdgpu_smu.c:3008:29: error: incompatible function pointer types initializing 'int (*)(void *, uint32_t, long *, uint32_t)' (aka 'int (*)(void *, unsigned int, long *, unsigned int)') with an expression of type 'int (void *, enum PP_OD_DPM_TABLE_COMMAND, long *, uint32_t)' (aka 'int (void *, enum PP_OD_DPM_TABLE_COMMAND, long *, unsigned int)') [-Werror,-Wincompatible-function-pointer-types-strict]
-          .odn_edit_dpm_table      = smu_od_edit_dpm_table,
-                                     ^~~~~~~~~~~~~~~~~~~~~
-  1 error generated.
+1 - In Non-English keyboards of Macs, KEY_102ND and KEY_GRAVE are
+swapped and the APPLE_ISO_TILDE_QUIRK is used to work around this
+problem. The quirk is not set for the Macs where these bugs happen yet
+(see the 2nd patch for that), but this can be forced by setting the
+iso_layout parameter. Unfortunately, this only partially works.
+KEY_102ND gets translated to KEY_GRAVE, but KEY_GRAVE does not get
+translated to KEY_102ND, so both of them end up functioning as
+KEY_GRAVE. This is because the driver translates the keys as if Fn was
+pressed and the original is sent if it is not pressed, without any
+further translations happening on the key[#463]. KEY_GRAVE is present at
+macbookpro_no_esc_fn_keys[#195], so this is what happens:
 
-There are only two implementations of ->odn_edit_dpm_table() in 'struct
-amd_pm_funcs': smu_od_edit_dpm_table() and pp_odn_edit_dpm_table(). One
-has a second parameter type of 'enum PP_OD_DPM_TABLE_COMMAND' and the
-other uses 'u32'. Ultimately, smu_od_edit_dpm_table() calls
-->od_edit_dpm_table() from 'struct pptable_funcs' and
-pp_odn_edit_dpm_table() calls ->odn_edit_dpm_table() from 'struct
-pp_hwmgr_func', which both have a second parameter type of 'enum
-PP_OD_DPM_TABLE_COMMAND'.
+    - KEY_GRAVE -> KEY_ESC (as if Fn is pressed)
+    - KEY_GRAVE is returned (Fn isn't pressed, so translation is discarded)
+    - KEY_GRAVE -> KEY_102ND (this part is not reached!)
+    ...
 
-Update the type parameter in both the prototype in 'struct amd_pm_funcs'
-and pp_odn_edit_dpm_table() to 'enum PP_OD_DPM_TABLE_COMMAND', which
-cleans up the warning.
+2 - In case the touchbar does not work, the driver supports sending
+Escape when Fn+KEY_GRAVE is pressed. As mentioned previously, KEY_102ND
+is actually KEY_GRAVE and needs to be translated before this happens.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1750
-Reported-by: Sami Tolvanen <samitolvanen@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Normally, these are the steps that should happen:
+
+    - KEY_102ND -> KEY_GRAVE
+    - KEY_GRAVE -> KEY_ESC (Fn is pressed)
+    - KEY_ESC is returned
+
+Though this is what happens instead, as dependencies on other
+translations are not supported:
+
+    - KEY_102ND -> KEY_ESC (Fn is pressed)
+    - KEY_ESC is returned
+
+This patch fixes both bugs by ordering the translations correctly and by
+making the translations continue and not return immediately after
+translating a key so that chained translations work and translations can
+depend on other ones.
+
+This patch also simplifies the implementation of the swap_fn_leftctrl
+option a little bit, as it makes it simply use a normal translation
+instead adding extra code to translate a key to KEY_FN[#381]. This change
+wasn't put in another patch as the code that translates the Fn key needs
+to be changed because of the changes in the patch, and those changes
+would be discarded with the next patch anyway (the part that originally
+translates KEY_FN to KEY_LEFTCTRL needs to be made an else-if branch of
+the part that transltes KEY_LEFTCTRL to KEY_FN).
+
+Note: Line numbers (#XYZ) are for drivers/hid/hid-apple.c at commit
+20afcc462579 ("HID: apple: Add "GANSS" to the non-Apple list").
+
+Note: These bugs are only present on Macs with a keyboard with no
+dedicated escape key and a non-English layout.
+
+Signed-off-by: Kerem Karabay <kekrby@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/include/kgd_pp_interface.h   | 3 ++-
- drivers/gpu/drm/amd/pm/powerplay/amd_powerplay.c | 3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/hid/hid-apple.c | 102 +++++++++++++++++-----------------------
+ 1 file changed, 44 insertions(+), 58 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/include/kgd_pp_interface.h b/drivers/gpu/drm/amd/include/kgd_pp_interface.h
-index 7e3231c2191c..ffe19883b2ee 100644
---- a/drivers/gpu/drm/amd/include/kgd_pp_interface.h
-+++ b/drivers/gpu/drm/amd/include/kgd_pp_interface.h
-@@ -354,7 +354,8 @@ struct amd_pm_funcs {
- 	int (*get_power_profile_mode)(void *handle, char *buf);
- 	int (*set_power_profile_mode)(void *handle, long *input, uint32_t size);
- 	int (*set_fine_grain_clk_vol)(void *handle, uint32_t type, long *input, uint32_t size);
--	int (*odn_edit_dpm_table)(void *handle, uint32_t type, long *input, uint32_t size);
-+	int (*odn_edit_dpm_table)(void *handle, enum PP_OD_DPM_TABLE_COMMAND type,
-+				  long *input, uint32_t size);
- 	int (*set_mp1_state)(void *handle, enum pp_mp1_state mp1_state);
- 	int (*smu_i2c_bus_access)(void *handle, bool acquire);
- 	int (*gfx_state_change_set)(void *handle, uint32_t state);
-diff --git a/drivers/gpu/drm/amd/pm/powerplay/amd_powerplay.c b/drivers/gpu/drm/amd/pm/powerplay/amd_powerplay.c
-index 1eb4e613b27a..6562978de84a 100644
---- a/drivers/gpu/drm/amd/pm/powerplay/amd_powerplay.c
-+++ b/drivers/gpu/drm/amd/pm/powerplay/amd_powerplay.c
-@@ -838,7 +838,8 @@ static int pp_set_fine_grain_clk_vol(void *handle, uint32_t type, long *input, u
- 	return hwmgr->hwmgr_func->set_fine_grain_clk_vol(hwmgr, type, input, size);
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index 6970797cdc56..e86bbf85b87e 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -314,6 +314,7 @@ static const struct apple_key_translation swapped_option_cmd_keys[] = {
+ 
+ static const struct apple_key_translation swapped_fn_leftctrl_keys[] = {
+ 	{ KEY_FN, KEY_LEFTCTRL },
++	{ KEY_LEFTCTRL, KEY_FN },
+ 	{ }
+ };
+ 
+@@ -375,24 +376,40 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
+ 	struct apple_sc *asc = hid_get_drvdata(hid);
+ 	const struct apple_key_translation *trans, *table;
+ 	bool do_translate;
+-	u16 code = 0;
++	u16 code = usage->code;
+ 	unsigned int real_fnmode;
+ 
+-	u16 fn_keycode = (swap_fn_leftctrl) ? (KEY_LEFTCTRL) : (KEY_FN);
+-
+-	if (usage->code == fn_keycode) {
+-		asc->fn_on = !!value;
+-		input_event_with_scancode(input, usage->type, KEY_FN,
+-				usage->hid, value);
+-		return 1;
+-	}
+-
+ 	if (fnmode == 3) {
+ 		real_fnmode = (asc->quirks & APPLE_IS_NON_APPLE) ? 2 : 1;
+ 	} else {
+ 		real_fnmode = fnmode;
+ 	}
+ 
++	if (swap_fn_leftctrl) {
++		trans = apple_find_translation(swapped_fn_leftctrl_keys, code);
++
++		if (trans)
++			code = trans->to;
++	}
++
++	if (iso_layout > 0 || (iso_layout < 0 && (asc->quirks & APPLE_ISO_TILDE_QUIRK) &&
++			hid->country == HID_COUNTRY_INTERNATIONAL_ISO)) {
++		trans = apple_find_translation(apple_iso_keyboard, code);
++
++		if (trans)
++			code = trans->to;
++	}
++
++	if (swap_opt_cmd) {
++		trans = apple_find_translation(swapped_option_cmd_keys, code);
++
++		if (trans)
++			code = trans->to;
++	}
++
++	if (code == KEY_FN)
++		asc->fn_on = !!value;
++
+ 	if (real_fnmode) {
+ 		if (hid->product == USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI ||
+ 		    hid->product == USB_DEVICE_ID_APPLE_ALU_WIRELESS_ISO ||
+@@ -430,15 +447,18 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
+ 		else
+ 			table = apple_fn_keys;
+ 
+-		trans = apple_find_translation (table, usage->code);
++		trans = apple_find_translation(table, code);
+ 
+ 		if (trans) {
+-			if (test_bit(trans->from, input->key))
++			bool from_is_set = test_bit(trans->from, input->key);
++			bool to_is_set = test_bit(trans->to, input->key);
++
++			if (from_is_set)
+ 				code = trans->from;
+-			else if (test_bit(trans->to, input->key))
++			else if (to_is_set)
+ 				code = trans->to;
+ 
+-			if (!code) {
++			if (!(from_is_set || to_is_set)) {
+ 				if (trans->flags & APPLE_FLAG_FKEY) {
+ 					switch (real_fnmode) {
+ 					case 1:
+@@ -455,62 +475,31 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
+ 					do_translate = asc->fn_on;
+ 				}
+ 
+-				code = do_translate ? trans->to : trans->from;
++				if (do_translate)
++					code = trans->to;
+ 			}
+-
+-			input_event_with_scancode(input, usage->type, code,
+-					usage->hid, value);
+-			return 1;
+ 		}
+ 
+ 		if (asc->quirks & APPLE_NUMLOCK_EMULATION &&
+-				(test_bit(usage->code, asc->pressed_numlock) ||
++				(test_bit(code, asc->pressed_numlock) ||
+ 				test_bit(LED_NUML, input->led))) {
+-			trans = apple_find_translation(powerbook_numlock_keys,
+-					usage->code);
++			trans = apple_find_translation(powerbook_numlock_keys, code);
+ 
+ 			if (trans) {
+ 				if (value)
+-					set_bit(usage->code,
+-							asc->pressed_numlock);
++					set_bit(code, asc->pressed_numlock);
+ 				else
+-					clear_bit(usage->code,
+-							asc->pressed_numlock);
++					clear_bit(code, asc->pressed_numlock);
+ 
+-				input_event_with_scancode(input, usage->type,
+-						trans->to, usage->hid, value);
++				code = trans->to;
+ 			}
+-
+-			return 1;
+ 		}
+ 	}
+ 
+-	if (iso_layout > 0 || (iso_layout < 0 && (asc->quirks & APPLE_ISO_TILDE_QUIRK) &&
+-			hid->country == HID_COUNTRY_INTERNATIONAL_ISO)) {
+-		trans = apple_find_translation(apple_iso_keyboard, usage->code);
+-		if (trans) {
+-			input_event_with_scancode(input, usage->type,
+-					trans->to, usage->hid, value);
+-			return 1;
+-		}
+-	}
++	if (usage->code != code) {
++		input_event_with_scancode(input, usage->type, code, usage->hid, value);
+ 
+-	if (swap_opt_cmd) {
+-		trans = apple_find_translation(swapped_option_cmd_keys, usage->code);
+-		if (trans) {
+-			input_event_with_scancode(input, usage->type,
+-					trans->to, usage->hid, value);
+-			return 1;
+-		}
+-	}
+-
+-	if (swap_fn_leftctrl) {
+-		trans = apple_find_translation(swapped_fn_leftctrl_keys, usage->code);
+-		if (trans) {
+-			input_event_with_scancode(input, usage->type,
+-					trans->to, usage->hid, value);
+-			return 1;
+-		}
++		return 1;
+ 	}
+ 
+ 	return 0;
+@@ -640,9 +629,6 @@ static void apple_setup_input(struct input_dev *input)
+ 	apple_setup_key_translation(input, apple2021_fn_keys);
+ 	apple_setup_key_translation(input, macbookpro_no_esc_fn_keys);
+ 	apple_setup_key_translation(input, macbookpro_dedicated_esc_fn_keys);
+-
+-	if (swap_fn_leftctrl)
+-		apple_setup_key_translation(input, swapped_fn_leftctrl_keys);
  }
  
--static int pp_odn_edit_dpm_table(void *handle, uint32_t type, long *input, uint32_t size)
-+static int pp_odn_edit_dpm_table(void *handle, enum PP_OD_DPM_TABLE_COMMAND type,
-+				 long *input, uint32_t size)
- {
- 	struct pp_hwmgr *hwmgr = handle;
- 
+ static int apple_input_mapping(struct hid_device *hdev, struct hid_input *hi,
 -- 
 2.35.1
 
