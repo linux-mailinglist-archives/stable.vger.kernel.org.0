@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27913658305
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 361E9658261
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:36:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233134AbiL1QoF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:44:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36928 "EHLO
+        id S234743AbiL1QfY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:35:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234997AbiL1Qnl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:41 -0500
+        with ESMTP id S234783AbiL1QeU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:34:20 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67DAD1A055
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:38:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEB241B7AB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:31:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EF04C6157D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:38:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E0BAC433EF;
-        Wed, 28 Dec 2022 16:38:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B6A461576
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:31:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88FA0C433EF;
+        Wed, 28 Dec 2022 16:31:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245487;
-        bh=PdMP5C30ft0X8j7AZsrvp3AOrowRZsfzSKyJNsTzGmI=;
+        s=korg; t=1672245111;
+        bh=MxP9Ca6ZRaaiDUdG1Bv32qDmM1KGnIdycsO7dqW+zb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CWFdg/sLUkWsM8lR6JthV4yXnUAKz3GgswTlvR7xtr9lsZZzzV3kRmTwTh4Phxt2B
-         w20ej3uP6Eb2FzivoNfSS2OAHihlCi3FNkXAzui/NlrIorNPsR3X5kkEcfobXu0Lo6
-         phb24v574m2yUfDYfxQQ+JeTJJkcxjQz1kOGqP3k=
+        b=c0PtRf8nGiDKWoq1GPSpcyMc/SsWXnQOdn08rbkYs0mTRVOTVOiKXqojuZBCNswZt
+         D1hjPWHBO2/Sf4Uc2s4sX+ldRK37TnGC9WWpO0E1LhVHEixgBTWfvfcLgxedm1msJ4
+         nf3Q4TS33BbRrk4hG8dgenQbDqeUmgtyk2ZbdbRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anup Patel <apatel@ventanamicro.com>,
-        Andrew Jones <ajones@ventanamicro.com>,
-        Atish Patra <atishp@rivosinc.com>,
-        Anup Patel <anup@brainfault.org>,
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0869/1146] RISC-V: KVM: Fix reg_val check in kvm_riscv_vcpu_set_reg_config()
-Date:   Wed, 28 Dec 2022 15:40:08 +0100
-Message-Id: <20221228144353.772276525@linuxfoundation.org>
+Subject: [PATCH 6.0 0821/1073] remoteproc: qcom: q6v5: Fix potential null-ptr-deref in q6v5_wcss_init_mmio()
+Date:   Wed, 28 Dec 2022 15:40:09 +0100
+Message-Id: <20221228144350.314802229@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anup Patel <apatel@ventanamicro.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit e482d9e33d5b0f222cbef7341dcd52cead6b9edc ]
+[ Upstream commit f360e2b275efbb745ba0af8b47d9ef44221be586 ]
 
-The reg_val check in kvm_riscv_vcpu_set_reg_config() should only
-be done for isa config register.
+q6v5_wcss_init_mmio() will call platform_get_resource_byname() that may
+fail and return NULL. devm_ioremap() will use res->start as input, which
+may causes null-ptr-deref. Check the ret value of
+platform_get_resource_byname() to avoid the null-ptr-deref.
 
-Fixes: 9bfd900beeec ("RISC-V: KVM: Improve ISA extension by using a bitmap")
-Signed-off-by: Anup Patel <apatel@ventanamicro.com>
-Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
-Reviewed-by: Atish Patra <atishp@rivosinc.com>
-Signed-off-by: Anup Patel <anup@brainfault.org>
+Fixes: 0af65b9b915e ("remoteproc: qcom: wcss: Add non pas wcss Q6 support for QCS404")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221125021641.29392-1-shangxiaojing@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kvm/vcpu.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/remoteproc/qcom_q6v5_wcss.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/riscv/kvm/vcpu.c b/arch/riscv/kvm/vcpu.c
-index 71ebbc4821f0..5174ef54ad1d 100644
---- a/arch/riscv/kvm/vcpu.c
-+++ b/arch/riscv/kvm/vcpu.c
-@@ -296,12 +296,15 @@ static int kvm_riscv_vcpu_set_reg_config(struct kvm_vcpu *vcpu,
- 	if (copy_from_user(&reg_val, uaddr, KVM_REG_SIZE(reg->id)))
- 		return -EFAULT;
+diff --git a/drivers/remoteproc/qcom_q6v5_wcss.c b/drivers/remoteproc/qcom_q6v5_wcss.c
+index bb0947f7770e..de232337e082 100644
+--- a/drivers/remoteproc/qcom_q6v5_wcss.c
++++ b/drivers/remoteproc/qcom_q6v5_wcss.c
+@@ -827,6 +827,9 @@ static int q6v5_wcss_init_mmio(struct q6v5_wcss *wcss,
+ 	int ret;
  
--	/* This ONE REG interface is only defined for single letter extensions */
--	if (fls(reg_val) >= RISCV_ISA_EXT_BASE)
--		return -EINVAL;
--
- 	switch (reg_num) {
- 	case KVM_REG_RISCV_CONFIG_REG(isa):
-+		/*
-+		 * This ONE REG interface is only defined for
-+		 * single letter extensions.
-+		 */
-+		if (fls(reg_val) >= RISCV_ISA_EXT_BASE)
-+			return -EINVAL;
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "qdsp6");
++	if (!res)
++		return -EINVAL;
 +
- 		if (!vcpu->arch.ran_atleast_once) {
- 			/* Ignore the enable/disable request for certain extensions */
- 			for (i = 0; i < RISCV_ISA_EXT_BASE; i++) {
+ 	wcss->reg_base = devm_ioremap(&pdev->dev, res->start,
+ 				      resource_size(res));
+ 	if (!wcss->reg_base)
 -- 
 2.35.1
 
