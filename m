@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCE92657874
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:51:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3F5E657E34
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:51:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233026AbiL1OvE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:51:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38250 "EHLO
+        id S233697AbiL1PvU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:51:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233160AbiL1Ouj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:50:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21A15120AA
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:50:36 -0800 (PST)
+        with ESMTP id S234119AbiL1PvN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:51:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D11E186C6
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:51:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B16D46153B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:50:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCBECC433EF;
-        Wed, 28 Dec 2022 14:50:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8A51B81730
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:51:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30465C433D2;
+        Wed, 28 Dec 2022 15:51:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239035;
-        bh=LNaYx+mn2ttuzU7diioMFkXh9K65ly7WHp17LNxZn/4=;
+        s=korg; t=1672242670;
+        bh=cwW1JDZkj7fyOCeQCCALGD2p2Gzu8nzCk1xuTf+vgxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NEnPXys+7ZHDayeuuhj6uzvTipO35oypftz+IXROB7YiSn7l8EnMUA6kg00Stth3T
-         hERA8vAVcNaxNx96eoXr3Nls75d9QS5cYvOaVhxUcHZOXEvs14DjvJEH4/yGnJ0D51
-         PT2BtTRKjcb+srgcKsOlvfcHM3DN0Ym4PiJxxaF4=
+        b=PTE4BSP50KWruDD/ErUk64K7szVfqVbCtPwBN7Q+f37YuoPcuBR9ANcJs7lCS3OcN
+         xpBcbKk+ZWnr7gFx1qWHoAP4Lt5qWYhP0knbKacldL7+mLTaenz32CIaarN+vrMwEs
+         pZTUi52eHB2+zxAe6dk0AveYzIXgsDy//7r/5KLc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeff Layton <jlayton@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        patches@lists.linux.dev,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 103/731] NFSD: Finish converting the NFSv2 GETACL result encoder
-Date:   Wed, 28 Dec 2022 15:33:30 +0100
-Message-Id: <20221228144259.536632338@linuxfoundation.org>
+Subject: [PATCH 6.0 0423/1073] drm/amdgpu: Fix PCI device refcount leak in amdgpu_atrm_get_bios()
+Date:   Wed, 28 Dec 2022 15:33:31 +0100
+Message-Id: <20221228144339.512023677@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit ea5021e911d3479346a75ac9b7d9dcd751b0fb99 ]
+[ Upstream commit ca54639c7752edf1304d92ff4d0c049d4efc9ba0 ]
 
-The xdr_stream conversion inadvertently left some code that set the
-page_len of the send buffer. The XDR stream encoders should handle
-this automatically now.
+As comment of pci_get_class() says, it returns a pci_device with its
+refcount increased and decreased the refcount for the input parameter
+@from if it is not NULL.
 
-This oversight adds garbage past the end of the Reply message.
-Clients typically ignore the garbage, but NFSD does not need to send
-it, as it leaks stale memory contents onto the wire.
+If we break the loop in amdgpu_atrm_get_bios() with 'pdev' not NULL, we
+need to call pci_dev_put() to decrease the refcount. Add the missing
+pci_dev_put() to avoid refcount leak.
 
-Fixes: f8cba47344f7 ("NFSD: Update the NFSv2 GETACL result encoder to use struct xdr_stream")
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: d38ceaf99ed0 ("drm/amdgpu: add core driver (v4)")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs2acl.c | 10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/nfsd/nfs2acl.c b/fs/nfsd/nfs2acl.c
-index ec7776b0e868..30a1782a03f0 100644
---- a/fs/nfsd/nfs2acl.c
-+++ b/fs/nfsd/nfs2acl.c
-@@ -246,7 +246,6 @@ static int nfsaclsvc_encode_getaclres(struct svc_rqst *rqstp, __be32 *p)
- 	struct nfsd3_getaclres *resp = rqstp->rq_resp;
- 	struct dentry *dentry = resp->fh.fh_dentry;
- 	struct inode *inode;
--	int w;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c
+index e363f56c72af..30c28a69e847 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c
+@@ -317,6 +317,7 @@ static bool amdgpu_atrm_get_bios(struct amdgpu_device *adev)
  
- 	if (!svcxdr_encode_stat(xdr, resp->status))
+ 	if (!found)
  		return false;
-@@ -260,15 +259,6 @@ static int nfsaclsvc_encode_getaclres(struct svc_rqst *rqstp, __be32 *p)
- 	if (xdr_stream_encode_u32(xdr, resp->mask) < 0)
- 		return false;
++	pci_dev_put(pdev);
  
--	rqstp->rq_res.page_len = w = nfsacl_size(
--		(resp->mask & NFS_ACL)   ? resp->acl_access  : NULL,
--		(resp->mask & NFS_DFACL) ? resp->acl_default : NULL);
--	while (w > 0) {
--		if (!*(rqstp->rq_next_page++))
--			return true;
--		w -= PAGE_SIZE;
--	}
--
- 	if (!nfs_stream_encode_acl(xdr, inode, resp->acl_access,
- 				   resp->mask & NFS_ACL, 0))
- 		return false;
+ 	adev->bios = kmalloc(size, GFP_KERNEL);
+ 	if (!adev->bios) {
 -- 
 2.35.1
 
