@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECEF1657839
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AA4F657D03
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:38:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230368AbiL1Osr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:48:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36462 "EHLO
+        id S233398AbiL1Pia (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:38:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233057AbiL1OsV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:48:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C3FFB41
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:48:18 -0800 (PST)
+        with ESMTP id S233920AbiL1Pi3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:38:29 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F56616591
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:38:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D0614B816E6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:48:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 503AAC433D2;
-        Wed, 28 Dec 2022 14:48:15 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C88C2CE1361
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:38:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC215C433D2;
+        Wed, 28 Dec 2022 15:38:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238895;
-        bh=ya4vl80IGu2zQ0aIZ+GlVYXMzZylTjNH7QKwBEX4I4k=;
+        s=korg; t=1672241905;
+        bh=Xk66tH2iV0OR8+SvTwybRbAg4iABqr6V7kiaqrqBaCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jXLwy75TgquRpzQW2ixHjij1hkX/i5aAJo3eysgxFGZmzNCePPe8/ReFIJQu9Ov4H
-         DqQYkGMWGBYNFv7hE7/VcIQYJbQ6deEcxEyF8dusLUT4D4jaVCxGyR5kBREzLiDUCd
-         zw/KnmuXFSGVR9EUYo/pxG7r9uRJBUv4pCsOvPMg=
+        b=zX6t+1AfVDoPDneypdizLh3YWeP6sfUDRIdThPRK84VEPZTpF4O2POkn/FhaLgAR3
+         acUR49f5in5s1WGNZMSAbd17+TyMIgYzZRMjH20jlU/hxwTZsf98iLzn24LEY3YyFc
+         SmGZbukc/fv/qKxLb/lE268oPSwIlWd9b+tL9WGQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev, Ming Qian <ming.qian@nxp.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 023/731] arm64: dts: qcom: sm8250: drop bogus DP PHY clock
+Subject: [PATCH 6.0 0342/1073] media: amphion: apply vb2_queue_error instead of setting manually
 Date:   Wed, 28 Dec 2022 15:32:10 +0100
-Message-Id: <20221228144257.216405938@linuxfoundation.org>
+Message-Id: <20221228144337.295732275@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Ming Qian <ming.qian@nxp.com>
 
-[ Upstream commit bb9f23e46ddcebe1bc68a43a0f7acfc1865a6472 ]
+[ Upstream commit 9d175a81e28f260916a0a13f457dd8b940eafb4e ]
 
-The QMP pipe clock is used by the USB part of the PHY so drop the
-corresponding properties from the DP child node.
+vb2_queue_error is help to set the error of vb2_queue,
+don't need to set it manually
 
-Fixes: 5aa0d1becd5b ("arm64: dts: qcom: sm8250: switch usb1 qmp phy to USB3+DP mode")
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221026152511.9661-2-johan+linaro@kernel.org
+Fixes: 3cd084519c6f ("media: amphion: add vpu v4l2 m2m support")
+Signed-off-by: Ming Qian <ming.qian@nxp.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sm8250.dtsi | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/media/platform/amphion/vpu_v4l2.c | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm8250.dtsi b/arch/arm64/boot/dts/qcom/sm8250.dtsi
-index e4ba998d0c6e..2051eb8ff18e 100644
---- a/arch/arm64/boot/dts/qcom/sm8250.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm8250.dtsi
-@@ -2312,9 +2312,6 @@ dp_phy: dp-phy@88ea200 {
- 				      <0 0x088eaa00 0 0x100>;
- 				#phy-cells = <0>;
- 				#clock-cells = <1>;
--				clocks = <&gcc GCC_USB3_PRIM_PHY_PIPE_CLK>;
--				clock-names = "pipe0";
--				clock-output-names = "usb3_phy_pipe_clk_src";
- 			};
- 		};
+diff --git a/drivers/media/platform/amphion/vpu_v4l2.c b/drivers/media/platform/amphion/vpu_v4l2.c
+index b779e0ba916c..4b714fab4c6b 100644
+--- a/drivers/media/platform/amphion/vpu_v4l2.c
++++ b/drivers/media/platform/amphion/vpu_v4l2.c
+@@ -65,18 +65,11 @@ unsigned int vpu_get_buffer_state(struct vb2_v4l2_buffer *vbuf)
  
+ void vpu_v4l2_set_error(struct vpu_inst *inst)
+ {
+-	struct vb2_queue *src_q;
+-	struct vb2_queue *dst_q;
+-
+ 	vpu_inst_lock(inst);
+ 	dev_err(inst->dev, "some error occurs in codec\n");
+ 	if (inst->fh.m2m_ctx) {
+-		src_q = v4l2_m2m_get_src_vq(inst->fh.m2m_ctx);
+-		dst_q = v4l2_m2m_get_dst_vq(inst->fh.m2m_ctx);
+-		src_q->error = 1;
+-		dst_q->error = 1;
+-		wake_up(&src_q->done_wq);
+-		wake_up(&dst_q->done_wq);
++		vb2_queue_error(v4l2_m2m_get_src_vq(inst->fh.m2m_ctx));
++		vb2_queue_error(v4l2_m2m_get_dst_vq(inst->fh.m2m_ctx));
+ 	}
+ 	vpu_inst_unlock(inst);
+ }
 -- 
 2.35.1
 
