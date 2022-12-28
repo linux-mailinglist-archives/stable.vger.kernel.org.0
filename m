@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0051B6580FB
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:23:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F363658043
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:16:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234598AbiL1QXH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:23:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37956 "EHLO
+        id S234501AbiL1QQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:16:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234764AbiL1QVr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:21:47 -0500
+        with ESMTP id S234508AbiL1QQB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:16:01 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B26A81B9E3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:19:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B91A1A823
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:13:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 39E6961578
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:19:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49925C433D2;
-        Wed, 28 Dec 2022 16:19:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 38C666156E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:13:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C61CC433D2;
+        Wed, 28 Dec 2022 16:13:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244380;
-        bh=5xChHFZqD6jafH1OxTDw6wWh52vgE++QSXQzEfMCeX0=;
+        s=korg; t=1672243997;
+        bh=D2nGL7fs+XPP1YjAsf8TRYWowaxa1PIxTxY2oyNpFV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0o45W6Q82B+J8ArqfPqCmGA4UcUd+kxkdfz313bH8OSzXwH7jj+G2vsDGCCuy+bQK
-         CPvCBxXRqwJk9kB/lGx91nnTK6KwgnNWPKRjwNooT0SqxAlJA33LHsxMTHLqTI3N4J
-         ZPBdcIrcWO888Vt40+FzUDcjorXeWzcrCQwcNYxs=
+        b=LBAwZStgjMR7Xuil5UBd9PbuslBUmOlDYzwqhJvq8fZtG4p91e7MIoSkJ+IePNlKY
+         mBi3b805HY/Noel0DjH7c980fnhqb4IEZUyu6C4Gu9Ydu5FpHvq0F1LSbvk9h68aLH
+         7I8S4PHXK0ov/XUhOI+kbpb5YM21QcQGDvols6xc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yonggil Song <yonggil.song@samsung.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        patches@lists.linux.dev,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0660/1146] f2fs: avoid victim selection from previous victim section
+Subject: [PATCH 6.0 0611/1073] dt-bindings: imx6q-pcie: Fix clock names for imx6sx and imx8mq
 Date:   Wed, 28 Dec 2022 15:36:39 +0100
-Message-Id: <20221228144348.082225663@linuxfoundation.org>
+Message-Id: <20221228144344.640953013@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +56,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonggil Song <yonggil.song@samsung.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit e219aecfd4b766c4e878a3769057e9809f7fcadc ]
+[ Upstream commit b8a83e600bdde93e7da41ea3204b2b3832a3c99b ]
 
-When f2fs chooses GC victim in large section & LFS mode,
-next_victim_seg[gc_type] is referenced first. After segment is freed,
-next_victim_seg[gc_type] has the next segment number.
-However, next_victim_seg[gc_type] still has the last segment number
-even after the last segment of section is freed. In this case, when f2fs
-chooses a victim for the next GC round, the last segment of previous victim
-section is chosen as a victim.
+Originally as it was defined the legacy bindings the pcie_inbound_axi and
+pcie_aux clock names were supposed to be used in the fsl,imx6sx-pcie and
+fsl,imx8mq-pcie devices respectively. But the bindings conversion has been
+incorrectly so now the fourth clock name is defined as "pcie_inbound_axi
+for imx6sx-pcie, pcie_aux for imx8mq-pcie", which is completely wrong.
+Let's fix that by conditionally apply the clock-names constraints based on
+the compatible string content.
 
-Initialize next_victim_seg[gc_type] to NULL_SEGNO for the last segment in
-large section.
-
-Fixes: e3080b0120a1 ("f2fs: support subsectional garbage collection")
-Signed-off-by: Yonggil Song <yonggil.song@samsung.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Link: https://lore.kernel.org/r/20221113191301.5526-2-Sergey.Semin@baikalelectronics.ru
+Fixes: 751ca492f131 ("dt-bindings: PCI: imx6: convert the imx pcie controller to dtschema")
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Acked-by: Alexander Stein <alexander.stein@ew.tq-group.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/gc.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ .../bindings/pci/fsl,imx6q-pcie.yaml          | 46 +++++++++++++++++--
+ 1 file changed, 42 insertions(+), 4 deletions(-)
 
-diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
-index f46e4dcaa252..22c1f876e8c5 100644
---- a/fs/f2fs/gc.c
-+++ b/fs/f2fs/gc.c
-@@ -1743,8 +1743,9 @@ static int do_garbage_collect(struct f2fs_sb_info *sbi,
- 				get_valid_blocks(sbi, segno, false) == 0)
- 			seg_freed++;
+diff --git a/Documentation/devicetree/bindings/pci/fsl,imx6q-pcie.yaml b/Documentation/devicetree/bindings/pci/fsl,imx6q-pcie.yaml
+index 376e739bcad4..49b4f7a32e71 100644
+--- a/Documentation/devicetree/bindings/pci/fsl,imx6q-pcie.yaml
++++ b/Documentation/devicetree/bindings/pci/fsl,imx6q-pcie.yaml
+@@ -14,9 +14,6 @@ description: |+
+   This PCIe host controller is based on the Synopsys DesignWare PCIe IP
+   and thus inherits all the common properties defined in snps,dw-pcie.yaml.
  
--		if (__is_large_section(sbi) && segno + 1 < end_segno)
--			sbi->next_victim_seg[gc_type] = segno + 1;
-+		if (__is_large_section(sbi))
-+			sbi->next_victim_seg[gc_type] =
-+				(segno + 1 < end_segno) ? segno + 1 : NULL_SEGNO;
- skip:
- 		f2fs_put_page(sum_page, 0);
- 	}
+-allOf:
+-  - $ref: /schemas/pci/snps,dw-pcie.yaml#
+-
+ properties:
+   compatible:
+     enum:
+@@ -61,7 +58,7 @@ properties:
+       - const: pcie
+       - const: pcie_bus
+       - const: pcie_phy
+-      - const: pcie_inbound_axi for imx6sx-pcie, pcie_aux for imx8mq-pcie
++      - enum: [ pcie_inbound_axi, pcie_aux ]
+ 
+   num-lanes:
+     const: 1
+@@ -175,6 +172,47 @@ required:
+   - clocks
+   - clock-names
+ 
++allOf:
++  - $ref: /schemas/pci/snps,dw-pcie.yaml#
++  - if:
++      properties:
++        compatible:
++          contains:
++            const: fsl,imx6sx-pcie
++    then:
++      properties:
++        clock-names:
++          items:
++            - {}
++            - {}
++            - {}
++            - const: pcie_inbound_axi
++  - if:
++      properties:
++        compatible:
++          contains:
++            const: fsl,imx8mq-pcie
++    then:
++      properties:
++        clock-names:
++          items:
++            - {}
++            - {}
++            - {}
++            - const: pcie_aux
++  - if:
++      properties:
++        compatible:
++          not:
++            contains:
++              enum:
++                - fsl,imx6sx-pcie
++                - fsl,imx8mq-pcie
++    then:
++      properties:
++        clock-names:
++          maxItems: 3
++
+ unevaluatedProperties: false
+ 
+ examples:
 -- 
 2.35.1
 
