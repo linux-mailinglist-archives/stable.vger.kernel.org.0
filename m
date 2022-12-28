@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C379F65781A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C79FF657DF3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:48:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232929AbiL1OsD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:48:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35252 "EHLO
+        id S234067AbiL1Psj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:48:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232978AbiL1Ori (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:47:38 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCE9212090
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:47:02 -0800 (PST)
+        with ESMTP id S233635AbiL1Ps0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:48:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D64C17E18
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:48:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 15056CE1355
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:47:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AFF4C433EF;
-        Wed, 28 Dec 2022 14:46:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CCAC86156F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:48:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2C36C433EF;
+        Wed, 28 Dec 2022 15:48:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238819;
-        bh=+Z+M/DLXhHzIRpNXTVfEJITUXHY8tJgU0gM3+2lYOwg=;
+        s=korg; t=1672242504;
+        bh=6b3QrspX1R5KOpqwaS7lEnB0YjVd8EjsMdqyj40tnT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vnNM2FAtTUjuhl5EfL4BgzAfyRgPcT0aQ8DvCv5FlSWtDYussd6nAGvDbUqIyxokp
-         tlHjQynvbJrFPmilsRdwDsgLCVvWFNdNcQMwIvnOPdygJX38JwbHEIosLkSNigPg/3
-         GvQk225W548SbIgLQ5UmuxMSsEoash6I3DX00B7M=
+        b=SEBs7pFISACXjIA7LfFTWIQCCSaNi4MXuUjAEDTo+kOW/G6+aUQ59mq2W/ndk64t2
+         lwHfbBE2vtBO7HKV/59NoelImBWsgFD4XR17W6tIhuRWeT1rOHxGN8xTCSAkFmp0BR
+         T/v2vBZszFw240tnFgeYr2c/vSAaGcqYoCGgOv14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 009/731] arm64: dts: qcom: sdm630: fix UART1 pin bias
+        patches@lists.linux.dev, Baisong Zhong <zhongbaisong@huawei.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0377/1146] ALSA: seq: fix undefined behavior in bit shift for SNDRV_SEQ_FILTER_USE_EVENT
 Date:   Wed, 28 Dec 2022 15:31:56 +0100
-Message-Id: <20221228144256.808793379@linuxfoundation.org>
+Message-Id: <20221228144340.403400020@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +52,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Baisong Zhong <zhongbaisong@huawei.com>
 
-[ Upstream commit 780f836fe071a9e8703fe6a05ae00129acf83391 ]
+[ Upstream commit cf59e1e4c79bf741905484cdb13c130b53576a16 ]
 
-There is no "bias-no-pull" property.  Assume intentions were disabling
-bias.
+Shifting signed 32-bit value by 31 bits is undefined, so changing
+significant bit to unsigned. The UBSAN warning calltrace like below:
 
-Fixes: b190fb010664 ("arm64: dts: qcom: sdm630: Add sdm630 dts file")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221010114417.29859-1-krzysztof.kozlowski@linaro.org
+UBSAN: shift-out-of-bounds in sound/core/seq/seq_clientmgr.c:509:22
+left shift of 1 by 31 places cannot be represented in type 'int'
+...
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x8d/0xcf
+ ubsan_epilogue+0xa/0x44
+ __ubsan_handle_shift_out_of_bounds+0x1e7/0x208
+ snd_seq_deliver_single_event.constprop.21+0x191/0x2f0
+ snd_seq_deliver_event+0x1a2/0x350
+ snd_seq_kernel_client_dispatch+0x8b/0xb0
+ snd_seq_client_notify_subscription+0x72/0xa0
+ snd_seq_ioctl_subscribe_port+0x128/0x160
+ snd_seq_kernel_client_ctl+0xce/0xf0
+ snd_seq_oss_create_client+0x109/0x15b
+ alsa_seq_oss_init+0x11c/0x1aa
+ do_one_initcall+0x80/0x440
+ kernel_init_freeable+0x370/0x3c3
+ kernel_init+0x1b/0x190
+ ret_from_fork+0x1f/0x30
+ </TASK>
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Baisong Zhong <zhongbaisong@huawei.com>
+Link: https://lore.kernel.org/r/20221121111630.3119259-1-zhongbaisong@huawei.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sdm630.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/uapi/sound/asequencer.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm630.dtsi b/arch/arm64/boot/dts/qcom/sdm630.dtsi
-index 952bb133914f..c2e1a0d9a272 100644
---- a/arch/arm64/boot/dts/qcom/sdm630.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sdm630.dtsi
-@@ -768,7 +768,7 @@ rx-cts-rts {
- 					pins = "gpio17", "gpio18", "gpio19";
- 					function = "gpio";
- 					drive-strength = <2>;
--					bias-no-pull;
-+					bias-disable;
- 				};
- 			};
+diff --git a/include/uapi/sound/asequencer.h b/include/uapi/sound/asequencer.h
+index 6d4a2c60808d..00d2703e8fca 100644
+--- a/include/uapi/sound/asequencer.h
++++ b/include/uapi/sound/asequencer.h
+@@ -328,10 +328,10 @@ typedef int __bitwise snd_seq_client_type_t;
+ #define	KERNEL_CLIENT	((__force snd_seq_client_type_t) 2)
+                         
+ 	/* event filter flags */
+-#define SNDRV_SEQ_FILTER_BROADCAST	(1<<0)	/* accept broadcast messages */
+-#define SNDRV_SEQ_FILTER_MULTICAST	(1<<1)	/* accept multicast messages */
+-#define SNDRV_SEQ_FILTER_BOUNCE		(1<<2)	/* accept bounce event in error */
+-#define SNDRV_SEQ_FILTER_USE_EVENT	(1<<31)	/* use event filter */
++#define SNDRV_SEQ_FILTER_BROADCAST	(1U<<0)	/* accept broadcast messages */
++#define SNDRV_SEQ_FILTER_MULTICAST	(1U<<1)	/* accept multicast messages */
++#define SNDRV_SEQ_FILTER_BOUNCE		(1U<<2)	/* accept bounce event in error */
++#define SNDRV_SEQ_FILTER_USE_EVENT	(1U<<31)	/* use event filter */
  
+ struct snd_seq_client_info {
+ 	int client;			/* client number to inquire */
 -- 
 2.35.1
 
