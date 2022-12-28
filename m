@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 538EC6580EF
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:23:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3771A6579F3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:06:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234659AbiL1QXN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:23:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43368 "EHLO
+        id S233571AbiL1PGd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:06:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234847AbiL1QWT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:22:19 -0500
+        with ESMTP id S233580AbiL1PGW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:06:22 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 929CE1A20F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:19:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CF3112D3A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:06:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 585F0B81887
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:19:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A28E7C433D2;
-        Wed, 28 Dec 2022 16:19:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE389B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:06:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31996C433EF;
+        Wed, 28 Dec 2022 15:06:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244394;
-        bh=UM2gO9+o7hnCGwcUNaEeEQAPY079Neovmli6/kdR7V4=;
+        s=korg; t=1672239978;
+        bh=9AtMiHKpoUlY9QO0Us6J1m6vzVBDH68xDzgmgBMi2Qw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CRBaGNneXrlyYZrI5otiB4sgj+Vyj6Jb98GKMf7tsxK1q8xQkCL0+aWBMpvYZSWII
-         PB7xEpq9EsNlpoga7aOcUsG/4xOpwBiTQTLpN40yuMN3SwY6mZnQPhIdLJSWEkizWu
-         ntOosf2JqLUFiKl9P7uEeXui3rEO5W9tOSyRJPRU=
+        b=d2W8zCHpxyB/vIMSXgnXNOz73TcB9WD/McXfQ1GLP4yaAKGTA8npenBhQmJTuTDET
+         ODxyPvJZdH4pfs3mFkwTdz88XObHsUHZcwdOCaRIDixYUIPzzEgpEXP+VBVufkeH82
+         vAj34G9ohA5hiGcZFK3py1VoumLMSjEqZSChte40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0662/1146] crypto: qat - fix error return code in adf_probe
-Date:   Wed, 28 Dec 2022 15:36:41 +0100
-Message-Id: <20221228144348.134590622@linuxfoundation.org>
+Subject: [PATCH 5.15 295/731] mmc: rtsx_pci: fix return value check of mmc_add_host()
+Date:   Wed, 28 Dec 2022 15:36:42 +0100
+Message-Id: <20221228144305.124742500@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 31f81401e23fb88cc030cd586abd28740e6c8136 ]
+[ Upstream commit 0c87db77423a282b3b38b8a6daf057b822680516 ]
 
-Fix to return a negative error code -EINVAL instead of 0.
+mmc_add_host() may return error, if we ignore its return value, the memory
+that allocated in mmc_alloc_host() will be leaked and it will lead a kernel
+crash because of deleting not added device in the remove path.
 
-Fixes: 0cec19c761e5 ("crypto: qat - add support for compression for 4xxx")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Acked-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+So fix this by checking the return value and calling mmc_free_host() in the
+error path, beside, runtime PM also needs be disabled.
+
+Fixes: ff984e57d36e ("mmc: Add realtek pcie sdmmc host driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221101063023.1664968-6-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_4xxx/adf_drv.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mmc/host/rtsx_pci_sdmmc.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/qat/qat_4xxx/adf_drv.c b/drivers/crypto/qat/qat_4xxx/adf_drv.c
-index 2f212561acc4..670a58b25cb1 100644
---- a/drivers/crypto/qat/qat_4xxx/adf_drv.c
-+++ b/drivers/crypto/qat/qat_4xxx/adf_drv.c
-@@ -261,6 +261,7 @@ static int adf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	hw_data->accel_capabilities_mask = hw_data->get_accel_cap(accel_dev);
- 	if (!hw_data->accel_capabilities_mask) {
- 		dev_err(&pdev->dev, "Failed to get capabilities mask.\n");
-+		ret = -EINVAL;
- 		goto out_err;
- 	}
+diff --git a/drivers/mmc/host/rtsx_pci_sdmmc.c b/drivers/mmc/host/rtsx_pci_sdmmc.c
+index e1580f78c6b2..8098726dcc0b 100644
+--- a/drivers/mmc/host/rtsx_pci_sdmmc.c
++++ b/drivers/mmc/host/rtsx_pci_sdmmc.c
+@@ -1474,6 +1474,7 @@ static int rtsx_pci_sdmmc_drv_probe(struct platform_device *pdev)
+ 	struct realtek_pci_sdmmc *host;
+ 	struct rtsx_pcr *pcr;
+ 	struct pcr_handle *handle = pdev->dev.platform_data;
++	int ret;
  
+ 	if (!handle)
+ 		return -ENXIO;
+@@ -1511,7 +1512,13 @@ static int rtsx_pci_sdmmc_drv_probe(struct platform_device *pdev)
+ 	pm_runtime_mark_last_busy(&pdev->dev);
+ 	pm_runtime_use_autosuspend(&pdev->dev);
+ 
+-	mmc_add_host(mmc);
++	ret = mmc_add_host(mmc);
++	if (ret) {
++		pm_runtime_dont_use_autosuspend(&pdev->dev);
++		pm_runtime_disable(&pdev->dev);
++		mmc_free_host(mmc);
++		return ret;
++	}
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
