@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C72D76584FA
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:04:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4E2C6584FB
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:04:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234637AbiL1RE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:04:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57982 "EHLO
+        id S234484AbiL1RE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:04:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234484AbiL1RD5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:03:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2B4D1FF8A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:58:24 -0800 (PST)
+        with ESMTP id S235265AbiL1REA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:04:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA59B1FCF8
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:58:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 822E061558
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:58:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C970C433EF;
-        Wed, 28 Dec 2022 16:58:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 351BF61562
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:58:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A2B7C433EF;
+        Wed, 28 Dec 2022 16:58:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246703;
-        bh=VJogmBw8B5TDJSm1Dx40EjiDykgr1JCGBYsI90FICZY=;
+        s=korg; t=1672246706;
+        bh=p6CdsxryZS9cGFAAxO2KbLvjzENRLOpYnQXNFVjVpsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AIilSUSTDdvkRGSSR9lG4mX4/tl17vwm8CL8so+2Mk82aXbehs3aiPGlh+jK8vDgd
-         SjwYfsdck9uVqtIzP008cwE5ewkXXlQnvu4zjbMlQnlmMfUXNv8j8KFBnEt8D+evXq
-         bh5McW8/H1WPPH0UfJ/JALYVkFjbCo1no3gBgpnU=
+        b=zbhVP8dk9Vg1WiJipbUEL1ts4c64BnFqXmnMyJ22NX6sMFE+MwwIOco6MvT42dvyK
+         Z87BlTgPy7GhBaxie8o0F8uG4o+7abz0aGWYa+7uD9wXRr6HYHh6Y5HNZ8Hmx49t+B
+         1Yybg7vVkXW5bUiue3SFQ9i/Dxgb0ceYKeaGIXWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marco Patalano <mpatalan@redhat.com>,
-        Arun Easi <aeasi@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 6.1 1133/1146] scsi: qla2xxx: Fix crash when I/O abort times out
-Date:   Wed, 28 Dec 2022 15:44:32 +0100
-Message-Id: <20221228144400.918483839@linuxfoundation.org>
+        patches@lists.linux.dev, Tejun Heo <tj@kernel.org>,
+        darklight2357@icloud.com, Josef Bacik <josef@toxicpanda.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 6.1 1134/1146] blk-iolatency: Fix memory leak on add_disk() failures
+Date:   Wed, 28 Dec 2022 15:44:33 +0100
+Message-Id: <20221228144400.944923088@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -54,94 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Tejun Heo <tj@kernel.org>
 
-commit 68ad83188d782b2ecef2e41ac245d27e0710fe8e upstream.
+commit 813e693023ba10da9e75067780f8378465bf27cc upstream.
 
-While performing CPU hotplug, a crash with the following stack was seen:
+When a gendisk is successfully initialized but add_disk() fails such as when
+a loop device has invalid number of minor device numbers specified,
+blkcg_init_disk() is called during init and then blkcg_exit_disk() during
+error handling. Unfortunately, iolatency gets initialized in the former but
+doesn't get cleaned up in the latter.
 
-Call Trace:
-     qla24xx_process_response_queue+0x42a/0x970 [qla2xxx]
-     qla2x00_start_nvme_mq+0x3a2/0x4b0 [qla2xxx]
-     qla_nvme_post_cmd+0x166/0x240 [qla2xxx]
-     nvme_fc_start_fcp_op.part.0+0x119/0x2e0 [nvme_fc]
-     blk_mq_dispatch_rq_list+0x17b/0x610
-     __blk_mq_sched_dispatch_requests+0xb0/0x140
-     blk_mq_sched_dispatch_requests+0x30/0x60
-     __blk_mq_run_hw_queue+0x35/0x90
-     __blk_mq_delay_run_hw_queue+0x161/0x180
-     blk_execute_rq+0xbe/0x160
-     __nvme_submit_sync_cmd+0x16f/0x220 [nvme_core]
-     nvmf_connect_admin_queue+0x11a/0x170 [nvme_fabrics]
-     nvme_fc_create_association.cold+0x50/0x3dc [nvme_fc]
-     nvme_fc_connect_ctrl_work+0x19/0x30 [nvme_fc]
-     process_one_work+0x1e8/0x3c0
+This is because, in non-error cases, the cleanup is performed by
+del_gendisk() calling rq_qos_exit(), the assumption being that rq_qos
+policies, iolatency being one of them, can only be activated once the disk
+is fully registered and visible. That assumption is true for wbt and iocost,
+but not so for iolatency as it gets initialized before add_disk() is called.
 
-On abort timeout, completion was called without checking if the I/O was
-already completed.
+It is desirable to lazy-init rq_qos policies because they are optional
+features and add to hot path overhead once initialized - each IO has to walk
+all the registered rq_qos policies. So, we want to switch iolatency to lazy
+init too. However, that's a bigger change. As a fix for the immediate
+problem, let's just add an extra call to rq_qos_exit() in blkcg_exit_disk().
+This is safe because duplicate calls to rq_qos_exit() become noop's.
 
-Verify that I/O and abort request are indeed outstanding before attempting
-completion.
-
-Fixes: 71c80b75ce8f ("scsi: qla2xxx: Do command completion on abort timeout")
-Reported-by: Marco Patalano <mpatalan@redhat.com>
-Tested-by: Marco Patalano <mpatalan@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Link: https://lore.kernel.org/r/20221129092634.15347-1-njavali@marvell.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: darklight2357@icloud.com
+Cc: Josef Bacik <josef@toxicpanda.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: d70675121546 ("block: introduce blk-iolatency io controller")
+Cc: stable@vger.kernel.org # v4.19+
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/Y5TQ5gm3O4HXrXR3@slm.duckdns.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ block/blk-cgroup.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -110,6 +110,7 @@ static void qla24xx_abort_iocb_timeout(v
- 	struct qla_qpair *qpair = sp->qpair;
- 	u32 handle;
- 	unsigned long flags;
-+	int sp_found = 0, cmdsp_found = 0;
+--- a/block/blk-cgroup.c
++++ b/block/blk-cgroup.c
+@@ -33,6 +33,7 @@
+ #include "blk-cgroup.h"
+ #include "blk-ioprio.h"
+ #include "blk-throttle.h"
++#include "blk-rq-qos.h"
  
- 	if (sp->cmd_sp)
- 		ql_dbg(ql_dbg_async, sp->vha, 0x507c,
-@@ -124,18 +125,21 @@ static void qla24xx_abort_iocb_timeout(v
- 	spin_lock_irqsave(qpair->qp_lock_ptr, flags);
- 	for (handle = 1; handle < qpair->req->num_outstanding_cmds; handle++) {
- 		if (sp->cmd_sp && (qpair->req->outstanding_cmds[handle] ==
--		    sp->cmd_sp))
-+		    sp->cmd_sp)) {
- 			qpair->req->outstanding_cmds[handle] = NULL;
-+			cmdsp_found = 1;
-+		}
- 
- 		/* removing the abort */
- 		if (qpair->req->outstanding_cmds[handle] == sp) {
- 			qpair->req->outstanding_cmds[handle] = NULL;
-+			sp_found = 1;
- 			break;
- 		}
- 	}
- 	spin_unlock_irqrestore(qpair->qp_lock_ptr, flags);
- 
--	if (sp->cmd_sp) {
-+	if (cmdsp_found && sp->cmd_sp) {
- 		/*
- 		 * This done function should take care of
- 		 * original command ref: INIT
-@@ -143,8 +147,10 @@ static void qla24xx_abort_iocb_timeout(v
- 		sp->cmd_sp->done(sp->cmd_sp, QLA_OS_TIMER_EXPIRED);
- 	}
- 
--	abt->u.abt.comp_status = cpu_to_le16(CS_TIMEOUT);
--	sp->done(sp, QLA_OS_TIMER_EXPIRED);
-+	if (sp_found) {
-+		abt->u.abt.comp_status = cpu_to_le16(CS_TIMEOUT);
-+		sp->done(sp, QLA_OS_TIMER_EXPIRED);
-+	}
+ /*
+  * blkcg_pol_mutex protects blkcg_policy[] and policy [de]activation.
+@@ -1275,6 +1276,7 @@ err_unlock:
+ void blkcg_exit_disk(struct gendisk *disk)
+ {
+ 	blkg_destroy_all(disk);
++	rq_qos_exit(disk->queue);
+ 	blk_throtl_exit(disk);
  }
  
- static void qla24xx_abort_sp_done(srb_t *sp, int res)
 
 
