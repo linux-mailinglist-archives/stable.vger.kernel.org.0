@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A3D5657C0A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:28:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC9DD6581BA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:31:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233285AbiL1P22 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:28:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46258 "EHLO
+        id S234639AbiL1Qba (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:31:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233779AbiL1P2L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:28:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF030140CF
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:28:10 -0800 (PST)
+        with ESMTP id S233797AbiL1QbJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:31:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B15931D30E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:27:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8D772B8170E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:28:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC98EC433EF;
-        Wed, 28 Dec 2022 15:28:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3928361577
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:27:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DC44C433D2;
+        Wed, 28 Dec 2022 16:27:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241288;
-        bh=uLIsukXJhEgNwWpKq1WAWN1iQVsKjrvxWp8y71oSqwA=;
+        s=korg; t=1672244827;
+        bh=3pDA/mDDRenCnZS72+22hom0EQgnfTq9LBnTB6OMFx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VpM4hu+if9gehtYQ9KSQaAYpNWUoQGQ3gFl46huT8YgPUAnXcj4OXJ+oDlHbt2Aec
-         84v/+E9bTmZ50/jOdPOPzQ5La6Lsrcz6yyYUE6kICgPhlnTCOtMFvjf1xPFbEgamlB
-         IVbY3WNFb7+ExVAgORAlxS+nKyYfSKdfxteWKlRQ=
+        b=K8o7BkEvTNf7WP1o+kUaLb+fVc4haSdcyeLHAOs37QzIgO5FqlUNsQtPcXhBLenW6
+         Wws+yZbW21QQ7i+qa0heyba8jg+m7rgoe7tAUkWIEi1140pLflP0829+nnuEMq1HNn
+         zgwbqFCmwUvHSTvknu6UEdNvdb5Ky4n6mao8yVuc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tobias Klauser <tklauser@distanz.ch>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Jiri Slaby <jslaby@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 462/731] tty: serial: altera_uart_{r,t}x_chars() need only uart_port
+        patches@lists.linux.dev,
+        syzbot+b892240eac461e488d51@syzkaller.appspotmail.com,
+        Abdun Nihaal <abdun.nihaal@gmail.com>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0781/1073] fs/ntfs3: Fix slab-out-of-bounds read in ntfs_trim_fs
 Date:   Wed, 28 Dec 2022 15:39:29 +0100
-Message-Id: <20221228144309.942306262@linuxfoundation.org>
+Message-Id: <20221228144349.223466422@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,66 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Abdun Nihaal <abdun.nihaal@gmail.com>
 
-[ Upstream commit 3af44d9bb0539d5fa27d6159d696fda5f3747bff ]
+[ Upstream commit 557d19675a470bb0a98beccec38c5dc3735c20fa ]
 
-Both altera_uart_{r,t}x_chars() need only uart_port, not altera_uart. So
-pass the former from altera_uart_interrupt() directly.
+Syzbot reports an out of bound access in ntfs_trim_fs.
+The cause of this is using a loop termination condition that compares
+window index (iw) with wnd->nbits instead of wnd->nwnd, due to which the
+index used for wnd->free_bits exceeds the size of the array allocated.
 
-Apart it maybe saves a dereference, this makes the transition of
-altera_uart_tx_chars() easier to follow in the next patch.
+Fix the loop condition.
 
-Cc: Tobias Klauser <tklauser@distanz.ch>
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Acked-by: Tobias Klauser <tklauser@distanz.ch>
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20220920052049.20507-4-jslaby@suse.cz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Stable-dep-of: 1307c5d33cce ("serial: altera_uart: fix locking in polling mode")
+Fixes: 3f3b442b5ad2 ("fs/ntfs3: Add bitmap")
+Link: https://syzkaller.appspot.com/bug?extid=b892240eac461e488d51
+Reported-by: syzbot+b892240eac461e488d51@syzkaller.appspotmail.com
+Signed-off-by: Abdun Nihaal <abdun.nihaal@gmail.com>
+Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/altera_uart.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ fs/ntfs3/bitmap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/altera_uart.c b/drivers/tty/serial/altera_uart.c
-index 0e194556d76e..6e08fa11ceea 100644
---- a/drivers/tty/serial/altera_uart.c
-+++ b/drivers/tty/serial/altera_uart.c
-@@ -199,9 +199,8 @@ static void altera_uart_set_termios(struct uart_port *port,
- 	 */
- }
+diff --git a/fs/ntfs3/bitmap.c b/fs/ntfs3/bitmap.c
+index 5d44ceac855b..087282cb130b 100644
+--- a/fs/ntfs3/bitmap.c
++++ b/fs/ntfs3/bitmap.c
+@@ -1424,7 +1424,7 @@ int ntfs_trim_fs(struct ntfs_sb_info *sbi, struct fstrim_range *range)
  
--static void altera_uart_rx_chars(struct altera_uart *pp)
-+static void altera_uart_rx_chars(struct uart_port *port)
- {
--	struct uart_port *port = &pp->port;
- 	unsigned char ch, flag;
- 	unsigned short status;
+ 	down_read_nested(&wnd->rw_lock, BITMAP_MUTEX_CLUSTERS);
  
-@@ -246,9 +245,8 @@ static void altera_uart_rx_chars(struct altera_uart *pp)
- 	tty_flip_buffer_push(&port->state->port);
- }
+-	for (; iw < wnd->nbits; iw++, wbit = 0) {
++	for (; iw < wnd->nwnd; iw++, wbit = 0) {
+ 		CLST lcn_wnd = iw * wbits;
+ 		struct buffer_head *bh;
  
--static void altera_uart_tx_chars(struct altera_uart *pp)
-+static void altera_uart_tx_chars(struct uart_port *port)
- {
--	struct uart_port *port = &pp->port;
- 	struct circ_buf *xmit = &port->state->xmit;
- 
- 	if (port->x_char) {
-@@ -286,9 +284,9 @@ static irqreturn_t altera_uart_interrupt(int irq, void *data)
- 
- 	spin_lock(&port->lock);
- 	if (isr & ALTERA_UART_STATUS_RRDY_MSK)
--		altera_uart_rx_chars(pp);
-+		altera_uart_rx_chars(port);
- 	if (isr & ALTERA_UART_STATUS_TRDY_MSK)
--		altera_uart_tx_chars(pp);
-+		altera_uart_tx_chars(port);
- 	spin_unlock(&port->lock);
- 
- 	return IRQ_RETVAL(isr);
 -- 
 2.35.1
 
