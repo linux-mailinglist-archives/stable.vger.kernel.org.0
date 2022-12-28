@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7668B657EE1
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:58:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52C0D65787B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:51:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234172AbiL1P6k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:58:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45978 "EHLO
+        id S233120AbiL1Ovh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:51:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234164AbiL1P6j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:58:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D40C8183AA
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:58:38 -0800 (PST)
+        with ESMTP id S233197AbiL1Ou5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:50:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2810FB41
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:50:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 86B87B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:58:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0F05C433EF;
-        Wed, 28 Dec 2022 15:58:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA0D661130
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:50:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFC60C433D2;
+        Wed, 28 Dec 2022 14:50:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243116;
-        bh=i5o0O0w+IiaeCvWsDJUEXBmUaY0CSiK8cY0u6qqBa4U=;
+        s=korg; t=1672239056;
+        bh=yQi0KKFy++VnQxeN1EaZEtnH9V/nrQBt/zrBPeiXXF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XI/ElXBsj90sHXMl8ajjR0zvUsmoW1vjjc1Bp6iIKtNb3TVc4tIHnS64dyqMpB8f6
-         Djc497dxEMsCOSAIGNoVOpN0Zg+9rK+B6nbLKtDGkz57nU1W2Ruz5FfEaBQF37Ez7A
-         3eqPLVtxLs0jiTjBb/BF/c7w4kLoMxZzUnq3HzFM=
+        b=XgYvw+idLLym4GmW4R6VBNc7dP5IMnfdAOnrNHfU+XmLLtP3WrNi3hmliSuOw3xXb
+         Oz0HG3szrMLI4L9Yd7rF6K4joBKhXgajIbQNPx7b+nwkuu/Dx3Nof28EyZv/DmCbL3
+         f6EZIC8YrZgyvSVsAIg2azXOr+wV5mIlLeeLzdhg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Barnab=C3=A1s=20P=C5=91cze?= <pobrn@protonmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0453/1146] wifi: cfg80211: Fix not unregister reg_pdev when load_builtin_regdb_keys() fails
+Subject: [PATCH 5.15 085/731] timerqueue: Use rb_entry_safe() in timerqueue_getnext()
 Date:   Wed, 28 Dec 2022 15:33:12 +0100
-Message-Id: <20221228144342.487128599@linuxfoundation.org>
+Message-Id: <20221228144259.016984483@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Barnabás Pőcze <pobrn@protonmail.com>
 
-[ Upstream commit 833a9fd28c9b7ccb39a334721379e992dc1c0c89 ]
+[ Upstream commit 2f117484329b233455ee278f2d9b0a4356835060 ]
 
-In regulatory_init_db(), when it's going to return a error, reg_pdev
-should be unregistered. When load_builtin_regdb_keys() fails it doesn't
-do it and makes cfg80211 can't be reload with report:
+When `timerqueue_getnext()` is called on an empty timer queue, it will
+use `rb_entry()` on a NULL pointer, which is invalid. Fix that by using
+`rb_entry_safe()` which handles NULL pointers.
 
-sysfs: cannot create duplicate filename '/devices/platform/regulatory.0'
- ...
- <TASK>
- dump_stack_lvl+0x79/0x9b
- sysfs_warn_dup.cold+0x1c/0x29
- sysfs_create_dir_ns+0x22d/0x290
- kobject_add_internal+0x247/0x800
- kobject_add+0x135/0x1b0
- device_add+0x389/0x1be0
- platform_device_add+0x28f/0x790
- platform_device_register_full+0x376/0x4b0
- regulatory_init+0x9a/0x4b2 [cfg80211]
- cfg80211_init+0x84/0x113 [cfg80211]
- ...
+This has not caused any issues so far because the offset of the `rb_node`
+member in `timerqueue_node` is 0, so `rb_entry()` is essentially a no-op.
 
-Fixes: 90a53e4432b1 ("cfg80211: implement regdb signature checking")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Link: https://lore.kernel.org/r/20221109090237.214127-1-chenzhongjin@huawei.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 511885d7061e ("lib/timerqueue: Rely on rbtree semantics for next timer")
+Signed-off-by: Barnabás Pőcze <pobrn@protonmail.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20221114195421.342929-1-pobrn@protonmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/reg.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/linux/timerqueue.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/wireless/reg.c b/net/wireless/reg.c
-index c3d950d29432..4f3f31244e8b 100644
---- a/net/wireless/reg.c
-+++ b/net/wireless/reg.c
-@@ -4311,8 +4311,10 @@ static int __init regulatory_init_db(void)
- 		return -EINVAL;
+diff --git a/include/linux/timerqueue.h b/include/linux/timerqueue.h
+index 93884086f392..adc80e29168e 100644
+--- a/include/linux/timerqueue.h
++++ b/include/linux/timerqueue.h
+@@ -35,7 +35,7 @@ struct timerqueue_node *timerqueue_getnext(struct timerqueue_head *head)
+ {
+ 	struct rb_node *leftmost = rb_first_cached(&head->rb_root);
  
- 	err = load_builtin_regdb_keys();
--	if (err)
-+	if (err) {
-+		platform_device_unregister(reg_pdev);
- 		return err;
-+	}
+-	return rb_entry(leftmost, struct timerqueue_node, node);
++	return rb_entry_safe(leftmost, struct timerqueue_node, node);
+ }
  
- 	/* We always try to get an update for the static regdomain */
- 	err = regulatory_hint_core(cfg80211_world_regdom->alpha2);
+ static inline void timerqueue_init(struct timerqueue_node *node)
 -- 
 2.35.1
 
