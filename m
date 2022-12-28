@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE1196584EA
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:03:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 536556584EB
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:03:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234440AbiL1RDz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:03:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54120 "EHLO
+        id S232964AbiL1RD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:03:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235270AbiL1RDc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:03:32 -0500
+        with ESMTP id S235290AbiL1RDe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:03:34 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFCF11DDDF
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:57:45 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FAA114085
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:57:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 79106B8171E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:57:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C49EEC433D2;
-        Wed, 28 Dec 2022 16:57:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0ADF7B8171F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:57:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7829DC433D2;
+        Wed, 28 Dec 2022 16:57:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246663;
-        bh=ykql0l1NolxZGhQz+NQUitFMFHuFP7ycSFzjIlFWXcs=;
+        s=korg; t=1672246665;
+        bh=L4T6co3qEhFUImBGVuk1Cgsr93LNnaOLn11IL9Q4Eqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J/rAdAeD9c/Qo+DuvKhobLkcxkIpJz1fNWOng6WZJq0u/Yfb2FtMCD0RI8tNtm+ye
-         BosKoArX5okL8HR3tlP5PI3bcEvwD2OYWLEoCMEiwvhStaOq/gbKGkS0cgzgnmgGQF
-         UIuibEZndZjxxt64uFmPaUGDFkdfRAgzAlaK68Fw=
+        b=ElE7Npbsp/P0jc5H3FIybFkosYXqkDsLXRUcynQ/YRkUoVvwDKVPn0RJZCbAN8+3G
+         ZBnj+rITPD8/vwIFR7pOFznmCjA2B1y3eAF+alF3gBgiLFCWySjCcGLJHIhcm1jQST
+         Th35WmXhxupqjZnapAKv0C/AesvYH43YPrClVaZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 6.1 1117/1146] security: Restrict CONFIG_ZERO_CALL_USED_REGS to gcc or clang > 15.0.6
-Date:   Wed, 28 Dec 2022 15:44:16 +0100
-Message-Id: <20221228144400.489916162@linuxfoundation.org>
+        patches@lists.linux.dev, Jeff Mahoney <jeffm@suse.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 6.1 1118/1146] reiserfs: Add missing calls to reiserfs_security_free()
+Date:   Wed, 28 Dec 2022 15:44:17 +0100
+Message-Id: <20221228144400.518201472@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -52,37 +55,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-commit d6a9fb87e9d18f3394a9845546bbe868efdccfd2 upstream.
+commit 572302af1258459e124437b8f3369357447afac7 upstream.
 
-A bad bug in clang's implementation of -fzero-call-used-regs can result
-in NULL pointer dereferences (see the links above the check for more
-information). Restrict CONFIG_CC_HAS_ZERO_CALL_USED_REGS to either a
-supported GCC version or a clang newer than 15.0.6, which will catch
-both a theoretical 15.0.7 and the upcoming 16.0.0, which will both have
-the bug fixed.
+Commit 57fe60df6241 ("reiserfs: add atomic addition of selinux attributes
+during inode creation") defined reiserfs_security_free() to free the name
+and value of a security xattr allocated by the active LSM through
+security_old_inode_init_security(). However, this function is not called
+in the reiserfs code.
 
-Cc: stable@vger.kernel.org # v5.15+
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221214232602.4118147-1-nathan@kernel.org
+Thus, add a call to reiserfs_security_free() whenever
+reiserfs_security_init() is called, and initialize value to NULL, to avoid
+to call kfree() on an uninitialized pointer.
+
+Finally, remove the kfree() for the xattr name, as it is not allocated
+anymore.
+
+Fixes: 57fe60df6241 ("reiserfs: add atomic addition of selinux attributes during inode creation")
+Cc: stable@vger.kernel.org
+Cc: Jeff Mahoney <jeffm@suse.com>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Reported-by: Mimi Zohar <zohar@linux.ibm.com>
+Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/Kconfig.hardening |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/reiserfs/namei.c          |    4 ++++
+ fs/reiserfs/xattr_security.c |    2 +-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
---- a/security/Kconfig.hardening
-+++ b/security/Kconfig.hardening
-@@ -257,6 +257,9 @@ config INIT_ON_FREE_DEFAULT_ON
+--- a/fs/reiserfs/namei.c
++++ b/fs/reiserfs/namei.c
+@@ -696,6 +696,7 @@ static int reiserfs_create(struct user_n
  
- config CC_HAS_ZERO_CALL_USED_REGS
- 	def_bool $(cc-option,-fzero-call-used-regs=used-gpr)
-+	# https://github.com/ClangBuiltLinux/linux/issues/1766
-+	# https://github.com/llvm/llvm-project/issues/59242
-+	depends on !CC_IS_CLANG || CLANG_VERSION > 150006
+ out_failed:
+ 	reiserfs_write_unlock(dir->i_sb);
++	reiserfs_security_free(&security);
+ 	return retval;
+ }
  
- config ZERO_CALL_USED_REGS
- 	bool "Enable register zeroing on function exit"
+@@ -779,6 +780,7 @@ static int reiserfs_mknod(struct user_na
+ 
+ out_failed:
+ 	reiserfs_write_unlock(dir->i_sb);
++	reiserfs_security_free(&security);
+ 	return retval;
+ }
+ 
+@@ -878,6 +880,7 @@ static int reiserfs_mkdir(struct user_na
+ 	retval = journal_end(&th);
+ out_failed:
+ 	reiserfs_write_unlock(dir->i_sb);
++	reiserfs_security_free(&security);
+ 	return retval;
+ }
+ 
+@@ -1194,6 +1197,7 @@ static int reiserfs_symlink(struct user_
+ 	retval = journal_end(&th);
+ out_failed:
+ 	reiserfs_write_unlock(parent_dir->i_sb);
++	reiserfs_security_free(&security);
+ 	return retval;
+ }
+ 
+--- a/fs/reiserfs/xattr_security.c
++++ b/fs/reiserfs/xattr_security.c
+@@ -50,6 +50,7 @@ int reiserfs_security_init(struct inode
+ 	int error;
+ 
+ 	sec->name = NULL;
++	sec->value = NULL;
+ 
+ 	/* Don't add selinux attributes on xattrs - they'll never get used */
+ 	if (IS_PRIVATE(dir))
+@@ -95,7 +96,6 @@ int reiserfs_security_write(struct reise
+ 
+ void reiserfs_security_free(struct reiserfs_security_handle *sec)
+ {
+-	kfree(sec->name);
+ 	kfree(sec->value);
+ 	sec->name = NULL;
+ 	sec->value = NULL;
 
 
