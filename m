@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9DC065804E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:16:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AB336578ED
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:55:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233148AbiL1QQq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:16:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59710 "EHLO
+        id S233240AbiL1Ozq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:55:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233181AbiL1QQU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:16:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 772B21A05C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:13:49 -0800 (PST)
+        with ESMTP id S233250AbiL1Ozl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:55:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1529011A33
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:55:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2D5D3B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:13:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92F48C433D2;
-        Wed, 28 Dec 2022 16:13:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A709861544
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:55:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDD47C433D2;
+        Wed, 28 Dec 2022 14:55:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244026;
-        bh=+kmADvufavP2PZw3Dyc68PmielJOz4YxEOaq3ySOW7I=;
+        s=korg; t=1672239340;
+        bh=XgFeTa220N2NpGRV84aUNCHedg3qYGSsjgMk0T/IRg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RyN37l4/YCYZu1Em27Nq6qGhva0d9lBSqXKV49uR6PPlOz9rQS8wbSRh+EYjH3hiP
-         msSNjhK1aUIxBkfvhFwiv1loKgxwr58+jxk4AciW+7gJu8S/H0IliBfMlOPa4otwfn
-         iKOt30PY0H/JAEZocm1J0BNDdMneMUbhQf79HJv0=
+        b=Yob7XInulFbcTpkAACPvCCMhBbwIrHpUZKrTl1qfSHqG/MbtzLU8KvNnmkwb2LIQO
+         EJMidl3Os/sz6Rg2cX1dn2lZQ/JvEe5pCUk9BKjQcwZnZTNtnhsM0hDZyTnh2zz4NZ
+         AEzqcgTAnp1wgW/Pwpll7i8eCrKBKo/YscjP7PtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Weili Qian <qianweili@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        patches@lists.linux.dev, Rob Clark <robdclark@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Akhil P Oommen <quic_akhilpo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0575/1146] crypto: hisilicon/qm - fix incorrect parameters usage
-Date:   Wed, 28 Dec 2022 15:35:14 +0100
-Message-Id: <20221228144345.790867341@linuxfoundation.org>
+Subject: [PATCH 5.15 208/731] drm/msm/a6xx: Fix speed-bin detection vs probe-defer
+Date:   Wed, 28 Dec 2022 15:35:15 +0100
+Message-Id: <20221228144302.588737590@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Weili Qian <qianweili@huawei.com>
+From: Rob Clark <robdclark@chromium.org>
 
-[ Upstream commit f57e292897cac13b6ddee078aea21173b234ecb7 ]
+[ Upstream commit f6d1918794ef92b4e26b80c3d40365347b76b1fd ]
 
-In qm_get_xqc_depth(), parameters low_bits and high_bits save
-the values of the corresponding bits. However, the values saved by the
-two parameters are opposite. As a result, the values returned to the
-callers are incorrect.
+If we get an error (other than -ENOENT) we need to propagate that up the
+stack.  Otherwise if the nvmem driver hasn't probed yet, we'll end up
+end up claiming that we support all the OPPs which is not likely to be
+true (and on some generations impossible to be true, ie. if there are
+conflicting OPPs).
 
-Fixes: 129a9f340172 ("crypto: hisilicon/qm - get qp num and depth from hardware registers")
-Signed-off-by: Weili Qian <qianweili@huawei.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+v2: Update commit msg, gc unused label, etc
+v3: Add previously missing \n's
+
+Fixes: fe7952c629da ("drm/msm: Add speed-bin support to a618 gpu")
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Akhil P Oommen <quic_akhilpo@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/511690/
+Link: https://lore.kernel.org/r/20221115154637.1613968-1-robdclark@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/hisilicon/qm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/crypto/hisilicon/qm.c b/drivers/crypto/hisilicon/qm.c
-index 8b387de69d22..c7e7fc49ec06 100644
---- a/drivers/crypto/hisilicon/qm.c
-+++ b/drivers/crypto/hisilicon/qm.c
-@@ -909,8 +909,8 @@ static void qm_get_xqc_depth(struct hisi_qm *qm, u16 *low_bits,
- 	u32 depth;
+diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+index c0dec5b919d4..2d07c02c59f1 100644
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+@@ -1746,7 +1746,7 @@ static u32 fuse_to_supp_hw(struct device *dev, struct adreno_rev rev, u32 fuse)
  
- 	depth = hisi_qm_get_hw_info(qm, qm_basic_info, type, qm->cap_ver);
--	*high_bits = depth & QM_XQ_DEPTH_MASK;
--	*low_bits = (depth >> QM_XQ_DEPTH_SHIFT) & QM_XQ_DEPTH_MASK;
-+	*low_bits = depth & QM_XQ_DEPTH_MASK;
-+	*high_bits = (depth >> QM_XQ_DEPTH_SHIFT) & QM_XQ_DEPTH_MASK;
- }
+ 	if (val == UINT_MAX) {
+ 		DRM_DEV_ERROR(dev,
+-			"missing support for speed-bin: %u. Some OPPs may not be supported by hardware",
++			"missing support for speed-bin: %u. Some OPPs may not be supported by hardware\n",
+ 			fuse);
+ 		return UINT_MAX;
+ 	}
+@@ -1756,7 +1756,7 @@ static u32 fuse_to_supp_hw(struct device *dev, struct adreno_rev rev, u32 fuse)
  
- static u32 qm_get_irq_num(struct hisi_qm *qm)
+ static int a6xx_set_supported_hw(struct device *dev, struct adreno_rev rev)
+ {
+-	u32 supp_hw = UINT_MAX;
++	u32 supp_hw;
+ 	u32 speedbin;
+ 	int ret;
+ 
+@@ -1768,15 +1768,13 @@ static int a6xx_set_supported_hw(struct device *dev, struct adreno_rev rev)
+ 	if (ret == -ENOENT) {
+ 		return 0;
+ 	} else if (ret) {
+-		DRM_DEV_ERROR(dev,
+-			      "failed to read speed-bin (%d). Some OPPs may not be supported by hardware",
+-			      ret);
+-		goto done;
++		dev_err_probe(dev, ret,
++			      "failed to read speed-bin. Some OPPs may not be supported by hardware\n");
++		return ret;
+ 	}
+ 
+ 	supp_hw = fuse_to_supp_hw(dev, rev, speedbin);
+ 
+-done:
+ 	ret = devm_pm_opp_set_supported_hw(dev, &supp_hw, 1);
+ 	if (ret)
+ 		return ret;
 -- 
 2.35.1
 
