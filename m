@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 021AD6582FC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25D81658227
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:33:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234976AbiL1Qnz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:43:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36582 "EHLO
+        id S234851AbiL1Qd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:33:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234973AbiL1Qn0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:26 -0500
+        with ESMTP id S234850AbiL1QdF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:05 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7602F310
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D5031AF11
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:30:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 274C5B8171F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:37:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76582C433EF;
-        Wed, 28 Dec 2022 16:37:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 537D3B8171E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:30:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BA05C433D2;
+        Wed, 28 Dec 2022 16:30:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245460;
-        bh=O+Wd75m3MB9xZuU5/VRQ0Pr954ebJKKRPw6EaXLTiBM=;
+        s=korg; t=1672245023;
+        bh=XgXKQ4lJt3xgbn4wnwUGVj4qQSLeGJDxzzr5jcmLDYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CaR45ZQuA+Z+3T+Ad36JlXZdlONQWUtX5lv1+H4RkE2u9dgYJzJoCMRgzjxThVLqN
-         +CV1fPOSol/2OqHT3w5iE3ouYltKtd1oZga3cLSqSi2knu+0Hi9a+FZ+Wc2jBaveqp
-         Ypbz8nJsiUSY3XlbDUfew8CCO5wq4Hfa6s+X4olA=
+        b=tH3eyOPGJGOohZtFepFR6822fByGTpzpEDyi54JPgF8iukxyKfXB+t22l+ab5T30r
+         4Enu2IXtRhJQ9NRhZlS+TBZe6nOJZ+rkO3KumnZfkFdD6wbSnU4k0a7jTaO5w4YLvg
+         2FPhC9/ztI62ALVAKIMsWt+G93wYoyvgoJpy3Y2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jason Gunthorpe <jgg@nvidia.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0865/1146] iommu/sun50i: Remove IOMMU_DOMAIN_IDENTITY
-Date:   Wed, 28 Dec 2022 15:40:04 +0100
-Message-Id: <20221228144353.658270082@linuxfoundation.org>
+        patches@lists.linux.dev, xinlei lee <xinlei.lee@mediatek.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0817/1073] pwm: mtk-disp: Fix the parameters calculated by the enabled flag of disp_pwm
+Date:   Wed, 28 Dec 2022 15:40:05 +0100
+Message-Id: <20221228144350.203092401@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +57,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+From: xinlei lee <xinlei.lee@mediatek.com>
 
-[ Upstream commit ef5bb8e7a7127218f826b9ccdf7508e7a339f4c2 ]
+[ Upstream commit 0b5ef3429d8f78427558ab0dcbfd862098ba2a63 ]
 
-This driver treats IOMMU_DOMAIN_IDENTITY the same as UNMANAGED, which
-cannot possibly be correct.
+In the original mtk_disp_pwm_get_state() function wrongly uses bit 0 of
+CON0 to judge if the PWM is enabled.
+However that is indicated by a bit (at a machine dependent position) in
+the DISP_PWM_EN register. Fix this accordingly.
 
-UNMANAGED domains are required to start out blocking all DMAs. This seems
-to be what this driver does as it allocates a first level 'dt' for the IO
-page table that is 0 filled.
-
-Thus UNMANAGED looks like a working IO page table, and so IDENTITY must be
-a mistake. Remove it.
-
-Fixes: 4100b8c229b3 ("iommu: Add Allwinner H6 IOMMU driver")
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/0-v1-97f0adf27b5e+1f0-s50_identity_jgg@nvidia.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: 3f2b16734914 ("pwm: mtk-disp: Implement atomic API .get_state()")
+Signed-off-by: xinlei lee <xinlei.lee@mediatek.com>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/1666172538-11652-1-git-send-email-xinlei.lee@mediatek.com
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/sun50i-iommu.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/pwm/pwm-mtk-disp.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/sun50i-iommu.c b/drivers/iommu/sun50i-iommu.c
-index 5cb2d44dfb92..5b585eace3d4 100644
---- a/drivers/iommu/sun50i-iommu.c
-+++ b/drivers/iommu/sun50i-iommu.c
-@@ -672,7 +672,6 @@ static struct iommu_domain *sun50i_iommu_domain_alloc(unsigned type)
- 	struct sun50i_iommu_domain *sun50i_domain;
+diff --git a/drivers/pwm/pwm-mtk-disp.c b/drivers/pwm/pwm-mtk-disp.c
+index c605013e4114..3fbb4bae93a4 100644
+--- a/drivers/pwm/pwm-mtk-disp.c
++++ b/drivers/pwm/pwm-mtk-disp.c
+@@ -178,7 +178,7 @@ static void mtk_disp_pwm_get_state(struct pwm_chip *chip,
+ {
+ 	struct mtk_disp_pwm *mdp = to_mtk_disp_pwm(chip);
+ 	u64 rate, period, high_width;
+-	u32 clk_div, con0, con1;
++	u32 clk_div, pwm_en, con0, con1;
+ 	int err;
  
- 	if (type != IOMMU_DOMAIN_DMA &&
--	    type != IOMMU_DOMAIN_IDENTITY &&
- 	    type != IOMMU_DOMAIN_UNMANAGED)
- 		return NULL;
- 
+ 	err = clk_prepare_enable(mdp->clk_main);
+@@ -197,7 +197,8 @@ static void mtk_disp_pwm_get_state(struct pwm_chip *chip,
+ 	rate = clk_get_rate(mdp->clk_main);
+ 	con0 = readl(mdp->base + mdp->data->con0);
+ 	con1 = readl(mdp->base + mdp->data->con1);
+-	state->enabled = !!(con0 & BIT(0));
++	pwm_en = readl(mdp->base + DISP_PWM_EN);
++	state->enabled = !!(pwm_en & mdp->data->enable_mask);
+ 	clk_div = FIELD_GET(PWM_CLKDIV_MASK, con0);
+ 	period = FIELD_GET(PWM_PERIOD_MASK, con1);
+ 	/*
 -- 
 2.35.1
 
