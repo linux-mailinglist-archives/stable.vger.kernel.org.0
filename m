@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 231B3657BFA
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:27:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6668A6581AE
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:30:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233182AbiL1P1t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:27:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45730 "EHLO
+        id S234632AbiL1Qag (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:30:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229964AbiL1P13 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:27:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A9FF14038
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:27:28 -0800 (PST)
+        with ESMTP id S234639AbiL1QaP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:30:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 532FA1C135
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:26:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DDCBFB8171F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:27:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41757C433D2;
-        Wed, 28 Dec 2022 15:27:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E412E6157A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:26:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03642C433D2;
+        Wed, 28 Dec 2022 16:26:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241245;
-        bh=i3Cu2dBUf/lBSBvFkuvnlInp6u6QMSrOLUMeLShGxsY=;
+        s=korg; t=1672244801;
+        bh=ycJSdmVsD2NsqhaOtsUZjC5inYto8Cl7HedkvgHN6Ds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bhuV3rwPJifxECBwzUl9tDGHiJbMhOMBwFTDe5KT0bMLx8eYVt7JqNPGnai1/STIg
-         cG+NH+c7qo2dnzmNeIbgg7c0Pk9zCm/nrkVFeil7SrK4O6wF2mUngKVxwpxz+tIuzN
-         8Mgqx3bzqQDkU4hJwDkZZN2c3T6riB3c9WFmdWDM=
+        b=TeK5tEvJGxIc5Bz7zKY3qbzkLFa7aYgocV21xeRuVG5L9IVJdvD72xYGhJk3V3Pfp
+         Laa1D66Eu+q4zWBkJPfxkkArIAj3MW68qDCraDkz+v5U9Kc4svXbox07qBmefff6bl
+         5GJGqbNHQ1RuL4ZbLiz8n9QbsdI0yakg6VP1a2xY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiamei Xie <jiamei.xie@arm.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 457/731] serial: amba-pl011: avoid SBSA UART accessing DMACR register
+        patches@lists.linux.dev, Justin Chen <justinpopo6@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0776/1073] phy: usb: Fix clock imbalance for suspend/resume
 Date:   Wed, 28 Dec 2022 15:39:24 +0100
-Message-Id: <20221228144309.800109038@linuxfoundation.org>
+Message-Id: <20221228144349.089935820@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,91 +53,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiamei Xie <jiamei.xie@arm.com>
+From: Justin Chen <justinpopo6@gmail.com>
 
-[ Upstream commit 94cdb9f33698478b0e7062586633c42c6158a786 ]
+[ Upstream commit 8484199c09347bdd5d81ee8a2bc530850f900797 ]
 
-Chapter "B Generic UART" in "ARM Server Base System Architecture" [1]
-documentation describes a generic UART interface. Such generic UART
-does not support DMA. In current code, sbsa_uart_pops and
-amba_pl011_pops share the same stop_rx operation, which will invoke
-pl011_dma_rx_stop, leading to an access of the DMACR register. This
-commit adds a using_rx_dma check in pl011_dma_rx_stop to avoid the
-access to DMACR register for SBSA UARTs which does not support DMA.
+We should be disabling clocks when wake from USB is not needed. Since
+this wasn't done, we had a clock imbalance since clocks were always
+being enabled on resume.
 
-When the kernel enables DMA engine with "CONFIG_DMA_ENGINE=y", Linux
-SBSA PL011 driver will access PL011 DMACR register in some functions.
-For most real SBSA Pl011 hardware implementations, the DMACR write
-behaviour will be ignored. So these DMACR operations will not cause
-obvious problems. But for some virtual SBSA PL011 hardware, like Xen
-virtual SBSA PL011 (vpl011) device, the behaviour might be different.
-Xen vpl011 emulation will inject a data abort to guest, when guest is
-accessing an unimplemented UART register. As Xen VPL011 is SBSA
-compatible, it will not implement DMACR register. So when Linux SBSA
-PL011 driver access DMACR register, it will get an unhandled data abort
-fault and the application will get a segmentation fault:
-Unhandled fault at 0xffffffc00944d048
-Mem abort info:
-  ESR = 0x96000000
-  EC = 0x25: DABT (current EL), IL = 32 bits
-  SET = 0, FnV = 0
-  EA = 0, S1PTW = 0
-  FSC = 0x00: ttbr address size fault
-Data abort info:
-  ISV = 0, ISS = 0x00000000
-  CM = 0, WnR = 0
-swapper pgtable: 4k pages, 39-bit VAs, pgdp=0000000020e2e000
-[ffffffc00944d048] pgd=100000003ffff803, p4d=100000003ffff803, pud=100000003ffff803, pmd=100000003fffa803, pte=006800009c090f13
-Internal error: ttbr address size fault: 96000000 [#1] PREEMPT SMP
-...
-Call trace:
- pl011_stop_rx+0x70/0x80
- tty_port_shutdown+0x7c/0xb4
- tty_port_close+0x60/0xcc
- uart_close+0x34/0x8c
- tty_release+0x144/0x4c0
- __fput+0x78/0x220
- ____fput+0x1c/0x30
- task_work_run+0x88/0xc0
- do_notify_resume+0x8d0/0x123c
- el0_svc+0xa8/0xc0
- el0t_64_sync_handler+0xa4/0x130
- el0t_64_sync+0x1a0/0x1a4
-Code: b9000083 b901f001 794038a0 8b000042 (b9000041)
----[ end trace 83dd93df15c3216f ]---
-note: bootlogd[132] exited with preempt_count 1
-/etc/rcS.d/S07bootlogd: line 47: 132 Segmentation fault start-stop-daemon
-
-This has been discussed in the Xen community, and we think it should fix
-this in Linux. See [2] for more information.
-
-[1] https://developer.arm.com/documentation/den0094/c/?lang=en
-[2] https://lists.xenproject.org/archives/html/xen-devel/2022-11/msg00543.html
-
-Fixes: 0dd1e247fd39 (drivers: PL011: add support for the ARM SBSA generic UART)
-Signed-off-by: Jiamei Xie <jiamei.xie@arm.com>
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Link: https://lore.kernel.org/r/20221117103237.86856-1-jiamei.xie@arm.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ae532b2b7aa5 ("phy: usb: Add "wake on" functionality for newer Synopsis XHCI controllers")
+Fixes: b0c0b66c0b43 ("phy: usb: Add support for wake and USB low power mode for 7211 S2/S5")
+Signed-off-by: Justin Chen <justinpopo6@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/1665005418-15807-7-git-send-email-justinpopo6@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/amba-pl011.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/phy/broadcom/phy-brcm-usb-init-synopsys.c | 2 --
+ drivers/phy/broadcom/phy-brcm-usb-init.h          | 1 -
+ drivers/phy/broadcom/phy-brcm-usb.c               | 8 +++++---
+ 3 files changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/tty/serial/amba-pl011.c b/drivers/tty/serial/amba-pl011.c
-index 300a8bbb4b80..ca105e9baa42 100644
---- a/drivers/tty/serial/amba-pl011.c
-+++ b/drivers/tty/serial/amba-pl011.c
-@@ -1050,6 +1050,9 @@ static void pl011_dma_rx_callback(void *data)
-  */
- static inline void pl011_dma_rx_stop(struct uart_amba_port *uap)
+diff --git a/drivers/phy/broadcom/phy-brcm-usb-init-synopsys.c b/drivers/phy/broadcom/phy-brcm-usb-init-synopsys.c
+index b3386e458dd4..3b374b37b965 100644
+--- a/drivers/phy/broadcom/phy-brcm-usb-init-synopsys.c
++++ b/drivers/phy/broadcom/phy-brcm-usb-init-synopsys.c
+@@ -424,7 +424,6 @@ void brcm_usb_dvr_init_7216(struct brcm_usb_init_params *params)
+ 
+ 	params->family_name = "7216";
+ 	params->ops = &bcm7216_ops;
+-	params->suspend_with_clocks = true;
+ }
+ 
+ void brcm_usb_dvr_init_7211b0(struct brcm_usb_init_params *params)
+@@ -434,5 +433,4 @@ void brcm_usb_dvr_init_7211b0(struct brcm_usb_init_params *params)
+ 
+ 	params->family_name = "7211";
+ 	params->ops = &bcm7211b0_ops;
+-	params->suspend_with_clocks = true;
+ }
+diff --git a/drivers/phy/broadcom/phy-brcm-usb-init.h b/drivers/phy/broadcom/phy-brcm-usb-init.h
+index 1ccb5ddab865..3236e9498842 100644
+--- a/drivers/phy/broadcom/phy-brcm-usb-init.h
++++ b/drivers/phy/broadcom/phy-brcm-usb-init.h
+@@ -61,7 +61,6 @@ struct  brcm_usb_init_params {
+ 	const struct brcm_usb_init_ops *ops;
+ 	struct regmap *syscon_piarbctl;
+ 	bool wake_enabled;
+-	bool suspend_with_clocks;
+ };
+ 
+ void brcm_usb_dvr_init_4908(struct brcm_usb_init_params *params);
+diff --git a/drivers/phy/broadcom/phy-brcm-usb.c b/drivers/phy/broadcom/phy-brcm-usb.c
+index c0c3ab9b2a15..2bfd78e2d8fd 100644
+--- a/drivers/phy/broadcom/phy-brcm-usb.c
++++ b/drivers/phy/broadcom/phy-brcm-usb.c
+@@ -598,7 +598,7 @@ static int brcm_usb_phy_suspend(struct device *dev)
+ 		 * and newer XHCI->2.0-clks/3.0-clks.
+ 		 */
+ 
+-		if (!priv->ini.suspend_with_clocks) {
++		if (!priv->ini.wake_enabled) {
+ 			if (priv->phys[BRCM_USB_PHY_3_0].inited)
+ 				clk_disable_unprepare(priv->usb_30_clk);
+ 			if (priv->phys[BRCM_USB_PHY_2_0].inited ||
+@@ -615,8 +615,10 @@ static int brcm_usb_phy_resume(struct device *dev)
  {
-+	if (!uap->using_rx_dma)
-+		return;
-+
- 	/* FIXME.  Just disable the DMA enable */
- 	uap->dmacr &= ~UART011_RXDMAE;
- 	pl011_write(uap->dmacr, uap, REG_DMACR);
+ 	struct brcm_usb_phy_data *priv = dev_get_drvdata(dev);
+ 
+-	clk_prepare_enable(priv->usb_20_clk);
+-	clk_prepare_enable(priv->usb_30_clk);
++	if (!priv->ini.wake_enabled) {
++		clk_prepare_enable(priv->usb_20_clk);
++		clk_prepare_enable(priv->usb_30_clk);
++	}
+ 	brcm_usb_init_ipp(&priv->ini);
+ 
+ 	/*
 -- 
 2.35.1
 
