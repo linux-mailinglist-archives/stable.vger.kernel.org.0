@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AAC26580D7
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:22:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A305658013
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:13:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234587AbiL1QV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:21:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36414 "EHLO
+        id S233125AbiL1QNY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:13:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234685AbiL1QU6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:20:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A97BBB4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:18:49 -0800 (PST)
+        with ESMTP id S234804AbiL1QMq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:12:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ABA51A829
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:11:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31139B816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:18:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99662C433EF;
-        Wed, 28 Dec 2022 16:18:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DBFAC6156E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:11:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E97A0C433F0;
+        Wed, 28 Dec 2022 16:11:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244327;
-        bh=OoW6+A9KlidEaPg6LYF0DzCw0G9ropuf4+xsU6mgME4=;
+        s=korg; t=1672243872;
+        bh=wFlKBag6jmOfqSU2vf4BT3olpGbBBPwt3w9v6R3MY4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yREK4lH30LEoj7bg7CBKK0VkibaLOsYvVcM/kCa/55hvL4BlGB4KwnrVySAs5AAs/
-         4QACuIIq8TfLNuxe6XoLCiBh5hPAwCWG8SbBl9+/YjMepiTASmwJbd4gWJegr+wni+
-         YBaXEXiulz106U8ZIsOiK36j692T3E0zhFNAZQ4U=
+        b=x0rjr03erI3jLcEnMuK/k49mTJ9CJWaRlL0dOU3NJVitA9gvGD6gNL1ZwFHfQVcS0
+         SmrUKxsAP3BPH9GZpmcvadWd2Lk+xgrfA8L6ZDds7CUHybhXXx8+tahUATwqMoci0f
+         mWIJ7GNaQ7yJQ0QCZGsmBm6IWqFsQaHTRAS1VR0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Luoyouming <luoyouming@huawei.com>,
+        Haoyue Xu <xuhaoyue1@hisilicon.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0651/1146] scsi: fcoe: Fix possible name leak when device_register() fails
+Subject: [PATCH 6.0 0602/1073] RDMA/hns: Repacing dseg_len by macros in fill_ext_sge_inl_data()
 Date:   Wed, 28 Dec 2022 15:36:30 +0100
-Message-Id: <20221228144347.841319124@linuxfoundation.org>
+Message-Id: <20221228144344.397934875@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,76 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Luoyouming <luoyouming@huawei.com>
 
-[ Upstream commit 47b6a122c7b69a876c7ee2fc064a26b09627de9d ]
+[ Upstream commit 3b1f864c904915b3baebffb31ea05ee704b0df3c ]
 
-If device_register() returns an error, the name allocated by dev_set_name()
-needs to be freed. As the comment of device_register() says, one should use
-put_device() to give up the reference in the error path. Fix this by
-calling put_device(), then the name can be freed in kobject_cleanup().
+The sge size is known to be constant, so it's unnecessary to use sizeof to
+calculate.
 
-The 'fcf' is freed in fcoe_fcf_device_release(), so the kfree() in the
-error path can be removed.
-
-The 'ctlr' is freed in fcoe_ctlr_device_release(), so don't use the error
-label, just return NULL after calling put_device().
-
-Fixes: 9a74e884ee71 ("[SCSI] libfcoe: Add fcoe_sysfs")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221112094310.3633291-1-yangyingliang@huawei.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: https://lore.kernel.org/r/20220922123315.3732205-11-xuhaoyue1@hisilicon.com
+Signed-off-by: Luoyouming <luoyouming@huawei.com>
+Signed-off-by: Haoyue Xu <xuhaoyue1@hisilicon.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Stable-dep-of: 8eaa6f7d569b ("RDMA/hns: Fix ext_sge num error when post send")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/fcoe/fcoe_sysfs.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/fcoe/fcoe_sysfs.c b/drivers/scsi/fcoe/fcoe_sysfs.c
-index af658aa38fed..6260aa5ea6af 100644
---- a/drivers/scsi/fcoe/fcoe_sysfs.c
-+++ b/drivers/scsi/fcoe/fcoe_sysfs.c
-@@ -830,14 +830,15 @@ struct fcoe_ctlr_device *fcoe_ctlr_device_add(struct device *parent,
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index 105888c6ccb7..eb1601bd1255 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -192,8 +192,7 @@ static int fill_ext_sge_inl_data(struct hns_roce_qp *qp,
+ 				 unsigned int *sge_idx, u32 msg_len)
+ {
+ 	struct ib_device *ibdev = &(to_hr_dev(qp->ibqp.device))->ib_dev;
+-	unsigned int dseg_len = sizeof(struct hns_roce_v2_wqe_data_seg);
+-	unsigned int ext_sge_sz = qp->sq.max_gs * dseg_len;
++	unsigned int ext_sge_sz = qp->sq.max_gs * HNS_ROCE_SGE_SIZE;
+ 	unsigned int left_len_in_pg;
+ 	unsigned int idx = *sge_idx;
+ 	unsigned int i = 0;
+@@ -221,7 +220,7 @@ static int fill_ext_sge_inl_data(struct hns_roce_qp *qp,
+ 		if (len <= left_len_in_pg) {
+ 			memcpy(dseg, addr, len);
  
- 	dev_set_name(&ctlr->dev, "ctlr_%d", ctlr->id);
- 	error = device_register(&ctlr->dev);
--	if (error)
--		goto out_del_q2;
-+	if (error) {
-+		destroy_workqueue(ctlr->devloss_work_q);
-+		destroy_workqueue(ctlr->work_q);
-+		put_device(&ctlr->dev);
-+		return NULL;
-+	}
+-			idx += len / dseg_len;
++			idx += len / HNS_ROCE_SGE_SIZE;
  
- 	return ctlr;
+ 			i++;
+ 			if (i >= wr->num_sge)
+@@ -236,7 +235,7 @@ static int fill_ext_sge_inl_data(struct hns_roce_qp *qp,
  
--out_del_q2:
--	destroy_workqueue(ctlr->devloss_work_q);
--	ctlr->devloss_work_q = NULL;
- out_del_q:
- 	destroy_workqueue(ctlr->work_q);
- 	ctlr->work_q = NULL;
-@@ -1036,16 +1037,16 @@ struct fcoe_fcf_device *fcoe_fcf_device_add(struct fcoe_ctlr_device *ctlr,
- 	fcf->selected = new_fcf->selected;
- 
- 	error = device_register(&fcf->dev);
--	if (error)
--		goto out_del;
-+	if (error) {
-+		put_device(&fcf->dev);
-+		goto out;
-+	}
- 
- 	fcf->state = FCOE_FCF_STATE_CONNECTED;
- 	list_add_tail(&fcf->peers, &ctlr->fcfs);
- 
- 	return fcf;
- 
--out_del:
--	kfree(fcf);
- out:
- 	return NULL;
- }
+ 			len -= left_len_in_pg;
+ 			addr += left_len_in_pg;
+-			idx += left_len_in_pg / dseg_len;
++			idx += left_len_in_pg / HNS_ROCE_SGE_SIZE;
+ 			dseg = hns_roce_get_extend_sge(qp,
+ 						idx & (qp->sge.sge_cnt - 1));
+ 			left_len_in_pg = 1 << HNS_HW_PAGE_SHIFT;
 -- 
 2.35.1
 
