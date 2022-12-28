@@ -2,51 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06546658101
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:24:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28EF5658029
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:14:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233195AbiL1QXi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:23:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38070 "EHLO
+        id S234540AbiL1QOg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:14:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235021AbiL1QWx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:22:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 541DD1C122;
-        Wed, 28 Dec 2022 08:20:20 -0800 (PST)
+        with ESMTP id S234488AbiL1QOK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:14:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C40B4183B7
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:12:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E588661577;
-        Wed, 28 Dec 2022 16:20:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6FABC433F0;
-        Wed, 28 Dec 2022 16:20:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 60A4B61576
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:12:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70E53C433EF;
+        Wed, 28 Dec 2022 16:12:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244419;
-        bh=kRTk6nDVGgy/CNk4BdTNcr95TadAdi4NeD1/gJZGOy4=;
+        s=korg; t=1672243927;
+        bh=4fwTmJSony6tMREeZYaqH9q0yVlRdm4LJSLAbp406no=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZbAmCWjasU89DYy2QKREeS4IVVzUaPUsr3e91J0kWvbY1BxmDIwvG9hmAT/3ccezJ
-         Bd6u9u+waigarpVJ8PNsl07fxyFVOgajaVzDG+Jx+08yo5X8jYZu98eyqa3asgCB6o
-         2BeVbOjxfwRyXeCnKlbGNMmjPg9Uh25XRNoZ9hik=
+        b=pbZabZzxomQNKUjLQbYaXnGO87d8edcnNUcN/lb7hyg5xcyB2Ve3q5Vd8g/H9J11J
+         +kxiCGURKv6quwtskfU27D0P6rkTH3mlXsCgXxDikRUWil6WNzw35U/TKELgC4b8si
+         IKia+lSrB8mg+xaHruX84ZpbqOf2N7X9w8qwvQZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-rdma@vger.kernel.org, Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        linux-um@lists.infradead.org, Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0666/1146] RDMA: Disable IB HW for UML
+Subject: [PATCH 6.0 0617/1073] padata: Fix list iterator in padata_do_serial()
 Date:   Wed, 28 Dec 2022 15:36:45 +0100
-Message-Id: <20221228144348.241855464@linuxfoundation.org>
+Message-Id: <20221228144344.801669372@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,53 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-[ Upstream commit 323a74fc20f53c0d0e13a16aee703a30d9751235 ]
+[ Upstream commit 57ddfecc72a6c9941d159543e1c0c0a74fe9afdd ]
 
-Disable all of drivers/infiniband/hw/ and rdmavt for UML builds until
-someone needs it and provides patches to support it.
+list_for_each_entry_reverse() assumes that the iterated list is nonempty
+and that every list_head is embedded in the same type, but its use in
+padata_do_serial() breaks both rules.
 
-This prevents build errors in hw/qib/qib_wc_x86_64.c.
+This doesn't cause any issues now because padata_priv and padata_list
+happen to have their list fields at the same offset, but we really
+shouldn't be relying on that.
 
-Fixes: 68f5d3f3b654 ("um: add PCI over virtio emulation driver")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: linux-rdma@vger.kernel.org
-Cc: Jeff Dike <jdike@addtoit.com>
-Cc: Richard Weinberger <richard@nod.at>
-Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Cc: Johannes Berg <johannes@sipsolutions.net>
-Cc: linux-um@lists.infradead.org
-Link: https://lore.kernel.org/r/20221202211940.29111-1-rdunlap@infradead.org
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Fixes: bfde23ce200e ("padata: unbind parallel jobs from specific CPUs")
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/Kconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/padata.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/Kconfig b/drivers/infiniband/Kconfig
-index aa36ac618e72..17a227415277 100644
---- a/drivers/infiniband/Kconfig
-+++ b/drivers/infiniband/Kconfig
-@@ -78,6 +78,7 @@ config INFINIBAND_VIRT_DMA
- 	def_bool !HIGHMEM
+diff --git a/kernel/padata.c b/kernel/padata.c
+index 97f51e0c1776..de90af5fcbe6 100644
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -390,13 +390,16 @@ void padata_do_serial(struct padata_priv *padata)
+ 	int hashed_cpu = padata_cpu_hash(pd, padata->seq_nr);
+ 	struct padata_list *reorder = per_cpu_ptr(pd->reorder_list, hashed_cpu);
+ 	struct padata_priv *cur;
++	struct list_head *pos;
  
- if INFINIBAND_USER_ACCESS || !INFINIBAND_USER_ACCESS
-+if !UML
- source "drivers/infiniband/hw/bnxt_re/Kconfig"
- source "drivers/infiniband/hw/cxgb4/Kconfig"
- source "drivers/infiniband/hw/efa/Kconfig"
-@@ -94,6 +95,7 @@ source "drivers/infiniband/hw/qib/Kconfig"
- source "drivers/infiniband/hw/usnic/Kconfig"
- source "drivers/infiniband/hw/vmw_pvrdma/Kconfig"
- source "drivers/infiniband/sw/rdmavt/Kconfig"
-+endif # !UML
- source "drivers/infiniband/sw/rxe/Kconfig"
- source "drivers/infiniband/sw/siw/Kconfig"
- endif
+ 	spin_lock(&reorder->lock);
+ 	/* Sort in ascending order of sequence number. */
+-	list_for_each_entry_reverse(cur, &reorder->list, list)
++	list_for_each_prev(pos, &reorder->list) {
++		cur = list_entry(pos, struct padata_priv, list);
+ 		if (cur->seq_nr < padata->seq_nr)
+ 			break;
+-	list_add(&padata->list, &cur->list);
++	}
++	list_add(&padata->list, pos);
+ 	spin_unlock(&reorder->lock);
+ 
+ 	/*
 -- 
 2.35.1
 
