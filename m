@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 518F8657E43
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:52:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F3CF65788A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:52:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234211AbiL1Pw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:52:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39374 "EHLO
+        id S233168AbiL1OwT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:52:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230413AbiL1PwI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:52:08 -0500
+        with ESMTP id S233172AbiL1Ov6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:51:58 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC72D18E0A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:51:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76D2B6413
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:51:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 497CF61560
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:51:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58E4BC433D2;
-        Wed, 28 Dec 2022 15:51:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E10961365
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:51:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A48EDC433F0;
+        Wed, 28 Dec 2022 14:51:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242715;
-        bh=bfVACty6wrQMY9FGTLJ2CbgpKEkw+xMGqWk0IQOrlSU=;
+        s=korg; t=1672239088;
+        bh=sjzpE6TxXOaGfUktNUd1mvH/NHxqVsA8dOzS25AlQig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Faa935DeRcVmMA7bhpQrfYQ8yeA97rigpGjFt6NkRCy1w4P8Sl3waMo68OssnOy3t
-         eQb7lGSiUxWAL+Pqfy4ASvMN891uY5+1aIe4jz52BQKvGym9/mQcFRlMwH/Ma+/KmL
-         RaSyTh7nG8UmcGboMT18gQY34KEK6MPD+3eqjuTI=
+        b=AkkFBpG+2rsIRHJ14AWJRLnK7GkZCfZN1UOX7882Z5ShcNLMvNQ0iWyL33AmT97FZ
+         8xpCZLYsm+OGCVg3nqXGM4R1vhneuxf0YLfgGrieo+cWmNu1AX0b5bYoXHMv3kRdo9
+         ntZXBktxNZUIbqEfVuhT/S29/eEj3fy/nuRjOx4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shayne Chen <shayne.chen@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0443/1073] wifi: mt76: mt7915: rework eeprom tx paths and streams init
+        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Juergen Gross <jgross@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 124/731] x86/xen: Fix memory leak in xen_init_lock_cpu()
 Date:   Wed, 28 Dec 2022 15:33:51 +0100
-Message-Id: <20221228144340.063511114@linuxfoundation.org>
+Message-Id: <20221228144300.147151070@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,127 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shayne Chen <shayne.chen@mediatek.com>
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-[ Upstream commit a7ec8bcf00034ce84d4c9a15dffd7577fbed4db2 ]
+[ Upstream commit ca84ce153d887b1dc8b118029976cc9faf2a9b40 ]
 
-Rework tx paths and streams init part to improve readability, and make
-sure that the available tx streams should be smaller than or equal to
-the available tx paths.
+In xen_init_lock_cpu(), the @name has allocated new string by kasprintf(),
+if bind_ipi_to_irqhandler() fails, it should be freed, otherwise may lead
+to a memory leak issue, fix it.
 
-Signed-off-by: Shayne Chen <shayne.chen@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Stable-dep-of: de147cc28985 ("wifi: mt76: mt7915: Fix chainmask calculation on mt7915 DBDC")
+Fixes: 2d9e1e2f58b5 ("xen: implement Xen-specific spinlocks")
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20221123155858.11382-3-xiujianfeng@huawei.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../wireless/mediatek/mt76/mt7915/eeprom.c    | 57 ++++++++-----------
- .../wireless/mediatek/mt76/mt7915/eeprom.h    |  5 --
- 2 files changed, 23 insertions(+), 39 deletions(-)
+ arch/x86/xen/spinlock.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.c b/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.c
-index 4b1a9811646f..83bced0c0785 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.c
-@@ -173,60 +173,49 @@ static void mt7915_eeprom_parse_band_config(struct mt7915_phy *phy)
- void mt7915_eeprom_parse_hw_cap(struct mt7915_dev *dev,
- 				struct mt7915_phy *phy)
- {
--	u8 nss, nss_band, nss_band_max, *eeprom = dev->mt76.eeprom.data;
-+	u8 path, nss, nss_max = 4, *eeprom = dev->mt76.eeprom.data;
- 	struct mt76_phy *mphy = phy->mt76;
--	bool ext_phy = phy != &dev->phy;
+diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
+index 043c73dfd2c9..5c6fc16e4b92 100644
+--- a/arch/x86/xen/spinlock.c
++++ b/arch/x86/xen/spinlock.c
+@@ -75,6 +75,7 @@ void xen_init_lock_cpu(int cpu)
+ 	     cpu, per_cpu(lock_kicker_irq, cpu));
  
- 	mt7915_eeprom_parse_band_config(phy);
- 
--	/* read tx/rx mask from eeprom */
-+	/* read tx/rx path from eeprom */
- 	if (is_mt7915(&dev->mt76)) {
--		nss = FIELD_GET(MT_EE_WIFI_CONF0_TX_PATH,
--				eeprom[MT_EE_WIFI_CONF]);
-+		path = FIELD_GET(MT_EE_WIFI_CONF0_TX_PATH,
-+				 eeprom[MT_EE_WIFI_CONF]);
- 	} else {
--		nss = FIELD_GET(MT_EE_WIFI_CONF0_TX_PATH,
--				eeprom[MT_EE_WIFI_CONF + phy->band_idx]);
-+		path = FIELD_GET(MT_EE_WIFI_CONF0_TX_PATH,
-+				 eeprom[MT_EE_WIFI_CONF + phy->band_idx]);
+ 	name = kasprintf(GFP_KERNEL, "spinlock%d", cpu);
++	per_cpu(irq_name, cpu) = name;
+ 	irq = bind_ipi_to_irqhandler(XEN_SPIN_UNLOCK_VECTOR,
+ 				     cpu,
+ 				     dummy_handler,
+@@ -85,7 +86,6 @@ void xen_init_lock_cpu(int cpu)
+ 	if (irq >= 0) {
+ 		disable_irq(irq); /* make sure it's never delivered */
+ 		per_cpu(lock_kicker_irq, cpu) = irq;
+-		per_cpu(irq_name, cpu) = name;
  	}
  
--	if (!nss || nss > 4)
--		nss = 4;
-+	if (!path || path > 4)
-+		path = 4;
+ 	printk("cpu %d spinlock event irq %d\n", cpu, irq);
+@@ -98,6 +98,8 @@ void xen_uninit_lock_cpu(int cpu)
+ 	if (!xen_pvspin)
+ 		return;
  
- 	/* read tx/rx stream */
--	nss_band = nss;
--
-+	nss = path;
- 	if (dev->dbdc_support) {
- 		if (is_mt7915(&dev->mt76)) {
--			nss_band = FIELD_GET(MT_EE_WIFI_CONF3_TX_PATH_B0,
--					     eeprom[MT_EE_WIFI_CONF + 3]);
-+			nss = FIELD_GET(MT_EE_WIFI_CONF3_TX_PATH_B0,
-+					eeprom[MT_EE_WIFI_CONF + 3]);
- 			if (phy->band_idx)
--				nss_band = FIELD_GET(MT_EE_WIFI_CONF3_TX_PATH_B1,
--						     eeprom[MT_EE_WIFI_CONF + 3]);
-+				nss = FIELD_GET(MT_EE_WIFI_CONF3_TX_PATH_B1,
-+						eeprom[MT_EE_WIFI_CONF + 3]);
- 		} else {
--			nss_band = FIELD_GET(MT_EE_WIFI_CONF_STREAM_NUM,
--					     eeprom[MT_EE_WIFI_CONF + 2 + phy->band_idx]);
-+			nss = FIELD_GET(MT_EE_WIFI_CONF_STREAM_NUM,
-+					eeprom[MT_EE_WIFI_CONF + 2 + phy->band_idx]);
- 		}
++	kfree(per_cpu(irq_name, cpu));
++	per_cpu(irq_name, cpu) = NULL;
+ 	/*
+ 	 * When booting the kernel with 'mitigations=auto,nosmt', the secondary
+ 	 * CPUs are not activated, and lock_kicker_irq is not initialized.
+@@ -108,8 +110,6 @@ void xen_uninit_lock_cpu(int cpu)
  
--		nss_band_max = is_mt7986(&dev->mt76) ?
--			       MT_EE_NSS_MAX_DBDC_MA7986 : MT_EE_NSS_MAX_DBDC_MA7915;
--	} else {
--		nss_band_max = is_mt7986(&dev->mt76) ?
--			       MT_EE_NSS_MAX_MA7986 : MT_EE_NSS_MAX_MA7915;
-+		if (!is_mt7986(&dev->mt76))
-+			nss_max = 2;
- 	}
- 
--	if (!nss_band || nss_band > nss_band_max)
--		nss_band = nss_band_max;
--
--	if (nss_band > nss) {
--		dev_warn(dev->mt76.dev,
--			 "nss mismatch, nss(%d) nss_band(%d) band(%d) ext_phy(%d)\n",
--			 nss, nss_band, phy->band_idx, ext_phy);
--		nss = nss_band;
--	}
-+	if (!nss)
-+		nss = nss_max;
-+	nss = min_t(u8, min_t(u8, nss_max, nss), path);
- 
--	mphy->chainmask = BIT(nss) - 1;
--	if (ext_phy)
-+	mphy->chainmask = BIT(path) - 1;
-+	if (phy->band_idx)
- 		mphy->chainmask <<= dev->chainshift;
--	mphy->antenna_mask = BIT(nss_band) - 1;
-+	mphy->antenna_mask = BIT(nss) - 1;
- 	dev->chainmask |= mphy->chainmask;
- 	dev->chainshift = hweight8(dev->mphy.chainmask);
+ 	unbind_from_irqhandler(irq, NULL);
+ 	per_cpu(lock_kicker_irq, cpu) = -1;
+-	kfree(per_cpu(irq_name, cpu));
+-	per_cpu(irq_name, cpu) = NULL;
  }
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.h b/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.h
-index 7578ac6d0be6..f3e56817d36e 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.h
-@@ -58,11 +58,6 @@ enum mt7915_eeprom_field {
- #define MT_EE_RATE_DELTA_SIGN			BIT(6)
- #define MT_EE_RATE_DELTA_EN			BIT(7)
  
--#define MT_EE_NSS_MAX_MA7915			4
--#define MT_EE_NSS_MAX_DBDC_MA7915		2
--#define MT_EE_NSS_MAX_MA7986			4
--#define MT_EE_NSS_MAX_DBDC_MA7986		4
--
- enum mt7915_adie_sku {
- 	MT7976_ONE_ADIE_DBDC = 0x7,
- 	MT7975_ONE_ADIE	= 0x8,
+ PV_CALLEE_SAVE_REGS_THUNK(xen_vcpu_stolen);
 -- 
 2.35.1
 
