@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1958657848
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:49:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8678657D85
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:44:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233036AbiL1OtG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:49:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36828 "EHLO
+        id S233995AbiL1PoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:44:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233050AbiL1Os7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:48:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C5CD11C10;
-        Wed, 28 Dec 2022 06:48:50 -0800 (PST)
+        with ESMTP id S233575AbiL1PoE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:44:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3CAD17417
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:44:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A3B76154E;
-        Wed, 28 Dec 2022 14:48:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 666A9C433D2;
-        Wed, 28 Dec 2022 14:48:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 683B8B81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:43:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD42AC433F0;
+        Wed, 28 Dec 2022 15:43:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238929;
-        bh=r63pfOKtcg8TmJGRRHlGIzPVcR5d2Lmkk4w3U1fdLFI=;
+        s=korg; t=1672242238;
+        bh=OC5z5LjGIzkeAAVGEQ3vZif5FsbZbWYLmqKpDr9jF/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZkqI9LUgpKaWUFsYVbJPnXIga6XLh/U6sDB9HjBLFNiAdE0JUGauDnbPLfazKpH6U
-         WrecYeoSGAmlxf/PIo+bU1a+E5l/s3pw1FvmwUymQ1yr22wwACc5bHH7OQUa7LVjK3
-         BuRbdKa2IWH3BEAd2ccRcIdDmFbqDFBGFaFFIQnk=
+        b=ZdpbrbGggShfmSa3WxJQKTti6jDVMD6oNjh06XKkNTPHZ7IHVLsfrLGXOgp+UTWkn
+         3Rx5HtoHo3unKmsZ9IJZGSbT7mnspgw3DLnGPjefe0ack9Sc6ed8jBSPXqYZn7rdI4
+         5FDk/Haaf4ki3bvB3scSm3qVNgT1Bu0GGj1aQXoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-unionfs@vger.kernel.org,
-        Giuseppe Scrivano <gscrivan@redhat.com>,
-        Amir Goldstein <amir73il@gmail.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Miklos Szeredi <mszeredi@redhat.com>,
+        patches@lists.linux.dev,
+        Dario Binacchi <dario.binacchi@amarulasolutions.com>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Abel Vesa <abel.vesa@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 064/731] ovl: use ovl_copy_{real,upper}attr() wrappers
+Subject: [PATCH 6.0 0383/1073] clk: imx: rename video_pll1 to video_pll
 Date:   Wed, 28 Dec 2022 15:32:51 +0100
-Message-Id: <20221228144258.407901169@linuxfoundation.org>
+Message-Id: <20221228144338.411340306@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,261 +55,370 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Brauner <brauner@kernel.org>
+From: Dario Binacchi <dario.binacchi@amarulasolutions.com>
 
-[ Upstream commit 2878dffc7db0b5a51e308ccb6b571296b57c82e7 ]
+[ Upstream commit bedcf9d1dcf88ed38731f0ac9620e5a421e1e9d6 ]
 
-When copying inode attributes from the upper or lower layer to ovl inodes
-we need to take the upper or lower layer's mount's idmapping into
-account. In a lot of places we call ovl_copyattr() only on upper inodes and
-in some we call it on either upper or lower inodes. Split this into two
-separate helpers.
+Unlike audio_pll1 and audio_pll2, there is no video_pll2. Further, the
+name used in the RM is video_pll. So, let's rename "video_pll1" to
+"video_pll" to be consistent with the RM and avoid misunderstandings.
 
-The first one should only be called on upper
-inodes and is thus called ovl_copy_upperattr(). The second one can be
-called on upper or lower inodes. We add ovl_copy_realattr() for this
-task. The new helper makes use of the previously added ovl_i_path_real()
-helper. This is needed to support idmapped base layers with overlay.
+The IMX8MN_VIDEO_PLL1* constants have not been removed to ensure
+backward compatibility of the patch.
 
-When overlay copies the inode information from an upper or lower layer
-to the relevant overlay inode it will apply the idmapping of the upper
-or lower layer when doing so. The ovl inode ownership will thus always
-correctly reflect the ownership of the idmapped upper or lower layer.
+No functional changes intended.
 
-All idmapping helpers are nops when no idmapped base layers are used.
-
-Cc: <linux-unionfs@vger.kernel.org>
-Tested-by: Giuseppe Scrivano <gscrivan@redhat.com>
-Reviewed-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Stable-dep-of: b306e90ffabd ("ovl: remove privs in ovl_copyfile()")
+Fixes: 96d6392b54dbb ("clk: imx: Add support for i.MX8MN clock driver")
+Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+Acked-by: Marco Felsch <m.felsch@pengutronix.de>
+Reviewed-by: Abel Vesa <abel.vesa@linaro.org>
+Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
+Link: https://lore.kernel.org/r/20221117113637.1978703-4-dario.binacchi@amarulasolutions.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/overlayfs/dir.c       | 10 ++++------
- fs/overlayfs/file.c      | 15 +++++++--------
- fs/overlayfs/inode.c     |  8 ++++----
- fs/overlayfs/overlayfs.h | 11 +----------
- fs/overlayfs/util.c      | 32 +++++++++++++++++++++++++++++++-
- 5 files changed, 47 insertions(+), 29 deletions(-)
+ drivers/clk/imx/clk-imx8mn.c             | 96 ++++++++++++------------
+ include/dt-bindings/clock/imx8mn-clock.h | 12 ++-
+ 2 files changed, 56 insertions(+), 52 deletions(-)
 
-diff --git a/fs/overlayfs/dir.c b/fs/overlayfs/dir.c
-index f18490813170..3fc86c51e260 100644
---- a/fs/overlayfs/dir.c
-+++ b/fs/overlayfs/dir.c
-@@ -880,7 +880,6 @@ static int ovl_do_remove(struct dentry *dentry, bool is_dir)
- {
- 	int err;
- 	const struct cred *old_cred;
--	struct dentry *upperdentry;
- 	bool lower_positive = ovl_lower_positive(dentry);
- 	LIST_HEAD(list);
+diff --git a/drivers/clk/imx/clk-imx8mn.c b/drivers/clk/imx/clk-imx8mn.c
+index 0fae97e61e2c..b80af5d1ef46 100644
+--- a/drivers/clk/imx/clk-imx8mn.c
++++ b/drivers/clk/imx/clk-imx8mn.c
+@@ -27,7 +27,7 @@ static u32 share_count_nand;
+ static const char * const pll_ref_sels[] = { "osc_24m", "dummy", "dummy", "dummy", };
+ static const char * const audio_pll1_bypass_sels[] = {"audio_pll1", "audio_pll1_ref_sel", };
+ static const char * const audio_pll2_bypass_sels[] = {"audio_pll2", "audio_pll2_ref_sel", };
+-static const char * const video_pll1_bypass_sels[] = {"video_pll1", "video_pll1_ref_sel", };
++static const char * const video_pll_bypass_sels[] = {"video_pll", "video_pll_ref_sel", };
+ static const char * const dram_pll_bypass_sels[] = {"dram_pll", "dram_pll_ref_sel", };
+ static const char * const gpu_pll_bypass_sels[] = {"gpu_pll", "gpu_pll_ref_sel", };
+ static const char * const m7_alt_pll_bypass_sels[] = {"m7_alt_pll", "m7_alt_pll_ref_sel", };
+@@ -41,23 +41,23 @@ static const char * const imx8mn_a53_sels[] = {"osc_24m", "arm_pll_out", "sys_pl
+ static const char * const imx8mn_a53_core_sels[] = {"arm_a53_div", "arm_pll_out", };
  
-@@ -923,9 +922,8 @@ static int ovl_do_remove(struct dentry *dentry, bool is_dir)
- 	 * Note: we fail to update ctime if there was no copy-up, only a
- 	 * whiteout
- 	 */
--	upperdentry = ovl_dentry_upper(dentry);
--	if (upperdentry)
--		ovl_copyattr(d_inode(upperdentry), d_inode(dentry));
-+	if (ovl_dentry_upper(dentry))
-+		ovl_copyattr(d_inode(dentry));
+ static const char * const imx8mn_m7_sels[] = {"osc_24m", "sys_pll2_200m", "sys_pll2_250m", "m7_alt_pll_out",
+-				       "sys_pll1_800m", "audio_pll1_out", "video_pll1_out", "sys_pll3_out", };
++				       "sys_pll1_800m", "audio_pll1_out", "video_pll_out", "sys_pll3_out", };
  
- out_drop_write:
- 	ovl_drop_write(dentry);
-@@ -1272,9 +1270,9 @@ static int ovl_rename(struct user_namespace *mnt_userns, struct inode *olddir,
- 			 (d_inode(new) && ovl_type_origin(new)));
+ static const char * const imx8mn_gpu_core_sels[] = {"osc_24m", "gpu_pll_out", "sys_pll1_800m",
+ 						    "sys_pll3_out", "sys_pll2_1000m", "audio_pll1_out",
+-						    "video_pll1_out", "audio_pll2_out", };
++						    "video_pll_out", "audio_pll2_out", };
  
- 	/* copy ctime: */
--	ovl_copyattr(d_inode(olddentry), d_inode(old));
-+	ovl_copyattr(d_inode(old));
- 	if (d_inode(new) && ovl_dentry_upper(new))
--		ovl_copyattr(d_inode(newdentry), d_inode(new));
-+		ovl_copyattr(d_inode(new));
+ static const char * const imx8mn_gpu_shader_sels[] = {"osc_24m", "gpu_pll_out", "sys_pll1_800m",
+ 						      "sys_pll3_out", "sys_pll2_1000m", "audio_pll1_out",
+-						      "video_pll1_out", "audio_pll2_out", };
++						      "video_pll_out", "audio_pll2_out", };
  
- out_dput:
- 	dput(newdentry);
-diff --git a/fs/overlayfs/file.c b/fs/overlayfs/file.c
-index 44fea16751f1..535da9eb4d8b 100644
---- a/fs/overlayfs/file.c
-+++ b/fs/overlayfs/file.c
-@@ -273,7 +273,7 @@ static void ovl_aio_cleanup_handler(struct ovl_aio_req *aio_req)
- 		__sb_writers_acquired(file_inode(iocb->ki_filp)->i_sb,
- 				      SB_FREEZE_WRITE);
- 		file_end_write(iocb->ki_filp);
--		ovl_copyattr(ovl_inode_real(inode), inode);
-+		ovl_copyattr(inode);
- 	}
+ static const char * const imx8mn_main_axi_sels[] = {"osc_24m", "sys_pll2_333m", "sys_pll1_800m",
+ 						    "sys_pll2_250m", "sys_pll2_1000m", "audio_pll1_out",
+-						    "video_pll1_out", "sys_pll1_100m",};
++						    "video_pll_out", "sys_pll1_100m",};
  
- 	orig_iocb->ki_pos = iocb->ki_pos;
-@@ -356,7 +356,7 @@ static ssize_t ovl_write_iter(struct kiocb *iocb, struct iov_iter *iter)
+ static const char * const imx8mn_enet_axi_sels[] = {"osc_24m", "sys_pll1_266m", "sys_pll1_800m",
+ 						    "sys_pll2_250m", "sys_pll2_200m", "audio_pll1_out",
+-						    "video_pll1_out", "sys_pll3_out", };
++						    "video_pll_out", "sys_pll3_out", };
  
- 	inode_lock(inode);
- 	/* Update mode */
--	ovl_copyattr(ovl_inode_real(inode), inode);
-+	ovl_copyattr(inode);
- 	ret = file_remove_privs(file);
- 	if (ret)
- 		goto out_unlock;
-@@ -381,7 +381,7 @@ static ssize_t ovl_write_iter(struct kiocb *iocb, struct iov_iter *iter)
- 				     ovl_iocb_to_rwf(ifl));
- 		file_end_write(real.file);
- 		/* Update size */
--		ovl_copyattr(ovl_inode_real(inode), inode);
-+		ovl_copyattr(inode);
- 	} else {
- 		struct ovl_aio_req *aio_req;
+ static const char * const imx8mn_nand_usdhc_sels[] = {"osc_24m", "sys_pll1_266m", "sys_pll1_800m",
+ 						      "sys_pll2_200m", "sys_pll1_133m", "sys_pll3_out",
+@@ -77,23 +77,23 @@ static const char * const imx8mn_usb_bus_sels[] = {"osc_24m", "sys_pll2_500m", "
  
-@@ -431,12 +431,11 @@ static ssize_t ovl_splice_write(struct pipe_inode_info *pipe, struct file *out,
- 	struct fd real;
- 	const struct cred *old_cred;
- 	struct inode *inode = file_inode(out);
--	struct inode *realinode = ovl_inode_real(inode);
- 	ssize_t ret;
+ static const char * const imx8mn_gpu_axi_sels[] = {"osc_24m", "sys_pll1_800m", "gpu_pll_out",
+ 						   "sys_pll3_out", "sys_pll2_1000m", "audio_pll1_out",
+-						   "video_pll1_out", "audio_pll2_out", };
++						   "video_pll_out", "audio_pll2_out", };
  
- 	inode_lock(inode);
- 	/* Update mode */
--	ovl_copyattr(realinode, inode);
-+	ovl_copyattr(inode);
- 	ret = file_remove_privs(out);
- 	if (ret)
- 		goto out_unlock;
-@@ -452,7 +451,7 @@ static ssize_t ovl_splice_write(struct pipe_inode_info *pipe, struct file *out,
+ static const char * const imx8mn_gpu_ahb_sels[] = {"osc_24m", "sys_pll1_800m", "gpu_pll_out",
+ 						   "sys_pll3_out", "sys_pll2_1000m", "audio_pll1_out",
+-						   "video_pll1_out", "audio_pll2_out", };
++						   "video_pll_out", "audio_pll2_out", };
  
- 	file_end_write(real.file);
- 	/* Update size */
--	ovl_copyattr(realinode, inode);
-+	ovl_copyattr(inode);
- 	revert_creds(old_cred);
- 	fdput(real);
+ static const char * const imx8mn_noc_sels[] = {"osc_24m", "sys_pll1_800m", "sys_pll3_out",
+ 					       "sys_pll2_1000m", "sys_pll2_500m", "audio_pll1_out",
+-					       "video_pll1_out", "audio_pll2_out", };
++					       "video_pll_out", "audio_pll2_out", };
  
-@@ -526,7 +525,7 @@ static long ovl_fallocate(struct file *file, int mode, loff_t offset, loff_t len
- 	revert_creds(old_cred);
+ static const char * const imx8mn_ahb_sels[] = {"osc_24m", "sys_pll1_133m", "sys_pll1_800m",
+ 					       "sys_pll1_400m", "sys_pll2_125m", "sys_pll3_out",
+-					       "audio_pll1_out", "video_pll1_out", };
++					       "audio_pll1_out", "video_pll_out", };
  
- 	/* Update size */
--	ovl_copyattr(ovl_inode_real(inode), inode);
-+	ovl_copyattr(inode);
+ static const char * const imx8mn_audio_ahb_sels[] = {"osc_24m", "sys_pll2_500m", "sys_pll1_800m",
+ 						     "sys_pll2_1000m", "sys_pll2_166m", "sys_pll3_out",
+-						     "audio_pll1_out", "video_pll1_out", };
++						     "audio_pll1_out", "video_pll_out", };
  
- 	fdput(real);
+ static const char * const imx8mn_dram_alt_sels[] = {"osc_24m", "sys_pll1_800m", "sys_pll1_100m",
+ 						    "sys_pll2_500m", "sys_pll2_1000m", "sys_pll3_out",
+@@ -103,49 +103,49 @@ static const char * const imx8mn_dram_apb_sels[] = {"osc_24m", "sys_pll2_200m",
+ 						    "sys_pll1_160m", "sys_pll1_800m", "sys_pll3_out",
+ 						    "sys_pll2_250m", "audio_pll2_out", };
  
-@@ -598,7 +597,7 @@ static loff_t ovl_copyfile(struct file *file_in, loff_t pos_in,
- 	revert_creds(old_cred);
+-static const char * const imx8mn_disp_pixel_sels[] = {"osc_24m", "video_pll1_out", "audio_pll2_out",
++static const char * const imx8mn_disp_pixel_sels[] = {"osc_24m", "video_pll_out", "audio_pll2_out",
+ 						      "audio_pll1_out", "sys_pll1_800m", "sys_pll2_1000m",
+ 						      "sys_pll3_out", "clk_ext4", };
  
- 	/* Update size */
--	ovl_copyattr(ovl_inode_real(inode_out), inode_out);
-+	ovl_copyattr(inode_out);
+ static const char * const imx8mn_sai2_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
+-						"video_pll1_out", "sys_pll1_133m", "dummy",
++						"video_pll_out", "sys_pll1_133m", "dummy",
+ 						"clk_ext3", "clk_ext4", };
  
- 	fdput(real_in);
- 	fdput(real_out);
-diff --git a/fs/overlayfs/inode.c b/fs/overlayfs/inode.c
-index 06479bc88b7e..d41f0c8e0e2a 100644
---- a/fs/overlayfs/inode.c
-+++ b/fs/overlayfs/inode.c
-@@ -80,7 +80,7 @@ int ovl_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
- 		err = notify_change(&init_user_ns, upperdentry, attr, NULL);
- 		revert_creds(old_cred);
- 		if (!err)
--			ovl_copyattr(upperdentry->d_inode, dentry->d_inode);
-+			ovl_copyattr(dentry->d_inode);
- 		inode_unlock(upperdentry->d_inode);
+ static const char * const imx8mn_sai3_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
+-						"video_pll1_out", "sys_pll1_133m", "dummy",
++						"video_pll_out", "sys_pll1_133m", "dummy",
+ 						"clk_ext3", "clk_ext4", };
  
- 		if (winode)
-@@ -377,7 +377,7 @@ int ovl_xattr_set(struct dentry *dentry, struct inode *inode, const char *name,
- 	revert_creds(old_cred);
+ static const char * const imx8mn_sai5_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
+-						"video_pll1_out", "sys_pll1_133m", "dummy",
++						"video_pll_out", "sys_pll1_133m", "dummy",
+ 						"clk_ext2", "clk_ext3", };
  
- 	/* copy c/mtime */
--	ovl_copyattr(d_inode(realdentry), inode);
-+	ovl_copyattr(inode);
+ static const char * const imx8mn_sai6_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
+-						"video_pll1_out", "sys_pll1_133m", "dummy",
++						"video_pll_out", "sys_pll1_133m", "dummy",
+ 						"clk_ext3", "clk_ext4", };
  
- out_drop_write:
- 	ovl_drop_write(dentry);
-@@ -579,7 +579,7 @@ int ovl_fileattr_set(struct user_namespace *mnt_userns,
- 		inode_set_flags(inode, flags, OVL_COPY_I_FLAGS_MASK);
+ static const char * const imx8mn_sai7_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
+-						"video_pll1_out", "sys_pll1_133m", "dummy",
++						"video_pll_out", "sys_pll1_133m", "dummy",
+ 						"clk_ext3", "clk_ext4", };
  
- 		/* Update ctime */
--		ovl_copyattr(ovl_inode_real(inode), inode);
-+		ovl_copyattr(inode);
- 	}
- 	ovl_drop_write(dentry);
- out:
-@@ -789,7 +789,7 @@ void ovl_inode_init(struct inode *inode, struct ovl_inode_params *oip,
- 		oi->lowerdata = igrab(d_inode(oip->lowerdata));
+ static const char * const imx8mn_spdif1_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
+-						  "video_pll1_out", "sys_pll1_133m", "dummy",
++						  "video_pll_out", "sys_pll1_133m", "dummy",
+ 						  "clk_ext2", "clk_ext3", };
  
- 	realinode = ovl_inode_real(inode);
--	ovl_copyattr(realinode, inode);
-+	ovl_copyattr(inode);
- 	ovl_copyflags(realinode, inode);
- 	ovl_map_ino(inode, ino, fsid);
- }
-diff --git a/fs/overlayfs/overlayfs.h b/fs/overlayfs/overlayfs.h
-index 27f221962665..2df3e74cdf0f 100644
---- a/fs/overlayfs/overlayfs.h
-+++ b/fs/overlayfs/overlayfs.h
-@@ -522,16 +522,7 @@ bool ovl_lookup_trap_inode(struct super_block *sb, struct dentry *dir);
- struct inode *ovl_get_trap_inode(struct super_block *sb, struct dentry *dir);
- struct inode *ovl_get_inode(struct super_block *sb,
- 			    struct ovl_inode_params *oip);
--static inline void ovl_copyattr(struct inode *from, struct inode *to)
--{
--	to->i_uid = from->i_uid;
--	to->i_gid = from->i_gid;
--	to->i_mode = from->i_mode;
--	to->i_atime = from->i_atime;
--	to->i_mtime = from->i_mtime;
--	to->i_ctime = from->i_ctime;
--	i_size_write(to, i_size_read(from));
--}
-+void ovl_copyattr(struct inode *to);
+ static const char * const imx8mn_enet_ref_sels[] = {"osc_24m", "sys_pll2_125m", "sys_pll2_50m",
+ 						    "sys_pll2_100m", "sys_pll1_160m", "audio_pll1_out",
+-						    "video_pll1_out", "clk_ext4", };
++						    "video_pll_out", "clk_ext4", };
  
- /* vfs inode flags copied from real to ovl inode */
- #define OVL_COPY_I_FLAGS_MASK	(S_SYNC | S_NOATIME | S_APPEND | S_IMMUTABLE)
-diff --git a/fs/overlayfs/util.c b/fs/overlayfs/util.c
-index 2567918dc684..9d33ce385bef 100644
---- a/fs/overlayfs/util.c
-+++ b/fs/overlayfs/util.c
-@@ -456,7 +456,7 @@ static void ovl_dir_version_inc(struct dentry *dentry, bool impurity)
- void ovl_dir_modified(struct dentry *dentry, bool impurity)
- {
- 	/* Copy mtime/ctime */
--	ovl_copyattr(d_inode(ovl_dentry_upper(dentry)), d_inode(dentry));
-+	ovl_copyattr(d_inode(dentry));
+ static const char * const imx8mn_enet_timer_sels[] = {"osc_24m", "sys_pll2_100m", "audio_pll1_out",
+ 						      "clk_ext1", "clk_ext2", "clk_ext3",
+-						      "clk_ext4", "video_pll1_out", };
++						      "clk_ext4", "video_pll_out", };
  
- 	ovl_dir_version_inc(dentry, impurity);
- }
-@@ -1073,3 +1073,33 @@ int ovl_sync_status(struct ovl_fs *ofs)
+ static const char * const imx8mn_enet_phy_sels[] = {"osc_24m", "sys_pll2_50m", "sys_pll2_125m",
+-						    "sys_pll2_200m", "sys_pll2_500m", "video_pll1_out",
++						    "sys_pll2_200m", "sys_pll2_500m", "video_pll_out",
+ 						    "audio_pll2_out", };
  
- 	return errseq_check(&mnt->mnt_sb->s_wb_err, ofs->errseq);
- }
-+
-+/*
-+ * ovl_copyattr() - copy inode attributes from layer to ovl inode
-+ *
-+ * When overlay copies inode information from an upper or lower layer to the
-+ * relevant overlay inode it will apply the idmapping of the upper or lower
-+ * layer when doing so ensuring that the ovl inode ownership will correctly
-+ * reflect the ownership of the idmapped upper or lower layer. For example, an
-+ * idmapped upper or lower layer mapping id 1001 to id 1000 will take care to
-+ * map any lower or upper inode owned by id 1001 to id 1000. These mapping
-+ * helpers are nops when the relevant layer isn't idmapped.
-+ */
-+void ovl_copyattr(struct inode *inode)
-+{
-+	struct path realpath;
-+	struct inode *realinode;
-+	struct user_namespace *real_mnt_userns;
-+
-+	ovl_i_path_real(inode, &realpath);
-+	realinode = d_inode(realpath.dentry);
-+	real_mnt_userns = mnt_user_ns(realpath.mnt);
-+
-+	inode->i_uid = i_uid_into_mnt(real_mnt_userns, realinode);
-+	inode->i_gid = i_gid_into_mnt(real_mnt_userns, realinode);
-+	inode->i_mode = realinode->i_mode;
-+	inode->i_atime = realinode->i_atime;
-+	inode->i_mtime = realinode->i_mtime;
-+	inode->i_ctime = realinode->i_ctime;
-+	i_size_write(inode, i_size_read(realinode));
-+}
+ static const char * const imx8mn_nand_sels[] = {"osc_24m", "sys_pll2_500m", "audio_pll1_out",
+ 						"sys_pll1_400m", "audio_pll2_out", "sys_pll3_out",
+-						"sys_pll2_250m", "video_pll1_out", };
++						"sys_pll2_250m", "video_pll_out", };
+ 
+ static const char * const imx8mn_qspi_sels[] = {"osc_24m", "sys_pll1_400m", "sys_pll2_333m",
+ 						"sys_pll2_500m", "audio_pll2_out", "sys_pll1_266m",
+@@ -160,19 +160,19 @@ static const char * const imx8mn_usdhc2_sels[] = {"osc_24m", "sys_pll1_400m", "s
+ 						  "audio_pll2_out", "sys_pll1_100m", };
+ 
+ static const char * const imx8mn_i2c1_sels[] = {"osc_24m", "sys_pll1_160m", "sys_pll2_50m",
+-						"sys_pll3_out", "audio_pll1_out", "video_pll1_out",
++						"sys_pll3_out", "audio_pll1_out", "video_pll_out",
+ 						"audio_pll2_out", "sys_pll1_133m", };
+ 
+ static const char * const imx8mn_i2c2_sels[] = {"osc_24m", "sys_pll1_160m", "sys_pll2_50m",
+-						"sys_pll3_out", "audio_pll1_out", "video_pll1_out",
++						"sys_pll3_out", "audio_pll1_out", "video_pll_out",
+ 						"audio_pll2_out", "sys_pll1_133m", };
+ 
+ static const char * const imx8mn_i2c3_sels[] = {"osc_24m", "sys_pll1_160m", "sys_pll2_50m",
+-						"sys_pll3_out", "audio_pll1_out", "video_pll1_out",
++						"sys_pll3_out", "audio_pll1_out", "video_pll_out",
+ 						"audio_pll2_out", "sys_pll1_133m", };
+ 
+ static const char * const imx8mn_i2c4_sels[] = {"osc_24m", "sys_pll1_160m", "sys_pll2_50m",
+-						"sys_pll3_out",	"audio_pll1_out", "video_pll1_out",
++						"sys_pll3_out",	"audio_pll1_out", "video_pll_out",
+ 						"audio_pll2_out", "sys_pll1_133m", };
+ 
+ static const char * const imx8mn_uart1_sels[] = {"osc_24m", "sys_pll1_80m", "sys_pll2_200m",
+@@ -213,42 +213,42 @@ static const char * const imx8mn_ecspi2_sels[] = {"osc_24m", "sys_pll2_200m", "s
+ 
+ static const char * const imx8mn_pwm1_sels[] = {"osc_24m", "sys_pll2_100m", "sys_pll1_160m",
+ 						"sys_pll1_40m", "sys_pll3_out", "clk_ext1",
+-						"sys_pll1_80m", "video_pll1_out", };
++						"sys_pll1_80m", "video_pll_out", };
+ 
+ static const char * const imx8mn_pwm2_sels[] = {"osc_24m", "sys_pll2_100m", "sys_pll1_160m",
+ 						"sys_pll1_40m", "sys_pll3_out", "clk_ext1",
+-						"sys_pll1_80m", "video_pll1_out", };
++						"sys_pll1_80m", "video_pll_out", };
+ 
+ static const char * const imx8mn_pwm3_sels[] = {"osc_24m", "sys_pll2_100m", "sys_pll1_160m",
+ 						"sys_pll1_40m", "sys_pll3_out", "clk_ext2",
+-						"sys_pll1_80m", "video_pll1_out", };
++						"sys_pll1_80m", "video_pll_out", };
+ 
+ static const char * const imx8mn_pwm4_sels[] = {"osc_24m", "sys_pll2_100m", "sys_pll1_160m",
+ 						"sys_pll1_40m", "sys_pll3_out", "clk_ext2",
+-						"sys_pll1_80m", "video_pll1_out", };
++						"sys_pll1_80m", "video_pll_out", };
+ 
+ static const char * const imx8mn_gpt1_sels[] = {"osc_24m", "sys_pll2_100m", "sys_pll1_400m",
+-						"sys_pll1_40m", "video_pll1_out", "sys_pll1_80m",
++						"sys_pll1_40m", "video_pll_out", "sys_pll1_80m",
+ 						"audio_pll1_out", "clk_ext1", };
+ 
+ static const char * const imx8mn_gpt2_sels[] = {"osc_24m", "sys_pll2_100m", "sys_pll1_400m",
+-						"sys_pll1_40m", "video_pll1_out", "sys_pll1_80m",
++						"sys_pll1_40m", "video_pll_out", "sys_pll1_80m",
+ 						"audio_pll1_out", "clk_ext1", };
+ 
+ static const char * const imx8mn_gpt3_sels[] = {"osc_24m", "sys_pll2_100m", "sys_pll1_400m",
+-						"sys_pll1_40m", "video_pll1_out", "sys_pll1_80m",
++						"sys_pll1_40m", "video_pll_out", "sys_pll1_80m",
+ 						"audio_pll1_out", "clk_ext1", };
+ 
+ static const char * const imx8mn_gpt4_sels[] = {"osc_24m", "sys_pll2_100m", "sys_pll1_400m",
+-						"sys_pll1_40m", "video_pll1_out", "sys_pll1_80m",
++						"sys_pll1_40m", "video_pll_out", "sys_pll1_80m",
+ 						"audio_pll1_out", "clk_ext1", };
+ 
+ static const char * const imx8mn_gpt5_sels[] = {"osc_24m", "sys_pll2_100m", "sys_pll1_400m",
+-						"sys_pll1_40m", "video_pll1_out", "sys_pll1_80m",
++						"sys_pll1_40m", "video_pll_out", "sys_pll1_80m",
+ 						"audio_pll1_out", "clk_ext1", };
+ 
+ static const char * const imx8mn_gpt6_sels[] = {"osc_24m", "sys_pll2_100m", "sys_pll1_400m",
+-						"sys_pll1_40m", "video_pll1_out", "sys_pll1_80m",
++						"sys_pll1_40m", "video_pll_out", "sys_pll1_80m",
+ 						"audio_pll1_out", "clk_ext1", };
+ 
+ static const char * const imx8mn_wdog_sels[] = {"osc_24m", "sys_pll1_133m", "sys_pll1_160m",
+@@ -261,15 +261,15 @@ static const char * const imx8mn_wrclk_sels[] = {"osc_24m", "sys_pll1_40m", "m7_
+ 
+ static const char * const imx8mn_dsi_core_sels[] = {"osc_24m", "sys_pll1_266m", "sys_pll2_250m",
+ 						    "sys_pll1_800m", "sys_pll2_1000m", "sys_pll3_out",
+-						    "audio_pll2_out", "video_pll1_out", };
++						    "audio_pll2_out", "video_pll_out", };
+ 
+ static const char * const imx8mn_dsi_phy_sels[] = {"osc_24m", "sys_pll2_125m", "sys_pll2_100m",
+ 						   "sys_pll1_800m", "sys_pll2_1000m", "clk_ext2",
+-						   "audio_pll2_out", "video_pll1_out", };
++						   "audio_pll2_out", "video_pll_out", };
+ 
+ static const char * const imx8mn_dsi_dbi_sels[] = {"osc_24m", "sys_pll1_266m", "sys_pll2_100m",
+ 						   "sys_pll1_800m", "sys_pll2_1000m", "sys_pll3_out",
+-						   "audio_pll2_out", "video_pll1_out", };
++						   "audio_pll2_out", "video_pll_out", };
+ 
+ static const char * const imx8mn_usdhc3_sels[] = {"osc_24m", "sys_pll1_400m", "sys_pll1_800m",
+ 						  "sys_pll2_500m", "sys_pll3_out", "sys_pll1_266m",
+@@ -277,15 +277,15 @@ static const char * const imx8mn_usdhc3_sels[] = {"osc_24m", "sys_pll1_400m", "s
+ 
+ static const char * const imx8mn_camera_pixel_sels[] = {"osc_24m", "sys_pll1_266m", "sys_pll2_250m",
+ 							"sys_pll1_800m", "sys_pll2_1000m", "sys_pll3_out",
+-							"audio_pll2_out", "video_pll1_out", };
++							"audio_pll2_out", "video_pll_out", };
+ 
+ static const char * const imx8mn_csi1_phy_sels[] = {"osc_24m", "sys_pll2_333m", "sys_pll2_100m",
+ 						    "sys_pll1_800m", "sys_pll2_1000m", "clk_ext2",
+-						    "audio_pll2_out", "video_pll1_out", };
++						    "audio_pll2_out", "video_pll_out", };
+ 
+ static const char * const imx8mn_csi2_phy_sels[] = {"osc_24m", "sys_pll2_333m", "sys_pll2_100m",
+ 						    "sys_pll1_800m", "sys_pll2_1000m", "clk_ext2",
+-						    "audio_pll2_out", "video_pll1_out", };
++						    "audio_pll2_out", "video_pll_out", };
+ 
+ static const char * const imx8mn_csi2_esc_sels[] = {"osc_24m", "sys_pll2_100m", "sys_pll1_80m",
+ 						    "sys_pll1_800m", "sys_pll2_1000m", "sys_pll3_out",
+@@ -306,9 +306,9 @@ static const char * const imx8mn_clko1_sels[] = {"osc_24m", "sys_pll1_800m", "du
+ 						 "dummy", "sys_pll1_80m", };
+ static const char * const imx8mn_clko2_sels[] = {"osc_24m", "sys_pll2_200m", "sys_pll1_400m",
+ 						 "sys_pll2_166m", "sys_pll3_out", "audio_pll1_out",
+-						 "video_pll1_out", "osc_32k", };
++						 "video_pll_out", "osc_32k", };
+ 
+-static const char * const clkout_sels[] = {"audio_pll1_out", "audio_pll2_out", "video_pll1_out",
++static const char * const clkout_sels[] = {"audio_pll1_out", "audio_pll2_out", "video_pll_out",
+ 					   "dummy", "dummy", "gpu_pll_out", "dummy",
+ 					   "arm_pll_out", "sys_pll1", "sys_pll2", "sys_pll3",
+ 					   "dummy", "dummy", "osc_24m", "dummy", "osc_32k"};
+@@ -349,7 +349,7 @@ static int imx8mn_clocks_probe(struct platform_device *pdev)
+ 
+ 	hws[IMX8MN_AUDIO_PLL1_REF_SEL] = imx_clk_hw_mux("audio_pll1_ref_sel", base + 0x0, 0, 2, pll_ref_sels, ARRAY_SIZE(pll_ref_sels));
+ 	hws[IMX8MN_AUDIO_PLL2_REF_SEL] = imx_clk_hw_mux("audio_pll2_ref_sel", base + 0x14, 0, 2, pll_ref_sels, ARRAY_SIZE(pll_ref_sels));
+-	hws[IMX8MN_VIDEO_PLL1_REF_SEL] = imx_clk_hw_mux("video_pll1_ref_sel", base + 0x28, 0, 2, pll_ref_sels, ARRAY_SIZE(pll_ref_sels));
++	hws[IMX8MN_VIDEO_PLL_REF_SEL] = imx_clk_hw_mux("video_pll_ref_sel", base + 0x28, 0, 2, pll_ref_sels, ARRAY_SIZE(pll_ref_sels));
+ 	hws[IMX8MN_DRAM_PLL_REF_SEL] = imx_clk_hw_mux("dram_pll_ref_sel", base + 0x50, 0, 2, pll_ref_sels, ARRAY_SIZE(pll_ref_sels));
+ 	hws[IMX8MN_GPU_PLL_REF_SEL] = imx_clk_hw_mux("gpu_pll_ref_sel", base + 0x64, 0, 2, pll_ref_sels, ARRAY_SIZE(pll_ref_sels));
+ 	hws[IMX8MN_M7_ALT_PLL_REF_SEL] = imx_clk_hw_mux("m7_alt_pll_ref_sel", base + 0x74, 0, 2, pll_ref_sels, ARRAY_SIZE(pll_ref_sels));
+@@ -358,7 +358,7 @@ static int imx8mn_clocks_probe(struct platform_device *pdev)
+ 
+ 	hws[IMX8MN_AUDIO_PLL1] = imx_clk_hw_pll14xx("audio_pll1", "audio_pll1_ref_sel", base, &imx_1443x_pll);
+ 	hws[IMX8MN_AUDIO_PLL2] = imx_clk_hw_pll14xx("audio_pll2", "audio_pll2_ref_sel", base + 0x14, &imx_1443x_pll);
+-	hws[IMX8MN_VIDEO_PLL1] = imx_clk_hw_pll14xx("video_pll1", "video_pll1_ref_sel", base + 0x28, &imx_1443x_pll);
++	hws[IMX8MN_VIDEO_PLL] = imx_clk_hw_pll14xx("video_pll", "video_pll_ref_sel", base + 0x28, &imx_1443x_pll);
+ 	hws[IMX8MN_DRAM_PLL] = imx_clk_hw_pll14xx("dram_pll", "dram_pll_ref_sel", base + 0x50, &imx_1443x_dram_pll);
+ 	hws[IMX8MN_GPU_PLL] = imx_clk_hw_pll14xx("gpu_pll", "gpu_pll_ref_sel", base + 0x64, &imx_1416x_pll);
+ 	hws[IMX8MN_M7_ALT_PLL] = imx_clk_hw_pll14xx("m7_alt_pll", "m7_alt_pll_ref_sel", base + 0x74, &imx_1416x_pll);
+@@ -370,7 +370,7 @@ static int imx8mn_clocks_probe(struct platform_device *pdev)
+ 	/* PLL bypass out */
+ 	hws[IMX8MN_AUDIO_PLL1_BYPASS] = imx_clk_hw_mux_flags("audio_pll1_bypass", base, 16, 1, audio_pll1_bypass_sels, ARRAY_SIZE(audio_pll1_bypass_sels), CLK_SET_RATE_PARENT);
+ 	hws[IMX8MN_AUDIO_PLL2_BYPASS] = imx_clk_hw_mux_flags("audio_pll2_bypass", base + 0x14, 16, 1, audio_pll2_bypass_sels, ARRAY_SIZE(audio_pll2_bypass_sels), CLK_SET_RATE_PARENT);
+-	hws[IMX8MN_VIDEO_PLL1_BYPASS] = imx_clk_hw_mux_flags("video_pll1_bypass", base + 0x28, 16, 1, video_pll1_bypass_sels, ARRAY_SIZE(video_pll1_bypass_sels), CLK_SET_RATE_PARENT);
++	hws[IMX8MN_VIDEO_PLL_BYPASS] = imx_clk_hw_mux_flags("video_pll_bypass", base + 0x28, 16, 1, video_pll_bypass_sels, ARRAY_SIZE(video_pll_bypass_sels), CLK_SET_RATE_PARENT);
+ 	hws[IMX8MN_DRAM_PLL_BYPASS] = imx_clk_hw_mux_flags("dram_pll_bypass", base + 0x50, 16, 1, dram_pll_bypass_sels, ARRAY_SIZE(dram_pll_bypass_sels), CLK_SET_RATE_PARENT);
+ 	hws[IMX8MN_GPU_PLL_BYPASS] = imx_clk_hw_mux_flags("gpu_pll_bypass", base + 0x64, 28, 1, gpu_pll_bypass_sels, ARRAY_SIZE(gpu_pll_bypass_sels), CLK_SET_RATE_PARENT);
+ 	hws[IMX8MN_M7_ALT_PLL_BYPASS] = imx_clk_hw_mux_flags("m7_alt_pll_bypass", base + 0x74, 28, 1, m7_alt_pll_bypass_sels, ARRAY_SIZE(m7_alt_pll_bypass_sels), CLK_SET_RATE_PARENT);
+@@ -380,7 +380,7 @@ static int imx8mn_clocks_probe(struct platform_device *pdev)
+ 	/* PLL out gate */
+ 	hws[IMX8MN_AUDIO_PLL1_OUT] = imx_clk_hw_gate("audio_pll1_out", "audio_pll1_bypass", base, 13);
+ 	hws[IMX8MN_AUDIO_PLL2_OUT] = imx_clk_hw_gate("audio_pll2_out", "audio_pll2_bypass", base + 0x14, 13);
+-	hws[IMX8MN_VIDEO_PLL1_OUT] = imx_clk_hw_gate("video_pll1_out", "video_pll1_bypass", base + 0x28, 13);
++	hws[IMX8MN_VIDEO_PLL_OUT] = imx_clk_hw_gate("video_pll_out", "video_pll_bypass", base + 0x28, 13);
+ 	hws[IMX8MN_DRAM_PLL_OUT] = imx_clk_hw_gate("dram_pll_out", "dram_pll_bypass", base + 0x50, 13);
+ 	hws[IMX8MN_GPU_PLL_OUT] = imx_clk_hw_gate("gpu_pll_out", "gpu_pll_bypass", base + 0x64, 11);
+ 	hws[IMX8MN_M7_ALT_PLL_OUT] = imx_clk_hw_gate("m7_alt_pll_out", "m7_alt_pll_bypass", base + 0x74, 11);
+diff --git a/include/dt-bindings/clock/imx8mn-clock.h b/include/dt-bindings/clock/imx8mn-clock.h
+index 694e3c050d04..04809edab33c 100644
+--- a/include/dt-bindings/clock/imx8mn-clock.h
++++ b/include/dt-bindings/clock/imx8mn-clock.h
+@@ -16,7 +16,8 @@
+ #define IMX8MN_CLK_EXT4				7
+ #define IMX8MN_AUDIO_PLL1_REF_SEL		8
+ #define IMX8MN_AUDIO_PLL2_REF_SEL		9
+-#define IMX8MN_VIDEO_PLL1_REF_SEL		10
++#define IMX8MN_VIDEO_PLL_REF_SEL		10
++#define IMX8MN_VIDEO_PLL1_REF_SEL		IMX8MN_VIDEO_PLL_REF_SEL
+ #define IMX8MN_DRAM_PLL_REF_SEL			11
+ #define IMX8MN_GPU_PLL_REF_SEL			12
+ #define IMX8MN_M7_ALT_PLL_REF_SEL		13
+@@ -27,7 +28,8 @@
+ #define IMX8MN_SYS_PLL3_REF_SEL			17
+ #define IMX8MN_AUDIO_PLL1			18
+ #define IMX8MN_AUDIO_PLL2			19
+-#define IMX8MN_VIDEO_PLL1			20
++#define IMX8MN_VIDEO_PLL			20
++#define IMX8MN_VIDEO_PLL1			IMX8MN_VIDEO_PLL
+ #define IMX8MN_DRAM_PLL				21
+ #define IMX8MN_GPU_PLL				22
+ #define IMX8MN_M7_ALT_PLL			23
+@@ -38,7 +40,8 @@
+ #define IMX8MN_SYS_PLL3				27
+ #define IMX8MN_AUDIO_PLL1_BYPASS		28
+ #define IMX8MN_AUDIO_PLL2_BYPASS		29
+-#define IMX8MN_VIDEO_PLL1_BYPASS		30
++#define IMX8MN_VIDEO_PLL_BYPASS			30
++#define IMX8MN_VIDEO_PLL1_BYPASS		IMX8MN_VIDEO_PLL_BYPASS
+ #define IMX8MN_DRAM_PLL_BYPASS			31
+ #define IMX8MN_GPU_PLL_BYPASS			32
+ #define IMX8MN_M7_ALT_PLL_BYPASS		33
+@@ -49,7 +52,8 @@
+ #define IMX8MN_SYS_PLL3_BYPASS			37
+ #define IMX8MN_AUDIO_PLL1_OUT			38
+ #define IMX8MN_AUDIO_PLL2_OUT			39
+-#define IMX8MN_VIDEO_PLL1_OUT			40
++#define IMX8MN_VIDEO_PLL_OUT			40
++#define IMX8MN_VIDEO_PLL1_OUT			IMX8MN_VIDEO_PLL_OUT
+ #define IMX8MN_DRAM_PLL_OUT			41
+ #define IMX8MN_GPU_PLL_OUT			42
+ #define IMX8MN_M7_ALT_PLL_OUT			43
 -- 
 2.35.1
 
