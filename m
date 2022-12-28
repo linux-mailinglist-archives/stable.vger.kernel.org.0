@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11A8A65808D
+	by mail.lfdr.de (Postfix) with ESMTP id BE69C65808F
 	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:18:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233204AbiL1QSS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:18:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36414 "EHLO
+        id S233213AbiL1QSU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:18:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233205AbiL1QRb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:17:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 502EC11836
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:16:14 -0800 (PST)
+        with ESMTP id S233242AbiL1QRd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:17:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 765EC12630
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:16:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E0FE8614CF
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:16:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03955C433EF;
-        Wed, 28 Dec 2022 16:16:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 243E7B81707
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:16:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B8FCC433D2;
+        Wed, 28 Dec 2022 16:16:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244173;
-        bh=UBiYZJQflnrX/ugP/38MqKoZqY7opr3fP4vuNNpSoPs=;
+        s=korg; t=1672244178;
+        bh=qkMFgexp8nZaj9OD53Qx/5VzT4kBWfcY4iurDVROmeY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xWL0xnC2JgxZz2zStIYlrMNwB/2RmmJMhRzsoo21StQl9g2eApUyWTBrjMdh5PJSC
-         dJY/LMfXIdlnzqJccJYhVhtmrZDd5tBW9j/+1gQQ5EFmn5/hrkgLKYTxi75rsuUKHZ
-         vhSCSmZrbhwmqMP5lwxn9GUoWx0QR7PGtmptIrSc=
+        b=LO6is1u6rmSGdqeSgSuIh+ZO+/tBVLi85WVtlNTt3uRzhVxaDKqZKvYeTim83K3q4
+         KdECsDhobsjLFcfEN3NZigDMKLA9WW3YKFgwZMq1emPiPJ/KeCpBd+Eh3Jqii38Mu4
+         RYkbbRWuyEsl27J11d211c8ukXN3wDxXU7bKX24A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev, Jon Hunter <jonathanh@nvidia.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Akhil R <akhilrajeev@nvidia.com>, Kartik <kkartik@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0663/1073] drivers: dio: fix possible memory leak in dio_init()
-Date:   Wed, 28 Dec 2022 15:37:31 +0100
-Message-Id: <20221228144346.053047923@linuxfoundation.org>
+Subject: [PATCH 6.0 0664/1073] serial: tegra: Read DMA status before terminating
+Date:   Wed, 28 Dec 2022 15:37:32 +0100
+Message-Id: <20221228144346.079730225@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -52,58 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Kartik <kkartik@nvidia.com>
 
-[ Upstream commit e63e99397b2613d50a5f4f02ed07307e67a190f1 ]
+[ Upstream commit 109a951a9f1fd8a34ebd1896cbbd5d5cede880a7 ]
 
-If device_register() returns error, the 'dev' and name needs be
-freed. Add a release function, and then call put_device() in the
-error path, so the name is freed in kobject_cleanup() and to the
-'dev' is freed in release function.
+Read the DMA status before terminating the DMA, as doing so deletes
+the DMA desc.
 
-Fixes: 2e4c77bea3d8 ("m68k: dio - Kill warn_unused_result warnings")
-Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221109064036.1835346-1-yangyingliang@huawei.com
+Also, to get the correct transfer status information, pause the DMA
+using dmaengine_pause() before reading the DMA status.
+
+Fixes: e9ea096dd225 ("serial: tegra: add serial driver")
+Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
+Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Akhil R <akhilrajeev@nvidia.com>
+Signed-off-by: Kartik <kkartik@nvidia.com>
+Link: https://lore.kernel.org/r/1666105086-17326-1-git-send-email-kkartik@nvidia.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dio/dio.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/tty/serial/serial-tegra.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dio/dio.c b/drivers/dio/dio.c
-index 0e5a5662d5a4..0a051d656880 100644
---- a/drivers/dio/dio.c
-+++ b/drivers/dio/dio.c
-@@ -109,6 +109,12 @@ static char dio_no_name[] = { 0 };
+diff --git a/drivers/tty/serial/serial-tegra.c b/drivers/tty/serial/serial-tegra.c
+index a5748e41483b..ab549b79fde9 100644
+--- a/drivers/tty/serial/serial-tegra.c
++++ b/drivers/tty/serial/serial-tegra.c
+@@ -619,8 +619,9 @@ static void tegra_uart_stop_tx(struct uart_port *u)
+ 	if (tup->tx_in_progress != TEGRA_UART_TX_DMA)
+ 		return;
  
- #endif /* CONFIG_DIO_CONSTANTS */
+-	dmaengine_terminate_all(tup->tx_dma_chan);
++	dmaengine_pause(tup->tx_dma_chan);
+ 	dmaengine_tx_status(tup->tx_dma_chan, tup->tx_cookie, &state);
++	dmaengine_terminate_all(tup->tx_dma_chan);
+ 	count = tup->tx_bytes_requested - state.residue;
+ 	async_tx_ack(tup->tx_dma_desc);
+ 	uart_xmit_advance(&tup->uport, count);
+@@ -763,8 +764,9 @@ static void tegra_uart_terminate_rx_dma(struct tegra_uart_port *tup)
+ 		return;
+ 	}
  
-+static void dio_dev_release(struct device *dev)
-+{
-+	struct dio_dev *ddev = container_of(dev, typeof(struct dio_dev), dev);
-+	kfree(ddev);
-+}
-+
- int __init dio_find(int deviceid)
- {
- 	/* Called to find a DIO device before the full bus scan has run.
-@@ -225,6 +231,7 @@ static int __init dio_init(void)
- 		dev->bus = &dio_bus;
- 		dev->dev.parent = &dio_bus.dev;
- 		dev->dev.bus = &dio_bus_type;
-+		dev->dev.release = dio_dev_release;
- 		dev->scode = scode;
- 		dev->resource.start = pa;
- 		dev->resource.end = pa + DIO_SIZE(scode, va);
-@@ -252,6 +259,7 @@ static int __init dio_init(void)
- 		if (error) {
- 			pr_err("DIO: Error registering device %s\n",
- 			       dev->name);
-+			put_device(&dev->dev);
- 			continue;
- 		}
- 		error = dio_create_sysfs_dev_files(dev);
+-	dmaengine_terminate_all(tup->rx_dma_chan);
++	dmaengine_pause(tup->rx_dma_chan);
+ 	dmaengine_tx_status(tup->rx_dma_chan, tup->rx_cookie, &state);
++	dmaengine_terminate_all(tup->rx_dma_chan);
+ 
+ 	tegra_uart_rx_buffer_push(tup, state.residue);
+ 	tup->rx_dma_active = false;
 -- 
 2.35.1
 
