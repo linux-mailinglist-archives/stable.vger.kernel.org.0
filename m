@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D85B65798E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:03:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B46DB657FA3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:07:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233463AbiL1PC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:02:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48836 "EHLO
+        id S230368AbiL1QH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:07:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233487AbiL1PCb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:02:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64E4113D1D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:02:18 -0800 (PST)
+        with ESMTP id S232845AbiL1QHC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:07:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D581B11A35
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:06:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00AA1B81710
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:02:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4775CC433EF;
-        Wed, 28 Dec 2022 15:02:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F617B8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:06:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01E76C433D2;
+        Wed, 28 Dec 2022 16:06:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239735;
-        bh=5JJQazEZy9oKTh0SQs+GNRlnFhbY1GIwYmsbGaafbeg=;
+        s=korg; t=1672243608;
+        bh=dJgZaAXz44OcIoZ8lj2GbfgRiJ7+2jo3eYjnptDEBUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e+FjqyirGBE0mPUG5Uuo+lYfgxN/j8LUQIIEbQ8P/sF/r0Zl1mXHcUI0K2gPGUymH
-         SUjZyXTGLH/ubKYJLxdEbr90cScP/6ZdeptbD+MsBydgyxd6QKQt3BwCYCc8vxyiU8
-         IFnnVrEVcVVMPzvRMp/KXQ6bUj15k6noJlAqqp24=
+        b=hTnqF3CvWAMzql4KTVH+N7JjEqXaoLyVSB83gDnbXL9b3ClbaW9U45m9PUe0A7mt9
+         isg6+O47zeephBSc7HbQ4gBAYaOX22jIcoNnAMkFEQiM8V7XBcvenQioE2Ql6LlkQm
+         BvfPtYJBLPnkboxuHXXaDSR/orXl5sval4G84Z+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ZhangPeng <zhangpeng362@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        patches@lists.linux.dev,
+        John Johansen <john.johansen@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 237/731] pinctrl: pinconf-generic: add missing of_node_put()
+Subject: [PATCH 6.0 0556/1073] apparmor: Fix regression in stacking due to label flags
 Date:   Wed, 28 Dec 2022 15:35:44 +0100
-Message-Id: <20221228144303.434237517@linuxfoundation.org>
+Message-Id: <20221228144343.157854614@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhangPeng <zhangpeng362@huawei.com>
+From: John Johansen <john.johansen@canonical.com>
 
-[ Upstream commit 5ead93289815a075d43c415e35c8beafafb801c9 ]
+[ Upstream commit 1f939c6bd1512d0b39b470396740added3cb403f ]
 
-of_node_put() needs to be called when jumping out of the loop, since
-for_each_available_child_of_node() will increase the refcount of node.
+The unconfined label flag is not being computed correctly. It
+should only be set if all the profiles in the vector are set, which
+is different than what is required for the debug and stale flag
+that are set if any on the profile flags are set.
 
-Fixes: c7289500e29d ("pinctrl: pinconf-generic: scan also referenced phandle node")
-Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
-Link: https://lore.kernel.org/r/20221125070156.3535855-1-zhangpeng362@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: c1ed5da19765 ("apparmor: allow label to carry debug flags")
+Signed-off-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinconf-generic.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ security/apparmor/label.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/pinctrl/pinconf-generic.c b/drivers/pinctrl/pinconf-generic.c
-index b1db28007986..e6fe1330eab9 100644
---- a/drivers/pinctrl/pinconf-generic.c
-+++ b/drivers/pinctrl/pinconf-generic.c
-@@ -393,8 +393,10 @@ int pinconf_generic_dt_node_to_map(struct pinctrl_dev *pctldev,
- 	for_each_available_child_of_node(np_config, np) {
- 		ret = pinconf_generic_dt_subnode_to_map(pctldev, np, map,
- 					&reserved_maps, num_maps, type);
--		if (ret < 0)
-+		if (ret < 0) {
-+			of_node_put(np);
- 			goto exit;
-+		}
- 	}
- 	return 0;
+diff --git a/security/apparmor/label.c b/security/apparmor/label.c
+index 0f36ee907438..a67c5897ee25 100644
+--- a/security/apparmor/label.c
++++ b/security/apparmor/label.c
+@@ -197,15 +197,18 @@ static bool vec_is_stale(struct aa_profile **vec, int n)
+ 	return false;
+ }
  
+-static long union_vec_flags(struct aa_profile **vec, int n, long mask)
++static long accum_vec_flags(struct aa_profile **vec, int n)
+ {
+-	long u = 0;
++	long u = FLAG_UNCONFINED;
+ 	int i;
+ 
+ 	AA_BUG(!vec);
+ 
+ 	for (i = 0; i < n; i++) {
+-		u |= vec[i]->label.flags & mask;
++		u |= vec[i]->label.flags & (FLAG_DEBUG1 | FLAG_DEBUG2 |
++					    FLAG_STALE);
++		if (!(u & vec[i]->label.flags & FLAG_UNCONFINED))
++			u &= ~FLAG_UNCONFINED;
+ 	}
+ 
+ 	return u;
+@@ -1097,8 +1100,7 @@ static struct aa_label *label_merge_insert(struct aa_label *new,
+ 		else if (k == b->size)
+ 			return aa_get_label(b);
+ 	}
+-	new->flags |= union_vec_flags(new->vec, new->size, FLAG_UNCONFINED |
+-					      FLAG_DEBUG1 | FLAG_DEBUG2);
++	new->flags |= accum_vec_flags(new->vec, new->size);
+ 	ls = labels_set(new);
+ 	write_lock_irqsave(&ls->lock, flags);
+ 	label = __label_insert(labels_set(new), new, false);
 -- 
 2.35.1
 
