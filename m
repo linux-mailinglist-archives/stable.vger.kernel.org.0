@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15E91657FF6
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:12:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FEE56579A1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:03:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234407AbiL1QM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:12:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59200 "EHLO
+        id S233433AbiL1PDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:03:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234382AbiL1QLu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:11:50 -0500
+        with ESMTP id S233486AbiL1PDH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:03:07 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D19BE1A38A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:09:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC3FA13CD8
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:03:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 70DC36156E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:09:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FD9CC433D2;
-        Wed, 28 Dec 2022 16:09:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C50C61540
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:03:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6414EC433F0;
+        Wed, 28 Dec 2022 15:03:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243792;
-        bh=HC0FfhjlI8kyJDOK3rKVCwY8CX6bHeXHURJ4PkLH7wQ=;
+        s=korg; t=1672239785;
+        bh=feCoPiwVGAW26qPJMlAHdPzkug8f7qfVwP9ARc1bwTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GGo9S/C6v+MDeicBGuq0A2q9CjL6g2dmI8tQgonGCPPwtb4+gXdXUhhqeh6TG7QOv
-         3V0+azyQRGsS/OqkJhPzCdZh8AcybnqE/a3VO3x0YYTdITteEmnKe6Lx66g6y9ACuP
-         9c4zhLHMn9AWnyq2Mm667Yy1h6NTy/dkkM2NzvXY=
+        b=T2t0Y7bSBvZiMiSVOw0sCSLj2SOmIw7SxB01tEunAi1hXe84K7kkop7cRW0hiaMqp
+         t+AbufpQBLhOEh5bB83BUKYDlsGQzqB4yYVSOhGJaMEIxtX3/Bk94S3YXsdoF9Grzl
+         cj+Mzod6i9rx7/uLix5GCccuJl2QBpiL4Ad/I84I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Richard Zhu <hongxing.zhu@nxp.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0589/1073] PCI: imx6: Initialize PHY before deasserting core reset
+        patches@lists.linux.dev, Deren Wu <deren.wu@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 270/731] wifi: mt76: fix coverity overrun-call in mt76_get_txpower()
 Date:   Wed, 28 Dec 2022 15:36:17 +0100
-Message-Id: <20221228144344.045675116@linuxfoundation.org>
+Message-Id: <20221228144304.400896309@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,59 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sascha Hauer <s.hauer@pengutronix.de>
+From: Deren Wu <deren.wu@mediatek.com>
 
-[ Upstream commit ae6b9a65af480144da323436d90e149501ea8937 ]
+[ Upstream commit 03dd0d49de7db680a856fa566963bb8421f46368 ]
 
-When the PHY is the reference clock provider then it must be initialized
-and powered on before the reset on the client is deasserted, otherwise
-the link will never come up. The order was changed in cf236e0c0d59.
-Restore the correct order to make the driver work again on boards where
-the PHY provides the reference clock. This also changes the order for
-boards where the Soc is the PHY reference clock divider, but this
-shouldn't do any harm.
+Make sure the nss is valid for nss_delta array. Return zero
+if the index is invalid.
 
-Link: https://lore.kernel.org/r/20221101095714.440001-1-s.hauer@pengutronix.de
-Fixes: cf236e0c0d59 ("PCI: imx6: Do not hide PHY driver callbacks and refine the error handling")
-Tested-by: Richard Zhu <hongxing.zhu@nxp.com>
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Coverity message:
+Event overrun-call: Overrunning callee's array of size 4 by passing
+argument "n_chains" (which evaluates to 15) in call to
+"mt76_tx_power_nss_delta".
+int delta = mt76_tx_power_nss_delta(n_chains);
+
+Fixes: 07cda406308b ("mt76: fix rounding issues on converting per-chain and combined txpower")
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pci-imx6.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt76.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/dwc/pci-imx6.c b/drivers/pci/controller/dwc/pci-imx6.c
-index 6e5debdbc55b..6ffe95d68ae7 100644
---- a/drivers/pci/controller/dwc/pci-imx6.c
-+++ b/drivers/pci/controller/dwc/pci-imx6.c
-@@ -942,12 +942,6 @@ static int imx6_pcie_host_init(struct dw_pcie_rp *pp)
- 		}
- 	}
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76.h b/drivers/net/wireless/mediatek/mt76/mt76.h
+index d1f00706d41e..4e4af6e17b50 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76.h
++++ b/drivers/net/wireless/mediatek/mt76/mt76.h
+@@ -1021,8 +1021,9 @@ static inline bool mt76_is_skb_pktid(u8 pktid)
+ static inline u8 mt76_tx_power_nss_delta(u8 nss)
+ {
+ 	static const u8 nss_delta[4] = { 0, 6, 9, 12 };
++	u8 idx = nss - 1;
  
--	ret = imx6_pcie_deassert_core_reset(imx6_pcie);
--	if (ret < 0) {
--		dev_err(dev, "pcie deassert core reset failed: %d\n", ret);
--		goto err_phy_off;
--	}
--
- 	if (imx6_pcie->phy) {
- 		ret = phy_init(imx6_pcie->phy);
- 		if (ret) {
-@@ -955,6 +949,13 @@ static int imx6_pcie_host_init(struct dw_pcie_rp *pp)
- 			goto err_phy_off;
- 		}
- 	}
-+
-+	ret = imx6_pcie_deassert_core_reset(imx6_pcie);
-+	if (ret < 0) {
-+		dev_err(dev, "pcie deassert core reset failed: %d\n", ret);
-+		goto err_phy_off;
-+	}
-+
- 	imx6_setup_phy_mpll(imx6_pcie);
+-	return nss_delta[nss - 1];
++	return (idx < ARRAY_SIZE(nss_delta)) ? nss_delta[idx] : 0;
+ }
  
- 	return 0;
+ static inline bool mt76_testmode_enabled(struct mt76_phy *phy)
 -- 
 2.35.1
 
