@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A1B0657E0B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:49:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B60165841E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:54:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233659AbiL1Pta (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:49:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37508 "EHLO
+        id S235226AbiL1Qyv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:54:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233245AbiL1Pt3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:49:29 -0500
+        with ESMTP id S235306AbiL1Qxx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:53:53 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C0EC18393
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:49:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93F3A1E3FF
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:49:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC331613E9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:49:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D227CC433D2;
-        Wed, 28 Dec 2022 15:49:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 33B6B61541
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:49:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 430C7C433EF;
+        Wed, 28 Dec 2022 16:49:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242568;
-        bh=/YHUbYQVGnFkTBPFFPtqTxQ1pugwtvJeUzG9KEMBJxw=;
+        s=korg; t=1672246145;
+        bh=P6Vv4HWUGMloQZ7EzWAIoXrADR6KamKu1l8cHYJ5V+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w9xZ75IswuEZ9A2239xLmBdH2QNKYlnyzQ60PFUUgGt6XQwQK2IZN9/3psYXF9gdx
-         YKJhFmMSDg7I70JauMJ/aydmjF6KQJ3iVIcrlIeIGzVZRbcfr9dFOr4pXCEwGPRFzW
-         hclsEV2T1tQdCxBKyy9A0gR19U5bSmaMLmGGLhGQ=
+        b=HNih+pBkROXC+sOcIYpCa5RcTRKm9LinuvRdSuf3PTg8WhrpPaXfBJG8w+E+kwXor
+         ZGotTY6SDUmyFlyf0owWIThYWBYVuqw8ZznpXH+ECHeBAZCkzqfNLOO+jBKxxbsui0
+         WUQlB8IiWR+McgSN6ofyCHmjynH9RtUYik+OnEUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+15342c1aa6a00fb7a438@syzkaller.appspotmail.com,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 620/731] fs: jfs: fix shift-out-of-bounds in dbAllocAG
+Subject: [PATCH 6.1 0988/1146] net: ethernet: ti: Fix return type of netcp_ndo_start_xmit()
 Date:   Wed, 28 Dec 2022 15:42:07 +0100
-Message-Id: <20221228144314.504212421@linuxfoundation.org>
+Message-Id: <20221228144357.200202436@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,88 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 898f706695682b9954f280d95e49fa86ffa55d08 ]
+[ Upstream commit 63fe6ff674a96cfcfc0fa8df1051a27aa31c70b4 ]
 
-Syzbot found a crash : UBSAN: shift-out-of-bounds in dbAllocAG. The
-underlying bug is the missing check of bmp->db_agl2size. The field can
-be greater than 64 and trigger the shift-out-of-bounds.
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed. A
+proposed warning in clang aims to catch these at compile time, which
+reveals:
 
-Fix this bug by adding a check of bmp->db_agl2size in dbMount since this
-field is used in many following functions. The upper bound for this
-field is L2MAXL2SIZE - L2MAXAG, thanks for the help of Dave Kleikamp.
-Note that, for maintenance, I reorganized error handling code of dbMount.
+  drivers/net/ethernet/ti/netcp_core.c:1944:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .ndo_start_xmit         = netcp_ndo_start_xmit,
+                                    ^~~~~~~~~~~~~~~~~~~~
+  1 error generated.
 
-Reported-by: syzbot+15342c1aa6a00fb7a438@syzkaller.appspotmail.com
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
+'netdev_tx_t', not 'int'. Adjust the return type of
+netcp_ndo_start_xmit() to match the prototype's to resolve the warning
+and CFI failure.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1750
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221102160933.1601260-1-nathan@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/jfs_dmap.c | 22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/ti/netcp_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
-index e75f31b81d63..44600cd7614a 100644
---- a/fs/jfs/jfs_dmap.c
-+++ b/fs/jfs/jfs_dmap.c
-@@ -155,7 +155,7 @@ int dbMount(struct inode *ipbmap)
- 	struct bmap *bmp;
- 	struct dbmap_disk *dbmp_le;
- 	struct metapage *mp;
--	int i;
-+	int i, err;
- 
- 	/*
- 	 * allocate/initialize the in-memory bmap descriptor
-@@ -170,8 +170,8 @@ int dbMount(struct inode *ipbmap)
- 			   BMAPBLKNO << JFS_SBI(ipbmap->i_sb)->l2nbperpage,
- 			   PSIZE, 0);
- 	if (mp == NULL) {
--		kfree(bmp);
--		return -EIO;
-+		err = -EIO;
-+		goto err_kfree_bmp;
- 	}
- 
- 	/* copy the on-disk bmap descriptor to its in-memory version. */
-@@ -181,9 +181,8 @@ int dbMount(struct inode *ipbmap)
- 	bmp->db_l2nbperpage = le32_to_cpu(dbmp_le->dn_l2nbperpage);
- 	bmp->db_numag = le32_to_cpu(dbmp_le->dn_numag);
- 	if (!bmp->db_numag) {
--		release_metapage(mp);
--		kfree(bmp);
--		return -EINVAL;
-+		err = -EINVAL;
-+		goto err_release_metapage;
- 	}
- 
- 	bmp->db_maxlevel = le32_to_cpu(dbmp_le->dn_maxlevel);
-@@ -194,6 +193,11 @@ int dbMount(struct inode *ipbmap)
- 	bmp->db_agwidth = le32_to_cpu(dbmp_le->dn_agwidth);
- 	bmp->db_agstart = le32_to_cpu(dbmp_le->dn_agstart);
- 	bmp->db_agl2size = le32_to_cpu(dbmp_le->dn_agl2size);
-+	if (bmp->db_agl2size > L2MAXL2SIZE - L2MAXAG) {
-+		err = -EINVAL;
-+		goto err_release_metapage;
-+	}
-+
- 	for (i = 0; i < MAXAG; i++)
- 		bmp->db_agfree[i] = le64_to_cpu(dbmp_le->dn_agfree[i]);
- 	bmp->db_agsize = le64_to_cpu(dbmp_le->dn_agsize);
-@@ -214,6 +218,12 @@ int dbMount(struct inode *ipbmap)
- 	BMAP_LOCK_INIT(bmp);
- 
- 	return (0);
-+
-+err_release_metapage:
-+	release_metapage(mp);
-+err_kfree_bmp:
-+	kfree(bmp);
-+	return err;
+diff --git a/drivers/net/ethernet/ti/netcp_core.c b/drivers/net/ethernet/ti/netcp_core.c
+index aba70bef4894..9eb9eaff4dc9 100644
+--- a/drivers/net/ethernet/ti/netcp_core.c
++++ b/drivers/net/ethernet/ti/netcp_core.c
+@@ -1261,7 +1261,7 @@ static int netcp_tx_submit_skb(struct netcp_intf *netcp,
  }
  
- 
+ /* Submit the packet */
+-static int netcp_ndo_start_xmit(struct sk_buff *skb, struct net_device *ndev)
++static netdev_tx_t netcp_ndo_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ {
+ 	struct netcp_intf *netcp = netdev_priv(ndev);
+ 	struct netcp_stats *tx_stats = &netcp->stats;
 -- 
 2.35.1
 
