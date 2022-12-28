@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F6F7657D5F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:42:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BF6B657D62
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:42:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233950AbiL1Pmn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:42:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58518 "EHLO
+        id S233537AbiL1Pmp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:42:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233966AbiL1Pm3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:42:29 -0500
+        with ESMTP id S233959AbiL1Pmh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:42:37 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3C1117044
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:42:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A07717052
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:42:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B0E2B8172B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:42:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB1CCC433D2;
-        Wed, 28 Dec 2022 15:42:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 421ECB8172B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:42:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC400C433EF;
+        Wed, 28 Dec 2022 15:42:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242146;
-        bh=VfFYS3P/YwmDM0aWfN8kmbrIPtkCvXK+TmZw2A0TAnc=;
+        s=korg; t=1672242154;
+        bh=UZb8JLUqgwzJbBPmwDM2oAwgHQWdgRrunGEOzPI2KX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AkZXJA/pQDQWehcnpmpWJarGXEmTPnHwcCGKhkeXo12TWuMsCIwmhNClvFF8ZhdWp
-         fBREy4mqS4fL1GU8gBOxHwy9DMtN/kqOe8gJZ0NXaFIEPM0elefLR+A9y0yTQgY65m
-         gvoDqSvcMX5ml3dvHEfQY+LJyqsWsyHF/RpoLeN8=
+        b=nZ6zij3pG7Feq6SKl7ihJ36pEbAOp4HGZujZ3ZVOjvx3yy3jcfVars9bCj3QDL75G
+         fNuey245j1LWiD7frbbEqewkfOtkcnmZGHZhTbEV1C/XJGy+7SpTNN6FpU4jQO2PzT
+         wOGoGoMQbMy9XQIIjBM2rQ/ak4S3kIeRI3Q3DqWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0334/1146] wifi: rtw89: Fix some error handling path in rtw89_core_sta_assoc()
-Date:   Wed, 28 Dec 2022 15:31:13 +0100
-Message-Id: <20221228144339.233463537@linuxfoundation.org>
+        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0335/1146] regulator: qcom-rpmh: Fix PMR735a S3 regulator spec
+Date:   Wed, 28 Dec 2022 15:31:14 +0100
+Message-Id: <20221228144339.259779435@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -54,38 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Konrad Dybcio <konrad.dybcio@linaro.org>
 
-[ Upstream commit 81c0b8928437ddfe87b0024c5bd817bc331d8524 ]
+[ Upstream commit dd801b2265c81bf0c8b0b4b8f7c1e7bfed078403 ]
 
-'ret' is not updated after a function call in rtw89_core_sta_assoc().
-This prevent error handling from working.
+PMR735a has a wider range than previously defined. Fix it.
 
-Add the missing assignment.
-
-Fixes: e3ec7017f6a2 ("rtw89: add Realtek 802.11ax driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Acked-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/7b1d82594635e4406d3438f33d8da29eaa056c5a.1668354547.git.christophe.jaillet@wanadoo.fr
+Fixes: c4e5aa3dbee5 ("regulator: qcom-rpmh: Add PM7325/PMR735A regulator support")
+Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Link: https://lore.kernel.org/r/20221110210706.80301-1-konrad.dybcio@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw89/core.c | 2 +-
+ drivers/regulator/qcom-rpmh-regulator.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw89/core.c b/drivers/net/wireless/realtek/rtw89/core.c
-index bc2994865372..ad420d7ec8af 100644
---- a/drivers/net/wireless/realtek/rtw89/core.c
-+++ b/drivers/net/wireless/realtek/rtw89/core.c
-@@ -2527,7 +2527,7 @@ int rtw89_core_sta_assoc(struct rtw89_dev *rtwdev,
- 	}
- 
- 	/* update cam aid mac_id net_type */
--	rtw89_fw_h2c_cam(rtwdev, rtwvif, rtwsta, NULL);
-+	ret = rtw89_fw_h2c_cam(rtwdev, rtwvif, rtwsta, NULL);
- 	if (ret) {
- 		rtw89_warn(rtwdev, "failed to send h2c cam\n");
- 		return ret;
+diff --git a/drivers/regulator/qcom-rpmh-regulator.c b/drivers/regulator/qcom-rpmh-regulator.c
+index 4158ff126a67..f90bcdeecea5 100644
+--- a/drivers/regulator/qcom-rpmh-regulator.c
++++ b/drivers/regulator/qcom-rpmh-regulator.c
+@@ -1187,7 +1187,7 @@ static const struct rpmh_vreg_init_data pm7325_vreg_data[] = {
+ static const struct rpmh_vreg_init_data pmr735a_vreg_data[] = {
+ 	RPMH_VREG("smps1",  "smp%s1",  &pmic5_ftsmps520, "vdd-s1"),
+ 	RPMH_VREG("smps2",  "smp%s2",  &pmic5_ftsmps520, "vdd-s2"),
+-	RPMH_VREG("smps3",  "smp%s3",  &pmic5_hfsmps510, "vdd-s3"),
++	RPMH_VREG("smps3",  "smp%s3",  &pmic5_hfsmps515, "vdd-s3"),
+ 	RPMH_VREG("ldo1",   "ldo%s1",  &pmic5_nldo,      "vdd-l1-l2"),
+ 	RPMH_VREG("ldo2",   "ldo%s2",  &pmic5_nldo,      "vdd-l1-l2"),
+ 	RPMH_VREG("ldo3",   "ldo%s3",  &pmic5_nldo,      "vdd-l3"),
 -- 
 2.35.1
 
