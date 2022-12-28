@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C814658096
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:18:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49F35657AB1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:14:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234574AbiL1QS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:18:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36526 "EHLO
+        id S233077AbiL1POT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:14:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234558AbiL1QR4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:17:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8989113F2B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:16:38 -0800 (PST)
+        with ESMTP id S233086AbiL1PNt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:13:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30F7113E08
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:13:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2610A614CF
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:16:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35C39C433D2;
-        Wed, 28 Dec 2022 16:16:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BFA06B8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:13:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 183FAC433EF;
+        Wed, 28 Dec 2022 15:13:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244197;
-        bh=RsPN6Cih1drWpTzTHANb6J0fDXe1efH+azSd+bcqrKs=;
+        s=korg; t=1672240425;
+        bh=P2lpu2OpEi8iruibbunIjy84xM5ZdFStPfUBIyYLynk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yImHYaJqFzZLotfslwzUlFZynIqrpEoncT2ZgTP34SNzxu5TN1jZhIU3l9t5GgXRm
-         oGSPcjuafJnnjBP0CRQWB5ZgXj/F9kRi1jP939fu4HfWVd8ECywkJKT1GgxRyV3fbQ
-         LLMSxI22Xx2iFifzhqUgod7VRacp2qJmUewG4zhc=
+        b=H3MeDbwrRvaFW54BObIrPT7sH/A+gnS6eSiIi5F0nd7d09BTyb+q9tprgjW5w/A1G
+         xaupxhqgZUZp8rtKeXoP73CQRHXsEuX/yGMrKvb7pSQI5mrDNwxH24fBM+Oijru+1c
+         k6f45FOGPRlrZOuc2DkW5mdyCpd9DpgpDwDarQhc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0667/1073] class: fix possible memory leak in __class_register()
+Subject: [PATCH 5.15 348/731] Bluetooth: btusb: dont call kfree_skb() under spin_lock_irqsave()
 Date:   Wed, 28 Dec 2022 15:37:35 +0100
-Message-Id: <20221228144346.159600195@linuxfoundation.org>
+Message-Id: <20221228144306.652609094@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,67 +55,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 8c3e8a6bdb5253b97ad532570f8b5db5f7a06407 ]
+[ Upstream commit b15a6bd3c80c77faec8317319b97f976b1a08332 ]
 
-If class_add_groups() returns error, the 'cp->subsys' need be
-unregister, and the 'cp' need be freed.
+It is not allowed to call kfree_skb() from hardware interrupt
+context or with interrupts being disabled. So replace kfree_skb()
+with dev_kfree_skb_irq() under spin_lock_irqsave().
 
-We can not call kset_unregister() here, because the 'cls' will
-be freed in callback function class_release() and it's also
-freed in caller's error path, it will cause double free.
-
-So fix this by calling kobject_del() and kfree_const(name) to
-cleanup kobject. Besides, call kfree() to free the 'cp'.
-
-Fault injection test can trigger this:
-
-unreferenced object 0xffff888102fa8190 (size 8):
-  comm "modprobe", pid 502, jiffies 4294906074 (age 49.296s)
-  hex dump (first 8 bytes):
-    70 6b 74 63 64 76 64 00                          pktcdvd.
-  backtrace:
-    [<00000000e7c7703d>] __kmalloc_track_caller+0x1ae/0x320
-    [<000000005e4d70bc>] kstrdup+0x3a/0x70
-    [<00000000c2e5e85a>] kstrdup_const+0x68/0x80
-    [<000000000049a8c7>] kvasprintf_const+0x10b/0x190
-    [<0000000029123163>] kobject_set_name_vargs+0x56/0x150
-    [<00000000747219c9>] kobject_set_name+0xab/0xe0
-    [<0000000005f1ea4e>] __class_register+0x15c/0x49a
-
-unreferenced object 0xffff888037274000 (size 1024):
-  comm "modprobe", pid 502, jiffies 4294906074 (age 49.296s)
-  hex dump (first 32 bytes):
-    00 40 27 37 80 88 ff ff 00 40 27 37 80 88 ff ff  .@'7.....@'7....
-    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
-  backtrace:
-    [<00000000151f9600>] kmem_cache_alloc_trace+0x17c/0x2f0
-    [<00000000ecf3dd95>] __class_register+0x86/0x49a
-
-Fixes: ced6473e7486 ("driver core: class: add class_groups support")
+Fixes: 803b58367ffb ("Bluetooth: btusb: Implement driver internal packet reassembly")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221026082803.3458760-1-yangyingliang@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/class.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/bluetooth/btusb.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/base/class.c b/drivers/base/class.c
-index 8feb85e186e3..e394e3e473b5 100644
---- a/drivers/base/class.c
-+++ b/drivers/base/class.c
-@@ -192,6 +192,11 @@ int __class_register(struct class *cls, struct lock_class_key *key)
- 	}
- 	error = class_add_groups(class_get(cls), cls->class_groups);
- 	class_put(cls);
-+	if (error) {
-+		kobject_del(&cp->subsys.kobj);
-+		kfree_const(cp->subsys.kobj.name);
-+		kfree(cp);
-+	}
- 	return error;
- }
- EXPORT_SYMBOL_GPL(__class_register);
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index 69380cb03dd3..9c32263f872b 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -735,13 +735,13 @@ static inline void btusb_free_frags(struct btusb_data *data)
+ 
+ 	spin_lock_irqsave(&data->rxlock, flags);
+ 
+-	kfree_skb(data->evt_skb);
++	dev_kfree_skb_irq(data->evt_skb);
+ 	data->evt_skb = NULL;
+ 
+-	kfree_skb(data->acl_skb);
++	dev_kfree_skb_irq(data->acl_skb);
+ 	data->acl_skb = NULL;
+ 
+-	kfree_skb(data->sco_skb);
++	dev_kfree_skb_irq(data->sco_skb);
+ 	data->sco_skb = NULL;
+ 
+ 	spin_unlock_irqrestore(&data->rxlock, flags);
 -- 
 2.35.1
 
