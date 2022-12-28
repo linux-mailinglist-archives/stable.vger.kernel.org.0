@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A71ED65782C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AC8E657E45
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:52:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233042AbiL1OsS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:48:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36020 "EHLO
+        id S234214AbiL1Pwa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:52:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233093AbiL1Orq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:47:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A8D2BCA
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:47:45 -0800 (PST)
+        with ESMTP id S234266AbiL1PwL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:52:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0358C18B0C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:52:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E8BC86154D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:47:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04A79C433D2;
-        Wed, 28 Dec 2022 14:47:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9292A61563
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:52:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D86EC433EF;
+        Wed, 28 Dec 2022 15:52:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238864;
-        bh=xQsys8Xw44yVNsnuzHKAhkrsd+IFPKZTLmySj/hhbAY=;
+        s=korg; t=1672242721;
+        bh=PkRZ+5E/QkjOJ/PWYL2le7UQYhBZe46413TgpDr4zKI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D7GRq2gK9HTXlDDw7/F/rTCIon3nfyzbCUJ3s6vie8rhOfRdzuVEoYU4so6TJvwxm
-         XBCDVOhEFf+1foiYweddeuhXsedGxpgdF7aYiVGwpkqGY4A0kfa+QTWwe0mRl2FI4a
-         LPgt88pKL54GaLrRX27tYy85H/u5dC3JrTrfkTVU=
+        b=VPJbrigdXq/U1F5jCPwmBD3ZcfOptbnCJaLfKwnEj+LM70tWyBq241jQoHG0sM69V
+         xpzWzr7FmhpGGC9mVYZsnYBY3HzDHFOC34KHhFTSlLyjHeE7QxX8JK8eZXZ+2Jo4ol
+         ksN0WX3UGSakQkT2bb8A9AiddsvfPtyYqT47pTYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 038/731] ARM: dts: nuvoton: Remove bogus unit addresses from fixed-partition nodes
+        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0406/1146] media: sun6i-mipi-csi2: Require both pads to be connected for streaming
 Date:   Wed, 28 Dec 2022 15:32:25 +0100
-Message-Id: <20221228144257.657663397@linuxfoundation.org>
+Message-Id: <20221228144341.193762009@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,140 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
 
-[ Upstream commit ea3ce4cf076ba11bb591c8013c5315136cae52c8 ]
+[ Upstream commit f042b08b833de3be810f8769d88ca44aeefd7eba ]
 
-The unit addresses do not correspond to the nodes' reg properties,
-because they don't have any.
+The bridge needs both its pads connected to be able to stream data.
+Enforcing this is useful to produce an error when no sensor is
+connected.
 
-Fixes: e42b650f828d ("ARM: dts: nuvoton: Add new device nodes to NPCM750 EVB")
-Fixes: ee33e2fb3d70 ("ARM: dts: nuvoton: Add Quanta GBS BMC Device Tree")
-Fixes: 59f5abe09f0a ("ARM: dts: nuvoton: Add Quanta GSJ BMC")
-Fixes: 14579c76f5ca ("ARM: dts: nuvoton: Add Fii Kudo system")
-Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Link: https://lore.kernel.org/r/20221031221553.163273-1-j.neuschaefer@gmx.net
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Fixes: af54b4f4c17f ("media: sunxi: Add support for the A31 MIPI CSI-2 controller")
+Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/nuvoton-npcm730-gbs.dts            | 2 +-
- arch/arm/boot/dts/nuvoton-npcm730-gsj.dts            | 2 +-
- arch/arm/boot/dts/nuvoton-npcm730-kudo.dts           | 6 +++---
- arch/arm/boot/dts/nuvoton-npcm750-evb.dts            | 4 ++--
- arch/arm/boot/dts/nuvoton-npcm750-runbmc-olympus.dts | 6 +++---
- 5 files changed, 10 insertions(+), 10 deletions(-)
+ .../media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c  | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/nuvoton-npcm730-gbs.dts b/arch/arm/boot/dts/nuvoton-npcm730-gbs.dts
-index eb6eb21cb2a4..33c8d5b3d679 100644
---- a/arch/arm/boot/dts/nuvoton-npcm730-gbs.dts
-+++ b/arch/arm/boot/dts/nuvoton-npcm730-gbs.dts
-@@ -366,7 +366,7 @@ spi-nor@0 {
- 		spi-max-frequency = <20000000>;
- 		spi-rx-bus-width = <2>;
- 		label = "bmc";
--		partitions@80000000 {
-+		partitions {
- 			compatible = "fixed-partitions";
- 			#address-cells = <1>;
- 			#size-cells = <1>;
-diff --git a/arch/arm/boot/dts/nuvoton-npcm730-gsj.dts b/arch/arm/boot/dts/nuvoton-npcm730-gsj.dts
-index d4ff49939a3d..bbe18618f5c5 100644
---- a/arch/arm/boot/dts/nuvoton-npcm730-gsj.dts
-+++ b/arch/arm/boot/dts/nuvoton-npcm730-gsj.dts
-@@ -142,7 +142,7 @@ spi-nor@0 {
- 		reg = <0>;
- 		spi-rx-bus-width = <2>;
+diff --git a/drivers/media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c b/drivers/media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c
+index 30d6c0c5161f..340380a5f66f 100644
+--- a/drivers/media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c
++++ b/drivers/media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c
+@@ -519,8 +519,10 @@ static int sun6i_mipi_csi2_bridge_setup(struct sun6i_mipi_csi2_device *csi2_dev)
  
--		partitions@80000000 {
-+		partitions {
- 			compatible = "fixed-partitions";
- 			#address-cells = <1>;
- 			#size-cells = <1>;
-diff --git a/arch/arm/boot/dts/nuvoton-npcm730-kudo.dts b/arch/arm/boot/dts/nuvoton-npcm730-kudo.dts
-index 82a104b2a65f..8e3425cb8e8b 100644
---- a/arch/arm/boot/dts/nuvoton-npcm730-kudo.dts
-+++ b/arch/arm/boot/dts/nuvoton-npcm730-kudo.dts
-@@ -388,7 +388,7 @@ spi-nor@0 {
- 		spi-max-frequency = <5000000>;
- 		spi-rx-bus-width = <2>;
- 		label = "bmc";
--		partitions@80000000 {
-+		partitions {
- 			compatible = "fixed-partitions";
- 			#address-cells = <1>;
- 			#size-cells = <1>;
-@@ -422,7 +422,7 @@ spi-nor@1 {
- 		reg = <1>;
- 		spi-max-frequency = <5000000>;
- 		spi-rx-bus-width = <2>;
--		partitions@88000000 {
-+		partitions {
- 			compatible = "fixed-partitions";
- 			#address-cells = <1>;
- 			#size-cells = <1>;
-@@ -447,7 +447,7 @@ spi-nor@0 {
- 		reg = <0>;
- 		spi-max-frequency = <5000000>;
- 		spi-rx-bus-width = <2>;
--		partitions@A0000000 {
-+		partitions {
- 			compatible = "fixed-partitions";
- 			#address-cells = <1>;
- 			#size-cells = <1>;
-diff --git a/arch/arm/boot/dts/nuvoton-npcm750-evb.dts b/arch/arm/boot/dts/nuvoton-npcm750-evb.dts
-index 0334641f8829..cf274c926711 100644
---- a/arch/arm/boot/dts/nuvoton-npcm750-evb.dts
-+++ b/arch/arm/boot/dts/nuvoton-npcm750-evb.dts
-@@ -74,7 +74,7 @@ spi-nor@0 {
- 		spi-rx-bus-width = <2>;
- 		reg = <0>;
- 		spi-max-frequency = <5000000>;
--		partitions@80000000 {
-+		partitions {
- 			compatible = "fixed-partitions";
- 			#address-cells = <1>;
- 			#size-cells = <1>;
-@@ -135,7 +135,7 @@ spi-nor@0 {
- 		spi-rx-bus-width = <2>;
- 		reg = <0>;
- 		spi-max-frequency = <5000000>;
--		partitions@A0000000 {
-+		partitions {
- 			compatible = "fixed-partitions";
- 			#address-cells = <1>;
- 			#size-cells = <1>;
-diff --git a/arch/arm/boot/dts/nuvoton-npcm750-runbmc-olympus.dts b/arch/arm/boot/dts/nuvoton-npcm750-runbmc-olympus.dts
-index 767e0ac0df7c..7fe7efee28ac 100644
---- a/arch/arm/boot/dts/nuvoton-npcm750-runbmc-olympus.dts
-+++ b/arch/arm/boot/dts/nuvoton-npcm750-runbmc-olympus.dts
-@@ -107,7 +107,7 @@ spi-nor@0 {
- 		reg = <0>;
- 		spi-rx-bus-width = <2>;
+ 	/* Media Pads */
  
--		partitions@80000000 {
-+		partitions {
- 			compatible = "fixed-partitions";
- 			#address-cells = <1>;
- 			#size-cells = <1>;
-@@ -146,7 +146,7 @@ spi-nor@1 {
- 		reg = <1>;
- 		npcm,fiu-rx-bus-width = <2>;
+-	pads[SUN6I_MIPI_CSI2_PAD_SINK].flags = MEDIA_PAD_FL_SINK;
+-	pads[SUN6I_MIPI_CSI2_PAD_SOURCE].flags = MEDIA_PAD_FL_SOURCE;
++	pads[SUN6I_MIPI_CSI2_PAD_SINK].flags = MEDIA_PAD_FL_SINK |
++					       MEDIA_PAD_FL_MUST_CONNECT;
++	pads[SUN6I_MIPI_CSI2_PAD_SOURCE].flags = MEDIA_PAD_FL_SOURCE |
++						 MEDIA_PAD_FL_MUST_CONNECT;
  
--		partitions@88000000 {
-+		partitions {
- 			compatible = "fixed-partitions";
- 			#address-cells = <1>;
- 			#size-cells = <1>;
-@@ -173,7 +173,7 @@ spi-nor@0 {
- 		reg = <0>;
- 		spi-rx-bus-width = <2>;
- 
--		partitions@A0000000 {
-+		partitions {
- 			compatible = "fixed-partitions";
- 			#address-cells = <1>;
- 			#size-cells = <1>;
+ 	ret = media_entity_pads_init(&subdev->entity, SUN6I_MIPI_CSI2_PAD_COUNT,
+ 				     pads);
 -- 
 2.35.1
 
