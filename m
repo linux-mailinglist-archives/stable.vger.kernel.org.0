@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44360657A4F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:10:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30A47657B66
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:21:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233673AbiL1PKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:10:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56580 "EHLO
+        id S233715AbiL1PVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:21:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233697AbiL1PJn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:09:43 -0500
+        with ESMTP id S233692AbiL1PVK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:21:10 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEA6013E34
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:09:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14C31B9B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:21:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B3B46155A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:09:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81231C433EF;
-        Wed, 28 Dec 2022 15:09:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 879F561365
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:21:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93ED7C43392;
+        Wed, 28 Dec 2022 15:21:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240181;
-        bh=XLnQrrv0n0qLt+falotwTKdhlXBgb5ff7UCWk2stfrk=;
+        s=korg; t=1672240865;
+        bh=JHzCgzUwCvXaMBV1VYxxeHav3suYjsRw21mC/+XbepA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y76mhLjwKSmGwKbaL/+QxiKXwN7rSXYg/A/nArn1psua4I9Q3KEMBXEahPnIKNSz5
-         LRsae/W36uekFCojFg7evvdhDCiJXD1hmzrAcL1tc5P6bd72CCUPz1Rf5tIr9M+FbR
-         JwG+0xWKLUyY0t/04hEPnUExtYwWC4qIkivnZfEM=
+        b=j8AR5V0iJOWCDyiySHUTMN//WWKIldmW5kwjbXbvy6M9YkOUWKcCGrLw+5duL7Hj2
+         MvQuQ8BfB1/XXXGjOPz+GHi74fbzccDYdwlj6Xfgxqdl5MFhRunBSs0qUrq5PNmakg
+         hkqQ7fcY3YX9umd8TltRg6Gszg1kl2Eqj103WE7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Chen Yu <yu.c.chen@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Yue Hu <huyue2@coolpad.com>,
+        Chao Yu <chao@kernel.org>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0127/1073] ACPI: pfr_telemetry: use ACPI_FREE() to free acpi_object
+Subject: [PATCH 6.1 0176/1146] erofs: fix missing unmap if z_erofs_get_extent_compressedlen() fails
 Date:   Wed, 28 Dec 2022 15:28:35 +0100
-Message-Id: <20221228144331.486406860@linuxfoundation.org>
+Message-Id: <20221228144334.936474846@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang ShaoBo <bobo.shaobowang@huawei.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-[ Upstream commit 0f2aa7fc2a9aee05bafb965d5b1638d3e74b4c61 ]
+[ Upstream commit d5d188b8f8b38d3d71dd05993874b4fc9284ce95 ]
 
-acpi_evaluate_dsm_typed()/acpi_evaluate_dsm() should be coupled
-with ACPI_FREE() to free the ACPI memory, because we need to
-track the allocation of acpi_object when ACPI_DBG_TRACK_ALLOCATIONS
-enabled, so use ACPI_FREE() instead of kfree().
+Otherwise, meta buffers could be leaked.
 
-Fixes: b0013e037a8b ("ACPI: Introduce Platform Firmware Runtime Telemetry driver")
-Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Reviewed-by: Chen Yu <yu.c.chen@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: cec6e93beadf ("erofs: support parsing big pcluster compress indexes")
+Reviewed-by: Yue Hu <huyue2@coolpad.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20221205150050.47784-1-hsiangkao@linux.alibaba.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/pfr_telemetry.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/erofs/zmap.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/acpi/pfr_telemetry.c b/drivers/acpi/pfr_telemetry.c
-index 9abf350bd7a5..27fb6cdad75f 100644
---- a/drivers/acpi/pfr_telemetry.c
-+++ b/drivers/acpi/pfr_telemetry.c
-@@ -144,7 +144,7 @@ static int get_pfrt_log_data_info(struct pfrt_log_data_info *data_info,
- 	ret = 0;
- 
- free_acpi_buffer:
--	kfree(out_obj);
-+	ACPI_FREE(out_obj);
- 
- 	return ret;
- }
-@@ -180,7 +180,7 @@ static int set_pfrt_log_level(int level, struct pfrt_log_device *pfrt_log_dev)
- 		ret = -EBUSY;
+diff --git a/fs/erofs/zmap.c b/fs/erofs/zmap.c
+index 0bb66927e3d0..f49295b9f2e1 100644
+--- a/fs/erofs/zmap.c
++++ b/fs/erofs/zmap.c
+@@ -694,7 +694,7 @@ static int z_erofs_do_map_blocks(struct inode *inode,
+ 		map->m_pa = blknr_to_addr(m.pblk);
+ 		err = z_erofs_get_extent_compressedlen(&m, initial_lcn);
+ 		if (err)
+-			goto out;
++			goto unmap_out;
  	}
  
--	kfree(out_obj);
-+	ACPI_FREE(out_obj);
- 
- 	return ret;
+ 	if (m.headtype == Z_EROFS_VLE_CLUSTER_TYPE_PLAIN) {
+@@ -718,14 +718,12 @@ static int z_erofs_do_map_blocks(struct inode *inode,
+ 		if (!err)
+ 			map->m_flags |= EROFS_MAP_FULL_MAPPED;
+ 	}
++
+ unmap_out:
+ 	erofs_unmap_metabuf(&m.map->buf);
+-
+-out:
+ 	erofs_dbg("%s, m_la %llu m_pa %llu m_llen %llu m_plen %llu m_flags 0%o",
+ 		  __func__, map->m_la, map->m_pa,
+ 		  map->m_llen, map->m_plen, map->m_flags);
+-
+ 	return err;
  }
-@@ -218,7 +218,7 @@ static int get_pfrt_log_level(struct pfrt_log_device *pfrt_log_dev)
- 	ret = obj->integer.value;
  
- free_acpi_buffer:
--	kfree(out_obj);
-+	ACPI_FREE(out_obj);
- 
- 	return ret;
- }
 -- 
 2.35.1
 
