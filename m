@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB2556578C5
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:54:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC561657FE3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:11:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233158AbiL1OyA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:54:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41470 "EHLO
+        id S232963AbiL1QLo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:11:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233181AbiL1Ox7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:53:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1BFEDB
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:53:58 -0800 (PST)
+        with ESMTP id S234481AbiL1QLB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:11:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 119B31A062
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:09:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D876614B2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:53:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 551F6C433D2;
-        Wed, 28 Dec 2022 14:53:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4911EB8172A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:09:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5739C433D2;
+        Wed, 28 Dec 2022 16:09:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239237;
-        bh=epAXlGaFXl6ZYkvAS06e99X0DhEpSptH1wcxRKBFoJY=;
+        s=korg; t=1672243755;
+        bh=oG8p6uHzd9jeLxIpvjJPqGMurUe78KnMd7qmPO7t9wE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qw5DgcEuyKe+DXK5JbhQTuWHJ4U9dCAhuUL63TAvcEc5OPtlJvOTdfWVPX5Je9Tb/
-         BqBGw1LEByhBqMKbTRXyNEMRaPOHTZOavG30k7KhviXaMLBaKDRHO6t/9BuINSPHtB
-         P8+KeCkvE4ggxjrNFZWIT322URq9pq4K+6OIVkxM=
+        b=HbNI7SoK9DjdkaPAZEGwigvImIqnfbzRjFC+HNeBxBn6N09aKaiphoDhhvr42Sdha
+         BJDvmlYqaczBoVafDOBcQJCVNC6GLYFw7s0T7o92jsKRAf1sFhddB/kE9rcx/RtwTI
+         EbA6Jw+bCRvjC7TejtkrRRgZXqemJG7LRs/qCPPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        patches@lists.linux.dev,
+        Markus Schneider-Pargmann <msp@baylibre.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 181/731] media: platform: exynos4-is: fix return value check in fimc_md_probe()
-Date:   Wed, 28 Dec 2022 15:34:48 +0100
-Message-Id: <20221228144301.810642790@linuxfoundation.org>
+Subject: [PATCH 6.1 0550/1146] can: tcan4x5x: Fix use of register error status mask
+Date:   Wed, 28 Dec 2022 15:34:49 +0100
+Message-Id: <20221228144345.109913681@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Markus Schneider-Pargmann <msp@baylibre.com>
 
-[ Upstream commit e38e42c078da4af962d322b97e726dcb2f184e3f ]
+[ Upstream commit 67727a17a6b375d68fe569b77e6516b034b834c0 ]
 
-devm_pinctrl_get() may return ERR_PTR(-EPROBE_DEFER), add a minus sign
-to fix it.
+TCAN4X5X_ERROR_STATUS is not a status register that needs clearing
+during interrupt handling. Instead this is a masking register that masks
+error interrupts. Writing TCAN4X5X_CLEAR_ALL_INT to this register
+effectively masks everything.
 
-Fixes: 4163851f7b99 ("[media] s5p-fimc: Use pinctrl API for camera ports configuration")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Rename the register and mask all error interrupts only once by writing
+to the register in tcan4x5x_init.
+
+Fixes: 5443c226ba91 ("can: tcan4x5x: Add tcan4x5x driver to the kernel")
+Signed-off-by: Markus Schneider-Pargmann <msp@baylibre.com>
+Link: https://lore.kernel.org/all/20221206115728.1056014-10-msp@baylibre.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/exynos4-is/media-dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/m_can/tcan4x5x-core.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/media/platform/exynos4-is/media-dev.c b/drivers/media/platform/exynos4-is/media-dev.c
-index aa5982e32b2b..00225e16dd49 100644
---- a/drivers/media/platform/exynos4-is/media-dev.c
-+++ b/drivers/media/platform/exynos4-is/media-dev.c
-@@ -1472,7 +1472,7 @@ static int fimc_md_probe(struct platform_device *pdev)
- 	pinctrl = devm_pinctrl_get(dev);
- 	if (IS_ERR(pinctrl)) {
- 		ret = PTR_ERR(pinctrl);
--		if (ret != EPROBE_DEFER)
-+		if (ret != -EPROBE_DEFER)
- 			dev_err(dev, "Failed to get pinctrl: %d\n", ret);
- 		goto err_clk;
- 	}
+diff --git a/drivers/net/can/m_can/tcan4x5x-core.c b/drivers/net/can/m_can/tcan4x5x-core.c
+index a77f4d4f6299..2342aa011647 100644
+--- a/drivers/net/can/m_can/tcan4x5x-core.c
++++ b/drivers/net/can/m_can/tcan4x5x-core.c
+@@ -10,7 +10,7 @@
+ #define TCAN4X5X_DEV_ID1 0x04
+ #define TCAN4X5X_REV 0x08
+ #define TCAN4X5X_STATUS 0x0C
+-#define TCAN4X5X_ERROR_STATUS 0x10
++#define TCAN4X5X_ERROR_STATUS_MASK 0x10
+ #define TCAN4X5X_CONTROL 0x14
+ 
+ #define TCAN4X5X_CONFIG 0x800
+@@ -204,12 +204,7 @@ static int tcan4x5x_clear_interrupts(struct m_can_classdev *cdev)
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = tcan4x5x_write_tcan_reg(cdev, TCAN4X5X_INT_FLAGS,
+-				      TCAN4X5X_CLEAR_ALL_INT);
+-	if (ret)
+-		return ret;
+-
+-	return tcan4x5x_write_tcan_reg(cdev, TCAN4X5X_ERROR_STATUS,
++	return tcan4x5x_write_tcan_reg(cdev, TCAN4X5X_INT_FLAGS,
+ 				       TCAN4X5X_CLEAR_ALL_INT);
+ }
+ 
+@@ -229,6 +224,11 @@ static int tcan4x5x_init(struct m_can_classdev *cdev)
+ 	if (ret)
+ 		return ret;
+ 
++	ret = tcan4x5x_write_tcan_reg(cdev, TCAN4X5X_ERROR_STATUS_MASK,
++				      TCAN4X5X_CLEAR_ALL_INT);
++	if (ret)
++		return ret;
++
+ 	ret = regmap_update_bits(tcan4x5x->regmap, TCAN4X5X_CONFIG,
+ 				 TCAN4X5X_MODE_SEL_MASK, TCAN4X5X_MODE_NORMAL);
+ 	if (ret)
 -- 
 2.35.1
 
