@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE8FB658004
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:13:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFDE16579BC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:04:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234480AbiL1QNK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:13:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59682 "EHLO
+        id S233477AbiL1PET (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:04:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234643AbiL1QMM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:12:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 393DE19001
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:10:31 -0800 (PST)
+        with ESMTP id S233508AbiL1PEL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:04:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0932112AE6
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:04:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A1CA0B81719
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:10:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB18AC433D2;
-        Wed, 28 Dec 2022 16:10:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0176B816E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:04:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02F85C433D2;
+        Wed, 28 Dec 2022 15:04:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243828;
-        bh=l2jNa5CvIfj279X0bc5z8ryD3Xk2y88TBTCdnyyrcvA=;
+        s=korg; t=1672239846;
+        bh=AFN6+QAA0Sa7n/jufArnZ3dHHcwGf55roie5QWNqqZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A0xIc3Guz/RFFoPKTuMoKW/9ogbIFdPU6PVKtOXtOQY4BW+gN/ZjCBTFW30jeenpR
-         QZh4hGSK6J/0q4T3XZrIiqb3aGEeYj00uoSLTF4jZjjb47D9wEH8wDfbNNDxIGMAKb
-         VAWkerj839Vgjbj/Q5DVpKsD4MaypzOkTU1D1okU=
+        b=msKnZqq+eDesHnI1McJEky4nJzE2Ajr6CeKm+pE2wuyRt5fWmkdSyrq5mYHA8Vmqe
+         3528Xxe2dgIOdCYpzun381FqubpTi7MR2KiwXhkenHeCr9xvrIBlGV0saAQtZzTVht
+         kz4LxEtBHfTUD0API4liv1DZWXCv+hih0mBBNEQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mustafa Ismail <mustafa.ismail@intel.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0595/1073] RDMA/irdma: Fix RQ completion opcode
-Date:   Wed, 28 Dec 2022 15:36:23 +0100
-Message-Id: <20221228144344.208670143@linuxfoundation.org>
+Subject: [PATCH 5.15 277/731] hsr: Synchronize sending frames to have always incremented outgoing seq nr.
+Date:   Wed, 28 Dec 2022 15:36:24 +0100
+Message-Id: <20221228144304.603442136@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,272 +54,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mustafa Ismail <mustafa.ismail@intel.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-[ Upstream commit 24419777e9431137d5923a747f546facb1e49b1f ]
+[ Upstream commit 06afd2c31d338fa762548580c1bf088703dd1e03 ]
 
-The opcode written by HW, in the RQ CQE, is the
-RoCEv2/iWARP protocol opcode from the received
-packet and not the SW opcode as currently assumed.
-Fix this by returning the raw operation type and
-queue type in the CQE to irdma_process_cqe and add
-2 helpers set_ib_wc_op_sq set_ib_wc_op_rq to map
-IRDMA HW op types to IB op types.
+Sending frames via the hsr (master) device requires a sequence number
+which is tracked in hsr_priv::sequence_nr and protected by
+hsr_priv::seqnr_lock. Each time a new frame is sent, it will obtain a
+new id and then send it via the slave devices.
+Each time a packet is sent (via hsr_forward_do()) the sequence number is
+checked via hsr_register_frame_out() to ensure that a frame is not
+handled twice. This make sense for the receiving side to ensure that the
+frame is not injected into the stack twice after it has been received
+from both slave ports.
 
-Note that for iWARP, only Write with Immediate is
-supported so the opcode can only be IB_WC_RECV_RDMA_WITH_IMM
-when there is immediate data present.
+There is no locking to cover the sending path which means the following
+scenario is possible:
 
-Fixes: b48c24c2d710 ("RDMA/irdma: Implement device supported verb APIs")
-Signed-off-by: Mustafa Ismail <mustafa.ismail@intel.com>
-Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Link: https://lore.kernel.org/r/20221115011701.1379-3-shiraz.saleem@intel.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+  CPU0				CPU1
+  hsr_dev_xmit(skb1)		hsr_dev_xmit(skb2)
+   fill_frame_info()             fill_frame_info()
+    hsr_fill_frame_info()         hsr_fill_frame_info()
+     handle_std_frame()            handle_std_frame()
+      skb1's sequence_nr = 1
+                                    skb2's sequence_nr = 2
+   hsr_forward_do()              hsr_forward_do()
+
+                                   hsr_register_frame_out(, 2)  // okay, send)
+
+    hsr_register_frame_out(, 1) // stop, lower seq duplicate
+
+Both skbs (or their struct hsr_frame_info) received an unique id.
+However since skb2 was sent before skb1, the higher sequence number was
+recorded in hsr_register_frame_out() and the late arriving skb1 was
+dropped and never sent.
+
+This scenario has been observed in a three node HSR setup, with node1 +
+node2 having ping and iperf running in parallel. From time to time ping
+reported a missing packet. Based on tracing that missing ping packet did
+not leave the system.
+
+It might be possible (didn't check) to drop the sequence number check on
+the sending side. But if the higher sequence number leaves on wire
+before the lower does and the destination receives them in that order
+and it will drop the packet with the lower sequence number and never
+inject into the stack.
+Therefore it seems the only way is to lock the whole path from obtaining
+the sequence number and sending via dev_queue_xmit() and assuming the
+packets leave on wire in the same order (and don't get reordered by the
+NIC).
+
+Cover the whole path for the master interface from obtaining the ID
+until after it has been forwarded via hsr_forward_skb() to ensure the
+skbs are sent to the NIC in the order of the assigned sequence numbers.
+
+Fixes: f421436a591d3 ("net/hsr: Add support for the High-availability Seamless Redundancy protocol (HSRv0)")
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/irdma/uk.c    | 21 +++++-------
- drivers/infiniband/hw/irdma/user.h  |  1 +
- drivers/infiniband/hw/irdma/utils.c |  2 ++
- drivers/infiniband/hw/irdma/verbs.c | 39 ++++-----------------
- drivers/infiniband/hw/irdma/verbs.h | 53 +++++++++++++++++++++++++++++
- 5 files changed, 71 insertions(+), 45 deletions(-)
+ net/hsr/hsr_device.c  | 12 +++++++-----
+ net/hsr/hsr_forward.c |  3 +--
+ 2 files changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/infiniband/hw/irdma/uk.c b/drivers/infiniband/hw/irdma/uk.c
-index 1a57ed9d77ff..16183e894da7 100644
---- a/drivers/infiniband/hw/irdma/uk.c
-+++ b/drivers/infiniband/hw/irdma/uk.c
-@@ -1049,11 +1049,10 @@ int irdma_uk_cq_poll_cmpl(struct irdma_cq_uk *cq,
- 	__le64 *cqe;
- 	struct irdma_qp_uk *qp;
- 	struct irdma_ring *pring = NULL;
--	u32 wqe_idx, q_type;
-+	u32 wqe_idx;
- 	int ret_code;
- 	bool move_cq_head = true;
- 	u8 polarity;
--	u8 op_type;
- 	bool ext_valid;
- 	__le64 *ext_cqe;
- 
-@@ -1121,7 +1120,7 @@ int irdma_uk_cq_poll_cmpl(struct irdma_cq_uk *cq,
- 		info->ud_vlan_valid = false;
+diff --git a/net/hsr/hsr_device.c b/net/hsr/hsr_device.c
+index c44c6747a0bf..7ce40b49c956 100644
+--- a/net/hsr/hsr_device.c
++++ b/net/hsr/hsr_device.c
+@@ -219,7 +219,9 @@ static netdev_tx_t hsr_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+ 		skb->dev = master->dev;
+ 		skb_reset_mac_header(skb);
+ 		skb_reset_mac_len(skb);
++		spin_lock_bh(&hsr->seqnr_lock);
+ 		hsr_forward_skb(skb, master);
++		spin_unlock_bh(&hsr->seqnr_lock);
+ 	} else {
+ 		atomic_long_inc(&dev->tx_dropped);
+ 		dev_kfree_skb_any(skb);
+@@ -306,7 +308,6 @@ static void send_hsr_supervision_frame(struct hsr_port *master,
+ 		hsr_stag->sequence_nr = htons(hsr->sequence_nr);
+ 		hsr->sequence_nr++;
  	}
+-	spin_unlock_bh(&hsr->seqnr_lock);
  
--	q_type = (u8)FIELD_GET(IRDMA_CQ_SQ, qword3);
-+	info->q_type = (u8)FIELD_GET(IRDMA_CQ_SQ, qword3);
- 	info->error = (bool)FIELD_GET(IRDMA_CQ_ERROR, qword3);
- 	info->push_dropped = (bool)FIELD_GET(IRDMACQ_PSHDROP, qword3);
- 	info->ipv4 = (bool)FIELD_GET(IRDMACQ_IPV4, qword3);
-@@ -1160,8 +1159,9 @@ int irdma_uk_cq_poll_cmpl(struct irdma_cq_uk *cq,
- 	}
- 	wqe_idx = (u32)FIELD_GET(IRDMA_CQ_WQEIDX, qword3);
- 	info->qp_handle = (irdma_qp_handle)(unsigned long)qp;
-+	info->op_type = (u8)FIELD_GET(IRDMA_CQ_SQ, qword3);
+ 	hsr_stag->HSR_TLV_type = type;
+ 	/* TODO: Why 12 in HSRv0? */
+@@ -317,11 +318,13 @@ static void send_hsr_supervision_frame(struct hsr_port *master,
+ 	hsr_sp = skb_put(skb, sizeof(struct hsr_sup_payload));
+ 	ether_addr_copy(hsr_sp->macaddress_A, master->dev->dev_addr);
  
--	if (q_type == IRDMA_CQE_QTYPE_RQ) {
-+	if (info->q_type == IRDMA_CQE_QTYPE_RQ) {
- 		u32 array_idx;
+-	if (skb_put_padto(skb, ETH_ZLEN))
++	if (skb_put_padto(skb, ETH_ZLEN)) {
++		spin_unlock_bh(&hsr->seqnr_lock);
+ 		return;
++	}
  
- 		array_idx = wqe_idx / qp->rq_wqe_size_multiplier;
-@@ -1181,10 +1181,6 @@ int irdma_uk_cq_poll_cmpl(struct irdma_cq_uk *cq,
- 
- 		info->bytes_xfered = (u32)FIELD_GET(IRDMACQ_PAYLDLEN, qword0);
- 
--		if (info->imm_valid)
--			info->op_type = IRDMA_OP_TYPE_REC_IMM;
--		else
--			info->op_type = IRDMA_OP_TYPE_REC;
- 		if (qword3 & IRDMACQ_STAG) {
- 			info->stag_invalid_set = true;
- 			info->inv_stag = (u32)FIELD_GET(IRDMACQ_INVSTAG, qword2);
-@@ -1242,17 +1238,18 @@ int irdma_uk_cq_poll_cmpl(struct irdma_cq_uk *cq,
- 				sw_wqe = qp->sq_base[tail].elem;
- 				get_64bit_val(sw_wqe, 24,
- 					      &wqe_qword);
--				op_type = (u8)FIELD_GET(IRDMAQPSQ_OPCODE, wqe_qword);
--				info->op_type = op_type;
-+				info->op_type = (u8)FIELD_GET(IRDMAQPSQ_OPCODE,
-+							      wqe_qword);
- 				IRDMA_RING_SET_TAIL(qp->sq_ring,
- 						    tail + qp->sq_wrtrk_array[tail].quanta);
--				if (op_type != IRDMAQP_OP_NOP) {
-+				if (info->op_type != IRDMAQP_OP_NOP) {
- 					info->wr_id = qp->sq_wrtrk_array[tail].wrid;
- 					info->bytes_xfered = qp->sq_wrtrk_array[tail].wr_len;
- 					break;
- 				}
- 			} while (1);
--			if (op_type == IRDMA_OP_TYPE_BIND_MW && info->minor_err == FLUSH_PROT_ERR)
-+			if (info->op_type == IRDMA_OP_TYPE_BIND_MW &&
-+			    info->minor_err == FLUSH_PROT_ERR)
- 				info->minor_err = FLUSH_MW_BIND_ERR;
- 			qp->sq_flush_seen = true;
- 			if (!IRDMA_RING_MORE_WORK(qp->sq_ring))
-diff --git a/drivers/infiniband/hw/irdma/user.h b/drivers/infiniband/hw/irdma/user.h
-index 424d4aa8cdcd..d0cdf609f5e0 100644
---- a/drivers/infiniband/hw/irdma/user.h
-+++ b/drivers/infiniband/hw/irdma/user.h
-@@ -245,6 +245,7 @@ struct irdma_cq_poll_info {
- 	u16 ud_vlan;
- 	u8 ud_smac[6];
- 	u8 op_type;
-+	u8 q_type;
- 	bool stag_invalid_set:1; /* or L_R_Key set */
- 	bool push_dropped:1;
- 	bool error:1;
-diff --git a/drivers/infiniband/hw/irdma/utils.c b/drivers/infiniband/hw/irdma/utils.c
-index 8dfc9e154d73..445e69e86409 100644
---- a/drivers/infiniband/hw/irdma/utils.c
-+++ b/drivers/infiniband/hw/irdma/utils.c
-@@ -2591,6 +2591,7 @@ void irdma_generate_flush_completions(struct irdma_qp *iwqp)
- 			sw_wqe = qp->sq_base[wqe_idx].elem;
- 			get_64bit_val(sw_wqe, 24, &wqe_qword);
- 			cmpl->cpi.op_type = (u8)FIELD_GET(IRDMAQPSQ_OPCODE, IRDMAQPSQ_OPCODE);
-+			cmpl->cpi.q_type = IRDMA_CQE_QTYPE_SQ;
- 			/* remove the SQ WR by moving SQ tail*/
- 			IRDMA_RING_SET_TAIL(*sq_ring,
- 				sq_ring->tail + qp->sq_wrtrk_array[sq_ring->tail].quanta);
-@@ -2629,6 +2630,7 @@ void irdma_generate_flush_completions(struct irdma_qp *iwqp)
- 
- 			cmpl->cpi.wr_id = qp->rq_wrid_array[wqe_idx];
- 			cmpl->cpi.op_type = IRDMA_OP_TYPE_REC;
-+			cmpl->cpi.q_type = IRDMA_CQE_QTYPE_RQ;
- 			/* remove the RQ WR by moving RQ tail */
- 			IRDMA_RING_SET_TAIL(*rq_ring, rq_ring->tail + 1);
- 			ibdev_dbg(iwqp->iwrcq->ibcq.device,
-diff --git a/drivers/infiniband/hw/irdma/verbs.c b/drivers/infiniband/hw/irdma/verbs.c
-index e252f431e2ac..01d0dc4b5649 100644
---- a/drivers/infiniband/hw/irdma/verbs.c
-+++ b/drivers/infiniband/hw/irdma/verbs.c
-@@ -3334,7 +3334,6 @@ static enum ib_wc_status irdma_flush_err_to_ib_wc_status(enum irdma_flush_opcode
- static void irdma_process_cqe(struct ib_wc *entry,
- 			      struct irdma_cq_poll_info *cq_poll_info)
- {
--	struct irdma_qp *iwqp;
- 	struct irdma_sc_qp *qp;
- 
- 	entry->wc_flags = 0;
-@@ -3342,7 +3341,6 @@ static void irdma_process_cqe(struct ib_wc *entry,
- 	entry->wr_id = cq_poll_info->wr_id;
- 
- 	qp = cq_poll_info->qp_handle;
--	iwqp = qp->qp_uk.back_qp;
- 	entry->qp = qp->qp_uk.back_qp;
- 
- 	if (cq_poll_info->error) {
-@@ -3375,42 +3373,17 @@ static void irdma_process_cqe(struct ib_wc *entry,
- 		}
- 	}
- 
--	switch (cq_poll_info->op_type) {
--	case IRDMA_OP_TYPE_RDMA_WRITE:
--	case IRDMA_OP_TYPE_RDMA_WRITE_SOL:
--		entry->opcode = IB_WC_RDMA_WRITE;
--		break;
--	case IRDMA_OP_TYPE_RDMA_READ_INV_STAG:
--	case IRDMA_OP_TYPE_RDMA_READ:
--		entry->opcode = IB_WC_RDMA_READ;
--		break;
--	case IRDMA_OP_TYPE_SEND_INV:
--	case IRDMA_OP_TYPE_SEND_SOL:
--	case IRDMA_OP_TYPE_SEND_SOL_INV:
--	case IRDMA_OP_TYPE_SEND:
--		entry->opcode = IB_WC_SEND;
--		break;
--	case IRDMA_OP_TYPE_FAST_REG_NSMR:
--		entry->opcode = IB_WC_REG_MR;
--		break;
--	case IRDMA_OP_TYPE_INV_STAG:
--		entry->opcode = IB_WC_LOCAL_INV;
--		break;
--	case IRDMA_OP_TYPE_REC_IMM:
--	case IRDMA_OP_TYPE_REC:
--		entry->opcode = cq_poll_info->op_type == IRDMA_OP_TYPE_REC_IMM ?
--			IB_WC_RECV_RDMA_WITH_IMM : IB_WC_RECV;
-+	if (cq_poll_info->q_type == IRDMA_CQE_QTYPE_SQ) {
-+		set_ib_wc_op_sq(cq_poll_info, entry);
-+	} else {
-+		set_ib_wc_op_rq(cq_poll_info, entry,
-+				qp->qp_uk.qp_caps & IRDMA_SEND_WITH_IMM ?
-+				true : false);
- 		if (qp->qp_uk.qp_type != IRDMA_QP_TYPE_ROCE_UD &&
- 		    cq_poll_info->stag_invalid_set) {
- 			entry->ex.invalidate_rkey = cq_poll_info->inv_stag;
- 			entry->wc_flags |= IB_WC_WITH_INVALIDATE;
- 		}
--		break;
--	default:
--		ibdev_err(&iwqp->iwdev->ibdev,
--			  "Invalid opcode = %d in CQE\n", cq_poll_info->op_type);
--		entry->status = IB_WC_GENERAL_ERR;
--		return;
- 	}
- 
- 	if (qp->qp_uk.qp_type == IRDMA_QP_TYPE_ROCE_UD) {
-diff --git a/drivers/infiniband/hw/irdma/verbs.h b/drivers/infiniband/hw/irdma/verbs.h
-index 4309b7159f42..a536e9fa85eb 100644
---- a/drivers/infiniband/hw/irdma/verbs.h
-+++ b/drivers/infiniband/hw/irdma/verbs.h
-@@ -232,6 +232,59 @@ static inline u16 irdma_fw_minor_ver(struct irdma_sc_dev *dev)
- 	return (u16)FIELD_GET(IRDMA_FW_VER_MINOR, dev->feature_info[IRDMA_FEATURE_FW_INFO]);
+ 	hsr_forward_skb(skb, master);
+-
++	spin_unlock_bh(&hsr->seqnr_lock);
+ 	return;
  }
  
-+static inline void set_ib_wc_op_sq(struct irdma_cq_poll_info *cq_poll_info,
-+				   struct ib_wc *entry)
-+{
-+	switch (cq_poll_info->op_type) {
-+	case IRDMA_OP_TYPE_RDMA_WRITE:
-+	case IRDMA_OP_TYPE_RDMA_WRITE_SOL:
-+		entry->opcode = IB_WC_RDMA_WRITE;
-+		break;
-+	case IRDMA_OP_TYPE_RDMA_READ_INV_STAG:
-+	case IRDMA_OP_TYPE_RDMA_READ:
-+		entry->opcode = IB_WC_RDMA_READ;
-+		break;
-+	case IRDMA_OP_TYPE_SEND_SOL:
-+	case IRDMA_OP_TYPE_SEND_SOL_INV:
-+	case IRDMA_OP_TYPE_SEND_INV:
-+	case IRDMA_OP_TYPE_SEND:
-+		entry->opcode = IB_WC_SEND;
-+		break;
-+	case IRDMA_OP_TYPE_FAST_REG_NSMR:
-+		entry->opcode = IB_WC_REG_MR;
-+		break;
-+	case IRDMA_OP_TYPE_INV_STAG:
-+		entry->opcode = IB_WC_LOCAL_INV;
-+		break;
-+	default:
-+		entry->status = IB_WC_GENERAL_ERR;
-+	}
-+}
-+
-+static inline void set_ib_wc_op_rq(struct irdma_cq_poll_info *cq_poll_info,
-+				   struct ib_wc *entry, bool send_imm_support)
-+{
-+	/**
-+	 * iWARP does not support sendImm, so the presence of Imm data
-+	 * must be WriteImm.
-+	 */
-+	if (!send_imm_support) {
-+		entry->opcode = cq_poll_info->imm_valid ?
-+					IB_WC_RECV_RDMA_WITH_IMM :
-+					IB_WC_RECV;
-+		return;
-+	}
-+
-+	switch (cq_poll_info->op_type) {
-+	case IB_OPCODE_RDMA_WRITE_ONLY_WITH_IMMEDIATE:
-+	case IB_OPCODE_RDMA_WRITE_LAST_WITH_IMMEDIATE:
-+		entry->opcode = IB_WC_RECV_RDMA_WITH_IMM;
-+		break;
-+	default:
-+		entry->opcode = IB_WC_RECV;
-+	}
-+}
-+
- void irdma_mcast_mac(u32 *ip_addr, u8 *mac, bool ipv4);
- int irdma_ib_register_device(struct irdma_device *iwdev);
- void irdma_ib_unregister_device(struct irdma_device *iwdev);
+@@ -360,9 +363,8 @@ static void send_prp_supervision_frame(struct hsr_port *master,
+ 		return;
+ 	}
+ 
+-	spin_unlock_bh(&hsr->seqnr_lock);
+-
+ 	hsr_forward_skb(skb, master);
++	spin_unlock_bh(&hsr->seqnr_lock);
+ }
+ 
+ /* Announce (supervision frame) timer function
+diff --git a/net/hsr/hsr_forward.c b/net/hsr/hsr_forward.c
+index c8bcbd990f59..35382ed686d1 100644
+--- a/net/hsr/hsr_forward.c
++++ b/net/hsr/hsr_forward.c
+@@ -467,10 +467,9 @@ static void handle_std_frame(struct sk_buff *skb,
+ 		frame->is_from_san = true;
+ 	} else {
+ 		/* Sequence nr for the master node */
+-		spin_lock_bh(&hsr->seqnr_lock);
++		lockdep_assert_held(&hsr->seqnr_lock);
+ 		frame->sequence_nr = hsr->sequence_nr;
+ 		hsr->sequence_nr++;
+-		spin_unlock_bh(&hsr->seqnr_lock);
+ 	}
+ }
+ 
 -- 
 2.35.1
 
