@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 302CF657AE0
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:15:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66A696579CC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:04:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233045AbiL1PPw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:15:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60036 "EHLO
+        id S233513AbiL1PE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:04:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232995AbiL1PPv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:15:51 -0500
+        with ESMTP id S233506AbiL1PEv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:04:51 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ED0D228
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:15:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C65B813D1C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:04:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 079FCB81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:15:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 781B1C433EF;
-        Wed, 28 Dec 2022 15:15:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 78B2AB816E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:04:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4B4DC433EF;
+        Wed, 28 Dec 2022 15:04:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240547;
-        bh=XLnQrrv0n0qLt+falotwTKdhlXBgb5ff7UCWk2stfrk=;
+        s=korg; t=1672239888;
+        bh=n/C2t+sJi+BcjAa9Qf7vzV++y35dqIbsd7k4GwQBhUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QZdxx9QKWHmGejp4OMviGUtyK/HXAqnI1+jh3lBy2bCxxqxE1mtgB7bqBx2lIQ71P
-         /uwpPZBGzkWf1/Qo9ASxIVTc/abZRKTljAicPpMdZ9yvjHBv/wnIoBVFSf8mzVLce4
-         g9lr6fqAtNq/U3agIm9y1CLMBEzdIR8cl9hUkXvY=
+        b=G6JI0w1tMBeZH4Xf9hpxLmd5PJeeAoo8HepdJsssxMXeaz8MupwzEJnPs0CU2rH5G
+         +thNEyF6fSwHKNterypc0qnoyJ+81iTcpnlC0bEwXJHPvBk0txs2RXh1Yq6eIxx851
+         TRrsg/j663KfEJ0GddQ3IX8SL0u7xCoi4wjv08V8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Chen Yu <yu.c.chen@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Maxim Uvarov <maxim.uvarov@linaro.org>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0138/1146] ACPI: pfr_telemetry: use ACPI_FREE() to free acpi_object
-Date:   Wed, 28 Dec 2022 15:27:57 +0100
-Message-Id: <20221228144333.897495866@linuxfoundation.org>
+Subject: [PATCH 6.0 0090/1073] tpm/tpm_ftpm_tee: Fix error handling in ftpm_mod_init()
+Date:   Wed, 28 Dec 2022 15:27:58 +0100
+Message-Id: <20221228144330.500514910@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang ShaoBo <bobo.shaobowang@huawei.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 0f2aa7fc2a9aee05bafb965d5b1638d3e74b4c61 ]
+[ Upstream commit 2b7d07f7acaac2c7750e420dcf4414588ede6d03 ]
 
-acpi_evaluate_dsm_typed()/acpi_evaluate_dsm() should be coupled
-with ACPI_FREE() to free the ACPI memory, because we need to
-track the allocation of acpi_object when ACPI_DBG_TRACK_ALLOCATIONS
-enabled, so use ACPI_FREE() instead of kfree().
+The ftpm_mod_init() returns the driver_register() directly without checking
+its return value, if driver_register() failed, the ftpm_tee_plat_driver is
+not unregistered.
 
-Fixes: b0013e037a8b ("ACPI: Introduce Platform Firmware Runtime Telemetry driver")
-Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Reviewed-by: Chen Yu <yu.c.chen@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fix by unregister ftpm_tee_plat_driver when driver_register() failed.
+
+Fixes: 9f1944c23c8c ("tpm_ftpm_tee: register driver on TEE bus")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Reviewed-by: Maxim Uvarov <maxim.uvarov@linaro.org>
+Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/pfr_telemetry.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/char/tpm/tpm_ftpm_tee.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/pfr_telemetry.c b/drivers/acpi/pfr_telemetry.c
-index 9abf350bd7a5..27fb6cdad75f 100644
---- a/drivers/acpi/pfr_telemetry.c
-+++ b/drivers/acpi/pfr_telemetry.c
-@@ -144,7 +144,7 @@ static int get_pfrt_log_data_info(struct pfrt_log_data_info *data_info,
- 	ret = 0;
+diff --git a/drivers/char/tpm/tpm_ftpm_tee.c b/drivers/char/tpm/tpm_ftpm_tee.c
+index 5c233423c56f..deff23bb54bf 100644
+--- a/drivers/char/tpm/tpm_ftpm_tee.c
++++ b/drivers/char/tpm/tpm_ftpm_tee.c
+@@ -397,7 +397,13 @@ static int __init ftpm_mod_init(void)
+ 	if (rc)
+ 		return rc;
  
- free_acpi_buffer:
--	kfree(out_obj);
-+	ACPI_FREE(out_obj);
- 
- 	return ret;
+-	return driver_register(&ftpm_tee_driver.driver);
++	rc = driver_register(&ftpm_tee_driver.driver);
++	if (rc) {
++		platform_driver_unregister(&ftpm_tee_plat_driver);
++		return rc;
++	}
++
++	return 0;
  }
-@@ -180,7 +180,7 @@ static int set_pfrt_log_level(int level, struct pfrt_log_device *pfrt_log_dev)
- 		ret = -EBUSY;
- 	}
  
--	kfree(out_obj);
-+	ACPI_FREE(out_obj);
- 
- 	return ret;
- }
-@@ -218,7 +218,7 @@ static int get_pfrt_log_level(struct pfrt_log_device *pfrt_log_dev)
- 	ret = obj->integer.value;
- 
- free_acpi_buffer:
--	kfree(out_obj);
-+	ACPI_FREE(out_obj);
- 
- 	return ret;
- }
+ static void __exit ftpm_mod_exit(void)
 -- 
 2.35.1
 
