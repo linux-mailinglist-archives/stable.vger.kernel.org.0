@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28F95657E7B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:54:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09D276578BA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:53:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233023AbiL1PyH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:54:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41682 "EHLO
+        id S233148AbiL1Oxj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:53:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233612AbiL1PyG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:54:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E80C186B7
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:54:05 -0800 (PST)
+        with ESMTP id S233174AbiL1Oxa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:53:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90735B60
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:53:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1BAFB8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:54:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BB7CC433D2;
-        Wed, 28 Dec 2022 15:54:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05E7A61552
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:53:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14956C433EF;
+        Wed, 28 Dec 2022 14:53:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242842;
-        bh=ss+jQ5kl6mj6+G0f9dLPvAk08vCqGQW+r0073x108zc=;
+        s=korg; t=1672239208;
+        bh=IM5erb54z568krpX8fyJGzyCmMOBc6hLPqgUwXnQVyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jjTTaeRGisroQsOAN16vxCtxK4pE30eMZmkae/0pM090fO74MgvYuCU1ZJ7zow7Te
-         7jyNfg71qXI/xDoMUufqZqKgsEbQK07iK4Pnrlfdas3jn4LEZ+SBozvzkQQTIiBpuJ
-         tdIC3MiT/c2tkaN1oqkBzDP2APTKD7hwGoqevQUk=
+        b=JMGASGJh5g5C6feNBxp5t2bVcBIzz57UoSH1bNoJxFzvGTsyQ0nRKzK7dQ17gnS4+
+         oyOliMpsRxgIRdREZzpGrcqOLFTZGHuoZlgwvXUXJ3wzyoEF8A2H2TYxMzHpp8YOU/
+         9bz3OfPevAfKH7HFntOzd/xiLMgJZpJtUuS5FbSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0461/1073] configfs: fix possible memory leak in configfs_create_dir()
+        patches@lists.linux.dev, Fedor Pchelkin <pchelkin@ispras.ru>,
+        Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 142/731] wifi: ath9k: hif_usb: Fix use-after-free in ath9k_hif_usb_reg_in_cb()
 Date:   Wed, 28 Dec 2022 15:34:09 +0100
-Message-Id: <20221228144340.558384586@linuxfoundation.org>
+Message-Id: <20221228144300.666407652@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,99 +55,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-[ Upstream commit c65234b283a65cfbfc94619655e820a5e55199eb ]
+[ Upstream commit dd95f2239fc846795fc926787c3ae0ca701c9840 ]
 
-kmemleak reported memory leaks in configfs_create_dir():
+It is possible that skb is freed in ath9k_htc_rx_msg(), then
+usb_submit_urb() fails and we try to free skb again. It causes
+use-after-free bug. Moreover, if alloc_skb() fails, urb->context becomes
+NULL but rx_buf is not freed and there can be a memory leak.
 
-unreferenced object 0xffff888009f6af00 (size 192):
-  comm "modprobe", pid 3777, jiffies 4295537735 (age 233.784s)
-  backtrace:
-    kmem_cache_alloc (mm/slub.c:3250 mm/slub.c:3256 mm/slub.c:3263 mm/slub.c:3273)
-    new_fragment (./include/linux/slab.h:600 fs/configfs/dir.c:163)
-    configfs_register_subsystem (fs/configfs/dir.c:1857)
-    basic_write (drivers/hwtracing/stm/p_basic.c:14) stm_p_basic
-    do_one_initcall (init/main.c:1296)
-    do_init_module (kernel/module/main.c:2455)
-    ...
+The patch removes unnecessary nskb and makes skb processing more clear: it
+is supposed that ath9k_htc_rx_msg() either frees old skb or passes its
+managing to another callback function.
 
-unreferenced object 0xffff888003ba7180 (size 96):
-  comm "modprobe", pid 3777, jiffies 4295537735 (age 233.784s)
-  backtrace:
-    kmem_cache_alloc (mm/slub.c:3250 mm/slub.c:3256 mm/slub.c:3263 mm/slub.c:3273)
-    configfs_new_dirent (./include/linux/slab.h:723 fs/configfs/dir.c:194)
-    configfs_make_dirent (fs/configfs/dir.c:248)
-    configfs_create_dir (fs/configfs/dir.c:296)
-    configfs_attach_group.isra.28 (fs/configfs/dir.c:816 fs/configfs/dir.c:852)
-    configfs_register_subsystem (fs/configfs/dir.c:1881)
-    basic_write (drivers/hwtracing/stm/p_basic.c:14) stm_p_basic
-    do_one_initcall (init/main.c:1296)
-    do_init_module (kernel/module/main.c:2455)
-    ...
+Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
 
-This is because the refcount is not correct in configfs_make_dirent().
-For normal stage, the refcount is changing as:
-
-configfs_register_subsystem()
-  configfs_create_dir()
-    configfs_make_dirent()
-      configfs_new_dirent() # set s_count = 1
-      dentry->d_fsdata = configfs_get(sd); # s_count = 2
-...
-configfs_unregister_subsystem()
-  configfs_remove_dir()
-    remove_dir()
-      configfs_remove_dirent() # s_count = 1
-    dput() ...
-      *dentry_unlink_inode()*
-        configfs_d_iput() # s_count = 0, release
-
-However, if we failed in configfs_create():
-
-configfs_register_subsystem()
-  configfs_create_dir()
-    configfs_make_dirent() # s_count = 2
-    ...
-    configfs_create() # fail
-    ->out_remove:
-    configfs_remove_dirent(dentry)
-      configfs_put(sd) # s_count = 1
-      return PTR_ERR(inode);
-
-There is no inode in the error path, so the configfs_d_iput() is lost
-and makes sd and fragment memory leaked.
-
-To fix this, when we failed in configfs_create(), manually call
-configfs_put(sd) to keep the refcount correct.
-
-Fixes: 7063fbf22611 ("[PATCH] configfs: User-driven configuration filesystem")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 3deff76095c4 ("ath9k_htc: Increase URB count for REG_IN pipe")
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20221008114917.21404-1-pchelkin@ispras.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/configfs/dir.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/ath/ath9k/hif_usb.c | 28 +++++++++++++-----------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
-index d1f9d2632202..ec6519e1ca3b 100644
---- a/fs/configfs/dir.c
-+++ b/fs/configfs/dir.c
-@@ -316,6 +316,7 @@ static int configfs_create_dir(struct config_item *item, struct dentry *dentry,
- 	return 0;
+diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
+index e66518d86882..e5d5b0761881 100644
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.c
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
+@@ -709,14 +709,13 @@ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
+ 	struct rx_buf *rx_buf = (struct rx_buf *)urb->context;
+ 	struct hif_device_usb *hif_dev = rx_buf->hif_dev;
+ 	struct sk_buff *skb = rx_buf->skb;
+-	struct sk_buff *nskb;
+ 	int ret;
  
- out_remove:
-+	configfs_put(dentry->d_fsdata);
- 	configfs_remove_dirent(dentry);
- 	return PTR_ERR(inode);
- }
-@@ -382,6 +383,7 @@ int configfs_create_link(struct configfs_dirent *target, struct dentry *parent,
- 	return 0;
+ 	if (!skb)
+ 		return;
  
- out_remove:
-+	configfs_put(dentry->d_fsdata);
- 	configfs_remove_dirent(dentry);
- 	return PTR_ERR(inode);
+ 	if (!hif_dev)
+-		goto free;
++		goto free_skb;
+ 
+ 	switch (urb->status) {
+ 	case 0:
+@@ -725,7 +724,7 @@ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
+ 	case -ECONNRESET:
+ 	case -ENODEV:
+ 	case -ESHUTDOWN:
+-		goto free;
++		goto free_skb;
+ 	default:
+ 		skb_reset_tail_pointer(skb);
+ 		skb_trim(skb, 0);
+@@ -736,25 +735,27 @@ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
+ 	if (likely(urb->actual_length != 0)) {
+ 		skb_put(skb, urb->actual_length);
+ 
+-		/* Process the command first */
++		/*
++		 * Process the command first.
++		 * skb is either freed here or passed to be
++		 * managed to another callback function.
++		 */
+ 		ath9k_htc_rx_msg(hif_dev->htc_handle, skb,
+ 				 skb->len, USB_REG_IN_PIPE);
+ 
+-
+-		nskb = alloc_skb(MAX_REG_IN_BUF_SIZE, GFP_ATOMIC);
+-		if (!nskb) {
++		skb = alloc_skb(MAX_REG_IN_BUF_SIZE, GFP_ATOMIC);
++		if (!skb) {
+ 			dev_err(&hif_dev->udev->dev,
+ 				"ath9k_htc: REG_IN memory allocation failure\n");
+-			urb->context = NULL;
+-			return;
++			goto free_rx_buf;
+ 		}
+ 
+-		rx_buf->skb = nskb;
++		rx_buf->skb = skb;
+ 
+ 		usb_fill_int_urb(urb, hif_dev->udev,
+ 				 usb_rcvintpipe(hif_dev->udev,
+ 						 USB_REG_IN_PIPE),
+-				 nskb->data, MAX_REG_IN_BUF_SIZE,
++				 skb->data, MAX_REG_IN_BUF_SIZE,
+ 				 ath9k_hif_usb_reg_in_cb, rx_buf, 1);
+ 	}
+ 
+@@ -763,12 +764,13 @@ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
+ 	ret = usb_submit_urb(urb, GFP_ATOMIC);
+ 	if (ret) {
+ 		usb_unanchor_urb(urb);
+-		goto free;
++		goto free_skb;
+ 	}
+ 
+ 	return;
+-free:
++free_skb:
+ 	kfree_skb(skb);
++free_rx_buf:
+ 	kfree(rx_buf);
+ 	urb->context = NULL;
  }
 -- 
 2.35.1
