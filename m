@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28FF8657FD9
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:10:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 997C7657983
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:02:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234385AbiL1QKq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:10:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55512 "EHLO
+        id S233412AbiL1PCq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:02:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234388AbiL1QKN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:10:13 -0500
+        with ESMTP id S233442AbiL1PCS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:02:18 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AE431A3B8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:08:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E47713D0E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:01:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 60911B81887
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:08:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90367C433EF;
-        Wed, 28 Dec 2022 16:08:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CE494B81717
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:01:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39512C433EF;
+        Wed, 28 Dec 2022 15:01:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243734;
-        bh=QtLQYQfbDlvXGVYbZvwjozrTI1OYVyEVmQvOT2ln1q4=;
+        s=korg; t=1672239706;
+        bh=iEkJ4ggRPgklRu6XR4Cbdj3ONEfNXBceFrQnHeRM3SI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YlVkMrLm9x3vrxhlz564QE+2L+AmBYBzW/iy0sheYN0NMFDF2Iw6lzQ3HOUcyvhJH
-         K+xN0yaai6j4ZpfC3kZsEBanLmTOFM0x/qa5oo0y9lE+D2xiBog3pFkA0DoJXBIC4f
-         O8rcMpYyOMI861yJsLAB4fsampgsJd/B0Xg6IENo=
+        b=smpsbCBazCU3SqaL4a7Ove1s7/LU9xc8oYU3uUyw/WYJKtpOhgHAxOgQ2c41GWyAG
+         eGfCddN+Lmtd1C8G0x3w5PNAFizDVHmdhVKZbwEJXXrSVDFUuYVueYZV+RITGn5Uyh
+         yC6b5D8iB8V29JiRRNF8A8KrycGYKzgkiOFkWKiA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+035a381ea1afb63f098d@syzkaller.appspotmail.com,
-        syzbot+729c925c2d9fc495ddee@syzkaller.appspotmail.com,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0579/1073] f2fs: fix to invalidate dcc->f2fs_issue_discard in error path
+Subject: [PATCH 5.15 260/731] Input: wistron_btns - disable on UML
 Date:   Wed, 28 Dec 2022 15:36:07 +0100
-Message-Id: <20221228144343.776565545@linuxfoundation.org>
+Message-Id: <20221228144304.099587100@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,68 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 91586ce0d39a05f88795aa8814fb99b1387236b3 ]
+[ Upstream commit b2b80d9dd14cb5b70dc254bddbc4eea932694791 ]
 
-Syzbot reports a NULL pointer dereference issue as below:
+The wistron_btns driver calls rtc_cmos_read(), which isn't
+available with UML builds, so disable this driver on UML.
 
- __refcount_add include/linux/refcount.h:193 [inline]
- __refcount_inc include/linux/refcount.h:250 [inline]
- refcount_inc include/linux/refcount.h:267 [inline]
- get_task_struct include/linux/sched/task.h:110 [inline]
- kthread_stop+0x34/0x1c0 kernel/kthread.c:703
- f2fs_stop_discard_thread+0x3c/0x5c fs/f2fs/segment.c:1638
- kill_f2fs_super+0x5c/0x194 fs/f2fs/super.c:4522
- deactivate_locked_super+0x70/0xe8 fs/super.c:332
- deactivate_super+0xd0/0xd4 fs/super.c:363
- cleanup_mnt+0x1f8/0x234 fs/namespace.c:1186
- __cleanup_mnt+0x20/0x30 fs/namespace.c:1193
- task_work_run+0xc4/0x14c kernel/task_work.c:177
- exit_task_work include/linux/task_work.h:38 [inline]
- do_exit+0x26c/0xbe0 kernel/exit.c:795
- do_group_exit+0x60/0xe8 kernel/exit.c:925
- __do_sys_exit_group kernel/exit.c:936 [inline]
- __se_sys_exit_group kernel/exit.c:934 [inline]
- __wake_up_parent+0x0/0x40 kernel/exit.c:934
- __invoke_syscall arch/arm64/kernel/syscall.c:38 [inline]
- invoke_syscall arch/arm64/kernel/syscall.c:52 [inline]
- el0_svc_common+0x138/0x220 arch/arm64/kernel/syscall.c:142
- do_el0_svc+0x48/0x164 arch/arm64/kernel/syscall.c:206
- el0_svc+0x58/0x150 arch/arm64/kernel/entry-common.c:636
- el0t_64_sync_handler+0x84/0xf0 arch/arm64/kernel/entry-common.c:654
- el0t_64_sync+0x18c/0x190 arch/arm64/kernel/entry.S:581
+Prevents this build error:
 
-The root cause of this issue is in error path of f2fs_start_discard_thread(),
-it missed to invalidate dcc->f2fs_issue_discard, later kthread_stop() may
-access invalid pointer.
+ld: drivers/input/misc/wistron_btns.o: in function `poll_bios':
+wistron_btns.c:(.text+0x4be): undefined reference to `rtc_cmos_read'
 
-Fixes: 4d67490498ac ("f2fs: Don't create discard thread when device doesn't support realtime discard")
-Reported-by: syzbot+035a381ea1afb63f098d@syzkaller.appspotmail.com
-Reported-by: syzbot+729c925c2d9fc495ddee@syzkaller.appspotmail.com
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: 0bbadafdc49d ("um: allow disabling NO_IOMEM") # v5.14+
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/20221130161604.1879-1-rdunlap@infradead.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/segment.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/input/misc/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 84bad18ce13d..10d8bc81cff7 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -2026,8 +2026,10 @@ int f2fs_start_discard_thread(struct f2fs_sb_info *sbi)
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index dd5227cf8696..b5b8ddb536be 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -330,7 +330,7 @@ config INPUT_CPCAP_PWRBUTTON
  
- 	dcc->f2fs_issue_discard = kthread_run(issue_discard_thread, sbi,
- 				"f2fs_discard-%u:%u", MAJOR(dev), MINOR(dev));
--	if (IS_ERR(dcc->f2fs_issue_discard))
-+	if (IS_ERR(dcc->f2fs_issue_discard)) {
- 		err = PTR_ERR(dcc->f2fs_issue_discard);
-+		dcc->f2fs_issue_discard = NULL;
-+	}
- 
- 	return err;
- }
+ config INPUT_WISTRON_BTNS
+ 	tristate "x86 Wistron laptop button interface"
+-	depends on X86_32
++	depends on X86_32 && !UML
+ 	select INPUT_SPARSEKMAP
+ 	select NEW_LEDS
+ 	select LEDS_CLASS
 -- 
 2.35.1
 
