@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67F29657F64
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:04:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DBD5657F67
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:04:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234291AbiL1QE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:04:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50948 "EHLO
+        id S234296AbiL1QEf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:04:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234267AbiL1QEU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:04:20 -0500
+        with ESMTP id S234317AbiL1QE3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:04:29 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A34519033
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:04:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11CF519027
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:04:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA6F36155B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:04:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA000C433D2;
-        Wed, 28 Dec 2022 16:04:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A31F76156E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:04:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8EE5C433EF;
+        Wed, 28 Dec 2022 16:04:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243459;
-        bh=ChABwfarEnxpiZ8bKwylaKD1+QV4NBac45YFxo79hTM=;
+        s=korg; t=1672243467;
+        bh=0M/OPwvmJP+Idq8AfkXKDErqkYJNV34deQ165lkVVlo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H6aruB1u6KL3Ebxu+uJcDzGo3w2bCL828f1kbWRezEeGQHCZPdifle5t4XfwYxC++
-         kWGXDiN6l7rhdfHaCGbUr3rkf054oxQ0JFNiuNx9+zgBBcUjfh0s4QqmSAHO1SlEYx
-         ncv4wTHSg3EZuh6Yr8lp/C14Uy/1pCQ3I8K2AQkY=
+        b=Sbj2h6HyPokToy4hUFsh0cymMnVVaVVkE12bmRYL3r6291hDVggpcfIoeis5zibvc
+         +c6oMctnmsIVzz7pY3JG0xwjZNYMpfm1qF+C/24GUV+Wg1FqsAPtT0BCthSuib2fRt
+         hON8GSiotmVuY6qjZWMrHgpoytNWxkb25QsmwHGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rickard x Andersson <rickaran@axis.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Martin Liska <mliska@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 723/731] gcov: add support for checksum field
-Date:   Wed, 28 Dec 2022 15:43:50 +0100
-Message-Id: <20221228144317.404616527@linuxfoundation.org>
+        patches@lists.linux.dev,
+        syzbot <syzbot+25bdb7b1703639abd498@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.15 724/731] fbdev: fbcon: release buffer when fbcon_do_set_font() failed
+Date:   Wed, 28 Dec 2022 15:43:51 +0100
+Message-Id: <20221228144317.431290532@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
 References: <20221228144256.536395940@linuxfoundation.org>
@@ -54,49 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rickard x Andersson <rickaran@axis.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit e96b95c2b7a63a454b6498e2df67aac14d046d13 upstream.
+commit 3c3bfb8586f848317ceba5d777e11204ba3e5758 upstream.
 
-In GCC version 12.1 a checksum field was added.
+syzbot is reporting memory leak at fbcon_do_set_font() [1], for
+commit a5a923038d70 ("fbdev: fbcon: Properly revert changes when
+vc_resize() failed") missed that the buffer might be newly allocated
+by fbcon_set_font().
 
-This patch fixes a kernel crash occurring during boot when using
-gcov-kernel with GCC version 12.2.  The crash occurred on a system running
-on i.MX6SX.
-
-Link: https://lkml.kernel.org/r/20221220102318.3418501-1-rickaran@axis.com
-Fixes: 977ef30a7d88 ("gcov: support GCC 12.1 and newer compilers")
-Signed-off-by: Rickard x Andersson <rickaran@axis.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Tested-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Reviewed-by: Martin Liska <mliska@suse.cz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Link: https://syzkaller.appspot.com/bug?extid=25bdb7b1703639abd498 [1]
+Reported-by: syzbot <syzbot+25bdb7b1703639abd498@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Tested-by: syzbot <syzbot+25bdb7b1703639abd498@syzkaller.appspotmail.com>
+Fixes: a5a923038d70 ("fbdev: fbcon: Properly revert changes when vc_resize() failed")
+CC: stable@vger.kernel.org # 5.15+
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/gcov/gcc_4_7.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/video/fbdev/core/fbcon.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/kernel/gcov/gcc_4_7.c
-+++ b/kernel/gcov/gcc_4_7.c
-@@ -82,6 +82,7 @@ struct gcov_fn_info {
-  * @version: gcov version magic indicating the gcc version used for compilation
-  * @next: list head for a singly-linked list
-  * @stamp: uniquifying time stamp
-+ * @checksum: unique object checksum
-  * @filename: name of the associated gcov data file
-  * @merge: merge functions (null for unused counter type)
-  * @n_functions: number of instrumented functions
-@@ -94,6 +95,10 @@ struct gcov_info {
- 	unsigned int version;
- 	struct gcov_info *next;
- 	unsigned int stamp;
-+ /* Since GCC 12.1 a checksum field is added. */
-+#if (__GNUC__ >= 12)
-+	unsigned int checksum;
-+#endif
- 	const char *filename;
- 	void (*merge[GCOV_COUNTERS])(gcov_type *, unsigned int);
- 	unsigned int n_functions;
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -2462,7 +2462,8 @@ err_out:
+ 
+ 	if (userfont) {
+ 		p->userfont = old_userfont;
+-		REFCOUNT(data)--;
++		if (--REFCOUNT(data) == 0)
++			kfree(data - FONT_EXTRA_WORDS * sizeof(int));
+ 	}
+ 
+ 	vc->vc_font.width = old_width;
 
 
