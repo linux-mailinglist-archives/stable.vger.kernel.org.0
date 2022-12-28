@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEC656584CD
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:03:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 343CB658408
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:54:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235313AbiL1RDD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:03:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55522 "EHLO
+        id S235134AbiL1QyL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:54:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235346AbiL1RCZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:02:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C46C01FCC2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:56:36 -0800 (PST)
+        with ESMTP id S235170AbiL1Qxj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:53:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 075E61CFFA
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:48:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 28013B8188D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:56:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AE37C433D2;
-        Wed, 28 Dec 2022 16:56:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 395D3B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:48:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B123C433D2;
+        Wed, 28 Dec 2022 16:48:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246593;
-        bh=+2f/ByGGh8mwTX2fIHF/zc9Wwd3FoVMz8xvFRmI5psw=;
+        s=korg; t=1672246129;
+        bh=P9OsdIVMBEreN4JcSrTvRIENSHE29Zj6l6lLqaOumn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y++lne1Rnpfd1mpHXDND4eceBAoa3eoW3nUMRYhNTFYRD9zCGnXRRO9iwpAI3kgMK
-         rpvB1eqgm/YRufP4sqCif/6VwKccs4L0WzzxAGnxRbMx2u8pWK6mc1gVICXK1QZ4Od
-         7LePU4ygm61g6QCMpzE9Z84SK960Olx2v78mjdu0=
+        b=Z9tVAnu+OkhK/eWreBA42rBxjceiducAuMzy6m2GEu10sajTxr+wDuycyta0agXsL
+         wIcJRwgNoOMN6xL2uxaWpUA3UUJraGTz8/tkORAu7bmqFSruTIamh7N3l9yZ3sBgn7
+         ++ZNirjHA87BqDFWq7/ldgQ54g+YoBRcxRlZ1UD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev,
+        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1066/1146] ASoC: sof_es8336: fix possible use-after-free in sof_es8336_remove()
+Subject: [PATCH 6.0 1017/1073] MIPS: ralink: mt7621: avoid to init common ralink reset controller
 Date:   Wed, 28 Dec 2022 15:43:25 +0100
-Message-Id: <20221228144359.218361866@linuxfoundation.org>
+Message-Id: <20221228144355.804661925@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Sergio Paracuellos <sergio.paracuellos@gmail.com>
 
-[ Upstream commit 1b41beaa7a58467505ec3023af8aad74f878b888 ]
+[ Upstream commit 76ce51798cb16738a4a28a6662e7344aaf7ef769 ]
 
-sof_es8336_remove() calls cancel_delayed_work(). However, that
-function does not wait until the work function finishes. This
-means that the callback function may still be running after
-the driver's remove function has finished, which would result
-in a use-after-free.
+Commit 38a8553b0a22 ("clk: ralink: make system controller node a reset provider")
+make system controller a reset provider for mt7621 ralink SoCs. Ralink init code
+also tries to start previous common reset controller which at the end tries to
+find device tree node 'ralink,rt2880-reset'. mt7621 device tree file is not
+using at all this node anymore. Hence avoid to init this common reset controller
+for mt7621 ralink SoCs to avoid 'Failed to find reset controller node' boot
+error trace error.
 
-Fix by calling cancel_delayed_work_sync(), which ensures that
-the work is properly cancelled, no longer running, and unable
-to re-schedule itself.
-
-Fixes: 89cdb224f2ab ("ASoC: sof_es8336: reduce pop noise on speaker")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20221205143721.3988988-1-yangyingliang@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 64b2d6ffff86 ("staging: mt7621-dts: align resets with binding documentation")
+Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_es8336.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/ralink/of.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/boards/sof_es8336.c b/sound/soc/intel/boards/sof_es8336.c
-index 70713e4b07dc..773e5d1d87d4 100644
---- a/sound/soc/intel/boards/sof_es8336.c
-+++ b/sound/soc/intel/boards/sof_es8336.c
-@@ -783,7 +783,7 @@ static int sof_es8336_remove(struct platform_device *pdev)
- 	struct snd_soc_card *card = platform_get_drvdata(pdev);
- 	struct sof_es8336_private *priv = snd_soc_card_get_drvdata(card);
+diff --git a/arch/mips/ralink/of.c b/arch/mips/ralink/of.c
+index ea8072acf8d9..01c132bc33d5 100644
+--- a/arch/mips/ralink/of.c
++++ b/arch/mips/ralink/of.c
+@@ -21,6 +21,7 @@
+ #include <asm/bootinfo.h>
+ #include <asm/addrspace.h>
+ #include <asm/prom.h>
++#include <asm/mach-ralink/ralink_regs.h>
  
--	cancel_delayed_work(&priv->pcm_pop_work);
-+	cancel_delayed_work_sync(&priv->pcm_pop_work);
- 	gpiod_put(priv->gpio_speakers);
- 	device_remove_software_node(priv->codec_dev);
- 	put_device(priv->codec_dev);
+ #include "common.h"
+ 
+@@ -81,7 +82,8 @@ static int __init plat_of_setup(void)
+ 	__dt_register_buses(soc_info.compatible, "palmbus");
+ 
+ 	/* make sure that the reset controller is setup early */
+-	ralink_rst_init();
++	if (ralink_soc != MT762X_SOC_MT7621AT)
++		ralink_rst_init();
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
