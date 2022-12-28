@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07B896582FE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91C0A657C7D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:33:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234975AbiL1Qn5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:43:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33566 "EHLO
+        id S233428AbiL1PdI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:33:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234977AbiL1Qn1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:27 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE05D1FCED
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:49 -0800 (PST)
+        with ESMTP id S233828AbiL1PdB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:33:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 821E515F2F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:32:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DF2A3CE1367
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:37:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3658C433EF;
-        Wed, 28 Dec 2022 16:37:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C4FF0B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:32:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17E18C433EF;
+        Wed, 28 Dec 2022 15:32:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245466;
-        bh=Qll6mOLQd9hFyC0J26Qi2x/DiIHIBkr6XZaVbG0YleM=;
+        s=korg; t=1672241575;
+        bh=i+FxZC7eaVkFPDHW+LHw3Z/h2CMkCeNb8O9v0DMTFcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0QuffnIUdw1CBG5D7+ZjxQzLuVqQmivpI0Fo0pCXkvOzrekRzl9ixe23dA0qs2upo
-         sg8VeF8e/IU+j8byoZzr7BYfn0Qs8Gs/BAcHk+TUzHSwwEV+ggXCRhIZz9I6dBs4Gf
-         xdS3ckCa7lLi2xm4/zPib4dKEkFVGpN7cGy58HIg=
+        b=doPIY/MCWf1D9/gnET0AalAP6xmUyS4dW2YlV7l//0iKtIL6pdg4xSxAtBXCbzmIW
+         rdweetobh7t0f3fpg3fxVO8uM/MBEXOjMVufAdHakRWGioHLAyHTjG0ZF23BSdn2LS
+         41XPZyaBo1FO3BS5siWcQbIcfqCxVcEl+PfN4Egw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Emil Renner Berthing <emil.renner.berthing@canonical.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0866/1146] pwm: sifive: Call pwm_sifive_update_clock() while mutex is held
+Subject: [PATCH 5.15 498/731] ksmbd: Fix resource leak in ksmbd_session_rpc_open()
 Date:   Wed, 28 Dec 2022 15:40:05 +0100
-Message-Id: <20221228144353.686192961@linuxfoundation.org>
+Message-Id: <20221228144310.982495557@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,45 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-[ Upstream commit 45558b3abb87eeb2cedb8a59cb2699c120b5102a ]
+[ Upstream commit bc044414fa0326a4e5c3c509c00b1fcaf621b5f4 ]
 
-As was documented in commit 0f02f491b786 ("pwm: sifive: Reduce time the
-controller lock is held") a caller of pwm_sifive_update_clock() must
-hold the mutex. So fix pwm_sifive_clock_notifier() to grab the lock.
+When ksmbd_rpc_open() fails then it must call ksmbd_rpc_id_free() to
+undo the result of ksmbd_ipc_id_alloc().
 
-While this necessity was only documented later, the race exists since
-the driver was introduced.
-
-Fixes: 9e37a53eb051 ("pwm: sifive: Add a driver for SiFive SoC PWM")
-Reported-by: Emil Renner Berthing <emil.renner.berthing@canonical.com>
-Reviewed-by: Emil Renner Berthing <emil.renner.berthing@canonical.com>
-Link: https://lore.kernel.org/r/20221018061656.1428111-1-u.kleine-koenig@pengutronix.de
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+Acked-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-sifive.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/ksmbd/mgmt/user_session.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pwm/pwm-sifive.c b/drivers/pwm/pwm-sifive.c
-index 2d4fa5e5fdd4..bb7239313401 100644
---- a/drivers/pwm/pwm-sifive.c
-+++ b/drivers/pwm/pwm-sifive.c
-@@ -204,8 +204,11 @@ static int pwm_sifive_clock_notifier(struct notifier_block *nb,
- 	struct pwm_sifive_ddata *ddata =
- 		container_of(nb, struct pwm_sifive_ddata, notifier);
+diff --git a/fs/ksmbd/mgmt/user_session.c b/fs/ksmbd/mgmt/user_session.c
+index 8d8ffd8c6f19..0fa467f2c897 100644
+--- a/fs/ksmbd/mgmt/user_session.c
++++ b/fs/ksmbd/mgmt/user_session.c
+@@ -106,15 +106,17 @@ int ksmbd_session_rpc_open(struct ksmbd_session *sess, char *rpc_name)
+ 	entry->method = method;
+ 	entry->id = ksmbd_ipc_id_alloc();
+ 	if (entry->id < 0)
+-		goto error;
++		goto free_entry;
  
--	if (event == POST_RATE_CHANGE)
-+	if (event == POST_RATE_CHANGE) {
-+		mutex_lock(&ddata->lock);
- 		pwm_sifive_update_clock(ddata, ndata->new_rate);
-+		mutex_unlock(&ddata->lock);
-+	}
+ 	resp = ksmbd_rpc_open(sess, entry->id);
+ 	if (!resp)
+-		goto error;
++		goto free_id;
  
- 	return NOTIFY_OK;
- }
+ 	kvfree(resp);
+ 	return entry->id;
+-error:
++free_id:
++	ksmbd_rpc_id_free(entry->id);
++free_entry:
+ 	list_del(&entry->list);
+ 	kfree(entry);
+ 	return -EINVAL;
 -- 
 2.35.1
 
