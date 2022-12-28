@@ -2,108 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4664D6580BD
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:20:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D468B658248
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:34:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233271AbiL1QTe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:19:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36460 "EHLO
+        id S234795AbiL1QeV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:34:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234577AbiL1QTG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:19:06 -0500
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CE521A079
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:17:39 -0800 (PST)
-Received: by mail-pl1-x629.google.com with SMTP id d15so16445443pls.6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:17:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=rSAJAAdg+x2pOzW2h8I4DWXP2kQcq5rdUpJcuztv9EE=;
-        b=zFtugpRj2SGg96qrJKKPlr+MyyNnNyuUCPvH4PdjNFsVHhZZmMIN/KOq4JeyQA8bys
-         /Stl7IcHO4xx7yHuC3VjLzsueyqi0DOdGuZNyG7Uubuhene+VMbN6+vikXMigsNF05SZ
-         zvcmwRX0TQ6HsWH3zzwpQ/vCnnK24FznH+UGjIwOWQ71x9sI+GgiaQziNz5Uj25Q28Uy
-         xw5CcVwNaSFP/o1xg49J+RJdoV50/Mh/HnQfFslJNO4BOnMOMSLOeDNawr1LF5r4lKfg
-         rU9UckkH2uomLEmwOiR8a0qewI0P2yFgk+YeXZFwJoJDB5zVNwYalIWdtpxnLG9FeUC5
-         UK+w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=rSAJAAdg+x2pOzW2h8I4DWXP2kQcq5rdUpJcuztv9EE=;
-        b=BcBqZ4/C+cbaoiL256EIsF3pQ12kxLyK1pV/dBi9XrPeAI0+IE6UDlDPoRoi61ctXD
-         WLPB+hCAQAOU5hkzpj5cWTFv7AkIbXy2lRpxftFLqcNUfWSd8Amtc03uDSs1FlBEkh+C
-         YP4/D6rvMRI2e225elLnV3HzkFkeJR0v+0kvpX46cxtTXj+N8ozNOMc4Sz7AUC3oYxEK
-         4A10l83z1bfOCZh0OioM5reJ7YMkzhhTJyNUty6LtXyc2qIyL6NzRSNSx+3oYOchn082
-         HQOEoWS2p6Jtd52ZgoxsAtlnxpKjS6KNaKBzPAW0i2MKVokwbVEoWrR9ubQBgZl3XBZ1
-         PeqA==
-X-Gm-Message-State: AFqh2kqLkKNuykjc60xBFPEFVVGELWBUrLogc46g9M414fBfMBZfyftl
-        y7bfvBylaS0ZejlgKa3nmPxZ
-X-Google-Smtp-Source: AMrXdXu7mmaMcjNI9HxR+d1DxaBtYiq2bLtKfidJoFb02M79IzccfjmBnBfUTVaiydWpiO50zOQ4dQ==
-X-Received: by 2002:a17:902:edd1:b0:192:50fe:504a with SMTP id q17-20020a170902edd100b0019250fe504amr23724967plk.16.1672244258560;
-        Wed, 28 Dec 2022 08:17:38 -0800 (PST)
-Received: from localhost.localdomain ([117.217.178.100])
-        by smtp.gmail.com with ESMTPSA id s3-20020a170902c64300b00186abb95bfdsm11256798pls.25.2022.12.28.08.17.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Dec 2022 08:17:37 -0800 (PST)
-From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-To:     mhi@lists.linux.dev
-Cc:     linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        stable@vger.kernel.org
-Subject: [PATCH 6/6] bus: mhi: ep: Save channel state locally during suspend and resume
-Date:   Wed, 28 Dec 2022 21:47:04 +0530
-Message-Id: <20221228161704.255268-7-manivannan.sadhasivam@linaro.org>
+        with ESMTP id S234884AbiL1Qdo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:44 -0500
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2050.outbound.protection.outlook.com [40.107.92.50])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FC981C422;
+        Wed, 28 Dec 2022 08:31:17 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=HRvKj2Y2xU80pP2N8FX2Brxkw/nFtJXlQANdePCo8O4f+SscPCdQKF6mrPm3fQrBmIUsJNZ+uQolX+AZBM8o/tYdDjhsOkjZb/9GUFkP6A8H6wzniVlMpG8M9lGDT0gSsMWv6WZfYPXTmG1SYS11cBvJA7aWnRvxYKHQTHnJUnxoqbN8vDFtOGzwYapV/ObfOm7HiPcx7hrQ+PqhCtn3hUcKJcZeMjHWHopjBgSwCN8DhpNVf1qZCLNeJbMYtxcvDDMGou8FEGraBSsUSxxjYWKAUdwH8OLinLsIcKIll+qalIpw0nKb7CgiNU1hL78eLqwM3k9qHNXYHRL9qKf8qg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=3TZHV2AKS8NtkzB2OMhyt5+RyFvGI1SgBVmjItlq+D0=;
+ b=Q/OxzqGMokUsZA8JkE720eAilQ5FA+PWyfpU8fxxlH1LFklUnIXZX3Il+AdJS+UpOntmaTx0S9H7mxUtz7QbQRgV4FPonrqMwKCKKApn8v/EFRE5pG6pXszMzOHF6am51EE+GTfdNSKdk2tSKV3MDIQDqPJ6XJHtjhUWXeB50U2aieuJtrE6wevVOZwoCWLkYh/QcEfSpY98sEs9hgrl12u32nONfIqzkMhGRVmWmeegDaoDd4eVtiprf2m2Tyv7Qtnfm+bV7eqcHX1YCXHyInaurXlijY5eOD4BxC1UKwgO2wPYU9lePHdk1/SeyyvwxSQ1jVp2T6Uygjttq7IUvw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
+ (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=3TZHV2AKS8NtkzB2OMhyt5+RyFvGI1SgBVmjItlq+D0=;
+ b=gyzKeqi8lCrN5FXRDZRPEKT1j47dV5j8xZ4wmxvWYledlRuI9WCGUbFLYdi4Mx/sBMpkhfu+wf6TvGUX9SKUqofq2Z+NSDsgor2XwoftipP5wCMAU6M00kqcVmxfjwzgYdlIOwUuHkvyjPmk3tgRPC5iJdW2dfx4qp7P/B9G/kI=
+Received: from MW4PR03CA0073.namprd03.prod.outlook.com (2603:10b6:303:b6::18)
+ by SJ1PR12MB6193.namprd12.prod.outlook.com (2603:10b6:a03:459::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5944.14; Wed, 28 Dec
+ 2022 16:31:15 +0000
+Received: from CO1NAM11FT089.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:303:b6:cafe::50) by MW4PR03CA0073.outlook.office365.com
+ (2603:10b6:303:b6::18) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5966.17 via Frontend
+ Transport; Wed, 28 Dec 2022 16:31:15 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ CO1NAM11FT089.mail.protection.outlook.com (10.13.175.179) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.5966.18 via Frontend Transport; Wed, 28 Dec 2022 16:31:15 +0000
+Received: from AUS-LX-MLIMONCI.amd.com (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Wed, 28 Dec
+ 2022 10:31:14 -0600
+From:   Mario Limonciello <mario.limonciello@amd.com>
+To:     Javier Martinez Canillas <javierm@redhat.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        <linux-kernel@vger.kernel.org>
+CC:     Carlos Soriano Sanchez <csoriano@redhat.com>,
+        <amd-gfx@lists.freedesktop.org>, <dri-devel@lists.freedesktop.org>,
+        "David Airlie" <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>, <christian.koenig@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        <stable@vger.kernel.org>, Alex Deucher <alex.deucher@amd.com>,
+        "Pan, Xinhui" <Xinhui.Pan@amd.com>
+Subject: [PATCH v2 01/11] drm/amd: Delay removal of the firmware framebuffer
+Date:   Wed, 28 Dec 2022 10:30:48 -0600
+Message-ID: <20221228163102.468-2-mario.limonciello@amd.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20221228161704.255268-1-manivannan.sadhasivam@linaro.org>
-References: <20221228161704.255268-1-manivannan.sadhasivam@linaro.org>
+In-Reply-To: <20221228163102.468-1-mario.limonciello@amd.com>
+References: <20221228163102.468-1-mario.limonciello@amd.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.180.168.240]
+X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CO1NAM11FT089:EE_|SJ1PR12MB6193:EE_
+X-MS-Office365-Filtering-Correlation-Id: 09b82481-d060-4c61-4d46-08dae8f0f0b5
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: E1DAYOdMvQv6rAFpJ6eej7/g5KU7yLa7ZjvMeXYuV3kwjg6ZubJa78tsYLWB8/RfDNBasw1poPCQSoQLELUqgzfcUlSZxQQ3o2IXC5T1GpI6bwE+DYQz2YWXErjk5pfwT5YGUPyQBLjpPL+/mUHd+D9YGTWU4SJoC3TQdy+VQS/C7/+qAlnq495Wtz9mEn9sf/a4ue0GDJWh9EGZ/kxeqHA31031xgFEDf+H/A3EGw2LVUfbyoyIsPNVDfwpgQvCkMm52cQ+hkofqgtKW7TBRn0Cc4qCUwqyCd1s/8eu0U8KfurdfWL0RM73WNEc97bmc2fiIcYP9cz05boRZs4N94ExhsUeXhwkxItYFpJ0o8ikkgz0eQQu3XGrHYMgkeI6yJUATtBdnJYuq/NoBsHTmzw+fGmPC3p7nVUDX3xjeKbUF/Pr2Fs2Ld5Yjch8kx7IChOure7n6bhBEBUO3wAx5U/cP/sJyyM7qshzTV7HsoL2D1x017Ak4TFNrBOvlu2YhFgaQ1MS91s88wJ8qdHecdaY1zYYSdIWsq+wwnz96C3TgCWQnvZbPc4IUmQ8ZKzk5lno9SV/KSD2jF56+q4MzV5UZh76Ckdrl3nwLY5OFoop6df3fG0CNcR1hpsST7aHMZMLri2NRTa22zD9Fk4rUlX9ze/XI+cgtN7HXJ+QhLavA6Nicg3Yli2odXcXMgabEx/7BWE6YrE85/kVnrMUGNz0boE5kWUnY0W0KahrYws=
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230022)(4636009)(136003)(346002)(396003)(376002)(39860400002)(451199015)(36840700001)(46966006)(40470700004)(2906002)(54906003)(83380400001)(110136005)(40460700003)(6666004)(44832011)(36756003)(316002)(26005)(1076003)(2616005)(7696005)(478600001)(82740400003)(186003)(356005)(16526019)(81166007)(336012)(82310400005)(47076005)(426003)(36860700001)(86362001)(4326008)(8676002)(8936002)(41300700001)(40480700001)(70206006)(5660300002)(70586007)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Dec 2022 16:31:15.2836
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 09b82481-d060-4c61-4d46-08dae8f0f0b5
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT089.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ1PR12MB6193
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-During suspend and resume, the channel state needs to be saved locally.
-Otherwise, the endpoint may access the channels while they were being
-suspended and causing access violations.
+Removing the firmware framebuffer from the driver means that even
+if the driver doesn't support the IP blocks in a GPU it will no
+longer be functional after the driver fails to initialize.
 
-Fix it by saving the channel state locally during suspend and resume.
+This change will ensure that unsupported IP blocks at least cause
+the driver to work with the EFI framebuffer.
 
-Cc: <stable@vger.kernel.org> # 5.19
-Fixes: e4b7b5f0f30a ("bus: mhi: ep: Add support for suspending and resuming channels")
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Cc: stable@vger.kernel.org
+Suggested-by: Alex Deucher <alex.deucher@amd.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
 ---
- drivers/bus/mhi/ep/main.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 8 ++++++++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c    | 6 ------
+ 2 files changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/bus/mhi/ep/main.c b/drivers/bus/mhi/ep/main.c
-index 2362fcc8b32c..bcaaba97ef63 100644
---- a/drivers/bus/mhi/ep/main.c
-+++ b/drivers/bus/mhi/ep/main.c
-@@ -1122,6 +1122,7 @@ void mhi_ep_suspend_channels(struct mhi_ep_cntrl *mhi_cntrl)
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+index 9a1a5c2864a0..84d83be2087c 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -37,6 +37,7 @@
+ #include <linux/pci-p2pdma.h>
  
- 		dev_dbg(&mhi_chan->mhi_dev->dev, "Suspending channel\n");
- 		/* Set channel state to SUSPENDED */
-+		mhi_chan->state = MHI_CH_STATE_SUSPENDED;
- 		tmp &= ~CHAN_CTX_CHSTATE_MASK;
- 		tmp |= FIELD_PREP(CHAN_CTX_CHSTATE_MASK, MHI_CH_STATE_SUSPENDED);
- 		mhi_cntrl->ch_ctx_cache[i].chcfg = cpu_to_le32(tmp);
-@@ -1151,6 +1152,7 @@ void mhi_ep_resume_channels(struct mhi_ep_cntrl *mhi_cntrl)
+ #include <drm/drm_atomic_helper.h>
++#include <drm/drm_aperture.h>
+ #include <drm/drm_probe_helper.h>
+ #include <drm/amdgpu_drm.h>
+ #include <linux/vgaarb.h>
+@@ -89,6 +90,8 @@ MODULE_FIRMWARE("amdgpu/navi12_gpu_info.bin");
+ #define AMDGPU_MAX_RETRY_LIMIT		2
+ #define AMDGPU_RETRY_SRIOV_RESET(r) ((r) == -EBUSY || (r) == -ETIMEDOUT || (r) == -EINVAL)
  
- 		dev_dbg(&mhi_chan->mhi_dev->dev, "Resuming channel\n");
- 		/* Set channel state to RUNNING */
-+		mhi_chan->state = MHI_CH_STATE_RUNNING;
- 		tmp &= ~CHAN_CTX_CHSTATE_MASK;
- 		tmp |= FIELD_PREP(CHAN_CTX_CHSTATE_MASK, MHI_CH_STATE_RUNNING);
- 		mhi_cntrl->ch_ctx_cache[i].chcfg = cpu_to_le32(tmp);
++static const struct drm_driver amdgpu_kms_driver;
++
+ const char *amdgpu_asic_name[] = {
+ 	"TAHITI",
+ 	"PITCAIRN",
+@@ -2140,6 +2143,11 @@ static int amdgpu_device_ip_early_init(struct amdgpu_device *adev)
+ 		break;
+ 	}
+ 
++	/* Get rid of things like offb */
++	r = drm_aperture_remove_conflicting_pci_framebuffers(adev->pdev, &amdgpu_kms_driver);
++	if (r)
++		return r;
++
+ 	if (amdgpu_has_atpx() &&
+ 	    (amdgpu_is_atpx_hybrid() ||
+ 	     amdgpu_has_atpx_dgpu_power_cntl()) &&
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+index db7e34eacc35..b9f14ec9edb2 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -23,7 +23,6 @@
+  */
+ 
+ #include <drm/amdgpu_drm.h>
+-#include <drm/drm_aperture.h>
+ #include <drm/drm_drv.h>
+ #include <drm/drm_gem.h>
+ #include <drm/drm_vblank.h>
+@@ -2096,11 +2095,6 @@ static int amdgpu_pci_probe(struct pci_dev *pdev,
+ 	}
+ #endif
+ 
+-	/* Get rid of things like offb */
+-	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, &amdgpu_kms_driver);
+-	if (ret)
+-		return ret;
+-
+ 	adev = devm_drm_dev_alloc(&pdev->dev, &amdgpu_kms_driver, typeof(*adev), ddev);
+ 	if (IS_ERR(adev))
+ 		return PTR_ERR(adev);
 -- 
-2.25.1
+2.34.1
 
