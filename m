@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FA81657DE7
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:48:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CBE9657CC9
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:36:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233643AbiL1PsH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:48:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36114 "EHLO
+        id S233900AbiL1PgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:36:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234054AbiL1Prw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:47:52 -0500
+        with ESMTP id S233887AbiL1PgD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:36:03 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49DFD178AC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:47:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF99613F79
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:36:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DDD82B81710
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:47:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3487BC433EF;
-        Wed, 28 Dec 2022 15:47:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5EA47B8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:36:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5873C433EF;
+        Wed, 28 Dec 2022 15:35:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242469;
-        bh=mENYC5g2HqOxzqqvRtFT3mgeP8kUvIJdOJhIm/iwziE=;
+        s=korg; t=1672241759;
+        bh=x2g7E9UlzWKTY/F+tg+QfBMpwABdRey45PH/f6TAnQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bRdLnbL1KBatp9+0Bba2nPK6LMgpWWmkbi91srEcUxfxi8t9CO54QPFagLrvwgAJL
-         uKEtEuZqaj0wsy4J7jBYi45oZlD5JrZdKhOrVx2hh8M8rMd3EYBfQvFQ/PK8X2W0b0
-         EdgbN7z6VzZATT03SxX3aJicQo+LS6R5ufa/WYqs=
+        b=1YNFQa/JNfCHjCFVe8E88YNlPdiEljG9TMrXkbdtEKSi2BZEUNuB6oXdv50UCZhoh
+         vPU5aI6buUx37LP2/FdHz+kojH8FbKm+TiiqGZxihIRv0BnbKoyWatNUhEH4+7M5Vd
+         t3hSe5msAg7jNYYWHlKq8pvBgoOH1+A96CuIKI1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zong-Zhe Yang <kevin_yang@realtek.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0373/1146] wifi: rtw89: fix physts IE page check
+        patches@lists.linux.dev, Joel Granados <j.granados@samsung.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0324/1073] nvme: return err on nvme_init_non_mdts_limits fail
 Date:   Wed, 28 Dec 2022 15:31:52 +0100
-Message-Id: <20221228144340.294370748@linuxfoundation.org>
+Message-Id: <20221228144336.808631742@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zong-Zhe Yang <kevin_yang@realtek.com>
+From: Joel Granados <j.granados@samsung.com>
 
-[ Upstream commit 9e2f177de1bfb7d891bf38140bda54831ecef30d ]
+[ Upstream commit bcaf434b8f04e1ee82a8b1e1bce0de99fbff67fa ]
 
-The index RTW89_PHYSTS_BITMAP_NUM is not a valid physts IE page.
-So, fix the check condition.
+In nvme_init_non_mdts_limits function we were returning 0 when kzalloc
+failed; it now returns -ENOMEM.
 
-Fixes: eb4e52b3f38d ("rtw89: fix incorrect channel info during scan")
-Signed-off-by: Zong-Zhe Yang <kevin_yang@realtek.com>
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221118042322.26794-1-pkshih@realtek.com
+Fixes: 5befc7c26e5a ("nvme: implement non-mdts command limits")
+Signed-off-by: Joel Granados <j.granados@samsung.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw89/phy.c | 2 +-
+ drivers/nvme/host/core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw89/phy.c b/drivers/net/wireless/realtek/rtw89/phy.c
-index 6a6bdc652e09..c894a2b614eb 100644
---- a/drivers/net/wireless/realtek/rtw89/phy.c
-+++ b/drivers/net/wireless/realtek/rtw89/phy.c
-@@ -3139,7 +3139,7 @@ void rtw89_phy_env_monitor_track(struct rtw89_dev *rtwdev)
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index aca50bb93750..cd2e2bfeae82 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3043,7 +3043,7 @@ static int nvme_init_non_mdts_limits(struct nvme_ctrl *ctrl)
  
- static bool rtw89_physts_ie_page_valid(enum rtw89_phy_status_bitmap *ie_page)
- {
--	if (*ie_page > RTW89_PHYSTS_BITMAP_NUM ||
-+	if (*ie_page >= RTW89_PHYSTS_BITMAP_NUM ||
- 	    *ie_page == RTW89_RSVD_9)
- 		return false;
- 	else if (*ie_page > RTW89_RSVD_9)
+ 	id = kzalloc(sizeof(*id), GFP_KERNEL);
+ 	if (!id)
+-		return 0;
++		return -ENOMEM;
+ 
+ 	c.identify.opcode = nvme_admin_identify;
+ 	c.identify.cns = NVME_ID_CNS_CS_CTRL;
 -- 
 2.35.1
 
