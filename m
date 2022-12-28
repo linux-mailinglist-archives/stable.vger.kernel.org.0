@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25842657BD8
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:27:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 689C6657BDC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:27:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233363AbiL1P0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:26:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44782 "EHLO
+        id S233765AbiL1P0s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:26:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233862AbiL1PZx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:25:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8819DEF5
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:25:51 -0800 (PST)
+        with ESMTP id S233867AbiL1PZ6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:25:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D97B113F85
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:25:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 620D1B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:25:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B69A5C433EF;
-        Wed, 28 Dec 2022 15:25:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 764B56152F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:25:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88F90C433EF;
+        Wed, 28 Dec 2022 15:25:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241149;
-        bh=HMeGYSEjaVK0ctRVfTQQyllG7nohyNqEuvaEqfo9ZHQ=;
+        s=korg; t=1672241156;
+        bh=fUhopehXK5q5kKpyplt9LhLxFeU9rOb2gOvpumRX/OU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I2FuR0o7P1pj4gAh8F4HGRP84JyapBkWzLaLKVIynYRsDGgIJ7O1YVDJrsOOl8Ub0
-         LnR+MLxS2furt+Up4/087rnvElncR6hN2eWE8Hj/OB/R/boUzs/QbnA+u4Gx5EF9I5
-         thAgyovt/lp3dndw4s7I+2wm5+XU+IzB8Oh+LCKA=
+        b=JX3okfKp3Qo2KOiTGt3cwjS8pYAWqR+/krN4d3xagDWSz6LjSDZaUsAf4lYM76RL+
+         oZJ6RW18wQ89KrGles7GqiHLc7B1Ppyge4gI2Qxsogz42TGiaNxmy3R9m3c5HdVSA6
+         3EE8Sq3LVSQO5fWlOg1+JzuEIQ67ABB+zKQqNgEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jimmy Assarsson <extja@kvaser.com>,
-        Anssi Hannula <anssi.hannula@bitwise.fi>,
+        patches@lists.linux.dev, Anssi Hannula <anssi.hannula@bitwise.fi>,
+        Jimmy Assarsson <extja@kvaser.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0247/1073] can: kvaser_usb_leaf: Fix bogus restart events
-Date:   Wed, 28 Dec 2022 15:30:35 +0100
-Message-Id: <20221228144334.732924480@linuxfoundation.org>
+Subject: [PATCH 6.0 0248/1073] can: kvaser_usb: Add struct kvaser_usb_busparams
+Date:   Wed, 28 Dec 2022 15:30:36 +0100
+Message-Id: <20221228144334.759356928@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -54,64 +54,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anssi Hannula <anssi.hannula@bitwise.fi>
+From: Jimmy Assarsson <extja@kvaser.com>
 
-[ Upstream commit 90904d326269a38fe5dd895fb2db7c03199654c4 ]
+[ Upstream commit 00e5786177649c1e3110f9454fdd34e336597265 ]
 
-When auto-restart is enabled, the kvaser_usb_leaf driver considers
-transition from any state >= CAN_STATE_BUS_OFF as a bus-off recovery
-event (restart).
+Add struct kvaser_usb_busparams containing the busparameters used in
+CMD_{SET,GET}_BUSPARAMS* commands.
 
-However, these events may occur at interface startup time before
-kvaser_usb_open() has set the state to CAN_STATE_ERROR_ACTIVE, causing
-restarts counter to increase and CAN_ERR_RESTARTED to be sent despite no
-actual restart having occurred.
-
-Fix that by making the auto-restart condition checks more strict so that
-they only trigger when the interface was actually in the BUS_OFF state.
-
-Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
-Tested-by: Jimmy Assarsson <extja@kvaser.com>
-Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Tested-by: Anssi Hannula <anssi.hannula@bitwise.fi>
 Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
-Link: https://lore.kernel.org/all/20221010185237.319219-10-extja@kvaser.com
+Link: https://lore.kernel.org/all/20221010185237.319219-11-extja@kvaser.com
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Stable-dep-of: 39d3df6b0ea8 ("can: kvaser_usb: Compare requested bittiming parameters with actual parameters in do_set_{,data}_bittiming")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/can/usb/kvaser_usb/kvaser_usb.h   |  8 +++++
+ .../net/can/usb/kvaser_usb/kvaser_usb_hydra.c | 32 +++++++------------
+ .../net/can/usb/kvaser_usb/kvaser_usb_leaf.c  | 18 ++++-------
+ 3 files changed, 27 insertions(+), 31 deletions(-)
 
+diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb.h b/drivers/net/can/usb/kvaser_usb/kvaser_usb.h
+index d9c5dd5da908..778b61c90c2b 100644
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb.h
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb.h
+@@ -76,6 +76,14 @@ struct kvaser_usb_tx_urb_context {
+ 	u32 echo_index;
+ };
+ 
++struct kvaser_usb_busparams {
++	__le32 bitrate;
++	u8 tseg1;
++	u8 tseg2;
++	u8 sjw;
++	u8 nsamples;
++} __packed;
++
+ struct kvaser_usb {
+ 	struct usb_device *udev;
+ 	struct usb_interface *intf;
+diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
+index 3abfaa77e893..b8ae29872217 100644
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
+@@ -196,17 +196,9 @@ struct kvaser_cmd_chip_state_event {
+ #define KVASER_USB_HYDRA_BUS_MODE_CANFD_ISO	0x01
+ #define KVASER_USB_HYDRA_BUS_MODE_NONISO	0x02
+ struct kvaser_cmd_set_busparams {
+-	__le32 bitrate;
+-	u8 tseg1;
+-	u8 tseg2;
+-	u8 sjw;
+-	u8 nsamples;
++	struct kvaser_usb_busparams busparams_arb;
+ 	u8 reserved0[4];
+-	__le32 bitrate_d;
+-	u8 tseg1_d;
+-	u8 tseg2_d;
+-	u8 sjw_d;
+-	u8 nsamples_d;
++	struct kvaser_usb_busparams busparams_data;
+ 	u8 canfd_mode;
+ 	u8 reserved1[7];
+ } __packed;
+@@ -1538,11 +1530,11 @@ static int kvaser_usb_hydra_set_bittiming(struct net_device *netdev)
+ 		return -ENOMEM;
+ 
+ 	cmd->header.cmd_no = CMD_SET_BUSPARAMS_REQ;
+-	cmd->set_busparams_req.bitrate = cpu_to_le32(bt->bitrate);
+-	cmd->set_busparams_req.sjw = (u8)sjw;
+-	cmd->set_busparams_req.tseg1 = (u8)tseg1;
+-	cmd->set_busparams_req.tseg2 = (u8)tseg2;
+-	cmd->set_busparams_req.nsamples = 1;
++	cmd->set_busparams_req.busparams_arb.bitrate = cpu_to_le32(bt->bitrate);
++	cmd->set_busparams_req.busparams_arb.sjw = (u8)sjw;
++	cmd->set_busparams_req.busparams_arb.tseg1 = (u8)tseg1;
++	cmd->set_busparams_req.busparams_arb.tseg2 = (u8)tseg2;
++	cmd->set_busparams_req.busparams_arb.nsamples = 1;
+ 
+ 	kvaser_usb_hydra_set_cmd_dest_he
+ 		(cmd, dev->card_data.hydra.channel_to_he[priv->channel]);
+@@ -1572,11 +1564,11 @@ static int kvaser_usb_hydra_set_data_bittiming(struct net_device *netdev)
+ 		return -ENOMEM;
+ 
+ 	cmd->header.cmd_no = CMD_SET_BUSPARAMS_FD_REQ;
+-	cmd->set_busparams_req.bitrate_d = cpu_to_le32(dbt->bitrate);
+-	cmd->set_busparams_req.sjw_d = (u8)sjw;
+-	cmd->set_busparams_req.tseg1_d = (u8)tseg1;
+-	cmd->set_busparams_req.tseg2_d = (u8)tseg2;
+-	cmd->set_busparams_req.nsamples_d = 1;
++	cmd->set_busparams_req.busparams_data.bitrate = cpu_to_le32(dbt->bitrate);
++	cmd->set_busparams_req.busparams_data.sjw = (u8)sjw;
++	cmd->set_busparams_req.busparams_data.tseg1 = (u8)tseg1;
++	cmd->set_busparams_req.busparams_data.tseg2 = (u8)tseg2;
++	cmd->set_busparams_req.busparams_data.nsamples = 1;
+ 
+ 	if (priv->can.ctrlmode & CAN_CTRLMODE_FD) {
+ 		if (priv->can.ctrlmode & CAN_CTRLMODE_FD_NON_ISO)
 diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-index 4f9c76f4d0da..fa940be4e1b0 100644
+index fa940be4e1b0..996d58b97af1 100644
 --- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
 +++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-@@ -898,7 +898,7 @@ static void kvaser_usb_leaf_tx_acknowledge(const struct kvaser_usb *dev,
- 	context = &priv->tx_contexts[tid % dev->max_tx_urbs];
+@@ -164,11 +164,7 @@ struct usbcan_cmd_softinfo {
+ struct kvaser_cmd_busparams {
+ 	u8 tid;
+ 	u8 channel;
+-	__le32 bitrate;
+-	u8 tseg1;
+-	u8 tseg2;
+-	u8 sjw;
+-	u8 no_samp;
++	struct kvaser_usb_busparams busparams;
+ } __packed;
  
- 	/* Sometimes the state change doesn't come after a bus-off event */
--	if (priv->can.restart_ms && priv->can.state >= CAN_STATE_BUS_OFF) {
-+	if (priv->can.restart_ms && priv->can.state == CAN_STATE_BUS_OFF) {
- 		struct sk_buff *skb;
- 		struct can_frame *cf;
+ struct kvaser_cmd_tx_can {
+@@ -1699,15 +1695,15 @@ static int kvaser_usb_leaf_set_bittiming(struct net_device *netdev)
+ 	cmd->len = CMD_HEADER_LEN + sizeof(struct kvaser_cmd_busparams);
+ 	cmd->u.busparams.channel = priv->channel;
+ 	cmd->u.busparams.tid = 0xff;
+-	cmd->u.busparams.bitrate = cpu_to_le32(bt->bitrate);
+-	cmd->u.busparams.sjw = bt->sjw;
+-	cmd->u.busparams.tseg1 = bt->prop_seg + bt->phase_seg1;
+-	cmd->u.busparams.tseg2 = bt->phase_seg2;
++	cmd->u.busparams.busparams.bitrate = cpu_to_le32(bt->bitrate);
++	cmd->u.busparams.busparams.sjw = bt->sjw;
++	cmd->u.busparams.busparams.tseg1 = bt->prop_seg + bt->phase_seg1;
++	cmd->u.busparams.busparams.tseg2 = bt->phase_seg2;
  
-@@ -998,7 +998,7 @@ kvaser_usb_leaf_rx_error_update_can_state(struct kvaser_usb_net_priv *priv,
- 	}
+ 	if (priv->can.ctrlmode & CAN_CTRLMODE_3_SAMPLES)
+-		cmd->u.busparams.no_samp = 3;
++		cmd->u.busparams.busparams.nsamples = 3;
+ 	else
+-		cmd->u.busparams.no_samp = 1;
++		cmd->u.busparams.busparams.nsamples = 1;
  
- 	if (priv->can.restart_ms &&
--	    cur_state >= CAN_STATE_BUS_OFF &&
-+	    cur_state == CAN_STATE_BUS_OFF &&
- 	    new_state < CAN_STATE_BUS_OFF)
- 		priv->can.can_stats.restarts++;
+ 	rc = kvaser_usb_send_cmd(dev, cmd, cmd->len);
  
-@@ -1088,7 +1088,7 @@ static void kvaser_usb_leaf_rx_error(const struct kvaser_usb *dev,
- 		}
- 
- 		if (priv->can.restart_ms &&
--		    old_state >= CAN_STATE_BUS_OFF &&
-+		    old_state == CAN_STATE_BUS_OFF &&
- 		    new_state < CAN_STATE_BUS_OFF) {
- 			cf->can_id |= CAN_ERR_RESTARTED;
- 			netif_carrier_on(priv->netdev);
 -- 
 2.35.1
 
