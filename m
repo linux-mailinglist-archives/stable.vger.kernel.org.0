@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 232F665828B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:38:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6987465828F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:38:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234797AbiL1QiL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:38:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55452 "EHLO
+        id S234880AbiL1QiN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:38:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234834AbiL1QhJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:37:09 -0500
+        with ESMTP id S234894AbiL1QhQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:37:16 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF898DF52
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:33:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A14111AD9B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:33:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AFE661572
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:33:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C21DC433EF;
-        Wed, 28 Dec 2022 16:33:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FBBF61541
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:33:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59B9DC433D2;
+        Wed, 28 Dec 2022 16:33:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245196;
-        bh=cmtKgn86exmHAmSRo4zDb/zf9WnHvRGB3TuwMpOcczY=;
+        s=korg; t=1672245204;
+        bh=TUh3zcjqJXcPH8Ndvikh/WKp9PyCEtQbYfKbxmwZ1KI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KqYx1iSIfcft6r3HdZiZ5EiO6sadHDjGVce0c5yeo8QZQ+YRYeN2LPCvG/Pv30gqa
-         FWuI8ZxoAnaCV+xoVIIi9NKXSRgnU1q4Q11U3VRNKkOihnfStmEYoCLgu0Ej64dIry
-         57xe39DeUto7viNdhacBFRtK3+4wOLMRITMdHjdY=
+        b=EEmJABoRofEbP6JB+HdRyOjJ6qXPpO3XwO9UeYR03DUpqpheFFTm24Pd/qY7Lk0XH
+         g06WTJ07HUmKC+JPztZaHFPGjToPIN7gicsh2c5HAZNASkuNDYPmiF70Hdwe/M8gyO
+         5jmp4dBYWp9dSW37iyqj/r4Eq9nOFcvBkHQY0v4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Kirill Tkhai <tkhai@ya.ru>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0849/1073] nfc: pn533: Clear nfc_target before being used
-Date:   Wed, 28 Dec 2022 15:40:37 +0100
-Message-Id: <20221228144351.080161975@linuxfoundation.org>
+Subject: [PATCH 6.0 0850/1073] unix: Fix race in SOCK_SEQPACKETs unix_dgram_sendmsg()
+Date:   Wed, 28 Dec 2022 15:40:38 +0100
+Message-Id: <20221228144351.107161324@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -54,71 +53,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+From: Kirill Tkhai <tkhai@ya.ru>
 
-[ Upstream commit 9f28157778ede0d4f183f7ab3b46995bb400abbe ]
+[ Upstream commit 3ff8bff704f4de125dca2262e5b5b963a3da1d87 ]
 
-Fix a slab-out-of-bounds read that occurs in nla_put() called from
-nfc_genl_send_target() when target->sensb_res_len, which is duplicated
-from an nfc_target in pn533, is too large as the nfc_target is not
-properly initialized and retains garbage values. Clear nfc_targets with
-memset() before they are used.
+There is a race resulting in alive SOCK_SEQPACKET socket
+may change its state from TCP_ESTABLISHED to TCP_CLOSE:
 
-Found by a modified version of syzkaller.
+unix_release_sock(peer)                  unix_dgram_sendmsg(sk)
+  sock_orphan(peer)
+    sock_set_flag(peer, SOCK_DEAD)
+                                           sock_alloc_send_pskb()
+                                             if !(sk->sk_shutdown & SEND_SHUTDOWN)
+                                               OK
+                                           if sock_flag(peer, SOCK_DEAD)
+                                             sk->sk_state = TCP_CLOSE
+  sk->sk_shutdown = SHUTDOWN_MASK
 
-BUG: KASAN: slab-out-of-bounds in nla_put
-Call Trace:
- memcpy
- nla_put
- nfc_genl_dump_targets
- genl_lock_dumpit
- netlink_dump
- __netlink_dump_start
- genl_family_rcv_msg_dumpit
- genl_rcv_msg
- netlink_rcv_skb
- genl_rcv
- netlink_unicast
- netlink_sendmsg
- sock_sendmsg
- ____sys_sendmsg
- ___sys_sendmsg
- __sys_sendmsg
- do_syscall_64
+After that socket sk remains almost normal: it is able to connect, listen, accept
+and recvmsg, while it can't sendmsg.
 
-Fixes: 673088fb42d0 ("NFC: pn533: Send ATR_REQ directly for active device detection")
-Fixes: 361f3cb7f9cf ("NFC: DEP link hook implementation for pn533")
-Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20221214015139.119673-1-linuxlovemin@yonsei.ac.kr
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Since this is the only possibility for alive SOCK_SEQPACKET to change
+the state in such way, we should better fix this strange and potentially
+danger corner case.
+
+Note, that we will return EPIPE here like this is normally done in sock_alloc_send_pskb().
+Originally used ECONNREFUSED looks strange, since it's strange to return
+a specific retval in dependence of race in kernel, when user can't affect on this.
+
+Also, move TCP_CLOSE assignment for SOCK_DGRAM sockets under state lock
+to fix race with unix_dgram_connect():
+
+unix_dgram_connect(other)            unix_dgram_sendmsg(sk)
+                                       unix_peer(sk) = NULL
+                                       unix_state_unlock(sk)
+  unix_state_double_lock(sk, other)
+  sk->sk_state  = TCP_ESTABLISHED
+  unix_peer(sk) = other
+  unix_state_double_unlock(sk, other)
+                                       sk->sk_state  = TCP_CLOSED
+
+This patch fixes both of these races.
+
+Fixes: 83301b5367a9 ("af_unix: Set TCP_ESTABLISHED for datagram sockets too")
+Signed-off-by: Kirill Tkhai <tkhai@ya.ru>
+Link: https://lore.kernel.org/r/135fda25-22d5-837a-782b-ceee50e19844@ya.ru
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/pn533/pn533.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/unix/af_unix.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nfc/pn533/pn533.c b/drivers/nfc/pn533/pn533.c
-index d9f6367b9993..f0cac1900552 100644
---- a/drivers/nfc/pn533/pn533.c
-+++ b/drivers/nfc/pn533/pn533.c
-@@ -1295,6 +1295,8 @@ static int pn533_poll_dep_complete(struct pn533 *dev, void *arg,
- 	if (IS_ERR(resp))
- 		return PTR_ERR(resp);
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index 02fad8e8f4cd..48cc8223b06b 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -1969,13 +1969,20 @@ static int unix_dgram_sendmsg(struct socket *sock, struct msghdr *msg,
+ 			unix_state_lock(sk);
  
-+	memset(&nfc_target, 0, sizeof(struct nfc_target));
-+
- 	rsp = (struct pn533_cmd_jump_dep_response *)resp->data;
+ 		err = 0;
+-		if (unix_peer(sk) == other) {
++		if (sk->sk_type == SOCK_SEQPACKET) {
++			/* We are here only when racing with unix_release_sock()
++			 * is clearing @other. Never change state to TCP_CLOSE
++			 * unlike SOCK_DGRAM wants.
++			 */
++			unix_state_unlock(sk);
++			err = -EPIPE;
++		} else if (unix_peer(sk) == other) {
+ 			unix_peer(sk) = NULL;
+ 			unix_dgram_peer_wake_disconnect_wakeup(sk, other);
  
- 	rc = rsp->status & PN533_CMD_RET_MASK;
-@@ -1926,6 +1928,8 @@ static int pn533_in_dep_link_up_complete(struct pn533 *dev, void *arg,
++			sk->sk_state = TCP_CLOSE;
+ 			unix_state_unlock(sk);
  
- 		dev_dbg(dev->dev, "Creating new target\n");
- 
-+		memset(&nfc_target, 0, sizeof(struct nfc_target));
-+
- 		nfc_target.supported_protocols = NFC_PROTO_NFC_DEP_MASK;
- 		nfc_target.nfcid1_len = 10;
- 		memcpy(nfc_target.nfcid1, rsp->nfcid3t, nfc_target.nfcid1_len);
+-			sk->sk_state = TCP_CLOSE;
+ 			unix_dgram_disconnected(sk, other);
+ 			sock_put(other);
+ 			err = -ECONNREFUSED;
 -- 
 2.35.1
 
