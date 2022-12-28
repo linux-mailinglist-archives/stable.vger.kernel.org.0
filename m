@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB336658301
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A7DB657D94
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:44:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234653AbiL1Qn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:43:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36858 "EHLO
+        id S233173AbiL1Pok (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:44:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234984AbiL1Qn3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B8391A209
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:57 -0800 (PST)
+        with ESMTP id S233992AbiL1Poj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:44:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9610D17433
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:44:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3099B8171E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:37:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CE0BC433D2;
-        Wed, 28 Dec 2022 16:37:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 333DB61542
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:44:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 471A7C433D2;
+        Wed, 28 Dec 2022 15:44:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245474;
-        bh=SwThl0N1pKRQexATFYYnMwhF7WjNhdvKxDOxdnQCq9Y=;
+        s=korg; t=1672242277;
+        bh=7rsldQHQniiuIeKRLJzPLNU5+C9sjm5TyE1clKDzhOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0nuyaQNHqystr3hqnaPm0wYahEbvsjUHK/DgDFoklDi9K5L9Thc8eLMKvHscceU3e
-         hQZNiGdoL/OX2Ucva80n+TJ6h0e7ISh82uKqab2wip6PBbroqAshJxomOgFyhQmEdI
-         tfwrgYkGVuVAXuCdQHrFgFfqnFGE+nIBHwCQq9/c=
+        b=QGmpViSkJODxr0g8CeOMoSyqLBe6ExskE6d6qSO8ynJhbFXZSHulUQWK0PiliDAP8
+         nbVY4pIxhgb5MPBiUnIh/rfllEcwYq/6AAOhXc3ELyRxQ22K0KdbB6JSlB/d3i4CLq
+         G7XLGGUNV/bvbqmaA8atq/P1+uc3BetDvjn/zex8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paul Menzel <pmenzel@molgen.mpg.de>,
-        "Robert Elliott (Servers)" <elliott@hpe.com>,
-        =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        patches@lists.linux.dev, Raed Salem <raeds@nvidia.com>,
+        Emeel Hakim <ehakim@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0902/1073] x86/apic: Handle no CONFIG_X86_X2APIC on systems with x2APIC enabled by BIOS
+Subject: [PATCH 5.15 583/731] net: macsec: fix net device access prior to holding a lock
 Date:   Wed, 28 Dec 2022 15:41:30 +0100
-Message-Id: <20221228144352.532061645@linuxfoundation.org>
+Message-Id: <20221228144313.448630775@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,123 +54,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mateusz Jończyk <mat.jonczyk@o2.pl>
+From: Emeel Hakim <ehakim@nvidia.com>
 
-[ Upstream commit e3998434da4f5b1f57f8d6a8a9f8502ee3723bae ]
+[ Upstream commit f3b4a00f0f62da252c598310698dfc82ef2f2e2e ]
 
-A kernel that was compiled without CONFIG_X86_X2APIC was unable to boot on
-platforms that have x2APIC already enabled in the BIOS before starting the
-kernel.
+Currently macsec offload selection update routine accesses
+the net device prior to holding the relevant lock.
+Fix by holding the lock prior to the device access.
 
-The kernel was supposed to panic with an approprite error message in
-validate_x2apic() due to the missing X2APIC support.
-
-However, validate_x2apic() was run too late in the boot cycle, and the
-kernel tried to initialize the APIC nonetheless. This resulted in an
-earlier panic in setup_local_APIC() because the APIC was not registered.
-
-In my experiments, a panic message in setup_local_APIC() was not visible
-in the graphical console, which resulted in a hang with no indication
-what has gone wrong.
-
-Instead of calling panic(), disable the APIC, which results in a somewhat
-working system with the PIC only (and no SMP). This way the user is able to
-diagnose the problem more easily.
-
-Disabling X2APIC mode is not an option because it's impossible on systems
-with locked x2APIC.
-
-The proper place to disable the APIC in this case is in check_x2apic(),
-which is called early from setup_arch(). Doing this in
-__apic_intr_mode_select() is too late.
-
-Make check_x2apic() unconditionally available and remove the empty stub.
-
-Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Reported-by: Robert Elliott (Servers) <elliott@hpe.com>
-Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/lkml/d573ba1c-0dc4-3016-712a-cc23a8a33d42@molgen.mpg.de
-Link: https://lore.kernel.org/lkml/20220911084711.13694-3-mat.jonczyk@o2.pl
-Link: https://lore.kernel.org/all/20221129215008.7247-1-mat.jonczyk@o2.pl
+Fixes: dcb780fb2795 ("net: macsec: add nla support for changing the offloading selection")
+Reviewed-by: Raed Salem <raeds@nvidia.com>
+Signed-off-by: Emeel Hakim <ehakim@nvidia.com>
+Link: https://lore.kernel.org/r/20221211075532.28099-1-ehakim@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/Kconfig            |  4 ++--
- arch/x86/include/asm/apic.h |  3 +--
- arch/x86/kernel/apic/apic.c | 13 ++++++++-----
- 3 files changed, 11 insertions(+), 9 deletions(-)
+ drivers/net/macsec.c | 34 +++++++++++++++++++++-------------
+ 1 file changed, 21 insertions(+), 13 deletions(-)
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 4728d3f5d5c4..3fec0e9d9241 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -450,8 +450,8 @@ config X86_X2APIC
+diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
+index 88e44eb39285..10b3f4fb2612 100644
+--- a/drivers/net/macsec.c
++++ b/drivers/net/macsec.c
+@@ -2580,7 +2580,7 @@ static int macsec_upd_offload(struct sk_buff *skb, struct genl_info *info)
+ 	const struct macsec_ops *ops;
+ 	struct macsec_context ctx;
+ 	struct macsec_dev *macsec;
+-	int ret;
++	int ret = 0;
  
- 	  Some Intel systems circa 2022 and later are locked into x2APIC mode
- 	  and can not fall back to the legacy APIC modes if SGX or TDX are
--	  enabled in the BIOS.  They will be unable to boot without enabling
--	  this option.
-+	  enabled in the BIOS. They will boot with very reduced functionality
-+	  without enabling this option.
+ 	if (!attrs[MACSEC_ATTR_IFINDEX])
+ 		return -EINVAL;
+@@ -2593,28 +2593,36 @@ static int macsec_upd_offload(struct sk_buff *skb, struct genl_info *info)
+ 					macsec_genl_offload_policy, NULL))
+ 		return -EINVAL;
  
- 	  If you don't know what to do here, say N.
- 
-diff --git a/arch/x86/include/asm/apic.h b/arch/x86/include/asm/apic.h
-index 3415321c8240..3216da7074ba 100644
---- a/arch/x86/include/asm/apic.h
-+++ b/arch/x86/include/asm/apic.h
-@@ -249,7 +249,6 @@ static inline u64 native_x2apic_icr_read(void)
- extern int x2apic_mode;
- extern int x2apic_phys;
- extern void __init x2apic_set_max_apicid(u32 apicid);
--extern void __init check_x2apic(void);
- extern void x2apic_setup(void);
- static inline int x2apic_enabled(void)
- {
-@@ -258,13 +257,13 @@ static inline int x2apic_enabled(void)
- 
- #define x2apic_supported()	(boot_cpu_has(X86_FEATURE_X2APIC))
- #else /* !CONFIG_X86_X2APIC */
--static inline void check_x2apic(void) { }
- static inline void x2apic_setup(void) { }
- static inline int x2apic_enabled(void) { return 0; }
- 
- #define x2apic_mode		(0)
- #define	x2apic_supported()	(0)
- #endif /* !CONFIG_X86_X2APIC */
-+extern void __init check_x2apic(void);
- 
- struct irq_data;
- 
-diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-index c6876d3ea4b1..20d9a604da7c 100644
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -1931,16 +1931,19 @@ void __init check_x2apic(void)
- 	}
- }
- #else /* CONFIG_X86_X2APIC */
--static int __init validate_x2apic(void)
-+void __init check_x2apic(void)
- {
- 	if (!apic_is_x2apic_enabled())
--		return 0;
-+		return;
- 	/*
--	 * Checkme: Can we simply turn off x2apic here instead of panic?
-+	 * Checkme: Can we simply turn off x2APIC here instead of disabling the APIC?
- 	 */
--	panic("BIOS has enabled x2apic but kernel doesn't support x2apic, please disable x2apic in BIOS.\n");
-+	pr_err("Kernel does not support x2APIC, please recompile with CONFIG_X86_X2APIC.\n");
-+	pr_err("Disabling APIC, expect reduced performance and functionality.\n");
++	rtnl_lock();
 +
-+	disable_apic = 1;
-+	setup_clear_cpu_cap(X86_FEATURE_APIC);
- }
--early_initcall(validate_x2apic);
+ 	dev = get_dev_from_nl(genl_info_net(info), attrs);
+-	if (IS_ERR(dev))
+-		return PTR_ERR(dev);
++	if (IS_ERR(dev)) {
++		ret = PTR_ERR(dev);
++		goto out;
++	}
+ 	macsec = macsec_priv(dev);
  
- static inline void try_to_enable_x2apic(int remap_mode) { }
- static inline void __x2apic_enable(void) { }
+-	if (!tb_offload[MACSEC_OFFLOAD_ATTR_TYPE])
+-		return -EINVAL;
++	if (!tb_offload[MACSEC_OFFLOAD_ATTR_TYPE]) {
++		ret = -EINVAL;
++		goto out;
++	}
+ 
+ 	offload = nla_get_u8(tb_offload[MACSEC_OFFLOAD_ATTR_TYPE]);
+ 	if (macsec->offload == offload)
+-		return 0;
++		goto out;
+ 
+ 	/* Check if the offloading mode is supported by the underlying layers */
+ 	if (offload != MACSEC_OFFLOAD_OFF &&
+-	    !macsec_check_offload(offload, macsec))
+-		return -EOPNOTSUPP;
++	    !macsec_check_offload(offload, macsec)) {
++		ret = -EOPNOTSUPP;
++		goto out;
++	}
+ 
+ 	/* Check if the net device is busy. */
+-	if (netif_running(dev))
+-		return -EBUSY;
+-
+-	rtnl_lock();
++	if (netif_running(dev)) {
++		ret = -EBUSY;
++		goto out;
++	}
+ 
+ 	prev_offload = macsec->offload;
+ 	macsec->offload = offload;
+@@ -2649,7 +2657,7 @@ static int macsec_upd_offload(struct sk_buff *skb, struct genl_info *info)
+ 
+ rollback:
+ 	macsec->offload = prev_offload;
+-
++out:
+ 	rtnl_unlock();
+ 	return ret;
+ }
 -- 
 2.35.1
 
