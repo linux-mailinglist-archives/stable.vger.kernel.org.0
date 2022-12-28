@@ -2,43 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 015AB65822F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:33:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CCF865814F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:27:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234706AbiL1Qdt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:33:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52364 "EHLO
+        id S233084AbiL1Q1T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:27:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234861AbiL1QdY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBEBC19022
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:30:55 -0800 (PST)
+        with ESMTP id S234686AbiL1Q01 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:26:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B18A1C921;
+        Wed, 28 Dec 2022 08:22:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4FE09B81888
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:30:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B869C433D2;
-        Wed, 28 Dec 2022 16:30:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ECD666157F;
+        Wed, 28 Dec 2022 16:22:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEE3FC433D2;
+        Wed, 28 Dec 2022 16:22:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245053;
-        bh=N7E2SRwYkQ21JYEy9MXkODJLsG2TrZGxGZHcYLdxbTU=;
+        s=korg; t=1672244574;
+        bh=BLOZxcjnEXYR6XvwzCsyfFc30JnGmIUnqT9FcOApdUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DHdF9HDDAZa2KactUxzpWkAHc4RC7WpOAjHtTOiMzGCaseBWsgnFJZSbKeWbAotTM
-         RTl+HHkCcjVCyfMoEgb9myolFuR/TIdCYaKjoI0pCxyVQL0H/BlxUbyz4R2DFCUrMf
-         US1SVjTsRjO5Lo7I0iLi0Gqyt/5bP27ZBYSH0leQ=
+        b=AyB9TxUVC4nxnJ2eZHsZYMl7rhga/NMlBErEyc2pujDhzoWgdGZN2ImqjnReZTDlD
+         Zb3l9oDhx6E4rjr7YKpV1lBD3jBD33Zzan559H+l6lO8ebtca/T3WQgUwZS0iB0Zbo
+         k1fg1rRO2TJl332SdMptxQmRAC2cBJoOPqLtTTOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andreas Gruenbacher <agruenba@redhat.com>,
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Richard Weinberger <richard@nod.at>,
+        linux-um@lists.infradead.org, Daniel Vetter <daniel@ffwll.ch>,
+        Helge Deller <deller@gmx.de>, linux-fbdev@vger.kernel.org,
+        dri-devel@lists.freedesktop.org,
+        Michal Januszewski <spock@gentoo.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0784/1146] gfs2: Partially revert gfs2_inode_lookup change
+Subject: [PATCH 6.0 0735/1073] fbdev: uvesafb: dont build on UML
 Date:   Wed, 28 Dec 2022 15:38:43 +0100
-Message-Id: <20221228144351.442248574@linuxfoundation.org>
+Message-Id: <20221228144347.986496644@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,42 +58,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 88f4a9f813c549f6b8a6fbf12030949b48a4d5a4 ]
+[ Upstream commit 35b4f4d4a725cf8f8c10649163cd12aed509b953 ]
 
-Commit c412a97cf6c5 changed delete_work_func() to always perform an
-inode lookup when gfs2_try_evict() fails.  This doesn't make sense as a
-gfs2_try_evict() failure indicates that the inode is likely still in
-use.  Revert that change.
+The uvesafb fbdev driver uses memory management information that is not
+available on ARCH=um, so don't allow this driver to be built on UML.
 
-Fixes: c412a97cf6c5 ("gfs2: Use TRY lock in gfs2_inode_lookup for UNLINKED inodes")
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Prevents these build errors:
+
+../drivers/video/fbdev/uvesafb.c: In function ‘uvesafb_vbe_init’:
+../drivers/video/fbdev/uvesafb.c:807:21: error: ‘__supported_pte_mask’ undeclared (first use in this function)
+  807 |                 if (__supported_pte_mask & _PAGE_NX) {
+../drivers/video/fbdev/uvesafb.c:807:44: error: ‘_PAGE_NX’ undeclared (first use in this function)
+  807 |                 if (__supported_pte_mask & _PAGE_NX) {
+
+Fixes: 68f5d3f3b654 ("um: add PCI over virtio emulation driver")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Johannes Berg <johannes@sipsolutions.net>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: linux-um@lists.infradead.org
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Helge Deller <deller@gmx.de>
+Cc: linux-fbdev@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org
+Cc: Michal Januszewski <spock@gentoo.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/glock.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/video/fbdev/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
-index df335c258eb0..235a0948f6cc 100644
---- a/fs/gfs2/glock.c
-+++ b/fs/gfs2/glock.c
-@@ -1039,6 +1039,7 @@ static void delete_work_func(struct work_struct *work)
- 			if (gfs2_queue_delete_work(gl, 5 * HZ))
- 				return;
- 		}
-+		goto out;
- 	}
- 
- 	inode = gfs2_lookup_by_inum(sdp, no_addr, gl->gl_no_formal_ino,
-@@ -1051,6 +1052,7 @@ static void delete_work_func(struct work_struct *work)
- 		d_prune_aliases(inode);
- 		iput(inode);
- 	}
-+out:
- 	gfs2_glock_put(gl);
- }
- 
+diff --git a/drivers/video/fbdev/Kconfig b/drivers/video/fbdev/Kconfig
+index 9497fe929162..974e862cd20d 100644
+--- a/drivers/video/fbdev/Kconfig
++++ b/drivers/video/fbdev/Kconfig
+@@ -601,6 +601,7 @@ config FB_TGA
+ config FB_UVESA
+ 	tristate "Userspace VESA VGA graphics support"
+ 	depends on FB && CONNECTOR
++	depends on !UML
+ 	select FB_CFB_FILLRECT
+ 	select FB_CFB_COPYAREA
+ 	select FB_CFB_IMAGEBLIT
 -- 
 2.35.1
 
