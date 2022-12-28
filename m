@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B46C657DEA
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:48:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96550657F07
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:00:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234057AbiL1PsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:48:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36228 "EHLO
+        id S232658AbiL1QA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:00:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234086AbiL1PsF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:48:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDBDD178BC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:48:03 -0800 (PST)
+        with ESMTP id S234226AbiL1QAZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:00:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D147D18E23
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:00:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A06D61577
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:48:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9811DC433D2;
-        Wed, 28 Dec 2022 15:48:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 25886B8172B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:00:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8832AC433D2;
+        Wed, 28 Dec 2022 16:00:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242483;
-        bh=gsWReIOGe45tATKyEE5K46shtw4sISddqYCRBYxUrLs=;
+        s=korg; t=1672243220;
+        bh=g5v0OlgzeQOaGOTUNW+bZSLeBXEvTLsWUFqBCLefFi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f7s1ube6ucXre1wT6IFGyfc5pzNmhFnKss6aYTrEb7T9ffuXD5QZPG4NpXkY0MEeO
-         2cP1jXyM3E7gTeW+QFdFFJ7OLRBbMVgCqvU6O/DfLhn6J8PC3hZpa+3wiVpljlc8H/
-         /59ILLNB8FjKWwQmip2Or5c8F7xxHMkTg/eOa7mQ=
+        b=P9G5rLaThdRtK+I/SKCCTcR9zj4uM5S/PpNfbkLHQTo3BzL51Fo58uwrt/zbrzaO5
+         bYF5zL7R8HP/C5KQhA95gKdpcNIzpFiM9lmtEqbh9Gy5N70TrKlP5xtnFDGo2iTk0j
+         jT3Bcme07awaCWRYP4dKyttG9Dt7Q+bIDa2mt+Jc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Bitterblue Smith <rtl8821cerfe2@gmail.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0415/1073] wifi: rtl8xxxu: Fix use after rcu_read_unlock in rtl8xxxu_bss_info_changed
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0464/1146] mt76: mt7915: Fix PCI device refcount leak in mt7915_pci_init_hif2()
 Date:   Wed, 28 Dec 2022 15:33:23 +0100
-Message-Id: <20221228144339.294712368@linuxfoundation.org>
+Message-Id: <20221228144342.789501462@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 7927afb5e27baac694f585b59c436ba323528dc2 ]
+[ Upstream commit 5938196cc188ba4323bc6357f5ac55127d715888 ]
 
-Commit a8b5aef2cca1 ("wifi: rtl8xxxu: gen2: Enable 40 MHz channel width")
-introduced a line where the pointer returned by ieee80211_find_sta() is
-used after rcu_read_unlock().
+As comment of pci_get_device() says, it returns a pci_device with its
+refcount increased. We need to call pci_dev_put() to decrease the
+refcount. Save the return value of pci_get_device() and call
+pci_dev_put() to decrease the refcount.
 
-Move rcu_read_unlock() a bit lower to fix this.
-
-Fixes: a8b5aef2cca1 ("wifi: rtl8xxxu: gen2: Enable 40 MHz channel width")
-Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
-Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/3c82ad09-7593-3be1-1d2c-e58505fb43cb@gmail.com
+Fixes: 9093cfff72e3 ("mt76: mt7915: add support for using a secondary PCIe link for gen1")
+Fixes: 2e30db0dde61 ("mt76: mt7915: add device id for mt7916")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt7915/pci.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-index 2286119ba3d5..e85c6325199b 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -4654,7 +4654,6 @@ rtl8xxxu_bss_info_changed(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
- 			if (sta->deflink.ht_cap.cap &
- 			    (IEEE80211_HT_CAP_SGI_40 | IEEE80211_HT_CAP_SGI_20))
- 				sgi = 1;
--			rcu_read_unlock();
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/pci.c b/drivers/net/wireless/mediatek/mt76/mt7915/pci.c
+index 728a879c3b00..3808ce1647d9 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/pci.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/pci.c
+@@ -65,10 +65,17 @@ static void mt7915_put_hif2(struct mt7915_hif *hif)
  
- 			highest_rate = fls(ramask) - 1;
- 			if (highest_rate < DESC_RATE_MCS0) {
-@@ -4679,6 +4678,7 @@ rtl8xxxu_bss_info_changed(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
- 				else
- 					rarpt->txrate.bw = RATE_INFO_BW_20;
- 			}
-+			rcu_read_unlock();
- 			bit_rate = cfg80211_calculate_bitrate(&rarpt->txrate);
- 			rarpt->bit_rate = bit_rate;
- 			rarpt->desc_rate = highest_rate;
+ static struct mt7915_hif *mt7915_pci_init_hif2(struct pci_dev *pdev)
+ {
++	struct pci_dev *tmp_pdev;
++
+ 	hif_idx++;
+-	if (!pci_get_device(PCI_VENDOR_ID_MEDIATEK, 0x7916, NULL) &&
+-	    !pci_get_device(PCI_VENDOR_ID_MEDIATEK, 0x790a, NULL))
+-		return NULL;
++
++	tmp_pdev = pci_get_device(PCI_VENDOR_ID_MEDIATEK, 0x7916, NULL);
++	if (!tmp_pdev) {
++		tmp_pdev = pci_get_device(PCI_VENDOR_ID_MEDIATEK, 0x790a, NULL);
++		if (!tmp_pdev)
++			return NULL;
++	}
++	pci_dev_put(tmp_pdev);
+ 
+ 	writel(hif_idx | MT_PCIE_RECOG_ID_SEM,
+ 	       pcim_iomap_table(pdev)[0] + MT_PCIE_RECOG_ID);
 -- 
 2.35.1
 
