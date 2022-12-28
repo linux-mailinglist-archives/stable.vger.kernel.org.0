@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CFFE6578FD
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:56:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A67D658014
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:13:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233258AbiL1O4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:56:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43962 "EHLO
+        id S234539AbiL1QNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:13:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233256AbiL1O4Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:56:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B69B9DF1
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:56:23 -0800 (PST)
+        with ESMTP id S233111AbiL1QMv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:12:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B489B1A839
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:11:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 50BE66151F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:56:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A7FEC433D2;
-        Wed, 28 Dec 2022 14:56:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 55788B81710
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:11:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4B0FC433D2;
+        Wed, 28 Dec 2022 16:11:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239382;
-        bh=bKfpt6h0GlWOpQsLy7N74+aS0RnUo2HirQTk4nM5Xkc=;
+        s=korg; t=1672243875;
+        bh=n63OJlO5NFLIXrQiDUEKqQoYYsMh666UlNW/XdXI1lw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PnrODgDwMGIuI9wxTsP4dRmEZE8IRI3EE5kAPs5q9KPjb/6Tv1ISRhocbEmgW7pKs
-         P6Cavj9O00WCZuJoUEJVvfFJ3SgtQAgnjPwMPvTTEunGK3yPNIBEcG9NM5hu9Kzjz9
-         2Ujr103RT6r927DE9k2wKPZdGpHxiHvq6GrsZy4g=
+        b=PnElnfkOItP2Q0y5cGxZRefhAAANglz8zEC072ERB/Z8S8uAbX+t3cwc5K2nxTG6p
+         p6sfnTpqLyL+O9OZEtxzrTAmnuK8CgmIosn6oPcoZaX8nECiQkXBIry9wnc7b5C0C7
+         AgUngTbDU7WPwLh6nsAxG0OUW7+15dzt2xtCKF+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dave Stevenson <dave.stevenson@raspberrypi.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
+        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 202/731] drm/fourcc: Add packed 10bit YUV 4:2:0 format
+Subject: [PATCH 6.1 0570/1146] net: dsa: tag_8021q: avoid leaking ctx on dsa_tag_8021q_register() error path
 Date:   Wed, 28 Dec 2022 15:35:09 +0100
-Message-Id: <20221228144302.417521877@linuxfoundation.org>
+Message-Id: <20221228144345.656411570@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,69 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Stevenson <dave.stevenson@raspberrypi.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 006ea1b5822f9019bd722ffc6242bc0880879e3d ]
+[ Upstream commit e095493091e850d5292ad01d8fbf5cde1d89ac53 ]
 
-Adds a format that is 3 10bit YUV 4:2:0 samples packed into
-a 32bit word (with 2 spare bits).
+If dsa_tag_8021q_setup() fails, for example due to the inability of the
+device to install a VLAN, the tag_8021q context of the switch will leak.
+Make sure it is freed on the error path.
 
-Supported on Broadcom BCM2711 chips.
-
-Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://lore.kernel.org/r/20211215091739.135042-2-maxime@cerno.tech
-Stable-dep-of: b230555f3257 ("drm/fourcc: Fix vsub/hsub for Q410 and Q401")
+Fixes: 328621f6131f ("net: dsa: tag_8021q: absorb dsa_8021q_setup into dsa_tag_8021q_{,un}register")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20221209235242.480344-1-vladimir.oltean@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_fourcc.c  |  3 +++
- include/uapi/drm/drm_fourcc.h | 11 +++++++++++
- 2 files changed, 14 insertions(+)
+ net/dsa/tag_8021q.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_fourcc.c b/drivers/gpu/drm/drm_fourcc.c
-index eda832f9200d..aa747111476f 100644
---- a/drivers/gpu/drm/drm_fourcc.c
-+++ b/drivers/gpu/drm/drm_fourcc.c
-@@ -266,6 +266,9 @@ const struct drm_format_info *__drm_format_info(u32 format)
- 		  .num_planes = 3, .char_per_block = { 2, 2, 2 },
- 		  .block_w = { 1, 1, 1 }, .block_h = { 1, 1, 1 }, .hsub = 0,
- 		  .vsub = 0, .is_yuv = true },
-+		{ .format = DRM_FORMAT_P030,            .depth = 0,  .num_planes = 2,
-+		  .char_per_block = { 4, 8, 0 }, .block_w = { 3, 3, 0 }, .block_h = { 1, 1, 0 },
-+		  .hsub = 2, .vsub = 2, .is_yuv = true},
- 	};
+diff --git a/net/dsa/tag_8021q.c b/net/dsa/tag_8021q.c
+index 34e5ec5d3e23..89371b16416e 100644
+--- a/net/dsa/tag_8021q.c
++++ b/net/dsa/tag_8021q.c
+@@ -398,6 +398,7 @@ static void dsa_tag_8021q_teardown(struct dsa_switch *ds)
+ int dsa_tag_8021q_register(struct dsa_switch *ds, __be16 proto)
+ {
+ 	struct dsa_8021q_context *ctx;
++	int err;
  
- 	unsigned int i;
-diff --git a/include/uapi/drm/drm_fourcc.h b/include/uapi/drm/drm_fourcc.h
-index 808c73c52820..a50e4646bd6d 100644
---- a/include/uapi/drm/drm_fourcc.h
-+++ b/include/uapi/drm/drm_fourcc.h
-@@ -308,6 +308,13 @@ extern "C" {
-  */
- #define DRM_FORMAT_P016		fourcc_code('P', '0', '1', '6') /* 2x2 subsampled Cr:Cb plane 16 bits per channel */
+ 	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
+ 	if (!ctx)
+@@ -410,7 +411,15 @@ int dsa_tag_8021q_register(struct dsa_switch *ds, __be16 proto)
  
-+/* 2 plane YCbCr420.
-+ * 3 10 bit components and 2 padding bits packed into 4 bytes.
-+ * index 0 = Y plane, [31:0] x:Y2:Y1:Y0 2:10:10:10 little endian
-+ * index 1 = Cr:Cb plane, [63:0] x:Cr2:Cb2:Cr1:x:Cb1:Cr0:Cb0 [2:10:10:10:2:10:10:10] little endian
-+ */
-+#define DRM_FORMAT_P030		fourcc_code('P', '0', '3', '0') /* 2x2 subsampled Cr:Cb plane 10 bits per channel packed */
+ 	ds->tag_8021q_ctx = ctx;
+ 
+-	return dsa_tag_8021q_setup(ds);
++	err = dsa_tag_8021q_setup(ds);
++	if (err)
++		goto err_free;
 +
- /* 3 plane non-subsampled (444) YCbCr
-  * 16 bits per component, but only 10 bits are used and 6 bits are padded
-  * index 0: Y plane, [15:0] Y:x [10:6] little endian
-@@ -842,6 +849,10 @@ drm_fourcc_canonicalize_nvidia_format_mod(__u64 modifier)
-  * and UV.  Some SAND-using hardware stores UV in a separate tiled
-  * image from Y to reduce the column height, which is not supported
-  * with these modifiers.
-+ *
-+ * The DRM_FORMAT_MOD_BROADCOM_SAND128_COL_HEIGHT modifier is also
-+ * supported for DRM_FORMAT_P030 where the columns remain as 128 bytes
-+ * wide, but as this is a 10 bpp format that translates to 96 pixels.
-  */
++	return 0;
++
++err_free:
++	kfree(ctx);
++	return err;
+ }
+ EXPORT_SYMBOL_GPL(dsa_tag_8021q_register);
  
- #define DRM_FORMAT_MOD_BROADCOM_SAND32_COL_HEIGHT(v) \
 -- 
 2.35.1
 
