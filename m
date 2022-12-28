@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 227D6657F37
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE38F65800F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:13:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234301AbiL1QDF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:03:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48522 "EHLO
+        id S232969AbiL1QNW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:13:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234324AbiL1QCj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:02:39 -0500
+        with ESMTP id S234717AbiL1QMc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:12:32 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65F9C1903C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:02:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 146AE1A3B8
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:11:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 066B16156B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:02:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1476FC433D2;
-        Wed, 28 Dec 2022 16:02:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A82646156E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:11:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91CB9C433D2;
+        Wed, 28 Dec 2022 16:11:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243343;
-        bh=4PNDDJZmArPkClOrlBSTTJGNXsNvzCzJ1ewJlq8/RAQ=;
+        s=korg; t=1672243861;
+        bh=NSnjBrBZ+AWvoKzJjSIouAQFi7wI3pN0wxopmdHS8LY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UMu7OlmwqPc5j2ehF0IVgGXLaNLdPm/kogI6huRRKQXy2XUU00TuPwBD4dnpH+yj9
-         E+UxFLaTL9fvTEfYKMb2bOx9EaamoIAntIUjXxhPH6Ph4HryZ5eM3GZSK1VRgGYP6d
-         I/+xZM9K7ToMJkgQCbqUqWhDOeVyTGKwQNbDntUQ=
+        b=juHAlZMZHlLjV6pjWdemwNFD9p8/PedOVAN+msLWVW9yGh2gHbQqR32xV3J/c0pTO
+         0aP38ExNrRALada0CXnrLtUUwjZnz0YnFSJuD1D+IUgPVcUYpDx8B7lgEXq5hAXLZc
+         DB8X2xhGw65t7EMJruyIkZFuzG4tgn9yhjhV2fSI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
-        Jiri Pirko <jiri@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        Piergiorgio Beruto <piergiorgio.beruto@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0519/1073] net: farsync: Fix kmemleak when rmmods farsync
+Subject: [PATCH 6.1 0568/1146] stmmac: fix potential division by 0
 Date:   Wed, 28 Dec 2022 15:35:07 +0100
-Message-Id: <20221228144342.140018614@linuxfoundation.org>
+Message-Id: <20221228144345.597227603@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,73 +54,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zetao <lizetao1@huawei.com>
+From: Piergiorgio Beruto <piergiorgio.beruto@gmail.com>
 
-[ Upstream commit 2f623aaf9f31de968dea6169849706a2f9be444c ]
+[ Upstream commit ede5a389852d3640a28e7187fb32b7f204380901 ]
 
-There are two memory leaks reported by kmemleak:
+When the MAC is connected to a 10 Mb/s PHY and the PTP clock is derived
+from the MAC reference clock (default), the clk_ptp_rate becomes too
+small and the calculated sub second increment becomes 0 when computed by
+the stmmac_config_sub_second_increment() function within
+stmmac_init_tstamp_counter().
 
-  unreferenced object 0xffff888114b20200 (size 128):
-    comm "modprobe", pid 4846, jiffies 4295146524 (age 401.345s)
-    hex dump (first 32 bytes):
-      e0 62 57 09 81 88 ff ff e0 62 57 09 81 88 ff ff  .bW......bW.....
-      01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    backtrace:
-      [<ffffffff815bcd82>] kmalloc_trace+0x22/0x60
-      [<ffffffff83d35c78>] __hw_addr_add_ex+0x198/0x6c0
-      [<ffffffff83d3989d>] dev_addr_init+0x13d/0x230
-      [<ffffffff83d1063d>] alloc_netdev_mqs+0x10d/0xe50
-      [<ffffffff82b4a06e>] alloc_hdlcdev+0x2e/0x80
-      [<ffffffffa016a741>] fst_add_one+0x601/0x10e0 [farsync]
-      ...
+Therefore, the subsequent div_u64 in stmmac_init_tstamp_counter()
+operation triggers a divide by 0 exception as shown below.
 
-  unreferenced object 0xffff88810b85b000 (size 1024):
-    comm "modprobe", pid 4846, jiffies 4295146523 (age 401.346s)
-    hex dump (first 32 bytes):
-      00 00 b0 02 00 c9 ff ff 00 70 0a 00 00 c9 ff ff  .........p......
-      00 00 00 f2 00 00 00 f3 0a 00 00 00 02 00 00 00  ................
-    backtrace:
-      [<ffffffff815bcd82>] kmalloc_trace+0x22/0x60
-      [<ffffffffa016a294>] fst_add_one+0x154/0x10e0 [farsync]
-      [<ffffffff82060e83>] local_pci_probe+0xd3/0x170
-      ...
+[   95.062067] socfpga-dwmac ff700000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+[   95.076440] socfpga-dwmac ff700000.ethernet eth0: PHY [stmmac-0:08] driver [NCN26000] (irq=49)
+[   95.095964] dwmac1000: Master AXI performs any burst length
+[   95.101588] socfpga-dwmac ff700000.ethernet eth0: No Safety Features support found
+[   95.109428] Division by zero in kernel.
+[   95.113447] CPU: 0 PID: 239 Comm: ifconfig Not tainted 6.1.0-rc7-centurion3-1.0.3.0-01574-gb624218205b7-dirty #77
+[   95.123686] Hardware name: Altera SOCFPGA
+[   95.127695]  unwind_backtrace from show_stack+0x10/0x14
+[   95.132938]  show_stack from dump_stack_lvl+0x40/0x4c
+[   95.137992]  dump_stack_lvl from Ldiv0+0x8/0x10
+[   95.142527]  Ldiv0 from __aeabi_uidivmod+0x8/0x18
+[   95.147232]  __aeabi_uidivmod from div_u64_rem+0x1c/0x40
+[   95.152552]  div_u64_rem from stmmac_init_tstamp_counter+0xd0/0x164
+[   95.158826]  stmmac_init_tstamp_counter from stmmac_hw_setup+0x430/0xf00
+[   95.165533]  stmmac_hw_setup from __stmmac_open+0x214/0x2d4
+[   95.171117]  __stmmac_open from stmmac_open+0x30/0x44
+[   95.176182]  stmmac_open from __dev_open+0x11c/0x134
+[   95.181172]  __dev_open from __dev_change_flags+0x168/0x17c
+[   95.186750]  __dev_change_flags from dev_change_flags+0x14/0x50
+[   95.192662]  dev_change_flags from devinet_ioctl+0x2b4/0x604
+[   95.198321]  devinet_ioctl from inet_ioctl+0x1ec/0x214
+[   95.203462]  inet_ioctl from sock_ioctl+0x14c/0x3c4
+[   95.208354]  sock_ioctl from vfs_ioctl+0x20/0x38
+[   95.212984]  vfs_ioctl from sys_ioctl+0x250/0x844
+[   95.217691]  sys_ioctl from ret_fast_syscall+0x0/0x4c
+[   95.222743] Exception stack(0xd0ee1fa8 to 0xd0ee1ff0)
+[   95.227790] 1fa0:                   00574c4f be9aeca4 00000003 00008914 be9aeca4 be9aec50
+[   95.235945] 1fc0: 00574c4f be9aeca4 0059f078 00000036 be9aee8c be9aef7a 00000015 00000000
+[   95.244096] 1fe0: 005a01f0 be9aec38 004d7484 b6e67d74
 
-The root cause is traced to the netdev and fst_card_info are not freed
-when removes one fst in fst_remove_one(), which may trigger oom if
-repeated insmod and rmmod module.
-
-Fix it by adding free_netdev() and kfree() in fst_remove_one(), just as
-the operations on the error handling path in fst_add_one().
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Li Zetao <lizetao1@huawei.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Piergiorgio Beruto <piergiorgio.beruto@gmail.com>
+Fixes: 91a2559c1dc5 ("net: stmmac: Fix sub-second increment")
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/de4c64ccac9084952c56a06a8171d738604c4770.1670678513.git.piergiorgio.beruto@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/farsync.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c | 3 ++-
+ drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.h      | 2 +-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wan/farsync.c b/drivers/net/wan/farsync.c
-index 6a212c085435..5b01642ca44e 100644
---- a/drivers/net/wan/farsync.c
-+++ b/drivers/net/wan/farsync.c
-@@ -2545,6 +2545,7 @@ fst_remove_one(struct pci_dev *pdev)
- 		struct net_device *dev = port_to_dev(&card->ports[i]);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
+index 764832f4dae1..8b50f03056b7 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
+@@ -47,7 +47,8 @@ static void config_sub_second_increment(void __iomem *ioaddr,
+ 	if (!(value & PTP_TCR_TSCTRLSSR))
+ 		data = (data * 1000) / 465;
  
- 		unregister_hdlc_device(dev);
-+		free_netdev(dev);
- 	}
+-	data &= PTP_SSIR_SSINC_MASK;
++	if (data > PTP_SSIR_SSINC_MAX)
++		data = PTP_SSIR_SSINC_MAX;
  
- 	fst_disable_intr(card);
-@@ -2564,6 +2565,7 @@ fst_remove_one(struct pci_dev *pdev)
- 				  card->tx_dma_handle_card);
- 	}
- 	fst_card_array[card->card_no] = NULL;
-+	kfree(card);
- }
+ 	reg_value = data;
+ 	if (gmac4)
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.h b/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.h
+index 53172a439810..bf619295d079 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.h
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.h
+@@ -64,7 +64,7 @@
+ #define	PTP_TCR_TSENMACADDR	BIT(18)
  
- static struct pci_driver fst_driver = {
+ /* SSIR defines */
+-#define	PTP_SSIR_SSINC_MASK		0xff
++#define	PTP_SSIR_SSINC_MAX		0xff
+ #define	GMAC4_PTP_SSIR_SSINC_SHIFT	16
+ 
+ /* Auxiliary Control defines */
 -- 
 2.35.1
 
