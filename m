@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E2DD657B6E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:22:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B29E4657C83
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:33:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233721AbiL1PWD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:22:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40320 "EHLO
+        id S233837AbiL1Pd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:33:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233339AbiL1PVl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:21:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97C5E140B4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:21:30 -0800 (PST)
+        with ESMTP id S233879AbiL1PdR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:33:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEB0315F29
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:33:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AB3E7B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:21:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 119BAC433D2;
-        Wed, 28 Dec 2022 15:21:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D969FB81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:33:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38E39C433D2;
+        Wed, 28 Dec 2022 15:33:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240887;
-        bh=iOnKgnpLiisyLkJcXxs/tBEg9qzO+wCqirrBoqs5nbQ=;
+        s=korg; t=1672241591;
+        bh=pxAGDiYpL2hp0fC+5Hf54cAhYeLPcyTPqiYDp7wGPFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s3FeOBMehRchsaDC6DkUTQ/SZKjZLl7r1Ik/2/lQVElHvsZiPO3MPKmyUOxf8vEVp
-         xFk3S+gDHPyqjq9JdqvsPHM+BXdZ8P6mUoyh8iJVL9QTo7jBzgxt730QuTWt1tjpRz
-         Nvggnrd+B2a5G5FSDSNaoLBL1y83YBT9mNGJFsfc=
+        b=hDkpCw1sAChbXXXyy2m/NaUvknc7gUwAKPXt4e0n/BCfmh7BQAHJZK3WHIEly51S1
+         +rvqy+HG2d2ARZasCCQjURIaCiB1w5dRENV5LRRKzhEQNRKiyjEvNOQvyIQDCKzoTW
+         1cKIS+wxDlVArrS9GLbGyHycQ9zbqPB8NF7xHxJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, CoolStar <coolstarorganization@gmail.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Anshuman Gupta <anshuman.gupta@intel.com>,
+        Matthew Auld <matthew.auld@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0214/1073] ASoC: Intel: avs: Fix potential RX buffer overflow
-Date:   Wed, 28 Dec 2022 15:30:02 +0100
-Message-Id: <20221228144333.829698496@linuxfoundation.org>
+Subject: [PATCH 6.1 0264/1146] drm/i915: Encapsulate lmem rpm stuff in intel_runtime_pm
+Date:   Wed, 28 Dec 2022 15:30:03 +0100
+Message-Id: <20221228144337.307649284@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +54,229 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cezary Rojewski <cezary.rojewski@intel.com>
+From: Anshuman Gupta <anshuman.gupta@intel.com>
 
-[ Upstream commit 23ae34e033b2c0e5e88237af82b163b296fd6aa9 ]
+[ Upstream commit e66c8dcf997ed54b62f754351e7129e1cc4e3cf9 ]
 
-If an event caused firmware to return invalid RX size for
-LARGE_CONFIG_GET, memcpy_fromio() could end up copying too many bytes.
-Fix by utilizing min_t().
+Runtime pm is not really per GT, therefore it make sense to
+move lmem_userfault_list, lmem_userfault_lock and
+userfault_wakeref from intel_gt to intel_runtime_pm structure,
+which is embedded to i915.
 
-Reported-by: CoolStar <coolstarorganization@gmail.com>
-Fixes: f14a1c5a9f83 ("ASoC: Intel: avs: Add module management requests")
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Link: https://lore.kernel.org/r/20221010121955.718168-3-cezary.rojewski@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+No functional change.
+
+v2:
+- Fixes the code comment nit. [Matt Auld]
+
+Signed-off-by: Anshuman Gupta <anshuman.gupta@intel.com>
+Reviewed-by: Matthew Auld <matthew.auld@intel.com>
+Acked-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221027092242.1476080-2-anshuman.gupta@intel.com
+Stable-dep-of: 1cacd6894d5f ("drm/i915/dgfx: Grab wakeref at i915_ttm_unmap_virtual")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/avs/ipc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/gem/i915_gem_mman.c |  6 +++---
+ drivers/gpu/drm/i915/gem/i915_gem_pm.c   |  2 +-
+ drivers/gpu/drm/i915/gem/i915_gem_ttm.c  |  8 ++++----
+ drivers/gpu/drm/i915/gt/intel_gt.c       |  3 ---
+ drivers/gpu/drm/i915/gt/intel_gt_types.h | 17 -----------------
+ drivers/gpu/drm/i915/i915_gem.c          |  4 +---
+ drivers/gpu/drm/i915/intel_runtime_pm.c  |  5 +++++
+ drivers/gpu/drm/i915/intel_runtime_pm.h  | 22 ++++++++++++++++++++++
+ 8 files changed, 36 insertions(+), 31 deletions(-)
 
-diff --git a/sound/soc/intel/avs/ipc.c b/sound/soc/intel/avs/ipc.c
-index 020d85c7520d..77da206f7dbb 100644
---- a/sound/soc/intel/avs/ipc.c
-+++ b/sound/soc/intel/avs/ipc.c
-@@ -192,7 +192,8 @@ static void avs_dsp_receive_rx(struct avs_dev *adev, u64 header)
- 		/* update size in case of LARGE_CONFIG_GET */
- 		if (msg.msg_target == AVS_MOD_MSG &&
- 		    msg.global_msg_type == AVS_MOD_LARGE_CONFIG_GET)
--			ipc->rx.size = msg.ext.large_config.data_off_size;
-+			ipc->rx.size = min_t(u32, AVS_MAILBOX_SIZE,
-+					     msg.ext.large_config.data_off_size);
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_mman.c b/drivers/gpu/drm/i915/gem/i915_gem_mman.c
+index 73d9eda1d6b7..fd29a9053582 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_mman.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_mman.c
+@@ -413,7 +413,7 @@ static vm_fault_t vm_fault_gtt(struct vm_fault *vmf)
+ 	vma->mmo = mmo;
  
- 		memcpy_fromio(ipc->rx.data, avs_uplink_addr(adev), ipc->rx.size);
- 		trace_avs_msg_payload(ipc->rx.data, ipc->rx.size);
+ 	if (CONFIG_DRM_I915_USERFAULT_AUTOSUSPEND)
+-		intel_wakeref_auto(&to_gt(i915)->userfault_wakeref,
++		intel_wakeref_auto(&i915->runtime_pm.userfault_wakeref,
+ 				   msecs_to_jiffies_timeout(CONFIG_DRM_I915_USERFAULT_AUTOSUSPEND));
+ 
+ 	if (write) {
+@@ -589,9 +589,9 @@ void i915_gem_object_release_mmap_offset(struct drm_i915_gem_object *obj)
+ 	spin_unlock(&obj->mmo.lock);
+ 
+ 	if (obj->userfault_count) {
+-		mutex_lock(&to_gt(to_i915(obj->base.dev))->lmem_userfault_lock);
++		mutex_lock(&to_i915(obj->base.dev)->runtime_pm.lmem_userfault_lock);
+ 		list_del(&obj->userfault_link);
+-		mutex_unlock(&to_gt(to_i915(obj->base.dev))->lmem_userfault_lock);
++		mutex_unlock(&to_i915(obj->base.dev)->runtime_pm.lmem_userfault_lock);
+ 		obj->userfault_count = 0;
+ 	}
+ }
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_pm.c b/drivers/gpu/drm/i915/gem/i915_gem_pm.c
+index 3428f735e786..8d30db5e678c 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_pm.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_pm.c
+@@ -24,7 +24,7 @@ void i915_gem_suspend(struct drm_i915_private *i915)
+ {
+ 	GEM_TRACE("%s\n", dev_name(i915->drm.dev));
+ 
+-	intel_wakeref_auto(&to_gt(i915)->userfault_wakeref, 0);
++	intel_wakeref_auto(&i915->runtime_pm.userfault_wakeref, 0);
+ 	flush_workqueue(i915->wq);
+ 
+ 	/*
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_ttm.c b/drivers/gpu/drm/i915/gem/i915_gem_ttm.c
+index e08351081375..d6b447ae0a16 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_ttm.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_ttm.c
+@@ -1059,13 +1059,13 @@ static vm_fault_t vm_fault_ttm(struct vm_fault *vmf)
+ 	/* ttm_bo_vm_reserve() already has dma_resv_lock */
+ 	if (ret == VM_FAULT_NOPAGE && wakeref && !obj->userfault_count) {
+ 		obj->userfault_count = 1;
+-		mutex_lock(&to_gt(to_i915(obj->base.dev))->lmem_userfault_lock);
+-		list_add(&obj->userfault_link, &to_gt(to_i915(obj->base.dev))->lmem_userfault_list);
+-		mutex_unlock(&to_gt(to_i915(obj->base.dev))->lmem_userfault_lock);
++		mutex_lock(&to_i915(obj->base.dev)->runtime_pm.lmem_userfault_lock);
++		list_add(&obj->userfault_link, &to_i915(obj->base.dev)->runtime_pm.lmem_userfault_list);
++		mutex_unlock(&to_i915(obj->base.dev)->runtime_pm.lmem_userfault_lock);
+ 	}
+ 
+ 	if (wakeref & CONFIG_DRM_I915_USERFAULT_AUTOSUSPEND)
+-		intel_wakeref_auto(&to_gt(to_i915(obj->base.dev))->userfault_wakeref,
++		intel_wakeref_auto(&to_i915(obj->base.dev)->runtime_pm.userfault_wakeref,
+ 				   msecs_to_jiffies_timeout(CONFIG_DRM_I915_USERFAULT_AUTOSUSPEND));
+ 
+ 	i915_ttm_adjust_lru(obj);
+diff --git a/drivers/gpu/drm/i915/gt/intel_gt.c b/drivers/gpu/drm/i915/gt/intel_gt.c
+index 7caa3412a244..c7db49749a63 100644
+--- a/drivers/gpu/drm/i915/gt/intel_gt.c
++++ b/drivers/gpu/drm/i915/gt/intel_gt.c
+@@ -40,8 +40,6 @@ void intel_gt_common_init_early(struct intel_gt *gt)
+ {
+ 	spin_lock_init(gt->irq_lock);
+ 
+-	INIT_LIST_HEAD(&gt->lmem_userfault_list);
+-	mutex_init(&gt->lmem_userfault_lock);
+ 	INIT_LIST_HEAD(&gt->closed_vma);
+ 	spin_lock_init(&gt->closed_lock);
+ 
+@@ -812,7 +810,6 @@ static int intel_gt_tile_setup(struct intel_gt *gt, phys_addr_t phys_addr)
+ 	}
+ 
+ 	intel_uncore_init_early(gt->uncore, gt);
+-	intel_wakeref_auto_init(&gt->userfault_wakeref, gt->uncore->rpm);
+ 
+ 	ret = intel_uncore_setup_mmio(gt->uncore, phys_addr);
+ 	if (ret)
+diff --git a/drivers/gpu/drm/i915/gt/intel_gt_types.h b/drivers/gpu/drm/i915/gt/intel_gt_types.h
+index f19c2de77ff6..184ee9b11a4d 100644
+--- a/drivers/gpu/drm/i915/gt/intel_gt_types.h
++++ b/drivers/gpu/drm/i915/gt/intel_gt_types.h
+@@ -141,20 +141,6 @@ struct intel_gt {
+ 	struct intel_wakeref wakeref;
+ 	atomic_t user_wakeref;
+ 
+-	/**
+-	 *  Protects access to lmem usefault list.
+-	 *  It is required, if we are outside of the runtime suspend path,
+-	 *  access to @lmem_userfault_list requires always first grabbing the
+-	 *  runtime pm, to ensure we can't race against runtime suspend.
+-	 *  Once we have that we also need to grab @lmem_userfault_lock,
+-	 *  at which point we have exclusive access.
+-	 *  The runtime suspend path is special since it doesn't really hold any locks,
+-	 *  but instead has exclusive access by virtue of all other accesses requiring
+-	 *  holding the runtime pm wakeref.
+-	 */
+-	struct mutex lmem_userfault_lock;
+-	struct list_head lmem_userfault_list;
+-
+ 	struct list_head closed_vma;
+ 	spinlock_t closed_lock; /* guards the list of closed_vma */
+ 
+@@ -170,9 +156,6 @@ struct intel_gt {
+ 	 */
+ 	intel_wakeref_t awake;
+ 
+-	/* Manual runtime pm autosuspend delay for user GGTT/lmem mmaps */
+-	struct intel_wakeref_auto userfault_wakeref;
+-
+ 	u32 clock_frequency;
+ 	u32 clock_period_ns;
+ 
+diff --git a/drivers/gpu/drm/i915/i915_gem.c b/drivers/gpu/drm/i915/i915_gem.c
+index 88df9a35e0fe..38c26668b960 100644
+--- a/drivers/gpu/drm/i915/i915_gem.c
++++ b/drivers/gpu/drm/i915/i915_gem.c
+@@ -843,7 +843,7 @@ void i915_gem_runtime_suspend(struct drm_i915_private *i915)
+ 		__i915_gem_object_release_mmap_gtt(obj);
+ 
+ 	list_for_each_entry_safe(obj, on,
+-				 &to_gt(i915)->lmem_userfault_list, userfault_link)
++				 &i915->runtime_pm.lmem_userfault_list, userfault_link)
+ 		i915_gem_object_runtime_pm_release_mmap_offset(obj);
+ 
+ 	/*
+@@ -1227,8 +1227,6 @@ void i915_gem_driver_remove(struct drm_i915_private *dev_priv)
+ 	struct intel_gt *gt;
+ 	unsigned int i;
+ 
+-	intel_wakeref_auto_fini(&to_gt(dev_priv)->userfault_wakeref);
+-
+ 	i915_gem_suspend_late(dev_priv);
+ 	for_each_gt(gt, dev_priv, i)
+ 		intel_gt_driver_remove(gt);
+diff --git a/drivers/gpu/drm/i915/intel_runtime_pm.c b/drivers/gpu/drm/i915/intel_runtime_pm.c
+index 744cca507946..bb74d4975cc8 100644
+--- a/drivers/gpu/drm/i915/intel_runtime_pm.c
++++ b/drivers/gpu/drm/i915/intel_runtime_pm.c
+@@ -633,6 +633,8 @@ void intel_runtime_pm_driver_release(struct intel_runtime_pm *rpm)
+ 						     runtime_pm);
+ 	int count = atomic_read(&rpm->wakeref_count);
+ 
++	intel_wakeref_auto_fini(&rpm->userfault_wakeref);
++
+ 	drm_WARN(&i915->drm, count,
+ 		 "i915 raw-wakerefs=%d wakelocks=%d on cleanup\n",
+ 		 intel_rpm_raw_wakeref_count(count),
+@@ -652,4 +654,7 @@ void intel_runtime_pm_init_early(struct intel_runtime_pm *rpm)
+ 	rpm->available = HAS_RUNTIME_PM(i915);
+ 
+ 	init_intel_runtime_pm_wakeref(rpm);
++	INIT_LIST_HEAD(&rpm->lmem_userfault_list);
++	mutex_init(&rpm->lmem_userfault_lock);
++	intel_wakeref_auto_init(&rpm->userfault_wakeref, rpm);
+ }
+diff --git a/drivers/gpu/drm/i915/intel_runtime_pm.h b/drivers/gpu/drm/i915/intel_runtime_pm.h
+index d9160e3ff4af..9f50f109aa11 100644
+--- a/drivers/gpu/drm/i915/intel_runtime_pm.h
++++ b/drivers/gpu/drm/i915/intel_runtime_pm.h
+@@ -53,6 +53,28 @@ struct intel_runtime_pm {
+ 	bool irqs_enabled;
+ 	bool no_wakeref_tracking;
+ 
++	/*
++	 *  Protects access to lmem usefault list.
++	 *  It is required, if we are outside of the runtime suspend path,
++	 *  access to @lmem_userfault_list requires always first grabbing the
++	 *  runtime pm, to ensure we can't race against runtime suspend.
++	 *  Once we have that we also need to grab @lmem_userfault_lock,
++	 *  at which point we have exclusive access.
++	 *  The runtime suspend path is special since it doesn't really hold any locks,
++	 *  but instead has exclusive access by virtue of all other accesses requiring
++	 *  holding the runtime pm wakeref.
++	 */
++	struct mutex lmem_userfault_lock;
++
++	/*
++	 *  Keep list of userfaulted gem obj, which require to release their
++	 *  mmap mappings at runtime suspend path.
++	 */
++	struct list_head lmem_userfault_list;
++
++	/* Manual runtime pm autosuspend delay for user GGTT/lmem mmaps */
++	struct intel_wakeref_auto userfault_wakeref;
++
+ #if IS_ENABLED(CONFIG_DRM_I915_DEBUG_RUNTIME_PM)
+ 	/*
+ 	 * To aide detection of wakeref leaks and general misuse, we
 -- 
 2.35.1
 
