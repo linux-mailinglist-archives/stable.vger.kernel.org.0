@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AA40657A9F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:13:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B1B565793A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:59:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233066AbiL1PNp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:13:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59510 "EHLO
+        id S233351AbiL1O7E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:59:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233101AbiL1PNU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:13:20 -0500
+        with ESMTP id S233437AbiL1O6s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:58:48 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B558313EA8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:12:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5558A1274D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:58:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5291761551
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:12:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 627B8C433D2;
-        Wed, 28 Dec 2022 15:12:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E45676154E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:58:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0339BC433D2;
+        Wed, 28 Dec 2022 14:58:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240377;
-        bh=Qnz2Q2W1D4s7Im2sMTjlrRPEJ7DyXob3fGrWZMetkvA=;
+        s=korg; t=1672239527;
+        bh=+OTD/V9/GS/FWbYOlv3g7DUUJbVDOZ9IrgMGkpDCYk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nfsdg2FrCRBoGxEkfo++OndEJsJI/f89/dKOyb/OXreoroXulxb5ZfxYMFl55tNBB
-         YQTnBD9fOUy8etCSaIcwj6u//oxIhKfixV82yTP2UiHHkiw524lHK3on2Msuvfd+AU
-         /oSACVKZ3DhstbMokvfUKajLET+SPHcwmPAk+Y20=
+        b=zHt+kHfrDPEK5t9oCZezXQKGwFs6vpZ9K9/TcTf+LCs6zsm0LXNm7lDURR2WsaQkq
+         ihGYdb6Ipff/nAnkcUnF4hCV+L5djJ7wiwBg8GlkpscZcTwot5t9wj0vxyQU/nvu5b
+         cNhyY/HNtM3pkFUNVVFbtFPOQT053rjIHvqRW9OQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Yicong Yang <yangyicong@hisilicon.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0094/1146] drivers/perf: hisi: Fix some event id for hisi-pcie-pmu
-Date:   Wed, 28 Dec 2022 15:27:13 +0100
-Message-Id: <20221228144332.696298975@linuxfoundation.org>
+        patches@lists.linux.dev, Rob Herring <robh@kernel.org>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0046/1073] dt-bindings: pwm: fix microchip corePWMs pwm-cells
+Date:   Wed, 28 Dec 2022 15:27:14 +0100
+Message-Id: <20221228144329.371891615@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yicong Yang <yangyicong@hisilicon.com>
+From: Conor Dooley <conor.dooley@microchip.com>
 
-[ Upstream commit 6b4bb4f38dbfe85247f006f06135ba46450d5bf0 ]
+[ Upstream commit a62d196e89887c029d5aef409135f9a2a8667268 ]
 
-Some event id of hisi-pcie-pmu is incorrect, fix them.
+corePWM is capable of inverted operation but the binding requires
+\#pwm-cells of 2. Expand the binding to support setting the polarity.
 
-Fixes: 8404b0fbc7fb ("drivers/perf: hisi: Add driver for HiSilicon PCIe PMU")
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
-Link: https://lore.kernel.org/r/20221117084136.53572-2-yangyicong@huawei.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: df77f7735786 ("dt-bindings: pwm: add microchip corepwm binding")
+Acked-by: Rob Herring <robh@kernel.org>
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/perf/hisilicon/hisi_pcie_pmu.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ Documentation/devicetree/bindings/pwm/microchip,corepwm.yaml | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/perf/hisilicon/hisi_pcie_pmu.c b/drivers/perf/hisilicon/hisi_pcie_pmu.c
-index 21771708597d..071e63d9a9ac 100644
---- a/drivers/perf/hisilicon/hisi_pcie_pmu.c
-+++ b/drivers/perf/hisilicon/hisi_pcie_pmu.c
-@@ -693,10 +693,10 @@ static struct attribute *hisi_pcie_pmu_events_attr[] = {
- 	HISI_PCIE_PMU_EVENT_ATTR(rx_mrd_cnt, 0x10210),
- 	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_latency, 0x0011),
- 	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_cnt, 0x10011),
--	HISI_PCIE_PMU_EVENT_ATTR(rx_mrd_flux, 0x1005),
--	HISI_PCIE_PMU_EVENT_ATTR(rx_mrd_time, 0x11005),
--	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_flux, 0x2004),
--	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_time, 0x12004),
-+	HISI_PCIE_PMU_EVENT_ATTR(rx_mrd_flux, 0x0804),
-+	HISI_PCIE_PMU_EVENT_ATTR(rx_mrd_time, 0x10804),
-+	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_flux, 0x0405),
-+	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_time, 0x10405),
- 	NULL
- };
+diff --git a/Documentation/devicetree/bindings/pwm/microchip,corepwm.yaml b/Documentation/devicetree/bindings/pwm/microchip,corepwm.yaml
+index a7fae1772a81..cd8e9a8907f8 100644
+--- a/Documentation/devicetree/bindings/pwm/microchip,corepwm.yaml
++++ b/Documentation/devicetree/bindings/pwm/microchip,corepwm.yaml
+@@ -30,7 +30,9 @@ properties:
+     maxItems: 1
  
+   "#pwm-cells":
+-    const: 2
++    enum: [2, 3]
++    description:
++      The only flag supported by the controller is PWM_POLARITY_INVERTED.
+ 
+   microchip,sync-update-mask:
+     description: |
 -- 
 2.35.1
 
