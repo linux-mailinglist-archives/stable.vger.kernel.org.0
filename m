@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F27B1657B67
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:21:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AAAF657B6B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:21:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233726AbiL1PVV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:21:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40274 "EHLO
+        id S233708AbiL1PVn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:21:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233679AbiL1PVM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:21:12 -0500
+        with ESMTP id S233619AbiL1PV0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:21:26 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F4D11401A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:21:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B09913F45
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:21:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DA3861365
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:21:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D817C433EF;
-        Wed, 28 Dec 2022 15:21:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 020B461564
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:21:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 109FBC433D2;
+        Wed, 28 Dec 2022 15:21:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240868;
-        bh=5peiNrkNBsv7bGcjt+t4q1vyW4NQxyc82pxlXUkEXnM=;
+        s=korg; t=1672240879;
+        bh=AQ7MP6f+CuDS6fauakVT89JofHP49/7d93CCjvJoE9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k9Ux3iuDmc0kW9MyCXFvOq0K2NZ/iHBVQQqqkjyJv92elSiSnQWX/6uEpk+MoxS0D
-         eu+nRq8Z7pUJbakuYzbGrHBKEcIrotjqlHtXywLt+uQXi7B/Tk6jBi4AFKCwhcrSOL
-         iul0DwOQuHvT6zdzR+KS0sXgg/pfk7JK6fce3KOU=
+        b=h/IV2jXJpwFoEjJ0nc629ilgkKhP5TiHh5ipQiVQhatfSb0G58oQDTJJmn7Ghp6+q
+         GJ64KlOPTof6bqbu4uQ7zfASo2odFAaVC4lqtETK4CaEPBr4VgYR9Zz1ILpRmuTfMC
+         D55y7QopNQG9Jcq0COtQsHHWglblDc4OlYmfdYHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        patches@lists.linux.dev,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0212/1073] pinctrl: ocelot: add missing destroy_workqueue() in error path in ocelot_pinctrl_probe()
-Date:   Wed, 28 Dec 2022 15:30:00 +0100
-Message-Id: <20221228144333.776339305@linuxfoundation.org>
+Subject: [PATCH 6.0 0213/1073] ASoC: Intel: avs: Fix DMA mask assignment
+Date:   Wed, 28 Dec 2022 15:30:01 +0100
+Message-Id: <20221228144333.803144509@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -54,75 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Cezary Rojewski <cezary.rojewski@intel.com>
 
-[ Upstream commit 8ada020ade3bc4125b639a1dca50a6df687dd986 ]
+[ Upstream commit 83375566a7a7042cb34b24986d100f46bfa0c1e5 ]
 
-Using devm_add_action_or_reset() to make workqueue device-managed, so it can be
-destroy whenever the driver is unbound.
+Spelling error leads to incorrect behavior when setting up DMA mask.
 
-Fixes: c297561bc98a ("pinctrl: ocelot: Fix interrupt controller")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Link: https://lore.kernel.org/r/20220925021258.1492905-1-yangyingliang@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: a5bbbde2b81e ("ASoC: Intel: avs: Use helper function to set up DMA")
+Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Link: https://lore.kernel.org/r/20221010121955.718168-2-cezary.rojewski@intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-ocelot.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ sound/soc/intel/avs/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/pinctrl-ocelot.c b/drivers/pinctrl/pinctrl-ocelot.c
-index 105771ff82e6..19a61f697e99 100644
---- a/drivers/pinctrl/pinctrl-ocelot.c
-+++ b/drivers/pinctrl/pinctrl-ocelot.c
-@@ -2046,6 +2046,11 @@ static struct regmap *ocelot_pinctrl_create_pincfg(struct platform_device *pdev,
- 	return devm_regmap_init_mmio(&pdev->dev, base, &regmap_config);
- }
+diff --git a/sound/soc/intel/avs/core.c b/sound/soc/intel/avs/core.c
+index c50c20fd681a..58db13374166 100644
+--- a/sound/soc/intel/avs/core.c
++++ b/sound/soc/intel/avs/core.c
+@@ -440,7 +440,7 @@ static int avs_pci_probe(struct pci_dev *pci, const struct pci_device_id *id)
+ 	if (bus->mlcap)
+ 		snd_hdac_ext_bus_get_ml_capabilities(bus);
  
-+static void ocelot_destroy_workqueue(void *data)
-+{
-+	destroy_workqueue(data);
-+}
-+
- static int ocelot_pinctrl_probe(struct platform_device *pdev)
- {
- 	const struct ocelot_match_data *data;
-@@ -2078,6 +2083,11 @@ static int ocelot_pinctrl_probe(struct platform_device *pdev)
- 	if (!info->wq)
- 		return -ENOMEM;
+-	if (!dma_set_mask_and_coherent(dev, DMA_BIT_MASK(64)))
++	if (dma_set_mask_and_coherent(dev, DMA_BIT_MASK(64)))
+ 		dma_set_mask_and_coherent(dev, DMA_BIT_MASK(32));
+ 	dma_set_max_seg_size(dev, UINT_MAX);
  
-+	ret = devm_add_action_or_reset(dev, ocelot_destroy_workqueue,
-+				       info->wq);
-+	if (ret)
-+		return ret;
-+
- 	info->pincfg_data = &data->pincfg_data;
- 
- 	reset = devm_reset_control_get_optional_shared(dev, "switch");
-@@ -2125,15 +2135,6 @@ static int ocelot_pinctrl_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
--static int ocelot_pinctrl_remove(struct platform_device *pdev)
--{
--	struct ocelot_pinctrl *info = platform_get_drvdata(pdev);
--
--	destroy_workqueue(info->wq);
--
--	return 0;
--}
--
- static struct platform_driver ocelot_pinctrl_driver = {
- 	.driver = {
- 		.name = "pinctrl-ocelot",
-@@ -2141,7 +2142,6 @@ static struct platform_driver ocelot_pinctrl_driver = {
- 		.suppress_bind_attrs = true,
- 	},
- 	.probe = ocelot_pinctrl_probe,
--	.remove = ocelot_pinctrl_remove,
- };
- module_platform_driver(ocelot_pinctrl_driver);
- MODULE_LICENSE("Dual MIT/GPL");
 -- 
 2.35.1
 
