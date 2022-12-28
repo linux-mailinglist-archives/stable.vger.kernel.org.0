@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98B11657ECE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:57:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99D85657FCC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:10:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230508AbiL1P5r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:57:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45156 "EHLO
+        id S232983AbiL1QJh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:09:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234200AbiL1P5q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:57:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18F5318393
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:57:45 -0800 (PST)
+        with ESMTP id S234560AbiL1QIw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:08:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2F591A07B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:08:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB22C613E9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:57:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93DF8C433F1;
-        Wed, 28 Dec 2022 15:57:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 465ACB81710
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:08:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9728BC433F0;
+        Wed, 28 Dec 2022 16:08:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243064;
-        bh=oyl127HXmqtHfp/cgiU0zfcaX050uHC9XbWrQ5TgbzE=;
+        s=korg; t=1672243694;
+        bh=Tx7b7B6hmF32NqCt6PuvsBy8+jf/4RqTci/fInOG39k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VoZB7Tua/sWCjFqhz5YoePUpTQeEt7s204fJ/nG69/filPxbeiFWmbdCwj1JqmAnw
-         RTDRcVk9KPHHycOjWmvDcsAG4QvGaOTpiR9cmr5fPyBhJSbHtmvwoIu7Ym1LJ8aZ14
-         51LPGbI78Fc/RGWzepzhRtGW7bdgB6eXmsR3xYpQ=
+        b=XLCXfh0wBsAyxEewnyuTCAjsjfz7p9VYAL0LnwnnO2otgaSlzC2GWG5sjPwEFm3RK
+         dJ9OC3mJ2K6p/5N7o99aZT2J/q6r9WTUE98GGSZQfJwmj4vhTIpgUEZVdX5XDksPvE
+         q7XC4wDq3LI6e1N3AUShd+d3tmsGXQFU5GYZBVew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0486/1073] mmc: wmt-sdmmc: fix return value check of mmc_add_host()
+Subject: [PATCH 6.1 0535/1146] ethernet: s2io: dont call dev_kfree_skb() under spin_lock_irqsave()
 Date:   Wed, 28 Dec 2022 15:34:34 +0100
-Message-Id: <20221228144341.237470536@linuxfoundation.org>
+Message-Id: <20221228144344.707182290@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +55,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 29276d56f6ed138db0f38cd31aedc0b725c8c76c ]
+[ Upstream commit 6cee96e09df54ae17784c0f38a49e0ed8229b825 ]
 
-mmc_add_host() may return error, if we ignore its return value, the memory
-that allocated in mmc_alloc_host() will be leaked and it will lead a kernel
-crash because of deleting not added device in the remove path.
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-So fix this by checking the return value and goto error path which will call
-mmc_free_host(), besides, clk_disable_unprepare() also needs be called.
+It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
+The difference between them is free reason, dev_kfree_skb_irq() means
+the SKB is dropped in error and dev_consume_skb_irq() means the SKB
+is consumed in normal.
 
-Fixes: 3a96dff0f828 ("mmc: SD/MMC Host Controller for Wondermedia WM8505/WM8650")
+In this case, dev_kfree_skb() is called in free_tx_buffers() to drop
+the SKBs in tx buffers, when the card is down, so replace it with
+dev_kfree_skb_irq() here.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221101063023.1664968-10-yangyingliang@huawei.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/wmt-sdmmc.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/neterion/s2io.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/wmt-sdmmc.c b/drivers/mmc/host/wmt-sdmmc.c
-index 9b5c503e3a3f..9aa3027ca25e 100644
---- a/drivers/mmc/host/wmt-sdmmc.c
-+++ b/drivers/mmc/host/wmt-sdmmc.c
-@@ -856,11 +856,15 @@ static int wmt_mci_probe(struct platform_device *pdev)
- 	/* configure the controller to a known 'ready' state */
- 	wmt_reset_hardware(mmc);
- 
--	mmc_add_host(mmc);
-+	ret = mmc_add_host(mmc);
-+	if (ret)
-+		goto fail7;
- 
- 	dev_info(&pdev->dev, "WMT SDHC Controller initialized\n");
- 
- 	return 0;
-+fail7:
-+	clk_disable_unprepare(priv->clk_sdmmc);
- fail6:
- 	clk_put(priv->clk_sdmmc);
- fail5_and_a_half:
+diff --git a/drivers/net/ethernet/neterion/s2io.c b/drivers/net/ethernet/neterion/s2io.c
+index 1d3c4474b7cb..700c05fb05b9 100644
+--- a/drivers/net/ethernet/neterion/s2io.c
++++ b/drivers/net/ethernet/neterion/s2io.c
+@@ -2386,7 +2386,7 @@ static void free_tx_buffers(struct s2io_nic *nic)
+ 			skb = s2io_txdl_getskb(&mac_control->fifos[i], txdp, j);
+ 			if (skb) {
+ 				swstats->mem_freed += skb->truesize;
+-				dev_kfree_skb(skb);
++				dev_kfree_skb_irq(skb);
+ 				cnt++;
+ 			}
+ 		}
 -- 
 2.35.1
 
