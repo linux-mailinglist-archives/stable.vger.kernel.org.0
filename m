@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81CD065835E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:47:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EE6B657CDA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:36:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235084AbiL1QrW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:47:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38196 "EHLO
+        id S233490AbiL1Pgq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:36:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233305AbiL1Qq3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:46:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 738461DDFD
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:41:28 -0800 (PST)
+        with ESMTP id S233477AbiL1Pgp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:36:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D18CF15707
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:36:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E7C8D61572
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:41:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F4029C433D2;
-        Wed, 28 Dec 2022 16:41:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D9F9B816D9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:36:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0227BC433EF;
+        Wed, 28 Dec 2022 15:36:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245687;
-        bh=DNy84Pr1TmAmxVnIUwRbp4yDVEism59aH63QuDKbLtw=;
+        s=korg; t=1672241802;
+        bh=qNLVgOCpTLN32DhSLdvueH8qqG8sjzSc6ai5ptu6FbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vh7X6FkgNfVvsw9qjUK9wRxs3Qu4+5tJyL23xd6D0LFl2Dx/62srb5NK77/us/4k/
-         5Wx2YYRNY7wgXIncuxWQ6fji2WVYxjCADt7JB9nzCUE+CNi3uyEp4iVe8OTFtfnpf6
-         4wRbZtufVJ+4LupgLN9fBjAtWYTQT+7jnPSC0tJs=
+        b=pUpICTZx+9WYxovBgh9naWUD/+fKLrXSCGlvDlZvAd/VLdJCOvcnHcSlXbnIWaqfG
+         yWSXu3nPu/D1gfbdlu4pNM7EWrd0Hp9WOzRUQnLQMr0fwo6vNCtYiXfP/jYUnCyQHV
+         e7wdHFc5+VZulbptArd6iyJjF6bTDmf0MnkA/EIM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Alexander Duyck <alexanderduyck@fb.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        Bernard Metzler <bmt@zurich.ibm.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0892/1146] mISDN: hfcpci: dont call dev_kfree_skb/kfree_skb() under spin_lock_irqsave()
+Subject: [PATCH 5.15 524/731] RDMA/siw: Fix pointer cast warning
 Date:   Wed, 28 Dec 2022 15:40:31 +0100
-Message-Id: <20221228144354.415267533@linuxfoundation.org>
+Message-Id: <20221228144311.736217560@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit f0f596bd75a9d573ca9b587abb39cee0b916bb82 ]
+[ Upstream commit 5244ca88671a1981ceec09c5c8809f003e6a62aa ]
 
-It is not allowed to call kfree_skb() or consume_skb() from hardware
-interrupt context or with hardware interrupts being disabled.
+The previous build fix left a remaining issue in configurations with
+64-bit dma_addr_t on 32-bit architectures:
 
-skb_queue_purge() is called under spin_lock_irqsave() in hfcpci_l2l1D(),
-kfree_skb() is called in it, to fix this, use skb_queue_splice_init()
-to move the dch->squeue to a free queue, also enqueue the tx_skb and
-rx_skb, at last calling __skb_queue_purge() to free the SKBs afer unlock.
+drivers/infiniband/sw/siw/siw_qp_tx.c: In function 'siw_get_pblpage':
+drivers/infiniband/sw/siw/siw_qp_tx.c:32:37: error: cast to pointer from integer of different size [-Werror=int-to-pointer-cast]
+   32 |                 return virt_to_page((void *)paddr);
+      |                                     ^
 
-Fixes: 1700fe1a10dc ("Add mISDN HFC PCI driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Use the same double cast here that the driver uses elsewhere to convert
+between dma_addr_t and void*.
+
+Fixes: 0d1b756acf60 ("RDMA/siw: Pass a pointer to virt_to_page()")
+Link: https://lore.kernel.org/r/20221215170347.2612403-1-arnd@kernel.org
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Bernard Metzler <bmt@zurich.ibm.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/hardware/mISDN/hfcpci.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/infiniband/sw/siw/siw_qp_tx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/isdn/hardware/mISDN/hfcpci.c b/drivers/isdn/hardware/mISDN/hfcpci.c
-index e964a8dd8512..c0331b268010 100644
---- a/drivers/isdn/hardware/mISDN/hfcpci.c
-+++ b/drivers/isdn/hardware/mISDN/hfcpci.c
-@@ -1617,16 +1617,19 @@ hfcpci_l2l1D(struct mISDNchannel *ch, struct sk_buff *skb)
- 		test_and_clear_bit(FLG_L2_ACTIVATED, &dch->Flags);
- 		spin_lock_irqsave(&hc->lock, flags);
- 		if (hc->hw.protocol == ISDN_P_NT_S0) {
-+			struct sk_buff_head free_queue;
-+
-+			__skb_queue_head_init(&free_queue);
- 			/* prepare deactivation */
- 			Write_hfc(hc, HFCPCI_STATES, 0x40);
--			skb_queue_purge(&dch->squeue);
-+			skb_queue_splice_init(&dch->squeue, &free_queue);
- 			if (dch->tx_skb) {
--				dev_kfree_skb(dch->tx_skb);
-+				__skb_queue_tail(&free_queue, dch->tx_skb);
- 				dch->tx_skb = NULL;
- 			}
- 			dch->tx_idx = 0;
- 			if (dch->rx_skb) {
--				dev_kfree_skb(dch->rx_skb);
-+				__skb_queue_tail(&free_queue, dch->rx_skb);
- 				dch->rx_skb = NULL;
- 			}
- 			test_and_clear_bit(FLG_TX_BUSY, &dch->Flags);
-@@ -1639,10 +1642,12 @@ hfcpci_l2l1D(struct mISDNchannel *ch, struct sk_buff *skb)
- 			hc->hw.mst_m &= ~HFCPCI_MASTER;
- 			Write_hfc(hc, HFCPCI_MST_MODE, hc->hw.mst_m);
- 			ret = 0;
-+			spin_unlock_irqrestore(&hc->lock, flags);
-+			__skb_queue_purge(&free_queue);
- 		} else {
- 			ret = l1_event(dch->l1, hh->prim);
-+			spin_unlock_irqrestore(&hc->lock, flags);
- 		}
--		spin_unlock_irqrestore(&hc->lock, flags);
- 		break;
- 	}
- 	if (!ret)
+diff --git a/drivers/infiniband/sw/siw/siw_qp_tx.c b/drivers/infiniband/sw/siw/siw_qp_tx.c
+index 7d47b521070b..05052b49107f 100644
+--- a/drivers/infiniband/sw/siw/siw_qp_tx.c
++++ b/drivers/infiniband/sw/siw/siw_qp_tx.c
+@@ -29,7 +29,7 @@ static struct page *siw_get_pblpage(struct siw_mem *mem, u64 addr, int *idx)
+ 	dma_addr_t paddr = siw_pbl_get_buffer(pbl, offset, NULL, idx);
+ 
+ 	if (paddr)
+-		return virt_to_page((void *)paddr);
++		return virt_to_page((void *)(uintptr_t)paddr);
+ 
+ 	return NULL;
+ }
 -- 
 2.35.1
 
