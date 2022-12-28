@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FA0865811F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8DA7658050
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:17:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233296AbiL1QZL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:25:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43078 "EHLO
+        id S233181AbiL1QQr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:16:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234792AbiL1QYW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:24:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 037F919283
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:21:32 -0800 (PST)
+        with ESMTP id S233133AbiL1QQU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:16:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C66019C13
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:13:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A825EB816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:21:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 005D3C433D2;
-        Wed, 28 Dec 2022 16:21:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 27CC56156C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:13:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33E7FC43396;
+        Wed, 28 Dec 2022 16:13:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244489;
-        bh=TXJz3PRK6h7jXubjekPXE6EvGPO4NqLFfK6TRIFVvgU=;
+        s=korg; t=1672244029;
+        bh=ZkHNvo0eaMbpyySeRTWf1ggcsQJp14QpAe+AEuPv3Hw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CB8J8xJnlKhm+B9oBVLCrgN9rgi3PyxuYadYp8W1l167gMP0V/ncT4yDRPwLRyQEM
-         WFU7Pg7/fhsp9Z4JSy/ea1WJ56MbT/J8SVEdWuTWOe+CorbzJmYiExx+E59F/iJqL7
-         IyREX7qr7DPDB7+wrRLf84NCDMK3GJLFRZgheXZU=
+        b=E2FDX3G7bIR0cr7YyKV7qHPUNjjLDf4O6zk5RsklksD2QfXi637U15djDWdfwcvqb
+         7WQIiLawzaQzVqciJRCUw8Phl+3RJurAIiDyq0GA8K4jdNzr2oCFqj+EXUrbiNZzgK
+         PNsE5EXa+BtF2aoHPnQUVP49t42H4pLrsnz0Qy8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        patches@lists.linux.dev, Sheng Yong <shengyong@oppo.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0682/1146] hwrng: geode - Fix PCI device refcount leak
-Date:   Wed, 28 Dec 2022 15:37:01 +0100
-Message-Id: <20221228144348.668289690@linuxfoundation.org>
+Subject: [PATCH 6.0 0634/1073] f2fs: fix to enable compress for newly created file if extension matches
+Date:   Wed, 28 Dec 2022 15:37:02 +0100
+Message-Id: <20221228144345.262752557@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,113 +53,445 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Sheng Yong <shengyong@oppo.com>
 
-[ Upstream commit 9f6ec8dc574efb7f4f3d7ee9cd59ae307e78f445 ]
+[ Upstream commit 787caf1bdcd9f04058e4e8d8ed56db1dbafea0b7 ]
 
-for_each_pci_dev() is implemented by pci_get_device(). The comment of
-pci_get_device() says that it will increase the reference count for the
-returned pci_dev and also decrease the reference count for the input
-pci_dev @from if it is not NULL.
+If compress_extension is set, and a newly created file matches the
+extension, the file could be marked as compression file. However,
+if inline_data is also enabled, there is no chance to check its
+extension since f2fs_should_compress() always returns false.
 
-If we break for_each_pci_dev() loop with pdev not NULL, we need to call
-pci_dev_put() to decrease the reference count. We add a new struct
-'amd_geode_priv' to record pointer of the pci_dev and membase, and then
-add missing pci_dev_put() for the normal and error path.
+This patch moves set_compress_inode(), which do extension check, in
+f2fs_should_compress() to check extensions before setting inline
+data flag.
 
-Fixes: ef5d862734b8 ("[PATCH] Add Geode HW RNG driver")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 7165841d578e ("f2fs: fix to check inline_data during compressed inode conversion")
+Signed-off-by: Sheng Yong <shengyong@oppo.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/hw_random/geode-rng.c | 36 +++++++++++++++++++++++-------
- 1 file changed, 28 insertions(+), 8 deletions(-)
+ fs/f2fs/f2fs.h  |   2 +-
+ fs/f2fs/namei.c | 329 ++++++++++++++++++++++++------------------------
+ 2 files changed, 164 insertions(+), 167 deletions(-)
 
-diff --git a/drivers/char/hw_random/geode-rng.c b/drivers/char/hw_random/geode-rng.c
-index 138ce434f86b..12fbe8091831 100644
---- a/drivers/char/hw_random/geode-rng.c
-+++ b/drivers/char/hw_random/geode-rng.c
-@@ -51,6 +51,10 @@ static const struct pci_device_id pci_tbl[] = {
- };
- MODULE_DEVICE_TABLE(pci, pci_tbl);
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index 1e57b11ffe2a..a7227640fbdf 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -2966,7 +2966,7 @@ static inline void f2fs_change_bit(unsigned int nr, char *addr)
+ /* Flags that should be inherited by new inodes from their parent. */
+ #define F2FS_FL_INHERITED (F2FS_SYNC_FL | F2FS_NODUMP_FL | F2FS_NOATIME_FL | \
+ 			   F2FS_DIRSYNC_FL | F2FS_PROJINHERIT_FL | \
+-			   F2FS_CASEFOLD_FL | F2FS_COMPR_FL | F2FS_NOCOMP_FL)
++			   F2FS_CASEFOLD_FL)
  
-+struct amd_geode_priv {
-+	struct pci_dev *pcidev;
-+	void __iomem *membase;
-+};
+ /* Flags that are appropriate for regular files (all but dir-specific ones). */
+ #define F2FS_REG_FLMASK		(~(F2FS_DIRSYNC_FL | F2FS_PROJINHERIT_FL | \
+diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
+index bf00d5057abb..0073e3511b2a 100644
+--- a/fs/f2fs/namei.c
++++ b/fs/f2fs/namei.c
+@@ -22,8 +22,163 @@
+ #include "acl.h"
+ #include <trace/events/f2fs.h>
  
- static int geode_rng_data_read(struct hwrng *rng, u32 *data)
- {
-@@ -90,6 +94,7 @@ static int __init geode_rng_init(void)
- 	const struct pci_device_id *ent;
- 	void __iomem *mem;
- 	unsigned long rng_base;
-+	struct amd_geode_priv *priv;
- 
- 	for_each_pci_dev(pdev) {
- 		ent = pci_match_id(pci_tbl, pdev);
-@@ -97,17 +102,26 @@ static int __init geode_rng_init(void)
- 			goto found;
- 	}
- 	/* Device not found. */
--	goto out;
-+	return err;
- 
- found:
-+	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
-+	if (!priv) {
-+		err = -ENOMEM;
-+		goto put_dev;
++static inline int is_extension_exist(const unsigned char *s, const char *sub,
++						bool tmp_ext)
++{
++	size_t slen = strlen(s);
++	size_t sublen = strlen(sub);
++	int i;
++
++	if (sublen == 1 && *sub == '*')
++		return 1;
++
++	/*
++	 * filename format of multimedia file should be defined as:
++	 * "filename + '.' + extension + (optional: '.' + temp extension)".
++	 */
++	if (slen < sublen + 2)
++		return 0;
++
++	if (!tmp_ext) {
++		/* file has no temp extension */
++		if (s[slen - sublen - 1] != '.')
++			return 0;
++		return !strncasecmp(s + slen - sublen, sub, sublen);
 +	}
 +
- 	rng_base = pci_resource_start(pdev, 0);
- 	if (rng_base == 0)
--		goto out;
-+		goto free_priv;
- 	err = -ENOMEM;
- 	mem = ioremap(rng_base, 0x58);
- 	if (!mem)
--		goto out;
--	geode_rng.priv = (unsigned long)mem;
-+		goto free_priv;
++	for (i = 1; i < slen - sublen; i++) {
++		if (s[i] != '.')
++			continue;
++		if (!strncasecmp(s + i + 1, sub, sublen))
++			return 1;
++	}
 +
-+	geode_rng.priv = (unsigned long)priv;
-+	priv->membase = mem;
-+	priv->pcidev = pdev;
- 
- 	pr_info("AMD Geode RNG detected\n");
- 	err = hwrng_register(&geode_rng);
-@@ -116,20 +130,26 @@ static int __init geode_rng_init(void)
- 		       err);
- 		goto err_unmap;
- 	}
--out:
- 	return err;
- 
- err_unmap:
- 	iounmap(mem);
--	goto out;
-+free_priv:
-+	kfree(priv);
-+put_dev:
-+	pci_dev_put(pdev);
-+	return err;
- }
- 
- static void __exit geode_rng_exit(void)
++	return 0;
++}
++
++int f2fs_update_extension_list(struct f2fs_sb_info *sbi, const char *name,
++							bool hot, bool set)
++{
++	__u8 (*extlist)[F2FS_EXTENSION_LEN] = sbi->raw_super->extension_list;
++	int cold_count = le32_to_cpu(sbi->raw_super->extension_count);
++	int hot_count = sbi->raw_super->hot_ext_count;
++	int total_count = cold_count + hot_count;
++	int start, count;
++	int i;
++
++	if (set) {
++		if (total_count == F2FS_MAX_EXTENSION)
++			return -EINVAL;
++	} else {
++		if (!hot && !cold_count)
++			return -EINVAL;
++		if (hot && !hot_count)
++			return -EINVAL;
++	}
++
++	if (hot) {
++		start = cold_count;
++		count = total_count;
++	} else {
++		start = 0;
++		count = cold_count;
++	}
++
++	for (i = start; i < count; i++) {
++		if (strcmp(name, extlist[i]))
++			continue;
++
++		if (set)
++			return -EINVAL;
++
++		memcpy(extlist[i], extlist[i + 1],
++				F2FS_EXTENSION_LEN * (total_count - i - 1));
++		memset(extlist[total_count - 1], 0, F2FS_EXTENSION_LEN);
++		if (hot)
++			sbi->raw_super->hot_ext_count = hot_count - 1;
++		else
++			sbi->raw_super->extension_count =
++						cpu_to_le32(cold_count - 1);
++		return 0;
++	}
++
++	if (!set)
++		return -EINVAL;
++
++	if (hot) {
++		memcpy(extlist[count], name, strlen(name));
++		sbi->raw_super->hot_ext_count = hot_count + 1;
++	} else {
++		char buf[F2FS_MAX_EXTENSION][F2FS_EXTENSION_LEN];
++
++		memcpy(buf, &extlist[cold_count],
++				F2FS_EXTENSION_LEN * hot_count);
++		memset(extlist[cold_count], 0, F2FS_EXTENSION_LEN);
++		memcpy(extlist[cold_count], name, strlen(name));
++		memcpy(&extlist[cold_count + 1], buf,
++				F2FS_EXTENSION_LEN * hot_count);
++		sbi->raw_super->extension_count = cpu_to_le32(cold_count + 1);
++	}
++	return 0;
++}
++
++static void set_compress_new_inode(struct f2fs_sb_info *sbi, struct inode *dir,
++				struct inode *inode, const unsigned char *name)
++{
++	__u8 (*extlist)[F2FS_EXTENSION_LEN] = sbi->raw_super->extension_list;
++	unsigned char (*noext)[F2FS_EXTENSION_LEN] =
++						F2FS_OPTION(sbi).noextensions;
++	unsigned char (*ext)[F2FS_EXTENSION_LEN] = F2FS_OPTION(sbi).extensions;
++	unsigned char ext_cnt = F2FS_OPTION(sbi).compress_ext_cnt;
++	unsigned char noext_cnt = F2FS_OPTION(sbi).nocompress_ext_cnt;
++	int i, cold_count, hot_count;
++
++	if (!f2fs_sb_has_compression(sbi))
++		return;
++
++	if (S_ISDIR(inode->i_mode))
++		goto inherit_comp;
++
++	/* This name comes only from normal files. */
++	if (!name)
++		return;
++
++	/* Don't compress hot files. */
++	f2fs_down_read(&sbi->sb_lock);
++	cold_count = le32_to_cpu(sbi->raw_super->extension_count);
++	hot_count = sbi->raw_super->hot_ext_count;
++	for (i = cold_count; i < cold_count + hot_count; i++)
++		if (is_extension_exist(name, extlist[i], false))
++			break;
++	f2fs_up_read(&sbi->sb_lock);
++	if (i < (cold_count + hot_count))
++		return;
++
++	/* Don't compress unallowed extension. */
++	for (i = 0; i < noext_cnt; i++)
++		if (is_extension_exist(name, noext[i], false))
++			return;
++
++	/* Compress wanting extension. */
++	for (i = 0; i < ext_cnt; i++) {
++		if (is_extension_exist(name, ext[i], false)) {
++			set_compress_context(inode);
++			return;
++		}
++	}
++inherit_comp:
++	/* Inherit the {no-}compression flag in directory */
++	if (F2FS_I(dir)->i_flags & F2FS_NOCOMP_FL) {
++		F2FS_I(inode)->i_flags |= F2FS_NOCOMP_FL;
++		f2fs_mark_inode_dirty_sync(inode, true);
++	} else if (F2FS_I(dir)->i_flags & F2FS_COMPR_FL) {
++		set_compress_context(inode);
++	}
++}
++
+ static struct inode *f2fs_new_inode(struct user_namespace *mnt_userns,
+-						struct inode *dir, umode_t mode)
++						struct inode *dir, umode_t mode,
++						const char *name)
  {
--	void __iomem *mem = (void __iomem *)geode_rng.priv;
-+	struct amd_geode_priv *priv;
+ 	struct f2fs_sb_info *sbi = F2FS_I_SB(dir);
+ 	nid_t ino;
+@@ -114,12 +269,8 @@ static struct inode *f2fs_new_inode(struct user_namespace *mnt_userns,
+ 	if (F2FS_I(inode)->i_flags & F2FS_PROJINHERIT_FL)
+ 		set_inode_flag(inode, FI_PROJ_INHERIT);
  
-+	priv = (struct amd_geode_priv *)geode_rng.priv;
- 	hwrng_unregister(&geode_rng);
--	iounmap(mem);
-+	iounmap(priv->membase);
-+	pci_dev_put(priv->pcidev);
-+	kfree(priv);
+-	if (f2fs_sb_has_compression(sbi)) {
+-		/* Inherit the compression flag in directory */
+-		if ((F2FS_I(dir)->i_flags & F2FS_COMPR_FL) &&
+-					f2fs_may_compress(inode))
+-			set_compress_context(inode);
+-	}
++	/* Check compression first. */
++	set_compress_new_inode(sbi, dir, inode, name);
+ 
+ 	/* Should enable inline_data after compression set */
+ 	if (test_opt(sbi, INLINE_DATA) && f2fs_may_inline_data(inode))
+@@ -153,40 +304,6 @@ static struct inode *f2fs_new_inode(struct user_namespace *mnt_userns,
+ 	return ERR_PTR(err);
  }
  
- module_init(geode_rng_init);
+-static inline int is_extension_exist(const unsigned char *s, const char *sub,
+-						bool tmp_ext)
+-{
+-	size_t slen = strlen(s);
+-	size_t sublen = strlen(sub);
+-	int i;
+-
+-	if (sublen == 1 && *sub == '*')
+-		return 1;
+-
+-	/*
+-	 * filename format of multimedia file should be defined as:
+-	 * "filename + '.' + extension + (optional: '.' + temp extension)".
+-	 */
+-	if (slen < sublen + 2)
+-		return 0;
+-
+-	if (!tmp_ext) {
+-		/* file has no temp extension */
+-		if (s[slen - sublen - 1] != '.')
+-			return 0;
+-		return !strncasecmp(s + slen - sublen, sub, sublen);
+-	}
+-
+-	for (i = 1; i < slen - sublen; i++) {
+-		if (s[i] != '.')
+-			continue;
+-		if (!strncasecmp(s + i + 1, sub, sublen))
+-			return 1;
+-	}
+-
+-	return 0;
+-}
+-
+ /*
+  * Set file's temperature for hot/cold data separation
+  */
+@@ -217,124 +334,6 @@ static inline void set_file_temperature(struct f2fs_sb_info *sbi, struct inode *
+ 		file_set_hot(inode);
+ }
+ 
+-int f2fs_update_extension_list(struct f2fs_sb_info *sbi, const char *name,
+-							bool hot, bool set)
+-{
+-	__u8 (*extlist)[F2FS_EXTENSION_LEN] = sbi->raw_super->extension_list;
+-	int cold_count = le32_to_cpu(sbi->raw_super->extension_count);
+-	int hot_count = sbi->raw_super->hot_ext_count;
+-	int total_count = cold_count + hot_count;
+-	int start, count;
+-	int i;
+-
+-	if (set) {
+-		if (total_count == F2FS_MAX_EXTENSION)
+-			return -EINVAL;
+-	} else {
+-		if (!hot && !cold_count)
+-			return -EINVAL;
+-		if (hot && !hot_count)
+-			return -EINVAL;
+-	}
+-
+-	if (hot) {
+-		start = cold_count;
+-		count = total_count;
+-	} else {
+-		start = 0;
+-		count = cold_count;
+-	}
+-
+-	for (i = start; i < count; i++) {
+-		if (strcmp(name, extlist[i]))
+-			continue;
+-
+-		if (set)
+-			return -EINVAL;
+-
+-		memcpy(extlist[i], extlist[i + 1],
+-				F2FS_EXTENSION_LEN * (total_count - i - 1));
+-		memset(extlist[total_count - 1], 0, F2FS_EXTENSION_LEN);
+-		if (hot)
+-			sbi->raw_super->hot_ext_count = hot_count - 1;
+-		else
+-			sbi->raw_super->extension_count =
+-						cpu_to_le32(cold_count - 1);
+-		return 0;
+-	}
+-
+-	if (!set)
+-		return -EINVAL;
+-
+-	if (hot) {
+-		memcpy(extlist[count], name, strlen(name));
+-		sbi->raw_super->hot_ext_count = hot_count + 1;
+-	} else {
+-		char buf[F2FS_MAX_EXTENSION][F2FS_EXTENSION_LEN];
+-
+-		memcpy(buf, &extlist[cold_count],
+-				F2FS_EXTENSION_LEN * hot_count);
+-		memset(extlist[cold_count], 0, F2FS_EXTENSION_LEN);
+-		memcpy(extlist[cold_count], name, strlen(name));
+-		memcpy(&extlist[cold_count + 1], buf,
+-				F2FS_EXTENSION_LEN * hot_count);
+-		sbi->raw_super->extension_count = cpu_to_le32(cold_count + 1);
+-	}
+-	return 0;
+-}
+-
+-static void set_compress_inode(struct f2fs_sb_info *sbi, struct inode *inode,
+-						const unsigned char *name)
+-{
+-	__u8 (*extlist)[F2FS_EXTENSION_LEN] = sbi->raw_super->extension_list;
+-	unsigned char (*noext)[F2FS_EXTENSION_LEN] = F2FS_OPTION(sbi).noextensions;
+-	unsigned char (*ext)[F2FS_EXTENSION_LEN] = F2FS_OPTION(sbi).extensions;
+-	unsigned char ext_cnt = F2FS_OPTION(sbi).compress_ext_cnt;
+-	unsigned char noext_cnt = F2FS_OPTION(sbi).nocompress_ext_cnt;
+-	int i, cold_count, hot_count;
+-
+-	if (!f2fs_sb_has_compression(sbi) ||
+-			F2FS_I(inode)->i_flags & F2FS_NOCOMP_FL ||
+-			!f2fs_may_compress(inode) ||
+-			(!ext_cnt && !noext_cnt))
+-		return;
+-
+-	f2fs_down_read(&sbi->sb_lock);
+-
+-	cold_count = le32_to_cpu(sbi->raw_super->extension_count);
+-	hot_count = sbi->raw_super->hot_ext_count;
+-
+-	for (i = cold_count; i < cold_count + hot_count; i++) {
+-		if (is_extension_exist(name, extlist[i], false)) {
+-			f2fs_up_read(&sbi->sb_lock);
+-			return;
+-		}
+-	}
+-
+-	f2fs_up_read(&sbi->sb_lock);
+-
+-	for (i = 0; i < noext_cnt; i++) {
+-		if (is_extension_exist(name, noext[i], false)) {
+-			f2fs_disable_compressed_file(inode);
+-			return;
+-		}
+-	}
+-
+-	if (is_inode_flag_set(inode, FI_COMPRESSED_FILE))
+-		return;
+-
+-	for (i = 0; i < ext_cnt; i++) {
+-		if (!is_extension_exist(name, ext[i], false))
+-			continue;
+-
+-		/* Do not use inline_data with compression */
+-		stat_dec_inline_inode(inode);
+-		clear_inode_flag(inode, FI_INLINE_DATA);
+-		set_compress_context(inode);
+-		return;
+-	}
+-}
+-
+ static int f2fs_create(struct user_namespace *mnt_userns, struct inode *dir,
+ 		       struct dentry *dentry, umode_t mode, bool excl)
+ {
+@@ -352,15 +351,13 @@ static int f2fs_create(struct user_namespace *mnt_userns, struct inode *dir,
+ 	if (err)
+ 		return err;
+ 
+-	inode = f2fs_new_inode(mnt_userns, dir, mode);
++	inode = f2fs_new_inode(mnt_userns, dir, mode, dentry->d_name.name);
+ 	if (IS_ERR(inode))
+ 		return PTR_ERR(inode);
+ 
+ 	if (!test_opt(sbi, DISABLE_EXT_IDENTIFY))
+ 		set_file_temperature(sbi, inode, dentry->d_name.name);
+ 
+-	set_compress_inode(sbi, inode, dentry->d_name.name);
+-
+ 	inode->i_op = &f2fs_file_inode_operations;
+ 	inode->i_fop = &f2fs_file_operations;
+ 	inode->i_mapping->a_ops = &f2fs_dblock_aops;
+@@ -689,7 +686,7 @@ static int f2fs_symlink(struct user_namespace *mnt_userns, struct inode *dir,
+ 	if (err)
+ 		return err;
+ 
+-	inode = f2fs_new_inode(mnt_userns, dir, S_IFLNK | S_IRWXUGO);
++	inode = f2fs_new_inode(mnt_userns, dir, S_IFLNK | S_IRWXUGO, NULL);
+ 	if (IS_ERR(inode))
+ 		return PTR_ERR(inode);
+ 
+@@ -760,7 +757,7 @@ static int f2fs_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
+ 	if (err)
+ 		return err;
+ 
+-	inode = f2fs_new_inode(mnt_userns, dir, S_IFDIR | mode);
++	inode = f2fs_new_inode(mnt_userns, dir, S_IFDIR | mode, NULL);
+ 	if (IS_ERR(inode))
+ 		return PTR_ERR(inode);
+ 
+@@ -817,7 +814,7 @@ static int f2fs_mknod(struct user_namespace *mnt_userns, struct inode *dir,
+ 	if (err)
+ 		return err;
+ 
+-	inode = f2fs_new_inode(mnt_userns, dir, mode);
++	inode = f2fs_new_inode(mnt_userns, dir, mode, NULL);
+ 	if (IS_ERR(inode))
+ 		return PTR_ERR(inode);
+ 
+@@ -856,7 +853,7 @@ static int __f2fs_tmpfile(struct user_namespace *mnt_userns, struct inode *dir,
+ 	if (err)
+ 		return err;
+ 
+-	inode = f2fs_new_inode(mnt_userns, dir, mode);
++	inode = f2fs_new_inode(mnt_userns, dir, mode, NULL);
+ 	if (IS_ERR(inode))
+ 		return PTR_ERR(inode);
+ 
 -- 
 2.35.1
 
