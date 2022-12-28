@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C090658230
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:33:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 346D4657C24
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:29:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234856AbiL1Qdl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:33:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52646 "EHLO
+        id S233753AbiL1P3Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:29:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234808AbiL1QdS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:18 -0500
+        with ESMTP id S233730AbiL1P3W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:29:22 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8A5B324
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:30:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A56614D38
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:29:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 631FC61576
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:30:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64515C43392;
-        Wed, 28 Dec 2022 16:30:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 37AE06155C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:29:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46B55C433D2;
+        Wed, 28 Dec 2022 15:29:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245041;
-        bh=KwKXfZxx3BpPf4NQPS+b85R1s5ASnGewBVbenXMEt2Q=;
+        s=korg; t=1672241360;
+        bh=Q7QIBx8B3bOXxoI7XjnJtQq9CABP8wRuiDR0mwf3l8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EVcVASrOXI71HVaUO4WzrOp6QXaZKaDXmEeBZe3d0BiDoWMiNRW6nqQddX1YfMm5a
-         proc5votNgzNwPJgfj+RSN72nyhaDbSTra9w4fEnKh4Y2Ml9OoiqDOTBLM6IdUBeLo
-         FN0BOzxpN+6lhR0MXEpCRc5B+s8YoOTcIYTKoOR8=
+        b=PkPFmG3NL+3fydhHLSmnFb3Fu+NY0jV7k2GYX7QqgAidY7gn37Kopr2svgdTCPl1m
+         ZOJdOFWJO5eu6yPm8JtKl0yWX8VDn1xF0tkkCg2x5ubDdr7DlxEanjAsvgLO7HAly0
+         /Z66yYshKofRhbw5xA3tKSYPSPLVciJImDvLzBsM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Joel Savitz <jsavitz@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0789/1073] rtc: cmos: Disable ACPI RTC event on removal
+Subject: [PATCH 5.15 470/731] firmware: raspberrypi: fix possible memory leak in rpi_firmware_probe()
 Date:   Wed, 28 Dec 2022 15:39:37 +0100
-Message-Id: <20221228144349.442341450@linuxfoundation.org>
+Message-Id: <20221228144310.177190535@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,66 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 83ebb7b3036d151ee39a4a752018665648fc3bd4 ]
+[ Upstream commit 7b51161696e803fd5f9ad55b20a64c2df313f95c ]
 
-Make cmos_do_remove() drop the ACPI RTC fixed event handler so as to
-prevent it from operating on stale data in case the event triggers
-after driver removal.
+In rpi_firmware_probe(), if mbox_request_channel() fails, the 'fw' will
+not be freed through rpi_firmware_delete(), fix this leak by calling
+kfree() in the error path.
 
-Fixes: 311ee9c151ad ("rtc: cmos: allow using ACPI for RTC alarm instead of HPET")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Zhang Rui <rui.zhang@intel.com>
-Tested-by: Zhang Rui <rui.zhang@intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/2224609.iZASKD2KPV@kreacher
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: 1e7c57355a3b ("firmware: raspberrypi: Keep count of all consumers")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221117070636.3849773-1-yangyingliang@huawei.com
+Acked-by: Joel Savitz <jsavitz@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-cmos.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/firmware/raspberrypi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index 039486bfedf4..00e2ca7374ec 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -798,6 +798,14 @@ static void acpi_rtc_event_setup(struct device *dev)
- 	acpi_disable_event(ACPI_EVENT_RTC, 0);
- }
- 
-+static void acpi_rtc_event_cleanup(void)
-+{
-+	if (acpi_disabled)
-+		return;
-+
-+	acpi_remove_fixed_event_handler(ACPI_EVENT_RTC, rtc_handler);
-+}
-+
- static void rtc_wake_on(struct device *dev)
- {
- 	acpi_clear_event(ACPI_EVENT_RTC);
-@@ -884,6 +892,10 @@ static inline void acpi_rtc_event_setup(struct device *dev)
- {
- }
- 
-+static inline void acpi_rtc_event_cleanup(void)
-+{
-+}
-+
- static inline void acpi_cmos_wake_setup(struct device *dev)
- {
- }
-@@ -1138,6 +1150,9 @@ static void cmos_do_remove(struct device *dev)
- 			hpet_unregister_irq_handler(cmos_interrupt);
+diff --git a/drivers/firmware/raspberrypi.c b/drivers/firmware/raspberrypi.c
+index 4b8978b254f9..dba315f675bc 100644
+--- a/drivers/firmware/raspberrypi.c
++++ b/drivers/firmware/raspberrypi.c
+@@ -272,6 +272,7 @@ static int rpi_firmware_probe(struct platform_device *pdev)
+ 		int ret = PTR_ERR(fw->chan);
+ 		if (ret != -EPROBE_DEFER)
+ 			dev_err(dev, "Failed to get mbox channel: %d\n", ret);
++		kfree(fw);
+ 		return ret;
  	}
  
-+	if (!dev_get_platdata(dev))
-+		acpi_rtc_event_cleanup();
-+
- 	cmos->rtc = NULL;
- 
- 	ports = cmos->iomem;
 -- 
 2.35.1
 
