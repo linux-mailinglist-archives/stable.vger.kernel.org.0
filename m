@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C49F6657C35
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:30:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF282657C39
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:30:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233817AbiL1PaK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:30:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47904 "EHLO
+        id S233412AbiL1PaR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:30:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233350AbiL1PaE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:30:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF32515831
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:30:02 -0800 (PST)
+        with ESMTP id S233783AbiL1PaM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:30:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E72441581B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:30:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F1FCB8170E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:30:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 098A4C433EF;
-        Wed, 28 Dec 2022 15:29:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 871FB6155C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:30:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96E76C433EF;
+        Wed, 28 Dec 2022 15:30:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241400;
-        bh=qmVET0cJx3ScaVnuwOtD91ze65MEzrFc/OULRL/uRNU=;
+        s=korg; t=1672241411;
+        bh=6tXN9D0Ut7L6MH44vvbnziWvUY6QYflUHRZzoTAXn20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zhZGlGW/eGYyanfEZUBjZGT1Vsgs55egV2CuhDX6FhvNg/ubq/Org5iKjPC/FTml6
-         GA3M/rVMmT8id8b2HeLPOTP3SqsnLBJCyRNNbnpJ0TTJyTjEQ/zc3m9cZ8JFbvZjL/
-         jnTuOO8Kc2PGzSbE9se8krKeJFdQt8MMnSitfPCw=
+        b=xEp4zuGUJEzWXteisDI6vblWxaGK8tCWJFfAKue5IfqupIlba8Os+E+I8nKmuQOLM
+         qxuoFl7DI1k5+2U3uSl4swn0W1eqK2ARBREc6hhGvSIBU+/G39FoyCVK5MBj2S5ELR
+         yii9D8VJBYhY16BSP23HeVofgWtiWb7b9yGT0sE8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rafael Mendonca <rafaelmendsr@gmail.com>,
-        Tommaso Merciai <tommaso.merciai@amarulasolutions.com>,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        patches@lists.linux.dev, Daniel Scally <djrscally@gmail.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
         Sakari Ailus <sakari.ailus@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0242/1146] media: i2c: ov5648: Free V4L2 fwnode data on unbind
-Date:   Wed, 28 Dec 2022 15:29:41 +0100
-Message-Id: <20221228144336.708905059@linuxfoundation.org>
+Subject: [PATCH 6.1 0243/1146] media: exynos4-is: dont rely on the v4l2_async_subdev internals
+Date:   Wed, 28 Dec 2022 15:29:42 +0100
+Message-Id: <20221228144336.736280883@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -55,35 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael Mendonca <rafaelmendsr@gmail.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit c95770e4fc172696dcb1450893cda7d6324d96fc ]
+[ Upstream commit f98a5c2e1c4396488c27274ba82afc11725a4bcc ]
 
-The V4L2 fwnode data structure doesn't get freed on unbind, which leads to
-a memleak.
+Commit 1f391df44607 ("media: v4l2-async: Use endpoints in
+__v4l2_async_nf_add_fwnode_remote()") changed the data that is stored in
+the v4l2_async_subdev internals from the fwnode pointer to the parent
+device to the fwnode pointer to the matched endpoint. This broke the
+sensor matching code, which relied on the particular fwnode data in the
+v4l2_async_subdev internals. Fix this by simply matching the
+v4l2_async_subdev pointer, which is already available there.
 
-Fixes: e43ccb0a045f ("media: i2c: Add support for the OV5648 image sensor")
-Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
-Reviewed-by: Tommaso Merciai <tommaso.merciai@amarulasolutions.com>
-Reviewed-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Reported-by: Daniel Scally <djrscally@gmail.com>
+Fixes: fa91f1056f17 ("[media] exynos4-is: Add support for asynchronous subdevices registration")
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Daniel Scally <djrscally@gmail.com>
 Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov5648.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/platform/samsung/exynos4-is/media-dev.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/media/i2c/ov5648.c b/drivers/media/i2c/ov5648.c
-index 84604ea7bdf9..17465fcf28e3 100644
---- a/drivers/media/i2c/ov5648.c
-+++ b/drivers/media/i2c/ov5648.c
-@@ -2597,6 +2597,7 @@ static void ov5648_remove(struct i2c_client *client)
- 	v4l2_ctrl_handler_free(&sensor->ctrls.handler);
- 	mutex_destroy(&sensor->mutex);
- 	media_entity_cleanup(&subdev->entity);
-+	v4l2_fwnode_endpoint_free(&sensor->endpoint);
- }
+diff --git a/drivers/media/platform/samsung/exynos4-is/media-dev.c b/drivers/media/platform/samsung/exynos4-is/media-dev.c
+index 52b43ea04030..412213b0c384 100644
+--- a/drivers/media/platform/samsung/exynos4-is/media-dev.c
++++ b/drivers/media/platform/samsung/exynos4-is/media-dev.c
+@@ -1380,9 +1380,7 @@ static int subdev_notifier_bound(struct v4l2_async_notifier *notifier,
  
- static const struct dev_pm_ops ov5648_pm_ops = {
+ 	/* Find platform data for this sensor subdev */
+ 	for (i = 0; i < ARRAY_SIZE(fmd->sensor); i++)
+-		if (fmd->sensor[i].asd &&
+-		    fmd->sensor[i].asd->match.fwnode ==
+-		    of_fwnode_handle(subdev->dev->of_node))
++		if (fmd->sensor[i].asd == asd)
+ 			si = &fmd->sensor[i];
+ 
+ 	if (si == NULL)
 -- 
 2.35.1
 
