@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55D9C657C27
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:29:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E8C4657D3A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:40:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233414AbiL1P3a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:29:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47250 "EHLO
+        id S233542AbiL1Pk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:40:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233761AbiL1P33 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:29:29 -0500
+        with ESMTP id S233950AbiL1Pkx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:40:53 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70F831572A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:29:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AFE0E09D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:40:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 29873B81647
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:29:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94ED2C433EF;
-        Wed, 28 Dec 2022 15:29:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BE73CB81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:40:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 182A4C433EF;
+        Wed, 28 Dec 2022 15:40:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241366;
-        bh=Ahna/NP30srCdrx7nAND2cBio79OnK2NRZyRY2pwK7E=;
+        s=korg; t=1672242049;
+        bh=oPdNVYVgqMTARXgaDMO2J0+D9WTvrKAMXyh3e3lh6YI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kUztqynsE09lxpEif8jveq3jtpylTDeLyU1DvYTQ3IehOXVPz0KJR0YU9AkSraYuP
-         XWaWSSnpkhz92czcaNjWFIyZ8ThbDEgZbg08Ntuudi+UawunqJFDZYrseSx+kVrT93
-         I3UZUwOnE1WmSTgPkj9S8WyvCKzvyd0VedoZIxPY=
+        b=pOIy/GIkTCrWlv1U8rg3r+2m/mnpkxOrG+Q8BDBbvUtBDeoP7aSMK9v6o5jI00zsL
+         nDcfKAJlKtHVWgvZzwQX5MWN988dgbLIrXVy3UCgRv1w1fWlFWNRdwAKBLC5zPjt0D
+         vUmyY7bCKdZ+2XTdBRGRCZ4YXPP0znydGkZqznIM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0271/1073] drm/msm/dpu1: Account for DSCs bits_per_pixel having 4 fractional bits
+        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
+        Gregory Greenman <gregory.greenman@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0320/1146] wifi: iwlwifi: mei: fix tx DHCP packet for devices with new Tx API
 Date:   Wed, 28 Dec 2022 15:30:59 +0100
-Message-Id: <20221228144335.377928886@linuxfoundation.org>
+Message-Id: <20221228144338.846271462@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,66 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
 
-[ Upstream commit d3c1a8663d0ddb74eaa51121ccbb8340739a12a8 ]
+[ Upstream commit bcd68b3dbe78b7b0f7b6b55162cf1eff1e7fff9e ]
 
-According to the comment this DPU register contains the bits per pixel
-as a 6.4 fractional value, conveniently matching the contents of
-bits_per_pixel in struct drm_dsc_config which also uses 4 fractional
-bits.  However, the downstream source this implementation was
-copy-pasted from has its bpp field stored _without_ fractional part.
+Devices with new Tx API have the IV introduced by the HW and it is not
+present in the skb at all. Hence we don't need to tell
+iwl_mvm_mei_tx_copy_to_csme to jump over 8 bytes to get to the ethernet
+header.
 
-This makes the entire convoluted math obsolete as it is impossible to
-pull those 4 fractional bits out of thin air, by somehow trying to reuse
-the lowest 2 bits of a non-fractional bpp (lsb = bpp % 4??).
-
-The rest of the code merely attempts to keep the integer part a multiple
-of 4, which is rendered useless thanks to data |= dsc->bits_per_pixel <<
-12; already filling up those bits anyway (but not on downstream).
-
-Fixes: c110cfd1753e ("drm/msm/disp/dpu1: Add support for DSC")
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Vinod Koul <vkoul@kernel.org>
-Patchwork: https://patchwork.freedesktop.org/patch/508946/
-Link: https://lore.kernel.org/r/20221026182824.876933-10-marijn.suijten@somainline.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: 2da4366f9e2c ("iwlwifi: mei: add the driver to allow cooperation with CSME")
+Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Signed-off-by: Gregory Greenman <gregory.greenman@intel.com>
+Link: https://lore.kernel.org/r/20221030191011.12dc42133502.Idd744ffeeb84b880eb497963ee02563cbb959a42@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dsc.c | 11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/tx.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dsc.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dsc.c
-index f2ddcfb6f7ee..3662df698dae 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dsc.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dsc.c
-@@ -42,7 +42,7 @@ static void dpu_hw_dsc_config(struct dpu_hw_dsc *hw_dsc,
- 			      u32 initial_lines)
- {
- 	struct dpu_hw_blk_reg_map *c = &hw_dsc->hw;
--	u32 data, lsb, bpp;
-+	u32 data;
- 	u32 slice_last_group_size;
- 	u32 det_thresh_flatness;
- 	bool is_cmd_mode = !(mode & DSC_MODE_VIDEO);
-@@ -56,14 +56,7 @@ static void dpu_hw_dsc_config(struct dpu_hw_dsc *hw_dsc,
- 	data = (initial_lines << 20);
- 	data |= ((slice_last_group_size - 1) << 18);
- 	/* bpp is 6.4 format, 4 LSBs bits are for fractional part */
--	data |= dsc->bits_per_pixel << 12;
--	lsb = dsc->bits_per_pixel % 4;
--	bpp = dsc->bits_per_pixel / 4;
--	bpp *= 4;
--	bpp <<= 4;
--	bpp |= lsb;
--
--	data |= bpp << 8;
-+	data |= (dsc->bits_per_pixel << 8);
- 	data |= (dsc->block_pred_enable << 7);
- 	data |= (dsc->line_buf_depth << 3);
- 	data |= (dsc->simple_422 << 2);
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
+index 86d20e13bf47..ba335f57771c 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
+@@ -1171,9 +1171,15 @@ static int iwl_mvm_tx_mpdu(struct iwl_mvm *mvm, struct sk_buff *skb,
+ 	/* From now on, we cannot access info->control */
+ 	iwl_mvm_skb_prepare_status(skb, dev_cmd);
+ 
++	/*
++	 * The IV is introduced by the HW for new tx api, and it is not present
++	 * in the skb, hence, don't tell iwl_mvm_mei_tx_copy_to_csme about the
++	 * IV for those devices.
++	 */
+ 	if (ieee80211_is_data(fc))
+ 		iwl_mvm_mei_tx_copy_to_csme(mvm, skb,
+-					    info->control.hw_key ?
++					    info->control.hw_key &&
++					    !iwl_mvm_has_new_tx_api(mvm) ?
+ 					    info->control.hw_key->iv_len : 0);
+ 
+ 	if (iwl_trans_tx(mvm->trans, skb, dev_cmd, txq_id))
 -- 
 2.35.1
 
