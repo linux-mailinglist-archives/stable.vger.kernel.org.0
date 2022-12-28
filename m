@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21703657FF7
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:13:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 901D56579AC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:03:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234382AbiL1QM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:12:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55430 "EHLO
+        id S233423AbiL1PDg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:03:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234573AbiL1QL7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:11:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A57618391
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:10:06 -0800 (PST)
+        with ESMTP id S233468AbiL1PDe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:03:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 165E7633B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:03:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 48E16B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:10:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A69B1C433EF;
-        Wed, 28 Dec 2022 16:10:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A80716153C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:03:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF89EC433EF;
+        Wed, 28 Dec 2022 15:03:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243804;
-        bh=Lk9hAWqGAbFsM9en/MEGrkO5NFSny7HCLiCf19h7yUY=;
+        s=korg; t=1672239812;
+        bh=Vi7dUtHrEAaNYM9bMxRmH2PMGgJCsA4wijDta0PzS5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hVvAMXYFAp3NIm9m6DEhSa9GO4uYh17wMwDkxZEmw/ypfrNjUQoTmm2HN/RDj483h
-         sC48uHdUNO9ob9BfkGRFJXWnGz0reAbyZjRRH8PPuezRBbzUOs1EeJXmd4o0sh8hNL
-         oqvpXVaTtzymGluwYulJPhEhNBJkjNkhSQcCJ6M8=
+        b=Np9NEnLx9zGPX9Cm1xpYC0N0J8XxlSBNzNL3OphiQ2RWHZH7hZ0QOf6szk4Mbc6pn
+         ft1mNKQyXsYBEiVAmg62Ci/6r6uultMK1h08KDFZ4ZCXEBDOc3UeZpgwaWYapa+wOW
+         UgDg0iw0RwzLqXRR6DKD6/BbE1s4DmMHuYnmy/9E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Zhang <markzhang@nvidia.com>,
-        Michael Guralnik <michaelgur@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev, Christian Marangi <ansuelsmth@gmail.com>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0591/1073] RDMA/core: Make sure "ib_port" is valid when access sysfs node
-Date:   Wed, 28 Dec 2022 15:36:19 +0100
-Message-Id: <20221228144344.099959911@linuxfoundation.org>
+Subject: [PATCH 5.15 273/731] clk: qcom: clk-krait: fix wrong div2 functions
+Date:   Wed, 28 Dec 2022 15:36:20 +0100
+Message-Id: <20221228144304.487706712@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,128 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Zhang <markzhang@nvidia.com>
+From: Christian Marangi <ansuelsmth@gmail.com>
 
-[ Upstream commit 5e15ff29b156bbbdeadae230c8ecd5ecd8ca2477 ]
+[ Upstream commit d676d3a3717cf726d3affedbe5ba98fc4ccad7b3 ]
 
-The "ib_port" structure must be set before adding the sysfs kobject,
-and reset after removing it, otherwise it may crash when accessing
-the sysfs node:
-  Unable to handle kernel NULL pointer dereference at virtual address 0000000000000050
-  Mem abort info:
-    ESR = 0x96000006
-    Exception class = DABT (current EL), IL = 32 bits
-    SET = 0, FnV = 0
-    EA = 0, S1PTW = 0
-  Data abort info:
-    ISV = 0, ISS = 0x00000006
-    CM = 0, WnR = 0
-  user pgtable: 4k pages, 48-bit VAs, pgdp = 00000000e85f5ba5
-  [0000000000000050] pgd=0000000848fd9003, pud=000000085b387003, pmd=0000000000000000
-  Internal error: Oops: 96000006 [#2] PREEMPT SMP
-  Modules linked in: ib_umad(O) mlx5_ib(O) nfnetlink_cttimeout(E) nfnetlink(E) act_gact(E) cls_flower(E) sch_ingress(E) openvswitch(E) nsh(E) nf_nat_ipv6(E) nf_nat_ipv4(E) nf_conncount(E) nf_nat(E) nf_conntrack(E) nf_defrag_ipv6(E) nf_defrag_ipv4(E) mst_pciconf(O) ipmi_devintf(E) ipmi_msghandler(E) ipmb_dev_int(OE) mlx5_core(O) mlxfw(O) mlxdevm(O) auxiliary(O) ib_uverbs(O) ib_core(O) mlx_compat(O) psample(E) sbsa_gwdt(E) uio_pdrv_genirq(E) uio(E) mlxbf_pmc(OE) mlxbf_gige(OE) mlxbf_tmfifo(OE) gpio_mlxbf2(OE) pwr_mlxbf(OE) mlx_trio(OE) i2c_mlxbf(OE) mlx_bootctl(OE) bluefield_edac(OE) knem(O) ip_tables(E) ipv6(E) crc_ccitt(E) [last unloaded: mst_pci]
-  Process grep (pid: 3372, stack limit = 0x0000000022055c92)
-  CPU: 5 PID: 3372 Comm: grep Tainted: G      D    OE     4.19.161-mlnx.47.gadcd9e3 #1
-  Hardware name: https://www.mellanox.com BlueField SoC/BlueField SoC, BIOS BlueField:3.9.2-15-ga2403ab Sep  8 2022
-  pstate: 40000005 (nZcv daif -PAN -UAO)
-  pc : hw_stat_port_show+0x4c/0x80 [ib_core]
-  lr : port_attr_show+0x40/0x58 [ib_core]
-  sp : ffff000029f43b50
-  x29: ffff000029f43b50 x28: 0000000019375000
-  x27: ffff8007b821a540 x26: ffff000029f43e30
-  x25: 0000000000008000 x24: ffff000000eaa958
-  x23: 0000000000001000 x22: ffff8007a4ce3000
-  x21: ffff8007baff8000 x20: ffff8007b9066ac0
-  x19: ffff8007bae97578 x18: 0000000000000000
-  x17: 0000000000000000 x16: 0000000000000000
-  x15: 0000000000000000 x14: 0000000000000000
-  x13: 0000000000000000 x12: 0000000000000000
-  x11: 0000000000000000 x10: 0000000000000000
-  x9 : 0000000000000000 x8 : ffff8007a4ce4000
-  x7 : 0000000000000000 x6 : 000000000000003f
-  x5 : ffff000000e6a280 x4 : ffff8007a4ce3000
-  x3 : 0000000000000000 x2 : aaaaaaaaaaaaaaab
-  x1 : ffff8007b9066a10 x0 : ffff8007baff8000
-  Call trace:
-   hw_stat_port_show+0x4c/0x80 [ib_core]
-   port_attr_show+0x40/0x58 [ib_core]
-   sysfs_kf_seq_show+0x8c/0x150
-   kernfs_seq_show+0x44/0x50
-   seq_read+0x1b4/0x45c
-   kernfs_fop_read+0x148/0x1d8
-   __vfs_read+0x58/0x180
-   vfs_read+0x94/0x154
-   ksys_read+0x68/0xd8
-   __arm64_sys_read+0x28/0x34
-   el0_svc_common+0x88/0x18c
-   el0_svc_handler+0x78/0x94
-   el0_svc+0x8/0xe8
-  Code: f2955562 aa1603e4 aa1503e0 f9405683 (f9402861)
+Currently div2 value is applied to the wrong bits. This is caused by a
+bug in the code where the shift is done only for lpl, for anything
+else the mask is not shifted to the correct bits.
 
-Fixes: d8a5883814b9 ("RDMA/core: Replace the ib_port_data hw_stats pointers with a ib_port pointer")
-Signed-off-by: Mark Zhang <markzhang@nvidia.com>
-Reviewed-by: Michael Guralnik <michaelgur@nvidia.com>
-Link: https://lore.kernel.org/r/88867e705c42c1cd2011e45201c25eecdb9fef94.1667810736.git.leonro@nvidia.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Fix this by correctly shift if lpl is not supported.
+
+Fixes: 4d7dc77babfe ("clk: qcom: Add support for Krait clocks")
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221108215625.30186-1-ansuelsmth@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/sysfs.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ drivers/clk/qcom/clk-krait.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/infiniband/core/sysfs.c b/drivers/infiniband/core/sysfs.c
-index 84c53bd2a52d..ee59d7391568 100644
---- a/drivers/infiniband/core/sysfs.c
-+++ b/drivers/infiniband/core/sysfs.c
-@@ -1213,6 +1213,9 @@ static struct ib_port *setup_port(struct ib_core_device *coredev, int port_num,
- 	p->port_num = port_num;
- 	kobject_init(&p->kobj, &port_type);
+diff --git a/drivers/clk/qcom/clk-krait.c b/drivers/clk/qcom/clk-krait.c
+index 90046428693c..e74fc81a14d0 100644
+--- a/drivers/clk/qcom/clk-krait.c
++++ b/drivers/clk/qcom/clk-krait.c
+@@ -98,6 +98,8 @@ static int krait_div2_set_rate(struct clk_hw *hw, unsigned long rate,
  
-+	if (device->port_data && is_full_dev)
-+		device->port_data[port_num].sysfs = p;
-+
- 	cur_group = p->groups_list;
- 	ret = alloc_port_table_group("gids", &p->groups[0], p->attrs_list,
- 				     attr->gid_tbl_len, show_port_gid);
-@@ -1258,9 +1261,6 @@ static struct ib_port *setup_port(struct ib_core_device *coredev, int port_num,
- 	}
+ 	if (d->lpl)
+ 		mask = mask << (d->shift + LPL_SHIFT) | mask << d->shift;
++	else
++		mask <<= d->shift;
  
- 	list_add_tail(&p->kobj.entry, &coredev->port_list);
--	if (device->port_data && is_full_dev)
--		device->port_data[port_num].sysfs = p;
--
- 	return p;
- 
- err_groups:
-@@ -1268,6 +1268,8 @@ static struct ib_port *setup_port(struct ib_core_device *coredev, int port_num,
- err_del:
- 	kobject_del(&p->kobj);
- err_put:
-+	if (device->port_data && is_full_dev)
-+		device->port_data[port_num].sysfs = NULL;
- 	kobject_put(&p->kobj);
- 	return ERR_PTR(ret);
- }
-@@ -1276,14 +1278,17 @@ static void destroy_port(struct ib_core_device *coredev, struct ib_port *port)
- {
- 	bool is_full_dev = &port->ibdev->coredev == coredev;
- 
--	if (port->ibdev->port_data &&
--	    port->ibdev->port_data[port->port_num].sysfs == port)
--		port->ibdev->port_data[port->port_num].sysfs = NULL;
- 	list_del(&port->kobj.entry);
- 	if (is_full_dev)
- 		sysfs_remove_groups(&port->kobj, port->ibdev->ops.port_groups);
-+
- 	sysfs_remove_groups(&port->kobj, port->groups_list);
- 	kobject_del(&port->kobj);
-+
-+	if (port->ibdev->port_data &&
-+	    port->ibdev->port_data[port->port_num].sysfs == port)
-+		port->ibdev->port_data[port->port_num].sysfs = NULL;
-+
- 	kobject_put(&port->kobj);
- }
- 
+ 	spin_lock_irqsave(&krait_clock_reg_lock, flags);
+ 	val = krait_get_l2_indirect_reg(d->offset);
 -- 
 2.35.1
 
