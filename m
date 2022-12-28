@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC9F0657F66
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:04:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8ABB6578FA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:56:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234254AbiL1QEb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:04:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51156 "EHLO
+        id S233244AbiL1O4T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:56:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234256AbiL1QE1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:04:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7DDA1929D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:04:25 -0800 (PST)
+        with ESMTP id S233253AbiL1O4S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:56:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E8BEB69
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:56:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 134B061560
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:04:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28D6DC433D2;
-        Wed, 28 Dec 2022 16:04:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1E877B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:56:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BB1EC433EF;
+        Wed, 28 Dec 2022 14:56:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243464;
-        bh=muOU84hpJwkJvVOXxaAjMrs9BddxS4K4voxHtLNyP80=;
+        s=korg; t=1672239374;
+        bh=d3qJe/k0GOSsbjQ7kRv8Gec6oJ6gw1cdFtLiMadFhJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TIdICHAfc2zVkGQhO1m3M4PFja3GT5L2PCbxmw+3fkZFznWg+pan5H4txZwf85uGe
-         5NJJ0fyu798x/fLfHwnL/x7taw8XK00AwyC3D8jbDKDWyMInCXL66cC6hwp8uuzKQy
-         ingTTKQHXoDa6okl/z9z5HyE6i7zfJ09NccvVRhw=
+        b=Qpshsbgifh0Kg8yW7zcquWNo002d8qJU1PsYNEGvsNK9HBDmvqAvmMM8ALPit8KmY
+         p4Ec0RBLMMEldh3NPVyElOsiFeOKbf49cAIkXsXMjEs/6g5qbojshhR9L1/IVrQjR7
+         97HT/hVMTC2lKSx60j44IzH+qRKiR7MkO86YjnYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marc Kleine-Budde <mkl@pengutronix.de>,
-        Vivek Yadav <vivek.2311@samsung.com>,
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0532/1073] can: m_can: Call the RAM init directly from m_can_chip_config
-Date:   Wed, 28 Dec 2022 15:35:20 +0100
-Message-Id: <20221228144342.502482462@linuxfoundation.org>
+Subject: [PATCH 5.15 214/731] media: videobuf-dma-contig: use dma_mmap_coherent
+Date:   Wed, 28 Dec 2022 15:35:21 +0100
+Message-Id: <20221228144302.760172726@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,139 +52,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vivek Yadav <vivek.2311@samsung.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit eaacfeaca7ad0804b9a6eff7afeba93a87db7638 ]
+[ Upstream commit b3dc3f8e49577840dc8ac8a365c5b3da4edb10b8 ]
 
-When we try to access the mcan message ram addresses during the probe,
-hclk is gated by any other drivers or disabled, because of that probe
-gets failed.
+dma_alloc_coherent does not return a physical address, but a DMA address,
+which might be remapped or have an offset.  Passing the DMA address to
+vm_iomap_memory is thus broken.
 
-Move the mram init functionality to mcan chip config called by
-m_can_start from mcan open function, by that time clocks are
-enabled.
+Use the proper dma_mmap_coherent helper instead, and stop passing
+__GFP_COMP to dma_alloc_coherent, as the memory management inside the
+DMA allocator is hidden from the callers and does not require it.
 
-Suggested-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Vivek Yadav <vivek.2311@samsung.com>
-Link: https://lore.kernel.org/all/20221207100632.96200-2-vivek.2311@samsung.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Stable-dep-of: 67727a17a6b3 ("can: tcan4x5x: Fix use of register error status mask")
+With this the gfp_t argument to __videobuf_dc_alloc can be removed and
+hard coded to GFP_KERNEL.
+
+Fixes: a8f3c203e19b ("[media] videobuf-dma-contig: add cache support")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/m_can/m_can.c          | 32 +++++++++++++++++++++-----
- drivers/net/can/m_can/m_can_platform.c |  4 ----
- drivers/net/can/m_can/tcan4x5x-core.c  |  5 ----
- 3 files changed, 26 insertions(+), 15 deletions(-)
+ drivers/media/v4l2-core/videobuf-dma-contig.c | 22 +++++++------------
+ 1 file changed, 8 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
-index 153d8fd08bd8..a562f36a99f8 100644
---- a/drivers/net/can/m_can/m_can.c
-+++ b/drivers/net/can/m_can/m_can.c
-@@ -1233,10 +1233,17 @@ static int m_can_set_bittiming(struct net_device *dev)
-  * - setup bittiming
-  * - configure timestamp generation
-  */
--static void m_can_chip_config(struct net_device *dev)
-+static int m_can_chip_config(struct net_device *dev)
+diff --git a/drivers/media/v4l2-core/videobuf-dma-contig.c b/drivers/media/v4l2-core/videobuf-dma-contig.c
+index 52312ce2ba05..f2c439359557 100644
+--- a/drivers/media/v4l2-core/videobuf-dma-contig.c
++++ b/drivers/media/v4l2-core/videobuf-dma-contig.c
+@@ -36,12 +36,11 @@ struct videobuf_dma_contig_memory {
+ 
+ static int __videobuf_dc_alloc(struct device *dev,
+ 			       struct videobuf_dma_contig_memory *mem,
+-			       unsigned long size, gfp_t flags)
++			       unsigned long size)
  {
- 	struct m_can_classdev *cdev = netdev_priv(dev);
- 	u32 cccr, test;
-+	int err;
-+
-+	err = m_can_init_ram(cdev);
-+	if (err) {
-+		dev_err(cdev->dev, "Message RAM configuration failed\n");
-+		return err;
-+	}
- 
- 	m_can_config_endisable(cdev, true);
- 
-@@ -1360,18 +1367,25 @@ static void m_can_chip_config(struct net_device *dev)
- 
- 	if (cdev->ops->init)
- 		cdev->ops->init(cdev);
-+
-+	return 0;
- }
- 
--static void m_can_start(struct net_device *dev)
-+static int m_can_start(struct net_device *dev)
- {
- 	struct m_can_classdev *cdev = netdev_priv(dev);
-+	int ret;
- 
- 	/* basic m_can configuration */
--	m_can_chip_config(dev);
-+	ret = m_can_chip_config(dev);
-+	if (ret)
-+		return ret;
- 
- 	cdev->can.state = CAN_STATE_ERROR_ACTIVE;
- 
- 	m_can_enable_all_interrupts(cdev);
-+
-+	return 0;
- }
- 
- static int m_can_set_mode(struct net_device *dev, enum can_mode mode)
-@@ -1800,7 +1814,9 @@ static int m_can_open(struct net_device *dev)
- 	}
- 
- 	/* start the m_can controller */
--	m_can_start(dev);
-+	err = m_can_start(dev);
-+	if (err)
-+		goto exit_irq_fail;
- 
- 	if (!cdev->is_peripheral)
- 		napi_enable(&cdev->napi);
-@@ -2059,9 +2075,13 @@ int m_can_class_resume(struct device *dev)
- 		ret = m_can_clk_start(cdev);
- 		if (ret)
- 			return ret;
-+		ret  = m_can_start(ndev);
-+		if (ret) {
-+			m_can_clk_stop(cdev);
-+
-+			return ret;
-+		}
- 
--		m_can_init_ram(cdev);
--		m_can_start(ndev);
- 		netif_device_attach(ndev);
- 		netif_start_queue(ndev);
- 	}
-diff --git a/drivers/net/can/m_can/m_can_platform.c b/drivers/net/can/m_can/m_can_platform.c
-index eee47bad0592..de6d8e01bf2e 100644
---- a/drivers/net/can/m_can/m_can_platform.c
-+++ b/drivers/net/can/m_can/m_can_platform.c
-@@ -140,10 +140,6 @@ static int m_can_plat_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, mcan_class);
- 
--	ret = m_can_init_ram(mcan_class);
--	if (ret)
--		goto probe_fail;
+ 	mem->size = size;
+-	mem->vaddr = dma_alloc_coherent(dev, mem->size,
+-					&mem->dma_handle, flags);
 -
- 	pm_runtime_enable(mcan_class->dev);
- 	ret = m_can_class_register(mcan_class);
- 	if (ret)
-diff --git a/drivers/net/can/m_can/tcan4x5x-core.c b/drivers/net/can/m_can/tcan4x5x-core.c
-index 1fec394b3517..a77f4d4f6299 100644
---- a/drivers/net/can/m_can/tcan4x5x-core.c
-+++ b/drivers/net/can/m_can/tcan4x5x-core.c
-@@ -229,11 +229,6 @@ static int tcan4x5x_init(struct m_can_classdev *cdev)
- 	if (ret)
- 		return ret;
++	mem->vaddr = dma_alloc_coherent(dev, mem->size, &mem->dma_handle,
++					GFP_KERNEL);
+ 	if (!mem->vaddr) {
+ 		dev_err(dev, "memory alloc size %ld failed\n", mem->size);
+ 		return -ENOMEM;
+@@ -258,8 +257,7 @@ static int __videobuf_iolock(struct videobuf_queue *q,
+ 			return videobuf_dma_contig_user_get(mem, vb);
  
--	/* Zero out the MCAN buffers */
--	ret = m_can_init_ram(cdev);
--	if (ret)
--		return ret;
+ 		/* allocate memory for the read() method */
+-		if (__videobuf_dc_alloc(q->dev, mem, PAGE_ALIGN(vb->size),
+-					GFP_KERNEL))
++		if (__videobuf_dc_alloc(q->dev, mem, PAGE_ALIGN(vb->size)))
+ 			return -ENOMEM;
+ 		break;
+ 	case V4L2_MEMORY_OVERLAY:
+@@ -295,22 +293,18 @@ static int __videobuf_mmap_mapper(struct videobuf_queue *q,
+ 	BUG_ON(!mem);
+ 	MAGIC_CHECK(mem->magic, MAGIC_DC_MEM);
+ 
+-	if (__videobuf_dc_alloc(q->dev, mem, PAGE_ALIGN(buf->bsize),
+-				GFP_KERNEL | __GFP_COMP))
++	if (__videobuf_dc_alloc(q->dev, mem, PAGE_ALIGN(buf->bsize)))
+ 		goto error;
+ 
+-	/* Try to remap memory */
+-	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
 -
- 	ret = regmap_update_bits(tcan4x5x->regmap, TCAN4X5X_CONFIG,
- 				 TCAN4X5X_MODE_SEL_MASK, TCAN4X5X_MODE_NORMAL);
- 	if (ret)
+ 	/* the "vm_pgoff" is just used in v4l2 to find the
+ 	 * corresponding buffer data structure which is allocated
+ 	 * earlier and it does not mean the offset from the physical
+ 	 * buffer start address as usual. So set it to 0 to pass
+-	 * the sanity check in vm_iomap_memory().
++	 * the sanity check in dma_mmap_coherent().
+ 	 */
+ 	vma->vm_pgoff = 0;
+-
+-	retval = vm_iomap_memory(vma, mem->dma_handle, mem->size);
++	retval = dma_mmap_coherent(q->dev, vma, mem->vaddr, mem->dma_handle,
++				   mem->size);
+ 	if (retval) {
+ 		dev_err(q->dev, "mmap: remap failed with error %d. ",
+ 			retval);
 -- 
 2.35.1
 
