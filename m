@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C646657EEC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:59:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC3B46578E4
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:55:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232999AbiL1P7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:59:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46352 "EHLO
+        id S233252AbiL1Oze (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:55:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233034AbiL1P7P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:59:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94F7B18B31
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:59:14 -0800 (PST)
+        with ESMTP id S233333AbiL1OzU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:55:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1D0511C12
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:55:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4E012B8172B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:59:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4CCCC433D2;
-        Wed, 28 Dec 2022 15:59:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D8E2614B2
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:55:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FE76C433D2;
+        Wed, 28 Dec 2022 14:55:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243152;
-        bh=JYNMgYr1uiS2PGSjM4RIyuhqaeX8EwuHEPm5BgNNkrA=;
+        s=korg; t=1672239318;
+        bh=qxLfL6PH5BE+u79vv6Z/BWgrGcpUHMtSMSXtG1UgYZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SA8IjWHwJyDklvlAjZ1QRkep9ARSJZQILvsaanrMZ33dg+oBFpQnBO7LcpnNWJpoH
-         kHfzUlWm/fgNkneVLSBCfkutU5VzPJ9FIdV2aVe1mKwuK5RT6yibY+lPO1yO2gwiDE
-         w5ivhuZ6bzjtE4zZ/LoCFhob0P4hUywNGmKtOdKc=
+        b=e6hS+SWoovWiuJgZsQtBXIYD5ZuYjLaW7FzZmZJhgZiBPHQqfWljFQL50vuwQOgWo
+         011FarFjUbznz2NlrDzUyR/A+kp6Obwg3dgIUMPhu26AeGB/9LhJUMxPAnnNB5ZNAW
+         LpL5KP76sLF1Z3/zuNbnEk+JK4jq7EJxMXMiWSvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        patches@lists.linux.dev, GUO Zihua <guozihua@huawei.com>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0495/1073] memstick/ms_block: Add check for alloc_ordered_workqueue
+Subject: [PATCH 5.15 176/731] ima: Handle -ESTALE returned by ima_filter_rule_match()
 Date:   Wed, 28 Dec 2022 15:34:43 +0100
-Message-Id: <20221228144341.481819125@linuxfoundation.org>
+Message-Id: <20221228144301.664603430@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +54,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: GUO Zihua <guozihua@huawei.com>
 
-[ Upstream commit 4f431a047a5c8698ed4b67e2760cfbeb5fffb69d ]
+[ Upstream commit c7423dbdbc9ecef7fff5239d144cad4b9887f4de ]
 
-As the alloc_ordered_workqueue may return NULL pointer, it should be better
-to add check for the return value. Moreover, the msb->io_queue should be
-freed if error occurs later.
+IMA relies on the blocking LSM policy notifier callback to update the
+LSM based IMA policy rules.
 
-Fixes: 0ab30494bc4f ("memstick: add support for legacy memorysticks")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20221126012558.34374-1-jiasheng@iscas.ac.cn
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+When SELinux update its policies, IMA would be notified and starts
+updating all its lsm rules one-by-one. During this time, -ESTALE would
+be returned by ima_filter_rule_match() if it is called with a LSM rule
+that has not yet been updated. In ima_match_rules(), -ESTALE is not
+handled, and the LSM rule is considered a match, causing extra files
+to be measured by IMA.
+
+Fix it by re-initializing a temporary rule if -ESTALE is returned by
+ima_filter_rule_match(). The origin rule in the rule list would be
+updated by the LSM policy notifier callback.
+
+Fixes: b16942455193 ("ima: use the lsm policy update notifier")
+Signed-off-by: GUO Zihua <guozihua@huawei.com>
+Reviewed-by: Roberto Sassu <roberto.sassu@huawei.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memstick/core/ms_block.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ security/integrity/ima/ima_policy.c | 41 ++++++++++++++++++++++-------
+ 1 file changed, 32 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/memstick/core/ms_block.c b/drivers/memstick/core/ms_block.c
-index ba8414519515..04115cd92433 100644
---- a/drivers/memstick/core/ms_block.c
-+++ b/drivers/memstick/core/ms_block.c
-@@ -2116,6 +2116,11 @@ static int msb_init_disk(struct memstick_dev *card)
- 	dbg("Set total disk size to %lu sectors", capacity);
+diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+index 748b97a2582a..844d69f6ac00 100644
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -542,6 +542,9 @@ static bool ima_match_rules(struct ima_rule_entry *rule,
+ 			    const char *func_data)
+ {
+ 	int i;
++	bool result = false;
++	struct ima_rule_entry *lsm_rule = rule;
++	bool rule_reinitialized = false;
  
- 	msb->io_queue = alloc_ordered_workqueue("ms_block", WQ_MEM_RECLAIM);
-+	if (!msb->io_queue) {
-+		rc = -ENOMEM;
-+		goto out_cleanup_disk;
-+	}
+ 	if ((rule->flags & IMA_FUNC) &&
+ 	    (rule->func != func && func != POST_SETATTR))
+@@ -590,35 +593,55 @@ static bool ima_match_rules(struct ima_rule_entry *rule,
+ 		int rc = 0;
+ 		u32 osid;
+ 
+-		if (!rule->lsm[i].rule) {
+-			if (!rule->lsm[i].args_p)
++		if (!lsm_rule->lsm[i].rule) {
++			if (!lsm_rule->lsm[i].args_p)
+ 				continue;
+ 			else
+ 				return false;
+ 		}
 +
- 	INIT_WORK(&msb->io_work, msb_io_work);
- 	sg_init_table(msb->prealloc_sg, MS_BLOCK_MAX_SEGS+1);
++retry:
+ 		switch (i) {
+ 		case LSM_OBJ_USER:
+ 		case LSM_OBJ_ROLE:
+ 		case LSM_OBJ_TYPE:
+ 			security_inode_getsecid(inode, &osid);
+-			rc = ima_filter_rule_match(osid, rule->lsm[i].type,
++			rc = ima_filter_rule_match(osid, lsm_rule->lsm[i].type,
+ 						   Audit_equal,
+-						   rule->lsm[i].rule);
++						   lsm_rule->lsm[i].rule);
+ 			break;
+ 		case LSM_SUBJ_USER:
+ 		case LSM_SUBJ_ROLE:
+ 		case LSM_SUBJ_TYPE:
+-			rc = ima_filter_rule_match(secid, rule->lsm[i].type,
++			rc = ima_filter_rule_match(secid, lsm_rule->lsm[i].type,
+ 						   Audit_equal,
+-						   rule->lsm[i].rule);
++						   lsm_rule->lsm[i].rule);
+ 			break;
+ 		default:
+ 			break;
+ 		}
+-		if (!rc)
+-			return false;
++
++		if (rc == -ESTALE && !rule_reinitialized) {
++			lsm_rule = ima_lsm_copy_rule(rule);
++			if (lsm_rule) {
++				rule_reinitialized = true;
++				goto retry;
++			}
++		}
++		if (!rc) {
++			result = false;
++			goto out;
++		}
+ 	}
+-	return true;
++	result = true;
++
++out:
++	if (rule_reinitialized) {
++		for (i = 0; i < MAX_LSM_RULES; i++)
++			ima_filter_rule_free(lsm_rule->lsm[i].rule);
++		kfree(lsm_rule);
++	}
++	return result;
+ }
  
-@@ -2125,10 +2130,12 @@ static int msb_init_disk(struct memstick_dev *card)
- 	msb_start(card);
- 	rc = device_add_disk(&card->dev, msb->disk, NULL);
- 	if (rc)
--		goto out_cleanup_disk;
-+		goto out_destroy_workqueue;
- 	dbg("Disk added");
- 	return 0;
- 
-+out_destroy_workqueue:
-+	destroy_workqueue(msb->io_queue);
- out_cleanup_disk:
- 	put_disk(msb->disk);
- out_free_tag_set:
+ /*
 -- 
 2.35.1
 
