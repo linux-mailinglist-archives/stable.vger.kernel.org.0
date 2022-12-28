@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F1F6657982
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:02:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44EAE657985
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:02:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233407AbiL1PCp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:02:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48326 "EHLO
+        id S233426AbiL1PCs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:02:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233433AbiL1PCQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:02:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0730F13DDF
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:01:45 -0800 (PST)
+        with ESMTP id S233453AbiL1PCW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:02:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F68B13D17
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:01:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9898061541
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:01:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6B21C433D2;
-        Wed, 28 Dec 2022 15:01:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B8A961365
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:01:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E4AAC433D2;
+        Wed, 28 Dec 2022 15:01:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239704;
-        bh=C5LCNxx27JrnHNGcVXG8Z8y7QGx76sJN0z+c5Ri6/5s=;
+        s=korg; t=1672239714;
+        bh=+e4kKoYMfsgLA0QIIilo188036g+bAIfSq9Ae03fcaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bPniqj/neiOn6kMgJjgKlmJGb/cg3+z0FQ7oya1jkH/SH5rQPV37bCfL+EY/C9Ggk
-         jL8HkjGPm5JYTmU6CbRyjsk4vD9NJims4kVvCrkBJrpFBUGQbNaxTI9TegJozF9oWc
-         r0ehv8opw30r0fb/9lToUki7fptgAX0lzWK8AFuI=
+        b=u3TTUHHGxVS5DLe7sZgb/754DyAmZFvYSg9iTeGxs6rgxrueWt+UCFyXpQRTSiis2
+         Ni562vnIpruf3vwzouK9BSZrlV8B5gPS68tvFcEHQXvGEeSiZsANi7e70oox7CFlRj
+         Zbgc5Mhb5O6T4BpP66uXBWKgpUqwSt11kIGEGkXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         <angelogioacchino.delregno@collabora.com>,
         Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0066/1073] arm64: dts: mt2712-evb: Fix usb vbus regulators unit names
-Date:   Wed, 28 Dec 2022 15:27:34 +0100
-Message-Id: <20221228144329.881936434@linuxfoundation.org>
+Subject: [PATCH 6.0 0067/1073] arm64: dts: mediatek: pumpkin-common: Fix devicetree warnings
+Date:   Wed, 28 Dec 2022 15:27:35 +0100
+Message-Id: <20221228144329.907804859@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -57,60 +57,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit ec1ae39a8d25cfb067b5459fac7c5b7b9bce6f6a ]
+[ Upstream commit 509438336ce75c8b4e6ce8e8d507dc77d0783bdd ]
 
-Update the names to regulator-usb-p{0-3}-vbus to fix unit_address_vs_reg
-warnings for those.
+Fix the pinctrl submodes and optee node to remove unneeded unit address,
+fixing all unit_address_vs_reg warnings.
 
-Fixes: 1724f4cc5133 ("arm64: dts: Add USB3 related nodes for MT2712")
+Fixes: 9983822c8cf9 ("arm64: dts: mediatek: add pumpkin board dts")
 Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20221013152212.416661-7-angelogioacchino.delregno@collabora.com
+Link: https://lore.kernel.org/r/20221013152212.416661-8-angelogioacchino.delregno@collabora.com
 Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/mt2712-evb.dts | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt2712-evb.dts b/arch/arm64/boot/dts/mediatek/mt2712-evb.dts
-index 638908773706..d31a194124c9 100644
---- a/arch/arm64/boot/dts/mediatek/mt2712-evb.dts
-+++ b/arch/arm64/boot/dts/mediatek/mt2712-evb.dts
-@@ -50,7 +50,7 @@ extcon_usb1: extcon_iddig1 {
- 		id-gpio = <&pio 14 GPIO_ACTIVE_HIGH>;
+diff --git a/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi b/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
+index 8ee1529683a3..ec8dfb3d1c6d 100644
+--- a/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
++++ b/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
+@@ -17,7 +17,7 @@ chosen {
  	};
  
--	usb_p0_vbus: regulator@2 {
-+	usb_p0_vbus: regulator-usb-p0-vbus {
- 		compatible = "regulator-fixed";
- 		regulator-name = "p0_vbus";
- 		regulator-min-microvolt = <5000000>;
-@@ -59,7 +59,7 @@ usb_p0_vbus: regulator@2 {
- 		enable-active-high;
+ 	firmware {
+-		optee: optee@4fd00000 {
++		optee: optee {
+ 			compatible = "linaro,optee-tz";
+ 			method = "smc";
+ 		};
+@@ -209,7 +209,7 @@ pins_cmd_dat {
+ 		};
  	};
  
--	usb_p1_vbus: regulator@3 {
-+	usb_p1_vbus: regulator-usb-p1-vbus {
- 		compatible = "regulator-fixed";
- 		regulator-name = "p1_vbus";
- 		regulator-min-microvolt = <5000000>;
-@@ -68,7 +68,7 @@ usb_p1_vbus: regulator@3 {
- 		enable-active-high;
+-	i2c0_pins_a: i2c0@0 {
++	i2c0_pins_a: i2c0 {
+ 		pins1 {
+ 			pinmux = <MT8516_PIN_58_SDA0__FUNC_SDA0_0>,
+ 				 <MT8516_PIN_59_SCL0__FUNC_SCL0_0>;
+@@ -217,7 +217,7 @@ pins1 {
+ 		};
  	};
  
--	usb_p2_vbus: regulator@4 {
-+	usb_p2_vbus: regulator-usb-p2-vbus {
- 		compatible = "regulator-fixed";
- 		regulator-name = "p2_vbus";
- 		regulator-min-microvolt = <5000000>;
-@@ -77,7 +77,7 @@ usb_p2_vbus: regulator@4 {
- 		enable-active-high;
- 	};
- 
--	usb_p3_vbus: regulator@5 {
-+	usb_p3_vbus: regulator-usb-p3-vbus {
- 		compatible = "regulator-fixed";
- 		regulator-name = "p3_vbus";
- 		regulator-min-microvolt = <5000000>;
+-	i2c2_pins_a: i2c2@0 {
++	i2c2_pins_a: i2c2 {
+ 		pins1 {
+ 			pinmux = <MT8516_PIN_60_SDA2__FUNC_SDA2_0>,
+ 				 <MT8516_PIN_61_SCL2__FUNC_SCL2_0>;
 -- 
 2.35.1
 
