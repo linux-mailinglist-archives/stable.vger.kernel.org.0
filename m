@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80FBA657E7F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:54:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1842D657E82
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:54:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233151AbiL1PyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:54:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41828 "EHLO
+        id S233612AbiL1Py2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:54:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234141AbiL1PyP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:54:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35BF5186C3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:54:14 -0800 (PST)
+        with ESMTP id S234150AbiL1Py0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:54:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FC1A186B7
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:54:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C19C06156C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:54:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC93AC433D2;
-        Wed, 28 Dec 2022 15:54:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7BFBDB81730
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:54:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8377C433EF;
+        Wed, 28 Dec 2022 15:54:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242853;
-        bh=vpBh9Y7oyrWujPlWZ0plnz6n+mL1tLk3ObYK33kysdE=;
+        s=korg; t=1672242862;
+        bh=YAr+kd5PxmmuQ8AejKI4fTRMdn3P609ODV2HXt6aXaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J/cLSuGlrM0T1/S9cfaBKF5/8J5PuyLuJvMK29ljriZQegEIUw03rpSKYq++lEHAZ
-         YZu6KuFcB1JFHjExwD+GozIJZiBxu11d0S8VTC6KY5icUus6DKLiUXhEVN1DtkN/Sd
-         8FG/5M3lOpYrTAFtEfXCbQ6RIXs4k9yM5869uB4M=
+        b=KnIIB4/QyD/YZTeIKx+hBVQ7gCMj1GI95mh7FWLDAf646L9rsuqijXJpNP/xi3de1
+         UXHfP2BxLmAxPz7dnzZJt1bmvJdsObSVldFsWDxe2DoQpzztq5ez43FVWczj3DWYJI
+         aAQFGB+bCmQHsb6mzDfxwC1rvkRnEj7QWtqTsgBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0462/1073] regulator: core: fix resource leak in regulator_register()
-Date:   Wed, 28 Dec 2022 15:34:10 +0100
-Message-Id: <20221228144340.585228551@linuxfoundation.org>
+Subject: [PATCH 6.0 0463/1073] hwmon: (jc42) Convert register access and caching to regmap/regcache
+Date:   Wed, 28 Dec 2022 15:34:11 +0100
+Message-Id: <20221228144340.611359739@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -53,69 +54,419 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit ba62319a42c50e6254e98b3f316464fac8e77968 ]
+[ Upstream commit 8f2fa4726faf01094d7a5be7bd0c120c565f54d9 ]
 
-I got some resource leak reports while doing fault injection test:
+Switch the jc42 driver to use an I2C regmap to access the registers.
+Also move over to regmap's built-in caching instead of adding a
+custom caching implementation. This works for JC42_REG_TEMP_UPPER,
+JC42_REG_TEMP_LOWER and JC42_REG_TEMP_CRITICAL as these values never
+change except when explicitly written. The cache For JC42_REG_TEMP is
+dropped (regmap can't cache it because it's volatile, meaning it can
+change at any time) as well for simplicity and consistency with other
+drivers.
 
-  OF: ERROR: memory leak, expected refcount 1 instead of 100,
-  of_node_get()/of_node_put() unbalanced - destroy cset entry:
-  attach overlay node /i2c/pmic@64/regulators/buck1
-
-unreferenced object 0xffff88810deea000 (size 512):
-  comm "490-i2c-rt5190a", pid 253, jiffies 4294859840 (age 5061.046s)
-  hex dump (first 32 bytes):
-    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
-    ff ff ff ff ff ff ff ff a0 1e 00 a1 ff ff ff ff  ................
-  backtrace:
-    [<00000000d78541e2>] kmalloc_trace+0x21/0x110
-    [<00000000b343d153>] device_private_init+0x32/0xd0
-    [<00000000be1f0c70>] device_add+0xb2d/0x1030
-    [<00000000e3e6344d>] regulator_register+0xaf2/0x12a0
-    [<00000000e2f5e754>] devm_regulator_register+0x57/0xb0
-    [<000000008b898197>] rt5190a_probe+0x52a/0x861 [rt5190a_regulator]
-
-unreferenced object 0xffff88810b617b80 (size 32):
-  comm "490-i2c-rt5190a", pid 253, jiffies 4294859904 (age 5060.983s)
-  hex dump (first 32 bytes):
-    72 65 67 75 6c 61 74 6f 72 2e 32 38 36 38 2d 53  regulator.2868-S
-    55 50 50 4c 59 00 ff ff 29 00 00 00 2b 00 00 00  UPPLY...)...+...
-  backtrace:
-    [<000000009da9280d>] __kmalloc_node_track_caller+0x44/0x1b0
-    [<0000000025c6a4e5>] kstrdup+0x3a/0x70
-    [<00000000790efb69>] create_regulator+0xc0/0x4e0
-    [<0000000005ed203a>] regulator_resolve_supply+0x2d4/0x440
-    [<0000000045796214>] regulator_register+0x10b3/0x12a0
-    [<00000000e2f5e754>] devm_regulator_register+0x57/0xb0
-    [<000000008b898197>] rt5190a_probe+0x52a/0x861 [rt5190a_regulator]
-
-After calling regulator_resolve_supply(), the 'rdev->supply' is set
-by set_supply(), after this set, in the error path, the resources
-need be released, so call regulator_put() to avoid the leaks.
-
-Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
-Fixes: 8a866d527ac0 ("regulator: core: Resolve supply name earlier to prevent double-init")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221202025111.496402-1-yangyingliang@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Link: https://lore.kernel.org/r/20221023213157.11078-2-martin.blumenstingl@googlemail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Stable-dep-of: 084ed144c448 ("hwmon: (jc42) Restore the min/max/critical temperatures on resume")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hwmon/Kconfig |   1 +
+ drivers/hwmon/jc42.c  | 233 ++++++++++++++++++++++++------------------
+ 2 files changed, 132 insertions(+), 102 deletions(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 9b839dced470..4a93154bb574 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -5615,6 +5615,7 @@ regulator_register(const struct regulator_desc *regulator_desc,
- 	regulator_remove_coupling(rdev);
- 	mutex_unlock(&regulator_list_mutex);
- wash:
-+	regulator_put(rdev->supply);
- 	kfree(rdev->coupling_desc.coupled_rdevs);
- 	mutex_lock(&regulator_list_mutex);
- 	regulator_ena_gpio_free(rdev);
+diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
+index e70d9614bec2..1533127960e7 100644
+--- a/drivers/hwmon/Kconfig
++++ b/drivers/hwmon/Kconfig
+@@ -798,6 +798,7 @@ config SENSORS_IT87
+ config SENSORS_JC42
+ 	tristate "JEDEC JC42.4 compliant memory module temperature sensors"
+ 	depends on I2C
++	select REGMAP_I2C
+ 	help
+ 	  If you say yes here, you get support for JEDEC JC42.4 compliant
+ 	  temperature sensors, which are used on many DDR3 memory modules for
+diff --git a/drivers/hwmon/jc42.c b/drivers/hwmon/jc42.c
+index 07f7f8b5b73d..96bffd5b5866 100644
+--- a/drivers/hwmon/jc42.c
++++ b/drivers/hwmon/jc42.c
+@@ -19,6 +19,7 @@
+ #include <linux/err.h>
+ #include <linux/mutex.h>
+ #include <linux/of.h>
++#include <linux/regmap.h>
+ 
+ /* Addresses to scan */
+ static const unsigned short normal_i2c[] = {
+@@ -199,31 +200,14 @@ static struct jc42_chips jc42_chips[] = {
+ 	{ STM_MANID, STTS3000_DEVID, STTS3000_DEVID_MASK },
+ };
+ 
+-enum temp_index {
+-	t_input = 0,
+-	t_crit,
+-	t_min,
+-	t_max,
+-	t_num_temp
+-};
+-
+-static const u8 temp_regs[t_num_temp] = {
+-	[t_input] = JC42_REG_TEMP,
+-	[t_crit] = JC42_REG_TEMP_CRITICAL,
+-	[t_min] = JC42_REG_TEMP_LOWER,
+-	[t_max] = JC42_REG_TEMP_UPPER,
+-};
+-
+ /* Each client has this additional data */
+ struct jc42_data {
+-	struct i2c_client *client;
+ 	struct mutex	update_lock;	/* protect register access */
++	struct regmap	*regmap;
+ 	bool		extended;	/* true if extended range supported */
+ 	bool		valid;
+-	unsigned long	last_updated;	/* In jiffies */
+ 	u16		orig_config;	/* original configuration */
+ 	u16		config;		/* current configuration */
+-	u16		temp[t_num_temp];/* Temperatures */
+ };
+ 
+ #define JC42_TEMP_MIN_EXTENDED	(-40000)
+@@ -248,85 +232,102 @@ static int jc42_temp_from_reg(s16 reg)
+ 	return reg * 125 / 2;
+ }
+ 
+-static struct jc42_data *jc42_update_device(struct device *dev)
+-{
+-	struct jc42_data *data = dev_get_drvdata(dev);
+-	struct i2c_client *client = data->client;
+-	struct jc42_data *ret = data;
+-	int i, val;
+-
+-	mutex_lock(&data->update_lock);
+-
+-	if (time_after(jiffies, data->last_updated + HZ) || !data->valid) {
+-		for (i = 0; i < t_num_temp; i++) {
+-			val = i2c_smbus_read_word_swapped(client, temp_regs[i]);
+-			if (val < 0) {
+-				ret = ERR_PTR(val);
+-				goto abort;
+-			}
+-			data->temp[i] = val;
+-		}
+-		data->last_updated = jiffies;
+-		data->valid = true;
+-	}
+-abort:
+-	mutex_unlock(&data->update_lock);
+-	return ret;
+-}
+-
+ static int jc42_read(struct device *dev, enum hwmon_sensor_types type,
+ 		     u32 attr, int channel, long *val)
+ {
+-	struct jc42_data *data = jc42_update_device(dev);
+-	int temp, hyst;
++	struct jc42_data *data = dev_get_drvdata(dev);
++	unsigned int regval;
++	int ret, temp, hyst;
+ 
+-	if (IS_ERR(data))
+-		return PTR_ERR(data);
++	mutex_lock(&data->update_lock);
+ 
+ 	switch (attr) {
+ 	case hwmon_temp_input:
+-		*val = jc42_temp_from_reg(data->temp[t_input]);
+-		return 0;
++		ret = regmap_read(data->regmap, JC42_REG_TEMP, &regval);
++		if (ret)
++			break;
++
++		*val = jc42_temp_from_reg(regval);
++		break;
+ 	case hwmon_temp_min:
+-		*val = jc42_temp_from_reg(data->temp[t_min]);
+-		return 0;
++		ret = regmap_read(data->regmap, JC42_REG_TEMP_LOWER, &regval);
++		if (ret)
++			break;
++
++		*val = jc42_temp_from_reg(regval);
++		break;
+ 	case hwmon_temp_max:
+-		*val = jc42_temp_from_reg(data->temp[t_max]);
+-		return 0;
++		ret = regmap_read(data->regmap, JC42_REG_TEMP_UPPER, &regval);
++		if (ret)
++			break;
++
++		*val = jc42_temp_from_reg(regval);
++		break;
+ 	case hwmon_temp_crit:
+-		*val = jc42_temp_from_reg(data->temp[t_crit]);
+-		return 0;
++		ret = regmap_read(data->regmap, JC42_REG_TEMP_CRITICAL,
++				  &regval);
++		if (ret)
++			break;
++
++		*val = jc42_temp_from_reg(regval);
++		break;
+ 	case hwmon_temp_max_hyst:
+-		temp = jc42_temp_from_reg(data->temp[t_max]);
++		ret = regmap_read(data->regmap, JC42_REG_TEMP_UPPER, &regval);
++		if (ret)
++			break;
++
++		temp = jc42_temp_from_reg(regval);
+ 		hyst = jc42_hysteresis[(data->config & JC42_CFG_HYST_MASK)
+ 						>> JC42_CFG_HYST_SHIFT];
+ 		*val = temp - hyst;
+-		return 0;
++		break;
+ 	case hwmon_temp_crit_hyst:
+-		temp = jc42_temp_from_reg(data->temp[t_crit]);
++		ret = regmap_read(data->regmap, JC42_REG_TEMP_CRITICAL,
++				  &regval);
++		if (ret)
++			break;
++
++		temp = jc42_temp_from_reg(regval);
+ 		hyst = jc42_hysteresis[(data->config & JC42_CFG_HYST_MASK)
+ 						>> JC42_CFG_HYST_SHIFT];
+ 		*val = temp - hyst;
+-		return 0;
++		break;
+ 	case hwmon_temp_min_alarm:
+-		*val = (data->temp[t_input] >> JC42_ALARM_MIN_BIT) & 1;
+-		return 0;
++		ret = regmap_read(data->regmap, JC42_REG_TEMP, &regval);
++		if (ret)
++			break;
++
++		*val = (regval >> JC42_ALARM_MIN_BIT) & 1;
++		break;
+ 	case hwmon_temp_max_alarm:
+-		*val = (data->temp[t_input] >> JC42_ALARM_MAX_BIT) & 1;
+-		return 0;
++		ret = regmap_read(data->regmap, JC42_REG_TEMP, &regval);
++		if (ret)
++			break;
++
++		*val = (regval >> JC42_ALARM_MAX_BIT) & 1;
++		break;
+ 	case hwmon_temp_crit_alarm:
+-		*val = (data->temp[t_input] >> JC42_ALARM_CRIT_BIT) & 1;
+-		return 0;
++		ret = regmap_read(data->regmap, JC42_REG_TEMP, &regval);
++		if (ret)
++			break;
++
++		*val = (regval >> JC42_ALARM_CRIT_BIT) & 1;
++		break;
+ 	default:
+-		return -EOPNOTSUPP;
++		ret = -EOPNOTSUPP;
++		break;
+ 	}
++
++	mutex_unlock(&data->update_lock);
++
++	return ret;
+ }
+ 
+ static int jc42_write(struct device *dev, enum hwmon_sensor_types type,
+ 		      u32 attr, int channel, long val)
+ {
+ 	struct jc42_data *data = dev_get_drvdata(dev);
+-	struct i2c_client *client = data->client;
++	unsigned int regval;
+ 	int diff, hyst;
+ 	int ret;
+ 
+@@ -334,21 +335,23 @@ static int jc42_write(struct device *dev, enum hwmon_sensor_types type,
+ 
+ 	switch (attr) {
+ 	case hwmon_temp_min:
+-		data->temp[t_min] = jc42_temp_to_reg(val, data->extended);
+-		ret = i2c_smbus_write_word_swapped(client, temp_regs[t_min],
+-						   data->temp[t_min]);
++		ret = regmap_write(data->regmap, JC42_REG_TEMP_LOWER,
++				   jc42_temp_to_reg(val, data->extended));
+ 		break;
+ 	case hwmon_temp_max:
+-		data->temp[t_max] = jc42_temp_to_reg(val, data->extended);
+-		ret = i2c_smbus_write_word_swapped(client, temp_regs[t_max],
+-						   data->temp[t_max]);
++		ret = regmap_write(data->regmap, JC42_REG_TEMP_UPPER,
++				   jc42_temp_to_reg(val, data->extended));
+ 		break;
+ 	case hwmon_temp_crit:
+-		data->temp[t_crit] = jc42_temp_to_reg(val, data->extended);
+-		ret = i2c_smbus_write_word_swapped(client, temp_regs[t_crit],
+-						   data->temp[t_crit]);
++		ret = regmap_write(data->regmap, JC42_REG_TEMP_CRITICAL,
++				   jc42_temp_to_reg(val, data->extended));
+ 		break;
+ 	case hwmon_temp_crit_hyst:
++		ret = regmap_read(data->regmap, JC42_REG_TEMP_CRITICAL,
++				  &regval);
++		if (ret)
++			return ret;
++
+ 		/*
+ 		 * JC42.4 compliant chips only support four hysteresis values.
+ 		 * Pick best choice and go from there.
+@@ -356,7 +359,7 @@ static int jc42_write(struct device *dev, enum hwmon_sensor_types type,
+ 		val = clamp_val(val, (data->extended ? JC42_TEMP_MIN_EXTENDED
+ 						     : JC42_TEMP_MIN) - 6000,
+ 				JC42_TEMP_MAX);
+-		diff = jc42_temp_from_reg(data->temp[t_crit]) - val;
++		diff = jc42_temp_from_reg(regval) - val;
+ 		hyst = 0;
+ 		if (diff > 0) {
+ 			if (diff < 2250)
+@@ -368,9 +371,8 @@ static int jc42_write(struct device *dev, enum hwmon_sensor_types type,
+ 		}
+ 		data->config = (data->config & ~JC42_CFG_HYST_MASK) |
+ 				(hyst << JC42_CFG_HYST_SHIFT);
+-		ret = i2c_smbus_write_word_swapped(data->client,
+-						   JC42_REG_CONFIG,
+-						   data->config);
++		ret = regmap_write(data->regmap, JC42_REG_CONFIG,
++				   data->config);
+ 		break;
+ 	default:
+ 		ret = -EOPNOTSUPP;
+@@ -470,51 +472,80 @@ static const struct hwmon_chip_info jc42_chip_info = {
+ 	.info = jc42_info,
+ };
+ 
++static bool jc42_readable_reg(struct device *dev, unsigned int reg)
++{
++	return (reg >= JC42_REG_CAP && reg <= JC42_REG_DEVICEID) ||
++		reg == JC42_REG_SMBUS;
++}
++
++static bool jc42_writable_reg(struct device *dev, unsigned int reg)
++{
++	return (reg >= JC42_REG_CONFIG && reg <= JC42_REG_TEMP_CRITICAL) ||
++		reg == JC42_REG_SMBUS;
++}
++
++static bool jc42_volatile_reg(struct device *dev, unsigned int reg)
++{
++	return reg == JC42_REG_CONFIG || reg == JC42_REG_TEMP;
++}
++
++static const struct regmap_config jc42_regmap_config = {
++	.reg_bits = 8,
++	.val_bits = 16,
++	.val_format_endian = REGMAP_ENDIAN_BIG,
++	.max_register = JC42_REG_SMBUS,
++	.writeable_reg = jc42_writable_reg,
++	.readable_reg = jc42_readable_reg,
++	.volatile_reg = jc42_volatile_reg,
++	.cache_type = REGCACHE_RBTREE,
++};
++
+ static int jc42_probe(struct i2c_client *client)
+ {
+ 	struct device *dev = &client->dev;
+ 	struct device *hwmon_dev;
++	unsigned int config, cap;
+ 	struct jc42_data *data;
+-	int config, cap;
++	int ret;
+ 
+ 	data = devm_kzalloc(dev, sizeof(struct jc42_data), GFP_KERNEL);
+ 	if (!data)
+ 		return -ENOMEM;
+ 
+-	data->client = client;
++	data->regmap = devm_regmap_init_i2c(client, &jc42_regmap_config);
++	if (IS_ERR(data->regmap))
++		return PTR_ERR(data->regmap);
++
+ 	i2c_set_clientdata(client, data);
+ 	mutex_init(&data->update_lock);
+ 
+-	cap = i2c_smbus_read_word_swapped(client, JC42_REG_CAP);
+-	if (cap < 0)
+-		return cap;
++	ret = regmap_read(data->regmap, JC42_REG_CAP, &cap);
++	if (ret)
++		return ret;
+ 
+ 	data->extended = !!(cap & JC42_CAP_RANGE);
+ 
+ 	if (device_property_read_bool(dev, "smbus-timeout-disable")) {
+-		int smbus;
+-
+ 		/*
+ 		 * Not all chips support this register, but from a
+ 		 * quick read of various datasheets no chip appears
+ 		 * incompatible with the below attempt to disable
+ 		 * the timeout. And the whole thing is opt-in...
+ 		 */
+-		smbus = i2c_smbus_read_word_swapped(client, JC42_REG_SMBUS);
+-		if (smbus < 0)
+-			return smbus;
+-		i2c_smbus_write_word_swapped(client, JC42_REG_SMBUS,
+-					     smbus | SMBUS_STMOUT);
++		ret = regmap_set_bits(data->regmap, JC42_REG_SMBUS,
++				      SMBUS_STMOUT);
++		if (ret)
++			return ret;
+ 	}
+ 
+-	config = i2c_smbus_read_word_swapped(client, JC42_REG_CONFIG);
+-	if (config < 0)
+-		return config;
++	ret = regmap_read(data->regmap, JC42_REG_CONFIG, &config);
++	if (ret)
++		return ret;
+ 
+ 	data->orig_config = config;
+ 	if (config & JC42_CFG_SHUTDOWN) {
+ 		config &= ~JC42_CFG_SHUTDOWN;
+-		i2c_smbus_write_word_swapped(client, JC42_REG_CONFIG, config);
++		regmap_write(data->regmap, JC42_REG_CONFIG, config);
+ 	}
+ 	data->config = config;
+ 
+@@ -535,7 +566,7 @@ static int jc42_remove(struct i2c_client *client)
+ 
+ 		config = (data->orig_config & ~JC42_CFG_HYST_MASK)
+ 		  | (data->config & JC42_CFG_HYST_MASK);
+-		i2c_smbus_write_word_swapped(client, JC42_REG_CONFIG, config);
++		regmap_write(data->regmap, JC42_REG_CONFIG, config);
+ 	}
+ 	return 0;
+ }
+@@ -547,8 +578,7 @@ static int jc42_suspend(struct device *dev)
+ 	struct jc42_data *data = dev_get_drvdata(dev);
+ 
+ 	data->config |= JC42_CFG_SHUTDOWN;
+-	i2c_smbus_write_word_swapped(data->client, JC42_REG_CONFIG,
+-				     data->config);
++	regmap_write(data->regmap, JC42_REG_CONFIG, data->config);
+ 	return 0;
+ }
+ 
+@@ -557,8 +587,7 @@ static int jc42_resume(struct device *dev)
+ 	struct jc42_data *data = dev_get_drvdata(dev);
+ 
+ 	data->config &= ~JC42_CFG_SHUTDOWN;
+-	i2c_smbus_write_word_swapped(data->client, JC42_REG_CONFIG,
+-				     data->config);
++	regmap_write(data->regmap, JC42_REG_CONFIG, data->config);
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
