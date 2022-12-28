@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5814E657F15
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:01:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6426E6578CD
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:54:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234290AbiL1QBC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:01:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47718 "EHLO
+        id S233194AbiL1Oya (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:54:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234261AbiL1QAy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:00:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 156EF399
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:00:52 -0800 (PST)
+        with ESMTP id S233185AbiL1OyU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:54:20 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 148732E6
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:54:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 79D7E61560
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:00:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ABB3C433D2;
-        Wed, 28 Dec 2022 16:00:51 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 82471CE134E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:54:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DFEDC433D2;
+        Wed, 28 Dec 2022 14:54:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243251;
-        bh=oIHAkWDmVMo/Yiag7xa+x1Jg5pMtkjY98LWFLT5Ik7s=;
+        s=korg; t=1672239255;
+        bh=yyBeemMh7SHz2UU8auWCUtpr1CQoYBH0weA+nhdRoXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=duLfZJc0+s6OljsxyrgtDe72863paARmb4avjUAIRTgrVFatp7dXWJHGnomJlhsk0
-         m6YuHXj0JyJ01VxnmvnVnUgbh8FZ13KvekvG4xTu3lX/AyGgCuuQNve6Ec2QwOQW7Z
-         81ono6qQF4Vjc5zo1vdmcwMUJt8UGWb3zxQ9LzKo=
+        b=F6NUk/z+KOmAgkm9ICWR/aZ7H2c1BiYZKBARJGTRHjk3anaDRPsSyq0NjC8J7wkpa
+         Uw1RNAmhurQHl6Q+vbQLmVwkJG07+qe/NjPSa2ECA+CAPgVEhJ9aiiQhmjWBCcxnj/
+         jQwu3fARIQ09AP49P5gGsZ6Mm81U2+ehHta9p5T8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
-        Arend van Spriel <arend.vanspriel@broadcom.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0506/1073] wifi: brcmfmac: Fix error return code in brcmf_sdio_download_firmware()
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 187/731] Input: joystick - fix Kconfig warning for JOYSTICK_ADC
 Date:   Wed, 28 Dec 2022 15:34:54 +0100
-Message-Id: <20221228144341.787142481@linuxfoundation.org>
+Message-Id: <20221228144301.980734260@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit c2f2924bc7f9ea75ef8d95863e710168f8196256 ]
+[ Upstream commit 6100a19c4fcfe154dd32f8a8ef4e8c0b1f607c75 ]
 
-Fix to return a negative error code instead of 0 when
-brcmf_chip_set_active() fails. In addition, change the return
-value for brcmf_pcie_exit_download_state() to keep consistent.
+Fix a Kconfig warning for JOYSTICK_ADC by also selecting
+IIO_BUFFER.
 
-Fixes: d380ebc9b6fb ("brcmfmac: rename chip download functions")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/1669959342-27144-1-git-send-email-wangyufen@huawei.com
+WARNING: unmet direct dependencies detected for IIO_BUFFER_CB
+  Depends on [n]: IIO [=y] && IIO_BUFFER [=n]
+  Selected by [y]:
+  - JOYSTICK_ADC [=y] && INPUT [=y] && INPUT_JOYSTICK [=y] && IIO [=y]
+
+Fixes: 2c2b364fddd5 ("Input: joystick - add ADC attached joystick driver.")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/20221104201238.31628-1-rdunlap@infradead.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c | 2 +-
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/input/joystick/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-index 97f0f13dfe50..7fc8d47f2281 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-@@ -626,7 +626,7 @@ static int brcmf_pcie_exit_download_state(struct brcmf_pciedev_info *devinfo,
- 	}
- 
- 	if (!brcmf_chip_set_active(devinfo->ci, resetintr))
--		return -EINVAL;
-+		return -EIO;
- 	return 0;
- }
- 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-index 8968809399c7..2e4cd8096f03 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-@@ -3412,6 +3412,7 @@ static int brcmf_sdio_download_firmware(struct brcmf_sdio *bus,
- 	/* Take arm out of reset */
- 	if (!brcmf_chip_set_active(bus->ci, rstvec)) {
- 		brcmf_err("error getting out of ARM core reset\n");
-+		bcmerror = -EIO;
- 		goto err;
- 	}
- 
+diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
+index 3b23078bc7b5..db4135bbd279 100644
+--- a/drivers/input/joystick/Kconfig
++++ b/drivers/input/joystick/Kconfig
+@@ -46,6 +46,7 @@ config JOYSTICK_A3D
+ config JOYSTICK_ADC
+ 	tristate "Simple joystick connected over ADC"
+ 	depends on IIO
++	select IIO_BUFFER
+ 	select IIO_BUFFER_CB
+ 	help
+ 	  Say Y here if you have a simple joystick connected over ADC.
 -- 
 2.35.1
 
