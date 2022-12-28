@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89FE0658247
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:34:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6E08657B95
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233740AbiL1QeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:34:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53576 "EHLO
+        id S233621AbiL1PX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:23:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234827AbiL1Qd4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 007221C432
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:31:20 -0800 (PST)
+        with ESMTP id S233328AbiL1PXR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:23:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0FCB13E18
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:23:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 90A6161576
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:31:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A26A0C433D2;
-        Wed, 28 Dec 2022 16:31:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5D294B816D9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:23:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBDA2C433D2;
+        Wed, 28 Dec 2022 15:23:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245080;
-        bh=FsfpOartd4Ml1rfdWDWlHdOeYWjDt7bGW/0F3rvErpY=;
+        s=korg; t=1672240994;
+        bh=MGeFGa+t+de0D4N0m5cs3jCD0iHHSXGXUzRPsSh/mYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J1VfoKtCYLXVQPuVS1VSi32dWHiMMQslgxUhv9FS8Wk8mEHoBddg85MVRsj9Ht4rs
-         PPdNv0QEol0jf8oYbhxxxU+lkWbTb9LHywWxYjhdNX4dVoWPSSQnN1ftKhZcXjQTX1
-         WSVyFMzHnGYu2FdIps/AmZWlcDwendz+MnCOjQ/Y=
+        b=gCdfU6ERDxzJx7SOGTLw3PYUjpio7Q6nsujMeT+Dd9h1REHcpgo/LGyNcZA5bcLKM
+         DRkS2NdnlbWpxgXhVcQLv0f3M5l4UFCtxszFfoCuPlh0/Z/eGWjl6ekgr7qR9hvCsz
+         heMdl2jbFZV6sN+pf2Eb1nNefXMBWJQgXX4ZIxR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0793/1146] phy: qcom-qmp-pcie: drop bogus register update
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Leon Romanovsky <leon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 425/731] RDMA/srp: Fix error return code in srp_parse_options()
 Date:   Wed, 28 Dec 2022 15:38:52 +0100
-Message-Id: <20221228144351.687644630@linuxfoundation.org>
+Message-Id: <20221228144308.886921594@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +54,239 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit 2d93887cb4bac0a36ce9e146956f631ab7994680 ]
+[ Upstream commit ed461b30b22c8fa85c25189c14cb89f29595cd14 ]
 
-Since commit 0d58280cf1e6 ("phy: Update PHY power control sequence") the
-PHY is powered on before configuring the registers and only the MSM8996
-PCIe PHY, which includes the POWER_DOWN_CONTROL register in its PCS
-initialisation table, may possibly require a second update afterwards.
+In the previous iteration of the while loop, the "ret" may have been
+assigned a value of 0, so the error return code -EINVAL may have been
+incorrectly set to 0. To fix set valid return code before calling to
+goto. Also investigate each case separately as Andy suggessted.
 
-To make things worse, the POWER_DOWN_CONTROL register lies at a
-different offset on more recent SoCs so that the second update, which
-still used a hard-coded offset, would write to an unrelated register
-(e.g. a revision-id register on SC8280XP).
-
-As the MSM8996 PCIe PHY is now handled by a separate driver, simply drop
-the bogus register update.
-
-Fixes: e4d8b05ad5f9 ("phy: qcom-qmp: Use proper PWRDOWN offset for sm8150 USB") added support
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Tested-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org> #RB3
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20221017065013.19647-12-johan+linaro@kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: e711f968c49c ("IB/srp: replace custom implementation of hex2bin()")
+Fixes: 2a174df0c602 ("IB/srp: Use kstrtoull() instead of simple_strtoull()")
+Fixes: 19f313438c77 ("IB/srp: Add RDMA/CM support")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Link: https://lore.kernel.org/r/1669953638-11747-2-git-send-email-wangyufen@huawei.com
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/qualcomm/phy-qcom-qmp-pcie.c | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/infiniband/ulp/srp/ib_srp.c | 96 ++++++++++++++++++++++++-----
+ 1 file changed, 82 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c b/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
-index 5be5348fbb26..9c8c30ee7c71 100644
---- a/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
-+++ b/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
-@@ -1975,12 +1975,6 @@ static int qmp_pcie_power_on(struct phy *phy)
- 	qmp_pcie_configure(pcs_misc, cfg->regs, cfg->pcs_misc_tbl, cfg->pcs_misc_tbl_num);
- 	qmp_pcie_configure(pcs_misc, cfg->regs, cfg->pcs_misc_tbl_sec, cfg->pcs_misc_tbl_num_sec);
+diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
+index 2f4991cea98c..a6117a7d0ab1 100644
+--- a/drivers/infiniband/ulp/srp/ib_srp.c
++++ b/drivers/infiniband/ulp/srp/ib_srp.c
+@@ -3397,7 +3397,8 @@ static int srp_parse_options(struct net *net, const char *buf,
+ 			break;
  
--	/*
--	 * Pull out PHY from POWER DOWN state.
--	 * This is active low enable signal to power-down PHY.
--	 */
--	qphy_setbits(pcs, QPHY_V2_PCS_POWER_DOWN_CONTROL, cfg->pwrdn_ctrl);
--
- 	if (cfg->has_pwrdn_delay)
- 		usleep_range(cfg->pwrdn_delay_min, cfg->pwrdn_delay_max);
+ 		case SRP_OPT_PKEY:
+-			if (match_hex(args, &token)) {
++			ret = match_hex(args, &token);
++			if (ret) {
+ 				pr_warn("bad P_Key parameter '%s'\n", p);
+ 				goto out;
+ 			}
+@@ -3457,7 +3458,8 @@ static int srp_parse_options(struct net *net, const char *buf,
+ 			break;
  
+ 		case SRP_OPT_MAX_SECT:
+-			if (match_int(args, &token)) {
++			ret = match_int(args, &token);
++			if (ret) {
+ 				pr_warn("bad max sect parameter '%s'\n", p);
+ 				goto out;
+ 			}
+@@ -3465,8 +3467,15 @@ static int srp_parse_options(struct net *net, const char *buf,
+ 			break;
+ 
+ 		case SRP_OPT_QUEUE_SIZE:
+-			if (match_int(args, &token) || token < 1) {
++			ret = match_int(args, &token);
++			if (ret) {
++				pr_warn("match_int() failed for queue_size parameter '%s', Error %d\n",
++					p, ret);
++				goto out;
++			}
++			if (token < 1) {
+ 				pr_warn("bad queue_size parameter '%s'\n", p);
++				ret = -EINVAL;
+ 				goto out;
+ 			}
+ 			target->scsi_host->can_queue = token;
+@@ -3477,25 +3486,40 @@ static int srp_parse_options(struct net *net, const char *buf,
+ 			break;
+ 
+ 		case SRP_OPT_MAX_CMD_PER_LUN:
+-			if (match_int(args, &token) || token < 1) {
++			ret = match_int(args, &token);
++			if (ret) {
++				pr_warn("match_int() failed for max cmd_per_lun parameter '%s', Error %d\n",
++					p, ret);
++				goto out;
++			}
++			if (token < 1) {
+ 				pr_warn("bad max cmd_per_lun parameter '%s'\n",
+ 					p);
++				ret = -EINVAL;
+ 				goto out;
+ 			}
+ 			target->scsi_host->cmd_per_lun = token;
+ 			break;
+ 
+ 		case SRP_OPT_TARGET_CAN_QUEUE:
+-			if (match_int(args, &token) || token < 1) {
++			ret = match_int(args, &token);
++			if (ret) {
++				pr_warn("match_int() failed for max target_can_queue parameter '%s', Error %d\n",
++					p, ret);
++				goto out;
++			}
++			if (token < 1) {
+ 				pr_warn("bad max target_can_queue parameter '%s'\n",
+ 					p);
++				ret = -EINVAL;
+ 				goto out;
+ 			}
+ 			target->target_can_queue = token;
+ 			break;
+ 
+ 		case SRP_OPT_IO_CLASS:
+-			if (match_hex(args, &token)) {
++			ret = match_hex(args, &token);
++			if (ret) {
+ 				pr_warn("bad IO class parameter '%s'\n", p);
+ 				goto out;
+ 			}
+@@ -3504,6 +3528,7 @@ static int srp_parse_options(struct net *net, const char *buf,
+ 				pr_warn("unknown IO class parameter value %x specified (use %x or %x).\n",
+ 					token, SRP_REV10_IB_IO_CLASS,
+ 					SRP_REV16A_IB_IO_CLASS);
++				ret = -EINVAL;
+ 				goto out;
+ 			}
+ 			target->io_class = token;
+@@ -3526,16 +3551,24 @@ static int srp_parse_options(struct net *net, const char *buf,
+ 			break;
+ 
+ 		case SRP_OPT_CMD_SG_ENTRIES:
+-			if (match_int(args, &token) || token < 1 || token > 255) {
++			ret = match_int(args, &token);
++			if (ret) {
++				pr_warn("match_int() failed for max cmd_sg_entries parameter '%s', Error %d\n",
++					p, ret);
++				goto out;
++			}
++			if (token < 1 || token > 255) {
+ 				pr_warn("bad max cmd_sg_entries parameter '%s'\n",
+ 					p);
++				ret = -EINVAL;
+ 				goto out;
+ 			}
+ 			target->cmd_sg_cnt = token;
+ 			break;
+ 
+ 		case SRP_OPT_ALLOW_EXT_SG:
+-			if (match_int(args, &token)) {
++			ret = match_int(args, &token);
++			if (ret) {
+ 				pr_warn("bad allow_ext_sg parameter '%s'\n", p);
+ 				goto out;
+ 			}
+@@ -3543,43 +3576,77 @@ static int srp_parse_options(struct net *net, const char *buf,
+ 			break;
+ 
+ 		case SRP_OPT_SG_TABLESIZE:
+-			if (match_int(args, &token) || token < 1 ||
+-					token > SG_MAX_SEGMENTS) {
++			ret = match_int(args, &token);
++			if (ret) {
++				pr_warn("match_int() failed for max sg_tablesize parameter '%s', Error %d\n",
++					p, ret);
++				goto out;
++			}
++			if (token < 1 || token > SG_MAX_SEGMENTS) {
+ 				pr_warn("bad max sg_tablesize parameter '%s'\n",
+ 					p);
++				ret = -EINVAL;
+ 				goto out;
+ 			}
+ 			target->sg_tablesize = token;
+ 			break;
+ 
+ 		case SRP_OPT_COMP_VECTOR:
+-			if (match_int(args, &token) || token < 0) {
++			ret = match_int(args, &token);
++			if (ret) {
++				pr_warn("match_int() failed for comp_vector parameter '%s', Error %d\n",
++					p, ret);
++				goto out;
++			}
++			if (token < 0) {
+ 				pr_warn("bad comp_vector parameter '%s'\n", p);
++				ret = -EINVAL;
+ 				goto out;
+ 			}
+ 			target->comp_vector = token;
+ 			break;
+ 
+ 		case SRP_OPT_TL_RETRY_COUNT:
+-			if (match_int(args, &token) || token < 2 || token > 7) {
++			ret = match_int(args, &token);
++			if (ret) {
++				pr_warn("match_int() failed for tl_retry_count parameter '%s', Error %d\n",
++					p, ret);
++				goto out;
++			}
++			if (token < 2 || token > 7) {
+ 				pr_warn("bad tl_retry_count parameter '%s' (must be a number between 2 and 7)\n",
+ 					p);
++				ret = -EINVAL;
+ 				goto out;
+ 			}
+ 			target->tl_retry_count = token;
+ 			break;
+ 
+ 		case SRP_OPT_MAX_IT_IU_SIZE:
+-			if (match_int(args, &token) || token < 0) {
++			ret = match_int(args, &token);
++			if (ret) {
++				pr_warn("match_int() failed for max it_iu_size parameter '%s', Error %d\n",
++					p, ret);
++				goto out;
++			}
++			if (token < 0) {
+ 				pr_warn("bad maximum initiator to target IU size '%s'\n", p);
++				ret = -EINVAL;
+ 				goto out;
+ 			}
+ 			target->max_it_iu_size = token;
+ 			break;
+ 
+ 		case SRP_OPT_CH_COUNT:
+-			if (match_int(args, &token) || token < 1) {
++			ret = match_int(args, &token);
++			if (ret) {
++				pr_warn("match_int() failed for channel count parameter '%s', Error %d\n",
++					p, ret);
++				goto out;
++			}
++			if (token < 1) {
+ 				pr_warn("bad channel count %s\n", p);
++				ret = -EINVAL;
+ 				goto out;
+ 			}
+ 			target->ch_count = token;
+@@ -3588,6 +3655,7 @@ static int srp_parse_options(struct net *net, const char *buf,
+ 		default:
+ 			pr_warn("unknown parameter or missing value '%s' in target creation request\n",
+ 				p);
++			ret = -EINVAL;
+ 			goto out;
+ 		}
+ 	}
 -- 
 2.35.1
 
