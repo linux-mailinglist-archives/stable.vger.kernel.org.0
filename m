@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A60956580FD
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:23:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 735A4657B15
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:18:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234655AbiL1QXM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:23:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43286 "EHLO
+        id S233193AbiL1PR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:17:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234819AbiL1QWN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:22:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47E631A04E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:19:53 -0800 (PST)
+        with ESMTP id S233199AbiL1PRz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:17:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98ED913F83
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:17:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73213B81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:19:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAB62C433D2;
-        Wed, 28 Dec 2022 16:19:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 339B961555
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:17:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44228C433EF;
+        Wed, 28 Dec 2022 15:17:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244391;
-        bh=hSIoES5rzG2Tzt9r1wVnmAUajaDyRxb32MmR8W8cvoY=;
+        s=korg; t=1672240673;
+        bh=BTGVFUP1JdWvqlRaCUUYEVaSvv9kxTKah4UUWx/dp0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vi10HXgfX6+vb/AIN41aYaK1X+b2pQpIEznOghsW5EHYmsOVOkcsW84naQdIg97YJ
-         PCWsa3iYsI+tvsZhmL9e8NtUhOG0oSnKPFukJMSfshvgBbOD7DkdlIzNiumot84and
-         7jZmOxQdmTYuyEmgZTt1ixbb9vJnALAJvxCaxL7M=
+        b=cRQV64PN2FEowuNzbO2HBAdMp5QTtT5JraYQQtv9ogTKfagsYbiZ7Ncxp+ahllJen
+         efoJjI7f1lKiRcvDzkJLUKfNrVZuZiA/c1vrQVW2/hKtk4QVuT8/vemOkfG/GcwA2j
+         AMaQ6iXi9gWN+RlpvPim3Ei87k2+GcxzJZbbD8Xo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
-        William Breathitt Gray <william.gray@linaro.org>,
+        patches@lists.linux.dev, Leonid Ravich <lravich@gmail.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0702/1073] counter: stm32-lptimer-cnt: fix the check on arr and cmp registers update
-Date:   Wed, 28 Dec 2022 15:38:10 +0100
-Message-Id: <20221228144347.100215827@linuxfoundation.org>
+Subject: [PATCH 5.15 384/731] IB/mad: Dont call to function that might sleep while in atomic context
+Date:   Wed, 28 Dec 2022 15:38:11 +0100
+Message-Id: <20221228144307.693238782@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +53,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+From: Leonid Ravich <lravich@gmail.com>
 
-[ Upstream commit fd5ac974fc25feed084c2d1599d0dddb4e0556bc ]
+[ Upstream commit 5c20311d76cbaeb7ed2ecf9c8b8322f8fc4a7ae3 ]
 
-The ARR (auto reload register) and CMP (compare) registers are
-successively written. The status bits to check the update of these
-registers are polled together with regmap_read_poll_timeout().
-The condition to end the loop may become true, even if one of the register
-isn't correctly updated.
-So ensure both status bits are set before clearing them.
+Tracepoints are not allowed to sleep, as such the following splat is
+generated due to call to ib_query_pkey() in atomic context.
 
-Fixes: d8958824cf07 ("iio: counter: Add support for STM32 LPTimer")
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Link: https://lore.kernel.org/r/20221123133609.465614-1-fabrice.gasnier@foss.st.com/
-Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
+WARNING: CPU: 0 PID: 1888000 at kernel/trace/ring_buffer.c:2492 rb_commit+0xc1/0x220
+CPU: 0 PID: 1888000 Comm: kworker/u9:0 Kdump: loaded Tainted: G           OE    --------- -  - 4.18.0-305.3.1.el8.x86_64 #1
+ Hardware name: Red Hat KVM, BIOS 1.13.0-2.module_el8.3.0+555+a55c8938 04/01/2014
+ Workqueue: ib-comp-unb-wq ib_cq_poll_work [ib_core]
+ RIP: 0010:rb_commit+0xc1/0x220
+ RSP: 0000:ffffa8ac80f9bca0 EFLAGS: 00010202
+ RAX: ffff8951c7c01300 RBX: ffff8951c7c14a00 RCX: 0000000000000246
+ RDX: ffff8951c707c000 RSI: ffff8951c707c57c RDI: ffff8951c7c14a00
+ RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+ R10: ffff8951c7c01300 R11: 0000000000000001 R12: 0000000000000246
+ R13: 0000000000000000 R14: ffffffff964c70c0 R15: 0000000000000000
+ FS:  0000000000000000(0000) GS:ffff8951fbc00000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00007f20e8f39010 CR3: 000000002ca10005 CR4: 0000000000170ef0
+ Call Trace:
+  ring_buffer_unlock_commit+0x1d/0xa0
+  trace_buffer_unlock_commit_regs+0x3b/0x1b0
+  trace_event_buffer_commit+0x67/0x1d0
+  trace_event_raw_event_ib_mad_recv_done_handler+0x11c/0x160 [ib_core]
+  ib_mad_recv_done+0x48b/0xc10 [ib_core]
+  ? trace_event_raw_event_cq_poll+0x6f/0xb0 [ib_core]
+  __ib_process_cq+0x91/0x1c0 [ib_core]
+  ib_cq_poll_work+0x26/0x80 [ib_core]
+  process_one_work+0x1a7/0x360
+  ? create_worker+0x1a0/0x1a0
+  worker_thread+0x30/0x390
+  ? create_worker+0x1a0/0x1a0
+  kthread+0x116/0x130
+  ? kthread_flush_work_fn+0x10/0x10
+  ret_from_fork+0x35/0x40
+ ---[ end trace 78ba8509d3830a16 ]---
+
+Fixes: 821bf1de45a1 ("IB/MAD: Add recv path trace point")
+Signed-off-by: Leonid Ravich <lravich@gmail.com>
+Link: https://lore.kernel.org/r/Y2t5feomyznrVj7V@leonid-Inspiron-3421
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/counter/stm32-lptimer-cnt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/core/mad.c |  5 -----
+ include/trace/events/ib_mad.h | 13 ++++---------
+ 2 files changed, 4 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/counter/stm32-lptimer-cnt.c b/drivers/counter/stm32-lptimer-cnt.c
-index 68031d93ce89..aee3b1a8aaa7 100644
---- a/drivers/counter/stm32-lptimer-cnt.c
-+++ b/drivers/counter/stm32-lptimer-cnt.c
-@@ -69,7 +69,7 @@ static int stm32_lptim_set_enable_state(struct stm32_lptim_cnt *priv,
+diff --git a/drivers/infiniband/core/mad.c b/drivers/infiniband/core/mad.c
+index 1893aa613ad7..674344eb8e2f 100644
+--- a/drivers/infiniband/core/mad.c
++++ b/drivers/infiniband/core/mad.c
+@@ -59,9 +59,6 @@ static void create_mad_addr_info(struct ib_mad_send_wr_private *mad_send_wr,
+ 			  struct ib_mad_qp_info *qp_info,
+ 			  struct trace_event_raw_ib_mad_send_template *entry)
+ {
+-	u16 pkey;
+-	struct ib_device *dev = qp_info->port_priv->device;
+-	u32 pnum = qp_info->port_priv->port_num;
+ 	struct ib_ud_wr *wr = &mad_send_wr->send_wr;
+ 	struct rdma_ah_attr attr = {};
  
- 	/* ensure CMP & ARR registers are properly written */
- 	ret = regmap_read_poll_timeout(priv->regmap, STM32_LPTIM_ISR, val,
--				       (val & STM32_LPTIM_CMPOK_ARROK),
-+				       (val & STM32_LPTIM_CMPOK_ARROK) == STM32_LPTIM_CMPOK_ARROK,
- 				       100, 1000);
- 	if (ret)
- 		return ret;
+@@ -69,8 +66,6 @@ static void create_mad_addr_info(struct ib_mad_send_wr_private *mad_send_wr,
+ 
+ 	/* These are common */
+ 	entry->sl = attr.sl;
+-	ib_query_pkey(dev, pnum, wr->pkey_index, &pkey);
+-	entry->pkey = pkey;
+ 	entry->rqpn = wr->remote_qpn;
+ 	entry->rqkey = wr->remote_qkey;
+ 	entry->dlid = rdma_ah_get_dlid(&attr);
+diff --git a/include/trace/events/ib_mad.h b/include/trace/events/ib_mad.h
+index 59363a083ecb..d92691c78cff 100644
+--- a/include/trace/events/ib_mad.h
++++ b/include/trace/events/ib_mad.h
+@@ -49,7 +49,6 @@ DECLARE_EVENT_CLASS(ib_mad_send_template,
+ 		__field(int,            retries_left)
+ 		__field(int,            max_retries)
+ 		__field(int,            retry)
+-		__field(u16,            pkey)
+ 	),
+ 
+ 	TP_fast_assign(
+@@ -89,7 +88,7 @@ DECLARE_EVENT_CLASS(ib_mad_send_template,
+ 		  "hdr : base_ver 0x%x class 0x%x class_ver 0x%x " \
+ 		  "method 0x%x status 0x%x class_specific 0x%x tid 0x%llx " \
+ 		  "attr_id 0x%x attr_mod 0x%x  => dlid 0x%08x sl %d "\
+-		  "pkey 0x%x rpqn 0x%x rqpkey 0x%x",
++		  "rpqn 0x%x rqpkey 0x%x",
+ 		__entry->dev_index, __entry->port_num, __entry->qp_num,
+ 		__entry->agent_priv, be64_to_cpu(__entry->wrtid),
+ 		__entry->retries_left, __entry->max_retries,
+@@ -100,7 +99,7 @@ DECLARE_EVENT_CLASS(ib_mad_send_template,
+ 		be16_to_cpu(__entry->class_specific),
+ 		be64_to_cpu(__entry->tid), be16_to_cpu(__entry->attr_id),
+ 		be32_to_cpu(__entry->attr_mod),
+-		be32_to_cpu(__entry->dlid), __entry->sl, __entry->pkey,
++		be32_to_cpu(__entry->dlid), __entry->sl,
+ 		__entry->rqpn, __entry->rqkey
+ 	)
+ );
+@@ -204,7 +203,6 @@ TRACE_EVENT(ib_mad_recv_done_handler,
+ 		__field(u16,            wc_status)
+ 		__field(u32,            slid)
+ 		__field(u32,            dev_index)
+-		__field(u16,            pkey)
+ 	),
+ 
+ 	TP_fast_assign(
+@@ -224,9 +222,6 @@ TRACE_EVENT(ib_mad_recv_done_handler,
+ 		__entry->slid = wc->slid;
+ 		__entry->src_qp = wc->src_qp;
+ 		__entry->sl = wc->sl;
+-		ib_query_pkey(qp_info->port_priv->device,
+-			      qp_info->port_priv->port_num,
+-			      wc->pkey_index, &__entry->pkey);
+ 		__entry->wc_status = wc->status;
+ 	),
+ 
+@@ -234,7 +229,7 @@ TRACE_EVENT(ib_mad_recv_done_handler,
+ 		  "base_ver 0x%02x class 0x%02x class_ver 0x%02x " \
+ 		  "method 0x%02x status 0x%04x class_specific 0x%04x " \
+ 		  "tid 0x%016llx attr_id 0x%04x attr_mod 0x%08x " \
+-		  "slid 0x%08x src QP%d, sl %d pkey 0x%04x",
++		  "slid 0x%08x src QP%d, sl %d",
+ 		__entry->dev_index, __entry->port_num, __entry->qp_num,
+ 		__entry->wc_status,
+ 		__entry->length,
+@@ -244,7 +239,7 @@ TRACE_EVENT(ib_mad_recv_done_handler,
+ 		be16_to_cpu(__entry->class_specific),
+ 		be64_to_cpu(__entry->tid), be16_to_cpu(__entry->attr_id),
+ 		be32_to_cpu(__entry->attr_mod),
+-		__entry->slid, __entry->src_qp, __entry->sl, __entry->pkey
++		__entry->slid, __entry->src_qp, __entry->sl
+ 	)
+ );
+ 
 -- 
 2.35.1
 
