@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4D50657FF9
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:13:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 387CC657F1F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:01:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234425AbiL1QM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:12:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55128 "EHLO
+        id S234314AbiL1QBo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:01:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234564AbiL1QL5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:11:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60F041A39B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:10:02 -0800 (PST)
+        with ESMTP id S234318AbiL1QBX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:01:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0DE419281
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:01:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F097A6155B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:10:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F32EC433EF;
-        Wed, 28 Dec 2022 16:10:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5AB50B817AC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:01:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3CBDC433F1;
+        Wed, 28 Dec 2022 16:01:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243801;
-        bh=hEywVymhDqh4o2mJYS9dU1xyxiPnAJ3GsGDziuApShQ=;
+        s=korg; t=1672243279;
+        bh=TuF4wUYdyFvLGY9SACynje///QzokDH5XG2EpqcTumw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tmCkivRV+l2ajttXAvVlHttOFoeej0D36THMbHqtzCfwNaZ1c+3uEObJLPK+DkQr3
-         KPC0haoVRiLjSuPXlZiAFRhNvpGzFonaB0Oo94hQSdWi9nI93czJkztQkBAWW8GqC9
-         40woDvyznJw3XDziWQWYAkG76Wr69eyDHe161qUI=
+        b=zVwpVl9z9FXpYGFABMHwhhv/s35O97Gc0gJ31TQvomjtWbNM+EfOBknDC2KIrrrqB
+         oTDKdaprxZR+SqvtiihoV3eZMtRYNxoS8WOm6qQvXmoK9E4U59Yp6pev4BAhnzJ0AG
+         z+kYsXUXeFwsCf+qlgnAi1+lU3RgeOqIyNwW0hYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0558/1146] Bluetooth: hci_conn: Fix crash on hci_create_cis_sync
+Subject: [PATCH 6.0 0509/1073] clk: socfpga: Fix memory leak in socfpga_gate_init()
 Date:   Wed, 28 Dec 2022 15:34:57 +0100
-Message-Id: <20221228144345.326001347@linuxfoundation.org>
+Message-Id: <20221228144341.872532487@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-[ Upstream commit 50757a259ba78c4e938b5735e76ffec6cd0c942e ]
+[ Upstream commit 0b8ba891ad4d1ef6bfa4c72efc83f9f9f855f68b ]
 
-When attempting to connect multiple ISO sockets without using
-DEFER_SETUP may result in the following crash:
+Free @socfpga_clk and @ops on the error path to avoid memory leak issue.
 
-BUG: KASAN: null-ptr-deref in hci_create_cis_sync+0x18b/0x2b0
-Read of size 2 at addr 0000000000000036 by task kworker/u3:1/50
-
-CPU: 0 PID: 50 Comm: kworker/u3:1 Not tainted
-6.0.0-rc7-02243-gb84a13ff4eda #4373
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009),
-BIOS 1.16.0-1.fc36 04/01/2014
-Workqueue: hci0 hci_cmd_sync_work
-Call Trace:
- <TASK>
- dump_stack_lvl+0x19/0x27
- kasan_report+0xbc/0xf0
- ? hci_create_cis_sync+0x18b/0x2b0
- hci_create_cis_sync+0x18b/0x2b0
- ? get_link_mode+0xd0/0xd0
- ? __ww_mutex_lock_slowpath+0x10/0x10
- ? mutex_lock+0xe0/0xe0
- ? get_link_mode+0xd0/0xd0
- hci_cmd_sync_work+0x111/0x190
- process_one_work+0x427/0x650
- worker_thread+0x87/0x750
- ? process_one_work+0x650/0x650
- kthread+0x14e/0x180
- ? kthread_exit+0x50/0x50
- ret_from_fork+0x22/0x30
- </TASK>
-
-Fixes: 26afbd826ee3 ("Bluetooth: Add initial implementation of CIS connections")
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: a30a67be7b6e ("clk: socfpga: Don't have get_parent for single parent ops")
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+Link: https://lore.kernel.org/r/20221123031622.63171-1-xiujianfeng@huawei.com
+Acked-by: Dinh Nguyen <dinguyen@kernel.org>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_conn.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/socfpga/clk-gate.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/hci_conn.c b/net/bluetooth/hci_conn.c
-index a6c12863a253..8aab2e882958 100644
---- a/net/bluetooth/hci_conn.c
-+++ b/net/bluetooth/hci_conn.c
-@@ -1881,7 +1881,7 @@ static int hci_create_cis_sync(struct hci_dev *hdev, void *data)
- 			continue;
+diff --git a/drivers/clk/socfpga/clk-gate.c b/drivers/clk/socfpga/clk-gate.c
+index 53d6e3ec4309..c94b59b80dd4 100644
+--- a/drivers/clk/socfpga/clk-gate.c
++++ b/drivers/clk/socfpga/clk-gate.c
+@@ -188,8 +188,10 @@ void __init socfpga_gate_init(struct device_node *node)
+ 		return;
  
- 		/* Check if all CIS(s) belonging to a CIG are ready */
--		if (conn->link->state != BT_CONNECTED ||
-+		if (!conn->link || conn->link->state != BT_CONNECTED ||
- 		    conn->state != BT_CONNECT) {
- 			cmd.cp.num_cis = 0;
- 			break;
+ 	ops = kmemdup(&gateclk_ops, sizeof(gateclk_ops), GFP_KERNEL);
+-	if (WARN_ON(!ops))
++	if (WARN_ON(!ops)) {
++		kfree(socfpga_clk);
+ 		return;
++	}
+ 
+ 	rc = of_property_read_u32_array(node, "clk-gate", clk_gate, 2);
+ 	if (rc)
+@@ -243,6 +245,7 @@ void __init socfpga_gate_init(struct device_node *node)
+ 
+ 	err = clk_hw_register(NULL, hw_clk);
+ 	if (err) {
++		kfree(ops);
+ 		kfree(socfpga_clk);
+ 		return;
+ 	}
 -- 
 2.35.1
 
