@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 862BE657DBB
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:46:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B20E0657DC3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:46:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234021AbiL1PqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:46:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34638 "EHLO
+        id S234061AbiL1Pqc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:46:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234020AbiL1PqP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:46:15 -0500
+        with ESMTP id S234034AbiL1Pq3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:46:29 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74A34FCD8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:46:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3465E164B6
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:46:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 11C746154D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:46:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A46CC433D2;
-        Wed, 28 Dec 2022 15:46:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C4DAD6155C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:46:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2288C433D2;
+        Wed, 28 Dec 2022 15:46:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242373;
-        bh=XcA2ZsjJlxy7qZFuh/l+mK6SP8pgIj4XPvAQroOHx0g=;
+        s=korg; t=1672242384;
+        bh=ddEyr2L5NZjhQkReltEmm30D5lRXSJMwbWEk530wFlU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xV3BPF+0mqeBq09G15UIU6KB7A5fInQi1OARuOJPX9tEQmShlUFIdaAMsWZL43sdw
-         tq1FdATR7m3hEaxhNeB8m0psNVWLhK2IjqoQ2EbnXKkkRv6q7O+oAM218xdaspBaea
-         qVqcJgDeJgJXKf1ERNWB5BK9/HMDGw/oalvXgfEs=
+        b=PnydTcpl4uOg46CCL81112bh7CQfGbwPfLZMIw+wLA8nD8HW/d1YhZW0Ye2zwWRXL
+         S8LLGYhA6UTwZ5QWqTpk3b1f+bR+m6mgiNW0BQhm2mZUX7szvmDNvvPrFwoK4tf+jr
+         m3085Lcj6EteMKVbHIFsZSxaEA7cpp/gyCyKPkuE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
         Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>,
+        Tan Tee Min <tee.min.tan@linux.intel.com>,
         Naama Meir <naamax.meir@linux.intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 596/731] igc: Add checking for basetime less than zero
-Date:   Wed, 28 Dec 2022 15:41:43 +0100
-Message-Id: <20221228144313.817776830@linuxfoundation.org>
+Subject: [PATCH 5.15 597/731] igc: allow BaseTime 0 enrollment for Qbv
+Date:   Wed, 28 Dec 2022 15:41:44 +0100
+Message-Id: <20221228144313.846280652@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
 References: <20221228144256.536395940@linuxfoundation.org>
@@ -55,37 +56,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
+From: Tan Tee Min <tee.min.tan@linux.intel.com>
 
-[ Upstream commit 3b61764fb49a6e147ac90d71dccdddc9d5508ba1 ]
+[ Upstream commit e17090eb24944fbbe1f24d9f336d7bad4fbe47e8 ]
 
-Using the tc qdisc command, the user can set basetime to any value.
-Checking should be done on the driver's side to prevent registering
-basetime values that are less than zero.
+Introduce qbv_enable flag in igc_adapter struct to store the Qbv on/off.
+So this allow the BaseTime to enroll with zero value.
 
-Fixes: ec50a9d437f0 ("igc: Add support for taprio offloading")
+Fixes: 61572d5f8f91 ("igc: Simplify TSN flags handling")
 Signed-off-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
+Signed-off-by: Tan Tee Min <tee.min.tan@linux.intel.com>
 Tested-by: Naama Meir <naamax.meir@linux.intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igc/igc_main.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/intel/igc/igc.h      | 1 +
+ drivers/net/ethernet/intel/igc/igc_main.c | 2 ++
+ drivers/net/ethernet/intel/igc/igc_tsn.c  | 2 +-
+ 3 files changed, 4 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/net/ethernet/intel/igc/igc.h b/drivers/net/ethernet/intel/igc/igc.h
+index b69373d67e2d..66678cd72a6c 100644
+--- a/drivers/net/ethernet/intel/igc/igc.h
++++ b/drivers/net/ethernet/intel/igc/igc.h
+@@ -184,6 +184,7 @@ struct igc_adapter {
+ 
+ 	ktime_t base_time;
+ 	ktime_t cycle_time;
++	bool qbv_enable;
+ 
+ 	/* OS defined structs */
+ 	struct pci_dev *pdev;
 diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
-index af55e2f62e47..26dd710fba8f 100644
+index 26dd710fba8f..f06b67ae3602 100644
 --- a/drivers/net/ethernet/intel/igc/igc_main.c
 +++ b/drivers/net/ethernet/intel/igc/igc_main.c
-@@ -5984,6 +5984,9 @@ static int igc_save_qbv_schedule(struct igc_adapter *adapter,
+@@ -5981,6 +5981,8 @@ static int igc_save_qbv_schedule(struct igc_adapter *adapter,
+ 	u32 start_time = 0, end_time = 0;
+ 	size_t n;
+ 
++	adapter->qbv_enable = qopt->enable;
++
  	if (!qopt->enable)
  		return igc_tsn_clear_schedule(adapter);
  
-+	if (qopt->base_time < 0)
-+		return -ERANGE;
-+
- 	if (adapter->base_time)
- 		return -EALREADY;
+diff --git a/drivers/net/ethernet/intel/igc/igc_tsn.c b/drivers/net/ethernet/intel/igc/igc_tsn.c
+index 4a019954cadb..356c7455c5ce 100644
+--- a/drivers/net/ethernet/intel/igc/igc_tsn.c
++++ b/drivers/net/ethernet/intel/igc/igc_tsn.c
+@@ -36,7 +36,7 @@ static unsigned int igc_tsn_new_flags(struct igc_adapter *adapter)
+ {
+ 	unsigned int new_flags = adapter->flags & ~IGC_FLAG_TSN_ANY_ENABLED;
  
+-	if (adapter->base_time)
++	if (adapter->qbv_enable)
+ 		new_flags |= IGC_FLAG_TSN_QBV_ENABLED;
+ 
+ 	if (is_any_launchtime(adapter))
 -- 
 2.35.1
 
