@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69F28657B1D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:18:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5438C6580F6
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:23:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233204AbiL1PSM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:18:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37088 "EHLO
+        id S234731AbiL1QXd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:23:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233217AbiL1PSL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:18:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFD0F13F35
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:18:10 -0800 (PST)
+        with ESMTP id S234957AbiL1QWj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:22:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 534991A80F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:20:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CCD96155F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:18:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63D5EC433EF;
-        Wed, 28 Dec 2022 15:18:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF2EAB81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:20:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3340CC433EF;
+        Wed, 28 Dec 2022 16:20:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240689;
-        bh=Tb/biD9tF9fdsYz9RjtBO/7A1mIYzWTOS+IRfhhp5iA=;
+        s=korg; t=1672244408;
+        bh=inN9e4ytR+NXrAHnhQ1/s4gFHfne7lWj4TQ3jrvLG2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RK+aNc3Ah03oG1K2lhNdl9JPHaE/mnfnkc0BCScVRy4hNjURfjsMx9NCg6sMqDgFQ
-         +7KROhgrfTXwC+AO9pZEdolq8n0emKzrZDqJDMkY+se1wlJuNLBTIh6vLUUMFRIjfN
-         qqLP9rn948ZlKLAkdO6ZUhggck248XtVKE+aob9E=
+        b=ODG6E5QRSNq62cQlxgaNhCKrpa43e+1J4BAqY0TR7qyDy+DeBUrwrJEZP8zY6YT8k
+         QYyC8arETvBPaauZo2OBrnbT/yN/m1OeCq1l1v9goyyHZGLi2u1mgEDPwJOOvGAF6J
+         9JC31tPQ1vmyPIjEZEGhcrnH2RZtI4YH132UwJns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Zhang <markzhang@nvidia.com>,
-        Michael Guralnik <michaelgur@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 386/731] RDMA/restrack: Release MR restrack when delete
+Subject: [PATCH 6.0 0705/1073] usb: roles: fix of node refcount leak in usb_role_switch_is_parent()
 Date:   Wed, 28 Dec 2022 15:38:13 +0100
-Message-Id: <20221228144307.750382496@linuxfoundation.org>
+Message-Id: <20221228144347.181340736@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Zhang <markzhang@nvidia.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit dac153f2802db1ad46207283cb9b2aae3d707a45 ]
+[ Upstream commit 1ab30c610630da5391a373cddb8a065bf4c4bc01 ]
 
-The MR restrack also needs to be released when delete it, otherwise it
-cause memory leak as the task struct won't be released.
+I got the following report while doing device(mt6370-tcpc) load
+test with CONFIG_OF_UNITTEST and CONFIG_OF_DYNAMIC enabled:
 
-Fixes: 13ef5539def7 ("RDMA/restrack: Count references to the verbs objects")
-Signed-off-by: Mark Zhang <markzhang@nvidia.com>
-Reviewed-by: Michael Guralnik <michaelgur@nvidia.com>
-Link: https://lore.kernel.org/r/703db18e8d4ef628691fb93980a709be673e62e3.1667810736.git.leonro@nvidia.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+  OF: ERROR: memory leak, expected refcount 1 instead of 2,
+  of_node_get()/of_node_put() unbalanced - destroy cset entry:
+  attach overlay node /i2c/pmic@34
+
+The 'parent' returned by fwnode_get_parent() with refcount incremented.
+it needs be put after using.
+
+Fixes: 6fadd72943b8 ("usb: roles: get usb-role-switch from parent")
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221122111226.251588-1-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/restrack.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/usb/roles/class.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/core/restrack.c b/drivers/infiniband/core/restrack.c
-index 1f935d9f6178..01a499a8b88d 100644
---- a/drivers/infiniband/core/restrack.c
-+++ b/drivers/infiniband/core/restrack.c
-@@ -343,8 +343,6 @@ void rdma_restrack_del(struct rdma_restrack_entry *res)
- 	rt = &dev->res[res->type];
+diff --git a/drivers/usb/roles/class.c b/drivers/usb/roles/class.c
+index dfaed7eee94f..32e6d19f7011 100644
+--- a/drivers/usb/roles/class.c
++++ b/drivers/usb/roles/class.c
+@@ -106,10 +106,13 @@ usb_role_switch_is_parent(struct fwnode_handle *fwnode)
+ 	struct fwnode_handle *parent = fwnode_get_parent(fwnode);
+ 	struct device *dev;
  
- 	old = xa_erase(&rt->xa, res->id);
--	if (res->type == RDMA_RESTRACK_MR)
--		return;
- 	WARN_ON(old != res);
+-	if (!parent || !fwnode_property_present(parent, "usb-role-switch"))
++	if (!fwnode_property_present(parent, "usb-role-switch")) {
++		fwnode_handle_put(parent);
+ 		return NULL;
++	}
  
- out:
+ 	dev = class_find_device_by_fwnode(role_class, parent);
++	fwnode_handle_put(parent);
+ 	return dev ? to_role_switch(dev) : ERR_PTR(-EPROBE_DEFER);
+ }
+ 
 -- 
 2.35.1
 
