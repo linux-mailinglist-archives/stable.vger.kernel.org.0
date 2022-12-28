@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 814FF6578AB
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:53:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C44D657FA9
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:07:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233206AbiL1OxP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:53:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39014 "EHLO
+        id S234355AbiL1QHd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:07:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233228AbiL1Owy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:52:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E6BD10057
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:52:50 -0800 (PST)
+        with ESMTP id S234365AbiL1QHJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:07:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E25412AFB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:07:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5A4C61551
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:52:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B88DFC433EF;
-        Wed, 28 Dec 2022 14:52:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E912B8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:07:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D977C433D2;
+        Wed, 28 Dec 2022 16:07:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239169;
-        bh=Hde8ztJAGCanVAl6Rfu/OkUXsy61SOw4nTBUErOeMfI=;
+        s=korg; t=1672243624;
+        bh=xJkQVbE7K7jGXPJJOILonjE8IKncfp2TYi7RJBxEdBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pXDdYqxCZK7JVIoGubtNa4kVtQFg+dkh54iVeQGVmqxVAY13jP9r2PMVFC4sw0rDL
-         4RI38fvgJE6iIHmjFAbG9vFQQpsFwmZOZhdZdQ3eIEKSZ9yhLVo9LDEzkZHpeUIaDx
-         16T4Ics1UCy66jES8/tI4nOIPAJP3znChQ73AGko=
+        b=cd3q/nMfoPDgfy5RaQR6D+vJ3lWSQnpXn11WzBO4e4BnMYvyX7ZauWzLs2u7XFdOV
+         aZ5PMiWOCwTo22LZHi/VePcIee/GU3p8ANmkBDfx7oRzIRy6ixmb8t/vJQ4ffBd7xG
+         /I6dl7rD1h/vLuGd3uh96w1du/cT9zbwHj6Ygx1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 155/731] media: adv748x: afe: Select input port when initializing AFE
+        Bitterblue Smith <rtl8821cerfe2@gmail.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0523/1146] wifi: rtl8xxxu: Fix the channel width reporting
 Date:   Wed, 28 Dec 2022 15:34:22 +0100
-Message-Id: <20221228144301.050689299@linuxfoundation.org>
+Message-Id: <20221228144344.379882135@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,43 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
 
-[ Upstream commit 23ddb85dafefdace1ad79d1a30b0a4e7c4b5cd8d ]
+[ Upstream commit 76c16af2cb10282274596e21add2c9f0b95c941b ]
 
-When moving the input selection to adv748x_reset() it was missed that
-during probe the device is reset _before_ the initialization and parsing
-of DT by the AFE subdevice. This can lead to the wrong input port (in
-case it's not port 0) being selected until the device is reset for the
-first time.
+The gen 2 chips RTL8192EU and RTL8188FU periodically send the driver
+reports about the TX rate, and the driver passes these reports to
+sta_statistics. The reports from RTL8192EU may or may not include the
+channel width. The reports from RTL8188FU do not include it.
 
-Fix this by restoring the call to adv748x_afe_s_input() in the AFE
-initialization while also keeping it in the adv748x_reset().
+Only access the c2h->ra_report.bw field if the report (skb) is big
+enough.
 
-Fixes: c30ed81afe89 ("media: adv748x: afe: Select input port when device is reset")
-Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+The other problem fixed here is that the code was actually never
+changing the channel width initially reported by
+rtl8xxxu_bss_info_changed because the value of RATE_INFO_BW_20 is 0.
+
+Fixes: 0985d3a410ac ("rtl8xxxu: Feed current txrate information for mac80211")
+Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/5b41f1ae-72e7-6b7a-2459-b736399a1c40@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/adv748x/adv748x-afe.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/i2c/adv748x/adv748x-afe.c b/drivers/media/i2c/adv748x/adv748x-afe.c
-index 02eabe10ab97..00095c7762c2 100644
---- a/drivers/media/i2c/adv748x/adv748x-afe.c
-+++ b/drivers/media/i2c/adv748x/adv748x-afe.c
-@@ -521,6 +521,10 @@ int adv748x_afe_init(struct adv748x_afe *afe)
- 		}
- 	}
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+index 2d908296cf70..e9c1b62c9c3c 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -5574,7 +5574,6 @@ static void rtl8xxxu_c2hcmd_callback(struct work_struct *work)
+ 			rarpt->txrate.flags = 0;
+ 			rate = c2h->ra_report.rate;
+ 			sgi = c2h->ra_report.sgi;
+-			bw = c2h->ra_report.bw;
  
-+	adv748x_afe_s_input(afe, afe->input);
-+
-+	adv_dbg(state, "AFE Default input set to %d\n", afe->input);
-+
- 	/* Entity pads and sinks are 0-indexed to match the pads */
- 	for (i = ADV748X_AFE_SINK_AIN0; i <= ADV748X_AFE_SINK_AIN7; i++)
- 		afe->pads[i].flags = MEDIA_PAD_FL_SINK;
+ 			if (rate < DESC_RATE_MCS0) {
+ 				rarpt->txrate.legacy =
+@@ -5591,8 +5590,13 @@ static void rtl8xxxu_c2hcmd_callback(struct work_struct *work)
+ 						RATE_INFO_FLAGS_SHORT_GI;
+ 				}
+ 
+-				if (bw == RATE_INFO_BW_20)
+-					rarpt->txrate.bw |= RATE_INFO_BW_20;
++				if (skb->len >= offsetofend(typeof(*c2h), ra_report.bw)) {
++					if (c2h->ra_report.bw == RTL8XXXU_CHANNEL_WIDTH_40)
++						bw = RATE_INFO_BW_40;
++					else
++						bw = RATE_INFO_BW_20;
++					rarpt->txrate.bw = bw;
++				}
+ 			}
+ 			bit_rate = cfg80211_calculate_bitrate(&rarpt->txrate);
+ 			rarpt->bit_rate = bit_rate;
 -- 
 2.35.1
 
