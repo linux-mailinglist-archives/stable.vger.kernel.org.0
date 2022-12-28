@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD70A6579AB
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:03:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E19F6579AE
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:03:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233437AbiL1PDf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:03:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51284 "EHLO
+        id S233453AbiL1PDk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:03:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233461AbiL1PDd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:03:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 245E611C18
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:03:32 -0800 (PST)
+        with ESMTP id S233461AbiL1PDi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:03:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3100711C18
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:03:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF3D5B81707
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:03:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 260F8C433EF;
-        Wed, 28 Dec 2022 15:03:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C41BF61543
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:03:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7E1BC433EF;
+        Wed, 28 Dec 2022 15:03:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239809;
-        bh=CQKpZh96KJ/iON2QTN4/3/iYUmRNwQLrTn4JUlgSRqw=;
+        s=korg; t=1672239817;
+        bh=Qnz2Q2W1D4s7Im2sMTjlrRPEJ7DyXob3fGrWZMetkvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U8QqVJP3sbXFNlt36CvCvdi+kY6PpoBZW33Y3P9R+BB35mNQreqgbyII30AmvtDDd
-         4edCjydlg+6XzG9aT/QtbP5g3PN+iG3tzKkCZOcRTinl5I79BshcHPmf//i4+KCdTF
-         kO+7fjBcMeqIFCuOCAUTAI9TWSrAwOHwthXs6Jcc=
+        b=a/7jWOwFylG8Hb23QMJ9nnRvTzCofayZ5rbFpabC56KSCK8mHqaUgeiYOqY+dAKmM
+         HPCiZfEF9C2/Ih/NhYN90Z9vGgSef9WcywTnt9CjoTCMstyIZvd1AFhEFdmbHXfPb0
+         MDm8cWQG4wdmHVldW04Zqr7UFksZPHvUZF0Ge3qY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Sven Peter <sven@svenpeter.dev>,
-        Hector Martin <marcan@marcan.st>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0081/1073] soc: apple: rtkit: Stop casting function pointer signatures
-Date:   Wed, 28 Dec 2022 15:27:49 +0100
-Message-Id: <20221228144330.266066295@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Yicong Yang <yangyicong@hisilicon.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0082/1073] drivers/perf: hisi: Fix some event id for hisi-pcie-pmu
+Date:   Wed, 28 Dec 2022 15:27:50 +0100
+Message-Id: <20221228144330.291629361@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -54,44 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Peter <sven@svenpeter.dev>
+From: Yicong Yang <yangyicong@hisilicon.com>
 
-[ Upstream commit 5acf07ff25f0c1c44105e6b8ebf88c55a0a04d2f ]
+[ Upstream commit 6b4bb4f38dbfe85247f006f06135ba46450d5bf0 ]
 
-Fixes: 9bd1d9a0d8bb ("soc: apple: Add RTKit IPC library")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Sven Peter <sven@svenpeter.dev>
-Signed-off-by: Hector Martin <marcan@marcan.st>
+Some event id of hisi-pcie-pmu is incorrect, fix them.
+
+Fixes: 8404b0fbc7fb ("drivers/perf: hisi: Add driver for HiSilicon PCIe PMU")
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+Link: https://lore.kernel.org/r/20221117084136.53572-2-yangyicong@huawei.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/apple/rtkit.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/perf/hisilicon/hisi_pcie_pmu.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/soc/apple/rtkit.c b/drivers/soc/apple/rtkit.c
-index cf1129e9f76b..d9329b4d8e1b 100644
---- a/drivers/soc/apple/rtkit.c
-+++ b/drivers/soc/apple/rtkit.c
-@@ -920,8 +920,10 @@ int apple_rtkit_wake(struct apple_rtkit *rtk)
- }
- EXPORT_SYMBOL_GPL(apple_rtkit_wake);
- 
--static void apple_rtkit_free(struct apple_rtkit *rtk)
-+static void apple_rtkit_free(void *data)
- {
-+	struct apple_rtkit *rtk = data;
-+
- 	mbox_free_channel(rtk->mbox_chan);
- 	destroy_workqueue(rtk->wq);
- 
-@@ -944,8 +946,7 @@ struct apple_rtkit *devm_apple_rtkit_init(struct device *dev, void *cookie,
- 	if (IS_ERR(rtk))
- 		return rtk;
- 
--	ret = devm_add_action_or_reset(dev, (void (*)(void *))apple_rtkit_free,
--				       rtk);
-+	ret = devm_add_action_or_reset(dev, apple_rtkit_free, rtk);
- 	if (ret)
- 		return ERR_PTR(ret);
+diff --git a/drivers/perf/hisilicon/hisi_pcie_pmu.c b/drivers/perf/hisilicon/hisi_pcie_pmu.c
+index 21771708597d..071e63d9a9ac 100644
+--- a/drivers/perf/hisilicon/hisi_pcie_pmu.c
++++ b/drivers/perf/hisilicon/hisi_pcie_pmu.c
+@@ -693,10 +693,10 @@ static struct attribute *hisi_pcie_pmu_events_attr[] = {
+ 	HISI_PCIE_PMU_EVENT_ATTR(rx_mrd_cnt, 0x10210),
+ 	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_latency, 0x0011),
+ 	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_cnt, 0x10011),
+-	HISI_PCIE_PMU_EVENT_ATTR(rx_mrd_flux, 0x1005),
+-	HISI_PCIE_PMU_EVENT_ATTR(rx_mrd_time, 0x11005),
+-	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_flux, 0x2004),
+-	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_time, 0x12004),
++	HISI_PCIE_PMU_EVENT_ATTR(rx_mrd_flux, 0x0804),
++	HISI_PCIE_PMU_EVENT_ATTR(rx_mrd_time, 0x10804),
++	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_flux, 0x0405),
++	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_time, 0x10405),
+ 	NULL
+ };
  
 -- 
 2.35.1
