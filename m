@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F5A4657BFB
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:27:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0273A657AE6
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:16:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232958AbiL1P1s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:27:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45732 "EHLO
+        id S233117AbiL1PQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:16:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233182AbiL1P13 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:27:29 -0500
+        with ESMTP id S233133AbiL1PQF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:16:05 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33E311409F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:27:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F916277
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:16:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C738F6155C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:27:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB801C433D2;
-        Wed, 28 Dec 2022 15:27:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B09A6155E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:16:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C4B6C433D2;
+        Wed, 28 Dec 2022 15:16:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241248;
-        bh=2Xm07eXL0JB3MV9MymMDGxCYhaoEiXUc0TxK5crAAJw=;
+        s=korg; t=1672240563;
+        bh=pVC7MVCyZdZX8ovYcMhgIWY6UEK6SdisgBHqLFqlBRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JDkntrWsZB8ZzgXs3xhCTFvRi/ryOggv7Tnv9iPPoYU3HySbKYEUxNoPSQbjiDfO2
-         gGnMC5y/u0WAf/0HHMueYhu4gLz1TGGty3JfJX7EG+B3ce+p/4xbEf/XWNGV/Li/E1
-         j4BC86aD5NJyMElxc8/GWwWDQC5UOvGazqR6LLII=
+        b=xIS8I//QOR3eENRXZAfnvKaQeo4CcEuypmSYv7TitL/WGr9sFYNBAvwKja4k0VTTp
+         qgcL1ocGDep69dlBMU7NCdAmXhq7bxrnsCpkL8NKwJfPPVxpTNOrrIZk/u/Dq5b7H7
+         z2FrmcFCObpMJLB2mw84e6tei7Tk60Qtf/5jYT1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Gerhard Engleder <gerhard@engleder-embedded.com>,
-        Song Liu <song@kernel.org>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
+        patches@lists.linux.dev, Anastasia Belova <abelova@astralinux.ru>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@linaro.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0224/1146] samples/bpf: Fix map iteration in xdp1_user
+Subject: [PATCH 6.0 0175/1073] MIPS: BCM63xx: Add check for NULL for clk in clk_enable
 Date:   Wed, 28 Dec 2022 15:29:23 +0100
-Message-Id: <20221228144336.227899276@linuxfoundation.org>
+Message-Id: <20221228144332.764902603@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerhard Engleder <gerhard@engleder-embedded.com>
+From: Anastasia Belova <abelova@astralinux.ru>
 
-[ Upstream commit 05ee658c654bacda03f7fecef367e62aaf8e1cfe ]
+[ Upstream commit ee9ef11bd2a59c2fefaa0959e5efcdf040d7c654 ]
 
-BPF map iteration in xdp1_user results in endless loop without any
-output, because the return value of bpf_map_get_next_key() is checked
-against the wrong value.
+Check clk for NULL before calling clk_enable_unlocked where clk
+is dereferenced. There is such check in other implementations
+of clk_enable.
 
-Other call locations of bpf_map_get_next_key() check for equal 0 for
-continuing the iteration. xdp1_user checks against unequal -1. This is
-wrong for a function which can return arbitrary negative errno values,
-because a return value of e.g. -2 results in an endless loop.
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-With this fix xdp1_user is printing statistics again:
-proto 0:          1 pkt/s
-proto 0:          1 pkt/s
-proto 17:     107383 pkt/s
-proto 17:     881655 pkt/s
-proto 17:     882083 pkt/s
-proto 17:     881758 pkt/s
-
-Fixes: bd054102a8c7 ("libbpf: enforce strict libbpf 1.0 behaviors")
-Signed-off-by: Gerhard Engleder <gerhard@engleder-embedded.com>
-Acked-by: Song Liu <song@kernel.org>
-Link: https://lore.kernel.org/r/20221013200922.17167-1-gerhard@engleder-embedded.com
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Fixes: e7300d04bd08 ("MIPS: BCM63xx: Add support for the Broadcom BCM63xx family of SOCs.")
+Signed-off-by: Anastasia Belova <abelova@astralinux.ru>
+Reviewed-by: Philippe Mathieu-Daudé <philmd@linaro.org>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/xdp1_user.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/bcm63xx/clk.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/samples/bpf/xdp1_user.c b/samples/bpf/xdp1_user.c
-index ac370e638fa3..281dc964de8d 100644
---- a/samples/bpf/xdp1_user.c
-+++ b/samples/bpf/xdp1_user.c
-@@ -51,7 +51,7 @@ static void poll_stats(int map_fd, int interval)
- 
- 		sleep(interval);
- 
--		while (bpf_map_get_next_key(map_fd, &key, &key) != -1) {
-+		while (bpf_map_get_next_key(map_fd, &key, &key) == 0) {
- 			__u64 sum = 0;
- 
- 			assert(bpf_map_lookup_elem(map_fd, &key, values) == 0);
+diff --git a/arch/mips/bcm63xx/clk.c b/arch/mips/bcm63xx/clk.c
+index 6e6756e8fa0a..86a6e2590866 100644
+--- a/arch/mips/bcm63xx/clk.c
++++ b/arch/mips/bcm63xx/clk.c
+@@ -361,6 +361,8 @@ static struct clk clk_periph = {
+  */
+ int clk_enable(struct clk *clk)
+ {
++	if (!clk)
++		return 0;
+ 	mutex_lock(&clocks_mutex);
+ 	clk_enable_unlocked(clk);
+ 	mutex_unlock(&clocks_mutex);
 -- 
 2.35.1
 
