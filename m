@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62B246579C2
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:04:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C9E4657ADB
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:15:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233492AbiL1PEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:04:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52020 "EHLO
+        id S233042AbiL1PPn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:15:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233501AbiL1PEY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:04:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA09813D1C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:04:22 -0800 (PST)
+        with ESMTP id S233106AbiL1PPh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:15:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 634AD13E8E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:15:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8889D61365
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:04:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FAE5C433EF;
-        Wed, 28 Dec 2022 15:04:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 005BAB81647
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:15:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CB09C433EF;
+        Wed, 28 Dec 2022 15:15:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239862;
-        bh=Mdsob+SE7nZK0xnBTXgXVW89uWMn9GX9eUzueW0JSjA=;
+        s=korg; t=1672240531;
+        bh=AXPXLxh17Tug/qn92KC4ufziprryzeaMVNCXJJh7qCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E+KrZnNSe4YW5lBjrfBVqyudu8fZS2+YP3JEMa15bdzzF28uctrjqusBO1Inkp4/g
-         DyLiL9c5xxJeXHMc3IboCiOsMs+FHoCABprwO/ENKSvS2znKvnHgEN03NdcRzVJvUB
-         RP7dgQnxV5UCp0kVJzZo+XMuTb/Km5EtWEl4iGAM=
+        b=OT+amePnnUxAbjLE/P0w0O4Vkl+RfK6PWwKhHTqyGg+VUHyOKbH/a0B5QHnyhaqhh
+         Tt8IEKQgmHJkc6JRXv03Kycq6KTEvibtXgqmVe8cZ8u3nHIF7czPbrauPu6KfxY7vR
+         DhcK524wXSmXCRLzZsoIo8uxbjVJugG3WGl4BBQ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Janne Grunau <j@jannau.net>,
-        Mark Kettenis <kettenis@openbsd.org>,
-        Hector Martin <marcan@marcan.st>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0087/1073] arch: arm64: apple: t8103: Use standard "iommu" node name
+Subject: [PATCH 6.1 0136/1146] PNP: fix name memory leak in pnp_alloc_dev()
 Date:   Wed, 28 Dec 2022 15:27:55 +0100
-Message-Id: <20221228144330.422178384@linuxfoundation.org>
+Message-Id: <20221228144333.843459778@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janne Grunau <j@jannau.net>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 56d32c51dffac8a431b472a4c31efb8563b048d1 ]
+[ Upstream commit 110d7b0325c55ff3620073ba4201845f59e22ebf ]
 
-The PCIe iommu nodes use "dart" as node names. Replace it with the
-the standard "iommu" node name as all other iommu nodes.
+After commit 1fa5ae857bb1 ("driver core: get rid of struct device's
+bus_id string array"), the name of device is allocated dynamically,
+move dev_set_name() after pnp_add_id() to avoid memory leak.
 
-Fixes: 3c866bb79577 ("arm64: dts: apple: t8103: Add PCIe DARTs")
-Signed-off-by: Janne Grunau <j@jannau.net>
-Reviewed-by: Mark Kettenis <kettenis@openbsd.org>
-Signed-off-by: Hector Martin <marcan@marcan.st>
+Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/apple/t8103.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/pnp/core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/apple/t8103.dtsi b/arch/arm64/boot/dts/apple/t8103.dtsi
-index 51a63b29d404..a4d195e9eb8c 100644
---- a/arch/arm64/boot/dts/apple/t8103.dtsi
-+++ b/arch/arm64/boot/dts/apple/t8103.dtsi
-@@ -412,7 +412,7 @@ nvme@27bcc0000 {
- 			resets = <&ps_ans2>;
- 		};
+diff --git a/drivers/pnp/core.c b/drivers/pnp/core.c
+index 4df5aa6a309c..6a60c5d83383 100644
+--- a/drivers/pnp/core.c
++++ b/drivers/pnp/core.c
+@@ -148,14 +148,14 @@ struct pnp_dev *pnp_alloc_dev(struct pnp_protocol *protocol, int id,
+ 	dev->dev.coherent_dma_mask = dev->dma_mask;
+ 	dev->dev.release = &pnp_release_device;
  
--		pcie0_dart_0: dart@681008000 {
-+		pcie0_dart_0: iommu@681008000 {
- 			compatible = "apple,t8103-dart";
- 			reg = <0x6 0x81008000 0x0 0x4000>;
- 			#iommu-cells = <1>;
-@@ -421,7 +421,7 @@ pcie0_dart_0: dart@681008000 {
- 			power-domains = <&ps_apcie_gp>;
- 		};
+-	dev_set_name(&dev->dev, "%02x:%02x", dev->protocol->number, dev->number);
+-
+ 	dev_id = pnp_add_id(dev, pnpid);
+ 	if (!dev_id) {
+ 		kfree(dev);
+ 		return NULL;
+ 	}
  
--		pcie0_dart_1: dart@682008000 {
-+		pcie0_dart_1: iommu@682008000 {
- 			compatible = "apple,t8103-dart";
- 			reg = <0x6 0x82008000 0x0 0x4000>;
- 			#iommu-cells = <1>;
-@@ -430,7 +430,7 @@ pcie0_dart_1: dart@682008000 {
- 			power-domains = <&ps_apcie_gp>;
- 		};
++	dev_set_name(&dev->dev, "%02x:%02x", dev->protocol->number, dev->number);
++
+ 	return dev;
+ }
  
--		pcie0_dart_2: dart@683008000 {
-+		pcie0_dart_2: iommu@683008000 {
- 			compatible = "apple,t8103-dart";
- 			reg = <0x6 0x83008000 0x0 0x4000>;
- 			#iommu-cells = <1>;
 -- 
 2.35.1
 
