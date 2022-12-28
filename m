@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69A3B657952
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:00:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6141658079
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:18:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233373AbiL1PAC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:00:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47082 "EHLO
+        id S234570AbiL1QR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:17:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233398AbiL1O7q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:59:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0A3810053
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:59:45 -0800 (PST)
+        with ESMTP id S234674AbiL1QRL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:17:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 402431AA29
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:15:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9058861540
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:59:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A48FBC433D2;
-        Wed, 28 Dec 2022 14:59:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CCF96B81730
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:15:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CE2DC433EF;
+        Wed, 28 Dec 2022 16:15:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239585;
-        bh=Ul749KApQqZjHWBGEB6EBlQimx0rDXL3aiAdp88aRYc=;
+        s=korg; t=1672244117;
+        bh=oTgVX5QI6QmTMaNlU2Rhod3duPRSKyCResDUBIkwI5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bWb1JFQ7Ph/q8LGYUcRZUpY7+iPug8IjmT9RzN5RHDpZGClYet+Vu84yR9m7C7W37
-         HPlhOYlHmPE9xUUoKitXu5e+PLxAsAEramtS7hS2UFLdVunsXd5EdJPiPcLFrx7z2b
-         ix7vKmt+Jtbx9xqNCtlklD45MCmwdcQuZkY9BO84=
+        b=nJBs/9Z1xVEtj12NHl9/3gga+I3HCjHLFA22xAfeIScUbA8VAbxv/mNFpFZscFCIU
+         dfiyfCIQ0z1R1DWd2FmgKgdUzCU4cmeI6SzBJ3v00NaIkbWQfDVB4XtNHvoyw9wZH9
+         ZjDa0MnmdKCr/cQFS10ihC0mtWBTckuwJ5ViN9zM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        patches@lists.linux.dev, Mustafa Ismail <mustafa.ismail@intel.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 246/731] NFSv4.2: Fix initialisation of struct nfs4_label
+Subject: [PATCH 6.1 0614/1146] RDMA/irdma: Do not request 2-level PBLEs for CQ alloc
 Date:   Wed, 28 Dec 2022 15:35:53 +0100
-Message-Id: <20221228144303.692991488@linuxfoundation.org>
+Message-Id: <20221228144346.846494718@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,81 +54,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Mustafa Ismail <mustafa.ismail@intel.com>
 
-[ Upstream commit c528f70f504434eaff993a5ddd52203a2010d51f ]
+[ Upstream commit 8f7e2daa6336f9f4b6f8a4715a809674606df16b ]
 
-The call to nfs4_label_init_security() should return a fully initialised
-label.
+When allocating PBLE's for a large CQ, it is possible
+that a 2-level PBLE is returned which would cause the
+CQ allocation to fail since 1-level is assumed and checked for.
+Fix this by requesting a level one PBLE only.
 
-Fixes: aa9c2669626c ("NFS: Client implementation of Labeled-NFS")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: b48c24c2d710 ("RDMA/irdma: Implement device supported verb APIs")
+Signed-off-by: Mustafa Ismail <mustafa.ismail@intel.com>
+Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Link: https://lore.kernel.org/r/20221115011701.1379-4-shiraz.saleem@intel.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/infiniband/hw/irdma/verbs.c | 15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index dc03924b6b71..dcc0677d1546 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -126,6 +126,11 @@ nfs4_label_init_security(struct inode *dir, struct dentry *dentry,
- 	if (nfs_server_capable(dir, NFS_CAP_SECURITY_LABEL) == 0)
- 		return NULL;
- 
-+	label->lfs = 0;
-+	label->pi = 0;
-+	label->len = 0;
-+	label->label = NULL;
-+
- 	err = security_dentry_init_security(dentry, sattr->ia_mode,
- 				&dentry->d_name, (void **)&label->label, &label->len);
- 	if (err == 0)
-@@ -3823,7 +3828,7 @@ nfs4_atomic_open(struct inode *dir, struct nfs_open_context *ctx,
- 		int open_flags, struct iattr *attr, int *opened)
+diff --git a/drivers/infiniband/hw/irdma/verbs.c b/drivers/infiniband/hw/irdma/verbs.c
+index 01d0dc4b5649..dc3f5f3fee90 100644
+--- a/drivers/infiniband/hw/irdma/verbs.c
++++ b/drivers/infiniband/hw/irdma/verbs.c
+@@ -2329,9 +2329,10 @@ static bool irdma_check_mr_contiguous(struct irdma_pble_alloc *palloc,
+  * @rf: RDMA PCI function
+  * @iwmr: mr pointer for this memory registration
+  * @use_pbles: flag if to use pble's
++ * @lvl_1_only: request only level 1 pble if true
+  */
+ static int irdma_setup_pbles(struct irdma_pci_f *rf, struct irdma_mr *iwmr,
+-			     bool use_pbles)
++			     bool use_pbles, bool lvl_1_only)
  {
- 	struct nfs4_state *state;
--	struct nfs4_label l = {0, 0, 0, NULL}, *label = NULL;
-+	struct nfs4_label l, *label;
+ 	struct irdma_pbl *iwpbl = &iwmr->iwpbl;
+ 	struct irdma_pble_alloc *palloc = &iwpbl->pble_alloc;
+@@ -2342,7 +2343,7 @@ static int irdma_setup_pbles(struct irdma_pci_f *rf, struct irdma_mr *iwmr,
  
- 	label = nfs4_label_init_security(dir, ctx->dentry, attr, &l);
+ 	if (use_pbles) {
+ 		status = irdma_get_pble(rf->pble_rsrc, palloc, iwmr->page_cnt,
+-					false);
++					lvl_1_only);
+ 		if (status)
+ 			return status;
  
-@@ -4657,7 +4662,7 @@ nfs4_proc_create(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
- 		 int flags)
- {
- 	struct nfs_server *server = NFS_SERVER(dir);
--	struct nfs4_label l, *ilabel = NULL;
-+	struct nfs4_label l, *ilabel;
- 	struct nfs_open_context *ctx;
- 	struct nfs4_state *state;
- 	int status = 0;
-@@ -5017,7 +5022,7 @@ static int nfs4_proc_symlink(struct inode *dir, struct dentry *dentry,
- 	struct nfs4_exception exception = {
- 		.interruptible = true,
- 	};
--	struct nfs4_label l, *label = NULL;
-+	struct nfs4_label l, *label;
- 	int err;
+@@ -2385,16 +2386,10 @@ static int irdma_handle_q_mem(struct irdma_device *iwdev,
+ 	bool ret = true;
  
- 	label = nfs4_label_init_security(dir, dentry, sattr, &l);
-@@ -5058,7 +5063,7 @@ static int nfs4_proc_mkdir(struct inode *dir, struct dentry *dentry,
- 	struct nfs4_exception exception = {
- 		.interruptible = true,
- 	};
--	struct nfs4_label l, *label = NULL;
-+	struct nfs4_label l, *label;
- 	int err;
+ 	pg_size = iwmr->page_size;
+-	err = irdma_setup_pbles(iwdev->rf, iwmr, use_pbles);
++	err = irdma_setup_pbles(iwdev->rf, iwmr, use_pbles, true);
+ 	if (err)
+ 		return err;
  
- 	label = nfs4_label_init_security(dir, dentry, sattr, &l);
-@@ -5177,7 +5182,7 @@ static int nfs4_proc_mknod(struct inode *dir, struct dentry *dentry,
- 	struct nfs4_exception exception = {
- 		.interruptible = true,
- 	};
--	struct nfs4_label l, *label = NULL;
-+	struct nfs4_label l, *label;
- 	int err;
+-	if (use_pbles && palloc->level != PBLE_LEVEL_1) {
+-		irdma_free_pble(iwdev->rf->pble_rsrc, palloc);
+-		iwpbl->pbl_allocated = false;
+-		return -ENOMEM;
+-	}
+-
+ 	if (use_pbles)
+ 		arr = palloc->level1.addr;
  
- 	label = nfs4_label_init_security(dir, dentry, sattr, &l);
+@@ -2870,7 +2865,7 @@ static struct ib_mr *irdma_reg_user_mr(struct ib_pd *pd, u64 start, u64 len,
+ 	case IRDMA_MEMREG_TYPE_MEM:
+ 		use_pbles = (iwmr->page_cnt != 1);
+ 
+-		err = irdma_setup_pbles(iwdev->rf, iwmr, use_pbles);
++		err = irdma_setup_pbles(iwdev->rf, iwmr, use_pbles, false);
+ 		if (err)
+ 			goto error;
+ 
 -- 
 2.35.1
 
