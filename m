@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B966E657C69
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:32:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95F7E6582D3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233804AbiL1Pcv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:32:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49236 "EHLO
+        id S233344AbiL1Qmg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:42:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233469AbiL1PcO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:32:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E01416489
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:32:07 -0800 (PST)
+        with ESMTP id S234995AbiL1Qlu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:41:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2DD71F2D0
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:36:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44FEBB8170E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:32:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B226AC433F0;
-        Wed, 28 Dec 2022 15:32:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8DB8BB81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:35:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFE02C433D2;
+        Wed, 28 Dec 2022 16:35:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241525;
-        bh=RbrP1irQ8j/Lcj9YrEfwriYCsl+nOfxlvSAUHujHDsc=;
+        s=korg; t=1672245340;
+        bh=nhikWAwj5FeueVMWraRDqHfOxJVsytxlgYdJ4Mmhqso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tdPHV5ArtsREqVRoAzksmdaarZCjqNxOLUYKcWXtgGQRWR5sS6HIz5cuog+rqM+p/
-         GsdRqdDsTXaUdezoirWZ+z9RGFe38gAjgULCNkkIkQ0TcyLPFPJxkhgQvZ+QtbrALj
-         VObemFyQGjUXnmQ6l3MDmmgmxjXePC715ZIS3cuA=
+        b=om+VMj7P99+28aRpb1oLuCmRzsPMerP7sM6Yj/HN0FwIuewKx0SLCKu4eomwe9x80
+         b2WduM0mA81FqhqDMTn7hNTV63tboOPVPeG/zKRVbuDtaG+CKw9nGlKBLGPclep91J
+         7VmlK4ndR/CNVOvfFh1Cey6FGbUlLEGJaa1oCo2k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 474/731] iio: adis: handle devices that cannot unmask the drdy pin
+        patches@lists.linux.dev, Brian Norris <briannorris@chromium.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0842/1146] iommu: Avoid races around device probe
 Date:   Wed, 28 Dec 2022 15:39:41 +0100
-Message-Id: <20221228144310.289809844@linuxfoundation.org>
+Message-Id: <20221228144353.026684981@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,99 +53,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nuno Sá <nuno.sa@analog.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit 31fa357ac809affd9f9a7d0b5d1991951e16beec ]
+[ Upstream commit 01657bc14a3990c665375f77978631fee77b1fce ]
 
-Some devices can't mask/unmask the data ready pin and in those cases
-each driver was just calling '{dis}enable_irq()' to control the trigger
-state. This change, moves that handling into the library by introducing
-a new boolean in the data structure that tells the library that the
-device cannot unmask the pin.
+We currently have 3 different ways that __iommu_probe_device() may be
+called, but no real guarantee that multiple callers can't tread on each
+other, especially once asynchronous driver probe gets involved. It would
+likely have taken a fair bit of luck to hit this previously, but commit
+57365a04c921 ("iommu: Move bus setup to IOMMU device registration") ups
+the odds since now it's not just omap-iommu that may trigger multiple
+bus_iommu_probe() calls in parallel if probing asynchronously.
 
-On top of controlling the trigger state, we can also use this flag to
-automatically request the IRQ with 'IRQF_NO_AUTOEN' in case it is set.
-So far, all users of the library want to start operation with IRQs/DRDY
-pin disabled so it should be fairly safe to do this inside the library.
+Add a lock to ensure we can't try to double-probe a device, and also
+close some possible race windows to make sure we're truly robust against
+trying to double-initialise a group via two different member devices.
 
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20210903141423.517028-3-nuno.sa@analog.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Stable-dep-of: 99c05e4283a1 ("iio: adis: add '__adis_enable_irq()' implementation")
+Reported-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Tested-by: Brian Norris <briannorris@chromium.org>
+Fixes: 57365a04c921 ("iommu: Move bus setup to IOMMU device registration")
+Link: https://lore.kernel.org/r/1946ef9f774851732eed78760a78ec40dbc6d178.1667591503.git.robin.murphy@arm.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/imu/adis.c         | 15 ++++++++++++++-
- drivers/iio/imu/adis_trigger.c |  4 ++++
- include/linux/iio/imu/adis.h   |  2 ++
- 3 files changed, 20 insertions(+), 1 deletion(-)
+ drivers/iommu/iommu.c | 28 ++++++++++++++++++++++------
+ 1 file changed, 22 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/iio/imu/adis.c b/drivers/iio/imu/adis.c
-index d4e692b187cd..cb0d66bf6561 100644
---- a/drivers/iio/imu/adis.c
-+++ b/drivers/iio/imu/adis.c
-@@ -286,6 +286,13 @@ int adis_enable_irq(struct adis *adis, bool enable)
- 	if (adis->data->enable_irq) {
- 		ret = adis->data->enable_irq(adis, enable);
- 		goto out_unlock;
-+	} else if (adis->data->unmasked_drdy) {
-+		if (enable)
-+			enable_irq(adis->spi->irq);
-+		else
-+			disable_irq(adis->spi->irq);
-+
-+		goto out_unlock;
- 	}
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 65a3b3d886dc..959d895fc1df 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -283,13 +283,23 @@ static int __iommu_probe_device(struct device *dev, struct list_head *group_list
+ 	const struct iommu_ops *ops = dev->bus->iommu_ops;
+ 	struct iommu_device *iommu_dev;
+ 	struct iommu_group *group;
++	static DEFINE_MUTEX(iommu_probe_device_lock);
+ 	int ret;
  
- 	ret = __adis_read_reg_16(adis, adis->data->msc_ctrl_reg, &msc);
-@@ -430,7 +437,13 @@ int __adis_initial_startup(struct adis *adis)
- 	if (ret)
+ 	if (!ops)
+ 		return -ENODEV;
+-
+-	if (!dev_iommu_get(dev))
+-		return -ENOMEM;
++	/*
++	 * Serialise to avoid races between IOMMU drivers registering in
++	 * parallel and/or the "replay" calls from ACPI/OF code via client
++	 * driver probe. Once the latter have been cleaned up we should
++	 * probably be able to use device_lock() here to minimise the scope,
++	 * but for now enforcing a simple global ordering is fine.
++	 */
++	mutex_lock(&iommu_probe_device_lock);
++	if (!dev_iommu_get(dev)) {
++		ret = -ENOMEM;
++		goto err_unlock;
++	}
+ 
+ 	if (!try_module_get(ops->owner)) {
+ 		ret = -EINVAL;
+@@ -309,11 +319,14 @@ static int __iommu_probe_device(struct device *dev, struct list_head *group_list
+ 		ret = PTR_ERR(group);
+ 		goto out_release;
+ 	}
+-	iommu_group_put(group);
+ 
++	mutex_lock(&group->mutex);
+ 	if (group_list && !group->default_domain && list_empty(&group->entry))
+ 		list_add_tail(&group->entry, group_list);
++	mutex_unlock(&group->mutex);
++	iommu_group_put(group);
+ 
++	mutex_unlock(&iommu_probe_device_lock);
+ 	iommu_device_link(iommu_dev, dev);
+ 
+ 	return 0;
+@@ -328,6 +341,9 @@ static int __iommu_probe_device(struct device *dev, struct list_head *group_list
+ err_free:
+ 	dev_iommu_free(dev);
+ 
++err_unlock:
++	mutex_unlock(&iommu_probe_device_lock);
++
+ 	return ret;
+ }
+ 
+@@ -1799,11 +1815,11 @@ int bus_iommu_probe(struct bus_type *bus)
  		return ret;
  
--	adis_enable_irq(adis, false);
-+	/*
-+	 * don't bother calling this if we can't unmask the IRQ as in this case
-+	 * the IRQ is most likely not yet requested and we will request it
-+	 * with 'IRQF_NO_AUTOEN' anyways.
-+	 */
-+	if (!adis->data->unmasked_drdy)
-+		adis_enable_irq(adis, false);
- 
- 	if (!adis->data->prod_id_reg)
- 		return 0;
-diff --git a/drivers/iio/imu/adis_trigger.c b/drivers/iio/imu/adis_trigger.c
-index 48eedc29b28a..c461bd1e8e69 100644
---- a/drivers/iio/imu/adis_trigger.c
-+++ b/drivers/iio/imu/adis_trigger.c
-@@ -30,6 +30,10 @@ static const struct iio_trigger_ops adis_trigger_ops = {
- static int adis_validate_irq_flag(struct adis *adis)
- {
- 	unsigned long direction = adis->irq_flag & IRQF_TRIGGER_MASK;
+ 	list_for_each_entry_safe(group, next, &group_list, entry) {
++		mutex_lock(&group->mutex);
 +
-+	/* We cannot mask the interrupt so ensure it's not enabled at request */
-+	if (adis->data->unmasked_drdy)
-+		adis->irq_flag |= IRQF_NO_AUTOEN;
- 	/*
- 	 * Typically this devices have data ready either on the rising edge or
- 	 * on the falling edge of the data ready pin. This checks enforces that
-diff --git a/include/linux/iio/imu/adis.h b/include/linux/iio/imu/adis.h
-index cf49997d5903..7c02f5292eea 100644
---- a/include/linux/iio/imu/adis.h
-+++ b/include/linux/iio/imu/adis.h
-@@ -49,6 +49,7 @@ struct adis_timeout {
-  * @status_error_mask: Bitmask of errors supported by the device
-  * @timeouts: Chip specific delays
-  * @enable_irq: Hook for ADIS devices that have a special IRQ enable/disable
-+ * @unmasked_drdy: True for devices that cannot mask/unmask the data ready pin
-  * @has_paging: True if ADIS device has paged registers
-  * @burst_reg_cmd:	Register command that triggers burst
-  * @burst_len:		Burst size in the SPI RX buffer. If @burst_max_len is defined,
-@@ -78,6 +79,7 @@ struct adis_data {
- 	unsigned int status_error_mask;
+ 		/* Remove item from the list */
+ 		list_del_init(&group->entry);
  
- 	int (*enable_irq)(struct adis *adis, bool enable);
-+	bool unmasked_drdy;
- 
- 	bool has_paging;
+-		mutex_lock(&group->mutex);
+-
+ 		/* Try to allocate default domain */
+ 		probe_alloc_default_domain(bus, group);
  
 -- 
 2.35.1
