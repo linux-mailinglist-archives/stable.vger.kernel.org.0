@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C1ED657D6F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:43:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 500BF657C58
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:32:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233465AbiL1PnM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:43:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60014 "EHLO
+        id S233891AbiL1PcA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:32:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233011AbiL1PnL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:43:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B46417043
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:43:11 -0800 (PST)
+        with ESMTP id S233845AbiL1Pbi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:31:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BAB815FFE
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:31:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C34A0B81719
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:43:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D39FC433F0;
-        Wed, 28 Dec 2022 15:43:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D1050B816D9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:31:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49BC3C433D2;
+        Wed, 28 Dec 2022 15:31:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242188;
-        bh=KzbOqu0S9jUEVPFhOZpxJcEZDgSm+A3Hd0Wzrm6/Wl8=;
+        s=korg; t=1672241490;
+        bh=GUSb2ubqMpUEe1gXThVvU0MrSS4dGpwSBs4Dbp8p6ic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tH6fX9V7GOoJ6fJMwuZY5e2A0fUy3SAuuommvP5upr6Rb6xiF2q4jn0YPA+C1a4Yi
-         01Icr/xhLI4Hk3clkHZH4K2s1Qe0nafbFXU+0BOoJUrxlKzWirxAVx3Q7TqEMCD/QT
-         aFAjGnK6DQ1rq/+HAQ04am3quMupj1aon3dKlQmU=
+        b=aV9BShqIC3tKbu4kBgFbhOU0iyhUMZmcup81oWurMMLy1YAruHywX+qpohyrsI5Qd
+         5K89kR0MSvJN0cCkjfuh89Q989hN87OUUiPIVpVW8p4Qa9AoFkAIcoWul9NJuoZ1oV
+         sq998rmetFwquydruFtgM+nJ37SfmdN/ofSyLWL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0339/1146] ima: Fix misuse of dereference of pointer in template_desc_init_fields()
+Subject: [PATCH 6.0 0290/1073] mtd: Fix device name leak when register device failed in add_mtd_device()
 Date:   Wed, 28 Dec 2022 15:31:18 +0100
-Message-Id: <20221228144339.365667520@linuxfoundation.org>
+Message-Id: <20221228144335.893079270@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit 25369175ce84813dd99d6604e710dc2491f68523 ]
+[ Upstream commit 895d68a39481a75c680aa421546931fb11942fa6 ]
 
-The input parameter @fields is type of struct ima_template_field ***, so
-when allocates array memory for @fields, the size of element should be
-sizeof(**field) instead of sizeof(*field).
+There is a kmemleak when register device failed:
+  unreferenced object 0xffff888101aab550 (size 8):
+    comm "insmod", pid 3922, jiffies 4295277753 (age 925.408s)
+    hex dump (first 8 bytes):
+      6d 74 64 30 00 88 ff ff                          mtd0....
+    backtrace:
+      [<00000000bde26724>] __kmalloc_node_track_caller+0x4e/0x150
+      [<000000003c32b416>] kvasprintf+0xb0/0x130
+      [<000000001f7a8f15>] kobject_set_name_vargs+0x2f/0xb0
+      [<000000006e781163>] dev_set_name+0xab/0xe0
+      [<00000000e30d0c78>] add_mtd_device+0x4bb/0x700
+      [<00000000f3d34de7>] mtd_device_parse_register+0x2ac/0x3f0
+      [<00000000c0d88488>] 0xffffffffa0238457
+      [<00000000b40d0922>] 0xffffffffa02a008f
+      [<0000000023d17b9d>] do_one_initcall+0x87/0x2a0
+      [<00000000770f6ca6>] do_init_module+0xdf/0x320
+      [<000000007b6768fe>] load_module+0x2f98/0x3330
+      [<00000000346bed5a>] __do_sys_finit_module+0x113/0x1b0
+      [<00000000674c2290>] do_syscall_64+0x35/0x80
+      [<000000004c6a8d97>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-Actually the original code would not cause any runtime error, but it's
-better to make it logically right.
+If register device failed, should call put_device() to give up the
+reference.
 
-Fixes: adf53a778a0a ("ima: new templates management mechanism")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Reviewed-by: Roberto Sassu <roberto.sassu@huawei.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Fixes: 1f24b5a8ecbb ("[MTD] driver model updates")
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20221022121352.2534682-1-zhangxiaoxu5@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_template.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mtd/mtdcore.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/security/integrity/ima/ima_template.c b/security/integrity/ima/ima_template.c
-index c25079faa208..195ac18f0927 100644
---- a/security/integrity/ima/ima_template.c
-+++ b/security/integrity/ima/ima_template.c
-@@ -245,11 +245,11 @@ int template_desc_init_fields(const char *template_fmt,
- 	}
+diff --git a/drivers/mtd/mtdcore.c b/drivers/mtd/mtdcore.c
+index 477707bcad97..cc7e1fd1ef10 100644
+--- a/drivers/mtd/mtdcore.c
++++ b/drivers/mtd/mtdcore.c
+@@ -723,8 +723,10 @@ int add_mtd_device(struct mtd_info *mtd)
+ 	mtd_check_of_node(mtd);
+ 	of_node_get(mtd_get_of_node(mtd));
+ 	error = device_register(&mtd->dev);
+-	if (error)
++	if (error) {
++		put_device(&mtd->dev);
+ 		goto fail_added;
++	}
  
- 	if (fields && num_fields) {
--		*fields = kmalloc_array(i, sizeof(*fields), GFP_KERNEL);
-+		*fields = kmalloc_array(i, sizeof(**fields), GFP_KERNEL);
- 		if (*fields == NULL)
- 			return -ENOMEM;
- 
--		memcpy(*fields, found_fields, i * sizeof(*fields));
-+		memcpy(*fields, found_fields, i * sizeof(**fields));
- 		*num_fields = i;
- 	}
- 
+ 	/* Add the nvmem provider */
+ 	error = mtd_nvmem_add(mtd);
 -- 
 2.35.1
 
