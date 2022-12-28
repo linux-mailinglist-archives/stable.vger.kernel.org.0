@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE38A657841
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:49:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5534C657D72
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:43:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233064AbiL1OtA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:49:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36688 "EHLO
+        id S233567AbiL1PnV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:43:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232939AbiL1Osk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:48:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8B8A1183C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:48:37 -0800 (PST)
+        with ESMTP id S233955AbiL1PnT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:43:19 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DE7D17076
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:43:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4297161365
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:48:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51BEAC433D2;
-        Wed, 28 Dec 2022 14:48:36 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5A451CE1361
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:43:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 554B0C433D2;
+        Wed, 28 Dec 2022 15:43:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238916;
-        bh=Zj9v1liHklHYKjP0Yes7cbUTORLjQ//yW9lHFa/qzgU=;
+        s=korg; t=1672242193;
+        bh=wK5rzT72np5XETtHMRR5L8dBvUrFeT3UP7y0SQOT1Nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ZAftvPLdS4nGyZ4zaeiT2FnYvUMboHA0BldnxF7J9yy1wKHYYJuFuGOgf8Mre2Fn
-         1f0Itj78u4OyifDFWcJT69kh/1hB5baEDHwwYJib5INmNuL1GwWllLPhMUSMOuMspy
-         3omxnuu1f0o6Y/rG5VElczqNPwtVgRkZuoKOB2IU=
+        b=XaFE1C+RQibZYjGTn5jdsuFfZkZM35Se1Wtx3HeC29O7uQ1wXtbh35sTKsfrE6WMq
+         zZK3nl4eUmWuIu6Q6WQfYHGhUc06AyRG4WhSeApT1hiGdCNvWhfimPx2VihehMzy1t
+         +wln3Arj5+TBnIC6Ru+DHStMyWRb6sXnf8svdksQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Doug Brown <doug@schmorgal.com>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 059/731] ARM: mmp: fix timer_read delay
+        patches@lists.linux.dev,
+        syzbot+0c3cb6dc05fbbdc3ad66@syzkaller.appspotmail.com,
+        Gautam Menghani <gautammenghani201@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0378/1073] media: imon: fix a race condition in send_packet()
 Date:   Wed, 28 Dec 2022 15:32:46 +0100
-Message-Id: <20221228144258.265194810@linuxfoundation.org>
+Message-Id: <20221228144338.269961455@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,57 +56,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Brown <doug@schmorgal.com>
+From: Gautam Menghani <gautammenghani201@gmail.com>
 
-[ Upstream commit e348b4014c31041e13ff370669ba3348c4d385e3 ]
+[ Upstream commit 813ceef062b53d68f296aa3cb944b21a091fabdb ]
 
-timer_read() was using an empty 100-iteration loop to wait for the
-TMR_CVWR register to capture the latest timer counter value. The delay
-wasn't long enough. This resulted in CPU idle time being extremely
-underreported on PXA168 with CONFIG_NO_HZ_IDLE=y.
+The function send_packet() has a race condition as follows:
 
-Switch to the approach used in the vendor kernel, which implements the
-capture delay by reading TMR_CVWR a few times instead.
+func send_packet()
+{
+    // do work
+    call usb_submit_urb()
+    mutex_unlock()
+    wait_for_event_interruptible()  <-- lock gone
+    mutex_lock()
+}
 
-Fixes: 49cbe78637eb ("[ARM] pxa: add base support for Marvell's PXA168 processor line")
-Signed-off-by: Doug Brown <doug@schmorgal.com>
-Link: https://lore.kernel.org/r/20221204005117.53452-3-doug@schmorgal.com
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+func vfd_write()
+{
+    mutex_lock()
+    call send_packet()  <- prev call is not completed
+    mutex_unlock()
+}
+
+When the mutex is unlocked and the function send_packet() waits for the
+call to complete, vfd_write() can start another call, which leads to the
+"URB submitted while active" warning in usb_submit_urb().
+Fix this by removing the mutex_unlock() call in send_packet() and using
+mutex_lock_interruptible().
+
+Link: https://syzkaller.appspot.com/bug?id=e378e6a51fbe6c5cc43e34f131cc9a315ef0337e
+
+Fixes: 21677cfc562a ("V4L/DVB: ir-core: add imon driver")
+Reported-by: syzbot+0c3cb6dc05fbbdc3ad66@syzkaller.appspotmail.com
+Signed-off-by: Gautam Menghani <gautammenghani201@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-mmp/time.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/media/rc/imon.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/mach-mmp/time.c b/arch/arm/mach-mmp/time.c
-index 41b2e8abc9e6..708816caf859 100644
---- a/arch/arm/mach-mmp/time.c
-+++ b/arch/arm/mach-mmp/time.c
-@@ -43,18 +43,21 @@
- static void __iomem *mmp_timer_base = TIMERS_VIRT_BASE;
+diff --git a/drivers/media/rc/imon.c b/drivers/media/rc/imon.c
+index 735b925da998..91d8056666ec 100644
+--- a/drivers/media/rc/imon.c
++++ b/drivers/media/rc/imon.c
+@@ -646,15 +646,14 @@ static int send_packet(struct imon_context *ictx)
+ 		pr_err_ratelimited("error submitting urb(%d)\n", retval);
+ 	} else {
+ 		/* Wait for transmission to complete (or abort) */
+-		mutex_unlock(&ictx->lock);
+ 		retval = wait_for_completion_interruptible(
+ 				&ictx->tx.finished);
+ 		if (retval) {
+ 			usb_kill_urb(ictx->tx_urb);
+ 			pr_err_ratelimited("task interrupted\n");
+ 		}
+-		mutex_lock(&ictx->lock);
  
- /*
-- * FIXME: the timer needs some delay to stablize the counter capture
-+ * Read the timer through the CVWR register. Delay is required after requesting
-+ * a read. The CR register cannot be directly read due to metastability issues
-+ * documented in the PXA168 software manual.
-  */
- static inline uint32_t timer_read(void)
- {
--	int delay = 100;
-+	uint32_t val;
-+	int delay = 3;
++		ictx->tx.busy = false;
+ 		retval = ictx->tx.status;
+ 		if (retval)
+ 			pr_err_ratelimited("packet tx failed (%d)\n", retval);
+@@ -955,7 +954,8 @@ static ssize_t vfd_write(struct file *file, const char __user *buf,
+ 	if (ictx->disconnected)
+ 		return -ENODEV;
  
- 	__raw_writel(1, mmp_timer_base + TMR_CVWR(1));
+-	mutex_lock(&ictx->lock);
++	if (mutex_lock_interruptible(&ictx->lock))
++		return -ERESTARTSYS;
  
- 	while (delay--)
--		cpu_relax();
-+		val = __raw_readl(mmp_timer_base + TMR_CVWR(1));
- 
--	return __raw_readl(mmp_timer_base + TMR_CVWR(1));
-+	return val;
- }
- 
- static u64 notrace mmp_read_sched_clock(void)
+ 	if (!ictx->dev_present_intf0) {
+ 		pr_err_ratelimited("no iMON device present\n");
 -- 
 2.35.1
 
