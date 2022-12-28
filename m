@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B57E657901
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:56:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 620E5657903
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:56:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233263AbiL1O4e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:56:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44040 "EHLO
+        id S233269AbiL1O4j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:56:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232969AbiL1O4e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:56:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 394B2B69
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:56:33 -0800 (PST)
+        with ESMTP id S233267AbiL1O4i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:56:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11E662601
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:56:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E5B14B8171F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:56:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 662B2C433D2;
-        Wed, 28 Dec 2022 14:56:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A37F061541
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:56:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5769C433D2;
+        Wed, 28 Dec 2022 14:56:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239390;
-        bh=p+HTs6bOvzPzTxsN5kukdUQxz9y+aivu3aMHZf4t6CM=;
+        s=korg; t=1672239396;
+        bh=ILrNE0GOn0fsPLQJHEDMlh0tRaOCV/GENeqo4gxUkrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V5scA9ONgbY/502uhGkzGTzJpfPWnZR3gOVnkFigIgbXawpsVwvO4b/Dv1GWXAd3D
-         U7EX0pQSbRHEb9hTo+zDcbIy4JrFwllAF06ytorbqzUtG1rokP5JYwfhWrPx7Xnbkw
-         e3jY6VjCdIGLNe7HTqnWG6z5zlhh6YABplSzMDDw=
+        b=YSmSlQj8BGuVEU392EK/q7vjKIkikasJV6e+1TrtZY6aI/m88g5zrty9fjphOpl4V
+         ZV+C8/G5RPQAfrP77oTjGaSwgMf3p4msG/+Ur2r81qoyeC1DezytYHEEZXXdvglb6H
+         anhC6RCd/J86cizcdUnjcx93+5lI+dOK2eaW3xuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Cong Dang <cong.dang.xn@renesas.com>,
-        Hai Pham <hai.pham.ud@renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        patches@lists.linux.dev, Marco Elver <elver@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0021/1073] memory: renesas-rpc-if: Clear HS bit during hardware initialization
-Date:   Wed, 28 Dec 2022 15:26:49 +0100
-Message-Id: <20221228144328.728837821@linuxfoundation.org>
+Subject: [PATCH 6.0 0022/1073] objtool, kcsan: Add volatile read/write instrumentation to whitelist
+Date:   Wed, 28 Dec 2022 15:26:50 +0100
+Message-Id: <20221228144328.754423489@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -56,45 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Dang <cong.dang.xn@renesas.com>
+From: Marco Elver <elver@google.com>
 
-[ Upstream commit 5192481f908e576be42bd39ec12979b79e11f7e0 ]
+[ Upstream commit 63646fcba5bb4b59a19031c21913f94e46a3d0d4 ]
 
-According to the datasheet, HS bit should be specified to 1 when using
-DMA transfer. As DMA transfer is not supported, it should be cleared to
-0.
+Adds KCSAN's volatile instrumentation to objtool's uaccess whitelist.
 
-Previously, the driver relied on the HS bit being cleared by prior
-firmware but this is not always the case.
+Recent kernel change have shown that this was missing from the uaccess
+whitelist (since the first upstreamed version of KCSAN):
 
-Fix this by ensuring the bit is cleared during hardware initialization.
+  mm/gup.o: warning: objtool: fault_in_readable+0x101: call to __tsan_volatile_write1() with UACCESS enabled
 
-Fixes: ca7d8b980b67 ("memory: add Renesas RPC-IF driver")
-Signed-off-by: Cong Dang <cong.dang.xn@renesas.com>
-Signed-off-by: Hai Pham <hai.pham.ud@renesas.com>
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Link: https://lore.kernel.org/r/08d9fb10b3051decebf871267a6e2e7cb2d4faf9.1665583089.git.geert+renesas@glider.be
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Fixes: 75d75b7a4d54 ("kcsan: Support distinguishing volatile accesses")
+Signed-off-by: Marco Elver <elver@google.com>
+Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/renesas-rpc-if.c | 3 +++
- 1 file changed, 3 insertions(+)
+ tools/objtool/check.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/memory/renesas-rpc-if.c b/drivers/memory/renesas-rpc-if.c
-index 4316988d791a..61c288d40375 100644
---- a/drivers/memory/renesas-rpc-if.c
-+++ b/drivers/memory/renesas-rpc-if.c
-@@ -317,6 +317,9 @@ int rpcif_hw_init(struct rpcif *rpc, bool hyperflash)
- 	regmap_update_bits(rpc->regmap, RPCIF_PHYCNT, RPCIF_PHYCNT_PHYMEM_MASK,
- 			   RPCIF_PHYCNT_PHYMEM(hyperflash ? 3 : 0));
- 
-+	/* DMA Transfer is not supported */
-+	regmap_update_bits(rpc->regmap, RPCIF_PHYCNT, RPCIF_PHYCNT_HS, 0);
-+
- 	if (rpc->type == RPCIF_RCAR_GEN3)
- 		regmap_update_bits(rpc->regmap, RPCIF_PHYCNT,
- 				   RPCIF_PHYCNT_STRTIM(7), RPCIF_PHYCNT_STRTIM(7));
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index e55fdf952a3a..67afdce3421f 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -999,6 +999,16 @@ static const char *uaccess_safe_builtin[] = {
+ 	"__tsan_read_write4",
+ 	"__tsan_read_write8",
+ 	"__tsan_read_write16",
++	"__tsan_volatile_read1",
++	"__tsan_volatile_read2",
++	"__tsan_volatile_read4",
++	"__tsan_volatile_read8",
++	"__tsan_volatile_read16",
++	"__tsan_volatile_write1",
++	"__tsan_volatile_write2",
++	"__tsan_volatile_write4",
++	"__tsan_volatile_write8",
++	"__tsan_volatile_write16",
+ 	"__tsan_atomic8_load",
+ 	"__tsan_atomic16_load",
+ 	"__tsan_atomic32_load",
 -- 
 2.35.1
 
