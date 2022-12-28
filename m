@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91AC9657E09
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:49:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77C53657E10
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:49:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234075AbiL1Pt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:49:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37454 "EHLO
+        id S234080AbiL1Pth (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:49:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233659AbiL1Pt1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:49:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98F7F18391
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:49:26 -0800 (PST)
+        with ESMTP id S234088AbiL1Ptg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:49:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26B6D18393
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:49:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 33CEE61560
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:49:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42A2EC433D2;
-        Wed, 28 Dec 2022 15:49:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D14EAB81733
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:49:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43175C433D2;
+        Wed, 28 Dec 2022 15:49:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242565;
-        bh=/+UuJAjFEjapQYnf+bpUs6VXLAIZiYcE0CkzyaZZO3Y=;
+        s=korg; t=1672242573;
+        bh=8/sVOYx2bnqClV5wMIKys2+H3FCefamDGqS5rgWovWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fCRRKEN2pUUGLl/4RVkYEUhxxizhvgV0Irm3F0KuaP330aVmdctFETgGRAYQvOwP+
-         J2m7TcvOWFohrw63ODEsvpBhvD2eLkEDdqmQcOIIN9SEQWYxWsZ9QueTzD6BEHLsIT
-         9F9qe7zan8G+N+X8GOwaV5tJur1856RQf9XCujEI=
+        b=uqP4txTZ1CGQwnVTn31DPDZUH5t8unxrwzexlhJusKmCHLEo1ZKgaKpahr/dKrUZ/
+         BkSmOplVJAL/uClgieqtxofI7xAdYUq5Pk1crCZxkrQs+YOK1jutDT19BSrtslvWJp
+         +I0gMGXUYBHpoarG5oaGDU4W0CMTkqrorDSfY+o0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0426/1073] ASoC: pcm512x: Fix PM disable depth imbalance in pcm512x_probe
-Date:   Wed, 28 Dec 2022 15:33:34 +0100
-Message-Id: <20221228144339.593727094@linuxfoundation.org>
+Subject: [PATCH 6.0 0427/1073] clk: visconti: Fix memory leak in visconti_register_pll()
+Date:   Wed, 28 Dec 2022 15:33:35 +0100
+Message-Id: <20221228144339.620969371@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -53,62 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-[ Upstream commit 97b801be6f8e53676b9f2b105f54e35c745c1b22 ]
+[ Upstream commit b55226f8553d255f5002c751c7c6ba9291f34bf2 ]
 
-The pm_runtime_enable will increase power disable depth. Thus
-a pairing decrement is needed on the error handling path to
-keep it balanced according to context. We fix it by going to
-err_pm instead of err_clk.
+@pll->rate_table has allocated memory by kmemdup(), if clk_hw_register()
+fails, it should be freed, otherwise it will cause memory leak issue,
+this patch fixes it.
 
-Fixes:f086ba9d5389c ("ASoC: pcm512x: Support mastering BCLK/LRCLK using the PLL")
-
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20220928160402.126140-1-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: b4cbe606dc36 ("clk: visconti: Add support common clock driver and reset driver")
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+Link: https://lore.kernel.org/r/20221122152353.204132-1-xiujianfeng@huawei.com
+Acked-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/pcm512x.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/clk/visconti/pll.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/codecs/pcm512x.c b/sound/soc/codecs/pcm512x.c
-index 767463e82665..89059a673cf0 100644
---- a/sound/soc/codecs/pcm512x.c
-+++ b/sound/soc/codecs/pcm512x.c
-@@ -1634,7 +1634,7 @@ int pcm512x_probe(struct device *dev, struct regmap *regmap)
- 			if (val > 6) {
- 				dev_err(dev, "Invalid pll-in\n");
- 				ret = -EINVAL;
--				goto err_clk;
-+				goto err_pm;
- 			}
- 			pcm512x->pll_in = val;
- 		}
-@@ -1643,7 +1643,7 @@ int pcm512x_probe(struct device *dev, struct regmap *regmap)
- 			if (val > 6) {
- 				dev_err(dev, "Invalid pll-out\n");
- 				ret = -EINVAL;
--				goto err_clk;
-+				goto err_pm;
- 			}
- 			pcm512x->pll_out = val;
- 		}
-@@ -1652,12 +1652,12 @@ int pcm512x_probe(struct device *dev, struct regmap *regmap)
- 			dev_err(dev,
- 				"Error: both pll-in and pll-out, or none\n");
- 			ret = -EINVAL;
--			goto err_clk;
-+			goto err_pm;
- 		}
- 		if (pcm512x->pll_in && pcm512x->pll_in == pcm512x->pll_out) {
- 			dev_err(dev, "Error: pll-in == pll-out\n");
- 			ret = -EINVAL;
--			goto err_clk;
-+			goto err_pm;
- 		}
+diff --git a/drivers/clk/visconti/pll.c b/drivers/clk/visconti/pll.c
+index a484cb945d67..1f3234f22667 100644
+--- a/drivers/clk/visconti/pll.c
++++ b/drivers/clk/visconti/pll.c
+@@ -277,6 +277,7 @@ static struct clk_hw *visconti_register_pll(struct visconti_pll_provider *ctx,
+ 	ret = clk_hw_register(NULL, &pll->hw);
+ 	if (ret) {
+ 		pr_err("failed to register pll clock %s : %d\n", name, ret);
++		kfree(pll->rate_table);
+ 		kfree(pll);
+ 		pll_hw_clk = ERR_PTR(ret);
  	}
- #endif
 -- 
 2.35.1
 
