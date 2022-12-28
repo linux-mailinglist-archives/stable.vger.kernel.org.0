@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B71B657A3B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:09:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FA0865811F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233630AbiL1PJG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:09:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56102 "EHLO
+        id S233296AbiL1QZL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:25:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233648AbiL1PJD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:09:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB5ED13DE1
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:09:02 -0800 (PST)
+        with ESMTP id S234792AbiL1QYW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:24:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 037F919283
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:21:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8841261555
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:09:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AB79C433D2;
-        Wed, 28 Dec 2022 15:09:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A825EB816F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:21:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 005D3C433D2;
+        Wed, 28 Dec 2022 16:21:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240142;
-        bh=PuDAklRmi/NF7zOK5vz/Tf1o6kBLQnq7PkHBlGB3xzs=;
+        s=korg; t=1672244489;
+        bh=TXJz3PRK6h7jXubjekPXE6EvGPO4NqLFfK6TRIFVvgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HYieBLqeDSUR2RE86pUed8qjCon9i0OuFbp6JEnVc9YBAKb8kIl8pfspd4hQ1gz12
-         RjOglRLjokFJlOHdZeh+a5U6di+wn/jhcJ8xZW7kQBTH4p+KlTW8ndyrc20gVCxy5w
-         i9XKsp58kUF/8pGuuDxzBL4P3uGZSQ6VdVcywnsU=
+        b=CB8J8xJnlKhm+B9oBVLCrgN9rgi3PyxuYadYp8W1l167gMP0V/ncT4yDRPwLRyQEM
+         WFU7Pg7/fhsp9Z4JSy/ea1WJ56MbT/J8SVEdWuTWOe+CorbzJmYiExx+E59F/iJqL7
+         IyREX7qr7DPDB7+wrRLf84NCDMK3GJLFRZgheXZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        patches@lists.linux.dev,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 314/731] clk: samsung: Fix memory leak in _samsung_clk_register_pll()
+Subject: [PATCH 6.1 0682/1146] hwrng: geode - Fix PCI device refcount leak
 Date:   Wed, 28 Dec 2022 15:37:01 +0100
-Message-Id: <20221228144305.679030004@linuxfoundation.org>
+Message-Id: <20221228144348.668289690@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 5174e5b0d1b669a489524192b6adcbb3c54ebc72 ]
+[ Upstream commit 9f6ec8dc574efb7f4f3d7ee9cd59ae307e78f445 ]
 
-If clk_register() fails, @pll->rate_table may have allocated memory by
-kmemdup(), so it needs to be freed, otherwise will cause memory leak
-issue, this patch fixes it.
+for_each_pci_dev() is implemented by pci_get_device(). The comment of
+pci_get_device() says that it will increase the reference count for the
+returned pci_dev and also decrease the reference count for the input
+pci_dev @from if it is not NULL.
 
-Fixes: 3ff6e0d8d64d ("clk: samsung: Add support to register rate_table for samsung plls")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Link: https://lore.kernel.org/r/20221123032015.63980-1-xiujianfeng@huawei.com
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+If we break for_each_pci_dev() loop with pdev not NULL, we need to call
+pci_dev_put() to decrease the reference count. We add a new struct
+'amd_geode_priv' to record pointer of the pci_dev and membase, and then
+add missing pci_dev_put() for the normal and error path.
+
+Fixes: ef5d862734b8 ("[PATCH] Add Geode HW RNG driver")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/samsung/clk-pll.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/hw_random/geode-rng.c | 36 +++++++++++++++++++++++-------
+ 1 file changed, 28 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/clk/samsung/clk-pll.c b/drivers/clk/samsung/clk-pll.c
-index 5873a9354b50..4909e940f0ab 100644
---- a/drivers/clk/samsung/clk-pll.c
-+++ b/drivers/clk/samsung/clk-pll.c
-@@ -1385,6 +1385,7 @@ static void __init _samsung_clk_register_pll(struct samsung_clk_provider *ctx,
- 	if (ret) {
- 		pr_err("%s: failed to register pll clock %s : %d\n",
- 			__func__, pll_clk->name, ret);
-+		kfree(pll->rate_table);
- 		kfree(pll);
- 		return;
+diff --git a/drivers/char/hw_random/geode-rng.c b/drivers/char/hw_random/geode-rng.c
+index 138ce434f86b..12fbe8091831 100644
+--- a/drivers/char/hw_random/geode-rng.c
++++ b/drivers/char/hw_random/geode-rng.c
+@@ -51,6 +51,10 @@ static const struct pci_device_id pci_tbl[] = {
+ };
+ MODULE_DEVICE_TABLE(pci, pci_tbl);
+ 
++struct amd_geode_priv {
++	struct pci_dev *pcidev;
++	void __iomem *membase;
++};
+ 
+ static int geode_rng_data_read(struct hwrng *rng, u32 *data)
+ {
+@@ -90,6 +94,7 @@ static int __init geode_rng_init(void)
+ 	const struct pci_device_id *ent;
+ 	void __iomem *mem;
+ 	unsigned long rng_base;
++	struct amd_geode_priv *priv;
+ 
+ 	for_each_pci_dev(pdev) {
+ 		ent = pci_match_id(pci_tbl, pdev);
+@@ -97,17 +102,26 @@ static int __init geode_rng_init(void)
+ 			goto found;
  	}
+ 	/* Device not found. */
+-	goto out;
++	return err;
+ 
+ found:
++	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
++	if (!priv) {
++		err = -ENOMEM;
++		goto put_dev;
++	}
++
+ 	rng_base = pci_resource_start(pdev, 0);
+ 	if (rng_base == 0)
+-		goto out;
++		goto free_priv;
+ 	err = -ENOMEM;
+ 	mem = ioremap(rng_base, 0x58);
+ 	if (!mem)
+-		goto out;
+-	geode_rng.priv = (unsigned long)mem;
++		goto free_priv;
++
++	geode_rng.priv = (unsigned long)priv;
++	priv->membase = mem;
++	priv->pcidev = pdev;
+ 
+ 	pr_info("AMD Geode RNG detected\n");
+ 	err = hwrng_register(&geode_rng);
+@@ -116,20 +130,26 @@ static int __init geode_rng_init(void)
+ 		       err);
+ 		goto err_unmap;
+ 	}
+-out:
+ 	return err;
+ 
+ err_unmap:
+ 	iounmap(mem);
+-	goto out;
++free_priv:
++	kfree(priv);
++put_dev:
++	pci_dev_put(pdev);
++	return err;
+ }
+ 
+ static void __exit geode_rng_exit(void)
+ {
+-	void __iomem *mem = (void __iomem *)geode_rng.priv;
++	struct amd_geode_priv *priv;
+ 
++	priv = (struct amd_geode_priv *)geode_rng.priv;
+ 	hwrng_unregister(&geode_rng);
+-	iounmap(mem);
++	iounmap(priv->membase);
++	pci_dev_put(priv->pcidev);
++	kfree(priv);
+ }
+ 
+ module_init(geode_rng_init);
 -- 
 2.35.1
 
