@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3141657CA8
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:34:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FB78657DCA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:47:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233449AbiL1Pep (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:34:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52522 "EHLO
+        id S233606AbiL1PrD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:47:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233854AbiL1Pen (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:34:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3AB515FFC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:34:42 -0800 (PST)
+        with ESMTP id S234037AbiL1Pqm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:46:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4580F167CA
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:46:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EFCC6155C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:34:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89BCCC433D2;
-        Wed, 28 Dec 2022 15:34:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DC653B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:46:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52299C433F2;
+        Wed, 28 Dec 2022 15:46:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241681;
-        bh=iCIgmZeyVgW2U7zvjqK90AJ3FwEtEIKU7+2c3T9hRxo=;
+        s=korg; t=1672242397;
+        bh=7V6ft3lVN55IILIFGQj/INz2L50peMHXGVnsJJGkBZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1gGJZHGMAU5VAzX0hXt088GigJWeJSjOTUGYhQSIOp1v4fT6Qie32QVPFt+Aoexun
-         WQQmxhlKrHjiklncU2dIB76tfczuFzxLKfZwxaqCOXKOR0N4YylwUEf+Eg3TrNYgaL
-         19xPlThYEnR79pNtEZ4N7Cizer8jURgepUw7aLVg=
+        b=IC3Q1ZyoPyFj7Bk0odE/nR22GyLDkKBNB2fK++ovcr32WcFk6s6uTiv3KUrs9085E
+         daA0yAH8ie8qr0ph/YQNXAmcVTz0qW/8l4MQXrei9YQJCJUqoA0EmiKe2EJ3uBaBXP
+         zJD72jmdIscCi+VxF9WQJoFoYLICRt2WSv505W00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0315/1073] module: Fix NULL vs IS_ERR checking for module_get_next_page
-Date:   Wed, 28 Dec 2022 15:31:43 +0100
-Message-Id: <20221228144336.563375392@linuxfoundation.org>
+        patches@lists.linux.dev, Hou Tao <houtao1@huawei.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0365/1146] bpf: Pin the start cgroup in cgroup_iter_seq_init()
+Date:   Wed, 28 Dec 2022 15:31:44 +0100
+Message-Id: <20221228144340.081108605@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Hou Tao <houtao1@huawei.com>
 
-[ Upstream commit 45af1d7aae7d5520d2858f8517a1342646f015db ]
+[ Upstream commit 1a5160d4d8fe63ba4964cfff4a85831b6af75f2d ]
 
-The module_get_next_page() function return error pointers on error
-instead of NULL.
-Use IS_ERR() to check the return value to fix this.
+bpf_iter_attach_cgroup() has already acquired an extra reference for the
+start cgroup, but the reference may be released if the iterator link fd
+is closed after the creation of iterator fd, and it may lead to
+user-after-free problem when reading the iterator fd.
 
-Fixes: b1ae6dc41eaa ("module: add in-kernel support for decompressing")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com
-Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+An alternative fix is pinning iterator link when opening iterator,
+but it will make iterator link being still visible after the close of
+iterator link fd and the behavior is different with other link types, so
+just fixing it by acquiring another reference for the start cgroup.
+
+Fixes: d4ccaf58a847 ("bpf: Introduce cgroup iter")
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20221121073440.1828292-2-houtao@huaweicloud.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/module/decompress.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ kernel/bpf/cgroup_iter.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/kernel/module/decompress.c b/kernel/module/decompress.c
-index 4d0bcb3d9e44..82c07b1d9797 100644
---- a/kernel/module/decompress.c
-+++ b/kernel/module/decompress.c
-@@ -114,8 +114,8 @@ static ssize_t module_gzip_decompress(struct load_info *info,
- 	do {
- 		struct page *page = module_get_next_page(info);
+diff --git a/kernel/bpf/cgroup_iter.c b/kernel/bpf/cgroup_iter.c
+index 9fcf09f2ef00..c187a9e62bdb 100644
+--- a/kernel/bpf/cgroup_iter.c
++++ b/kernel/bpf/cgroup_iter.c
+@@ -164,16 +164,30 @@ static int cgroup_iter_seq_init(void *priv, struct bpf_iter_aux_info *aux)
+ 	struct cgroup_iter_priv *p = (struct cgroup_iter_priv *)priv;
+ 	struct cgroup *cgrp = aux->cgroup.start;
  
--		if (!page) {
--			retval = -ENOMEM;
-+		if (IS_ERR(page)) {
-+			retval = PTR_ERR(page);
- 			goto out_inflate_end;
- 		}
++	/* bpf_iter_attach_cgroup() has already acquired an extra reference
++	 * for the start cgroup, but the reference may be released after
++	 * cgroup_iter_seq_init(), so acquire another reference for the
++	 * start cgroup.
++	 */
+ 	p->start_css = &cgrp->self;
++	css_get(p->start_css);
+ 	p->terminate = false;
+ 	p->visited_all = false;
+ 	p->order = aux->cgroup.order;
+ 	return 0;
+ }
  
-@@ -173,8 +173,8 @@ static ssize_t module_xz_decompress(struct load_info *info,
- 	do {
- 		struct page *page = module_get_next_page(info);
- 
--		if (!page) {
--			retval = -ENOMEM;
-+		if (IS_ERR(page)) {
-+			retval = PTR_ERR(page);
- 			goto out;
- 		}
++static void cgroup_iter_seq_fini(void *priv)
++{
++	struct cgroup_iter_priv *p = (struct cgroup_iter_priv *)priv;
++
++	css_put(p->start_css);
++}
++
+ static const struct bpf_iter_seq_info cgroup_iter_seq_info = {
+ 	.seq_ops		= &cgroup_iter_seq_ops,
+ 	.init_seq_private	= cgroup_iter_seq_init,
++	.fini_seq_private	= cgroup_iter_seq_fini,
+ 	.seq_priv_size		= sizeof(struct cgroup_iter_priv),
+ };
  
 -- 
 2.35.1
