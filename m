@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8EBB657CA4
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:34:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BB44657DC6
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:47:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233442AbiL1Pee (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:34:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52410 "EHLO
+        id S234038AbiL1Pqo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:46:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233209AbiL1Ped (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:34:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6672515FF3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:34:32 -0800 (PST)
+        with ESMTP id S234054AbiL1Pqb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:46:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 934A315811
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:46:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 04B9A61542
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:34:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15BB7C433D2;
-        Wed, 28 Dec 2022 15:34:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 265A66155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:46:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 387C6C433EF;
+        Wed, 28 Dec 2022 15:46:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241671;
-        bh=CqQRcsSQq058uT3OMgNYfTs9DiLJtY+KpGVWtVw1EFc=;
+        s=korg; t=1672242389;
+        bh=QfUaT42pzPMS2vKzNr+C9o1BvtAlEyXwVjTQ+USMG7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AafOt+nWhvRmd7VfDaH8ROJlpx+KfwtWuQ6o2h6MsUaHhWsIWDN8yxn0W3vi5RI+Z
-         4/MooIQX+uW2GLd45Tht+k4rj+7gKMTrkOdsXESA1Zaz1hG+9KOPYx/T8R1pW4bsSr
-         sHVo/O0WhKsRf2BMOoL1rFE2KQmQnccAmD9r8XsA=
+        b=QugZ2FJMFib+Ao63xi3yWUfRwbrssBdDoz6ilQnHAAh1ZkeEtdL/8P82CUISkzhGB
+         a+pNQec5DuEPY2eK+bsHQdaor0ULfUEZdBSf3/isDCVS0yn8jWcgHmRAw2tYMsy3h+
+         VqqCrMvHZtuGsebc23F7+xsk2acU/URZST/JzE9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johannes Berg <johannes.berg@intel.com>,
-        Gregory Greenman <gregory.greenman@intel.com>,
+        patches@lists.linux.dev, Peng Fan <peng.fan@nxp.com>,
+        Haibo Chen <haibo.chen@nxp.com>,
+        Abel Vesa <abel.vesa@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0314/1073] wifi: iwlwifi: mei: fix potential NULL-ptr deref after clone
-Date:   Wed, 28 Dec 2022 15:31:42 +0100
-Message-Id: <20221228144336.535597562@linuxfoundation.org>
+Subject: [PATCH 6.1 0364/1146] clk: imx93: correct the flexspi1 clock setting
+Date:   Wed, 28 Dec 2022 15:31:43 +0100
+Message-Id: <20221228144340.053897616@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-[ Upstream commit d3df49dda431f7ae4132a9a0ac25a5134c04e812 ]
+[ Upstream commit 62dfdbcc16e767b91ed35d4fc0428c86d4688505 ]
 
-If cloning the SKB fails, don't try to use it, but rather return
-as if we should pass it.
+Correct IMX93_CLK_FLEXSPI1_GATE CCGR setting. Otherwise the flexspi
+always can't be assigned to a parent clock when dump the clock tree.
 
-Coverity CID: 1503456
-
-Fixes: 2da4366f9e2c ("iwlwifi: mei: add the driver to allow cooperation with CSME")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Gregory Greenman <gregory.greenman@intel.com>
-Link: https://lore.kernel.org/r/20221030191011.0ce03ba99601.I87960b7cb0a3d16b9fd8d9144027e7e2587f5a58@changeid
+Fixes: 24defbe194b6 ("clk: imx: add i.MX93 clk")
+Reviewed-by: Peng Fan <peng.fan@nxp.com>
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Reviewed-by: Abel Vesa <abel.vesa@linaro.org>
+Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
+Link: https://lore.kernel.org/r/1666589199-1199-1-git-send-email-haibo.chen@nxp.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mei/net.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/clk/imx/clk-imx93.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mei/net.c b/drivers/net/wireless/intel/iwlwifi/mei/net.c
-index 3472167c8370..eac46d1a397a 100644
---- a/drivers/net/wireless/intel/iwlwifi/mei/net.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mei/net.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0-only
- /*
-- * Copyright (C) 2021 Intel Corporation
-+ * Copyright (C) 2021-2022 Intel Corporation
-  */
- 
- #include <uapi/linux/if_ether.h>
-@@ -337,10 +337,14 @@ rx_handler_result_t iwl_mei_rx_filter(struct sk_buff *orig_skb,
- 	if (!*pass_to_csme)
- 		return RX_HANDLER_PASS;
- 
--	if (ret == RX_HANDLER_PASS)
-+	if (ret == RX_HANDLER_PASS) {
- 		skb = skb_copy(orig_skb, GFP_ATOMIC);
--	else
-+
-+		if (!skb)
-+			return RX_HANDLER_PASS;
-+	} else {
- 		skb = orig_skb;
-+	}
- 
- 	/* CSME wants the MAC header as well, push it back */
- 	skb_push(skb, skb->data - skb_mac_header(skb));
+diff --git a/drivers/clk/imx/clk-imx93.c b/drivers/clk/imx/clk-imx93.c
+index 99cff1fd108b..40ecee3b5e78 100644
+--- a/drivers/clk/imx/clk-imx93.c
++++ b/drivers/clk/imx/clk-imx93.c
+@@ -170,7 +170,7 @@ static const struct imx93_clk_ccgr {
+ 	{ IMX93_CLK_MU2_B_GATE,		"mu2_b",	"bus_wakeup_root",	0x8500, 0, &share_count_mub },
+ 	{ IMX93_CLK_EDMA1_GATE,		"edma1",	"m33_root",		0x8540, },
+ 	{ IMX93_CLK_EDMA2_GATE,		"edma2",	"wakeup_axi_root",	0x8580, },
+-	{ IMX93_CLK_FLEXSPI1_GATE,	"flexspi",	"flexspi_root",		0x8640, },
++	{ IMX93_CLK_FLEXSPI1_GATE,	"flexspi1",	"flexspi1_root",	0x8640, },
+ 	{ IMX93_CLK_GPIO1_GATE,		"gpio1",	"m33_root",		0x8880, },
+ 	{ IMX93_CLK_GPIO2_GATE,		"gpio2",	"bus_wakeup_root",	0x88c0, },
+ 	{ IMX93_CLK_GPIO3_GATE,		"gpio3",	"bus_wakeup_root",	0x8900, },
 -- 
 2.35.1
 
