@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3204657DE9
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:48:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A7A76583F7
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:53:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234052AbiL1PsI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:48:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36174 "EHLO
+        id S235180AbiL1Qxl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:53:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234071AbiL1PsB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:48:01 -0500
+        with ESMTP id S235184AbiL1Qwx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:52:53 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A826178B9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:48:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9D5010C1
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:47:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DCF8D61344
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:48:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0674C433D2;
-        Wed, 28 Dec 2022 15:47:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 690A36155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:47:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76990C433EF;
+        Wed, 28 Dec 2022 16:47:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242480;
-        bh=d266scq9zGpyNUQ6Afw40j9FICaRCkGtoyqNTb3E5IQ=;
+        s=korg; t=1672246073;
+        bh=2z2kx3GfS55LxRLsKjgo8pcqfUBZUKUOXS4w7KtOlKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1/9+DJ+jOexkykEdaLCbc1WrWRRxuMUt6fOXHejKi3hfg3MSs1+OsvODod/tiZGom
-         KpikYEaJlgds6/6c5n11zwVx8wBCLLAMlFn/xbIfqcEUpxiHG0pQhOHBOZxik0B08f
-         uqVfljjWK6pABctUQpKo4tuKWYrr6U54Vft9fXPE=
+        b=zykih0auZ0aWmFoVlBKeAb5WERaDWsYB/hBqkrjkqrrteB3CgwMicUfAZLsATJIOC
+         /KelPoiFJAp/XNy5heNF2kmnNMBwIEyB0XVXlJc7hdCj+v8j3LPSZkDw/mjlmDCgkU
+         KhTlf05o9ZxjrNi0YPASse49Kn2FzAYt1205Vcu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
+        patches@lists.linux.dev, Mark Broadworth <mark.broadworth@amd.com>,
+        Dillon Varone <Dillon.Varone@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        zhikzhai <zhikai.zhai@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 608/731] mailbox: arm_mhuv2: Fix return value check in mhuv2_probe()
+Subject: [PATCH 6.1 0976/1146] drm/amd/display: skip commit minimal transition state
 Date:   Wed, 28 Dec 2022 15:41:55 +0100
-Message-Id: <20221228144314.162919435@linuxfoundation.org>
+Message-Id: <20221228144356.865917601@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +56,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: zhikzhai <zhikai.zhai@amd.com>
 
-[ Upstream commit 165b7643f2df890066b1b4e8a387888a600ca9bf ]
+[ Upstream commit 1e8fd864afdc7a52df375e888a03b8472fc24f5d ]
 
-If devm_of_iomap() fails, it returns ERR_PTR() and never
-return NULL, so replace NULL pointer check with IS_ERR()
-to fix this problem.
+[WHY]
+Now dynamic ODM will now be disabled when MPO is required safe
+transitions to avoid underflow, but we are triggering the way of minimal
+transition too often. Commit state of dc with no check will do pipeline
+setup which may re-initialize the component with no need such as audio.
 
-Fixes: 5a6338cce9f4 ("mailbox: arm_mhuv2: Add driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+[HOW]
+Just do the minimal transition when all of pipes are in use, otherwise
+return true to skip.
+
+Tested-by: Mark Broadworth <mark.broadworth@amd.com>
+Reviewed-by: Dillon Varone <Dillon.Varone@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: zhikzhai <zhikai.zhai@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/arm_mhuv2.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/drivers/mailbox/arm_mhuv2.c b/drivers/mailbox/arm_mhuv2.c
-index d997f8ebfa98..3af15083a25a 100644
---- a/drivers/mailbox/arm_mhuv2.c
-+++ b/drivers/mailbox/arm_mhuv2.c
-@@ -1061,8 +1061,8 @@ static int mhuv2_probe(struct amba_device *adev, const struct amba_id *id)
- 	int ret = -EINVAL;
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index 997ab031f816..5c00907099c1 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -3650,10 +3650,32 @@ static bool commit_minimal_transition_state(struct dc *dc,
+ 	bool temp_subvp_policy;
+ 	enum dc_status ret = DC_ERROR_UNEXPECTED;
+ 	unsigned int i, j;
++	unsigned int pipe_in_use = 0;
  
- 	reg = devm_of_iomap(dev, dev->of_node, 0, NULL);
--	if (!reg)
--		return -ENOMEM;
-+	if (IS_ERR(reg))
-+		return PTR_ERR(reg);
+ 	if (!transition_context)
+ 		return false;
  
- 	mhu = devm_kzalloc(dev, sizeof(*mhu), GFP_KERNEL);
- 	if (!mhu)
++	/* check current pipes in use*/
++	for (i = 0; i < dc->res_pool->pipe_count; i++) {
++		struct pipe_ctx *pipe = &transition_base_context->res_ctx.pipe_ctx[i];
++
++		if (pipe->plane_state)
++			pipe_in_use++;
++	}
++
++	/* When the OS add a new surface if we have been used all of pipes with odm combine
++	 * and mpc split feature, it need use commit_minimal_transition_state to transition safely.
++	 * After OS exit MPO, it will back to use odm and mpc split with all of pipes, we need
++	 * call it again. Otherwise return true to skip.
++	 *
++	 * Reduce the scenarios to use dc_commit_state_no_check in the stage of flip. Especially
++	 * enter/exit MPO when DCN still have enough resources.
++	 */
++	if (pipe_in_use != dc->res_pool->pipe_count) {
++		dc_release_state(transition_context);
++		return true;
++	}
++
+ 	if (!dc->config.is_vmin_only_asic) {
+ 		tmp_mpc_policy = dc->debug.pipe_split_policy;
+ 		dc->debug.pipe_split_policy = MPC_SPLIT_AVOID;
 -- 
 2.35.1
 
