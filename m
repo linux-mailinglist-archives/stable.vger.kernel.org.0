@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77B48657A8E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:13:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 009EE657A91
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:13:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232968AbiL1PNG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:13:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59336 "EHLO
+        id S233057AbiL1PNN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:13:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233000AbiL1PMl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:12:41 -0500
+        with ESMTP id S233118AbiL1PMv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:12:51 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BFFC13EBE
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:12:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 322FC13E88
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:12:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CD429B81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:12:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25C06C433D2;
-        Wed, 28 Dec 2022 15:12:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D5CE6B8172A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:12:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E0B4C433D2;
+        Wed, 28 Dec 2022 15:12:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240332;
-        bh=umKkiRh4aTFFoxHCOjIIbnRjW2nlFARzCiKvwxQcyco=;
+        s=korg; t=1672240340;
+        bh=Lez0XSHP/3AfL8wxzX79PzZk+p3Dw0gYxZGEGDraGYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nuvrxS0k4O41+ko+H2rsHmXPi6jwxkFshhWyliMrO8oGDO8e3oWhicYvHdglVqC0w
-         BGRehbcAUd3lKG7llsqjzXeeJPkP1y4EU8KYYiaDrgOZa3tu0QiX2ZfjI9gIRSvBfl
-         OhX5wIAZr+DeuycDW+fbms26yyIff2F9pk3LBtk0=
+        b=yWqIAl8SIaJacC7ZKS4oS09u0+Nk6fbs9jEtV47yYzy6S+n4LQN4JqHAXjthBZxvU
+         z8BQAdKKDgst1qS84liwzrCQoSeh67PV5JgH7PNBrd8ct1of3d2+BnbznxtM76y+TC
+         jPxaPfulZpLDuAtNPT0Ib7pDdjufY2frrN9d4plg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Alexandre Bounine <alex.bou9@gmail.com>,
+        Matt Porter <mporter@kernel.crashing.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0148/1073] ocfs2: fix memory leak in ocfs2_mount_volume()
-Date:   Wed, 28 Dec 2022 15:28:56 +0100
-Message-Id: <20221228144332.044148214@linuxfoundation.org>
+Subject: [PATCH 6.0 0149/1073] rapidio: fix possible name leaks when rio_add_device() fails
+Date:   Wed, 28 Dec 2022 15:28:57 +0100
+Message-Id: <20221228144332.070538076@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -59,119 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zetao <ocfs2-devel@oss.oracle.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit ce2fcf1516d674a174d9b34d1e1024d64de9fba3 ]
+[ Upstream commit f9574cd48679926e2a569e1957a5a1bcc8a719ac ]
 
-There is a memory leak reported by kmemleak:
+Patch series "rapidio: fix three possible memory leaks".
 
-  unreferenced object 0xffff88810cc65e60 (size 32):
-    comm "mount.ocfs2", pid 23753, jiffies 4302528942 (age 34735.105s)
-    hex dump (first 32 bytes):
-      10 00 00 00 00 00 00 00 00 01 01 01 01 01 01 01  ................
-      01 01 01 01 01 01 01 01 00 00 00 00 00 00 00 00  ................
-    backtrace:
-      [<ffffffff8170f73d>] __kmalloc+0x4d/0x150
-      [<ffffffffa0ac3f51>] ocfs2_compute_replay_slots+0x121/0x330 [ocfs2]
-      [<ffffffffa0b65165>] ocfs2_check_volume+0x485/0x900 [ocfs2]
-      [<ffffffffa0b68129>] ocfs2_mount_volume.isra.0+0x1e9/0x650 [ocfs2]
-      [<ffffffffa0b7160b>] ocfs2_fill_super+0xe0b/0x1740 [ocfs2]
-      [<ffffffff818e1fe2>] mount_bdev+0x312/0x400
-      [<ffffffff819a086d>] legacy_get_tree+0xed/0x1d0
-      [<ffffffff818de82d>] vfs_get_tree+0x7d/0x230
-      [<ffffffff81957f92>] path_mount+0xd62/0x1760
-      [<ffffffff81958a5a>] do_mount+0xca/0xe0
-      [<ffffffff81958d3c>] __x64_sys_mount+0x12c/0x1a0
-      [<ffffffff82f26f15>] do_syscall_64+0x35/0x80
-      [<ffffffff8300006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+This patchset fixes three name leaks in error handling.
+ - patch #1 fixes two name leaks while rio_add_device() fails.
+ - patch #2 fixes a name leak while  rio_register_mport() fails.
 
-This call stack is related to two problems.  Firstly, the ocfs2 super uses
-"replay_map" to trace online/offline slots, in order to recover offline
-slots during recovery and mount.  But when ocfs2_truncate_log_init()
-returns an error in ocfs2_mount_volume(), the memory of "replay_map" will
-not be freed in error handling path.  Secondly, the memory of "replay_map"
-will not be freed if d_make_root() returns an error in ocfs2_fill_super().
-But the memory of "replay_map" will be freed normally when completing
-recovery and mount in ocfs2_complete_mount_recovery().
+This patch (of 2):
 
-Fix the first problem by adding error handling path to free "replay_map"
-when ocfs2_truncate_log_init() fails.  And fix the second problem by
-calling ocfs2_free_replay_slots(osb) in the error handling path
-"out_dismount".  In addition, since ocfs2_free_replay_slots() is static,
-it is necessary to remove its static attribute and declare it in header
-file.
+If rio_add_device() returns error, the name allocated by dev_set_name()
+need be freed.  It should use put_device() to give up the reference in the
+error path, so that the name can be freed in kobject_cleanup(), and the
+'rdev' can be freed in rio_release_dev().
 
-Link: https://lkml.kernel.org/r/20221109074627.2303950-1-lizetao1@huawei.com
-Fixes: 9140db04ef18 ("ocfs2: recover orphans in offline slots during recovery and mount")
-Signed-off-by: Li Zetao <lizetao1@huawei.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
+Link: https://lkml.kernel.org/r/20221114152636.2939035-1-yangyingliang@huawei.com
+Link: https://lkml.kernel.org/r/20221114152636.2939035-2-yangyingliang@huawei.com
+Fixes: e8de370188d0 ("rapidio: add mport char device driver")
+Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Cc: Alexandre Bounine <alex.bou9@gmail.com>
+Cc: Matt Porter <mporter@kernel.crashing.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/journal.c | 2 +-
- fs/ocfs2/journal.h | 1 +
- fs/ocfs2/super.c   | 5 ++++-
- 3 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/rapidio/devices/rio_mport_cdev.c | 7 +++++--
+ drivers/rapidio/rio-scan.c               | 8 ++++++--
+ 2 files changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/fs/ocfs2/journal.c b/fs/ocfs2/journal.c
-index fa87d89cf754..1be7d440eff3 100644
---- a/fs/ocfs2/journal.c
-+++ b/fs/ocfs2/journal.c
-@@ -157,7 +157,7 @@ static void ocfs2_queue_replay_slots(struct ocfs2_super *osb,
- 	replay_map->rm_state = REPLAY_DONE;
- }
+diff --git a/drivers/rapidio/devices/rio_mport_cdev.c b/drivers/rapidio/devices/rio_mport_cdev.c
+index 2cdc054e53a5..3cc83997a1f8 100644
+--- a/drivers/rapidio/devices/rio_mport_cdev.c
++++ b/drivers/rapidio/devices/rio_mport_cdev.c
+@@ -1804,8 +1804,11 @@ static int rio_mport_add_riodev(struct mport_cdev_priv *priv,
+ 		rio_init_dbell_res(&rdev->riores[RIO_DOORBELL_RESOURCE],
+ 				   0, 0xffff);
+ 	err = rio_add_device(rdev);
+-	if (err)
+-		goto cleanup;
++	if (err) {
++		put_device(&rdev->dev);
++		return err;
++	}
++
+ 	rio_dev_get(rdev);
  
--static void ocfs2_free_replay_slots(struct ocfs2_super *osb)
-+void ocfs2_free_replay_slots(struct ocfs2_super *osb)
- {
- 	struct ocfs2_replay_map *replay_map = osb->replay_map;
- 
-diff --git a/fs/ocfs2/journal.h b/fs/ocfs2/journal.h
-index 969d0aa28718..41c382f68529 100644
---- a/fs/ocfs2/journal.h
-+++ b/fs/ocfs2/journal.h
-@@ -150,6 +150,7 @@ int ocfs2_recovery_init(struct ocfs2_super *osb);
- void ocfs2_recovery_exit(struct ocfs2_super *osb);
- 
- int ocfs2_compute_replay_slots(struct ocfs2_super *osb);
-+void ocfs2_free_replay_slots(struct ocfs2_super *osb);
- /*
-  *  Journal Control:
-  *  Initialize, Load, Shutdown, Wipe a journal.
-diff --git a/fs/ocfs2/super.c b/fs/ocfs2/super.c
-index e2cc9eec287c..78441e466e6f 100644
---- a/fs/ocfs2/super.c
-+++ b/fs/ocfs2/super.c
-@@ -1159,6 +1159,7 @@ static int ocfs2_fill_super(struct super_block *sb, void *data, int silent)
- out_dismount:
- 	atomic_set(&osb->vol_state, VOLUME_DISABLED);
- 	wake_up(&osb->osb_mount_event);
-+	ocfs2_free_replay_slots(osb);
- 	ocfs2_dismount_volume(sb, 1);
- 	goto out;
- 
-@@ -1824,12 +1825,14 @@ static int ocfs2_mount_volume(struct super_block *sb)
- 	status = ocfs2_truncate_log_init(osb);
- 	if (status < 0) {
- 		mlog_errno(status);
--		goto out_system_inodes;
-+		goto out_check_volume;
- 	}
- 
- 	ocfs2_super_unlock(osb, 1);
  	return 0;
+diff --git a/drivers/rapidio/rio-scan.c b/drivers/rapidio/rio-scan.c
+index 19b0c33f4a62..fdcf742b2adb 100644
+--- a/drivers/rapidio/rio-scan.c
++++ b/drivers/rapidio/rio-scan.c
+@@ -454,8 +454,12 @@ static struct rio_dev *rio_setup_device(struct rio_net *net,
+ 				   0, 0xffff);
  
-+out_check_volume:
-+	ocfs2_free_replay_slots(osb);
- out_system_inodes:
- 	if (osb->local_alloc_state == OCFS2_LA_ENABLED)
- 		ocfs2_shutdown_local_alloc(osb);
+ 	ret = rio_add_device(rdev);
+-	if (ret)
+-		goto cleanup;
++	if (ret) {
++		if (rswitch)
++			kfree(rswitch->route_table);
++		put_device(&rdev->dev);
++		return NULL;
++	}
+ 
+ 	rio_dev_get(rdev);
+ 
 -- 
 2.35.1
 
