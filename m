@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 577636582ED
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8616657C4E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:31:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234935AbiL1QnW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:43:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33430 "EHLO
+        id S233820AbiL1PbL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:31:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235031AbiL1Qmx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:42:53 -0500
+        with ESMTP id S233814AbiL1PbH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:31:07 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B80131FCD9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:07 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D06215F03
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:31:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2E617B817F6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:36:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97C72C433EF;
-        Wed, 28 Dec 2022 16:36:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F33BB8170E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:31:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2084C433D2;
+        Wed, 28 Dec 2022 15:31:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245404;
-        bh=ExFAmNH5mIw0yinUvm0KNakICdbGLYc9L+GW9mv+vhY=;
+        s=korg; t=1672241464;
+        bh=rBurc719qreKJtfryobjI1i8Mmm+/tDZv21DfTcX+nM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2iWehRM8V+4L9bBe2y9N1vwNQ/V4khlN4toVBbUcHY7/NAqUI1J+yJ3CM+CUzfDBy
-         r7nCveXht6XBniT0YCUDFHIlgHw3UCFXQOO8/9PfOt9RZtIvcE+3mhurEZT/3hPCha
-         kcozyh22SIVBfRwC7Y9JnIgJ9JG9MlGXlGjlxOjc=
+        b=hHrV4sZ/MraqCF9rB+iQ9wR3FtyjagIOTmeJT1KGPsbssrr+E4e3X9TUlydsjkUYo
+         MQJL16CI5YShw1QwBvuYqDHIV2lgAawthm80iajRzEcKzV1Yh6ys2J+dr9xkbLHqr0
+         AbPV+JQRxm4qkLgfPJsgVKkiMVayUbK1YDppEKwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nayna Jain <nayna@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0853/1146] powerpc/pseries: Return -EIO instead of -EINTR for H_ABORTED error
+Subject: [PATCH 5.15 485/731] chardev: fix error handling in cdev_device_add()
 Date:   Wed, 28 Dec 2022 15:39:52 +0100
-Message-Id: <20221228144353.323885928@linuxfoundation.org>
+Message-Id: <20221228144310.607975323@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nayna Jain <nayna@linux.ibm.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit bb8e4c7cb759b90a04f2e94056b50288ff46a0ed ]
+[ Upstream commit 11fa7fefe3d8fac7da56bc9aa3dd5fb3081ca797 ]
 
-Some commands for eg. "cat" might continue to retry on encountering
-EINTR. This is not expected for original error code H_ABORTED.
+While doing fault injection test, I got the following report:
 
-Map H_ABORTED to more relevant Linux error code EIO.
+------------[ cut here ]------------
+kobject: '(null)' (0000000039956980): is not initialized, yet kobject_put() is being called.
+WARNING: CPU: 3 PID: 6306 at kobject_put+0x23d/0x4e0
+CPU: 3 PID: 6306 Comm: 283 Tainted: G        W          6.1.0-rc2-00005-g307c1086d7c9 #1253
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+RIP: 0010:kobject_put+0x23d/0x4e0
+Call Trace:
+ <TASK>
+ cdev_device_add+0x15e/0x1b0
+ __iio_device_register+0x13b4/0x1af0 [industrialio]
+ __devm_iio_device_register+0x22/0x90 [industrialio]
+ max517_probe+0x3d8/0x6b4 [max517]
+ i2c_device_probe+0xa81/0xc00
 
-Fixes: 2454a7af0f2a ("powerpc/pseries: define driver for Platform KeyStore")
-Signed-off-by: Nayna Jain <nayna@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20221106205839.600442-4-nayna@linux.ibm.com
+When device_add() is injected fault and returns error, if dev->devt is not set,
+cdev_add() is not called, cdev_del() is not needed. Fix this by checking dev->devt
+in error path.
+
+Fixes: 233ed09d7fda ("chardev: add helper function to register char devs with a struct device")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221202030237.520280-1-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/plpks.c | 2 +-
+ fs/char_dev.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/pseries/plpks.c b/arch/powerpc/platforms/pseries/plpks.c
-index 32ce4d780d8f..cbea447122ca 100644
---- a/arch/powerpc/platforms/pseries/plpks.c
-+++ b/arch/powerpc/platforms/pseries/plpks.c
-@@ -111,7 +111,7 @@ static int pseries_status_to_err(int rc)
- 		err = -EEXIST;
- 		break;
- 	case H_ABORTED:
--		err = -EINTR;
-+		err = -EIO;
- 		break;
- 	default:
- 		err = -EINVAL;
+diff --git a/fs/char_dev.c b/fs/char_dev.c
+index ba0ded7842a7..3f667292608c 100644
+--- a/fs/char_dev.c
++++ b/fs/char_dev.c
+@@ -547,7 +547,7 @@ int cdev_device_add(struct cdev *cdev, struct device *dev)
+ 	}
+ 
+ 	rc = device_add(dev);
+-	if (rc)
++	if (rc && dev->devt)
+ 		cdev_del(cdev);
+ 
+ 	return rc;
 -- 
 2.35.1
 
