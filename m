@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7273B657B32
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:19:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A3CA6581E9
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:32:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233165AbiL1PTf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:19:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38138 "EHLO
+        id S234467AbiL1QcV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:32:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233264AbiL1PTG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:19:06 -0500
+        with ESMTP id S233291AbiL1Qb4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:31:56 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74C0D14020
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:18:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 435471D0D2;
+        Wed, 28 Dec 2022 08:28:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A3C7DB816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:18:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FB85C433D2;
-        Wed, 28 Dec 2022 15:18:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EB61AB8171E;
+        Wed, 28 Dec 2022 16:28:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36271C433D2;
+        Wed, 28 Dec 2022 16:28:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240732;
-        bh=2+yGkZGaNyCbSJI9rUMdqTnr556rvhFSXRwi13uONHk=;
+        s=korg; t=1672244903;
+        bh=l6SZ1o3XablMRreE/05h9qlGf3szz8R5it9zAPOMn0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NfUMxkfPbdx+CYuDHvCZq2AbHkPtciIo7i8fL8siI6d13dGZEE79dKFYr0tEAEMWw
-         Hc88gRwFzYbIaAEw4S70N55DUE71QCbu7O/uadhIFM1FV6d3vHWncIM9xcaQ5XyayW
-         LTuLnlLeNhe0n4hVuTf6Zw6VUvQD8mYYcoimS4EM=
+        b=Ron5PI7u6ezKAXDau7enNqehjB6k7hg8WUY37MCGZDC+mZEXebm2BUy84FCDqz1uu
+         2UvyTAP6qlbU9mL3t3IFxruwFvZTRTMTRGIYU3VrFSYAoyjLAe7QiIjLpSE80qt3YS
+         mQU8BdIp06nSLQ8NV9EiqhIsTgljHyeTmS0CNtxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 391/731] crypto: ccree - Remove debugfs when platform_driver_register failed
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Richard Weinberger <richard@nod.at>,
+        linux-um@lists.infradead.org, Daniel Vetter <daniel@ffwll.ch>,
+        Helge Deller <deller@gmx.de>, linux-fbdev@vger.kernel.org,
+        dri-devel@lists.freedesktop.org,
+        Andres Salomon <dilinger@queued.net>,
+        linux-geode@lists.infradead.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0759/1146] fbdev: geode: dont build on UML
 Date:   Wed, 28 Dec 2022 15:38:18 +0100
-Message-Id: <20221228144307.894012115@linuxfoundation.org>
+Message-Id: <20221228144350.759019233@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +58,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 4f1c596df706c9aca662b6c214fad84047ae2a97 ]
+[ Upstream commit 71c53e19226b0166ba387d3c590d0509f541a0a1 ]
 
-When platform_driver_register failed, we need to remove debugfs,
-which will caused a resource leak, fix it.
+The geode fbdev driver uses struct cpuinfo fields that are not present
+on ARCH=um, so don't allow this driver to be built on UML.
 
-Failed logs as follows:
-[   32.606488] debugfs: Directory 'ccree' with parent '/' already present!
+Prevents these build errors:
 
-Fixes: 4c3f97276e15 ("crypto: ccree - introduce CryptoCell driver")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+In file included from ../arch/x86/include/asm/olpc.h:7:0,
+                 from ../drivers/mfd/cs5535-mfd.c:17:
+../arch/x86/include/asm/geode.h: In function ‘is_geode_gx’:
+../arch/x86/include/asm/geode.h:16:24: error: ‘struct cpuinfo_um’ has no member named ‘x86_vendor’
+  return ((boot_cpu_data.x86_vendor == X86_VENDOR_NSC) &&
+../arch/x86/include/asm/geode.h:16:39: error: ‘X86_VENDOR_NSC’ undeclared (first use in this function); did you mean ‘X86_VENDOR_ANY’?
+  return ((boot_cpu_data.x86_vendor == X86_VENDOR_NSC) &&
+../arch/x86/include/asm/geode.h:17:17: error: ‘struct cpuinfo_um’ has no member named ‘x86’
+   (boot_cpu_data.x86 == 5) &&
+../arch/x86/include/asm/geode.h:18:17: error: ‘struct cpuinfo_um’ has no member named ‘x86_model’
+   (boot_cpu_data.x86_model == 5));
+../arch/x86/include/asm/geode.h: In function ‘is_geode_lx’:
+../arch/x86/include/asm/geode.h:23:24: error: ‘struct cpuinfo_um’ has no member named ‘x86_vendor’
+  return ((boot_cpu_data.x86_vendor == X86_VENDOR_AMD) &&
+../arch/x86/include/asm/geode.h:23:39: error: ‘X86_VENDOR_AMD’ undeclared (first use in this function); did you mean ‘X86_VENDOR_ANY’?
+  return ((boot_cpu_data.x86_vendor == X86_VENDOR_AMD) &&
+../arch/x86/include/asm/geode.h:24:17: error: ‘struct cpuinfo_um’ has no member named ‘x86’
+   (boot_cpu_data.x86 == 5) &&
+../arch/x86/include/asm/geode.h:25:17: error: ‘struct cpuinfo_um’ has no member named ‘x86_model’
+   (boot_cpu_data.x86_model == 10));
+
+Fixes: 68f5d3f3b654 ("um: add PCI over virtio emulation driver")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Johannes Berg <johannes@sipsolutions.net>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: linux-um@lists.infradead.org
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Helge Deller <deller@gmx.de>
+Cc: linux-fbdev@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org
+Cc: Andres Salomon <dilinger@queued.net>
+Cc: linux-geode@lists.infradead.org
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccree/cc_driver.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/geode/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/crypto/ccree/cc_driver.c b/drivers/crypto/ccree/cc_driver.c
-index 790fa9058a36..41f0a404bdf9 100644
---- a/drivers/crypto/ccree/cc_driver.c
-+++ b/drivers/crypto/ccree/cc_driver.c
-@@ -656,9 +656,17 @@ static struct platform_driver ccree_driver = {
- 
- static int __init ccree_init(void)
- {
-+	int rc;
-+
- 	cc_debugfs_global_init();
- 
--	return platform_driver_register(&ccree_driver);
-+	rc = platform_driver_register(&ccree_driver);
-+	if (rc) {
-+		cc_debugfs_global_fini();
-+		return rc;
-+	}
-+
-+	return 0;
- }
- module_init(ccree_init);
- 
+diff --git a/drivers/video/fbdev/geode/Kconfig b/drivers/video/fbdev/geode/Kconfig
+index ac9c860592aa..85bc14b6faf6 100644
+--- a/drivers/video/fbdev/geode/Kconfig
++++ b/drivers/video/fbdev/geode/Kconfig
+@@ -5,6 +5,7 @@
+ config FB_GEODE
+ 	bool "AMD Geode family framebuffer support"
+ 	depends on FB && PCI && (X86_32 || (X86 && COMPILE_TEST))
++	depends on !UML
+ 	help
+ 	  Say 'Y' here to allow you to select framebuffer drivers for
+ 	  the AMD Geode family of processors.
 -- 
 2.35.1
 
