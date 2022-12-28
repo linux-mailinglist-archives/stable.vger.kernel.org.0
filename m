@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA148657D31
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:40:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AEFC657C1D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:29:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233535AbiL1Pk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:40:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57080 "EHLO
+        id S233605AbiL1P3B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:29:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233121AbiL1Pk1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:40:27 -0500
+        with ESMTP id S233656AbiL1P3A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:29:00 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA8F9167F2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:40:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A098915718
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:28:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 48E366155E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:40:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5903FC433D2;
-        Wed, 28 Dec 2022 15:40:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B5A461551
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:28:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FBBCC433EF;
+        Wed, 28 Dec 2022 15:28:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242025;
-        bh=DLSz5Pj/0Pn7jVFOYAyYYpiRTb9Zpm9HtjmhzdKQEhs=;
+        s=korg; t=1672241338;
+        bh=mVKQcYqU4FyxFEy9N/VKUlGh7w6PglcIXEAJtqnsxxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N6g3fd7448isr0IgzJwthSZQZV4ESnp4T0uex1RgPC221iXDWuFBx860/YzBD+3O+
-         z/2lm8zDC0tsABx5On5D7RWhI4b2dINhonhRPRB2MzdzQQ+9SsDh5AEjmUkgguVn4Y
-         zBQESUEeu2pOilJom6mGnh8XBE/HGDmqk+Ipcaes=
+        b=WZ3uyGxwqocsIAYH+MiSCzfEq/t+QAnsHqVR2X5FCAiUcY7wWgpjZVLAek1g2+gTz
+         vsHR1oAsQxFmxWSQzySoSIziyzV0H31vYLNO2/TO6SD90/nst4wDe8aMcszo2AyCfg
+         rqQmT55QJ1vNXKmrkOaRokskRYX1jUPjmBJGfrbs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sam Shih <sam.shih@mediatek.com>,
-        Frank Wunderlich <frank-w@public-files.de>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        patches@lists.linux.dev, Yonghong Song <yhs@meta.com>,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0317/1146] pinctrl: mediatek: fix the pinconf register offset of some pins
+Subject: [PATCH 6.0 0268/1073] bpf: Clobber stack slot when writing over spilled PTR_TO_BTF_ID
 Date:   Wed, 28 Dec 2022 15:30:56 +0100
-Message-Id: <20221228144338.764139923@linuxfoundation.org>
+Message-Id: <20221228144335.298647839@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,74 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sam Shih <sam.shih@mediatek.com>
+From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
 
-[ Upstream commit 3476b354c65db442580ef355885c69e60c546ef0 ]
+[ Upstream commit 261f4664caffdeb9dff4e83ee3c0334b1c3a552f ]
 
-Correct the bias-pull-up, bias-pull-down and bias-disable register
-offset of mt7986 pin-42 to pin-49, in the original driver, the
-relative offset value was erroneously decremented by 1.
+When support was added for spilled PTR_TO_BTF_ID to be accessed by
+helper memory access, the stack slot was not overwritten to STACK_MISC
+(and that too is only safe when env->allow_ptr_leaks is true).
 
-Fixes: 360de6728064 ("pinctrl: mediatek: add support for MT7986 SoC")
-Signed-off-by: Sam Shih <sam.shih@mediatek.com>
-Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20221106080114.7426-5-linux@fw-web.de
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+This means that helpers who take ARG_PTR_TO_MEM and write to it may
+essentially overwrite the value while the verifier continues to track
+the slot for spilled register.
+
+This can cause issues when PTR_TO_BTF_ID is spilled to stack, and then
+overwritten by helper write access, which can then be passed to BPF
+helpers or kfuncs.
+
+Handle this by falling back to the case introduced in a later commit,
+which will also handle PTR_TO_BTF_ID along with other pointer types,
+i.e. cd17d38f8b28 ("bpf: Permits pointers on stack for helper calls").
+
+Finally, include a comment on why REG_LIVE_WRITTEN is not being set when
+clobber is set to true. In short, the reason is that while when clobber
+is unset, we know that we won't be writing, when it is true, we *may*
+write to any of the stack slots in that range. It may be a partial or
+complete write, to just one or many stack slots.
+
+We cannot be sure, hence to be conservative, we leave things as is and
+never set REG_LIVE_WRITTEN for any stack slot. However, clobber still
+needs to reset them to STACK_MISC assuming writes happened. However read
+marks still need to be propagated upwards from liveness point of view,
+as parent stack slot's contents may still continue to matter to child
+states.
+
+Cc: Yonghong Song <yhs@meta.com>
+Fixes: 1d68f22b3d53 ("bpf: Handle spilled PTR_TO_BTF_ID properly when checking stack_boundary")
+Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Link: https://lore.kernel.org/r/20221103191013.1236066-4-memxor@gmail.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/mediatek/pinctrl-mt7986.c | 24 +++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ kernel/bpf/verifier.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/pinctrl/mediatek/pinctrl-mt7986.c b/drivers/pinctrl/mediatek/pinctrl-mt7986.c
-index 50cb736f9f11..b58729969748 100644
---- a/drivers/pinctrl/mediatek/pinctrl-mt7986.c
-+++ b/drivers/pinctrl/mediatek/pinctrl-mt7986.c
-@@ -316,10 +316,10 @@ static const struct mtk_pin_field_calc mt7986_pin_pupd_range[] = {
- 	PIN_FIELD_BASE(38, 38, IOCFG_LT_BASE, 0x30, 0x10, 9, 1),
- 	PIN_FIELD_BASE(39, 40, IOCFG_RB_BASE, 0x60, 0x10, 18, 1),
- 	PIN_FIELD_BASE(41, 41, IOCFG_RB_BASE, 0x60, 0x10, 12, 1),
--	PIN_FIELD_BASE(42, 43, IOCFG_RB_BASE, 0x60, 0x10, 22, 1),
--	PIN_FIELD_BASE(44, 45, IOCFG_RB_BASE, 0x60, 0x10, 20, 1),
--	PIN_FIELD_BASE(46, 47, IOCFG_RB_BASE, 0x60, 0x10, 26, 1),
--	PIN_FIELD_BASE(48, 49, IOCFG_RB_BASE, 0x60, 0x10, 24, 1),
-+	PIN_FIELD_BASE(42, 43, IOCFG_RB_BASE, 0x60, 0x10, 23, 1),
-+	PIN_FIELD_BASE(44, 45, IOCFG_RB_BASE, 0x60, 0x10, 21, 1),
-+	PIN_FIELD_BASE(46, 47, IOCFG_RB_BASE, 0x60, 0x10, 27, 1),
-+	PIN_FIELD_BASE(48, 49, IOCFG_RB_BASE, 0x60, 0x10, 25, 1),
- 	PIN_FIELD_BASE(50, 57, IOCFG_RT_BASE, 0x40, 0x10, 2, 1),
- 	PIN_FIELD_BASE(58, 58, IOCFG_RT_BASE, 0x40, 0x10, 1, 1),
- 	PIN_FIELD_BASE(59, 59, IOCFG_RT_BASE, 0x40, 0x10, 0, 1),
-@@ -354,10 +354,10 @@ static const struct mtk_pin_field_calc mt7986_pin_r0_range[] = {
- 	PIN_FIELD_BASE(38, 38, IOCFG_LT_BASE, 0x40, 0x10, 9, 1),
- 	PIN_FIELD_BASE(39, 40, IOCFG_RB_BASE, 0x70, 0x10, 18, 1),
- 	PIN_FIELD_BASE(41, 41, IOCFG_RB_BASE, 0x70, 0x10, 12, 1),
--	PIN_FIELD_BASE(42, 43, IOCFG_RB_BASE, 0x70, 0x10, 22, 1),
--	PIN_FIELD_BASE(44, 45, IOCFG_RB_BASE, 0x70, 0x10, 20, 1),
--	PIN_FIELD_BASE(46, 47, IOCFG_RB_BASE, 0x70, 0x10, 26, 1),
--	PIN_FIELD_BASE(48, 49, IOCFG_RB_BASE, 0x70, 0x10, 24, 1),
-+	PIN_FIELD_BASE(42, 43, IOCFG_RB_BASE, 0x70, 0x10, 23, 1),
-+	PIN_FIELD_BASE(44, 45, IOCFG_RB_BASE, 0x70, 0x10, 21, 1),
-+	PIN_FIELD_BASE(46, 47, IOCFG_RB_BASE, 0x70, 0x10, 27, 1),
-+	PIN_FIELD_BASE(48, 49, IOCFG_RB_BASE, 0x70, 0x10, 25, 1),
- 	PIN_FIELD_BASE(50, 57, IOCFG_RT_BASE, 0x50, 0x10, 2, 1),
- 	PIN_FIELD_BASE(58, 58, IOCFG_RT_BASE, 0x50, 0x10, 1, 1),
- 	PIN_FIELD_BASE(59, 59, IOCFG_RT_BASE, 0x50, 0x10, 0, 1),
-@@ -392,10 +392,10 @@ static const struct mtk_pin_field_calc mt7986_pin_r1_range[] = {
- 	PIN_FIELD_BASE(38, 38, IOCFG_LT_BASE, 0x50, 0x10, 9, 1),
- 	PIN_FIELD_BASE(39, 40, IOCFG_RB_BASE, 0x80, 0x10, 18, 1),
- 	PIN_FIELD_BASE(41, 41, IOCFG_RB_BASE, 0x80, 0x10, 12, 1),
--	PIN_FIELD_BASE(42, 43, IOCFG_RB_BASE, 0x80, 0x10, 22, 1),
--	PIN_FIELD_BASE(44, 45, IOCFG_RB_BASE, 0x80, 0x10, 20, 1),
--	PIN_FIELD_BASE(46, 47, IOCFG_RB_BASE, 0x80, 0x10, 26, 1),
--	PIN_FIELD_BASE(48, 49, IOCFG_RB_BASE, 0x80, 0x10, 24, 1),
-+	PIN_FIELD_BASE(42, 43, IOCFG_RB_BASE, 0x80, 0x10, 23, 1),
-+	PIN_FIELD_BASE(44, 45, IOCFG_RB_BASE, 0x80, 0x10, 21, 1),
-+	PIN_FIELD_BASE(46, 47, IOCFG_RB_BASE, 0x80, 0x10, 27, 1),
-+	PIN_FIELD_BASE(48, 49, IOCFG_RB_BASE, 0x80, 0x10, 25, 1),
- 	PIN_FIELD_BASE(50, 57, IOCFG_RT_BASE, 0x60, 0x10, 2, 1),
- 	PIN_FIELD_BASE(58, 58, IOCFG_RT_BASE, 0x60, 0x10, 1, 1),
- 	PIN_FIELD_BASE(59, 59, IOCFG_RT_BASE, 0x60, 0x10, 0, 1),
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index b781075dd510..65c627571e33 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -5142,10 +5142,6 @@ static int check_stack_range_initialized(
+ 			goto mark;
+ 		}
+ 
+-		if (is_spilled_reg(&state->stack[spi]) &&
+-		    base_type(state->stack[spi].spilled_ptr.type) == PTR_TO_BTF_ID)
+-			goto mark;
+-
+ 		if (is_spilled_reg(&state->stack[spi]) &&
+ 		    (state->stack[spi].spilled_ptr.type == SCALAR_VALUE ||
+ 		     env->allow_ptr_leaks)) {
+@@ -5176,6 +5172,11 @@ static int check_stack_range_initialized(
+ 		mark_reg_read(env, &state->stack[spi].spilled_ptr,
+ 			      state->stack[spi].spilled_ptr.parent,
+ 			      REG_LIVE_READ64);
++		/* We do not set REG_LIVE_WRITTEN for stack slot, as we can not
++		 * be sure that whether stack slot is written to or not. Hence,
++		 * we must still conservatively propagate reads upwards even if
++		 * helper may write to the entire memory range.
++		 */
+ 	}
+ 	return update_stack_depth(env, state, min_off);
+ }
 -- 
 2.35.1
 
