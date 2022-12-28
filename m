@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E85C5657DB2
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:46:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E1F0657C96
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:34:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234018AbiL1PqB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:46:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34324 "EHLO
+        id S233153AbiL1PeK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:34:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233600AbiL1Pp7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:45:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AD38F18
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:45:57 -0800 (PST)
+        with ESMTP id S233456AbiL1PeJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:34:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63BCB15F2D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:34:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 41920B81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:45:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88A64C433F0;
-        Wed, 28 Dec 2022 15:45:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 01BE161542
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:34:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18D5DC433EF;
+        Wed, 28 Dec 2022 15:34:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242354;
-        bh=J8TCHGeBdJGrmvalgf8GnMBQDIhOljKweMv8IfNZ2H0=;
+        s=korg; t=1672241647;
+        bh=PpfDcUChdczWqCkpHadSl7VJy3AjayjgqxcU11WcKCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kxZDVyMix+KW7oXhSEF8FjOS1wCiiuakhW/5EAk0cNEpWRqAw3u7Zj3XPrVVlb1ly
-         oSkkDqQtKQWIGLP/fP9xllTs4bxgMDVOu5IMUk+gFXmaUXP1LKOZRzv7LM7hu9woEn
-         dLVHyqLw3NdiA4zUWz5xINdt5MKt6dTXZdnnsJh0=
+        b=gJvdUpSc4OHQAXg0LYZlO/q7iVlLsh1B3PIrw8EE1sBSESgjdBRsg8/QfNW9FzRl0
+         TpaEE2Fed9pYRWB8EaqlZRkc4Vphwu7RL9ublk5gQzsvqbq7U5pPrdioe48BKIoSSl
+         1clg7hZMlSyYqEOY5eEd2KfasrnxneRRGlWLQ1Ac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
+        Gregory Greenman <gregory.greenman@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0360/1146] udp: Clean up some functions.
+Subject: [PATCH 6.0 0311/1073] wifi: iwlwifi: mei: dont send SAP commands if AMT is disabled
 Date:   Wed, 28 Dec 2022 15:31:39 +0100
-Message-Id: <20221228144339.939795646@linuxfoundation.org>
+Message-Id: <20221228144336.452893652@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,149 +55,191 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
 
-[ Upstream commit 919dfa0b20ae56060dce0436eb710717f8987d18 ]
+[ Upstream commit 95170a46b7dddbc3ac31b20ef2e8fa9d556d783d ]
 
-This patch adds no functional change and cleans up some functions
-that the following patches touch around so that we make them tidy
-and easy to review/revert.  The change is mainly to keep reverse
-christmas tree order.
+We should not send any SAP command to CSME if AMT is disabled.
 
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Stable-dep-of: 7a7160edf1bf ("net: Return errno in sk->sk_prot->get_port().")
+Reported-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Fixes: 2da4366f9e2c ("iwlwifi: mei: add the driver to allow cooperation with CSME")
+Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Signed-off-by: Gregory Greenman <gregory.greenman@intel.com>
+Link: https://lore.kernel.org/r/20221030191011.ea222d41c781.Ifc90ddc3e35187683ff7f59371d792b61c8854c8@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/udp.c | 39 +++++++++++++++++++++++----------------
- net/ipv6/udp.c | 12 ++++++++----
- 2 files changed, 31 insertions(+), 20 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mei/main.c | 85 ++++++++++---------
+ 1 file changed, 44 insertions(+), 41 deletions(-)
 
-diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
-index 6a320a614e54..83fdd2b8afd6 100644
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -232,16 +232,16 @@ static int udp_reuseport_add_sock(struct sock *sk, struct udp_hslot *hslot)
- int udp_lib_get_port(struct sock *sk, unsigned short snum,
- 		     unsigned int hash2_nulladdr)
+diff --git a/drivers/net/wireless/intel/iwlwifi/mei/main.c b/drivers/net/wireless/intel/iwlwifi/mei/main.c
+index 90646c54a3c5..64a637ef199c 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mei/main.c
++++ b/drivers/net/wireless/intel/iwlwifi/mei/main.c
+@@ -596,8 +596,6 @@ iwl_mei_handle_rx_start_ok(struct mei_cl_device *cldev,
+ 			   const struct iwl_sap_me_msg_start_ok *rsp,
+ 			   ssize_t len)
  {
--	struct udp_hslot *hslot, *hslot2;
- 	struct udp_table *udptable = sk->sk_prot->h.udp_table;
--	int    error = 1;
-+	struct udp_hslot *hslot, *hslot2;
- 	struct net *net = sock_net(sk);
-+	int error = 1;
+-	struct iwl_mei *mei = mei_cldev_get_drvdata(cldev);
+-
+ 	if (len != sizeof(*rsp)) {
+ 		dev_err(&cldev->dev,
+ 			"got invalid SAP_ME_MSG_START_OK from CSME firmware\n");
+@@ -616,13 +614,10 @@ iwl_mei_handle_rx_start_ok(struct mei_cl_device *cldev,
  
- 	if (!snum) {
-+		DECLARE_BITMAP(bitmap, PORTS_PER_CHAIN);
-+		unsigned short first, last;
- 		int low, high, remaining;
- 		unsigned int rand;
--		unsigned short first, last;
--		DECLARE_BITMAP(bitmap, PORTS_PER_CHAIN);
+ 	mutex_lock(&iwl_mei_mutex);
+ 	set_bit(IWL_MEI_STATUS_SAP_CONNECTED, &iwl_mei_status);
+-	/* wifi driver has registered already */
+-	if (iwl_mei_cache.ops) {
+-		iwl_mei_send_sap_msg(mei->cldev,
+-				     SAP_MSG_NOTIF_WIFIDR_UP);
+-		iwl_mei_cache.ops->sap_connected(iwl_mei_cache.priv);
+-	}
+-
++	/*
++	 * We'll receive AMT_STATE SAP message in a bit and
++	 * that will continue the flow
++	 */
+ 	mutex_unlock(&iwl_mei_mutex);
+ }
  
- 		inet_get_local_port_range(net, &low, &high);
- 		remaining = (high - low) + 1;
-@@ -2518,10 +2518,13 @@ static struct sock *__udp4_lib_mcast_demux_lookup(struct net *net,
- 						  __be16 rmt_port, __be32 rmt_addr,
- 						  int dif, int sdif)
- {
--	struct sock *sk, *result;
- 	unsigned short hnum = ntohs(loc_port);
--	unsigned int slot = udp_hashfn(net, hnum, udp_table.mask);
--	struct udp_hslot *hslot = &udp_table.hash[slot];
-+	struct sock *sk, *result;
-+	struct udp_hslot *hslot;
-+	unsigned int slot;
+@@ -715,6 +710,13 @@ static void iwl_mei_set_init_conf(struct iwl_mei *mei)
+ 		.val = cpu_to_le32(iwl_mei_cache.rf_kill),
+ 	};
+ 
++	/* wifi driver has registered already */
++	if (iwl_mei_cache.ops) {
++		iwl_mei_send_sap_msg(mei->cldev,
++				     SAP_MSG_NOTIF_WIFIDR_UP);
++		iwl_mei_cache.ops->sap_connected(iwl_mei_cache.priv);
++	}
 +
-+	slot = udp_hashfn(net, hnum, udp_table.mask);
-+	hslot = &udp_table.hash[slot];
+ 	iwl_mei_send_sap_msg(mei->cldev, SAP_MSG_NOTIF_WHO_OWNS_NIC);
  
- 	/* Do not bother scanning a too big list */
- 	if (hslot->count > 10)
-@@ -2549,14 +2552,18 @@ static struct sock *__udp4_lib_demux_lookup(struct net *net,
- 					    __be16 rmt_port, __be32 rmt_addr,
- 					    int dif, int sdif)
- {
--	unsigned short hnum = ntohs(loc_port);
--	unsigned int hash2 = ipv4_portaddr_hash(net, loc_addr, hnum);
--	unsigned int slot2 = hash2 & udp_table.mask;
--	struct udp_hslot *hslot2 = &udp_table.hash2[slot2];
- 	INET_ADDR_COOKIE(acookie, rmt_addr, loc_addr);
--	const __portpair ports = INET_COMBINED_PORTS(rmt_port, hnum);
-+	unsigned short hnum = ntohs(loc_port);
-+	unsigned int hash2, slot2;
-+	struct udp_hslot *hslot2;
-+	__portpair ports;
- 	struct sock *sk;
+ 	if (iwl_mei_cache.conn_info) {
+@@ -1420,10 +1422,7 @@ void iwl_mei_host_associated(const struct iwl_mei_conn_info *conn_info,
  
-+	hash2 = ipv4_portaddr_hash(net, loc_addr, hnum);
-+	slot2 = hash2 & udp_table.mask;
-+	hslot2 = &udp_table.hash2[slot2];
-+	ports = INET_COMBINED_PORTS(rmt_port, hnum);
-+
- 	udp_portaddr_for_each_entry_rcu(sk, &hslot2->head) {
- 		if (inet_match(net, sk, acookie, ports, dif, sdif))
- 			return sk;
-@@ -2957,10 +2964,10 @@ EXPORT_SYMBOL(udp_prot);
+ 	mei = mei_cldev_get_drvdata(iwl_mei_global_cldev);
  
- static struct sock *udp_get_first(struct seq_file *seq, int start)
- {
--	struct sock *sk;
--	struct udp_seq_afinfo *afinfo;
- 	struct udp_iter_state *state = seq->private;
- 	struct net *net = seq_file_net(seq);
-+	struct udp_seq_afinfo *afinfo;
-+	struct sock *sk;
+-	if (!mei)
+-		goto out;
+-
+-	if (!mei->amt_enabled)
++	if (!mei && !mei->amt_enabled)
+ 		goto out;
  
- 	if (state->bpf_seq_afinfo)
- 		afinfo = state->bpf_seq_afinfo;
-@@ -2991,9 +2998,9 @@ static struct sock *udp_get_first(struct seq_file *seq, int start)
+ 	iwl_mei_send_sap_msg_payload(mei->cldev, &msg.hdr);
+@@ -1452,7 +1451,7 @@ void iwl_mei_host_disassociated(void)
  
- static struct sock *udp_get_next(struct seq_file *seq, struct sock *sk)
- {
--	struct udp_seq_afinfo *afinfo;
- 	struct udp_iter_state *state = seq->private;
- 	struct net *net = seq_file_net(seq);
-+	struct udp_seq_afinfo *afinfo;
+ 	mei = mei_cldev_get_drvdata(iwl_mei_global_cldev);
  
- 	if (state->bpf_seq_afinfo)
- 		afinfo = state->bpf_seq_afinfo;
-@@ -3049,8 +3056,8 @@ EXPORT_SYMBOL(udp_seq_next);
+-	if (!mei)
++	if (!mei && !mei->amt_enabled)
+ 		goto out;
  
- void udp_seq_stop(struct seq_file *seq, void *v)
- {
--	struct udp_seq_afinfo *afinfo;
- 	struct udp_iter_state *state = seq->private;
-+	struct udp_seq_afinfo *afinfo;
+ 	iwl_mei_send_sap_msg_payload(mei->cldev, &msg.hdr);
+@@ -1488,7 +1487,7 @@ void iwl_mei_set_rfkill_state(bool hw_rfkill, bool sw_rfkill)
  
- 	if (state->bpf_seq_afinfo)
- 		afinfo = state->bpf_seq_afinfo;
-diff --git a/net/ipv6/udp.c b/net/ipv6/udp.c
-index bc65e5b7195b..98a64e8d9bda 100644
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -1063,12 +1063,16 @@ static struct sock *__udp6_lib_demux_lookup(struct net *net,
- 			int dif, int sdif)
- {
- 	unsigned short hnum = ntohs(loc_port);
--	unsigned int hash2 = ipv6_portaddr_hash(net, loc_addr, hnum);
--	unsigned int slot2 = hash2 & udp_table.mask;
--	struct udp_hslot *hslot2 = &udp_table.hash2[slot2];
--	const __portpair ports = INET_COMBINED_PORTS(rmt_port, hnum);
-+	unsigned int hash2, slot2;
-+	struct udp_hslot *hslot2;
-+	__portpair ports;
- 	struct sock *sk;
+ 	mei = mei_cldev_get_drvdata(iwl_mei_global_cldev);
  
-+	hash2 = ipv6_portaddr_hash(net, loc_addr, hnum);
-+	slot2 = hash2 & udp_table.mask;
-+	hslot2 = &udp_table.hash2[slot2];
-+	ports = INET_COMBINED_PORTS(rmt_port, hnum);
-+
- 	udp_portaddr_for_each_entry_rcu(sk, &hslot2->head) {
- 		if (sk->sk_state == TCP_ESTABLISHED &&
- 		    inet6_match(net, sk, rmt_addr, loc_addr, ports, dif, sdif))
+-	if (!mei)
++	if (!mei && !mei->amt_enabled)
+ 		goto out;
+ 
+ 	iwl_mei_send_sap_msg_payload(mei->cldev, &msg.hdr);
+@@ -1517,7 +1516,7 @@ void iwl_mei_set_nic_info(const u8 *mac_address, const u8 *nvm_address)
+ 
+ 	mei = mei_cldev_get_drvdata(iwl_mei_global_cldev);
+ 
+-	if (!mei)
++	if (!mei && !mei->amt_enabled)
+ 		goto out;
+ 
+ 	iwl_mei_send_sap_msg_payload(mei->cldev, &msg.hdr);
+@@ -1545,7 +1544,7 @@ void iwl_mei_set_country_code(u16 mcc)
+ 
+ 	mei = mei_cldev_get_drvdata(iwl_mei_global_cldev);
+ 
+-	if (!mei)
++	if (!mei && !mei->amt_enabled)
+ 		goto out;
+ 
+ 	iwl_mei_send_sap_msg_payload(mei->cldev, &msg.hdr);
+@@ -1571,7 +1570,7 @@ void iwl_mei_set_power_limit(const __le16 *power_limit)
+ 
+ 	mei = mei_cldev_get_drvdata(iwl_mei_global_cldev);
+ 
+-	if (!mei)
++	if (!mei && !mei->amt_enabled)
+ 		goto out;
+ 
+ 	memcpy(msg.sar_chain_info_table, power_limit, sizeof(msg.sar_chain_info_table));
+@@ -1678,9 +1677,10 @@ int iwl_mei_register(void *priv, const struct iwl_mei_ops *ops)
+ 
+ 		/* we have already a SAP connection */
+ 		if (iwl_mei_is_connected()) {
+-			iwl_mei_send_sap_msg(mei->cldev,
+-					     SAP_MSG_NOTIF_WIFIDR_UP);
+-			ops->rfkill(priv, mei->link_prot_state);
++			if (mei->amt_enabled)
++				iwl_mei_send_sap_msg(mei->cldev,
++						     SAP_MSG_NOTIF_WIFIDR_UP);
++			ops->rfkill(priv, mei->link_prot_state, false);
+ 		}
+ 	}
+ 	ret = 0;
+@@ -1931,29 +1931,32 @@ static void iwl_mei_remove(struct mei_cl_device *cldev)
+ 
+ 	mutex_lock(&iwl_mei_mutex);
+ 
+-	/*
+-	 * Tell CSME that we are going down so that it won't access the
+-	 * memory anymore, make sure this message goes through immediately.
+-	 */
+-	mei->csa_throttled = false;
+-	iwl_mei_send_sap_msg(mei->cldev,
+-			     SAP_MSG_NOTIF_HOST_GOES_DOWN);
++	if (mei->amt_enabled) {
++		/*
++		 * Tell CSME that we are going down so that it won't access the
++		 * memory anymore, make sure this message goes through immediately.
++		 */
++		mei->csa_throttled = false;
++		iwl_mei_send_sap_msg(mei->cldev,
++				     SAP_MSG_NOTIF_HOST_GOES_DOWN);
+ 
+-	for (i = 0; i < SEND_SAP_MAX_WAIT_ITERATION; i++) {
+-		if (!iwl_mei_host_to_me_data_pending(mei))
+-			break;
++		for (i = 0; i < SEND_SAP_MAX_WAIT_ITERATION; i++) {
++			if (!iwl_mei_host_to_me_data_pending(mei))
++				break;
+ 
+-		msleep(5);
+-	}
++			msleep(20);
++		}
+ 
+-	/*
+-	 * If we couldn't make sure that CSME saw the HOST_GOES_DOWN message,
+-	 * it means that it will probably keep reading memory that we are going
+-	 * to unmap and free, expect IOMMU error messages.
+-	 */
+-	if (i == SEND_SAP_MAX_WAIT_ITERATION)
+-		dev_err(&mei->cldev->dev,
+-			"Couldn't get ACK from CSME on HOST_GOES_DOWN message\n");
++		/*
++		 * If we couldn't make sure that CSME saw the HOST_GOES_DOWN
++		 * message, it means that it will probably keep reading memory
++		 * that we are going to unmap and free, expect IOMMU error
++		 * messages.
++		 */
++		if (i == SEND_SAP_MAX_WAIT_ITERATION)
++			dev_err(&mei->cldev->dev,
++				"Couldn't get ACK from CSME on HOST_GOES_DOWN message\n");
++	}
+ 
+ 	mutex_unlock(&iwl_mei_mutex);
+ 
 -- 
 2.35.1
 
