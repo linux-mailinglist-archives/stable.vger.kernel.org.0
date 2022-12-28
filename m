@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63C47657B77
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:22:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 252C2657A5E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:11:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233748AbiL1PWs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:22:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40520 "EHLO
+        id S233752AbiL1PLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:11:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233762AbiL1PWV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:22:21 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D908C14084
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:21:54 -0800 (PST)
+        with ESMTP id S233698AbiL1PKM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:10:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1D1413E16
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:10:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2E28CCE076E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:21:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20EE6C433D2;
-        Wed, 28 Dec 2022 15:21:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F7A861544
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:10:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82619C433EF;
+        Wed, 28 Dec 2022 15:10:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240911;
-        bh=Jd8K+jkkZkbgbn3LMA0FQ8m7KSnhp/xrdIKxgjwQKow=;
+        s=korg; t=1672240210;
+        bh=Owd/TYjA3DOn82cbenvxj7kGkvaKUSErgAJJAk1ZdWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BlaZe98RpWbG5nEUdMB3HKTa/SIUlWGYWujNjfb/xni5oWvIQs/T4gdNXN3rzxMwq
-         bWi+bZ/jqd+8Yzg0huMRvLlrw7jLoRclG8h7W96JV9SGuCLWW2kO8TuPTwUYwod3Ic
-         NGaGCbaiAuFSyNO0t9rXFrLybBSTmPOXE3EoQF/A=
+        b=f67hmINTB2+yN5GA0RsrNWBrd/SGl5YLYE30Gs2mIu2qymOHv74IAD2adjbYlzPpb
+         ZyL16H4LCjHYJRRFH6Ecj9PnkgHbEhXo1Cjcw75bsQJXBQc62kEG5kdZbINs596Voy
+         I32d6YTSf1RCwhMfARB1KmOQopZoYNvK+YzKokis=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0183/1146] lockd: set other missing fields when unlocking files
+Subject: [PATCH 6.0 0134/1073] thermal: core: fix some possible name leaks in error paths
 Date:   Wed, 28 Dec 2022 15:28:42 +0100
-Message-Id: <20221228144335.122963892@linuxfoundation.org>
+Message-Id: <20221228144331.672440560@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,67 +53,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 18ebd35b61b4693a0ddc270b6d4f18def232e770 ]
+[ Upstream commit 4748f9687caaeefab8578285b97b2f30789fc4b4 ]
 
-vfs_lock_file() expects the struct file_lock to be fully initialised by
-the caller. Re-exported NFSv3 has been seen to Oops if the fl_file field
-is NULL.
+In some error paths before device_register(), the names allocated
+by dev_set_name() are not freed. Move dev_set_name() front to
+device_register(), so the name can be freed while calling
+put_device().
 
-Fixes: aec158242b87 ("lockd: set fl_owner when unlocking files")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216582
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: 1dd7128b839f ("thermal/core: Fix null pointer dereference in thermal_release()")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/lockd/svcsubs.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ drivers/thermal/thermal_core.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/fs/lockd/svcsubs.c b/fs/lockd/svcsubs.c
-index e1c4617de771..3515f17eaf3f 100644
---- a/fs/lockd/svcsubs.c
-+++ b/fs/lockd/svcsubs.c
-@@ -176,7 +176,7 @@ nlm_delete_file(struct nlm_file *file)
- 	}
- }
+diff --git a/drivers/thermal/thermal_core.c b/drivers/thermal/thermal_core.c
+index 50d50cec7774..15fb5fa1b0f2 100644
+--- a/drivers/thermal/thermal_core.c
++++ b/drivers/thermal/thermal_core.c
+@@ -903,10 +903,6 @@ __thermal_cooling_device_register(struct device_node *np,
+ 	cdev->id = ret;
+ 	id = ret;
  
--static int nlm_unlock_files(struct nlm_file *file, fl_owner_t owner)
-+static int nlm_unlock_files(struct nlm_file *file, const struct file_lock *fl)
- {
- 	struct file_lock lock;
+-	ret = dev_set_name(&cdev->device, "cooling_device%d", cdev->id);
+-	if (ret)
+-		goto out_ida_remove;
+-
+ 	cdev->type = kstrdup(type ? type : "", GFP_KERNEL);
+ 	if (!cdev->type) {
+ 		ret = -ENOMEM;
+@@ -921,6 +917,11 @@ __thermal_cooling_device_register(struct device_node *np,
+ 	cdev->device.class = &thermal_class;
+ 	cdev->devdata = devdata;
+ 	thermal_cooling_device_setup_sysfs(cdev);
++	ret = dev_set_name(&cdev->device, "cooling_device%d", cdev->id);
++	if (ret) {
++		thermal_cooling_device_destroy_sysfs(cdev);
++		goto out_kfree_type;
++	}
+ 	ret = device_register(&cdev->device);
+ 	if (ret)
+ 		goto out_kfree_type;
+@@ -1241,10 +1242,6 @@ thermal_zone_device_register_with_trips(const char *type, struct thermal_trip *t
+ 	tz->id = id;
+ 	strlcpy(tz->type, type, sizeof(tz->type));
  
-@@ -184,12 +184,15 @@ static int nlm_unlock_files(struct nlm_file *file, fl_owner_t owner)
- 	lock.fl_type  = F_UNLCK;
- 	lock.fl_start = 0;
- 	lock.fl_end   = OFFSET_MAX;
--	lock.fl_owner = owner;
--	if (file->f_file[O_RDONLY] &&
--	    vfs_lock_file(file->f_file[O_RDONLY], F_SETLK, &lock, NULL))
-+	lock.fl_owner = fl->fl_owner;
-+	lock.fl_pid   = fl->fl_pid;
-+	lock.fl_flags = FL_POSIX;
-+
-+	lock.fl_file = file->f_file[O_RDONLY];
-+	if (lock.fl_file && vfs_lock_file(lock.fl_file, F_SETLK, &lock, NULL))
- 		goto out_err;
--	if (file->f_file[O_WRONLY] &&
--	    vfs_lock_file(file->f_file[O_WRONLY], F_SETLK, &lock, NULL))
-+	lock.fl_file = file->f_file[O_WRONLY];
-+	if (lock.fl_file && vfs_lock_file(lock.fl_file, F_SETLK, &lock, NULL))
- 		goto out_err;
- 	return 0;
- out_err:
-@@ -226,7 +229,7 @@ nlm_traverse_locks(struct nlm_host *host, struct nlm_file *file,
- 		if (match(lockhost, host)) {
+-	result = dev_set_name(&tz->device, "thermal_zone%d", tz->id);
+-	if (result)
+-		goto remove_id;
+-
+ 	if (!ops->critical)
+ 		ops->critical = thermal_zone_device_critical;
  
- 			spin_unlock(&flctx->flc_lock);
--			if (nlm_unlock_files(file, fl->fl_owner))
-+			if (nlm_unlock_files(file, fl))
- 				return 1;
- 			goto again;
- 		}
+@@ -1267,6 +1264,11 @@ thermal_zone_device_register_with_trips(const char *type, struct thermal_trip *t
+ 	/* A new thermal zone needs to be updated anyway. */
+ 	atomic_set(&tz->need_update, 1);
+ 
++	result = dev_set_name(&tz->device, "thermal_zone%d", tz->id);
++	if (result) {
++		thermal_zone_destroy_device_groups(tz);
++		goto remove_id;
++	}
+ 	result = device_register(&tz->device);
+ 	if (result)
+ 		goto release_device;
 -- 
 2.35.1
 
