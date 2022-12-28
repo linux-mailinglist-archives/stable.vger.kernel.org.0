@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C730658296
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:38:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30EEF658350
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:46:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233624AbiL1Qil (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:38:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59254 "EHLO
+        id S233734AbiL1Qq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:46:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234980AbiL1Qhq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:37:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80B7A1A223
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:33:41 -0800 (PST)
+        with ESMTP id S233132AbiL1Qp4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:45:56 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F06891DA46
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:41:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A48061576
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:33:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B412C433D2;
-        Wed, 28 Dec 2022 16:33:39 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C30DDCE1376
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:41:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7164C433D2;
+        Wed, 28 Dec 2022 16:41:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245220;
-        bh=XSQ+gHGwxJSr0QgnoAxTWH8NBgRxRNWB5qvPYDchsqI=;
+        s=korg; t=1672245668;
+        bh=/dTvH96f1m4ut4MlnRd4Aj/X3G2/AX/509nzhnp2ad4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PHNvCg9AnAO9bwA2f3OXgXmy4nLvPLQWmrLnkQvg+hwA0WkqZqWSjOmrZxl4X0/1t
-         2IY77ad11iw9izGg1AxKhQ19YnlY46mwdvhA2HOrYfCgACB59VRYFBVuJCjihmgyG6
-         ak5m0NDPjpnSoqIs8JX3DxWgil/AOOLvSLfKQzug=
+        b=yFzeI2JnAuS9ef5Q1NCvksNvEG5fFedbpGio9yZli8XHbT7XIppUSfRr+stikkogr
+         +/cPSZKZZJG37e2aq7kxDluMLrdzOtKQVj6L1NLlNADVZGSfqwpo1qckwa05i2RkR4
+         oCKKJF7SQQf7R8owtOuKsiQZtx9FX1AbeDCOVoLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -39,19 +39,20 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Hannes Reinecke <hare@suse.de>,
         Chaitanya Kulkarni <kch@nvidia.com>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0853/1073] blk-mq: move the srcu_struct used for quiescing to the tagset
+Subject: [PATCH 6.1 0902/1146] blk-mq: move the srcu_struct used for quiescing to the tagset
 Date:   Wed, 28 Dec 2022 15:40:41 +0100
-Message-Id: <20221228144351.187844650@linuxfoundation.org>
+Message-Id: <20221228144354.710303840@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -89,10 +90,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  8 files changed, 45 insertions(+), 62 deletions(-)
 
 diff --git a/block/blk-core.c b/block/blk-core.c
-index 2fbdf17f2206..adc5fc562348 100644
+index 5487912befe8..9d6a947024ea 100644
 --- a/block/blk-core.c
 +++ b/block/blk-core.c
-@@ -66,7 +66,6 @@ DEFINE_IDA(blk_queue_ida);
+@@ -65,7 +65,6 @@ DEFINE_IDA(blk_queue_ida);
   * For queue allocation
   */
  struct kmem_cache *blk_requestq_cachep;
@@ -100,7 +101,7 @@ index 2fbdf17f2206..adc5fc562348 100644
  
  /*
   * Controlling structure to kblockd
-@@ -374,26 +373,20 @@ static void blk_timeout_work(struct work_struct *work)
+@@ -373,26 +372,20 @@ static void blk_timeout_work(struct work_struct *work)
  {
  }
  
@@ -131,7 +132,7 @@ index 2fbdf17f2206..adc5fc562348 100644
  
  	q->stats = blk_alloc_queue_stats();
  	if (!q->stats)
-@@ -435,11 +428,8 @@ struct request_queue *blk_alloc_queue(int node_id, bool alloc_srcu)
+@@ -434,11 +427,8 @@ struct request_queue *blk_alloc_queue(int node_id, bool alloc_srcu)
  	blk_free_queue_stats(q->stats);
  fail_id:
  	ida_free(&blk_queue_ida, q->id);
@@ -144,7 +145,7 @@ index 2fbdf17f2206..adc5fc562348 100644
  	return NULL;
  }
  
-@@ -1198,9 +1188,6 @@ int __init blk_dev_init(void)
+@@ -1183,9 +1173,6 @@ int __init blk_dev_init(void)
  			sizeof_field(struct request, cmd_flags));
  	BUILD_BUG_ON(REQ_OP_BITS + REQ_FLAG_BITS > 8 *
  			sizeof_field(struct bio, bi_opf));
@@ -154,7 +155,7 @@ index 2fbdf17f2206..adc5fc562348 100644
  
  	/* used for unplugging and affects IO latency/throughput - HIGHPRI */
  	kblockd_workqueue = alloc_workqueue("kblockd",
-@@ -1211,10 +1198,6 @@ int __init blk_dev_init(void)
+@@ -1196,10 +1183,6 @@ int __init blk_dev_init(void)
  	blk_requestq_cachep = kmem_cache_create("request_queue",
  			sizeof(struct request_queue), 0, SLAB_PANIC, NULL);
  
@@ -166,7 +167,7 @@ index 2fbdf17f2206..adc5fc562348 100644
  
  	return 0;
 diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 3f1f5e3e0951..88975170cc32 100644
+index 228a6696d835..4f1c259138e8 100644
 --- a/block/blk-mq.c
 +++ b/block/blk-mq.c
 @@ -261,8 +261,8 @@ EXPORT_SYMBOL_GPL(blk_mq_quiesce_queue_nowait);
@@ -180,7 +181,7 @@ index 3f1f5e3e0951..88975170cc32 100644
  	else
  		synchronize_rcu();
  }
-@@ -3886,7 +3886,7 @@ static struct request_queue *blk_mq_init_queue_data(struct blk_mq_tag_set *set,
+@@ -3975,7 +3975,7 @@ static struct request_queue *blk_mq_init_queue_data(struct blk_mq_tag_set *set,
  	struct request_queue *q;
  	int ret;
  
@@ -189,7 +190,7 @@ index 3f1f5e3e0951..88975170cc32 100644
  	if (!q)
  		return ERR_PTR(-ENOMEM);
  	q->queuedata = queuedata;
-@@ -4058,9 +4058,6 @@ static void blk_mq_update_poll_flag(struct request_queue *q)
+@@ -4147,9 +4147,6 @@ static void blk_mq_update_poll_flag(struct request_queue *q)
  int blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
  		struct request_queue *q)
  {
@@ -199,7 +200,7 @@ index 3f1f5e3e0951..88975170cc32 100644
  	/* mark the queue as mq asap */
  	q->mq_ops = set->ops;
  
-@@ -4317,8 +4314,18 @@ int blk_mq_alloc_tag_set(struct blk_mq_tag_set *set)
+@@ -4406,8 +4403,18 @@ int blk_mq_alloc_tag_set(struct blk_mq_tag_set *set)
  	if (set->nr_maps == 1 && set->nr_hw_queues > nr_cpu_ids)
  		set->nr_hw_queues = nr_cpu_ids;
  
@@ -220,7 +221,7 @@ index 3f1f5e3e0951..88975170cc32 100644
  
  	ret = -ENOMEM;
  	for (i = 0; i < set->nr_maps; i++) {
-@@ -4350,6 +4357,12 @@ int blk_mq_alloc_tag_set(struct blk_mq_tag_set *set)
+@@ -4437,6 +4444,12 @@ int blk_mq_alloc_tag_set(struct blk_mq_tag_set *set)
  	}
  	kfree(set->tags);
  	set->tags = NULL;
@@ -233,7 +234,7 @@ index 3f1f5e3e0951..88975170cc32 100644
  	return ret;
  }
  EXPORT_SYMBOL(blk_mq_alloc_tag_set);
-@@ -4389,6 +4402,10 @@ void blk_mq_free_tag_set(struct blk_mq_tag_set *set)
+@@ -4476,6 +4489,10 @@ void blk_mq_free_tag_set(struct blk_mq_tag_set *set)
  
  	kfree(set->tags);
  	set->tags = NULL;
@@ -245,10 +246,10 @@ index 3f1f5e3e0951..88975170cc32 100644
  EXPORT_SYMBOL(blk_mq_free_tag_set);
  
 diff --git a/block/blk-mq.h b/block/blk-mq.h
-index 8ca453ac243d..1a88ad9428b7 100644
+index 0b2870839cdd..ef59fee62780 100644
 --- a/block/blk-mq.h
 +++ b/block/blk-mq.h
-@@ -376,17 +376,17 @@ static inline bool hctx_may_queue(struct blk_mq_hw_ctx *hctx,
+@@ -377,17 +377,17 @@ static inline bool hctx_may_queue(struct blk_mq_hw_ctx *hctx,
  /* run the code block in @dispatch_ops with rcu/srcu read lock held */
  #define __blk_mq_run_dispatch_ops(q, check_sleep, dispatch_ops)	\
  do {								\
@@ -274,7 +275,7 @@ index 8ca453ac243d..1a88ad9428b7 100644
  } while (0)
  
 diff --git a/block/blk-sysfs.c b/block/blk-sysfs.c
-index e1f009aba6fd..8822b4b6bed2 100644
+index e71b3b43927c..e7871665825a 100644
 --- a/block/blk-sysfs.c
 +++ b/block/blk-sysfs.c
 @@ -739,10 +739,8 @@ queue_attr_store(struct kobject *kobj, struct attribute *attr,
@@ -301,7 +302,7 @@ index e1f009aba6fd..8822b4b6bed2 100644
  	call_rcu(&q->rcu_head, blk_free_queue_rcu);
  }
 diff --git a/block/blk.h b/block/blk.h
-index ff0bec16f0fa..5040c5b4ee70 100644
+index a186ea20f39d..4849a2efa4c5 100644
 --- a/block/blk.h
 +++ b/block/blk.h
 @@ -27,7 +27,6 @@ struct blk_flush_queue {
@@ -312,7 +313,7 @@ index ff0bec16f0fa..5040c5b4ee70 100644
  extern struct kobj_type blk_queue_ktype;
  extern struct ida blk_queue_ida;
  
-@@ -421,13 +420,7 @@ int bio_add_hw_page(struct request_queue *q, struct bio *bio,
+@@ -428,13 +427,7 @@ int bio_add_hw_page(struct request_queue *q, struct bio *bio,
  		struct page *page, unsigned int len, unsigned int offset,
  		unsigned int max_sectors, bool *same_page);
  
@@ -328,10 +329,10 @@ index ff0bec16f0fa..5040c5b4ee70 100644
  int disk_scan_partitions(struct gendisk *disk, fmode_t mode);
  
 diff --git a/block/genhd.c b/block/genhd.c
-index 28654723bc2b..d4715ea7dc39 100644
+index 647f7d8d8831..192f23cc4062 100644
 --- a/block/genhd.c
 +++ b/block/genhd.c
-@@ -1402,7 +1402,7 @@ struct gendisk *__blk_alloc_disk(int node, struct lock_class_key *lkclass)
+@@ -1414,7 +1414,7 @@ struct gendisk *__blk_alloc_disk(int node, struct lock_class_key *lkclass)
  	struct request_queue *q;
  	struct gendisk *disk;
  
@@ -341,7 +342,7 @@ index 28654723bc2b..d4715ea7dc39 100644
  		return NULL;
  
 diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
-index 1532cd07a597..21f7b889f54e 100644
+index d6119c5d1069..2952c28410e3 100644
 --- a/include/linux/blk-mq.h
 +++ b/include/linux/blk-mq.h
 @@ -7,6 +7,7 @@
@@ -352,7 +353,7 @@ index 1532cd07a597..21f7b889f54e 100644
  
  struct blk_mq_tags;
  struct blk_flush_queue;
-@@ -496,6 +497,8 @@ enum hctx_type {
+@@ -501,6 +502,8 @@ enum hctx_type {
   * @tag_list_lock: Serializes tag_list accesses.
   * @tag_list:	   List of the request queues that use this tag set. See also
   *		   request_queue.tag_set_list.
@@ -361,7 +362,7 @@ index 1532cd07a597..21f7b889f54e 100644
   */
  struct blk_mq_tag_set {
  	struct blk_mq_queue_map	map[HCTX_MAX_TYPES];
-@@ -516,6 +519,7 @@ struct blk_mq_tag_set {
+@@ -521,6 +524,7 @@ struct blk_mq_tag_set {
  
  	struct mutex		tag_list_lock;
  	struct list_head	tag_list;
@@ -370,7 +371,7 @@ index 1532cd07a597..21f7b889f54e 100644
  
  /**
 diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index e6bf06dc0770..0526f1c49fc6 100644
+index 891f8cbcd043..36c286d22fb2 100644
 --- a/include/linux/blkdev.h
 +++ b/include/linux/blkdev.h
 @@ -22,7 +22,6 @@
