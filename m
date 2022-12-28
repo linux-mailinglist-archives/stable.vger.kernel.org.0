@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 663B5657C3C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:30:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3C856582D9
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233389AbiL1PaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:30:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48126 "EHLO
+        id S234600AbiL1Qml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:42:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233796AbiL1PaX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:30:23 -0500
+        with ESMTP id S233660AbiL1QmG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:42:06 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A99171583C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:30:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F6161A83F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:36:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 492DE6152F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:30:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57FD2C433F0;
-        Wed, 28 Dec 2022 15:30:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 58EB861562
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:36:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C8ACC433EF;
+        Wed, 28 Dec 2022 16:36:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241421;
-        bh=inN9e4ytR+NXrAHnhQ1/s4gFHfne7lWj4TQ3jrvLG2c=;
+        s=korg; t=1672245374;
+        bh=G055uY/meV+DqhxG130QFU03OlY69H+Ho95cldxHKkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g1PcDbddBif2sOaK8bLkgRZsOkHmODgeguDp4Yrzndn1veffJamDbsbA/UoNKPNW5
-         cGMkdHfvFw6iiFlgvIA2HhgKX63cNquwQd83HWMbzX8fkFbId43aP75K4OefsZmnIi
-         jXaGqAgva/gj01E2KBeQifFF4z0Dld6JtZgtz714=
+        b=RtGZdGCCeZL4YQYRvUpMH95/zQGjy04fGWpU7Xrt/1yFPIiZM6JJa6ukhzpdL3OSY
+         GO1Q1B5C1hlz4xYEHwmTont+IeB8A9DETCwd/7WL+wjgJbS7+B8M4smD5nOHyeGMBf
+         RWZqDMeR7rXXW2bzzyMFjLZ/x71nW7FHEXM/xTzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
+        Frederic Barrat <fbarrat@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 480/731] usb: roles: fix of node refcount leak in usb_role_switch_is_parent()
+Subject: [PATCH 6.1 0848/1146] cxl: Fix refcount leak in cxl_calc_capp_routing
 Date:   Wed, 28 Dec 2022 15:39:47 +0100
-Message-Id: <20221228144310.465359082@linuxfoundation.org>
+Message-Id: <20221228144353.187376611@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 1ab30c610630da5391a373cddb8a065bf4c4bc01 ]
+[ Upstream commit 1d09697ff22908ae487fc8c4fbde1811732be523 ]
 
-I got the following report while doing device(mt6370-tcpc) load
-test with CONFIG_OF_UNITTEST and CONFIG_OF_DYNAMIC enabled:
+of_get_next_parent() returns a node pointer with refcount incremented,
+we should use of_node_put() on it when not need anymore.
+This function only calls of_node_put() in normal path,
+missing it in the error path.
+Add missing of_node_put() to avoid refcount leak.
 
-  OF: ERROR: memory leak, expected refcount 1 instead of 2,
-  of_node_get()/of_node_put() unbalanced - destroy cset entry:
-  attach overlay node /i2c/pmic@34
-
-The 'parent' returned by fwnode_get_parent() with refcount incremented.
-it needs be put after using.
-
-Fixes: 6fadd72943b8 ("usb: roles: get usb-role-switch from parent")
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221122111226.251588-1-yangyingliang@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f24be42aab37 ("cxl: Add psl9 specific code")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Acked-by: Andrew Donnellan <ajd@linux.ibm.com>
+Acked-by: Frederic Barrat <fbarrat@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220605060038.62217-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/roles/class.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/misc/cxl/pci.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/roles/class.c b/drivers/usb/roles/class.c
-index dfaed7eee94f..32e6d19f7011 100644
---- a/drivers/usb/roles/class.c
-+++ b/drivers/usb/roles/class.c
-@@ -106,10 +106,13 @@ usb_role_switch_is_parent(struct fwnode_handle *fwnode)
- 	struct fwnode_handle *parent = fwnode_get_parent(fwnode);
- 	struct device *dev;
- 
--	if (!parent || !fwnode_property_present(parent, "usb-role-switch"))
-+	if (!fwnode_property_present(parent, "usb-role-switch")) {
-+		fwnode_handle_put(parent);
- 		return NULL;
-+	}
- 
- 	dev = class_find_device_by_fwnode(role_class, parent);
-+	fwnode_handle_put(parent);
- 	return dev ? to_role_switch(dev) : ERR_PTR(-EPROBE_DEFER);
- }
+diff --git a/drivers/misc/cxl/pci.c b/drivers/misc/cxl/pci.c
+index 6d495d641c95..0ff944860dda 100644
+--- a/drivers/misc/cxl/pci.c
++++ b/drivers/misc/cxl/pci.c
+@@ -387,6 +387,7 @@ int cxl_calc_capp_routing(struct pci_dev *dev, u64 *chipid,
+ 	rc = get_phb_index(np, phb_index);
+ 	if (rc) {
+ 		pr_err("cxl: invalid phb index\n");
++		of_node_put(np);
+ 		return rc;
+ 	}
  
 -- 
 2.35.1
