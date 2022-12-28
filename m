@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDF91657A98
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:13:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86DEC65816F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:28:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232935AbiL1PNe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:13:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59514 "EHLO
+        id S234379AbiL1Q2f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:28:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233169AbiL1PM7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:12:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 356C113E36
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:12:39 -0800 (PST)
+        with ESMTP id S234400AbiL1Q2O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:28:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 246D11C130
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:24:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E55E1B81719
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:12:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E296C433D2;
-        Wed, 28 Dec 2022 15:12:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B59DE61577
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:24:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA811C433EF;
+        Wed, 28 Dec 2022 16:24:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240356;
-        bh=FP5yqSp/jSmCxmVZu7K+kiIYgmJ4rkUP3CE3Nm8/EOg=;
+        s=korg; t=1672244644;
+        bh=/aq0/3NlELX1EOBgLCk2ewkK7u7kDPb9AGNi1zYitLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ugYemYM8JZ1C2UASHiRaYuUVWiuXz/oOk1cbCnhs8k02wQKxy/YVGpP2MJLRm0+8Q
-         gcoNus+QetDac2FMpurh+RS0LZM7CrynBFGMvjZn3sMZsa6tTTvD5w91VYl2CQOR3c
-         7ByDudB1otHf74KzcL7nSotRxZzhye0EN1/aQas4=
+        b=weYDUaK2OyHzMyWCDZpRD61W39am3VZfkzyUXvW7z6Sf5GLft/b8UAS+R/6ZW/Zci
+         zJkNnEoF7OGBRahE2NenjiKVZduskx0QkN88DjIZVsqGBMrBHJkbc3YZv5ypbCtvzj
+         Z1VP2JXTNEGxP8ffMrBd8MZjW1Igz7RA5hGKX2NU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Markus Schneider-Pargmann <msp@baylibre.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev, delisun <delisun@pateo.com.cn>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 340/731] can: tcan4x5x: Remove invalid write in clear_interrupts
+Subject: [PATCH 6.1 0708/1146] serial: pl011: Do not clear RX FIFO & RX interrupt in unthrottle.
 Date:   Wed, 28 Dec 2022 15:37:27 +0100
-Message-Id: <20221228144306.423489463@linuxfoundation.org>
+Message-Id: <20221228144349.377600936@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Markus Schneider-Pargmann <msp@baylibre.com>
+From: delisun <delisun@pateo.com.cn>
 
-[ Upstream commit 40c9e4f676abbe194541d88e796341c92d5a13c0 ]
+[ Upstream commit 032d5a71ed378ffc6a2d41a187d8488a4f9fe415 ]
 
-Register 0x824 TCAN4X5X_MCAN_INT_REG is a read-only register. Any writes
-to this register do not have any effect.
+Clearing the RX FIFO will cause data loss.
+Copy the pl011_enabl_interrupts implementation, and remove the clear
+interrupt and FIFO part of the code.
 
-Remove this write. The m_can driver aldready clears the interrupts in
-m_can_isr() by writing to M_CAN_IR which is translated to register
-0x1050 which is a writable version of this register.
-
-Fixes: 5443c226ba91 ("can: tcan4x5x: Add tcan4x5x driver to the kernel")
-Signed-off-by: Markus Schneider-Pargmann <msp@baylibre.com>
-Link: https://lore.kernel.org/all/20221206115728.1056014-9-msp@baylibre.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 211565b10099 ("serial: pl011: UPSTAT_AUTORTS requires .throttle/unthrottle")
+Signed-off-by: delisun <delisun@pateo.com.cn>
+Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20221110020108.7700-1-delisun@pateo.com.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/m_can/tcan4x5x-core.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/tty/serial/amba-pl011.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/m_can/tcan4x5x-core.c b/drivers/net/can/m_can/tcan4x5x-core.c
-index 04687b15b250..9b735eccec8a 100644
---- a/drivers/net/can/m_can/tcan4x5x-core.c
-+++ b/drivers/net/can/m_can/tcan4x5x-core.c
-@@ -204,11 +204,6 @@ static int tcan4x5x_clear_interrupts(struct m_can_classdev *cdev)
- 	if (ret)
- 		return ret;
+diff --git a/drivers/tty/serial/amba-pl011.c b/drivers/tty/serial/amba-pl011.c
+index 5b97645be667..aa0bbb7abeac 100644
+--- a/drivers/tty/serial/amba-pl011.c
++++ b/drivers/tty/serial/amba-pl011.c
+@@ -1831,8 +1831,17 @@ static void pl011_enable_interrupts(struct uart_amba_port *uap)
+ static void pl011_unthrottle_rx(struct uart_port *port)
+ {
+ 	struct uart_amba_port *uap = container_of(port, struct uart_amba_port, port);
++	unsigned long flags;
  
--	ret = tcan4x5x_write_tcan_reg(cdev, TCAN4X5X_MCAN_INT_REG,
--				      TCAN4X5X_ENABLE_MCAN_INT);
--	if (ret)
--		return ret;
--
- 	ret = tcan4x5x_write_tcan_reg(cdev, TCAN4X5X_INT_FLAGS,
- 				      TCAN4X5X_CLEAR_ALL_INT);
- 	if (ret)
+-	pl011_enable_interrupts(uap);
++	spin_lock_irqsave(&uap->port.lock, flags);
++
++	uap->im = UART011_RTIM;
++	if (!pl011_dma_rx_running(uap))
++		uap->im |= UART011_RXIM;
++
++	pl011_write(uap->im, uap, REG_IMSC);
++
++	spin_unlock_irqrestore(&uap->port.lock, flags);
+ }
+ 
+ static int pl011_startup(struct uart_port *port)
 -- 
 2.35.1
 
