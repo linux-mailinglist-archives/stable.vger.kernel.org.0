@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7760865796F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:01:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA622657972
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:01:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233401AbiL1PBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:01:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47830 "EHLO
+        id S233482AbiL1PBT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:01:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233313AbiL1PAy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:00:54 -0500
+        with ESMTP id S233510AbiL1PBG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:01:06 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9CCB64D7
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:00:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DC7911C35
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:01:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6154CB81719
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:00:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB1CBC433EF;
-        Wed, 28 Dec 2022 15:00:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 23B47B81710
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:01:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 937FFC433D2;
+        Wed, 28 Dec 2022 15:01:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239651;
-        bh=zWGqAFrOQ3IA4mARuDue+Fdo6QtPIlFmigeR8E5lHtg=;
+        s=korg; t=1672239661;
+        bh=s1ENPo29dfhqe/iwpOUateUYZvpsPEO6h6vyAF+uiT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SqNKnv9g4DIkLTMqmBuubdIlqAxkmOqV3LPzXfc0TZNy7UfI5k9s8/QZK4SEZdSX9
-         03HdUDKA9NKTySsATY105llRx0BGLG6xVY6ihZTIJP/kSNyiG5v5Mn4NVTBMXK7bT5
-         o6Jbeo3+w7zN2V+kpWgvfLIpI6IoJWggrydwG+J8=
+        b=dGKZT7/YGlfFvFuTT8bdpezv67PKbcFrSrJ6Aj4dpRMak1OoLincASFkOKACdsPig
+         yaygxQOeUtxpg2Tme2pnDaYnR+T9A/wEML8g5rTvNzqWQxfCkCPnAwzUk256ycPC1q
+         W/H042B4jLz3t2DEpcMK/G2sz1S2w9UtiiNjQuBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         <angelogioacchino.delregno@collabora.com>,
         Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0060/1073] arm64: dts: mediatek: mt8195: Fix CPUs capacity-dmips-mhz
-Date:   Wed, 28 Dec 2022 15:27:28 +0100
-Message-Id: <20221228144329.728876043@linuxfoundation.org>
+Subject: [PATCH 6.0 0061/1073] arm64: dts: mt7896a: Fix unit_address_vs_reg warning for oscillator
+Date:   Wed, 28 Dec 2022 15:27:29 +0100
+Message-Id: <20221228144329.754708985@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -57,79 +57,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit 513c43328b189874fdfee3ae99cac81e5502e7f7 ]
+[ Upstream commit 7898d047b1eb2bec2622668cd70181442a580c6d ]
 
-The capacity-dmips-mhz parameter was miscalculated: this SoC runs
-the first (Cortex-A55) cluster at a maximum of 2000MHz and the
-second (Cortex-A78) cluster at a maximum of 3000MHz.
+Rename the oscillator fixed-clock to oscillator-40m and remove
+the unit address to fix warnings.
 
-In order to calculate the right capacity-dmips-mhz, the following
-test was performed:
-1. CPUFREQ governor was set to 'performance' on both clusters
-2. Ran dhrystone with 500000000 iterations for 10 times on each cluster
-3. Calculate the mean result for each cluster
-4. Calculate DMIPS/MHz: dmips_mhz = dmips_per_second / cpu_mhz
-5. Scale results to 1024:
-   result_c0 = (dmips_mhz_c0 - min_dmips_mhz(c0, c1)) /
-               (max_dmips_mhz(c0, c1) - min_dmips_mhz(c0, c1)) * 1024
+arch/arm64/boot/dts/mediatek/mt7986a.dtsi:17.23-22.4: Warning
+(unit_address_vs_reg): /oscillator@0: node has a unit name,
+but no reg or ranges property
 
-The mean results for this SoC are:
-Cluster 0 (LITTLE): 11990400 Dhry/s
-Cluster 1 (BIG): 59809036 Dhry/s
-
-The calculated scaled results are:
-Cluster 0: 307,934312801831 (rounded to 308)
-Cluster 1: 1024
-
-Fixes: 37f2582883be ("arm64: dts: Add mediatek SoC mt8195 and evaluation board")
+Fixes: 1f9986b258c2 ("arm64: dts: mediatek: add clock support for mt7986a")
 Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20221005093404.33102-1-angelogioacchino.delregno@collabora.com
+Link: https://lore.kernel.org/r/20221013152212.416661-2-angelogioacchino.delregno@collabora.com
 Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/mt8195.dtsi | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt7986a.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt8195.dtsi b/arch/arm64/boot/dts/mediatek/mt8195.dtsi
-index 066c14989708..e694ddb74f7d 100644
---- a/arch/arm64/boot/dts/mediatek/mt8195.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/mt8195.dtsi
-@@ -27,7 +27,7 @@ cpu0: cpu@0 {
- 			reg = <0x000>;
- 			enable-method = "psci";
- 			clock-frequency = <1701000000>;
--			capacity-dmips-mhz = <578>;
-+			capacity-dmips-mhz = <308>;
- 			cpu-idle-states = <&cpu_off_l &cluster_off_l>;
- 			next-level-cache = <&l2_0>;
- 			#cooling-cells = <2>;
-@@ -39,7 +39,7 @@ cpu1: cpu@100 {
- 			reg = <0x100>;
- 			enable-method = "psci";
- 			clock-frequency = <1701000000>;
--			capacity-dmips-mhz = <578>;
-+			capacity-dmips-mhz = <308>;
- 			cpu-idle-states = <&cpu_off_l &cluster_off_l>;
- 			next-level-cache = <&l2_0>;
- 			#cooling-cells = <2>;
-@@ -51,7 +51,7 @@ cpu2: cpu@200 {
- 			reg = <0x200>;
- 			enable-method = "psci";
- 			clock-frequency = <1701000000>;
--			capacity-dmips-mhz = <578>;
-+			capacity-dmips-mhz = <308>;
- 			cpu-idle-states = <&cpu_off_l &cluster_off_l>;
- 			next-level-cache = <&l2_0>;
- 			#cooling-cells = <2>;
-@@ -63,7 +63,7 @@ cpu3: cpu@300 {
- 			reg = <0x300>;
- 			enable-method = "psci";
- 			clock-frequency = <1701000000>;
--			capacity-dmips-mhz = <578>;
-+			capacity-dmips-mhz = <308>;
- 			cpu-idle-states = <&cpu_off_l &cluster_off_l>;
- 			next-level-cache = <&l2_0>;
- 			#cooling-cells = <2>;
+diff --git a/arch/arm64/boot/dts/mediatek/mt7986a.dtsi b/arch/arm64/boot/dts/mediatek/mt7986a.dtsi
+index 12c259ec042e..25b297bbb1b0 100644
+--- a/arch/arm64/boot/dts/mediatek/mt7986a.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt7986a.dtsi
+@@ -13,7 +13,7 @@ / {
+ 	#address-cells = <2>;
+ 	#size-cells = <2>;
+ 
+-	clk40m: oscillator@0 {
++	clk40m: oscillator-40m {
+ 		compatible = "fixed-clock";
+ 		clock-frequency = <40000000>;
+ 		#clock-cells = <0>;
 -- 
 2.35.1
 
