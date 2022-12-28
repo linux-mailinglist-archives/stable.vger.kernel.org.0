@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA014657B73
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:22:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB8136580F7
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:23:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233723AbiL1PWb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:22:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40378 "EHLO
+        id S234690AbiL1QXS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:23:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233316AbiL1PWJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:22:09 -0500
+        with ESMTP id S234666AbiL1QVg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:21:36 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACFB8140EE
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:21:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C46831B7AE
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:19:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 460BF61365
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:21:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 566D8C433EF;
-        Wed, 28 Dec 2022 15:21:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0043961568
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:19:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13C02C433D2;
+        Wed, 28 Dec 2022 16:19:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240900;
-        bh=uDniHmXSBUzrvnEKTj8QBlPmhwTGemgZlim2KMDpL9c=;
+        s=korg; t=1672244367;
+        bh=pUmOk+/0Cxv748eGMVKBCkBuUc34CYUoMToL6P/7IVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=icrU65paPzlyUg2BTzjPgB8TXECqPYsPFbKZbIIcYGEnkoKxtmN8ya5d1/ZfKu8uz
-         N5N2H4m6DOlWmmjv5o/selGj+tJ/gTbDqierglM+rFQXVaNgb+z4N7UDognw0NTUIR
-         SSpH5M62ewt0M29RDggaANPoA74lNRV19gD9wmP8=
+        b=wqMLgIthI/gzz6M570irD4xz6dXShSCYHGiE2hYbbbSzUCqqeBCIQkSx75QCuom92
+         iwU0cKEPEpWbyqgEHYqSSZNghFJ/8zQmu+ZvpJJVIDA66iwBk5k95RHvM4pgqimKcl
+         joKRwAV0+ia+uLHw95cPTP+VN4wiDV6PgVERjc3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dongdong Zhang <zhangdongdong1@oppo.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
+        Frederic Barrat <fbarrat@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 379/731] f2fs: fix normal discard process
+Subject: [PATCH 6.0 0698/1073] cxl: fix possible null-ptr-deref in cxl_guest_init_afu|adapter()
 Date:   Wed, 28 Dec 2022 15:38:06 +0100
-Message-Id: <20221228144307.547165034@linuxfoundation.org>
+Message-Id: <20221228144346.990117847@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +54,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongdong Zhang <zhangdongdong1@oppo.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit b5f1a218ae5e4339130d6e733f0e63d623e09a2c ]
+[ Upstream commit 61c80d1c3833e196256fb060382db94f24d3d9a7 ]
 
-In the DPOLICY_BG mode, there is a conflict between
-the two conditions "i + 1 < dpolicy->granularity" and
-"i < DEFAULT_DISCARD_GRANULARITY". If i = 15, the first
-condition is false, it will enter the second condition
-and dispatch all small granularity discards in function
- __issue_discard_cmd_orderly. The restrictive effect
-of the first condition to small discards will be
-invalidated. These two conditions should align.
+If device_register() fails in cxl_register_afu|adapter(), the device
+is not added, device_unregister() can not be called in the error path,
+otherwise it will cause a null-ptr-deref because of removing not added
+device.
 
-Fixes: 20ee4382322c ("f2fs: issue small discard by LBA order")
-Signed-off-by: Dongdong Zhang <zhangdongdong1@oppo.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+As comment of device_register() says, it should use put_device() to give
+up the reference in the error path. So split device_unregister() into
+device_del() and put_device(), then goes to put dev when register fails.
+
+Fixes: 14baf4d9c739 ("cxl: Add guest-specific code")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Acked-by: Andrew Donnellan <ajd@linux.ibm.com>
+Acked-by: Frederic Barrat <fbarrat@linux.ibm.com>
+Link: https://lore.kernel.org/r/20221111145440.2426970-1-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/segment.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/misc/cxl/guest.c | 24 ++++++++++++++----------
+ 1 file changed, 14 insertions(+), 10 deletions(-)
 
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 28939e3573ea..194c0811fbdf 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -1551,7 +1551,7 @@ static int __issue_discard_cmd(struct f2fs_sb_info *sbi,
- 		if (i + 1 < dpolicy->granularity)
- 			break;
+diff --git a/drivers/misc/cxl/guest.c b/drivers/misc/cxl/guest.c
+index 375f692ae9d6..fb95a2d5cef4 100644
+--- a/drivers/misc/cxl/guest.c
++++ b/drivers/misc/cxl/guest.c
+@@ -965,10 +965,10 @@ int cxl_guest_init_afu(struct cxl *adapter, int slice, struct device_node *afu_n
+ 	 * if it returns an error!
+ 	 */
+ 	if ((rc = cxl_register_afu(afu)))
+-		goto err_put1;
++		goto err_put_dev;
  
--		if (i < DEFAULT_DISCARD_GRANULARITY && dpolicy->ordered)
-+		if (i + 1 < DEFAULT_DISCARD_GRANULARITY && dpolicy->ordered)
- 			return __issue_discard_cmd_orderly(sbi, dpolicy);
+ 	if ((rc = cxl_sysfs_afu_add(afu)))
+-		goto err_put1;
++		goto err_del_dev;
  
- 		pend_list = &dcc->pend_list[i];
+ 	/*
+ 	 * pHyp doesn't expose the programming models supported by the
+@@ -984,7 +984,7 @@ int cxl_guest_init_afu(struct cxl *adapter, int slice, struct device_node *afu_n
+ 		afu->modes_supported = CXL_MODE_DIRECTED;
+ 
+ 	if ((rc = cxl_afu_select_best_mode(afu)))
+-		goto err_put2;
++		goto err_remove_sysfs;
+ 
+ 	adapter->afu[afu->slice] = afu;
+ 
+@@ -1004,10 +1004,12 @@ int cxl_guest_init_afu(struct cxl *adapter, int slice, struct device_node *afu_n
+ 
+ 	return 0;
+ 
+-err_put2:
++err_remove_sysfs:
+ 	cxl_sysfs_afu_remove(afu);
+-err_put1:
+-	device_unregister(&afu->dev);
++err_del_dev:
++	device_del(&afu->dev);
++err_put_dev:
++	put_device(&afu->dev);
+ 	free = false;
+ 	guest_release_serr_irq(afu);
+ err2:
+@@ -1141,18 +1143,20 @@ struct cxl *cxl_guest_init_adapter(struct device_node *np, struct platform_devic
+ 	 * even if it returns an error!
+ 	 */
+ 	if ((rc = cxl_register_adapter(adapter)))
+-		goto err_put1;
++		goto err_put_dev;
+ 
+ 	if ((rc = cxl_sysfs_adapter_add(adapter)))
+-		goto err_put1;
++		goto err_del_dev;
+ 
+ 	/* release the context lock as the adapter is configured */
+ 	cxl_adapter_context_unlock(adapter);
+ 
+ 	return adapter;
+ 
+-err_put1:
+-	device_unregister(&adapter->dev);
++err_del_dev:
++	device_del(&adapter->dev);
++err_put_dev:
++	put_device(&adapter->dev);
+ 	free = false;
+ 	cxl_guest_remove_chardev(adapter);
+ err1:
 -- 
 2.35.1
 
