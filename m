@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B44DD657F9B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:07:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7A6265803C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:16:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234402AbiL1QHT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:07:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53796 "EHLO
+        id S234547AbiL1QQR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:16:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234453AbiL1QGp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:06:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2A8918B25
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:06:33 -0800 (PST)
+        with ESMTP id S233033AbiL1QPu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:15:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ACBE1A223
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:13:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 14FD761576
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:06:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11ED4C433D2;
-        Wed, 28 Dec 2022 16:06:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3715FB8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:13:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9649DC433D2;
+        Wed, 28 Dec 2022 16:12:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243592;
-        bh=Az+C2DkIvphMvXJJFfptiK2CQLMYct9hBqhW2Scu1yk=;
+        s=korg; t=1672243978;
+        bh=ekM7PxMiAF1QhFuSLHpNpPze+NPIKVh0kSGq6/Xp3+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sl3OUQkJT+jVtHBfD4ArS9HXAM3q6xqov0Hfzk//NzSJ7SAf0hCuyAe+FFjn5Sff5
-         jjgK0RYuYonusMqe/SkbR07eRy0CXP3foIQ2ai/10pzN3Xt/LYr81ykOWPmOMWXDAV
-         uqorDXyCjCpuRUVegwdH1VUFb7UOM+qZokv/QF4s=
+        b=GF79sWftmTYD9+5VuDSoeNh1d/mIX+TLCFaolOdt1fCLOxNHB5orXnngsFWJwjMzE
+         voLHgsl3N/HRAPXuHhG4MxhhlcfG1AgTYFuFN4wlQc1njxMqdS5dY+YJ8lr35UP3BC
+         PROfTermue3fOe3zm4wQuqypplqAFs7pYYbz7gUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev, John Keeping <john@metanate.com>,
+        Corentin Labbe <clabbe@baylibre.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0540/1073] Bluetooth: Fix EALREADY and ELOOP cases in bt_status()
+Subject: [PATCH 6.1 0589/1146] crypto: rockchip - add fallback for ahash
 Date:   Wed, 28 Dec 2022 15:35:28 +0100
-Message-Id: <20221228144342.723244520@linuxfoundation.org>
+Message-Id: <20221228144346.169460781@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit 63db780a93eb802ece1bbf61ab5894ad8827b56e ]
+[ Upstream commit 816600485cb597b3ff7d6806a95a78512839f775 ]
 
-'err' is known to be <0 at this point.
+Adds a fallback for all case hardware cannot handle.
 
-So, some cases can not be reached because of a missing "-".
-Add it.
-
-Fixes: ca2045e059c3 ("Bluetooth: Add bt_status")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: ce0183cb6464b ("crypto: rockchip - switch to skcipher API")
+Reviewed-by: John Keeping <john@metanate.com>
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/lib.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/crypto/rockchip/rk3288_crypto_ahash.c | 38 +++++++++++++++++++
+ 1 file changed, 38 insertions(+)
 
-diff --git a/net/bluetooth/lib.c b/net/bluetooth/lib.c
-index 469a0c95b6e8..53a796ac078c 100644
---- a/net/bluetooth/lib.c
-+++ b/net/bluetooth/lib.c
-@@ -170,7 +170,7 @@ __u8 bt_status(int err)
- 	case -EMLINK:
- 		return 0x09;
+diff --git a/drivers/crypto/rockchip/rk3288_crypto_ahash.c b/drivers/crypto/rockchip/rk3288_crypto_ahash.c
+index 49017d1fb510..16009bb0bf16 100644
+--- a/drivers/crypto/rockchip/rk3288_crypto_ahash.c
++++ b/drivers/crypto/rockchip/rk3288_crypto_ahash.c
+@@ -16,6 +16,40 @@
+  * so we put the fixed hash out when met zero message.
+  */
  
--	case EALREADY:
-+	case -EALREADY:
- 		return 0x0b;
++static bool rk_ahash_need_fallback(struct ahash_request *req)
++{
++	struct scatterlist *sg;
++
++	sg = req->src;
++	while (sg) {
++		if (!IS_ALIGNED(sg->offset, sizeof(u32))) {
++			return true;
++		}
++		if (sg->length % 4) {
++			return true;
++		}
++		sg = sg_next(sg);
++	}
++	return false;
++}
++
++static int rk_ahash_digest_fb(struct ahash_request *areq)
++{
++	struct rk_ahash_rctx *rctx = ahash_request_ctx(areq);
++	struct crypto_ahash *tfm = crypto_ahash_reqtfm(areq);
++	struct rk_ahash_ctx *tfmctx = crypto_ahash_ctx(tfm);
++
++	ahash_request_set_tfm(&rctx->fallback_req, tfmctx->fallback_tfm);
++	rctx->fallback_req.base.flags = areq->base.flags &
++					CRYPTO_TFM_REQ_MAY_SLEEP;
++
++	rctx->fallback_req.nbytes = areq->nbytes;
++	rctx->fallback_req.src = areq->src;
++	rctx->fallback_req.result = areq->result;
++
++	return crypto_ahash_digest(&rctx->fallback_req);
++}
++
+ static int zero_message_process(struct ahash_request *req)
+ {
+ 	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
+@@ -167,6 +201,9 @@ static int rk_ahash_digest(struct ahash_request *req)
+ 	struct rk_ahash_ctx *tctx = crypto_tfm_ctx(req->base.tfm);
+ 	struct rk_crypto_info *dev = tctx->dev;
  
- 	case -EBUSY:
-@@ -191,7 +191,7 @@ __u8 bt_status(int err)
- 	case -ECONNABORTED:
- 		return 0x16;
++	if (rk_ahash_need_fallback(req))
++		return rk_ahash_digest_fb(req);
++
+ 	if (!req->nbytes)
+ 		return zero_message_process(req);
+ 	else
+@@ -309,6 +346,7 @@ static void rk_cra_hash_exit(struct crypto_tfm *tfm)
+ 	struct rk_ahash_ctx *tctx = crypto_tfm_ctx(tfm);
  
--	case ELOOP:
-+	case -ELOOP:
- 		return 0x17;
+ 	free_page((unsigned long)tctx->dev->addr_vir);
++	crypto_free_ahash(tctx->fallback_tfm);
+ }
  
- 	case -EPROTONOSUPPORT:
+ struct rk_crypto_tmp rk_ahash_sha1 = {
 -- 
 2.35.1
 
