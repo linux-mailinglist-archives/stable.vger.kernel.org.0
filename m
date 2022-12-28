@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AFCD657993
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:03:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22A33657AD6
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:15:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233364AbiL1PDD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:03:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48872 "EHLO
+        id S232871AbiL1PPj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:15:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233496AbiL1PCd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:02:33 -0500
+        with ESMTP id S233136AbiL1PPZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:15:25 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB67E12D2A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:02:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B34C213E12
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:15:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A5916153C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:02:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1490C433D2;
-        Wed, 28 Dec 2022 15:02:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EE7661551
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:15:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 656A1C433EF;
+        Wed, 28 Dec 2022 15:15:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239749;
-        bh=T4r12HL+ymn7zLPbpeyo4FAJM7jFaXoK2bTcvEYzD2o=;
+        s=korg; t=1672240523;
+        bh=nM8GguaSRbiVaEzUdFooTn59i6CLzLiozzPgY4OEJDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Evzgn+ALqxSAmRGewHeGx0IOe4/2fViAb9kuOqP7AXaiaPcW+ekDQiobjUG088n0+
-         cVkAOAL4myFFjpl4PyNZR+X4D72jlVcwH3pA6Ju2HSaPOw2tPOaWKI1sGUcRQcu7aC
-         4O3zwDlwmbr+BZaBFklC8CUDgWErjSTJxtH2Zcoc=
+        b=QR5igsaq0H4kNYllDkbOHG/Tk4ziJjVoXRgULlP97KBNRfxDZbVDSJWTDNgNHJLjD
+         GAJcv9OYHwQn3uuSN8Q/3N2z8cI9WiBp2r6GpyhZEE0vMvjUBWCKBQdIX8cQqxzz5V
+         JRDanBD1N/LW3dpJsxAxaJrro1O/vkB33iV6QaMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        patches@lists.linux.dev, Yipeng Zou <zouyipeng@huawei.com>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0074/1073] ARM: dts: armada-39x: Fix assigned-addresses for every PCIe Root Port
+Subject: [PATCH 6.1 0123/1146] selftests/ftrace: event_triggers: wait longer for test_event_enable
 Date:   Wed, 28 Dec 2022 15:27:42 +0100
-Message-Id: <20221228144330.087969525@linuxfoundation.org>
+Message-Id: <20221228144333.496195760@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Yipeng Zou <zouyipeng@huawei.com>
 
-[ Upstream commit 69236d2391b4d7324b11c3252921571577892e7b ]
+[ Upstream commit a1d6cd88c8973cfb08ee85722488b1d6d5d16327 ]
 
-BDF of resource in DT assigned-addresses property of Marvell PCIe Root Port
-(PCI-to-PCI bridge) should match BDF in address part in that DT node name
-as specified resource belongs to Marvell PCIe Root Port itself.
+In some platform, the schedule event may came slowly, delay 100ms can't
+cover it.
 
-Fixes: 538da83ddbea ("ARM: mvebu: add Device Tree files for Armada 39x SoC and board")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+I was notice that on my board which running in low cpu_freq,and this
+selftests allways gose fail.
+
+So maybe we can check more times here to wait longer.
+
+Fixes: 43bb45da82f9 ("selftests: ftrace: Add a selftest to test event enable/disable func trigger")
+Signed-off-by: Yipeng Zou <zouyipeng@huawei.com>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/armada-39x.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ .../ftrace/test.d/ftrace/func_event_triggers.tc   | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/armada-39x.dtsi b/arch/arm/boot/dts/armada-39x.dtsi
-index e0b7c2099831..9525e7b7f436 100644
---- a/arch/arm/boot/dts/armada-39x.dtsi
-+++ b/arch/arm/boot/dts/armada-39x.dtsi
-@@ -453,7 +453,7 @@ pcie@1,0 {
- 			/* x1 port */
- 			pcie@2,0 {
- 				device_type = "pci";
--				assigned-addresses = <0x82000800 0 0x40000 0 0x2000>;
-+				assigned-addresses = <0x82001000 0 0x40000 0 0x2000>;
- 				reg = <0x1000 0 0 0 0>;
- 				#address-cells = <3>;
- 				#size-cells = <2>;
-@@ -472,7 +472,7 @@ pcie@2,0 {
- 			/* x1 port */
- 			pcie@3,0 {
- 				device_type = "pci";
--				assigned-addresses = <0x82000800 0 0x44000 0 0x2000>;
-+				assigned-addresses = <0x82001800 0 0x44000 0 0x2000>;
- 				reg = <0x1800 0 0 0 0>;
- 				#address-cells = <3>;
- 				#size-cells = <2>;
-@@ -494,7 +494,7 @@ pcie@3,0 {
- 			 */
- 			pcie@4,0 {
- 				device_type = "pci";
--				assigned-addresses = <0x82000800 0 0x48000 0 0x2000>;
-+				assigned-addresses = <0x82002000 0 0x48000 0 0x2000>;
- 				reg = <0x2000 0 0 0 0>;
- 				#address-cells = <3>;
- 				#size-cells = <2>;
+diff --git a/tools/testing/selftests/ftrace/test.d/ftrace/func_event_triggers.tc b/tools/testing/selftests/ftrace/test.d/ftrace/func_event_triggers.tc
+index 8d26d5505808..3eea2abf68f9 100644
+--- a/tools/testing/selftests/ftrace/test.d/ftrace/func_event_triggers.tc
++++ b/tools/testing/selftests/ftrace/test.d/ftrace/func_event_triggers.tc
+@@ -38,11 +38,18 @@ cnt_trace() {
+ 
+ test_event_enabled() {
+     val=$1
++    check_times=10		# wait for 10 * SLEEP_TIME at most
+ 
+-    e=`cat $EVENT_ENABLE`
+-    if [ "$e" != $val ]; then
+-	fail "Expected $val but found $e"
+-    fi
++    while [ $check_times -ne 0 ]; do
++	e=`cat $EVENT_ENABLE`
++	if [ "$e" == $val ]; then
++	    return 0
++	fi
++	sleep $SLEEP_TIME
++	check_times=$((check_times - 1))
++    done
++
++    fail "Expected $val but found $e"
+ }
+ 
+ run_enable_disable() {
 -- 
 2.35.1
 
