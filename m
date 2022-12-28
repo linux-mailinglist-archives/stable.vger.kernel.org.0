@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADFDE657E85
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:54:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7D15657F91
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:06:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230012AbiL1Pyg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:54:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42114 "EHLO
+        id S234012AbiL1QGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:06:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234143AbiL1Pye (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:54:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB281186E8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:54:32 -0800 (PST)
+        with ESMTP id S233086AbiL1QGO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:06:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C996E3AD
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:06:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96C45B81730
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:54:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0622DC433F0;
-        Wed, 28 Dec 2022 15:54:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5DB4061560
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:06:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44F90C433D2;
+        Wed, 28 Dec 2022 16:06:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242870;
-        bh=76OIiZE+s4qxSlgHGf48T1DXekFgMb1lpPVjUNBeT6E=;
+        s=korg; t=1672243565;
+        bh=D/0aBaHzn5SFB1NyUoKmFvLKw/eY2lz8Z++VcCbMTJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EDmVbyOd3qz4/JqhCdhk3XJdqtXwmEK9VmVHpdUBlRExDYy9U1c0wcaOa7wEI5NqU
-         0GiyiSx7mwmhej883qRu48BYRe0YJlsZLcCrKbrtwlw/LAYJqjqouBhzsQq58y8tym
-         DZiSUMt7sg8B9DZaNRSrIqPBl1D2MC2JfQs6nOI0=
+        b=BRIupK5qH3fcDEVuwH0dYBL0ipinw4LalOi59LJ95OaPiu/OTPzv9kCoq8aD7mGtm
+         ER5xkUfk3U4M07xB6iSebJ+aUDqEjp68YNfrpDxNM6hYZ1c3vlXUv6V6VDCGBSXeTO
+         sEY1ybn2rAnm9YvydgbCTx6kCncvgyAtN+1HW6qI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Guenter Roeck <linux@roeck-us.net>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        patches@lists.linux.dev, Zhen Lei <thunder.leizhen@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0464/1073] hwmon: (jc42) Restore the min/max/critical temperatures on resume
+Subject: [PATCH 6.1 0513/1146] mmc: core: Normalize the error handling branch in sd_read_ext_regs()
 Date:   Wed, 28 Dec 2022 15:34:12 +0100
-Message-Id: <20221228144340.638680672@linuxfoundation.org>
+Message-Id: <20221228144344.109237786@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,81 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 084ed144c448fd5bc8ed5a58247153fbbfd115c3 ]
+[ Upstream commit fc02e2b52389c8fde02852b2f959c0b45f042bbd ]
 
-The JC42 compatible thermal sensor on Kingston KSM32ES8/16ME DIMMs
-(using Micron E-Die) is an ST Microelectronics STTS2004 (manufacturer
-0x104a, device 0x2201). It does not keep the previously programmed
-minimum, maximum and critical temperatures after system suspend and
-resume (which is a shutdown / startup cycle for the JC42 temperature
-sensor). This results in an alarm on system resume because the hardware
-default for these values is 0°C (so any environment temperature greater
-than 0°C will trigger the alarm).
+Let's use pr_err() to output the error messages and let's extend a comment
+to clarify why returning 0 (success) in one case make sense.
 
-Example before system suspend:
-  jc42-i2c-0-1a
-  Adapter: SMBus PIIX4 adapter port 0 at 0b00
-  temp1:        +34.8°C  (low  =  +0.0°C)
-                         (high = +85.0°C, hyst = +85.0°C)
-                         (crit = +95.0°C, hyst = +95.0°C)
-
-Example after system resume (without this change):
-  jc42-i2c-0-1a
-  Adapter: SMBus PIIX4 adapter port 0 at 0b00
-  temp1:        +34.8°C  (low  =  +0.0°C)             ALARM (HIGH, CRIT)
-                         (high =  +0.0°C, hyst =  +0.0°C)
-                         (crit =  +0.0°C, hyst =  +0.0°C)
-
-Apply the cached values from the JC42_REG_TEMP_UPPER,
-JC42_REG_TEMP_LOWER, JC42_REG_TEMP_CRITICAL and JC42_REG_SMBUS (where
-the SMBUS register is not related to this issue but a side-effect of
-using regcache_sync() during system resume with the previously
-cached/programmed values. This fixes the alarm due to the hardware
-defaults of 0°C because the previously applied limits (set by userspace)
-are re-applied on system resume.
-
-Fixes: 175c490c9e7f ("hwmon: (jc42) Add support for STTS2004 and AT30TSE004")
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Link: https://lore.kernel.org/r/20221023213157.11078-3-martin.blumenstingl@googlemail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: c784f92769ae ("mmc: core: Read the SD function extension registers for power management")
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+[Ulf: Clarified the comment and the commit-msg]
+Link: https://lore.kernel.org/r/20221130134920.2109-1-thunder.leizhen@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/jc42.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/mmc/core/sd.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hwmon/jc42.c b/drivers/hwmon/jc42.c
-index 96bffd5b5866..5004b17c5682 100644
---- a/drivers/hwmon/jc42.c
-+++ b/drivers/hwmon/jc42.c
-@@ -579,6 +579,10 @@ static int jc42_suspend(struct device *dev)
+diff --git a/drivers/mmc/core/sd.c b/drivers/mmc/core/sd.c
+index 3662bf5320ce..72b664ed90cf 100644
+--- a/drivers/mmc/core/sd.c
++++ b/drivers/mmc/core/sd.c
+@@ -1259,7 +1259,7 @@ static int sd_read_ext_regs(struct mmc_card *card)
+ 	 */
+ 	err = sd_read_ext_reg(card, 0, 0, 0, 512, gen_info_buf);
+ 	if (err) {
+-		pr_warn("%s: error %d reading general info of SD ext reg\n",
++		pr_err("%s: error %d reading general info of SD ext reg\n",
+ 			mmc_hostname(card->host), err);
+ 		goto out;
+ 	}
+@@ -1273,7 +1273,12 @@ static int sd_read_ext_regs(struct mmc_card *card)
+ 	/* Number of extensions to be find. */
+ 	num_ext = gen_info_buf[4];
  
- 	data->config |= JC42_CFG_SHUTDOWN;
- 	regmap_write(data->regmap, JC42_REG_CONFIG, data->config);
-+
-+	regcache_cache_only(data->regmap, true);
-+	regcache_mark_dirty(data->regmap);
-+
- 	return 0;
- }
- 
-@@ -586,9 +590,13 @@ static int jc42_resume(struct device *dev)
- {
- 	struct jc42_data *data = dev_get_drvdata(dev);
- 
-+	regcache_cache_only(data->regmap, false);
-+
- 	data->config &= ~JC42_CFG_SHUTDOWN;
- 	regmap_write(data->regmap, JC42_REG_CONFIG, data->config);
--	return 0;
-+
-+	/* Restore cached register values to hardware */
-+	return regcache_sync(data->regmap);
- }
- 
- static const struct dev_pm_ops jc42_dev_pm_ops = {
+-	/* We support revision 0, but limit it to 512 bytes for simplicity. */
++	/*
++	 * We only support revision 0 and limit it to 512 bytes for simplicity.
++	 * No matter what, let's return zero to allow us to continue using the
++	 * card, even if we can't support the features from the SD function
++	 * extensions registers.
++	 */
+ 	if (rev != 0 || len > 512) {
+ 		pr_warn("%s: non-supported SD ext reg layout\n",
+ 			mmc_hostname(card->host));
+@@ -1288,7 +1293,7 @@ static int sd_read_ext_regs(struct mmc_card *card)
+ 	for (i = 0; i < num_ext; i++) {
+ 		err = sd_parse_ext_reg(card, gen_info_buf, &next_ext_addr);
+ 		if (err) {
+-			pr_warn("%s: error %d parsing SD ext reg\n",
++			pr_err("%s: error %d parsing SD ext reg\n",
+ 				mmc_hostname(card->host), err);
+ 			goto out;
+ 		}
 -- 
 2.35.1
 
