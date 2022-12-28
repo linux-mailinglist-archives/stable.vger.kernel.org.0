@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85EEB657DF9
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:48:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDEA5657CE3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:37:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233631AbiL1Psy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:48:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36750 "EHLO
+        id S233496AbiL1PhH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:37:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234072AbiL1Pso (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:48:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C56F617E39
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:48:42 -0800 (PST)
+        with ESMTP id S233906AbiL1PhG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:37:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37FF01583A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:37:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80112B81733
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:48:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9450C433D2;
-        Wed, 28 Dec 2022 15:48:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A887E61553
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:37:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4E8FC433EF;
+        Wed, 28 Dec 2022 15:37:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242520;
-        bh=EyQ++/BKTEpOyoxOhcI6CKqke6ZcQmhSGSi5ClADbY0=;
+        s=korg; t=1672241824;
+        bh=4h8fdag6PiD4pASxuEOiuNSqNb3x9Xu2YOvM4cTWoIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BeFUNwB2HuJeT8P34w37EVI2UGduZPncosX/htL77sZ1sp5fm10cIdu5qT6tZteHx
-         R7y3/YhE52gc2xBXGvKqvO29w5CHCF241db/qCDLfDrikUL2dR9DwTuTbI7W44edR2
-         4ZFDjI5+ip21sn+D3Glcg/9OjBf6QOjKcw4XhKVU=
+        b=fmuTjzHqXVwz8kftzOVvLkVt5X8SvG+t9g3+AL1mKvfA0PeurSw8knU5yizUIVeLh
+         s5khoqOmjMijc+nktfsN19C20q/tDI6HOMDFnCsHutaX/3cGVVwpiL+0DpLFexjjlc
+         R05E2WW4B9C5eVSizEFV/3HdbR7q7s3eFm/Oa0+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0379/1146] clk: rockchip: Fix memory leak in rockchip_clk_register_pll()
-Date:   Wed, 28 Dec 2022 15:31:58 +0100
-Message-Id: <20221228144340.460430848@linuxfoundation.org>
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        Yu Kuai <yukuai3@huawei.com>,
+        Mike Snitzer <snitzer@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0331/1073] dm: cleanup open_table_device
+Date:   Wed, 28 Dec 2022 15:31:59 +0100
+Message-Id: <20221228144336.994508625@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 739a6a6bbdb793bd57938cb24aa5a6df89983546 ]
+[ Upstream commit b9a785d2dc6567b2fd9fc60057a6a945a276927a ]
 
-If clk_register() fails, @pll->rate_table may have allocated memory by
-kmemdup(), so it needs to be freed, otherwise will cause memory leak
-issue, this patch fixes it.
+Move all the logic for allocation the table_device and linking it into
+the list into the open_table_device.  This keeps the code tidy and
+ensures that the table_devices only exist in fully initialized state.
 
-Fixes: 90c590254051 ("clk: rockchip: add clock type for pll clocks and pll used on rk3066")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Link: https://lore.kernel.org/r/20221123091201.199819-1-xiujianfeng@huawei.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Mike Snitzer <snitzer@kernel.org>
+Link: https://lore.kernel.org/r/20221115141054.1051801-4-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Stable-dep-of: 1a581b721699 ("dm: track per-add_disk holder relations in DM")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/rockchip/clk-pll.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/md/dm.c | 56 ++++++++++++++++++++++++-------------------------
+ 1 file changed, 27 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/clk/rockchip/clk-pll.c b/drivers/clk/rockchip/clk-pll.c
-index f7827b3b7fc1..6e5e502be44a 100644
---- a/drivers/clk/rockchip/clk-pll.c
-+++ b/drivers/clk/rockchip/clk-pll.c
-@@ -981,6 +981,7 @@ struct clk *rockchip_clk_register_pll(struct rockchip_clk_provider *ctx,
- 	return mux_clk;
+diff --git a/drivers/md/dm.c b/drivers/md/dm.c
+index b4a2cb5333fc..1903afa4618a 100644
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -732,28 +732,41 @@ static char *_dm_claim_ptr = "I belong to device-mapper";
+ /*
+  * Open a table device so we can use it as a map destination.
+  */
+-static int open_table_device(struct table_device *td, dev_t dev,
+-			     struct mapped_device *md)
++static struct table_device *open_table_device(struct mapped_device *md,
++		dev_t dev, fmode_t mode)
+ {
++	struct table_device *td;
+ 	struct block_device *bdev;
+ 	u64 part_off;
+ 	int r;
  
- err_pll:
-+	kfree(pll->rate_table);
- 	clk_unregister(mux_clk);
- 	mux_clk = pll_clk;
- err_mux:
+-	BUG_ON(td->dm_dev.bdev);
++	td = kmalloc_node(sizeof(*td), GFP_KERNEL, md->numa_node_id);
++	if (!td)
++		return ERR_PTR(-ENOMEM);
++	refcount_set(&td->count, 1);
+ 
+-	bdev = blkdev_get_by_dev(dev, td->dm_dev.mode | FMODE_EXCL, _dm_claim_ptr);
+-	if (IS_ERR(bdev))
+-		return PTR_ERR(bdev);
++	bdev = blkdev_get_by_dev(dev, mode | FMODE_EXCL, _dm_claim_ptr);
++	if (IS_ERR(bdev)) {
++		r = PTR_ERR(bdev);
++		goto out_free_td;
++	}
+ 
+ 	r = bd_link_disk_holder(bdev, dm_disk(md));
+-	if (r) {
+-		blkdev_put(bdev, td->dm_dev.mode | FMODE_EXCL);
+-		return r;
+-	}
++	if (r)
++		goto out_blkdev_put;
+ 
++	td->dm_dev.mode = mode;
+ 	td->dm_dev.bdev = bdev;
+ 	td->dm_dev.dax_dev = fs_dax_get_by_bdev(bdev, &part_off, NULL, NULL);
+-	return 0;
++	format_dev_t(td->dm_dev.name, dev);
++	list_add(&td->list, &md->table_devices);
++	return td;
++
++out_blkdev_put:
++	blkdev_put(bdev, mode | FMODE_EXCL);
++out_free_td:
++	kfree(td);
++	return ERR_PTR(r);
+ }
+ 
+ /*
+@@ -786,31 +799,16 @@ static struct table_device *find_table_device(struct list_head *l, dev_t dev,
+ int dm_get_table_device(struct mapped_device *md, dev_t dev, fmode_t mode,
+ 			struct dm_dev **result)
+ {
+-	int r;
+ 	struct table_device *td;
+ 
+ 	mutex_lock(&md->table_devices_lock);
+ 	td = find_table_device(&md->table_devices, dev, mode);
+ 	if (!td) {
+-		td = kmalloc_node(sizeof(*td), GFP_KERNEL, md->numa_node_id);
+-		if (!td) {
+-			mutex_unlock(&md->table_devices_lock);
+-			return -ENOMEM;
+-		}
+-
+-		td->dm_dev.mode = mode;
+-		td->dm_dev.bdev = NULL;
+-
+-		if ((r = open_table_device(td, dev, md))) {
++		td = open_table_device(md, dev, mode);
++		if (IS_ERR(td)) {
+ 			mutex_unlock(&md->table_devices_lock);
+-			kfree(td);
+-			return r;
++			return PTR_ERR(td);
+ 		}
+-
+-		format_dev_t(td->dm_dev.name, dev);
+-
+-		refcount_set(&td->count, 1);
+-		list_add(&td->list, &md->table_devices);
+ 	} else {
+ 		refcount_inc(&td->count);
+ 	}
 -- 
 2.35.1
 
