@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 056256579C5
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:04:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 890C3657ADD
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:15:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233504AbiL1PEd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:04:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52084 "EHLO
+        id S233119AbiL1PPp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:15:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233501AbiL1PEb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:04:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0D2C13D40
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:04:30 -0800 (PST)
+        with ESMTP id S233052AbiL1PPn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:15:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72CBE226
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:15:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CC316154E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:04:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94668C433D2;
-        Wed, 28 Dec 2022 15:04:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2A10EB8172C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:15:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76BFEC433D2;
+        Wed, 28 Dec 2022 15:15:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239870;
-        bh=ZaxVzrrKeC0+AxsyMBxgRBrWUXjgwt8XTpTbLK7TLBM=;
+        s=korg; t=1672240539;
+        bh=1o4b6ux47ElfBz8ppsDDtaebJJOsA5dNlSdP9KGmD74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NOG6ukoPmgVe3LSNmQ/gRwao9P4reBnHl1ecs0LQmG1EdQVwThbcpK8RcFpx+9VGa
-         +MC36JGHDfB7ZRslM3mg4XRexKVCDut1dbqOxiHzRGbfT2GvnJELhXzkU+v1R8s1H6
-         VZZntvZo4u8HEODRDOF//hgodbeJLW4xJz2UO90Q=
+        b=uUn5itE0UOdS2+JZp9Xw3+WjK0s7OrngPkS3fbctpR9ZP9SMnUqU2KUkOnqpBLE3C
+         5cjsUcX3Ta7rhLEc/jOICU3689ReLwFkP8D+OpVyQ6rNKfxsMVwT+sx4Am9rmooN7p
+         DrR1J8F4jcNqc7jfRZhfgELcBHLeiz7N6dRDUuMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eddie James <eajames@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0088/1073] tpm: tis_i2c: Fix sanity check interrupt enable mask
+        patches@lists.linux.dev, Huisong Li <lihuisong@huawei.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0137/1146] mailbox: pcc: Reset pcc_chan_count to zero in case of PCC probe failure
 Date:   Wed, 28 Dec 2022 15:27:56 +0100
-Message-Id: <20221228144330.448613807@linuxfoundation.org>
+Message-Id: <20221228144333.870987602@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddie James <eajames@linux.ibm.com>
+From: Huisong Li <lihuisong@huawei.com>
 
-[ Upstream commit 561d6ef75628db9cce433e573aa3cdb6b3bba903 ]
+[ Upstream commit 6d7d3c287410c0ad499e478e2338dc3d7e3392b1 ]
 
-The sanity check mask for TPM_INT_ENABLE register was off by 8 bits,
-resulting in failure to probe if the TPM_INT_ENABLE register was a
-valid value.
+Currently, 'pcc_chan_count' is remains set to a non-zero value if PCC
+subspaces are parsed successfully but something else fail later during
+the initial PCC probing phase. This will result in pcc_mbox_request_channel
+trying to access the resources that are not initialised or allocated and
+may end up in a system crash.
 
-Fixes: bbc23a07b072 ("tpm: Add tpm_tis_i2c backend for tpm_tis_core")
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Tested-by: Joel Stanley <joel@jms.id.au>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Reset pcc_chan_count to 0 when the PCC probe fails in order to prevent
+the possible issue as described above.
+
+Fixes: ce028702ddbc ("mailbox: pcc: Move bulk of PCCT parsing into pcc_mbox_probe")
+Signed-off-by: Huisong Li <lihuisong@huawei.com>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/tpm_tis_i2c.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mailbox/pcc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/char/tpm/tpm_tis_i2c.c b/drivers/char/tpm/tpm_tis_i2c.c
-index ba0911b1d1ff..29f0db41c0b7 100644
---- a/drivers/char/tpm/tpm_tis_i2c.c
-+++ b/drivers/char/tpm/tpm_tis_i2c.c
-@@ -49,7 +49,7 @@
+diff --git a/drivers/mailbox/pcc.c b/drivers/mailbox/pcc.c
+index 3c2bc0ca454c..105d46c9801b 100644
+--- a/drivers/mailbox/pcc.c
++++ b/drivers/mailbox/pcc.c
+@@ -743,6 +743,7 @@ static int __init pcc_init(void)
  
- /* Masks with bits that must be read zero */
- #define TPM_ACCESS_READ_ZERO 0x48
--#define TPM_INT_ENABLE_ZERO 0x7FFFFF6
-+#define TPM_INT_ENABLE_ZERO 0x7FFFFF60
- #define TPM_STS_READ_ZERO 0x23
- #define TPM_INTF_CAPABILITY_ZERO 0x0FFFF000
- #define TPM_I2C_INTERFACE_CAPABILITY_ZERO 0x80000000
+ 	if (IS_ERR(pcc_pdev)) {
+ 		pr_debug("Err creating PCC platform bundle\n");
++		pcc_chan_count = 0;
+ 		return PTR_ERR(pcc_pdev);
+ 	}
+ 
 -- 
 2.35.1
 
