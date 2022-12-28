@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44F9C6578B6
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:53:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABD67657ECB
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:57:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233196AbiL1Oxf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:53:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40846 "EHLO
+        id S234191AbiL1P5k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:57:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233130AbiL1OxU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:53:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E697ECE2B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:53:18 -0800 (PST)
+        with ESMTP id S234200AbiL1P5j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:57:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 819261838C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:57:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83333614B2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:53:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F14FC433D2;
-        Wed, 28 Dec 2022 14:53:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 20372B8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:57:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EABEC433EF;
+        Wed, 28 Dec 2022 15:57:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239197;
-        bh=Q0E3ZwG4G3x8VNjb9ig0fjthRN2Y8ZIYQ9LNdqrYP5Y=;
+        s=korg; t=1672243055;
+        bh=aNoUJxHkrs5Gf/DNei8WBoulFD7PDdaQ3IBmis583kA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wTPsQBXfqu5wIfC5GuoBYPPQFEVJngGyB7NO3ic1AjqAz831dYVzmgQlMWgHguuAx
-         9c12oKXufP/7B+r5usFjh+jvfY1Rwk3A004hR8E2BOJnRTu62W8MPh05wrICtWQF2T
-         ExTx9o6xsC5E8PMRK1VupN2OztsC29WcMkMUd0io=
+        b=LsBVPVKOkqfKSF8FPlmhxKIF9NNdsslGI/A3SRnFJD7hLGZd97LCukyu2HJP52/nP
+         ehmR5lM7bfmGnk5PxYMO5U9jph7Uau8Aa8IuYRoYrpAGcgYiTTr94MZc+QIB+jrNNT
+         DrXyxbXqolcQ2NknBvdFsCNZBmxNbgWdTR5WBqKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jimmy Assarsson <extja@kvaser.com>,
-        Anssi Hannula <anssi.hannula@bitwise.fi>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 165/731] can: kvaser_usb_leaf: Set Warning state even without bus errors
-Date:   Wed, 28 Dec 2022 15:34:32 +0100
-Message-Id: <20221228144301.344568400@linuxfoundation.org>
+Subject: [PATCH 6.0 0485/1073] mmc: vub300: fix return value check of mmc_add_host()
+Date:   Wed, 28 Dec 2022 15:34:33 +0100
+Message-Id: <20221228144341.210751067@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,74 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anssi Hannula <anssi.hannula@bitwise.fi>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit df1b7af2761b935f63b4a53e789d41ed859edf61 ]
+[ Upstream commit 0613ad2401f88bdeae5594c30afe318e93b14676 ]
 
-kvaser_usb_leaf_rx_error_update_can_state() sets error state according
-to error counters when the hardware does not indicate a specific state
-directly.
+mmc_add_host() may return error, if we ignore its return value, the memory
+that allocated in mmc_alloc_host() will be leaked and it will lead a kernel
+crash because of deleting not added device in the remove path.
 
-However, this is currently gated behind a check for
-M16C_STATE_BUS_ERROR which does not always seem to be set when error
-counters are increasing, and may not be set when error counters are
-decreasing.
+So fix this by checking the return value and goto error path which will call
+mmc_free_host(), besides, the timer added before mmc_add_host() needs be del.
 
-This causes the CAN_STATE_ERROR_WARNING state to not be set in some
-cases even when appropriate.
+And this patch fixes another missing call mmc_free_host() if usb_control_msg()
+fails.
 
-Change the code to set error state from counters even without
-M16C_STATE_BUS_ERROR.
-
-The Error-Passive case seems superfluous as it is already set via
-M16C_STATE_BUS_PASSIVE flag above, but it is kept for now.
-
-Tested with 0bfd:0124 Kvaser Mini PCI Express 2xHS FW 4.18.778.
-
-Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
-Tested-by: Jimmy Assarsson <extja@kvaser.com>
-Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
-Link: https://lore.kernel.org/all/20221010185237.319219-6-extja@kvaser.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 88095e7b473a ("mmc: Add new VUB300 USB-to-SD/SDIO/MMC driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221101063023.1664968-9-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/can/usb/kvaser_usb/kvaser_usb_leaf.c  | 20 ++++++++-----------
- 1 file changed, 8 insertions(+), 12 deletions(-)
+ drivers/mmc/host/vub300.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-index a59cb4ea5456..a653318f583a 100644
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-@@ -965,20 +965,16 @@ kvaser_usb_leaf_rx_error_update_can_state(struct kvaser_usb_net_priv *priv,
- 		new_state = CAN_STATE_BUS_OFF;
- 	} else if (es->status & M16C_STATE_BUS_PASSIVE) {
- 		new_state = CAN_STATE_ERROR_PASSIVE;
--	} else if (es->status & M16C_STATE_BUS_ERROR) {
-+	} else if ((es->status & M16C_STATE_BUS_ERROR) &&
-+		   cur_state >= CAN_STATE_BUS_OFF) {
- 		/* Guard against spurious error events after a busoff */
--		if (cur_state < CAN_STATE_BUS_OFF) {
--			if (es->txerr >= 128 || es->rxerr >= 128)
--				new_state = CAN_STATE_ERROR_PASSIVE;
--			else if (es->txerr >= 96 || es->rxerr >= 96)
--				new_state = CAN_STATE_ERROR_WARNING;
--			else if (cur_state > CAN_STATE_ERROR_ACTIVE)
--				new_state = CAN_STATE_ERROR_ACTIVE;
--		}
--	}
--
--	if (!es->status)
-+	} else if (es->txerr >= 128 || es->rxerr >= 128) {
-+		new_state = CAN_STATE_ERROR_PASSIVE;
-+	} else if (es->txerr >= 96 || es->rxerr >= 96) {
-+		new_state = CAN_STATE_ERROR_WARNING;
-+	} else {
- 		new_state = CAN_STATE_ERROR_ACTIVE;
-+	}
- 
- 	if (new_state != cur_state) {
- 		tx_state = (es->txerr >= es->rxerr) ? new_state : 0;
+diff --git a/drivers/mmc/host/vub300.c b/drivers/mmc/host/vub300.c
+index 97beece62fec..ab36ec479747 100644
+--- a/drivers/mmc/host/vub300.c
++++ b/drivers/mmc/host/vub300.c
+@@ -2299,14 +2299,14 @@ static int vub300_probe(struct usb_interface *interface,
+ 				0x0000, 0x0000, &vub300->system_port_status,
+ 				sizeof(vub300->system_port_status), 1000);
+ 	if (retval < 0) {
+-		goto error4;
++		goto error5;
+ 	} else if (sizeof(vub300->system_port_status) == retval) {
+ 		vub300->card_present =
+ 			(0x0001 & vub300->system_port_status.port_flags) ? 1 : 0;
+ 		vub300->read_only =
+ 			(0x0010 & vub300->system_port_status.port_flags) ? 1 : 0;
+ 	} else {
+-		goto error4;
++		goto error5;
+ 	}
+ 	usb_set_intfdata(interface, vub300);
+ 	INIT_DELAYED_WORK(&vub300->pollwork, vub300_pollwork_thread);
+@@ -2329,8 +2329,13 @@ static int vub300_probe(struct usb_interface *interface,
+ 			 "USB vub300 remote SDIO host controller[%d]"
+ 			 "connected with no SD/SDIO card inserted\n",
+ 			 interface_to_InterfaceNumber(interface));
+-	mmc_add_host(mmc);
++	retval = mmc_add_host(mmc);
++	if (retval)
++		goto error6;
++
+ 	return 0;
++error6:
++	del_timer_sync(&vub300->inactivity_timer);
+ error5:
+ 	mmc_free_host(mmc);
+ 	/*
 -- 
 2.35.1
 
