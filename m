@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 35CFD658307
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57C2C657CD6
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:36:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233233AbiL1QoI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:44:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36986 "EHLO
+        id S233401AbiL1Pgg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:36:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233348AbiL1Qnn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:43 -0500
+        with ESMTP id S233150AbiL1Pge (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:36:34 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A40C324
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:38:16 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90CD8140DA
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:36:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC7B1B816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:38:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50A12C433F0;
-        Wed, 28 Dec 2022 16:38:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 31875B81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:36:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B9FAC433EF;
+        Wed, 28 Dec 2022 15:36:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245493;
-        bh=AJI6k/9Bs1e+aX6ppx/bBe1+BG7dZm6i6FA2mQ1gwcI=;
+        s=korg; t=1672241790;
+        bh=UMZxzUxM2w3yHHaiV/fL6Jcn9pycH5IaWXvnE/dl/TQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HoN0uMdNP9xszvSEMScpBAvnE4es46RHcRzQRIkhd0Utwis5kYAiim5L1cLPG7dZJ
-         E873LqsVUAT6Pln0hRlZZ7SWVx65OEdlx7eALWUc9KxVHI1lY6vEWcBrG5TjlBcOol
-         hx8HOLIFbHe/26fh7j2TaatAyslgplwv5kI7KH+Y=
+        b=Uza5u+gVXbgTCSNdPC2GvqUhtuK6J/XgJjAAbRQ2Oc8OpU5TUsr1YsoJnjLRvqk2X
+         ZJgebg7nS9IXVFCuYzdGqSNFikXM1K//JuKuyE6TY9Xo0Kv9nVXgYXPO4wwcFOmjSP
+         nSdtGqxHhT9kgzfCQ+mn5qWAZ6GKOzBybe9uPvqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Daniel Lezcano <daniel.lezcano@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0870/1146] remoteproc: sysmon: fix memory leak in qcom_add_sysmon_subdev()
+Subject: [PATCH 5.15 502/731] thermal/drivers/qcom/lmh: Fix irq handler return value
 Date:   Wed, 28 Dec 2022 15:40:09 +0100
-Message-Id: <20221228144353.799074997@linuxfoundation.org>
+Message-Id: <20221228144311.099596306@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit e01ce676aaef3b13d02343d7e70f9637d93a3367 ]
+[ Upstream commit 46a891e45be97c6781ac34f5ec777d69370e252b ]
 
-The kfree() should be called when of_irq_get_byname() fails or
-devm_request_threaded_irq() fails in qcom_add_sysmon_subdev(),
-otherwise there will be a memory leak, so add kfree() to fix it.
+After enough invocations the LMh irq is eventually reported as bad, because the
+handler doesn't return IRQ_HANDLED, fix this.
 
-Fixes: 027045a6e2b7 ("remoteproc: qcom: Add shutdown-ack irq")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221129105650.1539187-1-cuigaosheng1@huawei.com
+Fixes: 53bca371cdf7 ("thermal/drivers/qcom: Add support for LMh driver")
+Reported-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20220316180322.88132-1-bjorn.andersson@linaro.org
+Signed-off-by: Daniel Lezcano <daniel.lezcano@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/qcom_sysmon.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/thermal/qcom/lmh.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/remoteproc/qcom_sysmon.c b/drivers/remoteproc/qcom_sysmon.c
-index 57dde2a69b9d..15af52f8499e 100644
---- a/drivers/remoteproc/qcom_sysmon.c
-+++ b/drivers/remoteproc/qcom_sysmon.c
-@@ -652,7 +652,9 @@ struct qcom_sysmon *qcom_add_sysmon_subdev(struct rproc *rproc,
- 		if (sysmon->shutdown_irq != -ENODATA) {
- 			dev_err(sysmon->dev,
- 				"failed to retrieve shutdown-ack IRQ\n");
--			return ERR_PTR(sysmon->shutdown_irq);
-+			ret = sysmon->shutdown_irq;
-+			kfree(sysmon);
-+			return ERR_PTR(ret);
- 		}
- 	} else {
- 		ret = devm_request_threaded_irq(sysmon->dev,
-@@ -663,6 +665,7 @@ struct qcom_sysmon *qcom_add_sysmon_subdev(struct rproc *rproc,
- 		if (ret) {
- 			dev_err(sysmon->dev,
- 				"failed to acquire shutdown-ack IRQ\n");
-+			kfree(sysmon);
- 			return ERR_PTR(ret);
- 		}
- 	}
+diff --git a/drivers/thermal/qcom/lmh.c b/drivers/thermal/qcom/lmh.c
+index eafa7526eb8b..cc94d8b005d4 100644
+--- a/drivers/thermal/qcom/lmh.c
++++ b/drivers/thermal/qcom/lmh.c
+@@ -43,7 +43,7 @@ static irqreturn_t lmh_handle_irq(int hw_irq, void *data)
+ 	if (irq)
+ 		generic_handle_irq(irq);
+ 
+-	return 0;
++	return IRQ_HANDLED;
+ }
+ 
+ static void lmh_enable_interrupt(struct irq_data *d)
 -- 
 2.35.1
 
