@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10C8165832D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D059658280
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:37:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234984AbiL1Qow (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:44:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55708 "EHLO
+        id S234874AbiL1QhL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:37:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235024AbiL1QgU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:36:20 -0500
+        with ESMTP id S233711AbiL1QgZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:36:25 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD6B51BE8C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:32:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E413D167E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:32:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6514AB8171E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:32:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B513FC433D2;
-        Wed, 28 Dec 2022 16:32:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 99D63B816F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:32:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03320C433EF;
+        Wed, 28 Dec 2022 16:32:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245162;
-        bh=d0MDth/qfY9cxyxy3Zk9k5EtCVwww8sBDvtx9JZk5d8=;
+        s=korg; t=1672245167;
+        bh=/i/jO8lqBGMdg0NVwjFTcwnqMV74SH0Tx0c5CjoSec8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qXkmib7iRy+U9vp2EXLq6BryBhuy/05f9B6Bq9hCmJB08RILFbNyMuu+x8JZ0AICs
-         CGk2TeoL2n3/jwtiOdWehs0n3boDO8GLNWgeylqratlFrXosa7GVZDLPP6BPhLAcQA
-         ZPnt3FEqAztzkU1hqtWTmRJtxV1N8PCz9fwZkTW4=
+        b=sFA8hYjzmqqsIKkY9UKjeDzeJB+RsitkjmPyKkEXmKFEwo+sXz0y+kuy3pYrdb18a
+         th580GHw/NKU62EHoePYhdTzOBIaCXQbUUp8tznp8o2oqiG/Yob/Amwgncsvugxf7g
+         F/3Eq69lTrpOvWMJ/+oM7agiRbm60HSP2Krrof14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Alexander Duyck <alexanderduyck@fb.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
+        Yu Kuai <yukuai3@huawei.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0843/1073] mISDN: hfcmulti: dont call dev_kfree_skb/kfree_skb() under spin_lock_irqsave()
-Date:   Wed, 28 Dec 2022 15:40:31 +0100
-Message-Id: <20221228144350.919123830@linuxfoundation.org>
+Subject: [PATCH 6.0 0844/1073] block, bfq: fix possible uaf for bfqq->bic
+Date:   Wed, 28 Dec 2022 15:40:32 +0100
+Message-Id: <20221228144350.946931172@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -54,109 +53,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 1232946cf522b8de9e398828bde325d7c41f29dd ]
+[ Upstream commit 64dc8c732f5c2b406cc752e6aaa1bd5471159cab ]
 
-It is not allowed to call kfree_skb() or consume_skb() from hardware
-interrupt context or with hardware interrupts being disabled.
+Our test report a uaf for 'bfqq->bic' in 5.10:
 
-skb_queue_purge() is called under spin_lock_irqsave() in handle_dmsg()
-and hfcm_l1callback(), kfree_skb() is called in them, to fix this, use
-skb_queue_splice_init() to move the dch->squeue to a free queue, also
-enqueue the tx_skb and rx_skb, at last calling __skb_queue_purge() to
-free the SKBs afer unlock.
+==================================================================
+BUG: KASAN: use-after-free in bfq_select_queue+0x378/0xa30
 
-Fixes: af69fb3a8ffa ("Add mISDN HFC multiport driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+CPU: 6 PID: 2318352 Comm: fsstress Kdump: loaded Not tainted 5.10.0-60.18.0.50.h602.kasan.eulerosv2r11.x86_64 #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58-20220320_160524-szxrtosci10000 04/01/2014
+Call Trace:
+ bfq_select_queue+0x378/0xa30
+ bfq_dispatch_request+0xe8/0x130
+ blk_mq_do_dispatch_sched+0x62/0xb0
+ __blk_mq_sched_dispatch_requests+0x215/0x2a0
+ blk_mq_sched_dispatch_requests+0x8f/0xd0
+ __blk_mq_run_hw_queue+0x98/0x180
+ __blk_mq_delay_run_hw_queue+0x22b/0x240
+ blk_mq_run_hw_queue+0xe3/0x190
+ blk_mq_sched_insert_requests+0x107/0x200
+ blk_mq_flush_plug_list+0x26e/0x3c0
+ blk_finish_plug+0x63/0x90
+ __iomap_dio_rw+0x7b5/0x910
+ iomap_dio_rw+0x36/0x80
+ ext4_dio_read_iter+0x146/0x190 [ext4]
+ ext4_file_read_iter+0x1e2/0x230 [ext4]
+ new_sync_read+0x29f/0x400
+ vfs_read+0x24e/0x2d0
+ ksys_read+0xd5/0x1b0
+ do_syscall_64+0x33/0x40
+ entry_SYSCALL_64_after_hwframe+0x61/0xc6
+
+Commit 3bc5e683c67d ("bfq: Split shared queues on move between cgroups")
+changes that move process to a new cgroup will allocate a new bfqq to
+use, however, the old bfqq and new bfqq can point to the same bic:
+
+1) Initial state, two process with io in the same cgroup.
+
+Process 1       Process 2
+ (BIC1)          (BIC2)
+  |  Λ            |  Λ
+  |  |            |  |
+  V  |            V  |
+  bfqq1           bfqq2
+
+2) bfqq1 is merged to bfqq2.
+
+Process 1       Process 2
+ (BIC1)          (BIC2)
+  |               |
+   \-------------\|
+                  V
+  bfqq1           bfqq2(coop)
+
+3) Process 1 exit, then issue new io(denoce IOA) from Process 2.
+
+ (BIC2)
+  |  Λ
+  |  |
+  V  |
+  bfqq2(coop)
+
+4) Before IOA is completed, move Process 2 to another cgroup and issue io.
+
+Process 2
+ (BIC2)
+   Λ
+   |\--------------\
+   |                V
+  bfqq2           bfqq3
+
+Now that BIC2 points to bfqq3, while bfqq2 and bfqq3 both point to BIC2.
+If all the requests are completed, and Process 2 exit, BIC2 will be
+freed while there is no guarantee that bfqq2 will be freed before BIC2.
+
+Fix the problem by clearing bfqq->bic while bfqq is detached from bic.
+
+Fixes: 3bc5e683c67d ("bfq: Split shared queues on move between cgroups")
+Suggested-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20221214030430.3304151-1-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/hardware/mISDN/hfcmulti.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ block/bfq-iosched.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/isdn/hardware/mISDN/hfcmulti.c b/drivers/isdn/hardware/mISDN/hfcmulti.c
-index 4f7eaa17fb27..e840609c50eb 100644
---- a/drivers/isdn/hardware/mISDN/hfcmulti.c
-+++ b/drivers/isdn/hardware/mISDN/hfcmulti.c
-@@ -3217,6 +3217,7 @@ static int
- hfcm_l1callback(struct dchannel *dch, u_int cmd)
- {
- 	struct hfc_multi	*hc = dch->hw;
-+	struct sk_buff_head	free_queue;
- 	u_long	flags;
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index 68872a61706a..528ca21044a5 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -386,6 +386,12 @@ static void bfq_put_stable_ref(struct bfq_queue *bfqq);
  
- 	switch (cmd) {
-@@ -3245,6 +3246,7 @@ hfcm_l1callback(struct dchannel *dch, u_int cmd)
- 		l1_event(dch->l1, HW_POWERUP_IND);
- 		break;
- 	case HW_DEACT_REQ:
-+		__skb_queue_head_init(&free_queue);
- 		/* start deactivation */
- 		spin_lock_irqsave(&hc->lock, flags);
- 		if (hc->ctype == HFC_TYPE_E1) {
-@@ -3264,20 +3266,21 @@ hfcm_l1callback(struct dchannel *dch, u_int cmd)
- 				plxsd_checksync(hc, 0);
- 			}
- 		}
--		skb_queue_purge(&dch->squeue);
-+		skb_queue_splice_init(&dch->squeue, &free_queue);
- 		if (dch->tx_skb) {
--			dev_kfree_skb(dch->tx_skb);
-+			__skb_queue_tail(&free_queue, dch->tx_skb);
- 			dch->tx_skb = NULL;
- 		}
- 		dch->tx_idx = 0;
- 		if (dch->rx_skb) {
--			dev_kfree_skb(dch->rx_skb);
-+			__skb_queue_tail(&free_queue, dch->rx_skb);
- 			dch->rx_skb = NULL;
- 		}
- 		test_and_clear_bit(FLG_TX_BUSY, &dch->Flags);
- 		if (test_and_clear_bit(FLG_BUSY_TIMER, &dch->Flags))
- 			del_timer(&dch->timer);
- 		spin_unlock_irqrestore(&hc->lock, flags);
-+		__skb_queue_purge(&free_queue);
- 		break;
- 	case HW_POWERUP_REQ:
- 		spin_lock_irqsave(&hc->lock, flags);
-@@ -3384,6 +3387,9 @@ handle_dmsg(struct mISDNchannel *ch, struct sk_buff *skb)
- 	case PH_DEACTIVATE_REQ:
- 		test_and_clear_bit(FLG_L2_ACTIVATED, &dch->Flags);
- 		if (dch->dev.D.protocol != ISDN_P_TE_S0) {
-+			struct sk_buff_head free_queue;
+ void bic_set_bfqq(struct bfq_io_cq *bic, struct bfq_queue *bfqq, bool is_sync)
+ {
++	struct bfq_queue *old_bfqq = bic->bfqq[is_sync];
 +
-+			__skb_queue_head_init(&free_queue);
- 			spin_lock_irqsave(&hc->lock, flags);
- 			if (debug & DEBUG_HFCMULTI_MSG)
- 				printk(KERN_DEBUG
-@@ -3405,14 +3411,14 @@ handle_dmsg(struct mISDNchannel *ch, struct sk_buff *skb)
- 				/* deactivate */
- 				dch->state = 1;
- 			}
--			skb_queue_purge(&dch->squeue);
-+			skb_queue_splice_init(&dch->squeue, &free_queue);
- 			if (dch->tx_skb) {
--				dev_kfree_skb(dch->tx_skb);
-+				__skb_queue_tail(&free_queue, dch->tx_skb);
- 				dch->tx_skb = NULL;
- 			}
- 			dch->tx_idx = 0;
- 			if (dch->rx_skb) {
--				dev_kfree_skb(dch->rx_skb);
-+				__skb_queue_tail(&free_queue, dch->rx_skb);
- 				dch->rx_skb = NULL;
- 			}
- 			test_and_clear_bit(FLG_TX_BUSY, &dch->Flags);
-@@ -3424,6 +3430,7 @@ handle_dmsg(struct mISDNchannel *ch, struct sk_buff *skb)
- #endif
- 			ret = 0;
- 			spin_unlock_irqrestore(&hc->lock, flags);
-+			__skb_queue_purge(&free_queue);
- 		} else
- 			ret = l1_event(dch->l1, hh->prim);
- 		break;
++	/* Clear bic pointer if bfqq is detached from this bic */
++	if (old_bfqq && old_bfqq->bic == bic)
++		old_bfqq->bic = NULL;
++
+ 	/*
+ 	 * If bfqq != NULL, then a non-stable queue merge between
+ 	 * bic->bfqq and bfqq is happening here. This causes troubles
+@@ -5379,7 +5385,6 @@ static void bfq_exit_icq_bfqq(struct bfq_io_cq *bic, bool is_sync)
+ 		unsigned long flags;
+ 
+ 		spin_lock_irqsave(&bfqd->lock, flags);
+-		bfqq->bic = NULL;
+ 		bfq_exit_bfqq(bfqd, bfqq);
+ 		bic_set_bfqq(bic, NULL, is_sync);
+ 		spin_unlock_irqrestore(&bfqd->lock, flags);
 -- 
 2.35.1
 
