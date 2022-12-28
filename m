@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDD5E657DEC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:48:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFC35657818
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234054AbiL1PsK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:48:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36308 "EHLO
+        id S232920AbiL1OsC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:48:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234060AbiL1PsJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:48:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DAEE17E08
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:48:08 -0800 (PST)
+        with ESMTP id S232958AbiL1Orh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:47:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 935131208E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:46:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BD8DAB81716
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:48:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33A84C433D2;
-        Wed, 28 Dec 2022 15:48:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EC0F61541
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:46:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40290C433EF;
+        Wed, 28 Dec 2022 14:46:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242485;
-        bh=q4sc++3K2GfvUAKwubTjvcqFLgZ2ewrtLeGPqSmaAzM=;
+        s=korg; t=1672238816;
+        bh=x3sQ+3q2JPAEbMpxy4MkTj6Cqs1ssCLLWqjN1gMsBCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YzJzgudxDlJK9lhXIxsCHDVSpIjWye5TJOkP9dQyCnCWK7sn6gmZm6lkWW4nZiHSF
-         dJshOhiw5/47vm8Efp4DEZsQ5qZbCijDIuInCwKPtxoEMTA/7czASU0mgzUrgbOmbw
-         u/YOBke+IQkgOwvV8IVAdbumiSMaR4BkkfDH/5Ck=
+        b=pbFoTU5pxb5IN3eAkvyZiQBsOPVLNds3rX4CqXoYxx7fRNOhEoZDDgUNmX2b+VsFs
+         BEpsgIEo/gU/fKH5i6y2Maot4XGqZgyp7ABOcynP1cjDYBT0T2DWxaNfnziQ3G7cdi
+         iacANmn/VfoL6IrQfDPajThvvuoAgK93q8KX1GFY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Luca Weiss <luca@z3ntu.xyz>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0375/1146] ASoC: Intel: avs: Lock substream before snd_pcm_stop()
-Date:   Wed, 28 Dec 2022 15:31:54 +0100
-Message-Id: <20221228144340.349340657@linuxfoundation.org>
+Subject: [PATCH 5.15 008/731] ARM: dts: qcom: apq8064: fix coresight compatible
+Date:   Wed, 28 Dec 2022 15:31:55 +0100
+Message-Id: <20221228144256.780803289@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cezary Rojewski <cezary.rojewski@intel.com>
+From: Luca Weiss <luca@z3ntu.xyz>
 
-[ Upstream commit c30c8f9d51ec24b36e2c65a6307a5c8cbc5a0ebc ]
+[ Upstream commit a42b1ee868361f1cb0492f1bdaefb43e0751e468 ]
 
-snd_pcm_stop() shall be called with stream lock held to prevent any
-races between nonatomic streaming operations.
+There's a typo missing the arm, prefix of arm,coresight-etb10. Fix it to
+make devicetree validation happier.
 
-Fixes: 2f1f570cd730 ("ASoC: Intel: avs: Coredump and recovery flow")
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Link: https://lore.kernel.org/r/20221116115550.1100398-2-cezary.rojewski@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
+Fixes: 7a5c275fd821 ("ARM: dts: qcom: Add apq8064 CoreSight components")
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221013190657.48499-3-luca@z3ntu.xyz
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/avs/ipc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/boot/dts/qcom-apq8064.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/avs/ipc.c b/sound/soc/intel/avs/ipc.c
-index 77da206f7dbb..306f0dc4eaf5 100644
---- a/sound/soc/intel/avs/ipc.c
-+++ b/sound/soc/intel/avs/ipc.c
-@@ -123,7 +123,10 @@ static void avs_dsp_recovery(struct avs_dev *adev)
- 				if (!substream || !substream->runtime)
- 					continue;
+diff --git a/arch/arm/boot/dts/qcom-apq8064.dtsi b/arch/arm/boot/dts/qcom-apq8064.dtsi
+index d1c1c6aab2b8..0e830476fefd 100644
+--- a/arch/arm/boot/dts/qcom-apq8064.dtsi
++++ b/arch/arm/boot/dts/qcom-apq8064.dtsi
+@@ -1571,7 +1571,7 @@ wifi {
+ 		};
  
-+				/* No need for _irq() as we are in nonatomic context. */
-+				snd_pcm_stream_lock(substream);
- 				snd_pcm_stop(substream, SNDRV_PCM_STATE_DISCONNECTED);
-+				snd_pcm_stream_unlock(substream);
- 			}
- 		}
- 	}
+ 		etb@1a01000 {
+-			compatible = "coresight-etb10", "arm,primecell";
++			compatible = "arm,coresight-etb10", "arm,primecell";
+ 			reg = <0x1a01000 0x1000>;
+ 
+ 			clocks = <&rpmcc RPM_QDSS_CLK>;
 -- 
 2.35.1
 
