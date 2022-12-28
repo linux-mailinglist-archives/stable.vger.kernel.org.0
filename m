@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5645C658081
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:18:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2C19657969
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:01:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233219AbiL1QSK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:18:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34166 "EHLO
+        id S233410AbiL1PBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:01:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234750AbiL1QRY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:17:24 -0500
+        with ESMTP id S233453AbiL1PAl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:00:41 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADAC5CDA
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:15:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DF2612ABC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:00:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4EFF0B81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:15:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B299EC433D2;
-        Wed, 28 Dec 2022 16:15:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE347B8171E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:00:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40100C433EF;
+        Wed, 28 Dec 2022 15:00:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244152;
-        bh=Qf9EAbjoYGUrULph78Z+i9iGnVcnwrUZHRNUWc87l4o=;
+        s=korg; t=1672239637;
+        bh=Lz+uvXZ196PWYHiwyolfteF20n0gHw9sQ1g3gEIDbAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BM6rl4uo0Bi3rEpPpWhdpyk/j1gxjozzEhpS3p8RRAncWRHBbaFprobDpOZdylRNz
-         95G632V+yZnhn6FlPPMZl8hoWUNkMYwEFXZBck5S6KtQj68tP2i6LaTBCLFxBMFAaZ
-         UrmapeSkGgztcujfJr9TwrdASLv+ScwiLCk3RRno=
+        b=zV6HYtL/iKiOgmx+OvA7aNKZgRPYElD1YmkzF3mbx5JvfyoTlAurJWLPjxF3wJtFP
+         5PLXQc4mSVutdQVSJfcc+L1PF13F1YmY+jQNhTVniMFxUaSynUEBy8A6fm7dJ2w0XA
+         KV+GbLSyg7jN5JZk8xkvtE8iDo5UTARcV6Lf7sBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Luoyouming <luoyouming@huawei.com>,
-        Haoyue Xu <xuhaoyue1@hisilicon.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        patches@lists.linux.dev,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0620/1146] RDMA/hns: Fix ext_sge num error when post send
+Subject: [PATCH 5.15 252/731] ASoC: mediatek: mt8173: Fix debugfs registration for components
 Date:   Wed, 28 Dec 2022 15:35:59 +0100
-Message-Id: <20221228144347.010014362@linuxfoundation.org>
+Message-Id: <20221228144303.867251756@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,67 +55,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luoyouming <luoyouming@huawei.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit 8eaa6f7d569b4a22bfc1b0a3fdfeeb401feb65a4 ]
+[ Upstream commit 8c32984bc7da29828260ac514d5d4967f7e8f62d ]
 
-In the HNS ROCE driver, The sge is divided into standard sge and extended
-sge.  There are 2 standard sge in RC/XRC, and the UD standard sge is 0.
-In the scenario of RC SQ inline, if the data does not exceed 32bytes, the
-standard sge will be used. If it exceeds, only the extended sge will be
-used to fill the data.
+When registering the mt8173-afe-pcm driver, we are also adding two
+components: one is for the PCM DAIs and one is for the HDMI DAIs, but
+when debugfs is enabled, we're getting the following issue:
 
-Currently, when filling the extended sge, max_gs is directly used as the
-number of the extended sge, which did not subtract the number of standard
-sge.  There is a logical error. The new algorithm subtracts the number of
-standard sge from max_gs to get the actual number of extended sge.
+[   17.279176] debugfs: Directory '11220000.audio-controller' with parent 'mtk-rt5650' already present!
+[   17.288345] debugfs: Directory '11220000.audio-controller' with parent 'mtk-rt5650' already present!
 
-Fixes: 30b707886aeb ("RDMA/hns: Support inline data in extented sge space for RC")
-Link: https://lore.kernel.org/r/20221108133847.2304539-2-xuhaoyue1@hisilicon.com
-Signed-off-by: Luoyouming <luoyouming@huawei.com>
-Signed-off-by: Haoyue Xu <xuhaoyue1@hisilicon.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+To overcome to that without any potentially big rewrite of this driver,
+similarly to what was done in mt8195-afe-pcm, add a debugfs_prefix to
+the components before actually adding them.
+
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20211111161108.502344-1-angelogioacchino.delregno@collabora.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Stable-dep-of: 4cbb264d4e91 ("ASoC: mediatek: mt8173: Enable IRQ when pdata is ready")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ sound/soc/mediatek/mt8173/mt8173-afe-pcm.c | 51 ++++++++++++++++++----
+ 1 file changed, 43 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index 1435fe2ea176..0937db738be7 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -187,20 +187,29 @@ static void set_atomic_seg(const struct ib_send_wr *wr,
- 	hr_reg_write(rc_sq_wqe, RC_SEND_WQE_SGE_NUM, valid_num_sge);
- }
+diff --git a/sound/soc/mediatek/mt8173/mt8173-afe-pcm.c b/sound/soc/mediatek/mt8173/mt8173-afe-pcm.c
+index 6350390414d4..31494930433f 100644
+--- a/sound/soc/mediatek/mt8173/mt8173-afe-pcm.c
++++ b/sound/soc/mediatek/mt8173/mt8173-afe-pcm.c
+@@ -1054,6 +1054,7 @@ static int mt8173_afe_pcm_dev_probe(struct platform_device *pdev)
+ 	int irq_id;
+ 	struct mtk_base_afe *afe;
+ 	struct mt8173_afe_private *afe_priv;
++	struct snd_soc_component *comp_pcm, *comp_hdmi;
  
-+static unsigned int get_std_sge_num(struct hns_roce_qp *qp)
-+{
-+	if (qp->ibqp.qp_type == IB_QPT_GSI || qp->ibqp.qp_type == IB_QPT_UD)
-+		return 0;
+ 	ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(33));
+ 	if (ret)
+@@ -1142,23 +1143,55 @@ static int mt8173_afe_pcm_dev_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_pm_disable;
+ 
+-	ret = devm_snd_soc_register_component(&pdev->dev,
+-					 &mt8173_afe_pcm_dai_component,
+-					 mt8173_afe_pcm_dais,
+-					 ARRAY_SIZE(mt8173_afe_pcm_dais));
++	comp_pcm = devm_kzalloc(&pdev->dev, sizeof(*comp_pcm), GFP_KERNEL);
++	if (!comp_pcm) {
++		ret = -ENOMEM;
++		goto err_pm_disable;
++	}
 +
-+	return HNS_ROCE_SGE_IN_WQE;
-+}
++	ret = snd_soc_component_initialize(comp_pcm,
++					   &mt8173_afe_pcm_dai_component,
++					   &pdev->dev);
+ 	if (ret)
+ 		goto err_pm_disable;
+ 
+-	ret = devm_snd_soc_register_component(&pdev->dev,
+-					 &mt8173_afe_hdmi_dai_component,
+-					 mt8173_afe_hdmi_dais,
+-					 ARRAY_SIZE(mt8173_afe_hdmi_dais));
++#ifdef CONFIG_DEBUG_FS
++	comp_pcm->debugfs_prefix = "pcm";
++#endif
 +
- static int fill_ext_sge_inl_data(struct hns_roce_qp *qp,
- 				 const struct ib_send_wr *wr,
- 				 unsigned int *sge_idx, u32 msg_len)
++	ret = snd_soc_add_component(comp_pcm,
++				    mt8173_afe_pcm_dais,
++				    ARRAY_SIZE(mt8173_afe_pcm_dais));
++	if (ret)
++		goto err_pm_disable;
++
++	comp_hdmi = devm_kzalloc(&pdev->dev, sizeof(*comp_hdmi), GFP_KERNEL);
++	if (!comp_hdmi) {
++		ret = -ENOMEM;
++		goto err_pm_disable;
++	}
++
++	ret = snd_soc_component_initialize(comp_hdmi,
++					   &mt8173_afe_hdmi_dai_component,
++					   &pdev->dev);
+ 	if (ret)
+ 		goto err_pm_disable;
+ 
++#ifdef CONFIG_DEBUG_FS
++	comp_hdmi->debugfs_prefix = "hdmi";
++#endif
++
++	ret = snd_soc_add_component(comp_hdmi,
++				    mt8173_afe_hdmi_dais,
++				    ARRAY_SIZE(mt8173_afe_hdmi_dais));
++	if (ret)
++		goto err_cleanup_components;
++
+ 	dev_info(&pdev->dev, "MT8173 AFE driver initialized.\n");
+ 	return 0;
+ 
++err_cleanup_components:
++	snd_soc_unregister_component(&pdev->dev);
+ err_pm_disable:
+ 	pm_runtime_disable(&pdev->dev);
+ 	return ret;
+@@ -1166,6 +1199,8 @@ static int mt8173_afe_pcm_dev_probe(struct platform_device *pdev)
+ 
+ static int mt8173_afe_pcm_dev_remove(struct platform_device *pdev)
  {
- 	struct ib_device *ibdev = &(to_hr_dev(qp->ibqp.device))->ib_dev;
--	unsigned int ext_sge_sz = qp->sq.max_gs * HNS_ROCE_SGE_SIZE;
- 	unsigned int left_len_in_pg;
- 	unsigned int idx = *sge_idx;
-+	unsigned int std_sge_num;
- 	unsigned int i = 0;
- 	unsigned int len;
- 	void *addr;
- 	void *dseg;
- 
--	if (msg_len > ext_sge_sz) {
-+	std_sge_num = get_std_sge_num(qp);
-+	if (msg_len > (qp->sq.max_gs - std_sge_num) * HNS_ROCE_SGE_SIZE) {
- 		ibdev_err(ibdev,
- 			  "no enough extended sge space for inline data.\n");
- 		return -EINVAL;
++	snd_soc_unregister_component(&pdev->dev);
++
+ 	pm_runtime_disable(&pdev->dev);
+ 	if (!pm_runtime_status_suspended(&pdev->dev))
+ 		mt8173_afe_runtime_suspend(&pdev->dev);
 -- 
 2.35.1
 
