@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 864F8657910
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:57:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7280A657A1B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:07:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233242AbiL1O5P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:57:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44638 "EHLO
+        id S233601AbiL1PHz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:07:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233281AbiL1O5N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:57:13 -0500
+        with ESMTP id S233602AbiL1PHy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:07:54 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 921F610053
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:57:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A86513D78
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:07:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 361E3B81722
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:57:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0B5FC433D2;
-        Wed, 28 Dec 2022 14:57:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0C653B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:07:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60B1EC433F0;
+        Wed, 28 Dec 2022 15:07:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239430;
-        bh=9wfDYIB58GisEeKWQM7pB1z+rwODjF8XtdA24gCenDU=;
+        s=korg; t=1672240070;
+        bh=/LwiEVsMHxiCwIBQRqfirym4OWaQMf+8G/ygFjOrNOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p2z1QKONTmswn3UX799+2J25Q9AaScWUtxVySqShxCxtPnT+Rhh3H11CckNM8+OJg
-         44gIJoswpLxybD1/79TmIZw0/L7j+/FF0gHXNS9+bolXXvmYUxtZVKGD66unIucp+z
-         AEs/PoewUx1yLkDpSGNrVVqCfzlfwvAuM+7VmqHI=
+        b=rXm/Wo+VXW8LUVuByxbYZKn3j1WOa8M13TXxXRu3OSzWyO1h56mVVzYeJzMIf6/1v
+         qA533zgAziCaw/PBOUxuB/0TUfZ9vO2gHqFE9SnmUYydGEe0oVgLlzhBQfXH/rpYGc
+         gJaHP9zZEu4kaLSFeqY0USHBxtwFtUr9mQA2741c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0028/1073] arm64: dts: qcom: sm8250: correct LPASS pin pull down
+Subject: [PATCH 6.1 0077/1146] arm64: dts: mediatek: mt6797: Fix 26M oscillator unit name
 Date:   Wed, 28 Dec 2022 15:26:56 +0100
-Message-Id: <20221228144328.910965923@linuxfoundation.org>
+Message-Id: <20221228144332.241055780@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit 195a0a11d66d6c696cbcf398d6bc3f3a3a462f7c ]
+[ Upstream commit 5f535cc583759c9c60d4cc9b8d221762e2d75387 ]
 
-The pull-down property is actually bias-pull-down.
+Update its unit name to oscillator-26m and remove the unneeded unit
+address to fix a unit_address_vs_reg warning.
 
-Fixes: 3160c1b894d9 ("arm64: dts: qcom: sm8250: add lpass lpi pin controller node")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20220927153429.55365-4-krzysztof.kozlowski@linaro.org
+Fixes: 464c510f60c6 ("arm64: dts: mediatek: add mt6797 support")
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221013152212.416661-9-angelogioacchino.delregno@collabora.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sm8250.dtsi | 2 +-
+ arch/arm64/boot/dts/mediatek/mt6797.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm8250.dtsi b/arch/arm64/boot/dts/qcom/sm8250.dtsi
-index 052b4dbc1ee4..f4abca3a0843 100644
---- a/arch/arm64/boot/dts/qcom/sm8250.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm8250.dtsi
-@@ -2447,7 +2447,7 @@ data {
- 					pins = "gpio7";
- 					function = "dmic1_data";
- 					drive-strength = <2>;
--					pull-down;
-+					bias-pull-down;
- 					input-enable;
- 				};
- 			};
+diff --git a/arch/arm64/boot/dts/mediatek/mt6797.dtsi b/arch/arm64/boot/dts/mediatek/mt6797.dtsi
+index 15616231022a..c3677d77e0a4 100644
+--- a/arch/arm64/boot/dts/mediatek/mt6797.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt6797.dtsi
+@@ -95,7 +95,7 @@ cpu9: cpu@201 {
+ 		};
+ 	};
+ 
+-	clk26m: oscillator@0 {
++	clk26m: oscillator-26m {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <26000000>;
 -- 
 2.35.1
 
