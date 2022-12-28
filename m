@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E951C657BFE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:28:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E638C6581B0
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:30:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233738AbiL1P1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:27:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45824 "EHLO
+        id S233686AbiL1Qaw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:30:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233783AbiL1P1f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:27:35 -0500
+        with ESMTP id S234728AbiL1QaY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:30:24 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7826B140E6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:27:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B39391C422
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:26:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1158F61551
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:27:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2524CC433F0;
-        Wed, 28 Dec 2022 15:27:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D9786157B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:26:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CE8AC433EF;
+        Wed, 28 Dec 2022 16:26:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241253;
-        bh=d5AT1t18jRg+EHlRlDa4fgW/bB1AD/80ldiTVQYxRzc=;
+        s=korg; t=1672244806;
+        bh=d7qnGsQb5nXdXTgUtUwCiB+xdXkn/m9UY8KHFauaA40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wWmAcxt3sqyCeE/SshUE5JZ9X/sw36I2Bvd9zMY5KsirZAu1tPeYfjmE/4/AHjRjs
-         3uB3aUGERstwlDbraW15CE9BdmCTtnsABSdF2zmZJabXakdqGpKcWBcRVVbXWs7qAz
-         zn1hzYUc6tBjs5z6itOvhcx34cU7Ppcx1Z1Q6XsE=
+        b=KcJJyTzR4NDcGY5+akOKG7/Wyk64wxXXB4Wg3IXpdIgCufGgzk4q3hnMuLI+Rgzku
+         M/XpQumyL5XtFaSyAfnXFOeCGIYt4n089VNK5wmh8W6DwZRp5LGEzw5mTYY3IDRhZy
+         8JW6EPOFkWQfLauLRORU6y0raKAaVbNKEJcwz9wI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, delisun <delisun@pateo.com.cn>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        patches@lists.linux.dev, Matt Redfearn <matt.redfearn@mips.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <nathan@kernel.org>,
+        =?UTF-8?q?Petr=20Van=C4=9Bk?= <arkamar@atlas.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 458/731] serial: pl011: Do not clear RX FIFO & RX interrupt in unthrottle.
+Subject: [PATCH 6.0 0777/1073] include/uapi/linux/swab: Fix potentially missing __always_inline
 Date:   Wed, 28 Dec 2022 15:39:25 +0100
-Message-Id: <20221228144309.829191330@linuxfoundation.org>
+Message-Id: <20221228144349.116513618@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: delisun <delisun@pateo.com.cn>
+From: Matt Redfearn <matt.redfearn@mips.com>
 
-[ Upstream commit 032d5a71ed378ffc6a2d41a187d8488a4f9fe415 ]
+[ Upstream commit defbab270d45e32b068e7e73c3567232d745c60f ]
 
-Clearing the RX FIFO will cause data loss.
-Copy the pl011_enabl_interrupts implementation, and remove the clear
-interrupt and FIFO part of the code.
+Commit bc27fb68aaad ("include/uapi/linux/byteorder, swab: force inlining
+of some byteswap operations") added __always_inline to swab functions
+and commit 283d75737837 ("uapi/linux/stddef.h: Provide __always_inline to
+userspace headers") added a definition of __always_inline for use in
+exported headers when the kernel's compiler.h is not available.
 
-Fixes: 211565b10099 ("serial: pl011: UPSTAT_AUTORTS requires .throttle/unthrottle")
-Signed-off-by: delisun <delisun@pateo.com.cn>
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20221110020108.7700-1-delisun@pateo.com.cn
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+However, since swab.h does not include stddef.h, if the header soup does
+not indirectly include it, the definition of __always_inline is missing,
+resulting in a compilation failure, which was observed compiling the
+perf tool using exported headers containing this commit:
+
+In file included from /usr/include/linux/byteorder/little_endian.h:12:0,
+                 from /usr/include/asm/byteorder.h:14,
+                 from tools/include/uapi/linux/perf_event.h:20,
+                 from perf.h:8,
+                 from builtin-bench.c:18:
+/usr/include/linux/swab.h:160:8: error: unknown type name `__always_inline'
+ static __always_inline __u16 __swab16p(const __u16 *p)
+
+Fix this by replacing the inclusion of linux/compiler.h with
+linux/stddef.h to ensure that we pick up that definition if required,
+without relying on it's indirect inclusion. compiler.h is then included
+indirectly, via stddef.h.
+
+Fixes: 283d75737837 ("uapi/linux/stddef.h: Provide __always_inline to userspace headers")
+Signed-off-by: Matt Redfearn <matt.redfearn@mips.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Petr Vaněk <arkamar@atlas.cz>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/amba-pl011.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ include/uapi/linux/swab.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/amba-pl011.c b/drivers/tty/serial/amba-pl011.c
-index ca105e9baa42..7c8515f83f0a 100644
---- a/drivers/tty/serial/amba-pl011.c
-+++ b/drivers/tty/serial/amba-pl011.c
-@@ -1836,8 +1836,17 @@ static void pl011_enable_interrupts(struct uart_amba_port *uap)
- static void pl011_unthrottle_rx(struct uart_port *port)
- {
- 	struct uart_amba_port *uap = container_of(port, struct uart_amba_port, port);
-+	unsigned long flags;
+diff --git a/include/uapi/linux/swab.h b/include/uapi/linux/swab.h
+index 0723a9cce747..01717181339e 100644
+--- a/include/uapi/linux/swab.h
++++ b/include/uapi/linux/swab.h
+@@ -3,7 +3,7 @@
+ #define _UAPI_LINUX_SWAB_H
  
--	pl011_enable_interrupts(uap);
-+	spin_lock_irqsave(&uap->port.lock, flags);
-+
-+	uap->im = UART011_RTIM;
-+	if (!pl011_dma_rx_running(uap))
-+		uap->im |= UART011_RXIM;
-+
-+	pl011_write(uap->im, uap, REG_IMSC);
-+
-+	spin_unlock_irqrestore(&uap->port.lock, flags);
- }
+ #include <linux/types.h>
+-#include <linux/compiler.h>
++#include <linux/stddef.h>
+ #include <asm/bitsperlong.h>
+ #include <asm/swab.h>
  
- static int pl011_startup(struct uart_port *port)
 -- 
 2.35.1
 
