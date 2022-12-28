@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51CCE657C65
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:32:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36908657C68
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:32:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233814AbiL1Pcs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:32:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49572 "EHLO
+        id S233471AbiL1Pcu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:32:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233851AbiL1PcE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:32:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7024F15FED
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:31:55 -0800 (PST)
+        with ESMTP id S233829AbiL1PcM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:32:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C9A016486
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:32:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F66A6155C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:31:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B5F9C433D2;
-        Wed, 28 Dec 2022 15:31:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C5BA9B816D9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:32:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C472C433F0;
+        Wed, 28 Dec 2022 15:32:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241514;
-        bh=LLQY0HhUmwEZwBj0IiYZMG+YxjZKk1Pc4jfljUHyRZw=;
+        s=korg; t=1672241522;
+        bh=LrijrRkamTXm/fyIFKXldWvqEgQd8xUIFUrCGkQKVuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=If1juM4+IdMKmd2lWZaan5qDw9FIeZwljsWQ/Zflqh4fv/YjPfe4wndaMGpahyVmH
-         zR0Uwiwu5R6URd9tC54iZYLApd6h+JteAI7HsTo888HF6mWjYyu0gPWDRURAJtoC02
-         1ul57JEB6zn3nduHSoAjsziMADAj/DcwENt2xxOs=
+        b=jPmnlRv8nYQlsq78YBVLOmg8k18wiYDuXKWHSXGqsKUaqcHQVeKwMugDSN+xiT8SI
+         rhJFh17KaZ4g5xzBNpwpg8HG7XxkjYExrrGm1aHmb18kB4bB0p6sifU5kDh8HJsO1N
+         iPMCw5XkuRxdXGYmIJ1w6q//xnb8ObwrUiYzg6lM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 491/731] gpiolib: cdev: fix NULL-pointer dereferences
-Date:   Wed, 28 Dec 2022 15:39:58 +0100
-Message-Id: <20221228144310.780026846@linuxfoundation.org>
+Subject: [PATCH 5.15 492/731] gpiolib: make struct comments into real kernel docs
+Date:   Wed, 28 Dec 2022 15:39:59 +0100
+Message-Id: <20221228144310.809663723@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
 References: <20221228144256.536395940@linuxfoundation.org>
@@ -55,132 +54,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
 
-[ Upstream commit 533aae7c94dbc2b14301cfd68ae7e0e90f0c8438 ]
+[ Upstream commit 4398693a9e24bcab0b99ea219073917991d0792b ]
 
-There are several places where we can crash the kernel by requesting
-lines, unbinding the GPIO device, then calling any of the system calls
-relevant to the GPIO character device's annonymous file descriptors:
-ioctl(), read(), poll().
+We have several comments that start with '/**' but don't conform to the
+kernel doc standard. Add proper detailed descriptions for the affected
+definitions and move the docs from the forward declarations to the
+struct definitions where applicable.
 
-While I observed it with the GPIO simulator, it will also happen for any
-of the GPIO devices that can be hot-unplugged - for instance any HID GPIO
-expander (e.g. CP2112).
-
-This affects both v1 and v2 uAPI.
-
-This fixes it partially by checking if gdev->chip is not NULL but it
-doesn't entirely remedy the situation as we still have a race condition
-in which another thread can remove the device after the check.
-
-Fixes: d7c51b47ac11 ("gpio: userspace ABI for reading/writing GPIO lines")
-Fixes: 3c0d9c635ae2 ("gpiolib: cdev: support GPIO_V2_GET_LINE_IOCTL and GPIO_V2_LINE_GET_VALUES_IOCTL")
-Fixes: aad955842d1c ("gpiolib: cdev: support GPIO_V2_GET_LINEINFO_IOCTL and GPIO_V2_GET_LINEINFO_WATCH_IOCTL")
-Fixes: a54756cb24ea ("gpiolib: cdev: support GPIO_V2_LINE_SET_CONFIG_IOCTL")
-Fixes: 7b8e00d98168 ("gpiolib: cdev: support GPIO_V2_LINE_SET_VALUES_IOCTL")
-Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Stable-dep-of: bdbbae241a04 ("gpiolib: protect the GPIO device against being dropped while in use by user-space")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib-cdev.c | 27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ drivers/gpio/gpiolib.h        | 34 ++++++++++++++++++++++++++++++++++
+ include/linux/gpio/consumer.h | 35 ++++++++++++++++-------------------
+ 2 files changed, 50 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib-cdev.c b/drivers/gpio/gpiolib-cdev.c
-index a20396a6448b..64e37618216f 100644
---- a/drivers/gpio/gpiolib-cdev.c
-+++ b/drivers/gpio/gpiolib-cdev.c
-@@ -200,6 +200,9 @@ static long linehandle_ioctl(struct file *file, unsigned int cmd,
- 	unsigned int i;
- 	int ret;
+diff --git a/drivers/gpio/gpiolib.h b/drivers/gpio/gpiolib.h
+index c31f4626915d..d77be9d1da80 100644
+--- a/drivers/gpio/gpiolib.h
++++ b/drivers/gpio/gpiolib.h
+@@ -37,6 +37,9 @@
+  * or name of the IP component in a System on Chip.
+  * @data: per-instance data assigned by the driver
+  * @list: links gpio_device:s together for traversal
++ * @notifier: used to notify subscribers about lines being requested, released
++ *            or reconfigured
++ * @pin_ranges: range of pins served by the GPIO driver
+  *
+  * This state container holds most of the runtime variable data
+  * for a GPIO device and can hold references and live on after the
+@@ -72,6 +75,20 @@ struct gpio_device {
+ /* gpio suffixes used for ACPI and device tree lookup */
+ static __maybe_unused const char * const gpio_suffixes[] = { "gpios", "gpio" };
  
-+	if (!lh->gdev->chip)
-+		return -ENODEV;
++/**
++ * struct gpio_array - Opaque descriptor for a structure of GPIO array attributes
++ *
++ * @desc:		Array of pointers to the GPIO descriptors
++ * @size:		Number of elements in desc
++ * @chip:		Parent GPIO chip
++ * @get_mask:		Get mask used in fastpath
++ * @set_mask:		Set mask used in fastpath
++ * @invert_mask:	Invert mask used in fastpath
++ *
++ * This structure is attached to struct gpiod_descs obtained from
++ * gpiod_get_array() and can be passed back to get/set array functions in order
++ * to activate fast processing path if applicable.
++ */
+ struct gpio_array {
+ 	struct gpio_desc	**desc;
+ 	unsigned int		size;
+@@ -96,6 +113,23 @@ int gpiod_set_array_value_complex(bool raw, bool can_sleep,
+ extern spinlock_t gpio_lock;
+ extern struct list_head gpio_devices;
+ 
 +
- 	switch (cmd) {
- 	case GPIOHANDLE_GET_LINE_VALUES_IOCTL:
- 		/* NOTE: It's okay to read values of output lines */
-@@ -1188,6 +1191,9 @@ static long linereq_ioctl(struct file *file, unsigned int cmd,
- 	struct linereq *lr = file->private_data;
- 	void __user *ip = (void __user *)arg;
++/**
++ * struct gpio_desc - Opaque descriptor for a GPIO
++ *
++ * @gdev:		Pointer to the parent GPIO device
++ * @flags:		Binary descriptor flags
++ * @label:		Name of the consumer
++ * @name:		Line name
++ * @hog:		Pointer to the device node that hogs this line (if any)
++ * @debounce_period_us:	Debounce period in microseconds
++ *
++ * These are obtained using gpiod_get() and are preferable to the old
++ * integer-based handles.
++ *
++ * Contrary to integers, a pointer to a &struct gpio_desc is guaranteed to be
++ * valid until the GPIO is released.
++ */
+ struct gpio_desc {
+ 	struct gpio_device	*gdev;
+ 	unsigned long		flags;
+diff --git a/include/linux/gpio/consumer.h b/include/linux/gpio/consumer.h
+index 97a28ad3393b..369902d52f9c 100644
+--- a/include/linux/gpio/consumer.h
++++ b/include/linux/gpio/consumer.h
+@@ -8,27 +8,16 @@
+ #include <linux/err.h>
  
-+	if (!lr->gdev->chip)
-+		return -ENODEV;
-+
- 	switch (cmd) {
- 	case GPIO_V2_LINE_GET_VALUES_IOCTL:
- 		return linereq_get_values(lr, ip);
-@@ -1214,6 +1220,9 @@ static __poll_t linereq_poll(struct file *file,
- 	struct linereq *lr = file->private_data;
- 	__poll_t events = 0;
+ struct device;
+-
+-/**
+- * Opaque descriptor for a GPIO. These are obtained using gpiod_get() and are
+- * preferable to the old integer-based handles.
+- *
+- * Contrary to integers, a pointer to a gpio_desc is guaranteed to be valid
+- * until the GPIO is released.
+- */
+ struct gpio_desc;
+-
+-/**
+- * Opaque descriptor for a structure of GPIO array attributes.  This structure
+- * is attached to struct gpiod_descs obtained from gpiod_get_array() and can be
+- * passed back to get/set array functions in order to activate fast processing
+- * path if applicable.
+- */
+ struct gpio_array;
  
-+	if (!lr->gdev->chip)
-+		return EPOLLHUP | EPOLLERR;
-+
- 	poll_wait(file, &lr->wait, wait);
+ /**
+- * Struct containing an array of descriptors that can be obtained using
+- * gpiod_get_array().
++ * struct gpio_descs - Struct containing an array of descriptors that can be
++ *                     obtained using gpiod_get_array()
++ *
++ * @info:	Pointer to the opaque gpio_array structure
++ * @ndescs:	Number of held descriptors
++ * @desc:	Array of pointers to GPIO descriptors
+  */
+ struct gpio_descs {
+ 	struct gpio_array *info;
+@@ -43,8 +32,16 @@ struct gpio_descs {
+ #define GPIOD_FLAGS_BIT_NONEXCLUSIVE	BIT(4)
  
- 	if (!kfifo_is_empty_spinlocked_noirqsave(&lr->events,
-@@ -1233,6 +1242,9 @@ static ssize_t linereq_read(struct file *file,
- 	ssize_t bytes_read = 0;
- 	int ret;
- 
-+	if (!lr->gdev->chip)
-+		return -ENODEV;
-+
- 	if (count < sizeof(le))
- 		return -EINVAL;
- 
-@@ -1498,6 +1510,9 @@ static __poll_t lineevent_poll(struct file *file,
- 	struct lineevent_state *le = file->private_data;
- 	__poll_t events = 0;
- 
-+	if (!le->gdev->chip)
-+		return EPOLLHUP | EPOLLERR;
-+
- 	poll_wait(file, &le->wait, wait);
- 
- 	if (!kfifo_is_empty_spinlocked_noirqsave(&le->events, &le->wait.lock))
-@@ -1522,6 +1537,9 @@ static ssize_t lineevent_read(struct file *file,
- 	ssize_t ge_size;
- 	int ret;
- 
-+	if (!le->gdev->chip)
-+		return -ENODEV;
-+
- 	/*
- 	 * When compatible system call is being used the struct gpioevent_data,
- 	 * in case of at least ia32, has different size due to the alignment
-@@ -1603,6 +1621,9 @@ static long lineevent_ioctl(struct file *file, unsigned int cmd,
- 	void __user *ip = (void __user *)arg;
- 	struct gpiohandle_data ghd;
- 
-+	if (!le->gdev->chip)
-+		return -ENODEV;
-+
- 	/*
- 	 * We can get the value for an event line but not set it,
- 	 * because it is input by definition.
-@@ -2187,6 +2208,9 @@ static __poll_t lineinfo_watch_poll(struct file *file,
- 	struct gpio_chardev_data *cdev = file->private_data;
- 	__poll_t events = 0;
- 
-+	if (!cdev->gdev->chip)
-+		return EPOLLHUP | EPOLLERR;
-+
- 	poll_wait(file, &cdev->wait, pollt);
- 
- 	if (!kfifo_is_empty_spinlocked_noirqsave(&cdev->events,
-@@ -2205,6 +2229,9 @@ static ssize_t lineinfo_watch_read(struct file *file, char __user *buf,
- 	int ret;
- 	size_t event_size;
- 
-+	if (!cdev->gdev->chip)
-+		return -ENODEV;
-+
- #ifndef CONFIG_GPIO_CDEV_V1
- 	event_size = sizeof(struct gpio_v2_line_info_changed);
- 	if (count < event_size)
+ /**
+- * Optional flags that can be passed to one of gpiod_* to configure direction
+- * and output value. These values cannot be OR'd.
++ * enum gpiod_flags - Optional flags that can be passed to one of gpiod_* to
++ *                    configure direction and output value. These values
++ *                    cannot be OR'd.
++ *
++ * @GPIOD_ASIS:			Don't change anything
++ * @GPIOD_IN:			Set lines to input mode
++ * @GPIOD_OUT_LOW:		Set lines to output and drive them low
++ * @GPIOD_OUT_HIGH:		Set lines to output and drive them high
++ * @GPIOD_OUT_LOW_OPEN_DRAIN:	Set lines to open-drain output and drive them low
++ * @GPIOD_OUT_HIGH_OPEN_DRAIN:	Set lines to open-drain output and drive them high
+  */
+ enum gpiod_flags {
+ 	GPIOD_ASIS	= 0,
 -- 
 2.35.1
 
