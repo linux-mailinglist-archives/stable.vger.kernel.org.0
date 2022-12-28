@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29730658333
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3B70657DD9
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:47:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235030AbiL1Qo5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:44:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37038 "EHLO
+        id S234031AbiL1Prj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:47:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235004AbiL1Qoc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:32 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D9361CB13
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:40:10 -0800 (PST)
+        with ESMTP id S234079AbiL1PrS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:47:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0641F0B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:47:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 67E34CE1365
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:40:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4798FC433EF;
-        Wed, 28 Dec 2022 16:40:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5D7A2B8172A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:47:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB9F0C433D2;
+        Wed, 28 Dec 2022 15:47:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245606;
-        bh=IXzeQCXm8BAgFsTlT7kee4OYsEwHI8bN5Jhh+0BXAQY=;
+        s=korg; t=1672242435;
+        bh=X05hHJXyqY+n4R2ll0NBD+mFE/k09gI9iYjsIvAVQnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kh5vQHfwSSsFUPKdyuYC8LK7sdo139SlZudfDUvNzpX2id/AfRK/VqOIUzeKqcVjy
-         8CElzwXoNWnY1mBs3RHQs+chZLZkXoktVMUT4/X15WHYnWAqaHeF0Qni+H7ldgGS2m
-         fX6TCgR4Lld/Nc0V84azR9CaYxF8Iahkce3cfj+M=
+        b=zbcFb3lGYX7QP9wFzLDS7E4QV3MJtfUgGtCbm06oc7ETrWZQvDk+vNiFdp9Gd0LIF
+         otOIzgzn0Ici+skr8Vn4y0b2WyWEcCp2roYfMz/uGBLY1+fD5JQPtMn+e47RIBcxmv
+         mqMGiaUjkVPKgqaYxZPINSFFPqd6WvSZJwDf77ME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Rahul Bhattacharjee <quic_rbhattac@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        patches@lists.linux.dev, Eelco Chaudron <echaudro@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0922/1073] wifi: ath11k: Fix qmi_msg_handler data structure initialization
+Subject: [PATCH 5.15 603/731] openvswitch: Fix flow lookup to use unmasked key
 Date:   Wed, 28 Dec 2022 15:41:50 +0100
-Message-Id: <20221228144353.070643203@linuxfoundation.org>
+Message-Id: <20221228144314.016839574@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +53,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rahul Bhattacharjee <quic_rbhattac@quicinc.com>
+From: Eelco Chaudron <echaudro@redhat.com>
 
-[ Upstream commit ed3725e15a154ebebf44e0c34806c57525483f92 ]
+[ Upstream commit 68bb10101e6b0a6bb44e9c908ef795fc4af99eae ]
 
-qmi_msg_handler is required to be null terminated by QMI module.
-There might be a case where a handler for a msg id is not present in the
-handlers array which can lead to infinite loop while searching the handler
-and therefore out of bound access in qmi_invoke_handler().
-Hence update the initialization in qmi_msg_handler data structure.
+The commit mentioned below causes the ovs_flow_tbl_lookup() function
+to be called with the masked key. However, it's supposed to be called
+with the unmasked key. This due to the fact that the datapath supports
+installing wider flows, and OVS relies on this behavior. For example
+if ipv4(src=1.1.1.1/192.0.0.0, dst=1.1.1.2/192.0.0.0) exists, a wider
+flow (smaller mask) of ipv4(src=192.1.1.1/128.0.0.0,dst=192.1.1.2/
+128.0.0.0) is allowed to be added.
 
-Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.5.0.1-01100-QCAHKSWPL_SILICONZ-1
+However, if we try to add a wildcard rule, the installation fails:
 
-Signed-off-by: Rahul Bhattacharjee <quic_rbhattac@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20221021090126.28626-1-quic_rbhattac@quicinc.com
+$ ovs-appctl dpctl/add-flow system@myDP "in_port(1),eth_type(0x0800), \
+  ipv4(src=1.1.1.1/192.0.0.0,dst=1.1.1.2/192.0.0.0,frag=no)" 2
+$ ovs-appctl dpctl/add-flow system@myDP "in_port(1),eth_type(0x0800), \
+  ipv4(src=192.1.1.1/0.0.0.0,dst=49.1.1.2/0.0.0.0,frag=no)" 2
+ovs-vswitchd: updating flow table (File exists)
+
+The reason is that the key used to determine if the flow is already
+present in the system uses the original key ANDed with the mask.
+This results in the IP address not being part of the (miniflow) key,
+i.e., being substituted with an all-zero value. When doing the actual
+lookup, this results in the key wrongfully matching the first flow,
+and therefore the flow does not get installed.
+
+This change reverses the commit below, but rather than having the key
+on the stack, it's allocated.
+
+Fixes: 190aa3e77880 ("openvswitch: Fix Frame-size larger than 1024 bytes warning.")
+
+Signed-off-by: Eelco Chaudron <echaudro@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/qmi.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/openvswitch/datapath.c | 25 ++++++++++++++++---------
+ 1 file changed, 16 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/qmi.c b/drivers/net/wireless/ath/ath11k/qmi.c
-index e6ced8597e1d..539134a6e9d9 100644
---- a/drivers/net/wireless/ath/ath11k/qmi.c
-+++ b/drivers/net/wireless/ath/ath11k/qmi.c
-@@ -3083,6 +3083,9 @@ static const struct qmi_msg_handler ath11k_qmi_msg_handlers[] = {
- 			sizeof(struct qmi_wlfw_fw_init_done_ind_msg_v01),
- 		.fn = ath11k_qmi_msg_fw_init_done_cb,
- 	},
-+
-+	/* end of list */
-+	{},
- };
+diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
+index 94c48122fdc3..795a25ecb893 100644
+--- a/net/openvswitch/datapath.c
++++ b/net/openvswitch/datapath.c
+@@ -946,6 +946,7 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
+ 	struct sw_flow_mask mask;
+ 	struct sk_buff *reply;
+ 	struct datapath *dp;
++	struct sw_flow_key *key;
+ 	struct sw_flow_actions *acts;
+ 	struct sw_flow_match match;
+ 	u32 ufid_flags = ovs_nla_get_ufid_flags(a[OVS_FLOW_ATTR_UFID_FLAGS]);
+@@ -973,24 +974,26 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
+ 	}
  
- static int ath11k_qmi_ops_new_server(struct qmi_handle *qmi_hdl,
+ 	/* Extract key. */
+-	ovs_match_init(&match, &new_flow->key, false, &mask);
++	key = kzalloc(sizeof(*key), GFP_KERNEL);
++	if (!key) {
++		error = -ENOMEM;
++		goto err_kfree_key;
++	}
++
++	ovs_match_init(&match, key, false, &mask);
+ 	error = ovs_nla_get_match(net, &match, a[OVS_FLOW_ATTR_KEY],
+ 				  a[OVS_FLOW_ATTR_MASK], log);
+ 	if (error)
+ 		goto err_kfree_flow;
+ 
++	ovs_flow_mask_key(&new_flow->key, key, true, &mask);
++
+ 	/* Extract flow identifier. */
+ 	error = ovs_nla_get_identifier(&new_flow->id, a[OVS_FLOW_ATTR_UFID],
+-				       &new_flow->key, log);
++				       key, log);
+ 	if (error)
+ 		goto err_kfree_flow;
+ 
+-	/* unmasked key is needed to match when ufid is not used. */
+-	if (ovs_identifier_is_key(&new_flow->id))
+-		match.key = new_flow->id.unmasked_key;
+-
+-	ovs_flow_mask_key(&new_flow->key, &new_flow->key, true, &mask);
+-
+ 	/* Validate actions. */
+ 	error = ovs_nla_copy_actions(net, a[OVS_FLOW_ATTR_ACTIONS],
+ 				     &new_flow->key, &acts, log);
+@@ -1017,7 +1020,7 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
+ 	if (ovs_identifier_is_ufid(&new_flow->id))
+ 		flow = ovs_flow_tbl_lookup_ufid(&dp->table, &new_flow->id);
+ 	if (!flow)
+-		flow = ovs_flow_tbl_lookup(&dp->table, &new_flow->key);
++		flow = ovs_flow_tbl_lookup(&dp->table, key);
+ 	if (likely(!flow)) {
+ 		rcu_assign_pointer(new_flow->sf_acts, acts);
+ 
+@@ -1087,6 +1090,8 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
+ 
+ 	if (reply)
+ 		ovs_notify(&dp_flow_genl_family, reply, info);
++
++	kfree(key);
+ 	return 0;
+ 
+ err_unlock_ovs:
+@@ -1096,6 +1101,8 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
+ 	ovs_nla_free_flow_actions(acts);
+ err_kfree_flow:
+ 	ovs_flow_free(new_flow, false);
++err_kfree_key:
++	kfree(key);
+ error:
+ 	return error;
+ }
 -- 
 2.35.1
 
