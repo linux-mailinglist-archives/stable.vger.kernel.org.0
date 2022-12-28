@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A16066582B1
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:40:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F1A9657C14
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:28:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233658AbiL1QkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:40:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60818 "EHLO
+        id S230182AbiL1P2j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:28:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235034AbiL1Qjb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:39:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC0931E3D3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:34:47 -0800 (PST)
+        with ESMTP id S233656AbiL1P2i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:28:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7826014D39
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:28:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 86D2D61577
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:34:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 969C5C433D2;
-        Wed, 28 Dec 2022 16:34:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13BEDB8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:28:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A9F6C433D2;
+        Wed, 28 Dec 2022 15:28:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245286;
-        bh=0+toHmPPNYZQb2J6HMgYF0ISCazdIc2rtA3/MMKR5Gc=;
+        s=korg; t=1672241314;
+        bh=cv3C8Ot/jJmZEW0LOQV8qiLWryabEl6mDELQT+iC00k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QRyJXP6iVyOJjFrlYSdOtxYJz9t8Tykl8L7aB2Y89bly6bPGZpPf2mCCY7QPQuBIy
-         9DUH/O3gOZ5n+oac4FPvN0U1lkDIc1k8WIv6C3fVyGgsaQwXBvMk3mnTJPzKwyqixp
-         PZH7J61AgFeFzCAjICfIdo1qTB2kkzXuPGPo6W+g=
+        b=MVlDu087j0jZaj+23ejMSkQw4hUhVwhNxM7woKFCUyLnQbXJXtFyBfvErYFGEIhMu
+         aNwEYnlqScQOG4TlxU6vd5NONsoJ0ShjFkfpcd1J7MoJDeBPDLSdxvkWldi/wglZgj
+         SVfMkS6bTvcgzojtToZs4GvJ0XDWpNZ3Yo/mLzDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0833/1146] rtc: pcf2127: Convert to .probe_new()
+Subject: [PATCH 5.15 465/731] test_firmware: fix memory leak in test_firmware_init()
 Date:   Wed, 28 Dec 2022 15:39:32 +0100
-Message-Id: <20221228144352.783228795@linuxfoundation.org>
+Message-Id: <20221228144310.027770630@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,69 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 5418e595f30bf4fde83ebb0121417c0c95cff98e ]
+[ Upstream commit 7610615e8cdb3f6f5bbd9d8e7a5d8a63e3cabf2e ]
 
-.probe_new() doesn't get the i2c_device_id * parameter, so determine
-that explicitly in .probe(). The device_id array has to move up for that
-to work.
+When misc_register() failed in test_firmware_init(), the memory pointed
+by test_fw_config->name is not released. The memory leak information is
+as follows:
+unreferenced object 0xffff88810a34cb00 (size 32):
+  comm "insmod", pid 7952, jiffies 4294948236 (age 49.060s)
+  hex dump (first 32 bytes):
+    74 65 73 74 2d 66 69 72 6d 77 61 72 65 2e 62 69  test-firmware.bi
+    6e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  n...............
+  backtrace:
+    [<ffffffff81b21fcb>] __kmalloc_node_track_caller+0x4b/0xc0
+    [<ffffffff81affb96>] kstrndup+0x46/0xc0
+    [<ffffffffa0403a49>] __test_firmware_config_init+0x29/0x380 [test_firmware]
+    [<ffffffffa040f068>] 0xffffffffa040f068
+    [<ffffffff81002c41>] do_one_initcall+0x141/0x780
+    [<ffffffff816a72c3>] do_init_module+0x1c3/0x630
+    [<ffffffff816adb9e>] load_module+0x623e/0x76a0
+    [<ffffffff816af471>] __do_sys_finit_module+0x181/0x240
+    [<ffffffff89978f99>] do_syscall_64+0x39/0xb0
+    [<ffffffff89a0008b>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Link: https://lore.kernel.org/r/20221021130706.178687-7-u.kleine-koenig@pengutronix.de
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Stable-dep-of: 83ebb7b3036d ("rtc: cmos: Disable ACPI RTC event on removal")
+Fixes: c92316bf8e94 ("test_firmware: add batched firmware tests")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Acked-by: Luis Chamberlain <mcgrof@kernel.org>
+Link: https://lore.kernel.org/r/20221119035721.18268-1-shaozhengchao@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-pcf2127.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ lib/test_firmware.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index 63b275b014bd..87f4fc9df68b 100644
---- a/drivers/rtc/rtc-pcf2127.c
-+++ b/drivers/rtc/rtc-pcf2127.c
-@@ -885,9 +885,17 @@ static const struct regmap_bus pcf2127_i2c_regmap = {
+diff --git a/lib/test_firmware.c b/lib/test_firmware.c
+index 1bccd6cd5f48..e68be7aba7d1 100644
+--- a/lib/test_firmware.c
++++ b/lib/test_firmware.c
+@@ -1111,6 +1111,7 @@ static int __init test_firmware_init(void)
  
- static struct i2c_driver pcf2127_i2c_driver;
- 
--static int pcf2127_i2c_probe(struct i2c_client *client,
--				const struct i2c_device_id *id)
-+static const struct i2c_device_id pcf2127_i2c_id[] = {
-+	{ "pcf2127", 1 },
-+	{ "pcf2129", 0 },
-+	{ "pca2129", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, pcf2127_i2c_id);
-+
-+static int pcf2127_i2c_probe(struct i2c_client *client)
- {
-+	const struct i2c_device_id *id = i2c_match_id(pcf2127_i2c_id, client);
- 	struct regmap *regmap;
- 	static const struct regmap_config config = {
- 		.reg_bits = 8,
-@@ -910,20 +918,12 @@ static int pcf2127_i2c_probe(struct i2c_client *client,
- 			     pcf2127_i2c_driver.driver.name, id->driver_data);
- }
- 
--static const struct i2c_device_id pcf2127_i2c_id[] = {
--	{ "pcf2127", 1 },
--	{ "pcf2129", 0 },
--	{ "pca2129", 0 },
--	{ }
--};
--MODULE_DEVICE_TABLE(i2c, pcf2127_i2c_id);
--
- static struct i2c_driver pcf2127_i2c_driver = {
- 	.driver		= {
- 		.name	= "rtc-pcf2127-i2c",
- 		.of_match_table = of_match_ptr(pcf2127_of_match),
- 	},
--	.probe		= pcf2127_i2c_probe,
-+	.probe_new	= pcf2127_i2c_probe,
- 	.id_table	= pcf2127_i2c_id,
- };
- 
+ 	rc = misc_register(&test_fw_misc_device);
+ 	if (rc) {
++		__test_firmware_config_free();
+ 		kfree(test_fw_config);
+ 		pr_err("could not register misc device: %d\n", rc);
+ 		return rc;
 -- 
 2.35.1
 
