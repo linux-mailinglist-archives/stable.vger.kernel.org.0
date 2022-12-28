@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1F066580D4
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:21:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91FC4658011
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:13:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234568AbiL1QVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:21:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36972 "EHLO
+        id S234536AbiL1QNX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:13:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234528AbiL1QUy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:20:54 -0500
+        with ESMTP id S234749AbiL1QMh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:12:37 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B73A9183B2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:18:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B0A61A814
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:11:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 54DD3B81707
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:18:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8E68C433EF;
-        Wed, 28 Dec 2022 16:18:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 61C7EB8172A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:11:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE1BFC4339E;
+        Wed, 28 Dec 2022 16:11:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244319;
-        bh=T+ryu8MnxTP6FHzZocOI//VvbmOWAWokcXt5BNRmk0k=;
+        s=korg; t=1672243864;
+        bh=P0WVHBO8likUkQRHK5qupw0dPHZMWENdeFfIbGGBecE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zFtnPbJa9qlqP1FrwOWgygwE+1injLrcsH8CrULInczMIA+FVcHsypaNzzPyVbKCD
-         KQ3ddLCyeDfgxdrI5RtLo8lI0ygHHfIx4RR+SAGmZw7X1DIDNO3E7ailhpDQL4RMDm
-         jDG0vREtI6fUF5uB1qkEj2N6Bm38iOIKwaWCrLoc=
+        b=kUrSl91a8h2jWGS5+mrRxMjKog7Iw260L2MGDg7w/+q4Lens/2dQYTwqT3X3TeuED
+         6xZ+TAM2rIhaFIwC+9L7yYH6shXiBO8OpbDoSUcYMkJNBetkwvbIFjt/ea/2gBflWA
+         +SDN8hdbn17uDbCdIaQGoq/l+hy5ImWi3leCdtFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Li Zhijian <lizhijian@fujitsu.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0650/1146] scsi: scsi_debug: Fix a warning in resp_report_zones()
+Subject: [PATCH 6.0 0601/1073] RDMA/rxe: Fix mr->map double free
 Date:   Wed, 28 Dec 2022 15:36:29 +0100
-Message-Id: <20221228144347.813195876@linuxfoundation.org>
+Message-Id: <20221228144344.370808749@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +53,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+From: Li Zhijian <lizhijian@fujitsu.com>
 
-[ Upstream commit 07f2ca139d9a7a1ba71c4c03997c8de161db2346 ]
+[ Upstream commit 7d984dac8f6bf4ebd3398af82b357e1d181ecaac ]
 
-As 'alloc_len' is user controlled data, if user tries to allocate memory
-larger than(>=) MAX_ORDER, then kcalloc() will fail, it creates a stack
-trace and messes up dmesg with a warning.
+rxe_mr_cleanup() which tries to free mr->map again will be called when
+rxe_mr_init_user() fails:
 
-Add __GFP_NOWARN in order to avoid too large allocation warning.  This is
-detected by static analysis using smatch.
+   CPU: 0 PID: 4917 Comm: rdma_flush_serv Kdump: loaded Not tainted 6.1.0-rc1-roce-flush+ #25
+   Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
+   Call Trace:
+    <TASK>
+    dump_stack_lvl+0x45/0x5d
+    panic+0x19e/0x349
+    end_report.part.0+0x54/0x7c
+    kasan_report.cold+0xa/0xf
+    rxe_mr_cleanup+0x9d/0xf0 [rdma_rxe]
+    __rxe_cleanup+0x10a/0x1e0 [rdma_rxe]
+    rxe_reg_user_mr+0xb7/0xd0 [rdma_rxe]
+    ib_uverbs_reg_mr+0x26a/0x480 [ib_uverbs]
+    ib_uverbs_handler_UVERBS_METHOD_INVOKE_WRITE+0x1a2/0x250 [ib_uverbs]
+    ib_uverbs_cmd_verbs+0x1397/0x15a0 [ib_uverbs]
 
-Fixes: 7db0e0c8190a ("scsi: scsi_debug: Fix buffer size of REPORT ZONES command")
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Link: https://lore.kernel.org/r/20221112070612.2121535-1-harshit.m.mogalapalli@oracle.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This issue was firstly exposed since commit b18c7da63fcb ("RDMA/rxe: Fix
+memory leak in error path code") and then we fixed it in commit
+8ff5f5d9d8cf ("RDMA/rxe: Prevent double freeing rxe_map_set()") but this
+fix was reverted together at last by commit 1e75550648da (Revert
+"RDMA/rxe: Create duplicate mapping tables for FMRs")
+
+Simply let rxe_mr_cleanup() always handle freeing the mr->map once it is
+successfully allocated.
+
+Fixes: 1e75550648da ("Revert "RDMA/rxe: Create duplicate mapping tables for FMRs"")
+Link: https://lore.kernel.org/r/1667099073-2-1-git-send-email-lizhijian@fujitsu.com
+Signed-off-by: Li Zhijian <lizhijian@fujitsu.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_debug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/sw/rxe/rxe_mr.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
-index 78cfb706a4a7..20e64b7d3f7b 100644
---- a/drivers/scsi/scsi_debug.c
-+++ b/drivers/scsi/scsi_debug.c
-@@ -4504,7 +4504,7 @@ static int resp_report_zones(struct scsi_cmnd *scp,
+diff --git a/drivers/infiniband/sw/rxe/rxe_mr.c b/drivers/infiniband/sw/rxe/rxe_mr.c
+index af34f198e645..8cd6f1b165d5 100644
+--- a/drivers/infiniband/sw/rxe/rxe_mr.c
++++ b/drivers/infiniband/sw/rxe/rxe_mr.c
+@@ -99,6 +99,7 @@ static int rxe_mr_alloc(struct rxe_mr *mr, int num_buf)
+ 		kfree(mr->map[i]);
  
- 	rep_max_zones = (alloc_len - 64) >> ilog2(RZONES_DESC_HD);
+ 	kfree(mr->map);
++	mr->map = NULL;
+ err1:
+ 	return -ENOMEM;
+ }
+@@ -122,7 +123,6 @@ int rxe_mr_init_user(struct rxe_dev *rxe, u64 start, u64 length, u64 iova,
+ 	int			num_buf;
+ 	void			*vaddr;
+ 	int err;
+-	int i;
  
--	arr = kzalloc(alloc_len, GFP_ATOMIC);
-+	arr = kzalloc(alloc_len, GFP_ATOMIC | __GFP_NOWARN);
- 	if (!arr) {
- 		mk_sense_buffer(scp, ILLEGAL_REQUEST, INSUFF_RES_ASC,
- 				INSUFF_RES_ASCQ);
+ 	umem = ib_umem_get(&rxe->ib_dev, start, length, access);
+ 	if (IS_ERR(umem)) {
+@@ -163,9 +163,8 @@ int rxe_mr_init_user(struct rxe_dev *rxe, u64 start, u64 length, u64 iova,
+ 				pr_warn("%s: Unable to get virtual address\n",
+ 						__func__);
+ 				err = -ENOMEM;
+-				goto err_cleanup_map;
++				goto err_release_umem;
+ 			}
+-
+ 			buf->addr = (uintptr_t)vaddr;
+ 			buf->size = PAGE_SIZE;
+ 			num_buf++;
+@@ -185,10 +184,6 @@ int rxe_mr_init_user(struct rxe_dev *rxe, u64 start, u64 length, u64 iova,
+ 
+ 	return 0;
+ 
+-err_cleanup_map:
+-	for (i = 0; i < mr->num_map; i++)
+-		kfree(mr->map[i]);
+-	kfree(mr->map);
+ err_release_umem:
+ 	ib_umem_release(umem);
+ err_out:
 -- 
 2.35.1
 
