@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B51A657E19
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:50:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53834657E1C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:50:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234090AbiL1PuC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:50:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37778 "EHLO
+        id S234020AbiL1PuL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:50:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234087AbiL1Pt7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:49:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A9B917E3E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:49:58 -0800 (PST)
+        with ESMTP id S234087AbiL1PuH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:50:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 364BE18686
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:50:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 27CC161562
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:49:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AA96C433D2;
-        Wed, 28 Dec 2022 15:49:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C7BDB61562
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:50:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6ADCC433D2;
+        Wed, 28 Dec 2022 15:50:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242597;
-        bh=PBBpVCg0l7zWlUPjh9wrXLw6LnhsziQPkz7+SKKEros=;
+        s=korg; t=1672242606;
+        bh=xc5g3hhMpOjVMd7lC4dRQpGCbO6OwPueBGdfx8tJRWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pRjsIZL/vohUkCWpe3cRQkbsmuqHj/2E6PKwzxvfqDRKFYuoovzCh8piCiti8FROf
-         8qa+2gRa2l4ZPN7/TLmihryyYztRBqby848g6Cqx4QU7APIg0GEcIg6qhQwotH6MSs
-         M3oyMaftxf439SsaVCh44G+/xgzf9W/hqpBCjJrI=
+        b=xzkas3nFs+bfYXwDwGWunOVid61m7z4TiXFYn1ZcMpdABJ8G7WvnZUbd7m8++2NDB
+         SxVgXi5GooMlvcb/C+nLPWTPdCZWJC26t5VXi4BZD62QIDJ34VD5eWI7VPE6Ym23el
+         LmGJ10bIzevwUzNYwdfDclKIk32k+dCvSAZjZbm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiaxin Yu <jiaxin.yu@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0392/1146] ASoC: mediatek: mt8186: Correct I2S shared clocks
-Date:   Wed, 28 Dec 2022 15:32:11 +0100
-Message-Id: <20221228144340.812658596@linuxfoundation.org>
+Subject: [PATCH 6.1 0393/1146] media: vimc: Fix wrong function called when vimc_init() fails
+Date:   Wed, 28 Dec 2022 15:32:12 +0100
+Message-Id: <20221228144340.839500959@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -55,51 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiaxin Yu <jiaxin.yu@mediatek.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 248579fc9a4f3bf36e7cfe9f6a354cee0f9848dc ]
+[ Upstream commit f74d3f326d1d5b8951ce263c59a121ecfa65e7c0 ]
 
-In mt8186 platform, I2S2 should be the main I2S port that provide
-the clock, on the contrary I2S3 should be the second I2S port that
-use this clock.
+In vimc_init(), when platform_driver_register(&vimc_pdrv) fails,
+platform_driver_unregister(&vimc_pdrv) is wrongly called rather than
+platform_device_unregister(&vimc_pdev), which causes kernel warning:
 
-Fixes: 9986bdaee477 ("ASoC: mediatek: mt8186: Configure shared clocks")
-Signed-off-by: Jiaxin Yu <jiaxin.yu@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20221124023050.4470-1-jiaxin.yu@mediatek.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+ Unexpected driver unregister!
+ WARNING: CPU: 1 PID: 14517 at drivers/base/driver.c:270 driver_unregister+0x8f/0xb0
+ RIP: 0010:driver_unregister+0x8f/0xb0
+ Call Trace:
+  <TASK>
+  vimc_init+0x7d/0x1000 [vimc]
+  do_one_initcall+0xd0/0x4e0
+  do_init_module+0x1cf/0x6b0
+  load_module+0x65c2/0x7820
+
+Fixes: 4a29b7090749 ("[media] vimc: Subdevices as modules")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt8186/mt8186-mt6366-da7219-max98357.c | 2 +-
- sound/soc/mediatek/mt8186/mt8186-mt6366-rt1019-rt5682s.c  | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/test-drivers/vimc/vimc-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/mediatek/mt8186/mt8186-mt6366-da7219-max98357.c b/sound/soc/mediatek/mt8186/mt8186-mt6366-da7219-max98357.c
-index cfca6bdee834..90ec0d0a8392 100644
---- a/sound/soc/mediatek/mt8186/mt8186-mt6366-da7219-max98357.c
-+++ b/sound/soc/mediatek/mt8186/mt8186-mt6366-da7219-max98357.c
-@@ -192,7 +192,7 @@ static int mt8186_mt6366_da7219_max98357_hdmi_init(struct snd_soc_pcm_runtime *r
- 	struct mt8186_mt6366_da7219_max98357_priv *priv = soc_card_data->mach_priv;
- 	int ret;
- 
--	ret = mt8186_dai_i2s_set_share(afe, "I2S3", "I2S2");
-+	ret = mt8186_dai_i2s_set_share(afe, "I2S2", "I2S3");
+diff --git a/drivers/media/test-drivers/vimc/vimc-core.c b/drivers/media/test-drivers/vimc/vimc-core.c
+index 2ae7a0f11ebf..e82cfa5ffbf4 100644
+--- a/drivers/media/test-drivers/vimc/vimc-core.c
++++ b/drivers/media/test-drivers/vimc/vimc-core.c
+@@ -433,7 +433,7 @@ static int __init vimc_init(void)
  	if (ret) {
- 		dev_err(rtd->dev, "Failed to set up shared clocks\n");
+ 		dev_err(&vimc_pdev.dev,
+ 			"platform driver registration failed (err=%d)\n", ret);
+-		platform_driver_unregister(&vimc_pdrv);
++		platform_device_unregister(&vimc_pdev);
  		return ret;
-diff --git a/sound/soc/mediatek/mt8186/mt8186-mt6366-rt1019-rt5682s.c b/sound/soc/mediatek/mt8186/mt8186-mt6366-rt1019-rt5682s.c
-index 2414c5b77233..60fa55d0c91f 100644
---- a/sound/soc/mediatek/mt8186/mt8186-mt6366-rt1019-rt5682s.c
-+++ b/sound/soc/mediatek/mt8186/mt8186-mt6366-rt1019-rt5682s.c
-@@ -168,7 +168,7 @@ static int mt8186_mt6366_rt1019_rt5682s_hdmi_init(struct snd_soc_pcm_runtime *rt
- 	struct mt8186_mt6366_rt1019_rt5682s_priv *priv = soc_card_data->mach_priv;
- 	int ret;
+ 	}
  
--	ret = mt8186_dai_i2s_set_share(afe, "I2S3", "I2S2");
-+	ret = mt8186_dai_i2s_set_share(afe, "I2S2", "I2S3");
- 	if (ret) {
- 		dev_err(rtd->dev, "Failed to set up shared clocks\n");
- 		return ret;
 -- 
 2.35.1
 
