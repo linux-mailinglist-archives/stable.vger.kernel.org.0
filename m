@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 964DA65817C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:28:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 407C065817E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:29:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233688AbiL1Q25 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:28:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50040 "EHLO
+        id S234714AbiL1Q3A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:29:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234716AbiL1Q2b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:28:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCC3CD83
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:24:39 -0800 (PST)
+        with ESMTP id S231252AbiL1Q2c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:28:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBDA6165B4;
+        Wed, 28 Dec 2022 08:24:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D96061577
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:24:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84C70C433EF;
-        Wed, 28 Dec 2022 16:24:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C079B8171E;
+        Wed, 28 Dec 2022 16:24:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEEC3C433EF;
+        Wed, 28 Dec 2022 16:24:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244678;
-        bh=EburepUz3/VPm54H9JLafbIA0MJZRjiFiR4eFeT2XS0=;
+        s=korg; t=1672244684;
+        bh=/a+SXPPtV/sZYt6jUgZnWoKDg+jEjL4j84pPZqvDavE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J2W+SyEy2lViSW9OISsQP7yjazQbXzjrDe7gfISCD99xzc09GFJBtzyP9jU9VJ1S4
-         ooeukGAIcGqbVnPDU4b/uiCbsROT6Erp2BUw6BZlvmYBIaD97J58whjqTLVt1Lmgvi
-         UHM/bUwCBPZiadFxvKAue6rymYEtz+Nn7p4xLW6g=
+        b=XTR7VBaMt9ufJ+yVwQPDZ4zjZcBsLTi/AfuxuQ3HqG7Kb3cQ+c+Eo4kSbVuMEC6H5
+         QI2AGiN/QVSUJiwTkBr4Xrr/emGHxTQ+1/0rJ0IhbW7ZDcLaC763wN4lhrk4zGoPCm
+         L90fJs6+9SrY7pxQUmWFzXY24qX0ut90Rk6tqU8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Luca Weiss <luca@z3ntu.xyz>,
-        Vincent Knecht <vincent.knecht@mailoo.org>,
-        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0755/1073] leds: is31fl319x: Fix setting current limit for is31fl319{0,1,3}
-Date:   Wed, 28 Dec 2022 15:39:03 +0100
-Message-Id: <20221228144348.525609012@linuxfoundation.org>
+        patches@lists.linux.dev, Namhyung Kim <namhyung@kernel.org>,
+        Adrian Hunter <adrian.hunter@intel.com>, bpf@vger.kernel.org,
+        Ian Rogers <irogers@google.com>,
+        Ingo Molnar <mingo@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Song Liu <song@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0756/1073] perf off_cpu: Fix a typo in BTF tracepoint name, it should be btf_trace_sched_switch
+Date:   Wed, 28 Dec 2022 15:39:04 +0100
+Message-Id: <20221228144348.551905899@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -53,49 +58,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Weiss <luca@z3ntu.xyz>
+From: Namhyung Kim <namhyung@kernel.org>
 
-[ Upstream commit 135780f1048b3f956f5b10bb23dec9c2d2c4ef6d ]
+[ Upstream commit 167b266bf66c5b93171011ef9d1f09b070c2c537 ]
 
-The current setting lives in bits 4:2 (as also defined by the mask) but
-the current limit defines in the driver use bits 2:0 which should be
-shifted over so they don't get masked out completely (except for 17.5mA
-which became 10mA).
+In BTF, tracepoint definitions have the "btf_trace_" prefix.  The
+off-cpu profiler needs to check the signature of the sched_switch event
+using that definition.  But there's a typo (s/bpf/btf/) so it failed
+always.
 
-Now checking /sys/kernel/debug/regmap/1-0068/registers shows that the
-current limit is applied correctly and doesn't take the default b000 =
-42mA.
-
-Fixes: fa877cf1abb9 ("leds: is31fl319x: Add support for is31fl319{0,1,3} chips")
-Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
-Reviewed-by: Vincent Knecht <vincent.knecht@mailoo.org>
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
+Fixes: b36888f71c8542cd ("perf record: Handle argument change in sched_switch")
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: bpf@vger.kernel.org
+Cc: Ian Rogers <irogers@google.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Song Liu <song@kernel.org>
+Link: https://lore.kernel.org/r/20221208182636.524139-1-namhyung@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/leds-is31fl319x.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/perf/util/bpf_off_cpu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/leds/leds-is31fl319x.c b/drivers/leds/leds-is31fl319x.c
-index 52b59b62f437..b2f4c4ec7c56 100644
---- a/drivers/leds/leds-is31fl319x.c
-+++ b/drivers/leds/leds-is31fl319x.c
-@@ -38,6 +38,7 @@
- #define IS31FL3190_CURRENT_uA_MIN	5000
- #define IS31FL3190_CURRENT_uA_DEFAULT	42000
- #define IS31FL3190_CURRENT_uA_MAX	42000
-+#define IS31FL3190_CURRENT_SHIFT	2
- #define IS31FL3190_CURRENT_MASK		GENMASK(4, 2)
- #define IS31FL3190_CURRENT_5_mA		0x02
- #define IS31FL3190_CURRENT_10_mA	0x01
-@@ -553,7 +554,7 @@ static int is31fl319x_probe(struct i2c_client *client)
- 			     is31fl3196_db_to_gain(is31->audio_gain_db));
- 	else
- 		regmap_update_bits(is31->regmap, IS31FL3190_CURRENT, IS31FL3190_CURRENT_MASK,
--				   is31fl3190_microamp_to_cs(dev, aggregated_led_microamp));
-+				   is31fl3190_microamp_to_cs(dev, aggregated_led_microamp) << IS31FL3190_CURRENT_SHIFT);
+diff --git a/tools/perf/util/bpf_off_cpu.c b/tools/perf/util/bpf_off_cpu.c
+index c257813e674e..01f70b8e705a 100644
+--- a/tools/perf/util/bpf_off_cpu.c
++++ b/tools/perf/util/bpf_off_cpu.c
+@@ -102,7 +102,7 @@ static void check_sched_switch_args(void)
+ 	const struct btf_type *t1, *t2, *t3;
+ 	u32 type_id;
  
- 	for (i = 0; i < is31->cdef->num_leds; i++) {
- 		struct is31fl319x_led *led = &is31->leds[i];
+-	type_id = btf__find_by_name_kind(btf, "bpf_trace_sched_switch",
++	type_id = btf__find_by_name_kind(btf, "btf_trace_sched_switch",
+ 					 BTF_KIND_TYPEDEF);
+ 	if ((s32)type_id < 0)
+ 		return;
 -- 
 2.35.1
 
