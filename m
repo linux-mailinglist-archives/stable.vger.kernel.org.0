@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A0246579C0
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:04:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E6C96579E2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:05:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233496AbiL1PEW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:04:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51986 "EHLO
+        id S233542AbiL1PFs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:05:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233493AbiL1PEU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:04:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6084C13D1E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:04:19 -0800 (PST)
+        with ESMTP id S233540AbiL1PFq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:05:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5638FDFA
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:05:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 17FDEB816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:04:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E574C433EF;
-        Wed, 28 Dec 2022 15:04:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D856161540
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:05:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFCABC433EF;
+        Wed, 28 Dec 2022 15:05:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239856;
-        bh=J6w92lKJE7KkfXZIDG1zdd+C9eWbntTcjK3LbxQXACA=;
+        s=korg; t=1672239944;
+        bh=q/xbrCOGSPYNH9TVapXx+pUJmemXqHT+snAIei8Q1ZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dYF1OktXUHA7D0iHeR8zIDnKwsAZkxSeI6hzf8FOl0c+Y55LEdTMTnlqAAhnfSrMV
-         x4DQ2mTr0Gy3aR6UhN/Ukg78udX8fu7no9C4kyLEOJ/dvujCO5hsmmcRZyRMHBC9Jl
-         k/HK4/rs8J7MOdwOTEYRiVHFgFGOMYjsEqFkxozA=
+        b=qKDJWXlBukAxHGAWme/Hl47LJzAhW6tNOOfImeQ6Vdb5m7BKtX1qRmPVmYyEl6hyY
+         L5VR8wa41+gbNgf6n8RtXVDVehJXQmwWVpgDkUntKaS+VRGLwVlBgM2KcnFcywEieN
+         jDYH1KSGYlR7YRQnaQ7aWZW7wXXRaSXBwKnkrBkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
         Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0036/1146] arm64: dts: qcom: sm6350: drop bogus DP PHY clock
-Date:   Wed, 28 Dec 2022 15:26:15 +0100
-Message-Id: <20221228144331.147099697@linuxfoundation.org>
+Subject: [PATCH 6.1 0037/1146] soc: qcom: apr: Add check for idr_alloc and of_property_read_string_index
+Date:   Wed, 28 Dec 2022 15:26:16 +0100
+Message-Id: <20221228144331.172797964@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -53,35 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 95fade4016cbd57ee050ab226c8f0483af1753c4 ]
+[ Upstream commit 6d7860f5750d73da2fa1a1f6c9405058a593fa32 ]
 
-The QMP pipe clock is used by the USB part of the PHY so drop the
-corresponding properties from the DP child node.
+As idr_alloc() and of_property_read_string_index() can return negative
+numbers, it should be better to check the return value and deal with
+the exception.
+Therefore, it should be better to use goto statement to stop and return
+error.
 
-Fixes: 23737b9557fe ("arm64: dts: qcom: sm6350: Add USB1 nodes")
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Fixes: 6adba21eb434 ("soc: qcom: Add APR bus driver")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Bjorn Andersson <andersson@kernel.org>
 Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221026152511.9661-3-johan+linaro@kernel.org
+Link: https://lore.kernel.org/r/20221107014403.3606-1-jiasheng@iscas.ac.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sm6350.dtsi | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/soc/qcom/apr.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm6350.dtsi b/arch/arm64/boot/dts/qcom/sm6350.dtsi
-index c39de7d3ace0..3a315280c34a 100644
---- a/arch/arm64/boot/dts/qcom/sm6350.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm6350.dtsi
-@@ -1154,9 +1154,6 @@ dp_phy: dp-phy@88ea200 {
- 				      <0 0x088eaa00 0 0x100>;
- 				#phy-cells = <0>;
- 				#clock-cells = <1>;
--				clocks = <&gcc GCC_USB3_PRIM_PHY_PIPE_CLK>;
--				clock-names = "pipe0";
--				clock-output-names = "usb3_phy_pipe_clk_src";
- 			};
- 		};
+diff --git a/drivers/soc/qcom/apr.c b/drivers/soc/qcom/apr.c
+index b4046f393575..cd44f17dad3d 100644
+--- a/drivers/soc/qcom/apr.c
++++ b/drivers/soc/qcom/apr.c
+@@ -454,11 +454,19 @@ static int apr_add_device(struct device *dev, struct device_node *np,
+ 	adev->dev.driver = NULL;
+ 
+ 	spin_lock(&apr->svcs_lock);
+-	idr_alloc(&apr->svcs_idr, svc, svc_id, svc_id + 1, GFP_ATOMIC);
++	ret = idr_alloc(&apr->svcs_idr, svc, svc_id, svc_id + 1, GFP_ATOMIC);
+ 	spin_unlock(&apr->svcs_lock);
++	if (ret < 0) {
++		dev_err(dev, "idr_alloc failed: %d\n", ret);
++		goto out;
++	}
+ 
+-	of_property_read_string_index(np, "qcom,protection-domain",
+-				      1, &adev->service_path);
++	ret = of_property_read_string_index(np, "qcom,protection-domain",
++					    1, &adev->service_path);
++	if (ret < 0) {
++		dev_err(dev, "Failed to read second value of qcom,protection-domain\n");
++		goto out;
++	}
+ 
+ 	dev_info(dev, "Adding APR/GPR dev: %s\n", dev_name(&adev->dev));
+ 
+@@ -468,6 +476,7 @@ static int apr_add_device(struct device *dev, struct device_node *np,
+ 		put_device(&adev->dev);
+ 	}
+ 
++out:
+ 	return ret;
+ }
  
 -- 
 2.35.1
