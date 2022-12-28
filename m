@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71B9D6582A9
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:39:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F33E4657D16
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:39:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233487AbiL1Qjo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:39:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32804 "EHLO
+        id S233928AbiL1PjT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:39:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233110AbiL1QjM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:39:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61DF61E3C7
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:34:36 -0800 (PST)
+        with ESMTP id S233936AbiL1PjP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:39:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2073D165BD
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:39:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ECB6FB8171E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:34:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F717C433D2;
-        Wed, 28 Dec 2022 16:34:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B210B61553
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:39:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5C26C433D2;
+        Wed, 28 Dec 2022 15:39:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245273;
-        bh=679f71hGX5Zu62H/bT+bNH5KlhoWhI0JOiCPeDSkmds=;
+        s=korg; t=1672241953;
+        bh=KwKXfZxx3BpPf4NQPS+b85R1s5ASnGewBVbenXMEt2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GyCEW8kI2gs63dQPXDKttB/Gj2DM/yA7wPgUnp7w5BI2QMuEbEMcjWdVUXN9FpRCg
-         bhtJsVfq1piT4DF+pnNs4zmY62lXs5AMO8wv/dqeFTCQun6XwhuQG8A/ULwQwMo8oy
-         +hTfnsP6AGVcgIKB9C5Wc2ha4FMzmbWAEbXxeGrk=
+        b=DW8vLS3anZM1t/toDS7NZjW/ZXZ4I6oXGA8mJA1Bns3ABfaa0slPhFKFUPkhqg2p6
+         4n+P2eY6bID3Duw/4zo4GhNXkzt2lBBrWBeH/A3B8MN1cPcTlwu+bEWj8qcQqAvev9
+         5HQdDKjCjC2Gg3JRVvIxwgEWan48H/bU1HzZuNxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>,
-        Tan Tee Min <tee.min.tan@linux.intel.com>,
-        Naama Meir <naamax.meir@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0864/1073] igc: allow BaseTime 0 enrollment for Qbv
-Date:   Wed, 28 Dec 2022 15:40:52 +0100
-Message-Id: <20221228144351.487796159@linuxfoundation.org>
+Subject: [PATCH 5.15 546/731] rtc: cmos: Disable ACPI RTC event on removal
+Date:   Wed, 28 Dec 2022 15:40:53 +0100
+Message-Id: <20221228144312.369745226@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,63 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tan Tee Min <tee.min.tan@linux.intel.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit e17090eb24944fbbe1f24d9f336d7bad4fbe47e8 ]
+[ Upstream commit 83ebb7b3036d151ee39a4a752018665648fc3bd4 ]
 
-Introduce qbv_enable flag in igc_adapter struct to store the Qbv on/off.
-So this allow the BaseTime to enroll with zero value.
+Make cmos_do_remove() drop the ACPI RTC fixed event handler so as to
+prevent it from operating on stale data in case the event triggers
+after driver removal.
 
-Fixes: 61572d5f8f91 ("igc: Simplify TSN flags handling")
-Signed-off-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
-Signed-off-by: Tan Tee Min <tee.min.tan@linux.intel.com>
-Tested-by: Naama Meir <naamax.meir@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 311ee9c151ad ("rtc: cmos: allow using ACPI for RTC alarm instead of HPET")
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Zhang Rui <rui.zhang@intel.com>
+Tested-by: Zhang Rui <rui.zhang@intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/2224609.iZASKD2KPV@kreacher
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igc/igc.h      | 1 +
- drivers/net/ethernet/intel/igc/igc_main.c | 2 ++
- drivers/net/ethernet/intel/igc/igc_tsn.c  | 2 +-
- 3 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-cmos.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/igc/igc.h b/drivers/net/ethernet/intel/igc/igc.h
-index 66a57636d329..df3e26c0cf01 100644
---- a/drivers/net/ethernet/intel/igc/igc.h
-+++ b/drivers/net/ethernet/intel/igc/igc.h
-@@ -184,6 +184,7 @@ struct igc_adapter {
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 039486bfedf4..00e2ca7374ec 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -798,6 +798,14 @@ static void acpi_rtc_event_setup(struct device *dev)
+ 	acpi_disable_event(ACPI_EVENT_RTC, 0);
+ }
  
- 	ktime_t base_time;
- 	ktime_t cycle_time;
-+	bool qbv_enable;
- 
- 	/* OS defined structs */
- 	struct pci_dev *pdev;
-diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
-index f7983d23d5b9..10690a0cfae1 100644
---- a/drivers/net/ethernet/intel/igc/igc_main.c
-+++ b/drivers/net/ethernet/intel/igc/igc_main.c
-@@ -6000,6 +6000,8 @@ static int igc_save_qbv_schedule(struct igc_adapter *adapter,
- 	u32 start_time = 0, end_time = 0;
- 	size_t n;
- 
-+	adapter->qbv_enable = qopt->enable;
++static void acpi_rtc_event_cleanup(void)
++{
++	if (acpi_disabled)
++		return;
 +
- 	if (!qopt->enable)
- 		return igc_tsn_clear_schedule(adapter);
- 
-diff --git a/drivers/net/ethernet/intel/igc/igc_tsn.c b/drivers/net/ethernet/intel/igc/igc_tsn.c
-index 4a019954cadb..356c7455c5ce 100644
---- a/drivers/net/ethernet/intel/igc/igc_tsn.c
-+++ b/drivers/net/ethernet/intel/igc/igc_tsn.c
-@@ -36,7 +36,7 @@ static unsigned int igc_tsn_new_flags(struct igc_adapter *adapter)
++	acpi_remove_fixed_event_handler(ACPI_EVENT_RTC, rtc_handler);
++}
++
+ static void rtc_wake_on(struct device *dev)
  {
- 	unsigned int new_flags = adapter->flags & ~IGC_FLAG_TSN_ANY_ENABLED;
+ 	acpi_clear_event(ACPI_EVENT_RTC);
+@@ -884,6 +892,10 @@ static inline void acpi_rtc_event_setup(struct device *dev)
+ {
+ }
  
--	if (adapter->base_time)
-+	if (adapter->qbv_enable)
- 		new_flags |= IGC_FLAG_TSN_QBV_ENABLED;
++static inline void acpi_rtc_event_cleanup(void)
++{
++}
++
+ static inline void acpi_cmos_wake_setup(struct device *dev)
+ {
+ }
+@@ -1138,6 +1150,9 @@ static void cmos_do_remove(struct device *dev)
+ 			hpet_unregister_irq_handler(cmos_interrupt);
+ 	}
  
- 	if (is_any_launchtime(adapter))
++	if (!dev_get_platdata(dev))
++		acpi_rtc_event_cleanup();
++
+ 	cmos->rtc = NULL;
+ 
+ 	ports = cmos->iomem;
 -- 
 2.35.1
 
