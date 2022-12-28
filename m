@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96AC0657ABB
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:14:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 257F3657ABE
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:14:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233046AbiL1POg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:14:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33644 "EHLO
+        id S233086AbiL1POm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:14:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233130AbiL1POO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:14:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B40913F2C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:14:12 -0800 (PST)
+        with ESMTP id S233103AbiL1POX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:14:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EE3613F52
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:14:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7948B61551
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:14:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D7E8C433F0;
-        Wed, 28 Dec 2022 15:14:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0BA73B81647
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:14:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EBBAC433D2;
+        Wed, 28 Dec 2022 15:14:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240451;
-        bh=yQi0KKFy++VnQxeN1EaZEtnH9V/nrQBt/zrBPeiXXF4=;
+        s=korg; t=1672240459;
+        bh=l4mdijT3DXLoB3FEQAQQT3XWHgMtUjdefbiHKLqvrG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qG+eSEzexfJ0EOExIsDPRVEjIUhXK5oPjkP68c5RV7X1Xu0vJG1d9NTFClKtySfWg
-         igpQxTPpvmCOtByq3OBxvOfZQ6mXeOoYCiCoRMMMv8unqStS4dR5dpcplyh4zzoidc
-         LeHHIsKtyg8GqcOLb2oPltgVQ2Xj6GWArQ0sn5Bg=
+        b=DB3j4FwkIEg4IEqlZlhTFm6YsQb3k0HJWWc9ALpuhsfaApcgpDP0MD4MAXKeWEFMG
+         Ss73/vkzrW68U9chNryEBGmJeql8T5GDUW6EZPFhSIlbx7r4EK/yht3pzX84/b71XK
+         FslRq1xQ3+8MLR+75Qxl0jOJ/zkClfEgKrKTwoAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Barnab=C3=A1s=20P=C5=91cze?= <pobrn@protonmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        patches@lists.linux.dev, Alexey Dobriyan <adobriyan@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0127/1146] timerqueue: Use rb_entry_safe() in timerqueue_getnext()
-Date:   Wed, 28 Dec 2022 15:27:46 +0100
-Message-Id: <20221228144333.603058680@linuxfoundation.org>
+Subject: [PATCH 6.1 0128/1146] proc: fixup uptime selftest
+Date:   Wed, 28 Dec 2022 15:27:47 +0100
+Message-Id: <20221228144333.629638055@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -54,39 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Barnabás Pőcze <pobrn@protonmail.com>
+From: Alexey Dobriyan <adobriyan@gmail.com>
 
-[ Upstream commit 2f117484329b233455ee278f2d9b0a4356835060 ]
+[ Upstream commit 5cc81d5c81af0dee54da9a67a3ebe4be076a13db ]
 
-When `timerqueue_getnext()` is called on an empty timer queue, it will
-use `rb_entry()` on a NULL pointer, which is invalid. Fix that by using
-`rb_entry_safe()` which handles NULL pointers.
+syscall(3) returns -1 and sets errno on error, unlike "syscall"
+instruction.
 
-This has not caused any issues so far because the offset of the `rb_node`
-member in `timerqueue_node` is 0, so `rb_entry()` is essentially a no-op.
+Systems which have <= 32/64 CPUs are unaffected. Test won't bounce
+to all CPUs before completing if there are more of them.
 
-Fixes: 511885d7061e ("lib/timerqueue: Rely on rbtree semantics for next timer")
-Signed-off-by: Barnabás Pőcze <pobrn@protonmail.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20221114195421.342929-1-pobrn@protonmail.com
+Link: https://lkml.kernel.org/r/Y1bUiT7VRXlXPQa1@p183
+Fixes: 1f5bd0547654 ("proc: selftests: test /proc/uptime")
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/timerqueue.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/proc/proc-uptime-002.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/timerqueue.h b/include/linux/timerqueue.h
-index 93884086f392..adc80e29168e 100644
---- a/include/linux/timerqueue.h
-+++ b/include/linux/timerqueue.h
-@@ -35,7 +35,7 @@ struct timerqueue_node *timerqueue_getnext(struct timerqueue_head *head)
- {
- 	struct rb_node *leftmost = rb_first_cached(&head->rb_root);
+diff --git a/tools/testing/selftests/proc/proc-uptime-002.c b/tools/testing/selftests/proc/proc-uptime-002.c
+index e7ceabed7f51..7d0aa22bdc12 100644
+--- a/tools/testing/selftests/proc/proc-uptime-002.c
++++ b/tools/testing/selftests/proc/proc-uptime-002.c
+@@ -17,6 +17,7 @@
+ // while shifting across CPUs.
+ #undef NDEBUG
+ #include <assert.h>
++#include <errno.h>
+ #include <unistd.h>
+ #include <sys/syscall.h>
+ #include <stdlib.h>
+@@ -54,7 +55,7 @@ int main(void)
+ 		len += sizeof(unsigned long);
+ 		free(m);
+ 		m = malloc(len);
+-	} while (sys_sched_getaffinity(0, len, m) == -EINVAL);
++	} while (sys_sched_getaffinity(0, len, m) == -1 && errno == EINVAL);
  
--	return rb_entry(leftmost, struct timerqueue_node, node);
-+	return rb_entry_safe(leftmost, struct timerqueue_node, node);
- }
- 
- static inline void timerqueue_init(struct timerqueue_node *node)
+ 	fd = open("/proc/uptime", O_RDONLY);
+ 	assert(fd >= 0);
 -- 
 2.35.1
 
