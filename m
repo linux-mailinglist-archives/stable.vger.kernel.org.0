@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E71E657FCB
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:10:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B64C65808A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:18:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234364AbiL1QJi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:09:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53906 "EHLO
+        id S233189AbiL1QSM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:18:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234388AbiL1QJI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:09:08 -0500
+        with ESMTP id S234767AbiL1QR1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:17:27 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE53E1A06D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:08:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBC94B65
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:16:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E8692B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:08:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F2F4C433D2;
-        Wed, 28 Dec 2022 16:08:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7CF91B81886
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:16:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C05FEC433EF;
+        Wed, 28 Dec 2022 16:15:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243696;
-        bh=TbIGCzjUVi0Ay97XOrVzID+wE9BX7b0A5RwyvJ/SQps=;
+        s=korg; t=1672244160;
+        bh=/MrfJTHi7Bi4/kuGzTXSvEvQ7rFlXqWPJay6k6l/MpU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G9O9vMGDii5qmG/K0i4cels7wxhT69M6FWVLWRbH0rBiwm6gc5+B7TbyBeXRGsyOb
-         dD/0llStSk8iR28UIGVAIyaoQ8i6gQ2LTuTQKFzUe0gIQNjWggdxT30UKRn5CJN765
-         HEjcl8sJqV13Iwpo427Vdlyu8nZ2xBmajV9fSOgA=
+        b=NeLXlwcb9SWsa+GgyI4Ttcy2Cqy9TeenEk0oVQzy+Izx6U4XF+DD+xQr0vIX82KAX
+         KxJBAaObR1eBAACyQM8ykbTM/Us29H0cNGzAypyBWbDtB2MkUwgpzJ0u/3IvB7F1OI
+         yeWPksH7KIKdKubrFYVw3IalZ6hvmCm8c6h7HVlY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, John Keeping <john@metanate.com>,
-        Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        patches@lists.linux.dev, Luoyouming <luoyouming@huawei.com>,
+        Haoyue Xu <xuhaoyue1@hisilicon.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0571/1073] crypto: rockchip - add fallback for cipher
-Date:   Wed, 28 Dec 2022 15:35:59 +0100
-Message-Id: <20221228144343.562975843@linuxfoundation.org>
+Subject: [PATCH 6.1 0621/1146] RDMA/hns: Fix incorrect sge nums calculation
+Date:   Wed, 28 Dec 2022 15:36:00 +0100
+Message-Id: <20221228144347.037244729@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,257 +54,342 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Luoyouming <luoyouming@huawei.com>
 
-[ Upstream commit 68ef8af09a1a912a5ed2cfaa4cca7606f52cef90 ]
+[ Upstream commit 0c5e259b06a8efc69f929ad777ea49281bb58e37 ]
 
-The hardware does not handle 0 size length request, let's add a
-fallback.
-Furthermore fallback will be used for all unaligned case the hardware
-cannot handle.
+The user usually configures the number of sge through the max_send_sge
+parameter when creating qp, and configures the maximum size of inline data
+that can be sent through max_inline_data. Inline uses sge to fill data to
+send. Expect the following:
 
-Fixes: ce0183cb6464b ("crypto: rockchip - switch to skcipher API")
-Reviewed-by: John Keeping <john@metanate.com>
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+1) When the sge space cannot hold inline data, the sge space needs to be
+   expanded to accommodate all inline data
+
+2) When the sge space is enough to accommodate inline data, the upper
+   limit of inline data can be increased so that users can send larger
+   inline data
+
+Currently case one is not implemented. When the inline data is larger than
+the sge space, an error of insufficient sge space occurs.  This part of
+the code needs to be reimplemented according to the expected rules. The
+calculation method of sge num is modified to take the maximum value of
+max_send_sge and the sge for max_inline_data to solve this problem.
+
+Fixes: 05201e01be93 ("RDMA/hns: Refactor process of setting extended sge")
+Fixes: 30b707886aeb ("RDMA/hns: Support inline data in extented sge space for RC")
+Link: https://lore.kernel.org/r/20221108133847.2304539-3-xuhaoyue1@hisilicon.com
+Signed-off-by: Luoyouming <luoyouming@huawei.com>
+Signed-off-by: Haoyue Xu <xuhaoyue1@hisilicon.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/Kconfig                        |  4 +
- drivers/crypto/rockchip/rk3288_crypto.h       |  2 +
- .../crypto/rockchip/rk3288_crypto_skcipher.c  | 97 ++++++++++++++++---
- 3 files changed, 90 insertions(+), 13 deletions(-)
+ drivers/infiniband/hw/hns/hns_roce_device.h |   3 +
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c  |  12 +--
+ drivers/infiniband/hw/hns/hns_roce_main.c   |  18 +++-
+ drivers/infiniband/hw/hns/hns_roce_qp.c     | 107 ++++++++++++++++----
+ include/uapi/rdma/hns-abi.h                 |  15 +++
+ 5 files changed, 125 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/crypto/Kconfig b/drivers/crypto/Kconfig
-index 3e6aa319920b..3080bd3d8cbb 100644
---- a/drivers/crypto/Kconfig
-+++ b/drivers/crypto/Kconfig
-@@ -669,6 +669,10 @@ config CRYPTO_DEV_IMGTEC_HASH
- config CRYPTO_DEV_ROCKCHIP
- 	tristate "Rockchip's Cryptographic Engine driver"
- 	depends on OF && ARCH_ROCKCHIP
-+	depends on PM
-+	select CRYPTO_ECB
-+	select CRYPTO_CBC
-+	select CRYPTO_DES
- 	select CRYPTO_AES
- 	select CRYPTO_LIB_DES
- 	select CRYPTO_MD5
-diff --git a/drivers/crypto/rockchip/rk3288_crypto.h b/drivers/crypto/rockchip/rk3288_crypto.h
-index 3e60e3dca1b5..dfff0e2a83e4 100644
---- a/drivers/crypto/rockchip/rk3288_crypto.h
-+++ b/drivers/crypto/rockchip/rk3288_crypto.h
-@@ -246,10 +246,12 @@ struct rk_cipher_ctx {
- 	struct rk_crypto_info		*dev;
- 	unsigned int			keylen;
- 	u8				iv[AES_BLOCK_SIZE];
-+	struct crypto_skcipher *fallback_tfm;
+diff --git a/drivers/infiniband/hw/hns/hns_roce_device.h b/drivers/infiniband/hw/hns/hns_roce_device.h
+index 723e55a7de8d..f701cc86896b 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_device.h
++++ b/drivers/infiniband/hw/hns/hns_roce_device.h
+@@ -202,6 +202,7 @@ struct hns_roce_ucontext {
+ 	struct list_head	page_list;
+ 	struct mutex		page_mutex;
+ 	struct hns_user_mmap_entry *db_mmap_entry;
++	u32			config;
  };
  
- struct rk_cipher_rctx {
- 	u32				mode;
-+	struct skcipher_request fallback_req;   // keep at the end
+ struct hns_roce_pd {
+@@ -334,6 +335,7 @@ struct hns_roce_wq {
+ 	u32		head;
+ 	u32		tail;
+ 	void __iomem	*db_reg;
++	u32		ext_sge_cnt;
  };
  
- enum alg_type {
-diff --git a/drivers/crypto/rockchip/rk3288_crypto_skcipher.c b/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
-index bbd0bf52bf07..eac5bba66e25 100644
---- a/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
-+++ b/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
-@@ -13,6 +13,63 @@
+ struct hns_roce_sge {
+@@ -635,6 +637,7 @@ struct hns_roce_qp {
+ 	struct list_head	rq_node; /* all recv qps are on a list */
+ 	struct list_head	sq_node; /* all send qps are on a list */
+ 	struct hns_user_mmap_entry *dwqe_mmap_entry;
++	u32			config;
+ };
  
- #define RK_CRYPTO_DEC			BIT(0)
- 
-+static int rk_cipher_need_fallback(struct skcipher_request *req)
-+{
-+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
-+	unsigned int bs = crypto_skcipher_blocksize(tfm);
-+	struct scatterlist *sgs, *sgd;
-+	unsigned int stodo, dtodo, len;
-+
-+	if (!req->cryptlen)
-+		return true;
-+
-+	len = req->cryptlen;
-+	sgs = req->src;
-+	sgd = req->dst;
-+	while (sgs && sgd) {
-+		if (!IS_ALIGNED(sgs->offset, sizeof(u32))) {
-+			return true;
-+		}
-+		if (!IS_ALIGNED(sgd->offset, sizeof(u32))) {
-+			return true;
-+		}
-+		stodo = min(len, sgs->length);
-+		if (stodo % bs) {
-+			return true;
-+		}
-+		dtodo = min(len, sgd->length);
-+		if (dtodo % bs) {
-+			return true;
-+		}
-+		if (stodo != dtodo) {
-+			return true;
-+		}
-+		len -= stodo;
-+		sgs = sg_next(sgs);
-+		sgd = sg_next(sgd);
-+	}
-+	return false;
-+}
-+
-+static int rk_cipher_fallback(struct skcipher_request *areq)
-+{
-+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(areq);
-+	struct rk_cipher_ctx *op = crypto_skcipher_ctx(tfm);
-+	struct rk_cipher_rctx *rctx = skcipher_request_ctx(areq);
-+	int err;
-+
-+	skcipher_request_set_tfm(&rctx->fallback_req, op->fallback_tfm);
-+	skcipher_request_set_callback(&rctx->fallback_req, areq->base.flags,
-+				      areq->base.complete, areq->base.data);
-+	skcipher_request_set_crypt(&rctx->fallback_req, areq->src, areq->dst,
-+				   areq->cryptlen, areq->iv);
-+	if (rctx->mode & RK_CRYPTO_DEC)
-+		err = crypto_skcipher_decrypt(&rctx->fallback_req);
-+	else
-+		err = crypto_skcipher_encrypt(&rctx->fallback_req);
-+	return err;
-+}
-+
- static void rk_crypto_complete(struct crypto_async_request *base, int err)
- {
- 	if (base->complete)
-@@ -22,10 +79,10 @@ static void rk_crypto_complete(struct crypto_async_request *base, int err)
- static int rk_handle_req(struct rk_crypto_info *dev,
- 			 struct skcipher_request *req)
- {
--	if (!IS_ALIGNED(req->cryptlen, dev->align_size))
--		return -EINVAL;
--	else
--		return dev->enqueue(dev, &req->base);
-+	if (rk_cipher_need_fallback(req))
-+		return rk_cipher_fallback(req);
-+
-+	return dev->enqueue(dev, &req->base);
+ struct hns_roce_ib_iboe {
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index 0937db738be7..65875b4cff13 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -187,14 +187,6 @@ static void set_atomic_seg(const struct ib_send_wr *wr,
+ 	hr_reg_write(rc_sq_wqe, RC_SEND_WQE_SGE_NUM, valid_num_sge);
  }
  
- static int rk_aes_setkey(struct crypto_skcipher *cipher,
-@@ -39,7 +96,8 @@ static int rk_aes_setkey(struct crypto_skcipher *cipher,
+-static unsigned int get_std_sge_num(struct hns_roce_qp *qp)
+-{
+-	if (qp->ibqp.qp_type == IB_QPT_GSI || qp->ibqp.qp_type == IB_QPT_UD)
+-		return 0;
+-
+-	return HNS_ROCE_SGE_IN_WQE;
+-}
+-
+ static int fill_ext_sge_inl_data(struct hns_roce_qp *qp,
+ 				 const struct ib_send_wr *wr,
+ 				 unsigned int *sge_idx, u32 msg_len)
+@@ -202,14 +194,12 @@ static int fill_ext_sge_inl_data(struct hns_roce_qp *qp,
+ 	struct ib_device *ibdev = &(to_hr_dev(qp->ibqp.device))->ib_dev;
+ 	unsigned int left_len_in_pg;
+ 	unsigned int idx = *sge_idx;
+-	unsigned int std_sge_num;
+ 	unsigned int i = 0;
+ 	unsigned int len;
+ 	void *addr;
+ 	void *dseg;
+ 
+-	std_sge_num = get_std_sge_num(qp);
+-	if (msg_len > (qp->sq.max_gs - std_sge_num) * HNS_ROCE_SGE_SIZE) {
++	if (msg_len > qp->sq.ext_sge_cnt * HNS_ROCE_SGE_SIZE) {
+ 		ibdev_err(ibdev,
+ 			  "no enough extended sge space for inline data.\n");
  		return -EINVAL;
- 	ctx->keylen = keylen;
- 	memcpy_toio(ctx->dev->reg + RK_CRYPTO_AES_KEY_0, key, keylen);
--	return 0;
-+
-+	return crypto_skcipher_setkey(ctx->fallback_tfm, key, keylen);
- }
- 
- static int rk_des_setkey(struct crypto_skcipher *cipher,
-@@ -54,7 +112,8 @@ static int rk_des_setkey(struct crypto_skcipher *cipher,
- 
- 	ctx->keylen = keylen;
- 	memcpy_toio(ctx->dev->reg + RK_CRYPTO_TDES_KEY1_0, key, keylen);
--	return 0;
-+
-+	return crypto_skcipher_setkey(ctx->fallback_tfm, key, keylen);
- }
- 
- static int rk_tdes_setkey(struct crypto_skcipher *cipher,
-@@ -69,7 +128,7 @@ static int rk_tdes_setkey(struct crypto_skcipher *cipher,
- 
- 	ctx->keylen = keylen;
- 	memcpy_toio(ctx->dev->reg + RK_CRYPTO_TDES_KEY1_0, key, keylen);
--	return 0;
-+	return crypto_skcipher_setkey(ctx->fallback_tfm, key, keylen);
- }
- 
- static int rk_aes_ecb_encrypt(struct skcipher_request *req)
-@@ -394,6 +453,7 @@ static int rk_ablk_init_tfm(struct crypto_skcipher *tfm)
+diff --git a/drivers/infiniband/hw/hns/hns_roce_main.c b/drivers/infiniband/hw/hns/hns_roce_main.c
+index dcf89689a4c6..8ba68ac12388 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_main.c
++++ b/drivers/infiniband/hw/hns/hns_roce_main.c
+@@ -354,10 +354,11 @@ static int hns_roce_alloc_uar_entry(struct ib_ucontext *uctx)
+ static int hns_roce_alloc_ucontext(struct ib_ucontext *uctx,
+ 				   struct ib_udata *udata)
  {
- 	struct rk_cipher_ctx *ctx = crypto_skcipher_ctx(tfm);
- 	struct skcipher_alg *alg = crypto_skcipher_alg(tfm);
-+	const char *name = crypto_tfm_alg_name(&tfm->base);
- 	struct rk_crypto_tmp *algt;
+-	int ret;
+ 	struct hns_roce_ucontext *context = to_hr_ucontext(uctx);
+-	struct hns_roce_ib_alloc_ucontext_resp resp = {};
+ 	struct hns_roce_dev *hr_dev = to_hr_dev(uctx->device);
++	struct hns_roce_ib_alloc_ucontext_resp resp = {};
++	struct hns_roce_ib_alloc_ucontext ucmd = {};
++	int ret;
  
- 	algt = container_of(alg, struct rk_crypto_tmp, alg.skcipher);
-@@ -407,6 +467,16 @@ static int rk_ablk_init_tfm(struct crypto_skcipher *tfm)
- 	if (!ctx->dev->addr_vir)
- 		return -ENOMEM;
+ 	if (!hr_dev->active)
+ 		return -EAGAIN;
+@@ -365,6 +366,19 @@ static int hns_roce_alloc_ucontext(struct ib_ucontext *uctx,
+ 	resp.qp_tab_size = hr_dev->caps.num_qps;
+ 	resp.srq_tab_size = hr_dev->caps.num_srqs;
  
-+	ctx->fallback_tfm = crypto_alloc_skcipher(name, 0, CRYPTO_ALG_NEED_FALLBACK);
-+	if (IS_ERR(ctx->fallback_tfm)) {
-+		dev_err(ctx->dev->dev, "ERROR: Cannot allocate fallback for %s %ld\n",
-+			name, PTR_ERR(ctx->fallback_tfm));
-+		return PTR_ERR(ctx->fallback_tfm);
++	ret = ib_copy_from_udata(&ucmd, udata,
++				 min(udata->inlen, sizeof(ucmd)));
++	if (ret)
++		return ret;
++
++	if (hr_dev->pci_dev->revision >= PCI_REVISION_ID_HIP09)
++		context->config = ucmd.config & HNS_ROCE_EXSGE_FLAGS;
++
++	if (context->config & HNS_ROCE_EXSGE_FLAGS) {
++		resp.config |= HNS_ROCE_RSP_EXSGE_FLAGS;
++		resp.max_inline_data = hr_dev->caps.max_sq_inline;
 +	}
 +
-+	tfm->reqsize = sizeof(struct rk_cipher_rctx) +
-+		crypto_skcipher_reqsize(ctx->fallback_tfm);
-+
+ 	ret = hns_roce_uar_alloc(hr_dev, &context->uar);
+ 	if (ret)
+ 		goto error_fail_uar_alloc;
+diff --git a/drivers/infiniband/hw/hns/hns_roce_qp.c b/drivers/infiniband/hw/hns/hns_roce_qp.c
+index f0bd82a18069..0ae335fb205c 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_qp.c
++++ b/drivers/infiniband/hw/hns/hns_roce_qp.c
+@@ -476,38 +476,109 @@ static int set_rq_size(struct hns_roce_dev *hr_dev, struct ib_qp_cap *cap,
  	return 0;
  }
  
-@@ -415,6 +485,7 @@ static void rk_ablk_exit_tfm(struct crypto_skcipher *tfm)
- 	struct rk_cipher_ctx *ctx = crypto_skcipher_ctx(tfm);
+-static u32 get_wqe_ext_sge_cnt(struct hns_roce_qp *qp)
++static u32 get_max_inline_data(struct hns_roce_dev *hr_dev,
++			       struct ib_qp_cap *cap)
+ {
+-	/* GSI/UD QP only has extended sge */
+-	if (qp->ibqp.qp_type == IB_QPT_GSI || qp->ibqp.qp_type == IB_QPT_UD)
+-		return qp->sq.max_gs;
+-
+-	if (qp->sq.max_gs > HNS_ROCE_SGE_IN_WQE)
+-		return qp->sq.max_gs - HNS_ROCE_SGE_IN_WQE;
++	if (cap->max_inline_data) {
++		cap->max_inline_data = roundup_pow_of_two(cap->max_inline_data);
++		return min(cap->max_inline_data,
++			   hr_dev->caps.max_sq_inline);
++	}
  
- 	free_page((unsigned long)ctx->dev->addr_vir);
-+	crypto_free_skcipher(ctx->fallback_tfm);
+ 	return 0;
  }
  
- struct rk_crypto_tmp rk_ecb_aes_alg = {
-@@ -423,7 +494,7 @@ struct rk_crypto_tmp rk_ecb_aes_alg = {
- 		.base.cra_name		= "ecb(aes)",
- 		.base.cra_driver_name	= "ecb-aes-rk",
- 		.base.cra_priority	= 300,
--		.base.cra_flags		= CRYPTO_ALG_ASYNC,
-+		.base.cra_flags		= CRYPTO_ALG_ASYNC | CRYPTO_ALG_NEED_FALLBACK,
- 		.base.cra_blocksize	= AES_BLOCK_SIZE,
- 		.base.cra_ctxsize	= sizeof(struct rk_cipher_ctx),
- 		.base.cra_alignmask	= 0x0f,
-@@ -445,7 +516,7 @@ struct rk_crypto_tmp rk_cbc_aes_alg = {
- 		.base.cra_name		= "cbc(aes)",
- 		.base.cra_driver_name	= "cbc-aes-rk",
- 		.base.cra_priority	= 300,
--		.base.cra_flags		= CRYPTO_ALG_ASYNC,
-+		.base.cra_flags		= CRYPTO_ALG_ASYNC | CRYPTO_ALG_NEED_FALLBACK,
- 		.base.cra_blocksize	= AES_BLOCK_SIZE,
- 		.base.cra_ctxsize	= sizeof(struct rk_cipher_ctx),
- 		.base.cra_alignmask	= 0x0f,
-@@ -468,7 +539,7 @@ struct rk_crypto_tmp rk_ecb_des_alg = {
- 		.base.cra_name		= "ecb(des)",
- 		.base.cra_driver_name	= "ecb-des-rk",
- 		.base.cra_priority	= 300,
--		.base.cra_flags		= CRYPTO_ALG_ASYNC,
-+		.base.cra_flags		= CRYPTO_ALG_ASYNC | CRYPTO_ALG_NEED_FALLBACK,
- 		.base.cra_blocksize	= DES_BLOCK_SIZE,
- 		.base.cra_ctxsize	= sizeof(struct rk_cipher_ctx),
- 		.base.cra_alignmask	= 0x07,
-@@ -490,7 +561,7 @@ struct rk_crypto_tmp rk_cbc_des_alg = {
- 		.base.cra_name		= "cbc(des)",
- 		.base.cra_driver_name	= "cbc-des-rk",
- 		.base.cra_priority	= 300,
--		.base.cra_flags		= CRYPTO_ALG_ASYNC,
-+		.base.cra_flags		= CRYPTO_ALG_ASYNC | CRYPTO_ALG_NEED_FALLBACK,
- 		.base.cra_blocksize	= DES_BLOCK_SIZE,
- 		.base.cra_ctxsize	= sizeof(struct rk_cipher_ctx),
- 		.base.cra_alignmask	= 0x07,
-@@ -513,7 +584,7 @@ struct rk_crypto_tmp rk_ecb_des3_ede_alg = {
- 		.base.cra_name		= "ecb(des3_ede)",
- 		.base.cra_driver_name	= "ecb-des3-ede-rk",
- 		.base.cra_priority	= 300,
--		.base.cra_flags		= CRYPTO_ALG_ASYNC,
-+		.base.cra_flags		= CRYPTO_ALG_ASYNC | CRYPTO_ALG_NEED_FALLBACK,
- 		.base.cra_blocksize	= DES_BLOCK_SIZE,
- 		.base.cra_ctxsize	= sizeof(struct rk_cipher_ctx),
- 		.base.cra_alignmask	= 0x07,
-@@ -535,7 +606,7 @@ struct rk_crypto_tmp rk_cbc_des3_ede_alg = {
- 		.base.cra_name		= "cbc(des3_ede)",
- 		.base.cra_driver_name	= "cbc-des3-ede-rk",
- 		.base.cra_priority	= 300,
--		.base.cra_flags		= CRYPTO_ALG_ASYNC,
-+		.base.cra_flags		= CRYPTO_ALG_ASYNC | CRYPTO_ALG_NEED_FALLBACK,
- 		.base.cra_blocksize	= DES_BLOCK_SIZE,
- 		.base.cra_ctxsize	= sizeof(struct rk_cipher_ctx),
- 		.base.cra_alignmask	= 0x07,
++static void update_inline_data(struct hns_roce_qp *hr_qp,
++			       struct ib_qp_cap *cap)
++{
++	u32 sge_num = hr_qp->sq.ext_sge_cnt;
++
++	if (hr_qp->config & HNS_ROCE_EXSGE_FLAGS) {
++		if (!(hr_qp->ibqp.qp_type == IB_QPT_GSI ||
++		      hr_qp->ibqp.qp_type == IB_QPT_UD))
++			sge_num = max((u32)HNS_ROCE_SGE_IN_WQE, sge_num);
++
++		cap->max_inline_data = max(cap->max_inline_data,
++					   sge_num * HNS_ROCE_SGE_SIZE);
++	}
++
++	hr_qp->max_inline_data = cap->max_inline_data;
++}
++
++static u32 get_sge_num_from_max_send_sge(bool is_ud_or_gsi,
++					 u32 max_send_sge)
++{
++	unsigned int std_sge_num;
++	unsigned int min_sge;
++
++	std_sge_num = is_ud_or_gsi ? 0 : HNS_ROCE_SGE_IN_WQE;
++	min_sge = is_ud_or_gsi ? 1 : 0;
++	return max_send_sge > std_sge_num ? (max_send_sge - std_sge_num) :
++				min_sge;
++}
++
++static unsigned int get_sge_num_from_max_inl_data(bool is_ud_or_gsi,
++						  u32 max_inline_data)
++{
++	unsigned int inline_sge;
++
++	inline_sge = roundup_pow_of_two(max_inline_data) / HNS_ROCE_SGE_SIZE;
++
++	/*
++	 * if max_inline_data less than
++	 * HNS_ROCE_SGE_IN_WQE * HNS_ROCE_SGE_SIZE,
++	 * In addition to ud's mode, no need to extend sge.
++	 */
++	if (!is_ud_or_gsi && inline_sge <= HNS_ROCE_SGE_IN_WQE)
++		inline_sge = 0;
++
++	return inline_sge;
++}
++
+ static void set_ext_sge_param(struct hns_roce_dev *hr_dev, u32 sq_wqe_cnt,
+ 			      struct hns_roce_qp *hr_qp, struct ib_qp_cap *cap)
+ {
++	bool is_ud_or_gsi = (hr_qp->ibqp.qp_type == IB_QPT_GSI ||
++				hr_qp->ibqp.qp_type == IB_QPT_UD);
++	unsigned int std_sge_num;
++	u32 inline_ext_sge = 0;
++	u32 ext_wqe_sge_cnt;
+ 	u32 total_sge_cnt;
+-	u32 wqe_sge_cnt;
++
++	cap->max_inline_data = get_max_inline_data(hr_dev, cap);
+ 
+ 	hr_qp->sge.sge_shift = HNS_ROCE_SGE_SHIFT;
++	std_sge_num = is_ud_or_gsi ? 0 : HNS_ROCE_SGE_IN_WQE;
++	ext_wqe_sge_cnt = get_sge_num_from_max_send_sge(is_ud_or_gsi,
++							cap->max_send_sge);
+ 
+-	hr_qp->sq.max_gs = max(1U, cap->max_send_sge);
++	if (hr_qp->config & HNS_ROCE_EXSGE_FLAGS) {
++		inline_ext_sge = max(ext_wqe_sge_cnt,
++				     get_sge_num_from_max_inl_data(is_ud_or_gsi,
++							 cap->max_inline_data));
++		hr_qp->sq.ext_sge_cnt = inline_ext_sge ?
++					roundup_pow_of_two(inline_ext_sge) : 0;
+ 
+-	wqe_sge_cnt = get_wqe_ext_sge_cnt(hr_qp);
++		hr_qp->sq.max_gs = max(1U, (hr_qp->sq.ext_sge_cnt + std_sge_num));
++		hr_qp->sq.max_gs = min(hr_qp->sq.max_gs, hr_dev->caps.max_sq_sg);
++
++		ext_wqe_sge_cnt = hr_qp->sq.ext_sge_cnt;
++	} else {
++		hr_qp->sq.max_gs = max(1U, cap->max_send_sge);
++		hr_qp->sq.max_gs = min(hr_qp->sq.max_gs, hr_dev->caps.max_sq_sg);
++		hr_qp->sq.ext_sge_cnt = hr_qp->sq.max_gs;
++	}
+ 
+ 	/* If the number of extended sge is not zero, they MUST use the
+ 	 * space of HNS_HW_PAGE_SIZE at least.
+ 	 */
+-	if (wqe_sge_cnt) {
+-		total_sge_cnt = roundup_pow_of_two(sq_wqe_cnt * wqe_sge_cnt);
++	if (ext_wqe_sge_cnt) {
++		total_sge_cnt = roundup_pow_of_two(sq_wqe_cnt * ext_wqe_sge_cnt);
+ 		hr_qp->sge.sge_cnt = max(total_sge_cnt,
+ 				(u32)HNS_HW_PAGE_SIZE / HNS_ROCE_SGE_SIZE);
+ 	}
++
++	update_inline_data(hr_qp, cap);
+ }
+ 
+ static int check_sq_size_with_integrity(struct hns_roce_dev *hr_dev,
+@@ -556,6 +627,7 @@ static int set_user_sq_size(struct hns_roce_dev *hr_dev,
+ 
+ 	hr_qp->sq.wqe_shift = ucmd->log_sq_stride;
+ 	hr_qp->sq.wqe_cnt = cnt;
++	cap->max_send_sge = hr_qp->sq.max_gs;
+ 
+ 	return 0;
+ }
+@@ -986,13 +1058,9 @@ static int set_qp_param(struct hns_roce_dev *hr_dev, struct hns_roce_qp *hr_qp,
+ 			struct hns_roce_ib_create_qp *ucmd)
+ {
+ 	struct ib_device *ibdev = &hr_dev->ib_dev;
++	struct hns_roce_ucontext *uctx;
+ 	int ret;
+ 
+-	if (init_attr->cap.max_inline_data > hr_dev->caps.max_sq_inline)
+-		init_attr->cap.max_inline_data = hr_dev->caps.max_sq_inline;
+-
+-	hr_qp->max_inline_data = init_attr->cap.max_inline_data;
+-
+ 	if (init_attr->sq_sig_type == IB_SIGNAL_ALL_WR)
+ 		hr_qp->sq_signal_bits = IB_SIGNAL_ALL_WR;
+ 	else
+@@ -1015,12 +1083,17 @@ static int set_qp_param(struct hns_roce_dev *hr_dev, struct hns_roce_qp *hr_qp,
+ 			return ret;
+ 		}
+ 
++		uctx = rdma_udata_to_drv_context(udata, struct hns_roce_ucontext,
++						 ibucontext);
++		hr_qp->config = uctx->config;
+ 		ret = set_user_sq_size(hr_dev, &init_attr->cap, hr_qp, ucmd);
+ 		if (ret)
+ 			ibdev_err(ibdev,
+ 				  "failed to set user SQ size, ret = %d.\n",
+ 				  ret);
+ 	} else {
++		if (hr_dev->pci_dev->revision >= PCI_REVISION_ID_HIP09)
++			hr_qp->config = HNS_ROCE_EXSGE_FLAGS;
+ 		ret = set_kernel_sq_size(hr_dev, &init_attr->cap, hr_qp);
+ 		if (ret)
+ 			ibdev_err(ibdev,
+diff --git a/include/uapi/rdma/hns-abi.h b/include/uapi/rdma/hns-abi.h
+index f6fde06db4b4..745790ce3c26 100644
+--- a/include/uapi/rdma/hns-abi.h
++++ b/include/uapi/rdma/hns-abi.h
+@@ -85,11 +85,26 @@ struct hns_roce_ib_create_qp_resp {
+ 	__aligned_u64 dwqe_mmap_key;
+ };
+ 
++enum {
++	HNS_ROCE_EXSGE_FLAGS = 1 << 0,
++};
++
++enum {
++	HNS_ROCE_RSP_EXSGE_FLAGS = 1 << 0,
++};
++
+ struct hns_roce_ib_alloc_ucontext_resp {
+ 	__u32	qp_tab_size;
+ 	__u32	cqe_size;
+ 	__u32	srq_tab_size;
+ 	__u32	reserved;
++	__u32	config;
++	__u32	max_inline_data;
++};
++
++struct hns_roce_ib_alloc_ucontext {
++	__u32 config;
++	__u32 reserved;
+ };
+ 
+ struct hns_roce_ib_alloc_pd_resp {
 -- 
 2.35.1
 
