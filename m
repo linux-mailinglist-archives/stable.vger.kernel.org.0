@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 001C865847F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FE296584E1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:03:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235325AbiL1Q5l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:57:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50842 "EHLO
+        id S233797AbiL1RDk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:03:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235381AbiL1Q4w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:56:52 -0500
+        with ESMTP id S234503AbiL1RDR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:03:17 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D590220
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:53:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B03F2AB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:57:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 16FC0B816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:53:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78C74C433EF;
-        Wed, 28 Dec 2022 16:53:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9AB08B8171E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:57:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E755BC433D2;
+        Wed, 28 Dec 2022 16:57:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246386;
-        bh=WhrExbzjQIKrlDEv9gHVai0L+gUw4flEenS9mbfYRkw=;
+        s=korg; t=1672246638;
+        bh=5p+95fZ9IYcnOhMVvQAQDW4VIVeBaxD3WCZlRV7jfjE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bM2fIktTd+GZC7F4qe9MAv6yrToAXzHLpHJtuOtpwiEZZrOGcpktVSTPombUoYLlW
-         LzQXAZTcsGnHrEnD1ROjJJFG7ku+6OytOzNAfmcrvSLpUT6XQnJ0hOzB8kp05yUmkq
-         zkWJZwJ0nTklI6NwqfBXQw21Hitr9ZXpnFcVMBA8=
+        b=bSYSyi8HywKE6VIzMgvsgiuJcWn5/jtlHfYgOd3/gz4cUX3QwEit+y2smPZgiklPC
+         fBPy1A6xzJ9x+z8RXMnx18wistueIJYSHjYGMMtuXFT9xH/uG5NDk9e9l9h2R+Wtff
+         IHVaIcClu9Xi6eJV/qV4dZcPnTmbx6iWSeIh3R94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 6.0 1059/1073] io_uring: add completion locking for iopoll
-Date:   Wed, 28 Dec 2022 15:44:07 +0100
-Message-Id: <20221228144356.998161172@linuxfoundation.org>
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Sven Peter <sven@svenpeter.dev>
+Subject: [PATCH 6.1 1109/1146] usb: dwc3: Fix race between dwc3_set_mode and __dwc3_set_mode
+Date:   Wed, 28 Dec 2022 15:44:08 +0100
+Message-Id: <20221228144400.279535086@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,45 +53,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Sven Peter <sven@svenpeter.dev>
 
-commit 2ccc92f4effcfa1c51c4fcf1e34d769099d3cad4 upstream.
+commit 62c73bfea048e66168df09da6d3e4510ecda40bb upstream.
 
-There are pieces of code that may allow iopoll to race filling cqes,
-temporarily add spinlocking around posting events.
+dwc->desired_dr_role is changed by dwc3_set_mode inside a spinlock but
+then read by __dwc3_set_mode outside of that lock. This can lead to a
+race condition when very quick successive role switch events happen:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/84d86b5c117feda075471c5c9e65208e0dccf5d0.1669203009.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+CPU A
+	dwc3_set_mode(DWC3_GCTL_PRTCAP_HOST) // first role switch event
+		spin_lock_irqsave(&dwc->lock, flags);
+		dwc->desired_dr_role = mode; // DWC3_GCTL_PRTCAP_HOST
+		spin_unlock_irqrestore(&dwc->lock, flags);
+		queue_work(system_freezable_wq, &dwc->drd_work);
+
+CPU B
+	__dwc3_set_mode
+		// ....
+		spin_lock_irqsave(&dwc->lock, flags);
+		// desired_dr_role is DWC3_GCTL_PRTCAP_HOST
+		dwc3_set_prtcap(dwc, dwc->desired_dr_role);
+		spin_unlock_irqrestore(&dwc->lock, flags);
+
+CPU A
+	dwc3_set_mode(DWC3_GCTL_PRTCAP_DEVICE) // second event
+		spin_lock_irqsave(&dwc->lock, flags);
+		dwc->desired_dr_role = mode; // DWC3_GCTL_PRTCAP_DEVICE
+		spin_unlock_irqrestore(&dwc->lock, flags);
+
+CPU B (continues running __dwc3_set_mode)
+	switch (dwc->desired_dr_role) { // DWC3_GCTL_PRTCAP_DEVICE
+	// ....
+	case DWC3_GCTL_PRTCAP_DEVICE:
+		// ....
+		ret = dwc3_gadget_init(dwc);
+
+We then have DWC3_GCTL.DWC3_GCTL_PRTCAPDIR = DWC3_GCTL_PRTCAP_HOST and
+dwc->current_dr_role = DWC3_GCTL_PRTCAP_HOST but initialized the
+controller in device mode. It's also possible to get into a state
+where both host and device are intialized at the same time.
+Fix this race by creating a local copy of desired_dr_role inside
+__dwc3_set_mode while holding dwc->lock.
+
+Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work properly")
+Cc: stable <stable@kernel.org>
+Acked-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Signed-off-by: Sven Peter <sven@svenpeter.dev>
+Link: https://lore.kernel.org/r/20221128161526.79730-1-sven@svenpeter.dev
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- io_uring/rw.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/dwc3/core.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
---- a/io_uring/rw.c
-+++ b/io_uring/rw.c
-@@ -1063,6 +1063,7 @@ int io_do_iopoll(struct io_ring_ctx *ctx
- 	else if (!pos)
- 		return 0;
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -122,21 +122,25 @@ static void __dwc3_set_mode(struct work_
+ 	unsigned long flags;
+ 	int ret;
+ 	u32 reg;
++	u32 desired_dr_role;
  
-+	spin_lock(&ctx->completion_lock);
- 	prev = start;
- 	wq_list_for_each_resume(pos, prev) {
- 		struct io_kiocb *req = container_of(pos, struct io_kiocb, comp_list);
-@@ -1077,11 +1078,11 @@ int io_do_iopoll(struct io_ring_ctx *ctx
- 		req->cqe.flags = io_put_kbuf(req, 0);
- 		__io_fill_cqe_req(req->ctx, req);
- 	}
--
-+	io_commit_cqring(ctx);
-+	spin_unlock(&ctx->completion_lock);
- 	if (unlikely(!nr_events))
- 		return 0;
+ 	mutex_lock(&dwc->mutex);
++	spin_lock_irqsave(&dwc->lock, flags);
++	desired_dr_role = dwc->desired_dr_role;
++	spin_unlock_irqrestore(&dwc->lock, flags);
  
--	io_commit_cqring(ctx);
- 	io_cqring_ev_posted_iopoll(ctx);
- 	pos = start ? start->next : ctx->iopoll_list.first;
- 	wq_list_cut(&ctx->iopoll_list, prev, start);
+ 	pm_runtime_get_sync(dwc->dev);
+ 
+ 	if (dwc->current_dr_role == DWC3_GCTL_PRTCAP_OTG)
+ 		dwc3_otg_update(dwc, 0);
+ 
+-	if (!dwc->desired_dr_role)
++	if (!desired_dr_role)
+ 		goto out;
+ 
+-	if (dwc->desired_dr_role == dwc->current_dr_role)
++	if (desired_dr_role == dwc->current_dr_role)
+ 		goto out;
+ 
+-	if (dwc->desired_dr_role == DWC3_GCTL_PRTCAP_OTG && dwc->edev)
++	if (desired_dr_role == DWC3_GCTL_PRTCAP_OTG && dwc->edev)
+ 		goto out;
+ 
+ 	switch (dwc->current_dr_role) {
+@@ -164,7 +168,7 @@ static void __dwc3_set_mode(struct work_
+ 	 */
+ 	if (dwc->current_dr_role && ((DWC3_IP_IS(DWC3) ||
+ 			DWC3_VER_IS_PRIOR(DWC31, 190A)) &&
+-			dwc->desired_dr_role != DWC3_GCTL_PRTCAP_OTG)) {
++			desired_dr_role != DWC3_GCTL_PRTCAP_OTG)) {
+ 		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
+ 		reg |= DWC3_GCTL_CORESOFTRESET;
+ 		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
+@@ -184,11 +188,11 @@ static void __dwc3_set_mode(struct work_
+ 
+ 	spin_lock_irqsave(&dwc->lock, flags);
+ 
+-	dwc3_set_prtcap(dwc, dwc->desired_dr_role);
++	dwc3_set_prtcap(dwc, desired_dr_role);
+ 
+ 	spin_unlock_irqrestore(&dwc->lock, flags);
+ 
+-	switch (dwc->desired_dr_role) {
++	switch (desired_dr_role) {
+ 	case DWC3_GCTL_PRTCAP_HOST:
+ 		ret = dwc3_host_init(dwc);
+ 		if (ret) {
 
 
