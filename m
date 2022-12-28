@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53A7B657B3C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:19:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37F3B6581F4
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:32:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233338AbiL1PTq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:19:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38616 "EHLO
+        id S234680AbiL1Qc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:32:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233757AbiL1PTU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:19:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FF8313F99
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:19:17 -0800 (PST)
+        with ESMTP id S234696AbiL1QcD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:32:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAFBB2E8
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:28:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FFF161551
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:19:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DEA3C433EF;
-        Wed, 28 Dec 2022 15:19:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F6C4B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:28:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1645CC433F0;
+        Wed, 28 Dec 2022 16:28:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240756;
-        bh=XxJDb52vioGkGzRD2BvTmhbKHagQk5iTdGB3gLkC3Zo=;
+        s=korg; t=1672244919;
+        bh=klFy7AXjHXGz564pvfCV6fTFf/FUGAlNJIEEtUEHjlA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F4g2Z8qhHFMWrE1p+dpVKJsAnsntrP+2s2nOQ1NdwkMTs4CuG/yKji3YKvbVVprUp
-         5cXUelx09d58FJhvtBjpOmAg5wfUwBOinvtWqZ2hgjo3cCv3jK6Erspq9EaMxZ2Ivd
-         n6252RoXFfaRdEtaX1LTzCfTRtzwmUUlFzOUorZE=
+        b=AuWiXCk6Y2ElFZf7XxhzUgqIXMTGVQ3IZEfXorsPN7ssg4WyHzNMpwhGOqKVtbEjY
+         slurdnRXrFHyDvjGurHjkK8Mla+B0wAV0wHDzuio9xwQcxXCmXp+lYx2JEVdvwZf9x
+         OP0gj7vT6PFNqi8WWfvFoMcSjmdHQm5cGtzGI3cA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Luoyouming <luoyouming@huawei.com>,
-        Haoyue Xu <xuhaoyue1@hisilicon.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 394/731] RDMA/hns: Repacing dseg_len by macros in fill_ext_sge_inl_data()
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0762/1146] led: qcom-lpg: Fix sleeping in atomic
 Date:   Wed, 28 Dec 2022 15:38:21 +0100
-Message-Id: <20221228144307.980190998@linuxfoundation.org>
+Message-Id: <20221228144350.844065663@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +53,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luoyouming <luoyouming@huawei.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 3b1f864c904915b3baebffb31ea05ee704b0df3c ]
+[ Upstream commit 3031993b3474794ecb71b6f969a3e60e4bda9d8a ]
 
-The sge size is known to be constant, so it's unnecessary to use sizeof to
-calculate.
+lpg_brighness_set() function can sleep, while led's brightness_set()
+callback must be non-blocking. Change LPG driver to use
+brightness_set_blocking() instead.
 
-Link: https://lore.kernel.org/r/20220922123315.3732205-11-xuhaoyue1@hisilicon.com
-Signed-off-by: Luoyouming <luoyouming@huawei.com>
-Signed-off-by: Haoyue Xu <xuhaoyue1@hisilicon.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Stable-dep-of: 8eaa6f7d569b ("RDMA/hns: Fix ext_sge num error when post send")
+BUG: sleeping function called from invalid context at kernel/locking/mutex.c:580
+in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 0, name: swapper/0
+preempt_count: 101, expected: 0
+INFO: lockdep is turned off.
+CPU: 0 PID: 0 Comm: swapper/0 Tainted: G        W          6.1.0-rc1-00014-gbe99b089c6fc-dirty #85
+Hardware name: Qualcomm Technologies, Inc. DB820c (DT)
+Call trace:
+ dump_backtrace.part.0+0xe4/0xf0
+ show_stack+0x18/0x40
+ dump_stack_lvl+0x88/0xb4
+ dump_stack+0x18/0x34
+ __might_resched+0x170/0x254
+ __might_sleep+0x48/0x9c
+ __mutex_lock+0x4c/0x400
+ mutex_lock_nested+0x2c/0x40
+ lpg_brightness_single_set+0x40/0x90
+ led_set_brightness_nosleep+0x34/0x60
+ led_heartbeat_function+0x80/0x170
+ call_timer_fn+0xb8/0x340
+ __run_timers.part.0+0x20c/0x254
+ run_timer_softirq+0x3c/0x7c
+ _stext+0x14c/0x578
+ ____do_softirq+0x10/0x20
+ call_on_irq_stack+0x2c/0x5c
+ do_softirq_own_stack+0x1c/0x30
+ __irq_exit_rcu+0x164/0x170
+ irq_exit_rcu+0x10/0x40
+ el1_interrupt+0x38/0x50
+ el1h_64_irq_handler+0x18/0x2c
+ el1h_64_irq+0x64/0x68
+ cpuidle_enter_state+0xc8/0x380
+ cpuidle_enter+0x38/0x50
+ do_idle+0x244/0x2d0
+ cpu_startup_entry+0x24/0x30
+ rest_init+0x128/0x1a0
+ arch_post_acpi_subsys_init+0x0/0x18
+ start_kernel+0x6f4/0x734
+ __primary_switched+0xbc/0xc4
+
+Fixes: 24e2d05d1b68 ("leds: Add driver for Qualcomm LPG")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/leds/rgb/leds-qcom-lpg.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index 1421896abaf0..5875ccf86f66 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -156,8 +156,7 @@ static int fill_ext_sge_inl_data(struct hns_roce_qp *qp,
- 				 unsigned int *sge_idx, u32 msg_len)
+diff --git a/drivers/leds/rgb/leds-qcom-lpg.c b/drivers/leds/rgb/leds-qcom-lpg.c
+index 02f51cc61837..c1a56259226f 100644
+--- a/drivers/leds/rgb/leds-qcom-lpg.c
++++ b/drivers/leds/rgb/leds-qcom-lpg.c
+@@ -602,8 +602,8 @@ static void lpg_brightness_set(struct lpg_led *led, struct led_classdev *cdev,
+ 		lpg_lut_sync(lpg, lut_mask);
+ }
+ 
+-static void lpg_brightness_single_set(struct led_classdev *cdev,
+-				      enum led_brightness value)
++static int lpg_brightness_single_set(struct led_classdev *cdev,
++				     enum led_brightness value)
  {
- 	struct ib_device *ibdev = &(to_hr_dev(qp->ibqp.device))->ib_dev;
--	unsigned int dseg_len = sizeof(struct hns_roce_v2_wqe_data_seg);
--	unsigned int ext_sge_sz = qp->sq.max_gs * dseg_len;
-+	unsigned int ext_sge_sz = qp->sq.max_gs * HNS_ROCE_SGE_SIZE;
- 	unsigned int left_len_in_pg;
- 	unsigned int idx = *sge_idx;
- 	unsigned int i = 0;
-@@ -185,7 +184,7 @@ static int fill_ext_sge_inl_data(struct hns_roce_qp *qp,
- 		if (len <= left_len_in_pg) {
- 			memcpy(dseg, addr, len);
+ 	struct lpg_led *led = container_of(cdev, struct lpg_led, cdev);
+ 	struct mc_subled info;
+@@ -614,10 +614,12 @@ static void lpg_brightness_single_set(struct led_classdev *cdev,
+ 	lpg_brightness_set(led, cdev, &info);
  
--			idx += len / dseg_len;
-+			idx += len / HNS_ROCE_SGE_SIZE;
+ 	mutex_unlock(&led->lpg->lock);
++
++	return 0;
+ }
  
- 			i++;
- 			if (i >= wr->num_sge)
-@@ -200,7 +199,7 @@ static int fill_ext_sge_inl_data(struct hns_roce_qp *qp,
+-static void lpg_brightness_mc_set(struct led_classdev *cdev,
+-				  enum led_brightness value)
++static int lpg_brightness_mc_set(struct led_classdev *cdev,
++				 enum led_brightness value)
+ {
+ 	struct led_classdev_mc *mc = lcdev_to_mccdev(cdev);
+ 	struct lpg_led *led = container_of(mc, struct lpg_led, mcdev);
+@@ -628,6 +630,8 @@ static void lpg_brightness_mc_set(struct led_classdev *cdev,
+ 	lpg_brightness_set(led, cdev, mc->subled_info);
  
- 			len -= left_len_in_pg;
- 			addr += left_len_in_pg;
--			idx += left_len_in_pg / dseg_len;
-+			idx += left_len_in_pg / HNS_ROCE_SGE_SIZE;
- 			dseg = hns_roce_get_extend_sge(qp,
- 						idx & (qp->sge.sge_cnt - 1));
- 			left_len_in_pg = 1 << HNS_HW_PAGE_SHIFT;
+ 	mutex_unlock(&led->lpg->lock);
++
++	return 0;
+ }
+ 
+ static int lpg_blink_set(struct lpg_led *led,
+@@ -1118,7 +1122,7 @@ static int lpg_add_led(struct lpg *lpg, struct device_node *np)
+ 		led->mcdev.num_colors = num_channels;
+ 
+ 		cdev = &led->mcdev.led_cdev;
+-		cdev->brightness_set = lpg_brightness_mc_set;
++		cdev->brightness_set_blocking = lpg_brightness_mc_set;
+ 		cdev->blink_set = lpg_blink_mc_set;
+ 
+ 		/* Register pattern accessors only if we have a LUT block */
+@@ -1132,7 +1136,7 @@ static int lpg_add_led(struct lpg *lpg, struct device_node *np)
+ 			return ret;
+ 
+ 		cdev = &led->cdev;
+-		cdev->brightness_set = lpg_brightness_single_set;
++		cdev->brightness_set_blocking = lpg_brightness_single_set;
+ 		cdev->blink_set = lpg_blink_single_set;
+ 
+ 		/* Register pattern accessors only if we have a LUT block */
+@@ -1151,7 +1155,7 @@ static int lpg_add_led(struct lpg *lpg, struct device_node *np)
+ 	else
+ 		cdev->brightness = LED_OFF;
+ 
+-	cdev->brightness_set(cdev, cdev->brightness);
++	cdev->brightness_set_blocking(cdev, cdev->brightness);
+ 
+ 	init_data.fwnode = of_fwnode_handle(np);
+ 
 -- 
 2.35.1
 
