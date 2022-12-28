@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EAEE657BD3
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:26:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D17A657AB3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:14:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233718AbiL1P0P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:26:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43590 "EHLO
+        id S233095AbiL1POW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:14:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233809AbiL1PZh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:25:37 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59419140DB
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:25:36 -0800 (PST)
+        with ESMTP id S232861AbiL1PNy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:13:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA95B13E88
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:13:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9173DCE076E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:25:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 809F4C433EF;
-        Wed, 28 Dec 2022 15:25:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E108DB816D9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:13:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 557ACC433D2;
+        Wed, 28 Dec 2022 15:13:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241132;
-        bh=bStODH//uoNgIQzokissAlAGcDFttmQ5PfzEbyo0UUc=;
+        s=korg; t=1672240430;
+        bh=UVijFt/tOpGD2l3/z1ymEi5pmXo7aTOFsoByvTDKQXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e3qiWjViIqGH52rOgIC6TwV7DmYpHeSmq61v3J1wno5bPsfEH9zOqiI4Ermm1ffXG
-         mySh2Tyv2AWVQNhUSgZJQ05LQoidMwqziZixDy29NQ7iB4oyFBpfcjRxgJfal0kAOk
-         Py1tXTZfDD7lbvH/JLHPl4MpsR3M0NhWIeaVCB44=
+        b=xNTbKjRPM+ldufBoslGT3JFPzTfqpNxAHp89UEA7Pj0Aw002FYtKRvAGP8PH0UfUC
+         P2BlOAghLLXXdMSIHFImfcgqso4F34HIMLsogjMJFfaiOs2Vzmmp98PfthDpvTigaO
+         MSpPRWLBTNfis9+hXgARpY/EhnFdEnpqfOngQfsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ladislav Michl <ladis@linux-mips.org>,
-        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@linaro.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Prashant Malani <pmalani@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0182/1146] MIPS: OCTEON: warn only once if deprecated link status is being used
+Subject: [PATCH 6.0 0133/1073] platform/chrome: cros_usbpd_notify: Fix error handling in cros_usbpd_notify_init()
 Date:   Wed, 28 Dec 2022 15:28:41 +0100
-Message-Id: <20221228144335.096334451@linuxfoundation.org>
+Message-Id: <20221228144331.645893524@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ladislav Michl <ladis@linux-mips.org>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 4c587a982603d7e7e751b4925809a1512099a690 ]
+[ Upstream commit 5a2d96623670155d94aca72c320c0ac27bdc6bd2 ]
 
-Avoid flooding kernel log with warnings.
+The following WARNING message was given when rmmod cros_usbpd_notify:
 
-Fixes: 2c0756d306c2 ("MIPS: OCTEON: warn if deprecated link status is being used")
-Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
-Reviewed-by: Philippe Mathieu-Daudé <philmd@linaro.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+ Unexpected driver unregister!
+ WARNING: CPU: 0 PID: 253 at drivers/base/driver.c:270 driver_unregister+0x8a/0xb0
+ Modules linked in: cros_usbpd_notify(-)
+ CPU: 0 PID: 253 Comm: rmmod Not tainted 6.1.0-rc3 #24
+ ...
+ Call Trace:
+  <TASK>
+  cros_usbpd_notify_exit+0x11/0x1e [cros_usbpd_notify]
+  __x64_sys_delete_module+0x3c7/0x570
+  ? __ia32_sys_delete_module+0x570/0x570
+  ? lock_is_held_type+0xe3/0x140
+  ? syscall_enter_from_user_mode+0x17/0x50
+  ? rcu_read_lock_sched_held+0xa0/0xd0
+  ? syscall_enter_from_user_mode+0x1c/0x50
+  do_syscall_64+0x37/0x90
+  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ RIP: 0033:0x7f333fe9b1b7
+
+The reason is that the cros_usbpd_notify_init() does not check the return
+value of platform_driver_register(), and the cros_usbpd_notify can
+install successfully even if platform_driver_register() failed.
+
+Fix by checking the return value of platform_driver_register() and
+unregister cros_usbpd_notify_plat_driver when it failed.
+
+Fixes: ec2daf6e33f9 ("platform: chrome: Add cros-usbpd-notify driver")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Reviewed-by: Brian Norris <briannorris@chromium.org>
+Link: https://lore.kernel.org/r/20221117080823.77549-1-yuancan@huawei.com
+Signed-off-by: Prashant Malani <pmalani@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/cavium-octeon/executive/cvmx-helper-board.c | 2 +-
- arch/mips/cavium-octeon/executive/cvmx-helper.c       | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/platform/chrome/cros_usbpd_notify.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/cavium-octeon/executive/cvmx-helper-board.c b/arch/mips/cavium-octeon/executive/cvmx-helper-board.c
-index d09d0769f549..0fd9ac76eb74 100644
---- a/arch/mips/cavium-octeon/executive/cvmx-helper-board.c
-+++ b/arch/mips/cavium-octeon/executive/cvmx-helper-board.c
-@@ -211,7 +211,7 @@ union cvmx_helper_link_info __cvmx_helper_board_link_get(int ipd_port)
- {
- 	union cvmx_helper_link_info result;
+diff --git a/drivers/platform/chrome/cros_usbpd_notify.c b/drivers/platform/chrome/cros_usbpd_notify.c
+index 4b5a81c9dc6d..10670b6588e3 100644
+--- a/drivers/platform/chrome/cros_usbpd_notify.c
++++ b/drivers/platform/chrome/cros_usbpd_notify.c
+@@ -239,7 +239,11 @@ static int __init cros_usbpd_notify_init(void)
+ 		return ret;
  
--	WARN(!octeon_is_simulation(),
-+	WARN_ONCE(!octeon_is_simulation(),
- 	     "Using deprecated link status - please update your DT");
- 
- 	/* Unless we fix it later, all links are defaulted to down */
-diff --git a/arch/mips/cavium-octeon/executive/cvmx-helper.c b/arch/mips/cavium-octeon/executive/cvmx-helper.c
-index 6f49fd9be1f3..9abfc4bf9bd8 100644
---- a/arch/mips/cavium-octeon/executive/cvmx-helper.c
-+++ b/arch/mips/cavium-octeon/executive/cvmx-helper.c
-@@ -1096,7 +1096,7 @@ union cvmx_helper_link_info cvmx_helper_link_get(int ipd_port)
- 		if (index == 0)
- 			result = __cvmx_helper_rgmii_link_get(ipd_port);
- 		else {
--			WARN(1, "Using deprecated link status - please update your DT");
-+			WARN_ONCE(1, "Using deprecated link status - please update your DT");
- 			result.s.full_duplex = 1;
- 			result.s.link_up = 1;
- 			result.s.speed = 1000;
+ #ifdef CONFIG_ACPI
+-	platform_driver_register(&cros_usbpd_notify_acpi_driver);
++	ret = platform_driver_register(&cros_usbpd_notify_acpi_driver);
++	if (ret) {
++		platform_driver_unregister(&cros_usbpd_notify_plat_driver);
++		return ret;
++	}
+ #endif
+ 	return 0;
+ }
 -- 
 2.35.1
 
