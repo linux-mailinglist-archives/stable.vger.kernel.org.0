@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DC5E657908
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:56:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B44DD657F9B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:07:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233270AbiL1O4w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:56:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44244 "EHLO
+        id S234402AbiL1QHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:07:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233286AbiL1O4u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:56:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 340EDDCD
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:56:50 -0800 (PST)
+        with ESMTP id S234453AbiL1QGp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:06:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2A8918B25
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:06:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C52B0614B2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:56:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9E6DC433EF;
-        Wed, 28 Dec 2022 14:56:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14FD761576
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:06:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11ED4C433D2;
+        Wed, 28 Dec 2022 16:06:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239409;
-        bh=MbAb0bNy8l/E5IppMg6LDyvbtgW8oiWqlw+mbO+kd0Y=;
+        s=korg; t=1672243592;
+        bh=Az+C2DkIvphMvXJJFfptiK2CQLMYct9hBqhW2Scu1yk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k4N1gmi8rueSGjbfFOhsczX/X393zuxtk8Ibi27/HcIDNrkAs5Kto6OUDRe5gbzRT
-         BN54pY2fF1m08QfpOS97hYkMk5i1yk1rK55gz9GuJYPbuuYUA4vN1jM15IMyMogEcx
-         PwXMw9rTtmak5F4fV8zM8eFg8T/nxdwX18jocwnY=
+        b=Sl3OUQkJT+jVtHBfD4ArS9HXAM3q6xqov0Hfzk//NzSJ7SAf0hCuyAe+FFjn5Sff5
+         jjgK0RYuYonusMqe/SkbR07eRy0CXP3foIQ2ai/10pzN3Xt/LYr81ykOWPmOMWXDAV
+         uqorDXyCjCpuRUVegwdH1VUFb7UOM+qZokv/QF4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ZhangPeng <zhangpeng362@huawei.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        patches@lists.linux.dev,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 220/731] pinctrl: k210: call of_node_put()
-Date:   Wed, 28 Dec 2022 15:35:27 +0100
-Message-Id: <20221228144302.941264210@linuxfoundation.org>
+Subject: [PATCH 6.0 0540/1073] Bluetooth: Fix EALREADY and ELOOP cases in bt_status()
+Date:   Wed, 28 Dec 2022 15:35:28 +0100
+Message-Id: <20221228144342.723244520@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhangPeng <zhangpeng362@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit a8acc11643082a706de86a19f1f824712d971984 ]
+[ Upstream commit 63db780a93eb802ece1bbf61ab5894ad8827b56e ]
 
-Since for_each_available_child_of_node() will increase the refcount of
-node, we need to call of_node_put() manually when breaking out of the
-iteration.
+'err' is known to be <0 at this point.
 
-Fixes: d4c34d09ab03 ("pinctrl: Add RISC-V Canaan Kendryte K210 FPIOA driver")
-Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Link: https://lore.kernel.org/r/20221122075853.2496680-1-zhangpeng362@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+So, some cases can not be reached because of a missing "-".
+Add it.
+
+Fixes: ca2045e059c3 ("Bluetooth: Add bt_status")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-k210.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/bluetooth/lib.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-k210.c b/drivers/pinctrl/pinctrl-k210.c
-index ecab6bf63dc6..ad4db99094a7 100644
---- a/drivers/pinctrl/pinctrl-k210.c
-+++ b/drivers/pinctrl/pinctrl-k210.c
-@@ -862,8 +862,10 @@ static int k210_pinctrl_dt_node_to_map(struct pinctrl_dev *pctldev,
- 	for_each_available_child_of_node(np_config, np) {
- 		ret = k210_pinctrl_dt_subnode_to_map(pctldev, np, map,
- 						     &reserved_maps, num_maps);
--		if (ret < 0)
-+		if (ret < 0) {
-+			of_node_put(np);
- 			goto err;
-+		}
- 	}
- 	return 0;
+diff --git a/net/bluetooth/lib.c b/net/bluetooth/lib.c
+index 469a0c95b6e8..53a796ac078c 100644
+--- a/net/bluetooth/lib.c
++++ b/net/bluetooth/lib.c
+@@ -170,7 +170,7 @@ __u8 bt_status(int err)
+ 	case -EMLINK:
+ 		return 0x09;
  
+-	case EALREADY:
++	case -EALREADY:
+ 		return 0x0b;
+ 
+ 	case -EBUSY:
+@@ -191,7 +191,7 @@ __u8 bt_status(int err)
+ 	case -ECONNABORTED:
+ 		return 0x16;
+ 
+-	case ELOOP:
++	case -ELOOP:
+ 		return 0x17;
+ 
+ 	case -EPROTONOSUPPORT:
 -- 
 2.35.1
 
