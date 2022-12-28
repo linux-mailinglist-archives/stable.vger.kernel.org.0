@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11CE965839E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:49:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12F416582E8
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234940AbiL1QtN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:49:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40222 "EHLO
+        id S234900AbiL1QnP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:43:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235130AbiL1Qs0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:48:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33DAC1A20E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:44:04 -0800 (PST)
+        with ESMTP id S234991AbiL1Qmr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:42:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2CA319297
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9620FB8171F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:44:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 024D8C433D2;
-        Wed, 28 Dec 2022 16:44:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D3E261582
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:36:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E1EBC433EF;
+        Wed, 28 Dec 2022 16:36:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245841;
-        bh=ymDt+OQ1d1l7JhA36+wNvf/5kqDthP0wuJ+WVC+JCpo=;
+        s=korg; t=1672245396;
+        bh=JUAeLU86nUvk5bPoxhEtCwSImejOmLGxr2MFOlOWN1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QtZCN3uyuTzztUdzOvBc6/c+ZhooZ/o1eTxM35ItW8+mNPVCNL3lgEF7UcvHQXY8Y
-         zbQWdDEhak+2DKUrLMtBTWGyMJJUYMRnJbWJzbxdTAaBJZqAAF3GHzyLmh9HFiDb2z
-         iqDgxfATToIU/WaAIr9X17MNbj3XrhQNnLRzYlJw=
+        b=hUfhCW2T8ULqG0SVqIxJ6HQV44FeatC9s2QhEPdpMeDeD1WXptMmOGVn9l8XhfQCV
+         A2GoB3jPEPLBmwiaXNgfYlrf0POOZ+qSjByOvk2AeUnfKEZ5fnOEubHdxK9Pwhh4BO
+         2BcJnVniKP3wpu8096iimWWV9jSb1zCnX5kptHdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Matt Johnston <matt@codeconstruct.com.au>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Zqiang <qiang1.zhang@intel.com>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0934/1146] mctp: Remove device type check at unregister
+Subject: [PATCH 6.0 0885/1073] rcu: Fix __this_cpu_read() lockdep warning in rcu_force_quiescent_state()
 Date:   Wed, 28 Dec 2022 15:41:13 +0100
-Message-Id: <20221228144355.665791884@linuxfoundation.org>
+Message-Id: <20221228144352.066228933@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Johnston <matt@codeconstruct.com.au>
+From: Zqiang <qiang1.zhang@intel.com>
 
-[ Upstream commit b389a902dd5be4ece505a2e0463b9b034de04bf5 ]
+[ Upstream commit ceb1c8c9b8aa9199da46a0f29d2d5f08d9b44c15 ]
 
-The unregister check could be incorrectly triggered if a netdev
-changes its type after register. That is possible for a tun device
-using TUNSETLINK ioctl, resulting in mctp unregister failing
-and the netdev unregister waiting forever.
+Running rcutorture with non-zero fqs_duration module parameter in a
+kernel built with CONFIG_PREEMPTION=y results in the following splat:
 
-This was encountered by https://github.com/openthread/openthread/issues/8523
+BUG: using __this_cpu_read() in preemptible [00000000]
+code: rcu_torture_fqs/398
+caller is __this_cpu_preempt_check+0x13/0x20
+CPU: 3 PID: 398 Comm: rcu_torture_fqs Not tainted 6.0.0-rc1-yoctodev-standard+
+Call Trace:
+<TASK>
+dump_stack_lvl+0x5b/0x86
+dump_stack+0x10/0x16
+check_preemption_disabled+0xe5/0xf0
+__this_cpu_preempt_check+0x13/0x20
+rcu_force_quiescent_state.part.0+0x1c/0x170
+rcu_force_quiescent_state+0x1e/0x30
+rcu_torture_fqs+0xca/0x160
+? rcu_torture_boost+0x430/0x430
+kthread+0x192/0x1d0
+? kthread_complete_and_exit+0x30/0x30
+ret_from_fork+0x22/0x30
+</TASK>
 
-Neither check at register or unregister is required. They were added in
-an attempt to track down mctp_ptr being set unexpectedly, which should
-not happen in normal operation.
+The problem is that rcu_force_quiescent_state() uses __this_cpu_read()
+in preemptible code instead of the proper raw_cpu_read().  This commit
+therefore changes __this_cpu_read() to raw_cpu_read().
 
-Fixes: 7b1871af75f3 ("mctp: Warn if pointer is set for a wrong dev type")
-Signed-off-by: Matt Johnston <matt@codeconstruct.com.au>
-Link: https://lore.kernel.org/r/20221215054933.2403401-1-matt@codeconstruct.com.au
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Zqiang <qiang1.zhang@intel.com>
+Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mctp/device.c | 14 +-------------
- 1 file changed, 1 insertion(+), 13 deletions(-)
+ kernel/rcu/tree.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/mctp/device.c b/net/mctp/device.c
-index 99a3bda8852f..acb97b257428 100644
---- a/net/mctp/device.c
-+++ b/net/mctp/device.c
-@@ -429,12 +429,6 @@ static void mctp_unregister(struct net_device *dev)
- 	struct mctp_dev *mdev;
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index 5b52727dcc1c..aedd43e1f21c 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -2415,7 +2415,7 @@ void rcu_force_quiescent_state(void)
+ 	struct rcu_node *rnp_old = NULL;
  
- 	mdev = mctp_dev_get_rtnl(dev);
--	if (mdev && !mctp_known(dev)) {
--		// Sanity check, should match what was set in mctp_register
--		netdev_warn(dev, "%s: BUG mctp_ptr set for unknown type %d",
--			    __func__, dev->type);
--		return;
--	}
- 	if (!mdev)
- 		return;
- 
-@@ -451,14 +445,8 @@ static int mctp_register(struct net_device *dev)
- 	struct mctp_dev *mdev;
- 
- 	/* Already registered? */
--	mdev = rtnl_dereference(dev->mctp_ptr);
--
--	if (mdev) {
--		if (!mctp_known(dev))
--			netdev_warn(dev, "%s: BUG mctp_ptr set for unknown type %d",
--				    __func__, dev->type);
-+	if (rtnl_dereference(dev->mctp_ptr))
- 		return 0;
--	}
- 
- 	/* only register specific types */
- 	if (!mctp_known(dev))
+ 	/* Funnel through hierarchy to reduce memory contention. */
+-	rnp = __this_cpu_read(rcu_data.mynode);
++	rnp = raw_cpu_read(rcu_data.mynode);
+ 	for (; rnp != NULL; rnp = rnp->parent) {
+ 		ret = (READ_ONCE(rcu_state.gp_flags) & RCU_GP_FLAG_FQS) ||
+ 		       !raw_spin_trylock(&rnp->fqslock);
 -- 
 2.35.1
 
