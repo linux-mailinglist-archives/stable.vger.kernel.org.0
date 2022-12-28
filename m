@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 240E3658330
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D6F1657CCD
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:36:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235023AbiL1Qox (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:44:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37918 "EHLO
+        id S233131AbiL1PgP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:36:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234992AbiL1QoZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BB191C93B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:40:01 -0800 (PST)
+        with ESMTP id S233912AbiL1PgJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:36:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 021E414D0C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:36:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EB63FB8171F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:39:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4572AC433EF;
-        Wed, 28 Dec 2022 16:39:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 934AB61553
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:36:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A28C1C433D2;
+        Wed, 28 Dec 2022 15:36:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245598;
-        bh=1cw38bYznn4dJDXYoR+L8BmvM4n828sSBytyRF0j3Wc=;
+        s=korg; t=1672241767;
+        bh=FJr7Qy6UAckxYkNj6qvKzPCNqrHNbkRtmUoYUAUJpF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1qkryLny0fpNToIMeY+49lEZd/nchn+z/cjumijbc4IFKRfsKQILg60G+w7ZYUVWO
-         rZAb9NBO8nJXkDoPtjw7jvOWYuGU20rrnhXG71akg0sdP6P8dF+tfoRInockcLRuxO
-         Ewt8bYcQ0PtFrb/7G8BHQgj8Mr7W0n6D5UKZLBX8=
+        b=Z2/i9EkZbiUNhiQmgOkypNri5wfFbC4Uk1WCI4jigqDJdbEI9iSaNOMGqgAlh9YxD
+         onw7zvOZoQLGmk+fCOG0GSHPW+ONczi70J9dk7lIAqN39dSgdSFkOVESc3D2Pv4o96
+         bVEfUC1HBYPhu0ntFqqBHsHsV3mZXTV7WNgxSKgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        "J. Bruce Fields" <bfields@redhat.com>,
-        Dan Aloni <dan.aloni@vastdata.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0887/1146] nfsd: under NFSv4.1, fix double svc_xprt_put on rpc_create failure
-Date:   Wed, 28 Dec 2022 15:40:26 +0100
-Message-Id: <20221228144354.268410344@linuxfoundation.org>
+Subject: [PATCH 5.15 520/731] power: supply: ab8500: Fix error handling in ab8500_charger_init()
+Date:   Wed, 28 Dec 2022 15:40:27 +0100
+Message-Id: <20221228144311.620231854@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,85 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Aloni <dan.aloni@vastdata.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 3bc8edc98bd43540dbe648e4ef91f443d6d20a24 ]
+[ Upstream commit c4d33381b134da188ccd1084aef21e2b8c3c422e ]
 
-On error situation `clp->cl_cb_conn.cb_xprt` should not be given
-a reference to the xprt otherwise both client cleanup and the
-error handling path of the caller call to put it. Better to
-delay handing over the reference to a later branch.
+The ab8500_charger_init() returns the platform_driver_register() directly
+without checking its return value, if platform_driver_register() failed,
+all ab8500_charger_component_drivers are not unregistered.
 
-[   72.530665] refcount_t: underflow; use-after-free.
-[   72.531933] WARNING: CPU: 0 PID: 173 at lib/refcount.c:28 refcount_warn_saturate+0xcf/0x120
-[   72.533075] Modules linked in: nfsd(OE) nfsv4(OE) nfsv3(OE) nfs(OE) lockd(OE) compat_nfs_ssc(OE) nfs_acl(OE) rpcsec_gss_krb5(OE) auth_rpcgss(OE) rpcrdma(OE) dns_resolver fscache netfs grace rdma_cm iw_cm ib_cm sunrpc(OE) mlx5_ib mlx5_core mlxfw pci_hyperv_intf ib_uverbs ib_core xt_MASQUERADE nf_conntrack_netlink nft_counter xt_addrtype nft_compat br_netfilter bridge stp llc nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ip_set overlay nf_tables nfnetlink crct10dif_pclmul crc32_pclmul ghash_clmulni_intel xfs serio_raw virtio_net virtio_blk net_failover failover fuse [last unloaded: sunrpc]
-[   72.540389] CPU: 0 PID: 173 Comm: kworker/u16:5 Tainted: G           OE     5.15.82-dan #1
-[   72.541511] Hardware name: Red Hat KVM/RHEL-AV, BIOS 1.16.0-3.module+el8.7.0+1084+97b81f61 04/01/2014
-[   72.542717] Workqueue: nfsd4_callbacks nfsd4_run_cb_work [nfsd]
-[   72.543575] RIP: 0010:refcount_warn_saturate+0xcf/0x120
-[   72.544299] Code: 55 00 0f 0b 5d e9 01 50 98 00 80 3d 75 9e 39 08 00 0f 85 74 ff ff ff 48 c7 c7 e8 d1 60 8e c6 05 61 9e 39 08 01 e8 f6 51 55 00 <0f> 0b 5d e9 d9 4f 98 00 80 3d 4b 9e 39 08 00 0f 85 4c ff ff ff 48
-[   72.546666] RSP: 0018:ffffb3f841157cf0 EFLAGS: 00010286
-[   72.547393] RAX: 0000000000000026 RBX: ffff89ac6231d478 RCX: 0000000000000000
-[   72.548324] RDX: ffff89adb7c2c2c0 RSI: ffff89adb7c205c0 RDI: ffff89adb7c205c0
-[   72.549271] RBP: ffffb3f841157cf0 R08: 0000000000000000 R09: c0000000ffefffff
-[   72.550209] R10: 0000000000000001 R11: ffffb3f841157ad0 R12: ffff89ac6231d180
-[   72.551142] R13: ffff89ac6231d478 R14: ffff89ac40c06180 R15: ffff89ac6231d4b0
-[   72.552089] FS:  0000000000000000(0000) GS:ffff89adb7c00000(0000) knlGS:0000000000000000
-[   72.553175] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   72.553934] CR2: 0000563a310506a8 CR3: 0000000109a66000 CR4: 0000000000350ef0
-[   72.554874] Call Trace:
-[   72.555278]  <TASK>
-[   72.555614]  svc_xprt_put+0xaf/0xe0 [sunrpc]
-[   72.556276]  nfsd4_process_cb_update.isra.11+0xb7/0x410 [nfsd]
-[   72.557087]  ? update_load_avg+0x82/0x610
-[   72.557652]  ? cpuacct_charge+0x60/0x70
-[   72.558212]  ? dequeue_entity+0xdb/0x3e0
-[   72.558765]  ? queued_spin_unlock+0x9/0x20
-[   72.559358]  nfsd4_run_cb_work+0xfc/0x270 [nfsd]
-[   72.560031]  process_one_work+0x1df/0x390
-[   72.560600]  worker_thread+0x37/0x3b0
-[   72.561644]  ? process_one_work+0x390/0x390
-[   72.562247]  kthread+0x12f/0x150
-[   72.562710]  ? set_kthread_struct+0x50/0x50
-[   72.563309]  ret_from_fork+0x22/0x30
-[   72.563818]  </TASK>
-[   72.564189] ---[ end trace 031117b1c72ec616 ]---
-[   72.566019] list_add corruption. next->prev should be prev (ffff89ac4977e538), but was ffff89ac4763e018. (next=ffff89ac4763e018).
-[   72.567647] ------------[ cut here ]------------
+Fix by unregister ab8500_charger_component_drivers when
+platform_driver_register() failed.
 
-Fixes: a4abc6b12eb1 ("nfsd: Fix svc_xprt refcnt leak when setup callback client failed")
-Cc: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Cc: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Dan Aloni <dan.aloni@vastdata.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: 1c1f13a006ed ("power: supply: ab8500: Move to componentized binding")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4callback.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/power/supply/ab8500_charger.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfsd/nfs4callback.c b/fs/nfsd/nfs4callback.c
-index f0e69edf5f0f..6253cbe5f81b 100644
---- a/fs/nfsd/nfs4callback.c
-+++ b/fs/nfsd/nfs4callback.c
-@@ -916,7 +916,6 @@ static int setup_callback_client(struct nfs4_client *clp, struct nfs4_cb_conn *c
- 	} else {
- 		if (!conn->cb_xprt)
- 			return -EINVAL;
--		clp->cl_cb_conn.cb_xprt = conn->cb_xprt;
- 		clp->cl_cb_session = ses;
- 		args.bc_xprt = conn->cb_xprt;
- 		args.prognumber = clp->cl_cb_session->se_cb_prog;
-@@ -936,6 +935,9 @@ static int setup_callback_client(struct nfs4_client *clp, struct nfs4_cb_conn *c
- 		rpc_shutdown_client(client);
- 		return -ENOMEM;
- 	}
+diff --git a/drivers/power/supply/ab8500_charger.c b/drivers/power/supply/ab8500_charger.c
+index 15eadaf46f14..a4f766fc7c9d 100644
+--- a/drivers/power/supply/ab8500_charger.c
++++ b/drivers/power/supply/ab8500_charger.c
+@@ -3726,7 +3726,14 @@ static int __init ab8500_charger_init(void)
+ 	if (ret)
+ 		return ret;
+ 
+-	return platform_driver_register(&ab8500_charger_driver);
++	ret = platform_driver_register(&ab8500_charger_driver);
++	if (ret) {
++		platform_unregister_drivers(ab8500_charger_component_drivers,
++				ARRAY_SIZE(ab8500_charger_component_drivers));
++		return ret;
++	}
 +
-+	if (clp->cl_minorversion != 0)
-+		clp->cl_cb_conn.cb_xprt = conn->cb_xprt;
- 	clp->cl_cb_client = client;
- 	clp->cl_cb_cred = cred;
- 	rcu_read_lock();
++	return 0;
+ }
+ 
+ static void __exit ab8500_charger_exit(void)
 -- 
 2.35.1
 
