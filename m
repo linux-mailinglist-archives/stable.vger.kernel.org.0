@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29C14658198
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:29:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D1986580C3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:20:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234662AbiL1Q3w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:29:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47724 "EHLO
+        id S234641AbiL1QUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:20:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234736AbiL1Q3c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:29:32 -0500
+        with ESMTP id S233267AbiL1QTb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:19:31 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C66BFFF4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:25:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E90C1A81A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:17:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 595C561578
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:25:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6911BC433D2;
-        Wed, 28 Dec 2022 16:25:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 28798614CF
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:17:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CF0FC433D2;
+        Wed, 28 Dec 2022 16:17:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244745;
-        bh=C4wX3t99ML0tdEdnpCMhKL7bGaB9HhxnPsqSwYYhIEA=;
+        s=korg; t=1672244274;
+        bh=3dyoOV2dBFkWLhdt9NL07C/fqvThjgd3Xxn8qEq4kSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HbDlnVqWFcuvy7fb0RmaJNW6VpB61vnNkwE8F7tMC3yTZT4BmIDHPreQ3hUhaZSD2
-         uKHFm1DIquYSJnWhpYibnxqi/Jn0YtY7eNOY9og61hkD18HVsY5oYu2OlMOZ/5YRaf
-         EeJoLNWWJEUjUzBx4Qd3GKPqKhtpX1FBNT/cXnHg=
+        b=tMFZvi+oi0EoHxDJVLhOYigwVAlFAhA1XsPSZJjfQ8Zcop0V6Vtxrv//QBYw8AHFU
+         gs5S4IvZhHgi1SRSEpBK64bHdfVR9HMoryN7hlBiNUOpSs+TMBPO83pyk7sAcEoQbi
+         wKx+WjjQe2rztYNuq24iq91qlBHMh+FObedW7ojc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev, Marek Vasut <marex@denx.de>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0729/1146] usb: core: hcd: Fix return value check in usb_hcd_setup_local_mem()
+Subject: [PATCH 6.0 0680/1073] extcon: usbc-tusb320: Factor out extcon into dedicated functions
 Date:   Wed, 28 Dec 2022 15:37:48 +0100
-Message-Id: <20221228144349.947874725@linuxfoundation.org>
+Message-Id: <20221228144346.506834117@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,41 +53,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 3c347cdafa3db43337870006e5c2d7b78a8dae20 ]
+[ Upstream commit 9483811a126a319ecac749f1b767ea5faecc7aed ]
 
-If dmam_alloc_attrs() fails, it returns NULL pointer and never
-return ERR_PTR(), so repleace IS_ERR() with IS_ERR_OR_NULL()
-and if it's NULL, returns -ENOMEM.
+Move extcon code into separate functions in preparation for addition of
+USB TYPE-C support. No functional change.
 
-Fixes: 9ba26f5cecd8 ("ARM: sa1100/assabet: move dmabounce hack to ohci driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221125064120.2842452-1-yangyingliang@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Stable-dep-of: 581c848b610d ("extcon: usbc-tusb320: Update state on probe even if no IRQ pending")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/hcd.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/extcon/extcon-usbc-tusb320.c | 75 +++++++++++++++++-----------
+ 1 file changed, 46 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
-index faeaace0d197..8300baedafd2 100644
---- a/drivers/usb/core/hcd.c
-+++ b/drivers/usb/core/hcd.c
-@@ -3133,8 +3133,12 @@ int usb_hcd_setup_local_mem(struct usb_hcd *hcd, phys_addr_t phys_addr,
- 					     GFP_KERNEL,
- 					     DMA_ATTR_WRITE_COMBINE);
+diff --git a/drivers/extcon/extcon-usbc-tusb320.c b/drivers/extcon/extcon-usbc-tusb320.c
+index 6ba3d89b106d..aced4bbb455d 100644
+--- a/drivers/extcon/extcon-usbc-tusb320.c
++++ b/drivers/extcon/extcon-usbc-tusb320.c
+@@ -184,19 +184,9 @@ static struct tusb320_ops tusb320l_ops = {
+ 	.get_revision = tusb320l_get_revision,
+ };
  
--	if (IS_ERR(local_mem))
-+	if (IS_ERR_OR_NULL(local_mem)) {
-+		if (!local_mem)
-+			return -ENOMEM;
+-static irqreturn_t tusb320_irq_handler(int irq, void *dev_id)
++static void tusb320_extcon_irq_handler(struct tusb320_priv *priv, u8 reg)
+ {
+-	struct tusb320_priv *priv = dev_id;
+ 	int state, polarity;
+-	unsigned reg;
+-
+-	if (regmap_read(priv->regmap, TUSB320_REG9, &reg)) {
+-		dev_err(priv->dev, "error during i2c read!\n");
+-		return IRQ_NONE;
+-	}
+-
+-	if (!(reg & TUSB320_REG9_INTERRUPT_STATUS))
+-		return IRQ_NONE;
+ 
+ 	state = (reg >> TUSB320_REG9_ATTACHED_STATE_SHIFT) &
+ 		TUSB320_REG9_ATTACHED_STATE_MASK;
+@@ -219,6 +209,22 @@ static irqreturn_t tusb320_irq_handler(int irq, void *dev_id)
+ 	extcon_sync(priv->edev, EXTCON_USB_HOST);
+ 
+ 	priv->state = state;
++}
 +
- 		return PTR_ERR(local_mem);
++static irqreturn_t tusb320_irq_handler(int irq, void *dev_id)
++{
++	struct tusb320_priv *priv = dev_id;
++	unsigned int reg;
++
++	if (regmap_read(priv->regmap, TUSB320_REG9, &reg)) {
++		dev_err(priv->dev, "error during i2c read!\n");
++		return IRQ_NONE;
 +	}
++
++	if (!(reg & TUSB320_REG9_INTERRUPT_STATUS))
++		return IRQ_NONE;
++
++	tusb320_extcon_irq_handler(priv, reg);
  
- 	/*
- 	 * Here we pass a dma_addr_t but the arg type is a phys_addr_t.
+ 	regmap_write(priv->regmap, TUSB320_REG9, reg);
+ 
+@@ -230,8 +236,32 @@ static const struct regmap_config tusb320_regmap_config = {
+ 	.val_bits = 8,
+ };
+ 
+-static int tusb320_extcon_probe(struct i2c_client *client,
+-				const struct i2c_device_id *id)
++static int tusb320_extcon_probe(struct tusb320_priv *priv)
++{
++	int ret;
++
++	priv->edev = devm_extcon_dev_allocate(priv->dev, tusb320_extcon_cable);
++	if (IS_ERR(priv->edev)) {
++		dev_err(priv->dev, "failed to allocate extcon device\n");
++		return PTR_ERR(priv->edev);
++	}
++
++	ret = devm_extcon_dev_register(priv->dev, priv->edev);
++	if (ret < 0) {
++		dev_err(priv->dev, "failed to register extcon device\n");
++		return ret;
++	}
++
++	extcon_set_property_capability(priv->edev, EXTCON_USB,
++				       EXTCON_PROP_USB_TYPEC_POLARITY);
++	extcon_set_property_capability(priv->edev, EXTCON_USB_HOST,
++				       EXTCON_PROP_USB_TYPEC_POLARITY);
++
++	return 0;
++}
++
++static int tusb320_probe(struct i2c_client *client,
++			 const struct i2c_device_id *id)
+ {
+ 	struct tusb320_priv *priv;
+ 	const void *match_data;
+@@ -257,12 +287,6 @@ static int tusb320_extcon_probe(struct i2c_client *client,
+ 
+ 	priv->ops = (struct tusb320_ops*)match_data;
+ 
+-	priv->edev = devm_extcon_dev_allocate(priv->dev, tusb320_extcon_cable);
+-	if (IS_ERR(priv->edev)) {
+-		dev_err(priv->dev, "failed to allocate extcon device\n");
+-		return PTR_ERR(priv->edev);
+-	}
+-
+ 	if (priv->ops->get_revision) {
+ 		ret = priv->ops->get_revision(priv, &revision);
+ 		if (ret)
+@@ -272,16 +296,9 @@ static int tusb320_extcon_probe(struct i2c_client *client,
+ 			dev_info(priv->dev, "chip revision %d\n", revision);
+ 	}
+ 
+-	ret = devm_extcon_dev_register(priv->dev, priv->edev);
+-	if (ret < 0) {
+-		dev_err(priv->dev, "failed to register extcon device\n");
++	ret = tusb320_extcon_probe(priv);
++	if (ret)
+ 		return ret;
+-	}
+-
+-	extcon_set_property_capability(priv->edev, EXTCON_USB,
+-				       EXTCON_PROP_USB_TYPEC_POLARITY);
+-	extcon_set_property_capability(priv->edev, EXTCON_USB_HOST,
+-				       EXTCON_PROP_USB_TYPEC_POLARITY);
+ 
+ 	/* update initial state */
+ 	tusb320_irq_handler(client->irq, priv);
+@@ -313,7 +330,7 @@ static const struct of_device_id tusb320_extcon_dt_match[] = {
+ MODULE_DEVICE_TABLE(of, tusb320_extcon_dt_match);
+ 
+ static struct i2c_driver tusb320_extcon_driver = {
+-	.probe		= tusb320_extcon_probe,
++	.probe		= tusb320_probe,
+ 	.driver		= {
+ 		.name	= "extcon-tusb320",
+ 		.of_match_table = tusb320_extcon_dt_match,
 -- 
 2.35.1
 
