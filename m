@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 886F2657F45
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CD316584C3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:02:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233162AbiL1QDV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:03:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48370 "EHLO
+        id S229822AbiL1RB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:01:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232660AbiL1QC4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:02:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6A641929E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:02:55 -0800 (PST)
+        with ESMTP id S235406AbiL1RBF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:01:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AA661BE8C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:56:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 72259B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:02:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE76AC433EF;
-        Wed, 28 Dec 2022 16:02:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5108A60D41
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:56:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66571C433D2;
+        Wed, 28 Dec 2022 16:56:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243373;
-        bh=qRGNyaetA+FUFks0KGazDQ2BAE2qJIx13bFDlWp+UGo=;
+        s=korg; t=1672246562;
+        bh=RfH9LmeSmRyUFA/u+LvjDwVJ2qp3eFFU8aKEIPlYbZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Khhtt0Eaim8EuImprGhjJbmHAasQR5r+VwXoQgpflNmgU6NeRqYH4qGzDSHXsTpSx
-         dx4QS5KIFYishRdBUb9/cj1FsFcRPyecTCVYv4LWCg5lXBuy4hHY50UNdXgbkhwuDG
-         X/8qAl2F+jGUwhr72x7LA3i4ysOvj8K/2GGlZhqE=
+        b=0vudCecNKcyRO3ArKHbQRg2wxk68Ezs9QnlYkqhk0NOEJfGlsrNt52Gmq07b1oAyD
+         DZeme3NqDpZK5k2B17mr+7i1CJBU2eJ2zrblazDuDbC55vDcUYwLP+YZQhHHZOHALg
+         /yF7MUowzIbNp/VtMbKo8TklDPn34IZmxkCmrwX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ken Chen <kenchen@google.com>,
-        "Isaac J. Manjarres" <isaacmanjarres@google.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 714/731] loop: Fix the max_loop commandline argument treatment when it is set to 0
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 1082/1146] drm/amd/pm: avoid large variable on kernel stack
 Date:   Wed, 28 Dec 2022 15:43:41 +0100
-Message-Id: <20221228144317.140279120@linuxfoundation.org>
+Message-Id: <20221228144359.598935733@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,98 +53,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Isaac J. Manjarres <isaacmanjarres@google.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 85c50197716c60fe57f411339c579462e563ac57 upstream.
+[ Upstream commit d118b18fb1da02b41df2da78cb2794b3638d89cd ]
 
-Currently, the max_loop commandline argument can be used to specify how
-many loop block devices are created at init time. If it is not
-specified on the commandline, CONFIG_BLK_DEV_LOOP_MIN_COUNT loop block
-devices will be created.
+The activity_monitor_external[] array is too big to fit on the
+kernel stack, resulting in this warning with clang:
 
-The max_loop commandline argument can be used to override the value of
-CONFIG_BLK_DEV_LOOP_MIN_COUNT. However, when max_loop is set to 0
-through the commandline, the current logic treats it as if it had not
-been set, and creates CONFIG_BLK_DEV_LOOP_MIN_COUNT devices anyway.
+drivers/gpu/drm/amd/amdgpu/../pm/swsmu/smu13/smu_v13_0_7_ppt.c:1438:12: error: stack frame size (1040) exceeds limit (1024) in 'smu_v13_0_7_get_power_profile_mode' [-Werror,-Wframe-larger-than]
 
-Fix this by starting max_loop off as set to CONFIG_BLK_DEV_LOOP_MIN_COUNT.
-This preserves the intended behavior of creating
-CONFIG_BLK_DEV_LOOP_MIN_COUNT loop block devices if the max_loop
-commandline parameter is not specified, and allowing max_loop to
-be respected for all values, including 0.
+Use dynamic allocation instead. It should also be possible to
+have single element here instead of the array, but this seems
+easier.
 
-This allows environments that can create all of their required loop
-block devices on demand to not have to unnecessarily preallocate loop
-block devices.
+v2: fix up argument to sizeof() (Alex)
 
-Fixes: 732850827450 ("remove artificial software max_loop limit")
-Cc: stable@vger.kernel.org
-Cc: Ken Chen <kenchen@google.com>
-Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
-Link: https://lore.kernel.org/r/20221208212902.765781-1-isaacmanjarres@google.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 334682ae8151 ("drm/amd/pm: enable workload type change on smu_v13_0_7")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/loop.c |   28 ++++++++++++----------------
- 1 file changed, 12 insertions(+), 16 deletions(-)
+ .../drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c  | 21 ++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -2091,7 +2091,16 @@ static const struct block_device_operati
- /*
-  * And now the modules code and kernel interface.
-  */
--static int max_loop;
-+
-+/*
-+ * If max_loop is specified, create that many devices upfront.
-+ * This also becomes a hard limit. If max_loop is not specified,
-+ * create CONFIG_BLK_DEV_LOOP_MIN_COUNT loop devices at module
-+ * init time. Loop devices can be requested on-demand with the
-+ * /dev/loop-control interface, or be instantiated by accessing
-+ * a 'dead' device node.
-+ */
-+static int max_loop = CONFIG_BLK_DEV_LOOP_MIN_COUNT;
- module_param(max_loop, int, 0444);
- MODULE_PARM_DESC(max_loop, "Maximum number of loop devices");
- module_param(max_part, int, 0444);
-@@ -2536,7 +2545,7 @@ MODULE_ALIAS("devname:loop-control");
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
+index d74debc584f8..39deb06a86ba 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
+@@ -1436,7 +1436,7 @@ static int smu_v13_0_7_get_power_limit(struct smu_context *smu,
  
- static int __init loop_init(void)
+ static int smu_v13_0_7_get_power_profile_mode(struct smu_context *smu, char *buf)
  {
--	int i, nr;
-+	int i;
- 	int err;
+-	DpmActivityMonitorCoeffIntExternal_t activity_monitor_external[PP_SMC_POWER_PROFILE_COUNT];
++	DpmActivityMonitorCoeffIntExternal_t *activity_monitor_external;
+ 	uint32_t i, j, size = 0;
+ 	int16_t workload_type = 0;
+ 	int result = 0;
+@@ -1444,6 +1444,12 @@ static int smu_v13_0_7_get_power_profile_mode(struct smu_context *smu, char *buf
+ 	if (!buf)
+ 		return -EINVAL;
  
- 	part_shift = 0;
-@@ -2564,19 +2573,6 @@ static int __init loop_init(void)
- 		goto err_out;
++	activity_monitor_external = kcalloc(PP_SMC_POWER_PROFILE_COUNT,
++					    sizeof(*activity_monitor_external),
++					    GFP_KERNEL);
++	if (!activity_monitor_external)
++		return -ENOMEM;
++
+ 	size += sysfs_emit_at(buf, size, "                              ");
+ 	for (i = 0; i <= PP_SMC_POWER_PROFILE_WINDOW3D; i++)
+ 		size += sysfs_emit_at(buf, size, "%-14s%s", amdgpu_pp_profile_name[i],
+@@ -1456,15 +1462,17 @@ static int smu_v13_0_7_get_power_profile_mode(struct smu_context *smu, char *buf
+ 		workload_type = smu_cmn_to_asic_specific_index(smu,
+ 							       CMN2ASIC_MAPPING_WORKLOAD,
+ 							       i);
+-		if (workload_type < 0)
+-			return -EINVAL;
++		if (workload_type < 0) {
++			result = -EINVAL;
++			goto out;
++		}
+ 
+ 		result = smu_cmn_update_table(smu,
+ 					  SMU_TABLE_ACTIVITY_MONITOR_COEFF, workload_type,
+ 					  (void *)(&activity_monitor_external[i]), false);
+ 		if (result) {
+ 			dev_err(smu->adev->dev, "[%s] Failed to get activity monitor!", __func__);
+-			return result;
++			goto out;
+ 		}
  	}
  
--	/*
--	 * If max_loop is specified, create that many devices upfront.
--	 * This also becomes a hard limit. If max_loop is not specified,
--	 * create CONFIG_BLK_DEV_LOOP_MIN_COUNT loop devices at module
--	 * init time. Loop devices can be requested on-demand with the
--	 * /dev/loop-control interface, or be instantiated by accessing
--	 * a 'dead' device node.
--	 */
--	if (max_loop)
--		nr = max_loop;
--	else
--		nr = CONFIG_BLK_DEV_LOOP_MIN_COUNT;
--
- 	err = misc_register(&loop_misc);
- 	if (err < 0)
- 		goto err_out;
-@@ -2588,7 +2584,7 @@ static int __init loop_init(void)
- 	}
+@@ -1492,7 +1500,10 @@ do {													\
+ 	PRINT_DPM_MONITOR(Fclk_BoosterFreq);
+ #undef PRINT_DPM_MONITOR
  
- 	/* pre-create number of devices given by config or max_loop */
--	for (i = 0; i < nr; i++)
-+	for (i = 0; i < max_loop; i++)
- 		loop_add(i);
+-	return size;
++	result = size;
++out:
++	kfree(activity_monitor_external);
++	return result;
+ }
  
- 	printk(KERN_INFO "loop: module loaded\n");
+ static int smu_v13_0_7_set_power_profile_mode(struct smu_context *smu, long *input, uint32_t size)
+-- 
+2.35.1
+
 
 
