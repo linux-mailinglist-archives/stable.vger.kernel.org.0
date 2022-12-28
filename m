@@ -2,45 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2639657B9A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98796657A86
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:13:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233355AbiL1PX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:23:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42330 "EHLO
+        id S229959AbiL1PM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:12:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233354AbiL1PX1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:23:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 532C413F5C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:23:27 -0800 (PST)
+        with ESMTP id S233193AbiL1PMN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:12:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F051C13F36
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:11:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0A3B4B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:23:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63845C433D2;
-        Wed, 28 Dec 2022 15:23:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4AAB0B8172A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:11:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73432C433D2;
+        Wed, 28 Dec 2022 15:11:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241004;
-        bh=MgDrVh8TgP1lYs6ZUZmj1KacACULdMBbFc2oSgkD32A=;
+        s=korg; t=1672240314;
+        bh=lomZ4pZK6Ek1cuGNK35hkaOAos1qguTINJQwSxAZRrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XjxI0fJj6iry/2rSFI3EMVsI6km4lQWwzHsvCYr4utZSFLOrWopRPxepfH8jLcu/t
-         UlymqetoYBowXhEKke9U7uez8Aw4HRNtYbnPe7iyfufrvv9GHuM5nsc2ARkDtKtmKs
-         LeawajycG2esa7oRfI9zQe0JnTC5H5QYUIfx9sOw=
+        b=Glyiq29USANoA/nrDjm1gL/X8DlYKRSDomamN2lELr4trj+qXxrLpCAsWofPB7y3X
+         eqR1RImOmWrqSXME7FkZgzeNvS4+MM44qRDeDMz3HK3DBjzVh3L8UBmRIODu6tf5zF
+         PaSBJEVtTyHbqBizbSOEBlQZf1amyCcIeDxlcV0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kui-Feng Lee <kuifeng@fb.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
+        patches@lists.linux.dev, Akinobu Mita <akinobu.mita@gmail.com>,
+        Zhao Gongyi <zhaogongyi@huawei.com>,
+        David Hildenbrand <david@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Oscar Salvador <osalvador@suse.de>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Yicong Yang <yangyicong@hisilicon.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0194/1146] selftests/bpf: Add missing bpf_iter_vma_offset__destroy call
-Date:   Wed, 28 Dec 2022 15:28:53 +0100
-Message-Id: <20221228144335.415930323@linuxfoundation.org>
+Subject: [PATCH 6.0 0146/1073] lib/notifier-error-inject: fix error when writing -errno to debugfs file
+Date:   Wed, 28 Dec 2022 15:28:54 +0100
+Message-Id: <20221228144331.990938244@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +62,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Akinobu Mita <akinobu.mita@gmail.com>
 
-[ Upstream commit 1d2d941bc140b34587b4c889699fb0f89d29937f ]
+[ Upstream commit f883c3edd2c432a2931ec8773c70a570115a50fe ]
 
-Adding missing bpf_iter_vma_offset__destroy call and using in-skeletin
-link pointer so we don't need extra bpf_link__destroy call.
+The simple attribute files do not accept a negative value since the commit
+488dac0c9237 ("libfs: fix error cast of negative value in
+simple_attr_write()").
 
-Fixes: b3e1331eb925 ("selftests/bpf: Test parameterized task BPF iterators.")
-Cc: Kui-Feng Lee <kuifeng@fb.com>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Link: https://lore.kernel.org/r/20221006083106.117987-1-jolsa@kernel.org
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+This restores the previous behaviour by using newly introduced
+DEFINE_SIMPLE_ATTRIBUTE_SIGNED instead of DEFINE_SIMPLE_ATTRIBUTE.
+
+Link: https://lkml.kernel.org/r/20220919172418.45257-3-akinobu.mita@gmail.com
+Fixes: 488dac0c9237 ("libfs: fix error cast of negative value in simple_attr_write()")
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Reported-by: Zhao Gongyi <zhaogongyi@huawei.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Rafael J. Wysocki <rafael@kernel.org>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Wei Yongjun <weiyongjun1@huawei.com>
+Cc: Yicong Yang <yangyicong@hisilicon.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/prog_tests/bpf_iter.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ lib/notifier-error-inject.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/bpf_iter.c b/tools/testing/selftests/bpf/prog_tests/bpf_iter.c
-index 3369c5ec3a17..ecde236047fe 100644
---- a/tools/testing/selftests/bpf/prog_tests/bpf_iter.c
-+++ b/tools/testing/selftests/bpf/prog_tests/bpf_iter.c
-@@ -1498,7 +1498,6 @@ static noinline int trigger_func(int arg)
- static void test_task_vma_offset_common(struct bpf_iter_attach_opts *opts, bool one_proc)
- {
- 	struct bpf_iter_vma_offset *skel;
--	struct bpf_link *link;
- 	char buf[16] = {};
- 	int iter_fd, len;
- 	int pgsz, shift;
-@@ -1513,11 +1512,11 @@ static void test_task_vma_offset_common(struct bpf_iter_attach_opts *opts, bool
- 		;
- 	skel->bss->page_shift = shift;
- 
--	link = bpf_program__attach_iter(skel->progs.get_vma_offset, opts);
--	if (!ASSERT_OK_PTR(link, "attach_iter"))
--		return;
-+	skel->links.get_vma_offset = bpf_program__attach_iter(skel->progs.get_vma_offset, opts);
-+	if (!ASSERT_OK_PTR(skel->links.get_vma_offset, "attach_iter"))
-+		goto exit;
- 
--	iter_fd = bpf_iter_create(bpf_link__fd(link));
-+	iter_fd = bpf_iter_create(bpf_link__fd(skel->links.get_vma_offset));
- 	if (!ASSERT_GT(iter_fd, 0, "create_iter"))
- 		goto exit;
- 
-@@ -1535,7 +1534,7 @@ static void test_task_vma_offset_common(struct bpf_iter_attach_opts *opts, bool
- 	close(iter_fd);
- 
- exit:
--	bpf_link__destroy(link);
-+	bpf_iter_vma_offset__destroy(skel);
+diff --git a/lib/notifier-error-inject.c b/lib/notifier-error-inject.c
+index 21016b32d313..2b24ea6c9497 100644
+--- a/lib/notifier-error-inject.c
++++ b/lib/notifier-error-inject.c
+@@ -15,7 +15,7 @@ static int debugfs_errno_get(void *data, u64 *val)
+ 	return 0;
  }
  
- static void test_task_vma_offset(void)
+-DEFINE_SIMPLE_ATTRIBUTE(fops_errno, debugfs_errno_get, debugfs_errno_set,
++DEFINE_SIMPLE_ATTRIBUTE_SIGNED(fops_errno, debugfs_errno_get, debugfs_errno_set,
+ 			"%lld\n");
+ 
+ static struct dentry *debugfs_create_errno(const char *name, umode_t mode,
 -- 
 2.35.1
 
