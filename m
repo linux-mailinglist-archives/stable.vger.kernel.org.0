@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 40F14657A64
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:11:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66DA0658088
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:18:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233089AbiL1PLN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:11:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57954 "EHLO
+        id S233253AbiL1QRy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:17:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232898AbiL1PKi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:10:38 -0500
+        with ESMTP id S234645AbiL1QRF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:17:05 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69E5B13E0C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:10:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EBA91AA2C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:15:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09D75B8170E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:10:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58B59C433D2;
-        Wed, 28 Dec 2022 15:10:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2FB00B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:15:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E42BC433D2;
+        Wed, 28 Dec 2022 16:14:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240234;
-        bh=A9bCHidDYJ9dO+hTztqviWUQ2PTx5m/etu9yPXWbbXA=;
+        s=korg; t=1672244099;
+        bh=rLgqm8AkjtP/pV7MG2SgnIVdxklTuEQ4QmDrLwU8k/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sCB6WBlz7iiZMCyHiDtD2qcp9B5rlH+deO20wPn1s9Cm7x9RmeKRrH8q1UPDWfmSA
-         8ffgMM9PpwWQdfa+GOz4IZoaVr14YPn9EwH5ySYzV96t7upQrws1YSFcmrNbUbJ8EG
-         3PI36IBlnMYKGoOjSM4cJntwR26RMNE9yiFGnv/U=
+        b=cucAp0O3UJyKHI/gOZY+TxeptPc0gpdgnsNdz43X9+xOwCAFUXONsazO20YjVfPqk
+         Vt3FeP6vZ6X7skPeTLrSOSZ0+GQH5fd2Al3eZCTOy/ValxwK06oKZc8rmXpUwLhiKb
+         jdJdF492PTWhmvBvJYlF02G74Q3GmGv90piluACs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Mike Marshall <hubcap@omnibond.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 326/731] drivers: net: qlcnic: Fix potential memory leak in qlcnic_sriov_init()
+Subject: [PATCH 6.0 0645/1073] orangefs: Fix sysfs not cleanup when dev init failed
 Date:   Wed, 28 Dec 2022 15:37:13 +0100
-Message-Id: <20221228144306.022538544@linuxfoundation.org>
+Message-Id: <20221228144345.563583060@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +53,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit 01de1123322e4fe1bbd0fcdf0982511b55519c03 ]
+[ Upstream commit ea60a4ad0cf88b411cde6888b8c890935686ecd7 ]
 
-If vp alloc failed in qlcnic_sriov_init(), all previously allocated vp
-needs to be freed.
+When the dev init failed, should cleanup the sysfs, otherwise, the
+module will never be loaded since can not create duplicate sysfs
+directory:
 
-Fixes: f197a7aa6288 ("qlcnic: VF-PF communication channel implementation")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  sysfs: cannot create duplicate filename '/fs/orangefs'
+
+  CPU: 1 PID: 6549 Comm: insmod Tainted: G        W          6.0.0+ #44
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc33 04/01/2014
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x34/0x44
+   sysfs_warn_dup.cold+0x17/0x24
+   sysfs_create_dir_ns+0x16d/0x180
+   kobject_add_internal+0x156/0x3a0
+   kobject_init_and_add+0xcf/0x120
+   orangefs_sysfs_init+0x7e/0x3a0 [orangefs]
+   orangefs_init+0xfe/0x1000 [orangefs]
+   do_one_initcall+0x87/0x2a0
+   do_init_module+0xdf/0x320
+   load_module+0x2f98/0x3330
+   __do_sys_finit_module+0x113/0x1b0
+   do_syscall_64+0x35/0x80
+   entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+  kobject_add_internal failed for orangefs with -EEXIST, don't try to register things with the same name in the same directory.
+
+Fixes: 2f83ace37181 ("orangefs: put register_chrdev immediately before register_filesystem")
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Mike Marshall <hubcap@omnibond.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_common.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/orangefs/orangefs-mod.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_common.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_common.c
-index 42a44c97572a..df9b84f6600f 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_common.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_common.c
-@@ -221,6 +221,8 @@ int qlcnic_sriov_init(struct qlcnic_adapter *adapter, int num_vfs)
- 	return 0;
+diff --git a/fs/orangefs/orangefs-mod.c b/fs/orangefs/orangefs-mod.c
+index cd7297815f91..5ab741c60b7e 100644
+--- a/fs/orangefs/orangefs-mod.c
++++ b/fs/orangefs/orangefs-mod.c
+@@ -141,7 +141,7 @@ static int __init orangefs_init(void)
+ 		gossip_err("%s: could not initialize device subsystem %d!\n",
+ 			   __func__,
+ 			   ret);
+-		goto cleanup_device;
++		goto cleanup_sysfs;
+ 	}
  
- qlcnic_destroy_async_wq:
-+	while (i--)
-+		kfree(sriov->vf_info[i].vp);
- 	destroy_workqueue(bc->bc_async_wq);
+ 	ret = register_filesystem(&orangefs_fs_type);
+@@ -152,11 +152,11 @@ static int __init orangefs_init(void)
+ 		goto out;
+ 	}
  
- qlcnic_destroy_trans_wq:
+-	orangefs_sysfs_exit();
+-
+-cleanup_device:
+ 	orangefs_dev_cleanup();
+ 
++cleanup_sysfs:
++	orangefs_sysfs_exit();
++
+ sysfs_init_failed:
+ 	orangefs_debugfs_cleanup();
+ 
 -- 
 2.35.1
 
