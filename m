@@ -2,35 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C81896575AB
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 12:12:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 712376575CC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 12:17:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229668AbiL1LMB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 06:12:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53100 "EHLO
+        id S232887AbiL1LRx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 06:17:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232989AbiL1LL5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 06:11:57 -0500
-Received: from relay3-d.mail.gandi.net (relay3-d.mail.gandi.net [217.70.183.195])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7419387;
-        Wed, 28 Dec 2022 03:11:55 -0800 (PST)
-Received: (Authenticated sender: didi.debian@cknow.org)
-        by mail.gandi.net (Postfix) with ESMTPSA id 3101460002;
-        Wed, 28 Dec 2022 11:11:52 +0000 (UTC)
-From:   Diederik de Haas <didi.debian@cknow.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        LABBE Corentin <clabbe@baylibre.com>
-Subject: Re: crypto-rockchip patches queued for 6.1
-Date:   Wed, 28 Dec 2022 12:11:40 +0100
-Message-ID: <2589096.039tgBz4BG@prancing-pony>
-Organization: Connecting Knowledge
-In-Reply-To: <Y6wdZHlnUIzzreTA@kroah.com>
-References: <2236134.UumAgOJHRH@prancing-pony> <Y6wdZHlnUIzzreTA@kroah.com>
+        with ESMTP id S229627AbiL1LRw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 06:17:52 -0500
+Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D970AC5F;
+        Wed, 28 Dec 2022 03:17:50 -0800 (PST)
+Received: from zn.tnic (p5de8e9fe.dip0.t-ipconnect.de [93.232.233.254])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 34C221EC052A;
+        Wed, 28 Dec 2022 12:17:49 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1672226269;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=y5u+/GNCy9XsEJ4ePBnmhuNYi+fgmq9Ww8t8DYoY55c=;
+        b=XMSu/5JvFCBZG+XCKti567h2bTowDJRBgPgQuuooq3qzmHccVtWwPjpp92qjW/JdK7H2r/
+        QD7XqPZPXAW5rErIn0HFntcm3RErZfmd4J/GR89TlDv2U0+R/jp+Xsjd8J39D7jwj7aCiu
+        AhKl6iZq+7kM6AilAxvDfUXSAAZb+ig=
+Date:   Wed, 28 Dec 2022 12:17:45 +0100
+From:   Borislav Petkov <bp@alien8.de>
+To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Cc:     andersson@kernel.org, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, tony.luck@intel.com,
+        quic_saipraka@quicinc.com, konrad.dybcio@linaro.org,
+        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        james.morse@arm.com, mchehab@kernel.org, rric@kernel.org,
+        linux-edac@vger.kernel.org, quic_ppareek@quicinc.com,
+        luca.weiss@fairphone.com, ahalaney@redhat.com, steev@kali.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v5 01/17] EDAC/device: Make use of poll_msec value in
+ edac_device_ctl_info struct
+Message-ID: <Y6wl2fhbg3emlyKd@zn.tnic>
+References: <20221228084028.46528-1-manivannan.sadhasivam@linaro.org>
+ <20221228084028.46528-2-manivannan.sadhasivam@linaro.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart2694219.z1yeqPhZyi"; micalg="pgp-sha256"; protocol="application/pgp-signature"
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20221228084028.46528-2-manivannan.sadhasivam@linaro.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -38,96 +57,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---nextPart2694219.z1yeqPhZyi
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"; protected-headers="v1"
-From: Diederik de Haas <didi.debian@cknow.org>
-To: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: crypto-rockchip patches queued for 6.1
-Date: Wed, 28 Dec 2022 12:11:40 +0100
-Message-ID: <2589096.039tgBz4BG@prancing-pony>
-Organization: Connecting Knowledge
-In-Reply-To: <Y6wdZHlnUIzzreTA@kroah.com>
-MIME-Version: 1.0
+On Wed, Dec 28, 2022 at 02:10:12PM +0530, Manivannan Sadhasivam wrote:
+> The EDAC drivers may optionally pass the poll_msec value. Use that value if
+> available, else fall back to 1000ms.
 
-On Wednesday, 28 December 2022 11:41:40 CET Greg KH wrote:
-> > All those patches have been merged into Linus' tree for 6.2 and there's a
-> > hotfix planned to be submitted for 6.2 here:
-> > https://git.kernel.org/pub/scm/linux/kernel/git/mmind/linux-rockchip.git/
-> > commit/?h=v6.2-armsoc/dtsfixes&id=53e8e1e6e9c1653095211a8edf17912f2374bb03
-> > 
-> > Wouldn't it make more sense to queue the whole patch set for 6.1?
-> > Or (at least) the whole crypto rockchip part as mentioned here:
-> > https://lore.kernel.org/all/Y5mGGrBJaDL6mnQJ@gondor.apana.org.au/
-> > under the "Corentin Labbe (32):" label?
-> 
-> Please provide us a list of the specific git commits and in the order in
-> which you wish to see them applied and we will be glad to review them.
-> 
-> Looking at random links (that are wrapped and not able to be easily
-> used) is not going to work well.
+Use this version for your next submission pls:
 
-These are the commits from Linus' tree (in the correct order):
+---
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Date: Wed, 28 Dec 2022 14:10:12 +0530
+Subject: [PATCH] EDAC/device: Respect any driver-supplied workqueue polling value
 
-https://git.kernel.org/linus/299c481fa5c121f892420d97f1123a853b7f1079
-https://git.kernel.org/linus/8ccd9c8cd1d1618f5e073c86ffcfe15f292eefe6
-https://git.kernel.org/linus/c50ef1411c8cbad0c7db100c477126076b6e3348
-https://git.kernel.org/linus/6d11c9387865723fd779be00ae37a4588e60133d
-https://git.kernel.org/linus/87e356c4966444866186f68f05832fdcc0f351a3
-https://git.kernel.org/linus/68ef8af09a1a912a5ed2cfaa4cca7606f52cef90
-https://git.kernel.org/linus/816600485cb597b3ff7d6806a95a78512839f775
-https://git.kernel.org/linus/d6b23ccef82816050c2fd458c9dabfa0e0af09b9
-https://git.kernel.org/linus/bb3c7b73363c9a149b12b74c44ae94b73a8fddf8
-https://git.kernel.org/linus/57d67c6e8219b2a034c16d6149e30fb40fd39935
-https://git.kernel.org/linus/6d55c4a206d29006c733b5083ba5da8391abbdbd
-https://git.kernel.org/linus/48d904d428b68080abd9161148ca2ab1331124a4
-https://git.kernel.org/linus/a216be3964c15661579005012b1f0d7d20a1f265
-https://git.kernel.org/linus/6f61192549d0214f8d9d1e1d3152e450658ed1e9
-https://git.kernel.org/linus/3a6fd464f48ad35d8cf15d81fd92094132dc862a
-https://git.kernel.org/linus/e803188400d32d28ecfbef0878c289e3c7026723
-https://git.kernel.org/linus/37bc22159c456ad43fb852fc6ed60f4081df25df
-https://git.kernel.org/linus/456698746b40008eb0924eb7e9ec908330948b2d
-https://git.kernel.org/linus/e65e90101329de0fe304e2df057f68c5f0fa4748
-https://git.kernel.org/linus/a7fa0644dd0b91fab97398de7ea4672a6526261f
-https://git.kernel.org/linus/2e3b149578c30275db9c3501c1d9dec36d16622a
-https://git.kernel.org/linus/c018c7a9dd198ce965ca4d10c7b083849bc533be
-https://git.kernel.org/linus/ea389be9857721252367fd2cf81bc8068e060693
-https://git.kernel.org/linus/81aaf680e85207d6521b250b2a80ba7c91cc9cbe
-https://git.kernel.org/linus/d1b5749687618d969c0be6428174a18a7e94ebd2
-https://git.kernel.org/linus/b136468a0024ea90c1259767c732eed12ce6edba
-https://git.kernel.org/linus/d1152bc533c941f7e267bf53d344cee510ea2808
-https://git.kernel.org/linus/8c701fa6e38c43dba75282e4d919298a5cfc5b05
-https://git.kernel.org/linus/2d3c756adcd7a7ee15b6a55cf01b363e3f134e79
-https://git.kernel.org/linus/e220e6719438f7a99fe0a73e6e126481380202fa
-https://git.kernel.org/linus/0d31b14c9e4178a129a1aa5e491e4da1489c07de
-https://git.kernel.org/linus/c5a1e104c35e5134b6048f1e03960a6ac9c42935
-https://git.kernel.org/linus/9dcd71c863a6f6476378d076d3e9189c854d49fd
+The EDAC drivers may optionally pass the poll_msec value. Use that value
+if available, else fall back to 1000ms.
 
-These commands will show them too:
-git log --oneline -25 d1b5749687618d969c0be6428174a18a7e94ebd2 --reverse
-git log --oneline -1 b136468a0024ea90c1259767c732eed12ce6edba
-git log --oneline -2 8c701fa6e38c43dba75282e4d919298a5cfc5b05 --reverse
-git log --oneline -5 9dcd71c863a6f6476378d076d3e9189c854d49fd --reverse
+  [ bp: Touchups. ]
 
-And this is the hotfix, planned for 6.2 (unwrapped):
-https://git.kernel.org/pub/scm/linux/kernel/git/mmind/linux-rockchip.git/commit?id=53e8e1e6e9c1653095211a8edf17912f2374bb03
+Fixes: e27e3dac6517 ("drivers/edac: add edac_device class")
+Reported-by: Luca Weiss <luca.weiss@fairphone.com>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Tested-by: Steev Klimaszewski <steev@kali.org> # Thinkpad X13s
+Tested-by: Andrew Halaney <ahalaney@redhat.com> # sa8540p-ride
+Cc: <stable@vger.kernel.org> # 4.9
+Link: https://lore.kernel.org/r/COZYL8MWN97H.MROQ391BGA09@otso
+---
+ drivers/edac/edac_device.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-Regards,
-  Diederik
---nextPart2694219.z1yeqPhZyi
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
+diff --git a/drivers/edac/edac_device.c b/drivers/edac/edac_device.c
+index 19522c568aa5..a50b7bcfb731 100644
+--- a/drivers/edac/edac_device.c
++++ b/drivers/edac/edac_device.c
+@@ -34,6 +34,9 @@
+ static DEFINE_MUTEX(device_ctls_mutex);
+ static LIST_HEAD(edac_device_list);
+ 
++/* Default workqueue processing interval on this instance, in msecs */
++#define DEFAULT_POLL_INTERVAL 1000
++
+ #ifdef CONFIG_EDAC_DEBUG
+ static void edac_device_dump_device(struct edac_device_ctl_info *edac_dev)
+ {
+@@ -336,7 +339,7 @@ static void edac_device_workq_function(struct work_struct *work_req)
+ 	 * whole one second to save timers firing all over the period
+ 	 * between integral seconds
+ 	 */
+-	if (edac_dev->poll_msec == 1000)
++	if (edac_dev->poll_msec == DEFAULT_POLL_INTERVAL)
+ 		edac_queue_work(&edac_dev->work, round_jiffies_relative(edac_dev->delay));
+ 	else
+ 		edac_queue_work(&edac_dev->work, edac_dev->delay);
+@@ -366,7 +369,7 @@ static void edac_device_workq_setup(struct edac_device_ctl_info *edac_dev,
+ 	 * timers firing on sub-second basis, while they are happy
+ 	 * to fire together on the 1 second exactly
+ 	 */
+-	if (edac_dev->poll_msec == 1000)
++	if (edac_dev->poll_msec == DEFAULT_POLL_INTERVAL)
+ 		edac_queue_work(&edac_dev->work, round_jiffies_relative(edac_dev->delay));
+ 	else
+ 		edac_queue_work(&edac_dev->work, edac_dev->delay);
+@@ -398,7 +401,7 @@ void edac_device_reset_delay_period(struct edac_device_ctl_info *edac_dev,
+ {
+ 	unsigned long jiffs = msecs_to_jiffies(value);
+ 
+-	if (value == 1000)
++	if (value == DEFAULT_POLL_INTERVAL)
+ 		jiffs = round_jiffies_relative(value);
+ 
+ 	edac_dev->poll_msec = value;
+@@ -443,11 +446,7 @@ int edac_device_add_device(struct edac_device_ctl_info *edac_dev)
+ 		/* This instance is NOW RUNNING */
+ 		edac_dev->op_state = OP_RUNNING_POLL;
+ 
+-		/*
+-		 * enable workq processing on this instance,
+-		 * default = 1000 msec
+-		 */
+-		edac_device_workq_setup(edac_dev, 1000);
++		edac_device_workq_setup(edac_dev, edac_dev->poll_msec ?: DEFAULT_POLL_INTERVAL);
+ 	} else {
+ 		edac_dev->op_state = OP_RUNNING_INTERRUPT;
+ 	}
+-- 
+2.35.1
 
------BEGIN PGP SIGNATURE-----
+-- 
+Regards/Gruss,
+    Boris.
 
-iHUEABYIAB0WIQT1sUPBYsyGmi4usy/XblvOeH7bbgUCY6wkbAAKCRDXblvOeH7b
-bq9RAPwJrkq5/raRkGrN+Qdih68Rn4M3xmqQq9pW1gjV2HwKoAEA3nbehpmpu0eA
-zGZd10gkx4NuMmWEUXTsOUI5APrDjwI=
-=yGm3
------END PGP SIGNATURE-----
-
---nextPart2694219.z1yeqPhZyi--
-
-
-
+https://people.kernel.org/tglx/notes-about-netiquette
