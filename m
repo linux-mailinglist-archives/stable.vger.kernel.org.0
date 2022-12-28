@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FFED657D32
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:40:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 199C5657815
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233538AbiL1Pkb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:40:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57106 "EHLO
+        id S232731AbiL1OsB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:48:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233121AbiL1Pka (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:40:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A207167F6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:40:29 -0800 (PST)
+        with ESMTP id S233026AbiL1Org (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:47:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B79C11C36
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:46:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E37B76155B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:40:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04306C433D2;
-        Wed, 28 Dec 2022 15:40:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 33229B81714
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:46:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D25EC433D2;
+        Wed, 28 Dec 2022 14:46:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242028;
-        bh=ewhZL2tHn2SOQzvBTF5or+PQfMteZJMpwQ6I7vLoelk=;
+        s=korg; t=1672238803;
+        bh=qY3awEG1aNTACb13FC0W+diU9Et+YRXyv5g6zLWNc0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P3+suhJuu+n05jWxUsiepj0U/wntA9cNvHfPCsT4u1JBHM0+tfhyqs0ld1mqrArdO
-         XlykHqaG4h5d57h/9JC7IsExO8eZm4WE47AcS6onn0jSlJ9WSP9p0VMu93jLTeInFY
-         JyBOeaID5fY0tCP1bcoDCntuNqAuBnJ2VuNyGcjw=
+        b=BCY6NOFThc1/TNTortcvTLKpdWLvGRDpODfXuSzeM9INMtfLhI5v4hInCG7FbRcXH
+         3XoeZ5KI2RV8nNlo0jwr1WtjGFQ1/hZ9LqC6b4Iih0o2VfXXXAx/JawTN4qXIZL7V5
+         nThpAsUuDO8kzBG1j06lPEmVAvY6P+mK1OYPHEqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
-        Stanislav Fomichev <sdf@google.com>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
+        patches@lists.linux.dev,
+        Marijn Suijten <marijn.suijten@somainline.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@somainline.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0335/1073] selftests/bpf: fix memory leak of lsm_cgroup
+Subject: [PATCH 5.15 016/731] arm64: dts: qcom: pm660: Use unique ADC5_VCOIN address in node name
 Date:   Wed, 28 Dec 2022 15:32:03 +0100
-Message-Id: <20221228144337.102144613@linuxfoundation.org>
+Message-Id: <20221228144257.009168411@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,132 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Marijn Suijten <marijn.suijten@somainline.org>
 
-[ Upstream commit c453e64cbc9532c0c2edfa999c35d29dad16b8bb ]
+[ Upstream commit 02549ba5de0a09a27616496c3512db5af4ad7862 ]
 
-kmemleak reports this issue:
+The register address in the node name is shadowing vph_pwr@83, whereas
+the ADC5_VCOIN register resolves to 0x85.  Fix this copy-paste
+discrepancy.
 
-unreferenced object 0xffff88810b7835c0 (size 32):
-  comm "test_progs", pid 270, jiffies 4294969007 (age 1621.315s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    03 00 00 00 03 00 00 00 0f 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000376cdeab>] kmalloc_trace+0x27/0x110
-    [<000000003bcdb3b6>] selinux_sk_alloc_security+0x66/0x110
-    [<000000003959008f>] security_sk_alloc+0x47/0x80
-    [<00000000e7bc6668>] sk_prot_alloc+0xbd/0x1a0
-    [<0000000002d6343a>] sk_alloc+0x3b/0x940
-    [<000000009812a46d>] unix_create1+0x8f/0x3d0
-    [<000000005ed0976b>] unix_create+0xa1/0x150
-    [<0000000086a1d27f>] __sock_create+0x233/0x4a0
-    [<00000000cffe3a73>] __sys_socket_create.part.0+0xaa/0x110
-    [<0000000007c63f20>] __sys_socket+0x49/0xf0
-    [<00000000b08753c8>] __x64_sys_socket+0x42/0x50
-    [<00000000b56e26b3>] do_syscall_64+0x3b/0x90
-    [<000000009b4871b8>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-The issue occurs in the following scenarios:
-
-unix_create1()
-  sk_alloc()
-    sk_prot_alloc()
-      security_sk_alloc()
-        call_int_hook()
-          hlist_for_each_entry()
-            entry1->hook.sk_alloc_security
-            <-- selinux_sk_alloc_security() succeeded,
-            <-- sk->security alloced here.
-            entry2->hook.sk_alloc_security
-            <-- bpf_lsm_sk_alloc_security() failed
-      goto out_free;
-        ...    <-- the sk->security not freed, memleak
-
-The core problem is that the LSM is not yet fully stacked (work is
-actively going on in this space) which means that some LSM hooks do
-not support multiple LSMs at the same time. To fix, skip the
-"EPERM" test when it runs in the environments that already have
-non-bpf lsms installed
-
-Fixes: dca85aac8895 ("selftests/bpf: lsm_cgroup functional test")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Cc: Stanislav Fomichev <sdf@google.com>
-Acked-by: Stanislav Fomichev <sdf@google.com>
-Link: https://lore.kernel.org/r/1668482980-16163-1-git-send-email-wangyufen@huawei.com
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Fixes: 4bf097540506 ("arm64: dts: qcom: pm660: Add VADC and temp alarm nodes")
+Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20220926190148.283805-3-marijn.suijten@somainline.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/bpf/prog_tests/lsm_cgroup.c       | 17 +++++++++++++----
- tools/testing/selftests/bpf/progs/lsm_cgroup.c  |  8 ++++++++
- 2 files changed, 21 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/qcom/pm660.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/lsm_cgroup.c b/tools/testing/selftests/bpf/prog_tests/lsm_cgroup.c
-index 1102e4f42d2d..f117bfef68a1 100644
---- a/tools/testing/selftests/bpf/prog_tests/lsm_cgroup.c
-+++ b/tools/testing/selftests/bpf/prog_tests/lsm_cgroup.c
-@@ -173,10 +173,12 @@ static void test_lsm_cgroup_functional(void)
- 	ASSERT_EQ(query_prog_cnt(cgroup_fd, NULL), 4, "total prog count");
- 	ASSERT_EQ(query_prog_cnt(cgroup_fd2, NULL), 1, "total prog count");
+diff --git a/arch/arm64/boot/dts/qcom/pm660.dtsi b/arch/arm64/boot/dts/qcom/pm660.dtsi
+index e847d7209afc..affc736d154a 100644
+--- a/arch/arm64/boot/dts/qcom/pm660.dtsi
++++ b/arch/arm64/boot/dts/qcom/pm660.dtsi
+@@ -152,7 +152,7 @@ vadc_vph_pwr: vph_pwr@83 {
+ 				qcom,pre-scaling = <1 3>;
+ 			};
  
--	/* AF_UNIX is prohibited. */
--
- 	fd = socket(AF_UNIX, SOCK_STREAM, 0);
--	ASSERT_LT(fd, 0, "socket(AF_UNIX)");
-+	if (!(skel->kconfig->CONFIG_SECURITY_APPARMOR
-+	    || skel->kconfig->CONFIG_SECURITY_SELINUX
-+	    || skel->kconfig->CONFIG_SECURITY_SMACK))
-+		/* AF_UNIX is prohibited. */
-+		ASSERT_LT(fd, 0, "socket(AF_UNIX)");
- 	close(fd);
- 
- 	/* AF_INET6 gets default policy (sk_priority). */
-@@ -233,11 +235,18 @@ static void test_lsm_cgroup_functional(void)
- 
- 	/* AF_INET6+SOCK_STREAM
- 	 * AF_PACKET+SOCK_RAW
-+	 * AF_UNIX+SOCK_RAW if already have non-bpf lsms installed
- 	 * listen_fd
- 	 * client_fd
- 	 * accepted_fd
- 	 */
--	ASSERT_EQ(skel->bss->called_socket_post_create2, 5, "called_create2");
-+	if (skel->kconfig->CONFIG_SECURITY_APPARMOR
-+	    || skel->kconfig->CONFIG_SECURITY_SELINUX
-+	    || skel->kconfig->CONFIG_SECURITY_SMACK)
-+		/* AF_UNIX+SOCK_RAW if already have non-bpf lsms installed */
-+		ASSERT_EQ(skel->bss->called_socket_post_create2, 6, "called_create2");
-+	else
-+		ASSERT_EQ(skel->bss->called_socket_post_create2, 5, "called_create2");
- 
- 	/* start_server
- 	 * bind(ETH_P_ALL)
-diff --git a/tools/testing/selftests/bpf/progs/lsm_cgroup.c b/tools/testing/selftests/bpf/progs/lsm_cgroup.c
-index 4f2d60b87b75..02c11d16b692 100644
---- a/tools/testing/selftests/bpf/progs/lsm_cgroup.c
-+++ b/tools/testing/selftests/bpf/progs/lsm_cgroup.c
-@@ -7,6 +7,10 @@
- 
- char _license[] SEC("license") = "GPL";
- 
-+extern bool CONFIG_SECURITY_SELINUX __kconfig __weak;
-+extern bool CONFIG_SECURITY_SMACK __kconfig __weak;
-+extern bool CONFIG_SECURITY_APPARMOR __kconfig __weak;
-+
- #ifndef AF_PACKET
- #define AF_PACKET 17
- #endif
-@@ -140,6 +144,10 @@ SEC("lsm_cgroup/sk_alloc_security")
- int BPF_PROG(socket_alloc, struct sock *sk, int family, gfp_t priority)
- {
- 	called_socket_alloc++;
-+	/* if already have non-bpf lsms installed, EPERM will cause memory leak of non-bpf lsms */
-+	if (CONFIG_SECURITY_SELINUX || CONFIG_SECURITY_SMACK || CONFIG_SECURITY_APPARMOR)
-+		return 1;
-+
- 	if (family == AF_UNIX)
- 		return 0; /* EPERM */
- 
+-			vcoin: vcoin@83 {
++			vcoin: vcoin@85 {
+ 				reg = <ADC5_VCOIN>;
+ 				qcom,decimation = <1024>;
+ 				qcom,pre-scaling = <1 3>;
 -- 
 2.35.1
 
