@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F8E76584D0
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:03:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A75D658404
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:54:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234947AbiL1RDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:03:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55324 "EHLO
+        id S234495AbiL1QyC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:54:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235358AbiL1RCi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:02:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF0F720F64
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:56:30 -0800 (PST)
+        with ESMTP id S235272AbiL1QxO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:53:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13B521C126
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:48:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 51E02B81707
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:56:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B54CC433D2;
-        Wed, 28 Dec 2022 16:56:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B6A0160D41
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:48:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3274C433F0;
+        Wed, 28 Dec 2022 16:48:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246588;
-        bh=xadfa5UUa/VvR7/Q+w8xXinb6FW7rp5NXKRfhIxiI8E=;
+        s=korg; t=1672246118;
+        bh=RfH9LmeSmRyUFA/u+LvjDwVJ2qp3eFFU8aKEIPlYbZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RbyxinK/0SwTatGs7zkjrpsSZ19pejoAsPQzTDCegHOuIM9fDUXupT3Rshvi/CSMj
-         lQwDqo9Mf2b1XUf3tP+Owgl61QluRs8t7zyehB6EHbHPxa+ZHDWdpEhaxVhk7pm/+d
-         WHufqiKCLNMc4t2f81iFz+lb7ILCD9802/NWUIBk=
+        b=zIxFUfH2y9HOHxCR1Hguvlaurl4CrVho7XjXuU6GWAY0UKSDO9zQfj1YsP4F0hN5t
+         FGtSbfKLwlucdn1glE2YgAhcswMaiVZLYxFSIwFUK8+srCpt0yBtvYA0BhYMBu5jNF
+         PrfPSwRlAj53L+e8NjbUOU7rV843gaeYptuSVTjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Mike Marshall <hubcap@omnibond.com>,
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1064/1146] orangefs: Fix kmemleak in orangefs_{kernel,client}_debug_init()
+Subject: [PATCH 6.0 1015/1073] drm/amd/pm: avoid large variable on kernel stack
 Date:   Wed, 28 Dec 2022 15:43:23 +0100
-Message-Id: <20221228144359.170809503@linuxfoundation.org>
+Message-Id: <20221228144355.744437544@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,105 +53,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 31720a2b109b3080eb77e97b8f6f50a27b4ae599 ]
+[ Upstream commit d118b18fb1da02b41df2da78cb2794b3638d89cd ]
 
-When insert and remove the orangefs module, there are memory leaked
-as below:
+The activity_monitor_external[] array is too big to fit on the
+kernel stack, resulting in this warning with clang:
 
-unreferenced object 0xffff88816b0cc000 (size 2048):
-  comm "insmod", pid 783, jiffies 4294813439 (age 65.512s)
-  hex dump (first 32 bytes):
-    6e 6f 6e 65 0a 00 00 00 00 00 00 00 00 00 00 00  none............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<0000000031ab7788>] kmalloc_trace+0x27/0xa0
-    [<000000005b405fee>] orangefs_debugfs_init.cold+0xaf/0x17f
-    [<00000000e5a0085b>] 0xffffffffa02780f9
-    [<000000004232d9f7>] do_one_initcall+0x87/0x2a0
-    [<0000000054f22384>] do_init_module+0xdf/0x320
-    [<000000003263bdea>] load_module+0x2f98/0x3330
-    [<0000000052cd4153>] __do_sys_finit_module+0x113/0x1b0
-    [<00000000250ae02b>] do_syscall_64+0x35/0x80
-    [<00000000f11c03c7>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+drivers/gpu/drm/amd/amdgpu/../pm/swsmu/smu13/smu_v13_0_7_ppt.c:1438:12: error: stack frame size (1040) exceeds limit (1024) in 'smu_v13_0_7_get_power_profile_mode' [-Werror,-Wframe-larger-than]
 
-Use the golbal variable as the buffer rather than dynamic allocate to
-slove the problem.
+Use dynamic allocation instead. It should also be possible to
+have single element here instead of the array, but this seems
+easier.
 
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Mike Marshall <hubcap@omnibond.com>
+v2: fix up argument to sizeof() (Alex)
+
+Fixes: 334682ae8151 ("drm/amd/pm: enable workload type change on smu_v13_0_7")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/orangefs/orangefs-debugfs.c | 26 +++-----------------------
- 1 file changed, 3 insertions(+), 23 deletions(-)
+ .../drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c  | 21 ++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/fs/orangefs/orangefs-debugfs.c b/fs/orangefs/orangefs-debugfs.c
-index a848b6ef9599..1b508f543384 100644
---- a/fs/orangefs/orangefs-debugfs.c
-+++ b/fs/orangefs/orangefs-debugfs.c
-@@ -194,15 +194,10 @@ void orangefs_debugfs_init(int debug_mask)
-  */
- static void orangefs_kernel_debug_init(void)
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
+index d74debc584f8..39deb06a86ba 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
+@@ -1436,7 +1436,7 @@ static int smu_v13_0_7_get_power_limit(struct smu_context *smu,
+ 
+ static int smu_v13_0_7_get_power_profile_mode(struct smu_context *smu, char *buf)
  {
--	int rc = -ENOMEM;
--	char *k_buffer = NULL;
-+	static char k_buffer[ORANGEFS_MAX_DEBUG_STRING_LEN] = { };
+-	DpmActivityMonitorCoeffIntExternal_t activity_monitor_external[PP_SMC_POWER_PROFILE_COUNT];
++	DpmActivityMonitorCoeffIntExternal_t *activity_monitor_external;
+ 	uint32_t i, j, size = 0;
+ 	int16_t workload_type = 0;
+ 	int result = 0;
+@@ -1444,6 +1444,12 @@ static int smu_v13_0_7_get_power_profile_mode(struct smu_context *smu, char *buf
+ 	if (!buf)
+ 		return -EINVAL;
  
- 	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: start\n", __func__);
++	activity_monitor_external = kcalloc(PP_SMC_POWER_PROFILE_COUNT,
++					    sizeof(*activity_monitor_external),
++					    GFP_KERNEL);
++	if (!activity_monitor_external)
++		return -ENOMEM;
++
+ 	size += sysfs_emit_at(buf, size, "                              ");
+ 	for (i = 0; i <= PP_SMC_POWER_PROFILE_WINDOW3D; i++)
+ 		size += sysfs_emit_at(buf, size, "%-14s%s", amdgpu_pp_profile_name[i],
+@@ -1456,15 +1462,17 @@ static int smu_v13_0_7_get_power_profile_mode(struct smu_context *smu, char *buf
+ 		workload_type = smu_cmn_to_asic_specific_index(smu,
+ 							       CMN2ASIC_MAPPING_WORKLOAD,
+ 							       i);
+-		if (workload_type < 0)
+-			return -EINVAL;
++		if (workload_type < 0) {
++			result = -EINVAL;
++			goto out;
++		}
  
--	k_buffer = kzalloc(ORANGEFS_MAX_DEBUG_STRING_LEN, GFP_KERNEL);
--	if (!k_buffer)
--		goto out;
--
- 	if (strlen(kernel_debug_string) + 1 < ORANGEFS_MAX_DEBUG_STRING_LEN) {
- 		strcpy(k_buffer, kernel_debug_string);
- 		strcat(k_buffer, "\n");
-@@ -213,9 +208,6 @@ static void orangefs_kernel_debug_init(void)
+ 		result = smu_cmn_update_table(smu,
+ 					  SMU_TABLE_ACTIVITY_MONITOR_COEFF, workload_type,
+ 					  (void *)(&activity_monitor_external[i]), false);
+ 		if (result) {
+ 			dev_err(smu->adev->dev, "[%s] Failed to get activity monitor!", __func__);
+-			return result;
++			goto out;
+ 		}
+ 	}
  
- 	debugfs_create_file(ORANGEFS_KMOD_DEBUG_FILE, 0444, debug_dir, k_buffer,
- 			    &kernel_debug_fops);
--
--out:
--	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: rc:%d:\n", __func__, rc);
+@@ -1492,7 +1500,10 @@ do {													\
+ 	PRINT_DPM_MONITOR(Fclk_BoosterFreq);
+ #undef PRINT_DPM_MONITOR
+ 
+-	return size;
++	result = size;
++out:
++	kfree(activity_monitor_external);
++	return result;
  }
  
- 
-@@ -299,18 +291,13 @@ static int help_show(struct seq_file *m, void *v)
- /*
-  * initialize the client-debug file.
-  */
--static int orangefs_client_debug_init(void)
-+static void orangefs_client_debug_init(void)
- {
- 
--	int rc = -ENOMEM;
--	char *c_buffer = NULL;
-+	static char c_buffer[ORANGEFS_MAX_DEBUG_STRING_LEN] = { };
- 
- 	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: start\n", __func__);
- 
--	c_buffer = kzalloc(ORANGEFS_MAX_DEBUG_STRING_LEN, GFP_KERNEL);
--	if (!c_buffer)
--		goto out;
--
- 	if (strlen(client_debug_string) + 1 < ORANGEFS_MAX_DEBUG_STRING_LEN) {
- 		strcpy(c_buffer, client_debug_string);
- 		strcat(c_buffer, "\n");
-@@ -324,13 +311,6 @@ static int orangefs_client_debug_init(void)
- 						  debug_dir,
- 						  c_buffer,
- 						  &kernel_debug_fops);
--
--	rc = 0;
--
--out:
--
--	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: rc:%d:\n", __func__, rc);
--	return rc;
- }
- 
- /* open ORANGEFS_KMOD_DEBUG_FILE or ORANGEFS_CLIENT_DEBUG_FILE.*/
+ static int smu_v13_0_7_set_power_profile_mode(struct smu_context *smu, long *input, uint32_t size)
 -- 
 2.35.1
 
