@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FEFA65786B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:50:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E384657DEE
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:48:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233139AbiL1Ou3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:50:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37932 "EHLO
+        id S234053AbiL1PsO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:48:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233117AbiL1OuU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:50:20 -0500
+        with ESMTP id S233604AbiL1PsM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:48:12 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E12FB11C14
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:50:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D92EA17E18
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:48:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C93761365
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:50:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F48CC433EF;
-        Wed, 28 Dec 2022 14:50:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 768E16156F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:48:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8403DC433D2;
+        Wed, 28 Dec 2022 15:48:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239016;
-        bh=rMCigio10321HoUB6g+Ix0Omaua0lh61YivxJcqtbdU=;
+        s=korg; t=1672242490;
+        bh=bKfFoCXPUHuAtHpsb+4nwkEWIosbO+FSLByGcH6YxNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tJ2uOMJhzvaORJg9RTUHzK9qs+kL/ih1XHLoW6vA3Og0Oz2MHodaEYiNDsV+3kk5k
-         9ey16tvyCDFe2JmFSmYP5u9B5z5kcxD1H+twXmXI3vJWEYfktrTtGgU+Ph2k27vFh4
-         YQSuMR2QLb3olm0WHfkIgXif1Pm2vyd2n5tq3So8=
+        b=dQkLQd6Cj2AVV39lsHMBx72jVhboaXEJQ7bnVHcoNQmXVADpj8A6y5wk5AKgR7BSM
+         6eMzRCGGEhzxI5mDtKqoMY7dU5KH+RKH7yWgIQuunDtu+dWgCN3/c/3wxiEimwBYME
+         4bdfXYcGkGkG37nLzPZSEW3TycLWL0u/cm25ZK2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Prashant Malani <pmalani@chromium.org>,
+        patches@lists.linux.dev, Amol Jawale <amol.jawale@candelatech.com>,
+        Ben Greear <greearb@candelatech.com>,
+        Gregory Greenman <gregory.greenman@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 097/731] platform/chrome: cros_usbpd_notify: Fix error handling in cros_usbpd_notify_init()
+Subject: [PATCH 6.0 0416/1073] wifi: iwlwifi: mvm: fix double free on tx path.
 Date:   Wed, 28 Dec 2022 15:33:24 +0100
-Message-Id: <20221228144259.362228815@linuxfoundation.org>
+Message-Id: <20221228144339.322996432@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +54,213 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Ben Greear <greearb@candelatech.com>
 
-[ Upstream commit 5a2d96623670155d94aca72c320c0ac27bdc6bd2 ]
+[ Upstream commit 0473cbae2137b963bd0eaa74336131cb1d3bc6c3 ]
 
-The following WARNING message was given when rmmod cros_usbpd_notify:
+We see kernel crashes and lockups and KASAN errors related to ax210
+firmware crashes.  One of the KASAN dumps pointed at the tx path,
+and it appears there is indeed a way to double-free an skb.
 
- Unexpected driver unregister!
- WARNING: CPU: 0 PID: 253 at drivers/base/driver.c:270 driver_unregister+0x8a/0xb0
- Modules linked in: cros_usbpd_notify(-)
- CPU: 0 PID: 253 Comm: rmmod Not tainted 6.1.0-rc3 #24
- ...
- Call Trace:
-  <TASK>
-  cros_usbpd_notify_exit+0x11/0x1e [cros_usbpd_notify]
-  __x64_sys_delete_module+0x3c7/0x570
-  ? __ia32_sys_delete_module+0x570/0x570
-  ? lock_is_held_type+0xe3/0x140
-  ? syscall_enter_from_user_mode+0x17/0x50
-  ? rcu_read_lock_sched_held+0xa0/0xd0
-  ? syscall_enter_from_user_mode+0x1c/0x50
-  do_syscall_64+0x37/0x90
-  entry_SYSCALL_64_after_hwframe+0x63/0xcd
- RIP: 0033:0x7f333fe9b1b7
+If iwl_mvm_tx_skb_sta returns non-zero, then the 'skb' sent into the
+method will be freed.  But, in case where we build TSO skb buffer,
+the skb may also be freed in error case.  So, return 0 in that particular
+error case and do cleanup manually.
 
-The reason is that the cros_usbpd_notify_init() does not check the return
-value of platform_driver_register(), and the cros_usbpd_notify can
-install successfully even if platform_driver_register() failed.
+BUG: KASAN: use-after-free in __list_del_entry_valid+0x12/0x90
+iwlwifi 0000:06:00.0: 0x00000000 | tsf hi
+Read of size 8 at addr ffff88813cfa4ba0 by task btserver/9650
 
-Fix by checking the return value of platform_driver_register() and
-unregister cros_usbpd_notify_plat_driver when it failed.
+CPU: 4 PID: 9650 Comm: btserver Tainted: G        W         5.19.8+ #5
+iwlwifi 0000:06:00.0: 0x00000000 | time gp1
+Hardware name: Default string Default string/SKYBAY, BIOS 5.12 02/19/2019
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x55/0x6d
+ print_report.cold.12+0xf2/0x684
+iwlwifi 0000:06:00.0: 0x1D0915A8 | time gp2
+ ? __list_del_entry_valid+0x12/0x90
+ kasan_report+0x8b/0x180
+iwlwifi 0000:06:00.0: 0x00000001 | uCode revision type
+ ? __list_del_entry_valid+0x12/0x90
+ __list_del_entry_valid+0x12/0x90
+iwlwifi 0000:06:00.0: 0x00000048 | uCode version major
+ tcp_update_skb_after_send+0x5d/0x170
+ __tcp_transmit_skb+0xb61/0x15c0
+iwlwifi 0000:06:00.0: 0xDAA05125 | uCode version minor
+ ? __tcp_select_window+0x490/0x490
+iwlwifi 0000:06:00.0: 0x00000420 | hw version
+ ? trace_kmalloc_node+0x29/0xd0
+ ? __kmalloc_node_track_caller+0x12a/0x260
+ ? memset+0x1f/0x40
+ ? __build_skb_around+0x125/0x150
+ ? __alloc_skb+0x1d4/0x220
+ ? skb_zerocopy_clone+0x55/0x230
+iwlwifi 0000:06:00.0: 0x00489002 | board version
+ ? kmalloc_reserve+0x80/0x80
+ ? rcu_read_lock_bh_held+0x60/0xb0
+ tcp_write_xmit+0x3f1/0x24d0
+iwlwifi 0000:06:00.0: 0x034E001C | hcmd
+ ? __check_object_size+0x180/0x350
+iwlwifi 0000:06:00.0: 0x24020000 | isr0
+ tcp_sendmsg_locked+0x8a9/0x1520
+iwlwifi 0000:06:00.0: 0x01400000 | isr1
+ ? tcp_sendpage+0x50/0x50
+iwlwifi 0000:06:00.0: 0x48F0000A | isr2
+ ? lock_release+0xb9/0x400
+ ? tcp_sendmsg+0x14/0x40
+iwlwifi 0000:06:00.0: 0x00C3080C | isr3
+ ? lock_downgrade+0x390/0x390
+ ? do_raw_spin_lock+0x114/0x1d0
+iwlwifi 0000:06:00.0: 0x00200000 | isr4
+ ? rwlock_bug.part.2+0x50/0x50
+iwlwifi 0000:06:00.0: 0x034A001C | last cmd Id
+ ? rwlock_bug.part.2+0x50/0x50
+ ? lockdep_hardirqs_on_prepare+0xe/0x200
+iwlwifi 0000:06:00.0: 0x0000C2F0 | wait_event
+ ? __local_bh_enable_ip+0x87/0xe0
+ ? inet_send_prepare+0x220/0x220
+iwlwifi 0000:06:00.0: 0x000000C4 | l2p_control
+ tcp_sendmsg+0x22/0x40
+ sock_sendmsg+0x5f/0x70
+iwlwifi 0000:06:00.0: 0x00010034 | l2p_duration
+ __sys_sendto+0x19d/0x250
+iwlwifi 0000:06:00.0: 0x00000007 | l2p_mhvalid
+ ? __ia32_sys_getpeername+0x40/0x40
+iwlwifi 0000:06:00.0: 0x00000000 | l2p_addr_match
+ ? rcu_read_lock_held_common+0x12/0x50
+ ? rcu_read_lock_sched_held+0x5a/0xd0
+ ? rcu_read_lock_bh_held+0xb0/0xb0
+ ? rcu_read_lock_sched_held+0x5a/0xd0
+ ? rcu_read_lock_sched_held+0x5a/0xd0
+ ? lock_release+0xb9/0x400
+ ? lock_downgrade+0x390/0x390
+ ? ktime_get+0x64/0x130
+ ? ktime_get+0x8d/0x130
+ ? rcu_read_lock_held_common+0x12/0x50
+ ? rcu_read_lock_sched_held+0x5a/0xd0
+ ? rcu_read_lock_held_common+0x12/0x50
+ ? rcu_read_lock_sched_held+0x5a/0xd0
+ ? rcu_read_lock_bh_held+0xb0/0xb0
+ ? rcu_read_lock_bh_held+0xb0/0xb0
+ __x64_sys_sendto+0x6f/0x80
+ do_syscall_64+0x34/0xb0
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
+RIP: 0033:0x7f1d126e4531
+Code: 00 00 00 00 0f 1f 44 00 00 f3 0f 1e fa 48 8d 05 35 80 0c 00 41 89 ca 8b 00 85 c0 75 1c 45 31 c9 45 31 c0 b8 2c 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 67 c3 66 0f 1f 44 00 00 55 48 83 ec 20 48 89
+RSP: 002b:00007ffe21a679d8 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+RAX: ffffffffffffffda RBX: 000000000000ffdc RCX: 00007f1d126e4531
+RDX: 0000000000010000 RSI: 000000000374acf0 RDI: 0000000000000014
+RBP: 00007ffe21a67ac0 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000010
+R13: 0000000000000000 R14: 0000000000000001 R15: 0000000000000000
+ </TASK>
 
-Fixes: ec2daf6e33f9 ("platform: chrome: Add cros-usbpd-notify driver")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Link: https://lore.kernel.org/r/20221117080823.77549-1-yuancan@huawei.com
-Signed-off-by: Prashant Malani <pmalani@chromium.org>
+Allocated by task 9650:
+ kasan_save_stack+0x1c/0x40
+ __kasan_slab_alloc+0x6d/0x90
+ kmem_cache_alloc_node+0xf3/0x2b0
+ __alloc_skb+0x191/0x220
+ tcp_stream_alloc_skb+0x3f/0x330
+ tcp_sendmsg_locked+0x67c/0x1520
+ tcp_sendmsg+0x22/0x40
+ sock_sendmsg+0x5f/0x70
+ __sys_sendto+0x19d/0x250
+ __x64_sys_sendto+0x6f/0x80
+ do_syscall_64+0x34/0xb0
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+Freed by task 9650:
+ kasan_save_stack+0x1c/0x40
+ kasan_set_track+0x21/0x30
+ kasan_set_free_info+0x20/0x30
+ __kasan_slab_free+0x102/0x170
+ kmem_cache_free+0xc8/0x3e0
+ iwl_mvm_mac_itxq_xmit+0x124/0x270 [iwlmvm]
+ ieee80211_queue_skb+0x874/0xd10 [mac80211]
+ ieee80211_xmit_fast+0xf80/0x1180 [mac80211]
+ __ieee80211_subif_start_xmit+0x287/0x680 [mac80211]
+ ieee80211_subif_start_xmit+0xcd/0x730 [mac80211]
+ dev_hard_start_xmit+0xf6/0x420
+ __dev_queue_xmit+0x165b/0x1b50
+ ip_finish_output2+0x66e/0xfb0
+ __ip_finish_output+0x487/0x6d0
+ ip_output+0x11c/0x350
+ __ip_queue_xmit+0x36b/0x9d0
+ __tcp_transmit_skb+0xb35/0x15c0
+ tcp_write_xmit+0x3f1/0x24d0
+ tcp_sendmsg_locked+0x8a9/0x1520
+ tcp_sendmsg+0x22/0x40
+ sock_sendmsg+0x5f/0x70
+ __sys_sendto+0x19d/0x250
+ __x64_sys_sendto+0x6f/0x80
+ do_syscall_64+0x34/0xb0
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+The buggy address belongs to the object at ffff88813cfa4b40
+ which belongs to the cache skbuff_fclone_cache of size 472
+The buggy address is located 96 bytes inside of
+ 472-byte region [ffff88813cfa4b40, ffff88813cfa4d18)
+
+The buggy address belongs to the physical page:
+page:ffffea0004f3e900 refcount:1 mapcount:0 mapping:0000000000000000 index:0xffff88813cfa6c40 pfn:0x13cfa4
+head:ffffea0004f3e900 order:2 compound_mapcount:0 compound_pincount:0
+flags: 0x5fff8000010200(slab|head|node=0|zone=2|lastcpupid=0x3fff)
+raw: 005fff8000010200 ffffea0004656b08 ffffea0008e8cf08 ffff8881081a5240
+raw: ffff88813cfa6c40 0000000000170015 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff88813cfa4a80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88813cfa4b00: fc fc fc fc fc fc fc fc fa fb fb fb fb fb fb fb
+>ffff88813cfa4b80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                               ^
+ ffff88813cfa4c00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88813cfa4c80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+==================================================================
+
+Fixes: 08f7d8b69aaf ("iwlwifi: mvm: bring back mvm GSO code")
+Link: https://lore.kernel.org/linux-wireless/20220928193057.16132-1-greearb@candelatech.com/
+Tested-by: Amol Jawale <amol.jawale@candelatech.com>
+Signed-off-by: Ben Greear <greearb@candelatech.com>
+Link: https://lore.kernel.org/r/20221123225313.21b1ee31d666.I3b3ba184433dd2a544d91eeeda29b467021824ae@changeid
+Signed-off-by: Gregory Greenman <gregory.greenman@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_usbpd_notify.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/tx.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/chrome/cros_usbpd_notify.c b/drivers/platform/chrome/cros_usbpd_notify.c
-index 48a6617aa12f..de76de6f5090 100644
---- a/drivers/platform/chrome/cros_usbpd_notify.c
-+++ b/drivers/platform/chrome/cros_usbpd_notify.c
-@@ -285,7 +285,11 @@ static int __init cros_usbpd_notify_init(void)
- 		return ret;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
+index 6fa8d9e6b186..0dd35344e64a 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
+@@ -1212,6 +1212,7 @@ int iwl_mvm_tx_skb_sta(struct iwl_mvm *mvm, struct sk_buff *skb,
+ 	struct sk_buff_head mpdus_skbs;
+ 	unsigned int payload_len;
+ 	int ret;
++	struct sk_buff *orig_skb = skb;
  
- #ifdef CONFIG_ACPI
--	platform_driver_register(&cros_usbpd_notify_acpi_driver);
-+	ret = platform_driver_register(&cros_usbpd_notify_acpi_driver);
-+	if (ret) {
-+		platform_driver_unregister(&cros_usbpd_notify_plat_driver);
-+		return ret;
-+	}
- #endif
- 	return 0;
- }
+ 	if (WARN_ON_ONCE(!mvmsta))
+ 		return -1;
+@@ -1244,8 +1245,17 @@ int iwl_mvm_tx_skb_sta(struct iwl_mvm *mvm, struct sk_buff *skb,
+ 
+ 		ret = iwl_mvm_tx_mpdu(mvm, skb, &info, sta);
+ 		if (ret) {
++			/* Free skbs created as part of TSO logic that have not yet been dequeued */
+ 			__skb_queue_purge(&mpdus_skbs);
+-			return ret;
++			/* skb here is not necessarily same as skb that entered this method,
++			 * so free it explicitly.
++			 */
++			if (skb == orig_skb)
++				ieee80211_free_txskb(mvm->hw, skb);
++			else
++				kfree_skb(skb);
++			/* there was error, but we consumed skb one way or another, so return 0 */
++			return 0;
+ 		}
+ 	}
+ 
 -- 
 2.35.1
 
