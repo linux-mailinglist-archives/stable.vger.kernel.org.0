@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80C30658220
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:33:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29B036582F7
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234839AbiL1QdU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:33:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50736 "EHLO
+        id S234901AbiL1Qnv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:43:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234841AbiL1Qc4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:32:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C85F140C3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:30:05 -0800 (PST)
+        with ESMTP id S234923AbiL1QnW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85ED41FCFD
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 083D861576
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:30:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FD66C433EF;
-        Wed, 28 Dec 2022 16:30:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14F9E61541
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:37:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D392C433D2;
+        Wed, 28 Dec 2022 16:37:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245004;
-        bh=bKYZkfKSgI+kx2AIiXRl6MBvkNlUVS1m3baarCW+bWA=;
+        s=korg; t=1672245447;
+        bh=5vaWDwz7db1tekg6KURlXdrTRU47MVIY4DCQplwXCkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sKtvRAHr8SjWhpO2sEHg/GGqBVRI13+ZPrKHBQ8B11Zsedd6gfaEaTxjYhBhb/LT3
-         k/gVwp9rkVwweTUuo8Aqe+QkeVbUxiTYOdL0W5kLDPkmz8B/IBekxq76cekkMiENPU
-         r3K6qNcUe5D5ElOXYMU50C5MRW3MrLDx3Ky1JFAw=
+        b=eYm+8E0S/8bJGZ+tYlxuM4RTNPTV07+Hsol2Ams2Z6puejyVSXmtrbhL1uFaD+bDL
+         H7sdif1/r7ailrur3JU0ItWML2P40wFP3TkJh9rzYu3IIV2yhCebdhZG1fyqsNPqVR
+         LiQ1E+VFyv0VvdByJF6bDFwfxDB7L1hInLrLlwRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Guenter Roeck <groeck@chromium.org>,
-        Yong Wu <yong.wu@mediatek.com>,
+        patches@lists.linux.dev, Yong Wu <yong.wu@mediatek.com>,
         AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>,
         Matthias Brugger <matthias.bgg@gmail.com>,
         Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0814/1073] iommu/mediatek: Validate number of phandles associated with "mediatek,larbs"
+Subject: [PATCH 6.1 0863/1146] iommu/mediatek: Add error path for loop of mm_dts_parse
 Date:   Wed, 28 Dec 2022 15:40:02 +0100
-Message-Id: <20221228144350.117350621@linuxfoundation.org>
+Message-Id: <20221228144353.602201085@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,74 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <groeck@chromium.org>
+From: Yong Wu <yong.wu@mediatek.com>
 
-[ Upstream commit ef693a8440926884bfd9cc3d6d36f65719513350 ]
+[ Upstream commit 26593928564cf5b576ff05d3cbd958f57c9534bb ]
 
-Fix the smatch warnings:
-drivers/iommu/mtk_iommu.c:878 mtk_iommu_mm_dts_parse() error: uninitialized
-symbol 'larbnode'.
+The mtk_iommu_mm_dts_parse will parse the smi larbs nodes. if the i+1
+larb is parsed fail, we should put_device for the i..0 larbs.
 
-If someone abuse the dtsi node(Don't follow the definition of dt-binding),
-for example "mediatek,larbs" is provided as boolean property, "larb_nr"
-will be zero and cause abnormal.
-
-To fix this problem and improve the code safety, add some checking
-for the invalid input from dtsi, e.g. checking the larb_nr/larbid valid
-range, and avoid "mediatek,larb-id" property conflicts in the smi-larb
-nodes.
+There are two places need to comment:
+1) The larbid may be not linear mapping, we should loop whole
+   the array in the error path.
+2) I move this line position: "data->larb_imu[id].dev = &plarbdev->dev;"
+   before "if (!plarbdev->dev.driver)", That means set
+   data->larb_imu[id].dev before the error path. then we don't need
+   "platform_device_put(plarbdev)" again in probe_defer case. All depend
+   on "put_device" of the error path in error cases.
 
 Fixes: d2e9a1102cfc ("iommu/mediatek: Contain MM IOMMU flow with the MM TYPE")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Guenter Roeck <groeck@chromium.org>
 Signed-off-by: Yong Wu <yong.wu@mediatek.com>
 Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Link: https://lore.kernel.org/r/20221018024258.19073-5-yong.wu@mediatek.com
+Link: https://lore.kernel.org/r/20221018024258.19073-4-yong.wu@mediatek.com
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/mtk_iommu.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/iommu/mtk_iommu.c | 27 ++++++++++++++++++++-------
+ 1 file changed, 20 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index 39f4c79e9c71..213fc8f5b6c1 100644
+index ba5abfc2890c..f4a315da4535 100644
 --- a/drivers/iommu/mtk_iommu.c
 +++ b/drivers/iommu/mtk_iommu.c
-@@ -1048,6 +1048,8 @@ static int mtk_iommu_mm_dts_parse(struct device *dev, struct component_match **m
- 	larb_nr = of_count_phandle_with_args(dev->of_node, "mediatek,larbs", NULL);
- 	if (larb_nr < 0)
- 		return larb_nr;
-+	if (larb_nr == 0 || larb_nr > MTK_LARB_NR_MAX)
-+		return -EINVAL;
- 
- 	for (i = 0; i < larb_nr; i++) {
+@@ -1056,8 +1056,10 @@ static int mtk_iommu_mm_dts_parse(struct device *dev, struct component_match **m
  		u32 id;
-@@ -1066,6 +1068,11 @@ static int mtk_iommu_mm_dts_parse(struct device *dev, struct component_match **m
- 		ret = of_property_read_u32(larbnode, "mediatek,larb-id", &id);
- 		if (ret)/* The id is consecutive if there is no this property */
- 			id = i;
-+		if (id >= MTK_LARB_NR_MAX) {
-+			of_node_put(larbnode);
+ 
+ 		larbnode = of_parse_phandle(dev->of_node, "mediatek,larbs", i);
+-		if (!larbnode)
+-			return -EINVAL;
++		if (!larbnode) {
 +			ret = -EINVAL;
 +			goto err_larbdev_put;
 +		}
  
+ 		if (!of_device_is_available(larbnode)) {
+ 			of_node_put(larbnode);
+@@ -1070,14 +1072,16 @@ static int mtk_iommu_mm_dts_parse(struct device *dev, struct component_match **m
+ 
  		plarbdev = of_find_device_by_node(larbnode);
  		of_node_put(larbnode);
-@@ -1073,6 +1080,11 @@ static int mtk_iommu_mm_dts_parse(struct device *dev, struct component_match **m
- 			ret = -ENODEV;
- 			goto err_larbdev_put;
- 		}
-+		if (data->larb_imu[id].dev) {
-+			platform_device_put(plarbdev);
-+			ret = -EEXIST;
+-		if (!plarbdev)
+-			return -ENODEV;
++		if (!plarbdev) {
++			ret = -ENODEV;
 +			goto err_larbdev_put;
 +		}
- 		data->larb_imu[id].dev = &plarbdev->dev;
++		data->larb_imu[id].dev = &plarbdev->dev;
  
  		if (!plarbdev->dev.driver) {
+-			platform_device_put(plarbdev);
+-			return -EPROBE_DEFER;
++			ret = -EPROBE_DEFER;
++			goto err_larbdev_put;
+ 		}
+-		data->larb_imu[id].dev = &plarbdev->dev;
+ 
+ 		component_match_add(dev, match, component_compare_dev, &plarbdev->dev);
+ 		platform_device_put(plarbdev);
+@@ -1112,6 +1116,15 @@ static int mtk_iommu_mm_dts_parse(struct device *dev, struct component_match **m
+ 		return -EINVAL;
+ 	}
+ 	return 0;
++
++err_larbdev_put:
++	/* id may be not linear mapping, loop whole the array */
++	for (i = MTK_LARB_NR_MAX - 1; i >= 0; i++) {
++		if (!data->larb_imu[i].dev)
++			continue;
++		put_device(data->larb_imu[i].dev);
++	}
++	return ret;
+ }
+ 
+ static int mtk_iommu_probe(struct platform_device *pdev)
 -- 
 2.35.1
 
