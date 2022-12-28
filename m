@@ -2,51 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 627E2657CD7
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:36:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 759EE65827D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:37:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233468AbiL1Pgh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:36:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54288 "EHLO
+        id S234845AbiL1QhJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:37:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233150AbiL1Pgh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:36:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FE3E14D0C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:36:36 -0800 (PST)
+        with ESMTP id S235011AbiL1QgL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:36:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BC311D326
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:32:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5BF1B81719
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:36:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 073DBC433EF;
-        Wed, 28 Dec 2022 15:36:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3901561572
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:32:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A22AC433EF;
+        Wed, 28 Dec 2022 16:32:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241793;
-        bh=TvsE4D2zasuPNhUHxJG3s8tYRm9tpCKJxhtKPu8mUK0=;
+        s=korg; t=1672245156;
+        bh=CQLLyORBbIsh+JLk/hX2a2QxvM6QZEq71mvmyvFZBEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZgdvdQIgNcUsVsnAMzuARwIfMOensuF7d1IGA2VupX5pelWFga1Ghxvr1WS+FWA7L
-         5bDTVATEDGn6jkknPFcd0LdjzLsJLmBhyhyZH+it1qRrH8nmFea9PWGObNekvGoUCp
-         kBsuH3aAsn7c4+YgWQSq5c1NJDIgHTXPJ1K6WQE0=
+        b=prZFtRIIBAny8CeDCyY9Cf8X5elmSIgjaYyh4ANicTcegZN1uqJndOVgpeM3KzfYd
+         OP2KJMYXsNqQce4kgHhys2ibRxQhyim31FOtFqoEXyAjoDN21HjSqaARZONh3r7aRP
+         HRp9TD3tJcGW2dE8ICm73MnMPbbLkH0GYDfS14ZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kevin Nomura <nomurak@google.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Ingo Molnar <mingo@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 523/731] perf stat: Do not delay the workload with --delay
+Subject: [PATCH 6.0 0842/1073] mISDN: hfcpci: dont call dev_kfree_skb/kfree_skb() under spin_lock_irqsave()
 Date:   Wed, 28 Dec 2022 15:40:30 +0100
-Message-Id: <20221228144311.707092666@linuxfoundation.org>
+Message-Id: <20221228144350.892022481@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,136 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namhyung Kim <namhyung@kernel.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit c587e77e100fa40eb6af10e00497c67acf493f33 ]
+[ Upstream commit f0f596bd75a9d573ca9b587abb39cee0b916bb82 ]
 
-The -D/--delay option is to delay the measure after the program starts.
-But the current code goes to sleep before starting the program so the
-program is delayed too.  This is not the intention, let's fix it.
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-Before:
+skb_queue_purge() is called under spin_lock_irqsave() in hfcpci_l2l1D(),
+kfree_skb() is called in it, to fix this, use skb_queue_splice_init()
+to move the dch->squeue to a free queue, also enqueue the tx_skb and
+rx_skb, at last calling __skb_queue_purge() to free the SKBs afer unlock.
 
-  $ time sudo ./perf stat -a -e cycles -D 3000 sleep 4
-  Events disabled
-  Events enabled
-
-   Performance counter stats for 'system wide':
-
-       4,326,949,337      cycles
-
-         4.007494118 seconds time elapsed
-
-  real	0m7.474s
-  user	0m0.356s
-  sys	0m0.120s
-
-It ran the workload for 4 seconds and gave the 3 second delay.  So it
-should skip the first 3 second and measure the last 1 second only.  But
-as you can see, it delays 3 seconds and ran the workload after that for
-4 seconds.  So the total time (real) was 7 seconds.
-
-After:
-
-  $ time sudo ./perf stat -a -e cycles -D 3000 sleep 4
-  Events disabled
-  Events enabled
-
-   Performance counter stats for 'system wide':
-
-       1,063,551,013      cycles
-
-         1.002769510 seconds time elapsed
-
-  real	0m4.484s
-  user	0m0.385s
-  sys	0m0.086s
-
-The bug was introduced when it changed enablement of system-wide events
-with a command line workload.  But it should've considered the initial
-delay case.  The code was reworked since then (in bb8bc52e7578) so I'm
-afraid it won't be applied cleanly.
-
-Fixes: d0a0a511493d2695 ("perf stat: Fix forked applications enablement of counters")
-Reported-by: Kevin Nomura <nomurak@google.com>
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-Tested-by: Thomas Richter <tmricht@linux.ibm.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Link: https://lore.kernel.org/r/20221212230820.901382-1-namhyung@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 1700fe1a10dc ("Add mISDN HFC PCI driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-stat.c | 33 +++++++++++++++++----------------
- 1 file changed, 17 insertions(+), 16 deletions(-)
+ drivers/isdn/hardware/mISDN/hfcpci.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
-index 2602c750779d..aad65c95c371 100644
---- a/tools/perf/builtin-stat.c
-+++ b/tools/perf/builtin-stat.c
-@@ -558,26 +558,14 @@ static int enable_counters(void)
- 			return err;
- 	}
- 
--	if (stat_config.initial_delay < 0) {
--		pr_info(EVLIST_DISABLED_MSG);
--		return 0;
--	}
--
--	if (stat_config.initial_delay > 0) {
--		pr_info(EVLIST_DISABLED_MSG);
--		usleep(stat_config.initial_delay * USEC_PER_MSEC);
--	}
--
- 	/*
- 	 * We need to enable counters only if:
- 	 * - we don't have tracee (attaching to task or cpu)
- 	 * - we have initial delay configured
- 	 */
--	if (!target__none(&target) || stat_config.initial_delay) {
-+	if (!target__none(&target)) {
- 		if (!all_counters_use_bpf)
- 			evlist__enable(evsel_list);
--		if (stat_config.initial_delay > 0)
--			pr_info(EVLIST_ENABLED_MSG);
- 	}
- 	return 0;
- }
-@@ -953,14 +941,27 @@ static int __run_perf_stat(int argc, const char **argv, int run_idx)
- 			return err;
- 	}
- 
--	err = enable_counters();
--	if (err)
--		return -1;
-+	if (stat_config.initial_delay) {
-+		pr_info(EVLIST_DISABLED_MSG);
-+	} else {
-+		err = enable_counters();
-+		if (err)
-+			return -1;
-+	}
- 
- 	/* Exec the command, if any */
- 	if (forks)
- 		evlist__start_workload(evsel_list);
- 
-+	if (stat_config.initial_delay > 0) {
-+		usleep(stat_config.initial_delay * USEC_PER_MSEC);
-+		err = enable_counters();
-+		if (err)
-+			return -1;
+diff --git a/drivers/isdn/hardware/mISDN/hfcpci.c b/drivers/isdn/hardware/mISDN/hfcpci.c
+index af17459c1a5c..eba58b99cd29 100644
+--- a/drivers/isdn/hardware/mISDN/hfcpci.c
++++ b/drivers/isdn/hardware/mISDN/hfcpci.c
+@@ -1617,16 +1617,19 @@ hfcpci_l2l1D(struct mISDNchannel *ch, struct sk_buff *skb)
+ 		test_and_clear_bit(FLG_L2_ACTIVATED, &dch->Flags);
+ 		spin_lock_irqsave(&hc->lock, flags);
+ 		if (hc->hw.protocol == ISDN_P_NT_S0) {
++			struct sk_buff_head free_queue;
 +
-+		pr_info(EVLIST_ENABLED_MSG);
-+	}
-+
- 	t0 = rdclock();
- 	clock_gettime(CLOCK_MONOTONIC, &ref_time);
- 
++			__skb_queue_head_init(&free_queue);
+ 			/* prepare deactivation */
+ 			Write_hfc(hc, HFCPCI_STATES, 0x40);
+-			skb_queue_purge(&dch->squeue);
++			skb_queue_splice_init(&dch->squeue, &free_queue);
+ 			if (dch->tx_skb) {
+-				dev_kfree_skb(dch->tx_skb);
++				__skb_queue_tail(&free_queue, dch->tx_skb);
+ 				dch->tx_skb = NULL;
+ 			}
+ 			dch->tx_idx = 0;
+ 			if (dch->rx_skb) {
+-				dev_kfree_skb(dch->rx_skb);
++				__skb_queue_tail(&free_queue, dch->rx_skb);
+ 				dch->rx_skb = NULL;
+ 			}
+ 			test_and_clear_bit(FLG_TX_BUSY, &dch->Flags);
+@@ -1639,10 +1642,12 @@ hfcpci_l2l1D(struct mISDNchannel *ch, struct sk_buff *skb)
+ 			hc->hw.mst_m &= ~HFCPCI_MASTER;
+ 			Write_hfc(hc, HFCPCI_MST_MODE, hc->hw.mst_m);
+ 			ret = 0;
++			spin_unlock_irqrestore(&hc->lock, flags);
++			__skb_queue_purge(&free_queue);
+ 		} else {
+ 			ret = l1_event(dch->l1, hh->prim);
++			spin_unlock_irqrestore(&hc->lock, flags);
+ 		}
+-		spin_unlock_irqrestore(&hc->lock, flags);
+ 		break;
+ 	}
+ 	if (!ret)
 -- 
 2.35.1
 
