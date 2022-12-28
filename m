@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38A18657B55
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:20:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55D92658179
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:28:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233314AbiL1PUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:20:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39300 "EHLO
+        id S233088AbiL1Q2q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:28:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233310AbiL1PUY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:20:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D9D713FAC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:20:23 -0800 (PST)
+        with ESMTP id S233100AbiL1Q21 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:28:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5053F11C2F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:24:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AFD10B816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:20:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16148C433D2;
-        Wed, 28 Dec 2022 15:20:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 053C0B81886
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:24:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63E81C433D2;
+        Wed, 28 Dec 2022 16:24:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240820;
-        bh=97hNrtNMwWStLxyxyymCbSjmvd30Tn7tZX31a4RuoOk=;
+        s=korg; t=1672244670;
+        bh=JyCSGoMuTjCo+OHkpDQzGIjdEzpnfyWLQo896a/g/Rs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mNi9pT8wwEIR42wK2cOR/EAb4g1hvC4ecrRVUHm4Wy1pnR+Mh9u2l7PNgOhGB9eOP
-         DFajx81xurW3WleZJ8JpSU6pc/RHfTXq4EiDKEnCxYrwPey5zT3W66oXa2sdqidAiO
-         ChPQ8OHi87DctHnrRj3+Zni6INz+nOKBEZmHNYcg=
+        b=sVTChM7LwK+3s31xIoIebsm18LOwK8VMAP+kknTC8aujslXa5zs/AVrEoR+t2SS3P
+         BEqvPML30fHdvL7n4FmlaWDI27iOhCJ+b2ub98Wt+gHu6pf67XgxDc3//2gDsW5vlh
+         jVFdaR5YHufvNE2ycYqCrafJ0p9qKpHRXs4khNGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        Rob Herring <robh@kernel.org>,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        patches@lists.linux.dev, Alan Stern <stern@rowland.harvard.edu>,
+        Jiasheng Jiang <jiasheng@iscas.ac.cn>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 401/731] dt-bindings: imx6q-pcie: Fix clock names for imx6sx and imx8mq
+Subject: [PATCH 6.0 0720/1073] usb: storage: Add check for kcalloc
 Date:   Wed, 28 Dec 2022 15:38:28 +0100
-Message-Id: <20221228144308.190413304@linuxfoundation.org>
+Message-Id: <20221228144347.582861020@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,100 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit b8a83e600bdde93e7da41ea3204b2b3832a3c99b ]
+[ Upstream commit c35ca10f53c51eeb610d3f8fbc6dd6d511b58a58 ]
 
-Originally as it was defined the legacy bindings the pcie_inbound_axi and
-pcie_aux clock names were supposed to be used in the fsl,imx6sx-pcie and
-fsl,imx8mq-pcie devices respectively. But the bindings conversion has been
-incorrectly so now the fourth clock name is defined as "pcie_inbound_axi
-for imx6sx-pcie, pcie_aux for imx8mq-pcie", which is completely wrong.
-Let's fix that by conditionally apply the clock-names constraints based on
-the compatible string content.
+As kcalloc may return NULL pointer, the return value should
+be checked and return error if fails as same as the ones in
+alauda_read_map.
 
-Link: https://lore.kernel.org/r/20221113191301.5526-2-Sergey.Semin@baikalelectronics.ru
-Fixes: 751ca492f131 ("dt-bindings: PCI: imx6: convert the imx pcie controller to dtschema")
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Acked-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Fixes: e80b0fade09e ("[PATCH] USB Storage: add alauda support")
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20221208110058.12983-1-jiasheng@iscas.ac.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../bindings/pci/fsl,imx6q-pcie.yaml          | 46 +++++++++++++++++--
- 1 file changed, 42 insertions(+), 4 deletions(-)
+ drivers/usb/storage/alauda.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/pci/fsl,imx6q-pcie.yaml b/Documentation/devicetree/bindings/pci/fsl,imx6q-pcie.yaml
-index acea1cd444fd..9b0548264a39 100644
---- a/Documentation/devicetree/bindings/pci/fsl,imx6q-pcie.yaml
-+++ b/Documentation/devicetree/bindings/pci/fsl,imx6q-pcie.yaml
-@@ -14,9 +14,6 @@ description: |+
-   This PCIe host controller is based on the Synopsys DesignWare PCIe IP
-   and thus inherits all the common properties defined in snps,dw-pcie.yaml.
+diff --git a/drivers/usb/storage/alauda.c b/drivers/usb/storage/alauda.c
+index 747be69e5e69..5e912dd29b4c 100644
+--- a/drivers/usb/storage/alauda.c
++++ b/drivers/usb/storage/alauda.c
+@@ -438,6 +438,8 @@ static int alauda_init_media(struct us_data *us)
+ 		+ MEDIA_INFO(us).blockshift + MEDIA_INFO(us).pageshift);
+ 	MEDIA_INFO(us).pba_to_lba = kcalloc(num_zones, sizeof(u16*), GFP_NOIO);
+ 	MEDIA_INFO(us).lba_to_pba = kcalloc(num_zones, sizeof(u16*), GFP_NOIO);
++	if (MEDIA_INFO(us).pba_to_lba == NULL || MEDIA_INFO(us).lba_to_pba == NULL)
++		return USB_STOR_TRANSPORT_ERROR;
  
--allOf:
--  - $ref: /schemas/pci/snps,dw-pcie.yaml#
--
- properties:
-   compatible:
-     enum:
-@@ -59,7 +56,7 @@ properties:
-       - const: pcie
-       - const: pcie_bus
-       - const: pcie_phy
--      - const: pcie_inbound_axi for imx6sx-pcie, pcie_aux for imx8mq-pcie
-+      - enum: [ pcie_inbound_axi, pcie_aux ]
- 
-   num-lanes:
-     const: 1
-@@ -166,6 +163,47 @@ required:
-   - clocks
-   - clock-names
- 
-+allOf:
-+  - $ref: /schemas/pci/snps,dw-pcie.yaml#
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            const: fsl,imx6sx-pcie
-+    then:
-+      properties:
-+        clock-names:
-+          items:
-+            - {}
-+            - {}
-+            - {}
-+            - const: pcie_inbound_axi
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            const: fsl,imx8mq-pcie
-+    then:
-+      properties:
-+        clock-names:
-+          items:
-+            - {}
-+            - {}
-+            - {}
-+            - const: pcie_aux
-+  - if:
-+      properties:
-+        compatible:
-+          not:
-+            contains:
-+              enum:
-+                - fsl,imx6sx-pcie
-+                - fsl,imx8mq-pcie
-+    then:
-+      properties:
-+        clock-names:
-+          maxItems: 3
-+
- unevaluatedProperties: false
- 
- examples:
+ 	if (alauda_reset_media(us) != USB_STOR_XFER_GOOD)
+ 		return USB_STOR_TRANSPORT_ERROR;
 -- 
 2.35.1
 
