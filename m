@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64786657471
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 10:07:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDE3A657472
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 10:07:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232689AbiL1JH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 04:07:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58732 "EHLO
+        id S232625AbiL1JH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 04:07:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232660AbiL1JHX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 04:07:23 -0500
+        with ESMTP id S232659AbiL1JH1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 04:07:27 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81BB6DEFB
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 01:07:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCBEBBD7
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 01:07:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1143E6136F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 09:07:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03F8CC433D2;
-        Wed, 28 Dec 2022 09:07:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5353E6136F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 09:07:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43EF9C433EF;
+        Wed, 28 Dec 2022 09:07:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672218441;
-        bh=ofakehrtKAm/EsXHiXrHCLHVFCY5yeqON1Hx60o+QpU=;
+        s=korg; t=1672218444;
+        bh=jU6FnexLwgmCais/TEVQ3GZWNrcRGo1n1z2LFDKCYss=;
         h=Subject:To:Cc:From:Date:From;
-        b=iuym/o/qnmp1jSTYmHPOm9eJ0jLCtpmGd5ppLOU7RW1kGLXkpPdDxlGmd4896phgi
-         u32PagkEvqvWSoQCfJoeDuOQgmA0nPWCntEIZnXw9nw6EVRZAsMAC66p2s7ilChKZH
-         Xm7oHAea5WmPou5dgniyOZxZs5/mFUzGJudmfsmE=
-Subject: FAILED: patch "[PATCH] usb: dwc3: qcom: Fix memory leak in" failed to apply to 5.15-stable tree
+        b=R8n7QAkenVZ2DZwRcywQHcIpleoJQIUMqq5eBiEqM8jsTURUHH5kyuJS3nZlvS4K8
+         KpAeztcCU5Qk/K9xD949dTIvo0wuqlkVJxZ3D53/bZxU6O3eFz/K42j77BR6BOEt1Q
+         v3rzJ8RRjYQcknU1CZSUTUxDzjUix8iarx9LfdYQ=
+Subject: FAILED: patch "[PATCH] usb: dwc3: qcom: Fix memory leak in" failed to apply to 5.10-stable tree
 To:     linmq006@gmail.com, Thinh.Nguyen@synopsys.com,
         gregkh@linuxfoundation.org, stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 28 Dec 2022 10:07:10 +0100
-Message-ID: <1672218430195143@kroah.com>
+Date:   Wed, 28 Dec 2022 10:07:11 +0100
+Message-ID: <1672218431238218@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
