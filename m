@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A73D6583C7
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:51:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC838657EBA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:56:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235187AbiL1Qvt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:51:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45404 "EHLO
+        id S234175AbiL1P4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:56:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235141AbiL1Qv3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:51:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 310FE1CB36
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:46:06 -0800 (PST)
+        with ESMTP id S233544AbiL1P4r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:56:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97E28140DE
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:56:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A468961541
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:46:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8074C433D2;
-        Wed, 28 Dec 2022 16:46:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 48C0EB81732
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:56:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2860C433D2;
+        Wed, 28 Dec 2022 15:56:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245965;
-        bh=NEUP6zN9OADZm5zNxMnUdUs2DJSQYC2jc+XVsX3Rf54=;
+        s=korg; t=1672243004;
+        bh=1fqa4hwTzUpUc3qjpVotRIMcelCiIEWnjYcZFbHL+44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f/WWcffj1moi7T28mMrQ+Di5Zn+3RvXGAFB5Ig0ehMhgWrrT1vCnGTjyoxDXFsetx
-         /ZSfHoTZpCU4wMFnDGekxvpcIoNmY0W6oxoQB504wCixq4zggxlpikAcM3y6woISXZ
-         PCHTiqhM/IqvMxP20dJw0cWDEA5/WWrENHvTvAWI=
+        b=dWZBbMNxQLXVmAcHaDm2BOxpzDM/0gqY5il+ReOJz3dttvvpPgejYCbEqYjuOLb7Q
+         W/H6biB2kCnu0kiIjlOZEfOBxKKusxd82cHCUmBOVS5kwHyXxsXEbcg4G1QgYuCJOG
+         ZrW8wvfJCC9BSmzDRdeWpi7aYlG8sOlW6UdffxQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sami Tolvanen <samitolvanen@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
+        patches@lists.linux.dev,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0988/1073] drm/fsl-dcu: Fix return type of fsl_dcu_drm_connector_mode_valid()
-Date:   Wed, 28 Dec 2022 15:42:56 +0100
-Message-Id: <20221228144354.939156923@linuxfoundation.org>
+Subject: [PATCH 5.15 670/731] mmc: f-sdh30: Add quirks for broken timeout clock capability
+Date:   Wed, 28 Dec 2022 15:42:57 +0100
+Message-Id: <20221228144315.907042465@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-[ Upstream commit 96d845a67b7e406cfed7880a724c8ca6121e022e ]
+[ Upstream commit aae9d3a440736691b3c1cb09ae2c32c4f1ee2e67 ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed. A
-proposed warning in clang aims to catch these at compile time, which
-reveals:
+There is a case where the timeout clock is not supplied to the capability.
+Add a quirk for that.
 
-  drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c:74:16: error: incompatible function pointer types initializing 'enum drm_mode_status (*)(struct drm_connector *, struct drm_display_mode *)' with an expression of type 'int (struct drm_connector *, struct drm_display_mode *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .mode_valid = fsl_dcu_drm_connector_mode_valid,
-                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  1 error generated.
-
-->mode_valid() in 'struct drm_connector_helper_funcs' expects a return
-type of 'enum drm_mode_status', not 'int'. Adjust the return type of
-fsl_dcu_drm_connector_mode_valid() to match the prototype's to resolve
-the warning and CFI failure.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1750
-Reported-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221102154215.78059-1-nathan@kernel.org
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Acked-by: Jassi Brar <jaswinder.singh@linaro.org>
+Link: https://lore.kernel.org/r/20221111081033.3813-7-hayashi.kunihiko@socionext.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/mmc/host/sdhci_f_sdh30.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c b/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c
-index 4d4a715b429d..2c2b92324a2e 100644
---- a/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c
-+++ b/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c
-@@ -60,8 +60,9 @@ static int fsl_dcu_drm_connector_get_modes(struct drm_connector *connector)
- 	return drm_panel_get_modes(fsl_connector->panel, connector);
- }
+diff --git a/drivers/mmc/host/sdhci_f_sdh30.c b/drivers/mmc/host/sdhci_f_sdh30.c
+index 3f5977979cf2..6c4f43e11282 100644
+--- a/drivers/mmc/host/sdhci_f_sdh30.c
++++ b/drivers/mmc/host/sdhci_f_sdh30.c
+@@ -168,6 +168,9 @@ static int sdhci_f_sdh30_probe(struct platform_device *pdev)
+ 	if (reg & SDHCI_CAN_DO_8BIT)
+ 		priv->vendor_hs200 = F_SDH30_EMMC_HS200;
  
--static int fsl_dcu_drm_connector_mode_valid(struct drm_connector *connector,
--					    struct drm_display_mode *mode)
-+static enum drm_mode_status
-+fsl_dcu_drm_connector_mode_valid(struct drm_connector *connector,
-+				 struct drm_display_mode *mode)
- {
- 	if (mode->hdisplay & 0xf)
- 		return MODE_ERROR;
++	if (!(reg & SDHCI_TIMEOUT_CLK_MASK))
++		host->quirks |= SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK;
++
+ 	ret = sdhci_add_host(host);
+ 	if (ret)
+ 		goto err_add_host;
 -- 
 2.35.1
 
