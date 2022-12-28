@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5212E658141
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:26:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB2AF657A69
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:11:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233297AbiL1Q0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:26:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43044 "EHLO
+        id S233171AbiL1PLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:11:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233139AbiL1Q0O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:26:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 375DE1C905
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:22:47 -0800 (PST)
+        with ESMTP id S233718AbiL1PKq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:10:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AB3E631B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:10:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C401B6157E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:22:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3C55C433EF;
-        Wed, 28 Dec 2022 16:22:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF472B81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:10:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A781C433D2;
+        Wed, 28 Dec 2022 15:10:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244566;
-        bh=WKZsGlJcj7T6Sy565WhJHuPvhBlrMw/lCS7NDMncPNQ=;
+        s=korg; t=1672240242;
+        bh=yacKS3xLkL3TkEsyxN0pfZJ8ccVhPh6cZmLhT2H7NHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sRp1oqeRoN+Pv7jKVhYj/CSTLrlP/zN1ZEXSBLQyS3eXZgFgK7Ce0EljuIGyfdTgJ
-         0GAgAS65eTME4kUzp1YG1CZ9K7XdUr/MvM5MZahf+VP+7NmHIFAliF3UCp5MlOX1aG
-         ULoGsTyI5pzONs0S/aRVe85GR8SYzwSj0oNX6lwg=
+        b=IAMMdpSYoBCvQvkexJMpIu39GGGdTtJKeigxOKNxZOi6W8eAYm58CSJOkOugIcRSF
+         wHcMxg8lFLMnuQ/djP7g9lyt9k0UVX2U062bDSQBInUbmDWc44n1vehDfhCiMn2Yev
+         2oYu1qbXF1/5CHOOUGztZ8JkG1XgZmMVDEXqrH/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rafael Mendonca <rafaelmendsr@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0695/1146] uio: uio_dmem_genirq: Fix deadlock between irq config and handling
+        patches@lists.linux.dev, ruanjinjie <ruanjinjie@huawei.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 327/731] of: overlay: fix null pointer dereferencing in find_dup_cset_node_entry() and find_dup_cset_prop()
 Date:   Wed, 28 Dec 2022 15:37:14 +0100
-Message-Id: <20221228144349.021897342@linuxfoundation.org>
+Message-Id: <20221228144306.051087822@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,62 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael Mendonca <rafaelmendsr@gmail.com>
+From: ruanjinjie <ruanjinjie@huawei.com>
 
-[ Upstream commit 118b918018175d9fcd8db667f905012e986cc2c9 ]
+[ Upstream commit ee9d7a0e754568180a2f8ebc4aad226278a9116f ]
 
-This fixes a concurrency issue addressed in commit 34cb27528398 ("UIO: Fix
-concurrency issue"):
+When kmalloc() fail to allocate memory in kasprintf(), fn_1 or fn_2 will
+be NULL, and strcmp() will cause null pointer dereference.
 
-  "In a SMP case there was a race condition issue between
-  Uio_pdrv_genirq_irqcontrol() running on one CPU and irq handler on
-  another CPU. Fix it by spin_locking shared resources access inside irq
-  handler."
-
-The implementation of "uio_dmem_genirq" was based on "uio_pdrv_genirq" and
-it is used in a similar manner to the "uio_pdrv_genirq" driver with respect
-to interrupt configuration and handling. At the time "uio_dmem_genirq" was
-merged, both had the same implementation of the 'uio_info' handlers
-irqcontrol() and handler(), thus, both had the same concurrency issue
-mentioned by the above commit. However, the above patch was only applied to
-the "uio_pdrv_genirq" driver.
-
-Split out from commit 34cb27528398 ("UIO: Fix concurrency issue").
-
-Fixes: 0a0c3b5a24bd ("Add new uio device for dynamic memory allocation")
-Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
-Link: https://lore.kernel.org/r/20220930224100.816175-3-rafaelmendsr@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2fe0e8769df9 ("of: overlay: check prevents multiple fragments touching same property")
+Signed-off-by: ruanjinjie <ruanjinjie@huawei.com>
+Link: https://lore.kernel.org/r/20221211023337.592266-1-ruanjinjie@huawei.com
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/uio/uio_dmem_genirq.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/of/overlay.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/uio/uio_dmem_genirq.c b/drivers/uio/uio_dmem_genirq.c
-index cb283ee36eaa..792c3e9c9ce5 100644
---- a/drivers/uio/uio_dmem_genirq.c
-+++ b/drivers/uio/uio_dmem_genirq.c
-@@ -110,8 +110,10 @@ static irqreturn_t uio_dmem_genirq_handler(int irq, struct uio_info *dev_info)
- 	 * remember the state so we can allow user space to enable it later.
- 	 */
+diff --git a/drivers/of/overlay.c b/drivers/of/overlay.c
+index d1187123c4fc..424682372417 100644
+--- a/drivers/of/overlay.c
++++ b/drivers/of/overlay.c
+@@ -547,7 +547,7 @@ static int find_dup_cset_node_entry(struct overlay_changeset *ovcs,
  
-+	spin_lock(&priv->lock);
- 	if (!test_and_set_bit(0, &priv->flags))
- 		disable_irq_nosync(irq);
-+	spin_unlock(&priv->lock);
+ 		fn_1 = kasprintf(GFP_KERNEL, "%pOF", ce_1->np);
+ 		fn_2 = kasprintf(GFP_KERNEL, "%pOF", ce_2->np);
+-		node_path_match = !strcmp(fn_1, fn_2);
++		node_path_match = !fn_1 || !fn_2 || !strcmp(fn_1, fn_2);
+ 		kfree(fn_1);
+ 		kfree(fn_2);
+ 		if (node_path_match) {
+@@ -582,7 +582,7 @@ static int find_dup_cset_prop(struct overlay_changeset *ovcs,
  
- 	return IRQ_HANDLED;
- }
-@@ -125,7 +127,8 @@ static int uio_dmem_genirq_irqcontrol(struct uio_info *dev_info, s32 irq_on)
- 	 * in the interrupt controller, but keep track of the
- 	 * state to prevent per-irq depth damage.
- 	 *
--	 * Serialize this operation to support multiple tasks.
-+	 * Serialize this operation to support multiple tasks and concurrency
-+	 * with irq handler on SMP systems.
- 	 */
- 
- 	spin_lock_irqsave(&priv->lock, flags);
+ 		fn_1 = kasprintf(GFP_KERNEL, "%pOF", ce_1->np);
+ 		fn_2 = kasprintf(GFP_KERNEL, "%pOF", ce_2->np);
+-		node_path_match = !strcmp(fn_1, fn_2);
++		node_path_match = !fn_1 || !fn_2 || !strcmp(fn_1, fn_2);
+ 		kfree(fn_1);
+ 		kfree(fn_2);
+ 		if (node_path_match &&
 -- 
 2.35.1
 
