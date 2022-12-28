@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CC91657850
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:49:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F4BF657D9C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:45:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232913AbiL1OtR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:49:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37030 "EHLO
+        id S233979AbiL1PpB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:45:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232950AbiL1OtM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:49:12 -0500
+        with ESMTP id S234001AbiL1PpA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:45:00 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4CD7B7C6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:49:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 210641759F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:45:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FCD361130
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:49:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FAAFC433D2;
-        Wed, 28 Dec 2022 14:49:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B13C56155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:44:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFE26C433D2;
+        Wed, 28 Dec 2022 15:44:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238950;
-        bh=KW4nSEj+6YHvbq7HG7eXvlWAw63935c1hTZCBUj10rA=;
+        s=korg; t=1672242299;
+        bh=PkRZ+5E/QkjOJ/PWYL2le7UQYhBZe46413TgpDr4zKI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GVcz8m2mn8fWFiDjcmrxKM/fG3wBstI5WnlGx9z2iFn9eIcXNIZ4K5cH1/OLGsBwT
-         IKlEftjsHTT6M23ACECekqyfLfcZ8OYLVnZ2Yln/VB0Lk2dDLjAjE8mP2Ymid9qygo
-         v9fmjJg2UfLLQvPerB9HiHGeFSUNblNytvHrWS3Y=
+        b=oP28YrKnDxjUr5HwXdaqWzwsbzyzFFUxzra+L0BepCN6VXjlywxRZi95vvnh9LSYu
+         3y4N/uJL06fvXho6LwmgR1rQ2v9EH+mVeF0I6AirbkNMfJKxPKdUfGW59FQF4U8iF4
+         r0y6ZNfd2Dj1VFo2M608O4+GlqSaZhtHMbSkPaU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Mel Gorman <mgorman@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 071/731] sched/fair: Removed useless update of p->recent_used_cpu
+        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0390/1073] media: sun6i-mipi-csi2: Require both pads to be connected for streaming
 Date:   Wed, 28 Dec 2022 15:32:58 +0100
-Message-Id: <20221228144258.609114431@linuxfoundation.org>
+Message-Id: <20221228144338.613428917@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Guittot <vincent.guittot@linaro.org>
+From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
 
-[ Upstream commit a7ba894821b6ade7bb420455f87020b2838d6180 ]
+[ Upstream commit f042b08b833de3be810f8769d88ca44aeefd7eba ]
 
-Since commit 89aafd67f28c ("sched/fair: Use prev instead of new target as recent_used_cpu"),
-p->recent_used_cpu is unconditionnaly set with prev.
+The bridge needs both its pads connected to be able to stream data.
+Enforcing this is useful to produce an error when no sensor is
+connected.
 
-Fixes: 89aafd67f28c ("sched/fair: Use prev instead of new target as recent_used_cpu")
-Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Mel Gorman <mgorman@suse.de>
-Link: https://lkml.kernel.org/r/20210928103544.27489-1-vincent.guittot@linaro.org
-Stable-dep-of: a2e7f03ed28f ("sched/uclamp: Make asym_fits_capacity() use util_fits_cpu()")
+Fixes: af54b4f4c17f ("media: sunxi: Add support for the A31 MIPI CSI-2 controller")
+Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 5 -----
- 1 file changed, 5 deletions(-)
+ .../media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c  | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 9e2c6e38342c..d706c1a8453a 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -6595,11 +6595,6 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
- 	    (available_idle_cpu(recent_used_cpu) || sched_idle_cpu(recent_used_cpu)) &&
- 	    cpumask_test_cpu(p->recent_used_cpu, p->cpus_ptr) &&
- 	    asym_fits_capacity(task_util, recent_used_cpu)) {
--		/*
--		 * Replace recent_used_cpu with prev as it is a potential
--		 * candidate for the next wake:
--		 */
--		p->recent_used_cpu = prev;
- 		return recent_used_cpu;
- 	}
+diff --git a/drivers/media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c b/drivers/media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c
+index 30d6c0c5161f..340380a5f66f 100644
+--- a/drivers/media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c
++++ b/drivers/media/platform/sunxi/sun6i-mipi-csi2/sun6i_mipi_csi2.c
+@@ -519,8 +519,10 @@ static int sun6i_mipi_csi2_bridge_setup(struct sun6i_mipi_csi2_device *csi2_dev)
  
+ 	/* Media Pads */
+ 
+-	pads[SUN6I_MIPI_CSI2_PAD_SINK].flags = MEDIA_PAD_FL_SINK;
+-	pads[SUN6I_MIPI_CSI2_PAD_SOURCE].flags = MEDIA_PAD_FL_SOURCE;
++	pads[SUN6I_MIPI_CSI2_PAD_SINK].flags = MEDIA_PAD_FL_SINK |
++					       MEDIA_PAD_FL_MUST_CONNECT;
++	pads[SUN6I_MIPI_CSI2_PAD_SOURCE].flags = MEDIA_PAD_FL_SOURCE |
++						 MEDIA_PAD_FL_MUST_CONNECT;
+ 
+ 	ret = media_entity_pads_init(&subdev->entity, SUN6I_MIPI_CSI2_PAD_COUNT,
+ 				     pads);
 -- 
 2.35.1
 
