@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4A03658363
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:47:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29B166582A4
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:39:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235014AbiL1Qrm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:47:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40302 "EHLO
+        id S234887AbiL1QjP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:39:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235018AbiL1QrP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:47:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EABDBE8C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:41:55 -0800 (PST)
+        with ESMTP id S233658AbiL1Qim (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:38:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 092631AF32
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:34:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 78CDD61578
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:41:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C114C433D2;
-        Wed, 28 Dec 2022 16:41:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CB1761562
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:34:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BCF8C433D2;
+        Wed, 28 Dec 2022 16:34:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245714;
-        bh=QCaEffZw+OKfbpLHcxslteLVVuAHCTWPK4Gnh1qU9C0=;
+        s=korg; t=1672245255;
+        bh=7DQ+aWEuVmEKFzUCe2EFtVoS6lGGaIeCqYfBbFu1CPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1CHpTeBUIVf0qK8mEySsHh8tzmNfX8+0fuwR9u8MJX4S/Y1eWV3xqvtQJ+3j6zM6K
-         YN0yFkhjTBpr0UxDqU/Ojy8K8zWp5hRWZ8wdzklZZ9XIrchlhIM8FTF3H85LHA3qgO
-         LxiyLnWIfeotJmLUbfKIfkPDTuGKOyw2UXOu8s1c=
+        b=PHXFZH0Ly2ryvipGspryqIKnsiFcsB5Vau6oGGhvcksnxjqhnS1T8029IGiGnNbse
+         BIuu687jSPxy/mrxJyim3M4NAPEm+DX69jrwGnf5Wk0aEXorCpF8ytXWcEt2qJwlJe
+         PBCnQmZSag1VqVDd1g0/KYAMUuPwQPjC4MvurzlQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -39,20 +39,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Naama Meir <naamax.meir@linux.intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0910/1146] igc: Enhance Qbv scheduling by using first flag bit
+Subject: [PATCH 6.0 0861/1073] igc: Enhance Qbv scheduling by using first flag bit
 Date:   Wed, 28 Dec 2022 15:40:49 +0100
-Message-Id: <20221228144354.946562184@linuxfoundation.org>
+Message-Id: <20221228144351.405954048@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -206,7 +205,7 @@ index 1e7e7071f64d..66a57636d329 100644
  	u32 start_time;
  	u32 end_time;
 diff --git a/drivers/net/ethernet/intel/igc/igc_defines.h b/drivers/net/ethernet/intel/igc/igc_defines.h
-index 4f9d7f013a95..4ad35fbdc02e 100644
+index 5c66b97c0cfa..4f2c446ace4d 100644
 --- a/drivers/net/ethernet/intel/igc/igc_defines.h
 +++ b/drivers/net/ethernet/intel/igc/igc_defines.h
 @@ -321,6 +321,8 @@
@@ -219,7 +218,7 @@ index 4f9d7f013a95..4ad35fbdc02e 100644
  #define IGC_TCTL_EN		0x00000002 /* enable Tx */
  #define IGC_TCTL_PSP		0x00000008 /* pad short packets */
 diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
-index 34889be63e78..4bad986fb038 100644
+index ebff0e04045d..19b7ff201c7d 100644
 --- a/drivers/net/ethernet/intel/igc/igc_main.c
 +++ b/drivers/net/ethernet/intel/igc/igc_main.c
 @@ -1000,25 +1000,118 @@ static int igc_write_mc_addr_list(struct net_device *netdev)
