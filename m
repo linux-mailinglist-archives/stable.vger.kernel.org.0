@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCEF265800E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:13:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0697D6580D0
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:21:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234530AbiL1QNV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:13:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55090 "EHLO
+        id S233280AbiL1QVX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:21:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234710AbiL1QMa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:12:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 940D6192A1
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:10:55 -0800 (PST)
+        with ESMTP id S233234AbiL1QUl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:20:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57837165BA
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:18:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F197B81719
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:10:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EFB9C433F0;
-        Wed, 28 Dec 2022 16:10:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BF878613E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:18:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D914CC433D2;
+        Wed, 28 Dec 2022 16:18:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243852;
-        bh=+4Zvaa0MdZ8E7XuqalKiyLuNju0/wJug6N0636E/LTI=;
+        s=korg; t=1672244308;
+        bh=HL9Z5az8kD/QzVD8Tl1m3WFfIGrwKpFflLCoa51sxNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tf8bs1bNEMYwPEZwkTTloBDOQ9IIqjWlEUPIVHlNpPFtKcRsFokVBy1oFhbKH9L9t
-         tqraFNVFqcfeMb9uQTcLz4i9CkqeH5/WEDc+beYsbKocQ6OUTljnuuhOXaRRwg8y6m
-         l3zyUnMgHdNvhiuT3Kbz0PA7fS0FG3JILQq1pQo0=
+        b=NFsDJ7LGbga9J2YQbzpC27nACJQZKbSKfLVe3Anavhi80K0z9ODE8WuWoM43fGtiB
+         HbifwKDrHQamOjkPo7PINt3A/CuUJVJjA7qmIZEjv9+7RsRE6Gm/QGeLtX8bvdjccc
+         p5ZqLYnA80bTjFoorEPa1DZ2/HpESIy6dKCZ+6Mc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Herbert Xu <herbert@gondor.apana.org.au>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0599/1073] crypto: cryptd - Use request context instead of stack for sub-request
+Subject: [PATCH 6.1 0648/1146] scsi: efct: Fix possible memleak in efct_device_init()
 Date:   Wed, 28 Dec 2022 15:36:27 +0100
-Message-Id: <20221228144344.316258443@linuxfoundation.org>
+Message-Id: <20221228144347.759736648@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,126 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 3a58c231172537f7b0e19d93ed33decd04f80eab ]
+[ Upstream commit bb0cd225dd37df1f4a22e36dad59ff33178ecdfc ]
 
-cryptd is buggy as it tries to use sync_skcipher without going
-through the proper sync_skcipher interface.  In fact it doesn't
-even need sync_skcipher since it's already a proper skcipher and
-can easily access the request context instead of using something
-off the stack.
+In efct_device_init(), when efct_scsi_reg_fc_transport() fails,
+efct_scsi_tgt_driver_exit() is not called to release memory for
+efct_scsi_tgt_driver_init() and causes memleak:
 
-Fixes: 36b3875a97b8 ("crypto: cryptd - Remove VLA usage of skcipher")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+unreferenced object 0xffff8881020ce000 (size 2048):
+  comm "modprobe", pid 465, jiffies 4294928222 (age 55.872s)
+  backtrace:
+    [<0000000021a1ef1b>] kmalloc_trace+0x27/0x110
+    [<000000004c3ed51c>] target_register_template+0x4fd/0x7b0 [target_core_mod]
+    [<00000000f3393296>] efct_scsi_tgt_driver_init+0x18/0x50 [efct]
+    [<00000000115de533>] 0xffffffffc0d90011
+    [<00000000d608f646>] do_one_initcall+0xd0/0x4e0
+    [<0000000067828cf1>] do_init_module+0x1cc/0x6a0
+    ...
+
+Fixes: 4df84e846624 ("scsi: elx: efct: Driver initialization routines")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Link: https://lore.kernel.org/r/20221111074046.57061-1-chenzhongjin@huawei.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/cryptd.c | 36 +++++++++++++++++++-----------------
- 1 file changed, 19 insertions(+), 17 deletions(-)
+ drivers/scsi/elx/efct/efct_driver.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/crypto/cryptd.c b/crypto/cryptd.c
-index 668095eca0fa..ca3a40fc7da9 100644
---- a/crypto/cryptd.c
-+++ b/crypto/cryptd.c
-@@ -68,11 +68,12 @@ struct aead_instance_ctx {
+diff --git a/drivers/scsi/elx/efct/efct_driver.c b/drivers/scsi/elx/efct/efct_driver.c
+index b08fc8839808..49fd2cfed70c 100644
+--- a/drivers/scsi/elx/efct/efct_driver.c
++++ b/drivers/scsi/elx/efct/efct_driver.c
+@@ -42,6 +42,7 @@ efct_device_init(void)
  
- struct cryptd_skcipher_ctx {
- 	refcount_t refcnt;
--	struct crypto_sync_skcipher *child;
-+	struct crypto_skcipher *child;
- };
- 
- struct cryptd_skcipher_request_ctx {
- 	crypto_completion_t complete;
-+	struct skcipher_request req;
- };
- 
- struct cryptd_hash_ctx {
-@@ -227,13 +228,13 @@ static int cryptd_skcipher_setkey(struct crypto_skcipher *parent,
- 				  const u8 *key, unsigned int keylen)
- {
- 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(parent);
--	struct crypto_sync_skcipher *child = ctx->child;
-+	struct crypto_skcipher *child = ctx->child;
- 
--	crypto_sync_skcipher_clear_flags(child, CRYPTO_TFM_REQ_MASK);
--	crypto_sync_skcipher_set_flags(child,
--				       crypto_skcipher_get_flags(parent) &
--					 CRYPTO_TFM_REQ_MASK);
--	return crypto_sync_skcipher_setkey(child, key, keylen);
-+	crypto_skcipher_clear_flags(child, CRYPTO_TFM_REQ_MASK);
-+	crypto_skcipher_set_flags(child,
-+				  crypto_skcipher_get_flags(parent) &
-+				  CRYPTO_TFM_REQ_MASK);
-+	return crypto_skcipher_setkey(child, key, keylen);
- }
- 
- static void cryptd_skcipher_complete(struct skcipher_request *req, int err)
-@@ -258,13 +259,13 @@ static void cryptd_skcipher_encrypt(struct crypto_async_request *base,
- 	struct cryptd_skcipher_request_ctx *rctx = skcipher_request_ctx(req);
- 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
- 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(tfm);
--	struct crypto_sync_skcipher *child = ctx->child;
--	SYNC_SKCIPHER_REQUEST_ON_STACK(subreq, child);
-+	struct skcipher_request *subreq = &rctx->req;
-+	struct crypto_skcipher *child = ctx->child;
- 
- 	if (unlikely(err == -EINPROGRESS))
- 		goto out;
- 
--	skcipher_request_set_sync_tfm(subreq, child);
-+	skcipher_request_set_tfm(subreq, child);
- 	skcipher_request_set_callback(subreq, CRYPTO_TFM_REQ_MAY_SLEEP,
- 				      NULL, NULL);
- 	skcipher_request_set_crypt(subreq, req->src, req->dst, req->cryptlen,
-@@ -286,13 +287,13 @@ static void cryptd_skcipher_decrypt(struct crypto_async_request *base,
- 	struct cryptd_skcipher_request_ctx *rctx = skcipher_request_ctx(req);
- 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
- 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(tfm);
--	struct crypto_sync_skcipher *child = ctx->child;
--	SYNC_SKCIPHER_REQUEST_ON_STACK(subreq, child);
-+	struct skcipher_request *subreq = &rctx->req;
-+	struct crypto_skcipher *child = ctx->child;
- 
- 	if (unlikely(err == -EINPROGRESS))
- 		goto out;
- 
--	skcipher_request_set_sync_tfm(subreq, child);
-+	skcipher_request_set_tfm(subreq, child);
- 	skcipher_request_set_callback(subreq, CRYPTO_TFM_REQ_MAY_SLEEP,
- 				      NULL, NULL);
- 	skcipher_request_set_crypt(subreq, req->src, req->dst, req->cryptlen,
-@@ -343,9 +344,10 @@ static int cryptd_skcipher_init_tfm(struct crypto_skcipher *tfm)
- 	if (IS_ERR(cipher))
- 		return PTR_ERR(cipher);
- 
--	ctx->child = (struct crypto_sync_skcipher *)cipher;
-+	ctx->child = cipher;
- 	crypto_skcipher_set_reqsize(
--		tfm, sizeof(struct cryptd_skcipher_request_ctx));
-+		tfm, sizeof(struct cryptd_skcipher_request_ctx) +
-+		     crypto_skcipher_reqsize(cipher));
- 	return 0;
- }
- 
-@@ -353,7 +355,7 @@ static void cryptd_skcipher_exit_tfm(struct crypto_skcipher *tfm)
- {
- 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(tfm);
- 
--	crypto_free_sync_skcipher(ctx->child);
-+	crypto_free_skcipher(ctx->child);
- }
- 
- static void cryptd_skcipher_free(struct skcipher_instance *inst)
-@@ -931,7 +933,7 @@ struct crypto_skcipher *cryptd_skcipher_child(struct cryptd_skcipher *tfm)
- {
- 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(&tfm->base);
- 
--	return &ctx->child->base;
-+	return ctx->child;
- }
- EXPORT_SYMBOL_GPL(cryptd_skcipher_child);
- 
+ 	rc = efct_scsi_reg_fc_transport();
+ 	if (rc) {
++		efct_scsi_tgt_driver_exit();
+ 		pr_err("failed to register to FC host\n");
+ 		return rc;
+ 	}
 -- 
 2.35.1
 
