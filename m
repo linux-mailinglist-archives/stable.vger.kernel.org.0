@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D0C9658396
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:49:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8666658458
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235109AbiL1Qs6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:48:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43204 "EHLO
+        id S231351AbiL1Q5A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:57:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235077AbiL1QsQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:48:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D1521C130
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:43:50 -0800 (PST)
+        with ESMTP id S235197AbiL1Q4F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:56:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 487631F611
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:51:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0438B81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:43:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51C14C433D2;
-        Wed, 28 Dec 2022 16:43:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D6C39B816F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:51:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D8F4C433D2;
+        Wed, 28 Dec 2022 16:51:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245827;
-        bh=CfKbLL0LbxEQvJZzheP7aK+XGhZExt/eZjZ9yt303GA=;
+        s=korg; t=1672246281;
+        bh=wOFtaFfbin/F9piaUo/SC8mmvkBuDNV3uovhAfMsm1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kZ3bBQrFXGpg89xIGB7bHF+Dy8TwE601pflezmpKEL4dcuwxzcqJ93osuiIjBvB7s
-         xZlHQ5GgQV7rZdgAaiF2SbP38tWFfuXU1XsB3h/jQUuz6sUyh/2EqB+jgQMGTG3Dji
-         rqN9RrH28QuFnht8kaqgq+BKZ44F9j21rugkluOo=
+        b=Dqmd7+8Tav0uQYXhvGKvgtDwiVrdn4p1th7g0l9fwds8euqjgZVq5gAk9fhNmUd2q
+         1i1oeeq1/xktUa9ZjLS8aKpwf2bZBlWMCFHv30vG0DhegVjGa0rPVWyMLfH/xlgJZP
+         40WAoi4aJQU7lqo/cpndx9RHlFUbD4VPSpGbmy4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dokyung Song <dokyungs@yonsei.ac.kr>,
-        Deren Wu <deren.wu@mediatek.com>,
-        Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0965/1073] wifi: mt76: do not run mt76u_status_worker if the device is not running
-Date:   Wed, 28 Dec 2022 15:42:33 +0100
-Message-Id: <20221228144354.261139751@linuxfoundation.org>
+        patches@lists.linux.dev, Felix Fietkau <nbd@nbd.name>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 1015/1146] net: ethernet: mtk_eth_soc: drop packets to WDMA if the ring is full
+Date:   Wed, 28 Dec 2022 15:42:34 +0100
+Message-Id: <20221228144357.935876412@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,104 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit bd5dac7ced5a7c9faa4dc468ac9560c3256df845 ]
+[ Upstream commit f4b2fa2c25e1ade78f766aa82e733a0b5198d484 ]
 
-Fix the following NULL pointer dereference avoiding to run
-mt76u_status_worker thread if the device is not running yet.
+Improves handling of DMA ring overflow.
+Clarify other WDMA drop related comment.
 
-KASAN: null-ptr-deref in range
-[0x0000000000000000-0x0000000000000007]
-CPU: 0 PID: 98 Comm: kworker/u2:2 Not tainted 5.14.0+ #78 Hardware
-name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-Workqueue: mt76 mt76u_tx_status_data
-RIP: 0010:mt76x02_mac_fill_tx_status.isra.0+0x82c/0x9e0
-Code: c5 48 b8 00 00 00 00 00 fc ff df 80 3c 02 00 0f 85 94 01 00 00
-48 b8 00 00 00 00 00 fc ff df 4d 8b 34 24 4c 89 f2 48 c1 ea 03 <0f>
-b6
-04 02 84 c0 74 08 3c 03 0f 8e 89 01 00 00 41 8b 16 41 0f b7
-RSP: 0018:ffffc900005af988 EFLAGS: 00010246
-RAX: dffffc0000000000 RBX: ffffc900005afae8 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: ffffffff832fc661 RDI: ffffc900005afc2a
-RBP: ffffc900005afae0 R08: 0000000000000001 R09: fffff520000b5f3c
-R10: 0000000000000003 R11: fffff520000b5f3b R12: ffff88810b6132d8
-R13: 000000000000ffff R14: 0000000000000000 R15: ffffc900005afc28
-FS:  0000000000000000(0000) GS:ffff88811aa00000(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fa0eda6a000 CR3: 0000000118f17000 CR4: 0000000000750ef0
-PKRU: 55555554
-Call Trace:
- mt76x02_send_tx_status+0x1d2/0xeb0
- mt76x02_tx_status_data+0x8e/0xd0
- mt76u_tx_status_data+0xe1/0x240
- process_one_work+0x92b/0x1460
- worker_thread+0x95/0xe00
- kthread+0x3a1/0x480
- ret_from_fork+0x1f/0x30
-Modules linked in:
---[ end trace 8df5d20fc5040f65 ]--
-RIP: 0010:mt76x02_mac_fill_tx_status.isra.0+0x82c/0x9e0
-Code: c5 48 b8 00 00 00 00 00 fc ff df 80 3c 02 00 0f 85 94 01 00 00
-48 b8 00 00 00 00 00 fc ff df 4d 8b 34 24 4c 89 f2 48 c1 ea 03 <0f>
-b6
-04 02 84 c0 74 08 3c 03 0f 8e 89 01 00 00 41 8b 16 41 0f b7
-RSP: 0018:ffffc900005af988 EFLAGS: 00010246
-RAX: dffffc0000000000 RBX: ffffc900005afae8 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: ffffffff832fc661 RDI: ffffc900005afc2a
-RBP: ffffc900005afae0 R08: 0000000000000001 R09: fffff520000b5f3c
-R10: 0000000000000003 R11: fffff520000b5f3b R12: ffff88810b6132d8
-R13: 000000000000ffff R14: 0000000000000000 R15: ffffc900005afc28
-FS:  0000000000000000(0000) GS:ffff88811aa00000(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fa0eda6a000 CR3: 0000000118f17000 CR4: 0000000000750ef0
-PKRU: 55555554
-
-Moreover move stat_work schedule out of the for loop.
-
-Reported-by: Dokyung Song <dokyungs@yonsei.ac.kr>
-Co-developed-by: Deren Wu <deren.wu@mediatek.com>
-Signed-off-by: Deren Wu <deren.wu@mediatek.com>
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20221116080734.44013-3-nbd@nbd.name
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/usb.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/mediatek/mtk_eth_soc.c | 5 ++++-
+ drivers/net/ethernet/mediatek/mtk_eth_soc.h | 1 +
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/usb.c b/drivers/net/wireless/mediatek/mt76/usb.c
-index 6b8964c19f50..446429f4d944 100644
---- a/drivers/net/wireless/mediatek/mt76/usb.c
-+++ b/drivers/net/wireless/mediatek/mt76/usb.c
-@@ -761,6 +761,9 @@ static void mt76u_status_worker(struct mt76_worker *w)
- 	struct mt76_queue *q;
- 	int i;
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+index 864452e4426b..9aa1892a609c 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+@@ -3364,9 +3364,12 @@ static int mtk_hw_init(struct mtk_eth *eth)
+ 	mtk_w32(eth, 0x21021000, MTK_FE_INT_GRP);
  
-+	if (!test_bit(MT76_STATE_RUNNING, &dev->phy.state))
-+		return;
+ 	if (MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V2)) {
+-		/* PSE should not drop port8 and port9 packets */
++		/* PSE should not drop port8 and port9 packets from WDMA Tx */
+ 		mtk_w32(eth, 0x00000300, PSE_DROP_CFG);
+ 
++		/* PSE should drop packets to port 8/9 on WDMA Rx ring full */
++		mtk_w32(eth, 0x00000300, PSE_PPE0_DROP);
 +
- 	for (i = 0; i < IEEE80211_NUM_ACS; i++) {
- 		q = dev->phy.q_tx[i];
- 		if (!q)
-@@ -780,11 +783,11 @@ static void mt76u_status_worker(struct mt76_worker *w)
- 			wake_up(&dev->tx_wait);
+ 		/* PSE Free Queue Flow Control  */
+ 		mtk_w32(eth, 0x01fa01f4, PSE_FQFC_CFG2);
  
- 		mt76_worker_schedule(&dev->tx_worker);
--
--		if (dev->drv->tx_status_data &&
--		    !test_and_set_bit(MT76_READING_STATS, &dev->phy.state))
--			queue_work(dev->wq, &dev->usb.stat_work);
- 	}
-+
-+	if (dev->drv->tx_status_data &&
-+	    !test_and_set_bit(MT76_READING_STATS, &dev->phy.state))
-+		queue_work(dev->wq, &dev->usb.stat_work);
- }
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.h b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+index 9eaca55a106e..306fdc2c608a 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+@@ -120,6 +120,7 @@
+ #define PSE_FQFC_CFG1		0x100
+ #define PSE_FQFC_CFG2		0x104
+ #define PSE_DROP_CFG		0x108
++#define PSE_PPE0_DROP		0x110
  
- static void mt76u_tx_status_data(struct work_struct *work)
+ /* PSE Input Queue Reservation Register*/
+ #define PSE_IQ_REV(x)		(0x140 + (((x) - 1) << 2))
 -- 
 2.35.1
 
