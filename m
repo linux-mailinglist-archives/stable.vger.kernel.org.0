@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1E15657CEE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:37:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5218D658347
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:46:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233911AbiL1Phe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:37:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55096 "EHLO
+        id S234915AbiL1QpX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:45:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233505AbiL1Phd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:37:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 275E714D10
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:37:33 -0800 (PST)
+        with ESMTP id S234909AbiL1Qol (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B60D42C7
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:40:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B56FF6155B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:37:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5859C433D2;
-        Wed, 28 Dec 2022 15:37:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4209FB8171E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:40:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90AF5C433D2;
+        Wed, 28 Dec 2022 16:40:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241852;
-        bh=QojJVyt77FT8ZU9gk/lUuJ9cIu9f+wBThYUjDEo6nDU=;
+        s=korg; t=1672245642;
+        bh=DPS6VXR88CvOozvz6MYs4udh94EHMAw25F//G8t+0Nw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pPzMXmXNDnUz10zxmrbracnJ/3MN+C0fcVSI4296NyOm0onrnzEr8HIdBHuNtQ6my
-         AIHIjCIPLOW+R1UBAr0ZMT6hRCZCfLEMRhygIo2P0C5Qh+5IgCNkvm85KJgJcrpsg6
-         o2DXmtzU+em+LED9c8jkEsGyyd22KiYr9azVZkSw=
+        b=uOMLQpZKKIV7bkgdVWDCxrWegjiHNK82FafBroY8tzG6QlEsDGHjbQ+wR8Yb7qP3K
+         f7SagFVEWIdqeSJl+KT5Y/c3MTKPc667juE+txcaDB9E/CFr99JmPk25hkaUalN1+N
+         7FIouCzfLYZVMgJnehkVNF0RZqsP+NPC4i649h94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 530/731] iommu/sun50i: Fix R/W permission check
+        patches@lists.linux.dev,
+        Lorenzo Bianconi <lorenzo.bianconi@redhat.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0898/1146] net: enetc: avoid buffer leaks on xdp_do_redirect() failure
 Date:   Wed, 28 Dec 2022 15:40:37 +0100
-Message-Id: <20221228144311.906241144@linuxfoundation.org>
+Message-Id: <20221228144354.594258591@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,41 +55,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@gmail.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit eac0104dc69be50bed86926d6f32e82b44f8c921 ]
+[ Upstream commit 628050ec952d2e2e46ec9fb6aa07e41139e030c8 ]
 
-Because driver has enum type permissions and iommu subsystem has bitmap
-type, we have to be careful how check for combined read and write
-permissions is done. In such case, we have to mask both permissions and
-check that both are set at the same time.
+Before enetc_clean_rx_ring_xdp() calls xdp_do_redirect(), each software
+BD in the RX ring between index orig_i and i can have one of 2 refcount
+values on its page.
 
-Current code just masks both flags but doesn't check that both are set.
-In short, it always sets R/W permission, regardles if requested
-permissions were RO, WO or RW. Fix that.
+We are the owner of the current buffer that is being processed, so the
+refcount will be at least 1.
 
-Fixes: 4100b8c229b3 ("iommu: Add Allwinner H6 IOMMU driver")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20221025165415.307591-4-jernej.skrabec@gmail.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+If the current owner of the buffer at the diametrically opposed index
+in the RX ring (i.o.w, the other half of this page) has not yet called
+kfree(), this page's refcount could even be 2.
+
+enetc_page_reusable() in enetc_flip_rx_buff() tests for the page
+refcount against 1, and [ if it's 2 ] does not attempt to reuse it.
+
+But if enetc_flip_rx_buff() is put after the xdp_do_redirect() call,
+the page refcount can have one of 3 values. It can also be 0, if there
+is no owner of the other page half, and xdp_do_redirect() for this
+buffer ran so far that it triggered a flush of the devmap/cpumap bulk
+queue, and the consumers of those bulk queues also freed the buffer,
+all by the time xdp_do_redirect() returns the execution back to enetc.
+
+This is the reason why enetc_flip_rx_buff() is called before
+xdp_do_redirect(), but there is a big flaw with that reasoning:
+enetc_flip_rx_buff() will set rx_swbd->page = NULL on both sides of the
+enetc_page_reusable() branch, and if xdp_do_redirect() returns an error,
+we call enetc_xdp_free(), which does not deal gracefully with that.
+
+In fact, what happens is quite special. The page refcounts start as 1.
+enetc_flip_rx_buff() figures they're reusable, transfers these
+rx_swbd->page pointers to a different rx_swbd in enetc_reuse_page(), and
+bumps the refcount to 2. When xdp_do_redirect() later returns an error,
+we call the no-op enetc_xdp_free(), but we still haven't lost the
+reference to that page. A copy of it is still at rx_ring->next_to_alloc,
+but that has refcount 2 (and there are no concurrent owners of it in
+flight, to drop the refcount). What really kills the system is when
+we'll flip the rx_swbd->page the second time around. With an updated
+refcount of 2, the page will not be reusable and we'll really leak it.
+Then enetc_new_page() will have to allocate more pages, which will then
+eventually leak again on further errors from xdp_do_redirect().
+
+The problem, summarized, is that we zeroize rx_swbd->page before we're
+completely done with it, and this makes it impossible for the error path
+to do something with it.
+
+Since the packet is potentially multi-buffer and therefore the
+rx_swbd->page is potentially an array, manual passing of the old
+pointers between enetc_flip_rx_buff() and enetc_xdp_free() is a bit
+difficult.
+
+For the sake of going with a simple solution, we accept the possibility
+of racing with xdp_do_redirect(), and we move the flip procedure to
+execute only on the redirect success path. By racing, I mean that the
+page may be deemed as not reusable by enetc (having a refcount of 0),
+but there will be no leak in that case, either.
+
+Once we accept that, we have something better to do with buffers on
+XDP_REDIRECT failure. Since we haven't performed half-page flipping yet,
+we won't, either (and this way, we can avoid enetc_xdp_free()
+completely, which gives the entire page to the slab allocator).
+Instead, we'll call enetc_xdp_drop(), which will recycle this half of
+the buffer back to the RX ring.
+
+Fixes: 9d2b68cc108d ("net: enetc: add support for XDP_REDIRECT")
+Suggested-by: Lorenzo Bianconi <lorenzo.bianconi@redhat.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20221213001908.2347046-1-vladimir.oltean@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/sun50i-iommu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/freescale/enetc/enetc.c | 35 +++++---------------
+ 1 file changed, 8 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/iommu/sun50i-iommu.c b/drivers/iommu/sun50i-iommu.c
-index 5b87672c689f..16bfba1faee1 100644
---- a/drivers/iommu/sun50i-iommu.c
-+++ b/drivers/iommu/sun50i-iommu.c
-@@ -271,7 +271,7 @@ static u32 sun50i_mk_pte(phys_addr_t page, int prot)
- 	enum sun50i_iommu_aci aci;
- 	u32 flags = 0;
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc.c b/drivers/net/ethernet/freescale/enetc/enetc.c
+index 8671591cb750..3a79ead5219a 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc.c
+@@ -1489,23 +1489,6 @@ static void enetc_xdp_drop(struct enetc_bdr *rx_ring, int rx_ring_first,
+ 	rx_ring->stats.xdp_drops++;
+ }
  
--	if (prot & (IOMMU_READ | IOMMU_WRITE))
-+	if ((prot & (IOMMU_READ | IOMMU_WRITE)) == (IOMMU_READ | IOMMU_WRITE))
- 		aci = SUN50I_IOMMU_ACI_RD_WR;
- 	else if (prot & IOMMU_READ)
- 		aci = SUN50I_IOMMU_ACI_RD;
+-static void enetc_xdp_free(struct enetc_bdr *rx_ring, int rx_ring_first,
+-			   int rx_ring_last)
+-{
+-	while (rx_ring_first != rx_ring_last) {
+-		struct enetc_rx_swbd *rx_swbd = &rx_ring->rx_swbd[rx_ring_first];
+-
+-		if (rx_swbd->page) {
+-			dma_unmap_page(rx_ring->dev, rx_swbd->dma, PAGE_SIZE,
+-				       rx_swbd->dir);
+-			__free_page(rx_swbd->page);
+-			rx_swbd->page = NULL;
+-		}
+-		enetc_bdr_idx_inc(rx_ring, &rx_ring_first);
+-	}
+-	rx_ring->stats.xdp_redirect_failures++;
+-}
+-
+ static int enetc_clean_rx_ring_xdp(struct enetc_bdr *rx_ring,
+ 				   struct napi_struct *napi, int work_limit,
+ 				   struct bpf_prog *prog)
+@@ -1527,8 +1510,8 @@ static int enetc_clean_rx_ring_xdp(struct enetc_bdr *rx_ring,
+ 		int orig_i, orig_cleaned_cnt;
+ 		struct xdp_buff xdp_buff;
+ 		struct sk_buff *skb;
+-		int tmp_orig_i, err;
+ 		u32 bd_status;
++		int err;
+ 
+ 		rxbd = enetc_rxbd(rx_ring, i);
+ 		bd_status = le32_to_cpu(rxbd->r.lstatus);
+@@ -1615,18 +1598,16 @@ static int enetc_clean_rx_ring_xdp(struct enetc_bdr *rx_ring,
+ 				break;
+ 			}
+ 
+-			tmp_orig_i = orig_i;
+-
+-			while (orig_i != i) {
+-				enetc_flip_rx_buff(rx_ring,
+-						   &rx_ring->rx_swbd[orig_i]);
+-				enetc_bdr_idx_inc(rx_ring, &orig_i);
+-			}
+-
+ 			err = xdp_do_redirect(rx_ring->ndev, &xdp_buff, prog);
+ 			if (unlikely(err)) {
+-				enetc_xdp_free(rx_ring, tmp_orig_i, i);
++				enetc_xdp_drop(rx_ring, orig_i, i);
++				rx_ring->stats.xdp_redirect_failures++;
+ 			} else {
++				while (orig_i != i) {
++					enetc_flip_rx_buff(rx_ring,
++							   &rx_ring->rx_swbd[orig_i]);
++					enetc_bdr_idx_inc(rx_ring, &orig_i);
++				}
+ 				xdp_redirect_frm_cnt++;
+ 				rx_ring->stats.xdp_redirect++;
+ 			}
 -- 
 2.35.1
 
