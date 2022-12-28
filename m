@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5B4A657F7C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:05:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCC8E6584F2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:04:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230257AbiL1QF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:05:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52108 "EHLO
+        id S235356AbiL1REM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:04:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234256AbiL1QFV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:05:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21D501902A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:05:21 -0800 (PST)
+        with ESMTP id S235357AbiL1RDq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:03:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8993C1DDE5
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:58:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B36586156E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:05:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C78FBC433D2;
-        Wed, 28 Dec 2022 16:05:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2BD63B81889
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:58:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EDECC433EF;
+        Wed, 28 Dec 2022 16:58:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243520;
-        bh=L5ZrilAx5jf6RcAS90Y8P9B0ybULVQKJV3TNiqw/meM=;
+        s=korg; t=1672246684;
+        bh=e1R0atgY+TKRwEJiLJwhtP27rBDBejXz4aDMOMqGQFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WfSbubJZHZLSLBH+wj4EhyyTqCH34RuPrYV8Ci3Pn4SNcA0laUNkx5BXAgAU0ukeF
-         /ZGmRthVI7DBnOb8+nz1pLGOv3UYhOeUvi1a37MUgO1WmlfLOuAVfKOIBIkxLl+gvf
-         qlT7DQDfsLPe6SjOSr6Hhpv0rO89T531CSjG01eE=
+        b=N9vVHXgpPVoSOdzZu35ed/S5uVYm2BPf5uJyFoWY6gPz3R/g3J2474GdrPtlMNpUV
+         0a9JvQp+b4Yud0WrCdAbgqqEUGfcd9C3x7SRI2EXytf6v5q7JBOK6tIKoz2ZaWgVPU
+         b8ot6iRBv8vVMssHFh3nQOuHSPHgKqSvJP30772g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+fce48a3dd3368645bd6c@syzkaller.appspotmail.com,
-        Lin Ma <linma@zju.edu.cn>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.15 730/731] media: dvbdev: fix refcnt bug
+        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>,
+        Carl Hetherington <lists@carlh.net>
+Subject: [PATCH 6.1 1098/1146] ALSA: usb-audio: Workaround for XRUN at prepare
 Date:   Wed, 28 Dec 2022 15:43:57 +0100
-Message-Id: <20221228144317.603160512@linuxfoundation.org>
+Message-Id: <20221228144359.992612508@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +52,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 3a664569b71b0a52be5ffb9fb87cc4f83d29bd71 upstream.
+commit 198dde085ecc0138e4f0b0b69d18a0c870f2dea6 upstream.
 
-Previous commit initialize the dvbdev->ref before the template copy,
-which will overwrite the reference and cause refcnt bug.
+Under certain situations (typically in the implicit feedback mode),
+USB-audio driver starts a playback stream already at PCM prepare call
+even before the actual PCM trigger-START call.  For implicit feedback
+mode, this effectively starts two streams for data and sync
+endpoints, and if a coupled sync stream gets XRUN at this point, it
+results in an error -EPIPE.
 
-refcount_t: addition on 0; use-after-free.
-WARNING: CPU: 0 PID: 1 at lib/refcount.c:25 refcount_warn_saturate+0x17c/0x1f0 lib/refcount.c:25
-Modules linked in:
-CPU: 0 PID: 1 Comm: swapper/0 Not tainted 6.1.0-rc6-next-20221128-syzkaller #0
-...
-RIP: 0010:refcount_warn_saturate+0x17c/0x1f0 lib/refcount.c:25
-RSP: 0000:ffffc900000678d0 EFLAGS: 00010282
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: ffff88813ff58000 RSI: ffffffff81660e7c RDI: fffff5200000cf0c
-RBP: ffff888022a45010 R08: 0000000000000005 R09: 0000000000000000
-R10: 0000000080000000 R11: 0000000000000000 R12: 0000000000000001
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000001
-FS:  0000000000000000(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffff88823ffff000 CR3: 000000000c48e000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- __refcount_add include/linux/refcount.h:199 [inline]
- __refcount_inc include/linux/refcount.h:250 [inline]
- refcount_inc include/linux/refcount.h:267 [inline]
- kref_get include/linux/kref.h:45 [inline]
- dvb_device_get drivers/media/dvb-core/dvbdev.c:585 [inline]
- dvb_register_device+0xe83/0x16e0 drivers/media/dvb-core/dvbdev.c:517
-...
+The problem is that currently we return -EPIPE error as is from the
+prepare.  Then application tries to recover again via the prepare
+call, but it'll fail again because the sync-stop is missing.  The
+sync-stop is missing because it's an internal trigger call (hence the
+PCM core isn't involved).
 
-Just place the kref_init at correct position.
+Since we'll need to re-issue the prepare in anyway when trapped into
+this pitfall, this patch attempts to address it in a bit different
+way; namely, the driver tries to prepare once again after syncing the
+stop manually by itself -- so applications don't see the internal
+error.  At the second failure, we report the error as is, but this
+shouldn't happen in normal situations.
 
-Reported-by: syzbot+fce48a3dd3368645bd6c@syzkaller.appspotmail.com
-Fixes: 0fc044b2b5e2 ("media: dvbdev: adopts refcnt to avoid UAF")
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Reported-and-tested-by: Carl Hetherington <lists@carlh.net>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/b4e71631-4a94-613-27b2-fb595792630@carlh.net
+Link: https://lore.kernel.org/r/20221205132124.11585-4-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/dvb-core/dvbdev.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/pcm.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
---- a/drivers/media/dvb-core/dvbdev.c
-+++ b/drivers/media/dvb-core/dvbdev.c
-@@ -490,8 +490,8 @@ int dvb_register_device(struct dvb_adapt
- 		return -ENOMEM;
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -604,6 +604,7 @@ static int snd_usb_pcm_prepare(struct sn
+ 	struct snd_pcm_runtime *runtime = substream->runtime;
+ 	struct snd_usb_substream *subs = runtime->private_data;
+ 	struct snd_usb_audio *chip = subs->stream->chip;
++	int retry = 0;
+ 	int ret;
+ 
+ 	ret = snd_usb_lock_shutdown(chip);
+@@ -614,6 +615,7 @@ static int snd_usb_pcm_prepare(struct sn
+ 		goto unlock;
  	}
  
--	kref_init(&dvbdev->ref);
- 	memcpy(dvbdev, template, sizeof(struct dvb_device));
-+	kref_init(&dvbdev->ref);
- 	dvbdev->type = type;
- 	dvbdev->id = id;
- 	dvbdev->adapter = adap;
++ again:
+ 	if (subs->sync_endpoint) {
+ 		ret = snd_usb_endpoint_prepare(chip, subs->sync_endpoint);
+ 		if (ret < 0)
+@@ -638,9 +640,16 @@ static int snd_usb_pcm_prepare(struct sn
+ 
+ 	subs->lowlatency_playback = lowlatency_playback_available(runtime, subs);
+ 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK &&
+-	    !subs->lowlatency_playback)
++	    !subs->lowlatency_playback) {
+ 		ret = start_endpoints(subs);
+-
++		/* if XRUN happens at starting streams (possibly with implicit
++		 * fb case), restart again, but only try once.
++		 */
++		if (ret == -EPIPE && !retry++) {
++			sync_pending_stops(subs);
++			goto again;
++		}
++	}
+  unlock:
+ 	snd_usb_unlock_shutdown(chip);
+ 	return ret;
 
 
