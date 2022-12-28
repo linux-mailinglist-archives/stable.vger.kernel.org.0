@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B077765787A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:51:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DEF4657EDA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:58:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233111AbiL1Ovf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:51:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37918 "EHLO
+        id S230080AbiL1P6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:58:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233189AbiL1Ouy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:50:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E0A28FC2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:50:49 -0800 (PST)
+        with ESMTP id S234164AbiL1P6V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:58:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CB9E18681
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:58:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB65E61130
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:50:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9773C433D2;
-        Wed, 28 Dec 2022 14:50:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0C0F9B8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:58:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B6C0C433D2;
+        Wed, 28 Dec 2022 15:58:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239048;
-        bh=3QB2lwfGhwZf5YvU0afz5ahSmlHQgkwc5a63NM7OXb8=;
+        s=korg; t=1672243097;
+        bh=IA2MOtYGB83Mho+HhAmwBPGe4fu279ox0SfbdpIYz/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LRLWPzs0UOGH4zMKoksa1zHuAcc9yw7V7J2ZchrGv5iuzMuGMbrvspXG/2fuL9TP8
-         /sWVoXIf0amQuMg4fI7W5UIarY4TCvK+s1VV1Pdi6ddvSbqSY2nhH8ENDOZIYLB08J
-         YrMHpg7ZoLMy/Junwyv24IYzog4eDe7yHuRh7ebY=
+        b=abQoMDwStL7vgPArH7BQ0/ApMzb4yPi2TEZoyv0Y13pzBk8AC0rV4V2Di6lppEzB5
+         Az86wM4am5Q6iA+yWGymN/KldsX+y9+rRT4Be1UixrCpnLZcGI3ed/kUy1hid1rby1
+         1ltmDIwfCUHj+Ivzn0Pm3KfebwJ/xQntFV7G5+cM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 082/731] perf: Fix possible memleak in pmu_dev_alloc()
-Date:   Wed, 28 Dec 2022 15:33:09 +0100
-Message-Id: <20221228144258.929048601@linuxfoundation.org>
+Subject: [PATCH 6.1 0451/1146] wifi: mac80211: fix memory leak in ieee80211_if_add()
+Date:   Wed, 28 Dec 2022 15:33:10 +0100
+Message-Id: <20221228144342.432384153@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,69 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit e8d7a90c08ce963c592fb49845f2ccc606a2ac21 ]
+[ Upstream commit 13e5afd3d773c6fc6ca2b89027befaaaa1ea7293 ]
 
-In pmu_dev_alloc(), when dev_set_name() failed, it will goto free_dev
-and call put_device(pmu->dev) to release it.
-However pmu->dev->release is assigned after this, which makes warning
-and memleak.
-Call dev_set_name() after pmu->dev->release = pmu_dev_release to fix it.
+When register_netdevice() failed in ieee80211_if_add(), ndev->tstats
+isn't released. Fix it.
 
-  Device '(null)' does not have a release() function...
-  WARNING: CPU: 2 PID: 441 at drivers/base/core.c:2332 device_release+0x1b9/0x240
-  ...
-  Call Trace:
-    <TASK>
-    kobject_put+0x17f/0x460
-    put_device+0x20/0x30
-    pmu_dev_alloc+0x152/0x400
-    perf_pmu_register+0x96b/0xee0
-    ...
-  kmemleak: 1 new suspected memory leaks (see /sys/kernel/debug/kmemleak)
-  unreferenced object 0xffff888014759000 (size 2048):
-    comm "modprobe", pid 441, jiffies 4294931444 (age 38.332s)
-    backtrace:
-      [<0000000005aed3b4>] kmalloc_trace+0x27/0x110
-      [<000000006b38f9b8>] pmu_dev_alloc+0x50/0x400
-      [<00000000735f17be>] perf_pmu_register+0x96b/0xee0
-      [<00000000e38477f1>] 0xffffffffc0ad8603
-      [<000000004e162216>] do_one_initcall+0xd0/0x4e0
-      ...
-
-Fixes: abe43400579d ("perf: Sysfs enumeration")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20221111103653.91058-1-chenzhongjin@huawei.com
+Fixes: 5a490510ba5f ("mac80211: use per-CPU TX/RX statistics")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Link: https://lore.kernel.org/r/20221117064500.319983-1-shaozhengchao@huawei.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/mac80211/iface.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 5422bd77c7d4..e95088144471 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -11175,13 +11175,15 @@ static int pmu_dev_alloc(struct pmu *pmu)
+diff --git a/net/mac80211/iface.c b/net/mac80211/iface.c
+index dd9ac1f7d2ea..46f08ec5ed76 100644
+--- a/net/mac80211/iface.c
++++ b/net/mac80211/iface.c
+@@ -2258,6 +2258,7 @@ int ieee80211_if_add(struct ieee80211_local *local, const char *name,
  
- 	pmu->dev->groups = pmu->attr_groups;
- 	device_initialize(pmu->dev);
--	ret = dev_set_name(pmu->dev, "%s", pmu->name);
--	if (ret)
--		goto free_dev;
- 
- 	dev_set_drvdata(pmu->dev, pmu);
- 	pmu->dev->bus = &pmu_bus;
- 	pmu->dev->release = pmu_dev_release;
-+
-+	ret = dev_set_name(pmu->dev, "%s", pmu->name);
-+	if (ret)
-+		goto free_dev;
-+
- 	ret = device_add(pmu->dev);
- 	if (ret)
- 		goto free_dev;
+ 		ret = cfg80211_register_netdevice(ndev);
+ 		if (ret) {
++			ieee80211_if_free(ndev);
+ 			free_netdev(ndev);
+ 			return ret;
+ 		}
 -- 
 2.35.1
 
