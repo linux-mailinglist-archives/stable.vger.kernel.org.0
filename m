@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA5DE6583E7
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:53:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAB64657EDD
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:58:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235038AbiL1QxY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:53:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45282 "EHLO
+        id S234205AbiL1P63 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:58:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235135AbiL1Qwi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:52:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D29C1C10D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:47:19 -0800 (PST)
+        with ESMTP id S232081AbiL1P63 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:58:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 596E118697
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:58:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E04C161541
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:47:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F269DC433D2;
-        Wed, 28 Dec 2022 16:47:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0D4CEB81730
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:58:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B347C433D2;
+        Wed, 28 Dec 2022 15:58:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246038;
-        bh=XKNp2vgdkZOqvb8ZpnkkTc35WysmYrXuZPl5CpeHkwQ=;
+        s=korg; t=1672243105;
+        bh=2UabSsOlqCYdGnYpJg6lwiZLiazmhh/Z0NoGM4OMvKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0rP+7OFjoYAZupPKRRAFMO0jKdauBQbEh6H5ru3WNHJWGN1F6lDgOh/UOKcViKXJd
-         Yh5jQ4yX8iajt3rAyqSuEFKDovEjnR3QBJ3g8/AHyVzPUunB9OEnHkyioRTxFMNasC
-         S554wTZx9XuurcJZTmqSkxrtc+IbPM9/vMdUdiMY=
+        b=gF/jO41YbRGzPVUqd3fudyHXZLCo28tlKgniyQqJjEjnjvRIvXGnj+2qyrrVgsLBc
+         ZRIPJkCHcRLIlCAhtjULRaxU+IlxS+K4uR19DKpp8w6UwzFT1vOBoTZ5W51Www2KDN
+         nXDpwfFDoOG4CXoesi3TBmJVrjlpkJuEZ81BbauM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Jingjin <wangjingjin1@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev,
+        "Tyler Hicks (Microsoft)" <code@tyhicks.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 1002/1073] ASoC: rockchip: pdm: Add missing clk_disable_unprepare() in rockchip_pdm_runtime_resume()
-Date:   Wed, 28 Dec 2022 15:43:10 +0100
-Message-Id: <20221228144355.356618308@linuxfoundation.org>
+Subject: [PATCH 5.15 684/731] KVM: selftests: Fix build regression by using accessor function
+Date:   Wed, 28 Dec 2022 15:43:11 +0100
+Message-Id: <20221228144316.296920411@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Jingjin <wangjingjin1@huawei.com>
+From: Tyler Hicks <code@tyhicks.com>
 
-[ Upstream commit ef0a098efb36660326c133af9b5a04a96a00e3ca ]
+Fix the stable backport of commit 05c2224d4b04 ("KVM: selftests: Fix
+number of pages for memory slot in memslot_modification_stress_test"),
+which caused memslot_modification_stress_test.c build failures due to
+trying to access private members of struct kvm_vm.
 
-The clk_disable_unprepare() should be called in the error handling of
-rockchip_pdm_runtime_resume().
+v6.0 commit b530eba14c70 ("KVM: selftests: Get rid of
+kvm_util_internal.h") and some other commits got rid of the accessors
+and made all of the KVM data structures public. Keep using the accessors
+in older kernels.
 
-Fixes: fc05a5b22253 ("ASoC: rockchip: add support for pdm controller")
-Signed-off-by: Wang Jingjin <wangjingjin1@huawei.com>
-Link: https://lore.kernel.org/r/20221205032802.2422983-1-wangjingjin1@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+There is no corresponding upstream commit for this change.
+
+Signed-off-by: Tyler Hicks (Microsoft) <code@tyhicks.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/rockchip/rockchip_pdm.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/testing/selftests/kvm/memslot_modification_stress_test.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/rockchip/rockchip_pdm.c b/sound/soc/rockchip/rockchip_pdm.c
-index a7549f827235..5b1e47bdc376 100644
---- a/sound/soc/rockchip/rockchip_pdm.c
-+++ b/sound/soc/rockchip/rockchip_pdm.c
-@@ -431,6 +431,7 @@ static int rockchip_pdm_runtime_resume(struct device *dev)
+diff --git a/tools/testing/selftests/kvm/memslot_modification_stress_test.c b/tools/testing/selftests/kvm/memslot_modification_stress_test.c
+index 1d806b8ffee2..766c1790df66 100644
+--- a/tools/testing/selftests/kvm/memslot_modification_stress_test.c
++++ b/tools/testing/selftests/kvm/memslot_modification_stress_test.c
+@@ -72,7 +72,7 @@ struct memslot_antagonist_args {
+ static void add_remove_memslot(struct kvm_vm *vm, useconds_t delay,
+ 			       uint64_t nr_modifications)
+ {
+-	uint64_t pages = max_t(int, vm->page_size, getpagesize()) / vm->page_size;
++	uint64_t pages = max_t(int, vm_get_page_size(vm), getpagesize()) / vm_get_page_size(vm);
+ 	uint64_t gpa;
+ 	int i;
  
- 	ret = clk_prepare_enable(pdm->hclk);
- 	if (ret) {
-+		clk_disable_unprepare(pdm->clk);
- 		dev_err(pdm->dev, "hclock enable failed %d\n", ret);
- 		return ret;
- 	}
 -- 
 2.35.1
 
