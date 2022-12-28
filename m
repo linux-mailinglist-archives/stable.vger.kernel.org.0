@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B696E657CF1
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:37:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8B5F657BE3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:27:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233913AbiL1Php (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:37:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55204 "EHLO
+        id S233743AbiL1P0z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:26:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233912AbiL1Phn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:37:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC8A11658D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:37:42 -0800 (PST)
+        with ESMTP id S233761AbiL1P0X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:26:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 335FCC64
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:26:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6340DB81710
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:37:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7A72C433D2;
-        Wed, 28 Dec 2022 15:37:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C5BC7B8170E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:26:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37797C433D2;
+        Wed, 28 Dec 2022 15:26:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241860;
-        bh=RoHsNaFHeGJm6qUJRjDvfY9Aow5B5u6yqUOYk2g/nLw=;
+        s=korg; t=1672241180;
+        bh=NyCK2DCmunHbF2YtxfuT3EFR37RCzlhbdXdP+7WhXhY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QDkG8llAPU4hMT7zqTOoYvGVvY9ooQH07X4Er1bRoO6JENMUldsRY/xC0XZGJcXi1
-         QXCqjD3h65SlYao6xy2IihdT4s8EF+FzwZx7lFyMtKV9cVRb9PTaqaEZOH87hIHpMv
-         7cMKkI0V6z7ggYqFQB4bqoku8IGZPg5FX28ZpAUI=
+        b=oHtORDSpBPVEKw45GIZG+C0XRFQyMOdxMKF1WuJDoM73nX4u7/ERkHV5Qwb11ojjx
+         bbkbrS9B6/gKX1SjK1RAghqrPG6qgYDGXhMDNVe9BnY2eVg6tU1XT6vCmWORWFGVDt
+         RtLQ8EPOljBpcUWHzNaOQDQgwen1diXKi2KaHxBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        patches@lists.linux.dev,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0298/1146] mtd: Fix device name leak when register device failed in add_mtd_device()
-Date:   Wed, 28 Dec 2022 15:30:37 +0100
-Message-Id: <20221228144338.232139891@linuxfoundation.org>
+Subject: [PATCH 6.0 0250/1073] clk: renesas: r8a779a0: Fix SD0H clock name
+Date:   Wed, 28 Dec 2022 15:30:38 +0100
+Message-Id: <20221228144334.811729046@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,59 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit 895d68a39481a75c680aa421546931fb11942fa6 ]
+[ Upstream commit db7076d5a7f0ca7dcf08f5095c74f86d4d0085ff ]
 
-There is a kmemleak when register device failed:
-  unreferenced object 0xffff888101aab550 (size 8):
-    comm "insmod", pid 3922, jiffies 4295277753 (age 925.408s)
-    hex dump (first 8 bytes):
-      6d 74 64 30 00 88 ff ff                          mtd0....
-    backtrace:
-      [<00000000bde26724>] __kmalloc_node_track_caller+0x4e/0x150
-      [<000000003c32b416>] kvasprintf+0xb0/0x130
-      [<000000001f7a8f15>] kobject_set_name_vargs+0x2f/0xb0
-      [<000000006e781163>] dev_set_name+0xab/0xe0
-      [<00000000e30d0c78>] add_mtd_device+0x4bb/0x700
-      [<00000000f3d34de7>] mtd_device_parse_register+0x2ac/0x3f0
-      [<00000000c0d88488>] 0xffffffffa0238457
-      [<00000000b40d0922>] 0xffffffffa02a008f
-      [<0000000023d17b9d>] do_one_initcall+0x87/0x2a0
-      [<00000000770f6ca6>] do_init_module+0xdf/0x320
-      [<000000007b6768fe>] load_module+0x2f98/0x3330
-      [<00000000346bed5a>] __do_sys_finit_module+0x113/0x1b0
-      [<00000000674c2290>] do_syscall_64+0x35/0x80
-      [<000000004c6a8d97>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+Correct the misspelled textual name of the SD0H clock.
 
-If register device failed, should call put_device() to give up the
-reference.
-
-Fixes: 1f24b5a8ecbb ("[MTD] driver model updates")
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20221022121352.2534682-1-zhangxiaoxu5@huawei.com
+Fixes: 470e3f0d0b15 ("clk: renesas: rcar-gen4: Introduce R-Car Gen4 CPG driver")
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Link: https://lore.kernel.org/r/20221012184830.3199-1-wsa+renesas@sang-engineering.com
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/mtdcore.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/clk/renesas/r8a779a0-cpg-mssr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/mtdcore.c b/drivers/mtd/mtdcore.c
-index 0b4ca0aa4132..a16627455c1d 100644
---- a/drivers/mtd/mtdcore.c
-+++ b/drivers/mtd/mtdcore.c
-@@ -723,8 +723,10 @@ int add_mtd_device(struct mtd_info *mtd)
- 	mtd_check_of_node(mtd);
- 	of_node_get(mtd_get_of_node(mtd));
- 	error = device_register(&mtd->dev);
--	if (error)
-+	if (error) {
-+		put_device(&mtd->dev);
- 		goto fail_added;
-+	}
+diff --git a/drivers/clk/renesas/r8a779a0-cpg-mssr.c b/drivers/clk/renesas/r8a779a0-cpg-mssr.c
+index d74d46833012..e02542ca24a0 100644
+--- a/drivers/clk/renesas/r8a779a0-cpg-mssr.c
++++ b/drivers/clk/renesas/r8a779a0-cpg-mssr.c
+@@ -116,7 +116,7 @@ static const struct cpg_core_clk r8a779a0_core_clks[] __initconst = {
+ 	DEF_FIXED("cp",		R8A779A0_CLK_CP,	CLK_EXTAL,	2, 1),
+ 	DEF_FIXED("cl16mck",	R8A779A0_CLK_CL16MCK,	CLK_PLL1_DIV2,	64, 1),
  
- 	/* Add the nvmem provider */
- 	error = mtd_nvmem_add(mtd);
+-	DEF_GEN4_SDH("sdh0",	R8A779A0_CLK_SD0H,	CLK_SDSRC,	   0x870),
++	DEF_GEN4_SDH("sd0h",	R8A779A0_CLK_SD0H,	CLK_SDSRC,	   0x870),
+ 	DEF_GEN4_SD("sd0",	R8A779A0_CLK_SD0,	R8A779A0_CLK_SD0H, 0x870),
+ 
+ 	DEF_BASE("rpc",		R8A779A0_CLK_RPC, CLK_TYPE_GEN4_RPC, CLK_RPCSRC),
 -- 
 2.35.1
 
