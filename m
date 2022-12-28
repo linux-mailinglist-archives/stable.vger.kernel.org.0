@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE304657FCE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:10:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43BFB657ED2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:58:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233042AbiL1QKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:10:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55086 "EHLO
+        id S232644AbiL1P57 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:57:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234439AbiL1QJP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:09:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 405E31A21C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:08:22 -0800 (PST)
+        with ESMTP id S232953AbiL1P56 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:57:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5A0A1839E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:57:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6C27B817AC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:08:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18C50C43396;
-        Wed, 28 Dec 2022 16:08:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7F2AEB8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:57:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5534C433D2;
+        Wed, 28 Dec 2022 15:57:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243699;
-        bh=4PNDDJZmArPkClOrlBSTTJGNXsNvzCzJ1ewJlq8/RAQ=;
+        s=korg; t=1672243075;
+        bh=jA5Lh04MvNxyrxnmTEl1cwIoiZqzyvMPI9M/23RBUKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yO6vulpi3clyx7V4IujdbyxGyEWobyguI2MZhTlpPtFXJ1WqAPQbBuEMMWsTSpT9W
-         FItrEB31L0D5PPf7pgvZsEFQxumsNJw+Nk+j00c2T00gCRBoXZHTwZGwNKjzxdMGlr
-         5rFq94z/ETgVLJQPY/6t/fO9DbRg9qhmGWndWrYc=
+        b=r0E0WpKyRr4zYMqKmN3wVs+6XYGdgqY+2K3RFUdnCkh5BJ2/EJWcpXTWRt0/i9Fh9
+         BCNBbnyJgYoT982Jg2Ixk7l1nTvCcJ6JONAwmTVi8f/d6kSoYrIVKw1jFQjuaY9GTC
+         TLmb47gJghs3kQRsN9Vt2a3jHyVoQc5ggW4DgIAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
-        Jiri Pirko <jiri@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Gabriel Somlo <gsomlo@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0536/1146] net: farsync: Fix kmemleak when rmmods farsync
+Subject: [PATCH 6.0 0487/1073] mmc: litex_mmc: ensure `host->irq == 0` if polling
 Date:   Wed, 28 Dec 2022 15:34:35 +0100
-Message-Id: <20221228144344.733657049@linuxfoundation.org>
+Message-Id: <20221228144341.264206021@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,73 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zetao <lizetao1@huawei.com>
+From: Gabriel Somlo <gsomlo@gmail.com>
 
-[ Upstream commit 2f623aaf9f31de968dea6169849706a2f9be444c ]
+[ Upstream commit 5c1a2b77cd1b59112cf22b3e338f7e416797ad32 ]
 
-There are two memory leaks reported by kmemleak:
+Ensure the flag is explicitly set to 0 if we determine that polling is
+needed during driver probe, to cover all possible cases.
 
-  unreferenced object 0xffff888114b20200 (size 128):
-    comm "modprobe", pid 4846, jiffies 4295146524 (age 401.345s)
-    hex dump (first 32 bytes):
-      e0 62 57 09 81 88 ff ff e0 62 57 09 81 88 ff ff  .bW......bW.....
-      01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    backtrace:
-      [<ffffffff815bcd82>] kmalloc_trace+0x22/0x60
-      [<ffffffff83d35c78>] __hw_addr_add_ex+0x198/0x6c0
-      [<ffffffff83d3989d>] dev_addr_init+0x13d/0x230
-      [<ffffffff83d1063d>] alloc_netdev_mqs+0x10d/0xe50
-      [<ffffffff82b4a06e>] alloc_hdlcdev+0x2e/0x80
-      [<ffffffffa016a741>] fst_add_one+0x601/0x10e0 [farsync]
-      ...
-
-  unreferenced object 0xffff88810b85b000 (size 1024):
-    comm "modprobe", pid 4846, jiffies 4295146523 (age 401.346s)
-    hex dump (first 32 bytes):
-      00 00 b0 02 00 c9 ff ff 00 70 0a 00 00 c9 ff ff  .........p......
-      00 00 00 f2 00 00 00 f3 0a 00 00 00 02 00 00 00  ................
-    backtrace:
-      [<ffffffff815bcd82>] kmalloc_trace+0x22/0x60
-      [<ffffffffa016a294>] fst_add_one+0x154/0x10e0 [farsync]
-      [<ffffffff82060e83>] local_pci_probe+0xd3/0x170
-      ...
-
-The root cause is traced to the netdev and fst_card_info are not freed
-when removes one fst in fst_remove_one(), which may trigger oom if
-repeated insmod and rmmod module.
-
-Fix it by adding free_netdev() and kfree() in fst_remove_one(), just as
-the operations on the error handling path in fst_add_one().
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Li Zetao <lizetao1@huawei.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 92e099104729 ("mmc: Add driver for LiteX's LiteSDCard interface")
+Signed-off-by: Gabriel Somlo <gsomlo@gmail.com>
+Link: https://lore.kernel.org/r/20221107155516.2535912-1-gsomlo@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/farsync.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mmc/host/litex_mmc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wan/farsync.c b/drivers/net/wan/farsync.c
-index 6a212c085435..5b01642ca44e 100644
---- a/drivers/net/wan/farsync.c
-+++ b/drivers/net/wan/farsync.c
-@@ -2545,6 +2545,7 @@ fst_remove_one(struct pci_dev *pdev)
- 		struct net_device *dev = port_to_dev(&card->ports[i]);
+diff --git a/drivers/mmc/host/litex_mmc.c b/drivers/mmc/host/litex_mmc.c
+index 6ba0d63b8c07..39c6707fdfdb 100644
+--- a/drivers/mmc/host/litex_mmc.c
++++ b/drivers/mmc/host/litex_mmc.c
+@@ -502,6 +502,7 @@ static int litex_mmc_irq_init(struct platform_device *pdev,
  
- 		unregister_hdlc_device(dev);
-+		free_netdev(dev);
- 	}
- 
- 	fst_disable_intr(card);
-@@ -2564,6 +2565,7 @@ fst_remove_one(struct pci_dev *pdev)
- 				  card->tx_dma_handle_card);
- 	}
- 	fst_card_array[card->card_no] = NULL;
-+	kfree(card);
+ use_polling:
+ 	host->mmc->caps |= MMC_CAP_NEEDS_POLL;
++	host->irq = 0;
+ 	return 0;
  }
  
- static struct pci_driver fst_driver = {
 -- 
 2.35.1
 
