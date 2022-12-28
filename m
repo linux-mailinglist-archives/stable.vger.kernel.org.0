@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7709465848D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:58:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8938658510
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:05:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235262AbiL1Q6B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:58:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46896 "EHLO
+        id S235318AbiL1RFa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:05:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235351AbiL1Q53 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:57:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF85219C2D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:53:55 -0800 (PST)
+        with ESMTP id S235334AbiL1RFG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:05:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5F91205F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:59:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59737B8172A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:53:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5C80C433EF;
-        Wed, 28 Dec 2022 16:53:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5C9EFB8188B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:59:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7C0CC433D2;
+        Wed, 28 Dec 2022 16:59:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246433;
-        bh=7IIzYPatVpJ1/OeMVQGZU8F5NDKYw7ZWcrAoaEZRkWI=;
+        s=korg; t=1672246764;
+        bh=PWAOx/uPdeAVFzHXjcr55cEGzHjdl+ffaSB39FB4smY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rEhYYqW/N7oBAgIHnTYg/HOI7cSxIMjw+xuGRUxXa384aGqKOdNHEfzN49BMzZoj2
-         /bH1skyqz+umYkA8kNhnmdoodliDBY7KxWpLkbQFq9AChoMTiLNOVKLh9aPUCD/mjo
-         wFwNPb24RbB4LogXTLaLHG6O/WYa/VHRX5HwBd/I=
+        b=jmEikhBuumbegJxI1ihEJG1Ko88m8FtlElw2dVa6ZoyLa9KT7nLfqggTEq+A8SG/O
+         9YITrCpZWvFwDVREtcuEkN8GRcB+4J/WZBsYCtYIt8QqiR1Nc+vdk+5tpBX7uDW1Pt
+         HcUfTlOfSdXtxMmyc4jUIKnn2OGAKDsVQiri7pms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 6.0 1071/1073] cifs: Fix xid leak in cifs_get_file_info_unix()
+        patches@lists.linux.dev,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Stable@vger.kernel.org
+Subject: [PATCH 6.1 1120/1146] iio: adc: ad_sigma_delta: do not use internal iio_dev lock
 Date:   Wed, 28 Dec 2022 15:44:19 +0100
-Message-Id: <20221228144357.330886620@linuxfoundation.org>
+Message-Id: <20221228144400.569910067@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Nuno Sá <nuno.sa@analog.com>
 
-commit 10269f13257d4eb6061d09ccce61666316df9838 upstream.
+commit 20228a1d5a55e7db0c6720840f2c7d2b48c55f69 upstream.
 
-If stardup the symlink target failed, should free the xid,
-otherwise the xid will be leaked.
+Drop 'mlock' usage by making use of iio_device_claim_direct_mode().
+This change actually makes sure we cannot do a single conversion while
+buffering is enable. Note there was a potential race in the previous
+code since we were only acquiring the lock after checking if the bus is
+enabled.
 
-Fixes: 76894f3e2f71 ("cifs: improve symlink handling for smb2+")
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: af3008485ea0 ("iio:adc: Add common code for ADI Sigma Delta devices")
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Cc: <Stable@vger.kernel.org> #No rush as race is very old.
+Link: https://lore.kernel.org/r/20220920112821.975359-2-nuno.sa@analog.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/inode.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/iio/adc/ad_sigma_delta.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/cifs/inode.c
-+++ b/fs/cifs/inode.c
-@@ -368,8 +368,10 @@ cifs_get_file_info_unix(struct file *fil
+--- a/drivers/iio/adc/ad_sigma_delta.c
++++ b/drivers/iio/adc/ad_sigma_delta.c
+@@ -281,10 +281,10 @@ int ad_sigma_delta_single_conversion(str
+ 	unsigned int data_reg;
+ 	int ret = 0;
  
- 	if (cfile->symlink_target) {
- 		fattr.cf_symlink_target = kstrdup(cfile->symlink_target, GFP_KERNEL);
--		if (!fattr.cf_symlink_target)
--			return -ENOMEM;
-+		if (!fattr.cf_symlink_target) {
-+			rc = -ENOMEM;
-+			goto cifs_gfiunix_out;
-+		}
- 	}
+-	if (iio_buffer_enabled(indio_dev))
+-		return -EBUSY;
++	ret = iio_device_claim_direct_mode(indio_dev);
++	if (ret)
++		return ret;
  
- 	rc = CIFSSMBUnixQFileInfo(xid, tcon, cfile->fid.netfid, &find_data);
+-	mutex_lock(&indio_dev->mlock);
+ 	ad_sigma_delta_set_channel(sigma_delta, chan->address);
+ 
+ 	spi_bus_lock(sigma_delta->spi->master);
+@@ -323,7 +323,7 @@ out:
+ 	ad_sigma_delta_set_mode(sigma_delta, AD_SD_MODE_IDLE);
+ 	sigma_delta->bus_locked = false;
+ 	spi_bus_unlock(sigma_delta->spi->master);
+-	mutex_unlock(&indio_dev->mlock);
++	iio_device_release_direct_mode(indio_dev);
+ 
+ 	if (ret)
+ 		return ret;
 
 
