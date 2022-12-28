@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA8E365815A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:27:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55603657A80
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:12:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233687AbiL1Q1y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:27:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45986 "EHLO
+        id S230071AbiL1PMV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:12:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231252AbiL1Q1S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:27:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAFB01A3BF
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:23:31 -0800 (PST)
+        with ESMTP id S233217AbiL1PL4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:11:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C888813F01
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:11:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8877EB816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:23:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E571EC433D2;
-        Wed, 28 Dec 2022 16:23:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6E32B81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:11:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F6ACC433D2;
+        Wed, 28 Dec 2022 15:11:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244609;
-        bh=AiKN/x6UTlP4YD3XGVf2sR2u12QpkICJc3+YzRDtX/A=;
+        s=korg; t=1672240303;
+        bh=lza8mVOnAVkzYUyvL37mtUrH/jX+cyCWYjstXlGDF48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j42D9ZeJLxltoFM5Z3iKadjuyvOX2d6UuwWfre4YDXhTQBQYcnNX3z1AwaOpw3YGo
-         4Ohw2pfZeANlGJbPxeqDkn7jNJDiiTkAk6GyyO0N8NzxesWEVvzAag/iZZEj7KJ0DH
-         OFNfw6BQpOBMrYHK202kfrB4zRKPdn1p0lc3DswQ=
+        b=OI1b6c1574BGTxcOf9tXhm36/xVJNxFMQ3nJCLd9+ZharOS5OU2M6qllCzPnKwwHT
+         gjL28A914amRm+mvm9YMYhM1v0iCtiL/IQKxldBnsf/gdvL75YEjVcn1QKEQIg/h58
+         wfAsP2uP0Zv/jcfAYKSto75Pawl+lKR6JF2m9LOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sven Peter <sven@svenpeter.dev>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0702/1146] usb: typec: tipd: Fix spurious fwnode_handle_put in error path
+Subject: [PATCH 5.15 334/731] net: ethernet: dnet: dont call dev_kfree_skb() under spin_lock_irqsave()
 Date:   Wed, 28 Dec 2022 15:37:21 +0100
-Message-Id: <20221228144349.213262119@linuxfoundation.org>
+Message-Id: <20221228144306.251271275@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Peter <sven@svenpeter.dev>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 782c70edc4852a5d39be12377a85501546236212 ]
+[ Upstream commit f07fadcbee2a5e84caa67c7c445424200bffb60b ]
 
-The err_role_put error path always calls fwnode_handle_put to release
-the fwnode. This path can be reached after probe itself has already
-released that fwnode though. Fix that by moving fwnode_handle_put in the
-happy path to the very end.
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-Fixes: 18a6c866bb19 ("usb: typec: tps6598x: Add USB role switching logic")
-Signed-off-by: Sven Peter <sven@svenpeter.dev>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20221114174449.34634-2-sven@svenpeter.dev
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In this case, the lock is used to protected 'bp', so we can move
+dev_kfree_skb() after the spin_unlock_irqrestore().
+
+Fixes: 4796417417a6 ("dnet: Dave DNET ethernet controller driver (updated)")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/tipd/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/dnet.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/typec/tipd/core.c b/drivers/usb/typec/tipd/core.c
-index 83a7a82e55f1..59059310ba74 100644
---- a/drivers/usb/typec/tipd/core.c
-+++ b/drivers/usb/typec/tipd/core.c
-@@ -821,7 +821,6 @@ static int tps6598x_probe(struct i2c_client *client)
- 		ret = PTR_ERR(tps->port);
- 		goto err_role_put;
- 	}
--	fwnode_handle_put(fwnode);
+diff --git a/drivers/net/ethernet/dnet.c b/drivers/net/ethernet/dnet.c
+index 6c51cf991dad..14dc2e13bf03 100644
+--- a/drivers/net/ethernet/dnet.c
++++ b/drivers/net/ethernet/dnet.c
+@@ -550,11 +550,11 @@ static netdev_tx_t dnet_start_xmit(struct sk_buff *skb, struct net_device *dev)
  
- 	if (status & TPS_STATUS_PLUG_PRESENT) {
- 		ret = tps6598x_read16(tps, TPS_REG_POWER_STATUS, &tps->pwr_status);
-@@ -845,6 +844,7 @@ static int tps6598x_probe(struct i2c_client *client)
- 	}
+ 	skb_tx_timestamp(skb);
  
- 	i2c_set_clientdata(client, tps);
-+	fwnode_handle_put(fwnode);
++	spin_unlock_irqrestore(&bp->lock, flags);
++
+ 	/* free the buffer */
+ 	dev_kfree_skb(skb);
  
- 	return 0;
+-	spin_unlock_irqrestore(&bp->lock, flags);
+-
+ 	return NETDEV_TX_OK;
+ }
  
 -- 
 2.35.1
