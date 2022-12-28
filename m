@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADC7E657ACC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:15:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8655F657AD0
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:15:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233083AbiL1PPL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:15:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59736 "EHLO
+        id S233067AbiL1PPU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:15:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233132AbiL1PO6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:14:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16B6413F30
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:14:58 -0800 (PST)
+        with ESMTP id S233119AbiL1PPI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:15:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DC1A13E94
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:15:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A7FB66155C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:14:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB4B8C433D2;
-        Wed, 28 Dec 2022 15:14:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 56664B81647
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:15:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8509C433F0;
+        Wed, 28 Dec 2022 15:15:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240497;
-        bh=L9uaAJVPkUxFgkF0AHkAQx6gIJFm08x9VflOILVfPm8=;
+        s=korg; t=1672240505;
+        bh=J7FwzpysjjsFN+SjVMjARPC9GfDv8COCLZ5rdinsQKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0CejVpCoHn2IROoxZ+1HrAAEYR8oKSIpHvX9zAdJzXF9AYcIZW3FU6ryAylqG92vi
-         3LmvpbrQgq2TgWwTXg98cLMgjgZilsdzK/HVxb9oqHfMw8FD5Nnduzcnwte+tQqzZO
-         IEhfYFjV0UVKuzj7WmcLqjCYJttAXVRs5ZNCBpfQ=
+        b=QuK2JEDk8Iv41+wMmUoCG8tp+aWvgRtHmXfRlN5fUbWaoJpMouOM5XOtOQzqrUjIf
+         yB58Mk/MfW3QcVrnfdijm1E3G/2d8GwfoIQmsGLcXCkU6SbzQfDvYnlUtVEeYC+cMk
+         el/PuKCis2tdC2DbKntbkr7mhuUnJrSR30otBgM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sudeep Holla <sudeep.holla@arm.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0132/1146] cpufreq: qcom-hw: Fix the frequency returned by cpufreq_driver->get()
-Date:   Wed, 28 Dec 2022 15:27:51 +0100
-Message-Id: <20221228144333.736941252@linuxfoundation.org>
+Subject: [PATCH 6.1 0133/1146] MIPS: vpe-mt: fix possible memory leak while module exiting
+Date:   Wed, 28 Dec 2022 15:27:52 +0100
+Message-Id: <20221228144333.763933304@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -54,92 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit c72cf0cb1d77f6b1b58c334dcc3d09fa13111c4c ]
+[ Upstream commit 5822e8cc84ee37338ab0bdc3124f6eec04dc232d ]
 
-The cpufreq_driver->get() callback is supposed to return the current
-frequency of the CPU and not the one requested by the CPUFreq core.
-Fix it by returning the frequency that gets supplied to the CPU after
-the DCVS operation of EPSS/OSM.
+Afer commit 1fa5ae857bb1 ("driver core: get rid of struct device's
+bus_id string array"), the name of device is allocated dynamically,
+it need be freed when module exiting, call put_device() to give up
+reference, so that it can be freed in kobject_cleanup() when the
+refcount hit to 0. The vpe_device is static, so remove kfree() from
+vpe_device_release().
 
-Fixes: 2849dd8bc72b ("cpufreq: qcom-hw: Add support for QCOM cpufreq HW driver")
-Reported-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/qcom-cpufreq-hw.c | 42 +++++++++++++++++++++----------
- 1 file changed, 29 insertions(+), 13 deletions(-)
+ arch/mips/kernel/vpe-mt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/cpufreq/qcom-cpufreq-hw.c b/drivers/cpufreq/qcom-cpufreq-hw.c
-index d15097549e8c..3c623a0bc147 100644
---- a/drivers/cpufreq/qcom-cpufreq-hw.c
-+++ b/drivers/cpufreq/qcom-cpufreq-hw.c
-@@ -125,7 +125,35 @@ static int qcom_cpufreq_hw_target_index(struct cpufreq_policy *policy,
- 	return 0;
+diff --git a/arch/mips/kernel/vpe-mt.c b/arch/mips/kernel/vpe-mt.c
+index bad6b0891b2b..84a82b551ec3 100644
+--- a/arch/mips/kernel/vpe-mt.c
++++ b/arch/mips/kernel/vpe-mt.c
+@@ -313,7 +313,6 @@ ATTRIBUTE_GROUPS(vpe);
+ 
+ static void vpe_device_release(struct device *cd)
+ {
+-	kfree(cd);
  }
  
-+static unsigned long qcom_lmh_get_throttle_freq(struct qcom_cpufreq_data *data)
-+{
-+	unsigned int lval;
-+
-+	if (data->soc_data->reg_current_vote)
-+		lval = readl_relaxed(data->base + data->soc_data->reg_current_vote) & 0x3ff;
-+	else
-+		lval = readl_relaxed(data->base + data->soc_data->reg_domain_state) & 0xff;
-+
-+	return lval * xo_rate;
-+}
-+
-+/* Get the current frequency of the CPU (after throttling) */
- static unsigned int qcom_cpufreq_hw_get(unsigned int cpu)
-+{
-+	struct qcom_cpufreq_data *data;
-+	struct cpufreq_policy *policy;
-+
-+	policy = cpufreq_cpu_get_raw(cpu);
-+	if (!policy)
-+		return 0;
-+
-+	data = policy->driver_data;
-+
-+	return qcom_lmh_get_throttle_freq(data) / HZ_PER_KHZ;
-+}
-+
-+/* Get the frequency requested by the cpufreq core for the CPU */
-+static unsigned int qcom_cpufreq_get_freq(unsigned int cpu)
- {
- 	struct qcom_cpufreq_data *data;
- 	const struct qcom_cpufreq_soc_data *soc_data;
-@@ -287,18 +315,6 @@ static void qcom_get_related_cpus(int index, struct cpumask *m)
- 	}
- }
+ static struct class vpe_class = {
+@@ -497,6 +496,7 @@ int __init vpe_module_init(void)
+ 	device_del(&vpe_device);
  
--static unsigned long qcom_lmh_get_throttle_freq(struct qcom_cpufreq_data *data)
--{
--	unsigned int lval;
--
--	if (data->soc_data->reg_current_vote)
--		lval = readl_relaxed(data->base + data->soc_data->reg_current_vote) & 0x3ff;
--	else
--		lval = readl_relaxed(data->base + data->soc_data->reg_domain_state) & 0xff;
--
--	return lval * xo_rate;
--}
--
- static void qcom_lmh_dcvs_notify(struct qcom_cpufreq_data *data)
+ out_class:
++	put_device(&vpe_device);
+ 	class_unregister(&vpe_class);
+ 
+ out_chrdev:
+@@ -509,7 +509,7 @@ void __exit vpe_module_exit(void)
  {
- 	struct cpufreq_policy *policy = data->policy;
-@@ -342,7 +358,7 @@ static void qcom_lmh_dcvs_notify(struct qcom_cpufreq_data *data)
- 	 * If h/w throttled frequency is higher than what cpufreq has requested
- 	 * for, then stop polling and switch back to interrupt mechanism.
- 	 */
--	if (throttled_freq >= qcom_cpufreq_hw_get(cpu))
-+	if (throttled_freq >= qcom_cpufreq_get_freq(cpu))
- 		enable_irq(data->throttle_irq);
- 	else
- 		mod_delayed_work(system_highpri_wq, &data->throttle_work,
+ 	struct vpe *v, *n;
+ 
+-	device_del(&vpe_device);
++	device_unregister(&vpe_device);
+ 	class_unregister(&vpe_class);
+ 	unregister_chrdev(major, VPE_MODULE_NAME);
+ 
 -- 
 2.35.1
 
