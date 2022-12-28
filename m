@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9A98657845
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:49:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09F19657D83
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:44:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233024AbiL1OtF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:49:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36966 "EHLO
+        id S233569AbiL1Pn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:43:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233038AbiL1Os7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:48:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C53A11C0F;
-        Wed, 28 Dec 2022 06:48:48 -0800 (PST)
+        with ESMTP id S233572AbiL1Pn4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:43:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A92D917417
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:43:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B82E96154C;
-        Wed, 28 Dec 2022 14:48:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CACFBC433D2;
-        Wed, 28 Dec 2022 14:48:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 447576155E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:43:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58D49C433D2;
+        Wed, 28 Dec 2022 15:43:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238927;
-        bh=ESG6vHWQHNMYMbMpucgd91WJcm2wFIVVf8wyRKGpZJo=;
+        s=korg; t=1672242227;
+        bh=ZXSA5oaRgfG2idKcke4QroHb3mxOgdIVEraQJ4fswjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bch8OHr6NaF4/WFyMIcjVbfvsBk0tD3KgTuIWpzZ94aX36xzV2JQvb3s3Vn/Mmszn
-         3vHgmNcGVU5PKa+DuYaBuZe05+3h8eCo7MmSYcckcve0BuLSVccCiHdW8weJGlgMsL
-         DxnG/PzhVYZGzp4PD7smjQ/xQrT6b5PcAAe1/mpY=
+        b=d259LSKnHsRutxA2qaHXayke4mj1m9f444Uml7hkeYaxCsl/qSXemYxo0sDs4oZKM
+         0vFFuRjdf5QW2BsPQubQM2jVmRgFFAa4qR8WRWwEYk7lS6evynA7tC1zCgDq5KeUES
+         sGmgIg+lCdiOcw71wvvH5VoLLc3PXg8ARdVQnte8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-unionfs@vger.kernel.org,
-        Giuseppe Scrivano <gscrivan@redhat.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
+        patches@lists.linux.dev,
+        Dario Binacchi <dario.binacchi@amarulasolutions.com>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Abel Vesa <abel.vesa@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 063/731] ovl: store lower path in ovl_inode
+Subject: [PATCH 6.0 0382/1073] clk: imx: replace osc_hdmi with dummy
 Date:   Wed, 28 Dec 2022 15:32:50 +0100
-Message-Id: <20221228144258.379288348@linuxfoundation.org>
+Message-Id: <20221228144338.383985147@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,146 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: Dario Binacchi <dario.binacchi@amarulasolutions.com>
 
-[ Upstream commit ffa5723c6d259b3191f851a50a98d0352b345b39 ]
+[ Upstream commit e7fa365ff66f16772dc06b480cd78f858d10856b ]
 
-Create some ovl_i_* helpers to get real path from ovl inode. Instead of
-just stashing struct inode for the lower layer we stash struct path for
-the lower layer. The helpers allow to retrieve a struct path for the
-relevant upper or lower layer. This will be used when retrieving
-information based on struct inode when copying up inode attributes from
-upper or lower inodes to ovl inodes and when checking permissions in
-ovl_permission() in following patches. This is needed to support
-idmapped base layers with overlay.
+There is no occurrence of the hdmi oscillator in the reference manual
+(document IMX8MNRM Rev 2, 07/2022). Further, if we consider the indexes
+76-81 and 134 of the "Clock Root" table of chapter 5 of the RM, there is
+no entry for the source select bits 101b, which is the setting referenced
+by "osc_hdmi".
+Fix by renaming "osc_hdmi" with "dummy", a clock which has already been
+used for missing source select bits.
 
-Cc: <linux-unionfs@vger.kernel.org>
-Tested-by: Giuseppe Scrivano <gscrivan@redhat.com>
-Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Stable-dep-of: b306e90ffabd ("ovl: remove privs in ovl_copyfile()")
+Tested on the BSH SystemMaster (SMM) S2 board.
+
+Fixes: 96d6392b54dbb ("clk: imx: Add support for i.MX8MN clock driver")
+Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+Acked-by: Marco Felsch <m.felsch@pengutronix.de>
+Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
+Link: https://lore.kernel.org/r/20221117113637.1978703-3-dario.binacchi@amarulasolutions.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/overlayfs/inode.c     | 11 +++++++----
- fs/overlayfs/overlayfs.h |  2 ++
- fs/overlayfs/ovl_entry.h |  2 +-
- fs/overlayfs/super.c     |  5 +++--
- fs/overlayfs/util.c      | 15 ++++++++++++++-
- 5 files changed, 27 insertions(+), 8 deletions(-)
+ drivers/clk/imx/clk-imx8mn.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/fs/overlayfs/inode.c b/fs/overlayfs/inode.c
-index 1f36158c7dbe..06479bc88b7e 100644
---- a/fs/overlayfs/inode.c
-+++ b/fs/overlayfs/inode.c
-@@ -777,13 +777,16 @@ void ovl_inode_init(struct inode *inode, struct ovl_inode_params *oip,
- 		    unsigned long ino, int fsid)
- {
- 	struct inode *realinode;
-+	struct ovl_inode *oi = OVL_I(inode);
+diff --git a/drivers/clk/imx/clk-imx8mn.c b/drivers/clk/imx/clk-imx8mn.c
+index 72f9563a0ff6..0fae97e61e2c 100644
+--- a/drivers/clk/imx/clk-imx8mn.c
++++ b/drivers/clk/imx/clk-imx8mn.c
+@@ -108,27 +108,27 @@ static const char * const imx8mn_disp_pixel_sels[] = {"osc_24m", "video_pll1_out
+ 						      "sys_pll3_out", "clk_ext4", };
  
- 	if (oip->upperdentry)
--		OVL_I(inode)->__upperdentry = oip->upperdentry;
--	if (oip->lowerpath && oip->lowerpath->dentry)
--		OVL_I(inode)->lower = igrab(d_inode(oip->lowerpath->dentry));
-+		oi->__upperdentry = oip->upperdentry;
-+	if (oip->lowerpath && oip->lowerpath->dentry) {
-+		oi->lowerpath.dentry = dget(oip->lowerpath->dentry);
-+		oi->lowerpath.layer = oip->lowerpath->layer;
-+	}
- 	if (oip->lowerdata)
--		OVL_I(inode)->lowerdata = igrab(d_inode(oip->lowerdata));
-+		oi->lowerdata = igrab(d_inode(oip->lowerdata));
+ static const char * const imx8mn_sai2_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
+-						"video_pll1_out", "sys_pll1_133m", "osc_hdmi",
++						"video_pll1_out", "sys_pll1_133m", "dummy",
+ 						"clk_ext3", "clk_ext4", };
  
- 	realinode = ovl_inode_real(inode);
- 	ovl_copyattr(realinode, inode);
-diff --git a/fs/overlayfs/overlayfs.h b/fs/overlayfs/overlayfs.h
-index 2cd5741c873b..27f221962665 100644
---- a/fs/overlayfs/overlayfs.h
-+++ b/fs/overlayfs/overlayfs.h
-@@ -293,10 +293,12 @@ enum ovl_path_type ovl_path_type(struct dentry *dentry);
- void ovl_path_upper(struct dentry *dentry, struct path *path);
- void ovl_path_lower(struct dentry *dentry, struct path *path);
- void ovl_path_lowerdata(struct dentry *dentry, struct path *path);
-+void ovl_i_path_real(struct inode *inode, struct path *path);
- enum ovl_path_type ovl_path_real(struct dentry *dentry, struct path *path);
- struct dentry *ovl_dentry_upper(struct dentry *dentry);
- struct dentry *ovl_dentry_lower(struct dentry *dentry);
- struct dentry *ovl_dentry_lowerdata(struct dentry *dentry);
-+const struct ovl_layer *ovl_i_layer_lower(struct inode *inode);
- const struct ovl_layer *ovl_layer_lower(struct dentry *dentry);
- struct dentry *ovl_dentry_real(struct dentry *dentry);
- struct dentry *ovl_i_dentry_upper(struct inode *inode);
-diff --git a/fs/overlayfs/ovl_entry.h b/fs/overlayfs/ovl_entry.h
-index 63efee554f69..b2d64f3c974b 100644
---- a/fs/overlayfs/ovl_entry.h
-+++ b/fs/overlayfs/ovl_entry.h
-@@ -129,7 +129,7 @@ struct ovl_inode {
- 	unsigned long flags;
- 	struct inode vfs_inode;
- 	struct dentry *__upperdentry;
--	struct inode *lower;
-+	struct ovl_path lowerpath;
+ static const char * const imx8mn_sai3_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
+-						"video_pll1_out", "sys_pll1_133m", "osc_hdmi",
++						"video_pll1_out", "sys_pll1_133m", "dummy",
+ 						"clk_ext3", "clk_ext4", };
  
- 	/* synchronize copy up and more */
- 	struct mutex lock;
-diff --git a/fs/overlayfs/super.c b/fs/overlayfs/super.c
-index 9837aaf9caf1..e2ed38c5f721 100644
---- a/fs/overlayfs/super.c
-+++ b/fs/overlayfs/super.c
-@@ -184,7 +184,8 @@ static struct inode *ovl_alloc_inode(struct super_block *sb)
- 	oi->version = 0;
- 	oi->flags = 0;
- 	oi->__upperdentry = NULL;
--	oi->lower = NULL;
-+	oi->lowerpath.dentry = NULL;
-+	oi->lowerpath.layer = NULL;
- 	oi->lowerdata = NULL;
- 	mutex_init(&oi->lock);
+ static const char * const imx8mn_sai5_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
+-						"video_pll1_out", "sys_pll1_133m", "osc_hdmi",
++						"video_pll1_out", "sys_pll1_133m", "dummy",
+ 						"clk_ext2", "clk_ext3", };
  
-@@ -205,7 +206,7 @@ static void ovl_destroy_inode(struct inode *inode)
- 	struct ovl_inode *oi = OVL_I(inode);
+ static const char * const imx8mn_sai6_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
+-						"video_pll1_out", "sys_pll1_133m", "osc_hdmi",
++						"video_pll1_out", "sys_pll1_133m", "dummy",
+ 						"clk_ext3", "clk_ext4", };
  
- 	dput(oi->__upperdentry);
--	iput(oi->lower);
-+	dput(oi->lowerpath.dentry);
- 	if (S_ISDIR(inode->i_mode))
- 		ovl_dir_cache_free(inode);
- 	else
-diff --git a/fs/overlayfs/util.c b/fs/overlayfs/util.c
-index f48284a2a896..2567918dc684 100644
---- a/fs/overlayfs/util.c
-+++ b/fs/overlayfs/util.c
-@@ -236,6 +236,17 @@ struct dentry *ovl_i_dentry_upper(struct inode *inode)
- 	return ovl_upperdentry_dereference(OVL_I(inode));
- }
+ static const char * const imx8mn_sai7_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
+-						"video_pll1_out", "sys_pll1_133m", "osc_hdmi",
++						"video_pll1_out", "sys_pll1_133m", "dummy",
+ 						"clk_ext3", "clk_ext4", };
  
-+void ovl_i_path_real(struct inode *inode, struct path *path)
-+{
-+	path->dentry = ovl_i_dentry_upper(inode);
-+	if (!path->dentry) {
-+		path->dentry = OVL_I(inode)->lowerpath.dentry;
-+		path->mnt = OVL_I(inode)->lowerpath.layer->mnt;
-+	} else {
-+		path->mnt = ovl_upper_mnt(OVL_FS(inode->i_sb));
-+	}
-+}
-+
- struct inode *ovl_inode_upper(struct inode *inode)
- {
- 	struct dentry *upperdentry = ovl_i_dentry_upper(inode);
-@@ -245,7 +256,9 @@ struct inode *ovl_inode_upper(struct inode *inode)
+ static const char * const imx8mn_spdif1_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
+-						  "video_pll1_out", "sys_pll1_133m", "osc_hdmi",
++						  "video_pll1_out", "sys_pll1_133m", "dummy",
+ 						  "clk_ext2", "clk_ext3", };
  
- struct inode *ovl_inode_lower(struct inode *inode)
- {
--	return OVL_I(inode)->lower;
-+	struct dentry *lowerdentry = OVL_I(inode)->lowerpath.dentry;
-+
-+	return lowerdentry ? d_inode(lowerdentry) : NULL;
- }
- 
- struct inode *ovl_inode_real(struct inode *inode)
+ static const char * const imx8mn_enet_ref_sels[] = {"osc_24m", "sys_pll2_125m", "sys_pll2_50m",
 -- 
 2.35.1
 
