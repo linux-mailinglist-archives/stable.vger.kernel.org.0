@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41CC96584EE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:04:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4419E657F6D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:05:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235270AbiL1REB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:04:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57168 "EHLO
+        id S234295AbiL1QEy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:04:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235318AbiL1RDh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:03:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7DC712764
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:57:56 -0800 (PST)
+        with ESMTP id S234255AbiL1QEr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:04:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B34101929E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:04:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75D7DB81889
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:57:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1B3BC433EF;
-        Wed, 28 Dec 2022 16:57:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 393F86156B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:04:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DDC3C433D2;
+        Wed, 28 Dec 2022 16:04:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246674;
-        bh=hikALMhCr119baUZq1pQ/utGrr8+EJvZn7py4V8ykH4=;
+        s=korg; t=1672243485;
+        bh=8uDFsnOP36YXZtoMFkW0puGChasFFXrut66J8d9tTDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ydcYMkbozeFc8p17ZXra88R/5rXbfacal75iRYJaeJzIE9DhWlsafRMxfj1X3Jbwn
-         7JZFHUuEzOD0eEEQ7P/PBAhyO2MRp/LTN+2y8A3C6sUtN81ttGAyMe4Wlan2Ujktxm
-         1auQ9VrfQjkFCNRIQvRfwhSax9robVAb3Ev4ilMg=
+        b=tBd2g6xgDKAybVoKp+BXLZGTmAS4oG+KDtNO14+zfJi0YjFcQFMMWbTpY1XHL46eJ
+         YcPdUcChO/OXNdO9OLVq7gYa5K6p8lrVRKusw8tshuYQPqNVRLgnfzfjkZ5S1LXOC4
+         NjDR/vKAmCdPNajjM889Jq42tg9XIZepdpBuporA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeff LaBundy <jeff@labundy.com>,
-        Mattijs Korpershoek <mkorpershoek@baylibre.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1094/1146] Input: iqs7222 - add support for IQS7222A v1.13+
+        patches@lists.linux.dev,
+        syzbot+0b1fb6b0108c27419f9f@syzkaller.appspotmail.com,
+        Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 726/731] btrfs: do not BUG_ON() on ENOMEM when dropping extent items for a range
 Date:   Wed, 28 Dec 2022 15:43:53 +0100
-Message-Id: <20221228144359.889486622@linuxfoundation.org>
+Message-Id: <20221228144317.487956694@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,204 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff LaBundy <jeff@labundy.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 8d4c313c03f104c69e25ab03058d8955be9dc387 ]
+commit 162d053e15fe985f754ef495a96eb3db970c43ed upstream.
 
-IQS7222A revisions 1.13 and later widen the gesture multiplier from
-x4 ms to x16 ms. Add a means to scale the gesture timings specified
-in the device tree based on the revision of the device.
+If we get -ENOMEM while dropping file extent items in a given range, at
+btrfs_drop_extents(), due to failure to allocate memory when attempting to
+increment the reference count for an extent or drop the reference count,
+we handle it with a BUG_ON(). This is excessive, instead we can simply
+abort the transaction and return the error to the caller. In fact most
+callers of btrfs_drop_extents(), directly or indirectly, already abort
+the transaction if btrfs_drop_extents() returns any error.
 
-Fixes: e505edaedcb9 ("Input: add support for Azoteq IQS7222A/B/C")
-Signed-off-by: Jeff LaBundy <jeff@labundy.com>
-Reviewed-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
-Link: https://lore.kernel.org/r/Y1SRdbK1Dp2q7O8o@nixie71
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Also, we already have error paths at btrfs_drop_extents() that may return
+-ENOMEM and in those cases we abort the transaction, like for example
+anything that changes the b+tree may return -ENOMEM due to a failure to
+allocate a new extent buffer when COWing an existing extent buffer, such
+as a call to btrfs_duplicate_item() for example.
+
+So replace the BUG_ON() calls with proper logic to abort the transaction
+and return the error.
+
+Reported-by: syzbot+0b1fb6b0108c27419f9f@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/linux-btrfs/00000000000089773e05ee4b9cb4@google.com/
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/misc/iqs7222.c | 111 +++++++++++++++++++++++++++++++++++
- 1 file changed, 111 insertions(+)
+ fs/btrfs/file.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/misc/iqs7222.c b/drivers/input/misc/iqs7222.c
-index 6af25dfd1d2a..e47ab6c1177f 100644
---- a/drivers/input/misc/iqs7222.c
-+++ b/drivers/input/misc/iqs7222.c
-@@ -86,7 +86,9 @@ enum iqs7222_reg_key_id {
- 	IQS7222_REG_KEY_TOUCH,
- 	IQS7222_REG_KEY_DEBOUNCE,
- 	IQS7222_REG_KEY_TAP,
-+	IQS7222_REG_KEY_TAP_LEGACY,
- 	IQS7222_REG_KEY_AXIAL,
-+	IQS7222_REG_KEY_AXIAL_LEGACY,
- 	IQS7222_REG_KEY_WHEEL,
- 	IQS7222_REG_KEY_NO_WHEEL,
- 	IQS7222_REG_KEY_RESERVED
-@@ -202,10 +204,68 @@ struct iqs7222_dev_desc {
- 	int allow_offset;
- 	int event_offset;
- 	int comms_offset;
-+	bool legacy_gesture;
- 	struct iqs7222_reg_grp_desc reg_grps[IQS7222_NUM_REG_GRPS];
- };
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -872,7 +872,10 @@ next_slot:
+ 						args->start - extent_offset,
+ 						0, false);
+ 				ret = btrfs_inc_extent_ref(trans, &ref);
+-				BUG_ON(ret); /* -ENOMEM */
++				if (ret) {
++					btrfs_abort_transaction(trans, ret);
++					break;
++				}
+ 			}
+ 			key.offset = args->start;
+ 		}
+@@ -959,7 +962,10 @@ delete_extent_item:
+ 						key.offset - extent_offset, 0,
+ 						false);
+ 				ret = btrfs_free_extent(trans, &ref);
+-				BUG_ON(ret); /* -ENOMEM */
++				if (ret) {
++					btrfs_abort_transaction(trans, ret);
++					break;
++				}
+ 				args->bytes_found += extent_end - key.offset;
+ 			}
  
- static const struct iqs7222_dev_desc iqs7222_devs[] = {
-+	{
-+		.prod_num = IQS7222_PROD_NUM_A,
-+		.fw_major = 1,
-+		.fw_minor = 13,
-+		.sldr_res = U8_MAX * 16,
-+		.touch_link = 1768,
-+		.allow_offset = 9,
-+		.event_offset = 10,
-+		.comms_offset = 12,
-+		.reg_grps = {
-+			[IQS7222_REG_GRP_STAT] = {
-+				.base = IQS7222_SYS_STATUS,
-+				.num_row = 1,
-+				.num_col = 8,
-+			},
-+			[IQS7222_REG_GRP_CYCLE] = {
-+				.base = 0x8000,
-+				.num_row = 7,
-+				.num_col = 3,
-+			},
-+			[IQS7222_REG_GRP_GLBL] = {
-+				.base = 0x8700,
-+				.num_row = 1,
-+				.num_col = 3,
-+			},
-+			[IQS7222_REG_GRP_BTN] = {
-+				.base = 0x9000,
-+				.num_row = 12,
-+				.num_col = 3,
-+			},
-+			[IQS7222_REG_GRP_CHAN] = {
-+				.base = 0xA000,
-+				.num_row = 12,
-+				.num_col = 6,
-+			},
-+			[IQS7222_REG_GRP_FILT] = {
-+				.base = 0xAC00,
-+				.num_row = 1,
-+				.num_col = 2,
-+			},
-+			[IQS7222_REG_GRP_SLDR] = {
-+				.base = 0xB000,
-+				.num_row = 2,
-+				.num_col = 11,
-+			},
-+			[IQS7222_REG_GRP_GPIO] = {
-+				.base = 0xC000,
-+				.num_row = 1,
-+				.num_col = 3,
-+			},
-+			[IQS7222_REG_GRP_SYS] = {
-+				.base = IQS7222_SYS_SETUP,
-+				.num_row = 1,
-+				.num_col = 13,
-+			},
-+		},
-+	},
- 	{
- 		.prod_num = IQS7222_PROD_NUM_A,
- 		.fw_major = 1,
-@@ -215,6 +275,7 @@ static const struct iqs7222_dev_desc iqs7222_devs[] = {
- 		.allow_offset = 9,
- 		.event_offset = 10,
- 		.comms_offset = 12,
-+		.legacy_gesture = true,
- 		.reg_grps = {
- 			[IQS7222_REG_GRP_STAT] = {
- 				.base = IQS7222_SYS_STATUS,
-@@ -874,6 +935,16 @@ static const struct iqs7222_prop_desc iqs7222_props[] = {
- 		.reg_offset = 9,
- 		.reg_shift = 8,
- 		.reg_width = 8,
-+		.val_pitch = 16,
-+		.label = "maximum gesture time",
-+	},
-+	{
-+		.name = "azoteq,gesture-max-ms",
-+		.reg_grp = IQS7222_REG_GRP_SLDR,
-+		.reg_key = IQS7222_REG_KEY_TAP_LEGACY,
-+		.reg_offset = 9,
-+		.reg_shift = 8,
-+		.reg_width = 8,
- 		.val_pitch = 4,
- 		.label = "maximum gesture time",
- 	},
-@@ -884,6 +955,16 @@ static const struct iqs7222_prop_desc iqs7222_props[] = {
- 		.reg_offset = 9,
- 		.reg_shift = 3,
- 		.reg_width = 5,
-+		.val_pitch = 16,
-+		.label = "minimum gesture time",
-+	},
-+	{
-+		.name = "azoteq,gesture-min-ms",
-+		.reg_grp = IQS7222_REG_GRP_SLDR,
-+		.reg_key = IQS7222_REG_KEY_TAP_LEGACY,
-+		.reg_offset = 9,
-+		.reg_shift = 3,
-+		.reg_width = 5,
- 		.val_pitch = 4,
- 		.label = "minimum gesture time",
- 	},
-@@ -897,6 +978,16 @@ static const struct iqs7222_prop_desc iqs7222_props[] = {
- 		.val_pitch = 16,
- 		.label = "gesture distance",
- 	},
-+	{
-+		.name = "azoteq,gesture-dist",
-+		.reg_grp = IQS7222_REG_GRP_SLDR,
-+		.reg_key = IQS7222_REG_KEY_AXIAL_LEGACY,
-+		.reg_offset = 10,
-+		.reg_shift = 8,
-+		.reg_width = 8,
-+		.val_pitch = 16,
-+		.label = "gesture distance",
-+	},
- 	{
- 		.name = "azoteq,gesture-max-ms",
- 		.reg_grp = IQS7222_REG_GRP_SLDR,
-@@ -904,6 +995,16 @@ static const struct iqs7222_prop_desc iqs7222_props[] = {
- 		.reg_offset = 10,
- 		.reg_shift = 0,
- 		.reg_width = 8,
-+		.val_pitch = 16,
-+		.label = "maximum gesture time",
-+	},
-+	{
-+		.name = "azoteq,gesture-max-ms",
-+		.reg_grp = IQS7222_REG_GRP_SLDR,
-+		.reg_key = IQS7222_REG_KEY_AXIAL_LEGACY,
-+		.reg_offset = 10,
-+		.reg_shift = 0,
-+		.reg_width = 8,
- 		.val_pitch = 4,
- 		.label = "maximum gesture time",
- 	},
-@@ -2115,8 +2216,18 @@ static int iqs7222_parse_sldr(struct iqs7222_private *iqs7222,
- 		if (!event_node)
- 			continue;
- 
-+		/*
-+		 * Depending on the device, gestures are either offered using
-+		 * one of two timing resolutions, or are not supported at all.
-+		 */
- 		if (reg_offset)
- 			reg_key = IQS7222_REG_KEY_RESERVED;
-+		else if (dev_desc->legacy_gesture &&
-+			 iqs7222_sl_events[i].reg_key == IQS7222_REG_KEY_TAP)
-+			reg_key = IQS7222_REG_KEY_TAP_LEGACY;
-+		else if (dev_desc->legacy_gesture &&
-+			 iqs7222_sl_events[i].reg_key == IQS7222_REG_KEY_AXIAL)
-+			reg_key = IQS7222_REG_KEY_AXIAL_LEGACY;
- 		else
- 			reg_key = iqs7222_sl_events[i].reg_key;
- 
--- 
-2.35.1
-
 
 
