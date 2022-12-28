@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F37086583EE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:53:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFEC66584A2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:59:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235133AbiL1Qxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:53:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43222 "EHLO
+        id S235255AbiL1Q7d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:59:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231982AbiL1Qwo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:52:44 -0500
+        with ESMTP id S235270AbiL1Q7G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:59:06 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74E401DDF5
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:47:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BC062099F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:54:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 119246157A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:47:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AFFAC433D2;
-        Wed, 28 Dec 2022 16:47:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0616F61558
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:54:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AB8FC433D2;
+        Wed, 28 Dec 2022 16:54:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246046;
-        bh=fKQHvWFNkeWQXyKfXOvm/FCHRa/72dGELhCs6H7+wtM=;
+        s=korg; t=1672246481;
+        bh=J+eE3omN9uKeuY76OvoIYt83WXDRbRMRqcQxZO9NgN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YDAC3i2qIqkSy0qZxPVwRrfQpAk1zULYPD+ueZGxfpnSTa/h+rx7roJtccaEuAuCk
-         jCkv50yDd/cCOzNWKt/yP88xvmrPxVesvu3AQIoNhNQY3mF28iIPS9IHhjr0LfiWVa
-         KHDGcnY1r78Q4tBkferd5BS/hBFjPTN/cO7G5+qw=
+        b=nhOonGHXvO0B/RdyAR2dIXb79L4fHDc8USvhmBoxA9xSKppx5pViE0AGS69BM8SEU
+         zMrFeOGgaGpfgyaB+INvaCFuRaKMIUUAlfqNQ1rQf+DRJx5u8fM1DvXfxVEP1p7ZD/
+         IGTGJ0yF9zaBfmyKthenYGaRweJkvNErxd5qIqKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 1003/1073] ASoC: mediatek: mt8183: fix refcount leak in mt8183_mt6358_ts3a227_max98357_dev_probe()
+Subject: [PATCH 6.1 1052/1146] scsi: ufs: Reduce the START STOP UNIT timeout
 Date:   Wed, 28 Dec 2022 15:43:11 +0100
-Message-Id: <20221228144355.386489679@linuxfoundation.org>
+Message-Id: <20221228144358.883134434@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,70 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 38eef3be38ab895959c442702864212cc3beb96c ]
+[ Upstream commit dcd5b7637c6d442d957f73780a03047413ed3a10 ]
 
-The node returned by of_parse_phandle() with refcount incremented,
-of_node_put() needs be called when finish using it. So add it in the
-error path in mt8183_mt6358_ts3a227_max98357_dev_probe().
+Reduce the START STOP UNIT command timeout to one second since on Android
+devices a kernel panic is triggered if an attempt to suspend the system
+takes more than 20 seconds. One second should be enough for the START STOP
+UNIT command since this command completes in less than a millisecond for
+the UFS devices I have access to.
 
-Fixes: 11c0269017b2 ("ASoC: Mediatek: MT8183: Add machine driver with TS3A227")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Link: https://lore.kernel.org/r/1670234188-23596-1-git-send-email-wangyufen@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Link: https://lore.kernel.org/r/20221018202958.1902564-7-bvanassche@acm.org
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../mt8183/mt8183-mt6358-ts3a227-max98357.c        | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/ufs/core/ufshcd.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/sound/soc/mediatek/mt8183/mt8183-mt6358-ts3a227-max98357.c b/sound/soc/mediatek/mt8183/mt8183-mt6358-ts3a227-max98357.c
-index ab157db78335..cfb463f44af7 100644
---- a/sound/soc/mediatek/mt8183/mt8183-mt6358-ts3a227-max98357.c
-+++ b/sound/soc/mediatek/mt8183/mt8183-mt6358-ts3a227-max98357.c
-@@ -644,8 +644,10 @@ mt8183_mt6358_ts3a227_max98357_dev_probe(struct platform_device *pdev)
- 	}
+diff --git a/drivers/ufs/core/ufshcd.c b/drivers/ufs/core/ufshcd.c
+index 5432be4cd0ed..d1db6be80156 100644
+--- a/drivers/ufs/core/ufshcd.c
++++ b/drivers/ufs/core/ufshcd.c
+@@ -8771,8 +8771,6 @@ static int ufshcd_set_dev_pwr_mode(struct ufs_hba *hba,
+ 	struct scsi_device *sdp;
+ 	unsigned long flags;
+ 	int ret, retries;
+-	unsigned long deadline;
+-	int32_t remaining;
  
- 	card = (struct snd_soc_card *)of_device_get_match_data(&pdev->dev);
--	if (!card)
-+	if (!card) {
-+		of_node_put(platform_node);
- 		return -EINVAL;
-+	}
- 	card->dev = &pdev->dev;
- 
- 	ec_codec = of_parse_phandle(pdev->dev.of_node, "mediatek,ec-codec", 0);
-@@ -734,8 +736,10 @@ mt8183_mt6358_ts3a227_max98357_dev_probe(struct platform_device *pdev)
- 	}
- 
- 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
--	if (!priv)
--		return -ENOMEM;
-+	if (!priv) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
- 
- 	snd_soc_card_set_drvdata(card, priv);
- 
-@@ -743,7 +747,8 @@ mt8183_mt6358_ts3a227_max98357_dev_probe(struct platform_device *pdev)
- 	if (IS_ERR(priv->pinctrl)) {
- 		dev_err(&pdev->dev, "%s devm_pinctrl_get failed\n",
- 			__func__);
--		return PTR_ERR(priv->pinctrl);
-+		ret = PTR_ERR(priv->pinctrl);
-+		goto out;
- 	}
- 
- 	for (i = 0; i < PIN_STATE_MAX; i++) {
-@@ -776,6 +781,7 @@ mt8183_mt6358_ts3a227_max98357_dev_probe(struct platform_device *pdev)
- 
- 	ret = devm_snd_soc_register_card(&pdev->dev, card);
- 
-+out:
- 	of_node_put(platform_node);
- 	of_node_put(ec_codec);
- 	of_node_put(hdmi_codec);
+ 	spin_lock_irqsave(hba->host->host_lock, flags);
+ 	sdp = hba->ufs_device_wlun;
+@@ -8805,14 +8803,9 @@ static int ufshcd_set_dev_pwr_mode(struct ufs_hba *hba,
+ 	 * callbacks hence set the RQF_PM flag so that it doesn't resume the
+ 	 * already suspended childs.
+ 	 */
+-	deadline = jiffies + 10 * HZ;
+ 	for (retries = 3; retries > 0; --retries) {
+-		ret = -ETIMEDOUT;
+-		remaining = deadline - jiffies;
+-		if (remaining <= 0)
+-			break;
+ 		ret = scsi_execute(sdp, cmd, DMA_NONE, NULL, 0, NULL, &sshdr,
+-				   remaining / HZ, 0, 0, RQF_PM, NULL);
++				   HZ, 0, 0, RQF_PM, NULL);
+ 		if (!scsi_status_is_check_condition(ret) ||
+ 				!scsi_sense_valid(&sshdr) ||
+ 				sshdr.sense_key != UNIT_ATTENTION)
 -- 
 2.35.1
 
