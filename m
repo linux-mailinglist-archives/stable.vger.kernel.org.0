@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A80E16584B3
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:01:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D900E65841C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:54:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235305AbiL1RAm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:00:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52340 "EHLO
+        id S235224AbiL1Qx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:53:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235433AbiL1RAB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:00:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DF9B1EAE7
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:55:24 -0800 (PST)
+        with ESMTP id S235238AbiL1QxG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:53:06 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5115017E0A;
+        Wed, 28 Dec 2022 08:48:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF19D6157D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:55:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB4B5C433D2;
-        Wed, 28 Dec 2022 16:55:22 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8E988CE1377;
+        Wed, 28 Dec 2022 16:48:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69D95C433D2;
+        Wed, 28 Dec 2022 16:48:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246523;
-        bh=meXrmIHc4uB22MVvnpTkZ0t6/lXPGSax7WRu1NPzbQo=;
+        s=korg; t=1672246098;
+        bh=T2xzC8VcMURXvVDF6sbFKUXF9JoG/z82gplZpt5oZRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1+BztY/A8cGPsYiB4eq0LtUrxM9RQHTNpZZQ55lsov3LuWGvx6aOiuTwWboLqnxzq
-         e6kCoaPG0cEGw/z3j3TNgnb6izbSSdBnUxaUtYmQ1XkNzBt5XPxdRT7d2YAKKphe09
-         qmIZstzDwPSThoMb5EpSbGsB0G/Wt3yJ+BUeIVPA=
+        b=ec6hB7VsVfYbDTgFc6K6xoFYpZfMcEADpy6NSZ62HxLX1B3IAG8QvkrNVWvkY+OrY
+         a9CkmW+QGNEnuTBA9VQvEcUPllAF1r0Z5iZP08qWym5oeBUdTF2xedPRPtfKJrplP4
+         PHgNk8UrN1t+LxcjBb0qXb73PtfFK7GzckQ3wvp0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maurizio Lombardi <mlombard@redhat.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        linux-security-module@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>,
+        Ping-Ke Shih <pkshih@realtek.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1061/1146] scsi: target: iscsi: Fix a race condition between login_work and the login thread
+Subject: [PATCH 6.0 1012/1073] LoadPin: Ignore the "contents" argument of the LSM hooks
 Date:   Wed, 28 Dec 2022 15:43:20 +0100
-Message-Id: <20221228144359.099188882@linuxfoundation.org>
+Message-Id: <20221228144355.655176782@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,79 +57,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maurizio Lombardi <mlombard@redhat.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit fec1b2fa62c162d03f5dcd7b03e3c89d3116d49f ]
+[ Upstream commit 1a17e5b513ceebf21100027745b8731b4728edf7 ]
 
-In case a malicious initiator sends some random data immediately after a
-login PDU; the iscsi_target_sk_data_ready() callback will schedule the
-login_work and, at the same time, the negotiation may end without clearing
-the LOGIN_FLAGS_INITIAL_PDU flag (because no additional PDU exchanges are
-required to complete the login).
+LoadPin only enforces the read-only origin of kernel file reads. Whether
+or not it was a partial read isn't important. Remove the overly
+conservative checks so that things like partial firmware reads will
+succeed (i.e. reading a firmware header).
 
-The login has been completed but the login_work function will find the
-LOGIN_FLAGS_INITIAL_PDU flag set and will never stop from rescheduling
-itself; at this point, if the initiator drops the connection, the
-iscsit_conn structure will be freed, login_work will dereference a released
-socket structure and the kernel crashes.
-
-BUG: kernel NULL pointer dereference, address: 0000000000000230
-PF: supervisor write access in kernel mode
-PF: error_code(0x0002) - not-present page
-Workqueue: events iscsi_target_do_login_rx [iscsi_target_mod]
-RIP: 0010:_raw_read_lock_bh+0x15/0x30
-Call trace:
- iscsi_target_do_login_rx+0x75/0x3f0 [iscsi_target_mod]
- process_one_work+0x1e8/0x3c0
-
-Fix this bug by forcing login_work to stop after the login has been
-completed and the socket callbacks have been restored.
-
-Add a comment to clearify the return values of iscsi_target_do_login()
-
-Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
-Link: https://lore.kernel.org/r/20221115125638.102517-1-mlombard@redhat.com
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 2039bda1fa8d ("LSM: Add "contents" flag to kernel_read_file hook")
+Cc: Paul Moore <paul@paul-moore.com>
+Cc: James Morris <jmorris@namei.org>
+Cc: "Serge E. Hallyn" <serge@hallyn.com>
+Cc: linux-security-module@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Acked-by: Serge Hallyn <serge@hallyn.com>
+Tested-by: Ping-Ke Shih <pkshih@realtek.com>
+Link: https://lore.kernel.org/r/20221209195453.never.494-kees@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/iscsi/iscsi_target_nego.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ security/loadpin/loadpin.c | 30 ++++++++++++++++++------------
+ 1 file changed, 18 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/target/iscsi/iscsi_target_nego.c b/drivers/target/iscsi/iscsi_target_nego.c
-index f2919319ad38..ff49c8f3fe24 100644
---- a/drivers/target/iscsi/iscsi_target_nego.c
-+++ b/drivers/target/iscsi/iscsi_target_nego.c
-@@ -1018,6 +1018,13 @@ static int iscsi_target_handle_csg_one(struct iscsit_conn *conn, struct iscsi_lo
+diff --git a/security/loadpin/loadpin.c b/security/loadpin/loadpin.c
+index 44521582dcba..d6767fddbd5a 100644
+--- a/security/loadpin/loadpin.c
++++ b/security/loadpin/loadpin.c
+@@ -120,21 +120,11 @@ static void loadpin_sb_free_security(struct super_block *mnt_sb)
+ 	}
+ }
+ 
+-static int loadpin_read_file(struct file *file, enum kernel_read_file_id id,
+-			     bool contents)
++static int loadpin_check(struct file *file, enum kernel_read_file_id id)
+ {
+ 	struct super_block *load_root;
+ 	const char *origin = kernel_read_file_id_str(id);
+ 
+-	/*
+-	 * If we will not know that we'll be seeing the full contents
+-	 * then we cannot trust a load will be complete and unchanged
+-	 * off disk. Treat all contents=false hooks as if there were
+-	 * no associated file struct.
+-	 */
+-	if (!contents)
+-		file = NULL;
+-
+ 	/* If the file id is excluded, ignore the pinning. */
+ 	if ((unsigned int)id < ARRAY_SIZE(ignore_read_file_id) &&
+ 	    ignore_read_file_id[id]) {
+@@ -190,9 +180,25 @@ static int loadpin_read_file(struct file *file, enum kernel_read_file_id id,
  	return 0;
  }
  
-+/*
-+ * RETURN VALUE:
-+ *
-+ *  1 = Login successful
-+ * -1 = Login failed
-+ *  0 = More PDU exchanges required
-+ */
- static int iscsi_target_do_login(struct iscsit_conn *conn, struct iscsi_login *login)
++static int loadpin_read_file(struct file *file, enum kernel_read_file_id id,
++			     bool contents)
++{
++	/*
++	 * LoadPin only cares about the _origin_ of a file, not its
++	 * contents, so we can ignore the "are full contents available"
++	 * argument here.
++	 */
++	return loadpin_check(file, id);
++}
++
+ static int loadpin_load_data(enum kernel_load_data_id id, bool contents)
  {
- 	int pdu_count = 0;
-@@ -1363,12 +1370,13 @@ int iscsi_target_start_negotiation(
- 		ret = -1;
- 
- 	if (ret < 0) {
--		cancel_delayed_work_sync(&conn->login_work);
- 		iscsi_target_restore_sock_callbacks(conn);
- 		iscsi_remove_failed_auth_entry(conn);
- 	}
--	if (ret != 0)
-+	if (ret != 0) {
-+		cancel_delayed_work_sync(&conn->login_work);
- 		iscsi_target_nego_release(conn);
-+	}
- 
- 	return ret;
+-	return loadpin_read_file(NULL, (enum kernel_read_file_id) id, contents);
++	/*
++	 * LoadPin only cares about the _origin_ of a file, not its
++	 * contents, so a NULL file is passed, and we can ignore the
++	 * state of "contents".
++	 */
++	return loadpin_check(NULL, (enum kernel_read_file_id) id);
  }
+ 
+ static struct security_hook_list loadpin_hooks[] __lsm_ro_after_init = {
 -- 
 2.35.1
 
