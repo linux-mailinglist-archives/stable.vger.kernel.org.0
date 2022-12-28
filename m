@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 482A2657C23
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:29:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24350657B33
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:19:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233639AbiL1P3X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:29:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46990 "EHLO
+        id S233256AbiL1PTf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:19:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233481AbiL1P3R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:29:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C15F15712
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:29:16 -0800 (PST)
+        with ESMTP id S233486AbiL1PTG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:19:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A4831400C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:18:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ADE626154D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:29:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 952D3C433EF;
-        Wed, 28 Dec 2022 15:29:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF111B8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:18:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63849C433EF;
+        Wed, 28 Dec 2022 15:18:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241355;
-        bh=l0ttpRFS91HIfeDDorZljoXnod3bRHzIilWSHiWyPDE=;
+        s=korg; t=1672240729;
+        bh=ODsTsYmcglnQCN6gjPfBgID3WIYJsMRdwFXk/NMbGIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jb1or0VHfDuMXxbdocgvl5Z++yZ5ABqaBx4dAK7LmZsvmDtCcsEtYX62MalWlQwWR
-         yKp42GPBMcURuJ4QG1zZT9Wru6D2tDPlNlJYTNb3JXchospcppfiSHyFVQ/IcIwdFq
-         yTa3J1dBbEIawrMngYH+feI4v1Hg0HorEWA+aF4A=
+        b=mfEbnPAr2ZeJIvQCDwVM8XWFNxIH43qwfFyWN/M+7WM2/bQs26MuiXz2ghsREf5u+
+         y4lFhILI+bv0an2kfdNZDdO9vWIN0kd2kc5AiYIZp2t8WqWw+Ezw+yo6UggvhQZ3kJ
+         hVJkEV1kg7rJBXYb/evIuy2Q3V37LMDonLR6WCw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, John Harrison <John.C.Harrison@Intel.com>,
-        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        patches@lists.linux.dev, James Hurley <jahurley@nvidia.com>,
+        David Thompson <davthompson@nvidia.com>,
+        Shravan Kumar Ramani <shravankr@nvidia.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0236/1146] drm/i915/guc: Limit scheduling properties to avoid overflow
+Subject: [PATCH 6.0 0187/1073] platform/mellanox: mlxbf-pmc: Fix event typo
 Date:   Wed, 28 Dec 2022 15:29:35 +0100
-Message-Id: <20221228144336.548392805@linuxfoundation.org>
+Message-Id: <20221228144333.090786028@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,294 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Harrison <John.C.Harrison@Intel.com>
+From: James Hurley <jahurley@nvidia.com>
 
-[ Upstream commit 568944af44e7538ed5d1389dabf56e938afdaf4f ]
+[ Upstream commit b0b698b80c56b0712f0d4346d51bf0363ba03068 ]
 
-GuC converts the pre-emption timeout and timeslice quantum values into
-clock ticks internally. That significantly reduces the point of 32bit
-overflow. On current platforms, worst case scenario is approximately
-110 seconds. Rather than allowing the user to set higher values and
-then get confused by early timeouts, add limits when setting these
-values.
+Had a duplicate event typo, so just fixed the 1 character typo.
 
-v2: Add helper functions for clamping (review feedback from Tvrtko).
-v3: Add a bunch of BUG_ON range checks in addition to the checks
-already in the clamping functions (Tvrtko)
-
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Reviewed-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
-Acked-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221006213813.1563435-2-John.C.Harrison@Intel.com
-Stable-dep-of: c3bd49cd9a10 ("drm/i915: Fix compute pre-emption w/a to apply to compute engines")
+Fixes: 1a218d312e65 ("platform/mellanox: mlxbf-pmc: Add Mellanox BlueField PMC driver")
+Signed-off-by: James Hurley <jahurley@nvidia.com>
+Reviewed-by: David Thompson <davthompson@nvidia.com>
+Reviewed-by: Shravan Kumar Ramani <shravankr@nvidia.com>
+Link: https://lore.kernel.org/r/aadacdbbd3186c55e74ea9456fe011b77938eb6c.1670535330.git.jahurley@nvidia.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_engine.h        |  6 ++
- drivers/gpu/drm/i915/gt/intel_engine_cs.c     | 69 +++++++++++++++++++
- drivers/gpu/drm/i915/gt/sysfs_engines.c       | 25 ++++---
- drivers/gpu/drm/i915/gt/uc/intel_guc_fwif.h   | 21 ++++++
- .../gpu/drm/i915/gt/uc/intel_guc_submission.c |  8 +++
- 5 files changed, 119 insertions(+), 10 deletions(-)
+ drivers/platform/mellanox/mlxbf-pmc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_engine.h b/drivers/gpu/drm/i915/gt/intel_engine.h
-index 04e435bce79b..cbc8b857d5f7 100644
---- a/drivers/gpu/drm/i915/gt/intel_engine.h
-+++ b/drivers/gpu/drm/i915/gt/intel_engine.h
-@@ -348,4 +348,10 @@ intel_engine_get_hung_context(struct intel_engine_cs *engine)
- 	return engine->hung_ce;
- }
- 
-+u64 intel_clamp_heartbeat_interval_ms(struct intel_engine_cs *engine, u64 value);
-+u64 intel_clamp_max_busywait_duration_ns(struct intel_engine_cs *engine, u64 value);
-+u64 intel_clamp_preempt_timeout_ms(struct intel_engine_cs *engine, u64 value);
-+u64 intel_clamp_stop_timeout_ms(struct intel_engine_cs *engine, u64 value);
-+u64 intel_clamp_timeslice_duration_ms(struct intel_engine_cs *engine, u64 value);
-+
- #endif /* _INTEL_RINGBUFFER_H_ */
-diff --git a/drivers/gpu/drm/i915/gt/intel_engine_cs.c b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-index 1f7188129cd1..d6cc90ae70c9 100644
---- a/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-+++ b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-@@ -512,6 +512,26 @@ static int intel_engine_setup(struct intel_gt *gt, enum intel_engine_id id,
- 		engine->flags |= I915_ENGINE_HAS_EU_PRIORITY;
- 	}
- 
-+	/* Cap properties according to any system limits */
-+#define CLAMP_PROP(field) \
-+	do { \
-+		u64 clamp = intel_clamp_##field(engine, engine->props.field); \
-+		if (clamp != engine->props.field) { \
-+			drm_notice(&engine->i915->drm, \
-+				   "Warning, clamping %s to %lld to prevent overflow\n", \
-+				   #field, clamp); \
-+			engine->props.field = clamp; \
-+		} \
-+	} while (0)
-+
-+	CLAMP_PROP(heartbeat_interval_ms);
-+	CLAMP_PROP(max_busywait_duration_ns);
-+	CLAMP_PROP(preempt_timeout_ms);
-+	CLAMP_PROP(stop_timeout_ms);
-+	CLAMP_PROP(timeslice_duration_ms);
-+
-+#undef CLAMP_PROP
-+
- 	engine->defaults = engine->props; /* never to change again */
- 
- 	engine->context_size = intel_engine_context_size(gt, engine->class);
-@@ -534,6 +554,55 @@ static int intel_engine_setup(struct intel_gt *gt, enum intel_engine_id id,
- 	return 0;
- }
- 
-+u64 intel_clamp_heartbeat_interval_ms(struct intel_engine_cs *engine, u64 value)
-+{
-+	value = min_t(u64, value, jiffies_to_msecs(MAX_SCHEDULE_TIMEOUT));
-+
-+	return value;
-+}
-+
-+u64 intel_clamp_max_busywait_duration_ns(struct intel_engine_cs *engine, u64 value)
-+{
-+	value = min(value, jiffies_to_nsecs(2));
-+
-+	return value;
-+}
-+
-+u64 intel_clamp_preempt_timeout_ms(struct intel_engine_cs *engine, u64 value)
-+{
-+	/*
-+	 * NB: The GuC API only supports 32bit values. However, the limit is further
-+	 * reduced due to internal calculations which would otherwise overflow.
-+	 */
-+	if (intel_guc_submission_is_wanted(&engine->gt->uc.guc))
-+		value = min_t(u64, value, guc_policy_max_preempt_timeout_ms());
-+
-+	value = min_t(u64, value, jiffies_to_msecs(MAX_SCHEDULE_TIMEOUT));
-+
-+	return value;
-+}
-+
-+u64 intel_clamp_stop_timeout_ms(struct intel_engine_cs *engine, u64 value)
-+{
-+	value = min_t(u64, value, jiffies_to_msecs(MAX_SCHEDULE_TIMEOUT));
-+
-+	return value;
-+}
-+
-+u64 intel_clamp_timeslice_duration_ms(struct intel_engine_cs *engine, u64 value)
-+{
-+	/*
-+	 * NB: The GuC API only supports 32bit values. However, the limit is further
-+	 * reduced due to internal calculations which would otherwise overflow.
-+	 */
-+	if (intel_guc_submission_is_wanted(&engine->gt->uc.guc))
-+		value = min_t(u64, value, guc_policy_max_exec_quantum_ms());
-+
-+	value = min_t(u64, value, jiffies_to_msecs(MAX_SCHEDULE_TIMEOUT));
-+
-+	return value;
-+}
-+
- static void __setup_engine_capabilities(struct intel_engine_cs *engine)
- {
- 	struct drm_i915_private *i915 = engine->i915;
-diff --git a/drivers/gpu/drm/i915/gt/sysfs_engines.c b/drivers/gpu/drm/i915/gt/sysfs_engines.c
-index 967031056202..f2d9858d827c 100644
---- a/drivers/gpu/drm/i915/gt/sysfs_engines.c
-+++ b/drivers/gpu/drm/i915/gt/sysfs_engines.c
-@@ -144,7 +144,7 @@ max_spin_store(struct kobject *kobj, struct kobj_attribute *attr,
- 	       const char *buf, size_t count)
- {
- 	struct intel_engine_cs *engine = kobj_to_engine(kobj);
--	unsigned long long duration;
-+	unsigned long long duration, clamped;
- 	int err;
- 
- 	/*
-@@ -168,7 +168,8 @@ max_spin_store(struct kobject *kobj, struct kobj_attribute *attr,
- 	if (err)
- 		return err;
- 
--	if (duration > jiffies_to_nsecs(2))
-+	clamped = intel_clamp_max_busywait_duration_ns(engine, duration);
-+	if (duration != clamped)
- 		return -EINVAL;
- 
- 	WRITE_ONCE(engine->props.max_busywait_duration_ns, duration);
-@@ -203,7 +204,7 @@ timeslice_store(struct kobject *kobj, struct kobj_attribute *attr,
- 		const char *buf, size_t count)
- {
- 	struct intel_engine_cs *engine = kobj_to_engine(kobj);
--	unsigned long long duration;
-+	unsigned long long duration, clamped;
- 	int err;
- 
- 	/*
-@@ -218,7 +219,8 @@ timeslice_store(struct kobject *kobj, struct kobj_attribute *attr,
- 	if (err)
- 		return err;
- 
--	if (duration > jiffies_to_msecs(MAX_SCHEDULE_TIMEOUT))
-+	clamped = intel_clamp_timeslice_duration_ms(engine, duration);
-+	if (duration != clamped)
- 		return -EINVAL;
- 
- 	WRITE_ONCE(engine->props.timeslice_duration_ms, duration);
-@@ -256,7 +258,7 @@ stop_store(struct kobject *kobj, struct kobj_attribute *attr,
- 	   const char *buf, size_t count)
- {
- 	struct intel_engine_cs *engine = kobj_to_engine(kobj);
--	unsigned long long duration;
-+	unsigned long long duration, clamped;
- 	int err;
- 
- 	/*
-@@ -272,7 +274,8 @@ stop_store(struct kobject *kobj, struct kobj_attribute *attr,
- 	if (err)
- 		return err;
- 
--	if (duration > jiffies_to_msecs(MAX_SCHEDULE_TIMEOUT))
-+	clamped = intel_clamp_stop_timeout_ms(engine, duration);
-+	if (duration != clamped)
- 		return -EINVAL;
- 
- 	WRITE_ONCE(engine->props.stop_timeout_ms, duration);
-@@ -306,7 +309,7 @@ preempt_timeout_store(struct kobject *kobj, struct kobj_attribute *attr,
- 		      const char *buf, size_t count)
- {
- 	struct intel_engine_cs *engine = kobj_to_engine(kobj);
--	unsigned long long timeout;
-+	unsigned long long timeout, clamped;
- 	int err;
- 
- 	/*
-@@ -322,7 +325,8 @@ preempt_timeout_store(struct kobject *kobj, struct kobj_attribute *attr,
- 	if (err)
- 		return err;
- 
--	if (timeout > jiffies_to_msecs(MAX_SCHEDULE_TIMEOUT))
-+	clamped = intel_clamp_preempt_timeout_ms(engine, timeout);
-+	if (timeout != clamped)
- 		return -EINVAL;
- 
- 	WRITE_ONCE(engine->props.preempt_timeout_ms, timeout);
-@@ -362,7 +366,7 @@ heartbeat_store(struct kobject *kobj, struct kobj_attribute *attr,
- 		const char *buf, size_t count)
- {
- 	struct intel_engine_cs *engine = kobj_to_engine(kobj);
--	unsigned long long delay;
-+	unsigned long long delay, clamped;
- 	int err;
- 
- 	/*
-@@ -379,7 +383,8 @@ heartbeat_store(struct kobject *kobj, struct kobj_attribute *attr,
- 	if (err)
- 		return err;
- 
--	if (delay >= jiffies_to_msecs(MAX_SCHEDULE_TIMEOUT))
-+	clamped = intel_clamp_heartbeat_interval_ms(engine, delay);
-+	if (delay != clamped)
- 		return -EINVAL;
- 
- 	err = intel_engine_set_heartbeat(engine, delay);
-diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_fwif.h b/drivers/gpu/drm/i915/gt/uc/intel_guc_fwif.h
-index 323b055e5db9..502e7cb5a302 100644
---- a/drivers/gpu/drm/i915/gt/uc/intel_guc_fwif.h
-+++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_fwif.h
-@@ -305,6 +305,27 @@ struct guc_update_context_policy {
- 
- #define GLOBAL_POLICY_DEFAULT_DPC_PROMOTE_TIME_US 500000
- 
-+/*
-+ * GuC converts the timeout to clock ticks internally. Different platforms have
-+ * different GuC clocks. Thus, the maximum value before overflow is platform
-+ * dependent. Current worst case scenario is about 110s. So, the spec says to
-+ * limit to 100s to be safe.
-+ */
-+#define GUC_POLICY_MAX_EXEC_QUANTUM_US		(100 * 1000 * 1000UL)
-+#define GUC_POLICY_MAX_PREEMPT_TIMEOUT_US	(100 * 1000 * 1000UL)
-+
-+static inline u32 guc_policy_max_exec_quantum_ms(void)
-+{
-+	BUILD_BUG_ON(GUC_POLICY_MAX_EXEC_QUANTUM_US >= UINT_MAX);
-+	return GUC_POLICY_MAX_EXEC_QUANTUM_US / 1000;
-+}
-+
-+static inline u32 guc_policy_max_preempt_timeout_ms(void)
-+{
-+	BUILD_BUG_ON(GUC_POLICY_MAX_PREEMPT_TIMEOUT_US >= UINT_MAX);
-+	return GUC_POLICY_MAX_PREEMPT_TIMEOUT_US / 1000;
-+}
-+
- struct guc_policies {
- 	u32 submission_queue_depth[GUC_MAX_ENGINE_CLASSES];
- 	/* In micro seconds. How much time to allow before DPC processing is
-diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-index 1db59eeb34db..1a23e901cc66 100644
---- a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-+++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-@@ -2429,6 +2429,10 @@ static int guc_context_policy_init_v70(struct intel_context *ce, bool loop)
- 	int ret;
- 
- 	/* NB: For both of these, zero means disabled. */
-+	GEM_BUG_ON(overflows_type(engine->props.timeslice_duration_ms * 1000,
-+				  execution_quantum));
-+	GEM_BUG_ON(overflows_type(engine->props.preempt_timeout_ms * 1000,
-+				  preemption_timeout));
- 	execution_quantum = engine->props.timeslice_duration_ms * 1000;
- 	preemption_timeout = engine->props.preempt_timeout_ms * 1000;
- 
-@@ -2462,6 +2466,10 @@ static void guc_context_policy_init_v69(struct intel_engine_cs *engine,
- 		desc->policy_flags |= CONTEXT_POLICY_FLAG_PREEMPT_TO_IDLE_V69;
- 
- 	/* NB: For both of these, zero means disabled. */
-+	GEM_BUG_ON(overflows_type(engine->props.timeslice_duration_ms * 1000,
-+				  desc->execution_quantum));
-+	GEM_BUG_ON(overflows_type(engine->props.preempt_timeout_ms * 1000,
-+				  desc->preemption_timeout));
- 	desc->execution_quantum = engine->props.timeslice_duration_ms * 1000;
- 	desc->preemption_timeout = engine->props.preempt_timeout_ms * 1000;
- }
+diff --git a/drivers/platform/mellanox/mlxbf-pmc.c b/drivers/platform/mellanox/mlxbf-pmc.c
+index 65b4a819f1bd..c2c9b0d3244c 100644
+--- a/drivers/platform/mellanox/mlxbf-pmc.c
++++ b/drivers/platform/mellanox/mlxbf-pmc.c
+@@ -358,7 +358,7 @@ static const struct mlxbf_pmc_events mlxbf_pmc_hnfnet_events[] = {
+ 	{ 0x32, "DDN_DIAG_W_INGRESS" },
+ 	{ 0x33, "DDN_DIAG_C_INGRESS" },
+ 	{ 0x34, "DDN_DIAG_CORE_SENT" },
+-	{ 0x35, "NDN_DIAG_S_OUT_OF_CRED" },
++	{ 0x35, "NDN_DIAG_N_OUT_OF_CRED" },
+ 	{ 0x36, "NDN_DIAG_S_OUT_OF_CRED" },
+ 	{ 0x37, "NDN_DIAG_E_OUT_OF_CRED" },
+ 	{ 0x38, "NDN_DIAG_W_OUT_OF_CRED" },
 -- 
 2.35.1
 
