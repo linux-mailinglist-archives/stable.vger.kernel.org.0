@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CCA5657AC3
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:14:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8FA66580B1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:19:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233015AbiL1POu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:14:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33646 "EHLO
+        id S234531AbiL1QTc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:19:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233050AbiL1POg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:14:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA03313F0E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:14:35 -0800 (PST)
+        with ESMTP id S234650AbiL1QSw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:18:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66CA61A069
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:17:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D6DFB8172A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:14:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C44B9C433EF;
-        Wed, 28 Dec 2022 15:14:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 044DB6156B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:17:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11ED1C433D2;
+        Wed, 28 Dec 2022 16:17:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240473;
-        bh=kCG9fCls8jr4Hb7unxqEYO0oNd/vWEIGSsP1KvQgQCc=;
+        s=korg; t=1672244255;
+        bh=c0wHV7iAOCGJO9PrE0TOS4SpgYhrfvRKC0MP2K00bWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2KBxj15GGoSuii/qLg5JKn96Iz1cOjvtMe/lpewzbD+oWZ2aTTVpAH9Xj/Yolvz+A
-         bzv6X8+7EMcrd2zTGfyA+ZOV9HeUFcBWdZ6YUdhM1tQfbroAD9iDEdsrPo5piz5K6b
-         MkGmLcFtN7Wdj/rD4SXUNFL+KvXHRvWoS+MZl6a4=
+        b=zdy15XQVbuB1B7ihm7xi6Du2wymuzasZ2mGbsXrFEeAfwxo8wcEXF/5aWFWOy8cMF
+         pnlwwloECe/9ZuO1zQkJge6gsK+sIRrFYzsnpVK6YW3pdwwTsRIHhkzxt7m+s6Y8Cd
+         B4NHPh7fvivePSxzTUS503i/KubcRoFGpKx7kGhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Sven Peter <sven@svenpeter.dev>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 357/731] net: dsa: tag_8021q: avoid leaking ctx on dsa_tag_8021q_register() error path
+Subject: [PATCH 6.0 0676/1073] usb: typec: tipd: Cleanup resources if devm_tps6598_psy_register fails
 Date:   Wed, 28 Dec 2022 15:37:44 +0100
-Message-Id: <20221228144306.910308920@linuxfoundation.org>
+Message-Id: <20221228144346.399782847@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Sven Peter <sven@svenpeter.dev>
 
-[ Upstream commit e095493091e850d5292ad01d8fbf5cde1d89ac53 ]
+[ Upstream commit 19c220e9ab00f50edefb9667e3101e84a5112df2 ]
 
-If dsa_tag_8021q_setup() fails, for example due to the inability of the
-device to install a VLAN, the tag_8021q context of the switch will leak.
-Make sure it is freed on the error path.
+We can't just return if devm_tps6598_psy_register fails since previous
+resources are not devres managed and have yet to be cleaned up.
 
-Fixes: 328621f6131f ("net: dsa: tag_8021q: absorb dsa_8021q_setup into dsa_tag_8021q_{,un}register")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20221209235242.480344-1-vladimir.oltean@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 10eb0b6ac63a ("usb: typec: tps6598x: Export some power supply properties")
+Signed-off-by: Sven Peter <sven@svenpeter.dev>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20221114174449.34634-1-sven@svenpeter.dev
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/tag_8021q.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/usb/typec/tipd/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/dsa/tag_8021q.c b/net/dsa/tag_8021q.c
-index f8f7b7c34e7d..e443088ab0f6 100644
---- a/net/dsa/tag_8021q.c
-+++ b/net/dsa/tag_8021q.c
-@@ -529,6 +529,7 @@ static void dsa_tag_8021q_teardown(struct dsa_switch *ds)
- int dsa_tag_8021q_register(struct dsa_switch *ds, __be16 proto)
- {
- 	struct dsa_8021q_context *ctx;
-+	int err;
+diff --git a/drivers/usb/typec/tipd/core.c b/drivers/usb/typec/tipd/core.c
+index 92e35e62e78c..28dd5c3b175b 100644
+--- a/drivers/usb/typec/tipd/core.c
++++ b/drivers/usb/typec/tipd/core.c
+@@ -814,7 +814,7 @@ static int tps6598x_probe(struct i2c_client *client)
  
- 	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
- 	if (!ctx)
-@@ -541,7 +542,15 @@ int dsa_tag_8021q_register(struct dsa_switch *ds, __be16 proto)
+ 	ret = devm_tps6598_psy_register(tps);
+ 	if (ret)
+-		return ret;
++		goto err_role_put;
  
- 	ds->tag_8021q_ctx = ctx;
- 
--	return dsa_tag_8021q_setup(ds);
-+	err = dsa_tag_8021q_setup(ds);
-+	if (err)
-+		goto err_free;
-+
-+	return 0;
-+
-+err_free:
-+	kfree(ctx);
-+	return err;
- }
- EXPORT_SYMBOL_GPL(dsa_tag_8021q_register);
- 
+ 	tps->port = typec_register_port(&client->dev, &typec_cap);
+ 	if (IS_ERR(tps->port)) {
 -- 
 2.35.1
 
