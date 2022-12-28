@@ -2,53 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 082D5657CD3
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:36:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7757165833E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:45:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233485AbiL1PgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:36:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54124 "EHLO
+        id S235073AbiL1QpE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:45:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233893AbiL1PgY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:36:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB44A140E2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:36:23 -0800 (PST)
+        with ESMTP id S233801AbiL1Qoi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 296261CB23
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:40:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 785006156C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:36:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63036C433EF;
-        Wed, 28 Dec 2022 15:36:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BC8C161562
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:40:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA1D3C433D2;
+        Wed, 28 Dec 2022 16:40:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241782;
-        bh=mseXsLiypA6NQg/vgIDljnyc6z7ai/3VdKb/O1Cc4WQ=;
+        s=korg; t=1672245626;
+        bh=hfir7DbpDXAOR+tvs+bqxebL3YHTCRmmWCLgcFiNMO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rn0kJpOTIqqTIL4ISpx4aZyHDOqHfk3fXckBGsHDrlruNxxyZkZS/5pPtJrHXEytq
-         TS1Dg8e4yp9NRRKIfEkpcrbhuGQ3Jbxsc3ymRmAtv6AcR15KKKTXUjpfLWNvWsBxS9
-         T9gKRTidfbwGO5cAvV2qqQS5dB4Odwf4aqkMcfP4=
+        b=dBPz9vM6L+RFDJ07h6OXYlRFgKMZGcR9RTjhO3/zbm1qDutRbBqoxCfoSxHZLpm2H
+         4zRp/oDym8V5zVa5dkUt/bbXL8FblTAwMaSMeW3Q/hLQfQXf4G2NpYEVFB0eW0tl9F
+         dV5Ms4aKpVnWZCXATtAx4aIwK9ifIsaYjWCnhH6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Leo Yan <leo.yan@linaro.org>,
-        =?UTF-8?q?Adri=C3=A1n=20Herrera=20Arcila?= <adrian.herrera@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        James Clark <james.clark@arm.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 522/731] perf stat: Refactor __run_perf_stat() common code
-Date:   Wed, 28 Dec 2022 15:40:29 +0100
-Message-Id: <20221228144311.677454714@linuxfoundation.org>
+Subject: [PATCH 6.1 0891/1146] mISDN: hfcsusb: dont call dev_kfree_skb/kfree_skb() under spin_lock_irqsave()
+Date:   Wed, 28 Dec 2022 15:40:30 +0100
+Message-Id: <20221228144354.386745449@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,81 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrián Herrera Arcila <adrian.herrera@arm.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit bb8bc52e75785af94b9ba079277547d50d018a52 ]
+[ Upstream commit ddc9648db162eee556edd5222d2808fe33730203 ]
 
-This extracts common code from the branches of the forks if-then-else.
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-enable_counters(), which was at the beginning of both branches of the
-conditional, is now unconditional; evlist__start_workload() is extracted
-to a different if, which enables making the common clocking code
-unconditional.
+It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
+The difference between them is free reason, dev_kfree_skb_irq() means
+the SKB is dropped in error and dev_consume_skb_irq() means the SKB
+is consumed in normal.
 
-Reviewed-by: Leo Yan <leo.yan@linaro.org>
-Signed-off-by: Adrián Herrera Arcila <adrian.herrera@arm.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: James Clark <james.clark@arm.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Link: https://lore.kernel.org/r/20220729161244.10522-1-adrian.herrera@arm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Stable-dep-of: c587e77e100f ("perf stat: Do not delay the workload with --delay")
+skb_queue_purge() is called under spin_lock_irqsave() in hfcusb_l2l1D(),
+kfree_skb() is called in it, to fix this, use skb_queue_splice_init()
+to move the dch->squeue to a free queue, also enqueue the tx_skb and
+rx_skb, at last calling __skb_queue_purge() to free the SKBs afer unlock.
+
+In tx_iso_complete(), dev_kfree_skb() is called to consume the transmitted
+SKB, so replace it with dev_consume_skb_irq().
+
+Fixes: 69f52adb2d53 ("mISDN: Add HFC USB driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-stat.c | 25 +++++++++----------------
- 1 file changed, 9 insertions(+), 16 deletions(-)
+ drivers/isdn/hardware/mISDN/hfcsusb.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
-index abf88a1ad455..2602c750779d 100644
---- a/tools/perf/builtin-stat.c
-+++ b/tools/perf/builtin-stat.c
-@@ -953,18 +953,18 @@ static int __run_perf_stat(int argc, const char **argv, int run_idx)
- 			return err;
- 	}
+diff --git a/drivers/isdn/hardware/mISDN/hfcsusb.c b/drivers/isdn/hardware/mISDN/hfcsusb.c
+index 651f2f8f685b..1efd17979f24 100644
+--- a/drivers/isdn/hardware/mISDN/hfcsusb.c
++++ b/drivers/isdn/hardware/mISDN/hfcsusb.c
+@@ -326,20 +326,24 @@ hfcusb_l2l1D(struct mISDNchannel *ch, struct sk_buff *skb)
+ 		test_and_clear_bit(FLG_L2_ACTIVATED, &dch->Flags);
  
--	/*
--	 * Enable counters and exec the command:
--	 */
--	if (forks) {
--		err = enable_counters();
--		if (err)
--			return -1;
-+	err = enable_counters();
-+	if (err)
-+		return -1;
+ 		if (hw->protocol == ISDN_P_NT_S0) {
++			struct sk_buff_head free_queue;
 +
-+	/* Exec the command, if any */
-+	if (forks)
- 		evlist__start_workload(evsel_list);
++			__skb_queue_head_init(&free_queue);
+ 			hfcsusb_ph_command(hw, HFC_L1_DEACTIVATE_NT);
+ 			spin_lock_irqsave(&hw->lock, flags);
+-			skb_queue_purge(&dch->squeue);
++			skb_queue_splice_init(&dch->squeue, &free_queue);
+ 			if (dch->tx_skb) {
+-				dev_kfree_skb(dch->tx_skb);
++				__skb_queue_tail(&free_queue, dch->tx_skb);
+ 				dch->tx_skb = NULL;
+ 			}
+ 			dch->tx_idx = 0;
+ 			if (dch->rx_skb) {
+-				dev_kfree_skb(dch->rx_skb);
++				__skb_queue_tail(&free_queue, dch->rx_skb);
+ 				dch->rx_skb = NULL;
+ 			}
+ 			test_and_clear_bit(FLG_TX_BUSY, &dch->Flags);
+ 			spin_unlock_irqrestore(&hw->lock, flags);
++			__skb_queue_purge(&free_queue);
+ #ifdef FIXME
+ 			if (test_and_clear_bit(FLG_L1_BUSY, &dch->Flags))
+ 				dchannel_sched_event(&hc->dch, D_CLEARBUSY);
+@@ -1330,7 +1334,7 @@ tx_iso_complete(struct urb *urb)
+ 					printk("\n");
+ 				}
  
--		t0 = rdclock();
--		clock_gettime(CLOCK_MONOTONIC, &ref_time);
-+	t0 = rdclock();
-+	clock_gettime(CLOCK_MONOTONIC, &ref_time);
- 
-+	if (forks) {
- 		if (interval || timeout || evlist__ctlfd_initialized(evsel_list))
- 			status = dispatch_events(forks, timeout, interval, &times);
- 		if (child_pid != -1) {
-@@ -982,13 +982,6 @@ static int __run_perf_stat(int argc, const char **argv, int run_idx)
- 		if (WIFSIGNALED(status))
- 			psignal(WTERMSIG(status), argv[0]);
- 	} else {
--		err = enable_counters();
--		if (err)
--			return -1;
--
--		t0 = rdclock();
--		clock_gettime(CLOCK_MONOTONIC, &ref_time);
--
- 		status = dispatch_events(forks, timeout, interval, &times);
- 	}
- 
+-				dev_kfree_skb(tx_skb);
++				dev_consume_skb_irq(tx_skb);
+ 				tx_skb = NULL;
+ 				if (fifo->dch && get_next_dframe(fifo->dch))
+ 					tx_skb = fifo->dch->tx_skb;
 -- 
 2.35.1
 
