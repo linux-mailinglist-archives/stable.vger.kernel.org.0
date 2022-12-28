@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98467657F78
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:05:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56A62658035
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:15:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234294AbiL1QFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:05:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51770 "EHLO
+        id S233168AbiL1QPw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:15:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233104AbiL1QFN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:05:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7764E192A8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:05:12 -0800 (PST)
+        with ESMTP id S233148AbiL1QPb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:15:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 145991B9E2
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:12:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DFDF0B8172A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:05:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39EB3C433EF;
-        Wed, 28 Dec 2022 16:05:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 99C1461560
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:12:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAA8AC433D2;
+        Wed, 28 Dec 2022 16:12:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243509;
-        bh=uASIUEgxAFYrKr97B58yUNGm0Q7XyTbyU3pgxmTCmA0=;
+        s=korg; t=1672243960;
+        bh=RfNxRfPBceNid/hZZzR5/5fHQA6SSSAnWhGevBKkqNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f/QI7mEJ1mH4p9INaLJnhq858WZsQNBusAIN6I9f8TRk7FEx/NB1SgMJISq97eox9
-         TDri0wH9x1LI+SONjZFxHqg5I43QJEWiR7zJe3RzVyHHvQ3Yc7+RMDlJNSlctvwCKk
-         5wGWD9hAi3lE4pwOuNsyFQaDWeWDQY5jObl5TW5I=
+        b=EvgEGNUBFOEycvWie3zNkO45dppjQgW2alwTpbYKmSnbYFHDg1WnNzthTIDAgN2X/
+         6HNvl4ULupAXCCxfwzKA7vSGopCZv7smKDTfxJtWnC1OqojiOF7XoMFYZDaMtYJ//V
+         lxJfryYGxz4E2088wpMol8WdXW1xXnnff9QyzWlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Firo Yang <firo.yang@suse.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0537/1073] sctp: sysctl: make extra pointers netns aware
+        patches@lists.linux.dev, John Keeping <john@metanate.com>,
+        Corentin Labbe <clabbe@baylibre.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0586/1146] crypto: rockchip - do not do custom power management
 Date:   Wed, 28 Dec 2022 15:35:25 +0100
-Message-Id: <20221228144342.639974620@linuxfoundation.org>
+Message-Id: <20221228144346.089765212@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,164 +54,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Firo Yang <firo.yang@suse.com>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit da05cecc4939c0410d56c29e252998b192756318 ]
+[ Upstream commit c50ef1411c8cbad0c7db100c477126076b6e3348 ]
 
-Recently, a customer reported that from their container whose
-net namespace is different to the host's init_net, they can't set
-the container's net.sctp.rto_max to any value smaller than
-init_net.sctp.rto_min.
+The clock enable/disable at tfm init/exit is fragile,
+if 2 tfm are init in the same time and one is removed just after,
+it will leave the hardware uncloked even if a user remains.
 
-For instance,
-Host:
-sudo sysctl net.sctp.rto_min
-net.sctp.rto_min = 1000
+Instead simply enable clocks at probe time.
+We will do PM later.
 
-Container:
-echo 100 > /mnt/proc-net/sctp/rto_min
-echo 400 > /mnt/proc-net/sctp/rto_max
-echo: write error: Invalid argument
-
-This is caused by the check made from this'commit 4f3fdf3bc59c
-("sctp: add check rto_min and rto_max in sysctl")'
-When validating the input value, it's always referring the boundary
-value set for the init_net namespace.
-
-Having container's rto_max smaller than host's init_net.sctp.rto_min
-does make sense. Consider that the rto between two containers on the
-same host is very likely smaller than it for two hosts.
-
-So to fix this problem, as suggested by Marcelo, this patch makes the
-extra pointers of rto_min, rto_max, pf_retrans, and ps_retrans point
-to the corresponding variables from the newly created net namespace while
-the new net namespace is being registered in sctp_sysctl_net_register.
-
-Fixes: 4f3fdf3bc59c ("sctp: add check rto_min and rto_max in sysctl")
-Reviewed-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Reviewed-by: Jakub Kicinski <kuba@kernel.org>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: Firo Yang <firo.yang@suse.com>
-Link: https://lore.kernel.org/r/20221209054854.23889-1-firo.yang@suse.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: ce0183cb6464b ("crypto: rockchip - switch to skcipher API")
+Reviewed-by: John Keeping <john@metanate.com>
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/sysctl.c | 73 ++++++++++++++++++++++++++++-------------------
- 1 file changed, 44 insertions(+), 29 deletions(-)
+ drivers/crypto/rockchip/rk3288_crypto.c          | 4 ++--
+ drivers/crypto/rockchip/rk3288_crypto.h          | 2 --
+ drivers/crypto/rockchip/rk3288_crypto_ahash.c    | 3 +--
+ drivers/crypto/rockchip/rk3288_crypto_skcipher.c | 5 +++--
+ 4 files changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/net/sctp/sysctl.c b/net/sctp/sysctl.c
-index b46a416787ec..43ebf090029d 100644
---- a/net/sctp/sysctl.c
-+++ b/net/sctp/sysctl.c
-@@ -84,17 +84,18 @@ static struct ctl_table sctp_table[] = {
- 	{ /* sentinel */ }
- };
+diff --git a/drivers/crypto/rockchip/rk3288_crypto.c b/drivers/crypto/rockchip/rk3288_crypto.c
+index 35d73061d156..5f8444b9633a 100644
+--- a/drivers/crypto/rockchip/rk3288_crypto.c
++++ b/drivers/crypto/rockchip/rk3288_crypto.c
+@@ -395,8 +395,7 @@ static int rk_crypto_probe(struct platform_device *pdev)
+ 		     rk_crypto_done_task_cb, (unsigned long)crypto_info);
+ 	crypto_init_queue(&crypto_info->queue, 50);
  
-+/* The following index defines are used in sctp_sysctl_net_register().
-+ * If you add new items to the sctp_net_table, please ensure that
-+ * the index values of these defines hold the same meaning indicated by
-+ * their macro names when they appear in sctp_net_table.
-+ */
-+#define SCTP_RTO_MIN_IDX       0
-+#define SCTP_RTO_MAX_IDX       1
-+#define SCTP_PF_RETRANS_IDX    2
-+#define SCTP_PS_RETRANS_IDX    3
-+
- static struct ctl_table sctp_net_table[] = {
--	{
--		.procname	= "rto_initial",
--		.data		= &init_net.sctp.rto_initial,
--		.maxlen		= sizeof(unsigned int),
--		.mode		= 0644,
--		.proc_handler	= proc_dointvec_minmax,
--		.extra1         = SYSCTL_ONE,
--		.extra2         = &timer_max
--	},
--	{
-+	[SCTP_RTO_MIN_IDX] = {
- 		.procname	= "rto_min",
- 		.data		= &init_net.sctp.rto_min,
- 		.maxlen		= sizeof(unsigned int),
-@@ -103,7 +104,7 @@ static struct ctl_table sctp_net_table[] = {
- 		.extra1         = SYSCTL_ONE,
- 		.extra2         = &init_net.sctp.rto_max
- 	},
--	{
-+	[SCTP_RTO_MAX_IDX] =  {
- 		.procname	= "rto_max",
- 		.data		= &init_net.sctp.rto_max,
- 		.maxlen		= sizeof(unsigned int),
-@@ -112,6 +113,33 @@ static struct ctl_table sctp_net_table[] = {
- 		.extra1         = &init_net.sctp.rto_min,
- 		.extra2         = &timer_max
- 	},
-+	[SCTP_PF_RETRANS_IDX] = {
-+		.procname	= "pf_retrans",
-+		.data		= &init_net.sctp.pf_retrans,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec_minmax,
-+		.extra1		= SYSCTL_ZERO,
-+		.extra2		= &init_net.sctp.ps_retrans,
-+	},
-+	[SCTP_PS_RETRANS_IDX] = {
-+		.procname	= "ps_retrans",
-+		.data		= &init_net.sctp.ps_retrans,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec_minmax,
-+		.extra1		= &init_net.sctp.pf_retrans,
-+		.extra2		= &ps_retrans_max,
-+	},
-+	{
-+		.procname	= "rto_initial",
-+		.data		= &init_net.sctp.rto_initial,
-+		.maxlen		= sizeof(unsigned int),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec_minmax,
-+		.extra1         = SYSCTL_ONE,
-+		.extra2         = &timer_max
-+	},
- 	{
- 		.procname	= "rto_alpha_exp_divisor",
- 		.data		= &init_net.sctp.rto_alpha,
-@@ -207,24 +235,6 @@ static struct ctl_table sctp_net_table[] = {
- 		.extra1		= SYSCTL_ONE,
- 		.extra2		= SYSCTL_INT_MAX,
- 	},
--	{
--		.procname	= "pf_retrans",
--		.data		= &init_net.sctp.pf_retrans,
--		.maxlen		= sizeof(int),
--		.mode		= 0644,
--		.proc_handler	= proc_dointvec_minmax,
--		.extra1		= SYSCTL_ZERO,
--		.extra2		= &init_net.sctp.ps_retrans,
--	},
--	{
--		.procname	= "ps_retrans",
--		.data		= &init_net.sctp.ps_retrans,
--		.maxlen		= sizeof(int),
--		.mode		= 0644,
--		.proc_handler	= proc_dointvec_minmax,
--		.extra1		= &init_net.sctp.pf_retrans,
--		.extra2		= &ps_retrans_max,
--	},
- 	{
- 		.procname	= "sndbuf_policy",
- 		.data		= &init_net.sctp.sndbuf_policy,
-@@ -586,6 +596,11 @@ int sctp_sysctl_net_register(struct net *net)
- 	for (i = 0; table[i].data; i++)
- 		table[i].data += (char *)(&net->sctp) - (char *)&init_net.sctp;
+-	crypto_info->enable_clk = rk_crypto_enable_clk;
+-	crypto_info->disable_clk = rk_crypto_disable_clk;
++	rk_crypto_enable_clk(crypto_info);
+ 	crypto_info->load_data = rk_load_data;
+ 	crypto_info->unload_data = rk_unload_data;
+ 	crypto_info->enqueue = rk_crypto_enqueue;
+@@ -423,6 +422,7 @@ static int rk_crypto_remove(struct platform_device *pdev)
+ 	struct rk_crypto_info *crypto_tmp = platform_get_drvdata(pdev);
  
-+	table[SCTP_RTO_MIN_IDX].extra2 = &net->sctp.rto_max;
-+	table[SCTP_RTO_MAX_IDX].extra1 = &net->sctp.rto_min;
-+	table[SCTP_PF_RETRANS_IDX].extra2 = &net->sctp.ps_retrans;
-+	table[SCTP_PS_RETRANS_IDX].extra1 = &net->sctp.pf_retrans;
-+
- 	net->sctp.sysctl_header = register_net_sysctl(net, "net/sctp", table);
- 	if (net->sctp.sysctl_header == NULL) {
- 		kfree(table);
+ 	rk_crypto_unregister();
++	rk_crypto_disable_clk(crypto_tmp);
+ 	tasklet_kill(&crypto_tmp->done_task);
+ 	tasklet_kill(&crypto_tmp->queue_task);
+ 	return 0;
+diff --git a/drivers/crypto/rockchip/rk3288_crypto.h b/drivers/crypto/rockchip/rk3288_crypto.h
+index 97278c2574ff..2fa7131e4060 100644
+--- a/drivers/crypto/rockchip/rk3288_crypto.h
++++ b/drivers/crypto/rockchip/rk3288_crypto.h
+@@ -220,8 +220,6 @@ struct rk_crypto_info {
+ 	int (*start)(struct rk_crypto_info *dev);
+ 	int (*update)(struct rk_crypto_info *dev);
+ 	void (*complete)(struct crypto_async_request *base, int err);
+-	int (*enable_clk)(struct rk_crypto_info *dev);
+-	void (*disable_clk)(struct rk_crypto_info *dev);
+ 	int (*load_data)(struct rk_crypto_info *dev,
+ 			 struct scatterlist *sg_src,
+ 			 struct scatterlist *sg_dst);
+diff --git a/drivers/crypto/rockchip/rk3288_crypto_ahash.c b/drivers/crypto/rockchip/rk3288_crypto_ahash.c
+index ed03058497bc..49017d1fb510 100644
+--- a/drivers/crypto/rockchip/rk3288_crypto_ahash.c
++++ b/drivers/crypto/rockchip/rk3288_crypto_ahash.c
+@@ -301,7 +301,7 @@ static int rk_cra_hash_init(struct crypto_tfm *tfm)
+ 				 sizeof(struct rk_ahash_rctx) +
+ 				 crypto_ahash_reqsize(tctx->fallback_tfm));
+ 
+-	return tctx->dev->enable_clk(tctx->dev);
++	return 0;
+ }
+ 
+ static void rk_cra_hash_exit(struct crypto_tfm *tfm)
+@@ -309,7 +309,6 @@ static void rk_cra_hash_exit(struct crypto_tfm *tfm)
+ 	struct rk_ahash_ctx *tctx = crypto_tfm_ctx(tfm);
+ 
+ 	free_page((unsigned long)tctx->dev->addr_vir);
+-	return tctx->dev->disable_clk(tctx->dev);
+ }
+ 
+ struct rk_crypto_tmp rk_ahash_sha1 = {
+diff --git a/drivers/crypto/rockchip/rk3288_crypto_skcipher.c b/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
+index 5bbf0d2722e1..8c44a19eab75 100644
+--- a/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
++++ b/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
+@@ -388,8 +388,10 @@ static int rk_ablk_init_tfm(struct crypto_skcipher *tfm)
+ 	ctx->dev->update = rk_ablk_rx;
+ 	ctx->dev->complete = rk_crypto_complete;
+ 	ctx->dev->addr_vir = (char *)__get_free_page(GFP_KERNEL);
++	if (!ctx->dev->addr_vir)
++		return -ENOMEM;
+ 
+-	return ctx->dev->addr_vir ? ctx->dev->enable_clk(ctx->dev) : -ENOMEM;
++	return 0;
+ }
+ 
+ static void rk_ablk_exit_tfm(struct crypto_skcipher *tfm)
+@@ -397,7 +399,6 @@ static void rk_ablk_exit_tfm(struct crypto_skcipher *tfm)
+ 	struct rk_cipher_ctx *ctx = crypto_skcipher_ctx(tfm);
+ 
+ 	free_page((unsigned long)ctx->dev->addr_vir);
+-	ctx->dev->disable_clk(ctx->dev);
+ }
+ 
+ struct rk_crypto_tmp rk_ecb_aes_alg = {
 -- 
 2.35.1
 
