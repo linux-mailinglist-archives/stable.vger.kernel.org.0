@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC18B657B5E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:20:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3341B658125
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233212AbiL1PUt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:20:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39786 "EHLO
+        id S234667AbiL1QZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:25:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233308AbiL1PUs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:20:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EB8BBA0
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:20:47 -0800 (PST)
+        with ESMTP id S234811AbiL1QY1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:24:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B4E119C0E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:21:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D073AB816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:20:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 432A8C433EF;
-        Wed, 28 Dec 2022 15:20:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3ACDB61577
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:21:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C499C433D2;
+        Wed, 28 Dec 2022 16:21:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240844;
-        bh=zjFIJkCz3oOe0Gx5mrgHSHt97IArqt35YJEJbgTvRB0=;
+        s=korg; t=1672244508;
+        bh=HRL0szz7m3tX6TfUqS2i3vmZRRETeIWr52yGzkEUzXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mtfy29wI3wc6mMFGwaT8TdpEqqZQv8T1iUidCBPgryOvB+EfCWPQcNAH/D/AxEClW
-         TYT7bHsaMc8ZVOHx4r2J7x4P0X0PhzvTI50QFYwulhhLI/MPOVylwVRhCplcWJtTjU
-         +BnWK3sC4y6ZWwE+Ppe4tj7/e9RGsEzRYfZQH//M=
+        b=CTDAeg61+3MGUhISeKOP6Sl20D/AToSlrQz6/eET/c7lgf9iP2M5AAXd8DM2AgtGc
+         MQ3UBF9CsAYW/FpKdS1G56tJiRulGruM6kHkamqCJzpnCn+EVvPQKJCr7GMFDWdZ2W
+         3HhYleQ0E+nlNwQ6m2n74JA2+I6htwZmRslzLSbs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Yiqun <zhangyiqun@phytium.com.cn>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 404/731] crypto: tcrypt - Fix multibuffer skcipher speed test mem leak
-Date:   Wed, 28 Dec 2022 15:38:31 +0100
-Message-Id: <20221228144308.277930720@linuxfoundation.org>
+Subject: [PATCH 6.0 0724/1073] samples: vfio-mdev: Fix missing pci_disable_device() in mdpy_fb_probe()
+Date:   Wed, 28 Dec 2022 15:38:32 +0100
+Message-Id: <20221228144347.689747270@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yiqun <zhangyiqun@phytium.com.cn>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit 1aa33fc8d4032227253ceb736f47c52b859d9683 ]
+[ Upstream commit d1f0f50fbbbbca1e3e8157e51934613bf88f6d44 ]
 
-In the past, the data for mb-skcipher test has been allocated
-twice, that means the first allcated memory area is without
-free, which may cause a potential memory leakage. So this
-patch is to remove one allocation to fix this error.
+Add missing pci_disable_device() in fail path of mdpy_fb_probe().
+Besides, fix missing release functions in mdpy_fb_remove().
 
-Fixes: e161c5930c15 ("crypto: tcrypt - add multibuf skcipher...")
-Signed-off-by: Zhang Yiqun <zhangyiqun@phytium.com.cn>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: cacade1946a4 ("sample: vfio mdev display - guest driver")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Link: https://lore.kernel.org/r/20221208013341.3999-1-shangxiaojing@huawei.com
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/tcrypt.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ samples/vfio-mdev/mdpy-fb.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/crypto/tcrypt.c b/crypto/tcrypt.c
-index 3362897bf61b..4ada7e749390 100644
---- a/crypto/tcrypt.c
-+++ b/crypto/tcrypt.c
-@@ -1295,15 +1295,6 @@ static void test_mb_skcipher_speed(const char *algo, int enc, int secs,
- 			goto out_free_tfm;
- 		}
+diff --git a/samples/vfio-mdev/mdpy-fb.c b/samples/vfio-mdev/mdpy-fb.c
+index 9ec93d90e8a5..4eb7aa11cfbb 100644
+--- a/samples/vfio-mdev/mdpy-fb.c
++++ b/samples/vfio-mdev/mdpy-fb.c
+@@ -109,7 +109,7 @@ static int mdpy_fb_probe(struct pci_dev *pdev,
  
--
--	for (i = 0; i < num_mb; ++i)
--		if (testmgr_alloc_buf(data[i].xbuf)) {
--			while (i--)
--				testmgr_free_buf(data[i].xbuf);
--			goto out_free_tfm;
--		}
--
--
- 	for (i = 0; i < num_mb; ++i) {
- 		data[i].req = skcipher_request_alloc(tfm, GFP_KERNEL);
- 		if (!data[i].req) {
+ 	ret = pci_request_regions(pdev, "mdpy-fb");
+ 	if (ret < 0)
+-		return ret;
++		goto err_disable_dev;
+ 
+ 	pci_read_config_dword(pdev, MDPY_FORMAT_OFFSET, &format);
+ 	pci_read_config_dword(pdev, MDPY_WIDTH_OFFSET,	&width);
+@@ -191,6 +191,9 @@ static int mdpy_fb_probe(struct pci_dev *pdev,
+ err_release_regions:
+ 	pci_release_regions(pdev);
+ 
++err_disable_dev:
++	pci_disable_device(pdev);
++
+ 	return ret;
+ }
+ 
+@@ -199,7 +202,10 @@ static void mdpy_fb_remove(struct pci_dev *pdev)
+ 	struct fb_info *info = pci_get_drvdata(pdev);
+ 
+ 	unregister_framebuffer(info);
++	iounmap(info->screen_base);
+ 	framebuffer_release(info);
++	pci_release_regions(pdev);
++	pci_disable_device(pdev);
+ }
+ 
+ static struct pci_device_id mdpy_fb_pci_table[] = {
 -- 
 2.35.1
 
