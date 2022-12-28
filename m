@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 077476580F5
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:23:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 035AB657B3D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:19:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234631AbiL1QXK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:23:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38730 "EHLO
+        id S233372AbiL1PTq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:19:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231398AbiL1QVv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:21:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81CA31BEB7
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:19:48 -0800 (PST)
+        with ESMTP id S233759AbiL1PTV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:19:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FBF913F92
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:19:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2084FB816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:19:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C134C433D2;
-        Wed, 28 Dec 2022 16:19:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF84961555
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:19:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2302C433D2;
+        Wed, 28 Dec 2022 15:19:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244385;
-        bh=2t4VGP6/TwZJtk6iHWU/J1bzW291JIdvEI9vvwQXQBk=;
+        s=korg; t=1672240759;
+        bh=6iKAppsnYWiZpIPNS69oxuP9Mry4wvHTzqwIS+vBMww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dGuhdUwddAWSHOEcRYTOv96+O/vo0aj0eUZdIDRrdG6Di2QR3mNngQvbx1p2kkXoC
-         AZc85Yy9/Ff/l0br4ZXX0ibjj+30yt90CFWXf1oYOfoe2wmxmXN/fXZh2QG9Y7xs96
-         w0n3F0PTLjuzQB8mzeXpe4tqaQQS7rY1QwP+YzrI=
+        b=W9vWyziV6iKOziAmMREocF79IISuB2kopS7HeiLfIUWRAeww7PTYJNMBF3mxcn1je
+         u/sXG08pEb+OrEgEFDmgSmrROn36cqZHGGRX22DT5BywjtvG4G4z869w8kH/vwy/cf
+         kMsIDtIIHqmYefLYrSr7w6HkVV7jSxFMZUnvHBTQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ramona Bolboaca <ramona.bolboaca@analog.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        patches@lists.linux.dev, Arun Easi <arun.easi@qlogic.com>,
+        Giridhar Malavali <giridhar.malavali@qlogic.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0701/1073] iio: adis: add __adis_enable_irq() implementation
+Subject: [PATCH 5.15 382/731] scsi: qla2xxx: Fix set-but-not-used variable warnings
 Date:   Wed, 28 Dec 2022 15:38:09 +0100
-Message-Id: <20221228144347.073433020@linuxfoundation.org>
+Message-Id: <20221228144307.633365605@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,134 +55,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ramona Bolboaca <ramona.bolboaca@analog.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 99c05e4283a19a02a256f14100ca4ec3b2da3f62 ]
+[ Upstream commit 4fb2169d66b837a2986f569f5d5b81f79e6e4a4c ]
 
-Add '__adis_enable_irq()' implementation which is the unlocked
-version of 'adis_enable_irq()'.
-Call '__adis_enable_irq()' instead of 'adis_enable_irq()' from
-'__adis_intial_startup()' to keep the expected unlocked functionality.
+Fix the following two compiler warnings:
 
-This fix is needed to remove a deadlock for all devices which are
-using 'adis_initial_startup()'. The deadlock occurs because the
-same mutex is acquired twice, without releasing it.
-The mutex is acquired once inside 'adis_initial_startup()', before
-calling '__adis_initial_startup()', and once inside
-'adis_enable_irq()', which is called by '__adis_initial_startup()'.
-The deadlock is removed by calling '__adis_enable_irq()', instead of
-'adis_enable_irq()' from within '__adis_initial_startup()'.
+drivers/scsi/qla2xxx/qla_init.c: In function ‘qla24xx_async_abort_cmd’:
+drivers/scsi/qla2xxx/qla_init.c:171:17: warning: variable ‘bail’ set but not used [-Wunused-but-set-variable]
+  171 |         uint8_t bail;
+      |                 ^~~~
+drivers/scsi/qla2xxx/qla_init.c: In function ‘qla2x00_async_tm_cmd’:
+drivers/scsi/qla2xxx/qla_init.c:2023:17: warning: variable ‘bail’ set but not used [-Wunused-but-set-variable]
+ 2023 |         uint8_t bail;
+      |                 ^~~~
 
-Fixes: b600bd7eb3335 ("iio: adis: do not disabe IRQs in 'adis_init()'")
-Signed-off-by: Ramona Bolboaca <ramona.bolboaca@analog.com>
-Reviewed-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20221122082757.449452-2-ramona.bolboaca@analog.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Arun Easi <arun.easi@qlogic.com>
+Cc: Giridhar Malavali <giridhar.malavali@qlogic.com>
+Fixes: feafb7b1714c ("[SCSI] qla2xxx: Fix vport delete issues")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Link: https://lore.kernel.org/r/20221031224818.2607882-1-bvanassche@acm.org
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/imu/adis.c       | 28 ++++++++++------------------
- include/linux/iio/imu/adis.h | 13 ++++++++++++-
- 2 files changed, 22 insertions(+), 19 deletions(-)
+ drivers/scsi/qla2xxx/qla_def.h    | 22 +++++++++++-----------
+ drivers/scsi/qla2xxx/qla_init.c   |  6 ++----
+ drivers/scsi/qla2xxx/qla_inline.h |  4 +---
+ drivers/scsi/qla2xxx/qla_os.c     |  4 +---
+ 4 files changed, 15 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/iio/imu/adis.c b/drivers/iio/imu/adis.c
-index f7fcfd04f659..bc40240b29e2 100644
---- a/drivers/iio/imu/adis.c
-+++ b/drivers/iio/imu/adis.c
-@@ -270,23 +270,19 @@ EXPORT_SYMBOL_NS(adis_debugfs_reg_access, IIO_ADISLIB);
- #endif
+diff --git a/drivers/scsi/qla2xxx/qla_def.h b/drivers/scsi/qla2xxx/qla_def.h
+index 51c7ce5f9792..307ffdfe048b 100644
+--- a/drivers/scsi/qla2xxx/qla_def.h
++++ b/drivers/scsi/qla2xxx/qla_def.h
+@@ -5117,17 +5117,17 @@ struct secure_flash_update_block_pk {
+ 		(test_bit(ISP_ABORT_NEEDED, &ha->dpc_flags) || \
+ 			 test_bit(LOOP_RESYNC_NEEDED, &ha->dpc_flags))
  
- /**
-- * adis_enable_irq() - Enable or disable data ready IRQ
-+ * __adis_enable_irq() - Enable or disable data ready IRQ (unlocked)
-  * @adis: The adis device
-  * @enable: Whether to enable the IRQ
-  *
-  * Returns 0 on success, negative error code otherwise
-  */
--int adis_enable_irq(struct adis *adis, bool enable)
-+int __adis_enable_irq(struct adis *adis, bool enable)
- {
--	int ret = 0;
-+	int ret;
- 	u16 msc;
- 
--	mutex_lock(&adis->state_lock);
--
--	if (adis->data->enable_irq) {
--		ret = adis->data->enable_irq(adis, enable);
--		goto out_unlock;
--	}
-+	if (adis->data->enable_irq)
-+		return adis->data->enable_irq(adis, enable);
- 
- 	if (adis->data->unmasked_drdy) {
- 		if (enable)
-@@ -294,12 +290,12 @@ int adis_enable_irq(struct adis *adis, bool enable)
- 		else
- 			disable_irq(adis->spi->irq);
- 
--		goto out_unlock;
-+		return 0;
- 	}
- 
- 	ret = __adis_read_reg_16(adis, adis->data->msc_ctrl_reg, &msc);
- 	if (ret)
--		goto out_unlock;
-+		return ret;
- 
- 	msc |= ADIS_MSC_CTRL_DATA_RDY_POL_HIGH;
- 	msc &= ~ADIS_MSC_CTRL_DATA_RDY_DIO2;
-@@ -308,13 +304,9 @@ int adis_enable_irq(struct adis *adis, bool enable)
- 	else
- 		msc &= ~ADIS_MSC_CTRL_DATA_RDY_EN;
- 
--	ret = __adis_write_reg_16(adis, adis->data->msc_ctrl_reg, msc);
--
--out_unlock:
--	mutex_unlock(&adis->state_lock);
--	return ret;
-+	return __adis_write_reg_16(adis, adis->data->msc_ctrl_reg, msc);
- }
--EXPORT_SYMBOL_NS(adis_enable_irq, IIO_ADISLIB);
-+EXPORT_SYMBOL_NS(__adis_enable_irq, IIO_ADISLIB);
- 
- /**
-  * __adis_check_status() - Check the device for error conditions (unlocked)
-@@ -445,7 +437,7 @@ int __adis_initial_startup(struct adis *adis)
- 	 * with 'IRQF_NO_AUTOEN' anyways.
- 	 */
- 	if (!adis->data->unmasked_drdy)
--		adis_enable_irq(adis, false);
-+		__adis_enable_irq(adis, false);
- 
- 	if (!adis->data->prod_id_reg)
- 		return 0;
-diff --git a/include/linux/iio/imu/adis.h b/include/linux/iio/imu/adis.h
-index 515ca09764fe..bcbefb757475 100644
---- a/include/linux/iio/imu/adis.h
-+++ b/include/linux/iio/imu/adis.h
-@@ -402,9 +402,20 @@ static inline int adis_update_bits_base(struct adis *adis, unsigned int reg,
- 	__adis_update_bits_base(adis, reg, mask, val, sizeof(val));	\
- })
- 
--int adis_enable_irq(struct adis *adis, bool enable);
- int __adis_check_status(struct adis *adis);
- int __adis_initial_startup(struct adis *adis);
-+int __adis_enable_irq(struct adis *adis, bool enable);
-+
-+static inline int adis_enable_irq(struct adis *adis, bool enable)
+-#define QLA_VHA_MARK_BUSY(__vha, __bail) do {		\
+-	atomic_inc(&__vha->vref_count);			\
+-	mb();						\
+-	if (__vha->flags.delete_progress) {		\
+-		atomic_dec(&__vha->vref_count);		\
+-		wake_up(&__vha->vref_waitq);		\
+-		__bail = 1;				\
+-	} else {					\
+-		__bail = 0;				\
+-	}						\
+-} while (0)
++static inline bool qla_vha_mark_busy(scsi_qla_host_t *vha)
 +{
-+	int ret;
-+
-+	mutex_lock(&adis->state_lock);
-+	ret = __adis_enable_irq(adis, enable);
-+	mutex_unlock(&adis->state_lock);
-+
-+	return ret;
++	atomic_inc(&vha->vref_count);
++	mb();
++	if (vha->flags.delete_progress) {
++		atomic_dec(&vha->vref_count);
++		wake_up(&vha->vref_waitq);
++		return true;
++	}
++	return false;
 +}
  
- static inline int adis_check_status(struct adis *adis)
+ #define QLA_VHA_MARK_NOT_BUSY(__vha) do {		\
+ 	atomic_dec(&__vha->vref_count);			\
+diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
+index b81797a3ab61..46b3b31a41bd 100644
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -168,7 +168,6 @@ int qla24xx_async_abort_cmd(srb_t *cmd_sp, bool wait)
+ 	struct srb_iocb *abt_iocb;
+ 	srb_t *sp;
+ 	int rval = QLA_FUNCTION_FAILED;
+-	uint8_t bail;
+ 
+ 	/* ref: INIT for ABTS command */
+ 	sp = qla2xxx_get_qpair_sp(cmd_sp->vha, cmd_sp->qpair, cmd_sp->fcport,
+@@ -176,7 +175,7 @@ int qla24xx_async_abort_cmd(srb_t *cmd_sp, bool wait)
+ 	if (!sp)
+ 		return QLA_MEMORY_ALLOC_FAILED;
+ 
+-	QLA_VHA_MARK_BUSY(vha, bail);
++	qla_vha_mark_busy(vha);
+ 	abt_iocb = &sp->u.iocb_cmd;
+ 	sp->type = SRB_ABT_CMD;
+ 	sp->name = "abort";
+@@ -2022,14 +2021,13 @@ qla2x00_async_tm_cmd(fc_port_t *fcport, uint32_t flags, uint32_t lun,
+ 	struct srb_iocb *tm_iocb;
+ 	srb_t *sp;
+ 	int rval = QLA_FUNCTION_FAILED;
+-	uint8_t bail;
+ 
+ 	/* ref: INIT */
+ 	sp = qla2x00_get_sp(vha, fcport, GFP_KERNEL);
+ 	if (!sp)
+ 		goto done;
+ 
+-	QLA_VHA_MARK_BUSY(vha, bail);
++	qla_vha_mark_busy(vha);
+ 	sp->type = SRB_TM_CMD;
+ 	sp->name = "tmf";
+ 	qla2x00_init_async_sp(sp, qla2x00_get_async_timeout(vha),
+diff --git a/drivers/scsi/qla2xxx/qla_inline.h b/drivers/scsi/qla2xxx/qla_inline.h
+index db17f7f410cd..5185dc5daf80 100644
+--- a/drivers/scsi/qla2xxx/qla_inline.h
++++ b/drivers/scsi/qla2xxx/qla_inline.h
+@@ -225,11 +225,9 @@ static inline srb_t *
+ qla2x00_get_sp(scsi_qla_host_t *vha, fc_port_t *fcport, gfp_t flag)
  {
+ 	srb_t *sp = NULL;
+-	uint8_t bail;
+ 	struct qla_qpair *qpair;
+ 
+-	QLA_VHA_MARK_BUSY(vha, bail);
+-	if (unlikely(bail))
++	if (unlikely(qla_vha_mark_busy(vha)))
+ 		return NULL;
+ 
+ 	qpair = vha->hw->base_qpair;
+diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
+index 00e97f0a07eb..05d827227d0b 100644
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -5043,13 +5043,11 @@ struct qla_work_evt *
+ qla2x00_alloc_work(struct scsi_qla_host *vha, enum qla_work_type type)
+ {
+ 	struct qla_work_evt *e;
+-	uint8_t bail;
+ 
+ 	if (test_bit(UNLOADING, &vha->dpc_flags))
+ 		return NULL;
+ 
+-	QLA_VHA_MARK_BUSY(vha, bail);
+-	if (bail)
++	if (qla_vha_mark_busy(vha))
+ 		return NULL;
+ 
+ 	e = kzalloc(sizeof(struct qla_work_evt), GFP_ATOMIC);
 -- 
 2.35.1
 
