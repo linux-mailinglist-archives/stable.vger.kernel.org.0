@@ -2,46 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4C04657C0C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:28:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 267AE657AFF
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:17:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233190AbiL1P2a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:28:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46270 "EHLO
+        id S233195AbiL1PRO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:17:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233783AbiL1P2P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:28:15 -0500
+        with ESMTP id S233213AbiL1PRA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:17:00 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CEBF140E8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:28:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C94D13F2B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:16:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 28EB76152F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:28:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DDAEC433EF;
-        Wed, 28 Dec 2022 15:28:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 080ED61551
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:16:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D96F8C433D2;
+        Wed, 28 Dec 2022 15:16:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241293;
-        bh=P7pd974hiBCB1vAla5DqBGWjzr9aVuHFVaOpyD5UIp0=;
+        s=korg; t=1672240617;
+        bh=hovzrAr0C5geGX7T8gSHxX0Zd5O0iepBHfxie7lVWCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CnvksXx35iPdes2wlshSJLe6+hfafrXsdt5CFMc0tKE/ao2KkHRwlZ/uJ7EFNB8cn
-         hH9jxS1gm9x6gipYTyZlAnurQJE9wVnCP6CNnpWyEGnEGxsfsT3twtTXIjmodY/BZN
-         VA/2Exv64ns8vmecp70q4HI8Wq0OAlzt2pShexUU=
+        b=Xi+oWY0Pxh72o/iB0w2lgLTuV7stILZpm8c3fYczEtZ0H+RWn31U8YE166OnClcsi
+         1CFE/jw4P7QWuVD4aDMVuNCso8A3Jsn3g8oMxm+0EzZI18ttph9SyKQEFw6wKAxs9n
+         VvelaxrCGc4X5F/O4qBxujfcEYGJObRe41dfuTnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        patches@lists.linux.dev, Wang Weiyang <wangweiyang2@huawei.com>,
+        Alexandre Bounine <alex.bou9@gmail.com>,
+        Dan Carpenter <error27@gmail.com>,
+        Jakob Koschel <jakobkoschel@gmail.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Matt Porter <mporter@kernel.crashing.org>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0229/1146] media: v4l2-ctrls: Fix off-by-one error in integer menu control check
-Date:   Wed, 28 Dec 2022 15:29:28 +0100
-Message-Id: <20221228144336.361707826@linuxfoundation.org>
+Subject: [PATCH 6.0 0181/1073] rapidio: fix possible UAF when kfifo_alloc() fails
+Date:   Wed, 28 Dec 2022 15:29:29 +0100
+Message-Id: <20221228144332.927468201@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +59,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+From: Wang Weiyang <wangweiyang2@huawei.com>
 
-[ Upstream commit b6bcdf763db1f5ea602bf876cfe91debfb3c7773 ]
+[ Upstream commit 02d7d89f816951e0862147d751b1150d67aaebdd ]
 
-The V4L2 API defines the maximum value for an integer menu control as
-the number of elements minus one. The v4l2_ctrl_new_std_menu() validates
-this constraint with an off-by-one error. Fix it.
+If kfifo_alloc() fails in mport_cdev_open(), goto err_fifo and just free
+priv. But priv is still in the chdev->file_list, then list traversal
+may cause UAF. This fixes the following smatch warning:
 
-Fixes: d1e9b7c12b74 ("[media] V4L: Add support for integer menu controls with standard menu items")
-Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+drivers/rapidio/devices/rio_mport_cdev.c:1930 mport_cdev_open() warn: '&priv->list' not removed from list
+
+Link: https://lkml.kernel.org/r/20221123095147.52408-1-wangweiyang2@huawei.com
+Fixes: e8de370188d0 ("rapidio: add mport char device driver")
+Signed-off-by: Wang Weiyang <wangweiyang2@huawei.com>
+Cc: Alexandre Bounine <alex.bou9@gmail.com>
+Cc: Dan Carpenter <error27@gmail.com>
+Cc: Jakob Koschel <jakobkoschel@gmail.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Matt Porter <mporter@kernel.crashing.org>
+Cc: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-ctrls-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rapidio/devices/rio_mport_cdev.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/v4l2-core/v4l2-ctrls-core.c b/drivers/media/v4l2-core/v4l2-ctrls-core.c
-index 0dab1d7b90f0..29169170880a 100644
---- a/drivers/media/v4l2-core/v4l2-ctrls-core.c
-+++ b/drivers/media/v4l2-core/v4l2-ctrls-core.c
-@@ -1827,7 +1827,7 @@ struct v4l2_ctrl *v4l2_ctrl_new_std_menu(struct v4l2_ctrl_handler *hdl,
- 	else if (type == V4L2_CTRL_TYPE_INTEGER_MENU)
- 		qmenu_int = v4l2_ctrl_get_int_menu(id, &qmenu_int_len);
+diff --git a/drivers/rapidio/devices/rio_mport_cdev.c b/drivers/rapidio/devices/rio_mport_cdev.c
+index 3cc83997a1f8..fecf523f36d8 100644
+--- a/drivers/rapidio/devices/rio_mport_cdev.c
++++ b/drivers/rapidio/devices/rio_mport_cdev.c
+@@ -1904,10 +1904,6 @@ static int mport_cdev_open(struct inode *inode, struct file *filp)
  
--	if ((!qmenu && !qmenu_int) || (qmenu_int && max > qmenu_int_len)) {
-+	if ((!qmenu && !qmenu_int) || (qmenu_int && max >= qmenu_int_len)) {
- 		handler_set_err(hdl, -EINVAL);
- 		return NULL;
- 	}
+ 	priv->md = chdev;
+ 
+-	mutex_lock(&chdev->file_mutex);
+-	list_add_tail(&priv->list, &chdev->file_list);
+-	mutex_unlock(&chdev->file_mutex);
+-
+ 	INIT_LIST_HEAD(&priv->db_filters);
+ 	INIT_LIST_HEAD(&priv->pw_filters);
+ 	spin_lock_init(&priv->fifo_lock);
+@@ -1926,6 +1922,9 @@ static int mport_cdev_open(struct inode *inode, struct file *filp)
+ 	spin_lock_init(&priv->req_lock);
+ 	mutex_init(&priv->dma_lock);
+ #endif
++	mutex_lock(&chdev->file_mutex);
++	list_add_tail(&priv->list, &chdev->file_list);
++	mutex_unlock(&chdev->file_mutex);
+ 
+ 	filp->private_data = priv;
+ 	goto out;
 -- 
 2.35.1
 
