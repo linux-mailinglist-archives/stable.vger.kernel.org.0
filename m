@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23179657E75
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:53:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9C06657F8C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:06:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232898AbiL1Pxu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:53:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41532 "EHLO
+        id S234396AbiL1QGG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:06:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233023AbiL1Pxt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:53:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBA0F17402
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:53:48 -0800 (PST)
+        with ESMTP id S234364AbiL1QFq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:05:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C903EB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:05:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 62F46B81730
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:53:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A262C433D2;
-        Wed, 28 Dec 2022 15:53:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CDD7261572
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:05:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE2F6C433D2;
+        Wed, 28 Dec 2022 16:05:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242826;
-        bh=AAqlyb/Ejw6JCf31pxPky/4HoZNTR3vn+c64IpxGnvs=;
+        s=korg; t=1672243541;
+        bh=AskKKRRcQqzLYBTMTG/5uzaH5GQVZxK81UJLrVlqNPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2YKSAgT5vAkE4y2VveAqoYd3d3MFTOJlWgCzWFoyWnmmWC47MOtLEkdas6TOc9hOK
-         IMFN+Z9rdFMbfTfA244ptw48h5OUb//obqtDWj5sy4Wu5DlisylRcs+6uEyD+z0wv5
-         NwkxPLkAl34Fup2TK5A8qrnlbxhEoMSlv5vLijQk=
+        b=Nu4Y9ZmZGjapyD+vC402Y+wwJR9bc22Jf6JfLazXyNtEFjUsCMacwQMS9JHF/Rz9B
+         F5Hq8B9tybp6wszlWx/newJuP/EGOCzreZXiBnCD9MmRZkuGEbOsz1exL4x639jXh9
+         QEQy6apTJDT1BzS1M6Ml+a2Ss1pWi8hL1mMlCJKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0459/1073] hsr: Synchronize sending frames to have always incremented outgoing seq nr.
-Date:   Wed, 28 Dec 2022 15:34:07 +0100
-Message-Id: <20221228144340.505371485@linuxfoundation.org>
+Subject: [PATCH 6.1 0509/1146] mmc: wbsd: fix return value check of mmc_add_host()
+Date:   Wed, 28 Dec 2022 15:34:08 +0100
+Message-Id: <20221228144344.001668195@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,134 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 06afd2c31d338fa762548580c1bf088703dd1e03 ]
+[ Upstream commit dc5b9b50fc9d1334407e316e6e29a5097ef833bd ]
 
-Sending frames via the hsr (master) device requires a sequence number
-which is tracked in hsr_priv::sequence_nr and protected by
-hsr_priv::seqnr_lock. Each time a new frame is sent, it will obtain a
-new id and then send it via the slave devices.
-Each time a packet is sent (via hsr_forward_do()) the sequence number is
-checked via hsr_register_frame_out() to ensure that a frame is not
-handled twice. This make sense for the receiving side to ensure that the
-frame is not injected into the stack twice after it has been received
-from both slave ports.
+mmc_add_host() may return error, if we ignore its return value,
+it will lead two issues:
+1. The memory that allocated in mmc_alloc_host() is leaked.
+2. In the remove() path, mmc_remove_host() will be called to
+   delete device, but it's not added yet, it will lead a kernel
+   crash because of null-ptr-deref in device_del().
 
-There is no locking to cover the sending path which means the following
-scenario is possible:
+So fix this by checking the return value and goto error path which
+will call mmc_free_host(), besides, other resources also need be
+released.
 
-  CPU0				CPU1
-  hsr_dev_xmit(skb1)		hsr_dev_xmit(skb2)
-   fill_frame_info()             fill_frame_info()
-    hsr_fill_frame_info()         hsr_fill_frame_info()
-     handle_std_frame()            handle_std_frame()
-      skb1's sequence_nr = 1
-                                    skb2's sequence_nr = 2
-   hsr_forward_do()              hsr_forward_do()
-
-                                   hsr_register_frame_out(, 2)  // okay, send)
-
-    hsr_register_frame_out(, 1) // stop, lower seq duplicate
-
-Both skbs (or their struct hsr_frame_info) received an unique id.
-However since skb2 was sent before skb1, the higher sequence number was
-recorded in hsr_register_frame_out() and the late arriving skb1 was
-dropped and never sent.
-
-This scenario has been observed in a three node HSR setup, with node1 +
-node2 having ping and iperf running in parallel. From time to time ping
-reported a missing packet. Based on tracing that missing ping packet did
-not leave the system.
-
-It might be possible (didn't check) to drop the sequence number check on
-the sending side. But if the higher sequence number leaves on wire
-before the lower does and the destination receives them in that order
-and it will drop the packet with the lower sequence number and never
-inject into the stack.
-Therefore it seems the only way is to lock the whole path from obtaining
-the sequence number and sending via dev_queue_xmit() and assuming the
-packets leave on wire in the same order (and don't get reordered by the
-NIC).
-
-Cover the whole path for the master interface from obtaining the ID
-until after it has been forwarded via hsr_forward_skb() to ensure the
-skbs are sent to the NIC in the order of the assigned sequence numbers.
-
-Fixes: f421436a591d3 ("net/hsr: Add support for the High-availability Seamless Redundancy protocol (HSRv0)")
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221109133237.3273558-1-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/hsr/hsr_device.c  | 12 +++++++-----
- net/hsr/hsr_forward.c |  3 +--
- 2 files changed, 8 insertions(+), 7 deletions(-)
+ drivers/mmc/host/wbsd.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/net/hsr/hsr_device.c b/net/hsr/hsr_device.c
-index 84fba2a402a5..b1e86a7265b3 100644
---- a/net/hsr/hsr_device.c
-+++ b/net/hsr/hsr_device.c
-@@ -219,7 +219,9 @@ static netdev_tx_t hsr_dev_xmit(struct sk_buff *skb, struct net_device *dev)
- 		skb->dev = master->dev;
- 		skb_reset_mac_header(skb);
- 		skb_reset_mac_len(skb);
-+		spin_lock_bh(&hsr->seqnr_lock);
- 		hsr_forward_skb(skb, master);
-+		spin_unlock_bh(&hsr->seqnr_lock);
- 	} else {
- 		dev_core_stats_tx_dropped_inc(dev);
- 		dev_kfree_skb_any(skb);
-@@ -306,7 +308,6 @@ static void send_hsr_supervision_frame(struct hsr_port *master,
- 		hsr_stag->sequence_nr = htons(hsr->sequence_nr);
- 		hsr->sequence_nr++;
- 	}
--	spin_unlock_bh(&hsr->seqnr_lock);
+diff --git a/drivers/mmc/host/wbsd.c b/drivers/mmc/host/wbsd.c
+index 67ecd342fe5f..7c7ec8d10232 100644
+--- a/drivers/mmc/host/wbsd.c
++++ b/drivers/mmc/host/wbsd.c
+@@ -1698,7 +1698,17 @@ static int wbsd_init(struct device *dev, int base, int irq, int dma,
+ 	 */
+ 	wbsd_init_device(host);
  
- 	hsr_stag->tlv.HSR_TLV_type = type;
- 	/* TODO: Why 12 in HSRv0? */
-@@ -317,11 +318,13 @@ static void send_hsr_supervision_frame(struct hsr_port *master,
- 	hsr_sp = skb_put(skb, sizeof(struct hsr_sup_payload));
- 	ether_addr_copy(hsr_sp->macaddress_A, master->dev->dev_addr);
- 
--	if (skb_put_padto(skb, ETH_ZLEN))
-+	if (skb_put_padto(skb, ETH_ZLEN)) {
-+		spin_unlock_bh(&hsr->seqnr_lock);
- 		return;
+-	mmc_add_host(mmc);
++	ret = mmc_add_host(mmc);
++	if (ret) {
++		if (!pnp)
++			wbsd_chip_poweroff(host);
++
++		wbsd_release_resources(host);
++		wbsd_free_mmc(dev);
++
++		mmc_free_host(mmc);
++		return ret;
 +	}
  
- 	hsr_forward_skb(skb, master);
--
-+	spin_unlock_bh(&hsr->seqnr_lock);
- 	return;
- }
- 
-@@ -360,9 +363,8 @@ static void send_prp_supervision_frame(struct hsr_port *master,
- 		return;
- 	}
- 
--	spin_unlock_bh(&hsr->seqnr_lock);
--
- 	hsr_forward_skb(skb, master);
-+	spin_unlock_bh(&hsr->seqnr_lock);
- }
- 
- /* Announce (supervision frame) timer function
-diff --git a/net/hsr/hsr_forward.c b/net/hsr/hsr_forward.c
-index a828221335bd..629daacc9607 100644
---- a/net/hsr/hsr_forward.c
-+++ b/net/hsr/hsr_forward.c
-@@ -509,10 +509,9 @@ static void handle_std_frame(struct sk_buff *skb,
- 		frame->is_from_san = true;
- 	} else {
- 		/* Sequence nr for the master node */
--		spin_lock_bh(&hsr->seqnr_lock);
-+		lockdep_assert_held(&hsr->seqnr_lock);
- 		frame->sequence_nr = hsr->sequence_nr;
- 		hsr->sequence_nr++;
--		spin_unlock_bh(&hsr->seqnr_lock);
- 	}
- }
- 
+ 	pr_info("%s: W83L51xD", mmc_hostname(mmc));
+ 	if (host->chip_id != 0)
 -- 
 2.35.1
 
