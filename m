@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB479657A51
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:10:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 522EE65793E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:59:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233676AbiL1PKK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:10:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57122 "EHLO
+        id S233328AbiL1O7W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:59:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233704AbiL1PJq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:09:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74E2413E30
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:09:45 -0800 (PST)
+        with ESMTP id S233341AbiL1O67 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:58:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C644910054
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:58:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 10F2461553
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:09:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F999C433D2;
-        Wed, 28 Dec 2022 15:09:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 63AF461130
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:58:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70FEFC433EF;
+        Wed, 28 Dec 2022 14:58:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240184;
-        bh=P+OT3LYAnQdBBVs8i0SJtQUcn4ygZ0OcuKdOqFtSL6Y=;
+        s=korg; t=1672239537;
+        bh=KY6EI4QnL0oDLxTOl9x+lSkyQF7MJ5lHNbVGVtlXZVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ei2PXKs26gey7UqOdgGvDR0+QVk9rCgMcf2pJFC6JY03WvTm2NkXdAjHS6KDEk6N2
-         66Gu5wi8oxO2LDjWCFOczGp0OVqJ+ctwbI2zEyY1ld2cLUHUOWD9/EliDG+eZ3Mo60
-         WFb0VP1kJ2DFBCF0AK20r2JglrwP8WVC4D5IfIPw=
+        b=HmT3FNUxH/pq0j0QWoLTeWy7KQ7POZTWe2nLOU72LScujuOG3uxxwoweXEbKRdAbb
+         AxtWcyGi4OgmDtzrkCNChnz8PtxjCXjqGmunllrwYxYlrktqA5v1V0ndaFZpyNHBoZ
+         AWj6DnFK1a8D82fvk6rwtjVNfTRjJRbUgZcdhTAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Marijn Suijten <marijn.suijten@somainline.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Luca Weiss <luca.weiss@fairphone.com>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0090/1146] ARM: dts: armada-39x: Fix compatible string for gpios
+Subject: [PATCH 6.0 0041/1073] arm64: dts: qcom: pm6350: Include header for KEY_POWER
 Date:   Wed, 28 Dec 2022 15:27:09 +0100
-Message-Id: <20221228144332.588490251@linuxfoundation.org>
+Message-Id: <20221228144329.243702203@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Marijn Suijten <marijn.suijten@somainline.org>
 
-[ Upstream commit d10886a4e6f85ee18d47a1066a52168461370ded ]
+[ Upstream commit f6e2d6914c7c095660a9c7c503328eebab1e2557 ]
 
-Armada 39x supports per CPU interrupts for gpios, like Armada XP.
+Make pm6350.dtsi self-contained by including input.h, needed for the
+KEY_POWER constant used to define the power key.
 
-So add compatible string "marvell,armadaxp-gpio" for Armada 39x GPIO nodes.
-
-Driver gpio-mvebu.c which handles both pre-XP and XP variants already
-provides support for per CPU interrupts on XP and newer variants.
-
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Fixes: d81a914fc630 ("ARM: dts: mvebu: armada-39x: add missing nodes describing GPIO's")
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Fixes: d8a3c775d7cd ("arm64: dts: qcom: Add PM6350 PMIC")
+Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Reviewed-by: Luca Weiss <luca.weiss@fairphone.com>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221030073232.22726-5-marijn.suijten@somainline.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/armada-39x.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/qcom/pm6350.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/armada-39x.dtsi b/arch/arm/boot/dts/armada-39x.dtsi
-index 9d1cac49c022..1e05208d9f34 100644
---- a/arch/arm/boot/dts/armada-39x.dtsi
-+++ b/arch/arm/boot/dts/armada-39x.dtsi
-@@ -213,7 +213,7 @@ nand_pins: nand-pins {
- 			};
+diff --git a/arch/arm64/boot/dts/qcom/pm6350.dtsi b/arch/arm64/boot/dts/qcom/pm6350.dtsi
+index ecf9b9919182..68245d78d2b9 100644
+--- a/arch/arm64/boot/dts/qcom/pm6350.dtsi
++++ b/arch/arm64/boot/dts/qcom/pm6350.dtsi
+@@ -3,6 +3,7 @@
+  * Copyright (c) 2021, Luca Weiss <luca@z3ntu.xyz>
+  */
  
- 			gpio0: gpio@18100 {
--				compatible = "marvell,orion-gpio";
-+				compatible = "marvell,armadaxp-gpio", "marvell,orion-gpio";
- 				reg = <0x18100 0x40>;
- 				ngpios = <32>;
- 				gpio-controller;
-@@ -227,7 +227,7 @@ gpio0: gpio@18100 {
- 			};
++#include <dt-bindings/input/input.h>
+ #include <dt-bindings/spmi/spmi.h>
  
- 			gpio1: gpio@18140 {
--				compatible = "marvell,orion-gpio";
-+				compatible = "marvell,armadaxp-gpio", "marvell,orion-gpio";
- 				reg = <0x18140 0x40>;
- 				ngpios = <28>;
- 				gpio-controller;
+ &spmi_bus {
 -- 
 2.35.1
 
