@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D102657DFE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:49:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0396657F80
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:05:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234079AbiL1PtE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:49:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36956 "EHLO
+        id S233169AbiL1QFd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:05:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234041AbiL1Ps7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:48:59 -0500
+        with ESMTP id S234326AbiL1QFc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:05:32 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47B2417E37
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:48:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B335F192BC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:05:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA28461563
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:48:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBDCEC433D2;
-        Wed, 28 Dec 2022 15:48:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 502896156E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:05:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 606DFC433D2;
+        Wed, 28 Dec 2022 16:05:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242536;
-        bh=kCFwz8DKLYK8GcX4IBnveVuAISRzZoydbFHSQHfd/+8=;
+        s=korg; t=1672243530;
+        bh=EFWRYaa315ZcgWkEslmF75YPQc+EnqURzZtIM6eliqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SEAu4zC8OkGr1BGF8YXrco3FvYJRItQ+NzEHfoXCMZEkQGvdCqX7dSoCTpljNuTiW
-         OZz9qyKvnVHxLppq+iBtE/Q9zXniFoxE1l8nx7nwD6ZKsrcF+hB3a92CBolg5QSADO
-         bK3xNuCVXadvns/5pOWlBMMadX+LbpN7tMgpqNFc=
+        b=k/vhhTSZwUllp7c51gWGq/DXRWtn5B9403o6DHVkpKsh66wxDfX0DgzXBTflc/epb
+         /2gTP53N0t9fJMbOpJGm/36kJsaQ2GAptFz8cOcbNwoMZtxgCIYpfUm65ecdZuPtwu
+         8fyLn4wYeH6SddMtU/butTKsE9sA0LEMdUCONnv4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Veerabadhran Gopalakrishnan <veerabadhran.gopalakrishnan@amd.com>,
-        Luben Tuikov <luben.tuikov@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0421/1073] amdgpu/nv.c: Corrected typo in the video capabilities resolution
-Date:   Wed, 28 Dec 2022 15:33:29 +0100
-Message-Id: <20221228144339.456576464@linuxfoundation.org>
+Subject: [PATCH 6.1 0471/1146] hsr: Avoid double remove of a node.
+Date:   Wed, 28 Dec 2022 15:33:30 +0100
+Message-Id: <20221228144342.976664555@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,156 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Veerabadhran Gopalakrishnan <veerabadhran.gopalakrishnan@amd.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-[ Upstream commit 65009bf2b4d287ef7ad7e6eb082b7c3d35eb611f ]
+[ Upstream commit 0c74d9f79ec4299365bbe803baa736ae0068179e ]
 
-Corrected the typo in the 4K resolution parameters.
+Due to the hashed-MAC optimisation one problem become visible:
+hsr_handle_sup_frame() walks over the list of available nodes and merges
+two node entries into one if based on the information in the supervision
+both MAC addresses belong to one node. The list-walk happens on a RCU
+protected list and delete operation happens under a lock.
 
-Fixes: b3a24461f9fb15 ("amdgpu/nv.c - Added codec query for Beige Goby")
-Fixes: 9075096b09e590 ("amdgpu/nv.c - Optimize code for video codec support structure")
-Fixes: 9ac0edaa0f8323 ("drm/amdgpu: add vcn_4_0_0 video codec query")
+If the supervision arrives on both slave interfaces at the same time
+then this delete operation can occur simultaneously on two CPUs. The
+result is the first-CPU deletes the from the list and the second CPUs
+BUGs while attempting to dereference a poisoned list-entry. This happens
+more likely with the optimisation because a new node for the mac_B entry
+is created once a packet has been received and removed (merged) once the
+supervision frame has been received.
 
-Signed-off-by: Veerabadhran Gopalakrishnan <veerabadhran.gopalakrishnan@amd.com>
-Acked-by: Luben Tuikov <luben.tuikov@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Avoid removing/ cleaning up a hsr_node twice by adding a `removed' field
+which is set to true after the removal and checked before the removal.
+
+Fixes: f266a683a4804 ("net/hsr: Better frame dispatch")
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/nv.c    | 28 ++++++++++++++--------------
- drivers/gpu/drm/amd/amdgpu/soc15.c | 24 ++++++++++++------------
- drivers/gpu/drm/amd/amdgpu/soc21.c |  2 +-
- 3 files changed, 27 insertions(+), 27 deletions(-)
+ net/hsr/hsr_framereg.c | 16 +++++++++++-----
+ net/hsr/hsr_framereg.h |  1 +
+ 2 files changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/nv.c b/drivers/gpu/drm/amd/amdgpu/nv.c
-index b3fba8dea63c..6853b93ac82e 100644
---- a/drivers/gpu/drm/amd/amdgpu/nv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/nv.c
-@@ -82,10 +82,10 @@ static const struct amdgpu_video_codecs nv_video_codecs_encode =
- /* Navi1x */
- static const struct amdgpu_video_codec_info nv_video_codecs_decode_array[] =
- {
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG2, 4096, 4906, 3)},
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4, 4096, 4906, 5)},
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4_AVC, 4096, 4906, 52)},
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_VC1, 4096, 4906, 4)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG2, 4096, 4096, 3)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4, 4096, 4096, 5)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4_AVC, 4096, 4096, 52)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_VC1, 4096, 4096, 4)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_HEVC, 8192, 4352, 186)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_JPEG, 4096, 4096, 0)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_VP9, 8192, 4352, 0)},
-@@ -100,10 +100,10 @@ static const struct amdgpu_video_codecs nv_video_codecs_decode =
- /* Sienna Cichlid */
- static const struct amdgpu_video_codec_info sc_video_codecs_decode_array[] =
- {
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG2, 4096, 4906, 3)},
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4, 4096, 4906, 5)},
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4_AVC, 4096, 4906, 52)},
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_VC1, 4096, 4906, 4)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG2, 4096, 4096, 3)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4, 4096, 4096, 5)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4_AVC, 4096, 4096, 52)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_VC1, 4096, 4096, 4)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_HEVC, 8192, 4352, 186)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_JPEG, 4096, 4096, 0)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_VP9, 8192, 4352, 0)},
-@@ -125,10 +125,10 @@ static struct amdgpu_video_codec_info sriov_sc_video_codecs_encode_array[] =
+diff --git a/net/hsr/hsr_framereg.c b/net/hsr/hsr_framereg.c
+index 9b8eaebce254..f2dd846ff903 100644
+--- a/net/hsr/hsr_framereg.c
++++ b/net/hsr/hsr_framereg.c
+@@ -366,9 +366,12 @@ void hsr_handle_sup_frame(struct hsr_frame_info *frame)
+ 	node_real->addr_B_port = port_rcv->type;
  
- static struct amdgpu_video_codec_info sriov_sc_video_codecs_decode_array[] =
- {
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG2, 4096, 4906, 3)},
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4, 4096, 4906, 5)},
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4_AVC, 4096, 4906, 52)},
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_VC1, 4096, 4906, 4)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG2, 4096, 4096, 3)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4, 4096, 4096, 5)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4_AVC, 4096, 4096, 52)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_VC1, 4096, 4096, 4)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_HEVC, 8192, 4352, 186)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_JPEG, 4096, 4096, 0)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_VP9, 8192, 4352, 0)},
-@@ -149,7 +149,7 @@ static struct amdgpu_video_codecs sriov_sc_video_codecs_decode =
+ 	spin_lock_bh(&hsr->list_lock);
+-	list_del_rcu(&node_curr->mac_list);
++	if (!node_curr->removed) {
++		list_del_rcu(&node_curr->mac_list);
++		node_curr->removed = true;
++		kfree_rcu(node_curr, rcu_head);
++	}
+ 	spin_unlock_bh(&hsr->list_lock);
+-	kfree_rcu(node_curr, rcu_head);
  
- /* Beige Goby*/
- static const struct amdgpu_video_codec_info bg_video_codecs_decode_array[] = {
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4_AVC, 4096, 4906, 52)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4_AVC, 4096, 4096, 52)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_HEVC, 8192, 4352, 186)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_VP9, 8192, 4352, 0)},
+ done:
+ 	/* Push back here */
+@@ -539,9 +542,12 @@ void hsr_prune_nodes(struct timer_list *t)
+ 		if (time_is_before_jiffies(timestamp +
+ 				msecs_to_jiffies(HSR_NODE_FORGET_TIME))) {
+ 			hsr_nl_nodedown(hsr, node->macaddress_A);
+-			list_del_rcu(&node->mac_list);
+-			/* Note that we need to free this entry later: */
+-			kfree_rcu(node, rcu_head);
++			if (!node->removed) {
++				list_del_rcu(&node->mac_list);
++				node->removed = true;
++				/* Note that we need to free this entry later: */
++				kfree_rcu(node, rcu_head);
++			}
+ 		}
+ 	}
+ 	spin_unlock_bh(&hsr->list_lock);
+diff --git a/net/hsr/hsr_framereg.h b/net/hsr/hsr_framereg.h
+index bdbb8c822ba1..b5f902397bf1 100644
+--- a/net/hsr/hsr_framereg.h
++++ b/net/hsr/hsr_framereg.h
+@@ -80,6 +80,7 @@ struct hsr_node {
+ 	bool			san_a;
+ 	bool			san_b;
+ 	u16			seq_out[HSR_PT_PORTS];
++	bool			removed;
+ 	struct rcu_head		rcu_head;
  };
-@@ -166,7 +166,7 @@ static const struct amdgpu_video_codecs bg_video_codecs_encode = {
  
- /* Yellow Carp*/
- static const struct amdgpu_video_codec_info yc_video_codecs_decode_array[] = {
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4_AVC, 4096, 4906, 52)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4_AVC, 4096, 4096, 52)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_HEVC, 8192, 4352, 186)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_VP9, 8192, 4352, 0)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_JPEG, 4096, 4096, 0)},
-diff --git a/drivers/gpu/drm/amd/amdgpu/soc15.c b/drivers/gpu/drm/amd/amdgpu/soc15.c
-index e3b2b6b4f1a6..7cd17dda32ce 100644
---- a/drivers/gpu/drm/amd/amdgpu/soc15.c
-+++ b/drivers/gpu/drm/amd/amdgpu/soc15.c
-@@ -103,10 +103,10 @@ static const struct amdgpu_video_codecs vega_video_codecs_encode =
- /* Vega */
- static const struct amdgpu_video_codec_info vega_video_codecs_decode_array[] =
- {
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG2, 4096, 4906, 3)},
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4, 4096, 4906, 5)},
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4_AVC, 4096, 4906, 52)},
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_VC1, 4096, 4906, 4)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG2, 4096, 4096, 3)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4, 4096, 4096, 5)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4_AVC, 4096, 4096, 52)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_VC1, 4096, 4096, 4)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_HEVC, 4096, 4096, 186)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_JPEG, 4096, 4096, 0)},
- };
-@@ -120,10 +120,10 @@ static const struct amdgpu_video_codecs vega_video_codecs_decode =
- /* Raven */
- static const struct amdgpu_video_codec_info rv_video_codecs_decode_array[] =
- {
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG2, 4096, 4906, 3)},
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4, 4096, 4906, 5)},
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4_AVC, 4096, 4906, 52)},
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_VC1, 4096, 4906, 4)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG2, 4096, 4096, 3)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4, 4096, 4096, 5)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4_AVC, 4096, 4096, 52)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_VC1, 4096, 4096, 4)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_HEVC, 4096, 4096, 186)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_JPEG, 4096, 4096, 0)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_VP9, 4096, 4096, 0)},
-@@ -138,10 +138,10 @@ static const struct amdgpu_video_codecs rv_video_codecs_decode =
- /* Renoir, Arcturus */
- static const struct amdgpu_video_codec_info rn_video_codecs_decode_array[] =
- {
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG2, 4096, 4906, 3)},
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4, 4096, 4906, 5)},
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4_AVC, 4096, 4906, 52)},
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_VC1, 4096, 4906, 4)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG2, 4096, 4096, 3)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4, 4096, 4096, 5)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4_AVC, 4096, 4096, 52)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_VC1, 4096, 4096, 4)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_HEVC, 8192, 4352, 186)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_JPEG, 4096, 4096, 0)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_VP9, 8192, 4352, 0)},
-diff --git a/drivers/gpu/drm/amd/amdgpu/soc21.c b/drivers/gpu/drm/amd/amdgpu/soc21.c
-index 9c3463b48139..6d21c975b73d 100644
---- a/drivers/gpu/drm/amd/amdgpu/soc21.c
-+++ b/drivers/gpu/drm/amd/amdgpu/soc21.c
-@@ -61,7 +61,7 @@ static const struct amdgpu_video_codecs vcn_4_0_0_video_codecs_encode =
- 
- static const struct amdgpu_video_codec_info vcn_4_0_0_video_codecs_decode_array[] =
- {
--	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4_AVC, 4096, 4906, 52)},
-+	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_MPEG4_AVC, 4096, 4096, 52)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_HEVC, 8192, 4352, 186)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_JPEG, 4096, 4096, 0)},
- 	{codec_info_build(AMDGPU_INFO_VIDEO_CAPS_CODEC_IDX_VP9, 8192, 4352, 0)},
 -- 
 2.35.1
 
