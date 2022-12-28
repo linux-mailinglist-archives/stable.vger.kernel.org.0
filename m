@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74E77657F55
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:04:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB21B65806D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:17:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234271AbiL1QEC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:04:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50374 "EHLO
+        id S234551AbiL1QRu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:17:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234291AbiL1QDm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:03:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E97221903B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:03:41 -0800 (PST)
+        with ESMTP id S234620AbiL1QRB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:17:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F063B1A38A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:14:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 86CB26156E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:03:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9837CC433D2;
-        Wed, 28 Dec 2022 16:03:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 92669B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:14:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A184C433EF;
+        Wed, 28 Dec 2022 16:14:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243421;
-        bh=cX+wMTyhYScw4iy2M8vV03P9zVumoBhGCoBlIjXFqiw=;
+        s=korg; t=1672244088;
+        bh=i8cFz/NGR+W2QvY2ThVU4pXhFpj7i6kk3Z/AMLdP7Aw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DVeT2SoT8Z8olKYDy4SfxtSyAUMMkPSsPFvMpj7hf2EnJHaF2GwBF0nZy4Cc70Hr5
-         sZh3d7XaGTLjnGeVvmDMpe0KweVv641DfU4xpQVmofvrdCNG4zZoY6r0MC+ZLp/Ft1
-         mtVZEPwVsHIr1C1MZrFtGuVOX4Uhe9igSemHr2eI=
+        b=SbN7eVN/d4ok0juat544wNCVHCN5jVct2aLan9OrHP+JH0G3RRVTn1huxdC8eV5z9
+         2SJAC5SZLiam0A0TYDdRms6tsF6Ry3XYMlcmu3KEnXISIsgB0tIrzdUS4KtoOWhKAs
+         eKzjoDwbjMiJ1U9qCKQqksDnG644eAPzBGi+XgYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <oliver.sang@intel.com>,
-        Richard Gobert <richardbgobert@gmail.com>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Weili Qian <qianweili@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0527/1073] net: setsockopt: fix IPV6_UNICAST_IF option for connected sockets
+Subject: [PATCH 6.1 0576/1146] crypto: hisilicon/qm - re-enable communicate interrupt before notifying PF
 Date:   Wed, 28 Dec 2022 15:35:15 +0100
-Message-Id: <20221228144342.358907746@linuxfoundation.org>
+Message-Id: <20221228144345.818470993@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,68 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Gobert <richardbgobert@gmail.com>
+From: Weili Qian <qianweili@huawei.com>
 
-[ Upstream commit 526682b458b1b56d2e0db027df535cb5cdcfde59 ]
+[ Upstream commit ee1537fe3dd89860d0336563891f6cac707d0cb5 ]
 
-Change the behaviour of ip6_datagram_connect to consider the interface
-set by the IPV6_UNICAST_IF socket option, similarly to udpv6_sendmsg.
+After the device is reset, the VF needs to re-enable communication
+interrupt before the VF sends restart complete message to the PF.
+If the interrupt is re-enabled after the VF notifies the PF, the PF
+may fail to send messages to the VF after receiving VF's restart
+complete message.
 
-This change is the IPv6 counterpart of the fix for IP_UNICAST_IF.
-The tests introduced by that patch showed that the incorrect
-behavior is present in IPv6 as well.
-This patch fixes the broken test.
-
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Link: https://lore.kernel.org/r/202210062117.c7eef1a3-oliver.sang@intel.com
-Fixes: 0e4d354762ce ("net-next: Fix IP_UNICAST_IF option behavior for connected sockets")
-
-Signed-off-by: Richard Gobert <richardbgobert@gmail.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 760fe22cf5e9 ("crypto: hisilicon/qm - update reset flow")
+Signed-off-by: Weili Qian <qianweili@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/datagram.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/crypto/hisilicon/qm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv6/datagram.c b/net/ipv6/datagram.c
-index 5ecb56522f9d..ba28aeb7cade 100644
---- a/net/ipv6/datagram.c
-+++ b/net/ipv6/datagram.c
-@@ -42,24 +42,29 @@ static void ip6_datagram_flow_key_init(struct flowi6 *fl6, struct sock *sk)
- {
- 	struct inet_sock *inet = inet_sk(sk);
- 	struct ipv6_pinfo *np = inet6_sk(sk);
-+	int oif = sk->sk_bound_dev_if;
+diff --git a/drivers/crypto/hisilicon/qm.c b/drivers/crypto/hisilicon/qm.c
+index c7e7fc49ec06..e5fefc466ac8 100644
+--- a/drivers/crypto/hisilicon/qm.c
++++ b/drivers/crypto/hisilicon/qm.c
+@@ -5725,6 +5725,7 @@ static void qm_pf_reset_vf_done(struct hisi_qm *qm)
+ 		cmd = QM_VF_START_FAIL;
+ 	}
  
- 	memset(fl6, 0, sizeof(*fl6));
- 	fl6->flowi6_proto = sk->sk_protocol;
- 	fl6->daddr = sk->sk_v6_daddr;
- 	fl6->saddr = np->saddr;
--	fl6->flowi6_oif = sk->sk_bound_dev_if;
- 	fl6->flowi6_mark = sk->sk_mark;
- 	fl6->fl6_dport = inet->inet_dport;
- 	fl6->fl6_sport = inet->inet_sport;
- 	fl6->flowlabel = np->flow_label;
- 	fl6->flowi6_uid = sk->sk_uid;
++	qm_cmd_init(qm);
+ 	ret = qm_ping_pf(qm, cmd);
+ 	if (ret)
+ 		dev_warn(&pdev->dev, "PF responds timeout in reset done!\n");
+@@ -5786,7 +5787,6 @@ static void qm_pf_reset_vf_process(struct hisi_qm *qm,
+ 		goto err_get_status;
  
--	if (!fl6->flowi6_oif)
--		fl6->flowi6_oif = np->sticky_pktinfo.ipi6_ifindex;
-+	if (!oif)
-+		oif = np->sticky_pktinfo.ipi6_ifindex;
+ 	qm_pf_reset_vf_done(qm);
+-	qm_cmd_init(qm);
  
--	if (!fl6->flowi6_oif && ipv6_addr_is_multicast(&fl6->daddr))
--		fl6->flowi6_oif = np->mcast_oif;
-+	if (!oif) {
-+		if (ipv6_addr_is_multicast(&fl6->daddr))
-+			oif = np->mcast_oif;
-+		else
-+			oif = np->ucast_oif;
-+	}
- 
-+	fl6->flowi6_oif = oif;
- 	security_sk_classify_flow(sk, flowi6_to_flowi_common(fl6));
- }
+ 	dev_info(dev, "device reset done.\n");
  
 -- 
 2.35.1
