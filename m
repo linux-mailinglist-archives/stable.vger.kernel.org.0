@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62FFE657BE8
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:27:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 712CF6581A5
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:30:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233762AbiL1P07 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:26:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45116 "EHLO
+        id S233102AbiL1QaU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:30:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233375AbiL1P0n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:26:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E53BB73
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:26:42 -0800 (PST)
+        with ESMTP id S233797AbiL1Q35 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:29:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B24D51B9DC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:26:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9D39EB816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:26:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15062C433EF;
-        Wed, 28 Dec 2022 15:26:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F6B76157A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:26:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61949C433EF;
+        Wed, 28 Dec 2022 16:26:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241199;
-        bh=K3Tx9dtdTTz4UNH41utkRBHMBa5qQJD4JlT8Zb95Bew=;
+        s=korg; t=1672244777;
+        bh=6xfCIgPcQgsbeOh9UalWO4mdWmzvSyxBOhIv/xCB7UM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FJx9y9cVwUrGQzuuPF0Op1EUGT3mVmCMm4tes5TEvmKGO1/b+1c+1VvjrSQf3sAND
-         u+xIfwHwStTLpaR1gSy/kgRTmgXb5a99Sj3F/fNtu0+ne2Ko6bQHQtQrv4laTQP/h1
-         tW0QJtIJv0MBkym48fee0eZh2YE/1+Zk0p+O+Z9g=
+        b=Ut2YMUr2wyFjIqbgkgm9Zv/BkeFKQ5TiJ2rP7Hs7QmjILtQrn9xBi+dvPaJIuZ0HF
+         6rr6qqcOVCxJnQvB1l3/uht5CmAgMVrR1mVoIPpX/oehvYpmjSewKQ58JKdBPA4nX3
+         6Z8eNCZitPjC4yG1SZUSiR/zGqVte1kWgW1J90ps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Yassine Oudjana <y.oudjana@protonmail.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 452/731] extcon: usbc-tusb320: Add support for TUSB320L
-Date:   Wed, 28 Dec 2022 15:39:19 +0100
-Message-Id: <20221228144309.656698419@linuxfoundation.org>
+        patches@lists.linux.dev, Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0772/1073] iommu/sun50i: Implement .iotlb_sync_map
+Date:   Wed, 28 Dec 2022 15:39:20 +0100
+Message-Id: <20221228144348.982291413@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,183 +52,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yassine Oudjana <y.oudjana@protonmail.com>
+From: Jernej Skrabec <jernej.skrabec@gmail.com>
 
-[ Upstream commit ce0320bd3872038569be360870e2d5251b975692 ]
+[ Upstream commit e563cc0c787c85a4d9def0a77078dc5d3f445e3d ]
 
-TUSB320L is a newer chip with additional features, and it has additional steps
-in its mode changing sequence:
- - Disable CC state machine,
- - Write to mode register,
- - Wait for 5 ms,
- - Re-enable CC state machine.
-It also has an additional register that a revision number can be read from.
+Allocated iova ranges need to be invalidated immediately or otherwise
+they might or might not work when used by master or CPU. This was
+discovered when running video decoder conformity test with Cedrus. Some
+videos were now and then decoded incorrectly and generated page faults.
 
-Add support for the mode changing sequence, and read the revision number during
-probe and print it as info.
+According to vendor driver, it's enough to invalidate just start and end
+TLB and PTW cache lines. Documentation says that neighbouring lines must
+be invalidated too. Finally, when page fault occurs, that iova must be
+invalidated the same way, according to documentation.
 
-Signed-off-by: Yassine Oudjana <y.oudjana@protonmail.com>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
-Stable-dep-of: 581c848b610d ("extcon: usbc-tusb320: Update state on probe even if no IRQ pending")
+Fixes: 4100b8c229b3 ("iommu: Add Allwinner H6 IOMMU driver")
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Link: https://lore.kernel.org/r/20221025165415.307591-6-jernej.skrabec@gmail.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/extcon/extcon-usbc-tusb320.c | 82 +++++++++++++++++++++++++++-
- 1 file changed, 79 insertions(+), 3 deletions(-)
+ drivers/iommu/sun50i-iommu.c | 73 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 73 insertions(+)
 
-diff --git a/drivers/extcon/extcon-usbc-tusb320.c b/drivers/extcon/extcon-usbc-tusb320.c
-index 1ed1dfe54206..6ba3d89b106d 100644
---- a/drivers/extcon/extcon-usbc-tusb320.c
-+++ b/drivers/extcon/extcon-usbc-tusb320.c
-@@ -21,10 +21,13 @@
- #define TUSB320_REG9_INTERRUPT_STATUS		BIT(4)
+diff --git a/drivers/iommu/sun50i-iommu.c b/drivers/iommu/sun50i-iommu.c
+index 7c3b2ac552da..d7c5e9b1a087 100644
+--- a/drivers/iommu/sun50i-iommu.c
++++ b/drivers/iommu/sun50i-iommu.c
+@@ -93,6 +93,8 @@
+ #define NUM_PT_ENTRIES			256
+ #define PT_SIZE				(NUM_PT_ENTRIES * PT_ENTRY_SIZE)
  
- #define TUSB320_REGA				0xa
-+#define TUSB320L_REGA_DISABLE_TERM		BIT(0)
- #define TUSB320_REGA_I2C_SOFT_RESET		BIT(3)
- #define TUSB320_REGA_MODE_SELECT_SHIFT		4
- #define TUSB320_REGA_MODE_SELECT_MASK		0x3
- 
-+#define TUSB320L_REGA0_REVISION			0xa0
++#define SPAGE_SIZE			4096
 +
- enum tusb320_attached_state {
- 	TUSB320_ATTACHED_STATE_NONE,
- 	TUSB320_ATTACHED_STATE_DFP,
-@@ -39,11 +42,18 @@ enum tusb320_mode {
- 	TUSB320_MODE_DRP,
- };
+ struct sun50i_iommu {
+ 	struct iommu_device iommu;
  
-+struct tusb320_priv;
-+
-+struct tusb320_ops {
-+	int (*set_mode)(struct tusb320_priv *priv, enum tusb320_mode mode);
-+	int (*get_revision)(struct tusb320_priv *priv, unsigned int *revision);
-+};
-+
- struct tusb320_priv {
- 	struct device *dev;
- 	struct regmap *regmap;
- 	struct extcon_dev *edev;
--
-+	struct tusb320_ops *ops;
- 	enum tusb320_attached_state state;
- };
- 
-@@ -99,12 +109,46 @@ static int tusb320_set_mode(struct tusb320_priv *priv, enum tusb320_mode mode)
- 	return 0;
+@@ -295,6 +297,62 @@ static void sun50i_table_flush(struct sun50i_iommu_domain *sun50i_domain,
+ 	dma_sync_single_for_device(iommu->dev, dma, size, DMA_TO_DEVICE);
  }
  
-+static int tusb320l_set_mode(struct tusb320_priv *priv, enum tusb320_mode mode)
++static void sun50i_iommu_zap_iova(struct sun50i_iommu *iommu,
++				  unsigned long iova)
 +{
++	u32 reg;
 +	int ret;
 +
-+	/* Disable CC state machine */
-+	ret = regmap_write_bits(priv->regmap, TUSB320_REGA,
-+		TUSB320L_REGA_DISABLE_TERM, 1);
-+	if (ret) {
-+		dev_err(priv->dev,
-+			"failed to disable CC state machine: %d\n", ret);
-+		return ret;
-+	}
++	iommu_write(iommu, IOMMU_TLB_IVLD_ADDR_REG, iova);
++	iommu_write(iommu, IOMMU_TLB_IVLD_ADDR_MASK_REG, GENMASK(31, 12));
++	iommu_write(iommu, IOMMU_TLB_IVLD_ENABLE_REG,
++		    IOMMU_TLB_IVLD_ENABLE_ENABLE);
 +
-+	/* Write mode */
-+	ret = regmap_write_bits(priv->regmap, TUSB320_REGA,
-+		TUSB320_REGA_MODE_SELECT_MASK << TUSB320_REGA_MODE_SELECT_SHIFT,
-+		mode << TUSB320_REGA_MODE_SELECT_SHIFT);
-+	if (ret) {
-+		dev_err(priv->dev, "failed to write mode: %d\n", ret);
-+		goto err;
-+	}
-+
-+	msleep(5);
-+err:
-+	/* Re-enable CC state machine */
-+	ret = regmap_write_bits(priv->regmap, TUSB320_REGA,
-+		TUSB320L_REGA_DISABLE_TERM, 0);
++	ret = readl_poll_timeout_atomic(iommu->base + IOMMU_TLB_IVLD_ENABLE_REG,
++					reg, !reg, 1, 2000);
 +	if (ret)
-+		dev_err(priv->dev,
-+			"failed to re-enable CC state machine: %d\n", ret);
-+
-+	return ret;
++		dev_warn(iommu->dev, "TLB invalidation timed out!\n");
 +}
 +
- static int tusb320_reset(struct tusb320_priv *priv)
- {
- 	int ret;
- 
- 	/* Set mode to default (follow PORT pin) */
--	ret = tusb320_set_mode(priv, TUSB320_MODE_PORT);
-+	ret = priv->ops->set_mode(priv, TUSB320_MODE_PORT);
- 	if (ret && ret != -EBUSY) {
- 		dev_err(priv->dev,
- 			"failed to set mode to PORT: %d\n", ret);
-@@ -126,6 +170,20 @@ static int tusb320_reset(struct tusb320_priv *priv)
- 	return 0;
- }
- 
-+static int tusb320l_get_revision(struct tusb320_priv *priv, unsigned int *revision)
++static void sun50i_iommu_zap_ptw_cache(struct sun50i_iommu *iommu,
++				       unsigned long iova)
 +{
-+	return regmap_read(priv->regmap, TUSB320L_REGA0_REVISION, revision);
++	u32 reg;
++	int ret;
++
++	iommu_write(iommu, IOMMU_PC_IVLD_ADDR_REG, iova);
++	iommu_write(iommu, IOMMU_PC_IVLD_ENABLE_REG,
++		    IOMMU_PC_IVLD_ENABLE_ENABLE);
++
++	ret = readl_poll_timeout_atomic(iommu->base + IOMMU_PC_IVLD_ENABLE_REG,
++					reg, !reg, 1, 2000);
++	if (ret)
++		dev_warn(iommu->dev, "PTW cache invalidation timed out!\n");
 +}
 +
-+static struct tusb320_ops tusb320_ops = {
-+	.set_mode = tusb320_set_mode,
-+};
++static void sun50i_iommu_zap_range(struct sun50i_iommu *iommu,
++				   unsigned long iova, size_t size)
++{
++	assert_spin_locked(&iommu->iommu_lock);
 +
-+static struct tusb320_ops tusb320l_ops = {
-+	.set_mode = tusb320l_set_mode,
-+	.get_revision = tusb320l_get_revision,
-+};
++	iommu_write(iommu, IOMMU_AUTO_GATING_REG, 0);
 +
- static irqreturn_t tusb320_irq_handler(int irq, void *dev_id)
- {
- 	struct tusb320_priv *priv = dev_id;
-@@ -176,6 +234,8 @@ static int tusb320_extcon_probe(struct i2c_client *client,
- 				const struct i2c_device_id *id)
- {
- 	struct tusb320_priv *priv;
-+	const void *match_data;
-+	unsigned int revision;
- 	int ret;
- 
- 	priv = devm_kzalloc(&client->dev, sizeof(*priv), GFP_KERNEL);
-@@ -191,12 +251,27 @@ static int tusb320_extcon_probe(struct i2c_client *client,
- 	if (ret)
- 		return ret;
- 
-+	match_data = device_get_match_data(&client->dev);
-+	if (!match_data)
-+		return -EINVAL;
-+
-+	priv->ops = (struct tusb320_ops*)match_data;
-+
- 	priv->edev = devm_extcon_dev_allocate(priv->dev, tusb320_extcon_cable);
- 	if (IS_ERR(priv->edev)) {
- 		dev_err(priv->dev, "failed to allocate extcon device\n");
- 		return PTR_ERR(priv->edev);
- 	}
- 
-+	if (priv->ops->get_revision) {
-+		ret = priv->ops->get_revision(priv, &revision);
-+		if (ret)
-+			dev_warn(priv->dev,
-+				"failed to read revision register: %d\n", ret);
-+		else
-+			dev_info(priv->dev, "chip revision %d\n", revision);
++	sun50i_iommu_zap_iova(iommu, iova);
++	sun50i_iommu_zap_iova(iommu, iova + SPAGE_SIZE);
++	if (size > SPAGE_SIZE) {
++		sun50i_iommu_zap_iova(iommu, iova + size);
++		sun50i_iommu_zap_iova(iommu, iova + size + SPAGE_SIZE);
++	}
++	sun50i_iommu_zap_ptw_cache(iommu, iova);
++	sun50i_iommu_zap_ptw_cache(iommu, iova + SZ_1M);
++	if (size > SZ_1M) {
++		sun50i_iommu_zap_ptw_cache(iommu, iova + size);
++		sun50i_iommu_zap_ptw_cache(iommu, iova + size + SZ_1M);
 +	}
 +
- 	ret = devm_extcon_dev_register(priv->dev, priv->edev);
- 	if (ret < 0) {
- 		dev_err(priv->dev, "failed to register extcon device\n");
-@@ -231,7 +306,8 @@ static int tusb320_extcon_probe(struct i2c_client *client,
++	iommu_write(iommu, IOMMU_AUTO_GATING_REG, IOMMU_AUTO_GATING_ENABLE);
++}
++
+ static int sun50i_iommu_flush_all_tlb(struct sun50i_iommu *iommu)
+ {
+ 	u32 reg;
+@@ -344,6 +402,18 @@ static void sun50i_iommu_flush_iotlb_all(struct iommu_domain *domain)
+ 	spin_unlock_irqrestore(&iommu->iommu_lock, flags);
  }
  
- static const struct of_device_id tusb320_extcon_dt_match[] = {
--	{ .compatible = "ti,tusb320", },
-+	{ .compatible = "ti,tusb320", .data = &tusb320_ops, },
-+	{ .compatible = "ti,tusb320l", .data = &tusb320l_ops, },
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, tusb320_extcon_dt_match);
++static void sun50i_iommu_iotlb_sync_map(struct iommu_domain *domain,
++					unsigned long iova, size_t size)
++{
++	struct sun50i_iommu_domain *sun50i_domain = to_sun50i_domain(domain);
++	struct sun50i_iommu *iommu = sun50i_domain->iommu;
++	unsigned long flags;
++
++	spin_lock_irqsave(&iommu->iommu_lock, flags);
++	sun50i_iommu_zap_range(iommu, iova, size);
++	spin_unlock_irqrestore(&iommu->iommu_lock, flags);
++}
++
+ static void sun50i_iommu_iotlb_sync(struct iommu_domain *domain,
+ 				    struct iommu_iotlb_gather *gather)
+ {
+@@ -767,6 +837,7 @@ static const struct iommu_ops sun50i_iommu_ops = {
+ 		.attach_dev	= sun50i_iommu_attach_device,
+ 		.detach_dev	= sun50i_iommu_detach_device,
+ 		.flush_iotlb_all = sun50i_iommu_flush_iotlb_all,
++		.iotlb_sync_map = sun50i_iommu_iotlb_sync_map,
+ 		.iotlb_sync	= sun50i_iommu_iotlb_sync,
+ 		.iova_to_phys	= sun50i_iommu_iova_to_phys,
+ 		.map		= sun50i_iommu_map,
+@@ -786,6 +857,8 @@ static void sun50i_iommu_report_fault(struct sun50i_iommu *iommu,
+ 		report_iommu_fault(iommu->domain, iommu->dev, iova, prot);
+ 	else
+ 		dev_err(iommu->dev, "Page fault while iommu not attached to any domain?\n");
++
++	sun50i_iommu_zap_range(iommu, iova, SPAGE_SIZE);
+ }
+ 
+ static phys_addr_t sun50i_iommu_handle_pt_irq(struct sun50i_iommu *iommu,
 -- 
 2.35.1
 
