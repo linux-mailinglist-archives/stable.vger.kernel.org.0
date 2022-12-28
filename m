@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26924657C55
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:31:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A7956582F9
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233898AbiL1Pbg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:31:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49240 "EHLO
+        id S234925AbiL1Qnw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:43:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233838AbiL1PbY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:31:24 -0500
+        with ESMTP id S234949AbiL1QnY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:24 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A71DA15F35
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:31:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D247A1D335
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 430016154D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:31:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FFCEC433D2;
-        Wed, 28 Dec 2022 15:31:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AB5161576
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:37:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77894C433EF;
+        Wed, 28 Dec 2022 16:37:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241482;
-        bh=uY69BWEonealXJRxRIe5Mc0O8gFvWHAWmyGV5wrFU7k=;
+        s=korg; t=1672245452;
+        bh=FYBXsWlUp8AgPasGNzvLJEMDl7Pt9WKeBV+dNyhtRUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HZCksEWsX7M/elAjk8XjQ2LPRHQULPZpJ4+y22qimgJyrNVmNxu0s3qnyG6Xljefr
-         Lk3vmuQfU579CR5k92Z5tUnGs+nb1yfTl5zYzrLlm8WrptSsXPLRU3YiRlZt5wvqD+
-         W/+Tw5rPtRLmgVV4wX9MTeNOol1HejtbM3DuufyM=
+        b=SS08v0szOVRnsEe0nTDmNVIsFbRmYArERmga8tpcfoUD7uV/ZSL0kd87rdMHTOYAT
+         94uXShyjp4H0pXzq64udWklMHLIutcS+BLy3rAY5b4201Pu9B4dSBayJUf8srXD4dl
+         m0Ck8uHtvu40Q9cWed/HXvffTN5XOz1YGNYhrglA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        patches@lists.linux.dev, Li Huafei <lihuafei1@huawei.com>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 487/731] staging: rtl8192u: Fix use after free in ieee80211_rx()
+Subject: [PATCH 6.1 0855/1146] kprobes: Fix check for probe enabled in kill_kprobe()
 Date:   Wed, 28 Dec 2022 15:39:54 +0100
-Message-Id: <20221228144310.665518976@linuxfoundation.org>
+Message-Id: <20221228144353.378179777@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,39 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Li Huafei <lihuafei1@huawei.com>
 
-[ Upstream commit bcc5e2dcf09089b337b76fc1a589f6ff95ca19ac ]
+[ Upstream commit 0c76ef3f26d5ef2ac2c21b47e7620cff35809fbb ]
 
-We cannot dereference the "skb" pointer after calling
-ieee80211_monitor_rx(), because it is a use after free.
+In kill_kprobe(), the check whether disarm_kprobe_ftrace() needs to be
+called always fails. This is because before that we set the
+KPROBE_FLAG_GONE flag for kprobe so that "!kprobe_disabled(p)" is always
+false.
 
-Fixes: 8fc8598e61f6 ("Staging: Added Realtek rtl8192u driver to staging")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Link: https://lore.kernel.org/r/Y33BArx3k/aw6yv/@kili
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The disarm_kprobe_ftrace() call introduced by commit:
+
+  0cb2f1372baa ("kprobes: Fix NULL pointer dereference at kprobe_ftrace_handler")
+
+to fix the NULL pointer reference problem. When the probe is enabled, if
+we do not disarm it, this problem still exists.
+
+Fix it by putting the probe enabled check before setting the
+KPROBE_FLAG_GONE flag.
+
+Link: https://lore.kernel.org/all/20221126114316.201857-1-lihuafei1@huawei.com/
+
+Fixes: 3031313eb3d54 ("kprobes: Fix to check probe enabled before disarm_kprobe_ftrace()")
+Signed-off-by: Li Huafei <lihuafei1@huawei.com>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/kprobes.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c b/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c
-index b58e75932ecd..3686b3c599ce 100644
---- a/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c
-+++ b/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c
-@@ -951,9 +951,11 @@ int ieee80211_rx(struct ieee80211_device *ieee, struct sk_buff *skb,
- #endif
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index 3050631e528d..a35074f0daa1 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -2364,6 +2364,14 @@ static void kill_kprobe(struct kprobe *p)
  
- 	if (ieee->iw_mode == IW_MODE_MONITOR) {
-+		unsigned int len = skb->len;
+ 	lockdep_assert_held(&kprobe_mutex);
+ 
++	/*
++	 * The module is going away. We should disarm the kprobe which
++	 * is using ftrace, because ftrace framework is still available at
++	 * 'MODULE_STATE_GOING' notification.
++	 */
++	if (kprobe_ftrace(p) && !kprobe_disabled(p) && !kprobes_all_disarmed)
++		disarm_kprobe_ftrace(p);
 +
- 		ieee80211_monitor_rx(ieee, skb, rx_stats);
- 		stats->rx_packets++;
--		stats->rx_bytes += skb->len;
-+		stats->rx_bytes += len;
- 		return 1;
- 	}
+ 	p->flags |= KPROBE_FLAG_GONE;
+ 	if (kprobe_aggrprobe(p)) {
+ 		/*
+@@ -2380,14 +2388,6 @@ static void kill_kprobe(struct kprobe *p)
+ 	 * the original probed function (which will be freed soon) any more.
+ 	 */
+ 	arch_remove_kprobe(p);
+-
+-	/*
+-	 * The module is going away. We should disarm the kprobe which
+-	 * is using ftrace, because ftrace framework is still available at
+-	 * 'MODULE_STATE_GOING' notification.
+-	 */
+-	if (kprobe_ftrace(p) && !kprobe_disabled(p) && !kprobes_all_disarmed)
+-		disarm_kprobe_ftrace(p);
+ }
  
+ /* Disable one kprobe */
 -- 
 2.35.1
 
