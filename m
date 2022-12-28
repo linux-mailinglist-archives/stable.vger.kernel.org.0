@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58648657F1C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:01:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1983B6578CE
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:54:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234263AbiL1QB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:01:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47872 "EHLO
+        id S233185AbiL1Oyc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:54:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234259AbiL1QBN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:01:13 -0500
+        with ESMTP id S233180AbiL1OyW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:54:22 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39027235
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:01:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1047495
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:54:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C9E2261562
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:01:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF90AC433D2;
-        Wed, 28 Dec 2022 16:01:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9ED0D61552
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:54:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADEDFC433D2;
+        Wed, 28 Dec 2022 14:54:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243271;
-        bh=LLOX41Xb9ERXg6GuLDR0MF9wgsTrmr77hKYGmlX+igY=;
+        s=korg; t=1672239261;
+        bh=xlUw489YlVwhdm/wRM7oXua3Dzwr1f/PtjW3DGkIVZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LEhGSd3ErkJSZGv2t82lStB4det05MqympT4xkfPUt16qYT2E0Fz+qZiwp3VTf98z
-         +8Xwd2KiJaO9M67S9x6xHQuf/SmLyZ08wXyF3WeRz9rxsQ4F+VsxXDoMfoeIFwcDus
-         e3XWBrSmfBWxZiXPbTZ2/lmwzvAU2w0tqrlj/GgI=
+        b=aoTzmbeTHleHOyIoHYy0oxU90P0kNHCVVNbING7zITKNZY6fgTixYvSSHIAtu87gx
+         k2OajRq8k4gnahADPiJtEH76d/SUcRoDhkeZLscxqzgGHAO4Jc3Cf2U6lI2fp9A2ox
+         BBFrpu1phEnIdWZwP2ka1FRFdtegJRavpKPewzg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yonghong Song <yhs@meta.com>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@rivosinc.com>,
-        Yonghong Song <yhs@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        patches@lists.linux.dev,
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Robert Foss <robert.foss@linaro.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0508/1073] bpf: Do not zero-extend kfunc return values
+Subject: [PATCH 5.15 189/731] media: camss: Clean up received buffers on failed start of streaming
 Date:   Wed, 28 Dec 2022 15:34:56 +0100
-Message-Id: <20221228144341.846015453@linuxfoundation.org>
+Message-Id: <20221228144302.037927547@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,101 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Björn Töpel <bjorn@rivosinc.com>
+From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
 
-[ Upstream commit d35af0a7feb077c43ff0233bba5a8c6e75b73e35 ]
+[ Upstream commit c8f3582345e6a69da65ab588f7c4c2d1685b0e80 ]
 
-In BPF all global functions, and BPF helpers return a 64-bit
-value. For kfunc calls, this is not the case, and they can return
-e.g. 32-bit values.
+It is required to return the received buffers, if streaming can not be
+started. For instance media_pipeline_start() may fail with EPIPE, if
+a link validation between entities is not passed, and in such a case
+a user gets a kernel warning:
 
-The return register R0 for kfuncs calls can therefore be marked as
-subreg_def != DEF_NOT_SUBREG. In general, if a register is marked with
-subreg_def != DEF_NOT_SUBREG, some archs (where bpf_jit_needs_zext()
-returns true) require the verifier to insert explicit zero-extension
-instructions.
+  WARNING: CPU: 1 PID: 520 at drivers/media/common/videobuf2/videobuf2-core.c:1592 vb2_start_streaming+0xec/0x160
+  <snip>
+  Call trace:
+   vb2_start_streaming+0xec/0x160
+   vb2_core_streamon+0x9c/0x1a0
+   vb2_ioctl_streamon+0x68/0xbc
+   v4l_streamon+0x30/0x3c
+   __video_do_ioctl+0x184/0x3e0
+   video_usercopy+0x37c/0x7b0
+   video_ioctl2+0x24/0x40
+   v4l2_ioctl+0x4c/0x70
 
-For kfuncs calls, however, the caller should do sign/zero extension
-for return values. In other words, the compiler is responsible to
-insert proper instructions, not the verifier.
+The fix is to correct the error path in video_start_streaming() of camss.
 
-An example, provided by Yonghong Song:
-
-$ cat t.c
-extern unsigned foo(void);
-unsigned bar1(void) {
-     return foo();
-}
-unsigned bar2(void) {
-     if (foo()) return 10; else return 20;
-}
-
-$ clang -target bpf -mcpu=v3 -O2 -c t.c && llvm-objdump -d t.o
-t.o:    file format elf64-bpf
-
-Disassembly of section .text:
-
-0000000000000000 <bar1>:
-	0:       85 10 00 00 ff ff ff ff call -0x1
-	1:       95 00 00 00 00 00 00 00 exit
-
-0000000000000010 <bar2>:
-	2:       85 10 00 00 ff ff ff ff call -0x1
-	3:       bc 01 00 00 00 00 00 00 w1 = w0
-	4:       b4 00 00 00 14 00 00 00 w0 = 0x14
-	5:       16 01 01 00 00 00 00 00 if w1 == 0x0 goto +0x1 <LBB1_2>
-	6:       b4 00 00 00 0a 00 00 00 w0 = 0xa
-
-0000000000000038 <LBB1_2>:
-	7:       95 00 00 00 00 00 00 00 exit
-
-If the return value of 'foo()' is used in the BPF program, the proper
-zero-extension will be done.
-
-Currently, the verifier correctly marks, say, a 32-bit return value as
-subreg_def != DEF_NOT_SUBREG, but will fail performing the actual
-zero-extension, due to a verifier bug in
-opt_subreg_zext_lo32_rnd_hi32(). load_reg is not properly set to R0,
-and the following path will be taken:
-
-		if (WARN_ON(load_reg == -1)) {
-			verbose(env, "verifier bug. zext_dst is set, but no reg is defined\n");
-			return -EFAULT;
-		}
-
-A longer discussion from v1 can be found in the link below.
-
-Correct the verifier by avoiding doing explicit zero-extension of R0
-for kfunc calls. Note that R0 will still be marked as a sub-register
-for return values smaller than 64-bit.
-
-Fixes: 83a2881903f3 ("bpf: Account for BPF_FETCH in insn_has_def32()")
-Link: https://lore.kernel.org/bpf/20221202103620.1915679-1-bjorn@kernel.org/
-Suggested-by: Yonghong Song <yhs@meta.com>
-Signed-off-by: Björn Töpel <bjorn@rivosinc.com>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/r/20221207103540.396496-1-bjorn@kernel.org
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Fixes: 0ac2586c410f ("media: camss: Add files which handle the video device nodes")
+Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/media/platform/qcom/camss/camss-video.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 7a1ca0e58043..57f76b597012 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -13299,6 +13299,10 @@ static int opt_subreg_zext_lo32_rnd_hi32(struct bpf_verifier_env *env,
- 		if (!bpf_jit_needs_zext() && !is_cmpxchg_insn(&insn))
- 			continue;
+diff --git a/drivers/media/platform/qcom/camss/camss-video.c b/drivers/media/platform/qcom/camss/camss-video.c
+index f282275af626..5173b79995ee 100644
+--- a/drivers/media/platform/qcom/camss/camss-video.c
++++ b/drivers/media/platform/qcom/camss/camss-video.c
+@@ -493,7 +493,7 @@ static int video_start_streaming(struct vb2_queue *q, unsigned int count)
  
-+		/* Zero-extension is done by the caller. */
-+		if (bpf_pseudo_kfunc_call(&insn))
-+			continue;
-+
- 		if (WARN_ON(load_reg == -1)) {
- 			verbose(env, "verifier bug. zext_dst is set, but no reg is defined\n");
- 			return -EFAULT;
+ 	ret = media_pipeline_start(&vdev->entity, &video->pipe);
+ 	if (ret < 0)
+-		return ret;
++		goto flush_buffers;
+ 
+ 	ret = video_check_format(video);
+ 	if (ret < 0)
+@@ -522,6 +522,7 @@ static int video_start_streaming(struct vb2_queue *q, unsigned int count)
+ error:
+ 	media_pipeline_stop(&vdev->entity);
+ 
++flush_buffers:
+ 	video->ops->flush_buffers(video, VB2_BUF_STATE_QUEUED);
+ 
+ 	return ret;
 -- 
 2.35.1
 
