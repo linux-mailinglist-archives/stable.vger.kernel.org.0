@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E291B657AAD
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:14:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27174657BCD
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:25:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233032AbiL1PON (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:14:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59650 "EHLO
+        id S233741AbiL1PZj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:25:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233026AbiL1PNk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:13:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97E1513E8C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:13:34 -0800 (PST)
+        with ESMTP id S233753AbiL1PZX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:25:23 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF9E01401E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:25:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 504B2B8170E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:13:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A69ADC433D2;
-        Wed, 28 Dec 2022 15:13:31 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 582D2CE076E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:25:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A7E5C433D2;
+        Wed, 28 Dec 2022 15:25:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240412;
-        bh=Vw7eGgi4X9x8X+5+bEB3oWCqSQzC5RkvsWNIiNf1iLY=;
+        s=korg; t=1672241119;
+        bh=1yXF612/I0D0I/N193mVms18DBk1JUiGuTpVj6eFxAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pTzQKyUm+x/jU18jMTc20DgPtVtJdEUi7tJPMRiga8E/QBxeFvaSS9H4wcsc9Ut25
-         F0dUR9R8zE+b9ydwTk7JI9E6nXctbIDVoShl/DU304720bWAaPJ0vfaxRpe/RSXALB
-         UjbOCIspdw8oPZSfSnzUAZ30XyJRfDlW2rZ+jNyg=
+        b=l5GiLCrb7QVY3tOxtBTgOBh9br8RdBgWODYBVFph+jIPUn2nOKTeq0qpB/s0J1XC9
+         1ffENM9B97zLsA5PWNSq2WkaOrqgYEGv1n8HM16hjL8SkQh5xfaVP3nqCXNP4mPgSG
+         BPU8ukLdVMAABv7dNC3YS0Y2kELa2rp8T88zQqRQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Derek Dolney <z23@posteo.net>,
-        Vincent Donnefort <vdonnefort@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Valentin Schneider <vschneid@redhat.com>,
+        patches@lists.linux.dev, Xu Kuohai <xukuohai@huawei.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0157/1073] cpu/hotplug: Do not bail-out in DYING/STARTING sections
-Date:   Wed, 28 Dec 2022 15:29:05 +0100
-Message-Id: <20221228144332.285131290@linuxfoundation.org>
+Subject: [PATCH 6.1 0207/1146] selftests/bpf: Fix memory leak caused by not destroying skeleton
+Date:   Wed, 28 Dec 2022 15:29:06 +0100
+Message-Id: <20221228144335.769334508@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,139 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Donnefort <vdonnefort@google.com>
+From: Xu Kuohai <xukuohai@huawei.com>
 
-[ Upstream commit 6f855b39e4602b6b42a8e5cbcfefb8a1b8b5f0be ]
+[ Upstream commit 6e8280b958c5d7edc514cf347a800b23b7732b2b ]
 
-The DYING/STARTING callbacks are not expected to fail. However, as reported
-by Derek, buggy drivers such as tboot are still free to return errors
-within those sections, which halts the hot(un)plug and leaves the CPU in an
-unrecoverable state.
+Some test cases does not destroy skeleton object correctly, causing ASAN
+to report memory leak warning. Fix it.
 
-As there is no rollback possible, only log the failures and proceed with
-the following steps.
-
-This restores the hotplug behaviour prior to commit 453e41085183
-("cpu/hotplug: Add cpuhp_invoke_callback_range()")
-
-Fixes: 453e41085183 ("cpu/hotplug: Add cpuhp_invoke_callback_range()")
-Reported-by: Derek Dolney <z23@posteo.net>
-Signed-off-by: Vincent Donnefort <vdonnefort@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Derek Dolney <z23@posteo.net>
-Reviewed-by: Valentin Schneider <vschneid@redhat.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215867
-Link: https://lore.kernel.org/r/20220927101259.1149636-1-vdonnefort@google.com
+Fixes: 0ef6740e9777 ("selftests/bpf: Add tests for kptr_ref refcounting")
+Fixes: 1642a3945e22 ("selftests/bpf: Add struct argument tests with fentry/fexit programs.")
+Signed-off-by: Xu Kuohai <xukuohai@huawei.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Martin KaFai Lau <martin.lau@kernel.org>
+Link: https://lore.kernel.org/bpf/20221011120108.782373-4-xukuohai@huaweicloud.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cpu.c | 56 +++++++++++++++++++++++++++++++++++++---------------
- 1 file changed, 40 insertions(+), 16 deletions(-)
+ tools/testing/selftests/bpf/prog_tests/map_kptr.c       | 3 ++-
+ tools/testing/selftests/bpf/prog_tests/tracing_struct.c | 3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/cpu.c b/kernel/cpu.c
-index 979de993f853..98a7a7b1471b 100644
---- a/kernel/cpu.c
-+++ b/kernel/cpu.c
-@@ -663,21 +663,51 @@ static bool cpuhp_next_state(bool bringup,
- 	return true;
+diff --git a/tools/testing/selftests/bpf/prog_tests/map_kptr.c b/tools/testing/selftests/bpf/prog_tests/map_kptr.c
+index fdcea7a61491..0d66b1524208 100644
+--- a/tools/testing/selftests/bpf/prog_tests/map_kptr.c
++++ b/tools/testing/selftests/bpf/prog_tests/map_kptr.c
+@@ -105,7 +105,7 @@ static void test_map_kptr_success(bool test_run)
+ 	ASSERT_OK(opts.retval, "test_map_kptr_ref2 retval");
+ 
+ 	if (test_run)
+-		return;
++		goto exit;
+ 
+ 	ret = bpf_map__update_elem(skel->maps.array_map,
+ 				   &key, sizeof(key), buf, sizeof(buf), 0);
+@@ -132,6 +132,7 @@ static void test_map_kptr_success(bool test_run)
+ 	ret = bpf_map__delete_elem(skel->maps.lru_hash_map, &key, sizeof(key), 0);
+ 	ASSERT_OK(ret, "lru_hash_map delete");
+ 
++exit:
+ 	map_kptr__destroy(skel);
  }
  
--static int cpuhp_invoke_callback_range(bool bringup,
--				       unsigned int cpu,
--				       struct cpuhp_cpu_state *st,
--				       enum cpuhp_state target)
-+static int __cpuhp_invoke_callback_range(bool bringup,
-+					 unsigned int cpu,
-+					 struct cpuhp_cpu_state *st,
-+					 enum cpuhp_state target,
-+					 bool nofail)
- {
- 	enum cpuhp_state state;
--	int err = 0;
-+	int ret = 0;
+diff --git a/tools/testing/selftests/bpf/prog_tests/tracing_struct.c b/tools/testing/selftests/bpf/prog_tests/tracing_struct.c
+index d5022b91d1e4..48dc9472e160 100644
+--- a/tools/testing/selftests/bpf/prog_tests/tracing_struct.c
++++ b/tools/testing/selftests/bpf/prog_tests/tracing_struct.c
+@@ -15,7 +15,7 @@ static void test_fentry(void)
  
- 	while (cpuhp_next_state(bringup, &state, st, target)) {
-+		int err;
-+
- 		err = cpuhp_invoke_callback(cpu, state, bringup, NULL, NULL);
--		if (err)
-+		if (!err)
-+			continue;
-+
-+		if (nofail) {
-+			pr_warn("CPU %u %s state %s (%d) failed (%d)\n",
-+				cpu, bringup ? "UP" : "DOWN",
-+				cpuhp_get_step(st->state)->name,
-+				st->state, err);
-+			ret = -1;
-+		} else {
-+			ret = err;
- 			break;
-+		}
- 	}
+ 	err = tracing_struct__attach(skel);
+ 	if (!ASSERT_OK(err, "tracing_struct__attach"))
+-		return;
++		goto destroy_skel;
  
--	return err;
-+	return ret;
-+}
-+
-+static inline int cpuhp_invoke_callback_range(bool bringup,
-+					      unsigned int cpu,
-+					      struct cpuhp_cpu_state *st,
-+					      enum cpuhp_state target)
-+{
-+	return __cpuhp_invoke_callback_range(bringup, cpu, st, target, false);
-+}
-+
-+static inline void cpuhp_invoke_callback_range_nofail(bool bringup,
-+						      unsigned int cpu,
-+						      struct cpuhp_cpu_state *st,
-+						      enum cpuhp_state target)
-+{
-+	__cpuhp_invoke_callback_range(bringup, cpu, st, target, true);
+ 	ASSERT_OK(trigger_module_test_read(256), "trigger_read");
+ 
+@@ -54,6 +54,7 @@ static void test_fentry(void)
+ 	ASSERT_EQ(skel->bss->t5_ret, 1, "t5 ret");
+ 
+ 	tracing_struct__detach(skel);
++destroy_skel:
+ 	tracing_struct__destroy(skel);
  }
  
- static inline bool can_rollback_cpu(struct cpuhp_cpu_state *st)
-@@ -999,7 +1029,6 @@ static int take_cpu_down(void *_param)
- 	struct cpuhp_cpu_state *st = this_cpu_ptr(&cpuhp_state);
- 	enum cpuhp_state target = max((int)st->target, CPUHP_AP_OFFLINE);
- 	int err, cpu = smp_processor_id();
--	int ret;
- 
- 	/* Ensure this CPU doesn't handle any more interrupts. */
- 	err = __cpu_disable();
-@@ -1012,13 +1041,10 @@ static int take_cpu_down(void *_param)
- 	 */
- 	WARN_ON(st->state != (CPUHP_TEARDOWN_CPU - 1));
- 
--	/* Invoke the former CPU_DYING callbacks */
--	ret = cpuhp_invoke_callback_range(false, cpu, st, target);
--
- 	/*
--	 * DYING must not fail!
-+	 * Invoke the former CPU_DYING callbacks. DYING must not fail!
- 	 */
--	WARN_ON_ONCE(ret);
-+	cpuhp_invoke_callback_range_nofail(false, cpu, st, target);
- 
- 	/* Give up timekeeping duties */
- 	tick_handover_do_timer();
-@@ -1296,16 +1322,14 @@ void notify_cpu_starting(unsigned int cpu)
- {
- 	struct cpuhp_cpu_state *st = per_cpu_ptr(&cpuhp_state, cpu);
- 	enum cpuhp_state target = min((int)st->target, CPUHP_AP_ONLINE);
--	int ret;
- 
- 	rcu_cpu_starting(cpu);	/* Enables RCU usage on this CPU. */
- 	cpumask_set_cpu(cpu, &cpus_booted_once_mask);
--	ret = cpuhp_invoke_callback_range(true, cpu, st, target);
- 
- 	/*
- 	 * STARTING must not fail!
- 	 */
--	WARN_ON_ONCE(ret);
-+	cpuhp_invoke_callback_range_nofail(true, cpu, st, target);
- }
- 
- /*
 -- 
 2.35.1
 
