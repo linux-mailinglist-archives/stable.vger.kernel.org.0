@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59D71657B17
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:18:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D37A3657C80
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:33:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233194AbiL1PSD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:18:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36916 "EHLO
+        id S233885AbiL1PdT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:33:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233197AbiL1PSC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:18:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AD3E13F1F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:18:01 -0800 (PST)
+        with ESMTP id S233859AbiL1PdJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:33:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9480015F3E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:33:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1C39CB8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:18:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AAA5C433D2;
-        Wed, 28 Dec 2022 15:17:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BFD36155C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:33:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37F2CC433F0;
+        Wed, 28 Dec 2022 15:33:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240678;
-        bh=81QAogFJBSJQ2+beLOlsgb7+J9qEp69BO+kv3XLG5EM=;
+        s=korg; t=1672241583;
+        bh=pwLQVnQXuo6aDeMwwm6BhF7DQVLZXnMoP7Png546+Cg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HUAF3INH3pVlcW5cghMLDMAaR1xEyVfojw+XosnnKlmN9wtqrSz8a809ei5sPvo4M
-         BMG56uiHetgBPFMYL5Tgnc+nN5pWX/mxDfHmTwMquONHdQt5pJ9MHxjK+mLt8FMSnp
-         9YaifZpQVOewDlQAFjubD0N0xlo24FYz/6gvVp6k=
+        b=CtnOSfnxG9HeTCtD4Pq4qCmkXay9Ngdiovy5eThSe5V1WoEbVogI6RrSmkckwfl0e
+         r9VhJqGZ144cUmRbvhmbCNe1QjT+YLE3Tldz7NdsmCN5wHC/nxyKLbpUaiuM/NcQZg
+         /Ou+M7sR0EI/rXpiDODgPH1gsJ8rZkFHPf7mJndw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johannes Berg <johannes.berg@intel.com>,
+        patches@lists.linux.dev, Ricardo Ribalda <ribalda@chromium.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0190/1073] wifi: mac80211: check link ID in auth/assoc continuation
+Subject: [PATCH 6.1 0239/1146] media: i2c: ad5820: Fix error path
 Date:   Wed, 28 Dec 2022 15:29:38 +0100
-Message-Id: <20221228144333.173266392@linuxfoundation.org>
+Message-Id: <20221228144336.630103292@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,64 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-[ Upstream commit 85176a3fcd9748558cff72d4cdff5465b8732282 ]
+[ Upstream commit 9fce241660f37d9e95e93c0ae6fba8cfefa5797b ]
 
-Ensure that the link ID matches in auth/assoc continuation,
-otherwise we need to reset all the data.
+Error path seems to be swaped. Fix the order and provide some meaningful
+names.
 
-Fixes: 81151ce462e5 ("wifi: mac80211: support MLO authentication/association with one link")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: bee3d5115611 ("[media] ad5820: Add driver for auto-focus coil")
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/ieee80211_i.h | 1 +
- net/mac80211/mlme.c        | 7 +++++--
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/media/i2c/ad5820.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
-index 9583643b7033..c7dd1f49bb35 100644
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -389,6 +389,7 @@ struct ieee80211_mgd_auth_data {
- 	bool done, waiting;
- 	bool peer_confirmed;
- 	bool timeout_started;
-+	int link_id;
+diff --git a/drivers/media/i2c/ad5820.c b/drivers/media/i2c/ad5820.c
+index 516de278cc49..a12fedcc3a1c 100644
+--- a/drivers/media/i2c/ad5820.c
++++ b/drivers/media/i2c/ad5820.c
+@@ -327,18 +327,18 @@ static int ad5820_probe(struct i2c_client *client,
  
- 	u8 ap_addr[ETH_ALEN] __aligned(2);
+ 	ret = media_entity_pads_init(&coil->subdev.entity, 0, NULL);
+ 	if (ret < 0)
+-		goto cleanup2;
++		goto clean_mutex;
  
-diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
-index a21571eb02ec..0a9710747b80 100644
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -6582,6 +6582,7 @@ int ieee80211_mgd_auth(struct ieee80211_sub_if_data *sdata,
- 	       req->ap_mld_addr ?: req->bss->bssid,
- 	       ETH_ALEN);
- 	auth_data->bss = req->bss;
-+	auth_data->link_id = req->link_id;
+ 	ret = v4l2_async_register_subdev(&coil->subdev);
+ 	if (ret < 0)
+-		goto cleanup;
++		goto clean_entity;
  
- 	if (req->auth_data_len >= 4) {
- 		if (req->auth_type == NL80211_AUTHTYPE_SAE) {
-@@ -6600,7 +6601,8 @@ int ieee80211_mgd_auth(struct ieee80211_sub_if_data *sdata,
- 	 * removal and re-addition of the STA entry in
- 	 * ieee80211_prep_connection().
- 	 */
--	cont_auth = ifmgd->auth_data && req->bss == ifmgd->auth_data->bss;
-+	cont_auth = ifmgd->auth_data && req->bss == ifmgd->auth_data->bss &&
-+		    ifmgd->auth_data->link_id == req->link_id;
+ 	return ret;
  
- 	if (req->ie && req->ie_len) {
- 		memcpy(&auth_data->data[auth_data->data_len],
-@@ -6937,7 +6939,8 @@ int ieee80211_mgd_assoc(struct ieee80211_sub_if_data *sdata,
- 
- 		/* keep sta info, bssid if matching */
- 		match = ether_addr_equal(ifmgd->auth_data->ap_addr,
--					 assoc_data->ap_addr);
-+					 assoc_data->ap_addr) &&
-+			ifmgd->auth_data->link_id == req->link_id;
- 		ieee80211_destroy_auth_data(sdata, match);
- 	}
+-cleanup2:
+-	mutex_destroy(&coil->power_lock);
+-cleanup:
++clean_entity:
+ 	media_entity_cleanup(&coil->subdev.entity);
++clean_mutex:
++	mutex_destroy(&coil->power_lock);
+ 	return ret;
+ }
  
 -- 
 2.35.1
