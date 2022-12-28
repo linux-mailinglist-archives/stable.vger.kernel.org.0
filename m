@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 220B3657F63
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:04:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFFFA6578F6
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:56:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234275AbiL1QE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:04:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50938 "EHLO
+        id S233260AbiL1O4K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:56:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234274AbiL1QET (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:04:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA2F95FEF
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:04:18 -0800 (PST)
+        with ESMTP id S233263AbiL1O4H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:56:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D51C81004D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:56:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 88771B81710
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:04:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFBC1C433EF;
-        Wed, 28 Dec 2022 16:04:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8A572B8171E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:56:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E00CAC433EF;
+        Wed, 28 Dec 2022 14:56:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243456;
-        bh=rW9zrW0McxeYHmFpJKaG3JHIu4T7JOwZJ065y9vigwk=;
+        s=korg; t=1672239364;
+        bh=J5Od7YALa/hq23/+T6cu9swVfU4oJMnR0f8eH49DHrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OPjditK3XBX3qI7Ke0MPzUwv8/ihEkckyV7SLAVAfhiqxX0OX2jVLEkpBtwkyt2va
-         Fzj3rM9dZaep/2u4yqSOVii12lqMIm+LMPAm8tDaESkPBPpVYJOe9WSX44CQk1rb7R
-         5S6DeoKgsUe/q4A8nrWrt+2P1Tf3WVWLBPYY8YKs=
+        b=gk+td5Nh5kdT4A7waRZoi/m0+ZBJkChdXxN4KLzgrEZcc1WB9NweOy+rYohFsUJpB
+         UGRf6aFrgUHwysAqwvR5kez6ATbLI5taOo3JS9wZV+NU1t9yo3rTWWFAtbBIcLCMy8
+         s4SiqoZM5AIKqmmy+OFJFwP5xuiZb6Xdy43e4RSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Markus Schneider-Pargmann <msp@baylibre.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0531/1073] can: tcan4x5x: Remove invalid write in clear_interrupts
+Subject: [PATCH 5.15 212/731] media: solo6x10: fix possible memory leak in solo_sysfs_init()
 Date:   Wed, 28 Dec 2022 15:35:19 +0100
-Message-Id: <20221228144342.470120921@linuxfoundation.org>
+Message-Id: <20221228144302.703406220@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Markus Schneider-Pargmann <msp@baylibre.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 40c9e4f676abbe194541d88e796341c92d5a13c0 ]
+[ Upstream commit 7f5866dd96d95b74e439f6ee17b8abd8195179fb ]
 
-Register 0x824 TCAN4X5X_MCAN_INT_REG is a read-only register. Any writes
-to this register do not have any effect.
+If device_register() returns error in solo_sysfs_init(), the
+name allocated by dev_set_name() need be freed. As comment of
+device_register() says, it should use put_device() to give up
+the reference in the error path. So fix this by calling
+put_device(), then the name can be freed in kobject_cleanup().
 
-Remove this write. The m_can driver aldready clears the interrupts in
-m_can_isr() by writing to M_CAN_IR which is translated to register
-0x1050 which is a writable version of this register.
-
-Fixes: 5443c226ba91 ("can: tcan4x5x: Add tcan4x5x driver to the kernel")
-Signed-off-by: Markus Schneider-Pargmann <msp@baylibre.com>
-Link: https://lore.kernel.org/all/20221206115728.1056014-9-msp@baylibre.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: dcae5dacbce5 ("[media] solo6x10: sync to latest code from Bluecherry's git repo")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/m_can/tcan4x5x-core.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/media/pci/solo6x10/solo6x10-core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/can/m_can/tcan4x5x-core.c b/drivers/net/can/m_can/tcan4x5x-core.c
-index 41645a24384c..1fec394b3517 100644
---- a/drivers/net/can/m_can/tcan4x5x-core.c
-+++ b/drivers/net/can/m_can/tcan4x5x-core.c
-@@ -204,11 +204,6 @@ static int tcan4x5x_clear_interrupts(struct m_can_classdev *cdev)
- 	if (ret)
- 		return ret;
+diff --git a/drivers/media/pci/solo6x10/solo6x10-core.c b/drivers/media/pci/solo6x10/solo6x10-core.c
+index 4a546eeefe38..6d87fbb0ee04 100644
+--- a/drivers/media/pci/solo6x10/solo6x10-core.c
++++ b/drivers/media/pci/solo6x10/solo6x10-core.c
+@@ -420,6 +420,7 @@ static int solo_sysfs_init(struct solo_dev *solo_dev)
+ 		     solo_dev->nr_chans);
  
--	ret = tcan4x5x_write_tcan_reg(cdev, TCAN4X5X_MCAN_INT_REG,
--				      TCAN4X5X_ENABLE_MCAN_INT);
--	if (ret)
--		return ret;
--
- 	ret = tcan4x5x_write_tcan_reg(cdev, TCAN4X5X_INT_FLAGS,
- 				      TCAN4X5X_CLEAR_ALL_INT);
- 	if (ret)
+ 	if (device_register(dev)) {
++		put_device(dev);
+ 		dev->parent = NULL;
+ 		return -ENOMEM;
+ 	}
 -- 
 2.35.1
 
