@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8DDE658465
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC5346584DD
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:03:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235344AbiL1Q5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:57:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48636 "EHLO
+        id S234391AbiL1RD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:03:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235301AbiL1Q4j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:56:39 -0500
+        with ESMTP id S234469AbiL1RDG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:03:06 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AA0EC58
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:52:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B5261D656
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:57:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A61556156B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:52:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE72BC433D2;
-        Wed, 28 Dec 2022 16:52:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A3D161572
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:57:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19F6CC433D2;
+        Wed, 28 Dec 2022 16:57:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246363;
-        bh=EsVgcSyGk4Pqdt2kx22dkDCMFqpGKOiIq2/4yPeyngk=;
+        s=korg; t=1672246626;
+        bh=DdwE8nGV7R2/8VF/7Z3y2CUgJ6sF/dlFB5LQu3rt0F0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iltXNBk3YSfXE6CkgKHFh3f6YNx6fvHQzvwgi18gpMXaG4+2yxa+/qYWuSKv1VK6u
-         I/T6IQzm7jYP23IVaBsUxLQuovO7dvp+HZkmsn439Pu7/ybdwvmhb0+Shp/SiHxRyr
-         ZPbBBz5RfXtAu1zrUxKa5C5AJFrsQuh8tuu2oEmU=
+        b=PJNby+5HZBg58n0UM8GYySxNQHoQRcS3MkS57SNjBXElE9o0m3AutnMBLu3JU13Dp
+         WPwhw/xFWmL3Mn2zKZbnrjYZRpypNI9RvGx43VYgP24xc7xDcQjd6hPKodx1I+Qx75
+         CLaaZIjFS2bGsPSdp4IznnbkYfFC+DLGjS0EKyOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        syzbot+a4055c78774bbf3498bb@syzkaller.appspotmail.com
-Subject: [PATCH 6.0 1055/1073] ovl: fix use inode directly in rcu-walk mode
-Date:   Wed, 28 Dec 2022 15:44:03 +0100
-Message-Id: <20221228144356.883947222@linuxfoundation.org>
+        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>
+Subject: [PATCH 6.1 1105/1146] arm64: dts: qcom: sm6350: fix USB-DP PHY registers
+Date:   Wed, 28 Dec 2022 15:44:04 +0100
+Message-Id: <20221228144400.172648894@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +52,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit 672e4268b2863d7e4978dfed29552b31c2f9bd4e upstream.
+commit 347b9491c595d5091bfabe65cad2fd6eee786153 upstream.
 
-ovl_dentry_revalidate_common() can be called in rcu-walk mode.  As document
-said, "in rcu-walk mode, d_parent and d_inode should not be used without
-care".
+When adding support for the DisplayPort part of the QMP PHY the binding
+(and devicetree parser) for the (USB) child node was simply reused and
+this has lead to some confusion.
 
-Check inode here to protect access under rcu-walk mode.
+The third DP register region is really the DP_PHY region, not "PCS" as
+the binding claims, and lie at offset 0x2a00 (not 0x2c00).
 
-Fixes: bccece1ead36 ("ovl: allow remote upper")
-Reported-and-tested-by: syzbot+a4055c78774bbf3498bb@syzkaller.appspotmail.com
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Cc: <stable@vger.kernel.org> # v5.7
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Similarly, there likely are no "RX", "RX2" or "PCS_MISC" regions as
+there are for the USB part of the PHY (and in any case the Linux driver
+does not use them).
+
+Note that the sixth "PCS_MISC" region is not even in the binding.
+
+Fixes: 23737b9557fe ("arm64: dts: qcom: sm6350: Add USB1 nodes")
+Cc: stable@vger.kernel.org      # 5.16
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221111094729.11842-2-johan+linaro@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/overlayfs/super.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/sm6350.dtsi |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/fs/overlayfs/super.c
-+++ b/fs/overlayfs/super.c
-@@ -138,11 +138,16 @@ static int ovl_dentry_revalidate_common(
- 					unsigned int flags, bool weak)
- {
- 	struct ovl_entry *oe = dentry->d_fsdata;
-+	struct inode *inode = d_inode_rcu(dentry);
- 	struct dentry *upper;
- 	unsigned int i;
- 	int ret = 1;
- 
--	upper = ovl_dentry_upper(dentry);
-+	/* Careful in RCU mode */
-+	if (!inode)
-+		return -ECHILD;
-+
-+	upper = ovl_i_dentry_upper(inode);
- 	if (upper)
- 		ret = ovl_revalidate_real(upper, flags, weak);
- 
+--- a/arch/arm64/boot/dts/qcom/sm6350.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm6350.dtsi
+@@ -1150,10 +1150,9 @@
+ 			dp_phy: dp-phy@88ea200 {
+ 				reg = <0 0x088ea200 0 0x200>,
+ 				      <0 0x088ea400 0 0x200>,
+-				      <0 0x088eac00 0 0x400>,
++				      <0 0x088eaa00 0 0x200>,
+ 				      <0 0x088ea600 0 0x200>,
+-				      <0 0x088ea800 0 0x200>,
+-				      <0 0x088eaa00 0 0x100>;
++				      <0 0x088ea800 0 0x200>;
+ 				#phy-cells = <0>;
+ 				#clock-cells = <1>;
+ 			};
 
 
