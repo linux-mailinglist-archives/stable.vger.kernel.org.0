@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D6C665827A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:37:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 964DA65817C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:28:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233330AbiL1QhG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:37:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55224 "EHLO
+        id S233688AbiL1Q25 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:28:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234831AbiL1Qfn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:35:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 252951D0F7
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:32:26 -0800 (PST)
+        with ESMTP id S234716AbiL1Q2b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:28:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCC3CD83
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:24:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D088EB81887
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:32:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3287FC433D2;
-        Wed, 28 Dec 2022 16:32:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D96061577
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:24:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84C70C433EF;
+        Wed, 28 Dec 2022 16:24:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245143;
-        bh=/AHHOdoLzcrD52RGjtnjAQ9DBXB1+BjJqMs0H06wsVM=;
+        s=korg; t=1672244678;
+        bh=EburepUz3/VPm54H9JLafbIA0MJZRjiFiR4eFeT2XS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=taguZCBD0PeroKbp4NfXmmhp3F8ojgnA0aH+bdO7q2eQT5tX/AiCiK/m8qJTKyZ7U
-         p+nbV71KVrPS9Edd8VotPiyEeVE2cyusHEnISR46cnSv5TasTUWgQppj/569J3RCEl
-         bcj0YvmAKBET5nRFjIpenihYx09oag8GVzOO1JfY=
+        b=J2W+SyEy2lViSW9OISsQP7yjazQbXzjrDe7gfISCD99xzc09GFJBtzyP9jU9VJ1S4
+         ooeukGAIcGqbVnPDU4b/uiCbsROT6Erp2BUw6BZlvmYBIaD97J58whjqTLVt1Lmgvi
+         UHM/bUwCBPZiadFxvKAue6rymYEtz+Nn7p4xLW6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0804/1146] phy: qcom-qmp-usb: drop power-down delay config
+        patches@lists.linux.dev, Luca Weiss <luca@z3ntu.xyz>,
+        Vincent Knecht <vincent.knecht@mailoo.org>,
+        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0755/1073] leds: is31fl319x: Fix setting current limit for is31fl319{0,1,3}
 Date:   Wed, 28 Dec 2022 15:39:03 +0100
-Message-Id: <20221228144351.988018678@linuxfoundation.org>
+Message-Id: <20221228144348.525609012@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,172 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Luca Weiss <luca@z3ntu.xyz>
 
-[ Upstream commit 38cd167d1fc6b5bf038229b1fa02bb1f551a564f ]
+[ Upstream commit 135780f1048b3f956f5b10bb23dec9c2d2c4ef6d ]
 
-The power-down delay was included in the first version of the QMP driver
-as an optional delay after powering on the PHY (using
-POWER_DOWN_CONTROL) and just before starting it. Later changes modified
-this sequence by powering on before initialising the PHY, but the
-optional delay stayed where it was (i.e. before starting the PHY).
+The current setting lives in bits 4:2 (as also defined by the mask) but
+the current limit defines in the driver use bits 2:0 which should be
+shifted over so they don't get masked out completely (except for 17.5mA
+which became 10mA).
 
-The vendor driver does not use a delay before starting the PHY and this
-is likely not needed on any platform unless there is a corresponding
-delay in the vendor kernel init sequence tables (i.e. in devicetree).
+Now checking /sys/kernel/debug/regmap/1-0068/registers shows that the
+current limit is applied correctly and doesn't take the default b000 =
+42mA.
 
-Let's keep the delay for now, but drop the redundant delay period
-configuration while increasing the unnecessarily low timer slack
-somewhat.
-
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20221012081241.18273-15-johan+linaro@kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Stable-dep-of: 922adfd59efd ("phy: qcom-qmp-usb: correct registers layout for IPQ8074 USB3 PHY")
+Fixes: fa877cf1abb9 ("leds: is31fl319x: Add support for is31fl319{0,1,3} chips")
+Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
+Reviewed-by: Vincent Knecht <vincent.knecht@mailoo.org>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/qualcomm/phy-qcom-qmp-usb.c | 35 +------------------------
- 1 file changed, 1 insertion(+), 34 deletions(-)
+ drivers/leds/leds-is31fl319x.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/phy/qualcomm/phy-qcom-qmp-usb.c b/drivers/phy/qualcomm/phy-qcom-qmp-usb.c
-index 935d271f28a7..f8a300f0aec3 100644
---- a/drivers/phy/qualcomm/phy-qcom-qmp-usb.c
-+++ b/drivers/phy/qualcomm/phy-qcom-qmp-usb.c
-@@ -63,8 +63,6 @@
- #define CLAMP_EN				BIT(0) /* enables i/o clamp_n */
+diff --git a/drivers/leds/leds-is31fl319x.c b/drivers/leds/leds-is31fl319x.c
+index 52b59b62f437..b2f4c4ec7c56 100644
+--- a/drivers/leds/leds-is31fl319x.c
++++ b/drivers/leds/leds-is31fl319x.c
+@@ -38,6 +38,7 @@
+ #define IS31FL3190_CURRENT_uA_MIN	5000
+ #define IS31FL3190_CURRENT_uA_DEFAULT	42000
+ #define IS31FL3190_CURRENT_uA_MAX	42000
++#define IS31FL3190_CURRENT_SHIFT	2
+ #define IS31FL3190_CURRENT_MASK		GENMASK(4, 2)
+ #define IS31FL3190_CURRENT_5_mA		0x02
+ #define IS31FL3190_CURRENT_10_mA	0x01
+@@ -553,7 +554,7 @@ static int is31fl319x_probe(struct i2c_client *client)
+ 			     is31fl3196_db_to_gain(is31->audio_gain_db));
+ 	else
+ 		regmap_update_bits(is31->regmap, IS31FL3190_CURRENT, IS31FL3190_CURRENT_MASK,
+-				   is31fl3190_microamp_to_cs(dev, aggregated_led_microamp));
++				   is31fl3190_microamp_to_cs(dev, aggregated_led_microamp) << IS31FL3190_CURRENT_SHIFT);
  
- #define PHY_INIT_COMPLETE_TIMEOUT		10000
--#define POWER_DOWN_DELAY_US_MIN			10
--#define POWER_DOWN_DELAY_US_MAX			11
- 
- struct qmp_phy_init_tbl {
- 	unsigned int offset;
-@@ -1465,9 +1463,6 @@ struct qmp_phy_cfg {
- 
- 	/* true, if PHY needs delay after POWER_DOWN */
- 	bool has_pwrdn_delay;
--	/* power_down delay in usec */
--	int pwrdn_delay_min;
--	int pwrdn_delay_max;
- 
- 	/* true, if PHY has a separate DP_COM control block */
- 	bool has_phy_dp_com_ctrl;
-@@ -1673,9 +1668,6 @@ static const struct qmp_phy_cfg qmp_v3_usb3phy_cfg = {
- 	.phy_status		= PHYSTATUS,
- 
- 	.has_pwrdn_delay	= true,
--	.pwrdn_delay_min	= POWER_DOWN_DELAY_US_MIN,
--	.pwrdn_delay_max	= POWER_DOWN_DELAY_US_MAX,
--
- 	.has_phy_dp_com_ctrl	= true,
- };
- 
-@@ -1703,9 +1695,6 @@ static const struct qmp_phy_cfg sc7180_usb3phy_cfg = {
- 	.phy_status		= PHYSTATUS,
- 
- 	.has_pwrdn_delay	= true,
--	.pwrdn_delay_min	= POWER_DOWN_DELAY_US_MIN,
--	.pwrdn_delay_max	= POWER_DOWN_DELAY_US_MAX,
--
- 	.has_phy_dp_com_ctrl	= true,
- };
- 
-@@ -1757,8 +1746,6 @@ static const struct qmp_phy_cfg qmp_v3_usb3_uniphy_cfg = {
- 	.phy_status		= PHYSTATUS,
- 
- 	.has_pwrdn_delay	= true,
--	.pwrdn_delay_min	= POWER_DOWN_DELAY_US_MIN,
--	.pwrdn_delay_max	= POWER_DOWN_DELAY_US_MAX,
- };
- 
- static const struct qmp_phy_cfg msm8998_usb3phy_cfg = {
-@@ -1811,11 +1798,7 @@ static const struct qmp_phy_cfg sm8150_usb3phy_cfg = {
- 	.pwrdn_ctrl		= SW_PWRDN,
- 	.phy_status		= PHYSTATUS,
- 
--
- 	.has_pwrdn_delay	= true,
--	.pwrdn_delay_min	= POWER_DOWN_DELAY_US_MIN,
--	.pwrdn_delay_max	= POWER_DOWN_DELAY_US_MAX,
--
- 	.has_phy_dp_com_ctrl	= true,
- };
- 
-@@ -1846,8 +1829,6 @@ static const struct qmp_phy_cfg sm8150_usb3_uniphy_cfg = {
- 	.phy_status		= PHYSTATUS,
- 
- 	.has_pwrdn_delay	= true,
--	.pwrdn_delay_min	= POWER_DOWN_DELAY_US_MIN,
--	.pwrdn_delay_max	= POWER_DOWN_DELAY_US_MAX,
- };
- 
- static const struct qmp_phy_cfg sm8250_usb3phy_cfg = {
-@@ -1877,9 +1858,6 @@ static const struct qmp_phy_cfg sm8250_usb3phy_cfg = {
- 	.phy_status		= PHYSTATUS,
- 
- 	.has_pwrdn_delay	= true,
--	.pwrdn_delay_min	= POWER_DOWN_DELAY_US_MIN,
--	.pwrdn_delay_max	= POWER_DOWN_DELAY_US_MAX,
--
- 	.has_phy_dp_com_ctrl	= true,
- };
- 
-@@ -1910,8 +1888,6 @@ static const struct qmp_phy_cfg sm8250_usb3_uniphy_cfg = {
- 	.phy_status		= PHYSTATUS,
- 
- 	.has_pwrdn_delay	= true,
--	.pwrdn_delay_min	= POWER_DOWN_DELAY_US_MIN,
--	.pwrdn_delay_max	= POWER_DOWN_DELAY_US_MAX,
- };
- 
- static const struct qmp_phy_cfg sdx55_usb3_uniphy_cfg = {
-@@ -1941,8 +1917,6 @@ static const struct qmp_phy_cfg sdx55_usb3_uniphy_cfg = {
- 	.phy_status		= PHYSTATUS,
- 
- 	.has_pwrdn_delay	= true,
--	.pwrdn_delay_min	= POWER_DOWN_DELAY_US_MIN,
--	.pwrdn_delay_max	= POWER_DOWN_DELAY_US_MAX,
- };
- 
- static const struct qmp_phy_cfg sdx65_usb3_uniphy_cfg = {
-@@ -1972,8 +1946,6 @@ static const struct qmp_phy_cfg sdx65_usb3_uniphy_cfg = {
- 	.phy_status		= PHYSTATUS,
- 
- 	.has_pwrdn_delay	= true,
--	.pwrdn_delay_min	= POWER_DOWN_DELAY_US_MIN,
--	.pwrdn_delay_max	= POWER_DOWN_DELAY_US_MAX,
- };
- 
- static const struct qmp_phy_cfg sm8350_usb3phy_cfg = {
-@@ -2003,9 +1975,6 @@ static const struct qmp_phy_cfg sm8350_usb3phy_cfg = {
- 	.phy_status		= PHYSTATUS,
- 
- 	.has_pwrdn_delay	= true,
--	.pwrdn_delay_min	= POWER_DOWN_DELAY_US_MIN,
--	.pwrdn_delay_max	= POWER_DOWN_DELAY_US_MAX,
--
- 	.has_phy_dp_com_ctrl	= true,
- };
- 
-@@ -2036,8 +2005,6 @@ static const struct qmp_phy_cfg sm8350_usb3_uniphy_cfg = {
- 	.phy_status		= PHYSTATUS,
- 
- 	.has_pwrdn_delay	= true,
--	.pwrdn_delay_min	= POWER_DOWN_DELAY_US_MIN,
--	.pwrdn_delay_max	= POWER_DOWN_DELAY_US_MAX,
- };
- 
- static const struct qmp_phy_cfg qcm2290_usb3phy_cfg = {
-@@ -2229,7 +2196,7 @@ static int qmp_usb_power_on(struct phy *phy)
- 	qmp_usb_configure(pcs, cfg->regs, cfg->pcs_tbl, cfg->pcs_tbl_num);
- 
- 	if (cfg->has_pwrdn_delay)
--		usleep_range(cfg->pwrdn_delay_min, cfg->pwrdn_delay_max);
-+		usleep_range(10, 20);
- 
- 	/* Pull PHY out of reset state */
- 	qphy_clrbits(pcs, cfg->regs[QPHY_SW_RESET], SW_RESET);
+ 	for (i = 0; i < is31->cdef->num_leds; i++) {
+ 		struct is31fl319x_led *led = &is31->leds[i];
 -- 
 2.35.1
 
