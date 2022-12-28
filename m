@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3203C6579DC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:05:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CFAC6578EA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:55:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233533AbiL1PFc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:05:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52926 "EHLO
+        id S233238AbiL1Ozk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:55:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233541AbiL1PF3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:05:29 -0500
+        with ESMTP id S233249AbiL1Ozd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:55:33 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59A9113D4B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:05:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FFD1101FB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:55:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E7F6161541
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:05:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEC48C433F0;
-        Wed, 28 Dec 2022 15:05:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A16F461540
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:55:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEE5CC433D2;
+        Wed, 28 Dec 2022 14:55:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239928;
-        bh=gprZVFOfP36KQHoBILWVO1kcVWCcF/5hhE/hd46qvUM=;
+        s=korg; t=1672239332;
+        bh=QEo7o9/FH/ZPMqOOGUU032HEKCPCRR3Ts0Ly4H4xBsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FxMgaTYdg7qKC+VT7hJ66EmOPiuAVbq0GX2zuZ6AkIX1Bc1lB+bwoHt7W4D0O+Qku
-         OX6YnusI9s46JPTRuMKFKWsQmWr2ndcKQxZklHq3Du2VYr5c5poH8fB0UbHGE45bb/
-         6VnRXzpMAagCRs4LDAl8VhNfe6CdFptACLTQjWRI=
+        b=XjE736bvcGqvtKfuV8ZTCxKKwiqX3u/UBu7P0nklMLNRbHE5lbhxeQXWvTJj6Cr2a
+         AeFDFC8Le0haYvT4eE4u1qpw/eyHwOCx3dE6rhCp6433PxvTzDKa9FSs+DvCvXX0kF
+         fejSm347Okog7yqZihyuBrTtvzoEtrNeEJUB8OLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0059/1146] perf: arm_dsu: Fix hotplug callback leak in dsu_pmu_init()
-Date:   Wed, 28 Dec 2022 15:26:38 +0100
-Message-Id: <20221228144331.762474479@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Molly Sophia <mollysophia379@gmail.com>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0011/1073] arm64: dts: qcom: sdm845-xiaomi-polaris: fix codec pin conf name
+Date:   Wed, 28 Dec 2022 15:26:39 +0100
+Message-Id: <20221228144328.471638008@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit facafab7611f7b872c6b9eeaff53461ef11f482e ]
+[ Upstream commit 58c4a0b6f4bdf8c3c2b4aad7f980e4019cc0fc83 ]
 
-dsu_pmu_init() won't remove the callback added by cpuhp_setup_state_multi()
-when platform_driver_register() failed. Remove the callback by
-cpuhp_remove_multi_state() in fail path.
+Fix typo in the codec's pin name to be configured.  Mismatched name
+caused the pin configuration to be ignored.
 
-Similar to the handling of arm_ccn_init() in commit 26242b330093 ("bus:
-arm-ccn: Prevent hotplug callback leak")
-
-Fixes: 7520fa99246d ("perf: ARM DynamIQ Shared Unit PMU support")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Acked-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Link: https://lore.kernel.org/r/20221115070207.32634-2-yuancan@huawei.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: be497abe19bf ("arm64: dts: qcom: Add support for Xiaomi Mi Mix2s")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Tested-by: Molly Sophia <mollysophia379@gmail.com>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20220930192039.240486-3-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/perf/arm_dsu_pmu.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/sdm845-xiaomi-polaris.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/perf/arm_dsu_pmu.c b/drivers/perf/arm_dsu_pmu.c
-index 4a15c86f45ef..fe2abb412c00 100644
---- a/drivers/perf/arm_dsu_pmu.c
-+++ b/drivers/perf/arm_dsu_pmu.c
-@@ -858,7 +858,11 @@ static int __init dsu_pmu_init(void)
- 	if (ret < 0)
- 		return ret;
- 	dsu_pmu_cpuhp_state = ret;
--	return platform_driver_register(&dsu_pmu_driver);
-+	ret = platform_driver_register(&dsu_pmu_driver);
-+	if (ret)
-+		cpuhp_remove_multi_state(dsu_pmu_cpuhp_state);
-+
-+	return ret;
- }
+diff --git a/arch/arm64/boot/dts/qcom/sdm845-xiaomi-polaris.dts b/arch/arm64/boot/dts/qcom/sdm845-xiaomi-polaris.dts
+index dba7c2693ff5..2611a5c40ba3 100644
+--- a/arch/arm64/boot/dts/qcom/sdm845-xiaomi-polaris.dts
++++ b/arch/arm64/boot/dts/qcom/sdm845-xiaomi-polaris.dts
+@@ -628,7 +628,7 @@ sde_dsi_suspend: sde-dsi-suspend {
+ 	};
  
- static void __exit dsu_pmu_exit(void)
+ 	wcd_intr_default: wcd-intr-default {
+-		pins = "goui54";
++		pins = "gpio54";
+ 		function = "gpio";
+ 		input-enable;
+ 		bias-pull-down;
 -- 
 2.35.1
 
