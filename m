@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6266F657D22
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:39:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F0C3657E33
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:51:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233523AbiL1Pjs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:39:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56618 "EHLO
+        id S234120AbiL1PvP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:51:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233527AbiL1Pjq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:39:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AA54167C4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:39:46 -0800 (PST)
+        with ESMTP id S234115AbiL1PvL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:51:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D22D186BF
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:51:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB6526154D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:39:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC4D8C433D2;
-        Wed, 28 Dec 2022 15:39:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 22130B81733
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:51:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 822B8C433EF;
+        Wed, 28 Dec 2022 15:51:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241985;
-        bh=6mjoa0UUO+VjLIgUKRi7R2TLiowgOOeAG487pIy3nus=;
+        s=korg; t=1672242667;
+        bh=MDEkBS14t9zOKpOegTTLz/PJjOLWSO9yvycEsJs76RE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lMPNPaTWIizXHMQHYvtzjFGZSIwoC7nW80BIvxO0jO0xvqBqv3nEtrbNMYXXwPEFk
-         mYYzQxmwIzTLI6o1L0hktXhp62wmedxPY8WZv1LTa9EcghRpqstBDAlOCKWJ/lDto8
-         Zpz/qZi7vVXdgJ91L7xULr/Q2Hy67a8ELldmqg/8=
+        b=fo8ilHUCse9Z+SUTpR/738f5Ui++MBaiyHxc8RWB2qb8zZb4LBi8KJfOH8oO2BWOA
+         QHRlxlyVGXukSAo948lOSxoj9hctq1Vk4GzM+Th6928oWTDkbzYg2DP6rAKQEwXNcm
+         hb6G+uxOrGA7rGinDTCs0TdTJpn2l/w0mL5dgb1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Walle <michael@walle.cc>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Takahiro Kuwano <Takahiro.Kuwano@infineon.com>,
+        patches@lists.linux.dev,
+        Dario Binacchi <dario.binacchi@amarulasolutions.com>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Abel Vesa <abel.vesa@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0351/1073] mtd: spi-nor: hide jedec_id sysfs attribute if not present
+Subject: [PATCH 6.1 0400/1146] clk: imx8mn: fix imx8mn_sai2_sels clocks list
 Date:   Wed, 28 Dec 2022 15:32:19 +0100
-Message-Id: <20221228144337.539595045@linuxfoundation.org>
+Message-Id: <20221228144341.028599371@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,70 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Dario Binacchi <dario.binacchi@amarulasolutions.com>
 
-[ Upstream commit 7d388551b6888f3725e6c957f472526b35161a5b ]
+[ Upstream commit 34d996747a74e3a86990f9f9c48de09159d78edb ]
 
-Some non-jedec compliant flashes (like the Everspin flashes) don't have
-an ID at all. Hide the attribute in this case.
+According to the "Clock Root" table of the reference manual (document
+IMX8MNRM Rev 2, 07/2022):
 
-Fixes: 36ac02286265 ("mtd: spi-nor: add initial sysfs support")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Reviewed-by: Takahiro Kuwano <Takahiro.Kuwano@infineon.com>
-Link: https://lore.kernel.org/r/20220810220654.1297699-2-michael@walle.cc
+     Clock Root     offset     Source Select (CCM_TARGET_ROOTn[MUX])
+        ...          ...                    ...
+   SAI2_CLK_ROOT    0xA600            000 - 24M_REF_CLK
+                                      001 - AUDIO_PLL1_CLK
+                                      010 - AUDIO_PLL2_CLK
+                                      011 - VIDEO_PLL_CLK
+                                      100 - SYSTEM_PLL1_DIV6
+                                      110 - EXT_CLK_2
+                                      111 - EXT_CLK_3
+        ...          ...                    ...
+
+while the imx8mn_sai2_sels list contained clk_ext3 and clk_ext4 for
+source select bits 110b and 111b.
+
+Fixes: 96d6392b54dbb ("clk: imx: Add support for i.MX8MN clock driver")
+Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+Acked-by: Marco Felsch <m.felsch@pengutronix.de>
+Reviewed-by: Abel Vesa <abel.vesa@linaro.org>
+Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
+Link: https://lore.kernel.org/r/20221117113637.1978703-5-dario.binacchi@amarulasolutions.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ABI/testing/sysfs-bus-spi-devices-spi-nor      |  3 +++
- drivers/mtd/spi-nor/sysfs.c                        | 14 ++++++++++++++
- 2 files changed, 17 insertions(+)
+ drivers/clk/imx/clk-imx8mn.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-bus-spi-devices-spi-nor b/Documentation/ABI/testing/sysfs-bus-spi-devices-spi-nor
-index d76cd3946434..e9ef69aef20b 100644
---- a/Documentation/ABI/testing/sysfs-bus-spi-devices-spi-nor
-+++ b/Documentation/ABI/testing/sysfs-bus-spi-devices-spi-nor
-@@ -5,6 +5,9 @@ Contact:	linux-mtd@lists.infradead.org
- Description:	(RO) The JEDEC ID of the SPI NOR flash as reported by the
- 		flash device.
+diff --git a/drivers/clk/imx/clk-imx8mn.c b/drivers/clk/imx/clk-imx8mn.c
+index b80af5d1ef46..37128c35198d 100644
+--- a/drivers/clk/imx/clk-imx8mn.c
++++ b/drivers/clk/imx/clk-imx8mn.c
+@@ -109,7 +109,7 @@ static const char * const imx8mn_disp_pixel_sels[] = {"osc_24m", "video_pll_out"
  
-+		The attribute is not present if the flash doesn't support
-+		the "Read JEDEC ID" command (9Fh). This is the case for
-+		non-JEDEC compliant flashes.
+ static const char * const imx8mn_sai2_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
+ 						"video_pll_out", "sys_pll1_133m", "dummy",
+-						"clk_ext3", "clk_ext4", };
++						"clk_ext2", "clk_ext3", };
  
- What:		/sys/bus/spi/devices/.../spi-nor/manufacturer
- Date:		April 2021
-diff --git a/drivers/mtd/spi-nor/sysfs.c b/drivers/mtd/spi-nor/sysfs.c
-index 9aec9d8a98ad..4c3b351aef24 100644
---- a/drivers/mtd/spi-nor/sysfs.c
-+++ b/drivers/mtd/spi-nor/sysfs.c
-@@ -67,6 +67,19 @@ static struct bin_attribute *spi_nor_sysfs_bin_entries[] = {
- 	NULL
- };
- 
-+static umode_t spi_nor_sysfs_is_visible(struct kobject *kobj,
-+					struct attribute *attr, int n)
-+{
-+	struct spi_device *spi = to_spi_device(kobj_to_dev(kobj));
-+	struct spi_mem *spimem = spi_get_drvdata(spi);
-+	struct spi_nor *nor = spi_mem_get_drvdata(spimem);
-+
-+	if (attr == &dev_attr_jedec_id.attr && !nor->info->id_len)
-+		return 0;
-+
-+	return 0444;
-+}
-+
- static umode_t spi_nor_sysfs_is_bin_visible(struct kobject *kobj,
- 					    struct bin_attribute *attr, int n)
- {
-@@ -82,6 +95,7 @@ static umode_t spi_nor_sysfs_is_bin_visible(struct kobject *kobj,
- 
- static const struct attribute_group spi_nor_sysfs_group = {
- 	.name		= "spi-nor",
-+	.is_visible	= spi_nor_sysfs_is_visible,
- 	.is_bin_visible	= spi_nor_sysfs_is_bin_visible,
- 	.attrs		= spi_nor_sysfs_entries,
- 	.bin_attrs	= spi_nor_sysfs_bin_entries,
+ static const char * const imx8mn_sai3_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
+ 						"video_pll_out", "sys_pll1_133m", "dummy",
 -- 
 2.35.1
 
