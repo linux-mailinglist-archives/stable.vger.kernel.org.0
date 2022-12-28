@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6030657B6F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:22:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE24C658221
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:33:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233380AbiL1PWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:22:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40702 "EHLO
+        id S233749AbiL1QdV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:33:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233730AbiL1PVp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:21:45 -0500
+        with ESMTP id S233740AbiL1Qc4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:32:56 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E78C140BD
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:21:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15CD61AA0F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:30:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 920F361365
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:21:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3DAEC433D2;
-        Wed, 28 Dec 2022 15:21:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A15C461562
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:30:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2D2AC433EF;
+        Wed, 28 Dec 2022 16:30:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240890;
-        bh=+1EMjOjAkg2jHBLtLNMda80KRp3PZKXvIdKnc7ZdRxg=;
+        s=korg; t=1672245007;
+        bh=0wxqIuC41VHbvzGNAJLK3kvZBi15ChrR6wbomyFkiaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I5Y3fU90BQmyff+zEaNAVlhjFj4aL6pAfEUZoD1ArQ6o3q8CRa4d9akBS9XWXxjLE
-         8RVzQU+tiJnWhJuDrXVZfQjBfmoBF0T4DfRtV/BgkiOxrGFQ2mlZcg8gbvLUMnLU+j
-         ZQJQDl5KCLLLQeuoCBbZyEDYg00kShDAEnrOYTpY=
+        b=BRFFzyjp3I/rTQQdaVdUKGu4MBtXTJ34WNq3vZhPIiRmmdlNQNu7MqSMSJOAT/uV/
+         h3JLRWurGOHPBMU/YEyeQQdQZvhI/Qt3UNbly0LX9u32F0IWnqggNUYPvAEHbPUwsy
+         VQ8Nm8g3ZaZAuP4Fd0KRo5lNd+kLX4+bxgyWCIZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 409/731] scsi: hpsa: Fix possible memory leak in hpsa_add_sas_device()
+Subject: [PATCH 6.1 0777/1146] power: supply: ab8500: Fix error handling in ab8500_charger_init()
 Date:   Wed, 28 Dec 2022 15:38:36 +0100
-Message-Id: <20221228144308.425953866@linuxfoundation.org>
+Message-Id: <20221228144351.252249662@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit fda34a5d304d0b98cc967e8763b52221b66dc202 ]
+[ Upstream commit c4d33381b134da188ccd1084aef21e2b8c3c422e ]
 
-If hpsa_sas_port_add_rphy() returns an error, the 'rphy' allocated in
-sas_end_device_alloc() needs to be freed. Address this by calling
-sas_rphy_free() in the error path.
+The ab8500_charger_init() returns the platform_driver_register() directly
+without checking its return value, if platform_driver_register() failed,
+all ab8500_charger_component_drivers are not unregistered.
 
-Fixes: d04e62b9d63a ("hpsa: add in sas transport class")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221111043012.1074466-1-yangyingliang@huawei.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fix by unregister ab8500_charger_component_drivers when
+platform_driver_register() failed.
+
+Fixes: 1c1f13a006ed ("power: supply: ab8500: Move to componentized binding")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hpsa.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/power/supply/ab8500_charger.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
-index a4a00944b290..cf7988de7b90 100644
---- a/drivers/scsi/hpsa.c
-+++ b/drivers/scsi/hpsa.c
-@@ -9825,10 +9825,12 @@ static int hpsa_add_sas_device(struct hpsa_sas_node *hpsa_sas_node,
+diff --git a/drivers/power/supply/ab8500_charger.c b/drivers/power/supply/ab8500_charger.c
+index c19c50442761..58757a5799f8 100644
+--- a/drivers/power/supply/ab8500_charger.c
++++ b/drivers/power/supply/ab8500_charger.c
+@@ -3719,7 +3719,14 @@ static int __init ab8500_charger_init(void)
+ 	if (ret)
+ 		return ret;
  
- 	rc = hpsa_sas_port_add_rphy(hpsa_sas_port, rphy);
- 	if (rc)
--		goto free_sas_port;
-+		goto free_sas_rphy;
+-	return platform_driver_register(&ab8500_charger_driver);
++	ret = platform_driver_register(&ab8500_charger_driver);
++	if (ret) {
++		platform_unregister_drivers(ab8500_charger_component_drivers,
++				ARRAY_SIZE(ab8500_charger_component_drivers));
++		return ret;
++	}
++
++	return 0;
+ }
  
- 	return 0;
- 
-+free_sas_rphy:
-+	sas_rphy_free(rphy);
- free_sas_port:
- 	hpsa_free_sas_port(hpsa_sas_port);
- 	device->sas_port = NULL;
+ static void __exit ab8500_charger_exit(void)
 -- 
 2.35.1
 
