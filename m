@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60B89657BDF
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:27:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E715E657AB7
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:14:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233776AbiL1P0v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:26:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44728 "EHLO
+        id S230257AbiL1PO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:14:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233743AbiL1P0Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:26:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53931B05
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:26:15 -0800 (PST)
+        with ESMTP id S233160AbiL1POC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:14:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47A9D13F0E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:14:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D6166B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:26:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EC3EC433D2;
-        Wed, 28 Dec 2022 15:26:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D94F261365
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:14:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E93C4C433EF;
+        Wed, 28 Dec 2022 15:14:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241172;
-        bh=s478En0Os7ReALXGkickHyrKTTlWG40hydWeRQr2AYg=;
+        s=korg; t=1672240441;
+        bh=gl5nlAu75CzZC/pEqUgjcTjAV8+/LRQ+Np8AdqWCzfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jknII83aboPdNjKSfGIMf0NjOJnONutn/VrtkmcLtQsa6p41Fk+JlWOlcxtLM3/mY
-         mVT1UQUcz2QhbjETVTF9Cu62AibArx+BGttCNhrKT/xWkiyBaWmiCqYPAcrLohCtL9
-         9vwQtv80VSsNBwEjn7BbHrycmrLYy+08m41z3wKY=
+        b=0j20XyQGBKb+yjMQocl7RIhQy/g1kT+8yjNeaw3vLGGCQiklVNx4KBUtoO9pKTZMt
+         PdMDMIb8TNHW535r6JLbOF0oVvQBFpWGBRU6j28JdQ1sAKm2e9KB1+S5pMXwsycZEu
+         k1xTGVmTGTc3+73IvrsE+J122f1FM2c05ZaVguDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xu Kuohai <xukuohai@huawei.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
+        patches@lists.linux.dev, Seiji Nishikawa <snishika@redhat.com>,
+        Denys Vlasenko <dvlasenk@redhat.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0209/1146] selftests/bpf: Fix error failure of case test_xdp_adjust_tail_grow
-Date:   Wed, 28 Dec 2022 15:29:08 +0100
-Message-Id: <20221228144335.825641967@linuxfoundation.org>
+Subject: [PATCH 6.0 0161/1073] uprobes/x86: Allow to probe a NOP instruction with 0x66 prefix
+Date:   Wed, 28 Dec 2022 15:29:09 +0100
+Message-Id: <20221228144332.392269957@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Kuohai <xukuohai@huawei.com>
+From: Oleg Nesterov <oleg@redhat.com>
 
-[ Upstream commit 4abdb1d5b250df4b5b3afd394d5e2fa516064c04 ]
+[ Upstream commit cefa72129e45313655d53a065b8055aaeb01a0c9 ]
 
-test_xdp_adjust_tail_grow failed with ipv6:
-  test_xdp_adjust_tail_grow:FAIL:ipv6 unexpected error: -28 (errno 28)
+Intel ICC -hotpatch inserts 2-byte "0x66 0x90" NOP at the start of each
+function to reserve extra space for hot-patching, and currently it is not
+possible to probe these functions because branch_setup_xol_ops() wrongly
+rejects NOP with REP prefix as it treats them like word-sized branch
+instructions.
 
-The reason is that this test case tests ipv4 before ipv6, and when ipv4
-test finished, topts.data_size_out was set to 54, which is smaller than the
-ipv6 output data size 114, so ipv6 test fails with NOSPC error.
-
-Fix it by reset topts.data_size_out to sizeof(buf) before testing ipv6.
-
-Fixes: 04fcb5f9a104 ("selftests/bpf: Migrate from bpf_prog_test_run")
-Signed-off-by: Xu Kuohai <xukuohai@huawei.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Martin KaFai Lau <martin.lau@kernel.org>
-Link: https://lore.kernel.org/bpf/20221011120108.782373-6-xukuohai@huaweicloud.com
+Fixes: 250bbd12c2fe ("uprobes/x86: Refuse to attach uprobe to "word-sized" branch insns")
+Reported-by: Seiji Nishikawa <snishika@redhat.com>
+Suggested-by: Denys Vlasenko <dvlasenk@redhat.com>
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Link: https://lore.kernel.org/r/20221204173933.GA31544@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/prog_tests/xdp_adjust_tail.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kernel/uprobes.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/xdp_adjust_tail.c b/tools/testing/selftests/bpf/prog_tests/xdp_adjust_tail.c
-index 9b9cf8458adf..009ee37607df 100644
---- a/tools/testing/selftests/bpf/prog_tests/xdp_adjust_tail.c
-+++ b/tools/testing/selftests/bpf/prog_tests/xdp_adjust_tail.c
-@@ -63,6 +63,7 @@ static void test_xdp_adjust_tail_grow(void)
- 	expect_sz = sizeof(pkt_v6) + 40; /* Test grow with 40 bytes */
- 	topts.data_in = &pkt_v6;
- 	topts.data_size_in = sizeof(pkt_v6);
-+	topts.data_size_out = sizeof(buf);
- 	err = bpf_prog_test_run_opts(prog_fd, &topts);
- 	ASSERT_OK(err, "ipv6");
- 	ASSERT_EQ(topts.retval, XDP_TX, "ipv6 retval");
+diff --git a/arch/x86/kernel/uprobes.c b/arch/x86/kernel/uprobes.c
+index b63cf8f7745e..6c07f6daaa22 100644
+--- a/arch/x86/kernel/uprobes.c
++++ b/arch/x86/kernel/uprobes.c
+@@ -722,8 +722,9 @@ static int branch_setup_xol_ops(struct arch_uprobe *auprobe, struct insn *insn)
+ 	switch (opc1) {
+ 	case 0xeb:	/* jmp 8 */
+ 	case 0xe9:	/* jmp 32 */
+-	case 0x90:	/* prefix* + nop; same as jmp with .offs = 0 */
+ 		break;
++	case 0x90:	/* prefix* + nop; same as jmp with .offs = 0 */
++		goto setup;
+ 
+ 	case 0xe8:	/* call relative */
+ 		branch_clear_offset(auprobe, insn);
+@@ -753,6 +754,7 @@ static int branch_setup_xol_ops(struct arch_uprobe *auprobe, struct insn *insn)
+ 			return -ENOTSUPP;
+ 	}
+ 
++setup:
+ 	auprobe->branch.opc1 = opc1;
+ 	auprobe->branch.ilen = insn->length;
+ 	auprobe->branch.offs = insn->immediate.value;
 -- 
 2.35.1
 
