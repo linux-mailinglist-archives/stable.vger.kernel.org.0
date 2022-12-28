@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6141658079
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:18:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6410657FC1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:09:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234570AbiL1QR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:17:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36438 "EHLO
+        id S234404AbiL1QIU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:08:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234674AbiL1QRL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:17:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 402431AA29
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:15:20 -0800 (PST)
+        with ESMTP id S234401AbiL1QHp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:07:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57D9D11A18
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:07:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CCF96B81730
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:15:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CE2DC433EF;
-        Wed, 28 Dec 2022 16:15:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0DD45B81710
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:07:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D389C433EF;
+        Wed, 28 Dec 2022 16:07:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244117;
-        bh=oTgVX5QI6QmTMaNlU2Rhod3duPRSKyCResDUBIkwI5w=;
+        s=korg; t=1672243661;
+        bh=xFZx9leuCJgbMXiiX9g1ARpxtzdYalSiEPvhxz40504=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nJBs/9Z1xVEtj12NHl9/3gga+I3HCjHLFA22xAfeIScUbA8VAbxv/mNFpFZscFCIU
-         dfiyfCIQ0z1R1DWd2FmgKgdUzCU4cmeI6SzBJ3v00NaIkbWQfDVB4XtNHvoyw9wZH9
-         ZjDa0MnmdKCr/cQFS10ihC0mtWBTckuwJ5ViN9zM=
+        b=0SQD7EEZ8oBKbZe5qM4vxKaRLgAG0PKz3NZP8eLGo0bzVBy2XVWOJA8MixtI3UmcK
+         QeLtqe1if4HA0B8lctIw/2FlcvTdaimm06rAGfy/UJxSGjdXNpm6TYV2im0i+jt+El
+         OlUp1hY0IrGb7IPauvBJ4EJlyqEbg2Ol5pbfmp7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mustafa Ismail <mustafa.ismail@intel.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev, Vidya Sagar <vidyas@nvidia.com>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Jingoo Han <jingoohan1@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0614/1146] RDMA/irdma: Do not request 2-level PBLEs for CQ alloc
+Subject: [PATCH 6.0 0565/1073] PCI: dwc: Fix n_fts[] array overrun
 Date:   Wed, 28 Dec 2022 15:35:53 +0100
-Message-Id: <20221228144346.846494718@linuxfoundation.org>
+Message-Id: <20221228144343.402787549@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,76 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mustafa Ismail <mustafa.ismail@intel.com>
+From: Vidya Sagar <vidyas@nvidia.com>
 
-[ Upstream commit 8f7e2daa6336f9f4b6f8a4715a809674606df16b ]
+[ Upstream commit 66110361281b2f7da0c8bd51eaf1f152f4236035 ]
 
-When allocating PBLE's for a large CQ, it is possible
-that a 2-level PBLE is returned which would cause the
-CQ allocation to fail since 1-level is assumed and checked for.
-Fix this by requesting a level one PBLE only.
+commit aeaa0bfe89654 ("PCI: dwc: Move N_FTS setup to common setup")
+incorrectly uses pci->link_gen in deriving the index to the
+n_fts[] array also introducing the issue of accessing beyond the
+boundaries of array for greater than Gen-2 speeds. This change fixes
+that issue.
 
-Fixes: b48c24c2d710 ("RDMA/irdma: Implement device supported verb APIs")
-Signed-off-by: Mustafa Ismail <mustafa.ismail@intel.com>
-Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Link: https://lore.kernel.org/r/20221115011701.1379-4-shiraz.saleem@intel.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Link: https://lore.kernel.org/r/20220926111923.22487-1-vidyas@nvidia.com
+Fixes: aeaa0bfe8965 ("PCI: dwc: Move N_FTS setup to common setup")
+Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
+Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Acked-by: Jingoo Han <jingoohan1@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/irdma/verbs.c | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ drivers/pci/controller/dwc/pcie-designware.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/irdma/verbs.c b/drivers/infiniband/hw/irdma/verbs.c
-index 01d0dc4b5649..dc3f5f3fee90 100644
---- a/drivers/infiniband/hw/irdma/verbs.c
-+++ b/drivers/infiniband/hw/irdma/verbs.c
-@@ -2329,9 +2329,10 @@ static bool irdma_check_mr_contiguous(struct irdma_pble_alloc *palloc,
-  * @rf: RDMA PCI function
-  * @iwmr: mr pointer for this memory registration
-  * @use_pbles: flag if to use pble's
-+ * @lvl_1_only: request only level 1 pble if true
-  */
- static int irdma_setup_pbles(struct irdma_pci_f *rf, struct irdma_mr *iwmr,
--			     bool use_pbles)
-+			     bool use_pbles, bool lvl_1_only)
- {
- 	struct irdma_pbl *iwpbl = &iwmr->iwpbl;
- 	struct irdma_pble_alloc *palloc = &iwpbl->pble_alloc;
-@@ -2342,7 +2343,7 @@ static int irdma_setup_pbles(struct irdma_pci_f *rf, struct irdma_mr *iwmr,
- 
- 	if (use_pbles) {
- 		status = irdma_get_pble(rf->pble_rsrc, palloc, iwmr->page_cnt,
--					false);
-+					lvl_1_only);
- 		if (status)
- 			return status;
- 
-@@ -2385,16 +2386,10 @@ static int irdma_handle_q_mem(struct irdma_device *iwdev,
- 	bool ret = true;
- 
- 	pg_size = iwmr->page_size;
--	err = irdma_setup_pbles(iwdev->rf, iwmr, use_pbles);
-+	err = irdma_setup_pbles(iwdev->rf, iwmr, use_pbles, true);
- 	if (err)
- 		return err;
- 
--	if (use_pbles && palloc->level != PBLE_LEVEL_1) {
--		irdma_free_pble(iwdev->rf->pble_rsrc, palloc);
--		iwpbl->pbl_allocated = false;
--		return -ENOMEM;
--	}
--
- 	if (use_pbles)
- 		arr = palloc->level1.addr;
- 
-@@ -2870,7 +2865,7 @@ static struct ib_mr *irdma_reg_user_mr(struct ib_pd *pd, u64 start, u64 len,
- 	case IRDMA_MEMREG_TYPE_MEM:
- 		use_pbles = (iwmr->page_cnt != 1);
- 
--		err = irdma_setup_pbles(iwdev->rf, iwmr, use_pbles);
-+		err = irdma_setup_pbles(iwdev->rf, iwmr, use_pbles, false);
- 		if (err)
- 			goto error;
+diff --git a/drivers/pci/controller/dwc/pcie-designware.c b/drivers/pci/controller/dwc/pcie-designware.c
+index c6725c519a47..9e4d96e5a3f5 100644
+--- a/drivers/pci/controller/dwc/pcie-designware.c
++++ b/drivers/pci/controller/dwc/pcie-designware.c
+@@ -641,7 +641,7 @@ void dw_pcie_setup(struct dw_pcie *pci)
+ 	if (pci->n_fts[1]) {
+ 		val = dw_pcie_readl_dbi(pci, PCIE_LINK_WIDTH_SPEED_CONTROL);
+ 		val &= ~PORT_LOGIC_N_FTS_MASK;
+-		val |= pci->n_fts[pci->link_gen - 1];
++		val |= pci->n_fts[1];
+ 		dw_pcie_writel_dbi(pci, PCIE_LINK_WIDTH_SPEED_CONTROL, val);
+ 	}
  
 -- 
 2.35.1
