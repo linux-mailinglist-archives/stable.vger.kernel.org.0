@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3DA3658299
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:38:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4D19657CF3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:37:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234869AbiL1Qin (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:38:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57452 "EHLO
+        id S233914AbiL1Phs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:37:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235014AbiL1QiB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:38:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 311CE1DA4C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:33:48 -0800 (PST)
+        with ESMTP id S233501AbiL1Phr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:37:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66D2B1658D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:37:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4126B8171E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:33:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CED1C433F0;
-        Wed, 28 Dec 2022 16:33:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0262361542
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:37:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16A5EC433D2;
+        Wed, 28 Dec 2022 15:37:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245225;
-        bh=T+MYcn/Y/qcdtAdrtyzgE3InQY06U4UYxo2sitkTqVg=;
+        s=korg; t=1672241865;
+        bh=NHTW7g8YDXVengTimg9WZo8+RBxdAodiEvHs3vTBHYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ASyqUKwf2XobIBg7ANQW9aYMYOP0MjmqW1jSJAR47RmDL96RF9wWCOsB56GnH9si
-         gQDp/gJzfZ30t6eBJQ6QPmwA508jKMpH24N0K7JiqRhrcto088E+60Ek/hRNhMbZ/u
-         ihyAxAbSGn2sQDCLgbNDvhxt/mHLdtuaD+2Md3dI=
+        b=q9p4FlCGzKex3CY0n4gwj4ryou7LqmcrqavpwYo198r8ziFWL/NPHkC4aHXZTuxFW
+         SLaJPFXJRMPv7zO/QMFg5aiXXpuIu5TSZhM1OydMzeYN4f4TO7EzOz0UddT75g72gX
+         xm12snTLYQzmBo1yZW9uhtE7DPEdrgT6iSoakt6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Eric Biggers <ebiggers@google.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0854/1073] blk-crypto: pass a gendisk to blk_crypto_sysfs_{,un}register
-Date:   Wed, 28 Dec 2022 15:40:42 +0100
-Message-Id: <20221228144351.215744571@linuxfoundation.org>
+        patches@lists.linux.dev,
+        syzbot+b892240eac461e488d51@syzkaller.appspotmail.com,
+        Abdun Nihaal <abdun.nihaal@gmail.com>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 536/731] fs/ntfs3: Fix slab-out-of-bounds read in ntfs_trim_fs
+Date:   Wed, 28 Dec 2022 15:40:43 +0100
+Message-Id: <20221228144312.082147609@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,107 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Abdun Nihaal <abdun.nihaal@gmail.com>
 
-[ Upstream commit 450deb93df7d457cdd93594a1987f9650c749b96 ]
+[ Upstream commit 557d19675a470bb0a98beccec38c5dc3735c20fa ]
 
-Prepare for changes to the block layer sysfs handling by passing the
-readily available gendisk to blk_crypto_sysfs_{,un}register.
+Syzbot reports an out of bound access in ntfs_trim_fs.
+The cause of this is using a loop termination condition that compares
+window index (iw) with wnd->nbits instead of wnd->nwnd, due to which the
+index used for wnd->free_bits exceeds the size of the array allocated.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20221114042637.1009333-2-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Stable-dep-of: d36a9ea5e776 ("block: fix use-after-free of q->q_usage_counter")
+Fix the loop condition.
+
+Fixes: 3f3b442b5ad2 ("fs/ntfs3: Add bitmap")
+Link: https://syzkaller.appspot.com/bug?extid=b892240eac461e488d51
+Reported-by: syzbot+b892240eac461e488d51@syzkaller.appspotmail.com
+Signed-off-by: Abdun Nihaal <abdun.nihaal@gmail.com>
+Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-crypto-internal.h | 10 ++++++----
- block/blk-crypto-sysfs.c    |  7 ++++---
- block/blk-sysfs.c           |  4 ++--
- 3 files changed, 12 insertions(+), 9 deletions(-)
+ fs/ntfs3/bitmap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/blk-crypto-internal.h b/block/blk-crypto-internal.h
-index e6818ffaddbf..b8a00847171f 100644
---- a/block/blk-crypto-internal.h
-+++ b/block/blk-crypto-internal.h
-@@ -21,9 +21,9 @@ extern const struct blk_crypto_mode blk_crypto_modes[];
+diff --git a/fs/ntfs3/bitmap.c b/fs/ntfs3/bitmap.c
+index aa184407520f..7f2055b7427a 100644
+--- a/fs/ntfs3/bitmap.c
++++ b/fs/ntfs3/bitmap.c
+@@ -1432,7 +1432,7 @@ int ntfs_trim_fs(struct ntfs_sb_info *sbi, struct fstrim_range *range)
  
- #ifdef CONFIG_BLK_INLINE_ENCRYPTION
+ 	down_read_nested(&wnd->rw_lock, BITMAP_MUTEX_CLUSTERS);
  
--int blk_crypto_sysfs_register(struct request_queue *q);
-+int blk_crypto_sysfs_register(struct gendisk *disk);
+-	for (; iw < wnd->nbits; iw++, wbit = 0) {
++	for (; iw < wnd->nwnd; iw++, wbit = 0) {
+ 		CLST lcn_wnd = iw * wbits;
+ 		struct buffer_head *bh;
  
--void blk_crypto_sysfs_unregister(struct request_queue *q);
-+void blk_crypto_sysfs_unregister(struct gendisk *disk);
- 
- void bio_crypt_dun_increment(u64 dun[BLK_CRYPTO_DUN_ARRAY_SIZE],
- 			     unsigned int inc);
-@@ -67,12 +67,14 @@ static inline bool blk_crypto_rq_is_encrypted(struct request *rq)
- 
- #else /* CONFIG_BLK_INLINE_ENCRYPTION */
- 
--static inline int blk_crypto_sysfs_register(struct request_queue *q)
-+static inline int blk_crypto_sysfs_register(struct gendisk *disk)
- {
- 	return 0;
- }
- 
--static inline void blk_crypto_sysfs_unregister(struct request_queue *q) { }
-+static inline void blk_crypto_sysfs_unregister(struct gendisk *disk)
-+{
-+}
- 
- static inline bool bio_crypt_rq_ctx_compatible(struct request *rq,
- 					       struct bio *bio)
-diff --git a/block/blk-crypto-sysfs.c b/block/blk-crypto-sysfs.c
-index fd93bd2f33b7..e05f145cd797 100644
---- a/block/blk-crypto-sysfs.c
-+++ b/block/blk-crypto-sysfs.c
-@@ -126,8 +126,9 @@ static struct kobj_type blk_crypto_ktype = {
-  * If the request_queue has a blk_crypto_profile, create the "crypto"
-  * subdirectory in sysfs (/sys/block/$disk/queue/crypto/).
-  */
--int blk_crypto_sysfs_register(struct request_queue *q)
-+int blk_crypto_sysfs_register(struct gendisk *disk)
- {
-+	struct request_queue *q = disk->queue;
- 	struct blk_crypto_kobj *obj;
- 	int err;
- 
-@@ -149,9 +150,9 @@ int blk_crypto_sysfs_register(struct request_queue *q)
- 	return 0;
- }
- 
--void blk_crypto_sysfs_unregister(struct request_queue *q)
-+void blk_crypto_sysfs_unregister(struct gendisk *disk)
- {
--	kobject_put(q->crypto_kobject);
-+	kobject_put(disk->queue->crypto_kobject);
- }
- 
- static int __init blk_crypto_sysfs_init(void)
-diff --git a/block/blk-sysfs.c b/block/blk-sysfs.c
-index 8822b4b6bed2..c8a1119c3950 100644
---- a/block/blk-sysfs.c
-+++ b/block/blk-sysfs.c
-@@ -833,7 +833,7 @@ int blk_register_queue(struct gendisk *disk)
- 			goto put_dev;
- 	}
- 
--	ret = blk_crypto_sysfs_register(q);
-+	ret = blk_crypto_sysfs_register(disk);
- 	if (ret)
- 		goto put_dev;
- 
-@@ -910,7 +910,7 @@ void blk_unregister_queue(struct gendisk *disk)
- 	 */
- 	if (queue_is_mq(q))
- 		blk_mq_sysfs_unregister(disk);
--	blk_crypto_sysfs_unregister(q);
-+	blk_crypto_sysfs_unregister(disk);
- 
- 	mutex_lock(&q->sysfs_lock);
- 	elv_unregister_queue(q);
 -- 
 2.35.1
 
