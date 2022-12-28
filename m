@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA934657E2E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:50:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A337657884
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:52:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234106AbiL1Pu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:50:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38638 "EHLO
+        id S233118AbiL1OwH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:52:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234107AbiL1Pu5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:50:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC9E917886
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:50:56 -0800 (PST)
+        with ESMTP id S233140AbiL1Ovh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:51:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08BF5120B8
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:51:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A71DB81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:50:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06622C433EF;
-        Wed, 28 Dec 2022 15:50:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9ACAE61365
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:51:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0D17C433D2;
+        Wed, 28 Dec 2022 14:51:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242654;
-        bh=H7SQm+nsc6E7nY8m6I1Nzd5PkMSJcdD1Syg4IkKJv7s=;
+        s=korg; t=1672239072;
+        bh=HUOb01HZODzZKq1CAHY2wWCbP1y0H1CFdVxyQysjJks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iiu0x3y9v2k+3ufQ4mfihF5jYUb3heoqXpyiILSrSGxRILXoHQUTtD9PyKWOLIrIQ
-         /yo16lrksjFqbuazUS1z/AyHQm0Dv2lnR7GwunOtdiZjc7g3YUGZPnOZicjMPuop1n
-         qrCb4oY/mPuWxGfPjDfUsaOasqmII+hA0xCF6qzY=
+        b=0/XAi09jX8IRe3iWUppoJVJDO/aRDkBJmsye3uGjcoST1M8FCZdrHNjFue2O/43sB
+         IFOhmvh7eWh54TJkulQ4LagSOh4s6ToC18n6JcDd1x+XtjRHVdNS65VEmI+HxcQeCX
+         vz/YmXQnhxP8W/1Q7wRIfsoB0mvjfcQ/9vQSx++4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        patches@lists.linux.dev, Phil Auld <pauld@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Valentin Schneider <vschneid@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0436/1073] wifi: mac80211: fix memory leak in ieee80211_if_add()
-Date:   Wed, 28 Dec 2022 15:33:44 +0100
-Message-Id: <20221228144339.869825563@linuxfoundation.org>
+Subject: [PATCH 5.15 118/731] cpu/hotplug: Make target_store() a nop when target == state
+Date:   Wed, 28 Dec 2022 15:33:45 +0100
+Message-Id: <20221228144259.973608902@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Phil Auld <pauld@redhat.com>
 
-[ Upstream commit 13e5afd3d773c6fc6ca2b89027befaaaa1ea7293 ]
+[ Upstream commit 64ea6e44f85b9b75925ebe1ba0e6e8430cc4e06f ]
 
-When register_netdevice() failed in ieee80211_if_add(), ndev->tstats
-isn't released. Fix it.
+Writing the current state back in hotplug/target calls cpu_down()
+which will set cpu dying even when it isn't and then nothing will
+ever clear it. A stress test that reads values and writes them back
+for all cpu device files in sysfs will trigger the BUG() in
+select_fallback_rq once all cpus are marked as dying.
 
-Fixes: 5a490510ba5f ("mac80211: use per-CPU TX/RX statistics")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Link: https://lore.kernel.org/r/20221117064500.319983-1-shaozhengchao@huawei.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+kernel/cpu.c::target_store()
+	...
+        if (st->state < target)
+                ret = cpu_up(dev->id, target);
+        else
+                ret = cpu_down(dev->id, target);
+
+cpu_down() -> cpu_set_state()
+	 bool bringup = st->state < target;
+	 ...
+	 if (cpu_dying(cpu) != !bringup)
+		set_cpu_dying(cpu, !bringup);
+
+Fix this by letting state==target fall through in the target_store()
+conditional. Also make sure st->target == target in that case.
+
+Fixes: 757c989b9994 ("cpu/hotplug: Make target state writeable")
+Signed-off-by: Phil Auld <pauld@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Valentin Schneider <vschneid@redhat.com>
+Link: https://lore.kernel.org/r/20221117162329.3164999-2-pauld@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/iface.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/cpu.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/mac80211/iface.c b/net/mac80211/iface.c
-index 95b58c5cac07..c3eb08b5a47e 100644
---- a/net/mac80211/iface.c
-+++ b/net/mac80211/iface.c
-@@ -2414,6 +2414,7 @@ int ieee80211_if_add(struct ieee80211_local *local, const char *name,
+diff --git a/kernel/cpu.c b/kernel/cpu.c
+index da871eb07566..e08d207011dd 100644
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -2315,8 +2315,10 @@ static ssize_t target_store(struct device *dev, struct device_attribute *attr,
  
- 		ret = cfg80211_register_netdevice(ndev);
- 		if (ret) {
-+			ieee80211_if_free(ndev);
- 			free_netdev(ndev);
- 			return ret;
- 		}
+ 	if (st->state < target)
+ 		ret = cpu_up(dev->id, target);
+-	else
++	else if (st->state > target)
+ 		ret = cpu_down(dev->id, target);
++	else if (WARN_ON(st->target != target))
++		st->target = target;
+ out:
+ 	unlock_device_hotplug();
+ 	return ret ? ret : count;
 -- 
 2.35.1
 
