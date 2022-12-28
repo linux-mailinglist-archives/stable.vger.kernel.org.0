@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE1EF657D61
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:42:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89F1F657E7A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:54:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233956AbiL1Pmo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:42:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57832 "EHLO
+        id S234148AbiL1PyE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:54:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233576AbiL1Pmf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:42:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC52017045
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:42:33 -0800 (PST)
+        with ESMTP id S233023AbiL1PyC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:54:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5E8115F29
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:54:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A13F3B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:42:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15D5CC433D2;
-        Wed, 28 Dec 2022 15:42:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 62E1C61560
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:54:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 686C5C433D2;
+        Wed, 28 Dec 2022 15:53:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242151;
-        bh=chIMfwcOYDHl4mDXEwwPaMq4rfl47D+aSwyteTFjYxw=;
+        s=korg; t=1672242839;
+        bh=we8p8o1BquqEHzPx1VRXPxJZZaJJny3MO4j2jDe/9T4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mTOE6V6O4g61NGvjzmhEDRbwsn9umQApewbtfZn/LKQok4HREIdFXgxyiiWtLpKDd
-         o6aP8NCXAKyjJEdNGaKzBzkPIFXXBPXWnZC1hLk2KaZvU7iOFEICTDug6u8/YqkOIp
-         iBsdUByuhKbu1TXi8qn0OrflzYCjkqg5od32KCug=
+        b=odiVXzeMLU45GBSRCoIVRpnGkzdRZRHcovTUioMcXDAO55NSIEwvQg+2WJH7JMYHq
+         4qkzI5BT4Bo9ctKQ4nHUI5Q7h7+pUkJwQ3stsYT1gTUWypJ6EjYLQjfFxRXvKByQ8N
+         wT+FhkunM+IvTYyjcHU86aHEXZzZ5wYuPH+Gdg0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheng Yongjun <zhengyongjun3@huawei.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        patches@lists.linux.dev,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0373/1073] mtd: maps: pxa2xx-flash: fix memory leak in probe
+Subject: [PATCH 6.1 0422/1146] NFSv4.2: Clear FATTR4_WORD2_SECURITY_LABEL when done decoding
 Date:   Wed, 28 Dec 2022 15:32:41 +0100
-Message-Id: <20221228144338.135277191@linuxfoundation.org>
+Message-Id: <20221228144341.637205237@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yongjun <zhengyongjun3@huawei.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 2399401feee27c639addc5b7e6ba519d3ca341bf ]
+[ Upstream commit eef7314caf2d73a94b68ba293cd105154d3a664e ]
 
-Free 'info' upon remapping error to avoid a memory leak.
+We need to clear the FATTR4_WORD2_SECURITY_LABEL bitmap flag
+irrespective of whether or not the label is too long.
 
-Fixes: e644f7d62894 ("[MTD] MAPS: Merge Lubbock and Mainstone drivers into common PXA2xx driver")
-Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
-[<miquel.raynal@bootlin.com>: Reword the commit log]
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20221119073307.22929-1-zhengyongjun3@huawei.com
+Fixes: aa9c2669626c ("NFS: Client implementation of Labeled-NFS")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/maps/pxa2xx-flash.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/nfs/nfs4xdr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/maps/pxa2xx-flash.c b/drivers/mtd/maps/pxa2xx-flash.c
-index 1749dbbacc13..62a5bf41a6d7 100644
---- a/drivers/mtd/maps/pxa2xx-flash.c
-+++ b/drivers/mtd/maps/pxa2xx-flash.c
-@@ -64,6 +64,7 @@ static int pxa2xx_flash_probe(struct platform_device *pdev)
- 	if (!info->map.virt) {
- 		printk(KERN_WARNING "Failed to ioremap %s\n",
- 		       info->map.name);
-+		kfree(info);
- 		return -ENOMEM;
- 	}
- 	info->map.cached = ioremap_cache(info->map.phys, info->map.size);
-@@ -85,6 +86,7 @@ static int pxa2xx_flash_probe(struct platform_device *pdev)
- 		iounmap((void *)info->map.virt);
- 		if (info->map.cached)
- 			iounmap(info->map.cached);
-+		kfree(info);
- 		return -EIO;
- 	}
- 	info->mtd->dev.parent = &pdev->dev;
+diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
+index acfe5f4bda48..8c5298e37f0f 100644
+--- a/fs/nfs/nfs4xdr.c
++++ b/fs/nfs/nfs4xdr.c
+@@ -4234,6 +4234,7 @@ static int decode_attr_security_label(struct xdr_stream *xdr, uint32_t *bitmap,
+ 		p = xdr_inline_decode(xdr, len);
+ 		if (unlikely(!p))
+ 			return -EIO;
++		bitmap[2] &= ~FATTR4_WORD2_SECURITY_LABEL;
+ 		if (len < NFS4_MAXLABELLEN) {
+ 			if (label) {
+ 				if (label->len) {
+@@ -4246,7 +4247,6 @@ static int decode_attr_security_label(struct xdr_stream *xdr, uint32_t *bitmap,
+ 				label->lfs = lfs;
+ 				status = NFS_ATTR_FATTR_V4_SECURITY_LABEL;
+ 			}
+-			bitmap[2] &= ~FATTR4_WORD2_SECURITY_LABEL;
+ 		} else
+ 			printk(KERN_WARNING "%s: label too long (%u)!\n",
+ 					__func__, len);
 -- 
 2.35.1
 
