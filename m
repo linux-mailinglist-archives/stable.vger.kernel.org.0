@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 126A0657FA1
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:07:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEEE165806A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:17:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233007AbiL1QH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:07:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53996 "EHLO
+        id S233252AbiL1QRr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:17:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234329AbiL1QHH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:07:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32CF514D33
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:06:56 -0800 (PST)
+        with ESMTP id S234584AbiL1QQy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:16:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4735A1A220
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:14:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E1ED5B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:06:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42161C433D2;
-        Wed, 28 Dec 2022 16:06:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D69EA6156E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:14:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FA92C433EF;
+        Wed, 28 Dec 2022 16:14:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243613;
-        bh=VGi6d0KV4g/yo2f7z6fe2QaLPXyZ9kc+nqHCO4xi3aY=;
+        s=korg; t=1672244080;
+        bh=40NvcAwH9af5kvUWryB4t+zNxnNFzvoKp2r3x7H3c4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CJvSrGmGF1NhgwbKcGK7y7l7sfVuYgF1CCuYyBVXpmaYAnPpa2qNINsnp2oouKQwE
-         6Ta4QUxM4tKw5WZ6ir/6ef+XPo2TJjROIhbFl6Ozct0TT7qNpZa0Z0Ge3I5cVNAVso
-         AzYr9qzWJ4ZmVIoje1KSy0rgQsWXJVgNlEtTuaLE=
+        b=VA/r2k1boguTQEzg8i/ldxLUWl2JsIFhLwhM3H7ftv9S+5XQiFRBrTFChfh0iwazv
+         zWNX902iG3NF8E/LoyGBSS2wA5rtVSbxA7GmPe/QTQlXW4xZE5eB8dK+N65m/cjyXX
+         keQ9ut64qs7EYm+EdkT1Vsw0ERdJXDkRE+GNbnVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Weili Qian <qianweili@huawei.com>,
-        Yang Shen <shenyang39@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        patches@lists.linux.dev, Richard Zhu <hongxing.zhu@nxp.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0557/1073] crypto: hisilicon/qm - fix missing destroy qp_idr
+Subject: [PATCH 6.1 0606/1146] PCI: imx6: Initialize PHY before deasserting core reset
 Date:   Wed, 28 Dec 2022 15:35:45 +0100
-Message-Id: <20221228144343.184880055@linuxfoundation.org>
+Message-Id: <20221228144346.633025261@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Weili Qian <qianweili@huawei.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-[ Upstream commit 116be08f6e4e385733d42360a33c3d883d2dd702 ]
+[ Upstream commit ae6b9a65af480144da323436d90e149501ea8937 ]
 
-In the function hisi_qm_memory_init(), if resource alloc fails after
-idr_init, the initialized qp_idr needs to be destroyed.
+When the PHY is the reference clock provider then it must be initialized
+and powered on before the reset on the client is deasserted, otherwise
+the link will never come up. The order was changed in cf236e0c0d59.
+Restore the correct order to make the driver work again on boards where
+the PHY provides the reference clock. This also changes the order for
+boards where the Soc is the PHY reference clock divider, but this
+shouldn't do any harm.
 
-Signed-off-by: Weili Qian <qianweili@huawei.com>
-Signed-off-by: Yang Shen <shenyang39@huawei.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Stable-dep-of: ee1537fe3dd8 ("crypto: hisilicon/qm - re-enable communicate interrupt before notifying PF")
+Link: https://lore.kernel.org/r/20221101095714.440001-1-s.hauer@pengutronix.de
+Fixes: cf236e0c0d59 ("PCI: imx6: Do not hide PHY driver callbacks and refine the error handling")
+Tested-by: Richard Zhu <hongxing.zhu@nxp.com>
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/hisilicon/qm.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/pci/controller/dwc/pci-imx6.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/crypto/hisilicon/qm.c b/drivers/crypto/hisilicon/qm.c
-index 9fa2efe60153..bdb7d5ba23b8 100644
---- a/drivers/crypto/hisilicon/qm.c
-+++ b/drivers/crypto/hisilicon/qm.c
-@@ -6143,8 +6143,8 @@ static int hisi_qm_memory_init(struct hisi_qm *qm)
- 					 GFP_ATOMIC);
- 	dev_dbg(dev, "allocate qm dma buf size=%zx)\n", qm->qdma.size);
- 	if (!qm->qdma.va) {
--		ret =  -ENOMEM;
--		goto err_alloc_qdma;
-+		ret = -ENOMEM;
-+		goto err_destroy_idr;
+diff --git a/drivers/pci/controller/dwc/pci-imx6.c b/drivers/pci/controller/dwc/pci-imx6.c
+index 2616585ca5f8..1dde5c579edc 100644
+--- a/drivers/pci/controller/dwc/pci-imx6.c
++++ b/drivers/pci/controller/dwc/pci-imx6.c
+@@ -952,12 +952,6 @@ static int imx6_pcie_host_init(struct dw_pcie_rp *pp)
+ 		}
  	}
  
- 	QM_INIT_BUF(qm, eqe, QM_EQ_DEPTH);
-@@ -6160,7 +6160,8 @@ static int hisi_qm_memory_init(struct hisi_qm *qm)
+-	ret = imx6_pcie_deassert_core_reset(imx6_pcie);
+-	if (ret < 0) {
+-		dev_err(dev, "pcie deassert core reset failed: %d\n", ret);
+-		goto err_phy_off;
+-	}
+-
+ 	if (imx6_pcie->phy) {
+ 		ret = phy_power_on(imx6_pcie->phy);
+ 		if (ret) {
+@@ -965,6 +959,13 @@ static int imx6_pcie_host_init(struct dw_pcie_rp *pp)
+ 			goto err_phy_off;
+ 		}
+ 	}
++
++	ret = imx6_pcie_deassert_core_reset(imx6_pcie);
++	if (ret < 0) {
++		dev_err(dev, "pcie deassert core reset failed: %d\n", ret);
++		goto err_phy_off;
++	}
++
+ 	imx6_setup_phy_mpll(imx6_pcie);
  
- err_alloc_qp_array:
- 	dma_free_coherent(dev, qm->qdma.size, qm->qdma.va, qm->qdma.dma);
--err_alloc_qdma:
-+err_destroy_idr:
-+	idr_destroy(&qm->qp_idr);
- 	kfree(qm->factor);
- 
- 	return ret;
+ 	return 0;
 -- 
 2.35.1
 
