@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AC66657B0A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:17:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20C00657B0D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:17:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233178AbiL1PRc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:17:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36136 "EHLO
+        id S233172AbiL1PRj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:17:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233194AbiL1PRa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:17:30 -0500
+        with ESMTP id S233179AbiL1PRi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:17:38 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4449413F35
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:17:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 601B313E39
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:17:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EF208B81647
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:17:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C872C433EF;
-        Wed, 28 Dec 2022 15:17:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15BB8B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:17:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78DC2C433D2;
+        Wed, 28 Dec 2022 15:17:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240646;
-        bh=Ce5wsrwXVklwECNR+An862ZImLkfgMufqhCRFkyt+Go=;
+        s=korg; t=1672240654;
+        bh=1kVWNZqRXBjAGACUjOXCo0b9TnN7MjFDu0k54z+rqfc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gMPLe6oF17u2ORbwzIpF2tvtYccTIRzARScky+qaiBnCb2DU9lh/oihTgMUabVapu
-         jeg3emYu6WuElixf3d0iTCoP1Uu332CI3QDUbMDqDnH93MSxzWjJ09zN+AvCINmgGZ
-         h3ZxqhPVfgv8dM6+ecgdNu+XCePsMAeLsuAfpljg=
+        b=vHZl0kA+KDLzIVmnInY/drtyWdjNy0W3r6oCYt4lNV1qNCUFaPfRBo2g/TpRhj8gt
+         20zi4qB+k4iLx2I9oswPCd+zrsdYGj8h65WqL2+3ZPOul4h0YX1sUXCnwCEwTeDiCK
+         +0cktUMvaR4iyOHGuApX614SPb0P2ZRHE845481E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liu Peibao <liupeibao@loongson.cn>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0149/1146] irqchip/loongson-liointc: Fix improper error handling in liointc_init()
-Date:   Wed, 28 Dec 2022 15:28:08 +0100
-Message-Id: <20221228144334.199335378@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0150/1146] EDAC/i10nm: fix refcount leak in pci_get_dev_wrapper()
+Date:   Wed, 28 Dec 2022 15:28:09 +0100
+Message-Id: <20221228144334.227022469@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -52,44 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Peibao <liupeibao@loongson.cn>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 4a60a3cdcf1875c965095eb9e22c3d12bbc5a53d ]
+[ Upstream commit 9c8921555907f4d723f01ed2d859b66f2d14f08e ]
 
-For cores less than 4, eg, loongson2k1000 with 2 cores, the
-of_property_match_string() may return with an error value,
-which causes that liointc could not work. At least isr0 is
-what should be checked like previous commit b2c4c3969fd7
-("irqchip/loongson-liointc: irqchip add 2.0 version") did.
+As the comment of pci_get_domain_bus_and_slot() says, it returns
+a PCI device with refcount incremented, so it doesn't need to
+call an extra pci_dev_get() in pci_get_dev_wrapper(), and the PCI
+device needs to be put in the error path.
 
-Fixes: 0858ed035a85 ("irqchip/loongson-liointc: Add ACPI init support")
-Signed-off-by: Liu Peibao <liupeibao@loongson.cn>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20221104110712.23300-1-liupeibao@loongson.cn
+Fixes: d4dc89d069aa ("EDAC, i10nm: Add a driver for Intel 10nm server processors")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Link: https://lore.kernel.org/r/20221128065512.3572550-1-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-loongson-liointc.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/edac/i10nm_base.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/irqchip/irq-loongson-liointc.c b/drivers/irqchip/irq-loongson-liointc.c
-index 0da8716f8f24..c4584e2f0ad3 100644
---- a/drivers/irqchip/irq-loongson-liointc.c
-+++ b/drivers/irqchip/irq-loongson-liointc.c
-@@ -207,10 +207,13 @@ static int liointc_init(phys_addr_t addr, unsigned long size, int revision,
- 					"reg-names", core_reg_names[i]);
- 
- 			if (index < 0)
--				goto out_iounmap;
-+				continue;
- 
- 			priv->core_isr[i] = of_iomap(node, index);
- 		}
-+
-+		if (!priv->core_isr[0])
-+			goto out_iounmap;
+diff --git a/drivers/edac/i10nm_base.c b/drivers/edac/i10nm_base.c
+index a22ea053f8e1..8af4d2523194 100644
+--- a/drivers/edac/i10nm_base.c
++++ b/drivers/edac/i10nm_base.c
+@@ -304,11 +304,10 @@ static struct pci_dev *pci_get_dev_wrapper(int dom, unsigned int bus,
+ 	if (unlikely(pci_enable_device(pdev) < 0)) {
+ 		edac_dbg(2, "Failed to enable device %02x:%02x.%x\n",
+ 			 bus, dev, fun);
++		pci_dev_put(pdev);
+ 		return NULL;
  	}
  
- 	/* Setup IRQ domain */
+-	pci_dev_get(pdev);
+-
+ 	return pdev;
+ }
+ 
 -- 
 2.35.1
 
