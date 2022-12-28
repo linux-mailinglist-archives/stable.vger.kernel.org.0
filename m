@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E8B7657992
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:03:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 185BD657995
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:03:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233471AbiL1PDD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:03:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48874 "EHLO
+        id S233475AbiL1PDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:03:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233495AbiL1PCd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:02:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5488513D38
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:02:27 -0800 (PST)
+        with ESMTP id S233393AbiL1PCh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:02:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 050BA12ADD
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:02:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E41EB61541
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:02:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02D57C433EF;
-        Wed, 28 Dec 2022 15:02:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 964EAB81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:02:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA154C433D2;
+        Wed, 28 Dec 2022 15:02:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239746;
-        bh=KY6EI4QnL0oDLxTOl9x+lSkyQF7MJ5lHNbVGVtlXZVg=;
+        s=korg; t=1672239754;
+        bh=KDlqBIQ6+eHV4ipR1bxlAghokyYIue9Jm0Y24O/IY5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LeKB2Q0exmDY1CBu+ZloWAJGcTRKjUplg9e+hxuJvdks6u9unhip4aM8Ah4QC4Py4
-         YL8KA6BQooDWjOfIIA/HT06CD1lUcHfRTfCE4GZ0ocXpg+VvXVw5fEO39v6xHgmh4A
-         /mf9JA/Uvn/MGq14jOFF5liaxCqrooBTGiS/HNNc=
+        b=euk5Pz3oUf72FB2/di8tbXAaLxopZqhIYXMLbNC/74GK+3F6zhUQq5Cpwa60gswWy
+         SzJAZ+/LRbXzsTZ9t1JR14YddfnlItGZPNwgW/cSmsU3T5tpu01p3fMSZdNxxgCqT8
+         Ju80nM2/TG20v///30aCyM1gb1fb/QDYi+c1rAeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Marijn Suijten <marijn.suijten@somainline.org>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Luca Weiss <luca.weiss@fairphone.com>,
         Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0038/1146] arm64: dts: qcom: pm6350: Include header for KEY_POWER
-Date:   Wed, 28 Dec 2022 15:26:17 +0100
-Message-Id: <20221228144331.198815444@linuxfoundation.org>
+Subject: [PATCH 6.1 0039/1146] arm64: dts: qcom: sm6125: fix SDHCI CQE reg names
+Date:   Wed, 28 Dec 2022 15:26:18 +0100
+Message-Id: <20221228144331.225383729@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -56,36 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit f6e2d6914c7c095660a9c7c503328eebab1e2557 ]
+[ Upstream commit 3de1172624b3c4ca65730bc34333ab493510b3e1 ]
 
-Make pm6350.dtsi self-contained by including input.h, needed for the
-KEY_POWER constant used to define the power key.
+SM6125 comes with SDCC (SDHCI controller) v5, so the second range of
+registers is cqhci, not core.
 
-Fixes: d8a3c775d7cd ("arm64: dts: qcom: Add PM6350 PMIC")
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-Reviewed-by: Luca Weiss <luca.weiss@fairphone.com>
+Fixes: cff4bbaf2a2d ("arm64: dts: qcom: Add support for SM6125")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Marijn Suijten <marijn.suijten@somainline.org>
+Tested-by: Marijn Suijten <marijn.suijten@somainline.org> # Sony Xperia 10 II
 Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221030073232.22726-5-marijn.suijten@somainline.org
+Link: https://lore.kernel.org/r/20221026163646.37433-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/pm6350.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/qcom/sm6125.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/pm6350.dtsi b/arch/arm64/boot/dts/qcom/pm6350.dtsi
-index ecf9b9919182..68245d78d2b9 100644
---- a/arch/arm64/boot/dts/qcom/pm6350.dtsi
-+++ b/arch/arm64/boot/dts/qcom/pm6350.dtsi
-@@ -3,6 +3,7 @@
-  * Copyright (c) 2021, Luca Weiss <luca@z3ntu.xyz>
-  */
+diff --git a/arch/arm64/boot/dts/qcom/sm6125.dtsi b/arch/arm64/boot/dts/qcom/sm6125.dtsi
+index 1fe3fa3ad877..7818fb6c5a10 100644
+--- a/arch/arm64/boot/dts/qcom/sm6125.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm6125.dtsi
+@@ -458,7 +458,7 @@ rpm_msg_ram: sram@45f0000 {
+ 		sdhc_1: mmc@4744000 {
+ 			compatible = "qcom,sm6125-sdhci", "qcom,sdhci-msm-v5";
+ 			reg = <0x04744000 0x1000>, <0x04745000 0x1000>;
+-			reg-names = "hc", "core";
++			reg-names = "hc", "cqhci";
  
-+#include <dt-bindings/input/input.h>
- #include <dt-bindings/spmi/spmi.h>
- 
- &spmi_bus {
+ 			interrupts = <GIC_SPI 348 IRQ_TYPE_LEVEL_HIGH>,
+ 				     <GIC_SPI 352 IRQ_TYPE_LEVEL_HIGH>;
 -- 
 2.35.1
 
