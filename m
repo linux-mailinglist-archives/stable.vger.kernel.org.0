@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABEB76582EE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17C46657BE7
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:27:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234944AbiL1QnX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:43:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33704 "EHLO
+        id S233381AbiL1P04 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:26:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235035AbiL1Qm5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:42:57 -0500
+        with ESMTP id S233766AbiL1P0f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:26:35 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B76D01F9DE
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:07 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18A641BF
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:26:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 53BF4B81707
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:37:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1E7AC433D2;
-        Wed, 28 Dec 2022 16:36:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A33C0B816D9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:26:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 105D8C433D2;
+        Wed, 28 Dec 2022 15:26:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245420;
-        bh=ycJSdmVsD2NsqhaOtsUZjC5inYto8Cl7HedkvgHN6Ds=;
+        s=korg; t=1672241191;
+        bh=hafTzfsayXdeFYxoNO2rdQVl+0KVRalLJ956sh9huyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T45F8PVioYRxdEv7cxXkQT41lr1Ni7UIjCbBwG+vBkkxLtMVh/BW2+zi6dOh9nENQ
-         N90vWeiBz91Atjj0PUHtMRMhOn1NwTl0VS+eVJDmQ+c91IjlB9OcL+BRpc0o6xiFwo
-         EGZbZFoLo/u2JYKnSV4mMmVd1wiEvHAyWPBC59Lw=
+        b=A1mrS2uCO2pGvZpfP1SRF0EHUAzCeUxeBDcr8XagtUWijSojPNPQuY/gzNkHww+i6
+         V2d3fXh4bw25T4VLwJoHlLyx5otoWcrqzr6HnO6xpSEHZAJIQjswzhemc/HKQXMtlp
+         edgoaGmTpi3NmRHM809slOT6QGNiNN+I2eG56d6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Justin Chen <justinpopo6@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0819/1146] phy: usb: Fix clock imbalance for suspend/resume
+        patches@lists.linux.dev,
+        Yassine Oudjana <y.oudjana@protonmail.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 451/731] extcon: usbc-tusb320: Add support for mode setting and reset
 Date:   Wed, 28 Dec 2022 15:39:18 +0100
-Message-Id: <20221228144352.401411679@linuxfoundation.org>
+Message-Id: <20221228144309.627391443@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,83 +54,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Justin Chen <justinpopo6@gmail.com>
+From: Yassine Oudjana <y.oudjana@protonmail.com>
 
-[ Upstream commit 8484199c09347bdd5d81ee8a2bc530850f900797 ]
+[ Upstream commit 70c55d6be634e5f9894169340f3fe5c73f53ac2d ]
 
-We should be disabling clocks when wake from USB is not needed. Since
-this wasn't done, we had a clock imbalance since clocks were always
-being enabled on resume.
+Reset the chip and set its mode to default (maintain mode set by PORT pin)
+during probe to make sure it comes up in the default state.
 
-Fixes: ae532b2b7aa5 ("phy: usb: Add "wake on" functionality for newer Synopsis XHCI controllers")
-Fixes: b0c0b66c0b43 ("phy: usb: Add support for wake and USB low power mode for 7211 S2/S5")
-Signed-off-by: Justin Chen <justinpopo6@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/1665005418-15807-7-git-send-email-justinpopo6@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Yassine Oudjana <y.oudjana@protonmail.com>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Stable-dep-of: 581c848b610d ("extcon: usbc-tusb320: Update state on probe even if no IRQ pending")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/broadcom/phy-brcm-usb-init-synopsys.c | 2 --
- drivers/phy/broadcom/phy-brcm-usb-init.h          | 1 -
- drivers/phy/broadcom/phy-brcm-usb.c               | 8 +++++---
- 3 files changed, 5 insertions(+), 6 deletions(-)
+ drivers/extcon/extcon-usbc-tusb320.c | 85 ++++++++++++++++++++++++++--
+ 1 file changed, 81 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/phy/broadcom/phy-brcm-usb-init-synopsys.c b/drivers/phy/broadcom/phy-brcm-usb-init-synopsys.c
-index b3386e458dd4..3b374b37b965 100644
---- a/drivers/phy/broadcom/phy-brcm-usb-init-synopsys.c
-+++ b/drivers/phy/broadcom/phy-brcm-usb-init-synopsys.c
-@@ -424,7 +424,6 @@ void brcm_usb_dvr_init_7216(struct brcm_usb_init_params *params)
+diff --git a/drivers/extcon/extcon-usbc-tusb320.c b/drivers/extcon/extcon-usbc-tusb320.c
+index 805af73b4152..1ed1dfe54206 100644
+--- a/drivers/extcon/extcon-usbc-tusb320.c
++++ b/drivers/extcon/extcon-usbc-tusb320.c
+@@ -19,15 +19,32 @@
+ #define TUSB320_REG9_ATTACHED_STATE_MASK	0x3
+ #define TUSB320_REG9_CABLE_DIRECTION		BIT(5)
+ #define TUSB320_REG9_INTERRUPT_STATUS		BIT(4)
+-#define TUSB320_ATTACHED_STATE_NONE		0x0
+-#define TUSB320_ATTACHED_STATE_DFP		0x1
+-#define TUSB320_ATTACHED_STATE_UFP		0x2
+-#define TUSB320_ATTACHED_STATE_ACC		0x3
++
++#define TUSB320_REGA				0xa
++#define TUSB320_REGA_I2C_SOFT_RESET		BIT(3)
++#define TUSB320_REGA_MODE_SELECT_SHIFT		4
++#define TUSB320_REGA_MODE_SELECT_MASK		0x3
++
++enum tusb320_attached_state {
++	TUSB320_ATTACHED_STATE_NONE,
++	TUSB320_ATTACHED_STATE_DFP,
++	TUSB320_ATTACHED_STATE_UFP,
++	TUSB320_ATTACHED_STATE_ACC,
++};
++
++enum tusb320_mode {
++	TUSB320_MODE_PORT,
++	TUSB320_MODE_UFP,
++	TUSB320_MODE_DFP,
++	TUSB320_MODE_DRP,
++};
  
- 	params->family_name = "7216";
- 	params->ops = &bcm7216_ops;
--	params->suspend_with_clocks = true;
- }
- 
- void brcm_usb_dvr_init_7211b0(struct brcm_usb_init_params *params)
-@@ -434,5 +433,4 @@ void brcm_usb_dvr_init_7211b0(struct brcm_usb_init_params *params)
- 
- 	params->family_name = "7211";
- 	params->ops = &bcm7211b0_ops;
--	params->suspend_with_clocks = true;
- }
-diff --git a/drivers/phy/broadcom/phy-brcm-usb-init.h b/drivers/phy/broadcom/phy-brcm-usb-init.h
-index 1ccb5ddab865..3236e9498842 100644
---- a/drivers/phy/broadcom/phy-brcm-usb-init.h
-+++ b/drivers/phy/broadcom/phy-brcm-usb-init.h
-@@ -61,7 +61,6 @@ struct  brcm_usb_init_params {
- 	const struct brcm_usb_init_ops *ops;
- 	struct regmap *syscon_piarbctl;
- 	bool wake_enabled;
--	bool suspend_with_clocks;
+ struct tusb320_priv {
+ 	struct device *dev;
+ 	struct regmap *regmap;
+ 	struct extcon_dev *edev;
++
++	enum tusb320_attached_state state;
  };
  
- void brcm_usb_dvr_init_4908(struct brcm_usb_init_params *params);
-diff --git a/drivers/phy/broadcom/phy-brcm-usb.c b/drivers/phy/broadcom/phy-brcm-usb.c
-index c0c3ab9b2a15..2bfd78e2d8fd 100644
---- a/drivers/phy/broadcom/phy-brcm-usb.c
-+++ b/drivers/phy/broadcom/phy-brcm-usb.c
-@@ -598,7 +598,7 @@ static int brcm_usb_phy_suspend(struct device *dev)
- 		 * and newer XHCI->2.0-clks/3.0-clks.
- 		 */
+ static const char * const tusb_attached_states[] = {
+@@ -62,6 +79,53 @@ static int tusb320_check_signature(struct tusb320_priv *priv)
+ 	return 0;
+ }
  
--		if (!priv->ini.suspend_with_clocks) {
-+		if (!priv->ini.wake_enabled) {
- 			if (priv->phys[BRCM_USB_PHY_3_0].inited)
- 				clk_disable_unprepare(priv->usb_30_clk);
- 			if (priv->phys[BRCM_USB_PHY_2_0].inited ||
-@@ -615,8 +615,10 @@ static int brcm_usb_phy_resume(struct device *dev)
- {
- 	struct brcm_usb_phy_data *priv = dev_get_drvdata(dev);
- 
--	clk_prepare_enable(priv->usb_20_clk);
--	clk_prepare_enable(priv->usb_30_clk);
-+	if (!priv->ini.wake_enabled) {
-+		clk_prepare_enable(priv->usb_20_clk);
-+		clk_prepare_enable(priv->usb_30_clk);
++static int tusb320_set_mode(struct tusb320_priv *priv, enum tusb320_mode mode)
++{
++	int ret;
++
++	/* Mode cannot be changed while cable is attached */
++	if (priv->state != TUSB320_ATTACHED_STATE_NONE)
++		return -EBUSY;
++
++	/* Write mode */
++	ret = regmap_write_bits(priv->regmap, TUSB320_REGA,
++		TUSB320_REGA_MODE_SELECT_MASK << TUSB320_REGA_MODE_SELECT_SHIFT,
++		mode << TUSB320_REGA_MODE_SELECT_SHIFT);
++	if (ret) {
++		dev_err(priv->dev, "failed to write mode: %d\n", ret);
++		return ret;
 +	}
- 	brcm_usb_init_ipp(&priv->ini);
++
++	return 0;
++}
++
++static int tusb320_reset(struct tusb320_priv *priv)
++{
++	int ret;
++
++	/* Set mode to default (follow PORT pin) */
++	ret = tusb320_set_mode(priv, TUSB320_MODE_PORT);
++	if (ret && ret != -EBUSY) {
++		dev_err(priv->dev,
++			"failed to set mode to PORT: %d\n", ret);
++		return ret;
++	}
++
++	/* Perform soft reset */
++	ret = regmap_write_bits(priv->regmap, TUSB320_REGA,
++			TUSB320_REGA_I2C_SOFT_RESET, 1);
++	if (ret) {
++		dev_err(priv->dev,
++			"failed to write soft reset bit: %d\n", ret);
++		return ret;
++	}
++
++	/* Wait for chip to go through reset */
++	msleep(95);
++
++	return 0;
++}
++
+ static irqreturn_t tusb320_irq_handler(int irq, void *dev_id)
+ {
+ 	struct tusb320_priv *priv = dev_id;
+@@ -96,6 +160,8 @@ static irqreturn_t tusb320_irq_handler(int irq, void *dev_id)
+ 	extcon_sync(priv->edev, EXTCON_USB);
+ 	extcon_sync(priv->edev, EXTCON_USB_HOST);
  
- 	/*
++	priv->state = state;
++
+ 	regmap_write(priv->regmap, TUSB320_REG9, reg);
+ 
+ 	return IRQ_HANDLED;
+@@ -145,6 +211,17 @@ static int tusb320_extcon_probe(struct i2c_client *client,
+ 	/* update initial state */
+ 	tusb320_irq_handler(client->irq, priv);
+ 
++	/* Reset chip to its default state */
++	ret = tusb320_reset(priv);
++	if (ret)
++		dev_warn(priv->dev, "failed to reset chip: %d\n", ret);
++	else
++		/*
++		 * State and polarity might change after a reset, so update
++		 * them again and make sure the interrupt status bit is cleared.
++		 */
++		tusb320_irq_handler(client->irq, priv);
++
+ 	ret = devm_request_threaded_irq(priv->dev, client->irq, NULL,
+ 					tusb320_irq_handler,
+ 					IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
 -- 
 2.35.1
 
