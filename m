@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3A44657D82
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:44:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 034B5657C6A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:32:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233983AbiL1Pn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:43:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60470 "EHLO
+        id S233833AbiL1Pcw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:32:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233982AbiL1Pnw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:43:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 738C817437
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:43:45 -0800 (PST)
+        with ESMTP id S233364AbiL1PcO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:32:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABF3B1648C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:32:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE69AB81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:43:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21FE2C433D2;
-        Wed, 28 Dec 2022 15:43:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 48BE96154D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:32:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CFE6C433EF;
+        Wed, 28 Dec 2022 15:32:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242222;
-        bh=QLQrOk/rUplvZ08j7gxCLQixWSeoLkiiQGJVzptBF/0=;
+        s=korg; t=1672241527;
+        bh=BQWSJMaFs16rR7Ilkp05C2wjq0DCrvV9O7/ifdmsllM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JkVC+2FIeFGP816YFl1Yx1tzN6+icPyYhzMMRY0HQ5VKIAyPSPbQYrZoXM+UuPrFG
-         rntax+yHDyj/ygnoXDAg4oVnc5pUvjjnssdSyTqrJ7HK/12mdFgddqGeUDeGbKR6vg
-         THKlUCbALCDWkAsF7lh8QNx38h/Mbls0G3vXFbyc=
+        b=vCqq6VRc7rrm5/KQqxKe+lDjhoIfjE58wi//hhlHXRjMtfaUhmj1zWckNVChhBEX6
+         3dLBXsMtslQLZjFyVpC81IIV/cM6OumUl2wdzcnd+KO7/lf94ODicEaYduWRTMxWlV
+         JZQ9PiMedxkwWnBatw5OAIKJMwjFITWsYLXHSB1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
-        Mike Snitzer <snitzer@kernel.org>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        patches@lists.linux.dev,
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Robert Foss <robert.foss@linaro.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0343/1146] dm: make sure create and remove dm device wont race with open and close table
+Subject: [PATCH 6.0 0294/1073] media: camss: Clean up received buffers on failed start of streaming
 Date:   Wed, 28 Dec 2022 15:31:22 +0100
-Message-Id: <20221228144339.476150340@linuxfoundation.org>
+Message-Id: <20221228144336.000132194@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
 
-[ Upstream commit d563792c8933a810d28ce0f2831f0726c2b15a31 ]
+[ Upstream commit c8f3582345e6a69da65ab588f7c4c2d1685b0e80 ]
 
-open_table_device() and close_table_device() is protected by
-table_devices_lock, hence use it to protect add_disk() and
-del_gendisk().
+It is required to return the received buffers, if streaming can not be
+started. For instance media_pipeline_start() may fail with EPIPE, if
+a link validation between entities is not passed, and in such a case
+a user gets a kernel warning:
 
-Prepare to track per-add_disk holder relations in dm.
+  WARNING: CPU: 1 PID: 520 at drivers/media/common/videobuf2/videobuf2-core.c:1592 vb2_start_streaming+0xec/0x160
+  <snip>
+  Call trace:
+   vb2_start_streaming+0xec/0x160
+   vb2_core_streamon+0x9c/0x1a0
+   vb2_ioctl_streamon+0x68/0xbc
+   v4l_streamon+0x30/0x3c
+   __video_do_ioctl+0x184/0x3e0
+   video_usercopy+0x37c/0x7b0
+   video_ioctl2+0x24/0x40
+   v4l2_ioctl+0x4c/0x70
 
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Mike Snitzer <snitzer@kernel.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20221115141054.1051801-6-yukuai1@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Stable-dep-of: 1a581b721699 ("dm: track per-add_disk holder relations in DM")
+The fix is to correct the error path in video_start_streaming() of camss.
+
+Fixes: 0ac2586c410f ("media: camss: Add files which handle the video device nodes")
+Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/media/platform/qcom/camss/camss-video.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index 8fb0b97b2df1..f10ac680cef4 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1965,7 +1965,14 @@ static void cleanup_mapped_device(struct mapped_device *md)
- 		spin_unlock(&_minor_lock);
- 		if (dm_get_md_type(md) != DM_TYPE_NONE) {
- 			dm_sysfs_exit(md);
-+
-+			/*
-+			 * Hold lock to make sure del_gendisk() won't concurrent
-+			 * with open/close_table_device().
-+			 */
-+			mutex_lock(&md->table_devices_lock);
- 			del_gendisk(md->disk);
-+			mutex_unlock(&md->table_devices_lock);
- 		}
- 		dm_queue_destroy_crypto_profile(md->queue);
- 		put_disk(md->disk);
-@@ -2325,15 +2332,24 @@ int dm_setup_md_queue(struct mapped_device *md, struct dm_table *t)
- 	if (r)
- 		return r;
+diff --git a/drivers/media/platform/qcom/camss/camss-video.c b/drivers/media/platform/qcom/camss/camss-video.c
+index 290df04c4d02..a25fffb0b8ec 100644
+--- a/drivers/media/platform/qcom/camss/camss-video.c
++++ b/drivers/media/platform/qcom/camss/camss-video.c
+@@ -495,7 +495,7 @@ static int video_start_streaming(struct vb2_queue *q, unsigned int count)
  
-+	/*
-+	 * Hold lock to make sure add_disk() and del_gendisk() won't concurrent
-+	 * with open_table_device() and close_table_device().
-+	 */
-+	mutex_lock(&md->table_devices_lock);
- 	r = add_disk(md->disk);
-+	mutex_unlock(&md->table_devices_lock);
- 	if (r)
- 		return r;
+ 	ret = media_pipeline_start(&vdev->entity, &video->pipe);
+ 	if (ret < 0)
+-		return ret;
++		goto flush_buffers;
  
- 	r = dm_sysfs_init(md);
- 	if (r) {
-+		mutex_lock(&md->table_devices_lock);
- 		del_gendisk(md->disk);
-+		mutex_unlock(&md->table_devices_lock);
- 		return r;
- 	}
-+
- 	md->type = type;
- 	return 0;
- }
+ 	ret = video_check_format(video);
+ 	if (ret < 0)
+@@ -524,6 +524,7 @@ static int video_start_streaming(struct vb2_queue *q, unsigned int count)
+ error:
+ 	media_pipeline_stop(&vdev->entity);
+ 
++flush_buffers:
+ 	video->ops->flush_buffers(video, VB2_BUF_STATE_QUEUED);
+ 
+ 	return ret;
 -- 
 2.35.1
 
