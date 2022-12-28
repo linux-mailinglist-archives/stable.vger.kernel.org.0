@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E371657AB8
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:14:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7CA16579A0
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:03:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230389AbiL1PO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:14:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59042 "EHLO
+        id S233369AbiL1PDN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:03:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232871AbiL1POI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:14:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DC4113F18
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:14:06 -0800 (PST)
+        with ESMTP id S233478AbiL1PDG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:03:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58B8E12D24
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:03:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1F79DB81647
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:14:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88423C433EF;
-        Wed, 28 Dec 2022 15:14:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A4DB96154C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:03:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B69E5C433EF;
+        Wed, 28 Dec 2022 15:03:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240443;
-        bh=6LBZ5kA6fHxCNKQauxBQkf5by0Hvah3oD/IiiCR3GUM=;
+        s=korg; t=1672239783;
+        bh=R7eEvx7+R5QLJO+xBoq0aYJw0hQrhodQIEGIk3zghV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PiSk5nnaTIuZ/aipELEoSBhfkLBu5oZ9Yb9pS7iIcchjotzHmE8am9VXi9fPISOZ6
-         lypmNZanLyqxo75lm4aJg49Y4l+0eqQptXSs9m09nn8w7V3JBwRzYP9zQQ5WgE77NF
-         l+aFjy/o9RhWZwCZaidA18rtOUOxiKyJofTJiyqo=
+        b=vb88QNY/fcpftFN0bPo1+pw+U0520A6p7pi3BAoVIOME7gJFhz7deAHIsI55vH5K/
+         Rc7qbISoasFDcbbm71ey/psT7PuMjBbgLOWOfGu4DfsFyDTZv9/qL8tNtkro87TnA7
+         r8OPZ0zkRRoWWidc9k8KtFUTnlpaGZchJvRmECJk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Barnab=C3=A1s=20P=C5=91cze?= <pobrn@protonmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0126/1146] platform/x86: huawei-wmi: fix return value calculation
-Date:   Wed, 28 Dec 2022 15:27:45 +0100
-Message-Id: <20221228144333.576354298@linuxfoundation.org>
+Subject: [PATCH 6.0 0078/1073] ARM: dts: armada-39x: Fix compatible string for gpios
+Date:   Wed, 28 Dec 2022 15:27:46 +0100
+Message-Id: <20221228144330.189148748@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,69 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Barnabás Pőcze <pobrn@protonmail.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 0b9a1dcdb6a2c841899389bf2dd7a3e0e2aa0e99 ]
+[ Upstream commit d10886a4e6f85ee18d47a1066a52168461370ded ]
 
-Previously, `huawei_wmi_input_setup()` returned the result of
-logical or-ing the return values of two functions that return negative
-errno-style error codes and one that returns `acpi_status`. If this
-returned value was non-zero, then it was propagated from the platform
-driver's probe function. That function should return a negative
-errno-style error code, so the result of the logical or that
-`huawei_wmi_input_setup()` returned was not appropriate.
+Armada 39x supports per CPU interrupts for gpios, like Armada XP.
 
-Fix that by checking each function separately and returning the
-error code unmodified.
+So add compatible string "marvell,armadaxp-gpio" for Armada 39x GPIO nodes.
 
-Fixes: 1ac9abeb2e5b ("platform/x86: huawei-wmi: Move to platform driver")
-Signed-off-by: Barnabás Pőcze <pobrn@protonmail.com>
-Link: https://lore.kernel.org/r/20221005150032.173198-2-pobrn@protonmail.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Driver gpio-mvebu.c which handles both pre-XP and XP variants already
+provides support for per CPU interrupts on XP and newer variants.
+
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: d81a914fc630 ("ARM: dts: mvebu: armada-39x: add missing nodes describing GPIO's")
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/huawei-wmi.c | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/armada-39x.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/x86/huawei-wmi.c b/drivers/platform/x86/huawei-wmi.c
-index 5873c2663a65..b85050e4a0d6 100644
---- a/drivers/platform/x86/huawei-wmi.c
-+++ b/drivers/platform/x86/huawei-wmi.c
-@@ -760,6 +760,9 @@ static int huawei_wmi_input_setup(struct device *dev,
- 		const char *guid,
- 		struct input_dev **idev)
- {
-+	acpi_status status;
-+	int err;
-+
- 	*idev = devm_input_allocate_device(dev);
- 	if (!*idev)
- 		return -ENOMEM;
-@@ -769,10 +772,19 @@ static int huawei_wmi_input_setup(struct device *dev,
- 	(*idev)->id.bustype = BUS_HOST;
- 	(*idev)->dev.parent = dev;
+diff --git a/arch/arm/boot/dts/armada-39x.dtsi b/arch/arm/boot/dts/armada-39x.dtsi
+index 9525e7b7f436..9aad10fd3823 100644
+--- a/arch/arm/boot/dts/armada-39x.dtsi
++++ b/arch/arm/boot/dts/armada-39x.dtsi
+@@ -213,7 +213,7 @@ nand_pins: nand-pins {
+ 			};
  
--	return sparse_keymap_setup(*idev, huawei_wmi_keymap, NULL) ||
--		input_register_device(*idev) ||
--		wmi_install_notify_handler(guid, huawei_wmi_input_notify,
--				*idev);
-+	err = sparse_keymap_setup(*idev, huawei_wmi_keymap, NULL);
-+	if (err)
-+		return err;
-+
-+	err = input_register_device(*idev);
-+	if (err)
-+		return err;
-+
-+	status = wmi_install_notify_handler(guid, huawei_wmi_input_notify, *idev);
-+	if (ACPI_FAILURE(status))
-+		return -EIO;
-+
-+	return 0;
- }
+ 			gpio0: gpio@18100 {
+-				compatible = "marvell,orion-gpio";
++				compatible = "marvell,armadaxp-gpio", "marvell,orion-gpio";
+ 				reg = <0x18100 0x40>;
+ 				ngpios = <32>;
+ 				gpio-controller;
+@@ -227,7 +227,7 @@ gpio0: gpio@18100 {
+ 			};
  
- static void huawei_wmi_input_exit(struct device *dev, const char *guid)
+ 			gpio1: gpio@18140 {
+-				compatible = "marvell,orion-gpio";
++				compatible = "marvell,armadaxp-gpio", "marvell,orion-gpio";
+ 				reg = <0x18140 0x40>;
+ 				ngpios = <28>;
+ 				gpio-controller;
 -- 
 2.35.1
 
