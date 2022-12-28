@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31564657ECD
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:57:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64560657DAA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:45:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234197AbiL1P5n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:57:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45132 "EHLO
+        id S234006AbiL1Ppg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:45:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230508AbiL1P5m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:57:42 -0500
+        with ESMTP id S234007AbiL1Ppf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:45:35 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D7BE1838C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:57:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CE4A17883
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:45:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DEB67613E9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:57:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8856C433EF;
-        Wed, 28 Dec 2022 15:57:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 183456155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:45:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28BF0C433D2;
+        Wed, 28 Dec 2022 15:45:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243061;
-        bh=aqhTVUAqNs5uG0668dzDfneghVWFgYrpeQTgcxSUuxg=;
+        s=korg; t=1672242333;
+        bh=f5v4dRBPbTX41wrvjczmE97GmaFBbIs5KlTm4XalbDw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hTpjl792wfkUUYJLMK6qQrGKTjYEWyJStNPQMrgSv7IYg2jCWR+SpPoFP2Jlqwhs2
-         tmtPo8iR+ZpAbR0qF4mGzeccWwfpDVMMGssfnpF5zYhQ3cXuWseB6RAMhxinszvVZu
-         8+CMzRP6rr6XHzzw0dCvxeflc0XJwMlbrdsddAk4=
+        b=0wVvJRbN54ioYF7epF/wTgMpPjMLB/6gU5/PdnLsq0AKLvb0Fanx8RYJTJpGLhibE
+         8N2vc/FpDC8d8GjYSivhs8/68QtHmS+jn2tJWQ9kfUvzDgTE++jC8Kr5VKWxY28RPm
+         DSW4KPwoN+qhRTNk/uEvZURrZ65k0sWXT9fhnrXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pengcheng Yang <yangpc@wangsu.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
+        patches@lists.linux.dev, Yunfei Dong <yunfei.dong@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0447/1146] bpf, sockmap: Fix data loss caused by using apply_bytes on ingress redirect
+Subject: [PATCH 6.0 0398/1073] media: mediatek: vcodec: Fix h264 set lat buffer error
 Date:   Wed, 28 Dec 2022 15:33:06 +0100
-Message-Id: <20221228144342.323220215@linuxfoundation.org>
+Message-Id: <20221228144338.828065873@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +56,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pengcheng Yang <yangpc@wangsu.com>
+From: Yunfei Dong <yunfei.dong@mediatek.com>
 
-[ Upstream commit 9072931f020bfd907d6d89ee21ff1481cd78b407 ]
+[ Upstream commit 23d677bd9cdd10323e6d290578bbb0a408f43499 ]
 
-Use apply_bytes on ingress redirect, when apply_bytes is less than
-the length of msg data, some data may be skipped and lost in
-bpf_tcp_ingress().
+Will set lat buffer to lat_list two times when lat decode timeout for
+inner racing mode.
 
-If there is still data in the scatterlist that has not been consumed,
-we cannot move the msg iter.
+If core thread can't get frame buffer, need to return error value.
 
-Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
-Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/1669718441-2654-4-git-send-email-yangpc@wangsu.com
+Fixes: 59fba9eed5a7 ("media: mediatek: vcodec: support stateless H.264 decoding for mt8192")
+Signed-off-by: Yunfei Dong <yunfei.dong@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_bpf.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ .../vcodec/vdec/vdec_h264_req_multi_if.c      | 28 +++++++++++--------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
-diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
-index 275c5ca9e04d..94aad3870c5f 100644
---- a/net/ipv4/tcp_bpf.c
-+++ b/net/ipv4/tcp_bpf.c
-@@ -45,8 +45,11 @@ static int bpf_tcp_ingress(struct sock *sk, struct sk_psock *psock,
- 		tmp->sg.end = i;
- 		if (apply) {
- 			apply_bytes -= size;
--			if (!apply_bytes)
-+			if (!apply_bytes) {
-+				if (sge->length)
-+					sk_msg_iter_var_prev(i);
- 				break;
-+			}
- 		}
- 	} while (i != msg->sg.end);
+diff --git a/drivers/media/platform/mediatek/vcodec/vdec/vdec_h264_req_multi_if.c b/drivers/media/platform/mediatek/vcodec/vdec/vdec_h264_req_multi_if.c
+index 18e048755d11..955b2d0c8f53 100644
+--- a/drivers/media/platform/mediatek/vcodec/vdec/vdec_h264_req_multi_if.c
++++ b/drivers/media/platform/mediatek/vcodec/vdec/vdec_h264_req_multi_if.c
+@@ -471,14 +471,19 @@ static int vdec_h264_slice_core_decode(struct vdec_lat_buf *lat_buf)
+ 	       sizeof(share_info->h264_slice_params));
  
+ 	fb = ctx->dev->vdec_pdata->get_cap_buffer(ctx);
+-	y_fb_dma = fb ? (u64)fb->base_y.dma_addr : 0;
+-	vdec_fb_va = (unsigned long)fb;
++	if (!fb) {
++		err = -EBUSY;
++		mtk_vcodec_err(inst, "fb buffer is NULL");
++		goto vdec_dec_end;
++	}
+ 
++	vdec_fb_va = (unsigned long)fb;
++	y_fb_dma = (u64)fb->base_y.dma_addr;
+ 	if (ctx->q_data[MTK_Q_DATA_DST].fmt->num_planes == 1)
+ 		c_fb_dma =
+ 			y_fb_dma + inst->ctx->picinfo.buf_w * inst->ctx->picinfo.buf_h;
+ 	else
+-		c_fb_dma = fb ? (u64)fb->base_c.dma_addr : 0;
++		c_fb_dma = (u64)fb->base_c.dma_addr;
+ 
+ 	mtk_vcodec_debug(inst, "[h264-core] y/c addr = 0x%llx 0x%llx", y_fb_dma,
+ 			 c_fb_dma);
+@@ -656,7 +661,7 @@ static int vdec_h264_slice_lat_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
+ 	err = vpu_dec_start(vpu, data, 2);
+ 	if (err) {
+ 		mtk_vcodec_debug(inst, "lat decode err: %d", err);
+-		goto err_scp_decode;
++		goto err_free_fb_out;
+ 	}
+ 
+ 	share_info->trans_end = inst->ctx->msg_queue.wdma_addr.dma_addr +
+@@ -673,12 +678,17 @@ static int vdec_h264_slice_lat_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
+ 	/* wait decoder done interrupt */
+ 	timeout = mtk_vcodec_wait_for_done_ctx(inst->ctx, MTK_INST_IRQ_RECEIVED,
+ 					       WAIT_INTR_TIMEOUT_MS, MTK_VDEC_LAT0);
++	if (timeout)
++		mtk_vcodec_err(inst, "lat decode timeout: pic_%d", inst->slice_dec_num);
+ 	inst->vsi->dec.timeout = !!timeout;
+ 
+ 	err = vpu_dec_end(vpu);
+-	if (err == SLICE_HEADER_FULL || timeout || err == TRANS_BUFFER_FULL) {
+-		err = -EINVAL;
+-		goto err_scp_decode;
++	if (err == SLICE_HEADER_FULL || err == TRANS_BUFFER_FULL) {
++		if (!IS_VDEC_INNER_RACING(inst->ctx->dev->dec_capability))
++			vdec_msg_queue_qbuf(&inst->ctx->msg_queue.lat_ctx, lat_buf);
++		inst->slice_dec_num++;
++		mtk_vcodec_err(inst, "lat dec fail: pic_%d err:%d", inst->slice_dec_num, err);
++		return -EINVAL;
+ 	}
+ 
+ 	share_info->trans_end = inst->ctx->msg_queue.wdma_addr.dma_addr +
+@@ -695,10 +705,6 @@ static int vdec_h264_slice_lat_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
+ 
+ 	inst->slice_dec_num++;
+ 	return 0;
+-
+-err_scp_decode:
+-	if (!IS_VDEC_INNER_RACING(inst->ctx->dev->dec_capability))
+-		vdec_msg_queue_qbuf(&inst->ctx->msg_queue.lat_ctx, lat_buf);
+ err_free_fb_out:
+ 	vdec_msg_queue_qbuf(&inst->ctx->msg_queue.lat_ctx, lat_buf);
+ 	mtk_vcodec_err(inst, "slice dec number: %d err: %d", inst->slice_dec_num, err);
 -- 
 2.35.1
 
