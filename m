@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23F58657968
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:01:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6E6A657A82
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:12:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233396AbiL1PBI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:01:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48150 "EHLO
+        id S232644AbiL1PMh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:12:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233430AbiL1PAk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:00:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F79A12D2A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:00:37 -0800 (PST)
+        with ESMTP id S233024AbiL1PMC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:12:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A025F13E92
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:11:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32A1DB81710
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:00:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9A38C433EF;
-        Wed, 28 Dec 2022 15:00:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 044AAB81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:11:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6542CC433D2;
+        Wed, 28 Dec 2022 15:11:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239635;
-        bh=oGrzDRJuWJ7lCEy8LdesAxZsLWXXEUBvj1lGSG5grow=;
+        s=korg; t=1672240308;
+        bh=FzIu+QmG5f76vnsf4ty9BqwLXnUe/0HCE2h6SqmjvZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U1pXi3a3LLS/gUHLLki9cd5VGj39WWUlGvZ4XOvsgLmnv19aWTE8fxwbnWxOI30AH
-         I4ZUE8vXJ82huDXA6ZBjTRQJiwgsWzLxnnkOzCTuOtLAB8Xi/MzHx/1xr38O0MkQjz
-         9OUzgPKMCGActgw3gG4uZdf6DzI7iFWxPZYOoKdA=
+        b=GU4h4D2loOOMQW1FLsIASkad4A5Cp8h5wkcG+BMdMbJb2Iap3y500jkoA338MKy96
+         nIEyHPwQ9y9rRvxvF8NXW6AEMjvgZRQtCJOrgVXgVnhqh2o26iHKkO0j+SJXMT41E5
+         7ZxW96pYq7omSpfovL5y705TNCRp5+KgChMQRB1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Keerthy <j-keerthy@ti.com>,
-        Nishanth Menon <nm@ti.com>,
-        Vaishnav Achath <vaishnav.a@ti.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0058/1073] arm64: dts: ti: k3-j721s2: Fix the interrupt ranges property for main & wkup gpio intr
+        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>
+Subject: [PATCH 6.1 0107/1146] sched/uclamp: Make task_fits_capacity() use util_fits_cpu()
 Date:   Wed, 28 Dec 2022 15:27:26 +0100
-Message-Id: <20221228144329.677138179@linuxfoundation.org>
+Message-Id: <20221228144333.054366154@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +54,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keerthy <j-keerthy@ti.com>
+From: Qais Yousef <qais.yousef@arm.com>
 
-[ Upstream commit b8aa36c22da7d64c5a5d89ccb4a2abb9aeaab2e3 ]
+[ Upstream commit b48e16a69792b5dc4a09d6807369d11b2970cc36 ]
 
-The parent's input irq number is wrongly subtracted with 32 instead of
-using the exact numbers in:
+So that the new uclamp rules in regard to migration margin and capacity
+pressure are taken into account correctly.
 
-https://software-dl.ti.com/tisci/esd/latest/5_soc_doc/j721s2/interrupt_cfg.html
-
-The GPIO interrupts are not working because of that. The toggling works
-fine but interrupts are not firing. Fix the parent's input irq that
-specifies the base for parent irq.
-
-Tested for MAIN_GPIO0_6 interrupt on the j721s2 EVM.
-
-Fixes: b8545f9d3a54 ("arm64: dts: ti: Add initial support for J721S2 SoC")
-Signed-off-by: Keerthy <j-keerthy@ti.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Reviewed-by: Vaishnav Achath <vaishnav.a@ti.com>
-Link: https://lore.kernel.org/r/20220922072950.9157-1-j-keerthy@ti.com
+Fixes: a7008c07a568 ("sched/fair: Make task_fits_capacity() consider uclamp restrictions")
+Co-developed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220804143609.515789-3-qais.yousef@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/ti/k3-j721s2-main.dtsi       | 2 +-
- arch/arm64/boot/dts/ti/k3-j721s2-mcu-wakeup.dtsi | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ kernel/sched/fair.c  | 26 ++++++++++++++++----------
+ kernel/sched/sched.h |  9 +++++++++
+ 2 files changed, 25 insertions(+), 10 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/ti/k3-j721s2-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721s2-main.dtsi
-index 34e7d577ae13..c89f28235812 100644
---- a/arch/arm64/boot/dts/ti/k3-j721s2-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j721s2-main.dtsi
-@@ -60,7 +60,7 @@ main_gpio_intr: interrupt-controller@a00000 {
- 		#interrupt-cells = <1>;
- 		ti,sci = <&sms>;
- 		ti,sci-dev-id = <148>;
--		ti,interrupt-ranges = <8 360 56>;
-+		ti,interrupt-ranges = <8 392 56>;
- 	};
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 0d193ef03730..db6174b989ed 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4549,10 +4549,12 @@ static inline int util_fits_cpu(unsigned long util,
+ 	return fits;
+ }
  
- 	main_pmx0: pinctrl@11c000 {
-diff --git a/arch/arm64/boot/dts/ti/k3-j721s2-mcu-wakeup.dtsi b/arch/arm64/boot/dts/ti/k3-j721s2-mcu-wakeup.dtsi
-index 4d1bfabd1313..f0644851602c 100644
---- a/arch/arm64/boot/dts/ti/k3-j721s2-mcu-wakeup.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j721s2-mcu-wakeup.dtsi
-@@ -65,7 +65,7 @@ wkup_gpio_intr: interrupt-controller@42200000 {
- 		#interrupt-cells = <1>;
- 		ti,sci = <&sms>;
- 		ti,sci-dev-id = <125>;
--		ti,interrupt-ranges = <16 928 16>;
-+		ti,interrupt-ranges = <16 960 16>;
- 	};
+-static inline int task_fits_capacity(struct task_struct *p,
+-				     unsigned long capacity)
++static inline int task_fits_cpu(struct task_struct *p, int cpu)
+ {
+-	return fits_capacity(uclamp_task_util(p), capacity);
++	unsigned long uclamp_min = uclamp_eff_value(p, UCLAMP_MIN);
++	unsigned long uclamp_max = uclamp_eff_value(p, UCLAMP_MAX);
++	unsigned long util = task_util_est(p);
++	return util_fits_cpu(util, uclamp_min, uclamp_max, cpu);
+ }
  
- 	mcu_conf: syscon@40f00000 {
+ static inline void update_misfit_status(struct task_struct *p, struct rq *rq)
+@@ -4565,7 +4567,7 @@ static inline void update_misfit_status(struct task_struct *p, struct rq *rq)
+ 		return;
+ 	}
+ 
+-	if (task_fits_capacity(p, capacity_of(cpu_of(rq)))) {
++	if (task_fits_cpu(p, cpu_of(rq))) {
+ 		rq->misfit_task_load = 0;
+ 		return;
+ 	}
+@@ -8399,7 +8401,7 @@ static int detach_tasks(struct lb_env *env)
+ 
+ 		case migrate_misfit:
+ 			/* This is not a misfit task */
+-			if (task_fits_capacity(p, capacity_of(env->src_cpu)))
++			if (task_fits_cpu(p, env->src_cpu))
+ 				goto next;
+ 
+ 			env->imbalance = 0;
+@@ -9404,6 +9406,10 @@ static inline void update_sg_wakeup_stats(struct sched_domain *sd,
+ 
+ 	memset(sgs, 0, sizeof(*sgs));
+ 
++	/* Assume that task can't fit any CPU of the group */
++	if (sd->flags & SD_ASYM_CPUCAPACITY)
++		sgs->group_misfit_task_load = 1;
++
+ 	for_each_cpu(i, sched_group_span(group)) {
+ 		struct rq *rq = cpu_rq(i);
+ 		unsigned int local;
+@@ -9423,12 +9429,12 @@ static inline void update_sg_wakeup_stats(struct sched_domain *sd,
+ 		if (!nr_running && idle_cpu_without(i, p))
+ 			sgs->idle_cpus++;
+ 
+-	}
++		/* Check if task fits in the CPU */
++		if (sd->flags & SD_ASYM_CPUCAPACITY &&
++		    sgs->group_misfit_task_load &&
++		    task_fits_cpu(p, i))
++			sgs->group_misfit_task_load = 0;
+ 
+-	/* Check if task fits in the group */
+-	if (sd->flags & SD_ASYM_CPUCAPACITY &&
+-	    !task_fits_capacity(p, group->sgc->max_capacity)) {
+-		sgs->group_misfit_task_load = 1;
+ 	}
+ 
+ 	sgs->group_capacity = group->sgc->capacity;
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index a4a20046e586..0ab091b9d91b 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -3060,6 +3060,15 @@ static inline bool uclamp_is_used(void)
+ 	return static_branch_likely(&sched_uclamp_used);
+ }
+ #else /* CONFIG_UCLAMP_TASK */
++static inline unsigned long uclamp_eff_value(struct task_struct *p,
++					     enum uclamp_id clamp_id)
++{
++	if (clamp_id == UCLAMP_MIN)
++		return 0;
++
++	return SCHED_CAPACITY_SCALE;
++}
++
+ static inline
+ unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
+ 				  struct task_struct *p)
 -- 
 2.35.1
 
