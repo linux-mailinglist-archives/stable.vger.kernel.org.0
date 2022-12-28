@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94CD4658205
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:32:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0AE1658208
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:32:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234809AbiL1Qcw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:32:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50710 "EHLO
+        id S234818AbiL1Qcz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:32:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234792AbiL1QcX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:32:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A438B183B2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:29:11 -0800 (PST)
+        with ESMTP id S234816AbiL1Qc0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:32:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00CD413D51
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:29:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58A77B8171E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:29:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7C6DC433F0;
-        Wed, 28 Dec 2022 16:29:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 92F7F6157A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:29:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4D99C433D2;
+        Wed, 28 Dec 2022 16:29:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244949;
-        bh=mdITFTjbfwPjSDJMbCZ1ox/jw4uwrTLdaTJS8sxrtvg=;
+        s=korg; t=1672244957;
+        bh=bbE/MAX1gX6lzAw0fJ4igsuaQGEAsqCDqF8RDE3Cq7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NK9ky7SsWs4WvoTUUylK6xXUEChAbLcL3ceornjogyR2BSBcfcyEfhNSZSyMLbrz6
-         mqzqMljbAw2e6QHjWZCWOv8QmxkDnHJMesnnkD8VHUKCQ4xHHuScfKk52PIjDgihcB
-         WLkLDWNNV0r6nbZO2po/OHcl9ovZ0PqMPuDvTIII=
+        b=hatSOT+lAc5SB7WH7HSduLBzOEbfYmBG6fkHza6TJ7HKTdNH0MUnONvGjxNZtBe/r
+         lRklrgIVGZQdWl7ke/76ZEELmlUT1fwPZl5fYuK7RiZUJU/KM9WtYa8bKnamkKASYl
+         VwbGbUbCYciU/JxlS+D1ZPHfgp9DJA8g0GKfYDxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev, Zeng Heng <zengheng4@huawei.com>,
         Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0767/1146] HSI: omap_ssi_core: fix possible memory leak in ssi_probe()
-Date:   Wed, 28 Dec 2022 15:38:26 +0100
-Message-Id: <20221228144350.983451262@linuxfoundation.org>
+Subject: [PATCH 6.1 0768/1146] power: supply: fix residue sysfs file in error handle route of __power_supply_register()
+Date:   Wed, 28 Dec 2022 15:38:27 +0100
+Message-Id: <20221228144351.010552141@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -53,39 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Zeng Heng <zengheng4@huawei.com>
 
-[ Upstream commit 1aff514e1d2bd47854dbbdf867970b9d463d4c57 ]
+[ Upstream commit 5b79480ce1978864ac3f06f2134dfa3b6691fe74 ]
 
-If ssi_add_controller() returns error, it should call hsi_put_controller()
-to give up the reference that was set in hsi_alloc_controller(), so that
-it can call hsi_controller_release() to free controller and ports that
-allocated in hsi_alloc_controller().
+If device_add() succeeds, we should call device_del() when want to
+get rid of it, so move it into proper jump symbol.
 
-Fixes: b209e047bc74 ("HSI: Introduce OMAP SSI driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Otherwise, when __power_supply_register() returns fail and goto
+wakeup_init_failed to exit, there is still residue device file in sysfs.
+When attempt to probe device again, sysfs would complain as below:
+
+sysfs: cannot create duplicate filename '/devices/platform/i2c/i2c-0/0-001c/power_supply/adp5061'
+Call Trace:
+ dump_stack_lvl+0x68/0x85
+ sysfs_warn_dup.cold+0x1c/0x29
+ sysfs_create_dir_ns+0x1b1/0x1d0
+ kobject_add_internal+0x143/0x390
+ kobject_add+0x108/0x170
+
+Fixes: 80c6463e2fa3 ("power_supply: Fix Oops from NULL pointer dereference from wakeup_source_activate")
+Signed-off-by: Zeng Heng <zengheng4@huawei.com>
 Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hsi/controllers/omap_ssi_core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/power/supply/power_supply_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hsi/controllers/omap_ssi_core.c b/drivers/hsi/controllers/omap_ssi_core.c
-index b23a576ed88a..052cf3e92dd6 100644
---- a/drivers/hsi/controllers/omap_ssi_core.c
-+++ b/drivers/hsi/controllers/omap_ssi_core.c
-@@ -502,8 +502,10 @@ static int ssi_probe(struct platform_device *pd)
- 	platform_set_drvdata(pd, ssi);
- 
- 	err = ssi_add_controller(ssi, pd);
--	if (err < 0)
-+	if (err < 0) {
-+		hsi_put_controller(ssi);
- 		goto out1;
-+	}
- 
- 	pm_runtime_enable(&pd->dev);
- 
+diff --git a/drivers/power/supply/power_supply_core.c b/drivers/power/supply/power_supply_core.c
+index 4b5fb172fa99..9bae94d2ea3a 100644
+--- a/drivers/power/supply/power_supply_core.c
++++ b/drivers/power/supply/power_supply_core.c
+@@ -1387,8 +1387,8 @@ __power_supply_register(struct device *parent,
+ register_cooler_failed:
+ 	psy_unregister_thermal(psy);
+ register_thermal_failed:
+-	device_del(dev);
+ wakeup_init_failed:
++	device_del(dev);
+ device_add_failed:
+ check_supplies_failed:
+ dev_set_name_failed:
 -- 
 2.35.1
 
