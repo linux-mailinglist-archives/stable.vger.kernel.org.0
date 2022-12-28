@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0D6C6579C8
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:04:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 073B66578DC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:55:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233508AbiL1PEw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:04:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52296 "EHLO
+        id S233212AbiL1OzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:55:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233528AbiL1PEj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:04:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFB5513D61
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:04:37 -0800 (PST)
+        with ESMTP id S233192AbiL1Oy4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:54:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3607811A38
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:54:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70237B816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:04:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCD1EC433F0;
-        Wed, 28 Dec 2022 15:04:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E062CB81707
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:54:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6245DC433D2;
+        Wed, 28 Dec 2022 14:54:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239875;
-        bh=zv2iTeoDC2wxSOAAe5JxO8Pa2mb8m0RXw9vuiXCvrbA=;
+        s=korg; t=1672239292;
+        bh=piILM7sVfGfMJfU/egBmMvperD0OKi+BxmloSjLTPos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AVgR7eNkhSNw6gB3gCopKDZv87QaOnbR/+Kn5yo+nJ2Ft3HOwth59NbReNNLnGFRP
-         St5rK6ZvaHbrbC3SqkJkEUwdSiuUI9D66a4WEyayKjsaq/B1yJcPA496FKkPB+dRIb
-         ngHjP7rIWERyY0hnjElmFn4UE2au3JeD7K6REC80=
+        b=zs+Xt8kIJncwfy8PSx0cE1sABbpbPv2MOTReL0vHbtezkc660cvLn0aIJmcN2k77n
+         47mEIM6eAlk8LfAxPyxHS2vVqsSy0VViqWuK1Yi2T5TsHLV2ybBYnCAcZYVN7RJ1bM
+         k2ER0vBLFyUooscazPbegvU37a0ZVn8SuD1TUNro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Douglas Anderson <dianders@chromium.org>,
-        Sibi Sankar <quic_sibis@quicinc.com>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0053/1146] arm64: dts: qcom: sc7280: Mark all Qualcomm reference boards as LTE
+Subject: [PATCH 6.0 0004/1073] usb: musb: remove extra check in musb_gadget_vbus_draw
 Date:   Wed, 28 Dec 2022 15:26:32 +0100
-Message-Id: <20221228144331.604048862@linuxfoundation.org>
+Message-Id: <20221228144328.289244830@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sibi Sankar <quic_sibis@quicinc.com>
+From: Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
 
-[ Upstream commit 3c800bcf07a5957da01593e8f83d797b285a37e0 ]
+[ Upstream commit ecec4b20d29c3d6922dafe7d2555254a454272d2 ]
 
-When the modem node was re-located to a separate LTE source file
-"sc7280-herobrine-lte-sku.dtsi", some of the previous LTE users
-weren't marked appropriately. Fix this by marking all Qualcomm
-reference devices as LTE.
+The checks for musb->xceiv and musb->xceiv->set_power duplicate those in
+usb_phy_set_power(), so there is no need of them. Moreover, not calling
+usb_phy_set_power() results in usb_phy_set_charger_current() not being
+called, so current USB config max current is not propagated through USB
+charger framework and charger drivers may try to draw more current than
+allowed or possible.
 
-Suggested-by: Douglas Anderson <dianders@chromium.org>
-Fixes: d42fae738f3a ("arm64: dts: qcom: Add LTE SKUs for sc7280-villager family")
-Signed-off-by: Sibi Sankar <quic_sibis@quicinc.com>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221110070813.1777-1-quic_sibis@quicinc.com
+Fix that by removing those extra checks and calling usb_phy_set_power()
+directly.
+
+Tested on Motorola Droid4 and Nokia N900
+
+Fixes: a9081a008f84 ("usb: phy: Add USB charger support")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
+Link: https://lore.kernel.org/r/1669400475-4762-1-git-send-email-ivo.g.dimitrov.75@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sc7280-idp.dts  | 1 -
- arch/arm64/boot/dts/qcom/sc7280-idp.dtsi | 1 +
- 2 files changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/musb/musb_gadget.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sc7280-idp.dts b/arch/arm64/boot/dts/qcom/sc7280-idp.dts
-index 7559164cdda0..e2e37a0292ad 100644
---- a/arch/arm64/boot/dts/qcom/sc7280-idp.dts
-+++ b/arch/arm64/boot/dts/qcom/sc7280-idp.dts
-@@ -10,7 +10,6 @@
- #include <dt-bindings/iio/qcom,spmi-adc7-pmr735a.h>
- #include "sc7280-idp.dtsi"
- #include "pmr735a.dtsi"
--#include "sc7280-herobrine-lte-sku.dtsi"
+diff --git a/drivers/usb/musb/musb_gadget.c b/drivers/usb/musb/musb_gadget.c
+index 6704a62a1665..ba20272d2221 100644
+--- a/drivers/usb/musb/musb_gadget.c
++++ b/drivers/usb/musb/musb_gadget.c
+@@ -1628,8 +1628,6 @@ static int musb_gadget_vbus_draw(struct usb_gadget *gadget, unsigned mA)
+ {
+ 	struct musb	*musb = gadget_to_musb(gadget);
  
- / {
- 	model = "Qualcomm Technologies, Inc. sc7280 IDP SKU1 platform";
-diff --git a/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi b/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi
-index 7772dfba94ec..ca50f0ba9b81 100644
---- a/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi
-@@ -13,6 +13,7 @@
- #include "pmk8350.dtsi"
+-	if (!musb->xceiv->set_power)
+-		return -EOPNOTSUPP;
+ 	return usb_phy_set_power(musb->xceiv, mA);
+ }
  
- #include "sc7280-chrome-common.dtsi"
-+#include "sc7280-herobrine-lte-sku.dtsi"
- 
- / {
- 	aliases {
 -- 
 2.35.1
 
