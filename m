@@ -2,53 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C59DE657883
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:52:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF7F2657E14
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:49:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233104AbiL1OwG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:52:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39174 "EHLO
+        id S233684AbiL1Pt6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:49:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233118AbiL1Ovf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:51:35 -0500
+        with ESMTP id S234099AbiL1Ptu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:49:50 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01C161209A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:51:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C41A6183B3
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:49:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6335B81719
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:51:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF4DBC433EF;
-        Wed, 28 Dec 2022 14:51:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C707B81730
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:49:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFCF7C433D2;
+        Wed, 28 Dec 2022 15:49:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239069;
-        bh=fs/+NnU3y/vBVrhVY/q5FlpIYZsnZQa9v9NKlB9YuM4=;
+        s=korg; t=1672242584;
+        bh=j70oovOAnzydGEjGIVxrDnsFcwXl8sgvwoJ4d4R1vzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QNoKcqt6fFtFcNOxkjpzd7F368Us4kZ+7cWxO3aPg9/h9JO5DZfgFNuhthKLTQO7J
-         DDafZZc2hg3E+NfptZpJ/gD/6vmsmKXPFBwUu1DxbWBFTnzAeGPlBVZH010keEowzt
-         M2oxKAYv6FPQA+HwJHc2McAhcqgTvqoZhh+1TnKU=
+        b=JtscL2W61ZA6wzlXyK9YmScevAws2ySf88Rv4bsBeN95s+Wt/uCcKwy4VEMwfhN1q
+         QmktodBEY9k7tyXGiyN6aEJ8/CzHq+xslwUPlfNJnpNv++1JayGXIPSukqzMq5NPe1
+         xOe2tZoDX9bURliW8JOUccdaAwYcsQSwD/LBeIwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Akinobu Mita <akinobu.mita@gmail.com>,
-        Zhao Gongyi <zhaogongyi@huawei.com>,
-        David Hildenbrand <david@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Oscar Salvador <osalvador@suse.de>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Yicong Yang <yangyicong@hisilicon.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        patches@lists.linux.dev, Eric Garver <eric@garver.life>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 109/731] debugfs: fix error when writing negative value to atomic_t debugfs file
+Subject: [PATCH 6.0 0428/1073] netfilter: conntrack: set icmpv6 redirects as RELATED
 Date:   Wed, 28 Dec 2022 15:33:36 +0100
-Message-Id: <20221228144259.708454419@linuxfoundation.org>
+Message-Id: <20221228144339.652729109@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,195 +54,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akinobu Mita <akinobu.mita@gmail.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit d472cf797c4e268613dbce5ec9b95d0bcae19ecb ]
+[ Upstream commit 7d7cfb48d81353e826493d24c7cec7360950968f ]
 
-The simple attribute files do not accept a negative value since the commit
-488dac0c9237 ("libfs: fix error cast of negative value in
-simple_attr_write()"), so we have to use a 64-bit value to write a
-negative value for a debugfs file created by debugfs_create_atomic_t().
+icmp conntrack will set icmp redirects as RELATED, but icmpv6 will not
+do this.
 
-This restores the previous behaviour by introducing
-DEFINE_DEBUGFS_ATTRIBUTE_SIGNED for a signed value.
+For icmpv6, only icmp errors (code <= 128) are examined for RELATED state.
+ICMPV6 Redirects are part of neighbour discovery mechanism, those are
+handled by marking a selected subset (e.g.  neighbour solicitations) as
+UNTRACKED, but not REDIRECT -- they will thus be flagged as INVALID.
 
-Link: https://lkml.kernel.org/r/20220919172418.45257-4-akinobu.mita@gmail.com
-Fixes: 488dac0c9237 ("libfs: fix error cast of negative value in simple_attr_write()")
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Reported-by: Zhao Gongyi <zhaogongyi@huawei.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Rafael J. Wysocki <rafael@kernel.org>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: Wei Yongjun <weiyongjun1@huawei.com>
-Cc: Yicong Yang <yangyicong@hisilicon.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Add minimal support for REDIRECTs.  No parsing of neighbour options is
+added for simplicity, so this will only check that we have the embeeded
+original header (ND_OPT_REDIRECT_HDR), and then attempt to do a flow
+lookup for this tuple.
+
+Also extend the existing test case to cover redirects.
+
+Fixes: 9fb9cbb1082d ("[NETFILTER]: Add nf_conntrack subsystem.")
+Reported-by: Eric Garver <eric@garver.life>
+Link: https://github.com/firewalld/firewalld/issues/1046
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Acked-by: Eric Garver <eric@garver.life>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../fault-injection/fault-injection.rst       | 10 +++----
- fs/debugfs/file.c                             | 28 +++++++++++++++----
- include/linux/debugfs.h                       | 19 +++++++++++--
- 3 files changed, 43 insertions(+), 14 deletions(-)
+ net/netfilter/nf_conntrack_proto_icmpv6.c     | 53 +++++++++++++++++++
+ .../netfilter/conntrack_icmp_related.sh       | 36 ++++++++++++-
+ 2 files changed, 87 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/fault-injection/fault-injection.rst b/Documentation/fault-injection/fault-injection.rst
-index 4a25c5eb6f07..8c47847755a6 100644
---- a/Documentation/fault-injection/fault-injection.rst
-+++ b/Documentation/fault-injection/fault-injection.rst
-@@ -83,9 +83,7 @@ configuration of fault-injection capabilities.
- - /sys/kernel/debug/fail*/times:
- 
- 	specifies how many times failures may happen at most. A value of -1
--	means "no limit". Note, though, that this file only accepts unsigned
--	values. So, if you want to specify -1, you better use 'printf' instead
--	of 'echo', e.g.: $ printf %#x -1 > times
-+	means "no limit".
- 
- - /sys/kernel/debug/fail*/space:
- 
-@@ -277,7 +275,7 @@ Application Examples
-     echo Y > /sys/kernel/debug/$FAILTYPE/task-filter
-     echo 10 > /sys/kernel/debug/$FAILTYPE/probability
-     echo 100 > /sys/kernel/debug/$FAILTYPE/interval
--    printf %#x -1 > /sys/kernel/debug/$FAILTYPE/times
-+    echo -1 > /sys/kernel/debug/$FAILTYPE/times
-     echo 0 > /sys/kernel/debug/$FAILTYPE/space
-     echo 2 > /sys/kernel/debug/$FAILTYPE/verbose
-     echo 1 > /sys/kernel/debug/$FAILTYPE/ignore-gfp-wait
-@@ -331,7 +329,7 @@ Application Examples
-     echo N > /sys/kernel/debug/$FAILTYPE/task-filter
-     echo 10 > /sys/kernel/debug/$FAILTYPE/probability
-     echo 100 > /sys/kernel/debug/$FAILTYPE/interval
--    printf %#x -1 > /sys/kernel/debug/$FAILTYPE/times
-+    echo -1 > /sys/kernel/debug/$FAILTYPE/times
-     echo 0 > /sys/kernel/debug/$FAILTYPE/space
-     echo 2 > /sys/kernel/debug/$FAILTYPE/verbose
-     echo 1 > /sys/kernel/debug/$FAILTYPE/ignore-gfp-wait
-@@ -362,7 +360,7 @@ Application Examples
-     echo N > /sys/kernel/debug/$FAILTYPE/task-filter
-     echo 100 > /sys/kernel/debug/$FAILTYPE/probability
-     echo 0 > /sys/kernel/debug/$FAILTYPE/interval
--    printf %#x -1 > /sys/kernel/debug/$FAILTYPE/times
-+    echo -1 > /sys/kernel/debug/$FAILTYPE/times
-     echo 0 > /sys/kernel/debug/$FAILTYPE/space
-     echo 1 > /sys/kernel/debug/$FAILTYPE/verbose
- 
-diff --git a/fs/debugfs/file.c b/fs/debugfs/file.c
-index 950c63fa4d0b..38930d9b0bb7 100644
---- a/fs/debugfs/file.c
-+++ b/fs/debugfs/file.c
-@@ -378,8 +378,8 @@ ssize_t debugfs_attr_read(struct file *file, char __user *buf,
+diff --git a/net/netfilter/nf_conntrack_proto_icmpv6.c b/net/netfilter/nf_conntrack_proto_icmpv6.c
+index 61e3b05cf02c..1020d67600a9 100644
+--- a/net/netfilter/nf_conntrack_proto_icmpv6.c
++++ b/net/netfilter/nf_conntrack_proto_icmpv6.c
+@@ -129,6 +129,56 @@ static void icmpv6_error_log(const struct sk_buff *skb,
+ 	nf_l4proto_log_invalid(skb, state, IPPROTO_ICMPV6, "%s", msg);
  }
- EXPORT_SYMBOL_GPL(debugfs_attr_read);
  
--ssize_t debugfs_attr_write(struct file *file, const char __user *buf,
--			 size_t len, loff_t *ppos)
-+static ssize_t debugfs_attr_write_xsigned(struct file *file, const char __user *buf,
-+			 size_t len, loff_t *ppos, bool is_signed)
- {
- 	struct dentry *dentry = F_DENTRY(file);
- 	ssize_t ret;
-@@ -387,12 +387,28 @@ ssize_t debugfs_attr_write(struct file *file, const char __user *buf,
- 	ret = debugfs_file_get(dentry);
- 	if (unlikely(ret))
- 		return ret;
--	ret = simple_attr_write(file, buf, len, ppos);
-+	if (is_signed)
-+		ret = simple_attr_write_signed(file, buf, len, ppos);
-+	else
-+		ret = simple_attr_write(file, buf, len, ppos);
- 	debugfs_file_put(dentry);
- 	return ret;
- }
-+
-+ssize_t debugfs_attr_write(struct file *file, const char __user *buf,
-+			 size_t len, loff_t *ppos)
++static noinline_for_stack int
++nf_conntrack_icmpv6_redirect(struct nf_conn *tmpl, struct sk_buff *skb,
++			     unsigned int dataoff,
++			     const struct nf_hook_state *state)
 +{
-+	return debugfs_attr_write_xsigned(file, buf, len, ppos, false);
-+}
- EXPORT_SYMBOL_GPL(debugfs_attr_write);
- 
-+ssize_t debugfs_attr_write_signed(struct file *file, const char __user *buf,
-+			 size_t len, loff_t *ppos)
-+{
-+	return debugfs_attr_write_xsigned(file, buf, len, ppos, true);
-+}
-+EXPORT_SYMBOL_GPL(debugfs_attr_write_signed);
++	u8 hl = ipv6_hdr(skb)->hop_limit;
++	union nf_inet_addr outer_daddr;
++	union {
++		struct nd_opt_hdr nd_opt;
++		struct rd_msg rd_msg;
++	} tmp;
++	const struct nd_opt_hdr *nd_opt;
++	const struct rd_msg *rd_msg;
 +
- static struct dentry *debugfs_create_mode_unsafe(const char *name, umode_t mode,
- 					struct dentry *parent, void *value,
- 					const struct file_operations *fops,
-@@ -738,11 +754,11 @@ static int debugfs_atomic_t_get(void *data, u64 *val)
- 	*val = atomic_read((atomic_t *)data);
- 	return 0;
- }
--DEFINE_DEBUGFS_ATTRIBUTE(fops_atomic_t, debugfs_atomic_t_get,
-+DEFINE_DEBUGFS_ATTRIBUTE_SIGNED(fops_atomic_t, debugfs_atomic_t_get,
- 			debugfs_atomic_t_set, "%lld\n");
--DEFINE_DEBUGFS_ATTRIBUTE(fops_atomic_t_ro, debugfs_atomic_t_get, NULL,
-+DEFINE_DEBUGFS_ATTRIBUTE_SIGNED(fops_atomic_t_ro, debugfs_atomic_t_get, NULL,
- 			"%lld\n");
--DEFINE_DEBUGFS_ATTRIBUTE(fops_atomic_t_wo, NULL, debugfs_atomic_t_set,
-+DEFINE_DEBUGFS_ATTRIBUTE_SIGNED(fops_atomic_t_wo, NULL, debugfs_atomic_t_set,
- 			"%lld\n");
- 
- /**
-diff --git a/include/linux/debugfs.h b/include/linux/debugfs.h
-index f60674692d36..ea2d919fd9c7 100644
---- a/include/linux/debugfs.h
-+++ b/include/linux/debugfs.h
-@@ -45,7 +45,7 @@ struct debugfs_u32_array {
- 
- extern struct dentry *arch_debugfs_dir;
- 
--#define DEFINE_DEBUGFS_ATTRIBUTE(__fops, __get, __set, __fmt)		\
-+#define DEFINE_DEBUGFS_ATTRIBUTE_XSIGNED(__fops, __get, __set, __fmt, __is_signed)	\
- static int __fops ## _open(struct inode *inode, struct file *file)	\
- {									\
- 	__simple_attr_check_format(__fmt, 0ull);			\
-@@ -56,10 +56,16 @@ static const struct file_operations __fops = {				\
- 	.open	 = __fops ## _open,					\
- 	.release = simple_attr_release,					\
- 	.read	 = debugfs_attr_read,					\
--	.write	 = debugfs_attr_write,					\
-+	.write	 = (__is_signed) ? debugfs_attr_write_signed : debugfs_attr_write,	\
- 	.llseek  = no_llseek,						\
- }
- 
-+#define DEFINE_DEBUGFS_ATTRIBUTE(__fops, __get, __set, __fmt)		\
-+	DEFINE_DEBUGFS_ATTRIBUTE_XSIGNED(__fops, __get, __set, __fmt, false)
++	rd_msg = skb_header_pointer(skb, dataoff, sizeof(*rd_msg), &tmp.rd_msg);
++	if (!rd_msg) {
++		icmpv6_error_log(skb, state, "short redirect");
++		return -NF_ACCEPT;
++	}
 +
-+#define DEFINE_DEBUGFS_ATTRIBUTE_SIGNED(__fops, __get, __set, __fmt)	\
-+	DEFINE_DEBUGFS_ATTRIBUTE_XSIGNED(__fops, __get, __set, __fmt, true)
++	if (rd_msg->icmph.icmp6_code != 0)
++		return NF_ACCEPT;
 +
- typedef struct vfsmount *(*debugfs_automount_t)(struct dentry *, void *);
- 
- #if defined(CONFIG_DEBUG_FS)
-@@ -102,6 +108,8 @@ ssize_t debugfs_attr_read(struct file *file, char __user *buf,
- 			size_t len, loff_t *ppos);
- ssize_t debugfs_attr_write(struct file *file, const char __user *buf,
- 			size_t len, loff_t *ppos);
-+ssize_t debugfs_attr_write_signed(struct file *file, const char __user *buf,
-+			size_t len, loff_t *ppos);
- 
- struct dentry *debugfs_rename(struct dentry *old_dir, struct dentry *old_dentry,
-                 struct dentry *new_dir, const char *new_name);
-@@ -254,6 +262,13 @@ static inline ssize_t debugfs_attr_write(struct file *file,
- 	return -ENODEV;
- }
- 
-+static inline ssize_t debugfs_attr_write_signed(struct file *file,
-+					const char __user *buf,
-+					size_t len, loff_t *ppos)
-+{
-+	return -ENODEV;
++	if (hl != 255 || !(ipv6_addr_type(&ipv6_hdr(skb)->saddr) & IPV6_ADDR_LINKLOCAL)) {
++		icmpv6_error_log(skb, state, "invalid saddr or hoplimit for redirect");
++		return -NF_ACCEPT;
++	}
++
++	dataoff += sizeof(*rd_msg);
++
++	/* warning: rd_msg no longer usable after this call */
++	nd_opt = skb_header_pointer(skb, dataoff, sizeof(*nd_opt), &tmp.nd_opt);
++	if (!nd_opt || nd_opt->nd_opt_len == 0) {
++		icmpv6_error_log(skb, state, "redirect without options");
++		return -NF_ACCEPT;
++	}
++
++	/* We could call ndisc_parse_options(), but it would need
++	 * skb_linearize() and a bit more work.
++	 */
++	if (nd_opt->nd_opt_type != ND_OPT_REDIRECT_HDR)
++		return NF_ACCEPT;
++
++	memcpy(&outer_daddr.ip6, &ipv6_hdr(skb)->daddr,
++	       sizeof(outer_daddr.ip6));
++	dataoff += 8;
++	return nf_conntrack_inet_error(tmpl, skb, dataoff, state,
++				       IPPROTO_ICMPV6, &outer_daddr);
 +}
 +
- static inline struct dentry *debugfs_rename(struct dentry *old_dir, struct dentry *old_dentry,
-                 struct dentry *new_dir, char *new_name)
- {
+ int nf_conntrack_icmpv6_error(struct nf_conn *tmpl,
+ 			      struct sk_buff *skb,
+ 			      unsigned int dataoff,
+@@ -159,6 +209,9 @@ int nf_conntrack_icmpv6_error(struct nf_conn *tmpl,
+ 		return NF_ACCEPT;
+ 	}
+ 
++	if (icmp6h->icmp6_type == NDISC_REDIRECT)
++		return nf_conntrack_icmpv6_redirect(tmpl, skb, dataoff, state);
++
+ 	/* is not error message ? */
+ 	if (icmp6h->icmp6_type >= 128)
+ 		return NF_ACCEPT;
+diff --git a/tools/testing/selftests/netfilter/conntrack_icmp_related.sh b/tools/testing/selftests/netfilter/conntrack_icmp_related.sh
+index b48e1833bc89..76645aaf2b58 100755
+--- a/tools/testing/selftests/netfilter/conntrack_icmp_related.sh
++++ b/tools/testing/selftests/netfilter/conntrack_icmp_related.sh
+@@ -35,6 +35,8 @@ cleanup() {
+ 	for i in 1 2;do ip netns del nsrouter$i;done
+ }
+ 
++trap cleanup EXIT
++
+ ipv4() {
+     echo -n 192.168.$1.2
+ }
+@@ -146,11 +148,17 @@ ip netns exec nsclient1 nft -f - <<EOF
+ table inet filter {
+ 	counter unknown { }
+ 	counter related { }
++	counter redir4 { }
++	counter redir6 { }
+ 	chain input {
+ 		type filter hook input priority 0; policy accept;
+-		meta l4proto { icmp, icmpv6 } ct state established,untracked accept
+ 
++		icmp type "redirect" ct state "related" counter name "redir4" accept
++		icmpv6 type "nd-redirect" ct state "related" counter name "redir6" accept
++
++		meta l4proto { icmp, icmpv6 } ct state established,untracked accept
+ 		meta l4proto { icmp, icmpv6 } ct state "related" counter name "related" accept
++
+ 		counter name "unknown" drop
+ 	}
+ }
+@@ -279,5 +287,29 @@ else
+ 	echo "ERROR: icmp error RELATED state test has failed"
+ fi
+ 
+-cleanup
++# add 'bad' route,  expect icmp REDIRECT to be generated
++ip netns exec nsclient1 ip route add 192.168.1.42 via 192.168.1.1
++ip netns exec nsclient1 ip route add dead:1::42 via dead:1::1
++
++ip netns exec "nsclient1" ping -q -c 2 192.168.1.42 > /dev/null
++
++expect="packets 1 bytes 112"
++check_counter nsclient1 "redir4" "$expect"
++if [ $? -ne 0 ];then
++	ret=1
++fi
++
++ip netns exec "nsclient1" ping -c 1 dead:1::42 > /dev/null
++expect="packets 1 bytes 192"
++check_counter nsclient1 "redir6" "$expect"
++if [ $? -ne 0 ];then
++	ret=1
++fi
++
++if [ $ret -eq 0 ];then
++	echo "PASS: icmp redirects had RELATED state"
++else
++	echo "ERROR: icmp redirect RELATED state test has failed"
++fi
++
+ exit $ret
 -- 
 2.35.1
 
