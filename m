@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C460657BF4
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:27:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAFA76582DF
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233812AbiL1P1V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:27:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45450 "EHLO
+        id S233090AbiL1QnI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:43:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233803AbiL1P1K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:27:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76DA014038
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:27:09 -0800 (PST)
+        with ESMTP id S234909AbiL1QmP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:42:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BC201F626
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:36:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC305B8170E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:27:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 215EEC433D2;
-        Wed, 28 Dec 2022 15:27:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C827EB81889
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:36:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B8F7C433D2;
+        Wed, 28 Dec 2022 16:36:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241226;
-        bh=VF51YmkDxATqsFCETLHveetRd36bk08yzG4OAyJ556g=;
+        s=korg; t=1672245385;
+        bh=ONU7k34MwqcK/V7hsX3K/vvWP2/65I+z+WBHsKVtkV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f+1H1Yo2CXh603nGwRj8cO2Dkziy19/01B/uQezfqyuvBvIcvCq7C27n60rExKQIb
-         tTdeMlaJ1LD8eOxYF2bo8yrH6QaYKoJqEES8XGMfZT+9QGssZ7UucS5UUYrfZZmLwK
-         tgLY85WwyZd/bCzMZuoM78xsQZmOc/MJ3WZGDK+U=
+        b=SDlE8ceIH3Il3kH+yHpBGxKoaa1fdknQt5UupJPQVPr3eZs1MAuDnS8G+LLN93Drz
+         yotRIdZ/qnMGOaIE8pnl7zbaRVTkiRNKkh0zGRyvCBKRDe96Iz7GVTF87wFfhkOe7a
+         PROTE5rTzxPwHLD+cNx6VQ8joFNur54RyA5C/7To=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marek Vasut <marex@denx.de>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 455/731] extcon: usbc-tusb320: Add USB TYPE-C support
+        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0823/1146] phy: qcom-qmp-pcie: split register tables into common and extra parts
 Date:   Wed, 28 Dec 2022 15:39:22 +0100
-Message-Id: <20221228144309.742163422@linuxfoundation.org>
+Message-Id: <20221228144352.509836154@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,261 +53,570 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit bf7571c00dca0a9c5af3f5125ef5a89a40b13cd5 ]
+[ Upstream commit 2566ad8ec418934c213cb50fd2084ffd896a2fea ]
 
-The TI TUSB320 seems like a better fit for USB TYPE-C subsystem,
-which can expose details collected by the TUSB320 in a far more
-precise way than extcon. Since there are existing users in the
-kernel and in DT which depend on the extcon interface, keep it
-for now.
+SM8250 configuration tables are split into two parts: the common one and
+the PHY-specific tables. Make this split more formal. Rather than having
+a blind renamed copy of all QMP table fields, add separate struct
+qmp_phy_cfg_tables and add two instances of this structure to the struct
+qmp_phy_cfg. Later on this will be used to support different PHY modes
+(RC vs EP).
 
-Add TYPE-C interface and expose the supported supply current,
-direction and connector polarity via the TYPE-C interface.
-
-Signed-off-by: Marek Vasut <marex@denx.de>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Reviewed-by: Alvin Šipraga <alsi@bang-olufsen.dk>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
-Stable-dep-of: 581c848b610d ("extcon: usbc-tusb320: Update state on probe even if no IRQ pending")
+Reviewed-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20220927092207.161501-2-dmitry.baryshkov@linaro.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Stable-dep-of: 2584068a9ef4 ("phy: qcom-qmp-pcie: split pcs_misc init cfg for ipq8074 pcs table")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/extcon/Kconfig               |   2 +-
- drivers/extcon/extcon-usbc-tusb320.c | 159 +++++++++++++++++++++++++++
- 2 files changed, 160 insertions(+), 1 deletion(-)
+ drivers/phy/qualcomm/phy-qcom-qmp-pcie.c | 406 +++++++++++++----------
+ 1 file changed, 222 insertions(+), 184 deletions(-)
 
-diff --git a/drivers/extcon/Kconfig b/drivers/extcon/Kconfig
-index c69d40ae5619..7684b3afa630 100644
---- a/drivers/extcon/Kconfig
-+++ b/drivers/extcon/Kconfig
-@@ -180,7 +180,7 @@ config EXTCON_USBC_CROS_EC
- 
- config EXTCON_USBC_TUSB320
- 	tristate "TI TUSB320 USB-C extcon support"
--	depends on I2C
-+	depends on I2C && TYPEC
- 	select REGMAP_I2C
- 	help
- 	  Say Y here to enable support for USB Type C cable detection extcon
-diff --git a/drivers/extcon/extcon-usbc-tusb320.c b/drivers/extcon/extcon-usbc-tusb320.c
-index aced4bbb455d..edb8c3f997c9 100644
---- a/drivers/extcon/extcon-usbc-tusb320.c
-+++ b/drivers/extcon/extcon-usbc-tusb320.c
-@@ -6,6 +6,7 @@
-  * Author: Michael Auchter <michael.auchter@ni.com>
-  */
- 
-+#include <linux/bitfield.h>
- #include <linux/extcon-provider.h>
- #include <linux/i2c.h>
- #include <linux/init.h>
-@@ -13,6 +14,24 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/regmap.h>
-+#include <linux/usb/typec.h>
-+
-+#define TUSB320_REG8				0x8
-+#define TUSB320_REG8_CURRENT_MODE_ADVERTISE	GENMASK(7, 6)
-+#define TUSB320_REG8_CURRENT_MODE_ADVERTISE_USB	0x0
-+#define TUSB320_REG8_CURRENT_MODE_ADVERTISE_15A	0x1
-+#define TUSB320_REG8_CURRENT_MODE_ADVERTISE_30A	0x2
-+#define TUSB320_REG8_CURRENT_MODE_DETECT	GENMASK(5, 4)
-+#define TUSB320_REG8_CURRENT_MODE_DETECT_DEF	0x0
-+#define TUSB320_REG8_CURRENT_MODE_DETECT_MED	0x1
-+#define TUSB320_REG8_CURRENT_MODE_DETECT_ACC	0x2
-+#define TUSB320_REG8_CURRENT_MODE_DETECT_HI	0x3
-+#define TUSB320_REG8_ACCESSORY_CONNECTED	GENMASK(3, 2)
-+#define TUSB320_REG8_ACCESSORY_CONNECTED_NONE	0x0
-+#define TUSB320_REG8_ACCESSORY_CONNECTED_AUDIO	0x4
-+#define TUSB320_REG8_ACCESSORY_CONNECTED_ACC	0x5
-+#define TUSB320_REG8_ACCESSORY_CONNECTED_DEBUG	0x6
-+#define TUSB320_REG8_ACTIVE_CABLE_DETECTION	BIT(0)
- 
- #define TUSB320_REG9				0x9
- #define TUSB320_REG9_ATTACHED_STATE_SHIFT	6
-@@ -55,6 +74,10 @@ struct tusb320_priv {
- 	struct extcon_dev *edev;
- 	struct tusb320_ops *ops;
- 	enum tusb320_attached_state state;
-+	struct typec_port *port;
-+	struct typec_capability	cap;
-+	enum typec_port_type port_type;
-+	enum typec_pwr_opmode pwr_opmode;
+diff --git a/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c b/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
+index 6c6c4b7b6b25..8fe7d5681192 100644
+--- a/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
++++ b/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
+@@ -1300,31 +1300,30 @@ static const struct qmp_phy_init_tbl sm8450_qmp_gen4x2_pcie_pcs_misc_tbl[] = {
+ 	QMP_PHY_INIT_CFG(QPHY_V5_20_PCS_PCIE_G4_PRE_GAIN, 0x2e),
  };
  
- static const char * const tusb_attached_states[] = {
-@@ -184,6 +207,44 @@ static struct tusb320_ops tusb320l_ops = {
- 	.get_revision = tusb320l_get_revision,
- };
- 
-+static int tusb320_set_adv_pwr_mode(struct tusb320_priv *priv)
-+{
-+	u8 mode;
-+
-+	if (priv->pwr_opmode == TYPEC_PWR_MODE_USB)
-+		mode = TUSB320_REG8_CURRENT_MODE_ADVERTISE_USB;
-+	else if (priv->pwr_opmode == TYPEC_PWR_MODE_1_5A)
-+		mode = TUSB320_REG8_CURRENT_MODE_ADVERTISE_15A;
-+	else if (priv->pwr_opmode == TYPEC_PWR_MODE_3_0A)
-+		mode = TUSB320_REG8_CURRENT_MODE_ADVERTISE_30A;
-+	else	/* No other mode is supported. */
-+		return -EINVAL;
-+
-+	return regmap_write_bits(priv->regmap, TUSB320_REG8,
-+				 TUSB320_REG8_CURRENT_MODE_ADVERTISE,
-+				 FIELD_PREP(TUSB320_REG8_CURRENT_MODE_ADVERTISE,
-+					    mode));
-+}
-+
-+static int tusb320_port_type_set(struct typec_port *port,
-+				 enum typec_port_type type)
-+{
-+	struct tusb320_priv *priv = typec_get_drvdata(port);
-+
-+	if (type == TYPEC_PORT_SRC)
-+		return priv->ops->set_mode(priv, TUSB320_MODE_DFP);
-+	else if (type == TYPEC_PORT_SNK)
-+		return priv->ops->set_mode(priv, TUSB320_MODE_UFP);
-+	else if (type == TYPEC_PORT_DRP)
-+		return priv->ops->set_mode(priv, TUSB320_MODE_DRP);
-+	else
-+		return priv->ops->set_mode(priv, TUSB320_MODE_PORT);
-+}
-+
-+static const struct typec_operations tusb320_typec_ops = {
-+	.port_type_set	= tusb320_port_type_set,
++struct qmp_phy_cfg_tables {
++	const struct qmp_phy_init_tbl *serdes;
++	int serdes_num;
++	const struct qmp_phy_init_tbl *tx;
++	int tx_num;
++	const struct qmp_phy_init_tbl *rx;
++	int rx_num;
++	const struct qmp_phy_init_tbl *pcs;
++	int pcs_num;
++	const struct qmp_phy_init_tbl *pcs_misc;
++	int pcs_misc_num;
 +};
 +
- static void tusb320_extcon_irq_handler(struct tusb320_priv *priv, u8 reg)
- {
- 	int state, polarity;
-@@ -211,6 +272,47 @@ static void tusb320_extcon_irq_handler(struct tusb320_priv *priv, u8 reg)
- 	priv->state = state;
+ /* struct qmp_phy_cfg - per-PHY initialization config */
+ struct qmp_phy_cfg {
+ 	int lanes;
+ 
+-	/* Init sequence for PHY blocks - serdes, tx, rx, pcs */
+-	const struct qmp_phy_init_tbl *serdes_tbl;
+-	int serdes_tbl_num;
+-	const struct qmp_phy_init_tbl *serdes_tbl_sec;
+-	int serdes_tbl_num_sec;
+-	const struct qmp_phy_init_tbl *tx_tbl;
+-	int tx_tbl_num;
+-	const struct qmp_phy_init_tbl *tx_tbl_sec;
+-	int tx_tbl_num_sec;
+-	const struct qmp_phy_init_tbl *rx_tbl;
+-	int rx_tbl_num;
+-	const struct qmp_phy_init_tbl *rx_tbl_sec;
+-	int rx_tbl_num_sec;
+-	const struct qmp_phy_init_tbl *pcs_tbl;
+-	int pcs_tbl_num;
+-	const struct qmp_phy_init_tbl *pcs_tbl_sec;
+-	int pcs_tbl_num_sec;
+-	const struct qmp_phy_init_tbl *pcs_misc_tbl;
+-	int pcs_misc_tbl_num;
+-	const struct qmp_phy_init_tbl *pcs_misc_tbl_sec;
+-	int pcs_misc_tbl_num_sec;
++	/* Main init sequence for PHY blocks - serdes, tx, rx, pcs */
++	const struct qmp_phy_cfg_tables tables;
++	/*
++	 * Additional init sequence for PHY blocks, providing additional
++	 * register programming. Unless required it can be left omitted.
++	 */
++	const struct qmp_phy_cfg_tables *tables_rc;
+ 
+ 	/* clock ids to be requested */
+ 	const char * const *clk_list;
+@@ -1455,14 +1454,16 @@ static const char * const sdm845_pciephy_reset_l[] = {
+ static const struct qmp_phy_cfg ipq8074_pciephy_cfg = {
+ 	.lanes			= 1,
+ 
+-	.serdes_tbl		= ipq8074_pcie_serdes_tbl,
+-	.serdes_tbl_num		= ARRAY_SIZE(ipq8074_pcie_serdes_tbl),
+-	.tx_tbl			= ipq8074_pcie_tx_tbl,
+-	.tx_tbl_num		= ARRAY_SIZE(ipq8074_pcie_tx_tbl),
+-	.rx_tbl			= ipq8074_pcie_rx_tbl,
+-	.rx_tbl_num		= ARRAY_SIZE(ipq8074_pcie_rx_tbl),
+-	.pcs_tbl		= ipq8074_pcie_pcs_tbl,
+-	.pcs_tbl_num		= ARRAY_SIZE(ipq8074_pcie_pcs_tbl),
++	.tables = {
++		.serdes		= ipq8074_pcie_serdes_tbl,
++		.serdes_num	= ARRAY_SIZE(ipq8074_pcie_serdes_tbl),
++		.tx		= ipq8074_pcie_tx_tbl,
++		.tx_num		= ARRAY_SIZE(ipq8074_pcie_tx_tbl),
++		.rx		= ipq8074_pcie_rx_tbl,
++		.rx_num		= ARRAY_SIZE(ipq8074_pcie_rx_tbl),
++		.pcs		= ipq8074_pcie_pcs_tbl,
++		.pcs_num	= ARRAY_SIZE(ipq8074_pcie_pcs_tbl),
++	},
+ 	.clk_list		= ipq8074_pciephy_clk_l,
+ 	.num_clks		= ARRAY_SIZE(ipq8074_pciephy_clk_l),
+ 	.reset_list		= ipq8074_pciephy_reset_l,
+@@ -1479,14 +1480,16 @@ static const struct qmp_phy_cfg ipq8074_pciephy_cfg = {
+ static const struct qmp_phy_cfg ipq8074_pciephy_gen3_cfg = {
+ 	.lanes			= 1,
+ 
+-	.serdes_tbl		= ipq8074_pcie_gen3_serdes_tbl,
+-	.serdes_tbl_num		= ARRAY_SIZE(ipq8074_pcie_gen3_serdes_tbl),
+-	.tx_tbl			= ipq8074_pcie_gen3_tx_tbl,
+-	.tx_tbl_num		= ARRAY_SIZE(ipq8074_pcie_gen3_tx_tbl),
+-	.rx_tbl			= ipq8074_pcie_gen3_rx_tbl,
+-	.rx_tbl_num		= ARRAY_SIZE(ipq8074_pcie_gen3_rx_tbl),
+-	.pcs_tbl		= ipq8074_pcie_gen3_pcs_tbl,
+-	.pcs_tbl_num		= ARRAY_SIZE(ipq8074_pcie_gen3_pcs_tbl),
++	.tables = {
++		.serdes		= ipq8074_pcie_gen3_serdes_tbl,
++		.serdes_num	= ARRAY_SIZE(ipq8074_pcie_gen3_serdes_tbl),
++		.tx		= ipq8074_pcie_gen3_tx_tbl,
++		.tx_num		= ARRAY_SIZE(ipq8074_pcie_gen3_tx_tbl),
++		.rx		= ipq8074_pcie_gen3_rx_tbl,
++		.rx_num		= ARRAY_SIZE(ipq8074_pcie_gen3_rx_tbl),
++		.pcs		= ipq8074_pcie_gen3_pcs_tbl,
++		.pcs_num	= ARRAY_SIZE(ipq8074_pcie_gen3_pcs_tbl),
++	},
+ 	.clk_list		= ipq8074_pciephy_clk_l,
+ 	.num_clks		= ARRAY_SIZE(ipq8074_pciephy_clk_l),
+ 	.reset_list		= ipq8074_pciephy_reset_l,
+@@ -1505,16 +1508,18 @@ static const struct qmp_phy_cfg ipq8074_pciephy_gen3_cfg = {
+ static const struct qmp_phy_cfg ipq6018_pciephy_cfg = {
+ 	.lanes			= 1,
+ 
+-	.serdes_tbl		= ipq6018_pcie_serdes_tbl,
+-	.serdes_tbl_num		= ARRAY_SIZE(ipq6018_pcie_serdes_tbl),
+-	.tx_tbl			= ipq6018_pcie_tx_tbl,
+-	.tx_tbl_num		= ARRAY_SIZE(ipq6018_pcie_tx_tbl),
+-	.rx_tbl			= ipq6018_pcie_rx_tbl,
+-	.rx_tbl_num		= ARRAY_SIZE(ipq6018_pcie_rx_tbl),
+-	.pcs_tbl		= ipq6018_pcie_pcs_tbl,
+-	.pcs_tbl_num		= ARRAY_SIZE(ipq6018_pcie_pcs_tbl),
+-	.pcs_misc_tbl		= ipq6018_pcie_pcs_misc_tbl,
+-	.pcs_misc_tbl_num	= ARRAY_SIZE(ipq6018_pcie_pcs_misc_tbl),
++	.tables = {
++		.serdes		= ipq6018_pcie_serdes_tbl,
++		.serdes_num	= ARRAY_SIZE(ipq6018_pcie_serdes_tbl),
++		.tx		= ipq6018_pcie_tx_tbl,
++		.tx_num		= ARRAY_SIZE(ipq6018_pcie_tx_tbl),
++		.rx		= ipq6018_pcie_rx_tbl,
++		.rx_num		= ARRAY_SIZE(ipq6018_pcie_rx_tbl),
++		.pcs		= ipq6018_pcie_pcs_tbl,
++		.pcs_num	= ARRAY_SIZE(ipq6018_pcie_pcs_tbl),
++		.pcs_misc	= ipq6018_pcie_pcs_misc_tbl,
++		.pcs_misc_num	= ARRAY_SIZE(ipq6018_pcie_pcs_misc_tbl),
++	},
+ 	.clk_list		= ipq8074_pciephy_clk_l,
+ 	.num_clks		= ARRAY_SIZE(ipq8074_pciephy_clk_l),
+ 	.reset_list		= ipq8074_pciephy_reset_l,
+@@ -1531,16 +1536,18 @@ static const struct qmp_phy_cfg ipq6018_pciephy_cfg = {
+ static const struct qmp_phy_cfg sdm845_qmp_pciephy_cfg = {
+ 	.lanes			= 1,
+ 
+-	.serdes_tbl		= sdm845_qmp_pcie_serdes_tbl,
+-	.serdes_tbl_num		= ARRAY_SIZE(sdm845_qmp_pcie_serdes_tbl),
+-	.tx_tbl			= sdm845_qmp_pcie_tx_tbl,
+-	.tx_tbl_num		= ARRAY_SIZE(sdm845_qmp_pcie_tx_tbl),
+-	.rx_tbl			= sdm845_qmp_pcie_rx_tbl,
+-	.rx_tbl_num		= ARRAY_SIZE(sdm845_qmp_pcie_rx_tbl),
+-	.pcs_tbl		= sdm845_qmp_pcie_pcs_tbl,
+-	.pcs_tbl_num		= ARRAY_SIZE(sdm845_qmp_pcie_pcs_tbl),
+-	.pcs_misc_tbl		= sdm845_qmp_pcie_pcs_misc_tbl,
+-	.pcs_misc_tbl_num	= ARRAY_SIZE(sdm845_qmp_pcie_pcs_misc_tbl),
++	.tables = {
++		.serdes		= sdm845_qmp_pcie_serdes_tbl,
++		.serdes_num	= ARRAY_SIZE(sdm845_qmp_pcie_serdes_tbl),
++		.tx		= sdm845_qmp_pcie_tx_tbl,
++		.tx_num		= ARRAY_SIZE(sdm845_qmp_pcie_tx_tbl),
++		.rx		= sdm845_qmp_pcie_rx_tbl,
++		.rx_num		= ARRAY_SIZE(sdm845_qmp_pcie_rx_tbl),
++		.pcs		= sdm845_qmp_pcie_pcs_tbl,
++		.pcs_num	= ARRAY_SIZE(sdm845_qmp_pcie_pcs_tbl),
++		.pcs_misc	= sdm845_qmp_pcie_pcs_misc_tbl,
++		.pcs_misc_num	= ARRAY_SIZE(sdm845_qmp_pcie_pcs_misc_tbl),
++	},
+ 	.clk_list		= sdm845_pciephy_clk_l,
+ 	.num_clks		= ARRAY_SIZE(sdm845_pciephy_clk_l),
+ 	.reset_list		= sdm845_pciephy_reset_l,
+@@ -1557,14 +1564,16 @@ static const struct qmp_phy_cfg sdm845_qmp_pciephy_cfg = {
+ static const struct qmp_phy_cfg sdm845_qhp_pciephy_cfg = {
+ 	.lanes			= 1,
+ 
+-	.serdes_tbl		= sdm845_qhp_pcie_serdes_tbl,
+-	.serdes_tbl_num		= ARRAY_SIZE(sdm845_qhp_pcie_serdes_tbl),
+-	.tx_tbl			= sdm845_qhp_pcie_tx_tbl,
+-	.tx_tbl_num		= ARRAY_SIZE(sdm845_qhp_pcie_tx_tbl),
+-	.rx_tbl			= sdm845_qhp_pcie_rx_tbl,
+-	.rx_tbl_num		= ARRAY_SIZE(sdm845_qhp_pcie_rx_tbl),
+-	.pcs_tbl		= sdm845_qhp_pcie_pcs_tbl,
+-	.pcs_tbl_num		= ARRAY_SIZE(sdm845_qhp_pcie_pcs_tbl),
++	.tables = {
++		.serdes		= sdm845_qhp_pcie_serdes_tbl,
++		.serdes_num	= ARRAY_SIZE(sdm845_qhp_pcie_serdes_tbl),
++		.tx		= sdm845_qhp_pcie_tx_tbl,
++		.tx_num		= ARRAY_SIZE(sdm845_qhp_pcie_tx_tbl),
++		.rx		= sdm845_qhp_pcie_rx_tbl,
++		.rx_num		= ARRAY_SIZE(sdm845_qhp_pcie_rx_tbl),
++		.pcs		= sdm845_qhp_pcie_pcs_tbl,
++		.pcs_num	= ARRAY_SIZE(sdm845_qhp_pcie_pcs_tbl),
++	},
+ 	.clk_list		= sdm845_pciephy_clk_l,
+ 	.num_clks		= ARRAY_SIZE(sdm845_pciephy_clk_l),
+ 	.reset_list		= sdm845_pciephy_reset_l,
+@@ -1581,24 +1590,28 @@ static const struct qmp_phy_cfg sdm845_qhp_pciephy_cfg = {
+ static const struct qmp_phy_cfg sm8250_qmp_gen3x1_pciephy_cfg = {
+ 	.lanes			= 1,
+ 
+-	.serdes_tbl		= sm8250_qmp_pcie_serdes_tbl,
+-	.serdes_tbl_num		= ARRAY_SIZE(sm8250_qmp_pcie_serdes_tbl),
+-	.serdes_tbl_sec		= sm8250_qmp_gen3x1_pcie_serdes_tbl,
+-	.serdes_tbl_num_sec	= ARRAY_SIZE(sm8250_qmp_gen3x1_pcie_serdes_tbl),
+-	.tx_tbl			= sm8250_qmp_pcie_tx_tbl,
+-	.tx_tbl_num		= ARRAY_SIZE(sm8250_qmp_pcie_tx_tbl),
+-	.rx_tbl			= sm8250_qmp_pcie_rx_tbl,
+-	.rx_tbl_num		= ARRAY_SIZE(sm8250_qmp_pcie_rx_tbl),
+-	.rx_tbl_sec		= sm8250_qmp_gen3x1_pcie_rx_tbl,
+-	.rx_tbl_num_sec		= ARRAY_SIZE(sm8250_qmp_gen3x1_pcie_rx_tbl),
+-	.pcs_tbl		= sm8250_qmp_pcie_pcs_tbl,
+-	.pcs_tbl_num		= ARRAY_SIZE(sm8250_qmp_pcie_pcs_tbl),
+-	.pcs_tbl_sec		= sm8250_qmp_gen3x1_pcie_pcs_tbl,
+-	.pcs_tbl_num_sec		= ARRAY_SIZE(sm8250_qmp_gen3x1_pcie_pcs_tbl),
+-	.pcs_misc_tbl		= sm8250_qmp_pcie_pcs_misc_tbl,
+-	.pcs_misc_tbl_num	= ARRAY_SIZE(sm8250_qmp_pcie_pcs_misc_tbl),
+-	.pcs_misc_tbl_sec		= sm8250_qmp_gen3x1_pcie_pcs_misc_tbl,
+-	.pcs_misc_tbl_num_sec	= ARRAY_SIZE(sm8250_qmp_gen3x1_pcie_pcs_misc_tbl),
++	.tables = {
++		.serdes		= sm8250_qmp_pcie_serdes_tbl,
++		.serdes_num	= ARRAY_SIZE(sm8250_qmp_pcie_serdes_tbl),
++		.tx		= sm8250_qmp_pcie_tx_tbl,
++		.tx_num		= ARRAY_SIZE(sm8250_qmp_pcie_tx_tbl),
++		.rx		= sm8250_qmp_pcie_rx_tbl,
++		.rx_num		= ARRAY_SIZE(sm8250_qmp_pcie_rx_tbl),
++		.pcs		= sm8250_qmp_pcie_pcs_tbl,
++		.pcs_num	= ARRAY_SIZE(sm8250_qmp_pcie_pcs_tbl),
++		.pcs_misc	= sm8250_qmp_pcie_pcs_misc_tbl,
++		.pcs_misc_num	= ARRAY_SIZE(sm8250_qmp_pcie_pcs_misc_tbl),
++	},
++	.tables_rc = &(const struct qmp_phy_cfg_tables) {
++		.serdes		= sm8250_qmp_gen3x1_pcie_serdes_tbl,
++		.serdes_num	= ARRAY_SIZE(sm8250_qmp_gen3x1_pcie_serdes_tbl),
++		.rx		= sm8250_qmp_gen3x1_pcie_rx_tbl,
++		.rx_num		= ARRAY_SIZE(sm8250_qmp_gen3x1_pcie_rx_tbl),
++		.pcs		= sm8250_qmp_gen3x1_pcie_pcs_tbl,
++		.pcs_num	= ARRAY_SIZE(sm8250_qmp_gen3x1_pcie_pcs_tbl),
++		.pcs_misc	= sm8250_qmp_gen3x1_pcie_pcs_misc_tbl,
++		.pcs_misc_num	= ARRAY_SIZE(sm8250_qmp_gen3x1_pcie_pcs_misc_tbl),
++	},
+ 	.clk_list		= sdm845_pciephy_clk_l,
+ 	.num_clks		= ARRAY_SIZE(sdm845_pciephy_clk_l),
+ 	.reset_list		= sdm845_pciephy_reset_l,
+@@ -1615,24 +1628,28 @@ static const struct qmp_phy_cfg sm8250_qmp_gen3x1_pciephy_cfg = {
+ static const struct qmp_phy_cfg sm8250_qmp_gen3x2_pciephy_cfg = {
+ 	.lanes			= 2,
+ 
+-	.serdes_tbl		= sm8250_qmp_pcie_serdes_tbl,
+-	.serdes_tbl_num		= ARRAY_SIZE(sm8250_qmp_pcie_serdes_tbl),
+-	.tx_tbl			= sm8250_qmp_pcie_tx_tbl,
+-	.tx_tbl_num		= ARRAY_SIZE(sm8250_qmp_pcie_tx_tbl),
+-	.tx_tbl_sec		= sm8250_qmp_gen3x2_pcie_tx_tbl,
+-	.tx_tbl_num_sec		= ARRAY_SIZE(sm8250_qmp_gen3x2_pcie_tx_tbl),
+-	.rx_tbl			= sm8250_qmp_pcie_rx_tbl,
+-	.rx_tbl_num		= ARRAY_SIZE(sm8250_qmp_pcie_rx_tbl),
+-	.rx_tbl_sec		= sm8250_qmp_gen3x2_pcie_rx_tbl,
+-	.rx_tbl_num_sec		= ARRAY_SIZE(sm8250_qmp_gen3x2_pcie_rx_tbl),
+-	.pcs_tbl		= sm8250_qmp_pcie_pcs_tbl,
+-	.pcs_tbl_num		= ARRAY_SIZE(sm8250_qmp_pcie_pcs_tbl),
+-	.pcs_tbl_sec		= sm8250_qmp_gen3x2_pcie_pcs_tbl,
+-	.pcs_tbl_num_sec		= ARRAY_SIZE(sm8250_qmp_gen3x2_pcie_pcs_tbl),
+-	.pcs_misc_tbl		= sm8250_qmp_pcie_pcs_misc_tbl,
+-	.pcs_misc_tbl_num	= ARRAY_SIZE(sm8250_qmp_pcie_pcs_misc_tbl),
+-	.pcs_misc_tbl_sec		= sm8250_qmp_gen3x2_pcie_pcs_misc_tbl,
+-	.pcs_misc_tbl_num_sec	= ARRAY_SIZE(sm8250_qmp_gen3x2_pcie_pcs_misc_tbl),
++	.tables = {
++		.serdes		= sm8250_qmp_pcie_serdes_tbl,
++		.serdes_num	= ARRAY_SIZE(sm8250_qmp_pcie_serdes_tbl),
++		.tx		= sm8250_qmp_pcie_tx_tbl,
++		.tx_num		= ARRAY_SIZE(sm8250_qmp_pcie_tx_tbl),
++		.rx		= sm8250_qmp_pcie_rx_tbl,
++		.rx_num		= ARRAY_SIZE(sm8250_qmp_pcie_rx_tbl),
++		.pcs		= sm8250_qmp_pcie_pcs_tbl,
++		.pcs_num	= ARRAY_SIZE(sm8250_qmp_pcie_pcs_tbl),
++		.pcs_misc	= sm8250_qmp_pcie_pcs_misc_tbl,
++		.pcs_misc_num	= ARRAY_SIZE(sm8250_qmp_pcie_pcs_misc_tbl),
++	},
++	.tables_rc = &(const struct qmp_phy_cfg_tables) {
++		.tx		= sm8250_qmp_gen3x2_pcie_tx_tbl,
++		.tx_num		= ARRAY_SIZE(sm8250_qmp_gen3x2_pcie_tx_tbl),
++		.rx		= sm8250_qmp_gen3x2_pcie_rx_tbl,
++		.rx_num		= ARRAY_SIZE(sm8250_qmp_gen3x2_pcie_rx_tbl),
++		.pcs		= sm8250_qmp_gen3x2_pcie_pcs_tbl,
++		.pcs_num	= ARRAY_SIZE(sm8250_qmp_gen3x2_pcie_pcs_tbl),
++		.pcs_misc	= sm8250_qmp_gen3x2_pcie_pcs_misc_tbl,
++		.pcs_misc_num	= ARRAY_SIZE(sm8250_qmp_gen3x2_pcie_pcs_misc_tbl),
++	},
+ 	.clk_list		= sdm845_pciephy_clk_l,
+ 	.num_clks		= ARRAY_SIZE(sdm845_pciephy_clk_l),
+ 	.reset_list		= sdm845_pciephy_reset_l,
+@@ -1649,14 +1666,16 @@ static const struct qmp_phy_cfg sm8250_qmp_gen3x2_pciephy_cfg = {
+ static const struct qmp_phy_cfg msm8998_pciephy_cfg = {
+ 	.lanes			= 1,
+ 
+-	.serdes_tbl		= msm8998_pcie_serdes_tbl,
+-	.serdes_tbl_num		= ARRAY_SIZE(msm8998_pcie_serdes_tbl),
+-	.tx_tbl			= msm8998_pcie_tx_tbl,
+-	.tx_tbl_num		= ARRAY_SIZE(msm8998_pcie_tx_tbl),
+-	.rx_tbl			= msm8998_pcie_rx_tbl,
+-	.rx_tbl_num		= ARRAY_SIZE(msm8998_pcie_rx_tbl),
+-	.pcs_tbl		= msm8998_pcie_pcs_tbl,
+-	.pcs_tbl_num		= ARRAY_SIZE(msm8998_pcie_pcs_tbl),
++	.tables = {
++		.serdes		= msm8998_pcie_serdes_tbl,
++		.serdes_num	= ARRAY_SIZE(msm8998_pcie_serdes_tbl),
++		.tx		= msm8998_pcie_tx_tbl,
++		.tx_num		= ARRAY_SIZE(msm8998_pcie_tx_tbl),
++		.rx		= msm8998_pcie_rx_tbl,
++		.rx_num		= ARRAY_SIZE(msm8998_pcie_rx_tbl),
++		.pcs		= msm8998_pcie_pcs_tbl,
++		.pcs_num	= ARRAY_SIZE(msm8998_pcie_pcs_tbl),
++	},
+ 	.clk_list		= msm8996_phy_clk_l,
+ 	.num_clks		= ARRAY_SIZE(msm8996_phy_clk_l),
+ 	.reset_list		= ipq8074_pciephy_reset_l,
+@@ -1675,16 +1694,18 @@ static const struct qmp_phy_cfg msm8998_pciephy_cfg = {
+ static const struct qmp_phy_cfg sc8180x_pciephy_cfg = {
+ 	.lanes			= 1,
+ 
+-	.serdes_tbl		= sc8180x_qmp_pcie_serdes_tbl,
+-	.serdes_tbl_num		= ARRAY_SIZE(sc8180x_qmp_pcie_serdes_tbl),
+-	.tx_tbl			= sc8180x_qmp_pcie_tx_tbl,
+-	.tx_tbl_num		= ARRAY_SIZE(sc8180x_qmp_pcie_tx_tbl),
+-	.rx_tbl			= sc8180x_qmp_pcie_rx_tbl,
+-	.rx_tbl_num		= ARRAY_SIZE(sc8180x_qmp_pcie_rx_tbl),
+-	.pcs_tbl		= sc8180x_qmp_pcie_pcs_tbl,
+-	.pcs_tbl_num		= ARRAY_SIZE(sc8180x_qmp_pcie_pcs_tbl),
+-	.pcs_misc_tbl		= sc8180x_qmp_pcie_pcs_misc_tbl,
+-	.pcs_misc_tbl_num	= ARRAY_SIZE(sc8180x_qmp_pcie_pcs_misc_tbl),
++	.tables = {
++		.serdes		= sc8180x_qmp_pcie_serdes_tbl,
++		.serdes_num	= ARRAY_SIZE(sc8180x_qmp_pcie_serdes_tbl),
++		.tx		= sc8180x_qmp_pcie_tx_tbl,
++		.tx_num		= ARRAY_SIZE(sc8180x_qmp_pcie_tx_tbl),
++		.rx		= sc8180x_qmp_pcie_rx_tbl,
++		.rx_num		= ARRAY_SIZE(sc8180x_qmp_pcie_rx_tbl),
++		.pcs		= sc8180x_qmp_pcie_pcs_tbl,
++		.pcs_num	= ARRAY_SIZE(sc8180x_qmp_pcie_pcs_tbl),
++		.pcs_misc	= sc8180x_qmp_pcie_pcs_misc_tbl,
++		.pcs_misc_num	= ARRAY_SIZE(sc8180x_qmp_pcie_pcs_misc_tbl),
++	},
+ 	.clk_list		= sdm845_pciephy_clk_l,
+ 	.num_clks		= ARRAY_SIZE(sdm845_pciephy_clk_l),
+ 	.reset_list		= sdm845_pciephy_reset_l,
+@@ -1701,16 +1722,18 @@ static const struct qmp_phy_cfg sc8180x_pciephy_cfg = {
+ static const struct qmp_phy_cfg sdx55_qmp_pciephy_cfg = {
+ 	.lanes			= 2,
+ 
+-	.serdes_tbl		= sdx55_qmp_pcie_serdes_tbl,
+-	.serdes_tbl_num		= ARRAY_SIZE(sdx55_qmp_pcie_serdes_tbl),
+-	.tx_tbl			= sdx55_qmp_pcie_tx_tbl,
+-	.tx_tbl_num		= ARRAY_SIZE(sdx55_qmp_pcie_tx_tbl),
+-	.rx_tbl			= sdx55_qmp_pcie_rx_tbl,
+-	.rx_tbl_num		= ARRAY_SIZE(sdx55_qmp_pcie_rx_tbl),
+-	.pcs_tbl		= sdx55_qmp_pcie_pcs_tbl,
+-	.pcs_tbl_num		= ARRAY_SIZE(sdx55_qmp_pcie_pcs_tbl),
+-	.pcs_misc_tbl		= sdx55_qmp_pcie_pcs_misc_tbl,
+-	.pcs_misc_tbl_num	= ARRAY_SIZE(sdx55_qmp_pcie_pcs_misc_tbl),
++	.tables = {
++		.serdes		= sdx55_qmp_pcie_serdes_tbl,
++		.serdes_num	= ARRAY_SIZE(sdx55_qmp_pcie_serdes_tbl),
++		.tx		= sdx55_qmp_pcie_tx_tbl,
++		.tx_num		= ARRAY_SIZE(sdx55_qmp_pcie_tx_tbl),
++		.rx		= sdx55_qmp_pcie_rx_tbl,
++		.rx_num		= ARRAY_SIZE(sdx55_qmp_pcie_rx_tbl),
++		.pcs		= sdx55_qmp_pcie_pcs_tbl,
++		.pcs_num	= ARRAY_SIZE(sdx55_qmp_pcie_pcs_tbl),
++		.pcs_misc	= sdx55_qmp_pcie_pcs_misc_tbl,
++		.pcs_misc_num	= ARRAY_SIZE(sdx55_qmp_pcie_pcs_misc_tbl),
++	},
+ 	.clk_list		= sdm845_pciephy_clk_l,
+ 	.num_clks		= ARRAY_SIZE(sdm845_pciephy_clk_l),
+ 	.reset_list		= sdm845_pciephy_reset_l,
+@@ -1727,16 +1750,18 @@ static const struct qmp_phy_cfg sdx55_qmp_pciephy_cfg = {
+ static const struct qmp_phy_cfg sm8450_qmp_gen3x1_pciephy_cfg = {
+ 	.lanes			= 1,
+ 
+-	.serdes_tbl		= sm8450_qmp_gen3x1_pcie_serdes_tbl,
+-	.serdes_tbl_num		= ARRAY_SIZE(sm8450_qmp_gen3x1_pcie_serdes_tbl),
+-	.tx_tbl			= sm8450_qmp_gen3x1_pcie_tx_tbl,
+-	.tx_tbl_num		= ARRAY_SIZE(sm8450_qmp_gen3x1_pcie_tx_tbl),
+-	.rx_tbl			= sm8450_qmp_gen3x1_pcie_rx_tbl,
+-	.rx_tbl_num		= ARRAY_SIZE(sm8450_qmp_gen3x1_pcie_rx_tbl),
+-	.pcs_tbl		= sm8450_qmp_gen3x1_pcie_pcs_tbl,
+-	.pcs_tbl_num		= ARRAY_SIZE(sm8450_qmp_gen3x1_pcie_pcs_tbl),
+-	.pcs_misc_tbl		= sm8450_qmp_gen3x1_pcie_pcs_misc_tbl,
+-	.pcs_misc_tbl_num	= ARRAY_SIZE(sm8450_qmp_gen3x1_pcie_pcs_misc_tbl),
++	.tables = {
++		.serdes		= sm8450_qmp_gen3x1_pcie_serdes_tbl,
++		.serdes_num	= ARRAY_SIZE(sm8450_qmp_gen3x1_pcie_serdes_tbl),
++		.tx		= sm8450_qmp_gen3x1_pcie_tx_tbl,
++		.tx_num		= ARRAY_SIZE(sm8450_qmp_gen3x1_pcie_tx_tbl),
++		.rx		= sm8450_qmp_gen3x1_pcie_rx_tbl,
++		.rx_num		= ARRAY_SIZE(sm8450_qmp_gen3x1_pcie_rx_tbl),
++		.pcs		= sm8450_qmp_gen3x1_pcie_pcs_tbl,
++		.pcs_num	= ARRAY_SIZE(sm8450_qmp_gen3x1_pcie_pcs_tbl),
++		.pcs_misc	= sm8450_qmp_gen3x1_pcie_pcs_misc_tbl,
++		.pcs_misc_num	= ARRAY_SIZE(sm8450_qmp_gen3x1_pcie_pcs_misc_tbl),
++	},
+ 	.clk_list		= sdm845_pciephy_clk_l,
+ 	.num_clks		= ARRAY_SIZE(sdm845_pciephy_clk_l),
+ 	.reset_list		= sdm845_pciephy_reset_l,
+@@ -1753,16 +1778,18 @@ static const struct qmp_phy_cfg sm8450_qmp_gen3x1_pciephy_cfg = {
+ static const struct qmp_phy_cfg sm8450_qmp_gen4x2_pciephy_cfg = {
+ 	.lanes			= 2,
+ 
+-	.serdes_tbl		= sm8450_qmp_gen4x2_pcie_serdes_tbl,
+-	.serdes_tbl_num		= ARRAY_SIZE(sm8450_qmp_gen4x2_pcie_serdes_tbl),
+-	.tx_tbl			= sm8450_qmp_gen4x2_pcie_tx_tbl,
+-	.tx_tbl_num		= ARRAY_SIZE(sm8450_qmp_gen4x2_pcie_tx_tbl),
+-	.rx_tbl			= sm8450_qmp_gen4x2_pcie_rx_tbl,
+-	.rx_tbl_num		= ARRAY_SIZE(sm8450_qmp_gen4x2_pcie_rx_tbl),
+-	.pcs_tbl		= sm8450_qmp_gen4x2_pcie_pcs_tbl,
+-	.pcs_tbl_num		= ARRAY_SIZE(sm8450_qmp_gen4x2_pcie_pcs_tbl),
+-	.pcs_misc_tbl		= sm8450_qmp_gen4x2_pcie_pcs_misc_tbl,
+-	.pcs_misc_tbl_num	= ARRAY_SIZE(sm8450_qmp_gen4x2_pcie_pcs_misc_tbl),
++	.tables = {
++		.serdes		= sm8450_qmp_gen4x2_pcie_serdes_tbl,
++		.serdes_num	= ARRAY_SIZE(sm8450_qmp_gen4x2_pcie_serdes_tbl),
++		.tx		= sm8450_qmp_gen4x2_pcie_tx_tbl,
++		.tx_num		= ARRAY_SIZE(sm8450_qmp_gen4x2_pcie_tx_tbl),
++		.rx		= sm8450_qmp_gen4x2_pcie_rx_tbl,
++		.rx_num		= ARRAY_SIZE(sm8450_qmp_gen4x2_pcie_rx_tbl),
++		.pcs		= sm8450_qmp_gen4x2_pcie_pcs_tbl,
++		.pcs_num	= ARRAY_SIZE(sm8450_qmp_gen4x2_pcie_pcs_tbl),
++		.pcs_misc	= sm8450_qmp_gen4x2_pcie_pcs_misc_tbl,
++		.pcs_misc_num	= ARRAY_SIZE(sm8450_qmp_gen4x2_pcie_pcs_misc_tbl),
++	},
+ 	.clk_list		= sdm845_pciephy_clk_l,
+ 	.num_clks		= ARRAY_SIZE(sdm845_pciephy_clk_l),
+ 	.reset_list		= sdm845_pciephy_reset_l,
+@@ -1807,17 +1834,49 @@ static void qmp_pcie_configure(void __iomem *base,
+ 	qmp_pcie_configure_lane(base, regs, tbl, num, 0xff);
  }
  
-+static void tusb320_typec_irq_handler(struct tusb320_priv *priv, u8 reg9)
-+{
-+	struct typec_port *port = priv->port;
-+	struct device *dev = priv->dev;
-+	u8 mode, role, state;
-+	int ret, reg8;
-+	bool ori;
-+
-+	ori = reg9 & TUSB320_REG9_CABLE_DIRECTION;
-+	typec_set_orientation(port, ori ? TYPEC_ORIENTATION_REVERSE :
-+					  TYPEC_ORIENTATION_NORMAL);
-+
-+	state = (reg9 >> TUSB320_REG9_ATTACHED_STATE_SHIFT) &
-+		TUSB320_REG9_ATTACHED_STATE_MASK;
-+	if (state == TUSB320_ATTACHED_STATE_DFP)
-+		role = TYPEC_SOURCE;
-+	else
-+		role = TYPEC_SINK;
-+
-+	typec_set_vconn_role(port, role);
-+	typec_set_pwr_role(port, role);
-+	typec_set_data_role(port, role == TYPEC_SOURCE ?
-+				  TYPEC_HOST : TYPEC_DEVICE);
-+
-+	ret = regmap_read(priv->regmap, TUSB320_REG8, &reg8);
-+	if (ret) {
-+		dev_err(dev, "error during reg8 i2c read, ret=%d!\n", ret);
+-static int qmp_pcie_serdes_init(struct qmp_phy *qphy)
++static void qmp_pcie_serdes_init(struct qmp_phy *qphy, const struct qmp_phy_cfg_tables *tables)
+ {
+ 	const struct qmp_phy_cfg *cfg = qphy->cfg;
+ 	void __iomem *serdes = qphy->serdes;
+-	const struct qmp_phy_init_tbl *serdes_tbl = cfg->serdes_tbl;
+-	int serdes_tbl_num = cfg->serdes_tbl_num;
+ 
+-	qmp_pcie_configure(serdes, cfg->regs, serdes_tbl, serdes_tbl_num);
+-	qmp_pcie_configure(serdes, cfg->regs, cfg->serdes_tbl_sec, cfg->serdes_tbl_num_sec);
++	if (!tables)
 +		return;
-+	}
-+
-+	mode = FIELD_GET(TUSB320_REG8_CURRENT_MODE_DETECT, reg8);
-+	if (mode == TUSB320_REG8_CURRENT_MODE_DETECT_DEF)
-+		typec_set_pwr_opmode(port, TYPEC_PWR_MODE_USB);
-+	else if (mode == TUSB320_REG8_CURRENT_MODE_DETECT_MED)
-+		typec_set_pwr_opmode(port, TYPEC_PWR_MODE_1_5A);
-+	else if (mode == TUSB320_REG8_CURRENT_MODE_DETECT_HI)
-+		typec_set_pwr_opmode(port, TYPEC_PWR_MODE_3_0A);
-+	else	/* Charge through accessory */
-+		typec_set_pwr_opmode(port, TYPEC_PWR_MODE_USB);
+ 
+-	return 0;
++	qmp_pcie_configure(serdes, cfg->regs, tables->serdes, tables->serdes_num);
 +}
 +
- static irqreturn_t tusb320_irq_handler(int irq, void *dev_id)
- {
- 	struct tusb320_priv *priv = dev_id;
-@@ -225,6 +327,7 @@ static irqreturn_t tusb320_irq_handler(int irq, void *dev_id)
- 		return IRQ_NONE;
- 
- 	tusb320_extcon_irq_handler(priv, reg);
-+	tusb320_typec_irq_handler(priv, reg);
- 
- 	regmap_write(priv->regmap, TUSB320_REG9, reg);
- 
-@@ -260,6 +363,58 @@ static int tusb320_extcon_probe(struct tusb320_priv *priv)
- 	return 0;
++static void qmp_pcie_lanes_init(struct qmp_phy *qphy, const struct qmp_phy_cfg_tables *tables)
++{
++	const struct qmp_phy_cfg *cfg = qphy->cfg;
++	void __iomem *tx = qphy->tx;
++	void __iomem *rx = qphy->rx;
++
++	if (!tables)
++		return;
++
++	qmp_pcie_configure_lane(tx, cfg->regs, tables->tx, tables->tx_num, 1);
++
++	if (cfg->lanes >= 2)
++		qmp_pcie_configure_lane(qphy->tx2, cfg->regs, tables->tx, tables->tx_num, 2);
++
++	qmp_pcie_configure_lane(rx, cfg->regs, tables->rx, tables->rx_num, 1);
++	if (cfg->lanes >= 2)
++		qmp_pcie_configure_lane(qphy->rx2, cfg->regs, tables->rx, tables->rx_num, 2);
++}
++
++static void qmp_pcie_pcs_init(struct qmp_phy *qphy, const struct qmp_phy_cfg_tables *tables)
++{
++	const struct qmp_phy_cfg *cfg = qphy->cfg;
++	void __iomem *pcs = qphy->pcs;
++	void __iomem *pcs_misc = qphy->pcs_misc;
++
++	if (!tables)
++		return;
++
++	qmp_pcie_configure(pcs, cfg->regs,
++			   tables->pcs, tables->pcs_num);
++	qmp_pcie_configure(pcs_misc, cfg->regs,
++			   tables->pcs_misc, tables->pcs_misc_num);
  }
  
-+static int tusb320_typec_probe(struct i2c_client *client,
-+			       struct tusb320_priv *priv)
-+{
-+	struct fwnode_handle *connector;
-+	const char *cap_str;
-+	int ret;
-+
-+	/* The Type-C connector is optional, for backward compatibility. */
-+	connector = device_get_named_child_node(&client->dev, "connector");
-+	if (!connector)
-+		return 0;
-+
-+	/* Type-C connector found. */
-+	ret = typec_get_fw_cap(&priv->cap, connector);
-+	if (ret)
-+		return ret;
-+
-+	priv->port_type = priv->cap.type;
-+
-+	/* This goes into register 0x8 field CURRENT_MODE_ADVERTISE */
-+	ret = fwnode_property_read_string(connector, "typec-power-opmode", &cap_str);
-+	if (ret)
-+		return ret;
-+
-+	ret = typec_find_pwr_opmode(cap_str);
-+	if (ret < 0)
-+		return ret;
-+	if (ret == TYPEC_PWR_MODE_PD)
-+		return -EINVAL;
-+
-+	priv->pwr_opmode = ret;
-+
-+	/* Initialize the hardware with the devicetree settings. */
-+	ret = tusb320_set_adv_pwr_mode(priv);
-+	if (ret)
-+		return ret;
-+
-+	priv->cap.revision		= USB_TYPEC_REV_1_1;
-+	priv->cap.accessory[0]		= TYPEC_ACCESSORY_AUDIO;
-+	priv->cap.accessory[1]		= TYPEC_ACCESSORY_DEBUG;
-+	priv->cap.orientation_aware	= true;
-+	priv->cap.driver_data		= priv;
-+	priv->cap.ops			= &tusb320_typec_ops;
-+	priv->cap.fwnode		= connector;
-+
-+	priv->port = typec_register_port(&client->dev, &priv->cap);
-+	if (IS_ERR(priv->port))
-+		return PTR_ERR(priv->port);
-+
-+	return 0;
-+}
-+
- static int tusb320_probe(struct i2c_client *client,
- 			 const struct i2c_device_id *id)
- {
-@@ -300,6 +455,10 @@ static int tusb320_probe(struct i2c_client *client,
- 	if (ret)
- 		return ret;
+ static int qmp_pcie_init(struct phy *phy)
+@@ -1889,15 +1948,13 @@ static int qmp_pcie_power_on(struct phy *phy)
+ 	struct qmp_phy *qphy = phy_get_drvdata(phy);
+ 	struct qcom_qmp *qmp = qphy->qmp;
+ 	const struct qmp_phy_cfg *cfg = qphy->cfg;
+-	void __iomem *tx = qphy->tx;
+-	void __iomem *rx = qphy->rx;
+ 	void __iomem *pcs = qphy->pcs;
+-	void __iomem *pcs_misc = qphy->pcs_misc;
+ 	void __iomem *status;
+ 	unsigned int mask, val, ready;
+ 	int ret;
  
-+	ret = tusb320_typec_probe(client, priv);
-+	if (ret)
-+		return ret;
-+
- 	/* update initial state */
- 	tusb320_irq_handler(client->irq, priv);
+-	qmp_pcie_serdes_init(qphy);
++	qmp_pcie_serdes_init(qphy, &cfg->tables);
++	qmp_pcie_serdes_init(qphy, cfg->tables_rc);
+ 
+ 	ret = clk_prepare_enable(qphy->pipe_clk);
+ 	if (ret) {
+@@ -1906,31 +1963,11 @@ static int qmp_pcie_power_on(struct phy *phy)
+ 	}
+ 
+ 	/* Tx, Rx, and PCS configurations */
+-	qmp_pcie_configure_lane(tx, cfg->regs, cfg->tx_tbl, cfg->tx_tbl_num, 1);
+-	qmp_pcie_configure_lane(tx, cfg->regs, cfg->tx_tbl_sec, cfg->tx_tbl_num_sec, 1);
+-
+-	if (cfg->lanes >= 2) {
+-		qmp_pcie_configure_lane(qphy->tx2, cfg->regs, cfg->tx_tbl,
+-					cfg->tx_tbl_num, 2);
+-		qmp_pcie_configure_lane(qphy->tx2, cfg->regs, cfg->tx_tbl_sec,
+-					cfg->tx_tbl_num_sec, 2);
+-	}
+-
+-	qmp_pcie_configure_lane(rx, cfg->regs, cfg->rx_tbl, cfg->rx_tbl_num, 1);
+-	qmp_pcie_configure_lane(rx, cfg->regs, cfg->rx_tbl_sec, cfg->rx_tbl_num_sec, 1);
+-
+-	if (cfg->lanes >= 2) {
+-		qmp_pcie_configure_lane(qphy->rx2, cfg->regs, cfg->rx_tbl,
+-					cfg->rx_tbl_num, 2);
+-		qmp_pcie_configure_lane(qphy->rx2, cfg->regs, cfg->rx_tbl_sec,
+-					cfg->rx_tbl_num_sec, 2);
+-	}
+-
+-	qmp_pcie_configure(pcs, cfg->regs, cfg->pcs_tbl, cfg->pcs_tbl_num);
+-	qmp_pcie_configure(pcs, cfg->regs, cfg->pcs_tbl_sec, cfg->pcs_tbl_num_sec);
++	qmp_pcie_lanes_init(qphy, &cfg->tables);
++	qmp_pcie_lanes_init(qphy, cfg->tables_rc);
+ 
+-	qmp_pcie_configure(pcs_misc, cfg->regs, cfg->pcs_misc_tbl, cfg->pcs_misc_tbl_num);
+-	qmp_pcie_configure(pcs_misc, cfg->regs, cfg->pcs_misc_tbl_sec, cfg->pcs_misc_tbl_num_sec);
++	qmp_pcie_pcs_init(qphy, &cfg->tables);
++	qmp_pcie_pcs_init(qphy, cfg->tables_rc);
+ 
+ 	/* Pull PHY out of reset state */
+ 	qphy_clrbits(pcs, cfg->regs[QPHY_SW_RESET], SW_RESET);
+@@ -2191,7 +2228,8 @@ static int qmp_pcie_create(struct device *dev, struct device_node *np, int id,
+ 		qphy->pcs_misc = qphy->pcs + 0x400;
+ 
+ 	if (IS_ERR(qphy->pcs_misc)) {
+-		if (cfg->pcs_misc_tbl || cfg->pcs_misc_tbl_sec)
++		if (cfg->tables.pcs_misc ||
++		    (cfg->tables_rc && cfg->tables_rc->pcs_misc))
+ 			return PTR_ERR(qphy->pcs_misc);
+ 	}
  
 -- 
 2.35.1
