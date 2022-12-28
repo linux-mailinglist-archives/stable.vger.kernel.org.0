@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46E4B65822C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:33:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34CCC658302
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233723AbiL1Qdd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:33:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54144 "EHLO
+        id S234991AbiL1QoA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:44:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234055AbiL1QdK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:10 -0500
+        with ESMTP id S234990AbiL1Qnc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:32 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96ADC1B1F8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:30:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DDFA60FC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3219161568
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:30:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4193EC433EF;
-        Wed, 28 Dec 2022 16:30:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AC82C61572
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:37:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1D1BC433F0;
+        Wed, 28 Dec 2022 16:37:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245033;
-        bh=Y8jTkRw+6lWQWFh5nfucOHw37zihfy+8O3tV5BJBYxE=;
+        s=korg; t=1672245478;
+        bh=Mt3ekxmlDTqRJ1l1rjm3C8i3c0nhGxYJwi4DCc/D+TE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DlHCzDotftpY7/4gkFfVJqinlVcFCvJb9Cywmh4EXmbHEXCQwXyHtHJHxvDCLVAyD
-         Jc9d3CLWdJyMF5h+06x2B4x5S4iBAFQ4c9r2fDXfDCY8XNOhouCx7JbCVpMp3vqi15
-         YMkZS8VL+HPG4U+zgDfv/4gqxfn6/OwSxDxhBZ+4=
+        b=xrAf3DHOzqC1f/uNtxskIK62CDZcc0kM/XfzXRe9UuCSDuBtPfxgFbie/De2VXqLa
+         Iwb4A9sTWhVMFrq06A7PSRjqHX32f67cGEcopg/QwtBaN4ismUgEvMTkUC4YRwmZBm
+         oZ5faZu+EUaCRawIjzJz+lJzJ/Yg47VmtJX8Lw/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anup Patel <apatel@ventanamicro.com>,
-        Andrew Jones <ajones@ventanamicro.com>,
-        Atish Patra <atishp@rivosinc.com>,
-        Anup Patel <anup@brainfault.org>,
+        patches@lists.linux.dev, Daniel Golle <daniel@makrotopia.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0819/1073] RISC-V: KVM: Fix reg_val check in kvm_riscv_vcpu_set_reg_config()
+Subject: [PATCH 6.1 0868/1146] pwm: mediatek: always use bus clock for PWM on MT7622
 Date:   Wed, 28 Dec 2022 15:40:07 +0100
-Message-Id: <20221228144350.255928527@linuxfoundation.org>
+Message-Id: <20221228144353.745685991@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +57,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anup Patel <apatel@ventanamicro.com>
+From: Daniel Golle <daniel@makrotopia.org>
 
-[ Upstream commit e482d9e33d5b0f222cbef7341dcd52cead6b9edc ]
+[ Upstream commit aa3c668f2f98856af96e13f44da6ca4f26f0b98c ]
 
-The reg_val check in kvm_riscv_vcpu_set_reg_config() should only
-be done for isa config register.
+According to MT7622 Reference Manual for Development Board v1.0 the PWM
+unit found in the MT7622 SoC also comes with the PWM_CK_26M_SEL register
+at offset 0x210 just like other modern MediaTek ARM64 SoCs.
+And also MT7622 sets that register to 0x00000001 on reset which is
+described as 'Select 26M fix CLK as BCLK' in the datasheet.
+Hence set has_ck_26m_sel to true also for MT7622 which results in the
+driver writing 0 to the PWM_CK_26M_SEL register which is described as
+'Select bus CLK as BCLK'.
 
-Fixes: 9bfd900beeec ("RISC-V: KVM: Improve ISA extension by using a bitmap")
-Signed-off-by: Anup Patel <apatel@ventanamicro.com>
-Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
-Reviewed-by: Atish Patra <atishp@rivosinc.com>
-Signed-off-by: Anup Patel <anup@brainfault.org>
+Fixes: 0c0ead76235db0 ("pwm: mediatek: Always use bus clock")
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/Y1iF2slvSblf6bYK@makrotopia.org
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kvm/vcpu.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/pwm/pwm-mediatek.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/riscv/kvm/vcpu.c b/arch/riscv/kvm/vcpu.c
-index f692c0716aa7..aa7ae6327044 100644
---- a/arch/riscv/kvm/vcpu.c
-+++ b/arch/riscv/kvm/vcpu.c
-@@ -286,12 +286,15 @@ static int kvm_riscv_vcpu_set_reg_config(struct kvm_vcpu *vcpu,
- 	if (copy_from_user(&reg_val, uaddr, KVM_REG_SIZE(reg->id)))
- 		return -EFAULT;
+diff --git a/drivers/pwm/pwm-mediatek.c b/drivers/pwm/pwm-mediatek.c
+index 6901a44dc428..a337b47dc2f7 100644
+--- a/drivers/pwm/pwm-mediatek.c
++++ b/drivers/pwm/pwm-mediatek.c
+@@ -296,7 +296,7 @@ static const struct pwm_mediatek_of_data mt6795_pwm_data = {
+ static const struct pwm_mediatek_of_data mt7622_pwm_data = {
+ 	.num_pwms = 6,
+ 	.pwm45_fixup = false,
+-	.has_ck_26m_sel = false,
++	.has_ck_26m_sel = true,
+ };
  
--	/* This ONE REG interface is only defined for single letter extensions */
--	if (fls(reg_val) >= RISCV_ISA_EXT_BASE)
--		return -EINVAL;
--
- 	switch (reg_num) {
- 	case KVM_REG_RISCV_CONFIG_REG(isa):
-+		/*
-+		 * This ONE REG interface is only defined for
-+		 * single letter extensions.
-+		 */
-+		if (fls(reg_val) >= RISCV_ISA_EXT_BASE)
-+			return -EINVAL;
-+
- 		if (!vcpu->arch.ran_atleast_once) {
- 			/* Ignore the enable/disable request for certain extensions */
- 			for (i = 0; i < RISCV_ISA_EXT_BASE; i++) {
+ static const struct pwm_mediatek_of_data mt7623_pwm_data = {
 -- 
 2.35.1
 
