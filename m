@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2273265821A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:33:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60AD46582F4
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233291AbiL1QdL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:33:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54144 "EHLO
+        id S235000AbiL1Qnn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:43:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230388AbiL1Qcu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:32:50 -0500
+        with ESMTP id S233233AbiL1QnJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:09 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6AECBF2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:29:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5587B1F9ED
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7178661577
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:29:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88797C433F0;
-        Wed, 28 Dec 2022 16:29:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B7C0361541
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:37:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAE0EC433D2;
+        Wed, 28 Dec 2022 16:37:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244993;
-        bh=0U853qzJ/DPe+ViHdeRKey9xUYRZw2Gn0TeYA3x0vI4=;
+        s=korg; t=1672245436;
+        bh=li3uXa7z1/Pb+JciIitirypteWWSVkGCeqkibJqk17k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o+vQF9WfLUE8+5qH/MGRL9c/vqdREc0s5n1Ie3UoKbuUCEwLqv6cVdjpqDx6mbMiT
-         VZfkddFI9yzIuvCjqKWVLWilo/ImZPW9EJcqAAw+yQTaQ1IyUzrefHp85IabDI7BFl
-         r9i1h9hewld3wZDHanJJie4J7CyOlCD5RVRGKY/M=
+        b=lccvWQczb1r2Z40wGtL+6Zt0KKCZVfYbObqaMV7Ed50Dt3P2pJyCKdVNyVRe9/s+H
+         12Jc6eT4r+xvBHh7oCl8YilOVcqbz2GHOrt1eg3kyl+xQ2ZID5+xUfM1LXgZPx82rC
+         eE1fEmVEQtytWIAwKxLPWTNQnuJ/c2f3wXIh2rGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
-        Yong Wu <yong.wu@mediatek.com>,
+        patches@lists.linux.dev, Yong Wu <yong.wu@mediatek.com>,
         AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>,
         Matthias Brugger <matthias.bgg@gmail.com>,
         Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0812/1073] iommu/mediatek: Use component_match_add
+Subject: [PATCH 6.1 0861/1146] iommu/mediatek: Add platform_device_put for recovering the device refcnt
 Date:   Wed, 28 Dec 2022 15:40:00 +0100
-Message-Id: <20221228144350.063012800@linuxfoundation.org>
+Message-Id: <20221228144353.542264322@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,56 +57,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yong Wu <yong.wu@mediatek.com>
 
-[ Upstream commit b5765a1b44bea9dfcae69c53ffeb4c689d0922a7 ]
+[ Upstream commit dcb40e9fcce9bd251eaff19f3724131db522846c ]
 
-In order to simplify the error patch(avoid call of_node_put), Use
-component_match_add instead component_match_add_release since we are only
-interested in the "device" here. Then we could always call of_node_put in
-normal path.
+Add platform_device_put to match with of_find_device_by_node.
 
-Strictly this is not a fixes patch, but it is a prepare for adding the
-error path, thus I add a Fixes tag too.
+Meanwhile, I add a new variable "pcommdev" which is for smi common device.
+Otherwise, "platform_device_put(plarbdev)" for smi-common dev may be not
+readable. And add a checking for whether pcommdev is NULL.
 
 Fixes: d2e9a1102cfc ("iommu/mediatek: Contain MM IOMMU flow with the MM TYPE")
-Suggested-by: Robin Murphy <robin.murphy@arm.com>
 Signed-off-by: Yong Wu <yong.wu@mediatek.com>
 Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Link: https://lore.kernel.org/r/20221018024258.19073-3-yong.wu@mediatek.com
+Link: https://lore.kernel.org/r/20221018024258.19073-2-yong.wu@mediatek.com
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/mtk_iommu.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/iommu/mtk_iommu.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index 93005e63fc7f..ce9288695f9b 100644
+index 2d14dc846b83..febcca8fcbcf 100644
 --- a/drivers/iommu/mtk_iommu.c
 +++ b/drivers/iommu/mtk_iommu.c
-@@ -1066,19 +1066,17 @@ static int mtk_iommu_mm_dts_parse(struct device *dev, struct component_match **m
- 			id = i;
+@@ -1044,7 +1044,7 @@ static int mtk_iommu_mm_dts_parse(struct device *dev, struct component_match **m
+ 				  struct mtk_iommu_data *data)
+ {
+ 	struct device_node *larbnode, *smicomm_node, *smi_subcomm_node;
+-	struct platform_device *plarbdev;
++	struct platform_device *plarbdev, *pcommdev;
+ 	struct device_link *link;
+ 	int i, larb_nr, ret;
  
- 		plarbdev = of_find_device_by_node(larbnode);
--		if (!plarbdev) {
--			of_node_put(larbnode);
-+		of_node_put(larbnode);
-+		if (!plarbdev)
- 			return -ENODEV;
--		}
-+
+@@ -1075,12 +1075,14 @@ static int mtk_iommu_mm_dts_parse(struct device *dev, struct component_match **m
+ 		}
  		if (!plarbdev->dev.driver) {
--			of_node_put(larbnode);
- 			platform_device_put(plarbdev);
+ 			of_node_put(larbnode);
++			platform_device_put(plarbdev);
  			return -EPROBE_DEFER;
  		}
  		data->larb_imu[id].dev = &plarbdev->dev;
  
--		component_match_add_release(dev, match, component_release_of,
--					    component_compare_of, larbnode);
-+		component_match_add(dev, match, component_compare_dev, &plarbdev->dev);
- 		platform_device_put(plarbdev);
+ 		component_match_add_release(dev, match, component_release_of,
+ 					    component_compare_of, larbnode);
++		platform_device_put(plarbdev);
  	}
  
+ 	/* Get smi-(sub)-common dev from the last larb. */
+@@ -1098,12 +1100,15 @@ static int mtk_iommu_mm_dts_parse(struct device *dev, struct component_match **m
+ 	else
+ 		smicomm_node = smi_subcomm_node;
+ 
+-	plarbdev = of_find_device_by_node(smicomm_node);
++	pcommdev = of_find_device_by_node(smicomm_node);
+ 	of_node_put(smicomm_node);
+-	data->smicomm_dev = &plarbdev->dev;
++	if (!pcommdev)
++		return -ENODEV;
++	data->smicomm_dev = &pcommdev->dev;
+ 
+ 	link = device_link_add(data->smicomm_dev, dev,
+ 			       DL_FLAG_STATELESS | DL_FLAG_PM_RUNTIME);
++	platform_device_put(pcommdev);
+ 	if (!link) {
+ 		dev_err(dev, "Unable to link %s.\n", dev_name(data->smicomm_dev));
+ 		return -EINVAL;
 -- 
 2.35.1
 
