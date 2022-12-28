@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C90F5658047
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:16:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F19765791A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:57:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234554AbiL1QQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:16:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59866 "EHLO
+        id S233338AbiL1O5f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:57:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233176AbiL1QQK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:16:10 -0500
+        with ESMTP id S233317AbiL1O5a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:57:30 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20BFB1A82D;
-        Wed, 28 Dec 2022 08:13:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C60ED12746
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:57:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9B05B81707;
-        Wed, 28 Dec 2022 16:13:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 028E4C433EF;
-        Wed, 28 Dec 2022 16:13:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1670FB8172C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:57:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70066C433F0;
+        Wed, 28 Dec 2022 14:57:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244008;
-        bh=DjK8F8iE3Z01tKYaGE96lJvosdA9ktOtD+1ozokc7oE=;
+        s=korg; t=1672239445;
+        bh=qd9gRWds5YnWnAS9h8v/neaOVhSFbYmkeCfObYcoaz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VUnKDKZMya5hDm5nSYJjBlPGcODC5Brf9sVeNiua3gQMag3aqq98/5ZmX7xlbJgE+
-         Ekm8P3h+ETGukr4GuZS61pevm9xbuOBF7FVwDV40JzNGVzg4cbf7mgkl9MmgX91Ivg
-         yybbG9pWyPc0k428A+CMmtcnqaOxYOwhhNhfwlk8=
+        b=s4tdvkNuDEIqbCXZ4jMdhxKs190Bu3z6CkHMorXYmqU6lzT6vRzLwYownWvbIbdif
+         5zJqRO4mDqxkPGzacBAI0WawTzaBP2eBw8HaRhU7EQGX/LsH0YUKeACXZi9g5uwSu/
+         Tc8I7dFptXVBqN7ttnJtVLAa9Up11Ar8v6ag9yYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-hardening@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        patches@lists.linux.dev, Jonathan Toppins <jtoppins@redhat.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0594/1146] fortify: Do not cast to "unsigned char"
+Subject: [PATCH 5.15 226/731] bonding: fix link recovery in mode 2 when updelay is nonzero
 Date:   Wed, 28 Dec 2022 15:35:33 +0100
-Message-Id: <20221228144346.305005394@linuxfoundation.org>
+Message-Id: <20221228144303.112281212@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Jonathan Toppins <jtoppins@redhat.com>
 
-[ Upstream commit e9a40e1585d792751d3a122392695e5a53032809 ]
+[ Upstream commit f8a65ab2f3ff7410921ebbf0dc55453102c33c56 ]
 
-Do not cast to "unsigned char", as this needlessly creates type problems
-when attempting builds without -Wno-pointer-sign[1]. The intent of the
-cast is to drop possible "const" types.
+Before this change when a bond in mode 2 lost link, all of its slaves
+lost link, the bonding device would never recover even after the
+expiration of updelay. This change removes the updelay when the bond
+currently has no usable links. Conforming to bonding.txt section 13.1
+paragraph 4.
 
-[1] https://lore.kernel.org/lkml/CAHk-=wgz3Uba8w7kdXhsqR1qvfemYL+OFQdefJnkeqXG8qZ_pA@mail.gmail.com/
-
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Fixes: 3009f891bb9f ("fortify: Allow strlen() and strnlen() to pass compile-time known lengths")
-Cc: linux-hardening@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Fixes: 41f891004063 ("bonding: ignore updelay param when there is no active slave")
+Signed-off-by: Jonathan Toppins <jtoppins@redhat.com>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/fortify-string.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/bonding/bond_main.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/fortify-string.h b/include/linux/fortify-string.h
-index 1067a8450826..5001a11258e4 100644
---- a/include/linux/fortify-string.h
-+++ b/include/linux/fortify-string.h
-@@ -18,7 +18,7 @@ void __write_overflow_field(size_t avail, size_t wanted) __compiletime_warning("
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 402dffc508ef..6dca5bfe8247 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -2504,7 +2504,16 @@ static int bond_miimon_inspect(struct bonding *bond)
+ 	struct slave *slave;
+ 	bool ignore_updelay;
  
- #define __compiletime_strlen(p)					\
- ({								\
--	unsigned char *__p = (unsigned char *)(p);		\
-+	char *__p = (char *)(p);				\
- 	size_t __ret = SIZE_MAX;				\
- 	size_t __p_size = __member_size(p);			\
- 	if (__p_size != SIZE_MAX &&				\
+-	ignore_updelay = !rcu_dereference(bond->curr_active_slave);
++	if (BOND_MODE(bond) == BOND_MODE_ACTIVEBACKUP) {
++		ignore_updelay = !rcu_dereference(bond->curr_active_slave);
++	} else {
++		struct bond_up_slave *usable_slaves;
++
++		usable_slaves = rcu_dereference(bond->usable_slaves);
++
++		if (usable_slaves && usable_slaves->count == 0)
++			ignore_updelay = true;
++	}
+ 
+ 	bond_for_each_slave_rcu(bond, slave, iter) {
+ 		bond_propose_link_state(slave, BOND_LINK_NOCHANGE);
 -- 
 2.35.1
 
