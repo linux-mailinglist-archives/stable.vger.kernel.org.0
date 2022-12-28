@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7D67657D49
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:41:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D21DF657EC4
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:57:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233976AbiL1Plt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:41:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58340 "EHLO
+        id S230071AbiL1P5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:57:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234000AbiL1Plf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:41:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9A591741C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:41:32 -0800 (PST)
+        with ESMTP id S234191AbiL1P5P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:57:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E18017E19
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:57:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A865CB81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:41:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 025D2C433EF;
-        Wed, 28 Dec 2022 15:41:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE6FD61560
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:57:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A294EC433F2;
+        Wed, 28 Dec 2022 15:57:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242089;
-        bh=EyQ++/BKTEpOyoxOhcI6CKqke6ZcQmhSGSi5ClADbY0=;
+        s=korg; t=1672243034;
+        bh=vZeP1t6afT0ryktVps5NpbEQ3EArquOAMim4yMVsm3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sFEEdnYsqDyoxdJntZH1En8nMgbK5UrPER1b/7PGnC8wmb05rMOLUlbKbGvMHOJvj
-         EOUrFqcw9EeRojfcU70kpYln+El7y9zJl3f23gMtzPxy//OyWd9lRdwUy7yxjUl+a9
-         UfYCh5K3eGK1ResEQqPtHh6aqeJycsJIlhxGSPks=
+        b=yeyMt+Y6kZV/HasTpYoYWrw8HkAk450Gl05cPtHO5pdMmpduNpRTia7DRX6Rco1pW
+         L5KmbaW7/c6gEnD44cNaQvrl/XV9J127Wx4xe89/P1YfHvdx4YnDmngpwOjmAp20EJ
+         bFf0wpqxMlacUHYrr6jLbnY2qeP+CzkD0ss4z/Yk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        patches@lists.linux.dev, Yunfei Dong <yunfei.dong@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0366/1073] clk: rockchip: Fix memory leak in rockchip_clk_register_pll()
-Date:   Wed, 28 Dec 2022 15:32:34 +0100
-Message-Id: <20221228144337.945347529@linuxfoundation.org>
+Subject: [PATCH 6.1 0416/1146] media: mediatek: vcodec: Core thread depends on core_list
+Date:   Wed, 28 Dec 2022 15:32:35 +0100
+Message-Id: <20221228144341.470061300@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Yunfei Dong <yunfei.dong@mediatek.com>
 
-[ Upstream commit 739a6a6bbdb793bd57938cb24aa5a6df89983546 ]
+[ Upstream commit 95bc23513c9188065a22194f9af870376fc38fdd ]
 
-If clk_register() fails, @pll->rate_table may have allocated memory by
-kmemdup(), so it needs to be freed, otherwise will cause memory leak
-issue, this patch fixes it.
+Core thread will continue to work when core_list is not empty, not
+depends on lat_list.
 
-Fixes: 90c590254051 ("clk: rockchip: add clock type for pll clocks and pll used on rk3066")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Link: https://lore.kernel.org/r/20221123091201.199819-1-xiujianfeng@huawei.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Fixes: 365e4ba01df4 ("media: mtk-vcodec: Add work queue for core hardware decode")
+Signed-off-by: Yunfei Dong <yunfei.dong@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/rockchip/clk-pll.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/platform/mediatek/vcodec/vdec_msg_queue.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/rockchip/clk-pll.c b/drivers/clk/rockchip/clk-pll.c
-index f7827b3b7fc1..6e5e502be44a 100644
---- a/drivers/clk/rockchip/clk-pll.c
-+++ b/drivers/clk/rockchip/clk-pll.c
-@@ -981,6 +981,7 @@ struct clk *rockchip_clk_register_pll(struct rockchip_clk_provider *ctx,
- 	return mux_clk;
+diff --git a/drivers/media/platform/mediatek/vcodec/vdec_msg_queue.c b/drivers/media/platform/mediatek/vcodec/vdec_msg_queue.c
+index ae500980ad45..dc2004790a47 100644
+--- a/drivers/media/platform/mediatek/vcodec/vdec_msg_queue.c
++++ b/drivers/media/platform/mediatek/vcodec/vdec_msg_queue.c
+@@ -221,7 +221,7 @@ static void vdec_msg_queue_core_work(struct work_struct *work)
+ 	mtk_vcodec_dec_disable_hardware(ctx, MTK_VDEC_CORE);
+ 	vdec_msg_queue_qbuf(&ctx->msg_queue.lat_ctx, lat_buf);
  
- err_pll:
-+	kfree(pll->rate_table);
- 	clk_unregister(mux_clk);
- 	mux_clk = pll_clk;
- err_mux:
+-	if (!list_empty(&ctx->msg_queue.lat_ctx.ready_queue)) {
++	if (!list_empty(&dev->msg_queue_core_ctx.ready_queue)) {
+ 		mtk_v4l2_debug(3, "re-schedule to decode for core: %d",
+ 			       dev->msg_queue_core_ctx.ready_num);
+ 		queue_work(dev->core_workqueue, &msg_queue->core_work);
 -- 
 2.35.1
 
