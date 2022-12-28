@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85B78658309
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AFC9657C8D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:33:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232630AbiL1QoK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:44:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37008 "EHLO
+        id S233396AbiL1Pdn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:33:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233698AbiL1Qnp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:45 -0500
+        with ESMTP id S233452AbiL1Pdk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:33:40 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 160271A237
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:38:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DF8715FF3
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:33:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A2AC561576
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:38:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9512C433EF;
-        Wed, 28 Dec 2022 16:38:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BF936156E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:33:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 322F2C433F0;
+        Wed, 28 Dec 2022 15:33:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245504;
-        bh=Rg8+MlLZcxNWeaWneO5vyQy1f/u1KBeebCoUCwQ8y3I=;
+        s=korg; t=1672241618;
+        bh=3LOufCYBkv8xmNsnZDxXmA4q64T22Cl+cBX7LCGZnv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dy5X2mRqdFQBf410vk4fGl4ZQMmUAA4JRj3QriajjLrLCdeqNPlZUinEc4PUkNQUF
-         VitgfrHFCwhkT8m68/A2/NO92Wt8/hualCHg01Lh7yncRGpQDdSFl5HIebeY03rHwp
-         iULGOvCPcufm3GGiFJkt87ymGHTH+/TlvLPi3k5s=
+        b=1torga+MicgJB+trk1rXQ6I1n7RuCjZ7Szd0i9m1INsSmUc5QWQw7QGU9oPo6Cz99
+         1XZB1iQyoD9KX4JYyFjfTere5ts7YYY9gXYsOJJALzSVdNoFYhAFeJ3jy3zhuuGuE/
+         qLjYji77qRzUcvTLZ6lHperkLQ+tIMd0Q/sx4Xvw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mukesh Ojha <quic_mojha@quicinc.com>,
-        Luca Weiss <luca.weiss@fairphone.com>,
-        Caleb Connolly <caleb.connolly@linaro.org>,
-        Sibi Sankar <quic_sibis@quicinc.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0872/1146] remoteproc: qcom_q6v5_pas: disable wakeup on probe fail or remove
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 504/731] fbdev: pm2fb: fix missing pci_disable_device()
 Date:   Wed, 28 Dec 2022 15:40:11 +0100
-Message-Id: <20221228144353.851882344@linuxfoundation.org>
+Message-Id: <20221228144311.157949863@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,56 +52,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Weiss <luca.weiss@fairphone.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 9a70551996e699fda262e8d54bbd41739d7aad6d ]
+[ Upstream commit ed359a464846b48f76ea6cc5cd8257e545ac97f4 ]
 
-Leaving wakeup enabled during probe fail (-EPROBE_DEFER) or remove makes
-the subsequent probe fail.
+Add missing pci_disable_device() in error path of probe() and remove() path.
 
-[    3.749454] remoteproc remoteproc0: releasing 3000000.remoteproc
-[    3.752949] qcom_q6v5_pas: probe of 3000000.remoteproc failed with error -17
-[    3.878935] remoteproc remoteproc0: releasing 4080000.remoteproc
-[    3.887602] qcom_q6v5_pas: probe of 4080000.remoteproc failed with error -17
-[    4.319552] remoteproc remoteproc0: releasing 8300000.remoteproc
-[    4.332716] qcom_q6v5_pas: probe of 8300000.remoteproc failed with error -17
-
-Fix this by disabling wakeup in both cases so the driver can properly
-probe on the next try.
-
-Fixes: a781e5aa5911 ("remoteproc: core: Prevent system suspend during remoteproc recovery")
-Fixes: dc86c129b4fb ("remoteproc: qcom: pas: Mark devices as wakeup capable")
-Reviewed-by: Mukesh Ojha <quic_mojha@quicinc.com>
-Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
-Reviewed-by: Caleb Connolly <caleb.connolly@linaro.org>
-Reviewed-by: Sibi Sankar <quic_sibis@quicinc.com>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221118090816.100012-1-luca.weiss@fairphone.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/qcom_q6v5_pas.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/video/fbdev/pm2fb.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/remoteproc/qcom_q6v5_pas.c b/drivers/remoteproc/qcom_q6v5_pas.c
-index 6afd0941e552..67f5152e2398 100644
---- a/drivers/remoteproc/qcom_q6v5_pas.c
-+++ b/drivers/remoteproc/qcom_q6v5_pas.c
-@@ -556,6 +556,7 @@ static int adsp_probe(struct platform_device *pdev)
- detach_proxy_pds:
- 	adsp_pds_detach(adsp, adsp->proxy_pds, adsp->proxy_pd_count);
- free_rproc:
-+	device_init_wakeup(adsp->dev, false);
- 	rproc_free(rproc);
+diff --git a/drivers/video/fbdev/pm2fb.c b/drivers/video/fbdev/pm2fb.c
+index cbcf112c88d3..e8690f7aea05 100644
+--- a/drivers/video/fbdev/pm2fb.c
++++ b/drivers/video/fbdev/pm2fb.c
+@@ -1530,8 +1530,10 @@ static int pm2fb_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	}
  
- 	return ret;
-@@ -572,6 +573,7 @@ static int adsp_remove(struct platform_device *pdev)
- 	qcom_remove_sysmon_subdev(adsp->sysmon);
- 	qcom_remove_smd_subdev(adsp->rproc, &adsp->smd_subdev);
- 	qcom_remove_ssr_subdev(adsp->rproc, &adsp->ssr_subdev);
-+	device_init_wakeup(adsp->dev, false);
- 	rproc_free(adsp->rproc);
+ 	info = framebuffer_alloc(sizeof(struct pm2fb_par), &pdev->dev);
+-	if (!info)
+-		return -ENOMEM;
++	if (!info) {
++		err = -ENOMEM;
++		goto err_exit_disable;
++	}
+ 	default_par = info->par;
  
- 	return 0;
+ 	switch (pdev->device) {
+@@ -1712,6 +1714,8 @@ static int pm2fb_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	release_mem_region(pm2fb_fix.mmio_start, pm2fb_fix.mmio_len);
+  err_exit_neither:
+ 	framebuffer_release(info);
++ err_exit_disable:
++	pci_disable_device(pdev);
+ 	return retval;
+ }
+ 
+@@ -1738,6 +1742,7 @@ static void pm2fb_remove(struct pci_dev *pdev)
+ 	fb_dealloc_cmap(&info->cmap);
+ 	kfree(info->pixmap.addr);
+ 	framebuffer_release(info);
++	pci_disable_device(pdev);
+ }
+ 
+ static const struct pci_device_id pm2fb_id_table[] = {
 -- 
 2.35.1
 
