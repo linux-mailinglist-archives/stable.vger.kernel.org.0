@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5915265796E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:01:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32F11657F9F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:07:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233420AbiL1PBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:01:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47630 "EHLO
+        id S234420AbiL1QHX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:07:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233401AbiL1PA4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:00:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFB571209A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:00:54 -0800 (PST)
+        with ESMTP id S234482AbiL1QHA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:07:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05D8511A03
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:06:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D22B61365
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:00:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C977C433D2;
-        Wed, 28 Dec 2022 15:00:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9601561576
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:06:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EA43C433EF;
+        Wed, 28 Dec 2022 16:06:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239653;
-        bh=GhP9v5VqYMAKXSxuD2sUvd1aiHKyS/1RUvVoJhU0uoQ=;
+        s=korg; t=1672243603;
+        bh=NCDusXs63H3DTZi81Gd9ZlJEWUg7qva/XiXOrTJPvg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kef8uGJj/W4+yXQXE2IQkjnC06tWzu7fYKVIH3SmnSuNhXRU7K25l0cGtT8uCbwex
-         aXAdau8LtkpWWuJwFKfe7WrxjyhS2rhkbRtNaiYy/Mv6iSp8Yy8BWxM6RmT9wGW1j7
-         yAGHx68TlJFlx/aYQXFBbtsWKRg0ZOLloZMoY+P8=
+        b=QkTjZYDxU6l+i1xbQ0+tf3WEgZnnTh/ZIjm2D47oONc3NfbDL27cb9krGulSAi9Xs
+         7CMKw5ZBQsUfQ01c5TPRNXiK1WfNRmkMZiwM+ohdYwYUkAW9o5eG8ICHNOhkfU7iB6
+         PgJAybKDNwkN73Y1tIR322HoC11/3ShZmK+9ftKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Dario Binacchi <dario.binacchi@amarulasolutions.com>,
-        Marco Felsch <m.felsch@pengutronix.de>,
-        Abel Vesa <abel.vesa@linaro.org>,
+        John Johansen <john.johansen@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 236/731] clk: imx8mn: fix imx8mn_enet_phy_sels clocks list
+Subject: [PATCH 6.0 0555/1073] apparmor: Fix abi check to include v8 abi
 Date:   Wed, 28 Dec 2022 15:35:43 +0100
-Message-Id: <20221228144303.406253484@linuxfoundation.org>
+Message-Id: <20221228144343.130558143@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+From: John Johansen <john.johansen@canonical.com>
 
-[ Upstream commit 2626cf67f20b28446dfc3a5b9493dd535cdb747b ]
+[ Upstream commit 1b5a6198f5a9d0aa5497da0dc4bcd4fc166ee516 ]
 
-According to the "Clock Root" table of the reference manual (document
-IMX8MNRM Rev 2, 07/2022):
+The v8 abi is supported by the kernel but the userspace supported
+version check does not allow for it. This was missed when v8 was added
+due to a bug in the userspace compiler which was setting an older abi
+version for v8 encoding (which is forward compatible except on the
+network encoding). However it is possible to detect the network
+encoding by checking the policydb network support which the code
+does. The end result was that missing the abi flag worked until
+userspace was fixed and began correctly checking for the v8 abi
+version.
 
-     Clock Root         offset     Source Select (CCM_TARGET_ROOTn[MUX])
-        ...              ...                    ...
- ENET_PHY_REF_CLK_ROOT  0xAA80            000 - 24M_REF_CLK
-                                          001 - SYSTEM_PLL2_DIV20
-                                          010 - SYSTEM_PLL2_DIV8
-                                          011 - SYSTEM_PLL2_DIV5
-                                          100 - SYSTEM_PLL2_DIV2
-                                          101 - AUDIO_PLL1_CLK
-                                          110 - VIDEO_PLL_CLK
-                                          111 - AUDIO_PLL2_CLK
-        ...              ...                    ...
-
-while the imx8mn_enet_phy_sels list didn't contained audio_pll1_out for
-source select bits 101b.
-
-Fixes: 96d6392b54dbb ("clk: imx: Add support for i.MX8MN clock driver")
-Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
-Acked-by: Marco Felsch <m.felsch@pengutronix.de>
-Reviewed-by: Abel Vesa <abel.vesa@linaro.org>
-Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
-Link: https://lore.kernel.org/r/20221117113637.1978703-6-dario.binacchi@amarulasolutions.com
+Fixes: 56974a6fcfef ("apparmor: add base infastructure for socket mediation")
+Signed-off-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-imx8mn.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ security/apparmor/policy_unpack.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/imx/clk-imx8mn.c b/drivers/clk/imx/clk-imx8mn.c
-index 4016fb124932..52903146fdba 100644
---- a/drivers/clk/imx/clk-imx8mn.c
-+++ b/drivers/clk/imx/clk-imx8mn.c
-@@ -140,8 +140,8 @@ static const char * const imx8mn_enet_timer_sels[] = {"osc_24m", "sys_pll2_100m"
- 						      "clk_ext4", "video_pll1_out", };
- 
- static const char * const imx8mn_enet_phy_sels[] = {"osc_24m", "sys_pll2_50m", "sys_pll2_125m",
--						    "sys_pll2_200m", "sys_pll2_500m", "video_pll1_out",
--						    "audio_pll2_out", };
-+						    "sys_pll2_200m", "sys_pll2_500m", "audio_pll1_out",
-+						    "video_pll_out", "audio_pll2_out", };
- 
- static const char * const imx8mn_nand_sels[] = {"osc_24m", "sys_pll2_500m", "audio_pll1_out",
- 						"sys_pll1_400m", "audio_pll2_out", "sys_pll3_out",
+diff --git a/security/apparmor/policy_unpack.c b/security/apparmor/policy_unpack.c
+index 55d31bac4f35..9d26bbb90133 100644
+--- a/security/apparmor/policy_unpack.c
++++ b/security/apparmor/policy_unpack.c
+@@ -972,7 +972,7 @@ static int verify_header(struct aa_ext *e, int required, const char **ns)
+ 	 * if not specified use previous version
+ 	 * Mask off everything that is not kernel abi version
+ 	 */
+-	if (VERSION_LT(e->version, v5) || VERSION_GT(e->version, v7)) {
++	if (VERSION_LT(e->version, v5) || VERSION_GT(e->version, v8)) {
+ 		audit_iface(NULL, NULL, NULL, "unsupported interface version",
+ 			    e, error);
+ 		return error;
 -- 
 2.35.1
 
