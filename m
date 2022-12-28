@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE2596584C9
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:02:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B65D657F57
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:04:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233245AbiL1RCa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:02:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56358 "EHLO
+        id S233026AbiL1QEG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:04:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233144AbiL1RB5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:01:57 -0500
+        with ESMTP id S234288AbiL1QDp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:03:45 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04D871E72D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:56:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E84019285
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:03:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F4FD60D41
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:56:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85318C433EF;
-        Wed, 28 Dec 2022 16:56:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 39E766156E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:03:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45553C433EF;
+        Wed, 28 Dec 2022 16:03:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246576;
-        bh=vWvS77y3aOqKyCHgi+CB3rdVEMh/eS0ZGnwOuYNBRR4=;
+        s=korg; t=1672243423;
+        bh=7E3nHgAfkm9oyDn+S4KQFsFdg0Z9uo2gyHjxdObYOYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tqUo9KCJn5B1clKHyYJ3ZlbFL231O6vPvRl+NdTb7djG3xcQRb3jVSsVQPEXy4UWr
-         U0Arazxw7CM/ufj6jGwsNeZTIx31Z3vsIYjF4e3zfa1xqKh3QaQK7X8wtsGVWhQA8M
-         +3yGFSaIjxehTbc+xHBImo56q6zWOvDaX10fJZ30=
+        b=XyNXEX+GzdhE94FF1i2dl3pO8Y0n9SGlhYXcOCyhyjQEzSz6uKlMHoDoXw8Vrzn+S
+         TedyZyPNCKmqmCvoQVj8NsEX4suV7eq/MNb0KknGiCufLBqQEZkbtn0HV56Qji61dv
+         KhQfiSNozZKFoPOYVq2dX00Bzss6s5Bq9YgQ0YP4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Petlan <mpetlan@redhat.com>,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Disha Goel <disgoel@linux.vnet.ibm.com>,
-        Ian Rogers <irogers@google.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nageswara R Sastry <rnsastry@linux.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1087/1146] perf test: Fix "all PMU test" to skip parametrized events
+        patches@lists.linux.dev,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Stable@vger.kernel.org
+Subject: [PATCH 5.15 719/731] iio: adc: ad_sigma_delta: do not use internal iio_dev lock
 Date:   Wed, 28 Dec 2022 15:43:46 +0100
-Message-Id: <20221228144359.718716577@linuxfoundation.org>
+Message-Id: <20221228144317.288200591@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,57 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Petlan <mpetlan@redhat.com>
+From: Nuno Sá <nuno.sa@analog.com>
 
-[ Upstream commit b50d691e50e600fab82b423be871860537d75dc9 ]
+commit 20228a1d5a55e7db0c6720840f2c7d2b48c55f69 upstream.
 
-Parametrized events are not only a powerpc domain. They occur on other
-platforms too (e.g. aarch64). They should be ignored in this testcase,
-since proper setup of the parameters is out of scope of this script.
+Drop 'mlock' usage by making use of iio_device_claim_direct_mode().
+This change actually makes sure we cannot do a single conversion while
+buffering is enable. Note there was a potential race in the previous
+code since we were only acquiring the lock after checking if the bus is
+enabled.
 
-Let's not filter them out by PMU name, but rather based on the fact that
-they expect a parameter.
-
-Fixes: 451ed8058c69a3fe ("perf test: Fix "all PMU test" to skip hv_24x7/hv_gpci tests on powerpc")
-Signed-off-by: Michael Petlan <mpetlan@redhat.com>
-Cc: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Cc: Disha Goel <disgoel@linux.vnet.ibm.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Nageswara R Sastry <rnsastry@linux.ibm.com>
-Link: https://lore.kernel.org/r/20221219163008.9691-1-mpetlan@redhat.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: af3008485ea0 ("iio:adc: Add common code for ADI Sigma Delta devices")
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Cc: <Stable@vger.kernel.org> #No rush as race is very old.
+Link: https://lore.kernel.org/r/20220920112821.975359-2-nuno.sa@analog.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/tests/shell/stat_all_pmu.sh | 13 ++-----------
- 1 file changed, 2 insertions(+), 11 deletions(-)
+ drivers/iio/adc/ad_sigma_delta.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/tools/perf/tests/shell/stat_all_pmu.sh b/tools/perf/tests/shell/stat_all_pmu.sh
-index 9c9ef33e0b3c..c77955419173 100755
---- a/tools/perf/tests/shell/stat_all_pmu.sh
-+++ b/tools/perf/tests/shell/stat_all_pmu.sh
-@@ -4,17 +4,8 @@
+--- a/drivers/iio/adc/ad_sigma_delta.c
++++ b/drivers/iio/adc/ad_sigma_delta.c
+@@ -280,10 +280,10 @@ int ad_sigma_delta_single_conversion(str
+ 	unsigned int data_reg;
+ 	int ret = 0;
  
- set -e
+-	if (iio_buffer_enabled(indio_dev))
+-		return -EBUSY;
++	ret = iio_device_claim_direct_mode(indio_dev);
++	if (ret)
++		return ret;
  
--for p in $(perf list --raw-dump pmu); do
--  # In powerpc, skip the events for hv_24x7 and hv_gpci.
--  # These events needs input values to be filled in for
--  # core, chip, partition id based on system.
--  # Example: hv_24x7/CPM_ADJUNCT_INST,domain=?,core=?/
--  # hv_gpci/event,partition_id=?/
--  # Hence skip these events for ppc.
--  if echo "$p" |grep -Eq 'hv_24x7|hv_gpci' ; then
--    echo "Skipping: Event '$p' in powerpc"
--    continue
--  fi
-+# Test all PMU events; however exclude parametrized ones (name contains '?')
-+for p in $(perf list --raw-dump pmu | sed 's/[[:graph:]]\+?[[:graph:]]\+[[:space:]]//g'); do
-   echo "Testing $p"
-   result=$(perf stat -e "$p" true 2>&1)
-   if ! echo "$result" | grep -q "$p" && ! echo "$result" | grep -q "<not supported>" ; then
--- 
-2.35.1
-
+-	mutex_lock(&indio_dev->mlock);
+ 	ad_sigma_delta_set_channel(sigma_delta, chan->address);
+ 
+ 	spi_bus_lock(sigma_delta->spi->master);
+@@ -322,7 +322,7 @@ out:
+ 	ad_sigma_delta_set_mode(sigma_delta, AD_SD_MODE_IDLE);
+ 	sigma_delta->bus_locked = false;
+ 	spi_bus_unlock(sigma_delta->spi->master);
+-	mutex_unlock(&indio_dev->mlock);
++	iio_device_release_direct_mode(indio_dev);
+ 
+ 	if (ret)
+ 		return ret;
 
 
