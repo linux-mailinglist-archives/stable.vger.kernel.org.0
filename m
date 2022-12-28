@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FBEA657F22
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:02:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F16AB6583D2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:52:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234310AbiL1QB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:01:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47836 "EHLO
+        id S235159AbiL1Qwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:52:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234283AbiL1QBb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:01:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E467A192BC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:01:29 -0800 (PST)
+        with ESMTP id S235155AbiL1QwV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:52:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 277721DA71
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:46:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8D0A0B817AE
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:01:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC3AFC433D2;
-        Wed, 28 Dec 2022 16:01:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B21176157A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:46:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B795AC433D2;
+        Wed, 28 Dec 2022 16:46:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243287;
-        bh=EMGTs2CiTzTav5yWj5PLgl4miUln49624MWwLzHyE5M=;
+        s=korg; t=1672245996;
+        bh=xadfa5UUa/VvR7/Q+w8xXinb6FW7rp5NXKRfhIxiI8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2QudOu69hmYAwwZGzzVkWS2VuQfWk60HHMgxtZozIbMeDyc7oxpbv02tlxGTddJoy
-         cIxxvvGKEPcfrCTbXUjvKGxFLTa9mlFTR/WePhV976b/cGmnP5v85Km6wv4GZIPoWG
-         FGlx/1M252nZ36JVTI4yZumhy3gEdfduAAMo13Zw=
+        b=hzsm3yNEANYapDh8ZagpyfBRf5oMQ08pLhQpn8J1WTMeFoN79fmoP9bfEKcaLBg/9
+         XWjnreMjND0OIhAMjv9zI/V4b/NLuOBdCT113V0NuAEsJYO7dWRVqjUn6ZfTkthxe1
+         SdZvCENSNKhOFOpeHaqW+S3KTtctqYovgq0BxmkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Patrice Chotard <patrice.chotard@foss.st.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Mike Marshall <hubcap@omnibond.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 673/731] clk: st: Fix memory leak in st_of_quadfs_setup()
-Date:   Wed, 28 Dec 2022 15:43:00 +0100
-Message-Id: <20221228144315.989339735@linuxfoundation.org>
+Subject: [PATCH 6.0 0993/1073] orangefs: Fix kmemleak in orangefs_{kernel,client}_debug_init()
+Date:   Wed, 28 Dec 2022 15:43:01 +0100
+Message-Id: <20221228144355.087715934@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +53,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit cfd3ffb36f0d566846163118651d868e607300ba ]
+[ Upstream commit 31720a2b109b3080eb77e97b8f6f50a27b4ae599 ]
 
-If st_clk_register_quadfs_pll() fails, @lock should be freed before goto
-@err_exit, otherwise will cause meory leak issue, fix it.
+When insert and remove the orangefs module, there are memory leaked
+as below:
 
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Link: https://lore.kernel.org/r/20221122133614.184910-1-xiujianfeng@huawei.com
-Reviewed-by: Patrice Chotard <patrice.chotard@foss.st.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+unreferenced object 0xffff88816b0cc000 (size 2048):
+  comm "insmod", pid 783, jiffies 4294813439 (age 65.512s)
+  hex dump (first 32 bytes):
+    6e 6f 6e 65 0a 00 00 00 00 00 00 00 00 00 00 00  none............
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<0000000031ab7788>] kmalloc_trace+0x27/0xa0
+    [<000000005b405fee>] orangefs_debugfs_init.cold+0xaf/0x17f
+    [<00000000e5a0085b>] 0xffffffffa02780f9
+    [<000000004232d9f7>] do_one_initcall+0x87/0x2a0
+    [<0000000054f22384>] do_init_module+0xdf/0x320
+    [<000000003263bdea>] load_module+0x2f98/0x3330
+    [<0000000052cd4153>] __do_sys_finit_module+0x113/0x1b0
+    [<00000000250ae02b>] do_syscall_64+0x35/0x80
+    [<00000000f11c03c7>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+Use the golbal variable as the buffer rather than dynamic allocate to
+slove the problem.
+
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Mike Marshall <hubcap@omnibond.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/st/clkgen-fsyn.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/orangefs/orangefs-debugfs.c | 26 +++-----------------------
+ 1 file changed, 3 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/clk/st/clkgen-fsyn.c b/drivers/clk/st/clkgen-fsyn.c
-index 164285d6be97..ba18e58f0aae 100644
---- a/drivers/clk/st/clkgen-fsyn.c
-+++ b/drivers/clk/st/clkgen-fsyn.c
-@@ -1008,9 +1008,10 @@ static void __init st_of_quadfs_setup(struct device_node *np,
+diff --git a/fs/orangefs/orangefs-debugfs.c b/fs/orangefs/orangefs-debugfs.c
+index a848b6ef9599..1b508f543384 100644
+--- a/fs/orangefs/orangefs-debugfs.c
++++ b/fs/orangefs/orangefs-debugfs.c
+@@ -194,15 +194,10 @@ void orangefs_debugfs_init(int debug_mask)
+  */
+ static void orangefs_kernel_debug_init(void)
+ {
+-	int rc = -ENOMEM;
+-	char *k_buffer = NULL;
++	static char k_buffer[ORANGEFS_MAX_DEBUG_STRING_LEN] = { };
  
- 	clk = st_clk_register_quadfs_pll(pll_name, clk_parent_name, datac->data,
- 			reg, lock);
--	if (IS_ERR(clk))
-+	if (IS_ERR(clk)) {
-+		kfree(lock);
- 		goto err_exit;
--	else
-+	} else
- 		pr_debug("%s: parent %s rate %u\n",
- 			__clk_get_name(clk),
- 			__clk_get_name(clk_get_parent(clk)),
+ 	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: start\n", __func__);
+ 
+-	k_buffer = kzalloc(ORANGEFS_MAX_DEBUG_STRING_LEN, GFP_KERNEL);
+-	if (!k_buffer)
+-		goto out;
+-
+ 	if (strlen(kernel_debug_string) + 1 < ORANGEFS_MAX_DEBUG_STRING_LEN) {
+ 		strcpy(k_buffer, kernel_debug_string);
+ 		strcat(k_buffer, "\n");
+@@ -213,9 +208,6 @@ static void orangefs_kernel_debug_init(void)
+ 
+ 	debugfs_create_file(ORANGEFS_KMOD_DEBUG_FILE, 0444, debug_dir, k_buffer,
+ 			    &kernel_debug_fops);
+-
+-out:
+-	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: rc:%d:\n", __func__, rc);
+ }
+ 
+ 
+@@ -299,18 +291,13 @@ static int help_show(struct seq_file *m, void *v)
+ /*
+  * initialize the client-debug file.
+  */
+-static int orangefs_client_debug_init(void)
++static void orangefs_client_debug_init(void)
+ {
+ 
+-	int rc = -ENOMEM;
+-	char *c_buffer = NULL;
++	static char c_buffer[ORANGEFS_MAX_DEBUG_STRING_LEN] = { };
+ 
+ 	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: start\n", __func__);
+ 
+-	c_buffer = kzalloc(ORANGEFS_MAX_DEBUG_STRING_LEN, GFP_KERNEL);
+-	if (!c_buffer)
+-		goto out;
+-
+ 	if (strlen(client_debug_string) + 1 < ORANGEFS_MAX_DEBUG_STRING_LEN) {
+ 		strcpy(c_buffer, client_debug_string);
+ 		strcat(c_buffer, "\n");
+@@ -324,13 +311,6 @@ static int orangefs_client_debug_init(void)
+ 						  debug_dir,
+ 						  c_buffer,
+ 						  &kernel_debug_fops);
+-
+-	rc = 0;
+-
+-out:
+-
+-	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: rc:%d:\n", __func__, rc);
+-	return rc;
+ }
+ 
+ /* open ORANGEFS_KMOD_DEBUG_FILE or ORANGEFS_CLIENT_DEBUG_FILE.*/
 -- 
 2.35.1
 
