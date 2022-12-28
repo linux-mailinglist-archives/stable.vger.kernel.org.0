@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDFDE657B2F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:19:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED8D0658108
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233273AbiL1PTH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:19:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37592 "EHLO
+        id S231327AbiL1QYg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:24:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233279AbiL1PSz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:18:55 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5DFD13FA6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:18:45 -0800 (PST)
+        with ESMTP id S234730AbiL1QXa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:23:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 238DC1C410
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:20:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 66C95CE076E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:18:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C019C433EF;
-        Wed, 28 Dec 2022 15:18:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B002161568
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:20:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C41C2C433D2;
+        Wed, 28 Dec 2022 16:20:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240721;
-        bh=kSVwgmvVNGbFTnjgzz26lvZguO1HjL3EHlnn4O0L3Ho=;
+        s=korg; t=1672244433;
+        bh=+bIk7tjtpkCEUlTW6HpqU00Mn2Wm+piJqHLtGfLD+A8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RdDMXV166KjAK0fZU6oQGjz9eeDsWhyVIRa+UDyeG/i5tRdp3++5y9CilhZyC5FzP
-         tjI3BgdKWbLO9TIttSw1v0708mBBkY8i/vNTe75nJ+svKpmNw6OqRmwNWZMHnx6bvu
-         4380EYzXgEZ/tOEdZuleWpfbfWyl+JJ17OP+7DoA=
+        b=kLEarbVaqqLC6yj0camWivh8BpOyXmdQqHjNKMChbjJqKeEZ+IMREwwaKK58ANsuA
+         K5oYLHOZ4am2Vl0C2SjPL6LmXLXBYDm8IQ9q04kQjCZA4+abAZgZ62vsBSHx2G7itH
+         z7qGeSCrJxM1YghtWtXqndNbwSUeo1OI1/qCq8hw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        Douglas Gilbert <dgilbert@interlog.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Johannes Thumshirn <jth@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 390/731] scsi: scsi_debug: Fix a warning in resp_write_scat()
+Subject: [PATCH 6.0 0709/1073] drivers: mcb: fix resource leak in mcb_probe()
 Date:   Wed, 28 Dec 2022 15:38:17 +0100
-Message-Id: <20221228144307.865428304@linuxfoundation.org>
+Message-Id: <20221228144347.290189372@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 216e179724c1d9f57a8ababf8bd7aaabef67f01b ]
+[ Upstream commit d7237462561fcd224fa687c56ccb68629f50fc0d ]
 
-As 'lbdof_blen' is coming from user, if the size in kzalloc() is >=
-MAX_ORDER then we hit a warning.
+When probe hook function failed in mcb_probe(), it doesn't put the device.
+Compiled test only.
 
-Call trace:
-
-sg_ioctl
- sg_ioctl_common
-   scsi_ioctl
-    sg_scsi_ioctl
-     blk_execute_rq
-      blk_mq_sched_insert_request
-       blk_mq_run_hw_queue
-        __blk_mq_delay_run_hw_queue
-         __blk_mq_run_hw_queue
-          blk_mq_sched_dispatch_requests
-           __blk_mq_sched_dispatch_requests
-            blk_mq_dispatch_rq_list
-             scsi_queue_rq
-              scsi_dispatch_cmd
-               scsi_debug_queuecommand
-                schedule_resp
-                 resp_write_scat
-
-If you try to allocate a memory larger than(>=) MAX_ORDER, then kmalloc()
-will definitely fail.  It creates a stack trace and messes up dmesg.  The
-user controls the size here so if they specify a too large size it will
-fail.
-
-Add __GFP_NOWARN in order to avoid too large allocation warning.  This is
-detected by static analysis using smatch.
-
-Fixes: 481b5e5c7949 ("scsi: scsi_debug: add resp_write_scat function")
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Link: https://lore.kernel.org/r/20221111100526.1790533-1-harshit.m.mogalapalli@oracle.com
-Acked-by: Douglas Gilbert <dgilbert@interlog.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 7bc364097a89 ("mcb: Acquire reference to device in probe")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: Johannes Thumshirn <jth@kernel.org>
+Link: https://lore.kernel.org/r/9f87de36bfb85158b506cb78c6fc9db3f6a3bad1.1669624063.git.johannes.thumshirn@wdc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_debug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mcb/mcb-core.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
-index 0b16061d8da8..b44fd9b80934 100644
---- a/drivers/scsi/scsi_debug.c
-+++ b/drivers/scsi/scsi_debug.c
-@@ -3640,7 +3640,7 @@ static int resp_write_scat(struct scsi_cmnd *scp,
- 		mk_sense_buffer(scp, ILLEGAL_REQUEST, INVALID_FIELD_IN_CDB, 0);
- 		return illegal_condition_result;
- 	}
--	lrdp = kzalloc(lbdof_blen, GFP_ATOMIC);
-+	lrdp = kzalloc(lbdof_blen, GFP_ATOMIC | __GFP_NOWARN);
- 	if (lrdp == NULL)
- 		return SCSI_MLQUEUE_HOST_BUSY;
- 	if (sdebug_verbose)
+diff --git a/drivers/mcb/mcb-core.c b/drivers/mcb/mcb-core.c
+index 338fc889b357..b8ad4f16b4ac 100644
+--- a/drivers/mcb/mcb-core.c
++++ b/drivers/mcb/mcb-core.c
+@@ -71,8 +71,10 @@ static int mcb_probe(struct device *dev)
+ 
+ 	get_device(dev);
+ 	ret = mdrv->probe(mdev, found_id);
+-	if (ret)
++	if (ret) {
+ 		module_put(carrier_mod);
++		put_device(dev);
++	}
+ 
+ 	return ret;
+ }
 -- 
 2.35.1
 
