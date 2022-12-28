@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE505657F95
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:07:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 403E9657E8F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:55:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233086AbiL1QHH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:07:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52946 "EHLO
+        id S234161AbiL1PzE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:55:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234418AbiL1QGf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:06:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62E7E10B6D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:06:24 -0800 (PST)
+        with ESMTP id S234158AbiL1PzB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:55:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 489C318B08
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:54:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09444B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:06:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75EFCC433EF;
-        Wed, 28 Dec 2022 16:06:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB48C6155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:54:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C19F8C433D2;
+        Wed, 28 Dec 2022 15:54:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243581;
-        bh=WEx2+3ZEyYZEOEZGBWc3Lmc1JAlv+aE+Tbn4FfhuAnk=;
+        s=korg; t=1672242898;
+        bh=MdlhajfASTJ3FivlaMwMVyPAbLwpoGu9hwUtZuiH/OM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rBe9R4PB2phLQK1JXq5MvIxiQscqkpjva5Atn01bbWzLw/74ilZcZViitUv7Rl/Hb
-         v6/21uem15NW21HX62ZGB6HSJW9PL0YlWBImfD8/kCuRlHnbln/e/IZ1vIcqy47lVv
-         seVdC8YA6FdopHTFoLhJpHglGV+ixa8nONyNrpjY=
+        b=gIPEU1JfW9mBrFCujXz5g9s3hx0HWVONVmNN+HPT4dlsMQFVITQwWH/M+1T+UskRo
+         DF+En3qzaGDxrAEZIgbWcEbNd26I3uZ3JqwQ+9YMeMHFcJ/sKukFRIX7o0yBUF9ZJ5
+         1FWW/uosCa7TEhKW79dK29v1HMd1EGP6MCesF7Dw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liang He <windhl@126.com>,
+        patches@lists.linux.dev, Liu Shixin <liushixin2@huawei.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0516/1146] media: c8sectpfe: Add of_node_put() when breaking out of loop
+Subject: [PATCH 6.0 0467/1073] media: saa7164: fix missing pci_disable_device()
 Date:   Wed, 28 Dec 2022 15:34:15 +0100
-Message-Id: <20221228144344.190326149@linuxfoundation.org>
+Message-Id: <20221228144340.720721470@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Liu Shixin <liushixin2@huawei.com>
 
-[ Upstream commit 63ff05a1ad242a5a0f897921c87b70d601bda59c ]
+[ Upstream commit 57fb35d7542384cac8f198cd1c927540ad38b61a ]
 
-In configure_channels(), we should call of_node_put() when breaking
-out of for_each_child_of_node() which will automatically increase
-and decrease the refcount.
+Add missing pci_disable_device() in the error path in saa7164_initdev().
 
-Fixes: c5f5d0f99794 ("[media] c8sectpfe: STiH407/10 Linux DVB demux support")
-Signed-off-by: Liang He <windhl@126.com>
+Fixes: 443c1228d505 ("V4L/DVB (12923): SAA7164: Add support for the NXP SAA7164 silicon")
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/st/sti/c8sectpfe/c8sectpfe-core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/pci/saa7164/saa7164-core.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/st/sti/c8sectpfe/c8sectpfe-core.c b/drivers/media/platform/st/sti/c8sectpfe/c8sectpfe-core.c
-index cefe6b7bfdc4..1dbb89f0ddb8 100644
---- a/drivers/media/platform/st/sti/c8sectpfe/c8sectpfe-core.c
-+++ b/drivers/media/platform/st/sti/c8sectpfe/c8sectpfe-core.c
-@@ -925,6 +925,7 @@ static int configure_channels(struct c8sectpfei *fei)
- 		if (ret) {
- 			dev_err(fei->dev,
- 				"configure_memdma_and_inputblock failed\n");
-+			of_node_put(child);
- 			goto err_unmap;
- 		}
- 		index++;
+diff --git a/drivers/media/pci/saa7164/saa7164-core.c b/drivers/media/pci/saa7164/saa7164-core.c
+index 7973ae42873a..c10997e2271d 100644
+--- a/drivers/media/pci/saa7164/saa7164-core.c
++++ b/drivers/media/pci/saa7164/saa7164-core.c
+@@ -1259,7 +1259,7 @@ static int saa7164_initdev(struct pci_dev *pci_dev,
+ 
+ 	if (saa7164_dev_setup(dev) < 0) {
+ 		err = -EINVAL;
+-		goto fail_free;
++		goto fail_dev;
+ 	}
+ 
+ 	/* print pci info */
+@@ -1427,6 +1427,8 @@ static int saa7164_initdev(struct pci_dev *pci_dev,
+ 
+ fail_irq:
+ 	saa7164_dev_unregister(dev);
++fail_dev:
++	pci_disable_device(pci_dev);
+ fail_free:
+ 	v4l2_device_unregister(&dev->v4l2_dev);
+ 	kfree(dev);
 -- 
 2.35.1
 
