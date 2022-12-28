@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1F6F657FC9
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:09:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98B11657ECE
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:57:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234375AbiL1QJG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:09:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53384 "EHLO
+        id S230508AbiL1P5r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:57:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234490AbiL1QIT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:08:19 -0500
+        with ESMTP id S234200AbiL1P5q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:57:46 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C9061A046
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:08:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18F5318393
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:57:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AE8D61579
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:08:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28C38C433F0;
-        Wed, 28 Dec 2022 16:08:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AB22C613E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:57:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93DF8C433F1;
+        Wed, 28 Dec 2022 15:57:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243688;
-        bh=VsuPFUIap1KyUr6iFwbtgk4TALLypXbcuFjLuAR3f4Q=;
+        s=korg; t=1672243064;
+        bh=oyl127HXmqtHfp/cgiU0zfcaX050uHC9XbWrQ5TgbzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WCzDRRSU88J1nUoo6F6LBNBp+azrWxKUYOBdPLb1r5WV7RbFVLYSLC+niuwOLU+0Y
-         dTkLVfmDwBM75yEXQNYXJbTun8LfaeTyU7XK1YdL3UTmwsMYdOHXbu9Qx/7kG40ahy
-         4xI0HFSIgaCPnhVma/dPOrsT+gFWTgEHa7r0a0e4=
+        b=VoZB7Tua/sWCjFqhz5YoePUpTQeEt7s204fJ/nG69/filPxbeiFWmbdCwj1JqmAnw
+         RTDRcVk9KPHHycOjWmvDcsAG4QvGaOTpiR9cmr5fPyBhJSbHtmvwoIu7Ym1LJ8aZ14
+         51LPGbI78Fc/RGWzepzhRtGW7bdgB6eXmsR3xYpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ruanjinjie <ruanjinjie@huawei.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0534/1146] of: overlay: fix null pointer dereferencing in find_dup_cset_node_entry() and find_dup_cset_prop()
-Date:   Wed, 28 Dec 2022 15:34:33 +0100
-Message-Id: <20221228144344.680343974@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0486/1073] mmc: wmt-sdmmc: fix return value check of mmc_add_host()
+Date:   Wed, 28 Dec 2022 15:34:34 +0100
+Message-Id: <20221228144341.237470536@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,44 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ruanjinjie <ruanjinjie@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit ee9d7a0e754568180a2f8ebc4aad226278a9116f ]
+[ Upstream commit 29276d56f6ed138db0f38cd31aedc0b725c8c76c ]
 
-When kmalloc() fail to allocate memory in kasprintf(), fn_1 or fn_2 will
-be NULL, and strcmp() will cause null pointer dereference.
+mmc_add_host() may return error, if we ignore its return value, the memory
+that allocated in mmc_alloc_host() will be leaked and it will lead a kernel
+crash because of deleting not added device in the remove path.
 
-Fixes: 2fe0e8769df9 ("of: overlay: check prevents multiple fragments touching same property")
-Signed-off-by: ruanjinjie <ruanjinjie@huawei.com>
-Link: https://lore.kernel.org/r/20221211023337.592266-1-ruanjinjie@huawei.com
-Signed-off-by: Rob Herring <robh@kernel.org>
+So fix this by checking the return value and goto error path which will call
+mmc_free_host(), besides, clk_disable_unprepare() also needs be called.
+
+Fixes: 3a96dff0f828 ("mmc: SD/MMC Host Controller for Wondermedia WM8505/WM8650")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221101063023.1664968-10-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/overlay.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mmc/host/wmt-sdmmc.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/of/overlay.c b/drivers/of/overlay.c
-index bd8ff4df723d..ed4e6c144a68 100644
---- a/drivers/of/overlay.c
-+++ b/drivers/of/overlay.c
-@@ -545,7 +545,7 @@ static int find_dup_cset_node_entry(struct overlay_changeset *ovcs,
+diff --git a/drivers/mmc/host/wmt-sdmmc.c b/drivers/mmc/host/wmt-sdmmc.c
+index 9b5c503e3a3f..9aa3027ca25e 100644
+--- a/drivers/mmc/host/wmt-sdmmc.c
++++ b/drivers/mmc/host/wmt-sdmmc.c
+@@ -856,11 +856,15 @@ static int wmt_mci_probe(struct platform_device *pdev)
+ 	/* configure the controller to a known 'ready' state */
+ 	wmt_reset_hardware(mmc);
  
- 		fn_1 = kasprintf(GFP_KERNEL, "%pOF", ce_1->np);
- 		fn_2 = kasprintf(GFP_KERNEL, "%pOF", ce_2->np);
--		node_path_match = !strcmp(fn_1, fn_2);
-+		node_path_match = !fn_1 || !fn_2 || !strcmp(fn_1, fn_2);
- 		kfree(fn_1);
- 		kfree(fn_2);
- 		if (node_path_match) {
-@@ -580,7 +580,7 @@ static int find_dup_cset_prop(struct overlay_changeset *ovcs,
+-	mmc_add_host(mmc);
++	ret = mmc_add_host(mmc);
++	if (ret)
++		goto fail7;
  
- 		fn_1 = kasprintf(GFP_KERNEL, "%pOF", ce_1->np);
- 		fn_2 = kasprintf(GFP_KERNEL, "%pOF", ce_2->np);
--		node_path_match = !strcmp(fn_1, fn_2);
-+		node_path_match = !fn_1 || !fn_2 || !strcmp(fn_1, fn_2);
- 		kfree(fn_1);
- 		kfree(fn_2);
- 		if (node_path_match &&
+ 	dev_info(&pdev->dev, "WMT SDHC Controller initialized\n");
+ 
+ 	return 0;
++fail7:
++	clk_disable_unprepare(priv->clk_sdmmc);
+ fail6:
+ 	clk_put(priv->clk_sdmmc);
+ fail5_and_a_half:
 -- 
 2.35.1
 
