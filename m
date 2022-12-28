@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E768657DA0
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:45:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35F56657EBD
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:56:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233587AbiL1PpL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:45:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33342 "EHLO
+        id S234183AbiL1P4z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:56:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233993AbiL1PpK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:45:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADB6E17599
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:45:09 -0800 (PST)
+        with ESMTP id S233544AbiL1P4y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:56:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 903DB17E06
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:56:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4EC1EB81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:45:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2CABC433F0;
-        Wed, 28 Dec 2022 15:45:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E102613E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:56:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44602C433D2;
+        Wed, 28 Dec 2022 15:56:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242307;
-        bh=xjvKoBeLivq6v7P9u5FJry/N2JD0b8tlAlmnyi/28TA=;
+        s=korg; t=1672243012;
+        bh=HeK+KAzK0BSEobLSQIr/eliNCLZbKEyHKi+Wbe7wzxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mXWdhj3AmDeIZuDRl2w2a+cLA+WUAjcNXGffsPBcjw8g4uEGHrjgCrJsr8A2QtpFc
-         LJ5gC1jpOo2m+IsShKN/Z0zp9HU5Bx+Zef6UM09M5XUjtPgGIEtGFJsK0xwwu2GfB9
-         ztJ0qEns3jj2KigqLSWc1cBXXOXpBkrazXnUTzi8=
+        b=vzfpGcgD68fAmxEziUecmjGUIlqxg3K7ub2ot9RJf9tk/k/BRfEIrl3MuIa3cSM0b
+         QUKALxgaGNp1eMb8psylXhA6jswtSGbRmtz1g9W5J1cRVTQYo0VCRDFM2jFonTBHeF
+         5MqUGL1Jj0phcQqPEhlTd/8hbYlfFc973HDYeUuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Xia Fukun <xiafukun@huawei.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0391/1073] media: sun8i-a83t-mipi-csi2: Require both pads to be connected for streaming
+Subject: [PATCH 6.1 0440/1146] drm/i915/bios: fix a memory leak in generate_lfp_data_ptrs
 Date:   Wed, 28 Dec 2022 15:32:59 +0100
-Message-Id: <20221228144338.639627784@linuxfoundation.org>
+Message-Id: <20221228144342.132258884@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+From: Xia Fukun <xiafukun@huawei.com>
 
-[ Upstream commit 8985fc724ba89d9b00694304b3f9faf69f4073d0 ]
+[ Upstream commit 1382901f75a5a7dc8eac05059fd0c7816def4eae ]
 
-The bridge needs both its pads connected to be able to stream data.
-Enforcing this is useful to produce an error when no sensor is
-connected.
+When (size != 0 || ptrs->lvds_ entries != 3), the program tries to
+free() the ptrs. However, the ptrs is not created by calling kzmalloc(),
+but is obtained by pointer offset operation.
+This may lead to memory leaks or undefined behavior.
 
-Fixes: 576d196c522b ("media: sunxi: Add support for the A83T MIPI CSI-2 controller")
-Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fix this by replacing the arguments of kfree() with ptrs_block.
+
+Fixes: a87d0a847607 ("drm/i915/bios: Generate LFP data table pointers if the VBT lacks them")
+Signed-off-by: Xia Fukun <xiafukun@huawei.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221125063428.69486-1-xiafukun@huawei.com
+(cherry picked from commit 7674cd0b7d28b952151c3df26bbfa7e07eb2b4ec)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../sunxi/sun8i-a83t-mipi-csi2/sun8i_a83t_mipi_csi2.c       | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/display/intel_bios.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/sunxi/sun8i-a83t-mipi-csi2/sun8i_a83t_mipi_csi2.c b/drivers/media/platform/sunxi/sun8i-a83t-mipi-csi2/sun8i_a83t_mipi_csi2.c
-index b032ec13a683..5e1c25db7bc4 100644
---- a/drivers/media/platform/sunxi/sun8i-a83t-mipi-csi2/sun8i_a83t_mipi_csi2.c
-+++ b/drivers/media/platform/sunxi/sun8i-a83t-mipi-csi2/sun8i_a83t_mipi_csi2.c
-@@ -557,8 +557,10 @@ sun8i_a83t_mipi_csi2_bridge_setup(struct sun8i_a83t_mipi_csi2_device *csi2_dev)
+diff --git a/drivers/gpu/drm/i915/display/intel_bios.c b/drivers/gpu/drm/i915/display/intel_bios.c
+index 28bdb936cd1f..edbdb949b6ce 100644
+--- a/drivers/gpu/drm/i915/display/intel_bios.c
++++ b/drivers/gpu/drm/i915/display/intel_bios.c
+@@ -414,7 +414,7 @@ static void *generate_lfp_data_ptrs(struct drm_i915_private *i915,
+ 		ptrs->lvds_entries++;
  
- 	/* Media Pads */
+ 	if (size != 0 || ptrs->lvds_entries != 3) {
+-		kfree(ptrs);
++		kfree(ptrs_block);
+ 		return NULL;
+ 	}
  
--	pads[SUN8I_A83T_MIPI_CSI2_PAD_SINK].flags = MEDIA_PAD_FL_SINK;
--	pads[SUN8I_A83T_MIPI_CSI2_PAD_SOURCE].flags = MEDIA_PAD_FL_SOURCE;
-+	pads[SUN8I_A83T_MIPI_CSI2_PAD_SINK].flags = MEDIA_PAD_FL_SINK |
-+						    MEDIA_PAD_FL_MUST_CONNECT;
-+	pads[SUN8I_A83T_MIPI_CSI2_PAD_SOURCE].flags = MEDIA_PAD_FL_SOURCE |
-+						      MEDIA_PAD_FL_MUST_CONNECT;
- 
- 	ret = media_entity_pads_init(&subdev->entity,
- 				     SUN8I_A83T_MIPI_CSI2_PAD_COUNT, pads);
 -- 
 2.35.1
 
