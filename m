@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47B85657831
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2B29657D5E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:42:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232723AbiL1OsV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:48:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35364 "EHLO
+        id S233489AbiL1Pmm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:42:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232755AbiL1OsB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:48:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 042A311A18
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:48:01 -0800 (PST)
+        with ESMTP id S233954AbiL1PmZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:42:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64A76164A4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:42:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93C1C6153B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:48:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A543DC433EF;
-        Wed, 28 Dec 2022 14:47:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F31A361542
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:42:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15EDCC433D2;
+        Wed, 28 Dec 2022 15:42:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238880;
-        bh=J2w4g/h/SHAQuuGTSvuU4kdSSXd9PpQSs1klVE/yScg=;
+        s=korg; t=1672242143;
+        bh=AedfytPtb3+jABf8c2xUfVWMxpF3O/qKf9e1On09H+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f/Qlr/K6vG0HFQHk+qSrCeb0ACDwVuia+or/tJzyk3PWmPU7iBUBbzxSyqqmyqe30
-         hjfeBbEJzl8UPkmMIIWkCysxLJf8lG11mbHVXhf/GzPYVCHI7113h3qTQYhHj2GKsB
-         tsLFp8L/IkQuSr7RDKSwrphMPHkqwKaOv9u9ERCU=
+        b=hIJ40L4ibyqSk0zuGMNJylNS3F2XnDV8TcEukN2ElPFLPhAVzQ4OD4qF7FknR/DqP
+         qe79jgaYnkZhrnuGa80wS6rqEgrSNOIq6oX1WR3DVS9XZ1QEza6E+N1AkaqBm051Y1
+         5/ZUQyplc+RdMI0RNNRXVUwwH8G3nuOD1jQr7z0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 044/731] arm64: dts: mediatek: pumpkin-common: Fix devicetree warnings
+        patches@lists.linux.dev, Baisong Zhong <zhongbaisong@huawei.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0363/1073] ALSA: pcm: fix undefined behavior in bit shift for SNDRV_PCM_RATE_KNOT
 Date:   Wed, 28 Dec 2022 15:32:31 +0100
-Message-Id: <20221228144257.832094203@linuxfoundation.org>
+Message-Id: <20221228144337.862232877@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +52,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Baisong Zhong <zhongbaisong@huawei.com>
 
-[ Upstream commit 509438336ce75c8b4e6ce8e8d507dc77d0783bdd ]
+[ Upstream commit b5172e62458f8e6ff359e5f096044a488db90ac5 ]
 
-Fix the pinctrl submodes and optee node to remove unneeded unit address,
-fixing all unit_address_vs_reg warnings.
+Shifting signed 32-bit value by 31 bits is undefined, so changing
+significant bit to unsigned. The UBSAN warning calltrace like below:
 
-Fixes: 9983822c8cf9 ("arm64: dts: mediatek: add pumpkin board dts")
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20221013152212.416661-8-angelogioacchino.delregno@collabora.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+UBSAN: shift-out-of-bounds in sound/core/pcm_native.c:2676:21
+left shift of 1 by 31 places cannot be represented in type 'int'
+...
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x8d/0xcf
+ ubsan_epilogue+0xa/0x44
+ __ubsan_handle_shift_out_of_bounds+0x1e7/0x208
+ snd_pcm_open_substream+0x9f0/0xa90
+ snd_pcm_oss_open.part.26+0x313/0x670
+ snd_pcm_oss_open+0x30/0x40
+ soundcore_open+0x18b/0x2e0
+ chrdev_open+0xe2/0x270
+ do_dentry_open+0x2f7/0x620
+ path_openat+0xd66/0xe70
+ do_filp_open+0xe3/0x170
+ do_sys_openat2+0x357/0x4a0
+ do_sys_open+0x87/0xd0
+ do_syscall_64+0x34/0x80
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Baisong Zhong <zhongbaisong@huawei.com>
+Link: https://lore.kernel.org/r/20221121110044.3115686-1-zhongbaisong@huawei.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/sound/pcm.h | 36 ++++++++++++++++++------------------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi b/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
-index fcddec14738d..54514d62398f 100644
---- a/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
-@@ -17,7 +17,7 @@ chosen {
- 	};
+diff --git a/include/sound/pcm.h b/include/sound/pcm.h
+index 8c48a5bce88c..25695f5f795a 100644
+--- a/include/sound/pcm.h
++++ b/include/sound/pcm.h
+@@ -106,24 +106,24 @@ struct snd_pcm_ops {
+ #define SNDRV_PCM_POS_XRUN		((snd_pcm_uframes_t)-1)
  
- 	firmware {
--		optee: optee@4fd00000 {
-+		optee: optee {
- 			compatible = "linaro,optee-tz";
- 			method = "smc";
- 		};
-@@ -210,7 +210,7 @@ pins_cmd_dat {
- 		};
- 	};
+ /* If you change this don't forget to change rates[] table in pcm_native.c */
+-#define SNDRV_PCM_RATE_5512		(1<<0)		/* 5512Hz */
+-#define SNDRV_PCM_RATE_8000		(1<<1)		/* 8000Hz */
+-#define SNDRV_PCM_RATE_11025		(1<<2)		/* 11025Hz */
+-#define SNDRV_PCM_RATE_16000		(1<<3)		/* 16000Hz */
+-#define SNDRV_PCM_RATE_22050		(1<<4)		/* 22050Hz */
+-#define SNDRV_PCM_RATE_32000		(1<<5)		/* 32000Hz */
+-#define SNDRV_PCM_RATE_44100		(1<<6)		/* 44100Hz */
+-#define SNDRV_PCM_RATE_48000		(1<<7)		/* 48000Hz */
+-#define SNDRV_PCM_RATE_64000		(1<<8)		/* 64000Hz */
+-#define SNDRV_PCM_RATE_88200		(1<<9)		/* 88200Hz */
+-#define SNDRV_PCM_RATE_96000		(1<<10)		/* 96000Hz */
+-#define SNDRV_PCM_RATE_176400		(1<<11)		/* 176400Hz */
+-#define SNDRV_PCM_RATE_192000		(1<<12)		/* 192000Hz */
+-#define SNDRV_PCM_RATE_352800		(1<<13)		/* 352800Hz */
+-#define SNDRV_PCM_RATE_384000		(1<<14)		/* 384000Hz */
+-
+-#define SNDRV_PCM_RATE_CONTINUOUS	(1<<30)		/* continuous range */
+-#define SNDRV_PCM_RATE_KNOT		(1<<31)		/* supports more non-continuos rates */
++#define SNDRV_PCM_RATE_5512		(1U<<0)		/* 5512Hz */
++#define SNDRV_PCM_RATE_8000		(1U<<1)		/* 8000Hz */
++#define SNDRV_PCM_RATE_11025		(1U<<2)		/* 11025Hz */
++#define SNDRV_PCM_RATE_16000		(1U<<3)		/* 16000Hz */
++#define SNDRV_PCM_RATE_22050		(1U<<4)		/* 22050Hz */
++#define SNDRV_PCM_RATE_32000		(1U<<5)		/* 32000Hz */
++#define SNDRV_PCM_RATE_44100		(1U<<6)		/* 44100Hz */
++#define SNDRV_PCM_RATE_48000		(1U<<7)		/* 48000Hz */
++#define SNDRV_PCM_RATE_64000		(1U<<8)		/* 64000Hz */
++#define SNDRV_PCM_RATE_88200		(1U<<9)		/* 88200Hz */
++#define SNDRV_PCM_RATE_96000		(1U<<10)	/* 96000Hz */
++#define SNDRV_PCM_RATE_176400		(1U<<11)	/* 176400Hz */
++#define SNDRV_PCM_RATE_192000		(1U<<12)	/* 192000Hz */
++#define SNDRV_PCM_RATE_352800		(1U<<13)	/* 352800Hz */
++#define SNDRV_PCM_RATE_384000		(1U<<14)	/* 384000Hz */
++
++#define SNDRV_PCM_RATE_CONTINUOUS	(1U<<30)	/* continuous range */
++#define SNDRV_PCM_RATE_KNOT		(1U<<31)	/* supports more non-continuos rates */
  
--	i2c0_pins_a: i2c0@0 {
-+	i2c0_pins_a: i2c0 {
- 		pins1 {
- 			pinmux = <MT8516_PIN_58_SDA0__FUNC_SDA0_0>,
- 				 <MT8516_PIN_59_SCL0__FUNC_SCL0_0>;
-@@ -218,7 +218,7 @@ pins1 {
- 		};
- 	};
- 
--	i2c2_pins_a: i2c2@0 {
-+	i2c2_pins_a: i2c2 {
- 		pins1 {
- 			pinmux = <MT8516_PIN_60_SDA2__FUNC_SDA2_0>,
- 				 <MT8516_PIN_61_SCL2__FUNC_SCL2_0>;
+ #define SNDRV_PCM_RATE_8000_44100	(SNDRV_PCM_RATE_8000|SNDRV_PCM_RATE_11025|\
+ 					 SNDRV_PCM_RATE_16000|SNDRV_PCM_RATE_22050|\
 -- 
 2.35.1
 
