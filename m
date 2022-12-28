@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1655657AF9
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:16:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCB8E6581B2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:31:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233033AbiL1PQz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:16:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35912 "EHLO
+        id S234387AbiL1QbF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:31:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233179AbiL1PQs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:16:48 -0500
+        with ESMTP id S234753AbiL1Qag (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:30:36 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1B7C13E9A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:16:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A2601C90A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:26:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B724B81647
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:16:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4A4EC433F0;
-        Wed, 28 Dec 2022 15:16:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5C5FFB816F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:26:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE0FDC433D2;
+        Wed, 28 Dec 2022 16:26:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240604;
-        bh=OZhKOCIUNUNTec7Xc8pqPrRC3coSZcAnDgCe/kuREbg=;
+        s=korg; t=1672244809;
+        bh=FTq7ea7ymdVziKkaGnpntrUwIEMaVj4OfV9nQT74ryE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K8aEyl4UtUkycg3NvwY6X5oiJ5fI268IiyQ9mAvWulk6sVbPaisuH1Z4D1ZeLfWDt
-         T88Dbvp4HhjQLvTXFy18QHygOxJj7HUZBHjqKOurMItKyBd6uOr6ojvZ2NB0PSNiQL
-         1VF+EHViBA7Ek0AxXoh0OpdSyHxBaxxrK00fp0RM=
+        b=J2i5ZxlBDJypyl2EIDPF4LO/YGxTFk2B3+JEgOIJ1QWbGmAiHuu2am3FejexHin6S
+         XSpZtfBHcRJCmoQNlf7l4wdA1d+UZXjv0pq92AtkfB3dn0ERafQWM8qxduqEoNyK20
+         mUuL4lp5RJau5CD8yGdFyVTY4Jn3ybYdfO1Gdhrs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, John Keeping <john@metanate.com>,
-        Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        patches@lists.linux.dev,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 372/731] crypto: rockchip - add fallback for cipher
+Subject: [PATCH 6.1 0740/1146] gpiolib: cdev: fix NULL-pointer dereferences
 Date:   Wed, 28 Dec 2022 15:37:59 +0100
-Message-Id: <20221228144307.344378614@linuxfoundation.org>
+Message-Id: <20221228144350.248701029@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,257 +55,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
 
-[ Upstream commit 68ef8af09a1a912a5ed2cfaa4cca7606f52cef90 ]
+[ Upstream commit 533aae7c94dbc2b14301cfd68ae7e0e90f0c8438 ]
 
-The hardware does not handle 0 size length request, let's add a
-fallback.
-Furthermore fallback will be used for all unaligned case the hardware
-cannot handle.
+There are several places where we can crash the kernel by requesting
+lines, unbinding the GPIO device, then calling any of the system calls
+relevant to the GPIO character device's annonymous file descriptors:
+ioctl(), read(), poll().
 
-Fixes: ce0183cb6464b ("crypto: rockchip - switch to skcipher API")
-Reviewed-by: John Keeping <john@metanate.com>
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+While I observed it with the GPIO simulator, it will also happen for any
+of the GPIO devices that can be hot-unplugged - for instance any HID GPIO
+expander (e.g. CP2112).
+
+This affects both v1 and v2 uAPI.
+
+This fixes it partially by checking if gdev->chip is not NULL but it
+doesn't entirely remedy the situation as we still have a race condition
+in which another thread can remove the device after the check.
+
+Fixes: d7c51b47ac11 ("gpio: userspace ABI for reading/writing GPIO lines")
+Fixes: 3c0d9c635ae2 ("gpiolib: cdev: support GPIO_V2_GET_LINE_IOCTL and GPIO_V2_LINE_GET_VALUES_IOCTL")
+Fixes: aad955842d1c ("gpiolib: cdev: support GPIO_V2_GET_LINEINFO_IOCTL and GPIO_V2_GET_LINEINFO_WATCH_IOCTL")
+Fixes: a54756cb24ea ("gpiolib: cdev: support GPIO_V2_LINE_SET_CONFIG_IOCTL")
+Fixes: 7b8e00d98168 ("gpiolib: cdev: support GPIO_V2_LINE_SET_VALUES_IOCTL")
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/Kconfig                        |  4 +
- drivers/crypto/rockchip/rk3288_crypto.h       |  2 +
- .../crypto/rockchip/rk3288_crypto_skcipher.c  | 97 ++++++++++++++++---
- 3 files changed, 90 insertions(+), 13 deletions(-)
+ drivers/gpio/gpiolib-cdev.c | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
-diff --git a/drivers/crypto/Kconfig b/drivers/crypto/Kconfig
-index 51690e73153a..9432375988fe 100644
---- a/drivers/crypto/Kconfig
-+++ b/drivers/crypto/Kconfig
-@@ -772,6 +772,10 @@ config CRYPTO_DEV_IMGTEC_HASH
- config CRYPTO_DEV_ROCKCHIP
- 	tristate "Rockchip's Cryptographic Engine driver"
- 	depends on OF && ARCH_ROCKCHIP
-+	depends on PM
-+	select CRYPTO_ECB
-+	select CRYPTO_CBC
-+	select CRYPTO_DES
- 	select CRYPTO_AES
- 	select CRYPTO_LIB_DES
- 	select CRYPTO_MD5
-diff --git a/drivers/crypto/rockchip/rk3288_crypto.h b/drivers/crypto/rockchip/rk3288_crypto.h
-index 3e60e3dca1b5..dfff0e2a83e4 100644
---- a/drivers/crypto/rockchip/rk3288_crypto.h
-+++ b/drivers/crypto/rockchip/rk3288_crypto.h
-@@ -246,10 +246,12 @@ struct rk_cipher_ctx {
- 	struct rk_crypto_info		*dev;
- 	unsigned int			keylen;
- 	u8				iv[AES_BLOCK_SIZE];
-+	struct crypto_skcipher *fallback_tfm;
- };
+diff --git a/drivers/gpio/gpiolib-cdev.c b/drivers/gpio/gpiolib-cdev.c
+index 0cb6b468f364..6fa5c2169985 100644
+--- a/drivers/gpio/gpiolib-cdev.c
++++ b/drivers/gpio/gpiolib-cdev.c
+@@ -201,6 +201,9 @@ static long linehandle_ioctl(struct file *file, unsigned int cmd,
+ 	unsigned int i;
+ 	int ret;
  
- struct rk_cipher_rctx {
- 	u32				mode;
-+	struct skcipher_request fallback_req;   // keep at the end
- };
++	if (!lh->gdev->chip)
++		return -ENODEV;
++
+ 	switch (cmd) {
+ 	case GPIOHANDLE_GET_LINE_VALUES_IOCTL:
+ 		/* NOTE: It's okay to read values of output lines */
+@@ -1384,6 +1387,9 @@ static long linereq_ioctl(struct file *file, unsigned int cmd,
+ 	struct linereq *lr = file->private_data;
+ 	void __user *ip = (void __user *)arg;
  
- enum alg_type {
-diff --git a/drivers/crypto/rockchip/rk3288_crypto_skcipher.c b/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
-index bbd0bf52bf07..eac5bba66e25 100644
---- a/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
-+++ b/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
-@@ -13,6 +13,63 @@
++	if (!lr->gdev->chip)
++		return -ENODEV;
++
+ 	switch (cmd) {
+ 	case GPIO_V2_LINE_GET_VALUES_IOCTL:
+ 		return linereq_get_values(lr, ip);
+@@ -1410,6 +1416,9 @@ static __poll_t linereq_poll(struct file *file,
+ 	struct linereq *lr = file->private_data;
+ 	__poll_t events = 0;
  
- #define RK_CRYPTO_DEC			BIT(0)
++	if (!lr->gdev->chip)
++		return EPOLLHUP | EPOLLERR;
++
+ 	poll_wait(file, &lr->wait, wait);
  
-+static int rk_cipher_need_fallback(struct skcipher_request *req)
-+{
-+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
-+	unsigned int bs = crypto_skcipher_blocksize(tfm);
-+	struct scatterlist *sgs, *sgd;
-+	unsigned int stodo, dtodo, len;
-+
-+	if (!req->cryptlen)
-+		return true;
-+
-+	len = req->cryptlen;
-+	sgs = req->src;
-+	sgd = req->dst;
-+	while (sgs && sgd) {
-+		if (!IS_ALIGNED(sgs->offset, sizeof(u32))) {
-+			return true;
-+		}
-+		if (!IS_ALIGNED(sgd->offset, sizeof(u32))) {
-+			return true;
-+		}
-+		stodo = min(len, sgs->length);
-+		if (stodo % bs) {
-+			return true;
-+		}
-+		dtodo = min(len, sgd->length);
-+		if (dtodo % bs) {
-+			return true;
-+		}
-+		if (stodo != dtodo) {
-+			return true;
-+		}
-+		len -= stodo;
-+		sgs = sg_next(sgs);
-+		sgd = sg_next(sgd);
-+	}
-+	return false;
-+}
-+
-+static int rk_cipher_fallback(struct skcipher_request *areq)
-+{
-+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(areq);
-+	struct rk_cipher_ctx *op = crypto_skcipher_ctx(tfm);
-+	struct rk_cipher_rctx *rctx = skcipher_request_ctx(areq);
-+	int err;
-+
-+	skcipher_request_set_tfm(&rctx->fallback_req, op->fallback_tfm);
-+	skcipher_request_set_callback(&rctx->fallback_req, areq->base.flags,
-+				      areq->base.complete, areq->base.data);
-+	skcipher_request_set_crypt(&rctx->fallback_req, areq->src, areq->dst,
-+				   areq->cryptlen, areq->iv);
-+	if (rctx->mode & RK_CRYPTO_DEC)
-+		err = crypto_skcipher_decrypt(&rctx->fallback_req);
-+	else
-+		err = crypto_skcipher_encrypt(&rctx->fallback_req);
-+	return err;
-+}
-+
- static void rk_crypto_complete(struct crypto_async_request *base, int err)
- {
- 	if (base->complete)
-@@ -22,10 +79,10 @@ static void rk_crypto_complete(struct crypto_async_request *base, int err)
- static int rk_handle_req(struct rk_crypto_info *dev,
- 			 struct skcipher_request *req)
- {
--	if (!IS_ALIGNED(req->cryptlen, dev->align_size))
--		return -EINVAL;
--	else
--		return dev->enqueue(dev, &req->base);
-+	if (rk_cipher_need_fallback(req))
-+		return rk_cipher_fallback(req);
-+
-+	return dev->enqueue(dev, &req->base);
- }
+ 	if (!kfifo_is_empty_spinlocked_noirqsave(&lr->events,
+@@ -1429,6 +1438,9 @@ static ssize_t linereq_read(struct file *file,
+ 	ssize_t bytes_read = 0;
+ 	int ret;
  
- static int rk_aes_setkey(struct crypto_skcipher *cipher,
-@@ -39,7 +96,8 @@ static int rk_aes_setkey(struct crypto_skcipher *cipher,
++	if (!lr->gdev->chip)
++		return -ENODEV;
++
+ 	if (count < sizeof(le))
  		return -EINVAL;
- 	ctx->keylen = keylen;
- 	memcpy_toio(ctx->dev->reg + RK_CRYPTO_AES_KEY_0, key, keylen);
--	return 0;
+ 
+@@ -1716,6 +1728,9 @@ static __poll_t lineevent_poll(struct file *file,
+ 	struct lineevent_state *le = file->private_data;
+ 	__poll_t events = 0;
+ 
++	if (!le->gdev->chip)
++		return EPOLLHUP | EPOLLERR;
 +
-+	return crypto_skcipher_setkey(ctx->fallback_tfm, key, keylen);
- }
+ 	poll_wait(file, &le->wait, wait);
  
- static int rk_des_setkey(struct crypto_skcipher *cipher,
-@@ -54,7 +112,8 @@ static int rk_des_setkey(struct crypto_skcipher *cipher,
+ 	if (!kfifo_is_empty_spinlocked_noirqsave(&le->events, &le->wait.lock))
+@@ -1740,6 +1755,9 @@ static ssize_t lineevent_read(struct file *file,
+ 	ssize_t ge_size;
+ 	int ret;
  
- 	ctx->keylen = keylen;
- 	memcpy_toio(ctx->dev->reg + RK_CRYPTO_TDES_KEY1_0, key, keylen);
--	return 0;
++	if (!le->gdev->chip)
++		return -ENODEV;
 +
-+	return crypto_skcipher_setkey(ctx->fallback_tfm, key, keylen);
- }
+ 	/*
+ 	 * When compatible system call is being used the struct gpioevent_data,
+ 	 * in case of at least ia32, has different size due to the alignment
+@@ -1821,6 +1839,9 @@ static long lineevent_ioctl(struct file *file, unsigned int cmd,
+ 	void __user *ip = (void __user *)arg;
+ 	struct gpiohandle_data ghd;
  
- static int rk_tdes_setkey(struct crypto_skcipher *cipher,
-@@ -69,7 +128,7 @@ static int rk_tdes_setkey(struct crypto_skcipher *cipher,
- 
- 	ctx->keylen = keylen;
- 	memcpy_toio(ctx->dev->reg + RK_CRYPTO_TDES_KEY1_0, key, keylen);
--	return 0;
-+	return crypto_skcipher_setkey(ctx->fallback_tfm, key, keylen);
- }
- 
- static int rk_aes_ecb_encrypt(struct skcipher_request *req)
-@@ -394,6 +453,7 @@ static int rk_ablk_init_tfm(struct crypto_skcipher *tfm)
- {
- 	struct rk_cipher_ctx *ctx = crypto_skcipher_ctx(tfm);
- 	struct skcipher_alg *alg = crypto_skcipher_alg(tfm);
-+	const char *name = crypto_tfm_alg_name(&tfm->base);
- 	struct rk_crypto_tmp *algt;
- 
- 	algt = container_of(alg, struct rk_crypto_tmp, alg.skcipher);
-@@ -407,6 +467,16 @@ static int rk_ablk_init_tfm(struct crypto_skcipher *tfm)
- 	if (!ctx->dev->addr_vir)
- 		return -ENOMEM;
- 
-+	ctx->fallback_tfm = crypto_alloc_skcipher(name, 0, CRYPTO_ALG_NEED_FALLBACK);
-+	if (IS_ERR(ctx->fallback_tfm)) {
-+		dev_err(ctx->dev->dev, "ERROR: Cannot allocate fallback for %s %ld\n",
-+			name, PTR_ERR(ctx->fallback_tfm));
-+		return PTR_ERR(ctx->fallback_tfm);
-+	}
++	if (!le->gdev->chip)
++		return -ENODEV;
 +
-+	tfm->reqsize = sizeof(struct rk_cipher_rctx) +
-+		crypto_skcipher_reqsize(ctx->fallback_tfm);
+ 	/*
+ 	 * We can get the value for an event line but not set it,
+ 	 * because it is input by definition.
+@@ -2407,6 +2428,9 @@ static __poll_t lineinfo_watch_poll(struct file *file,
+ 	struct gpio_chardev_data *cdev = file->private_data;
+ 	__poll_t events = 0;
+ 
++	if (!cdev->gdev->chip)
++		return EPOLLHUP | EPOLLERR;
 +
- 	return 0;
- }
+ 	poll_wait(file, &cdev->wait, pollt);
  
-@@ -415,6 +485,7 @@ static void rk_ablk_exit_tfm(struct crypto_skcipher *tfm)
- 	struct rk_cipher_ctx *ctx = crypto_skcipher_ctx(tfm);
+ 	if (!kfifo_is_empty_spinlocked_noirqsave(&cdev->events,
+@@ -2425,6 +2449,9 @@ static ssize_t lineinfo_watch_read(struct file *file, char __user *buf,
+ 	int ret;
+ 	size_t event_size;
  
- 	free_page((unsigned long)ctx->dev->addr_vir);
-+	crypto_free_skcipher(ctx->fallback_tfm);
- }
- 
- struct rk_crypto_tmp rk_ecb_aes_alg = {
-@@ -423,7 +494,7 @@ struct rk_crypto_tmp rk_ecb_aes_alg = {
- 		.base.cra_name		= "ecb(aes)",
- 		.base.cra_driver_name	= "ecb-aes-rk",
- 		.base.cra_priority	= 300,
--		.base.cra_flags		= CRYPTO_ALG_ASYNC,
-+		.base.cra_flags		= CRYPTO_ALG_ASYNC | CRYPTO_ALG_NEED_FALLBACK,
- 		.base.cra_blocksize	= AES_BLOCK_SIZE,
- 		.base.cra_ctxsize	= sizeof(struct rk_cipher_ctx),
- 		.base.cra_alignmask	= 0x0f,
-@@ -445,7 +516,7 @@ struct rk_crypto_tmp rk_cbc_aes_alg = {
- 		.base.cra_name		= "cbc(aes)",
- 		.base.cra_driver_name	= "cbc-aes-rk",
- 		.base.cra_priority	= 300,
--		.base.cra_flags		= CRYPTO_ALG_ASYNC,
-+		.base.cra_flags		= CRYPTO_ALG_ASYNC | CRYPTO_ALG_NEED_FALLBACK,
- 		.base.cra_blocksize	= AES_BLOCK_SIZE,
- 		.base.cra_ctxsize	= sizeof(struct rk_cipher_ctx),
- 		.base.cra_alignmask	= 0x0f,
-@@ -468,7 +539,7 @@ struct rk_crypto_tmp rk_ecb_des_alg = {
- 		.base.cra_name		= "ecb(des)",
- 		.base.cra_driver_name	= "ecb-des-rk",
- 		.base.cra_priority	= 300,
--		.base.cra_flags		= CRYPTO_ALG_ASYNC,
-+		.base.cra_flags		= CRYPTO_ALG_ASYNC | CRYPTO_ALG_NEED_FALLBACK,
- 		.base.cra_blocksize	= DES_BLOCK_SIZE,
- 		.base.cra_ctxsize	= sizeof(struct rk_cipher_ctx),
- 		.base.cra_alignmask	= 0x07,
-@@ -490,7 +561,7 @@ struct rk_crypto_tmp rk_cbc_des_alg = {
- 		.base.cra_name		= "cbc(des)",
- 		.base.cra_driver_name	= "cbc-des-rk",
- 		.base.cra_priority	= 300,
--		.base.cra_flags		= CRYPTO_ALG_ASYNC,
-+		.base.cra_flags		= CRYPTO_ALG_ASYNC | CRYPTO_ALG_NEED_FALLBACK,
- 		.base.cra_blocksize	= DES_BLOCK_SIZE,
- 		.base.cra_ctxsize	= sizeof(struct rk_cipher_ctx),
- 		.base.cra_alignmask	= 0x07,
-@@ -513,7 +584,7 @@ struct rk_crypto_tmp rk_ecb_des3_ede_alg = {
- 		.base.cra_name		= "ecb(des3_ede)",
- 		.base.cra_driver_name	= "ecb-des3-ede-rk",
- 		.base.cra_priority	= 300,
--		.base.cra_flags		= CRYPTO_ALG_ASYNC,
-+		.base.cra_flags		= CRYPTO_ALG_ASYNC | CRYPTO_ALG_NEED_FALLBACK,
- 		.base.cra_blocksize	= DES_BLOCK_SIZE,
- 		.base.cra_ctxsize	= sizeof(struct rk_cipher_ctx),
- 		.base.cra_alignmask	= 0x07,
-@@ -535,7 +606,7 @@ struct rk_crypto_tmp rk_cbc_des3_ede_alg = {
- 		.base.cra_name		= "cbc(des3_ede)",
- 		.base.cra_driver_name	= "cbc-des3-ede-rk",
- 		.base.cra_priority	= 300,
--		.base.cra_flags		= CRYPTO_ALG_ASYNC,
-+		.base.cra_flags		= CRYPTO_ALG_ASYNC | CRYPTO_ALG_NEED_FALLBACK,
- 		.base.cra_blocksize	= DES_BLOCK_SIZE,
- 		.base.cra_ctxsize	= sizeof(struct rk_cipher_ctx),
- 		.base.cra_alignmask	= 0x07,
++	if (!cdev->gdev->chip)
++		return -ENODEV;
++
+ #ifndef CONFIG_GPIO_CDEV_V1
+ 	event_size = sizeof(struct gpio_v2_line_info_changed);
+ 	if (count < event_size)
 -- 
 2.35.1
 
