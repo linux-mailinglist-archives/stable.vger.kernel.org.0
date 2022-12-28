@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C6326582B3
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:40:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9C366581CF
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:32:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234920AbiL1QkS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:40:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32768 "EHLO
+        id S233315AbiL1QcB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:32:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235072AbiL1Qjj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:39:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 526651E3EF
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:34:54 -0800 (PST)
+        with ESMTP id S233797AbiL1Qbb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:31:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D0871A816
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:27:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7738AB81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:34:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA802C433F0;
-        Wed, 28 Dec 2022 16:34:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA93461578
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:27:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0C44C433D2;
+        Wed, 28 Dec 2022 16:27:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245292;
+        s=korg; t=1672244854;
         bh=srbhyofZhUa3gEkfsQwea/xtykDIeRGFFJLXt2xcoOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YFjFFYmOztbj+YYYrI54Nxjtsr1anyPPLv8kjMjb6bD0P9zrkYY2qtlkVjCmoeXSB
-         FCU3/nGSP6zKW4RZsohBimVIdbKFL9bytDQcqi8BlL9h+8FBejqKOLolDfwt+vW6Gi
-         kSLFIdRykeQjHrr/CjzkAnQfxbx5MG43ypyzsgxk=
+        b=Hypij1+uUZjx3/HftGTMzpRVBzThznbTcIYPV1u6xcD9bTJWaP7nVP3U7ulCle9Oq
+         gzeat1nYHrltbpQwgA71DTkX781VU7lLz7EYLyRRBsCLchJZRr2+9OIQbqUvU7zZ6q
+         ggZLX6yN6N0wdmRqstT9Oj1NksEbQaOlZ5zLs7Zo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,20 +37,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0834/1146] rtc: cmos: Call cmos_wake_setup() from cmos_do_probe()
+Subject: [PATCH 6.0 0785/1073] rtc: cmos: Call cmos_wake_setup() from cmos_do_probe()
 Date:   Wed, 28 Dec 2022 15:39:33 +0100
-Message-Id: <20221228144352.810043144@linuxfoundation.org>
+Message-Id: <20221228144349.332950236@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
