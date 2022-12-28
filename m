@@ -2,46 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFECD657826
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2865A657D25
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:39:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233007AbiL1OsM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:48:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36094 "EHLO
+        id S233935AbiL1Pj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:39:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233080AbiL1Orn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:47:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B29E3A8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:47:27 -0800 (PST)
+        with ESMTP id S233223AbiL1Pj4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:39:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8C1C167DF
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:39:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE1A26153B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:47:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF285C433EF;
-        Wed, 28 Dec 2022 14:47:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70598B81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:39:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAADBC433EF;
+        Wed, 28 Dec 2022 15:39:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238846;
-        bh=+/9+k3HOnbZRS0kmOnJiB7eIkfHebWElTNIkgumUp58=;
+        s=korg; t=1672241993;
+        bh=B4p6ac1vo6S4lnTO/r0DmYyqz4wQjAU534Px32b8+Ko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=poxGp9bLNn/CYKF3orAa7rn+TTNs0Fw5HMLIztly0paN1G+5EElb7E3DQfg1ME5LD
-         RA+KazPBYUuWAgTuqRW4J1OBhSmjSE47mkSjEAarxCTFXunNZtVd5xkQvvO7qP2qJ8
-         aAZED9wryosFQqR8lWUwq8xeOJUNBIdAjaDfMiSM=
+        b=bID2/eZScwAF1zMnX4qf0cDIleNE2irAhiUiHmpJ9e+ja2+HSwgAafNAXnF+qH8e/
+         HcxyYpeW0sPTSLuTVNy6cU1YLPu0T9swQ4nCUCUH4LNp5p84nsr7ZW1eFmiFUJPVr4
+         bJRUsrtlHRo6q67ODToaniSemFBp8BujiMtaY2GA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
-        Alexander Potapenko <glider@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Marco Elver <elver@google.com>, Will Deacon <will@kernel.org>,
+        patches@lists.linux.dev, Bayi Cheng <bayi.cheng@mediatek.com>,
+        Allen-KH Cheng <allen-kh.cheng@mediatek.com>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Dhruva Gole <d-gole@ti.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Pratyush Yadav <pratyush@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 032/731] arm64: mm: kfence: only handle translation faults
-Date:   Wed, 28 Dec 2022 15:32:19 +0100
-Message-Id: <20221228144257.481469320@linuxfoundation.org>
+Subject: [PATCH 6.0 0352/1073] mtd: spi-nor: Fix the number of bytes for the dummy cycles
+Date:   Wed, 28 Dec 2022 15:32:20 +0100
+Message-Id: <20221228144337.566254840@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +58,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
 
-[ Upstream commit 0bb1fbffc631064db567ccaeb9ed6b6df6342b66 ]
+[ Upstream commit fdc20370d93e8c6d2f448a539d08c2c064af7694 ]
 
-Alexander noted that KFENCE only expects to handle faults from invalid page
-table entries (i.e. translation faults), but arm64's fault handling logic will
-call kfence_handle_page_fault() for other types of faults, including alignment
-faults caused by unaligned atomics. This has the unfortunate property of
-causing those other faults to be reported as "KFENCE: use-after-free",
-which is misleading and hinders debugging.
+The number of bytes used by spi_nor_spimem_check_readop() may be
+incorrect for the dummy cycles. Since nor->read_dummy is not initialized
+before spi_nor_spimem_adjust_hwcaps().
 
-Fix this by only forwarding unhandled translation faults to the KFENCE
-code, similar to what x86 does already.
+We use both mode and wait state clock cycles instead of nor->read_dummy.
 
-Alexander has verified that this passes all the tests in the KFENCE test
-suite and avoids bogus reports on misaligned atomics.
-
-Link: https://lore.kernel.org/all/20221102081620.1465154-1-zhongbaisong@huawei.com/
-Fixes: 840b23986344 ("arm64, kfence: enable KFENCE for ARM64")
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Reviewed-by: Alexander Potapenko <glider@google.com>
-Tested-by: Alexander Potapenko <glider@google.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Marco Elver <elver@google.com>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20221114104411.2853040-1-mark.rutland@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: 0e30f47232ab ("mtd: spi-nor: add support for DTR protocol")
+Co-developed-by: Bayi Cheng <bayi.cheng@mediatek.com>
+Signed-off-by: Bayi Cheng <bayi.cheng@mediatek.com>
+Signed-off-by: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Tested-by: Dhruva Gole <d-gole@ti.com>
+Tested-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Reviewed-by: Pratyush Yadav <pratyush@kernel.org>
+Link: https://lore.kernel.org/r/20221031124633.13189-1-allen-kh.cheng@mediatek.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/mm/fault.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/mtd/spi-nor/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
-index e38e7dc0f8f5..d09b21faa0b2 100644
---- a/arch/arm64/mm/fault.c
-+++ b/arch/arm64/mm/fault.c
-@@ -350,6 +350,11 @@ static bool is_el1_mte_sync_tag_check_fault(unsigned long esr)
- 	return false;
- }
+diff --git a/drivers/mtd/spi-nor/core.c b/drivers/mtd/spi-nor/core.c
+index bee8fc4c9f07..0cf1a1797ea3 100644
+--- a/drivers/mtd/spi-nor/core.c
++++ b/drivers/mtd/spi-nor/core.c
+@@ -1914,7 +1914,8 @@ static int spi_nor_spimem_check_readop(struct spi_nor *nor,
+ 	spi_nor_spimem_setup_op(nor, &op, read->proto);
  
-+static bool is_translation_fault(unsigned long esr)
-+{
-+	return (esr & ESR_ELx_FSC_TYPE) == ESR_ELx_FSC_FAULT;
-+}
-+
- static void __do_kernel_fault(unsigned long addr, unsigned long esr,
- 			      struct pt_regs *regs)
- {
-@@ -382,7 +387,8 @@ static void __do_kernel_fault(unsigned long addr, unsigned long esr,
- 	} else if (addr < PAGE_SIZE) {
- 		msg = "NULL pointer dereference";
- 	} else {
--		if (kfence_handle_page_fault(addr, esr & ESR_ELx_WNR, regs))
-+		if (is_translation_fault(esr) &&
-+		    kfence_handle_page_fault(addr, esr & ESR_ELx_WNR, regs))
- 			return;
+ 	/* convert the dummy cycles to the number of bytes */
+-	op.dummy.nbytes = (nor->read_dummy * op.dummy.buswidth) / 8;
++	op.dummy.nbytes = (read->num_mode_clocks + read->num_wait_states) *
++			  op.dummy.buswidth / 8;
+ 	if (spi_nor_protocol_is_dtr(nor->read_proto))
+ 		op.dummy.nbytes *= 2;
  
- 		msg = "paging request";
 -- 
 2.35.1
 
