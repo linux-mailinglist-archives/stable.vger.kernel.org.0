@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B3F76579E6
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:05:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E1BF657B00
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:17:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233553AbiL1PFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:05:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53400 "EHLO
+        id S233155AbiL1PRT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:17:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233546AbiL1PFw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:05:52 -0500
+        with ESMTP id S233227AbiL1PRD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:17:03 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61297B6E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:05:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9925613F1F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:17:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EF954B816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:05:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 294ACC433EF;
-        Wed, 28 Dec 2022 15:05:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 39DE6B8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:17:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA1ACC433D2;
+        Wed, 28 Dec 2022 15:16:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239949;
-        bh=HL6mQPUmwJreVaGCN4UDXMfax8DjgiESGDxwshEOVag=;
+        s=korg; t=1672240620;
+        bh=Tacn1Scr7WCtRrRR+AhaqadldxsQPr8WJg4OpZOivFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KxKxF/wfFKnN5X6ifwGtYQ0jZkqnf1bfWcRGy/D+z+jehkJVAO75+yPu3s8tDw2Fy
-         UKmHCo7sduaJcW8+Prf4eBCn7IFA2STUfTqtRulNICocV53Jn0W8H2uwA+2xJBFYp5
-         b8QtkTYlchl5M1cimszhZ6ORe0xPNIZjfaabAzTE=
+        b=DZcGz9gMhynencaIsj/Riz5BN0VjBb1tWBxaZdD3sTBRj72XSM1VGsa/Krf0JyzBK
+         d84PSshcUqkCp3QbesPXKK/2sR28qqhJq2X8S8xGRLWs+tiFWOvwq6EG0vOjx22z/p
+         Lr/2S8feWP9+EP56PWZT5qRs0MbwBMtCrFMcjx1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0097/1073] sched/uclamp: Make select_idle_capacity() use util_fits_cpu()
+        patches@lists.linux.dev, Jianmin Lv <lvjianmin@loongson.cn>,
+        Huacai Chen <chenhuacai@loongson.cn>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0146/1146] irqchip/loongson-pch-pic: Fix translate callback for DT path
 Date:   Wed, 28 Dec 2022 15:28:05 +0100
-Message-Id: <20221228144330.684412056@linuxfoundation.org>
+Message-Id: <20221228144334.111857437@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qais Yousef <qais.yousef@arm.com>
+From: Jianmin Lv <lvjianmin@loongson.cn>
 
-[ Upstream commit b759caa1d9f667b94727b2ad12589cbc4ce13a82 ]
+[ Upstream commit c7c00138015975c8f0e268564249cc47d8de632c ]
 
-Use the new util_fits_cpu() to ensure migration margin and capacity
-pressure are taken into account correctly when uclamp is being used
-otherwise we will fail to consider CPUs as fitting in scenarios where
-they should.
+In DT path of translate callback, if fwspec->param_count==1
+and of_node is non-null, fwspec->param[1] will be accessed,
+which is introduced from previous commit bcdd75c596c8
+(irqchip/loongson-pch-pic: Add ACPI init support).
 
-Fixes: b4c9c9f15649 ("sched/fair: Prefer prev cpu in asymmetric wakeup path")
-Signed-off-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220804143609.515789-5-qais.yousef@arm.com
+Before the patch, for non-null of_node, translate callback
+(use irq_domain_translate_twocell()) will return -EINVAL if
+fwspec->param_count < 2, so the check in the patch is added.
+
+Fixes: bcdd75c596c8 ("irqchip/loongson-pch-pic: Add ACPI init support")
+Signed-off-by: Jianmin Lv <lvjianmin@loongson.cn>
+Reviewed-by: Huacai Chen <chenhuacai@loongson.cn>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20221022075955.11726-3-lvjianmin@loongson.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/irqchip/irq-loongson-pch-pic.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index abe0e6baaa2e..892ea83864a7 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -6603,21 +6603,23 @@ static int select_idle_cpu(struct task_struct *p, struct sched_domain *sd, bool
- static int
- select_idle_capacity(struct task_struct *p, struct sched_domain *sd, int target)
- {
--	unsigned long task_util, best_cap = 0;
-+	unsigned long task_util, util_min, util_max, best_cap = 0;
- 	int cpu, best_cpu = -1;
- 	struct cpumask *cpus;
+diff --git a/drivers/irqchip/irq-loongson-pch-pic.c b/drivers/irqchip/irq-loongson-pch-pic.c
+index c01b9c257005..03493cda65a3 100644
+--- a/drivers/irqchip/irq-loongson-pch-pic.c
++++ b/drivers/irqchip/irq-loongson-pch-pic.c
+@@ -159,6 +159,9 @@ static int pch_pic_domain_translate(struct irq_domain *d,
+ 		return -EINVAL;
  
- 	cpus = this_cpu_cpumask_var_ptr(select_rq_mask);
- 	cpumask_and(cpus, sched_domain_span(sd), p->cpus_ptr);
- 
--	task_util = uclamp_task_util(p);
-+	task_util = task_util_est(p);
-+	util_min = uclamp_eff_value(p, UCLAMP_MIN);
-+	util_max = uclamp_eff_value(p, UCLAMP_MAX);
- 
- 	for_each_cpu_wrap(cpu, cpus, target) {
- 		unsigned long cpu_cap = capacity_of(cpu);
- 
- 		if (!available_idle_cpu(cpu) && !sched_idle_cpu(cpu))
- 			continue;
--		if (fits_capacity(task_util, cpu_cap))
-+		if (util_fits_cpu(task_util, util_min, util_max, cpu))
- 			return cpu;
- 
- 		if (cpu_cap > best_cap) {
+ 	if (of_node) {
++		if (fwspec->param_count < 2)
++			return -EINVAL;
++
+ 		*hwirq = fwspec->param[0] + priv->ht_vec_base;
+ 		*type = fwspec->param[1] & IRQ_TYPE_SENSE_MASK;
+ 	} else {
 -- 
 2.35.1
 
