@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 620E5657903
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:56:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38376657A01
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:07:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233269AbiL1O4j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:56:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44092 "EHLO
+        id S233575AbiL1PHA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:07:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233267AbiL1O4i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:56:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11E662601
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:56:37 -0800 (PST)
+        with ESMTP id S233574AbiL1PG7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:06:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CD1D615D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:06:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A37F061541
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:56:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5769C433D2;
-        Wed, 28 Dec 2022 14:56:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D1E83B816D9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:06:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2534BC433EF;
+        Wed, 28 Dec 2022 15:06:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239396;
-        bh=ILrNE0GOn0fsPLQJHEDMlh0tRaOCV/GENeqo4gxUkrY=;
+        s=korg; t=1672240015;
+        bh=35cZwjIkshA2Ay9vlvOfvedHRYE1QOuN38cd7osSdl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YSmSlQj8BGuVEU392EK/q7vjKIkikasJV6e+1TrtZY6aI/m88g5zrty9fjphOpl4V
-         ZV+C8/G5RPQAfrP77oTjGaSwgMf3p4msG/+Ur2r81qoyeC1DezytYHEEZXXdvglb6H
-         anhC6RCd/J86cizcdUnjcx93+5lI+dOK2eaW3xuU=
+        b=Tfi4F1mVRLbouteFEZgXvift8aH1LqjKvyUrJF+uXXZSVtA44U1Zpsc/9UQYyQd9z
+         BRDUlviT6dAWRyFuXgoDuImmTw1i4i6jmhvGdBRuMLyp52QmhXhnT/jX67DVxHvvI3
+         OGRyjLAHRQcuOoCjwerhkWqSpV41I/FTMpecU0fM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marco Elver <elver@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        patches@lists.linux.dev,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0022/1073] objtool, kcsan: Add volatile read/write instrumentation to whitelist
+Subject: [PATCH 6.1 0071/1146] arm64: dts: mt6779: Fix devicetree build warnings
 Date:   Wed, 28 Dec 2022 15:26:50 +0100
-Message-Id: <20221228144328.754423489@linuxfoundation.org>
+Message-Id: <20221228144332.084572690@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit 63646fcba5bb4b59a19031c21913f94e46a3d0d4 ]
+[ Upstream commit 4d759c524c15dc4151e40b9e3f368147fda7b789 ]
 
-Adds KCSAN's volatile instrumentation to objtool's uaccess whitelist.
+Rename fixed-clock oscillators to oscillator-26m and oscillator-32k
+and remove the unit address to fix the unit_address_vs_reg warning;
+fix the unit address for interrupt and intpol controllers by
+removing a leading zero in their unit address.
 
-Recent kernel change have shown that this was missing from the uaccess
-whitelist (since the first upstreamed version of KCSAN):
+This commit fixes the following warnings:
 
-  mm/gup.o: warning: objtool: fault_in_readable+0x101: call to __tsan_volatile_write1() with UACCESS enabled
+(unit_address_vs_reg): /oscillator@0: node has a unit name, but
+no reg or ranges property
+(unit_address_vs_reg): /oscillator@1: node has a unit name, but
+no reg or ranges property
+(simple_bus_reg): /soc/interrupt-controller@0c000000: simple-bus
+unit address format error, expected "c000000"
+(simple_bus_reg): /soc/intpol-controller@0c53a650: simple-bus
+unit address format error, expected "c53a650"
 
-Fixes: 75d75b7a4d54 ("kcsan: Support distinguishing volatile accesses")
-Signed-off-by: Marco Elver <elver@google.com>
-Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: 4c7a6260775d ("arm64: dts: add dts nodes for MT6779")
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221013152212.416661-3-angelogioacchino.delregno@collabora.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/check.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/arm64/boot/dts/mediatek/mt6779.dtsi | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index e55fdf952a3a..67afdce3421f 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -999,6 +999,16 @@ static const char *uaccess_safe_builtin[] = {
- 	"__tsan_read_write4",
- 	"__tsan_read_write8",
- 	"__tsan_read_write16",
-+	"__tsan_volatile_read1",
-+	"__tsan_volatile_read2",
-+	"__tsan_volatile_read4",
-+	"__tsan_volatile_read8",
-+	"__tsan_volatile_read16",
-+	"__tsan_volatile_write1",
-+	"__tsan_volatile_write2",
-+	"__tsan_volatile_write4",
-+	"__tsan_volatile_write8",
-+	"__tsan_volatile_write16",
- 	"__tsan_atomic8_load",
- 	"__tsan_atomic16_load",
- 	"__tsan_atomic32_load",
+diff --git a/arch/arm64/boot/dts/mediatek/mt6779.dtsi b/arch/arm64/boot/dts/mediatek/mt6779.dtsi
+index 9bdf5145966c..dde9ce137b4f 100644
+--- a/arch/arm64/boot/dts/mediatek/mt6779.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt6779.dtsi
+@@ -88,14 +88,14 @@ pmu {
+ 		interrupts = <GIC_PPI 7 IRQ_TYPE_LEVEL_LOW 0>;
+ 	};
+ 
+-	clk26m: oscillator@0 {
++	clk26m: oscillator-26m {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <26000000>;
+ 		clock-output-names = "clk26m";
+ 	};
+ 
+-	clk32k: oscillator@1 {
++	clk32k: oscillator-32k {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <32768>;
+@@ -117,7 +117,7 @@ soc {
+ 		compatible = "simple-bus";
+ 		ranges;
+ 
+-		gic: interrupt-controller@0c000000 {
++		gic: interrupt-controller@c000000 {
+ 			compatible = "arm,gic-v3";
+ 			#interrupt-cells = <4>;
+ 			interrupt-parent = <&gic>;
+@@ -138,7 +138,7 @@ ppi_cluster1: interrupt-partition-1 {
+ 
+ 		};
+ 
+-		sysirq: intpol-controller@0c53a650 {
++		sysirq: intpol-controller@c53a650 {
+ 			compatible = "mediatek,mt6779-sysirq",
+ 				     "mediatek,mt6577-sysirq";
+ 			interrupt-controller;
 -- 
 2.35.1
 
