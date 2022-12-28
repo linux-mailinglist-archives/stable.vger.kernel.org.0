@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0B0C657BA7
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:24:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 804B6657BAA
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:24:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233352AbiL1PYI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:24:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42902 "EHLO
+        id S233702AbiL1PYL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:24:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233719AbiL1PYE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:24:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FBFC14081
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:24:02 -0800 (PST)
+        with ESMTP id S233703AbiL1PYJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:24:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9DF914032
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:24:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E10FDB8170E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:24:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5267DC433F0;
-        Wed, 28 Dec 2022 15:23:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5739C61564
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:24:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 413B3C433D2;
+        Wed, 28 Dec 2022 15:24:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241039;
-        bh=YG6lVsrVTqRNh+4M9kK0c7vwuigfw/2hwuvyqQ5C5Wo=;
+        s=korg; t=1672241047;
+        bh=WTyC2F+TPJdveuxaEoXurTTAYTlK6obQLK+bnmZwq64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rWX6xYpoTZFS3X4O1cEQ4n6Jrz5jRQhcxFSkLxG3i0VhW+MdxVeYHuP6SsmAX/gm/
-         gaWgIRDC2dY9gUn3PA9ArjbJKHYxuc3aiHOjq4Fvb0vFlViXoGKqds1CWZRnZj4t+Z
-         QifBSMOy52oVPzynfsqW+cB7t6z5KtamfFe/W2M8=
+        b=CrDiknMCFw4Rg9KfKtlhlYhK0giNgkxtUzJHWGNydGz+L8Hgr6mvzUfpQzUlOoVHm
+         dQ81O5Wpn7zaSNAV/9UgM+sf6DoB40jlqoO0v4THjBdGBt9D2KNfXXVHaRl00i11+C
+         O1GFq7fOzF71oAvL8jW71zsyI0TEpBc+Gs1isvA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0198/1146] wifi: mac80211: fix ifdef symbol name
-Date:   Wed, 28 Dec 2022 15:28:57 +0100
-Message-Id: <20221228144335.523267711@linuxfoundation.org>
+        patches@lists.linux.dev, Thomas Zimmermann <tzimmermann@suse.de>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Jocelyn Falempe <jfalempe@redhat.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0199/1146] drm/atomic-helper: Dont allocate new plane state in CRTC check
+Date:   Wed, 28 Dec 2022 15:28:58 +0100
+Message-Id: <20221228144335.549602274@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -52,33 +58,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
 
-[ Upstream commit 9d13aff91ecd3f077b432df35291c945bde585be ]
+[ Upstream commit dbbf933d365da1a76a540211bee3d57bde520194 ]
 
-This should of course be CONFIG_, not CPTCFG_, which is an
-artifact from working with backports.
+In drm_atomic_helper_check_crtc_state(), do not add a new plane state
+to the global state if it does not exist already. Adding a new plane
+state will result in overhead for the plane during the atomic-commit
+step.
 
-Fixes: 9dd1953846c7 ("wifi: nl80211/mac80211: clarify link ID in control port TX")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+For the test in drm_atomic_helper_check_crtc_state() to succeed, it
+is important that the CRTC has an enabled primary plane after the
+commit. Simply testing the CRTC state's plane_mask for a primary plane
+is sufficient.
+
+Note that the helper still only tests for an attached primary plane.
+Drivers have to ensure that the plane contains valid pixel information.
+
+v5:
+	* fix commit description (Javier)
+v3:
+	* test for a primary plane in plane_mask (Ville)
+v2:
+	* remove unnecessary test for plane->crtc (Ville)
+	* inline drm_atomic_get_next_plane_state() (Ville)
+	* acquire plane lock before accessing plane->state (Ville)
+
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Fixes: d6b9af1097fe ("drm/atomic-helper: Add helper drm_atomic_helper_check_crtc_state()")
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Jocelyn Falempe <jfalempe@redhat.com>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: dri-devel@lists.freedesktop.org
+Link: https://patchwork.freedesktop.org/patch/msgid/20221007124338.24152-2-tzimmermann@suse.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/tx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/drm_atomic_helper.c | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
 
-diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
-index 874f2a4d831d..cc10ee1ff8e9 100644
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -2973,7 +2973,7 @@ static struct sk_buff *ieee80211_build_hdr(struct ieee80211_sub_if_data *sdata,
+diff --git a/drivers/gpu/drm/drm_atomic_helper.c b/drivers/gpu/drm/drm_atomic_helper.c
+index 98cc3137c062..02b4a7dc92f5 100644
+--- a/drivers/gpu/drm/drm_atomic_helper.c
++++ b/drivers/gpu/drm/drm_atomic_helper.c
+@@ -945,7 +945,6 @@ int drm_atomic_helper_check_crtc_state(struct drm_crtc_state *crtc_state,
+ 				       bool can_disable_primary_planes)
+ {
+ 	struct drm_device *dev = crtc_state->crtc->dev;
+-	struct drm_atomic_state *state = crtc_state->state;
  
- 		if (pre_conf_link_id != link_id &&
- 		    link_id != IEEE80211_LINK_UNSPECIFIED) {
--#ifdef CPTCFG_MAC80211_VERBOSE_DEBUG
-+#ifdef CONFIG_MAC80211_VERBOSE_DEBUG
- 			net_info_ratelimited("%s: dropped frame to %pM with bad link ID request (%d vs. %d)\n",
- 					     sdata->name, hdr.addr1,
- 					     pre_conf_link_id, link_id);
+ 	if (!crtc_state->enable)
+ 		return 0;
+@@ -956,14 +955,7 @@ int drm_atomic_helper_check_crtc_state(struct drm_crtc_state *crtc_state,
+ 		struct drm_plane *plane;
+ 
+ 		drm_for_each_plane_mask(plane, dev, crtc_state->plane_mask) {
+-			struct drm_plane_state *plane_state;
+-
+-			if (plane->type != DRM_PLANE_TYPE_PRIMARY)
+-				continue;
+-			plane_state = drm_atomic_get_plane_state(state, plane);
+-			if (IS_ERR(plane_state))
+-				return PTR_ERR(plane_state);
+-			if (plane_state->fb && plane_state->crtc) {
++			if (plane->type == DRM_PLANE_TYPE_PRIMARY) {
+ 				has_primary_plane = true;
+ 				break;
+ 			}
 -- 
 2.35.1
 
