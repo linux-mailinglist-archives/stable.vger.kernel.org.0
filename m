@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E15A658135
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A10F657A60
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:11:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229668AbiL1QZt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:25:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43352 "EHLO
+        id S230183AbiL1PLK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:11:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234794AbiL1QZ1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:25:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 290D31B7A6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:22:33 -0800 (PST)
+        with ESMTP id S233704AbiL1PKR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:10:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B82113E00
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:10:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6154B81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:22:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24FF6C433D2;
-        Wed, 28 Dec 2022 16:22:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE1C961552
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:10:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C130DC433EF;
+        Wed, 28 Dec 2022 15:10:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244550;
-        bh=ZaakPQZKyvO35D7RON4a46MwSCa404UODUge4SK4ZbA=;
+        s=korg; t=1672240216;
+        bh=l9AOlS29MLEVOvw/Jr0qb7P4Cmzp6IpF/g+zdJHvoBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vSqLZlD2BFqZ57Ste2j6JlY7UKfFeeObMHyaRrj9jVdcSlvZly/xjVNS2LxDhvusJ
-         M8qaVQaWOdiY6JIlObUgjXp40tX5X1m8KAmBVPysgG1on1S+AiYx0X3qoT3MUnSWH1
-         mz+w+a/9MBhpW55WB5vzx7V+q3OHE4kH54eSNu1g=
+        b=eR4eVWxv7aHkziUp4gzMZ1lyZjwxF59DLUx5EVcVLnkZWot8wgyoSLCvM5IZ8Xh3z
+         aY7UYrhyQSbSB1DrKLuw62Sro2A1SUc7KzmWNdwPCFB2yEDpbLSOQGVoy8a4qwa3AD
+         PnMv4UzZwg7KIaorhvJA9Eu2qNNT2OEsc6x2gPzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rafael Mendonca <rafaelmendsr@gmail.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        patches@lists.linux.dev,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0692/1146] vfio: platform: Do not pass return buffer to ACPI _RST method
+Subject: [PATCH 5.15 324/731] net: stmmac: selftests: fix potential memleak in stmmac_test_arpoffload()
 Date:   Wed, 28 Dec 2022 15:37:11 +0100
-Message-Id: <20221228144348.939395061@linuxfoundation.org>
+Message-Id: <20221228144305.964885957@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael Mendonca <rafaelmendsr@gmail.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit e67e070632a665c932d534b8b800477bb3111449 ]
+[ Upstream commit f150b63f3fa5fdd81e0dd6151e8850268e29438c ]
 
-The ACPI _RST method has no return value, there's no need to pass a return
-buffer to acpi_evaluate_object().
+The skb allocated by stmmac_test_get_arp_skb() hasn't been released in
+some error handling case, which will lead to a memory leak. Fix this up
+by adding kfree_skb() to release skb.
 
-Fixes: d30daa33ec1d ("vfio: platform: call _RST method when using ACPI")
-Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
-Link: https://lore.kernel.org/r/20221018152825.891032-1-rafaelmendsr@gmail.com
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Compile tested only.
+
+Fixes: 5e3fb0a6e2b3 ("net: stmmac: selftests: Implement the ARP Offload test")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/platform/vfio_platform_common.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/vfio/platform/vfio_platform_common.c b/drivers/vfio/platform/vfio_platform_common.c
-index 55dc4f43c31e..1a0a238ffa35 100644
---- a/drivers/vfio/platform/vfio_platform_common.c
-+++ b/drivers/vfio/platform/vfio_platform_common.c
-@@ -72,12 +72,11 @@ static int vfio_platform_acpi_call_reset(struct vfio_platform_device *vdev,
- 				  const char **extra_dbg)
- {
- #ifdef CONFIG_ACPI
--	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
- 	struct device *dev = vdev->device;
- 	acpi_handle handle = ACPI_HANDLE(dev);
- 	acpi_status acpi_ret;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c
+index dd5c4ef92ef3..ea7200b7b647 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c
+@@ -1654,12 +1654,16 @@ static int stmmac_test_arpoffload(struct stmmac_priv *priv)
+ 	}
  
--	acpi_ret = acpi_evaluate_object(handle, "_RST", NULL, &buffer);
-+	acpi_ret = acpi_evaluate_object(handle, "_RST", NULL, NULL);
- 	if (ACPI_FAILURE(acpi_ret)) {
- 		if (extra_dbg)
- 			*extra_dbg = acpi_format_exception(acpi_ret);
+ 	ret = stmmac_set_arp_offload(priv, priv->hw, true, ip_addr);
+-	if (ret)
++	if (ret) {
++		kfree_skb(skb);
+ 		goto cleanup;
++	}
+ 
+ 	ret = dev_set_promiscuity(priv->dev, 1);
+-	if (ret)
++	if (ret) {
++		kfree_skb(skb);
+ 		goto cleanup;
++	}
+ 
+ 	ret = dev_direct_xmit(skb, 0);
+ 	if (ret)
 -- 
 2.35.1
 
