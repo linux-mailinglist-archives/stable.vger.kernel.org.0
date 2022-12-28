@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6861C657F01
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:00:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08DE0657869
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:50:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232848AbiL1QAN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:00:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46880 "EHLO
+        id S233122AbiL1Ou1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:50:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234242AbiL1QAH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:00:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2EC11900B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:00:06 -0800 (PST)
+        with ESMTP id S233098AbiL1OuP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:50:15 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2DC811808
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:50:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7DAE5B81732
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:00:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A36F1C433EF;
-        Wed, 28 Dec 2022 16:00:03 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 19740CE134B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:50:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D2CEC433D2;
+        Wed, 28 Dec 2022 14:50:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243204;
-        bh=+jqpNmv6ivddBBhjLhidOySKtXIXi9qBnnElMSZklDU=;
+        s=korg; t=1672239011;
+        bh=3A+SBrRFxWKVJUUDtRJhCLdZyBljL+UkRhtIduD9JIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WAweracoKLn55azCieeCp2ynsmSSMfyCspzfI/KZEYPPjwgMhbqUlPvIKAgbt3mVc
-         eQ92Zrl1DaPA7dnGChtOnLH13xCdlko/08oAuER4I5JeG4W4Be8vtFaoMfHP82Tr+M
-         chXdum98+LUBt/znbXM2CnwidQMP3ovnFbA2ZQZo=
+        b=YAFfPrJPiOlZEglz24Tgkehdby1IbDqQjgw1pExjvwqB5g2wBy0/8kKmgAUFwCMhU
+         EVismXNoxt8oOrg4/LRMf2My4Y7d/kBL9DdiqKMokDk1BE5WluVUKy4LsMeunOYmcM
+         KN8QHaO6Y6OetCkghOJ+MwXyJGomXtjz6tVH95UU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Deren Wu <deren.wu@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0462/1146] wifi: mt76: mt7921: Add missing __packed annotation of struct mt7921_clc
-Date:   Wed, 28 Dec 2022 15:33:21 +0100
-Message-Id: <20221228144342.731416226@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 095/731] perf/x86/intel/uncore: Fix reference count leak in snr_uncore_mmio_map()
+Date:   Wed, 28 Dec 2022 15:33:22 +0100
+Message-Id: <20221228144259.304208786@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,33 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Deren Wu <deren.wu@mediatek.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit e5c6bc6f19d8c293f86b347cddab54d5a3830b38 ]
+[ Upstream commit 8ebd16c11c346751b3944d708e6c181ed4746c39 ]
 
-Add __packed annotation to avoid potential CLC parsing error
+pci_get_device() will increase the reference count for the returned
+pci_dev, so snr_uncore_get_mc_dev() will return a pci_dev with its
+reference count increased. We need to call pci_dev_put() to decrease the
+reference count. Let's add the missing pci_dev_put().
 
-Fixes: 23bdc5d8cadf ("wifi: mt76: mt7921: introduce Country Location Control support")
-Signed-off-by: Deren Wu <deren.wu@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Fixes: ee49532b38dd ("perf/x86/intel/uncore: Add IMC uncore support for Snow Ridge")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+Link: https://lore.kernel.org/r/20221118063137.121512-4-wangxiongfeng2@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/events/intel/uncore_snbep.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h b/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h
-index 2babaeff72ba..d36b940c0a07 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h
-@@ -171,7 +171,7 @@ struct mt7921_clc {
- 	u8 type;
- 	u8 rsv[8];
- 	u8 data[];
--};
-+} __packed;
+diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
+index f5d89d06c66a..fcd95e93f479 100644
+--- a/arch/x86/events/intel/uncore_snbep.c
++++ b/arch/x86/events/intel/uncore_snbep.c
+@@ -4860,6 +4860,8 @@ static int snr_uncore_mmio_map(struct intel_uncore_box *box,
  
- struct mt7921_phy {
- 	struct mt76_phy *mt76;
+ 	addr += box_ctl;
+ 
++	pci_dev_put(pdev);
++
+ 	box->io_addr = ioremap(addr, type->mmio_map_size);
+ 	if (!box->io_addr) {
+ 		pr_warn("perf uncore: Failed to ioremap for %s.\n", type->name);
 -- 
 2.35.1
 
