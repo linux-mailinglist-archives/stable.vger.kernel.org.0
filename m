@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4612A657A7A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:12:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FFF6657937
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:59:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229603AbiL1PL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:11:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59064 "EHLO
+        id S233345AbiL1O7C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:59:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230508AbiL1PLf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:11:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 799CB13E33
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:11:31 -0800 (PST)
+        with ESMTP id S233429AbiL1O6m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:58:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1929312744
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:58:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D1356155C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:11:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DA20C433D2;
-        Wed, 28 Dec 2022 15:11:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C0095B8171A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:58:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A69BC433D2;
+        Wed, 28 Dec 2022 14:58:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240290;
-        bh=8olP9H4pT56wyTyOyYx3pjrjeg1CaYZ0m1+8tlLNcbE=;
+        s=korg; t=1672239519;
+        bh=+Y2k4XNb1phLqqeVeTe/06TPXKKCp5VXlH2m2UFDNVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M7BVAUr2sY3ffWlCsis40olrDBsuRyJzIuZH5V088qVf0ghB1HjqwKnL/NmIPny4/
-         AkKgKWhk9NGKzrapurOa5aoGz90y0GZQWSTyzFRHsmDYlp1d2J9oVG+EElqdfw4/1P
-         OyysZYmoXRhcsWtXqQ22BrRwJcj18S4bhRVKHoMI=
+        b=R0gjXlFOhAII+XO1dsXHn090G/ZRkFN8T7EH0M4fV7VOg/ZG8NqhNz7jRHgM8MYhn
+         a13L8NDYqiD2FY4Sqhl9uGGcc+EaQKmP5y1aXetw/NLxQG5C9Gs6OEa23qfcnMkmkP
+         EhN00EUy2jNbwqVFX7XlNi5QBGCrbHww+HiWwd/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Sven Peter <sven@svenpeter.dev>,
-        Hector Martin <marcan@marcan.st>,
+        patches@lists.linux.dev,
+        Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0093/1146] soc: apple: rtkit: Stop casting function pointer signatures
-Date:   Wed, 28 Dec 2022 15:27:12 +0100
-Message-Id: <20221228144332.669323035@linuxfoundation.org>
+Subject: [PATCH 6.0 0045/1073] arm64: dts: renesas: r9a09g011: Fix unit address format error
+Date:   Wed, 28 Dec 2022 15:27:13 +0100
+Message-Id: <20221228144329.346677509@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Peter <sven@svenpeter.dev>
+From: Fabrizio Castro <fabrizio.castro.jz@renesas.com>
 
-[ Upstream commit 5acf07ff25f0c1c44105e6b8ebf88c55a0a04d2f ]
+[ Upstream commit 278f5015a3deaa2ea0db6070bbc2a8edf2455643 ]
 
-Fixes: 9bd1d9a0d8bb ("soc: apple: Add RTKit IPC library")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Sven Peter <sven@svenpeter.dev>
-Signed-off-by: Hector Martin <marcan@marcan.st>
+Although the HW User Manual for RZ/V2M states in the "Address Map"
+section that the interrupt controller is assigned addresses starting
+from 0x82000000, the memory locations from 0x82000000 0x0x8200FFFF
+are marked as reserved in the "Interrupt Controller (GIC)" section
+and are currently not used by the device tree, leading to the below
+warning:
+
+arch/arm64/boot/dts/renesas/r9a09g011.dtsi:51.38-63.5: Warning
+(simple_bus_reg): /soc/interrupt-controller@82000000: simple-bus unit
+address format error, expected "82010000"
+
+Fix the unit address accordingly.
+
+Fixes: fb1929b98f2e ("arm64: dts: renesas: Add initial DTSI for RZ/V2M SoC")
+Signed-off-by: Fabrizio Castro <fabrizio.castro.jz@renesas.com>
+Link: https://lore.kernel.org/r/20221103230648.53748-2-fabrizio.castro.jz@renesas.com
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/apple/rtkit.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/renesas/r9a09g011.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/soc/apple/rtkit.c b/drivers/soc/apple/rtkit.c
-index 031ec4aa06d5..8ec74d7539eb 100644
---- a/drivers/soc/apple/rtkit.c
-+++ b/drivers/soc/apple/rtkit.c
-@@ -926,8 +926,10 @@ int apple_rtkit_wake(struct apple_rtkit *rtk)
- }
- EXPORT_SYMBOL_GPL(apple_rtkit_wake);
+diff --git a/arch/arm64/boot/dts/renesas/r9a09g011.dtsi b/arch/arm64/boot/dts/renesas/r9a09g011.dtsi
+index d4cc5459fbb7..4ce0f3944649 100644
+--- a/arch/arm64/boot/dts/renesas/r9a09g011.dtsi
++++ b/arch/arm64/boot/dts/renesas/r9a09g011.dtsi
+@@ -48,7 +48,7 @@ soc: soc {
+ 		#size-cells = <2>;
+ 		ranges;
  
--static void apple_rtkit_free(struct apple_rtkit *rtk)
-+static void apple_rtkit_free(void *data)
- {
-+	struct apple_rtkit *rtk = data;
-+
- 	mbox_free_channel(rtk->mbox_chan);
- 	destroy_workqueue(rtk->wq);
- 
-@@ -950,8 +952,7 @@ struct apple_rtkit *devm_apple_rtkit_init(struct device *dev, void *cookie,
- 	if (IS_ERR(rtk))
- 		return rtk;
- 
--	ret = devm_add_action_or_reset(dev, (void (*)(void *))apple_rtkit_free,
--				       rtk);
-+	ret = devm_add_action_or_reset(dev, apple_rtkit_free, rtk);
- 	if (ret)
- 		return ERR_PTR(ret);
- 
+-		gic: interrupt-controller@82000000 {
++		gic: interrupt-controller@82010000 {
+ 			compatible = "arm,gic-400";
+ 			#interrupt-cells = <3>;
+ 			#address-cells = <0>;
 -- 
 2.35.1
 
