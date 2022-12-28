@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29A15657C36
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:30:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3498C6581EC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:32:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233350AbiL1PaM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:30:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47936 "EHLO
+        id S234815AbiL1QcW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:32:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233788AbiL1PaH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:30:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFAFC1581B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:30:05 -0800 (PST)
+        with ESMTP id S234792AbiL1Qb4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:31:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 530991D0C6
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:28:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B221B81647
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:30:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADBBBC433EF;
-        Wed, 28 Dec 2022 15:30:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E362361577
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:28:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 061D9C433D2;
+        Wed, 28 Dec 2022 16:28:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241403;
-        bh=6P/DIBYO4Ji+VS50YZzS39nTNzXJ72JkrGoPQWukJRI=;
+        s=korg; t=1672244906;
+        bh=eKOr5EO23pDTaQCicEFcySKgUHyYJcFa3NTYYaWGAJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ziDYUXT1ZwU+zdB2IPNuRSN9zmoflnS6KZ1dVgQM4Qy8XWozGTeET1+09x2KhytcH
-         YnaovjSsbXxmwap/83Yc+aKk2mtNLuqjSAOMp9nLTD6JR9H2tvM+jKAIKDKDaj2jMQ
-         nqpcbnvRph3ovTzt/LK/1bIAG/h+qSRAlDHClwe4=
+        b=rtdCTopBz4qH0bSIKZiaIfwjJsYca+pvDvIsoBlNZRULtcM95OJRHiwfCPQ7wDodU
+         YjxltLMyNhOF6Cuu1OeQnQTkjyLMnzLNe67wjTruLOPP8hoq0Z6OmkoK6KorArz590
+         HIVl9BpTH+y6vib4RosJ79TwYzqtTU2cpWQIPyrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
-        William Breathitt Gray <william.gray@linaro.org>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 478/731] counter: stm32-lptimer-cnt: fix the check on arr and cmp registers update
+Subject: [PATCH 6.0 0797/1073] powerpc/52xx: Fix a resource leak in an error handling path
 Date:   Wed, 28 Dec 2022 15:39:45 +0100
-Message-Id: <20221228144310.408406994@linuxfoundation.org>
+Message-Id: <20221228144349.657470119@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit fd5ac974fc25feed084c2d1599d0dddb4e0556bc ]
+[ Upstream commit 5836947613ef33d311b4eff6a32d019580a214f5 ]
 
-The ARR (auto reload register) and CMP (compare) registers are
-successively written. The status bits to check the update of these
-registers are polled together with regmap_read_poll_timeout().
-The condition to end the loop may become true, even if one of the register
-isn't correctly updated.
-So ensure both status bits are set before clearing them.
+The error handling path of mpc52xx_lpbfifo_probe() has a request_irq()
+that is not balanced by a corresponding free_irq().
 
-Fixes: d8958824cf07 ("iio: counter: Add support for STM32 LPTimer")
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Link: https://lore.kernel.org/r/20221123133609.465614-1-fabrice.gasnier@foss.st.com/
-Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
+Add the missing call, as already done in the remove function.
+
+Fixes: 3c9059d79f5e ("powerpc/5200: add LocalPlus bus FIFO device driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/dec1496d46ccd5311d0f6e9f9ca4238be11bf6a6.1643440531.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/counter/stm32-lptimer-cnt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/counter/stm32-lptimer-cnt.c b/drivers/counter/stm32-lptimer-cnt.c
-index 13656957c45f..fa7f86cf0ea3 100644
---- a/drivers/counter/stm32-lptimer-cnt.c
-+++ b/drivers/counter/stm32-lptimer-cnt.c
-@@ -69,7 +69,7 @@ static int stm32_lptim_set_enable_state(struct stm32_lptim_cnt *priv,
- 
- 	/* ensure CMP & ARR registers are properly written */
- 	ret = regmap_read_poll_timeout(priv->regmap, STM32_LPTIM_ISR, val,
--				       (val & STM32_LPTIM_CMPOK_ARROK),
-+				       (val & STM32_LPTIM_CMPOK_ARROK) == STM32_LPTIM_CMPOK_ARROK,
- 				       100, 1000);
- 	if (ret)
- 		return ret;
+diff --git a/arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c b/arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c
+index 48038aaedbd3..2875c206ac0f 100644
+--- a/arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c
++++ b/arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c
+@@ -531,6 +531,7 @@ static int mpc52xx_lpbfifo_probe(struct platform_device *op)
+  err_bcom_rx_irq:
+ 	bcom_gen_bd_rx_release(lpbfifo.bcom_rx_task);
+  err_bcom_rx:
++	free_irq(lpbfifo.irq, &lpbfifo);
+  err_irq:
+ 	iounmap(lpbfifo.regs);
+ 	lpbfifo.regs = NULL;
 -- 
 2.35.1
 
