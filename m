@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 159D3657B78
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:22:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 015AB65822F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:33:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233759AbiL1PWt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:22:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40158 "EHLO
+        id S234706AbiL1Qdt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:33:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233526AbiL1PWZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:22:25 -0500
+        with ESMTP id S234861AbiL1QdY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:24 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC8281408B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:21:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBEBC19022
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:30:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6D05FB816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:21:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0718C433D2;
-        Wed, 28 Dec 2022 15:21:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4FE09B81888
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:30:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B869C433D2;
+        Wed, 28 Dec 2022 16:30:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240914;
-        bh=KGcrcTkUbY8EFFmP+e/OwPeGFcOksViAhEGhZOkMAfo=;
+        s=korg; t=1672245053;
+        bh=N7E2SRwYkQ21JYEy9MXkODJLsG2TrZGxGZHcYLdxbTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bRZcpMegoyCro3vrJLLikJp8y8QAcscj9RyaJxQfXLkTSMZ5YanrIb/LX4UR2w/yI
-         Mcok5zBH4fY4Eu0bJWnWDvFRwG4OzQC9XrPu6E+03AUa1cmTSanUah8tk4qidALjnL
-         4KzhVgUdxAdQYrOAaFnNQ2bi4o7fCR4sMg3Gz+PE=
+        b=DHdF9HDDAZa2KactUxzpWkAHc4RC7WpOAjHtTOiMzGCaseBWsgnFJZSbKeWbAotTM
+         RTl+HHkCcjVCyfMoEgb9myolFuR/TIdCYaKjoI0pCxyVQL0H/BlxUbyz4R2DFCUrMf
+         US1SVjTsRjO5Lo7I0iLi0Gqyt/5bP27ZBYSH0leQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Andreas Gruenbacher <agruenba@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 416/731] scsi: fcoe: Fix transport not deattached when fcoe_if_init() fails
+Subject: [PATCH 6.1 0784/1146] gfs2: Partially revert gfs2_inode_lookup change
 Date:   Wed, 28 Dec 2022 15:38:43 +0100
-Message-Id: <20221228144308.630431656@linuxfoundation.org>
+Message-Id: <20221228144351.442248574@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit 4155658cee394b22b24c6d64e49247bf26d95b92 ]
+[ Upstream commit 88f4a9f813c549f6b8a6fbf12030949b48a4d5a4 ]
 
-fcoe_init() calls fcoe_transport_attach(&fcoe_sw_transport), but when
-fcoe_if_init() fails, &fcoe_sw_transport is not detached and leaves freed
-&fcoe_sw_transport on fcoe_transports list. This causes panic when
-reinserting module.
+Commit c412a97cf6c5 changed delete_work_func() to always perform an
+inode lookup when gfs2_try_evict() fails.  This doesn't make sense as a
+gfs2_try_evict() failure indicates that the inode is likely still in
+use.  Revert that change.
 
- BUG: unable to handle page fault for address: fffffbfff82e2213
- RIP: 0010:fcoe_transport_attach+0xe1/0x230 [libfcoe]
- Call Trace:
-  <TASK>
-  do_one_initcall+0xd0/0x4e0
-  load_module+0x5eee/0x7210
-  ...
-
-Fixes: 78a582463c1e ("[SCSI] fcoe: convert fcoe.ko to become an fcoe transport provider driver")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Link: https://lore.kernel.org/r/20221115092442.133088-1-chenzhongjin@huawei.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: c412a97cf6c5 ("gfs2: Use TRY lock in gfs2_inode_lookup for UNLINKED inodes")
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/fcoe/fcoe.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/gfs2/glock.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/fcoe/fcoe.c b/drivers/scsi/fcoe/fcoe.c
-index 5ae6c207d3ac..76dbdae0e987 100644
---- a/drivers/scsi/fcoe/fcoe.c
-+++ b/drivers/scsi/fcoe/fcoe.c
-@@ -2501,6 +2501,7 @@ static int __init fcoe_init(void)
+diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
+index df335c258eb0..235a0948f6cc 100644
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -1039,6 +1039,7 @@ static void delete_work_func(struct work_struct *work)
+ 			if (gfs2_queue_delete_work(gl, 5 * HZ))
+ 				return;
+ 		}
++		goto out;
+ 	}
  
- out_free:
- 	mutex_unlock(&fcoe_config_mutex);
-+	fcoe_transport_detach(&fcoe_sw_transport);
- out_destroy:
- 	destroy_workqueue(fcoe_wq);
- 	return rc;
+ 	inode = gfs2_lookup_by_inum(sdp, no_addr, gl->gl_no_formal_ino,
+@@ -1051,6 +1052,7 @@ static void delete_work_func(struct work_struct *work)
+ 		d_prune_aliases(inode);
+ 		iput(inode);
+ 	}
++out:
+ 	gfs2_glock_put(gl);
+ }
+ 
 -- 
 2.35.1
 
