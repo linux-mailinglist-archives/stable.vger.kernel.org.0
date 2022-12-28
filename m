@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7076B65810D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FCF3657A0E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:07:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234360AbiL1QYj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:24:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43418 "EHLO
+        id S233592AbiL1PHX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:07:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234740AbiL1QXz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:23:55 -0500
+        with ESMTP id S233590AbiL1PHW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:07:22 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 952CD30A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:20:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD35F13D7B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:07:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4BD92B81707
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:20:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACAFCC433D2;
-        Wed, 28 Dec 2022 16:20:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 84AE8B8172A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:07:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3BBBC433F2;
+        Wed, 28 Dec 2022 15:07:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244441;
-        bh=rLgqm8AkjtP/pV7MG2SgnIVdxklTuEQ4QmDrLwU8k/Q=;
+        s=korg; t=1672240039;
+        bh=i5girwOtn7M/UfbBXW0mPUeORHhvOBH1QW4Sdx/H0CI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O84VaQDsobkDi9aM2cBUAW6XZ7sD7ZeOVkqcl1DocqYy7K7rJQ9rVzXWVogKxfOIy
-         p4USolAgiVXwajWe5LoIQlkvuqgkruVj4tCjAkqKPisZOsqouIM3TsF9191XzwQgs/
-         RrjfVEZ5c0yYYO3+5i88aOwbtdLswNM95fcCxbd8=
+        b=YmYRfboYgoyjYh3r/lWfWsZq/NhPAoteKXNzQ+e0lVPsfOqmZ76E5W2PJhC/Z/GAT
+         Nwjkrpcbspn/69ZmglTse7QHGsD3bA+mYu9Ab3dHeN7A6qkZQCSE0FTEB1vtEqcHfT
+         O5jt34fCQCkxFspET9MzhtGkO1wF+Y0YflBjmw9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Mike Marshall <hubcap@omnibond.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0670/1146] orangefs: Fix sysfs not cleanup when dev init failed
+Subject: [PATCH 5.15 302/731] mmc: meson-gx: fix return value check of mmc_add_host()
 Date:   Wed, 28 Dec 2022 15:36:49 +0100
-Message-Id: <20221228144348.348109556@linuxfoundation.org>
+Message-Id: <20221228144305.330120518@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit ea60a4ad0cf88b411cde6888b8c890935686ecd7 ]
+[ Upstream commit 90935f16f2650ab7416fa2ffbe5c28cb39cf3f1e ]
 
-When the dev init failed, should cleanup the sysfs, otherwise, the
-module will never be loaded since can not create duplicate sysfs
-directory:
+mmc_add_host() may return error, if we ignore its return value,
+it will lead two issues:
+1. The memory that allocated in mmc_alloc_host() is leaked.
+2. In the remove() path, mmc_remove_host() will be called to
+   delete device, but it's not added yet, it will lead a kernel
+   crash because of null-ptr-deref in device_del().
 
-  sysfs: cannot create duplicate filename '/fs/orangefs'
+Fix this by checking the return value and goto error path which
+will call mmc_free_host().
 
-  CPU: 1 PID: 6549 Comm: insmod Tainted: G        W          6.0.0+ #44
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc33 04/01/2014
-  Call Trace:
-   <TASK>
-   dump_stack_lvl+0x34/0x44
-   sysfs_warn_dup.cold+0x17/0x24
-   sysfs_create_dir_ns+0x16d/0x180
-   kobject_add_internal+0x156/0x3a0
-   kobject_init_and_add+0xcf/0x120
-   orangefs_sysfs_init+0x7e/0x3a0 [orangefs]
-   orangefs_init+0xfe/0x1000 [orangefs]
-   do_one_initcall+0x87/0x2a0
-   do_init_module+0xdf/0x320
-   load_module+0x2f98/0x3330
-   __do_sys_finit_module+0x113/0x1b0
-   do_syscall_64+0x35/0x80
-   entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-  kobject_add_internal failed for orangefs with -EEXIST, don't try to register things with the same name in the same directory.
-
-Fixes: 2f83ace37181 ("orangefs: put register_chrdev immediately before register_filesystem")
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Mike Marshall <hubcap@omnibond.com>
+Fixes: 51c5d8447bd7 ("MMC: meson: initial support for GX platforms")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Link: https://lore.kernel.org/r/20221108123417.479045-1-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/orangefs/orangefs-mod.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/mmc/host/meson-gx-mmc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/orangefs/orangefs-mod.c b/fs/orangefs/orangefs-mod.c
-index cd7297815f91..5ab741c60b7e 100644
---- a/fs/orangefs/orangefs-mod.c
-+++ b/fs/orangefs/orangefs-mod.c
-@@ -141,7 +141,7 @@ static int __init orangefs_init(void)
- 		gossip_err("%s: could not initialize device subsystem %d!\n",
- 			   __func__,
- 			   ret);
--		goto cleanup_device;
-+		goto cleanup_sysfs;
+diff --git a/drivers/mmc/host/meson-gx-mmc.c b/drivers/mmc/host/meson-gx-mmc.c
+index 9b2e2548bd18..753f9ea254d4 100644
+--- a/drivers/mmc/host/meson-gx-mmc.c
++++ b/drivers/mmc/host/meson-gx-mmc.c
+@@ -1291,7 +1291,9 @@ static int meson_mmc_probe(struct platform_device *pdev)
  	}
  
- 	ret = register_filesystem(&orangefs_fs_type);
-@@ -152,11 +152,11 @@ static int __init orangefs_init(void)
- 		goto out;
- 	}
+ 	mmc->ops = &meson_mmc_ops;
+-	mmc_add_host(mmc);
++	ret = mmc_add_host(mmc);
++	if (ret)
++		goto err_free_irq;
  
--	orangefs_sysfs_exit();
--
--cleanup_device:
- 	orangefs_dev_cleanup();
- 
-+cleanup_sysfs:
-+	orangefs_sysfs_exit();
-+
- sysfs_init_failed:
- 	orangefs_debugfs_cleanup();
+ 	return 0;
  
 -- 
 2.35.1
