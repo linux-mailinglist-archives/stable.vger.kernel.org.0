@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6534657E3E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:52:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C833565843E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:56:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232929AbiL1PwT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:52:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39258 "EHLO
+        id S235174AbiL1Q4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:56:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234156AbiL1Pvu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:51:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E95C18B2B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:51:44 -0800 (PST)
+        with ESMTP id S235266AbiL1QzR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:55:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA7281EEF6
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:50:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9807CB817B0
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:51:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EED0C433EF;
-        Wed, 28 Dec 2022 15:51:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 756AA60D41
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:50:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82131C433EF;
+        Wed, 28 Dec 2022 16:50:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242702;
-        bh=pW/2+44E4DquXjYBO68pLmaOVVQcLKHNIyJzasyyPX4=;
+        s=korg; t=1672246211;
+        bh=nUSiROIuywcjFmshTbQQuHbfp+Kk9J/uXgecjOrgqXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=19LLouemhOBH9Q2fLLT6bQ2kXmMdTZw1XqnY1tC7UUA2ILiIbSLd5OP+y3CtzeOhp
-         ir7sJRBMRrbm29wqQhzDGu2jctWWAKk3zaK+rSDuax2pweV9kmR6J+uaJQUH6kHswj
-         pSwjYwM5VNSX86oM6lnmTYtuS+dPjQJXNZwLv1yU=
+        b=haB4fgICIv4nIId+fDbtmXRrEqEK8W7kB7rTR3C5t/O3RN014ClIcilOpgaCzKGNm
+         hDuN/zeUrRIoa0J/XtnFf3MXwJJ4xb06q0+NPEsGHwl5ypAGR7iVeeVasqsnJ4AiYs
+         pYWYPgvMowfm7NBBIA2Z5ru7Dj+1pyVKknCGHIs8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Zhang Yuchen <zhangyuchen.lcr@bytedance.com>,
-        Corey Minyard <cminyard@mvista.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Sandy Huang <hjc@rock-chips.com>,
+        =?UTF-8?q?Heiko=20St=C3=BCbner?= <heiko@sntech.de>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 635/731] ipmi: fix memleak when unload ipmi driver
+Subject: [PATCH 6.1 1003/1146] drm/rockchip: Use drm_mode_copy()
 Date:   Wed, 28 Dec 2022 15:42:22 +0100
-Message-Id: <20221228144314.922567322@linuxfoundation.org>
+Message-Id: <20221228144357.613090753@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +58,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-[ Upstream commit 36992eb6b9b83f7f9cdc8e74fb5799d7b52e83e9 ]
+[ Upstream commit 2bfaa28000d2830d3209161a4541cce0660e1b84 ]
 
-After the IPMI disconnect problem, the memory kept rising and we tried
-to unload the driver to free the memory. However, only part of the
-free memory is recovered after the driver is uninstalled. Using
-ebpf to hook free functions, we find that neither ipmi_user nor
-ipmi_smi_msg is free, only ipmi_recv_msg is free.
+struct drm_display_mode embeds a list head, so overwriting
+the full struct with another one will corrupt the list
+(if the destination mode is on a list). Use drm_mode_copy()
+instead which explicitly preserves the list head of
+the destination mode.
 
-We find that the deliver_smi_err_response call in clean_smi_msgs does
-the destroy processing on each message from the xmit_msg queue without
-checking the return value and free ipmi_smi_msg.
+Even if we know the destination mode is not on any list
+using drm_mode_copy() seems decent as it sets a good
+example. Bad examples of not using it might eventually
+get copied into code where preserving the list head
+actually matters.
 
-deliver_smi_err_response is called only at this location. Adding the
-free handling has no effect.
+Obviously one case not covered here is when the mode
+itself is embedded in a larger structure and the whole
+structure is copied. But if we are careful when copying
+into modes embedded in structures I think we can be a
+little more reassured that bogus list heads haven't been
+propagated in.
 
-To verify, try using ebpf to trace the free function.
+@is_mode_copy@
+@@
+drm_mode_copy(...)
+{
+...
+}
 
-  $ bpftrace -e 'kretprobe:ipmi_alloc_recv_msg {printf("alloc rcv
-      %p\n",retval);} kprobe:free_recv_msg {printf("free recv %p\n",
-      arg0)} kretprobe:ipmi_alloc_smi_msg {printf("alloc smi %p\n",
-        retval);} kprobe:free_smi_msg {printf("free smi  %p\n",arg0)}'
+@depends on !is_mode_copy@
+struct drm_display_mode *mode;
+expression E, S;
+@@
+(
+- *mode = E
++ drm_mode_copy(mode, &E)
+|
+- memcpy(mode, E, S)
++ drm_mode_copy(mode, E)
+)
 
-Signed-off-by: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
-Message-Id: <20221007092617.87597-4-zhangyuchen.lcr@bytedance.com>
-[Fixed the comment above handle_one_recv_msg().]
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+@depends on !is_mode_copy@
+struct drm_display_mode mode;
+expression E;
+@@
+(
+- mode = E
++ drm_mode_copy(&mode, &E)
+|
+- memcpy(&mode, E, S)
++ drm_mode_copy(&mode, E)
+)
+
+@@
+struct drm_display_mode *mode;
+@@
+- &*mode
++ mode
+
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Sandy Huang <hjc@rock-chips.com>
+Cc: "Heiko Stübner" <heiko@sntech.de>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-rockchip@lists.infradead.org
+Link: https://patchwork.freedesktop.org/patch/msgid/20221107192545.9896-7-ville.syrjala@linux.intel.com
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_msghandler.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/rockchip/cdn-dp-core.c | 2 +-
+ drivers/gpu/drm/rockchip/inno_hdmi.c   | 2 +-
+ drivers/gpu/drm/rockchip/rk3066_hdmi.c | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
-index 2badf36d4816..8dbc349a2edd 100644
---- a/drivers/char/ipmi/ipmi_msghandler.c
-+++ b/drivers/char/ipmi/ipmi_msghandler.c
-@@ -3527,12 +3527,16 @@ static void deliver_smi_err_response(struct ipmi_smi *intf,
- 				     struct ipmi_smi_msg *msg,
- 				     unsigned char err)
- {
-+	int rv;
- 	msg->rsp[0] = msg->data[0] | 4;
- 	msg->rsp[1] = msg->data[1];
- 	msg->rsp[2] = err;
- 	msg->rsp_size = 3;
--	/* It's an error, so it will never requeue, no need to check return. */
--	handle_one_recv_msg(intf, msg);
-+
-+	/* This will never requeue, but it may ask us to free the message. */
-+	rv = handle_one_recv_msg(intf, msg);
-+	if (rv == 0)
-+		ipmi_free_smi_msg(msg);
+diff --git a/drivers/gpu/drm/rockchip/cdn-dp-core.c b/drivers/gpu/drm/rockchip/cdn-dp-core.c
+index 518ee13b1d6f..8526dda91931 100644
+--- a/drivers/gpu/drm/rockchip/cdn-dp-core.c
++++ b/drivers/gpu/drm/rockchip/cdn-dp-core.c
+@@ -571,7 +571,7 @@ static void cdn_dp_encoder_mode_set(struct drm_encoder *encoder,
+ 	video->v_sync_polarity = !!(mode->flags & DRM_MODE_FLAG_NVSYNC);
+ 	video->h_sync_polarity = !!(mode->flags & DRM_MODE_FLAG_NHSYNC);
+ 
+-	memcpy(&dp->mode, adjusted, sizeof(*mode));
++	drm_mode_copy(&dp->mode, adjusted);
  }
  
- static void cleanup_smi_msgs(struct ipmi_smi *intf)
+ static bool cdn_dp_check_link_status(struct cdn_dp_device *dp)
+diff --git a/drivers/gpu/drm/rockchip/inno_hdmi.c b/drivers/gpu/drm/rockchip/inno_hdmi.c
+index 87b2243ea23e..f51774866f41 100644
+--- a/drivers/gpu/drm/rockchip/inno_hdmi.c
++++ b/drivers/gpu/drm/rockchip/inno_hdmi.c
+@@ -499,7 +499,7 @@ static void inno_hdmi_encoder_mode_set(struct drm_encoder *encoder,
+ 	inno_hdmi_setup(hdmi, adj_mode);
+ 
+ 	/* Store the display mode for plugin/DPMS poweron events */
+-	memcpy(&hdmi->previous_mode, adj_mode, sizeof(hdmi->previous_mode));
++	drm_mode_copy(&hdmi->previous_mode, adj_mode);
+ }
+ 
+ static void inno_hdmi_encoder_enable(struct drm_encoder *encoder)
+diff --git a/drivers/gpu/drm/rockchip/rk3066_hdmi.c b/drivers/gpu/drm/rockchip/rk3066_hdmi.c
+index cf2cf51091a3..90145ad96984 100644
+--- a/drivers/gpu/drm/rockchip/rk3066_hdmi.c
++++ b/drivers/gpu/drm/rockchip/rk3066_hdmi.c
+@@ -395,7 +395,7 @@ rk3066_hdmi_encoder_mode_set(struct drm_encoder *encoder,
+ 	struct rk3066_hdmi *hdmi = encoder_to_rk3066_hdmi(encoder);
+ 
+ 	/* Store the display mode for plugin/DPMS poweron events. */
+-	memcpy(&hdmi->previous_mode, adj_mode, sizeof(hdmi->previous_mode));
++	drm_mode_copy(&hdmi->previous_mode, adj_mode);
+ }
+ 
+ static void rk3066_hdmi_encoder_enable(struct drm_encoder *encoder)
 -- 
 2.35.1
 
