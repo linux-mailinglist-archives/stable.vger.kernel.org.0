@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AD7D65790C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:57:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9A2D657A18
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:07:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233271AbiL1O5C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:57:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44346 "EHLO
+        id S233597AbiL1PHr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:07:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233284AbiL1O5B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:57:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65B54DB9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:57:00 -0800 (PST)
+        with ESMTP id S233607AbiL1PHo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:07:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACF8213DC7
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:07:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0203C61544
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:57:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11990C433EF;
-        Wed, 28 Dec 2022 14:56:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A3456151F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:07:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55C09C433D2;
+        Wed, 28 Dec 2022 15:07:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239419;
-        bh=SW1YK86OFjuZtv+mCVN6Br7+c68iJykY64MAzTM/VA0=;
+        s=korg; t=1672240062;
+        bh=+e4kKoYMfsgLA0QIIilo188036g+bAIfSq9Ae03fcaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XTfVyp+g3jDtYM86kby/+YA+JndLWqgJNFmWLCMdBDDUTtnKSBj1XZoDO4ZXpufZg
-         84BVSdRiTDG7CabTEM/xWSaTs2nhFMbRRQLbA1bkMnHDLoTerEWdhqJ1QOc+X1fk7U
-         xHM+uu7RyhCdglwFSReZ9CRFpB7+yDi83P3RCPGY=
+        b=qeZrcYyD01DnQ6HfCGVl/Vfvc/58/7EuxaOcNfJSuA2SSausoE+9igkBQCJSwxJgk
+         VHVW/GYWjydEvdGXOrJMg8g/nDUguJpftW3p8gt+Wo8SnYRqj9RDBf7BpFB39IcO7/
+         te/3I4dI8bTbq/ObcEVu8GkvNgIrm9HkSVDu31cQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Georgi Vlaev <g-vlaev@ti.com>,
-        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0026/1073] firmware: ti_sci: Fix polled mode during system suspend
-Date:   Wed, 28 Dec 2022 15:26:54 +0100
-Message-Id: <20221228144328.858565434@linuxfoundation.org>
+        patches@lists.linux.dev,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0076/1146] arm64: dts: mediatek: pumpkin-common: Fix devicetree warnings
+Date:   Wed, 28 Dec 2022 15:26:55 +0100
+Message-Id: <20221228144332.215175544@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,58 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Georgi Vlaev <g-vlaev@ti.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit b13b2c3e0e4d0854228b5217fa34e145f3ace8ac ]
+[ Upstream commit 509438336ce75c8b4e6ce8e8d507dc77d0783bdd ]
 
-Commit b9e8a7d950ff ("firmware: ti_sci: Switch transport to polled
-mode during system suspend") uses read_poll_timeout_atomic() macro
-in ti_sci_do_xfer() to wait for completion when the system is
-suspending. The break condition of the macro is set to "true" which
-will cause it break immediately when evaluated, likely before the
-TISCI xfer is completed, and always return 0. We want to poll here
-until "done_state == true".
+Fix the pinctrl submodes and optee node to remove unneeded unit address,
+fixing all unit_address_vs_reg warnings.
 
-1) Change the break condition of read_poll_timeout_atomic() to
-the bool variable "done_state".
-
-2) The read_poll_timeout_atomic() returns 0 if the break condition
-is met or -ETIMEDOUT if not. Since our break condition has changed
-to "done_state", we also don't have to check for "!done_state" when
-evaluating the return value.
-
-Fixes: b9e8a7d950ff ("firmware: ti_sci: Switch transport to polled mode during system suspend")
-
-Signed-off-by: Georgi Vlaev <g-vlaev@ti.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20221021185704.181316-1-g-vlaev@ti.com
+Fixes: 9983822c8cf9 ("arm64: dts: mediatek: add pumpkin board dts")
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221013152212.416661-8-angelogioacchino.delregno@collabora.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/ti_sci.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/firmware/ti_sci.c b/drivers/firmware/ti_sci.c
-index ebc32bbd9b83..6281e7153b47 100644
---- a/drivers/firmware/ti_sci.c
-+++ b/drivers/firmware/ti_sci.c
-@@ -429,15 +429,14 @@ static inline int ti_sci_do_xfer(struct ti_sci_info *info,
- 		 * during noirq phase, so we must manually poll the completion.
- 		 */
- 		ret = read_poll_timeout_atomic(try_wait_for_completion, done_state,
--					       true, 1,
-+					       done_state, 1,
- 					       info->desc->max_rx_timeout_ms * 1000,
- 					       false, &xfer->done);
- 	}
+diff --git a/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi b/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
+index 8ee1529683a3..ec8dfb3d1c6d 100644
+--- a/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
++++ b/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
+@@ -17,7 +17,7 @@ chosen {
+ 	};
  
--	if (ret == -ETIMEDOUT || !done_state) {
-+	if (ret == -ETIMEDOUT)
- 		dev_err(dev, "Mbox timedout in resp(caller: %pS)\n",
- 			(void *)_RET_IP_);
--	}
+ 	firmware {
+-		optee: optee@4fd00000 {
++		optee: optee {
+ 			compatible = "linaro,optee-tz";
+ 			method = "smc";
+ 		};
+@@ -209,7 +209,7 @@ pins_cmd_dat {
+ 		};
+ 	};
  
- 	/*
- 	 * NOTE: we might prefer not to need the mailbox ticker to manage the
+-	i2c0_pins_a: i2c0@0 {
++	i2c0_pins_a: i2c0 {
+ 		pins1 {
+ 			pinmux = <MT8516_PIN_58_SDA0__FUNC_SDA0_0>,
+ 				 <MT8516_PIN_59_SCL0__FUNC_SCL0_0>;
+@@ -217,7 +217,7 @@ pins1 {
+ 		};
+ 	};
+ 
+-	i2c2_pins_a: i2c2@0 {
++	i2c2_pins_a: i2c2 {
+ 		pins1 {
+ 			pinmux = <MT8516_PIN_60_SDA2__FUNC_SDA2_0>,
+ 				 <MT8516_PIN_61_SCL2__FUNC_SCL2_0>;
 -- 
 2.35.1
 
