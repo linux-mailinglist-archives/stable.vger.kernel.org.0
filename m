@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE93A657DF8
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:48:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FE5E657871
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:51:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233625AbiL1Psm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:48:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36710 "EHLO
+        id S233077AbiL1OvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:51:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234064AbiL1Psk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:48:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21FD317E18
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:48:40 -0800 (PST)
+        with ESMTP id S233141AbiL1Oub (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:50:31 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B211311C28
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:50:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE0CDB81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:48:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 464C1C433EF;
-        Wed, 28 Dec 2022 15:48:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0ADE0CE1337
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:50:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03032C433D2;
+        Wed, 28 Dec 2022 14:50:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242517;
-        bh=yNKJ/JeG4BRvN8dpUNfGYLvAJuWcMDBqAXq8Tf3Wt2U=;
+        s=korg; t=1672239027;
+        bh=WKv8zFcSKSXuZRIJ8FZVNeNpus1f0H31HopYeYN6o8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q5/CNyBaYmb23d0nl0PGx5GyIMaDWHkD5fzvp6Sv1vuhr8cy4dSjUpz8ytGZQqsY6
-         H6aGY8da+Onq+fOd/TrJ2U7ZzpMI0XMcBsBVMWMxPTq/PxO/d9yphGEDMsHA9kSKvW
-         sKxL/ZpHXImJXe33F3h0nVFydZDUHI9SR9Bg50FI=
+        b=ny6Wy2wiJeseNtuPf4nwSlS9p/N8EeFjiUjz5kfVH8U6ix8VnSbR3cHOaO5FLYLcG
+         alCwPOsrNNc50UaMkZ53PKlxgrsmbBfOutLL0NbR1/cOYWICK4BLUz8T5cK3jljgSN
+         BjkdFtIVJRaODdrV9OiAUUbhHx196ijFoRd2NKEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Daniel Golle <daniel@makrotopia.org>,
-        Chen-Yu Tsai <wenst@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0419/1073] clk: mediatek: fix dependency of MT7986 ADC clocks
+        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
+        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 100/731] irqchip/wpcm450: Fix memory leak in wpcm450_aic_of_init()
 Date:   Wed, 28 Dec 2022 15:33:27 +0100
-Message-Id: <20221228144339.402151299@linuxfoundation.org>
+Message-Id: <20221228144259.450635751@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,39 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Golle <daniel@makrotopia.org>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit a46315295489933209e902638cd287aeb5f982ab ]
+[ Upstream commit 4208d4faf36573a507b5e5de17abe342e9276759 ]
 
-It seems like CLK_INFRA_ADC_FRC_CK always need to be enabled for
-CLK_INFRA_ADC_26M_CK to work. Instead of adding this dependency to the
-mtk-thermal and mt6577_auxadc drivers, add dependency to the clock
-driver clk-mt7986-infracfg.c.
+If of_iomap() failed, 'aic' should be freed before return. Otherwise
+there is a memory leak.
 
-Fixes: ec97d23c8e22 ("clk: mediatek: add mt7986 clock support")
-Suggested-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Signed-off-by: Daniel Golle <daniel@makrotopia.org>
-Link: https://lore.kernel.org/r/5e55012567da74870e1fb2edc2dc513b5821e523.1666801017.git.daniel@makrotopia.org
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Fixes: fead4dd49663 ("irqchip: Add driver for WPCM450 interrupt controller")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Reviewed-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20221115092532.1704032-1-weiyongjun@huaweicloud.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/mediatek/clk-mt7986-infracfg.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/irqchip/irq-wpcm450-aic.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clk/mediatek/clk-mt7986-infracfg.c b/drivers/clk/mediatek/clk-mt7986-infracfg.c
-index d90727a53283..49666047bf0e 100644
---- a/drivers/clk/mediatek/clk-mt7986-infracfg.c
-+++ b/drivers/clk/mediatek/clk-mt7986-infracfg.c
-@@ -153,7 +153,7 @@ static const struct mtk_gate infra_clks[] = {
- 		    18),
- 	GATE_INFRA1(CLK_INFRA_MSDC_66M_CK, "infra_msdc_66m", "infra_sysaxi_d2",
- 		    19),
--	GATE_INFRA1(CLK_INFRA_ADC_26M_CK, "infra_adc_26m", "csw_f26m_sel", 20),
-+	GATE_INFRA1(CLK_INFRA_ADC_26M_CK, "infra_adc_26m", "infra_adc_frc", 20),
- 	GATE_INFRA1(CLK_INFRA_ADC_FRC_CK, "infra_adc_frc", "csw_f26m_sel", 21),
- 	GATE_INFRA1(CLK_INFRA_FBIST2FPC_CK, "infra_fbist2fpc", "nfi1x_sel", 23),
- 	/* INFRA2 */
+diff --git a/drivers/irqchip/irq-wpcm450-aic.c b/drivers/irqchip/irq-wpcm450-aic.c
+index f3ac392d5bc8..36d0d0cf3fa2 100644
+--- a/drivers/irqchip/irq-wpcm450-aic.c
++++ b/drivers/irqchip/irq-wpcm450-aic.c
+@@ -146,6 +146,7 @@ static int __init wpcm450_aic_of_init(struct device_node *node,
+ 	aic->regs = of_iomap(node, 0);
+ 	if (!aic->regs) {
+ 		pr_err("Failed to map WPCM450 AIC registers\n");
++		kfree(aic);
+ 		return -ENOMEM;
+ 	}
+ 
 -- 
 2.35.1
 
