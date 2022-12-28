@@ -2,45 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F9046584D2
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:03:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC328657F1A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:01:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235333AbiL1RDL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:03:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54116 "EHLO
+        id S234286AbiL1QBS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:01:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235368AbiL1RCl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:02:41 -0500
+        with ESMTP id S234297AbiL1QBH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:01:07 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE8141CB28
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:56:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A796D19026
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:01:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1364961572
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:56:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15AA2C433D2;
-        Wed, 28 Dec 2022 16:56:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 26976613E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:01:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F0B0C433D2;
+        Wed, 28 Dec 2022 16:01:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246602;
-        bh=jqMMhqC+KUWqMG/6MO7S3vc5GtA11Uto8FtPzb7BOKs=;
+        s=korg; t=1672243265;
+        bh=IqGOLkZDuMkQFoWswRPL+TSHcMlupgZGnwiOJf+mk80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jT0FsQNhpKHr4KYhxxujbA04bYcaZt84UCVXxgh4ZqyKgWpL7Tip27F7bK+vjEVif
-         fsiwjUaE5deJ+/0qo0NpETNo+tN93mtvNWKT7n6sfNpitPKe5EMUOoQhKEQzDaF6BO
-         7dZDQu7aU1MS/OKjOaCmDpoW6JooVkmeH5GuUTEM=
+        b=vxUSGs2/8t0D1JUJzHQ6eIsaMObQOIAe2gMQEpPTic6syk8l6eGdOm+GXVo36nqaC
+         dzo79ewGOux7z0EzGUUEICWbVSP6gKY0xwk6WrWHLDvJv6e0fOkGwmnT9SvemdBqK/
+         T19WksyH/Q8uEZtVsyy71jowX9SWsN6B+vos/J4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Wei Wang <wvw@google.com>,
+        Midas Chien <midaschieh@google.com>,
+        Connor OBrien <connoro@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Anton Vorontsov <anton@enomsg.org>,
+        Colin Cross <ccross@android.com>,
+        Tony Luck <tony.luck@intel.com>,
+        kernel test robot <lkp@intel.com>, kernel-team@android.com,
+        John Stultz <jstultz@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1069/1146] ASoC: audio-graph-card: fix refcount leak of cpu_ep in __graph_for_each_link()
+Subject: [PATCH 5.15 701/731] pstore: Make sure CONFIG_PSTORE_PMSG selects CONFIG_RT_MUTEXES
 Date:   Wed, 28 Dec 2022 15:43:28 +0100
-Message-Id: <20221228144359.289991374@linuxfoundation.org>
+Message-Id: <20221228144316.782767655@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +60,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: John Stultz <jstultz@google.com>
 
-[ Upstream commit 8ab2d12c726f0fde0692fa5d81d8019b3dcd62d0 ]
+[ Upstream commit 2f4fec5943407318b9523f01ce1f5d668c028332 ]
 
-The of_get_next_child() returns a node with refcount incremented, and
-decrements the refcount of prev. So in the error path of the while loop,
-of_node_put() needs be called for cpu_ep.
+In commit 76d62f24db07 ("pstore: Switch pmsg_lock to an rt_mutex
+to avoid priority inversion") I changed a lock to an rt_mutex.
 
-Fixes: fce9b90c1ab7 ("ASoC: audio-graph-card: cleanup DAI link loop method - step2")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/1670228127-13835-1-git-send-email-wangyufen@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+However, its possible that CONFIG_RT_MUTEXES is not enabled,
+which then results in a build failure, as the 0day bot detected:
+  https://lore.kernel.org/linux-mm/202212211244.TwzWZD3H-lkp@intel.com/
+
+Thus this patch changes CONFIG_PSTORE_PMSG to select
+CONFIG_RT_MUTEXES, which ensures the build will not fail.
+
+Cc: Wei Wang <wvw@google.com>
+Cc: Midas Chien<midaschieh@google.com>
+Cc: Connor O'Brien <connoro@google.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Anton Vorontsov <anton@enomsg.org>
+Cc: Colin Cross <ccross@android.com>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: kernel test robot <lkp@intel.com>
+Cc: kernel-team@android.com
+Fixes: 76d62f24db07 ("pstore: Switch pmsg_lock to an rt_mutex to avoid priority inversion")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: John Stultz <jstultz@google.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221221051855.15761-1-jstultz@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/generic/audio-graph-card.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/pstore/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/generic/audio-graph-card.c b/sound/soc/generic/audio-graph-card.c
-index fe7cf972d44c..5daa824a4ffc 100644
---- a/sound/soc/generic/audio-graph-card.c
-+++ b/sound/soc/generic/audio-graph-card.c
-@@ -485,8 +485,10 @@ static int __graph_for_each_link(struct asoc_simple_priv *priv,
- 			of_node_put(codec_ep);
- 			of_node_put(codec_port);
- 
--			if (ret < 0)
-+			if (ret < 0) {
-+				of_node_put(cpu_ep);
- 				return ret;
-+			}
- 
- 			codec_port_old = codec_port;
- 		}
+diff --git a/fs/pstore/Kconfig b/fs/pstore/Kconfig
+index 8adabde685f1..c49d554cc9ae 100644
+--- a/fs/pstore/Kconfig
++++ b/fs/pstore/Kconfig
+@@ -126,6 +126,7 @@ config PSTORE_CONSOLE
+ config PSTORE_PMSG
+ 	bool "Log user space messages"
+ 	depends on PSTORE
++	select RT_MUTEXES
+ 	help
+ 	  When the option is enabled, pstore will export a character
+ 	  interface /dev/pmsg0 to log user space messages. On reboot
 -- 
 2.35.1
 
