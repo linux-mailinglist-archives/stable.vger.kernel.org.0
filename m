@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 689AC657F23
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:02:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B8C7657E52
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:52:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234305AbiL1QCI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:02:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48092 "EHLO
+        id S234146AbiL1Pws (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:52:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234307AbiL1QBn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:01:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3B8E193C8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:01:32 -0800 (PST)
+        with ESMTP id S234158AbiL1Pwm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:52:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90B9A186BE
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:52:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 08C4FB817AC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:01:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D520C433EF;
-        Wed, 28 Dec 2022 16:01:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DA03613E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:52:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16FECC433EF;
+        Wed, 28 Dec 2022 15:52:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243289;
-        bh=vo4S1oHrSDm2h7clVrV2HPzMdc4C2dejZJFSz/7FoP4=;
+        s=korg; t=1672242760;
+        bh=XruVT1UqczvTAAGUhyeAJkYGhX4i3qwN58gMXcrfFPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VTiw5MPGc13/Y9xhs45fDWm+AOOBURYbbCpK4W5KF4ft73mjo8wCZiE2O7IKN3Kr/
-         UIGdQfIhH+rNx9qhGG0rojwzHJQEPM7qZds/vW1OWzA0ZQL/ufCF0jL4pdGQZTTGDd
-         NuAafXPvoQhMI4UrpvGNZLG87MSfusPBZTo9jBoo=
+        b=IDyv2jgwMZ8dlGwHpYUVWds+nBSVfZoiZO8aficxS+e6h6Wm15TwjXgXZNlSeTjIY
+         YBlDGNk+EtbCqwS+k3+0HEm38F70dnhLVxc1Oc+1mhgu4JPNGj0DsXzH3d4QCn1Dl9
+         3QK6TGGTb3KQjGHyXo8gaXTk1LQTeg6jUkc7wjIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Jakub Kicinski <kuba@kernel.org>,
+        Konstantin Meskhidze <konstantin.meskhidze@huawei.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0472/1146] hsr: Disable netpoll.
-Date:   Wed, 28 Dec 2022 15:33:31 +0100
-Message-Id: <20221228144343.003909220@linuxfoundation.org>
+Subject: [PATCH 6.0 0424/1073] drm/amdkfd: Fix memory leakage
+Date:   Wed, 28 Dec 2022 15:33:32 +0100
+Message-Id: <20221228144339.539176749@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,127 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Konstantin Meskhidze <konstantin.meskhidze@huawei.com>
 
-[ Upstream commit d5c7652eb16fa203d82546e0285136d7b321ffa9 ]
+[ Upstream commit 75818afff631e1ea785a82c3e8bb82eb0dee539c ]
 
-The hsr device is a software device. Its
-net_device_ops::ndo_start_xmit() routine will process the packet and
-then pass the resulting skb to dev_queue_xmit().
-During processing, hsr acquires a lock with spin_lock_bh()
-(hsr_add_node()) which needs to be promoted to the _irq() suffix in
-order to avoid a potential deadlock.
-Then there are the warnings in dev_queue_xmit() (due to
-local_bh_disable() with disabled interrupts) left.
+This patch fixes potential memory leakage and seg fault
+in  _gpuvm_import_dmabuf() function
 
-Instead trying to address those (there is qdisc and…) for netpoll sake,
-just disable netpoll on hsr.
-
-Disable netpoll on hsr and replace the _irqsave() locking with _bh().
-
-Fixes: f421436a591d3 ("net/hsr: Add support for the High-availability Seamless Redundancy protocol (HSRv0)")
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: d4ec4bdc0bd5 ("drm/amdkfd: Allow access for mmapping KFD BOs")
+Signed-off-by: Konstantin Meskhidze <konstantin.meskhidze@huawei.com>
+Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/hsr/hsr_device.c  | 14 ++++++--------
- net/hsr/hsr_forward.c |  5 ++---
- 2 files changed, 8 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/hsr/hsr_device.c b/net/hsr/hsr_device.c
-index 7518f7e93043..84fba2a402a5 100644
---- a/net/hsr/hsr_device.c
-+++ b/net/hsr/hsr_device.c
-@@ -278,7 +278,6 @@ static void send_hsr_supervision_frame(struct hsr_port *master,
- 	__u8 type = HSR_TLV_LIFE_CHECK;
- 	struct hsr_sup_payload *hsr_sp;
- 	struct hsr_sup_tag *hsr_stag;
--	unsigned long irqflags;
- 	struct sk_buff *skb;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
+index 5e184952ec98..6659630303a3 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
+@@ -2253,7 +2253,7 @@ int amdgpu_amdkfd_gpuvm_import_dmabuf(struct amdgpu_device *adev,
  
- 	*interval = msecs_to_jiffies(HSR_LIFE_CHECK_INTERVAL);
-@@ -299,7 +298,7 @@ static void send_hsr_supervision_frame(struct hsr_port *master,
- 	set_hsr_stag_HSR_ver(hsr_stag, hsr->prot_version);
- 
- 	/* From HSRv1 on we have separate supervision sequence numbers. */
--	spin_lock_irqsave(&master->hsr->seqnr_lock, irqflags);
-+	spin_lock_bh(&hsr->seqnr_lock);
- 	if (hsr->prot_version > 0) {
- 		hsr_stag->sequence_nr = htons(hsr->sup_sequence_nr);
- 		hsr->sup_sequence_nr++;
-@@ -307,7 +306,7 @@ static void send_hsr_supervision_frame(struct hsr_port *master,
- 		hsr_stag->sequence_nr = htons(hsr->sequence_nr);
- 		hsr->sequence_nr++;
+ 	ret = drm_vma_node_allow(&obj->vma_node, drm_priv);
+ 	if (ret) {
+-		kfree(mem);
++		kfree(*mem);
+ 		return ret;
  	}
--	spin_unlock_irqrestore(&master->hsr->seqnr_lock, irqflags);
-+	spin_unlock_bh(&hsr->seqnr_lock);
- 
- 	hsr_stag->tlv.HSR_TLV_type = type;
- 	/* TODO: Why 12 in HSRv0? */
-@@ -332,7 +331,6 @@ static void send_prp_supervision_frame(struct hsr_port *master,
- 	struct hsr_priv *hsr = master->hsr;
- 	struct hsr_sup_payload *hsr_sp;
- 	struct hsr_sup_tag *hsr_stag;
--	unsigned long irqflags;
- 	struct sk_buff *skb;
- 
- 	skb = hsr_init_skb(master);
-@@ -347,7 +345,7 @@ static void send_prp_supervision_frame(struct hsr_port *master,
- 	set_hsr_stag_HSR_ver(hsr_stag, (hsr->prot_version ? 1 : 0));
- 
- 	/* From HSRv1 on we have separate supervision sequence numbers. */
--	spin_lock_irqsave(&master->hsr->seqnr_lock, irqflags);
-+	spin_lock_bh(&hsr->seqnr_lock);
- 	hsr_stag->sequence_nr = htons(hsr->sup_sequence_nr);
- 	hsr->sup_sequence_nr++;
- 	hsr_stag->tlv.HSR_TLV_type = PRP_TLV_LIFE_CHECK_DD;
-@@ -358,11 +356,11 @@ static void send_prp_supervision_frame(struct hsr_port *master,
- 	ether_addr_copy(hsr_sp->macaddress_A, master->dev->dev_addr);
- 
- 	if (skb_put_padto(skb, ETH_ZLEN)) {
--		spin_unlock_irqrestore(&master->hsr->seqnr_lock, irqflags);
-+		spin_unlock_bh(&hsr->seqnr_lock);
- 		return;
- 	}
- 
--	spin_unlock_irqrestore(&master->hsr->seqnr_lock, irqflags);
-+	spin_unlock_bh(&hsr->seqnr_lock);
- 
- 	hsr_forward_skb(skb, master);
- }
-@@ -444,7 +442,7 @@ void hsr_dev_setup(struct net_device *dev)
- 	dev->header_ops = &hsr_header_ops;
- 	dev->netdev_ops = &hsr_device_ops;
- 	SET_NETDEV_DEVTYPE(dev, &hsr_type);
--	dev->priv_flags |= IFF_NO_QUEUE;
-+	dev->priv_flags |= IFF_NO_QUEUE | IFF_DISABLE_NETPOLL;
- 
- 	dev->needs_free_netdev = true;
- 
-diff --git a/net/hsr/hsr_forward.c b/net/hsr/hsr_forward.c
-index a8befa35841e..a828221335bd 100644
---- a/net/hsr/hsr_forward.c
-+++ b/net/hsr/hsr_forward.c
-@@ -500,7 +500,6 @@ static void handle_std_frame(struct sk_buff *skb,
- {
- 	struct hsr_port *port = frame->port_rcv;
- 	struct hsr_priv *hsr = port->hsr;
--	unsigned long irqflags;
- 
- 	frame->skb_hsr = NULL;
- 	frame->skb_prp = NULL;
-@@ -510,10 +509,10 @@ static void handle_std_frame(struct sk_buff *skb,
- 		frame->is_from_san = true;
- 	} else {
- 		/* Sequence nr for the master node */
--		spin_lock_irqsave(&hsr->seqnr_lock, irqflags);
-+		spin_lock_bh(&hsr->seqnr_lock);
- 		frame->sequence_nr = hsr->sequence_nr;
- 		hsr->sequence_nr++;
--		spin_unlock_irqrestore(&hsr->seqnr_lock, irqflags);
-+		spin_unlock_bh(&hsr->seqnr_lock);
- 	}
- }
  
 -- 
 2.35.1
