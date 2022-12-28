@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE69C65808F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:18:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53A0165817B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:28:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233213AbiL1QSU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:18:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36684 "EHLO
+        id S233214AbiL1Q2w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:28:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233242AbiL1QRd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:17:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 765EC12630
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:16:21 -0800 (PST)
+        with ESMTP id S233306AbiL1Q22 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:28:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35724140A7
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:24:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 243E7B81707
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:16:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B8FCC433D2;
-        Wed, 28 Dec 2022 16:16:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C696361578
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:24:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1F95C433F0;
+        Wed, 28 Dec 2022 16:24:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244178;
-        bh=qkMFgexp8nZaj9OD53Qx/5VzT4kBWfcY4iurDVROmeY=;
+        s=korg; t=1672244676;
+        bh=McW/8nwFYSGcHhImg2cINQRrI6dxWYM/dTlcRg4RDc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LO6is1u6rmSGdqeSgSuIh+ZO+/tBVLi85WVtlNTt3uRzhVxaDKqZKvYeTim83K3q4
-         KdECsDhobsjLFcfEN3NZigDMKLA9WW3YKFgwZMq1emPiPJ/KeCpBd+Eh3Jqii38Mu4
-         RYkbbRWuyEsl27J11d211c8ukXN3wDxXU7bKX24A=
+        b=g7lBKUL0oagEQXWRpsNMYdcLhJkHPEYOp1gC596qTZu4ABuP4zoFoCMgAOe54N7o4
+         tZaXubN2Nys+jA9Y68txGFq+O6xdf2IMLuSFLy335P+jDlKL4EhV7eK04e/sXWFWhi
+         p5CFLpWTIufbAIbhu60AlZ5tsCmXfy0b37u/MqJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jon Hunter <jonathanh@nvidia.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Akhil R <akhilrajeev@nvidia.com>, Kartik <kkartik@nvidia.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Oded Gabbay <ogabbay@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0664/1073] serial: tegra: Read DMA status before terminating
+Subject: [PATCH 6.1 0713/1146] habanalabs: fix return value check in hl_fw_get_sec_attest_data()
 Date:   Wed, 28 Dec 2022 15:37:32 +0100
-Message-Id: <20221228144346.079730225@linuxfoundation.org>
+Message-Id: <20221228144349.511237980@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kartik <kkartik@nvidia.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 109a951a9f1fd8a34ebd1896cbbd5d5cede880a7 ]
+[ Upstream commit 8749c27895a369a99e4a21709b3e3bec4785778f ]
 
-Read the DMA status before terminating the DMA, as doing so deletes
-the DMA desc.
+If hl_cpu_accessible_dma_pool_alloc() fails, we should check
+'req_cpu_addr', fix it.
 
-Also, to get the correct transfer status information, pause the DMA
-using dmaengine_pause() before reading the DMA status.
-
-Fixes: e9ea096dd225 ("serial: tegra: add serial driver")
-Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Akhil R <akhilrajeev@nvidia.com>
-Signed-off-by: Kartik <kkartik@nvidia.com>
-Link: https://lore.kernel.org/r/1666105086-17326-1-git-send-email-kkartik@nvidia.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0c88760f8f5e ("habanalabs/gaudi2: add secured attestation info uapi")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
+Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/serial-tegra.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/misc/habanalabs/common/firmware_if.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/serial-tegra.c b/drivers/tty/serial/serial-tegra.c
-index a5748e41483b..ab549b79fde9 100644
---- a/drivers/tty/serial/serial-tegra.c
-+++ b/drivers/tty/serial/serial-tegra.c
-@@ -619,8 +619,9 @@ static void tegra_uart_stop_tx(struct uart_port *u)
- 	if (tup->tx_in_progress != TEGRA_UART_TX_DMA)
- 		return;
+diff --git a/drivers/misc/habanalabs/common/firmware_if.c b/drivers/misc/habanalabs/common/firmware_if.c
+index 2de6a9bd564d..f18e53bbba6b 100644
+--- a/drivers/misc/habanalabs/common/firmware_if.c
++++ b/drivers/misc/habanalabs/common/firmware_if.c
+@@ -2983,7 +2983,7 @@ static int hl_fw_get_sec_attest_data(struct hl_device *hdev, u32 packet_id, void
+ 	int rc;
  
--	dmaengine_terminate_all(tup->tx_dma_chan);
-+	dmaengine_pause(tup->tx_dma_chan);
- 	dmaengine_tx_status(tup->tx_dma_chan, tup->tx_cookie, &state);
-+	dmaengine_terminate_all(tup->tx_dma_chan);
- 	count = tup->tx_bytes_requested - state.residue;
- 	async_tx_ack(tup->tx_dma_desc);
- 	uart_xmit_advance(&tup->uport, count);
-@@ -763,8 +764,9 @@ static void tegra_uart_terminate_rx_dma(struct tegra_uart_port *tup)
- 		return;
- 	}
- 
--	dmaengine_terminate_all(tup->rx_dma_chan);
-+	dmaengine_pause(tup->rx_dma_chan);
- 	dmaengine_tx_status(tup->rx_dma_chan, tup->rx_cookie, &state);
-+	dmaengine_terminate_all(tup->rx_dma_chan);
- 
- 	tegra_uart_rx_buffer_push(tup, state.residue);
- 	tup->rx_dma_active = false;
+ 	req_cpu_addr = hl_cpu_accessible_dma_pool_alloc(hdev, size, &req_dma_addr);
+-	if (!data) {
++	if (!req_cpu_addr) {
+ 		dev_err(hdev->dev,
+ 			"Failed to allocate DMA memory for CPU-CP packet %u\n", packet_id);
+ 		return -ENOMEM;
 -- 
 2.35.1
 
