@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA784657F0A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:00:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6C616584CC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:03:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232978AbiL1QAc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:00:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47196 "EHLO
+        id S234514AbiL1RCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:02:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234241AbiL1QAa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:00:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8B5B18E3D;
-        Wed, 28 Dec 2022 08:00:28 -0800 (PST)
+        with ESMTP id S235293AbiL1RCT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:02:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACD971EEF7
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:56:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F186B8172B;
-        Wed, 28 Dec 2022 16:00:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C71EFC433D2;
-        Wed, 28 Dec 2022 16:00:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 52ECCB8188B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:56:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A08E1C433D2;
+        Wed, 28 Dec 2022 16:56:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243226;
-        bh=aUQxVDz3y30kaWOk7AXpRHyrMOSjZ8DJ+ldZR2Fp/4A=;
+        s=korg; t=1672246591;
+        bh=KlD3D7u19WG6ygNouAh4CCAwHkRueQdvkNn87zCeWiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=moYUkItKUkXQ4iTobZkq8PVJuFFXfp6KQ4xUIGWXzkrVuMn8JIMsx708s/cQr66xr
-         fHs4AGb8M+oylkw/jzsxVN5Q88VXkFUv23iW/5si+F8c7nJV0ODBvl8DFAyTCA1Q6m
-         BOh2LuYp4rXI86DPy3SGJdcOT/RWDctHegtZH7rc=
+        b=XqFlmTNX0JvUNdgSZY6apq5ViO8Z+h4zf3ioHPKJhnSDatDoRo8IZXgmKguTdAd/a
+         JZpnJYpowMj066hINe1HotwegHfCvkOhkHx5CsbYZlbmxyxg39Z8zx6Dxfgbc5Oa67
+         pkBzmDzPcoqbyrawHll+C1e7NLebFD0a3F1dhDGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paul Moore <paul@paul-moore.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        linux-security-module@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>,
-        Ping-Ke Shih <pkshih@realtek.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 697/731] LoadPin: Ignore the "contents" argument of the LSM hooks
+Subject: [PATCH 6.1 1065/1146] hwmon: (jc42) Fix missing unlock on error in jc42_write()
 Date:   Wed, 28 Dec 2022 15:43:24 +0100
-Message-Id: <20221228144316.667589916@linuxfoundation.org>
+Message-Id: <20221228144359.194339681@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,83 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 1a17e5b513ceebf21100027745b8731b4728edf7 ]
+[ Upstream commit b744db17abf6a2efc2bfa80870cc88e9799a8ccc ]
 
-LoadPin only enforces the read-only origin of kernel file reads. Whether
-or not it was a partial read isn't important. Remove the overly
-conservative checks so that things like partial firmware reads will
-succeed (i.e. reading a firmware header).
+Add the missing unlock before return from function jc42_write()
+in the error handling case.
 
-Fixes: 2039bda1fa8d ("LSM: Add "contents" flag to kernel_read_file hook")
-Cc: Paul Moore <paul@paul-moore.com>
-Cc: James Morris <jmorris@namei.org>
-Cc: "Serge E. Hallyn" <serge@hallyn.com>
-Cc: linux-security-module@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Acked-by: Serge Hallyn <serge@hallyn.com>
-Tested-by: Ping-Ke Shih <pkshih@realtek.com>
-Link: https://lore.kernel.org/r/20221209195453.never.494-kees@kernel.org
+Fixes: 37dedaee8bc6 ("hwmon: (jc42) Convert register access and caching to regmap/regcache")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Link: https://lore.kernel.org/r/20221027062931.598247-1-yangyingliang@huawei.com
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/loadpin/loadpin.c | 30 ++++++++++++++++++------------
- 1 file changed, 18 insertions(+), 12 deletions(-)
+ drivers/hwmon/jc42.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/loadpin/loadpin.c b/security/loadpin/loadpin.c
-index b12f7d986b1e..5fce105a372d 100644
---- a/security/loadpin/loadpin.c
-+++ b/security/loadpin/loadpin.c
-@@ -118,21 +118,11 @@ static void loadpin_sb_free_security(struct super_block *mnt_sb)
- 	}
- }
+diff --git a/drivers/hwmon/jc42.c b/drivers/hwmon/jc42.c
+index 0554b41c32bc..6593d81cb901 100644
+--- a/drivers/hwmon/jc42.c
++++ b/drivers/hwmon/jc42.c
+@@ -350,7 +350,7 @@ static int jc42_write(struct device *dev, enum hwmon_sensor_types type,
+ 		ret = regmap_read(data->regmap, JC42_REG_TEMP_CRITICAL,
+ 				  &regval);
+ 		if (ret)
+-			return ret;
++			break;
  
--static int loadpin_read_file(struct file *file, enum kernel_read_file_id id,
--			     bool contents)
-+static int loadpin_check(struct file *file, enum kernel_read_file_id id)
- {
- 	struct super_block *load_root;
- 	const char *origin = kernel_read_file_id_str(id);
- 
--	/*
--	 * If we will not know that we'll be seeing the full contents
--	 * then we cannot trust a load will be complete and unchanged
--	 * off disk. Treat all contents=false hooks as if there were
--	 * no associated file struct.
--	 */
--	if (!contents)
--		file = NULL;
--
- 	/* If the file id is excluded, ignore the pinning. */
- 	if ((unsigned int)id < ARRAY_SIZE(ignore_read_file_id) &&
- 	    ignore_read_file_id[id]) {
-@@ -187,9 +177,25 @@ static int loadpin_read_file(struct file *file, enum kernel_read_file_id id,
- 	return 0;
- }
- 
-+static int loadpin_read_file(struct file *file, enum kernel_read_file_id id,
-+			     bool contents)
-+{
-+	/*
-+	 * LoadPin only cares about the _origin_ of a file, not its
-+	 * contents, so we can ignore the "are full contents available"
-+	 * argument here.
-+	 */
-+	return loadpin_check(file, id);
-+}
-+
- static int loadpin_load_data(enum kernel_load_data_id id, bool contents)
- {
--	return loadpin_read_file(NULL, (enum kernel_read_file_id) id, contents);
-+	/*
-+	 * LoadPin only cares about the _origin_ of a file, not its
-+	 * contents, so a NULL file is passed, and we can ignore the
-+	 * state of "contents".
-+	 */
-+	return loadpin_check(NULL, (enum kernel_read_file_id) id);
- }
- 
- static struct security_hook_list loadpin_hooks[] __lsm_ro_after_init = {
+ 		/*
+ 		 * JC42.4 compliant chips only support four hysteresis values.
 -- 
 2.35.1
 
