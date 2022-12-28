@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0750658176
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:28:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6649A657BA9
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:24:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234689AbiL1Q2n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:28:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49274 "EHLO
+        id S233343AbiL1PYL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:24:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234686AbiL1Q2Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:28:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C91CB2189
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:24:23 -0800 (PST)
+        with ESMTP id S233713AbiL1PYG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:24:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 250BE1402A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:24:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 674ED61578
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:24:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7411DC433D2;
-        Wed, 28 Dec 2022 16:24:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B5EFB61567
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:24:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C139BC433EF;
+        Wed, 28 Dec 2022 15:24:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244662;
-        bh=0wxqIuC41VHbvzGNAJLK3kvZBi15ChrR6wbomyFkiaE=;
+        s=korg; t=1672241045;
+        bh=QcAXhnMJf0HaZcf+CL/5/q5zJxDCYkltjS2Y+Pa3fFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GgjslxlJCZ9ulOFqPx0X01novNn1a8mLik2RbY8RxHo0fpCVP5FN7yrE8DQa6o1it
-         8LAUHbVjXz5byeQ3aPNbiWXkhSpt4e7CcdekEB7a1e3sSGSf9MTXhcG/6/vdqvqkDV
-         glB64bJvTmElvB7cIJ241GYWG8Avt+JBH44U0CWw=
+        b=vlRK81hEFLsMungo0yjCnIwsqGKB4xktHiUK5NfYvTBDAZSrJy0oECX+JMLz/uud1
+         Cnj6CwpUXJuRPbiyFAUg/A33Wgkt8o5bTKamVRrp4rEAG3Bkwb032ONuWDh8FxGNyK
+         lxz+OuOXpAfwFds/liYcVs6V2lP4uD7Fq7U+6TB4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        patches@lists.linux.dev,
+        Chengchang Tang <tangchengchang@huawei.com>,
+        Haoyue Xu <xuhaoyue1@hisilicon.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0750/1073] power: supply: ab8500: Fix error handling in ab8500_charger_init()
+Subject: [PATCH 5.15 431/731] RDMA/hns: Fix page size cap from firmware
 Date:   Wed, 28 Dec 2022 15:38:58 +0100
-Message-Id: <20221228144348.392706285@linuxfoundation.org>
+Message-Id: <20221228144309.057282846@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Chengchang Tang <tangchengchang@huawei.com>
 
-[ Upstream commit c4d33381b134da188ccd1084aef21e2b8c3c422e ]
+[ Upstream commit 99dc5a0712883d5d13b620d25b3759d429577bc8 ]
 
-The ab8500_charger_init() returns the platform_driver_register() directly
-without checking its return value, if platform_driver_register() failed,
-all ab8500_charger_component_drivers are not unregistered.
+Add verification to make sure the roce page size cap is supported by the
+system page size.
 
-Fix by unregister ab8500_charger_component_drivers when
-platform_driver_register() failed.
-
-Fixes: 1c1f13a006ed ("power: supply: ab8500: Move to componentized binding")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes: ba6bb7e97421 ("RDMA/hns: Add interfaces to get pf capabilities from firmware")
+Link: https://lore.kernel.org/r/20221126102911.2921820-5-xuhaoyue1@hisilicon.com
+Signed-off-by: Chengchang Tang <tangchengchang@huawei.com>
+Signed-off-by: Haoyue Xu <xuhaoyue1@hisilicon.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/ab8500_charger.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/power/supply/ab8500_charger.c b/drivers/power/supply/ab8500_charger.c
-index c19c50442761..58757a5799f8 100644
---- a/drivers/power/supply/ab8500_charger.c
-+++ b/drivers/power/supply/ab8500_charger.c
-@@ -3719,7 +3719,14 @@ static int __init ab8500_charger_init(void)
- 	if (ret)
- 		return ret;
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index b9557be812b7..16f39321b319 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -2371,6 +2371,9 @@ static int hns_roce_query_pf_caps(struct hns_roce_dev *hr_dev)
+ 					  V2_QUERY_PF_CAPS_D_RQWQE_HOP_NUM_M,
+ 					  V2_QUERY_PF_CAPS_D_RQWQE_HOP_NUM_S);
  
--	return platform_driver_register(&ab8500_charger_driver);
-+	ret = platform_driver_register(&ab8500_charger_driver);
-+	if (ret) {
-+		platform_unregister_drivers(ab8500_charger_component_drivers,
-+				ARRAY_SIZE(ab8500_charger_component_drivers));
-+		return ret;
-+	}
++	if (!(caps->page_size_cap & PAGE_SIZE))
++		caps->page_size_cap = HNS_ROCE_V2_PAGE_SIZE_SUPPORTED;
 +
-+	return 0;
+ 	return 0;
  }
  
- static void __exit ab8500_charger_exit(void)
 -- 
 2.35.1
 
