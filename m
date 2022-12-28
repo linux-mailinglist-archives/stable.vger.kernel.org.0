@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7344B657A34
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:08:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42CEC658048
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:16:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233641AbiL1PI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:08:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55882 "EHLO
+        id S234430AbiL1QQj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:16:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233642AbiL1PIt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:08:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDD4413D7B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:08:48 -0800 (PST)
+        with ESMTP id S233195AbiL1QQM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:16:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0236F1A832
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:13:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 93B1AB8172A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:08:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC85AC433EF;
-        Wed, 28 Dec 2022 15:08:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9302B613E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:13:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A64BDC433D2;
+        Wed, 28 Dec 2022 16:13:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240126;
-        bh=nbsY3WSVrPhxu28msYZko4vjGpymjKrQS4avgwvyqEM=;
+        s=korg; t=1672244011;
+        bh=Rqj/a2ICEmz+v5M+FMzlp9ojwTJkXcBQSB4AMqRxBfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cp2NQAf3yOLlMpVgI2HIaDYAYzP5eioAegm6semmQEQxf0i9EuTeiinc0c8UbBngt
-         xTuCGAl+XqjdxLYSh03Nt2G52FxYegzUsNLHzzVwQdHKUrWnmNINxtaoZrfYPzWbYt
-         4RSRsrUFcVl1fR7iIerGHbUGd5OhQKmYXAFBHP4A=
+        b=o8UbJozyvHhDgPnhQSGzF7xQS8BJF69xSOhxqBo0ekMI7OMOJGT+YQQAy9xyK7i8x
+         3njNEgYeksHZ8mQuU/KyCoTxy0E26m3BVbmS1Bo41Sr2orunpvyRhAxqL1l6T3m6os
+         pY4zn6e2NwGVZ9Q84MN7XnJmjsI57rOyTvzpcmqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        patches@lists.linux.dev, Bart Van Assche <bvanassche@acm.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 312/731] media: coda: Add check for dcoda_iram_alloc
+Subject: [PATCH 6.0 0631/1073] scsi: ufs: core: Fix the polling implementation
 Date:   Wed, 28 Dec 2022 15:36:59 +0100
-Message-Id: <20221228144305.621829166@linuxfoundation.org>
+Message-Id: <20221228144345.180445294@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 6b8082238fb8bb20f67e46388123e67a5bbc558d ]
+[ Upstream commit ee8c88cab4afbd5ee10a127d6cbecd6b200185a5 ]
 
-As the coda_iram_alloc may return NULL pointer,
-it should be better to check the return value
-in order to avoid NULL poineter dereference,
-same as the others.
+Fix the following issues in ufshcd_poll():
 
-Fixes: b313bcc9a467 ("[media] coda: simplify IRAM setup")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+ - If polling succeeds, return a positive value.
+
+ - Do not complete polling requests from interrupt context because the
+   block layer expects these requests to be completed from thread
+   context. From block/bio.c:
+
+     If REQ_ALLOC_CACHE is set, the final put of the bio MUST be done from
+     process context, not hard/soft IRQ.
+
+Fixes: eaab9b573054 ("scsi: ufs: Implement polling support")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Link: https://lore.kernel.org/r/20221118233717.441298-1-bvanassche@acm.org
+Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/coda/coda-bit.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/ufs/core/ufshcd.c | 28 ++++++++++++++++++++++++++--
+ 1 file changed, 26 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
-index c484c008ab02..284608845b85 100644
---- a/drivers/media/platform/coda/coda-bit.c
-+++ b/drivers/media/platform/coda/coda-bit.c
-@@ -852,7 +852,7 @@ static void coda_setup_iram(struct coda_ctx *ctx)
- 		/* Only H.264BP and H.263P3 are considered */
- 		iram_info->buf_dbk_y_use = coda_iram_alloc(iram_info, w64);
- 		iram_info->buf_dbk_c_use = coda_iram_alloc(iram_info, w64);
--		if (!iram_info->buf_dbk_c_use)
-+		if (!iram_info->buf_dbk_y_use || !iram_info->buf_dbk_c_use)
- 			goto out;
- 		iram_info->axi_sram_use |= dbk_bits;
+diff --git a/drivers/ufs/core/ufshcd.c b/drivers/ufs/core/ufshcd.c
+index a202d7d5240d..9a7eae79d32d 100644
+--- a/drivers/ufs/core/ufshcd.c
++++ b/drivers/ufs/core/ufshcd.c
+@@ -5378,6 +5378,26 @@ static void __ufshcd_transfer_req_compl(struct ufs_hba *hba,
+ 	}
+ }
  
-@@ -876,7 +876,7 @@ static void coda_setup_iram(struct coda_ctx *ctx)
++/* Any value that is not an existing queue number is fine for this constant. */
++enum {
++	UFSHCD_POLL_FROM_INTERRUPT_CONTEXT = -1
++};
++
++static void ufshcd_clear_polled(struct ufs_hba *hba,
++				unsigned long *completed_reqs)
++{
++	int tag;
++
++	for_each_set_bit(tag, completed_reqs, hba->nutrs) {
++		struct scsi_cmnd *cmd = hba->lrb[tag].cmd;
++
++		if (!cmd)
++			continue;
++		if (scsi_cmd_to_rq(cmd)->cmd_flags & REQ_POLLED)
++			__clear_bit(tag, completed_reqs);
++	}
++}
++
+ /*
+  * Returns > 0 if one or more commands have been completed or 0 if no
+  * requests have been completed.
+@@ -5394,13 +5414,17 @@ static int ufshcd_poll(struct Scsi_Host *shost, unsigned int queue_num)
+ 	WARN_ONCE(completed_reqs & ~hba->outstanding_reqs,
+ 		  "completed: %#lx; outstanding: %#lx\n", completed_reqs,
+ 		  hba->outstanding_reqs);
++	if (queue_num == UFSHCD_POLL_FROM_INTERRUPT_CONTEXT) {
++		/* Do not complete polled requests from interrupt context. */
++		ufshcd_clear_polled(hba, &completed_reqs);
++	}
+ 	hba->outstanding_reqs &= ~completed_reqs;
+ 	spin_unlock_irqrestore(&hba->outstanding_lock, flags);
  
- 		iram_info->buf_dbk_y_use = coda_iram_alloc(iram_info, w128);
- 		iram_info->buf_dbk_c_use = coda_iram_alloc(iram_info, w128);
--		if (!iram_info->buf_dbk_c_use)
-+		if (!iram_info->buf_dbk_y_use || !iram_info->buf_dbk_c_use)
- 			goto out;
- 		iram_info->axi_sram_use |= dbk_bits;
+ 	if (completed_reqs)
+ 		__ufshcd_transfer_req_compl(hba, completed_reqs);
  
+-	return completed_reqs;
++	return completed_reqs != 0;
+ }
+ 
+ /**
+@@ -5431,7 +5455,7 @@ static irqreturn_t ufshcd_transfer_req_compl(struct ufs_hba *hba)
+ 	 * Ignore the ufshcd_poll() return value and return IRQ_HANDLED since we
+ 	 * do not want polling to trigger spurious interrupt complaints.
+ 	 */
+-	ufshcd_poll(hba->host, 0);
++	ufshcd_poll(hba->host, UFSHCD_POLL_FROM_INTERRUPT_CONTEXT);
+ 
+ 	return IRQ_HANDLED;
+ }
 -- 
 2.35.1
 
