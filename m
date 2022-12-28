@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A43D657AC5
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:14:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD70A6579AB
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:03:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233075AbiL1PO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:14:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60082 "EHLO
+        id S233437AbiL1PDf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:03:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233085AbiL1POm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:14:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2476013F4A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:14:41 -0800 (PST)
+        with ESMTP id S233461AbiL1PDd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:03:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 245E611C18
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:03:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5E24B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:14:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E58A3C433EF;
-        Wed, 28 Dec 2022 15:14:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF3D5B81707
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:03:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 260F8C433EF;
+        Wed, 28 Dec 2022 15:03:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240478;
-        bh=do6E1Hvc2Ykge0seq7E8fcpVmZby72dSdcjqsOIhh/k=;
+        s=korg; t=1672239809;
+        bh=CQKpZh96KJ/iON2QTN4/3/iYUmRNwQLrTn4JUlgSRqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OCbg4I0eQHKgIl1PP+mbXiREPHMkykTChmCYxkEP7juePNfH7IWq5QQvCnyv258pr
-         zHVtVaiXslqixE76vVPUFpTsiBSPaDTI9kad9D8svyLlJdOugBmUl/bPAC97+0vzQq
-         CupUPXMuEGynrg3qaUzEyVtw4yckByBXmK2VYbI0=
+        b=U8QqVJP3sbXFNlt36CvCvdi+kY6PpoBZW33Y3P9R+BB35mNQreqgbyII30AmvtDDd
+         4edCjydlg+6XzG9aT/QtbP5g3PN+iG3tzKkCZOcRTinl5I79BshcHPmf//i4+KCdTF
+         kO+7fjBcMeqIFCuOCAUTAI9TWSrAwOHwthXs6Jcc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Sven Peter <sven@svenpeter.dev>,
+        Hector Martin <marcan@marcan.st>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0130/1146] ocfs2: fix memory leak in ocfs2_stack_glue_init()
+Subject: [PATCH 6.0 0081/1073] soc: apple: rtkit: Stop casting function pointer signatures
 Date:   Wed, 28 Dec 2022 15:27:49 +0100
-Message-Id: <20221228144333.683165494@linuxfoundation.org>
+Message-Id: <20221228144330.266066295@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,71 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Sven Peter <sven@svenpeter.dev>
 
-[ Upstream commit 13b6269dd022aaa69ca8d1df374ab327504121cf ]
+[ Upstream commit 5acf07ff25f0c1c44105e6b8ebf88c55a0a04d2f ]
 
-ocfs2_table_header should be free in ocfs2_stack_glue_init() if
-ocfs2_sysfs_init() failed, otherwise kmemleak will report memleak.
-
-BUG: memory leak
-unreferenced object 0xffff88810eeb5800 (size 128):
-  comm "modprobe", pid 4507, jiffies 4296182506 (age 55.888s)
-  hex dump (first 32 bytes):
-    c0 40 14 a0 ff ff ff ff 00 00 00 00 01 00 00 00  .@..............
-    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000001e59e1cd>] __register_sysctl_table+0xca/0xef0
-    [<00000000c04f70f7>] 0xffffffffa0050037
-    [<000000001bd12912>] do_one_initcall+0xdb/0x480
-    [<0000000064f766c9>] do_init_module+0x1cf/0x680
-    [<000000002ba52db0>] load_module+0x6441/0x6f20
-    [<000000009772580d>] __do_sys_finit_module+0x12f/0x1c0
-    [<00000000380c1f22>] do_syscall_64+0x3f/0x90
-    [<000000004cf473bc>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Link: https://lkml.kernel.org/r/41651ca1-432a-db34-eb97-d35744559de1@linux.alibaba.com
-Fixes: 3878f110f71a ("ocfs2: Move the hb_ctl_path sysctl into the stack glue.")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 9bd1d9a0d8bb ("soc: apple: Add RTKit IPC library")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Sven Peter <sven@svenpeter.dev>
+Signed-off-by: Hector Martin <marcan@marcan.st>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/stackglue.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/soc/apple/rtkit.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/fs/ocfs2/stackglue.c b/fs/ocfs2/stackglue.c
-index 317126261523..a8d5ca98fa57 100644
---- a/fs/ocfs2/stackglue.c
-+++ b/fs/ocfs2/stackglue.c
-@@ -669,6 +669,8 @@ static struct ctl_table_header *ocfs2_table_header;
- 
- static int __init ocfs2_stack_glue_init(void)
- {
-+	int ret;
-+
- 	strcpy(cluster_stack_name, OCFS2_STACK_PLUGIN_O2CB);
- 
- 	ocfs2_table_header = register_sysctl("fs/ocfs2/nm", ocfs2_nm_table);
-@@ -678,7 +680,11 @@ static int __init ocfs2_stack_glue_init(void)
- 		return -ENOMEM; /* or something. */
- 	}
- 
--	return ocfs2_sysfs_init();
-+	ret = ocfs2_sysfs_init();
-+	if (ret)
-+		unregister_sysctl_table(ocfs2_table_header);
-+
-+	return ret;
+diff --git a/drivers/soc/apple/rtkit.c b/drivers/soc/apple/rtkit.c
+index cf1129e9f76b..d9329b4d8e1b 100644
+--- a/drivers/soc/apple/rtkit.c
++++ b/drivers/soc/apple/rtkit.c
+@@ -920,8 +920,10 @@ int apple_rtkit_wake(struct apple_rtkit *rtk)
  }
+ EXPORT_SYMBOL_GPL(apple_rtkit_wake);
  
- static void __exit ocfs2_stack_glue_exit(void)
+-static void apple_rtkit_free(struct apple_rtkit *rtk)
++static void apple_rtkit_free(void *data)
+ {
++	struct apple_rtkit *rtk = data;
++
+ 	mbox_free_channel(rtk->mbox_chan);
+ 	destroy_workqueue(rtk->wq);
+ 
+@@ -944,8 +946,7 @@ struct apple_rtkit *devm_apple_rtkit_init(struct device *dev, void *cookie,
+ 	if (IS_ERR(rtk))
+ 		return rtk;
+ 
+-	ret = devm_add_action_or_reset(dev, (void (*)(void *))apple_rtkit_free,
+-				       rtk);
++	ret = devm_add_action_or_reset(dev, apple_rtkit_free, rtk);
+ 	if (ret)
+ 		return ERR_PTR(ret);
+ 
 -- 
 2.35.1
 
