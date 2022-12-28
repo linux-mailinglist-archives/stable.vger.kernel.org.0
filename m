@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9561C6579C6
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:04:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCEF265800E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:13:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233501AbiL1PEv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:04:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52228 "EHLO
+        id S234530AbiL1QNV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:13:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233527AbiL1PEg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:04:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2268413D49
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:04:35 -0800 (PST)
+        with ESMTP id S234710AbiL1QMa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:12:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 940D6192A1
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:10:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE46EB816D6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:04:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49C1BC433F0;
-        Wed, 28 Dec 2022 15:04:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2F197B81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:10:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EFB9C433F0;
+        Wed, 28 Dec 2022 16:10:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239872;
-        bh=iyu9Upqa+B+/0iUubhYlutIvi5/UDytjojjYFweiQSw=;
+        s=korg; t=1672243852;
+        bh=+4Zvaa0MdZ8E7XuqalKiyLuNju0/wJug6N0636E/LTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FbIttuM2m2VBXgxb1fHxXZk46/MwQoBebxxraTnF1GJQyFNeEuZ5G2I4pCHZ3Cjb9
-         GJbllIvWA8DEi6rVYNbVJZH2wQvF4Wjd7LvrBIFS4OmBcX4/dhWHjEVdmQ7PX3mvS3
-         zL1BT+tfIrTYsdhTZfe+yqmtGcwHIrPaD3+PiRFU=
+        b=Tf8bs1bNEMYwPEZwkTTloBDOQ9IIqjWlEUPIVHlNpPFtKcRsFokVBy1oFhbKH9L9t
+         tqraFNVFqcfeMb9uQTcLz4i9CkqeH5/WEDc+beYsbKocQ6OUTljnuuhOXaRRwg8y6m
+         l3zyUnMgHdNvhiuT3Kbz0PA7fS0FG3JILQq1pQo0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 280/731] regulator: core: fix resource leak in regulator_register()
+Subject: [PATCH 6.0 0599/1073] crypto: cryptd - Use request context instead of stack for sub-request
 Date:   Wed, 28 Dec 2022 15:36:27 +0100
-Message-Id: <20221228144304.689577366@linuxfoundation.org>
+Message-Id: <20221228144344.316258443@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,69 +52,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit ba62319a42c50e6254e98b3f316464fac8e77968 ]
+[ Upstream commit 3a58c231172537f7b0e19d93ed33decd04f80eab ]
 
-I got some resource leak reports while doing fault injection test:
+cryptd is buggy as it tries to use sync_skcipher without going
+through the proper sync_skcipher interface.  In fact it doesn't
+even need sync_skcipher since it's already a proper skcipher and
+can easily access the request context instead of using something
+off the stack.
 
-  OF: ERROR: memory leak, expected refcount 1 instead of 100,
-  of_node_get()/of_node_put() unbalanced - destroy cset entry:
-  attach overlay node /i2c/pmic@64/regulators/buck1
-
-unreferenced object 0xffff88810deea000 (size 512):
-  comm "490-i2c-rt5190a", pid 253, jiffies 4294859840 (age 5061.046s)
-  hex dump (first 32 bytes):
-    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
-    ff ff ff ff ff ff ff ff a0 1e 00 a1 ff ff ff ff  ................
-  backtrace:
-    [<00000000d78541e2>] kmalloc_trace+0x21/0x110
-    [<00000000b343d153>] device_private_init+0x32/0xd0
-    [<00000000be1f0c70>] device_add+0xb2d/0x1030
-    [<00000000e3e6344d>] regulator_register+0xaf2/0x12a0
-    [<00000000e2f5e754>] devm_regulator_register+0x57/0xb0
-    [<000000008b898197>] rt5190a_probe+0x52a/0x861 [rt5190a_regulator]
-
-unreferenced object 0xffff88810b617b80 (size 32):
-  comm "490-i2c-rt5190a", pid 253, jiffies 4294859904 (age 5060.983s)
-  hex dump (first 32 bytes):
-    72 65 67 75 6c 61 74 6f 72 2e 32 38 36 38 2d 53  regulator.2868-S
-    55 50 50 4c 59 00 ff ff 29 00 00 00 2b 00 00 00  UPPLY...)...+...
-  backtrace:
-    [<000000009da9280d>] __kmalloc_node_track_caller+0x44/0x1b0
-    [<0000000025c6a4e5>] kstrdup+0x3a/0x70
-    [<00000000790efb69>] create_regulator+0xc0/0x4e0
-    [<0000000005ed203a>] regulator_resolve_supply+0x2d4/0x440
-    [<0000000045796214>] regulator_register+0x10b3/0x12a0
-    [<00000000e2f5e754>] devm_regulator_register+0x57/0xb0
-    [<000000008b898197>] rt5190a_probe+0x52a/0x861 [rt5190a_regulator]
-
-After calling regulator_resolve_supply(), the 'rdev->supply' is set
-by set_supply(), after this set, in the error path, the resources
-need be released, so call regulator_put() to avoid the leaks.
-
-Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
-Fixes: 8a866d527ac0 ("regulator: core: Resolve supply name earlier to prevent double-init")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221202025111.496402-1-yangyingliang@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 36b3875a97b8 ("crypto: cryptd - Remove VLA usage of skcipher")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 1 +
- 1 file changed, 1 insertion(+)
+ crypto/cryptd.c | 36 +++++++++++++++++++-----------------
+ 1 file changed, 19 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index ab93debb817c..1a5aeb4868aa 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -5548,6 +5548,7 @@ regulator_register(const struct regulator_desc *regulator_desc,
- 	regulator_remove_coupling(rdev);
- 	mutex_unlock(&regulator_list_mutex);
- wash:
-+	regulator_put(rdev->supply);
- 	kfree(rdev->coupling_desc.coupled_rdevs);
- 	mutex_lock(&regulator_list_mutex);
- 	regulator_ena_gpio_free(rdev);
+diff --git a/crypto/cryptd.c b/crypto/cryptd.c
+index 668095eca0fa..ca3a40fc7da9 100644
+--- a/crypto/cryptd.c
++++ b/crypto/cryptd.c
+@@ -68,11 +68,12 @@ struct aead_instance_ctx {
+ 
+ struct cryptd_skcipher_ctx {
+ 	refcount_t refcnt;
+-	struct crypto_sync_skcipher *child;
++	struct crypto_skcipher *child;
+ };
+ 
+ struct cryptd_skcipher_request_ctx {
+ 	crypto_completion_t complete;
++	struct skcipher_request req;
+ };
+ 
+ struct cryptd_hash_ctx {
+@@ -227,13 +228,13 @@ static int cryptd_skcipher_setkey(struct crypto_skcipher *parent,
+ 				  const u8 *key, unsigned int keylen)
+ {
+ 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(parent);
+-	struct crypto_sync_skcipher *child = ctx->child;
++	struct crypto_skcipher *child = ctx->child;
+ 
+-	crypto_sync_skcipher_clear_flags(child, CRYPTO_TFM_REQ_MASK);
+-	crypto_sync_skcipher_set_flags(child,
+-				       crypto_skcipher_get_flags(parent) &
+-					 CRYPTO_TFM_REQ_MASK);
+-	return crypto_sync_skcipher_setkey(child, key, keylen);
++	crypto_skcipher_clear_flags(child, CRYPTO_TFM_REQ_MASK);
++	crypto_skcipher_set_flags(child,
++				  crypto_skcipher_get_flags(parent) &
++				  CRYPTO_TFM_REQ_MASK);
++	return crypto_skcipher_setkey(child, key, keylen);
+ }
+ 
+ static void cryptd_skcipher_complete(struct skcipher_request *req, int err)
+@@ -258,13 +259,13 @@ static void cryptd_skcipher_encrypt(struct crypto_async_request *base,
+ 	struct cryptd_skcipher_request_ctx *rctx = skcipher_request_ctx(req);
+ 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+ 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(tfm);
+-	struct crypto_sync_skcipher *child = ctx->child;
+-	SYNC_SKCIPHER_REQUEST_ON_STACK(subreq, child);
++	struct skcipher_request *subreq = &rctx->req;
++	struct crypto_skcipher *child = ctx->child;
+ 
+ 	if (unlikely(err == -EINPROGRESS))
+ 		goto out;
+ 
+-	skcipher_request_set_sync_tfm(subreq, child);
++	skcipher_request_set_tfm(subreq, child);
+ 	skcipher_request_set_callback(subreq, CRYPTO_TFM_REQ_MAY_SLEEP,
+ 				      NULL, NULL);
+ 	skcipher_request_set_crypt(subreq, req->src, req->dst, req->cryptlen,
+@@ -286,13 +287,13 @@ static void cryptd_skcipher_decrypt(struct crypto_async_request *base,
+ 	struct cryptd_skcipher_request_ctx *rctx = skcipher_request_ctx(req);
+ 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+ 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(tfm);
+-	struct crypto_sync_skcipher *child = ctx->child;
+-	SYNC_SKCIPHER_REQUEST_ON_STACK(subreq, child);
++	struct skcipher_request *subreq = &rctx->req;
++	struct crypto_skcipher *child = ctx->child;
+ 
+ 	if (unlikely(err == -EINPROGRESS))
+ 		goto out;
+ 
+-	skcipher_request_set_sync_tfm(subreq, child);
++	skcipher_request_set_tfm(subreq, child);
+ 	skcipher_request_set_callback(subreq, CRYPTO_TFM_REQ_MAY_SLEEP,
+ 				      NULL, NULL);
+ 	skcipher_request_set_crypt(subreq, req->src, req->dst, req->cryptlen,
+@@ -343,9 +344,10 @@ static int cryptd_skcipher_init_tfm(struct crypto_skcipher *tfm)
+ 	if (IS_ERR(cipher))
+ 		return PTR_ERR(cipher);
+ 
+-	ctx->child = (struct crypto_sync_skcipher *)cipher;
++	ctx->child = cipher;
+ 	crypto_skcipher_set_reqsize(
+-		tfm, sizeof(struct cryptd_skcipher_request_ctx));
++		tfm, sizeof(struct cryptd_skcipher_request_ctx) +
++		     crypto_skcipher_reqsize(cipher));
+ 	return 0;
+ }
+ 
+@@ -353,7 +355,7 @@ static void cryptd_skcipher_exit_tfm(struct crypto_skcipher *tfm)
+ {
+ 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(tfm);
+ 
+-	crypto_free_sync_skcipher(ctx->child);
++	crypto_free_skcipher(ctx->child);
+ }
+ 
+ static void cryptd_skcipher_free(struct skcipher_instance *inst)
+@@ -931,7 +933,7 @@ struct crypto_skcipher *cryptd_skcipher_child(struct cryptd_skcipher *tfm)
+ {
+ 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(&tfm->base);
+ 
+-	return &ctx->child->base;
++	return ctx->child;
+ }
+ EXPORT_SYMBOL_GPL(cryptd_skcipher_child);
+ 
 -- 
 2.35.1
 
