@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7597E657CDF
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:37:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E8B865781C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233902AbiL1Pgz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:36:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54564 "EHLO
+        id S232953AbiL1OsF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:48:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233494AbiL1Pgy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:36:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 076331583A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:36:54 -0800 (PST)
+        with ESMTP id S233049AbiL1Orj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:47:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A4C4120A1
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:47:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 99E186154D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:36:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A52E2C433F0;
-        Wed, 28 Dec 2022 15:36:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C5F3AB81717
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:47:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D7CBC433EF;
+        Wed, 28 Dec 2022 14:47:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241813;
-        bh=r5T/QLqhwEd5e6IvFyVfQ+TBmpksnfSfuadkJrqHTuM=;
+        s=korg; t=1672238824;
+        bh=HWxsBJe9i8Mk+VtC8Gc2vXYKrFegR25UE1RIBfChVvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rvz0hJTGQppfKr7MHjQHXuDgOlRUJolJ5a552iXdPXT3khhObcJVLVsRqCiWoP7vE
-         IHmKQE8tll+2Fqru92fL9qKhBgLj9io7aQznBTYvo9sPfWaFj7fNxPBZWKdMDVnkpN
-         Fqxotfs+O3jvesnk21mqqiRdKJhlnl/BF0i5xbkw=
+        b=IlEYrjb1o8/G/0sIVXBTD2TnSbxp6YTTMNIG8iLI8KZ/A5+k8NC+so/z4SSCixC/T
+         03dltyL+8SRQC63mOXR176JdGymSSGP+ma60tVHlvKFBIBwiRCIiIpyUqvw5yG4IBL
+         xG6gd2tyZ5KfI85YvwNnNaRzqawh7l8Lbh3Hah18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Mike Snitzer <snitzer@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0330/1073] block: clear ->slave_dir when dropping the main slave_dir reference
+        patches@lists.linux.dev,
+        Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 011/731] arm64: dts: qcom: msm8916: Drop MSS fallback compatible
 Date:   Wed, 28 Dec 2022 15:31:58 +0100
-Message-Id: <20221228144336.967360506@linuxfoundation.org>
+Message-Id: <20221228144256.866892481@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
 
-[ Upstream commit d90db3b1c8676bc88b4309c5a571333de2263b8e ]
+[ Upstream commit ff02ac621634e82c0c34d02a79d402ae700cdfd0 ]
 
-Zero out the pointer to ->slave_dir so that the holder code doesn't
-incorrectly treat the object as alive when add_disk failed or after
-del_gendisk was called.
+MSM8916 was originally using the "qcom,q6v5-pil" compatible for the
+MSS remoteproc. Later it was decided to use SoC-specific compatibles
+instead, so "qcom,msm8916-mss-pil" is now the preferred compatible.
 
-Fixes: 89f871af1b26 ("dm: delay registering the gendisk")
-Reported-by: Yu Kuai <yukuai3@huawei.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Mike Snitzer <snitzer@kernel.org>
-Link: https://lore.kernel.org/r/20221115141054.1051801-2-yukuai1@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Commit 60a05ed059a0 ("arm64: dts: qcom: msm8916: Add MSM8916-specific
+compatibles to SCM/MSS") updated the MSM8916 device tree to make use of
+the new compatible but still kept the old "qcom,q6v5-pil" as fallback.
+
+This is inconsistent with other SoCs and conflicts with the description
+in the binding documentation (which says that only one compatible should
+be present). Also, it has no functional advantage since older kernels
+could not handle this DT anyway (e.g. "power-domains" in the MSS node is
+only supported by kernels that also support "qcom,msm8916-mss-pil").
+
+Make this consistent with other SoCs by using only the
+"qcom,msm8916-mss-pil" compatible.
+
+Fixes: 60a05ed059a0 ("arm64: dts: qcom: msm8916: Add MSM8916-specific compatibles to SCM/MSS")
+Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20220718140344.1831731-2-stephan.gerhold@kernkonzept.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/genhd.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/boot/dts/qcom/msm8916.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/genhd.c b/block/genhd.c
-index 044ff97381e3..28654723bc2b 100644
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -522,6 +522,7 @@ int __must_check device_add_disk(struct device *parent, struct gendisk *disk,
- 	rq_qos_exit(disk->queue);
- out_put_slave_dir:
- 	kobject_put(disk->slave_dir);
-+	disk->slave_dir = NULL;
- out_put_holder_dir:
- 	kobject_put(disk->part0->bd_holder_dir);
- out_del_integrity:
-@@ -618,6 +619,7 @@ void del_gendisk(struct gendisk *disk)
+diff --git a/arch/arm64/boot/dts/qcom/msm8916.dtsi b/arch/arm64/boot/dts/qcom/msm8916.dtsi
+index 19e201f52b16..b967dbfba3b8 100644
+--- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
+@@ -1307,7 +1307,7 @@ spmi_bus: spmi@200f000 {
+ 		};
  
- 	kobject_put(disk->part0->bd_holder_dir);
- 	kobject_put(disk->slave_dir);
-+	disk->slave_dir = NULL;
+ 		mpss: remoteproc@4080000 {
+-			compatible = "qcom,msm8916-mss-pil", "qcom,q6v5-pil";
++			compatible = "qcom,msm8916-mss-pil";
+ 			reg = <0x04080000 0x100>,
+ 			      <0x04020000 0x040>;
  
- 	part_stat_set_all(disk->part0, 0);
- 	disk->part0->bd_stamp = 0;
 -- 
 2.35.1
 
