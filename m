@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A939F65790B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:57:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AE9065803E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:16:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233278AbiL1O47 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:56:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44330 "EHLO
+        id S234549AbiL1QQV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:16:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233271AbiL1O46 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:56:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5D88B69
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:56:57 -0800 (PST)
+        with ESMTP id S234476AbiL1QPw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:15:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0315F1A814
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:13:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 607DE61544
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:56:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FEA6C433D2;
-        Wed, 28 Dec 2022 14:56:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 88EA1B81707
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:13:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5ED2C433F0;
+        Wed, 28 Dec 2022 16:13:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239416;
-        bh=oCmsP0iqexY3xvxWCYLZRnqXdNwamHrdLKCw8Mvsncs=;
+        s=korg; t=1672243984;
+        bh=E3DFW+lNHelMJDUaAEh6db0obghbC4BF8bq34TLnXiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nwzRfFpr3dJ1R9jgJtBiuFvCGlDRT8UO0awr+NDlumLMfEAUw2su2XJaUbeSCBvsH
-         b6fv7vIMn6j8yxhZXoQUiyMuHdA7njZFhJE8BXL4pwZWnfYtwfyD8cOzePkmagHZBO
-         3MNV7wdX5lWOate+zUa8OeV7Nwk/yoVYbm4DCFWE=
+        b=UYSJi/K9UqEQP7YTiaA0a4Wt1YIMRZHyi8gcHXcM8HnTgOJi6ZZvibuwHaaRb8bK/
+         6G0P9cNjTqJ2VOFRKh8H2VMRp85s3K69BSymoifCBllo29gmWWGw60sXOzKixqlRnY
+         aGl2Cu3Nv72tmCTR+KcvJQG6zam46P7N1jXyBOiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Baisong Zhong <zhongbaisong@huawei.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 221/731] ALSA: pcm: fix undefined behavior in bit shift for SNDRV_PCM_RATE_KNOT
-Date:   Wed, 28 Dec 2022 15:35:28 +0100
-Message-Id: <20221228144302.970905679@linuxfoundation.org>
+        patches@lists.linux.dev, John Keeping <john@metanate.com>,
+        Corentin Labbe <clabbe@baylibre.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0590/1146] crypto: rockchip - better handle cipher key
+Date:   Wed, 28 Dec 2022 15:35:29 +0100
+Message-Id: <20221228144346.195863598@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,89 +54,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baisong Zhong <zhongbaisong@huawei.com>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit b5172e62458f8e6ff359e5f096044a488db90ac5 ]
+[ Upstream commit d6b23ccef82816050c2fd458c9dabfa0e0af09b9 ]
 
-Shifting signed 32-bit value by 31 bits is undefined, so changing
-significant bit to unsigned. The UBSAN warning calltrace like below:
+The key should not be set in hardware too much in advance, this will
+fail it 2 TFM with different keys generate alternative requests.
+The key should be stored and used just before doing cipher operations.
 
-UBSAN: shift-out-of-bounds in sound/core/pcm_native.c:2676:21
-left shift of 1 by 31 places cannot be represented in type 'int'
-...
-Call Trace:
- <TASK>
- dump_stack_lvl+0x8d/0xcf
- ubsan_epilogue+0xa/0x44
- __ubsan_handle_shift_out_of_bounds+0x1e7/0x208
- snd_pcm_open_substream+0x9f0/0xa90
- snd_pcm_oss_open.part.26+0x313/0x670
- snd_pcm_oss_open+0x30/0x40
- soundcore_open+0x18b/0x2e0
- chrdev_open+0xe2/0x270
- do_dentry_open+0x2f7/0x620
- path_openat+0xd66/0xe70
- do_filp_open+0xe3/0x170
- do_sys_openat2+0x357/0x4a0
- do_sys_open+0x87/0xd0
- do_syscall_64+0x34/0x80
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Baisong Zhong <zhongbaisong@huawei.com>
-Link: https://lore.kernel.org/r/20221121110044.3115686-1-zhongbaisong@huawei.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: ce0183cb6464b ("crypto: rockchip - switch to skcipher API")
+Reviewed-by: John Keeping <john@metanate.com>
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/pcm.h | 36 ++++++++++++++++++------------------
- 1 file changed, 18 insertions(+), 18 deletions(-)
+ drivers/crypto/rockchip/rk3288_crypto.h          |  1 +
+ drivers/crypto/rockchip/rk3288_crypto_skcipher.c | 10 +++++++---
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/include/sound/pcm.h b/include/sound/pcm.h
-index e08bf475d02d..181df0452ae2 100644
---- a/include/sound/pcm.h
-+++ b/include/sound/pcm.h
-@@ -106,24 +106,24 @@ struct snd_pcm_ops {
- #define SNDRV_PCM_POS_XRUN		((snd_pcm_uframes_t)-1)
+diff --git a/drivers/crypto/rockchip/rk3288_crypto.h b/drivers/crypto/rockchip/rk3288_crypto.h
+index dfff0e2a83e4..665cc0bb2264 100644
+--- a/drivers/crypto/rockchip/rk3288_crypto.h
++++ b/drivers/crypto/rockchip/rk3288_crypto.h
+@@ -245,6 +245,7 @@ struct rk_ahash_rctx {
+ struct rk_cipher_ctx {
+ 	struct rk_crypto_info		*dev;
+ 	unsigned int			keylen;
++	u8				key[AES_MAX_KEY_SIZE];
+ 	u8				iv[AES_BLOCK_SIZE];
+ 	struct crypto_skcipher *fallback_tfm;
+ };
+diff --git a/drivers/crypto/rockchip/rk3288_crypto_skcipher.c b/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
+index eac5bba66e25..1ef94f8db2c5 100644
+--- a/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
++++ b/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
+@@ -95,7 +95,7 @@ static int rk_aes_setkey(struct crypto_skcipher *cipher,
+ 	    keylen != AES_KEYSIZE_256)
+ 		return -EINVAL;
+ 	ctx->keylen = keylen;
+-	memcpy_toio(ctx->dev->reg + RK_CRYPTO_AES_KEY_0, key, keylen);
++	memcpy(ctx->key, key, keylen);
  
- /* If you change this don't forget to change rates[] table in pcm_native.c */
--#define SNDRV_PCM_RATE_5512		(1<<0)		/* 5512Hz */
--#define SNDRV_PCM_RATE_8000		(1<<1)		/* 8000Hz */
--#define SNDRV_PCM_RATE_11025		(1<<2)		/* 11025Hz */
--#define SNDRV_PCM_RATE_16000		(1<<3)		/* 16000Hz */
--#define SNDRV_PCM_RATE_22050		(1<<4)		/* 22050Hz */
--#define SNDRV_PCM_RATE_32000		(1<<5)		/* 32000Hz */
--#define SNDRV_PCM_RATE_44100		(1<<6)		/* 44100Hz */
--#define SNDRV_PCM_RATE_48000		(1<<7)		/* 48000Hz */
--#define SNDRV_PCM_RATE_64000		(1<<8)		/* 64000Hz */
--#define SNDRV_PCM_RATE_88200		(1<<9)		/* 88200Hz */
--#define SNDRV_PCM_RATE_96000		(1<<10)		/* 96000Hz */
--#define SNDRV_PCM_RATE_176400		(1<<11)		/* 176400Hz */
--#define SNDRV_PCM_RATE_192000		(1<<12)		/* 192000Hz */
--#define SNDRV_PCM_RATE_352800		(1<<13)		/* 352800Hz */
--#define SNDRV_PCM_RATE_384000		(1<<14)		/* 384000Hz */
--
--#define SNDRV_PCM_RATE_CONTINUOUS	(1<<30)		/* continuous range */
--#define SNDRV_PCM_RATE_KNOT		(1<<31)		/* supports more non-continuos rates */
-+#define SNDRV_PCM_RATE_5512		(1U<<0)		/* 5512Hz */
-+#define SNDRV_PCM_RATE_8000		(1U<<1)		/* 8000Hz */
-+#define SNDRV_PCM_RATE_11025		(1U<<2)		/* 11025Hz */
-+#define SNDRV_PCM_RATE_16000		(1U<<3)		/* 16000Hz */
-+#define SNDRV_PCM_RATE_22050		(1U<<4)		/* 22050Hz */
-+#define SNDRV_PCM_RATE_32000		(1U<<5)		/* 32000Hz */
-+#define SNDRV_PCM_RATE_44100		(1U<<6)		/* 44100Hz */
-+#define SNDRV_PCM_RATE_48000		(1U<<7)		/* 48000Hz */
-+#define SNDRV_PCM_RATE_64000		(1U<<8)		/* 64000Hz */
-+#define SNDRV_PCM_RATE_88200		(1U<<9)		/* 88200Hz */
-+#define SNDRV_PCM_RATE_96000		(1U<<10)	/* 96000Hz */
-+#define SNDRV_PCM_RATE_176400		(1U<<11)	/* 176400Hz */
-+#define SNDRV_PCM_RATE_192000		(1U<<12)	/* 192000Hz */
-+#define SNDRV_PCM_RATE_352800		(1U<<13)	/* 352800Hz */
-+#define SNDRV_PCM_RATE_384000		(1U<<14)	/* 384000Hz */
+ 	return crypto_skcipher_setkey(ctx->fallback_tfm, key, keylen);
+ }
+@@ -111,7 +111,7 @@ static int rk_des_setkey(struct crypto_skcipher *cipher,
+ 		return err;
+ 
+ 	ctx->keylen = keylen;
+-	memcpy_toio(ctx->dev->reg + RK_CRYPTO_TDES_KEY1_0, key, keylen);
++	memcpy(ctx->key, key, keylen);
+ 
+ 	return crypto_skcipher_setkey(ctx->fallback_tfm, key, keylen);
+ }
+@@ -127,7 +127,8 @@ static int rk_tdes_setkey(struct crypto_skcipher *cipher,
+ 		return err;
+ 
+ 	ctx->keylen = keylen;
+-	memcpy_toio(ctx->dev->reg + RK_CRYPTO_TDES_KEY1_0, key, keylen);
++	memcpy(ctx->key, key, keylen);
 +
-+#define SNDRV_PCM_RATE_CONTINUOUS	(1U<<30)	/* continuous range */
-+#define SNDRV_PCM_RATE_KNOT		(1U<<31)	/* supports more non-continuos rates */
+ 	return crypto_skcipher_setkey(ctx->fallback_tfm, key, keylen);
+ }
  
- #define SNDRV_PCM_RATE_8000_44100	(SNDRV_PCM_RATE_8000|SNDRV_PCM_RATE_11025|\
- 					 SNDRV_PCM_RATE_16000|SNDRV_PCM_RATE_22050|\
+@@ -283,6 +284,7 @@ static void rk_ablk_hw_init(struct rk_crypto_info *dev)
+ 			     RK_CRYPTO_TDES_BYTESWAP_IV;
+ 		CRYPTO_WRITE(dev, RK_CRYPTO_TDES_CTRL, rctx->mode);
+ 		memcpy_toio(dev->reg + RK_CRYPTO_TDES_IV_0, req->iv, ivsize);
++		memcpy_toio(ctx->dev->reg + RK_CRYPTO_TDES_KEY1_0, ctx->key, ctx->keylen);
+ 		conf_reg = RK_CRYPTO_DESSEL;
+ 	} else {
+ 		rctx->mode |= RK_CRYPTO_AES_FIFO_MODE |
+@@ -295,6 +297,7 @@ static void rk_ablk_hw_init(struct rk_crypto_info *dev)
+ 			rctx->mode |= RK_CRYPTO_AES_256BIT_key;
+ 		CRYPTO_WRITE(dev, RK_CRYPTO_AES_CTRL, rctx->mode);
+ 		memcpy_toio(dev->reg + RK_CRYPTO_AES_IV_0, req->iv, ivsize);
++		memcpy_toio(ctx->dev->reg + RK_CRYPTO_AES_KEY_0, ctx->key, ctx->keylen);
+ 	}
+ 	conf_reg |= RK_CRYPTO_BYTESWAP_BTFIFO |
+ 		    RK_CRYPTO_BYTESWAP_BRFIFO;
+@@ -484,6 +487,7 @@ static void rk_ablk_exit_tfm(struct crypto_skcipher *tfm)
+ {
+ 	struct rk_cipher_ctx *ctx = crypto_skcipher_ctx(tfm);
+ 
++	memzero_explicit(ctx->key, ctx->keylen);
+ 	free_page((unsigned long)ctx->dev->addr_vir);
+ 	crypto_free_skcipher(ctx->fallback_tfm);
+ }
 -- 
 2.35.1
 
