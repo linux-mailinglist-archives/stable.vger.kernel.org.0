@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89F526576C7
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 14:09:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26BEA6576C8
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 14:10:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229976AbiL1NJl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 08:09:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35610 "EHLO
+        id S229864AbiL1NKX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 08:10:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230171AbiL1NJk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 08:09:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 244B7D10C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 05:09:35 -0800 (PST)
+        with ESMTP id S229745AbiL1NKW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 08:10:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB01DF73
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 05:10:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B4B7F61338
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 13:09:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5E33C433D2;
-        Wed, 28 Dec 2022 13:09:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A99BBB816A1
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 13:10:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04A23C433EF;
+        Wed, 28 Dec 2022 13:10:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672232974;
-        bh=TdebBwlV1zGBxgl5mIccDhy5tLLdeJhard3eSQD7Qrk=;
+        s=korg; t=1672233018;
+        bh=ceqtW5AlpjSbxhDluwr/cTnKtN5SLvXa78Ye6oA+nHU=;
         h=Subject:To:Cc:From:Date:From;
-        b=MiWthM9/3gYy28HFk1tydbMCzQFgYMOsdF6FTJWLlGuVzWbyuvOHAAmsmhmtdmLMT
-         KjDEwFYpuR3hcTEvCshalMBwhVD2wTJzCxJ9az0ljl62lSmyX9WPX+1XM3E8lTia2O
-         aKHjCFpp87hhzqZwiBs2pKgxthrOM33M86kiYkY8=
-Subject: FAILED: patch "[PATCH] btrfs: do not BUG_ON() on ENOMEM when dropping extent items" failed to apply to 5.4-stable tree
-To:     fdmanana@suse.com, dsterba@suse.com, josef@toxicpanda.com
+        b=0cMLxlcYtA+sEo9afdwz1scXxT2OwINWPU/at8KTRXWiR31h8bZMgy5/wgzBrznsn
+         MGehOg0mokNqibAzk9Il65hBRx+7OcYHCs9pDuNlOOYWFTtWx5sv8Ni4unC4OSf7s1
+         o3/pfBiRzwgWCogxsMhdUH5+EsxCR74aJOoka4bk=
+Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Fix crash when I/O abort times out" failed to apply to 5.10-stable tree
+To:     aeasi@marvell.com, martin.petersen@oracle.com, mpatalan@redhat.com,
+        njavali@marvell.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 28 Dec 2022 14:09:22 +0100
-Message-ID: <1672232962231198@kroah.com>
+Date:   Wed, 28 Dec 2022 14:10:14 +0100
+Message-ID: <167223301413439@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,33 +48,33 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-162d053e15fe ("btrfs: do not BUG_ON() on ENOMEM when dropping extent items for a range")
-2766ff61762c ("btrfs: update the number of bytes used by an inode atomically")
-5893dfb98f25 ("btrfs: refactor btrfs_drop_extents() to make it easier to extend")
-ac5887c8e013 ("btrfs: locking: remove all the blocking helpers")
-a14b78ad06ab ("btrfs: introduce btrfs_inode_lock()/unlock()")
-b8d8e1fd570a ("btrfs: introduce btrfs_write_check()")
-c86537a42f86 ("btrfs: check FS error state bit early during write")
-5e8b9ef30392 ("btrfs: move pos increment and pagecache extension to btrfs_buffered_write")
-4e4cabece9f9 ("btrfs: split btrfs_direct_IO to read and write")
-196d59ab9ccc ("btrfs: switch extent buffer tree lock to rw_semaphore")
-0425e7badbdc ("btrfs: don't fallback to buffered read if we don't need to")
-3c38c877fcb9 ("btrfs: sink inode argument in insert_ordered_extent_file_extent")
-fc0d82e103c7 ("btrfs: sink total_data parameter in setup_items_for_insert")
-3dc9dc8969dc ("btrfs: eliminate total_size parameter from setup_items_for_insert")
-0cbb5bdfea26 ("btrfs: rename btrfs_insert_clone_extent() to a more generic name")
-306bfec02b10 ("btrfs: rename btrfs_punch_hole_range() to a more generic name")
-bf385648fa48 ("btrfs: rename struct btrfs_clone_extent_info to a more generic name")
-fb870f6cdd72 ("btrfs: remove item_size member of struct btrfs_clone_extent_info")
-8fccebfa534c ("btrfs: fix metadata reservation for fallocate that leads to transaction aborts")
-53ac7ead2446 ("btrfs: make btrfs_invalidatepage work on btrfs_inode")
+68ad83188d78 ("scsi: qla2xxx: Fix crash when I/O abort times out")
+31e6cdbe0eae ("scsi: qla2xxx: Implement ref count for SRB")
+d4523bd6fd5d ("scsi: qla2xxx: Refactor asynchronous command initialization")
+2cabf10dbbe3 ("scsi: qla2xxx: Fix hang on NVMe command timeouts")
+e3d2612f583b ("scsi: qla2xxx: Fix use after free in debug code")
+9efea843a906 ("scsi: qla2xxx: edif: Add detection of secure device")
+dd30706e73b7 ("scsi: qla2xxx: edif: Add key update")
+fac2807946c1 ("scsi: qla2xxx: edif: Add extraction of auth_els from the wire")
+84318a9f01ce ("scsi: qla2xxx: edif: Add send, receive, and accept for auth_els")
+7878f22a2e03 ("scsi: qla2xxx: edif: Add getfcinfo and statistic bsgs")
+7ebb336e45ef ("scsi: qla2xxx: edif: Add start + stop bsgs")
+d94d8158e184 ("scsi: qla2xxx: Add heartbeat check")
+f7a0ed479e66 ("scsi: qla2xxx: Fix crash in PCIe error handling")
+2ce35c0821af ("scsi: qla2xxx: Fix use after free in bsg")
+5777fef788a5 ("scsi: qla2xxx: Consolidate zio threshold setting for both FCP & NVMe")
+960204ecca5e ("scsi: qla2xxx: Simplify if statement")
+a04658594399 ("scsi: qla2xxx: Wait for ABTS response on I/O timeouts for NVMe")
+dbf1f53cfd23 ("scsi: qla2xxx: Implementation to get and manage host, target stats and initiator port")
+707531bc2626 ("scsi: qla2xxx: If fcport is undergoing deletion complete I/O with retry")
+605e74025f95 ("scsi: qla2xxx: Move sess cmd list/lock to driver")
 
 thanks,
 
@@ -81,63 +82,92 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 162d053e15fe985f754ef495a96eb3db970c43ed Mon Sep 17 00:00:00 2001
-From: Filipe Manana <fdmanana@suse.com>
-Date: Mon, 28 Nov 2022 15:07:30 +0000
-Subject: [PATCH] btrfs: do not BUG_ON() on ENOMEM when dropping extent items
- for a range
+From 68ad83188d782b2ecef2e41ac245d27e0710fe8e Mon Sep 17 00:00:00 2001
+From: Arun Easi <aeasi@marvell.com>
+Date: Tue, 29 Nov 2022 01:26:34 -0800
+Subject: [PATCH] scsi: qla2xxx: Fix crash when I/O abort times out
 
-If we get -ENOMEM while dropping file extent items in a given range, at
-btrfs_drop_extents(), due to failure to allocate memory when attempting to
-increment the reference count for an extent or drop the reference count,
-we handle it with a BUG_ON(). This is excessive, instead we can simply
-abort the transaction and return the error to the caller. In fact most
-callers of btrfs_drop_extents(), directly or indirectly, already abort
-the transaction if btrfs_drop_extents() returns any error.
+While performing CPU hotplug, a crash with the following stack was seen:
 
-Also, we already have error paths at btrfs_drop_extents() that may return
--ENOMEM and in those cases we abort the transaction, like for example
-anything that changes the b+tree may return -ENOMEM due to a failure to
-allocate a new extent buffer when COWing an existing extent buffer, such
-as a call to btrfs_duplicate_item() for example.
+Call Trace:
+     qla24xx_process_response_queue+0x42a/0x970 [qla2xxx]
+     qla2x00_start_nvme_mq+0x3a2/0x4b0 [qla2xxx]
+     qla_nvme_post_cmd+0x166/0x240 [qla2xxx]
+     nvme_fc_start_fcp_op.part.0+0x119/0x2e0 [nvme_fc]
+     blk_mq_dispatch_rq_list+0x17b/0x610
+     __blk_mq_sched_dispatch_requests+0xb0/0x140
+     blk_mq_sched_dispatch_requests+0x30/0x60
+     __blk_mq_run_hw_queue+0x35/0x90
+     __blk_mq_delay_run_hw_queue+0x161/0x180
+     blk_execute_rq+0xbe/0x160
+     __nvme_submit_sync_cmd+0x16f/0x220 [nvme_core]
+     nvmf_connect_admin_queue+0x11a/0x170 [nvme_fabrics]
+     nvme_fc_create_association.cold+0x50/0x3dc [nvme_fc]
+     nvme_fc_connect_ctrl_work+0x19/0x30 [nvme_fc]
+     process_one_work+0x1e8/0x3c0
 
-So replace the BUG_ON() calls with proper logic to abort the transaction
-and return the error.
+On abort timeout, completion was called without checking if the I/O was
+already completed.
 
-Reported-by: syzbot+0b1fb6b0108c27419f9f@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/linux-btrfs/00000000000089773e05ee4b9cb4@google.com/
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Verify that I/O and abort request are indeed outstanding before attempting
+completion.
 
-diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
-index 448b143a5cb2..91b00eb2440e 100644
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -380,7 +380,10 @@ int btrfs_drop_extents(struct btrfs_trans_handle *trans,
- 						args->start - extent_offset,
- 						0, false);
- 				ret = btrfs_inc_extent_ref(trans, &ref);
--				BUG_ON(ret); /* -ENOMEM */
-+				if (ret) {
-+					btrfs_abort_transaction(trans, ret);
-+					break;
-+				}
- 			}
- 			key.offset = args->start;
- 		}
-@@ -467,7 +470,10 @@ int btrfs_drop_extents(struct btrfs_trans_handle *trans,
- 						key.offset - extent_offset, 0,
- 						false);
- 				ret = btrfs_free_extent(trans, &ref);
--				BUG_ON(ret); /* -ENOMEM */
-+				if (ret) {
-+					btrfs_abort_transaction(trans, ret);
-+					break;
-+				}
- 				args->bytes_found += extent_end - key.offset;
- 			}
+Fixes: 71c80b75ce8f ("scsi: qla2xxx: Do command completion on abort timeout")
+Reported-by: Marco Patalano <mpatalan@redhat.com>
+Tested-by: Marco Patalano <mpatalan@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Link: https://lore.kernel.org/r/20221129092634.15347-1-njavali@marvell.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+
+diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
+index ce4c5d728407..8d9ecabb1aac 100644
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -110,6 +110,7 @@ static void qla24xx_abort_iocb_timeout(void *data)
+ 	struct qla_qpair *qpair = sp->qpair;
+ 	u32 handle;
+ 	unsigned long flags;
++	int sp_found = 0, cmdsp_found = 0;
  
+ 	if (sp->cmd_sp)
+ 		ql_dbg(ql_dbg_async, sp->vha, 0x507c,
+@@ -124,18 +125,21 @@ static void qla24xx_abort_iocb_timeout(void *data)
+ 	spin_lock_irqsave(qpair->qp_lock_ptr, flags);
+ 	for (handle = 1; handle < qpair->req->num_outstanding_cmds; handle++) {
+ 		if (sp->cmd_sp && (qpair->req->outstanding_cmds[handle] ==
+-		    sp->cmd_sp))
++		    sp->cmd_sp)) {
+ 			qpair->req->outstanding_cmds[handle] = NULL;
++			cmdsp_found = 1;
++		}
+ 
+ 		/* removing the abort */
+ 		if (qpair->req->outstanding_cmds[handle] == sp) {
+ 			qpair->req->outstanding_cmds[handle] = NULL;
++			sp_found = 1;
+ 			break;
+ 		}
+ 	}
+ 	spin_unlock_irqrestore(qpair->qp_lock_ptr, flags);
+ 
+-	if (sp->cmd_sp) {
++	if (cmdsp_found && sp->cmd_sp) {
+ 		/*
+ 		 * This done function should take care of
+ 		 * original command ref: INIT
+@@ -143,8 +147,10 @@ static void qla24xx_abort_iocb_timeout(void *data)
+ 		sp->cmd_sp->done(sp->cmd_sp, QLA_OS_TIMER_EXPIRED);
+ 	}
+ 
+-	abt->u.abt.comp_status = cpu_to_le16(CS_TIMEOUT);
+-	sp->done(sp, QLA_OS_TIMER_EXPIRED);
++	if (sp_found) {
++		abt->u.abt.comp_status = cpu_to_le16(CS_TIMEOUT);
++		sp->done(sp, QLA_OS_TIMER_EXPIRED);
++	}
+ }
+ 
+ static void qla24xx_abort_sp_done(srb_t *sp, int res)
 
