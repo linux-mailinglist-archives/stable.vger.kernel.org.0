@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F0766583EC
+	by mail.lfdr.de (Postfix) with ESMTP id A92456583ED
 	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:53:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235122AbiL1Qxa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:53:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43212 "EHLO
+        id S231839AbiL1Qxb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:53:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231839AbiL1Qwm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:52:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 985201DDEE
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:47:24 -0800 (PST)
+        with ESMTP id S235154AbiL1Qwp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:52:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D52531C91E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:47:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 35EBE60D41
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:47:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DF05C433D2;
-        Wed, 28 Dec 2022 16:47:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 74AA7B8188B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:47:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5C78C433EF;
+        Wed, 28 Dec 2022 16:47:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246043;
-        bh=94mJ4ktmnNf7/RYeKm5j2AXaLYPBiO/CeY1y913/4sU=;
+        s=korg; t=1672246049;
+        bh=9k+WghrtSHhKkk8GrcM41+I21OA+exmk8bde1V9EZxo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rjJFumqOh8w58MUNJ04mDPgK1bN0lw1uYYfqlAp/2u8ccvzbFiR6n8T8i7dmOfuHI
-         LXj6bCDSwaowu/uQ/w+EmODZKiLc0LiACpX8s+WtZ3QaUBqR04hLn3sdXe9PdzZkai
-         vCO/Zr3M1ATAv76eCCjLHj0z7Omn3mJta7AltONk=
+        b=GG+50PbhWC6AwhKOldvYucKKkANkFc5o02T7mZj1Qdgifu32yDgcfoVWvC+owaQ6Q
+         XmjdaxIXFWJK7bddgKI81TRgdMgKmmauaLfExQYq+XgU/jnwUrf+dnPNfBWfLC2WGk
+         VLCktFtuKAM8MdLgEurd92HC5bgw+aW6qxkbwDWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        Zhang Yuchen <zhangyuchen.lcr@bytedance.com>,
+        Corey Minyard <cminyard@mvista.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0971/1146] ASoC: Intel: avs: Add quirk for KBL-R RVP platform
-Date:   Wed, 28 Dec 2022 15:41:50 +0100
-Message-Id: <20221228144356.712896239@linuxfoundation.org>
+Subject: [PATCH 6.1 0972/1146] ipmi: fix memleak when unload ipmi driver
+Date:   Wed, 28 Dec 2022 15:41:51 +0100
+Message-Id: <20221228144356.744689263@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -56,80 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+From: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
 
-[ Upstream commit 9d0737fa0e7530313634c0ecd75f09a95ba8d44a ]
+[ Upstream commit 36992eb6b9b83f7f9cdc8e74fb5799d7b52e83e9 ]
 
-KBL-R RVPs contain built-in rt298 codec which requires different PLL
-clock and .dai_fmt configuration than seen on other boards.
+After the IPMI disconnect problem, the memory kept rising and we tried
+to unload the driver to free the memory. However, only part of the
+free memory is recovered after the driver is uninstalled. Using
+ebpf to hook free functions, we find that neither ipmi_user nor
+ipmi_smi_msg is free, only ipmi_recv_msg is free.
 
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Link: https://lore.kernel.org/r/20221010121955.718168-5-cezary.rojewski@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+We find that the deliver_smi_err_response call in clean_smi_msgs does
+the destroy processing on each message from the xmit_msg queue without
+checking the return value and free ipmi_smi_msg.
+
+deliver_smi_err_response is called only at this location. Adding the
+free handling has no effect.
+
+To verify, try using ebpf to trace the free function.
+
+  $ bpftrace -e 'kretprobe:ipmi_alloc_recv_msg {printf("alloc rcv
+      %p\n",retval);} kprobe:free_recv_msg {printf("free recv %p\n",
+      arg0)} kretprobe:ipmi_alloc_smi_msg {printf("alloc smi %p\n",
+        retval);} kprobe:free_smi_msg {printf("free smi  %p\n",arg0)}'
+
+Signed-off-by: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
+Message-Id: <20221007092617.87597-4-zhangyuchen.lcr@bytedance.com>
+[Fixed the comment above handle_one_recv_msg().]
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/avs/boards/rt298.c | 24 ++++++++++++++++++++++--
- 1 file changed, 22 insertions(+), 2 deletions(-)
+ drivers/char/ipmi/ipmi_msghandler.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/intel/avs/boards/rt298.c b/sound/soc/intel/avs/boards/rt298.c
-index b28d36872dcb..58c9d9edecf0 100644
---- a/sound/soc/intel/avs/boards/rt298.c
-+++ b/sound/soc/intel/avs/boards/rt298.c
-@@ -6,6 +6,7 @@
- //          Amadeusz Slawinski <amadeuszx.slawinski@linux.intel.com>
- //
- 
-+#include <linux/dmi.h>
- #include <linux/module.h>
- #include <sound/jack.h>
- #include <sound/pcm.h>
-@@ -14,6 +15,16 @@
- #include <sound/soc-acpi.h>
- #include "../../../codecs/rt298.h"
- 
-+static const struct dmi_system_id kblr_dmi_table[] = {
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Intel Corporation"),
-+			DMI_MATCH(DMI_BOARD_NAME, "Kabylake R DDR4 RVP"),
-+		},
-+	},
-+	{}
-+};
-+
- static const struct snd_kcontrol_new card_controls[] = {
- 	SOC_DAPM_PIN_SWITCH("Headphone Jack"),
- 	SOC_DAPM_PIN_SWITCH("Mic Jack"),
-@@ -96,9 +107,15 @@ avs_rt298_hw_params(struct snd_pcm_substream *substream, struct snd_pcm_hw_param
+diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
+index 49a1707693c9..d5ee52be176d 100644
+--- a/drivers/char/ipmi/ipmi_msghandler.c
++++ b/drivers/char/ipmi/ipmi_msghandler.c
+@@ -3704,12 +3704,16 @@ static void deliver_smi_err_response(struct ipmi_smi *intf,
+ 				     struct ipmi_smi_msg *msg,
+ 				     unsigned char err)
  {
- 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
- 	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
-+	unsigned int clk_freq;
- 	int ret;
- 
--	ret = snd_soc_dai_set_sysclk(codec_dai, RT298_SCLK_S_PLL, 19200000, SND_SOC_CLOCK_IN);
-+	if (dmi_first_match(kblr_dmi_table))
-+		clk_freq = 24000000;
-+	else
-+		clk_freq = 19200000;
++	int rv;
+ 	msg->rsp[0] = msg->data[0] | 4;
+ 	msg->rsp[1] = msg->data[1];
+ 	msg->rsp[2] = err;
+ 	msg->rsp_size = 3;
+-	/* It's an error, so it will never requeue, no need to check return. */
+-	handle_one_recv_msg(intf, msg);
 +
-+	ret = snd_soc_dai_set_sysclk(codec_dai, RT298_SCLK_S_PLL, clk_freq, SND_SOC_CLOCK_IN);
- 	if (ret < 0)
- 		dev_err(rtd->dev, "Set codec sysclk failed: %d\n", ret);
++	/* This will never requeue, but it may ask us to free the message. */
++	rv = handle_one_recv_msg(intf, msg);
++	if (rv == 0)
++		ipmi_free_smi_msg(msg);
+ }
  
-@@ -139,7 +156,10 @@ static int avs_create_dai_link(struct device *dev, const char *platform_name, in
- 	dl->platforms = platform;
- 	dl->num_platforms = 1;
- 	dl->id = 0;
--	dl->dai_fmt = SND_SOC_DAIFMT_DSP_A | SND_SOC_DAIFMT_NB_NF | SND_SOC_DAIFMT_CBS_CFS;
-+	if (dmi_first_match(kblr_dmi_table))
-+		dl->dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF | SND_SOC_DAIFMT_CBS_CFS;
-+	else
-+		dl->dai_fmt = SND_SOC_DAIFMT_DSP_A | SND_SOC_DAIFMT_NB_NF | SND_SOC_DAIFMT_CBS_CFS;
- 	dl->init = avs_rt298_codec_init;
- 	dl->be_hw_params_fixup = avs_rt298_be_fixup;
- 	dl->ops = &avs_rt298_ops;
+ static void cleanup_smi_msgs(struct ipmi_smi *intf)
 -- 
 2.35.1
 
