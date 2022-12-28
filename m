@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F11B26581AF
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:30:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C0936580D3
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:21:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233212AbiL1Qak (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:30:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48618 "EHLO
+        id S234490AbiL1QVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:21:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234686AbiL1QaU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:30:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE3351C41A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:26:44 -0800 (PST)
+        with ESMTP id S233259AbiL1QUx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:20:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1361118389
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:18:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 814406157B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:26:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90F7AC433D2;
-        Wed, 28 Dec 2022 16:26:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 99A7DB81707
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:18:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 081DBC433F0;
+        Wed, 28 Dec 2022 16:18:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244803;
-        bh=O9NNWypXwAwRRicH9itlr12SJUVpM2EnKCDFM+2Xq5c=;
+        s=korg; t=1672244316;
+        bh=uk0nQwChktl9ikYq1svLREd9MaeIHvUyQ6lqfp8+vyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n0hupGoo5zrbb6EH2Gyj/c6JY6fPN5obFuGcuYyJdf4cU7GsKKcP64YTBQUJDJxmk
-         6r0G75jArOQNttgadjQWbyDu4FmqFXnymxwPyVmfPaDts8ld55dqRxvpmpgSdAtpWi
-         DJeFcNyMh1VrscCprS6ysMVukRjLAFw4e4BzM9cY=
+        b=aalJSdA4UZkNs6ekiTOuZcjdUHXC9pdFVH0tr7lKifoe9ZgZuThbweQRoxWOMGV4v
+         I164joDD+7+iD5MUlmXs027ktgKr343zJpICLn0qsazbzZfJNjn94ubYMu1cR54hGt
+         NQ2WFkaq4M/HYzhb5TSJufPe761niGR25FyWtKk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        patches@lists.linux.dev, Gabriel Somlo <gsomlo@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0739/1146] vme: Fix error not catched in fake_init()
+Subject: [PATCH 6.0 0690/1073] serial: altera_uart: fix locking in polling mode
 Date:   Wed, 28 Dec 2022 15:37:58 +0100
-Message-Id: <20221228144350.220143881@linuxfoundation.org>
+Message-Id: <20221228144346.776338953@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,47 +52,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Gabriel Somlo <gsomlo@gmail.com>
 
-[ Upstream commit 7bef797d707f1744f71156b21d41e3b8c946631f ]
+[ Upstream commit 1307c5d33cce8a41dd77c2571e4df65a5b627feb ]
 
-In fake_init(), __root_device_register() is possible to fail but it's
-ignored, which can cause unregistering vme_root fail when exit.
+Since altera_uart_interrupt() may also be called from
+a poll timer in "serving_softirq" context, use
+spin_[lock_irqsave|unlock_irqrestore] variants, which
+are appropriate for both softirq and hardware interrupt
+contexts.
 
- general protection fault,
- probably for non-canonical address 0xdffffc000000008c
- KASAN: null-ptr-deref in range [0x0000000000000460-0x0000000000000467]
- RIP: 0010:root_device_unregister+0x26/0x60
- Call Trace:
-  <TASK>
-  __x64_sys_delete_module+0x34f/0x540
-  do_syscall_64+0x38/0x90
-  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Return error when __root_device_register() fails.
-
-Fixes: 658bcdae9c67 ("vme: Adding Fake VME driver")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Link: https://lore.kernel.org/r/20221205084805.147436-1-chenzhongjin@huawei.com
+Fixes: 2f8b9c15cd88 ("altera_uart: Add support for polling mode (IRQ-less)")
+Signed-off-by: Gabriel Somlo <gsomlo@gmail.com>
+Link: https://lore.kernel.org/r/20221122200426.888349-1-gsomlo@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/vme_user/vme_fake.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tty/serial/altera_uart.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/vme_user/vme_fake.c b/drivers/staging/vme_user/vme_fake.c
-index dd646b0c531d..1ee432c223e2 100644
---- a/drivers/staging/vme_user/vme_fake.c
-+++ b/drivers/staging/vme_user/vme_fake.c
-@@ -1073,6 +1073,8 @@ static int __init fake_init(void)
+diff --git a/drivers/tty/serial/altera_uart.c b/drivers/tty/serial/altera_uart.c
+index ab08c4050a84..191d737ea563 100644
+--- a/drivers/tty/serial/altera_uart.c
++++ b/drivers/tty/serial/altera_uart.c
+@@ -278,16 +278,17 @@ static irqreturn_t altera_uart_interrupt(int irq, void *data)
+ {
+ 	struct uart_port *port = data;
+ 	struct altera_uart *pp = container_of(port, struct altera_uart, port);
++	unsigned long flags;
+ 	unsigned int isr;
  
- 	/* We need a fake parent device */
- 	vme_root = __root_device_register("vme", THIS_MODULE);
-+	if (IS_ERR(vme_root))
-+		return PTR_ERR(vme_root);
+ 	isr = altera_uart_readl(port, ALTERA_UART_STATUS_REG) & pp->imr;
  
- 	/* If we want to support more than one bridge at some point, we need to
- 	 * dynamically allocate this so we get one per device.
+-	spin_lock(&port->lock);
++	spin_lock_irqsave(&port->lock, flags);
+ 	if (isr & ALTERA_UART_STATUS_RRDY_MSK)
+ 		altera_uart_rx_chars(port);
+ 	if (isr & ALTERA_UART_STATUS_TRDY_MSK)
+ 		altera_uart_tx_chars(port);
+-	spin_unlock(&port->lock);
++	spin_unlock_irqrestore(&port->lock, flags);
+ 
+ 	return IRQ_RETVAL(isr);
+ }
 -- 
 2.35.1
 
