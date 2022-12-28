@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1800657E05
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:49:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FFED657D32
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:40:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233646AbiL1PtR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:49:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37262 "EHLO
+        id S233538AbiL1Pkb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:40:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234077AbiL1PtQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:49:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E243B17E35
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:49:14 -0800 (PST)
+        with ESMTP id S233121AbiL1Pka (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:40:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A207167F6
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:40:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96A85B81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:49:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 108F2C433D2;
-        Wed, 28 Dec 2022 15:49:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E37B76155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:40:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04306C433D2;
+        Wed, 28 Dec 2022 15:40:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242552;
-        bh=WzxM9TVEmRTG0M1JFh5uExgw55/horhGlpxdwsirSYI=;
+        s=korg; t=1672242028;
+        bh=ewhZL2tHn2SOQzvBTF5or+PQfMteZJMpwQ6I7vLoelk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dAGZ35ok5SMUpaNQYLrX1pDTUYrP5yPYd2MV0ZeGejQkG64Y/DLzvI9lpuKWYyZdb
-         nF3yi4oyVor81CDnpUCgUhAUeffYoyyY5vzJKnpoNABtf0oUnxxg0z+yVq6vTBd4NY
-         Wd76cHmUgkl+LfRxJfhwc//JfH20/Rt9AKiNlwRs=
+        b=P3+suhJuu+n05jWxUsiepj0U/wntA9cNvHfPCsT4u1JBHM0+tfhyqs0ld1mqrArdO
+         XlykHqaG4h5d57h/9JC7IsExO8eZm4WE47AcS6onn0jSlJ9WSP9p0VMu93jLTeInFY
+         JyBOeaID5fY0tCP1bcoDCntuNqAuBnJ2VuNyGcjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiri Olsa <olsajiri@gmail.com>,
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
         Stanislav Fomichev <sdf@google.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0383/1146] selftests/bpf: Mount debugfs in setns_by_fd
-Date:   Wed, 28 Dec 2022 15:32:02 +0100
-Message-Id: <20221228144340.569427208@linuxfoundation.org>
+Subject: [PATCH 6.0 0335/1073] selftests/bpf: fix memory leak of lsm_cgroup
+Date:   Wed, 28 Dec 2022 15:32:03 +0100
+Message-Id: <20221228144337.102144613@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,84 +54,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanislav Fomichev <sdf@google.com>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit 8ac88eece8009428e2577c345080a458e4507e2f ]
+[ Upstream commit c453e64cbc9532c0c2edfa999c35d29dad16b8bb ]
 
-Jiri reports broken test_progs after recent commit 68f8e3d4b916
-("selftests/bpf: Make sure zero-len skbs aren't redirectable").
-Apparently we don't remount debugfs when we switch back networking namespace.
-Let's explicitly mount /sys/kernel/debug.
+kmemleak reports this issue:
 
-0: https://lore.kernel.org/bpf/63b85917-a2ea-8e35-620c-808560910819@meta.com/T/#ma66ca9c92e99eee0a25e40f422489b26ee0171c1
+unreferenced object 0xffff88810b7835c0 (size 32):
+  comm "test_progs", pid 270, jiffies 4294969007 (age 1621.315s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    03 00 00 00 03 00 00 00 0f 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000376cdeab>] kmalloc_trace+0x27/0x110
+    [<000000003bcdb3b6>] selinux_sk_alloc_security+0x66/0x110
+    [<000000003959008f>] security_sk_alloc+0x47/0x80
+    [<00000000e7bc6668>] sk_prot_alloc+0xbd/0x1a0
+    [<0000000002d6343a>] sk_alloc+0x3b/0x940
+    [<000000009812a46d>] unix_create1+0x8f/0x3d0
+    [<000000005ed0976b>] unix_create+0xa1/0x150
+    [<0000000086a1d27f>] __sock_create+0x233/0x4a0
+    [<00000000cffe3a73>] __sys_socket_create.part.0+0xaa/0x110
+    [<0000000007c63f20>] __sys_socket+0x49/0xf0
+    [<00000000b08753c8>] __x64_sys_socket+0x42/0x50
+    [<00000000b56e26b3>] do_syscall_64+0x3b/0x90
+    [<000000009b4871b8>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Fixes: a30338840fa5 ("selftests/bpf: Move open_netns() and close_netns() into network_helpers.c")
-Reported-by: Jiri Olsa <olsajiri@gmail.com>
-Signed-off-by: Stanislav Fomichev <sdf@google.com>
-Link: https://lore.kernel.org/r/20221123200829.2226254-1-sdf@google.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+The issue occurs in the following scenarios:
+
+unix_create1()
+  sk_alloc()
+    sk_prot_alloc()
+      security_sk_alloc()
+        call_int_hook()
+          hlist_for_each_entry()
+            entry1->hook.sk_alloc_security
+            <-- selinux_sk_alloc_security() succeeded,
+            <-- sk->security alloced here.
+            entry2->hook.sk_alloc_security
+            <-- bpf_lsm_sk_alloc_security() failed
+      goto out_free;
+        ...    <-- the sk->security not freed, memleak
+
+The core problem is that the LSM is not yet fully stacked (work is
+actively going on in this space) which means that some LSM hooks do
+not support multiple LSMs at the same time. To fix, skip the
+"EPERM" test when it runs in the environments that already have
+non-bpf lsms installed
+
+Fixes: dca85aac8895 ("selftests/bpf: lsm_cgroup functional test")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Cc: Stanislav Fomichev <sdf@google.com>
+Acked-by: Stanislav Fomichev <sdf@google.com>
+Link: https://lore.kernel.org/r/1668482980-16163-1-git-send-email-wangyufen@huawei.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/network_helpers.c            | 4 ++++
- tools/testing/selftests/bpf/prog_tests/empty_skb.c       | 2 +-
- tools/testing/selftests/bpf/prog_tests/xdp_do_redirect.c | 2 +-
- tools/testing/selftests/bpf/prog_tests/xdp_synproxy.c    | 2 +-
- 4 files changed, 7 insertions(+), 3 deletions(-)
+ .../selftests/bpf/prog_tests/lsm_cgroup.c       | 17 +++++++++++++----
+ tools/testing/selftests/bpf/progs/lsm_cgroup.c  |  8 ++++++++
+ 2 files changed, 21 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/network_helpers.c b/tools/testing/selftests/bpf/network_helpers.c
-index bec15558fd93..1f37adff7632 100644
---- a/tools/testing/selftests/bpf/network_helpers.c
-+++ b/tools/testing/selftests/bpf/network_helpers.c
-@@ -426,6 +426,10 @@ static int setns_by_fd(int nsfd)
- 	if (!ASSERT_OK(err, "mount /sys/fs/bpf"))
- 		return err;
+diff --git a/tools/testing/selftests/bpf/prog_tests/lsm_cgroup.c b/tools/testing/selftests/bpf/prog_tests/lsm_cgroup.c
+index 1102e4f42d2d..f117bfef68a1 100644
+--- a/tools/testing/selftests/bpf/prog_tests/lsm_cgroup.c
++++ b/tools/testing/selftests/bpf/prog_tests/lsm_cgroup.c
+@@ -173,10 +173,12 @@ static void test_lsm_cgroup_functional(void)
+ 	ASSERT_EQ(query_prog_cnt(cgroup_fd, NULL), 4, "total prog count");
+ 	ASSERT_EQ(query_prog_cnt(cgroup_fd2, NULL), 1, "total prog count");
  
-+	err = mount("debugfs", "/sys/kernel/debug", "debugfs", 0, NULL);
-+	if (!ASSERT_OK(err, "mount /sys/kernel/debug"))
-+		return err;
+-	/* AF_UNIX is prohibited. */
+-
+ 	fd = socket(AF_UNIX, SOCK_STREAM, 0);
+-	ASSERT_LT(fd, 0, "socket(AF_UNIX)");
++	if (!(skel->kconfig->CONFIG_SECURITY_APPARMOR
++	    || skel->kconfig->CONFIG_SECURITY_SELINUX
++	    || skel->kconfig->CONFIG_SECURITY_SMACK))
++		/* AF_UNIX is prohibited. */
++		ASSERT_LT(fd, 0, "socket(AF_UNIX)");
+ 	close(fd);
+ 
+ 	/* AF_INET6 gets default policy (sk_priority). */
+@@ -233,11 +235,18 @@ static void test_lsm_cgroup_functional(void)
+ 
+ 	/* AF_INET6+SOCK_STREAM
+ 	 * AF_PACKET+SOCK_RAW
++	 * AF_UNIX+SOCK_RAW if already have non-bpf lsms installed
+ 	 * listen_fd
+ 	 * client_fd
+ 	 * accepted_fd
+ 	 */
+-	ASSERT_EQ(skel->bss->called_socket_post_create2, 5, "called_create2");
++	if (skel->kconfig->CONFIG_SECURITY_APPARMOR
++	    || skel->kconfig->CONFIG_SECURITY_SELINUX
++	    || skel->kconfig->CONFIG_SECURITY_SMACK)
++		/* AF_UNIX+SOCK_RAW if already have non-bpf lsms installed */
++		ASSERT_EQ(skel->bss->called_socket_post_create2, 6, "called_create2");
++	else
++		ASSERT_EQ(skel->bss->called_socket_post_create2, 5, "called_create2");
+ 
+ 	/* start_server
+ 	 * bind(ETH_P_ALL)
+diff --git a/tools/testing/selftests/bpf/progs/lsm_cgroup.c b/tools/testing/selftests/bpf/progs/lsm_cgroup.c
+index 4f2d60b87b75..02c11d16b692 100644
+--- a/tools/testing/selftests/bpf/progs/lsm_cgroup.c
++++ b/tools/testing/selftests/bpf/progs/lsm_cgroup.c
+@@ -7,6 +7,10 @@
+ 
+ char _license[] SEC("license") = "GPL";
+ 
++extern bool CONFIG_SECURITY_SELINUX __kconfig __weak;
++extern bool CONFIG_SECURITY_SMACK __kconfig __weak;
++extern bool CONFIG_SECURITY_APPARMOR __kconfig __weak;
 +
- 	return 0;
- }
- 
-diff --git a/tools/testing/selftests/bpf/prog_tests/empty_skb.c b/tools/testing/selftests/bpf/prog_tests/empty_skb.c
-index 32dd731e9070..0613f3bb8b5e 100644
---- a/tools/testing/selftests/bpf/prog_tests/empty_skb.c
-+++ b/tools/testing/selftests/bpf/prog_tests/empty_skb.c
-@@ -9,7 +9,7 @@
- 		goto out; \
- })
- 
--void test_empty_skb(void)
-+void serial_test_empty_skb(void)
+ #ifndef AF_PACKET
+ #define AF_PACKET 17
+ #endif
+@@ -140,6 +144,10 @@ SEC("lsm_cgroup/sk_alloc_security")
+ int BPF_PROG(socket_alloc, struct sock *sk, int family, gfp_t priority)
  {
- 	LIBBPF_OPTS(bpf_test_run_opts, tattr);
- 	struct empty_skb *bpf_obj = NULL;
-diff --git a/tools/testing/selftests/bpf/prog_tests/xdp_do_redirect.c b/tools/testing/selftests/bpf/prog_tests/xdp_do_redirect.c
-index a50971c6cf4a..9ac6f6a268db 100644
---- a/tools/testing/selftests/bpf/prog_tests/xdp_do_redirect.c
-+++ b/tools/testing/selftests/bpf/prog_tests/xdp_do_redirect.c
-@@ -85,7 +85,7 @@ static void test_max_pkt_size(int fd)
- }
+ 	called_socket_alloc++;
++	/* if already have non-bpf lsms installed, EPERM will cause memory leak of non-bpf lsms */
++	if (CONFIG_SECURITY_SELINUX || CONFIG_SECURITY_SMACK || CONFIG_SECURITY_APPARMOR)
++		return 1;
++
+ 	if (family == AF_UNIX)
+ 		return 0; /* EPERM */
  
- #define NUM_PKTS 10000
--void test_xdp_do_redirect(void)
-+void serial_test_xdp_do_redirect(void)
- {
- 	int err, xdp_prog_fd, tc_prog_fd, ifindex_src, ifindex_dst;
- 	char data[sizeof(pkt_udp) + sizeof(__u32)];
-diff --git a/tools/testing/selftests/bpf/prog_tests/xdp_synproxy.c b/tools/testing/selftests/bpf/prog_tests/xdp_synproxy.c
-index 75550a40e029..879f5da2f21e 100644
---- a/tools/testing/selftests/bpf/prog_tests/xdp_synproxy.c
-+++ b/tools/testing/selftests/bpf/prog_tests/xdp_synproxy.c
-@@ -174,7 +174,7 @@ static void test_synproxy(bool xdp)
- 	system("ip netns del synproxy");
- }
- 
--void test_xdp_synproxy(void)
-+void serial_test_xdp_synproxy(void)
- {
- 	if (test__start_subtest("xdp"))
- 		test_synproxy(true);
 -- 
 2.35.1
 
