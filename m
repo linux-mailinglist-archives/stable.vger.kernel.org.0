@@ -2,45 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E19F6579AE
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:03:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F90F657AC8
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:15:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233453AbiL1PDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:03:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51374 "EHLO
+        id S233017AbiL1PPC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:15:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233461AbiL1PDi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:03:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3100711C18
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:03:38 -0800 (PST)
+        with ESMTP id S233036AbiL1POu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:14:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10E3213E04
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:14:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C41BF61543
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:03:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7E1BC433EF;
-        Wed, 28 Dec 2022 15:03:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B67F7B816D9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:14:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0297DC433D2;
+        Wed, 28 Dec 2022 15:14:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239817;
-        bh=Qnz2Q2W1D4s7Im2sMTjlrRPEJ7DyXob3fGrWZMetkvA=;
+        s=korg; t=1672240486;
+        bh=hvEaW+R/g4ESMPE5f6j9wm+HHJ34mDcZ+PHSC8ogkAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a/7jWOwFylG8Hb23QMJ9nnRvTzCofayZ5rbFpabC56KSCK8mHqaUgeiYOqY+dAKmM
-         HPCiZfEF9C2/Ih/NhYN90Z9vGgSef9WcywTnt9CjoTCMstyIZvd1AFhEFdmbHXfPb0
-         MDm8cWQG4wdmHVldW04Zqr7UFksZPHvUZF0Ge3qY=
+        b=j9LzrolQTxJPa4EeqVAygqHXOXXoFymvCj4yEGdly3eHeQqmd8CYMaqydLYUPvuM+
+         BMR+4mabZ07uOfPrAWw/3mD2FPe8uDOxdBa6sesRkV7c3QR/1P7/B+V+OoLXWUX67m
+         S+JwD3LgmjuU2c3qMjlARschYH5fY7Gg+aUrh3HA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Yicong Yang <yangyicong@hisilicon.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0082/1073] drivers/perf: hisi: Fix some event id for hisi-pcie-pmu
+        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
+        Yosry Ahmed <yosryahmed@google.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Kamalesh Babulal <kamalesh.babulal@oracle.com>,
+        David Rientjes <rientjes@google.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Shuah Khan <shuah@kernel.org>, Tejun Heo <tj@kernel.org>,
+        zefan li <lizefan.x@bytedance.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0131/1146] selftests: cgroup: fix unsigned comparison with less than zero
 Date:   Wed, 28 Dec 2022 15:27:50 +0100
-Message-Id: <20221228144330.291629361@linuxfoundation.org>
+Message-Id: <20221228144333.710437183@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +61,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yicong Yang <yangyicong@hisilicon.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 6b4bb4f38dbfe85247f006f06135ba46450d5bf0 ]
+[ Upstream commit 333d073dee3a6865171d43e3b0a9ff688bff5891 ]
 
-Some event id of hisi-pcie-pmu is incorrect, fix them.
+'size' is unsigned, it never less than zero.
 
-Fixes: 8404b0fbc7fb ("drivers/perf: hisi: Add driver for HiSilicon PCIe PMU")
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
-Link: https://lore.kernel.org/r/20221117084136.53572-2-yangyicong@huawei.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Link: https://lkml.kernel.org/r/20221105110611.28920-1-yuehaibing@huawei.com
+Fixes: 6c26df84e1f2 ("selftests: cgroup: return -errno from cg_read()/cg_write() on failure")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reviewed-by: Yosry Ahmed <yosryahmed@google.com>
+Acked-by: Roman Gushchin <roman.gushchin@linux.dev>
+Reviewed-by: Kamalesh Babulal <kamalesh.babulal@oracle.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: zefan li <lizefan.x@bytedance.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/perf/hisilicon/hisi_pcie_pmu.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ tools/testing/selftests/cgroup/cgroup_util.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/perf/hisilicon/hisi_pcie_pmu.c b/drivers/perf/hisilicon/hisi_pcie_pmu.c
-index 21771708597d..071e63d9a9ac 100644
---- a/drivers/perf/hisilicon/hisi_pcie_pmu.c
-+++ b/drivers/perf/hisilicon/hisi_pcie_pmu.c
-@@ -693,10 +693,10 @@ static struct attribute *hisi_pcie_pmu_events_attr[] = {
- 	HISI_PCIE_PMU_EVENT_ATTR(rx_mrd_cnt, 0x10210),
- 	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_latency, 0x0011),
- 	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_cnt, 0x10011),
--	HISI_PCIE_PMU_EVENT_ATTR(rx_mrd_flux, 0x1005),
--	HISI_PCIE_PMU_EVENT_ATTR(rx_mrd_time, 0x11005),
--	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_flux, 0x2004),
--	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_time, 0x12004),
-+	HISI_PCIE_PMU_EVENT_ATTR(rx_mrd_flux, 0x0804),
-+	HISI_PCIE_PMU_EVENT_ATTR(rx_mrd_time, 0x10804),
-+	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_flux, 0x0405),
-+	HISI_PCIE_PMU_EVENT_ATTR(tx_mrd_time, 0x10405),
- 	NULL
- };
+diff --git a/tools/testing/selftests/cgroup/cgroup_util.c b/tools/testing/selftests/cgroup/cgroup_util.c
+index 4c52cc6f2f9c..e8bbbdb77e0d 100644
+--- a/tools/testing/selftests/cgroup/cgroup_util.c
++++ b/tools/testing/selftests/cgroup/cgroup_util.c
+@@ -555,6 +555,7 @@ int proc_mount_contains(const char *option)
+ ssize_t proc_read_text(int pid, bool thread, const char *item, char *buf, size_t size)
+ {
+ 	char path[PATH_MAX];
++	ssize_t ret;
  
+ 	if (!pid)
+ 		snprintf(path, sizeof(path), "/proc/%s/%s",
+@@ -562,8 +563,8 @@ ssize_t proc_read_text(int pid, bool thread, const char *item, char *buf, size_t
+ 	else
+ 		snprintf(path, sizeof(path), "/proc/%d/%s", pid, item);
+ 
+-	size = read_text(path, buf, size);
+-	return size < 0 ? -1 : size;
++	ret = read_text(path, buf, size);
++	return ret < 0 ? -1 : ret;
+ }
+ 
+ int proc_read_strstr(int pid, bool thread, const char *item, const char *needle)
 -- 
 2.35.1
 
