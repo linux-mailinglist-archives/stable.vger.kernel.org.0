@@ -2,43 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F9C1657A68
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:11:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C289657B84
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233612AbiL1PLR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:11:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58350 "EHLO
+        id S233695AbiL1PXL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:23:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233722AbiL1PKt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:10:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30F0412D25
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:10:48 -0800 (PST)
+        with ESMTP id S233696AbiL1PWm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:22:42 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D68B413FB7
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:22:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D50D8B8171F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:10:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D419C433EF;
-        Wed, 28 Dec 2022 15:10:45 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2E244CE076E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:22:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9008C433EF;
+        Wed, 28 Dec 2022 15:22:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240245;
-        bh=Ce5wsrwXVklwECNR+An862ZImLkfgMufqhCRFkyt+Go=;
+        s=korg; t=1672240943;
+        bh=hovzrAr0C5geGX7T8gSHxX0Zd5O0iepBHfxie7lVWCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nf/OYQasjECnTCvbCNja9FUgmDMPAUHAhLOJrc5dieWqw4LkJb7rdptKmrFwHM37h
-         fZNugyBNYbwiGC/pAiS25hhBSqNUW3JQCgXxSD5VDtYA/9fXkfY9LeMZ5iLofTDoGc
-         JDZMsZNzr/xMx8c0/XCxEtd5zA8RvRCsP/ETlw94=
+        b=eYqQYkPe6PXc9vdNEC8o1PRaDfhiFx4X2IfK8ryZ2km7z5IicAvDO6AzpN8Hu8ViM
+         rCieXESNdCDwrCnpVeJs2rL9W8tEQaWG7GsEf/UI7a7pgyNDj6YLWXnmF/KdjAFB3d
+         MEqk3BpmAemHyAU6JmGPxFWu7iGQJ64/rgdBMAhc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liu Peibao <liupeibao@loongson.cn>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0138/1073] irqchip/loongson-liointc: Fix improper error handling in liointc_init()
+        patches@lists.linux.dev, Wang Weiyang <wangweiyang2@huawei.com>,
+        Alexandre Bounine <alex.bou9@gmail.com>,
+        Dan Carpenter <error27@gmail.com>,
+        Jakob Koschel <jakobkoschel@gmail.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Matt Porter <mporter@kernel.crashing.org>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0187/1146] rapidio: fix possible UAF when kfifo_alloc() fails
 Date:   Wed, 28 Dec 2022 15:28:46 +0100
-Message-Id: <20221228144331.779202147@linuxfoundation.org>
+Message-Id: <20221228144335.230878561@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,44 +59,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Peibao <liupeibao@loongson.cn>
+From: Wang Weiyang <wangweiyang2@huawei.com>
 
-[ Upstream commit 4a60a3cdcf1875c965095eb9e22c3d12bbc5a53d ]
+[ Upstream commit 02d7d89f816951e0862147d751b1150d67aaebdd ]
 
-For cores less than 4, eg, loongson2k1000 with 2 cores, the
-of_property_match_string() may return with an error value,
-which causes that liointc could not work. At least isr0 is
-what should be checked like previous commit b2c4c3969fd7
-("irqchip/loongson-liointc: irqchip add 2.0 version") did.
+If kfifo_alloc() fails in mport_cdev_open(), goto err_fifo and just free
+priv. But priv is still in the chdev->file_list, then list traversal
+may cause UAF. This fixes the following smatch warning:
 
-Fixes: 0858ed035a85 ("irqchip/loongson-liointc: Add ACPI init support")
-Signed-off-by: Liu Peibao <liupeibao@loongson.cn>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20221104110712.23300-1-liupeibao@loongson.cn
+drivers/rapidio/devices/rio_mport_cdev.c:1930 mport_cdev_open() warn: '&priv->list' not removed from list
+
+Link: https://lkml.kernel.org/r/20221123095147.52408-1-wangweiyang2@huawei.com
+Fixes: e8de370188d0 ("rapidio: add mport char device driver")
+Signed-off-by: Wang Weiyang <wangweiyang2@huawei.com>
+Cc: Alexandre Bounine <alex.bou9@gmail.com>
+Cc: Dan Carpenter <error27@gmail.com>
+Cc: Jakob Koschel <jakobkoschel@gmail.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Matt Porter <mporter@kernel.crashing.org>
+Cc: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-loongson-liointc.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/rapidio/devices/rio_mport_cdev.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/irqchip/irq-loongson-liointc.c b/drivers/irqchip/irq-loongson-liointc.c
-index 0da8716f8f24..c4584e2f0ad3 100644
---- a/drivers/irqchip/irq-loongson-liointc.c
-+++ b/drivers/irqchip/irq-loongson-liointc.c
-@@ -207,10 +207,13 @@ static int liointc_init(phys_addr_t addr, unsigned long size, int revision,
- 					"reg-names", core_reg_names[i]);
+diff --git a/drivers/rapidio/devices/rio_mport_cdev.c b/drivers/rapidio/devices/rio_mport_cdev.c
+index 3cc83997a1f8..fecf523f36d8 100644
+--- a/drivers/rapidio/devices/rio_mport_cdev.c
++++ b/drivers/rapidio/devices/rio_mport_cdev.c
+@@ -1904,10 +1904,6 @@ static int mport_cdev_open(struct inode *inode, struct file *filp)
  
- 			if (index < 0)
--				goto out_iounmap;
-+				continue;
+ 	priv->md = chdev;
  
- 			priv->core_isr[i] = of_iomap(node, index);
- 		}
-+
-+		if (!priv->core_isr[0])
-+			goto out_iounmap;
- 	}
+-	mutex_lock(&chdev->file_mutex);
+-	list_add_tail(&priv->list, &chdev->file_list);
+-	mutex_unlock(&chdev->file_mutex);
+-
+ 	INIT_LIST_HEAD(&priv->db_filters);
+ 	INIT_LIST_HEAD(&priv->pw_filters);
+ 	spin_lock_init(&priv->fifo_lock);
+@@ -1926,6 +1922,9 @@ static int mport_cdev_open(struct inode *inode, struct file *filp)
+ 	spin_lock_init(&priv->req_lock);
+ 	mutex_init(&priv->dma_lock);
+ #endif
++	mutex_lock(&chdev->file_mutex);
++	list_add_tail(&priv->list, &chdev->file_list);
++	mutex_unlock(&chdev->file_mutex);
  
- 	/* Setup IRQ domain */
+ 	filp->private_data = priv;
+ 	goto out;
 -- 
 2.35.1
 
