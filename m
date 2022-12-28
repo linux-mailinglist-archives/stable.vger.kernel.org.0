@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F2EC657CA2
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:34:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A49C2657B91
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233421AbiL1Ped (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:34:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52404 "EHLO
+        id S233317AbiL1PXX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:23:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233856AbiL1Pec (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:34:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DCE31648F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:34:31 -0800 (PST)
+        with ESMTP id S233617AbiL1PXD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:23:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5388B13F44
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:23:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 111DEB816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:34:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B22FC433EF;
-        Wed, 28 Dec 2022 15:34:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0ED43B8170E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:23:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75B9BC433F1;
+        Wed, 28 Dec 2022 15:23:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241668;
-        bh=CRVDmIxG1GpGqJ2uorF+vSGY0cCgEvkrIvG8qhmtQlI=;
+        s=korg; t=1672240980;
+        bh=BGgfnhHfGxDOFI2DlI4A1YkN2bQPDjGcH5vFUFrLvQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G1qz2ucoSxhgDfpze6s3Sjl2KpNn5KWmHBUgEqwfJDVfJQbrjUZAgXvVxEliNB0IC
-         zxv5RFx1aXZ9c9c9DWGvGFES3LNtC04hNqbNGbHWoLYZZjpq53z/HOox6WJfBzHD+R
-         GoCkvIiJiXkK6jhca67Ezi24fhbc/M4Cvbdol/ic=
+        b=shErs0IGCGz58oOuLIyU6e1OsI5zWAQqU2Q2paCHDKP4z194AxNeoed2QGc07E58H
+         SFw9NOF3WHXl+ZcGITsxczXacAtikbvlk7kILPUmVAXLsOfPlSJo0ktjUlCZHYDaUA
+         tqynX9xTx5o7aSWB4VzQqQlQZTjCIm8M/Ev8MxS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yonghong Song <yhs@meta.com>,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0275/1146] bpf: Clobber stack slot when writing over spilled PTR_TO_BTF_ID
+Subject: [PATCH 6.0 0226/1073] media: coda: jpeg: Add check for kmalloc
 Date:   Wed, 28 Dec 2022 15:30:14 +0100
-Message-Id: <20221228144337.604964554@linuxfoundation.org>
+Message-Id: <20221228144334.159343865@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,76 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 261f4664caffdeb9dff4e83ee3c0334b1c3a552f ]
+[ Upstream commit f30ce3d3760b22ee33c8d9c2e223764ad30bdc5f ]
 
-When support was added for spilled PTR_TO_BTF_ID to be accessed by
-helper memory access, the stack slot was not overwritten to STACK_MISC
-(and that too is only safe when env->allow_ptr_leaks is true).
+As kmalloc can return NULL pointer, it should be better to
+check the return value and return error, same as
+coda_jpeg_decode_header.
 
-This means that helpers who take ARG_PTR_TO_MEM and write to it may
-essentially overwrite the value while the verifier continues to track
-the slot for spilled register.
-
-This can cause issues when PTR_TO_BTF_ID is spilled to stack, and then
-overwritten by helper write access, which can then be passed to BPF
-helpers or kfuncs.
-
-Handle this by falling back to the case introduced in a later commit,
-which will also handle PTR_TO_BTF_ID along with other pointer types,
-i.e. cd17d38f8b28 ("bpf: Permits pointers on stack for helper calls").
-
-Finally, include a comment on why REG_LIVE_WRITTEN is not being set when
-clobber is set to true. In short, the reason is that while when clobber
-is unset, we know that we won't be writing, when it is true, we *may*
-write to any of the stack slots in that range. It may be a partial or
-complete write, to just one or many stack slots.
-
-We cannot be sure, hence to be conservative, we leave things as is and
-never set REG_LIVE_WRITTEN for any stack slot. However, clobber still
-needs to reset them to STACK_MISC assuming writes happened. However read
-marks still need to be propagated upwards from liveness point of view,
-as parent stack slot's contents may still continue to matter to child
-states.
-
-Cc: Yonghong Song <yhs@meta.com>
-Fixes: 1d68f22b3d53 ("bpf: Handle spilled PTR_TO_BTF_ID properly when checking stack_boundary")
-Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Link: https://lore.kernel.org/r/20221103191013.1236066-4-memxor@gmail.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Fixes: 96f6f62c4656 ("media: coda: jpeg: add CODA960 JPEG encoder support")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/media/platform/chips-media/coda-jpeg.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 264b3dc714cc..146056c79cc9 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -5159,10 +5159,6 @@ static int check_stack_range_initialized(
- 			goto mark;
- 		}
- 
--		if (is_spilled_reg(&state->stack[spi]) &&
--		    base_type(state->stack[spi].spilled_ptr.type) == PTR_TO_BTF_ID)
--			goto mark;
--
- 		if (is_spilled_reg(&state->stack[spi]) &&
- 		    (state->stack[spi].spilled_ptr.type == SCALAR_VALUE ||
- 		     env->allow_ptr_leaks)) {
-@@ -5193,6 +5189,11 @@ static int check_stack_range_initialized(
- 		mark_reg_read(env, &state->stack[spi].spilled_ptr,
- 			      state->stack[spi].spilled_ptr.parent,
- 			      REG_LIVE_READ64);
-+		/* We do not set REG_LIVE_WRITTEN for stack slot, as we can not
-+		 * be sure that whether stack slot is written to or not. Hence,
-+		 * we must still conservatively propagate reads upwards even if
-+		 * helper may write to the entire memory range.
-+		 */
+diff --git a/drivers/media/platform/chips-media/coda-jpeg.c b/drivers/media/platform/chips-media/coda-jpeg.c
+index a0b22b07f69a..2284e0420934 100644
+--- a/drivers/media/platform/chips-media/coda-jpeg.c
++++ b/drivers/media/platform/chips-media/coda-jpeg.c
+@@ -1053,10 +1053,16 @@ static int coda9_jpeg_start_encoding(struct coda_ctx *ctx)
+ 		v4l2_err(&dev->v4l2_dev, "error loading Huffman tables\n");
+ 		return ret;
  	}
- 	return update_stack_depth(env, state, min_off);
- }
+-	if (!ctx->params.jpeg_qmat_tab[0])
++	if (!ctx->params.jpeg_qmat_tab[0]) {
+ 		ctx->params.jpeg_qmat_tab[0] = kmalloc(64, GFP_KERNEL);
+-	if (!ctx->params.jpeg_qmat_tab[1])
++		if (!ctx->params.jpeg_qmat_tab[0])
++			return -ENOMEM;
++	}
++	if (!ctx->params.jpeg_qmat_tab[1]) {
+ 		ctx->params.jpeg_qmat_tab[1] = kmalloc(64, GFP_KERNEL);
++		if (!ctx->params.jpeg_qmat_tab[1])
++			return -ENOMEM;
++	}
+ 	coda_set_jpeg_compression_quality(ctx, ctx->params.jpeg_quality);
+ 
+ 	return 0;
 -- 
 2.35.1
 
