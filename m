@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F33E4657D16
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:39:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F2446582AC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:40:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233928AbiL1PjT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:39:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56200 "EHLO
+        id S234748AbiL1Qjq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:39:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233936AbiL1PjP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:39:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2073D165BD
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:39:14 -0800 (PST)
+        with ESMTP id S234908AbiL1QjX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:39:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 786D11CB13
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:34:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B210B61553
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:39:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5C26C433D2;
-        Wed, 28 Dec 2022 15:39:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 190D7B816F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:34:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A5FDC433D2;
+        Wed, 28 Dec 2022 16:34:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241953;
-        bh=KwKXfZxx3BpPf4NQPS+b85R1s5ASnGewBVbenXMEt2Q=;
+        s=korg; t=1672245278;
+        bh=xQMi28LGCJNTI83BvpgQkwHlz5aot2de7hmQTjlyeZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DW8vLS3anZM1t/toDS7NZjW/ZXZ4I6oXGA8mJA1Bns3ABfaa0slPhFKFUPkhqg2p6
-         4n+P2eY6bID3Duw/4zo4GhNXkzt2lBBrWBeH/A3B8MN1cPcTlwu+bEWj8qcQqAvev9
-         5HQdDKjCjC2Gg3JRVvIxwgEWan48H/bU1HzZuNxo=
+        b=qnFjbcwZP0gzDxpPA/MR8SlJEMKv0Ea9XZosEYfMnpws72Ip2XDcsH6lavPgu8cAs
+         uxRKJLPlJ24Fl9uCSsjEgg19vFNMmt2kE6wi4/4lXuL3st4m6l8ikqoYAEADm9HbpV
+         UHpupSdTl4TPAQdjwDSvkdPpXcq6dMyR/0652E/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        patches@lists.linux.dev, Tan Tee Min <tee.min.tan@linux.intel.com>,
+        Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>,
+        Naama Meir <naamax.meir@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 546/731] rtc: cmos: Disable ACPI RTC event on removal
+Subject: [PATCH 6.0 0865/1073] igc: recalculate Qbv end_time by considering cycle time
 Date:   Wed, 28 Dec 2022 15:40:53 +0100
-Message-Id: <20221228144312.369745226@linuxfoundation.org>
+Message-Id: <20221228144351.515977021@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,66 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Tan Tee Min <tee.min.tan@linux.intel.com>
 
-[ Upstream commit 83ebb7b3036d151ee39a4a752018665648fc3bd4 ]
+[ Upstream commit 6d05251d537a4d3835959a8cdd8cbbbdcdc0c904 ]
 
-Make cmos_do_remove() drop the ACPI RTC fixed event handler so as to
-prevent it from operating on stale data in case the event triggers
-after driver removal.
+Qbv users can specify a cycle time that is not equal to the total GCL
+intervals. Hence, recalculation is necessary here to exclude the time
+interval that exceeds the cycle time. As those GCL which exceeds the
+cycle time will be truncated.
 
-Fixes: 311ee9c151ad ("rtc: cmos: allow using ACPI for RTC alarm instead of HPET")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Zhang Rui <rui.zhang@intel.com>
-Tested-by: Zhang Rui <rui.zhang@intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/2224609.iZASKD2KPV@kreacher
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+According to IEEE Std. 802.1Q-2018 section 8.6.9.2, once the end of
+the list is reached, it will switch to the END_OF_CYCLE state and
+leave the gates in the same state until the next cycle is started.
+
+Fixes: ec50a9d437f0 ("igc: Add support for taprio offloading")
+Signed-off-by: Tan Tee Min <tee.min.tan@linux.intel.com>
+Signed-off-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
+Tested-by: Naama Meir <naamax.meir@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-cmos.c | 15 +++++++++++++++
+ drivers/net/ethernet/intel/igc/igc_main.c | 15 +++++++++++++++
  1 file changed, 15 insertions(+)
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index 039486bfedf4..00e2ca7374ec 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -798,6 +798,14 @@ static void acpi_rtc_event_setup(struct device *dev)
- 	acpi_disable_event(ACPI_EVENT_RTC, 0);
- }
+diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
+index 10690a0cfae1..207b4b5b2e5f 100644
+--- a/drivers/net/ethernet/intel/igc/igc_main.c
++++ b/drivers/net/ethernet/intel/igc/igc_main.c
+@@ -6023,6 +6023,21 @@ static int igc_save_qbv_schedule(struct igc_adapter *adapter,
  
-+static void acpi_rtc_event_cleanup(void)
-+{
-+	if (acpi_disabled)
-+		return;
-+
-+	acpi_remove_fixed_event_handler(ACPI_EVENT_RTC, rtc_handler);
-+}
-+
- static void rtc_wake_on(struct device *dev)
- {
- 	acpi_clear_event(ACPI_EVENT_RTC);
-@@ -884,6 +892,10 @@ static inline void acpi_rtc_event_setup(struct device *dev)
- {
- }
+ 		end_time += e->interval;
  
-+static inline void acpi_rtc_event_cleanup(void)
-+{
-+}
++		/* If any of the conditions below are true, we need to manually
++		 * control the end time of the cycle.
++		 * 1. Qbv users can specify a cycle time that is not equal
++		 * to the total GCL intervals. Hence, recalculation is
++		 * necessary here to exclude the time interval that
++		 * exceeds the cycle time.
++		 * 2. According to IEEE Std. 802.1Q-2018 section 8.6.9.2,
++		 * once the end of the list is reached, it will switch
++		 * to the END_OF_CYCLE state and leave the gates in the
++		 * same state until the next cycle is started.
++		 */
++		if (end_time > adapter->cycle_time ||
++		    n + 1 == qopt->num_entries)
++			end_time = adapter->cycle_time;
 +
- static inline void acpi_cmos_wake_setup(struct device *dev)
- {
- }
-@@ -1138,6 +1150,9 @@ static void cmos_do_remove(struct device *dev)
- 			hpet_unregister_irq_handler(cmos_interrupt);
- 	}
+ 		for (i = 0; i < adapter->num_tx_queues; i++) {
+ 			struct igc_ring *ring = adapter->tx_ring[i];
  
-+	if (!dev_get_platdata(dev))
-+		acpi_rtc_event_cleanup();
-+
- 	cmos->rtc = NULL;
- 
- 	ports = cmos->iomem;
 -- 
 2.35.1
 
