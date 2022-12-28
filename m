@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A40D8657F30
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:02:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED8CF65789B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:53:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234280AbiL1QC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:02:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48340 "EHLO
+        id S233209AbiL1Ows (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:52:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234294AbiL1QCa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:02:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C285D1903A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:02:06 -0800 (PST)
+        with ESMTP id S233171AbiL1OwU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:52:20 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D613120A9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:52:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7AA15B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:02:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA646C433EF;
-        Wed, 28 Dec 2022 16:02:03 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E8D8BCE1355
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:52:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8D29C433EF;
+        Wed, 28 Dec 2022 14:52:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243324;
-        bh=QtdgjbL3DcdWxyhVW/+ORtULDKB93UbVBWyVt6XoK4w=;
+        s=korg; t=1672239127;
+        bh=MRRDvQOL8lj3sucljXqlR9D/FN4CMn0v/x5HzQ03ZHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2lDYtMxrd3dR2sYLQFsaC/VOHPLEPBtdEW3hk23CeAIwXXVXy+TcfYFgy3XSiBYLT
-         jleCsusJLKBG+YdLpH8At82WamTgHp9p/05UGzF/oWfzudwsgvrMbkkTuuQ19pkVPn
-         R1xoOJ7MQh5Jcwwt1rttWhYUlFqTbtr3PQyLD2vg=
+        b=wvR1hICJOrQ+U2Yomhzmpus8il//PtQDOEgzSzk7gpiaS5TSJBnIQ6PRorFh88DcB
+         UW67l2LD3fik+S3S3Hmrrt8KJXI5sMmbs/Ul8WZqGhdf3OdRibdo2DKHuC0Rim6lVf
+         sB2bB4nj7xazioa60FOfkTId0kytxYP3hTyD+C7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Song Liu <songliubraving@fb.com>,
+        patches@lists.linux.dev,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0480/1146] bpf, sockmap: fix race in sock_map_free()
+Subject: [PATCH 5.15 112/731] clocksource/drivers/sh_cmt: Access registers according to spec
 Date:   Wed, 28 Dec 2022 15:33:39 +0100
-Message-Id: <20221228144343.220825213@linuxfoundation.org>
+Message-Id: <20221228144259.797581406@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,85 +54,193 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit 0a182f8d607464911756b4dbef5d6cad8de22469 ]
+[ Upstream commit 3f44f7156f59cae06e9160eafb5d8b2dfd09e639 ]
 
-sock_map_free() calls release_sock(sk) without owning a reference
-on the socket. This can cause use-after-free as syzbot found [1]
+Documentation for most CMTs say that it takes two input clocks before
+changes propagate to the timer. This is especially relevant when the timer
+is stopped to change further settings.
 
-Jakub Sitnicki already took care of a similar issue
-in sock_hash_free() in commit 75e68e5bf2c7 ("bpf, sockhash:
-Synchronize delete from bucket list on map free")
+Implement the delays according to the spec. To avoid unnecessary delays in
+atomic mode, also check if the to-be-written value actually differs.
 
-[1]
-refcount_t: decrement hit 0; leaking memory.
-WARNING: CPU: 0 PID: 3785 at lib/refcount.c:31 refcount_warn_saturate+0x17c/0x1a0 lib/refcount.c:31
-Modules linked in:
-CPU: 0 PID: 3785 Comm: kworker/u4:6 Not tainted 6.1.0-rc7-syzkaller-00103-gef4d3ea40565 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
-Workqueue: events_unbound bpf_map_free_deferred
-RIP: 0010:refcount_warn_saturate+0x17c/0x1a0 lib/refcount.c:31
-Code: 68 8b 31 c0 e8 75 71 15 fd 0f 0b e9 64 ff ff ff e8 d9 6e 4e fd c6 05 62 9c 3d 0a 01 48 c7 c7 80 bb 68 8b 31 c0 e8 54 71 15 fd <0f> 0b e9 43 ff ff ff 89 d9 80 e1 07 80 c1 03 38 c1 0f 8c a2 fe ff
-RSP: 0018:ffffc9000456fb60 EFLAGS: 00010246
-RAX: eae59bab72dcd700 RBX: 0000000000000004 RCX: ffff8880207057c0
-RDX: 0000000000000000 RSI: 0000000000000201 RDI: 0000000000000000
-RBP: 0000000000000004 R08: ffffffff816fdabd R09: fffff520008adee5
-R10: fffff520008adee5 R11: 1ffff920008adee4 R12: 0000000000000004
-R13: dffffc0000000000 R14: ffff88807b1c6c00 R15: 1ffff1100f638dcf
-FS: 0000000000000000(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
-CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000001b30c30000 CR3: 000000000d08e000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
-<TASK>
-__refcount_dec include/linux/refcount.h:344 [inline]
-refcount_dec include/linux/refcount.h:359 [inline]
-__sock_put include/net/sock.h:779 [inline]
-tcp_release_cb+0x2d0/0x360 net/ipv4/tcp_output.c:1092
-release_sock+0xaf/0x1c0 net/core/sock.c:3468
-sock_map_free+0x219/0x2c0 net/core/sock_map.c:356
-process_one_work+0x81c/0xd10 kernel/workqueue.c:2289
-worker_thread+0xb14/0x1330 kernel/workqueue.c:2436
-kthread+0x266/0x300 kernel/kthread.c:376
-ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
-</TASK>
+CMCNT is a bit special because testing showed that it requires 3 cycles to
+propagate, which affects all CMTs. Also, the WRFLAG needs to be checked
+before writing. This fixes "cannot clear CMCNT" messages which occur often
+on R-Car Gen4 SoCs, but only very rarely on older SoCs for some reason.
 
-Fixes: 7e81a3530206 ("bpf: Sockmap, ensure sock lock held during tear down")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Cc: Jakub Sitnicki <jakub@cloudflare.com>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Song Liu <songliubraving@fb.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/r/20221202111640.2745533-1-edumazet@google.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Fixes: 81b3b2711072 ("clocksource: sh_cmt: Add support for multiple channels per device")
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20221130210609.7718-1-wsa+renesas@sang-engineering.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/sock_map.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/clocksource/sh_cmt.c | 88 ++++++++++++++++++++++--------------
+ 1 file changed, 55 insertions(+), 33 deletions(-)
 
-diff --git a/net/core/sock_map.c b/net/core/sock_map.c
-index 81beb16ab1eb..22fa2c5bc6ec 100644
---- a/net/core/sock_map.c
-+++ b/net/core/sock_map.c
-@@ -349,11 +349,13 @@ static void sock_map_free(struct bpf_map *map)
+diff --git a/drivers/clocksource/sh_cmt.c b/drivers/clocksource/sh_cmt.c
+index dd0956ad969c..d35548aa026f 100644
+--- a/drivers/clocksource/sh_cmt.c
++++ b/drivers/clocksource/sh_cmt.c
+@@ -13,6 +13,7 @@
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
++#include <linux/iopoll.h>
+ #include <linux/ioport.h>
+ #include <linux/irq.h>
+ #include <linux/module.h>
+@@ -116,6 +117,7 @@ struct sh_cmt_device {
+ 	void __iomem *mapbase;
+ 	struct clk *clk;
+ 	unsigned long rate;
++	unsigned int reg_delay;
  
- 		sk = xchg(psk, NULL);
- 		if (sk) {
-+			sock_hold(sk);
- 			lock_sock(sk);
- 			rcu_read_lock();
- 			sock_map_unref(sk, psk);
- 			rcu_read_unlock();
- 			release_sock(sk);
-+			sock_put(sk);
- 		}
+ 	raw_spinlock_t lock; /* Protect the shared start/stop register */
+ 
+@@ -247,10 +249,17 @@ static inline u32 sh_cmt_read_cmstr(struct sh_cmt_channel *ch)
+ 
+ static inline void sh_cmt_write_cmstr(struct sh_cmt_channel *ch, u32 value)
+ {
+-	if (ch->iostart)
+-		ch->cmt->info->write_control(ch->iostart, 0, value);
+-	else
+-		ch->cmt->info->write_control(ch->cmt->mapbase, 0, value);
++	u32 old_value = sh_cmt_read_cmstr(ch);
++
++	if (value != old_value) {
++		if (ch->iostart) {
++			ch->cmt->info->write_control(ch->iostart, 0, value);
++			udelay(ch->cmt->reg_delay);
++		} else {
++			ch->cmt->info->write_control(ch->cmt->mapbase, 0, value);
++			udelay(ch->cmt->reg_delay);
++		}
++	}
+ }
+ 
+ static inline u32 sh_cmt_read_cmcsr(struct sh_cmt_channel *ch)
+@@ -260,7 +269,12 @@ static inline u32 sh_cmt_read_cmcsr(struct sh_cmt_channel *ch)
+ 
+ static inline void sh_cmt_write_cmcsr(struct sh_cmt_channel *ch, u32 value)
+ {
+-	ch->cmt->info->write_control(ch->ioctrl, CMCSR, value);
++	u32 old_value = sh_cmt_read_cmcsr(ch);
++
++	if (value != old_value) {
++		ch->cmt->info->write_control(ch->ioctrl, CMCSR, value);
++		udelay(ch->cmt->reg_delay);
++	}
+ }
+ 
+ static inline u32 sh_cmt_read_cmcnt(struct sh_cmt_channel *ch)
+@@ -268,14 +282,33 @@ static inline u32 sh_cmt_read_cmcnt(struct sh_cmt_channel *ch)
+ 	return ch->cmt->info->read_count(ch->ioctrl, CMCNT);
+ }
+ 
+-static inline void sh_cmt_write_cmcnt(struct sh_cmt_channel *ch, u32 value)
++static inline int sh_cmt_write_cmcnt(struct sh_cmt_channel *ch, u32 value)
+ {
++	/* Tests showed that we need to wait 3 clocks here */
++	unsigned int cmcnt_delay = DIV_ROUND_UP(3 * ch->cmt->reg_delay, 2);
++	u32 reg;
++
++	if (ch->cmt->info->model > SH_CMT_16BIT) {
++		int ret = read_poll_timeout_atomic(sh_cmt_read_cmcsr, reg,
++						   !(reg & SH_CMT32_CMCSR_WRFLG),
++						   1, cmcnt_delay, false, ch);
++		if (ret < 0)
++			return ret;
++	}
++
+ 	ch->cmt->info->write_count(ch->ioctrl, CMCNT, value);
++	udelay(cmcnt_delay);
++	return 0;
+ }
+ 
+ static inline void sh_cmt_write_cmcor(struct sh_cmt_channel *ch, u32 value)
+ {
+-	ch->cmt->info->write_count(ch->ioctrl, CMCOR, value);
++	u32 old_value = ch->cmt->info->read_count(ch->ioctrl, CMCOR);
++
++	if (value != old_value) {
++		ch->cmt->info->write_count(ch->ioctrl, CMCOR, value);
++		udelay(ch->cmt->reg_delay);
++	}
+ }
+ 
+ static u32 sh_cmt_get_counter(struct sh_cmt_channel *ch, u32 *has_wrapped)
+@@ -319,7 +352,7 @@ static void sh_cmt_start_stop_ch(struct sh_cmt_channel *ch, int start)
+ 
+ static int sh_cmt_enable(struct sh_cmt_channel *ch)
+ {
+-	int k, ret;
++	int ret;
+ 
+ 	dev_pm_syscore_device(&ch->cmt->pdev->dev, true);
+ 
+@@ -347,26 +380,9 @@ static int sh_cmt_enable(struct sh_cmt_channel *ch)
  	}
  
+ 	sh_cmt_write_cmcor(ch, 0xffffffff);
+-	sh_cmt_write_cmcnt(ch, 0);
+-
+-	/*
+-	 * According to the sh73a0 user's manual, as CMCNT can be operated
+-	 * only by the RCLK (Pseudo 32 kHz), there's one restriction on
+-	 * modifying CMCNT register; two RCLK cycles are necessary before
+-	 * this register is either read or any modification of the value
+-	 * it holds is reflected in the LSI's actual operation.
+-	 *
+-	 * While at it, we're supposed to clear out the CMCNT as of this
+-	 * moment, so make sure it's processed properly here.  This will
+-	 * take RCLKx2 at maximum.
+-	 */
+-	for (k = 0; k < 100; k++) {
+-		if (!sh_cmt_read_cmcnt(ch))
+-			break;
+-		udelay(1);
+-	}
++	ret = sh_cmt_write_cmcnt(ch, 0);
+ 
+-	if (sh_cmt_read_cmcnt(ch)) {
++	if (ret || sh_cmt_read_cmcnt(ch)) {
+ 		dev_err(&ch->cmt->pdev->dev, "ch%u: cannot clear CMCNT\n",
+ 			ch->index);
+ 		ret = -ETIMEDOUT;
+@@ -987,8 +1003,8 @@ MODULE_DEVICE_TABLE(of, sh_cmt_of_table);
+ 
+ static int sh_cmt_setup(struct sh_cmt_device *cmt, struct platform_device *pdev)
+ {
+-	unsigned int mask;
+-	unsigned int i;
++	unsigned int mask, i;
++	unsigned long rate;
+ 	int ret;
+ 
+ 	cmt->pdev = pdev;
+@@ -1024,10 +1040,16 @@ static int sh_cmt_setup(struct sh_cmt_device *cmt, struct platform_device *pdev)
+ 	if (ret < 0)
+ 		goto err_clk_unprepare;
+ 
+-	if (cmt->info->width == 16)
+-		cmt->rate = clk_get_rate(cmt->clk) / 512;
+-	else
+-		cmt->rate = clk_get_rate(cmt->clk) / 8;
++	rate = clk_get_rate(cmt->clk);
++	if (!rate) {
++		ret = -EINVAL;
++		goto err_clk_disable;
++	}
++
++	/* We shall wait 2 input clks after register writes */
++	if (cmt->info->model >= SH_CMT_48BIT)
++		cmt->reg_delay = DIV_ROUND_UP(2UL * USEC_PER_SEC, rate);
++	cmt->rate = rate / (cmt->info->width == 16 ? 512 : 8);
+ 
+ 	/* Map the memory resource(s). */
+ 	ret = sh_cmt_map_memory(cmt);
 -- 
 2.35.1
 
