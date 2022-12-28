@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C59C9657C5A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:32:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9DCB657D48
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:41:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233855AbiL1PcF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:32:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49060 "EHLO
+        id S233988AbiL1Plq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:41:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233446AbiL1Pbn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:31:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E43401648C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:31:36 -0800 (PST)
+        with ESMTP id S233969AbiL1Plb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:41:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D61311706A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:41:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BAC161344
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:31:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DEEBC433EF;
-        Wed, 28 Dec 2022 15:31:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D0656155C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:41:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACE73C433EF;
+        Wed, 28 Dec 2022 15:41:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241495;
-        bh=gwl17Lr127rb7iMH1hZFtCHrRw2Fp0VMP1UMvnUZkAQ=;
+        s=korg; t=1672242084;
+        bh=jEH0DtBZ7SLsx7+/AwXGRtDpeoy4TDVY/gGNFM5ErOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W7iJ4+bRnWBD2DqoxoVtUAchWb2EnXoTsbmDrcjpVsbK8uYD6ANSLdoMyocdJk2D7
-         SAr3TZ9bUy2A1TzPZpISRv5f8zWhOqUPVXCR3wtKPbmCh1x+3ZLsUwfON0QY8ikjB7
-         oaKnL3T0T9pcoBbcxlq1ZoRPlanGLjrv6eSDd3Ak=
+        b=G28CC8ysg/Nw/jRkzrzaoSSB4IFLmOlDlrzPZWFutCVziX7EuabJMy8SJOgnqMwzj
+         Lq+gw7qcpgMkiM41lksxjpaxtlahkQaWSBarNTQymPy9UwcNnCTuaYa/naPVP/PJBk
+         qZ/u0RfY+FtSCdeLUKyELR01HAMTameE12e5M2+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Marijn Suijten <marijn.suijten@somainline.org>,
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0275/1073] drm/msm/dsi: Use DIV_ROUND_UP instead of conditional increment on modulo
+Subject: [PATCH 6.1 0324/1146] ASoC: codecs: wsa883x: Use proper shutdown GPIO polarity
 Date:   Wed, 28 Dec 2022 15:31:03 +0100
-Message-Id: <20221228144335.486633258@linuxfoundation.org>
+Message-Id: <20221228144338.959607920@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 1e8196103bd02a396b45c8f6188541634a47fce2 ]
+[ Upstream commit ec5dba73f7ba10797904cf18092d2e6975a22147 ]
 
-This exact same math is used to compute bytes_in_slice above in
-dsi_update_dsc_timing(), also used to fill slice_chunk_size.
+The shutdown GPIO is active low (SD_N), but this depends on actual board
+layout.  Linux drivers should only care about logical state, where high
+(1) means shutdown and low (0) means do not shutdown.
 
-Fixes: b9080324d6ca ("drm/msm/dsi: add support for dsc data")
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Patchwork: https://patchwork.freedesktop.org/patch/508935/
-Link: https://lore.kernel.org/r/20221026182824.876933-4-marijn.suijten@somainline.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Invert the GPIO to match logical value.
+
+Fixes: 43b8c7dc85a1 ("ASoC: codecs: add wsa883x amplifier support")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20221110133512.478831-2-krzysztof.kozlowski@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi_host.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ sound/soc/codecs/wsa883x.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
-index 1bce664a4eed..3459cac6f770 100644
---- a/drivers/gpu/drm/msm/dsi/dsi_host.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
-@@ -1894,9 +1894,7 @@ static int dsi_populate_dsc_params(struct drm_dsc_config *dsc)
- 	 * params are calculated
- 	 */
- 	groups_per_line = DIV_ROUND_UP(dsc->slice_width, 3);
--	dsc->slice_chunk_size = dsc->slice_width * dsc->bits_per_pixel / 8;
--	if ((dsc->slice_width * dsc->bits_per_pixel) % 8)
--		dsc->slice_chunk_size++;
-+	dsc->slice_chunk_size = DIV_ROUND_UP(dsc->slice_width * dsc->bits_per_pixel, 8);
+diff --git a/sound/soc/codecs/wsa883x.c b/sound/soc/codecs/wsa883x.c
+index c7b10bbfba7e..77a7dd3cf495 100644
+--- a/sound/soc/codecs/wsa883x.c
++++ b/sound/soc/codecs/wsa883x.c
+@@ -1392,7 +1392,7 @@ static int wsa883x_probe(struct sdw_slave *pdev,
+ 	}
  
- 	/* rbs-min */
- 	min_rate_buffer_size =  dsc->rc_model_size - dsc->initial_offset +
+ 	wsa883x->sd_n = devm_gpiod_get_optional(&pdev->dev, "powerdown",
+-						GPIOD_FLAGS_BIT_NONEXCLUSIVE);
++						GPIOD_FLAGS_BIT_NONEXCLUSIVE | GPIOD_OUT_HIGH);
+ 	if (IS_ERR(wsa883x->sd_n)) {
+ 		dev_err(&pdev->dev, "Shutdown Control GPIO not found\n");
+ 		ret = PTR_ERR(wsa883x->sd_n);
+@@ -1411,7 +1411,7 @@ static int wsa883x_probe(struct sdw_slave *pdev,
+ 	pdev->prop.simple_clk_stop_capable = true;
+ 	pdev->prop.sink_dpn_prop = wsa_sink_dpn_prop;
+ 	pdev->prop.scp_int1_mask = SDW_SCP_INT1_BUS_CLASH | SDW_SCP_INT1_PARITY;
+-	gpiod_direction_output(wsa883x->sd_n, 1);
++	gpiod_direction_output(wsa883x->sd_n, 0);
+ 
+ 	wsa883x->regmap = devm_regmap_init_sdw(pdev, &wsa883x_regmap_config);
+ 	if (IS_ERR(wsa883x->regmap)) {
 -- 
 2.35.1
 
