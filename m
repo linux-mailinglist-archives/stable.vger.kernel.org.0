@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47AB865849A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:59:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8F9D657EFF
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:00:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235281AbiL1Q6c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:58:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51252 "EHLO
+        id S230224AbiL1QAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:00:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235228AbiL1Q57 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:57:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF1691DF23
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:54:19 -0800 (PST)
+        with ESMTP id S232658AbiL1QAC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:00:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F5F718E27
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:59:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73509B8188C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:54:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B335CC433D2;
-        Wed, 28 Dec 2022 16:54:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E1EC4613E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:59:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01238C433D2;
+        Wed, 28 Dec 2022 15:59:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246457;
-        bh=PZSyowwZMhwgmb74LWKcJnVWCGha30yBSXrAb2ZPezo=;
+        s=korg; t=1672243198;
+        bh=FKtCj8p/pFb9w5475+Qx7EIJbbFLYrGQLnNpQwnJEmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cV9h1atbfJc0kK9iv5BMgf2XtlLfXPfttdnbhLKmbcDR0XwtIynbD6YEy6x7MAfFY
-         MUzk+PokRXRzQx+zPMUsy7h2VTnbeHO7PcO1JjzNomX+APHhIjdloFE5aOLlJ6VVcb
-         OUeJeWsBKORzxiyD85NoDKafAxGlXoIutqFykHmo=
+        b=F+E6YDm07BFX0+J/EzKjccO5gDGNamWNPn9Np3nZhE0jyQBpgZsjCzLX2hj0S0pPr
+         jxxivf6jK95m2U/FPkBAEnE4Lz82+oiCX6YSpuDMEipFtaMoEfgRGmv+Ieuh5Y3TO1
+         QPxpY0FfJCoIft5E0OSFj8el00d5h2HFSh6c+C0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        ChiYuan Huang <cy_huang@richtek.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1044/1146] regulator: core: Use different devices for resource allocation and DT lookup
+Subject: [PATCH 5.15 676/731] scsi: ufs: Reduce the START STOP UNIT timeout
 Date:   Wed, 28 Dec 2022 15:43:03 +0100
-Message-Id: <20221228144358.690005681@linuxfoundation.org>
+Message-Id: <20221228144316.070794153@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,162 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChiYuan Huang <cy_huang@richtek.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 8f3cbcd6b440032ebc7f7d48a1689dcc70a4eb98 ]
+[ Upstream commit dcd5b7637c6d442d957f73780a03047413ed3a10 ]
 
-Following by the below discussion, there's the potential UAF issue
-between regulator and mfd.
-https://lore.kernel.org/all/20221128143601.1698148-1-yangyingliang@huawei.com/
+Reduce the START STOP UNIT command timeout to one second since on Android
+devices a kernel panic is triggered if an attempt to suspend the system
+takes more than 20 seconds. One second should be enough for the START STOP
+UNIT command since this command completes in less than a millisecond for
+the UFS devices I have access to.
 
->From the analysis of Yingliang
-
-CPU A				|CPU B
-mt6370_probe()			|
-  devm_mfd_add_devices()	|
-				|mt6370_regulator_probe()
-				|  regulator_register()
-				|    //allocate init_data and add it to devres
-				|    regulator_of_get_init_data()
-i2c_unregister_device()		|
-  device_del()			|
-    devres_release_all()	|
-      // init_data is freed	|
-      release_nodes()		|
-				|  // using init_data causes UAF
-				|  regulator_register()
-
-It's common to use mfd core to create child device for the regulator.
-In order to do the DT lookup for init data, the child that registered
-the regulator would pass its parent as the parameter. And this causes
-init data resource allocated to its parent, not itself. The issue happen
-when parent device is going to release and regulator core is still doing
-some operation of init data constraint for the regulator of child device.
-
-To fix it, this patch expand 'regulator_register' API to use the
-different devices for init data allocation and DT lookup.
-
-Reported-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: ChiYuan Huang <cy_huang@richtek.com>
-Link: https://lore.kernel.org/r/1670311341-32664-1-git-send-email-u0084500@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Link: https://lore.kernel.org/r/20221018202958.1902564-7-bvanassche@acm.org
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel/int3472/clk_and_regulator.c | 3 ++-
- drivers/regulator/core.c                               | 8 ++++----
- drivers/regulator/devres.c                             | 2 +-
- drivers/regulator/of_regulator.c                       | 2 +-
- drivers/regulator/stm32-vrefbuf.c                      | 2 +-
- include/linux/regulator/driver.h                       | 3 ++-
- 6 files changed, 11 insertions(+), 9 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/drivers/platform/x86/intel/int3472/clk_and_regulator.c b/drivers/platform/x86/intel/int3472/clk_and_regulator.c
-index 1cf958983e86..b2342b3d78c7 100644
---- a/drivers/platform/x86/intel/int3472/clk_and_regulator.c
-+++ b/drivers/platform/x86/intel/int3472/clk_and_regulator.c
-@@ -185,7 +185,8 @@ int skl_int3472_register_regulator(struct int3472_discrete_device *int3472,
- 	cfg.init_data = &init_data;
- 	cfg.ena_gpiod = int3472->regulator.gpio;
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index dae1a85f1512..a428b8145dcc 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -8476,8 +8476,6 @@ static int ufshcd_set_dev_pwr_mode(struct ufs_hba *hba,
+ 	struct scsi_device *sdp;
+ 	unsigned long flags;
+ 	int ret, retries;
+-	unsigned long deadline;
+-	int32_t remaining;
  
--	int3472->regulator.rdev = regulator_register(&int3472->regulator.rdesc,
-+	int3472->regulator.rdev = regulator_register(int3472->dev,
-+						     &int3472->regulator.rdesc,
- 						     &cfg);
- 	if (IS_ERR(int3472->regulator.rdev)) {
- 		ret = PTR_ERR(int3472->regulator.rdev);
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 15677f5dcd99..8b567664f812 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -5404,6 +5404,7 @@ static struct regulator_coupler generic_regulator_coupler = {
- 
- /**
-  * regulator_register - register regulator
-+ * @dev: the device that drive the regulator
-  * @regulator_desc: regulator to register
-  * @cfg: runtime configuration for regulator
-  *
-@@ -5412,7 +5413,8 @@ static struct regulator_coupler generic_regulator_coupler = {
-  * or an ERR_PTR() on error.
-  */
- struct regulator_dev *
--regulator_register(const struct regulator_desc *regulator_desc,
-+regulator_register(struct device *dev,
-+		   const struct regulator_desc *regulator_desc,
- 		   const struct regulator_config *cfg)
- {
- 	const struct regulator_init_data *init_data;
-@@ -5421,7 +5423,6 @@ regulator_register(const struct regulator_desc *regulator_desc,
- 	struct regulator_dev *rdev;
- 	bool dangling_cfg_gpiod = false;
- 	bool dangling_of_gpiod = false;
--	struct device *dev;
- 	int ret, i;
- 	bool resolved_early = false;
- 
-@@ -5434,8 +5435,7 @@ regulator_register(const struct regulator_desc *regulator_desc,
- 		goto rinse;
- 	}
- 
--	dev = cfg->dev;
--	WARN_ON(!dev);
-+	WARN_ON(!dev || !cfg->dev);
- 
- 	if (regulator_desc->name == NULL || regulator_desc->ops == NULL) {
- 		ret = -EINVAL;
-diff --git a/drivers/regulator/devres.c b/drivers/regulator/devres.c
-index 3265e75e97ab..5c7ff9b3e8a7 100644
---- a/drivers/regulator/devres.c
-+++ b/drivers/regulator/devres.c
-@@ -385,7 +385,7 @@ struct regulator_dev *devm_regulator_register(struct device *dev,
- 	if (!ptr)
- 		return ERR_PTR(-ENOMEM);
- 
--	rdev = regulator_register(regulator_desc, config);
-+	rdev = regulator_register(dev, regulator_desc, config);
- 	if (!IS_ERR(rdev)) {
- 		*ptr = rdev;
- 		devres_add(dev, ptr);
-diff --git a/drivers/regulator/of_regulator.c b/drivers/regulator/of_regulator.c
-index 0aff1c2886b5..cd726d4e8fbf 100644
---- a/drivers/regulator/of_regulator.c
-+++ b/drivers/regulator/of_regulator.c
-@@ -505,7 +505,7 @@ struct regulator_init_data *regulator_of_get_init_data(struct device *dev,
- 	struct device_node *child;
- 	struct regulator_init_data *init_data = NULL;
- 
--	child = regulator_of_get_init_node(dev, desc);
-+	child = regulator_of_get_init_node(config->dev, desc);
- 	if (!child)
- 		return NULL;
- 
-diff --git a/drivers/regulator/stm32-vrefbuf.c b/drivers/regulator/stm32-vrefbuf.c
-index 30ea3bc8ca19..7a454b7b6eab 100644
---- a/drivers/regulator/stm32-vrefbuf.c
-+++ b/drivers/regulator/stm32-vrefbuf.c
-@@ -210,7 +210,7 @@ static int stm32_vrefbuf_probe(struct platform_device *pdev)
- 						      pdev->dev.of_node,
- 						      &stm32_vrefbuf_regu);
- 
--	rdev = regulator_register(&stm32_vrefbuf_regu, &config);
-+	rdev = regulator_register(&pdev->dev, &stm32_vrefbuf_regu, &config);
- 	if (IS_ERR(rdev)) {
- 		ret = PTR_ERR(rdev);
- 		dev_err(&pdev->dev, "register failed with error %d\n", ret);
-diff --git a/include/linux/regulator/driver.h b/include/linux/regulator/driver.h
-index f9a7461e72b8..d3b4a3d4514a 100644
---- a/include/linux/regulator/driver.h
-+++ b/include/linux/regulator/driver.h
-@@ -687,7 +687,8 @@ static inline int regulator_err2notif(int err)
- 
- 
- struct regulator_dev *
--regulator_register(const struct regulator_desc *regulator_desc,
-+regulator_register(struct device *dev,
-+		   const struct regulator_desc *regulator_desc,
- 		   const struct regulator_config *config);
- struct regulator_dev *
- devm_regulator_register(struct device *dev,
+ 	spin_lock_irqsave(hba->host->host_lock, flags);
+ 	sdp = hba->sdev_ufs_device;
+@@ -8510,14 +8508,9 @@ static int ufshcd_set_dev_pwr_mode(struct ufs_hba *hba,
+ 	 * callbacks hence set the RQF_PM flag so that it doesn't resume the
+ 	 * already suspended childs.
+ 	 */
+-	deadline = jiffies + 10 * HZ;
+ 	for (retries = 3; retries > 0; --retries) {
+-		ret = -ETIMEDOUT;
+-		remaining = deadline - jiffies;
+-		if (remaining <= 0)
+-			break;
+ 		ret = scsi_execute(sdp, cmd, DMA_NONE, NULL, 0, NULL, &sshdr,
+-				   remaining / HZ, 0, 0, RQF_PM, NULL);
++				   HZ, 0, 0, RQF_PM, NULL);
+ 		if (!scsi_status_is_check_condition(ret) ||
+ 				!scsi_sense_valid(&sshdr) ||
+ 				sshdr.sense_key != UNIT_ATTENTION)
 -- 
 2.35.1
 
