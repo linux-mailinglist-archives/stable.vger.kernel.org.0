@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91309657D00
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:38:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACA3A657E12
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:49:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233916AbiL1PiT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:38:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55604 "EHLO
+        id S234105AbiL1Ptp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:49:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233920AbiL1PiS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:38:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 303BD164B9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:38:18 -0800 (PST)
+        with ESMTP id S234088AbiL1Ptk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:49:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DED89183AB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:49:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BFC5561542
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:38:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D461AC433D2;
-        Wed, 28 Dec 2022 15:38:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CF6261560
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:49:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90460C433EF;
+        Wed, 28 Dec 2022 15:49:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241897;
-        bh=vRLkE86fpirHqul2CUIg/o2NFoI2q2mrfmZebt6V5PA=;
+        s=korg; t=1672242578;
+        bh=JPdw15exrtThGlpAOjLkbw8ap8naBIZp3edmxtlE5YM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=faxhM2sDYq04aOY7LNqhE2VpYDfY2vDumeFO07sTTMDptUa1yIi3lBz8eNpp4od0b
-         Es12nq4ITmrHugWOnktvBLPyB8hFC7YudMBc6yNG7dRCeQw0AV8t7T46TojG+jUnBm
-         jckbpCplP+tnRc5p6cslXV43StBGjH1aQnoDlP20=
+        b=tY04YkNIAMnWxXRbP9Tof/K261AWL1LG8b2H0ZR/VJoTJh/YTgIasglgryRnyhp6N
+         +J2yc5rfzONdlJujFJ2uH5AK6wzF5uVlv+/xSrtnXKudUGXzk+hEk7gF5IIR6JpUS3
+         MZ3K+3L8pjt2bOtkPjG51R1yfq6lM0JHruNSKU80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ming Qian <ming.qian@nxp.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0341/1073] media: amphion: add lock around vdec_g_fmt
+Subject: [PATCH 6.1 0390/1146] ASoC: qcom: Add checks for devm_kcalloc
 Date:   Wed, 28 Dec 2022 15:32:09 +0100
-Message-Id: <20221228144337.268656126@linuxfoundation.org>
+Message-Id: <20221228144340.757494698@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Qian <ming.qian@nxp.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 8480dd5fb3c82b5887d456b3fbe4201d99231814 ]
+[ Upstream commit 1bf5ee979076ceb121ee51c95197d890b1cee7f4 ]
 
-the capture format may be changed when
-sequence header is parsed,
-it may be read and write in the same time,
-add lock around vdec_g_fmt to synchronize it
+As the devm_kcalloc may return NULL, the return value needs to be checked
+to avoid NULL poineter dereference.
 
-Fixes: 6de8d628df6e ("media: amphion: add v4l2 m2m vpu decoder stateful driver")
-Signed-off-by: Ming Qian <ming.qian@nxp.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 24caf8d9eb10 ("ASoC: qcom: lpass-sc7180: Add platform driver for lpass audio")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Link: https://lore.kernel.org/r/20221124140510.63468-1-yuancan@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/amphion/vdec.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/qcom/lpass-sc7180.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/platform/amphion/vdec.c b/drivers/media/platform/amphion/vdec.c
-index 84c90ce265f2..b27e6bed85f0 100644
---- a/drivers/media/platform/amphion/vdec.c
-+++ b/drivers/media/platform/amphion/vdec.c
-@@ -286,6 +286,7 @@ static int vdec_g_fmt(struct file *file, void *fh, struct v4l2_format *f)
- 	struct vpu_format *cur_fmt;
- 	int i;
+diff --git a/sound/soc/qcom/lpass-sc7180.c b/sound/soc/qcom/lpass-sc7180.c
+index 77a556b27cf0..24a1c121cb2e 100644
+--- a/sound/soc/qcom/lpass-sc7180.c
++++ b/sound/soc/qcom/lpass-sc7180.c
+@@ -131,6 +131,9 @@ static int sc7180_lpass_init(struct platform_device *pdev)
  
-+	vpu_inst_lock(inst);
- 	cur_fmt = vpu_get_format(inst, f->type);
+ 	drvdata->clks = devm_kcalloc(dev, variant->num_clks,
+ 				     sizeof(*drvdata->clks), GFP_KERNEL);
++	if (!drvdata->clks)
++		return -ENOMEM;
++
+ 	drvdata->num_clks = variant->num_clks;
  
- 	pixmp->pixelformat = cur_fmt->pixfmt;
-@@ -303,6 +304,7 @@ static int vdec_g_fmt(struct file *file, void *fh, struct v4l2_format *f)
- 	f->fmt.pix_mp.xfer_func = vdec->codec_info.transfer_chars;
- 	f->fmt.pix_mp.ycbcr_enc = vdec->codec_info.matrix_coeffs;
- 	f->fmt.pix_mp.quantization = vdec->codec_info.full_range;
-+	vpu_inst_unlock(inst);
- 
- 	return 0;
- }
+ 	for (i = 0; i < drvdata->num_clks; i++)
 -- 
 2.35.1
 
