@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 034446584BC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:01:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5A78657F38
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234929AbiL1RBO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:01:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50262 "EHLO
+        id S234306AbiL1QDG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:03:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235313AbiL1RAm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:00:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3BD31BF
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:55:49 -0800 (PST)
+        with ESMTP id S232723AbiL1QCl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:02:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7F5D192A3
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:02:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B0BA613E9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:55:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 908B0C433D2;
-        Wed, 28 Dec 2022 16:55:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6BF97B8172A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:02:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9AA4C433D2;
+        Wed, 28 Dec 2022 16:02:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246548;
-        bh=wks1ap0L0Hh1oGAToVjd5pGJz4gg8sTFWm8Tit59i80=;
+        s=korg; t=1672243346;
+        bh=1gcWucT5Vh7LGy2jKM3SozrcRdTed8rJdJ1qE5dYkjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ehO/dxSDCSxqSqeVLMSla4gp8JpjdNmKFm9teaTSwVIoIKyvbHApiAZRiC85vgvOA
-         dUHtUA/yijtfgCgzeCA2rUL/w+HjqYiGCLR3tJoRUN3IJyOODlJImUCY/pmbGr0MQv
-         96NXQFPlMBBPhOIvELo5aFAxeIid4pwC7H6kPMy4=
+        b=qXfgFmGclbr075MpZ/pHfxYHHeKUBe8pVD0dxkLU7hsfiXuBavS8HNSdZZ36e/Lcd
+         ImE7kEnrr3VdrQOvJXyglJVtsV6BLneyRANo0JbodrnJMTjNmn6C/pCrtJK4quJTE6
+         04mW0rhDpYYgdYESVC6UKtbVErHFmpAnrL9BuKX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Imre Deak <imre.deak@intel.com>,
-        Clint Taylor <clinton.a.taylor@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Khaled Almahallawy <khaled.almahallawy@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1078/1146] drm/i915/display: Dont disable DDI/Transcoder when setting phy test pattern
-Date:   Wed, 28 Dec 2022 15:43:37 +0100
-Message-Id: <20221228144359.500751030@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.15 711/731] xhci: Prevent infinite loop in transaction errors recovery for streams
+Date:   Wed, 28 Dec 2022 15:43:38 +0100
+Message-Id: <20221228144317.057700246@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,121 +52,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Khaled Almahallawy <khaled.almahallawy@intel.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-[ Upstream commit 3153eebb7a76e663ac76d6670dc113296de96622 ]
+commit a1575120972ecd7baa6af6a69e4e7ea9213bde7c upstream.
 
-Bspecs has updated recently to remove the restriction to disable
-DDI/Transcoder before setting PHY test pattern. This update is to
-address PHY compliance test failures observed on a port with LTTPR.
-The issue is that when Transc. is disabled, the main link signals fed
-to LTTPR will be dropped invalidating link training, which will affect
-the quality of the phy test pattern when the transcoder is enabled again.
+Make sure to also limit the amount of soft reset retries for transaction
+errors on streams in cases where the transaction error event doesn't point
+to any specific TRB.
 
-v2: Update commit message (Clint)
-v3: Add missing Signed-off in v2
-v4: Update Bspec and commit message for pre-gen12 (Jani)
+In these cases we don't know the TRB or stream ring, but we do know which
+endpoint had the error.
 
-Bspec: 50482, 7555
-Fixes: 8cdf72711928 ("drm/i915/dp: Program vswing, pre-emphasis, test-pattern")
-Cc: Imre Deak <imre.deak@intel.com>
-Cc: Clint Taylor <clinton.a.taylor@intel.com>
-CC: Jani Nikula <jani.nikula@intel.com>
-Tested-by: Khaled Almahallawy <khaled.almahallawy@intel.com>
-Reviewed-by: Clint Taylor <clinton.a.taylor@intel.com>
-Signed-off-by: Khaled Almahallawy <khaled.almahallawy@intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221123220926.170034-1-khaled.almahallawy@intel.com
-(cherry picked from commit be4a847652056b067d6dc6fe0fc024a9e2e987ca)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To keep error counting simple and functional, move the current err_count
+from ring structure to endpoint structure.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20221130091944.2171610-6-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_dp.c | 59 -------------------------
- 1 file changed, 59 deletions(-)
+ drivers/usb/host/xhci-ring.c |   14 ++++++++++----
+ drivers/usb/host/xhci.h      |    2 +-
+ 2 files changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
-index 2b5bc95a8b0d..78b3427471bd 100644
---- a/drivers/gpu/drm/i915/display/intel_dp.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp.c
-@@ -3675,61 +3675,6 @@ static void intel_dp_phy_pattern_update(struct intel_dp *intel_dp,
- 	}
- }
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -2524,7 +2524,7 @@ static int process_bulk_intr_td(struct x
  
--static void
--intel_dp_autotest_phy_ddi_disable(struct intel_dp *intel_dp,
--				  const struct intel_crtc_state *crtc_state)
--{
--	struct intel_digital_port *dig_port = dp_to_dig_port(intel_dp);
--	struct drm_device *dev = dig_port->base.base.dev;
--	struct drm_i915_private *dev_priv = to_i915(dev);
--	struct intel_crtc *crtc = to_intel_crtc(dig_port->base.base.crtc);
--	enum pipe pipe = crtc->pipe;
--	u32 trans_ddi_func_ctl_value, trans_conf_value, dp_tp_ctl_value;
--
--	trans_ddi_func_ctl_value = intel_de_read(dev_priv,
--						 TRANS_DDI_FUNC_CTL(pipe));
--	trans_conf_value = intel_de_read(dev_priv, PIPECONF(pipe));
--	dp_tp_ctl_value = intel_de_read(dev_priv, TGL_DP_TP_CTL(pipe));
--
--	trans_ddi_func_ctl_value &= ~(TRANS_DDI_FUNC_ENABLE |
--				      TGL_TRANS_DDI_PORT_MASK);
--	trans_conf_value &= ~PIPECONF_ENABLE;
--	dp_tp_ctl_value &= ~DP_TP_CTL_ENABLE;
--
--	intel_de_write(dev_priv, PIPECONF(pipe), trans_conf_value);
--	intel_de_write(dev_priv, TRANS_DDI_FUNC_CTL(pipe),
--		       trans_ddi_func_ctl_value);
--	intel_de_write(dev_priv, TGL_DP_TP_CTL(pipe), dp_tp_ctl_value);
--}
--
--static void
--intel_dp_autotest_phy_ddi_enable(struct intel_dp *intel_dp,
--				 const struct intel_crtc_state *crtc_state)
--{
--	struct intel_digital_port *dig_port = dp_to_dig_port(intel_dp);
--	struct drm_device *dev = dig_port->base.base.dev;
--	struct drm_i915_private *dev_priv = to_i915(dev);
--	enum port port = dig_port->base.port;
--	struct intel_crtc *crtc = to_intel_crtc(dig_port->base.base.crtc);
--	enum pipe pipe = crtc->pipe;
--	u32 trans_ddi_func_ctl_value, trans_conf_value, dp_tp_ctl_value;
--
--	trans_ddi_func_ctl_value = intel_de_read(dev_priv,
--						 TRANS_DDI_FUNC_CTL(pipe));
--	trans_conf_value = intel_de_read(dev_priv, PIPECONF(pipe));
--	dp_tp_ctl_value = intel_de_read(dev_priv, TGL_DP_TP_CTL(pipe));
--
--	trans_ddi_func_ctl_value |= TRANS_DDI_FUNC_ENABLE |
--				    TGL_TRANS_DDI_SELECT_PORT(port);
--	trans_conf_value |= PIPECONF_ENABLE;
--	dp_tp_ctl_value |= DP_TP_CTL_ENABLE;
--
--	intel_de_write(dev_priv, PIPECONF(pipe), trans_conf_value);
--	intel_de_write(dev_priv, TGL_DP_TP_CTL(pipe), dp_tp_ctl_value);
--	intel_de_write(dev_priv, TRANS_DDI_FUNC_CTL(pipe),
--		       trans_ddi_func_ctl_value);
--}
--
- static void intel_dp_process_phy_request(struct intel_dp *intel_dp,
- 					 const struct intel_crtc_state *crtc_state)
- {
-@@ -3748,14 +3693,10 @@ static void intel_dp_process_phy_request(struct intel_dp *intel_dp,
- 	intel_dp_get_adjust_train(intel_dp, crtc_state, DP_PHY_DPRX,
- 				  link_status);
+ 	switch (trb_comp_code) {
+ 	case COMP_SUCCESS:
+-		ep_ring->err_count = 0;
++		ep->err_count = 0;
+ 		/* handle success with untransferred data as short packet */
+ 		if (ep_trb != td->last_trb || remaining) {
+ 			xhci_warn(xhci, "WARN Successful completion on short TX\n");
+@@ -2550,7 +2550,7 @@ static int process_bulk_intr_td(struct x
+ 		break;
+ 	case COMP_USB_TRANSACTION_ERROR:
+ 		if (xhci->quirks & XHCI_NO_SOFT_RETRY ||
+-		    (ep_ring->err_count++ > MAX_SOFT_RETRY) ||
++		    (ep->err_count++ > MAX_SOFT_RETRY) ||
+ 		    le32_to_cpu(slot_ctx->tt_info) & TT_SLOT)
+ 			break;
  
--	intel_dp_autotest_phy_ddi_disable(intel_dp, crtc_state);
--
- 	intel_dp_set_signal_levels(intel_dp, crtc_state, DP_PHY_DPRX);
- 
- 	intel_dp_phy_pattern_update(intel_dp, crtc_state);
- 
--	intel_dp_autotest_phy_ddi_enable(intel_dp, crtc_state);
--
- 	drm_dp_dpcd_write(&intel_dp->aux, DP_TRAINING_LANE0_SET,
- 			  intel_dp->train_set, crtc_state->lane_count);
- 
--- 
-2.35.1
-
+@@ -2631,8 +2631,14 @@ static int handle_tx_event(struct xhci_h
+ 		case COMP_USB_TRANSACTION_ERROR:
+ 		case COMP_INVALID_STREAM_TYPE_ERROR:
+ 		case COMP_INVALID_STREAM_ID_ERROR:
+-			xhci_handle_halted_endpoint(xhci, ep, 0, NULL,
+-						    EP_SOFT_RESET);
++			xhci_dbg(xhci, "Stream transaction error ep %u no id\n",
++				 ep_index);
++			if (ep->err_count++ > MAX_SOFT_RETRY)
++				xhci_handle_halted_endpoint(xhci, ep, 0, NULL,
++							    EP_HARD_RESET);
++			else
++				xhci_handle_halted_endpoint(xhci, ep, 0, NULL,
++							    EP_SOFT_RESET);
+ 			goto cleanup;
+ 		case COMP_RING_UNDERRUN:
+ 		case COMP_RING_OVERRUN:
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -933,6 +933,7 @@ struct xhci_virt_ep {
+ 	 * have to restore the device state to the previous state
+ 	 */
+ 	struct xhci_ring		*new_ring;
++	unsigned int			err_count;
+ 	unsigned int			ep_state;
+ #define SET_DEQ_PENDING		(1 << 0)
+ #define EP_HALTED		(1 << 1)	/* For stall handling */
+@@ -1629,7 +1630,6 @@ struct xhci_ring {
+ 	 * if we own the TRB (if we are the consumer).  See section 4.9.1.
+ 	 */
+ 	u32			cycle_state;
+-	unsigned int            err_count;
+ 	unsigned int		stream_id;
+ 	unsigned int		num_segs;
+ 	unsigned int		num_trbs_free;
 
 
