@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FB5A657B52
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:20:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 427A1657A38
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:09:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233272AbiL1PUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:20:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39238 "EHLO
+        id S233646AbiL1PJC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:09:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233296AbiL1PUQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:20:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0AB114016
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:20:14 -0800 (PST)
+        with ESMTP id S233652AbiL1PI6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:08:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B638F13DD7
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:08:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AC975B8170E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:20:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ED32C433F0;
-        Wed, 28 Dec 2022 15:20:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 53CC361555
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:08:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64D4CC433D2;
+        Wed, 28 Dec 2022 15:08:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240812;
-        bh=IfPflDG+ZaVaSOscySthoebKOop/xJfzVWLKsJqdltw=;
+        s=korg; t=1672240136;
+        bh=J7FwzpysjjsFN+SjVMjARPC9GfDv8COCLZ5rdinsQKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xl057t9YxziUaWa7/C3lhh6uyJjnwtWuhcTD/0m1tP2IghFTW9XwC8v3eOfDOfO/q
-         9bUk/hwFVz9g11Haqoc4LhxtbAIjkahb9EerMk/CH66ERDWwYnnpaiVKabRqer69JG
-         zWXTc3KYLWs0If4gF3AyInmWqiP4+nIGn9YnzzA8=
+        b=VBHCOFZvl4FsjTvMZlBLEzeNviCtPzL05phrg1/VhN5NL+yT9IuimUveu45q75JTQ
+         ZgRgr+15CcAcsi9W1Ho6NclezHuylX8zZONO3mbQKGWMI+EWF8dUPpQYUqfMJAfb4W
+         4JNqnIu8UooPtFTebR+AoYsBNQi8R6jmxu2KRbrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Juergen Gross <jgross@suse.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0170/1146] x86/xen: Fix memory leak in xen_smp_intr_init{_pv}()
-Date:   Wed, 28 Dec 2022 15:28:29 +0100
-Message-Id: <20221228144334.776972688@linuxfoundation.org>
+Subject: [PATCH 6.0 0122/1073] MIPS: vpe-mt: fix possible memory leak while module exiting
+Date:   Wed, 28 Dec 2022 15:28:30 +0100
+Message-Id: <20221228144331.351468095@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,176 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 69143f60868b3939ddc89289b29db593b647295e ]
+[ Upstream commit 5822e8cc84ee37338ab0bdc3124f6eec04dc232d ]
 
-These local variables @{resched|pmu|callfunc...}_name saves the new
-string allocated by kasprintf(), and when bind_{v}ipi_to_irqhandler()
-fails, it goes to the @fail tag, and calls xen_smp_intr_free{_pv}() to
-free resource, however the new string is not saved, which cause a memory
-leak issue. fix it.
+Afer commit 1fa5ae857bb1 ("driver core: get rid of struct device's
+bus_id string array"), the name of device is allocated dynamically,
+it need be freed when module exiting, call put_device() to give up
+reference, so that it can be freed in kobject_cleanup() when the
+refcount hit to 0. The vpe_device is static, so remove kfree() from
+vpe_device_release().
 
-Fixes: 9702785a747a ("i386: move xen")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20221123155858.11382-2-xiujianfeng@huawei.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/smp.c    | 24 ++++++++++++------------
- arch/x86/xen/smp_pv.c | 12 ++++++------
- 2 files changed, 18 insertions(+), 18 deletions(-)
+ arch/mips/kernel/vpe-mt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/xen/smp.c b/arch/x86/xen/smp.c
-index c3e1f9a7d43a..4b0d6fff88de 100644
---- a/arch/x86/xen/smp.c
-+++ b/arch/x86/xen/smp.c
-@@ -32,30 +32,30 @@ static irqreturn_t xen_reschedule_interrupt(int irq, void *dev_id)
+diff --git a/arch/mips/kernel/vpe-mt.c b/arch/mips/kernel/vpe-mt.c
+index bad6b0891b2b..84a82b551ec3 100644
+--- a/arch/mips/kernel/vpe-mt.c
++++ b/arch/mips/kernel/vpe-mt.c
+@@ -313,7 +313,6 @@ ATTRIBUTE_GROUPS(vpe);
  
- void xen_smp_intr_free(unsigned int cpu)
+ static void vpe_device_release(struct device *cd)
  {
-+	kfree(per_cpu(xen_resched_irq, cpu).name);
-+	per_cpu(xen_resched_irq, cpu).name = NULL;
- 	if (per_cpu(xen_resched_irq, cpu).irq >= 0) {
- 		unbind_from_irqhandler(per_cpu(xen_resched_irq, cpu).irq, NULL);
- 		per_cpu(xen_resched_irq, cpu).irq = -1;
--		kfree(per_cpu(xen_resched_irq, cpu).name);
--		per_cpu(xen_resched_irq, cpu).name = NULL;
- 	}
-+	kfree(per_cpu(xen_callfunc_irq, cpu).name);
-+	per_cpu(xen_callfunc_irq, cpu).name = NULL;
- 	if (per_cpu(xen_callfunc_irq, cpu).irq >= 0) {
- 		unbind_from_irqhandler(per_cpu(xen_callfunc_irq, cpu).irq, NULL);
- 		per_cpu(xen_callfunc_irq, cpu).irq = -1;
--		kfree(per_cpu(xen_callfunc_irq, cpu).name);
--		per_cpu(xen_callfunc_irq, cpu).name = NULL;
- 	}
-+	kfree(per_cpu(xen_debug_irq, cpu).name);
-+	per_cpu(xen_debug_irq, cpu).name = NULL;
- 	if (per_cpu(xen_debug_irq, cpu).irq >= 0) {
- 		unbind_from_irqhandler(per_cpu(xen_debug_irq, cpu).irq, NULL);
- 		per_cpu(xen_debug_irq, cpu).irq = -1;
--		kfree(per_cpu(xen_debug_irq, cpu).name);
--		per_cpu(xen_debug_irq, cpu).name = NULL;
- 	}
-+	kfree(per_cpu(xen_callfuncsingle_irq, cpu).name);
-+	per_cpu(xen_callfuncsingle_irq, cpu).name = NULL;
- 	if (per_cpu(xen_callfuncsingle_irq, cpu).irq >= 0) {
- 		unbind_from_irqhandler(per_cpu(xen_callfuncsingle_irq, cpu).irq,
- 				       NULL);
- 		per_cpu(xen_callfuncsingle_irq, cpu).irq = -1;
--		kfree(per_cpu(xen_callfuncsingle_irq, cpu).name);
--		per_cpu(xen_callfuncsingle_irq, cpu).name = NULL;
- 	}
+-	kfree(cd);
  }
  
-@@ -65,6 +65,7 @@ int xen_smp_intr_init(unsigned int cpu)
- 	char *resched_name, *callfunc_name, *debug_name;
+ static struct class vpe_class = {
+@@ -497,6 +496,7 @@ int __init vpe_module_init(void)
+ 	device_del(&vpe_device);
  
- 	resched_name = kasprintf(GFP_KERNEL, "resched%d", cpu);
-+	per_cpu(xen_resched_irq, cpu).name = resched_name;
- 	rc = bind_ipi_to_irqhandler(XEN_RESCHEDULE_VECTOR,
- 				    cpu,
- 				    xen_reschedule_interrupt,
-@@ -74,9 +75,9 @@ int xen_smp_intr_init(unsigned int cpu)
- 	if (rc < 0)
- 		goto fail;
- 	per_cpu(xen_resched_irq, cpu).irq = rc;
--	per_cpu(xen_resched_irq, cpu).name = resched_name;
+ out_class:
++	put_device(&vpe_device);
+ 	class_unregister(&vpe_class);
  
- 	callfunc_name = kasprintf(GFP_KERNEL, "callfunc%d", cpu);
-+	per_cpu(xen_callfunc_irq, cpu).name = callfunc_name;
- 	rc = bind_ipi_to_irqhandler(XEN_CALL_FUNCTION_VECTOR,
- 				    cpu,
- 				    xen_call_function_interrupt,
-@@ -86,10 +87,10 @@ int xen_smp_intr_init(unsigned int cpu)
- 	if (rc < 0)
- 		goto fail;
- 	per_cpu(xen_callfunc_irq, cpu).irq = rc;
--	per_cpu(xen_callfunc_irq, cpu).name = callfunc_name;
- 
- 	if (!xen_fifo_events) {
- 		debug_name = kasprintf(GFP_KERNEL, "debug%d", cpu);
-+		per_cpu(xen_debug_irq, cpu).name = debug_name;
- 		rc = bind_virq_to_irqhandler(VIRQ_DEBUG, cpu,
- 					     xen_debug_interrupt,
- 					     IRQF_PERCPU | IRQF_NOBALANCING,
-@@ -97,10 +98,10 @@ int xen_smp_intr_init(unsigned int cpu)
- 		if (rc < 0)
- 			goto fail;
- 		per_cpu(xen_debug_irq, cpu).irq = rc;
--		per_cpu(xen_debug_irq, cpu).name = debug_name;
- 	}
- 
- 	callfunc_name = kasprintf(GFP_KERNEL, "callfuncsingle%d", cpu);
-+	per_cpu(xen_callfuncsingle_irq, cpu).name = callfunc_name;
- 	rc = bind_ipi_to_irqhandler(XEN_CALL_FUNCTION_SINGLE_VECTOR,
- 				    cpu,
- 				    xen_call_function_single_interrupt,
-@@ -110,7 +111,6 @@ int xen_smp_intr_init(unsigned int cpu)
- 	if (rc < 0)
- 		goto fail;
- 	per_cpu(xen_callfuncsingle_irq, cpu).irq = rc;
--	per_cpu(xen_callfuncsingle_irq, cpu).name = callfunc_name;
- 
- 	return 0;
- 
-diff --git a/arch/x86/xen/smp_pv.c b/arch/x86/xen/smp_pv.c
-index 480be82e9b7b..6175f2c5c822 100644
---- a/arch/x86/xen/smp_pv.c
-+++ b/arch/x86/xen/smp_pv.c
-@@ -97,18 +97,18 @@ asmlinkage __visible void cpu_bringup_and_idle(void)
- 
- void xen_smp_intr_free_pv(unsigned int cpu)
+ out_chrdev:
+@@ -509,7 +509,7 @@ void __exit vpe_module_exit(void)
  {
-+	kfree(per_cpu(xen_irq_work, cpu).name);
-+	per_cpu(xen_irq_work, cpu).name = NULL;
- 	if (per_cpu(xen_irq_work, cpu).irq >= 0) {
- 		unbind_from_irqhandler(per_cpu(xen_irq_work, cpu).irq, NULL);
- 		per_cpu(xen_irq_work, cpu).irq = -1;
--		kfree(per_cpu(xen_irq_work, cpu).name);
--		per_cpu(xen_irq_work, cpu).name = NULL;
- 	}
+ 	struct vpe *v, *n;
  
-+	kfree(per_cpu(xen_pmu_irq, cpu).name);
-+	per_cpu(xen_pmu_irq, cpu).name = NULL;
- 	if (per_cpu(xen_pmu_irq, cpu).irq >= 0) {
- 		unbind_from_irqhandler(per_cpu(xen_pmu_irq, cpu).irq, NULL);
- 		per_cpu(xen_pmu_irq, cpu).irq = -1;
--		kfree(per_cpu(xen_pmu_irq, cpu).name);
--		per_cpu(xen_pmu_irq, cpu).name = NULL;
- 	}
- }
+-	device_del(&vpe_device);
++	device_unregister(&vpe_device);
+ 	class_unregister(&vpe_class);
+ 	unregister_chrdev(major, VPE_MODULE_NAME);
  
-@@ -118,6 +118,7 @@ int xen_smp_intr_init_pv(unsigned int cpu)
- 	char *callfunc_name, *pmu_name;
- 
- 	callfunc_name = kasprintf(GFP_KERNEL, "irqwork%d", cpu);
-+	per_cpu(xen_irq_work, cpu).name = callfunc_name;
- 	rc = bind_ipi_to_irqhandler(XEN_IRQ_WORK_VECTOR,
- 				    cpu,
- 				    xen_irq_work_interrupt,
-@@ -127,10 +128,10 @@ int xen_smp_intr_init_pv(unsigned int cpu)
- 	if (rc < 0)
- 		goto fail;
- 	per_cpu(xen_irq_work, cpu).irq = rc;
--	per_cpu(xen_irq_work, cpu).name = callfunc_name;
- 
- 	if (is_xen_pmu) {
- 		pmu_name = kasprintf(GFP_KERNEL, "pmu%d", cpu);
-+		per_cpu(xen_pmu_irq, cpu).name = pmu_name;
- 		rc = bind_virq_to_irqhandler(VIRQ_XENPMU, cpu,
- 					     xen_pmu_irq_handler,
- 					     IRQF_PERCPU|IRQF_NOBALANCING,
-@@ -138,7 +139,6 @@ int xen_smp_intr_init_pv(unsigned int cpu)
- 		if (rc < 0)
- 			goto fail;
- 		per_cpu(xen_pmu_irq, cpu).irq = rc;
--		per_cpu(xen_pmu_irq, cpu).name = pmu_name;
- 	}
- 
- 	return 0;
 -- 
 2.35.1
 
