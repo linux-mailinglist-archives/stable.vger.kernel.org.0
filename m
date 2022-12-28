@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B51266580DC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:22:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 501E5658017
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:13:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234630AbiL1QVb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:21:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36438 "EHLO
+        id S234426AbiL1QNd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:13:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234694AbiL1QVA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:21:00 -0500
+        with ESMTP id S234424AbiL1QM7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:12:59 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92C7018E26
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:18:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65D9C1A83F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:11:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FD3A61562
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:18:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38357C433EF;
-        Wed, 28 Dec 2022 16:18:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79DC960D41
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:11:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B800C433EF;
+        Wed, 28 Dec 2022 16:11:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244337;
-        bh=fwhFxxvXnqFyPT2/I2aY9/UYDUYC5DB50CIjnBxweYs=;
+        s=korg; t=1672243882;
+        bh=DdxPlXfUqGXzigCc+n1+/8gLfIlJrxmdbQBa7v3KO7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bMx8K2L4/OO3Zg2oHLSSUnNnSqm7fUQjwjLjwJeaEs5a6LHxv0BYeaDK5EhkSSL9E
-         YU1sHubW1yCMloenfCcwKghnR6onOzYJ6VCurPoWhH5nJOmKhdgkENtAFyjFOJkrQz
-         u+sBS8go9+zQbgFUOhIzW/rXXA6Gg6AF/EZH3rtA=
+        b=IpMB6+4++Og15BpvoEtPhGiQC4YmQxrj4FThuRddREIf6ZdqLcVn4IO/bWPT18NYz
+         EK/4HaqOZuBC41bc2Bj7E2/HQb5H1GIpP2aWIn5ZaCMfJWJCIr3WWZJlsMPhihPpet
+         O90sX4twQBSAC1fXKqQbfTfaOqECoFSoaW2VbuNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Luoyouming <luoyouming@huawei.com>,
+        Haoyue Xu <xuhaoyue1@hisilicon.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0653/1146] scsi: ipr: Fix WARNING in ipr_init()
+Subject: [PATCH 6.0 0604/1073] RDMA/hns: Fix incorrect sge nums calculation
 Date:   Wed, 28 Dec 2022 15:36:32 +0100
-Message-Id: <20221228144347.894997155@linuxfoundation.org>
+Message-Id: <20221228144344.452693366@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +54,342 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Luoyouming <luoyouming@huawei.com>
 
-[ Upstream commit e6f108bffc3708ddcff72324f7d40dfcd0204894 ]
+[ Upstream commit 0c5e259b06a8efc69f929ad777ea49281bb58e37 ]
 
-ipr_init() will not call unregister_reboot_notifier() when
-pci_register_driver() fails, which causes a WARNING. Call
-unregister_reboot_notifier() when pci_register_driver() fails.
+The user usually configures the number of sge through the max_send_sge
+parameter when creating qp, and configures the maximum size of inline data
+that can be sent through max_inline_data. Inline uses sge to fill data to
+send. Expect the following:
 
-notifier callback ipr_halt [ipr] already registered
-WARNING: CPU: 3 PID: 299 at kernel/notifier.c:29
-notifier_chain_register+0x16d/0x230
-Modules linked in: ipr(+) xhci_pci_renesas xhci_hcd ehci_hcd usbcore
-led_class gpu_sched drm_buddy video wmi drm_ttm_helper ttm
-drm_display_helper drm_kms_helper drm drm_panel_orientation_quirks
-agpgart cfbft
-CPU: 3 PID: 299 Comm: modprobe Tainted: G        W
-6.1.0-rc1-00190-g39508d23b672-dirty #332
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org 04/01/2014
-RIP: 0010:notifier_chain_register+0x16d/0x230
-Call Trace:
- <TASK>
- __blocking_notifier_chain_register+0x73/0xb0
- ipr_init+0x30/0x1000 [ipr]
- do_one_initcall+0xdb/0x480
- do_init_module+0x1cf/0x680
- load_module+0x6a50/0x70a0
- __do_sys_finit_module+0x12f/0x1c0
- do_syscall_64+0x3f/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
+1) When the sge space cannot hold inline data, the sge space needs to be
+   expanded to accommodate all inline data
 
-Fixes: f72919ec2bbb ("[SCSI] ipr: implement shutdown changes and remove obsolete write cache parameter")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Link: https://lore.kernel.org/r/20221113064513.14028-1-shangxiaojing@huawei.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+2) When the sge space is enough to accommodate inline data, the upper
+   limit of inline data can be increased so that users can send larger
+   inline data
+
+Currently case one is not implemented. When the inline data is larger than
+the sge space, an error of insufficient sge space occurs.  This part of
+the code needs to be reimplemented according to the expected rules. The
+calculation method of sge num is modified to take the maximum value of
+max_send_sge and the sge for max_inline_data to solve this problem.
+
+Fixes: 05201e01be93 ("RDMA/hns: Refactor process of setting extended sge")
+Fixes: 30b707886aeb ("RDMA/hns: Support inline data in extented sge space for RC")
+Link: https://lore.kernel.org/r/20221108133847.2304539-3-xuhaoyue1@hisilicon.com
+Signed-off-by: Luoyouming <luoyouming@huawei.com>
+Signed-off-by: Haoyue Xu <xuhaoyue1@hisilicon.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ipr.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/hns/hns_roce_device.h |   3 +
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c  |  12 +--
+ drivers/infiniband/hw/hns/hns_roce_main.c   |  18 +++-
+ drivers/infiniband/hw/hns/hns_roce_qp.c     | 107 ++++++++++++++++----
+ include/uapi/rdma/hns-abi.h                 |  15 +++
+ 5 files changed, 125 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/scsi/ipr.c b/drivers/scsi/ipr.c
-index 9d01a3e3c26a..2022ffb45041 100644
---- a/drivers/scsi/ipr.c
-+++ b/drivers/scsi/ipr.c
-@@ -10872,11 +10872,19 @@ static struct notifier_block ipr_notifier = {
-  **/
- static int __init ipr_init(void)
- {
-+	int rc;
-+
- 	ipr_info("IBM Power RAID SCSI Device Driver version: %s %s\n",
- 		 IPR_DRIVER_VERSION, IPR_DRIVER_DATE);
+diff --git a/drivers/infiniband/hw/hns/hns_roce_device.h b/drivers/infiniband/hw/hns/hns_roce_device.h
+index d24996526c4d..4dc296d856d8 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_device.h
++++ b/drivers/infiniband/hw/hns/hns_roce_device.h
+@@ -202,6 +202,7 @@ struct hns_roce_ucontext {
+ 	struct list_head	page_list;
+ 	struct mutex		page_mutex;
+ 	struct hns_user_mmap_entry *db_mmap_entry;
++	u32			config;
+ };
  
- 	register_reboot_notifier(&ipr_notifier);
--	return pci_register_driver(&ipr_driver);
-+	rc = pci_register_driver(&ipr_driver);
-+	if (rc) {
-+		unregister_reboot_notifier(&ipr_notifier);
-+		return rc;
-+	}
-+
-+	return 0;
+ struct hns_roce_pd {
+@@ -335,6 +336,7 @@ struct hns_roce_wq {
+ 	u32		head;
+ 	u32		tail;
+ 	void __iomem	*db_reg;
++	u32		ext_sge_cnt;
+ };
+ 
+ struct hns_roce_sge {
+@@ -637,6 +639,7 @@ struct hns_roce_qp {
+ 	struct list_head	rq_node; /* all recv qps are on a list */
+ 	struct list_head	sq_node; /* all send qps are on a list */
+ 	struct hns_user_mmap_entry *dwqe_mmap_entry;
++	u32			config;
+ };
+ 
+ struct hns_roce_ib_iboe {
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index ee05be2e3da6..7e9853c6d412 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -187,14 +187,6 @@ static void set_atomic_seg(const struct ib_send_wr *wr,
+ 	hr_reg_write(rc_sq_wqe, RC_SEND_WQE_SGE_NUM, valid_num_sge);
  }
  
- /**
+-static unsigned int get_std_sge_num(struct hns_roce_qp *qp)
+-{
+-	if (qp->ibqp.qp_type == IB_QPT_GSI || qp->ibqp.qp_type == IB_QPT_UD)
+-		return 0;
+-
+-	return HNS_ROCE_SGE_IN_WQE;
+-}
+-
+ static int fill_ext_sge_inl_data(struct hns_roce_qp *qp,
+ 				 const struct ib_send_wr *wr,
+ 				 unsigned int *sge_idx, u32 msg_len)
+@@ -202,14 +194,12 @@ static int fill_ext_sge_inl_data(struct hns_roce_qp *qp,
+ 	struct ib_device *ibdev = &(to_hr_dev(qp->ibqp.device))->ib_dev;
+ 	unsigned int left_len_in_pg;
+ 	unsigned int idx = *sge_idx;
+-	unsigned int std_sge_num;
+ 	unsigned int i = 0;
+ 	unsigned int len;
+ 	void *addr;
+ 	void *dseg;
+ 
+-	std_sge_num = get_std_sge_num(qp);
+-	if (msg_len > (qp->sq.max_gs - std_sge_num) * HNS_ROCE_SGE_SIZE) {
++	if (msg_len > qp->sq.ext_sge_cnt * HNS_ROCE_SGE_SIZE) {
+ 		ibdev_err(ibdev,
+ 			  "no enough extended sge space for inline data.\n");
+ 		return -EINVAL;
+diff --git a/drivers/infiniband/hw/hns/hns_roce_main.c b/drivers/infiniband/hw/hns/hns_roce_main.c
+index 4ccb217b2841..a4e7bb5bb194 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_main.c
++++ b/drivers/infiniband/hw/hns/hns_roce_main.c
+@@ -354,10 +354,11 @@ static int hns_roce_alloc_uar_entry(struct ib_ucontext *uctx)
+ static int hns_roce_alloc_ucontext(struct ib_ucontext *uctx,
+ 				   struct ib_udata *udata)
+ {
+-	int ret;
+ 	struct hns_roce_ucontext *context = to_hr_ucontext(uctx);
+-	struct hns_roce_ib_alloc_ucontext_resp resp = {};
+ 	struct hns_roce_dev *hr_dev = to_hr_dev(uctx->device);
++	struct hns_roce_ib_alloc_ucontext_resp resp = {};
++	struct hns_roce_ib_alloc_ucontext ucmd = {};
++	int ret;
+ 
+ 	if (!hr_dev->active)
+ 		return -EAGAIN;
+@@ -365,6 +366,19 @@ static int hns_roce_alloc_ucontext(struct ib_ucontext *uctx,
+ 	resp.qp_tab_size = hr_dev->caps.num_qps;
+ 	resp.srq_tab_size = hr_dev->caps.num_srqs;
+ 
++	ret = ib_copy_from_udata(&ucmd, udata,
++				 min(udata->inlen, sizeof(ucmd)));
++	if (ret)
++		return ret;
++
++	if (hr_dev->pci_dev->revision >= PCI_REVISION_ID_HIP09)
++		context->config = ucmd.config & HNS_ROCE_EXSGE_FLAGS;
++
++	if (context->config & HNS_ROCE_EXSGE_FLAGS) {
++		resp.config |= HNS_ROCE_RSP_EXSGE_FLAGS;
++		resp.max_inline_data = hr_dev->caps.max_sq_inline;
++	}
++
+ 	ret = hns_roce_uar_alloc(hr_dev, &context->uar);
+ 	if (ret)
+ 		goto error_fail_uar_alloc;
+diff --git a/drivers/infiniband/hw/hns/hns_roce_qp.c b/drivers/infiniband/hw/hns/hns_roce_qp.c
+index 7bee7f6c5e70..a0040096ddb1 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_qp.c
++++ b/drivers/infiniband/hw/hns/hns_roce_qp.c
+@@ -479,38 +479,109 @@ static int set_rq_size(struct hns_roce_dev *hr_dev, struct ib_qp_cap *cap,
+ 	return 0;
+ }
+ 
+-static u32 get_wqe_ext_sge_cnt(struct hns_roce_qp *qp)
++static u32 get_max_inline_data(struct hns_roce_dev *hr_dev,
++			       struct ib_qp_cap *cap)
+ {
+-	/* GSI/UD QP only has extended sge */
+-	if (qp->ibqp.qp_type == IB_QPT_GSI || qp->ibqp.qp_type == IB_QPT_UD)
+-		return qp->sq.max_gs;
+-
+-	if (qp->sq.max_gs > HNS_ROCE_SGE_IN_WQE)
+-		return qp->sq.max_gs - HNS_ROCE_SGE_IN_WQE;
++	if (cap->max_inline_data) {
++		cap->max_inline_data = roundup_pow_of_two(cap->max_inline_data);
++		return min(cap->max_inline_data,
++			   hr_dev->caps.max_sq_inline);
++	}
+ 
+ 	return 0;
+ }
+ 
++static void update_inline_data(struct hns_roce_qp *hr_qp,
++			       struct ib_qp_cap *cap)
++{
++	u32 sge_num = hr_qp->sq.ext_sge_cnt;
++
++	if (hr_qp->config & HNS_ROCE_EXSGE_FLAGS) {
++		if (!(hr_qp->ibqp.qp_type == IB_QPT_GSI ||
++		      hr_qp->ibqp.qp_type == IB_QPT_UD))
++			sge_num = max((u32)HNS_ROCE_SGE_IN_WQE, sge_num);
++
++		cap->max_inline_data = max(cap->max_inline_data,
++					   sge_num * HNS_ROCE_SGE_SIZE);
++	}
++
++	hr_qp->max_inline_data = cap->max_inline_data;
++}
++
++static u32 get_sge_num_from_max_send_sge(bool is_ud_or_gsi,
++					 u32 max_send_sge)
++{
++	unsigned int std_sge_num;
++	unsigned int min_sge;
++
++	std_sge_num = is_ud_or_gsi ? 0 : HNS_ROCE_SGE_IN_WQE;
++	min_sge = is_ud_or_gsi ? 1 : 0;
++	return max_send_sge > std_sge_num ? (max_send_sge - std_sge_num) :
++				min_sge;
++}
++
++static unsigned int get_sge_num_from_max_inl_data(bool is_ud_or_gsi,
++						  u32 max_inline_data)
++{
++	unsigned int inline_sge;
++
++	inline_sge = roundup_pow_of_two(max_inline_data) / HNS_ROCE_SGE_SIZE;
++
++	/*
++	 * if max_inline_data less than
++	 * HNS_ROCE_SGE_IN_WQE * HNS_ROCE_SGE_SIZE,
++	 * In addition to ud's mode, no need to extend sge.
++	 */
++	if (!is_ud_or_gsi && inline_sge <= HNS_ROCE_SGE_IN_WQE)
++		inline_sge = 0;
++
++	return inline_sge;
++}
++
+ static void set_ext_sge_param(struct hns_roce_dev *hr_dev, u32 sq_wqe_cnt,
+ 			      struct hns_roce_qp *hr_qp, struct ib_qp_cap *cap)
+ {
++	bool is_ud_or_gsi = (hr_qp->ibqp.qp_type == IB_QPT_GSI ||
++				hr_qp->ibqp.qp_type == IB_QPT_UD);
++	unsigned int std_sge_num;
++	u32 inline_ext_sge = 0;
++	u32 ext_wqe_sge_cnt;
+ 	u32 total_sge_cnt;
+-	u32 wqe_sge_cnt;
++
++	cap->max_inline_data = get_max_inline_data(hr_dev, cap);
+ 
+ 	hr_qp->sge.sge_shift = HNS_ROCE_SGE_SHIFT;
++	std_sge_num = is_ud_or_gsi ? 0 : HNS_ROCE_SGE_IN_WQE;
++	ext_wqe_sge_cnt = get_sge_num_from_max_send_sge(is_ud_or_gsi,
++							cap->max_send_sge);
+ 
+-	hr_qp->sq.max_gs = max(1U, cap->max_send_sge);
++	if (hr_qp->config & HNS_ROCE_EXSGE_FLAGS) {
++		inline_ext_sge = max(ext_wqe_sge_cnt,
++				     get_sge_num_from_max_inl_data(is_ud_or_gsi,
++							 cap->max_inline_data));
++		hr_qp->sq.ext_sge_cnt = inline_ext_sge ?
++					roundup_pow_of_two(inline_ext_sge) : 0;
+ 
+-	wqe_sge_cnt = get_wqe_ext_sge_cnt(hr_qp);
++		hr_qp->sq.max_gs = max(1U, (hr_qp->sq.ext_sge_cnt + std_sge_num));
++		hr_qp->sq.max_gs = min(hr_qp->sq.max_gs, hr_dev->caps.max_sq_sg);
++
++		ext_wqe_sge_cnt = hr_qp->sq.ext_sge_cnt;
++	} else {
++		hr_qp->sq.max_gs = max(1U, cap->max_send_sge);
++		hr_qp->sq.max_gs = min(hr_qp->sq.max_gs, hr_dev->caps.max_sq_sg);
++		hr_qp->sq.ext_sge_cnt = hr_qp->sq.max_gs;
++	}
+ 
+ 	/* If the number of extended sge is not zero, they MUST use the
+ 	 * space of HNS_HW_PAGE_SIZE at least.
+ 	 */
+-	if (wqe_sge_cnt) {
+-		total_sge_cnt = roundup_pow_of_two(sq_wqe_cnt * wqe_sge_cnt);
++	if (ext_wqe_sge_cnt) {
++		total_sge_cnt = roundup_pow_of_two(sq_wqe_cnt * ext_wqe_sge_cnt);
+ 		hr_qp->sge.sge_cnt = max(total_sge_cnt,
+ 				(u32)HNS_HW_PAGE_SIZE / HNS_ROCE_SGE_SIZE);
+ 	}
++
++	update_inline_data(hr_qp, cap);
+ }
+ 
+ static int check_sq_size_with_integrity(struct hns_roce_dev *hr_dev,
+@@ -559,6 +630,7 @@ static int set_user_sq_size(struct hns_roce_dev *hr_dev,
+ 
+ 	hr_qp->sq.wqe_shift = ucmd->log_sq_stride;
+ 	hr_qp->sq.wqe_cnt = cnt;
++	cap->max_send_sge = hr_qp->sq.max_gs;
+ 
+ 	return 0;
+ }
+@@ -989,13 +1061,9 @@ static int set_qp_param(struct hns_roce_dev *hr_dev, struct hns_roce_qp *hr_qp,
+ 			struct hns_roce_ib_create_qp *ucmd)
+ {
+ 	struct ib_device *ibdev = &hr_dev->ib_dev;
++	struct hns_roce_ucontext *uctx;
+ 	int ret;
+ 
+-	if (init_attr->cap.max_inline_data > hr_dev->caps.max_sq_inline)
+-		init_attr->cap.max_inline_data = hr_dev->caps.max_sq_inline;
+-
+-	hr_qp->max_inline_data = init_attr->cap.max_inline_data;
+-
+ 	if (init_attr->sq_sig_type == IB_SIGNAL_ALL_WR)
+ 		hr_qp->sq_signal_bits = IB_SIGNAL_ALL_WR;
+ 	else
+@@ -1018,12 +1086,17 @@ static int set_qp_param(struct hns_roce_dev *hr_dev, struct hns_roce_qp *hr_qp,
+ 			return ret;
+ 		}
+ 
++		uctx = rdma_udata_to_drv_context(udata, struct hns_roce_ucontext,
++						 ibucontext);
++		hr_qp->config = uctx->config;
+ 		ret = set_user_sq_size(hr_dev, &init_attr->cap, hr_qp, ucmd);
+ 		if (ret)
+ 			ibdev_err(ibdev,
+ 				  "failed to set user SQ size, ret = %d.\n",
+ 				  ret);
+ 	} else {
++		if (hr_dev->pci_dev->revision >= PCI_REVISION_ID_HIP09)
++			hr_qp->config = HNS_ROCE_EXSGE_FLAGS;
+ 		ret = set_kernel_sq_size(hr_dev, &init_attr->cap, hr_qp);
+ 		if (ret)
+ 			ibdev_err(ibdev,
+diff --git a/include/uapi/rdma/hns-abi.h b/include/uapi/rdma/hns-abi.h
+index f6fde06db4b4..745790ce3c26 100644
+--- a/include/uapi/rdma/hns-abi.h
++++ b/include/uapi/rdma/hns-abi.h
+@@ -85,11 +85,26 @@ struct hns_roce_ib_create_qp_resp {
+ 	__aligned_u64 dwqe_mmap_key;
+ };
+ 
++enum {
++	HNS_ROCE_EXSGE_FLAGS = 1 << 0,
++};
++
++enum {
++	HNS_ROCE_RSP_EXSGE_FLAGS = 1 << 0,
++};
++
+ struct hns_roce_ib_alloc_ucontext_resp {
+ 	__u32	qp_tab_size;
+ 	__u32	cqe_size;
+ 	__u32	srq_tab_size;
+ 	__u32	reserved;
++	__u32	config;
++	__u32	max_inline_data;
++};
++
++struct hns_roce_ib_alloc_ucontext {
++	__u32 config;
++	__u32 reserved;
+ };
+ 
+ struct hns_roce_ib_alloc_pd_resp {
 -- 
 2.35.1
 
