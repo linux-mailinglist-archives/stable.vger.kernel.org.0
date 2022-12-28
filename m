@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FD9B6579D8
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:05:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F01F6578E8
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:55:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233523AbiL1PFW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:05:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52844 "EHLO
+        id S233237AbiL1Ozi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:55:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233528AbiL1PFW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:05:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45CFC13D51
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:05:21 -0800 (PST)
+        with ESMTP id S233228AbiL1Oza (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:55:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D2E112626
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:55:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D0C456153B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:05:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF9DEC433D2;
-        Wed, 28 Dec 2022 15:05:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0D8D8B8171E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:55:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C578C433D2;
+        Wed, 28 Dec 2022 14:55:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239920;
-        bh=GdgoA9pamYCRPE7QhZF697AxjjQe/L95Bw5Uhe0Iyv0=;
+        s=korg; t=1672239326;
+        bh=LePJ2vt1YjtHwGGSiscpXiJIZjF6rgIfetJV+DGwa8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S+PJlAcJQlqEfslXAmNT561WtI3MvV0rLK5J8kivn877TAQrTLg+udklvH+O1exZT
-         G/HFQGdMen7YatuOOsPuv0p4BVEKx7BAPS9kJaHgwEA+iadpNACu8QusCjdxrnwAZD
-         jFsV/RyazyN6idyEASpfqhQL59GE5PWgpniC06IY=
+        b=lRlMboKD8H4f+nutRNaM+KDveBfLTG/EnI5r2YLI2Wz4o/e1eEBvOPe55SqnYiwGy
+         lHKqgzYBkUg+RzG6yk1XX1U7RXI7mZ7ck/xxVSp7BRh6i9zXPgtGuBcp6uQqJwN7zh
+         OyU5dylie+ve7nHHKgjZKiBQQq9VxgJUdZk3Rz4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
-        Alexander Potapenko <glider@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Marco Elver <elver@google.com>, Will Deacon <will@kernel.org>,
+        patches@lists.linux.dev,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0058/1146] arm64: mm: kfence: only handle translation faults
-Date:   Wed, 28 Dec 2022 15:26:37 +0100
-Message-Id: <20221228144331.736124091@linuxfoundation.org>
+Subject: [PATCH 6.0 0010/1073] arm64: dts: qcom: sm8250-sony-xperia-edo: fix touchscreen bias-disable
+Date:   Wed, 28 Dec 2022 15:26:38 +0100
+Message-Id: <20221228144328.446238791@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 0bb1fbffc631064db567ccaeb9ed6b6df6342b66 ]
+[ Upstream commit 7ff4a646fae3697b039c6b684786a1e309e8445c ]
 
-Alexander noted that KFENCE only expects to handle faults from invalid page
-table entries (i.e. translation faults), but arm64's fault handling logic will
-call kfence_handle_page_fault() for other types of faults, including alignment
-faults caused by unaligned atomics. This has the unfortunate property of
-causing those other faults to be reported as "KFENCE: use-after-free",
-which is misleading and hinders debugging.
+The property to disable bias is "bias-disable".
 
-Fix this by only forwarding unhandled translation faults to the KFENCE
-code, similar to what x86 does already.
-
-Alexander has verified that this passes all the tests in the KFENCE test
-suite and avoids bogus reports on misaligned atomics.
-
-Link: https://lore.kernel.org/all/20221102081620.1465154-1-zhongbaisong@huawei.com/
-Fixes: 840b23986344 ("arm64, kfence: enable KFENCE for ARM64")
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Reviewed-by: Alexander Potapenko <glider@google.com>
-Tested-by: Alexander Potapenko <glider@google.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Marco Elver <elver@google.com>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20221114104411.2853040-1-mark.rutland@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: e76c7e1f15fe ("arm64: dts: qcom: sm8250-edo: Add Samsung touchscreen")
+Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20220930192954.242546-3-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/mm/fault.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/sm8250-sony-xperia-edo.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
-index 5b391490e045..74f76514a48d 100644
---- a/arch/arm64/mm/fault.c
-+++ b/arch/arm64/mm/fault.c
-@@ -353,6 +353,11 @@ static bool is_el1_mte_sync_tag_check_fault(unsigned long esr)
- 	return false;
- }
+diff --git a/arch/arm64/boot/dts/qcom/sm8250-sony-xperia-edo.dtsi b/arch/arm64/boot/dts/qcom/sm8250-sony-xperia-edo.dtsi
+index 5428aab3058d..e4769dcfaad7 100644
+--- a/arch/arm64/boot/dts/qcom/sm8250-sony-xperia-edo.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8250-sony-xperia-edo.dtsi
+@@ -619,7 +619,7 @@ ts_int_default: ts-int-default {
+ 		pins = "gpio39";
+ 		function = "gpio";
+ 		drive-strength = <2>;
+-		bias-disabled;
++		bias-disable;
+ 		input-enable;
+ 	};
  
-+static bool is_translation_fault(unsigned long esr)
-+{
-+	return (esr & ESR_ELx_FSC_TYPE) == ESR_ELx_FSC_FAULT;
-+}
-+
- static void __do_kernel_fault(unsigned long addr, unsigned long esr,
- 			      struct pt_regs *regs)
- {
-@@ -385,7 +390,8 @@ static void __do_kernel_fault(unsigned long addr, unsigned long esr,
- 	} else if (addr < PAGE_SIZE) {
- 		msg = "NULL pointer dereference";
- 	} else {
--		if (kfence_handle_page_fault(addr, esr & ESR_ELx_WNR, regs))
-+		if (is_translation_fault(esr) &&
-+		    kfence_handle_page_fault(addr, esr & ESR_ELx_WNR, regs))
- 			return;
- 
- 		msg = "paging request";
 -- 
 2.35.1
 
