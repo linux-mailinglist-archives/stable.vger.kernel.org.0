@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1166E65819B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:30:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A26F65811D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234750AbiL1Q37 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:29:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50034 "EHLO
+        id S233183AbiL1QZK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:25:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233294AbiL1Q3j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:29:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0E21120A8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:25:53 -0800 (PST)
+        with ESMTP id S234781AbiL1QYT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:24:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C25AB18E36
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:21:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6EFEDB81717
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:25:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0452C433D2;
-        Wed, 28 Dec 2022 16:25:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5EF5CB81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:21:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7B90C433D2;
+        Wed, 28 Dec 2022 16:21:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244751;
-        bh=IlAqDXUvJ4iIaZ6G/S0/eWkfBghb8GqAhsXMul4kkmI=;
+        s=korg; t=1672244484;
+        bh=b6cMTyxL8yPTnD+IVnIU9qNViYGhSw6mU/Ce4EgYQT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ys6g0MLIxYTXgqBPTx1dEcMNm2UOOST23CiupXIciyeMQQ/JmyVrDtdn0EGgw23W2
-         G/tfe3RwFUVTnMPIhh14+fdJtbie+pJtcSj3NV1uUUTDEcUUGieqHofTYacT7MAuhh
-         a2M/JMgN3A7r7daIt0bsscRumZ59uSahDizjDWIo=
+        b=acXGLUnnRwcYF2vssL5IBbFJlemRrWpKC/6XYkx1d7u1OEtnzhpwYIeNfX9v6O721
+         gYcDFLIBtXPh43//As3lJIxk4Afnqh2f0/rSJY/O2DzVlVA7yndMn/b9ofK7zcEoyg
+         gzu50mzqOv8fbA773WMj0LoNy9S3TouPQgAn0tSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lee Jones <lee@kernel.org>,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        John Keeping <john@metanate.com>,
+        patches@lists.linux.dev, Marek Vasut <marex@denx.de>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0730/1146] usb: gadget: f_hid: fix f_hidg lifetime vs cdev
+Subject: [PATCH 6.0 0681/1073] extcon: usbc-tusb320: Add USB TYPE-C support
 Date:   Wed, 28 Dec 2022 15:37:49 +0100
-Message-Id: <20221228144349.974769580@linuxfoundation.org>
+Message-Id: <20221228144346.533606898@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,162 +55,262 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Keeping <john@metanate.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 89ff3dfac604614287ad5aad9370c3f984ea3f4b ]
+[ Upstream commit bf7571c00dca0a9c5af3f5125ef5a89a40b13cd5 ]
 
-The embedded struct cdev does not have its lifetime correctly tied to
-the enclosing struct f_hidg, so there is a use-after-free if /dev/hidgN
-is held open while the gadget is deleted.
+The TI TUSB320 seems like a better fit for USB TYPE-C subsystem,
+which can expose details collected by the TUSB320 in a far more
+precise way than extcon. Since there are existing users in the
+kernel and in DT which depend on the extcon interface, keep it
+for now.
 
-This can readily be replicated with libusbgx's example programs (for
-conciseness - operating directly via configfs is equivalent):
+Add TYPE-C interface and expose the supported supply current,
+direction and connector polarity via the TYPE-C interface.
 
-	gadget-hid
-	exec 3<> /dev/hidg0
-	gadget-vid-pid-remove
-	exec 3<&-
-
-Pull the existing device up in to struct f_hidg and make use of the
-cdev_device_{add,del}() helpers.  This changes the lifetime of the
-device object to match struct f_hidg, but note that it is still added
-and deleted at the same time.
-
-Fixes: 71adf1189469 ("USB: gadget: add HID gadget driver")
-Tested-by: Lee Jones <lee@kernel.org>
-Reviewed-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
-Reviewed-by: Lee Jones <lee@kernel.org>
-Signed-off-by: John Keeping <john@metanate.com>
-Link: https://lore.kernel.org/r/20221122123523.3068034-2-john@metanate.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Reviewed-by: Alvin Šipraga <alsi@bang-olufsen.dk>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Stable-dep-of: 581c848b610d ("extcon: usbc-tusb320: Update state on probe even if no IRQ pending")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_hid.c | 52 ++++++++++++++++-------------
- 1 file changed, 28 insertions(+), 24 deletions(-)
+ drivers/extcon/Kconfig               |   2 +-
+ drivers/extcon/extcon-usbc-tusb320.c | 159 +++++++++++++++++++++++++++
+ 2 files changed, 160 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/function/f_hid.c b/drivers/usb/gadget/function/f_hid.c
-index ca0a7d9eaa34..8b8bbeaa27cb 100644
---- a/drivers/usb/gadget/function/f_hid.c
-+++ b/drivers/usb/gadget/function/f_hid.c
-@@ -71,7 +71,7 @@ struct f_hidg {
- 	wait_queue_head_t		write_queue;
- 	struct usb_request		*req;
+diff --git a/drivers/extcon/Kconfig b/drivers/extcon/Kconfig
+index dca7cecb37e3..290186e44e6b 100644
+--- a/drivers/extcon/Kconfig
++++ b/drivers/extcon/Kconfig
+@@ -183,7 +183,7 @@ config EXTCON_USBC_CROS_EC
  
--	int				minor;
-+	struct device			dev;
- 	struct cdev			cdev;
- 	struct usb_function		func;
+ config EXTCON_USBC_TUSB320
+ 	tristate "TI TUSB320 USB-C extcon support"
+-	depends on I2C
++	depends on I2C && TYPEC
+ 	select REGMAP_I2C
+ 	help
+ 	  Say Y here to enable support for USB Type C cable detection extcon
+diff --git a/drivers/extcon/extcon-usbc-tusb320.c b/drivers/extcon/extcon-usbc-tusb320.c
+index aced4bbb455d..edb8c3f997c9 100644
+--- a/drivers/extcon/extcon-usbc-tusb320.c
++++ b/drivers/extcon/extcon-usbc-tusb320.c
+@@ -6,6 +6,7 @@
+  * Author: Michael Auchter <michael.auchter@ni.com>
+  */
  
-@@ -84,6 +84,14 @@ static inline struct f_hidg *func_to_hidg(struct usb_function *f)
- 	return container_of(f, struct f_hidg, func);
- }
- 
-+static void hidg_release(struct device *dev)
-+{
-+	struct f_hidg *hidg = container_of(dev, struct f_hidg, dev);
++#include <linux/bitfield.h>
+ #include <linux/extcon-provider.h>
+ #include <linux/i2c.h>
+ #include <linux/init.h>
+@@ -13,6 +14,24 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/regmap.h>
++#include <linux/usb/typec.h>
 +
-+	kfree(hidg->set_report_buf);
-+	kfree(hidg);
++#define TUSB320_REG8				0x8
++#define TUSB320_REG8_CURRENT_MODE_ADVERTISE	GENMASK(7, 6)
++#define TUSB320_REG8_CURRENT_MODE_ADVERTISE_USB	0x0
++#define TUSB320_REG8_CURRENT_MODE_ADVERTISE_15A	0x1
++#define TUSB320_REG8_CURRENT_MODE_ADVERTISE_30A	0x2
++#define TUSB320_REG8_CURRENT_MODE_DETECT	GENMASK(5, 4)
++#define TUSB320_REG8_CURRENT_MODE_DETECT_DEF	0x0
++#define TUSB320_REG8_CURRENT_MODE_DETECT_MED	0x1
++#define TUSB320_REG8_CURRENT_MODE_DETECT_ACC	0x2
++#define TUSB320_REG8_CURRENT_MODE_DETECT_HI	0x3
++#define TUSB320_REG8_ACCESSORY_CONNECTED	GENMASK(3, 2)
++#define TUSB320_REG8_ACCESSORY_CONNECTED_NONE	0x0
++#define TUSB320_REG8_ACCESSORY_CONNECTED_AUDIO	0x4
++#define TUSB320_REG8_ACCESSORY_CONNECTED_ACC	0x5
++#define TUSB320_REG8_ACCESSORY_CONNECTED_DEBUG	0x6
++#define TUSB320_REG8_ACTIVE_CABLE_DETECTION	BIT(0)
+ 
+ #define TUSB320_REG9				0x9
+ #define TUSB320_REG9_ATTACHED_STATE_SHIFT	6
+@@ -55,6 +74,10 @@ struct tusb320_priv {
+ 	struct extcon_dev *edev;
+ 	struct tusb320_ops *ops;
+ 	enum tusb320_attached_state state;
++	struct typec_port *port;
++	struct typec_capability	cap;
++	enum typec_port_type port_type;
++	enum typec_pwr_opmode pwr_opmode;
+ };
+ 
+ static const char * const tusb_attached_states[] = {
+@@ -184,6 +207,44 @@ static struct tusb320_ops tusb320l_ops = {
+ 	.get_revision = tusb320l_get_revision,
+ };
+ 
++static int tusb320_set_adv_pwr_mode(struct tusb320_priv *priv)
++{
++	u8 mode;
++
++	if (priv->pwr_opmode == TYPEC_PWR_MODE_USB)
++		mode = TUSB320_REG8_CURRENT_MODE_ADVERTISE_USB;
++	else if (priv->pwr_opmode == TYPEC_PWR_MODE_1_5A)
++		mode = TUSB320_REG8_CURRENT_MODE_ADVERTISE_15A;
++	else if (priv->pwr_opmode == TYPEC_PWR_MODE_3_0A)
++		mode = TUSB320_REG8_CURRENT_MODE_ADVERTISE_30A;
++	else	/* No other mode is supported. */
++		return -EINVAL;
++
++	return regmap_write_bits(priv->regmap, TUSB320_REG8,
++				 TUSB320_REG8_CURRENT_MODE_ADVERTISE,
++				 FIELD_PREP(TUSB320_REG8_CURRENT_MODE_ADVERTISE,
++					    mode));
 +}
 +
- /*-------------------------------------------------------------------------*/
- /*                           Static descriptors                            */
- 
-@@ -904,9 +912,7 @@ static int hidg_bind(struct usb_configuration *c, struct usb_function *f)
- 	struct usb_ep		*ep;
- 	struct f_hidg		*hidg = func_to_hidg(f);
- 	struct usb_string	*us;
--	struct device		*device;
- 	int			status;
--	dev_t			dev;
- 
- 	/* maybe allocate device-global string IDs, and patch descriptors */
- 	us = usb_gstrings_attach(c->cdev, ct_func_strings,
-@@ -999,21 +1005,11 @@ static int hidg_bind(struct usb_configuration *c, struct usb_function *f)
- 
- 	/* create char device */
- 	cdev_init(&hidg->cdev, &f_hidg_fops);
--	dev = MKDEV(major, hidg->minor);
--	status = cdev_add(&hidg->cdev, dev, 1);
-+	status = cdev_device_add(&hidg->cdev, &hidg->dev);
- 	if (status)
- 		goto fail_free_descs;
- 
--	device = device_create(hidg_class, NULL, dev, NULL,
--			       "%s%d", "hidg", hidg->minor);
--	if (IS_ERR(device)) {
--		status = PTR_ERR(device);
--		goto del;
--	}
--
- 	return 0;
--del:
--	cdev_del(&hidg->cdev);
- fail_free_descs:
- 	usb_free_all_descriptors(f);
- fail:
-@@ -1244,9 +1240,7 @@ static void hidg_free(struct usb_function *f)
- 
- 	hidg = func_to_hidg(f);
- 	opts = container_of(f->fi, struct f_hid_opts, func_inst);
--	kfree(hidg->report_desc);
--	kfree(hidg->set_report_buf);
--	kfree(hidg);
-+	put_device(&hidg->dev);
- 	mutex_lock(&opts->lock);
- 	--opts->refcnt;
- 	mutex_unlock(&opts->lock);
-@@ -1256,8 +1250,7 @@ static void hidg_unbind(struct usb_configuration *c, struct usb_function *f)
++static int tusb320_port_type_set(struct typec_port *port,
++				 enum typec_port_type type)
++{
++	struct tusb320_priv *priv = typec_get_drvdata(port);
++
++	if (type == TYPEC_PORT_SRC)
++		return priv->ops->set_mode(priv, TUSB320_MODE_DFP);
++	else if (type == TYPEC_PORT_SNK)
++		return priv->ops->set_mode(priv, TUSB320_MODE_UFP);
++	else if (type == TYPEC_PORT_DRP)
++		return priv->ops->set_mode(priv, TUSB320_MODE_DRP);
++	else
++		return priv->ops->set_mode(priv, TUSB320_MODE_PORT);
++}
++
++static const struct typec_operations tusb320_typec_ops = {
++	.port_type_set	= tusb320_port_type_set,
++};
++
+ static void tusb320_extcon_irq_handler(struct tusb320_priv *priv, u8 reg)
  {
- 	struct f_hidg *hidg = func_to_hidg(f);
- 
--	device_destroy(hidg_class, MKDEV(major, hidg->minor));
--	cdev_del(&hidg->cdev);
-+	cdev_device_del(&hidg->cdev, &hidg->dev);
- 
- 	usb_free_all_descriptors(f);
+ 	int state, polarity;
+@@ -211,6 +272,47 @@ static void tusb320_extcon_irq_handler(struct tusb320_priv *priv, u8 reg)
+ 	priv->state = state;
  }
-@@ -1266,6 +1259,7 @@ static struct usb_function *hidg_alloc(struct usb_function_instance *fi)
- {
- 	struct f_hidg *hidg;
- 	struct f_hid_opts *opts;
-+	int ret;
  
- 	/* allocate and initialize one new instance */
- 	hidg = kzalloc(sizeof(*hidg), GFP_KERNEL);
-@@ -1277,17 +1271,27 @@ static struct usb_function *hidg_alloc(struct usb_function_instance *fi)
- 	mutex_lock(&opts->lock);
- 	++opts->refcnt;
- 
--	hidg->minor = opts->minor;
-+	device_initialize(&hidg->dev);
-+	hidg->dev.release = hidg_release;
-+	hidg->dev.class = hidg_class;
-+	hidg->dev.devt = MKDEV(major, opts->minor);
-+	ret = dev_set_name(&hidg->dev, "hidg%d", opts->minor);
++static void tusb320_typec_irq_handler(struct tusb320_priv *priv, u8 reg9)
++{
++	struct typec_port *port = priv->port;
++	struct device *dev = priv->dev;
++	u8 mode, role, state;
++	int ret, reg8;
++	bool ori;
++
++	ori = reg9 & TUSB320_REG9_CABLE_DIRECTION;
++	typec_set_orientation(port, ori ? TYPEC_ORIENTATION_REVERSE :
++					  TYPEC_ORIENTATION_NORMAL);
++
++	state = (reg9 >> TUSB320_REG9_ATTACHED_STATE_SHIFT) &
++		TUSB320_REG9_ATTACHED_STATE_MASK;
++	if (state == TUSB320_ATTACHED_STATE_DFP)
++		role = TYPEC_SOURCE;
++	else
++		role = TYPEC_SINK;
++
++	typec_set_vconn_role(port, role);
++	typec_set_pwr_role(port, role);
++	typec_set_data_role(port, role == TYPEC_SOURCE ?
++				  TYPEC_HOST : TYPEC_DEVICE);
++
++	ret = regmap_read(priv->regmap, TUSB320_REG8, &reg8);
 +	if (ret) {
-+		--opts->refcnt;
-+		mutex_unlock(&opts->lock);
-+		return ERR_PTR(ret);
++		dev_err(dev, "error during reg8 i2c read, ret=%d!\n", ret);
++		return;
 +	}
 +
- 	hidg->bInterfaceSubClass = opts->subclass;
- 	hidg->bInterfaceProtocol = opts->protocol;
- 	hidg->report_length = opts->report_length;
- 	hidg->report_desc_length = opts->report_desc_length;
- 	if (opts->report_desc) {
--		hidg->report_desc = kmemdup(opts->report_desc,
--					    opts->report_desc_length,
--					    GFP_KERNEL);
-+		hidg->report_desc = devm_kmemdup(&hidg->dev, opts->report_desc,
-+						 opts->report_desc_length,
-+						 GFP_KERNEL);
- 		if (!hidg->report_desc) {
--			kfree(hidg);
-+			put_device(&hidg->dev);
- 			mutex_unlock(&opts->lock);
- 			return ERR_PTR(-ENOMEM);
- 		}
++	mode = FIELD_GET(TUSB320_REG8_CURRENT_MODE_DETECT, reg8);
++	if (mode == TUSB320_REG8_CURRENT_MODE_DETECT_DEF)
++		typec_set_pwr_opmode(port, TYPEC_PWR_MODE_USB);
++	else if (mode == TUSB320_REG8_CURRENT_MODE_DETECT_MED)
++		typec_set_pwr_opmode(port, TYPEC_PWR_MODE_1_5A);
++	else if (mode == TUSB320_REG8_CURRENT_MODE_DETECT_HI)
++		typec_set_pwr_opmode(port, TYPEC_PWR_MODE_3_0A);
++	else	/* Charge through accessory */
++		typec_set_pwr_opmode(port, TYPEC_PWR_MODE_USB);
++}
++
+ static irqreturn_t tusb320_irq_handler(int irq, void *dev_id)
+ {
+ 	struct tusb320_priv *priv = dev_id;
+@@ -225,6 +327,7 @@ static irqreturn_t tusb320_irq_handler(int irq, void *dev_id)
+ 		return IRQ_NONE;
+ 
+ 	tusb320_extcon_irq_handler(priv, reg);
++	tusb320_typec_irq_handler(priv, reg);
+ 
+ 	regmap_write(priv->regmap, TUSB320_REG9, reg);
+ 
+@@ -260,6 +363,58 @@ static int tusb320_extcon_probe(struct tusb320_priv *priv)
+ 	return 0;
+ }
+ 
++static int tusb320_typec_probe(struct i2c_client *client,
++			       struct tusb320_priv *priv)
++{
++	struct fwnode_handle *connector;
++	const char *cap_str;
++	int ret;
++
++	/* The Type-C connector is optional, for backward compatibility. */
++	connector = device_get_named_child_node(&client->dev, "connector");
++	if (!connector)
++		return 0;
++
++	/* Type-C connector found. */
++	ret = typec_get_fw_cap(&priv->cap, connector);
++	if (ret)
++		return ret;
++
++	priv->port_type = priv->cap.type;
++
++	/* This goes into register 0x8 field CURRENT_MODE_ADVERTISE */
++	ret = fwnode_property_read_string(connector, "typec-power-opmode", &cap_str);
++	if (ret)
++		return ret;
++
++	ret = typec_find_pwr_opmode(cap_str);
++	if (ret < 0)
++		return ret;
++	if (ret == TYPEC_PWR_MODE_PD)
++		return -EINVAL;
++
++	priv->pwr_opmode = ret;
++
++	/* Initialize the hardware with the devicetree settings. */
++	ret = tusb320_set_adv_pwr_mode(priv);
++	if (ret)
++		return ret;
++
++	priv->cap.revision		= USB_TYPEC_REV_1_1;
++	priv->cap.accessory[0]		= TYPEC_ACCESSORY_AUDIO;
++	priv->cap.accessory[1]		= TYPEC_ACCESSORY_DEBUG;
++	priv->cap.orientation_aware	= true;
++	priv->cap.driver_data		= priv;
++	priv->cap.ops			= &tusb320_typec_ops;
++	priv->cap.fwnode		= connector;
++
++	priv->port = typec_register_port(&client->dev, &priv->cap);
++	if (IS_ERR(priv->port))
++		return PTR_ERR(priv->port);
++
++	return 0;
++}
++
+ static int tusb320_probe(struct i2c_client *client,
+ 			 const struct i2c_device_id *id)
+ {
+@@ -300,6 +455,10 @@ static int tusb320_probe(struct i2c_client *client,
+ 	if (ret)
+ 		return ret;
+ 
++	ret = tusb320_typec_probe(client, priv);
++	if (ret)
++		return ret;
++
+ 	/* update initial state */
+ 	tusb320_irq_handler(client->irq, priv);
+ 
 -- 
 2.35.1
 
