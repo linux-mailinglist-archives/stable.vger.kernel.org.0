@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5639E65791F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:57:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9B0F657A2E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:08:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233310AbiL1O5z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:57:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45442 "EHLO
+        id S233635AbiL1PIt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:08:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233329AbiL1O5r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:57:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7359312ACC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:57:39 -0800 (PST)
+        with ESMTP id S233671AbiL1PIi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:08:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20FA113DEF
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:08:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7AA376154E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:57:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E98AC433EF;
-        Wed, 28 Dec 2022 14:57:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B10C361553
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:08:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1DBFC433EF;
+        Wed, 28 Dec 2022 15:08:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239458;
-        bh=lbf2YaO11ke/+UiD0Kja8kmdyiUeaXr1QSF0rZHPj+4=;
+        s=korg; t=1672240113;
+        bh=9wjaG2EtxOy2ub8lGqORdSzXn7zkcj5+1+59J6baeX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PfNt/s+43fMVjLX6IoHNsC1H6AsNFZlxtprNh6sFUrwPKHvbIvdDjjIgvTbvzOge7
-         H/KpGqGNZbMc78pga8XSp7ZApoJEwbLVNMl5dwfNWOlm9qC0h3k6dpOYMH8SG8Rnu6
-         poRy/n5qdc4bmg6c3BwWoMwWRd8xR+1QjL5cXnIA=
+        b=03TvQgnLpmXagFPieugaHILUnSZb6eLwTjH/wYqjZP0TdRVKfCzzvHEG8SV9Nr+oX
+         SKTvC8APj45CSrO/PKOhOwomphlw6TQ15vWojymZdVRXPMEPPJFi6gVQBVs6/cCDAB
+         gxZK7u7MFnacd5GtYaNqz9LcXsnrvDA3p6mq39Zs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0033/1073] arm64: dts: qcom: sm8350: fix UFS PHY registers
+Subject: [PATCH 6.1 0082/1146] ARM: dts: armada-370: Fix assigned-addresses for every PCIe Root Port
 Date:   Wed, 28 Dec 2022 15:27:01 +0100
-Message-Id: <20221228144329.037368714@linuxfoundation.org>
+Message-Id: <20221228144332.372680331@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit b3c7839b698cc617e97dd2e4f1eeb4adc280fe58 ]
+[ Upstream commit d9208b0fa2e803d16b28d91bf1d46b7ee9ea13c6 ]
 
-The sizes of the UFS PHY register regions are too small and does
-specifically not cover all registers used by the Linux driver.
+BDF of resource in DT assigned-addresses property of Marvell PCIe Root Port
+(PCI-to-PCI bridge) should match BDF in address part in that DT node name
+as specified resource belongs to Marvell PCIe Root Port itself.
 
-As Linux maps these regions as full pages this is currently not an issue
-on Linux, but let's update the sizes to match the vendor driver.
-
-Fixes: 59c7cf814783 ("arm64: dts: qcom: sm8350: Add UFS nodes")
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221024091507.20342-4-johan+linaro@kernel.org
+Fixes: a09a0b7c6ff1 ("arm: mvebu: add PCIe Device Tree informations for Armada 370")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sm8350.dtsi | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/armada-370.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm8350.dtsi b/arch/arm64/boot/dts/qcom/sm8350.dtsi
-index d9b08dfc2980..eace5b2ee381 100644
---- a/arch/arm64/boot/dts/qcom/sm8350.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm8350.dtsi
-@@ -2142,11 +2142,11 @@ ufs_mem_phy: phy@1d87000 {
- 			status = "disabled";
+diff --git a/arch/arm/boot/dts/armada-370.dtsi b/arch/arm/boot/dts/armada-370.dtsi
+index 9dc928859ad3..2013a5ccecd3 100644
+--- a/arch/arm/boot/dts/armada-370.dtsi
++++ b/arch/arm/boot/dts/armada-370.dtsi
+@@ -84,7 +84,7 @@ pcie0_intc: interrupt-controller {
  
- 			ufs_mem_phy_lanes: phy@1d87400 {
--				reg = <0 0x01d87400 0 0x108>,
--				      <0 0x01d87600 0 0x1e0>,
--				      <0 0x01d87c00 0 0x1dc>,
--				      <0 0x01d87800 0 0x108>,
--				      <0 0x01d87a00 0 0x1e0>;
-+				reg = <0 0x01d87400 0 0x188>,
-+				      <0 0x01d87600 0 0x200>,
-+				      <0 0x01d87c00 0 0x200>,
-+				      <0 0x01d87800 0 0x188>,
-+				      <0 0x01d87a00 0 0x200>;
- 				#phy-cells = <0>;
- 			};
- 		};
+ 			pcie2: pcie@2,0 {
+ 				device_type = "pci";
+-				assigned-addresses = <0x82002800 0 0x80000 0 0x2000>;
++				assigned-addresses = <0x82001000 0 0x80000 0 0x2000>;
+ 				reg = <0x1000 0 0 0 0>;
+ 				#address-cells = <3>;
+ 				#size-cells = <2>;
 -- 
 2.35.1
 
