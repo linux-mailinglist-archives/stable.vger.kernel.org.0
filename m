@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A11CD657FC7
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:09:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44F9C6578B6
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:53:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233093AbiL1QI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:08:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52564 "EHLO
+        id S233196AbiL1Oxf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:53:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234476AbiL1QIN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:08:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7FA8193CF
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:08:05 -0800 (PST)
+        with ESMTP id S233130AbiL1OxU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:53:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E697ECE2B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:53:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52EAFB817AC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:08:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0DC7C433D2;
-        Wed, 28 Dec 2022 16:08:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 83333614B2
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:53:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F14FC433D2;
+        Wed, 28 Dec 2022 14:53:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243683;
-        bh=Pt9IqEVq/A7EzfIxKLHCBnesx/gJuuUACvHJzfVOcbU=;
+        s=korg; t=1672239197;
+        bh=Q0E3ZwG4G3x8VNjb9ig0fjthRN2Y8ZIYQ9LNdqrYP5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FFWlr9vDZQq5XFum3FCI0t2ucPVGtJfwQc42qiUdgsmqQpSO8ZaxaxvU6uW3uk+Lx
-         AiOenH2AciVAE4Kn0tHDzyKfgPwyFtaLJ8C/QnlvVM6+1yQD+dJm/JH+rcQd0PH2zF
-         v50339BTXCEt9VV4fXJfAtR1gYR/X9ASL16daAS4=
+        b=wTPsQBXfqu5wIfC5GuoBYPPQFEVJngGyB7NO3ic1AjqAz831dYVzmgQlMWgHguuAx
+         9c12oKXufP/7B+r5usFjh+jvfY1Rwk3A004hR8E2BOJnRTu62W8MPh05wrICtWQF2T
+         ExTx9o6xsC5E8PMRK1VupN2OztsC29WcMkMUd0io=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Julian Anastasov <ja@ssi.bg>,
-        yunhong-cgl jiang <xintian1976@gmail.com>,
-        "dust.li" <dust.li@linux.alibaba.com>,
-        Jiri Wiesner <jwiesner@suse.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev, Jimmy Assarsson <extja@kvaser.com>,
+        Anssi Hannula <anssi.hannula@bitwise.fi>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0533/1146] ipvs: use u64_stats_t for the per-cpu counters
+Subject: [PATCH 5.15 165/731] can: kvaser_usb_leaf: Set Warning state even without bus errors
 Date:   Wed, 28 Dec 2022 15:34:32 +0100
-Message-Id: <20221228144344.652984737@linuxfoundation.org>
+Message-Id: <20221228144301.344568400@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,189 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Anastasov <ja@ssi.bg>
+From: Anssi Hannula <anssi.hannula@bitwise.fi>
 
-[ Upstream commit 1dbd8d9a82e3f26b9d063292d47ece673f48fce2 ]
+[ Upstream commit df1b7af2761b935f63b4a53e789d41ed859edf61 ]
 
-Use the provided u64_stats_t type to avoid
-load/store tearing.
+kvaser_usb_leaf_rx_error_update_can_state() sets error state according
+to error counters when the hardware does not indicate a specific state
+directly.
 
-Fixes: 316580b69d0a ("u64_stats: provide u64_stats_t type")
-Signed-off-by: Julian Anastasov <ja@ssi.bg>
-Cc: yunhong-cgl jiang <xintian1976@gmail.com>
-Cc: "dust.li" <dust.li@linux.alibaba.com>
-Reviewed-by: Jiri Wiesner <jwiesner@suse.de>
-Tested-by: Jiri Wiesner <jwiesner@suse.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+However, this is currently gated behind a check for
+M16C_STATE_BUS_ERROR which does not always seem to be set when error
+counters are increasing, and may not be set when error counters are
+decreasing.
+
+This causes the CAN_STATE_ERROR_WARNING state to not be set in some
+cases even when appropriate.
+
+Change the code to set error state from counters even without
+M16C_STATE_BUS_ERROR.
+
+The Error-Passive case seems superfluous as it is already set via
+M16C_STATE_BUS_PASSIVE flag above, but it is kept for now.
+
+Tested with 0bfd:0124 Kvaser Mini PCI Express 2xHS FW 4.18.778.
+
+Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
+Tested-by: Jimmy Assarsson <extja@kvaser.com>
+Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
+Link: https://lore.kernel.org/all/20221010185237.319219-6-extja@kvaser.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ip_vs.h             | 10 +++++-----
- net/netfilter/ipvs/ip_vs_core.c | 30 +++++++++++++++---------------
- net/netfilter/ipvs/ip_vs_ctl.c  | 10 +++++-----
- net/netfilter/ipvs/ip_vs_est.c  | 20 ++++++++++----------
- 4 files changed, 35 insertions(+), 35 deletions(-)
+ .../net/can/usb/kvaser_usb/kvaser_usb_leaf.c  | 20 ++++++++-----------
+ 1 file changed, 8 insertions(+), 12 deletions(-)
 
-diff --git a/include/net/ip_vs.h b/include/net/ip_vs.h
-index ff1804a0c469..1fca6a88114a 100644
---- a/include/net/ip_vs.h
-+++ b/include/net/ip_vs.h
-@@ -351,11 +351,11 @@ struct ip_vs_seq {
+diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+index a59cb4ea5456..a653318f583a 100644
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+@@ -965,20 +965,16 @@ kvaser_usb_leaf_rx_error_update_can_state(struct kvaser_usb_net_priv *priv,
+ 		new_state = CAN_STATE_BUS_OFF;
+ 	} else if (es->status & M16C_STATE_BUS_PASSIVE) {
+ 		new_state = CAN_STATE_ERROR_PASSIVE;
+-	} else if (es->status & M16C_STATE_BUS_ERROR) {
++	} else if ((es->status & M16C_STATE_BUS_ERROR) &&
++		   cur_state >= CAN_STATE_BUS_OFF) {
+ 		/* Guard against spurious error events after a busoff */
+-		if (cur_state < CAN_STATE_BUS_OFF) {
+-			if (es->txerr >= 128 || es->rxerr >= 128)
+-				new_state = CAN_STATE_ERROR_PASSIVE;
+-			else if (es->txerr >= 96 || es->rxerr >= 96)
+-				new_state = CAN_STATE_ERROR_WARNING;
+-			else if (cur_state > CAN_STATE_ERROR_ACTIVE)
+-				new_state = CAN_STATE_ERROR_ACTIVE;
+-		}
+-	}
+-
+-	if (!es->status)
++	} else if (es->txerr >= 128 || es->rxerr >= 128) {
++		new_state = CAN_STATE_ERROR_PASSIVE;
++	} else if (es->txerr >= 96 || es->rxerr >= 96) {
++		new_state = CAN_STATE_ERROR_WARNING;
++	} else {
+ 		new_state = CAN_STATE_ERROR_ACTIVE;
++	}
  
- /* counters per cpu */
- struct ip_vs_counters {
--	__u64		conns;		/* connections scheduled */
--	__u64		inpkts;		/* incoming packets */
--	__u64		outpkts;	/* outgoing packets */
--	__u64		inbytes;	/* incoming bytes */
--	__u64		outbytes;	/* outgoing bytes */
-+	u64_stats_t	conns;		/* connections scheduled */
-+	u64_stats_t	inpkts;		/* incoming packets */
-+	u64_stats_t	outpkts;	/* outgoing packets */
-+	u64_stats_t	inbytes;	/* incoming bytes */
-+	u64_stats_t	outbytes;	/* outgoing bytes */
- };
- /* Stats per cpu */
- struct ip_vs_cpu_stats {
-diff --git a/net/netfilter/ipvs/ip_vs_core.c b/net/netfilter/ipvs/ip_vs_core.c
-index 51ad557a525b..b5ae419661b8 100644
---- a/net/netfilter/ipvs/ip_vs_core.c
-+++ b/net/netfilter/ipvs/ip_vs_core.c
-@@ -132,21 +132,21 @@ ip_vs_in_stats(struct ip_vs_conn *cp, struct sk_buff *skb)
- 
- 		s = this_cpu_ptr(dest->stats.cpustats);
- 		u64_stats_update_begin(&s->syncp);
--		s->cnt.inpkts++;
--		s->cnt.inbytes += skb->len;
-+		u64_stats_inc(&s->cnt.inpkts);
-+		u64_stats_add(&s->cnt.inbytes, skb->len);
- 		u64_stats_update_end(&s->syncp);
- 
- 		svc = rcu_dereference(dest->svc);
- 		s = this_cpu_ptr(svc->stats.cpustats);
- 		u64_stats_update_begin(&s->syncp);
--		s->cnt.inpkts++;
--		s->cnt.inbytes += skb->len;
-+		u64_stats_inc(&s->cnt.inpkts);
-+		u64_stats_add(&s->cnt.inbytes, skb->len);
- 		u64_stats_update_end(&s->syncp);
- 
- 		s = this_cpu_ptr(ipvs->tot_stats.cpustats);
- 		u64_stats_update_begin(&s->syncp);
--		s->cnt.inpkts++;
--		s->cnt.inbytes += skb->len;
-+		u64_stats_inc(&s->cnt.inpkts);
-+		u64_stats_add(&s->cnt.inbytes, skb->len);
- 		u64_stats_update_end(&s->syncp);
- 
- 		local_bh_enable();
-@@ -168,21 +168,21 @@ ip_vs_out_stats(struct ip_vs_conn *cp, struct sk_buff *skb)
- 
- 		s = this_cpu_ptr(dest->stats.cpustats);
- 		u64_stats_update_begin(&s->syncp);
--		s->cnt.outpkts++;
--		s->cnt.outbytes += skb->len;
-+		u64_stats_inc(&s->cnt.outpkts);
-+		u64_stats_add(&s->cnt.outbytes, skb->len);
- 		u64_stats_update_end(&s->syncp);
- 
- 		svc = rcu_dereference(dest->svc);
- 		s = this_cpu_ptr(svc->stats.cpustats);
- 		u64_stats_update_begin(&s->syncp);
--		s->cnt.outpkts++;
--		s->cnt.outbytes += skb->len;
-+		u64_stats_inc(&s->cnt.outpkts);
-+		u64_stats_add(&s->cnt.outbytes, skb->len);
- 		u64_stats_update_end(&s->syncp);
- 
- 		s = this_cpu_ptr(ipvs->tot_stats.cpustats);
- 		u64_stats_update_begin(&s->syncp);
--		s->cnt.outpkts++;
--		s->cnt.outbytes += skb->len;
-+		u64_stats_inc(&s->cnt.outpkts);
-+		u64_stats_add(&s->cnt.outbytes, skb->len);
- 		u64_stats_update_end(&s->syncp);
- 
- 		local_bh_enable();
-@@ -200,17 +200,17 @@ ip_vs_conn_stats(struct ip_vs_conn *cp, struct ip_vs_service *svc)
- 
- 	s = this_cpu_ptr(cp->dest->stats.cpustats);
- 	u64_stats_update_begin(&s->syncp);
--	s->cnt.conns++;
-+	u64_stats_inc(&s->cnt.conns);
- 	u64_stats_update_end(&s->syncp);
- 
- 	s = this_cpu_ptr(svc->stats.cpustats);
- 	u64_stats_update_begin(&s->syncp);
--	s->cnt.conns++;
-+	u64_stats_inc(&s->cnt.conns);
- 	u64_stats_update_end(&s->syncp);
- 
- 	s = this_cpu_ptr(ipvs->tot_stats.cpustats);
- 	u64_stats_update_begin(&s->syncp);
--	s->cnt.conns++;
-+	u64_stats_inc(&s->cnt.conns);
- 	u64_stats_update_end(&s->syncp);
- 
- 	local_bh_enable();
-diff --git a/net/netfilter/ipvs/ip_vs_ctl.c b/net/netfilter/ipvs/ip_vs_ctl.c
-index 988222fff9f0..03af6a2ffd56 100644
---- a/net/netfilter/ipvs/ip_vs_ctl.c
-+++ b/net/netfilter/ipvs/ip_vs_ctl.c
-@@ -2297,11 +2297,11 @@ static int ip_vs_stats_percpu_show(struct seq_file *seq, void *v)
- 
- 		do {
- 			start = u64_stats_fetch_begin_irq(&u->syncp);
--			conns = u->cnt.conns;
--			inpkts = u->cnt.inpkts;
--			outpkts = u->cnt.outpkts;
--			inbytes = u->cnt.inbytes;
--			outbytes = u->cnt.outbytes;
-+			conns = u64_stats_read(&u->cnt.conns);
-+			inpkts = u64_stats_read(&u->cnt.inpkts);
-+			outpkts = u64_stats_read(&u->cnt.outpkts);
-+			inbytes = u64_stats_read(&u->cnt.inbytes);
-+			outbytes = u64_stats_read(&u->cnt.outbytes);
- 		} while (u64_stats_fetch_retry_irq(&u->syncp, start));
- 
- 		seq_printf(seq, "%3X %8LX %8LX %8LX %16LX %16LX\n",
-diff --git a/net/netfilter/ipvs/ip_vs_est.c b/net/netfilter/ipvs/ip_vs_est.c
-index 9a1a7af6a186..f53150d82a92 100644
---- a/net/netfilter/ipvs/ip_vs_est.c
-+++ b/net/netfilter/ipvs/ip_vs_est.c
-@@ -67,11 +67,11 @@ static void ip_vs_read_cpu_stats(struct ip_vs_kstats *sum,
- 		if (add) {
- 			do {
- 				start = u64_stats_fetch_begin(&s->syncp);
--				conns = s->cnt.conns;
--				inpkts = s->cnt.inpkts;
--				outpkts = s->cnt.outpkts;
--				inbytes = s->cnt.inbytes;
--				outbytes = s->cnt.outbytes;
-+				conns = u64_stats_read(&s->cnt.conns);
-+				inpkts = u64_stats_read(&s->cnt.inpkts);
-+				outpkts = u64_stats_read(&s->cnt.outpkts);
-+				inbytes = u64_stats_read(&s->cnt.inbytes);
-+				outbytes = u64_stats_read(&s->cnt.outbytes);
- 			} while (u64_stats_fetch_retry(&s->syncp, start));
- 			sum->conns += conns;
- 			sum->inpkts += inpkts;
-@@ -82,11 +82,11 @@ static void ip_vs_read_cpu_stats(struct ip_vs_kstats *sum,
- 			add = true;
- 			do {
- 				start = u64_stats_fetch_begin(&s->syncp);
--				sum->conns = s->cnt.conns;
--				sum->inpkts = s->cnt.inpkts;
--				sum->outpkts = s->cnt.outpkts;
--				sum->inbytes = s->cnt.inbytes;
--				sum->outbytes = s->cnt.outbytes;
-+				sum->conns = u64_stats_read(&s->cnt.conns);
-+				sum->inpkts = u64_stats_read(&s->cnt.inpkts);
-+				sum->outpkts = u64_stats_read(&s->cnt.outpkts);
-+				sum->inbytes = u64_stats_read(&s->cnt.inbytes);
-+				sum->outbytes = u64_stats_read(&s->cnt.outbytes);
- 			} while (u64_stats_fetch_retry(&s->syncp, start));
- 		}
- 	}
+ 	if (new_state != cur_state) {
+ 		tx_state = (es->txerr >= es->rxerr) ? new_state : 0;
 -- 
 2.35.1
 
