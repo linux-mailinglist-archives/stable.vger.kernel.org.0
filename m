@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B5BE6582CA
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:41:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83DBF658385
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:48:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234986AbiL1Qli (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:41:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33388 "EHLO
+        id S234979AbiL1Qs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:48:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234964AbiL1QlR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:41:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AFB11F2CE
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:35:40 -0800 (PST)
+        with ESMTP id S234686AbiL1QsE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:48:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1CE31EACB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:43:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C44D9B8171F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:35:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3361EC433F0;
-        Wed, 28 Dec 2022 16:35:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C5A9B8171F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:43:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFE2AC433D2;
+        Wed, 28 Dec 2022 16:43:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245337;
-        bh=STWR08XNfDHGIgwVqoMjIcCEx47HDiY/pzVuziTSxrU=;
+        s=korg; t=1672245805;
+        bh=5yayHGXZKCtbh55eVQ/yzAYvOCklKzsaeHQnR5tzAdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GdVAa7NrNnoSeaOzb5qpXCPyj1GWCBERpxghgD6jPXUl7Z6J60BoM/08PdTUH1tSo
-         fVvS5wqJkDn0Y4D0ZgvrT2fmAYs4TmlA+sMvrpRJTdvlwe5TKUjJvfwDCVdqu2Mnpo
-         +TJyZaAqDjJD++PMqVXfG/cVlu/2/rfMwclFFU6A=
+        b=ERifjSf7wC8zC98bHHSM7bh6L+6MlLROOq/xwlTjJTJTutEZB/l2P0vBDd2fc66je
+         M8L3WVqlDY6uoOQXqQ/a+EyGBx7YK4czQgPwvPXoG6p9pc0Lxv2OKn/NA7J/gdBr+u
+         5ivOufAhIEE4eISqt8lPAZoSkYLEBgRB03RupinY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Conor Dooley <conor.dooley@microchip.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Jassi Brar <jaswinder.singh@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0875/1073] mailbox: mpfs: read the system controllers status
-Date:   Wed, 28 Dec 2022 15:41:03 +0100
-Message-Id: <20221228144351.790957744@linuxfoundation.org>
+Subject: [PATCH 6.1 0925/1146] mailbox: arm_mhuv2: Fix return value check in mhuv2_probe()
+Date:   Wed, 28 Dec 2022 15:41:04 +0100
+Message-Id: <20221228144355.398309528@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,97 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Conor Dooley <conor.dooley@microchip.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit ab47d0bfdf88faac0eb02749e5bfaa306e004300 ]
+[ Upstream commit 165b7643f2df890066b1b4e8a387888a600ca9bf ]
 
-Some services explicitly return an error code in their response, but
-others rely on the system controller to set a status in its status
-register. The meaning of the bits varies based on what service is
-requested, so pass it back up to the driver that requested the service
-in the first place. The field in the message struct already existed, but
-was unused until now.
+If devm_of_iomap() fails, it returns ERR_PTR() and never
+return NULL, so replace NULL pointer check with IS_ERR()
+to fix this problem.
 
-If the system controller is busy, in which case we should never actually
-be in the interrupt handler, or if the service fails the mailbox itself
-should not be read. Callers should check the status before operating on
-the response.
-
-There's an existing, but unused, #define for the mailbox mask - but it
-was incorrect. It was doing a GENMASK_ULL(32, 16) which should've just
-been a GENMASK(31, 16), so fix that up and start using it.
-
-Fixes: 83d7b1560810 ("mbox: add polarfire soc system controller mailbox")
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-Reviewed-by: Palmer Dabbelt <palmer@rivosinc.com>
+Fixes: 5a6338cce9f4 ("mailbox: arm_mhuv2: Add driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/mailbox-mpfs.c | 31 ++++++++++++++++++++++++++++---
- 1 file changed, 28 insertions(+), 3 deletions(-)
+ drivers/mailbox/arm_mhuv2.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mailbox/mailbox-mpfs.c b/drivers/mailbox/mailbox-mpfs.c
-index cfacb3f320a6..853901acaeec 100644
---- a/drivers/mailbox/mailbox-mpfs.c
-+++ b/drivers/mailbox/mailbox-mpfs.c
-@@ -2,7 +2,7 @@
- /*
-  * Microchip PolarFire SoC (MPFS) system controller/mailbox controller driver
-  *
-- * Copyright (c) 2020 Microchip Corporation. All rights reserved.
-+ * Copyright (c) 2020-2022 Microchip Corporation. All rights reserved.
-  *
-  * Author: Conor Dooley <conor.dooley@microchip.com>
-  *
-@@ -56,7 +56,7 @@
- #define SCB_STATUS_NOTIFY_MASK BIT(SCB_STATUS_NOTIFY)
+diff --git a/drivers/mailbox/arm_mhuv2.c b/drivers/mailbox/arm_mhuv2.c
+index a47aef8df52f..c6d4957c4da8 100644
+--- a/drivers/mailbox/arm_mhuv2.c
++++ b/drivers/mailbox/arm_mhuv2.c
+@@ -1062,8 +1062,8 @@ static int mhuv2_probe(struct amba_device *adev, const struct amba_id *id)
+ 	int ret = -EINVAL;
  
- #define SCB_STATUS_POS (16)
--#define SCB_STATUS_MASK GENMASK_ULL(SCB_STATUS_POS + SCB_MASK_WIDTH, SCB_STATUS_POS)
-+#define SCB_STATUS_MASK GENMASK(SCB_STATUS_POS + SCB_MASK_WIDTH - 1, SCB_STATUS_POS)
+ 	reg = devm_of_iomap(dev, dev->of_node, 0, NULL);
+-	if (!reg)
+-		return -ENOMEM;
++	if (IS_ERR(reg))
++		return PTR_ERR(reg);
  
- struct mpfs_mbox {
- 	struct mbox_controller controller;
-@@ -130,13 +130,38 @@ static void mpfs_mbox_rx_data(struct mbox_chan *chan)
- 	struct mpfs_mbox *mbox = (struct mpfs_mbox *)chan->con_priv;
- 	struct mpfs_mss_response *response = mbox->response;
- 	u16 num_words = ALIGN((response->resp_size), (4)) / 4U;
--	u32 i;
-+	u32 i, status;
+ 	mhu = devm_kzalloc(dev, sizeof(*mhu), GFP_KERNEL);
+ 	if (!mhu)
+-- 
+2.35.1
+
+
+
+)
  
- 	if (!response->resp_msg) {
- 		dev_err(mbox->dev, "failed to assign memory for response %d\n", -ENOMEM);
- 		return;
- 	}
- 
-+	/*
-+	 * The status is stored in bits 31:16 of the SERVICES_SR register.
-+	 * It is only valid when BUSY == 0.
-+	 * We should *never* get an interrupt while the controller is
-+	 * still in the busy state. If we do, something has gone badly
-+	 * wrong & the content of the mailbox would not be valid.
-+	 */
-+	if (mpfs_mbox_busy(mbox)) {
-+		dev_err(mbox->dev, "got an interrupt but system controller is busy\n");
-+		response->resp_status = 0xDEAD;
-+		return;
-+	}
-+
-+	status = readl_relaxed(mbox->ctrl_base + SERVICES_SR_OFFSET);
-+
-+	/*
-+	 * If the status of the individual servers is non-zero, the service has
-+	 * failed. The contents of the mailbox at this point are not be valid,
-+	 * so don't bother reading them. Set the status so that the driver
-+	 * implementing the service can handle the result.
-+	 */
-+	response->resp_status = (status & SCB_STATUS_MASK) >> SCB_STATUS_POS;
-+	if (response->resp_status)
-+		return;
-+
- 	if (!mpfs_mbox_busy(mbox)) {
- 		for (i = 0; i < num_words; i++) {
- 			response->resp_msg[i] =
+ 	state = ret ? VB2_BUF_STATE_ERROR : VB2_BUF_STATE_DONE;
+ 	if (!IS_VDEC_LAT_ARCH(dev->vdec_pdata->hw_arch) ||
+-	    ctx->current_codec == V4L2_PIX_FMT_VP8_FRAME || ret) {
++	    ctx->current_codec == V4L2_PIX_FMT_VP8_FRAME) {
+ 		v4l2_m2m_buf_done_and_job_finish(dev->m2m_dev_dec, ctx->m2m_ctx, state);
+ 		if (src_buf_req)
+ 			v4l2_ctrl_request_complete(src_buf_req, &ctx->ctrl_hdl);
 -- 
 2.35.1
 
