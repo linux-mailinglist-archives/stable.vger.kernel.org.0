@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA69B657DB3
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:46:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B819657ED7
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:58:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234014AbiL1PqC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:46:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34360 "EHLO
+        id S234212AbiL1P6M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:58:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234017AbiL1PqB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:46:01 -0500
+        with ESMTP id S234215AbiL1P6L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:58:11 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32413FCD8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:46:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3705183B8
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:58:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C50A76156F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:46:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D61D8C433EF;
-        Wed, 28 Dec 2022 15:45:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 674006155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:58:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B470C433EF;
+        Wed, 28 Dec 2022 15:58:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242360;
-        bh=f9fS7Qa7UgcoYkhpAb8jhQRFyR/ZI0zHCMrF0pq+PyM=;
+        s=korg; t=1672243089;
+        bh=/z/2bEyjvG3X5raRl8j6f1VOqfijVpW40Fqf4ISUH3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HMWUoTSwIBGy2/MKKyOjoRYk6yzAButaZnjbPR6HNGavgftlvsI5sA6dzk0KGUiGB
-         FXcwiwjN4rdTTRQ931Y2uZAAXbe6sWNZoKPtLHyugMpcaPonDUwFlCamDwDj4JOG/T
-         jIvquPt6lbCUE6DAqHUkOw1yEE5+ejQwyjhSlDE0=
+        b=vLMnfkJm3kwgq5yd15l9Y/+kyq51u9y8Zb4zMW+n6NUYXSic/CfMLiJH6R4IrmC6I
+         pt8a0Fwwhkwvhqo7GlZiK1qxp4vIdbV5C+qyz4TzjIL/9ouEBx+jEsGjA4YvoYX6hm
+         nzb07LKjs8m0lrzx3QLnG2XV0Zhbe37UD53mi9FE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alim Akhtar <alim.akhtar@samsung.com>,
-        Aakarsh Jain <aakarsh.jain@samsung.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0401/1073] media: s5p-mfc: Add variant data for MFC v7 hardware for Exynos 3250 SoC
+Subject: [PATCH 6.1 0450/1146] wifi: nl80211: Add checks for nla_nest_start() in nl80211_send_iface()
 Date:   Wed, 28 Dec 2022 15:33:09 +0100
-Message-Id: <20221228144338.909458914@linuxfoundation.org>
+Message-Id: <20221228144342.404678880@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aakarsh Jain <aakarsh.jain@samsung.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit f50ebe10f5d8092c37e2bd430c78e03bf38b1e20 ]
+[ Upstream commit 5cc58b376675981386c6192405fe887cd29c527a ]
 
-Commit 5441e9dafdfc6dc40 ("[media] s5p-mfc: Core support for MFC v7")
-which adds mfc v7 support for Exynos3250 and use the same compatible
-string as used by Exynos5240 but both the IPs are a bit different in
-terms of IP clock.
-Add variant driver data based on the new compatible string
-"samsung,exynos3250-mfc" for Exynos3250 SoC.
+As the nla_nest_start() may fail with NULL returned, the return value needs
+to be checked.
 
-Suggested-by: Alim Akhtar <alim.akhtar@samsung.com>
-Fixes: 5441e9dafdfc ("[media] s5p-mfc: Core support for MFC v7")
-Signed-off-by: Aakarsh Jain <aakarsh.jain@samsung.com>
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: ce08cd344a00 ("wifi: nl80211: expose link information for interfaces")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Link: https://lore.kernel.org/r/20221129014211.56558-1-yuancan@huawei.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../media/platform/samsung/s5p-mfc/s5p_mfc.c    | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ net/wireless/nl80211.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/platform/samsung/s5p-mfc/s5p_mfc.c b/drivers/media/platform/samsung/s5p-mfc/s5p_mfc.c
-index f85d1eebafac..7bdbe767500e 100644
---- a/drivers/media/platform/samsung/s5p-mfc/s5p_mfc.c
-+++ b/drivers/media/platform/samsung/s5p-mfc/s5p_mfc.c
-@@ -1576,8 +1576,18 @@ static struct s5p_mfc_variant mfc_drvdata_v7 = {
- 	.port_num	= MFC_NUM_PORTS_V7,
- 	.buf_size	= &buf_size_v7,
- 	.fw_name[0]     = "s5p-mfc-v7.fw",
--	.clk_names	= {"mfc", "sclk_mfc"},
--	.num_clocks	= 2,
-+	.clk_names	= {"mfc"},
-+	.num_clocks	= 1,
-+};
-+
-+static struct s5p_mfc_variant mfc_drvdata_v7_3250 = {
-+	.version        = MFC_VERSION_V7,
-+	.version_bit    = MFC_V7_BIT,
-+	.port_num       = MFC_NUM_PORTS_V7,
-+	.buf_size       = &buf_size_v7,
-+	.fw_name[0]     = "s5p-mfc-v7.fw",
-+	.clk_names      = {"mfc", "sclk_mfc"},
-+	.num_clocks     = 2,
- };
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index 597c52236514..d2321c683398 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -3868,6 +3868,9 @@ static int nl80211_send_iface(struct sk_buff *msg, u32 portid, u32 seq, int flag
+ 			struct cfg80211_chan_def chandef = {};
+ 			int ret;
  
- static struct s5p_mfc_buf_size_v6 mfc_buf_size_v8 = {
-@@ -1647,6 +1657,9 @@ static const struct of_device_id exynos_mfc_match[] = {
- 	}, {
- 		.compatible = "samsung,mfc-v7",
- 		.data = &mfc_drvdata_v7,
-+	}, {
-+		.compatible = "samsung,exynos3250-mfc",
-+		.data = &mfc_drvdata_v7_3250,
- 	}, {
- 		.compatible = "samsung,mfc-v8",
- 		.data = &mfc_drvdata_v8,
++			if (!link)
++				goto nla_put_failure;
++
+ 			if (nla_put_u8(msg, NL80211_ATTR_MLO_LINK_ID, link_id))
+ 				goto nla_put_failure;
+ 			if (nla_put(msg, NL80211_ATTR_MAC, ETH_ALEN,
 -- 
 2.35.1
 
