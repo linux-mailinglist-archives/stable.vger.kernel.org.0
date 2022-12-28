@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF62B6583AA
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:49:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF410658468
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235048AbiL1Qtv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:49:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43290 "EHLO
+        id S235336AbiL1Q5W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:57:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235133AbiL1Qt1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:49:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB1EE1C923
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:44:50 -0800 (PST)
+        with ESMTP id S235277AbiL1Q4f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:56:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B942A1D67C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:52:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 88B89B817AC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:44:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD33EC433EF;
-        Wed, 28 Dec 2022 16:44:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 78401B816F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:52:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6226C433EF;
+        Wed, 28 Dec 2022 16:52:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245888;
-        bh=zf7RAbo9htvu/+5dLGrdZRXxBzlJZ32Qyt64KwWEkBE=;
+        s=korg; t=1672246342;
+        bh=xEMiQK885xmLg3qtc8QmYHFfWoEH/3qKOlQ4YuaktGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uR/ADi/zp00dQDgEMrEFytnWJoHgAeStrEbsk39sikwm+WVOIkkV55VKIu3Dvxmvm
-         SIQ9y08OiJ2Ptm5ttRB5JuJxxDB72x+XO/VjZAVigeKoyTICtAunDHkaZFt+I5AwGE
-         eDMCvpDlR1YhJLrsS33HSifX/ABu7Mvhw2mgr350=
+        b=2NBUUFNpnW6Zc9Nb1ucygUQJnFZe/JGmqzy3xT1jXEzqufH4L3P/k277rgzM7yzsp
+         QaDc6dide/nDNX8HMXDXHGmo5kzVhF/RefxpEpv7EbGSIus2nTpuehCIG5dl75yl95
+         OnfdNKR8/q2jDXqhN5ZFfI447AX9ru/U55TRPzzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Linus Walleij <linus.walleij@linaro.org>,
-        Marek Vasut <marex@denx.de>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0975/1073] Bluetooth: hci_bcm: Add CYW4373A0 support
+        patches@lists.linux.dev,
+        Mazin Al Haddad <mazinalhaddad05@gmail.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+f66dd31987e6740657be@syzkaller.appspotmail.com
+Subject: [PATCH 6.1 1024/1146] media: dvb-usb: fix memory leak in dvb_usb_adapter_init()
 Date:   Wed, 28 Dec 2022 15:42:43 +0100
-Message-Id: <20221228144354.554789092@linuxfoundation.org>
+Message-Id: <20221228144358.181126268@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,107 +55,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Mazin Al Haddad <mazinalhaddad05@gmail.com>
 
-[ Upstream commit 02d056a3404e20245a69dcb4022a0930085fc5ec ]
+[ Upstream commit 94d90fb06b94a90c176270d38861bcba34ce377d ]
 
-CYW4373A0 is a Wi-Fi + Bluetooth combo device from Cypress.
-This chip is present e.g. on muRata 2AE module.
+Syzbot reports a memory leak in "dvb_usb_adapter_init()".
+The leak is due to not accounting for and freeing current iteration's
+adapter->priv in case of an error. Currently if an error occurs,
+it will exit before incrementing "num_adapters_initalized",
+which is used as a reference counter to free all adap->priv
+in "dvb_usb_adapter_exit()". There are multiple error paths that
+can exit from before incrementing the counter. Including the
+error handling paths for "dvb_usb_adapter_stream_init()",
+"dvb_usb_adapter_dvb_init()" and "dvb_usb_adapter_frontend_init()"
+within "dvb_usb_adapter_init()".
 
-This chip has additional quirk where the HCI command 0xfc45, used on
-older chips to switch UART clock from 24 MHz to 48 MHz, to support
-baudrates over 3 Mbdps, is no longer recognized by this newer chip.
-This newer chip can configure the 4 Mbdps baudrate without the need
-to issue HCI command 0xfc45, so add flag to indicate this and do not
-issue the command on this chip to avoid failure to set 4 Mbdps baud
-rate.
+This means that in case of an error in any of these functions the
+current iteration is not accounted for and the current iteration's
+adap->priv is not freed.
 
-It is not clear whether there is a way to determine which chip does
-and which chip does not support the HCI command 0xfc45, other than
-trial and error.
+Fix this by freeing the current iteration's adap->priv in the
+"stream_init_err:" label in the error path. The rest of the
+(accounted for) adap->priv objects are freed in dvb_usb_adapter_exit()
+as expected using the num_adapters_initalized variable.
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Marek Vasut <marex@denx.de>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Syzbot report:
+
+BUG: memory leak
+unreferenced object 0xffff8881172f1a00 (size 512):
+  comm "kworker/0:2", pid 139, jiffies 4294994873 (age 10.960s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+backtrace:
+    [<ffffffff844af012>] dvb_usb_adapter_init drivers/media/usb/dvb-usb/dvb-usb-init.c:75 [inline]
+    [<ffffffff844af012>] dvb_usb_init drivers/media/usb/dvb-usb/dvb-usb-init.c:184 [inline]
+    [<ffffffff844af012>] dvb_usb_device_init.cold+0x4e5/0x79e drivers/media/usb/dvb-usb/dvb-usb-init.c:308
+    [<ffffffff830db21d>] dib0700_probe+0x8d/0x1b0 drivers/media/usb/dvb-usb/dib0700_core.c:883
+    [<ffffffff82d3fdc7>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
+    [<ffffffff8274ab37>] call_driver_probe drivers/base/dd.c:542 [inline]
+    [<ffffffff8274ab37>] really_probe.part.0+0xe7/0x310 drivers/base/dd.c:621
+    [<ffffffff8274ae6c>] really_probe drivers/base/dd.c:583 [inline]
+    [<ffffffff8274ae6c>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:752
+    [<ffffffff8274af6a>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:782
+    [<ffffffff8274b786>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:899
+    [<ffffffff82747c87>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
+    [<ffffffff8274b352>] __device_attach+0x122/0x260 drivers/base/dd.c:970
+    [<ffffffff827498f6>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:487
+    [<ffffffff82745cdb>] device_add+0x5fb/0xdf0 drivers/base/core.c:3405
+    [<ffffffff82d3d202>] usb_set_configuration+0x8f2/0xb80 drivers/usb/core/message.c:2170
+    [<ffffffff82d4dbfc>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
+    [<ffffffff82d3f49c>] usb_probe_device+0x5c/0x140 drivers/usb/core/driver.c:293
+    [<ffffffff8274ab37>] call_driver_probe drivers/base/dd.c:542 [inline]
+    [<ffffffff8274ab37>] really_probe.part.0+0xe7/0x310 drivers/base/dd.c:621
+    [<ffffffff8274ae6c>] really_probe drivers/base/dd.c:583 [inline]
+    [<ffffffff8274ae6c>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:752
+
+Link: https://syzkaller.appspot.com/bug?extid=f66dd31987e6740657be
+Reported-and-tested-by: syzbot+f66dd31987e6740657be@syzkaller.appspotmail.com
+
+Link: https://lore.kernel.org/linux-media/20220824012152.539788-1-mazinalhaddad05@gmail.com
+Signed-off-by: Mazin Al Haddad <mazinalhaddad05@gmail.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_bcm.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/media/usb/dvb-usb/dvb-usb-init.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/bluetooth/hci_bcm.c b/drivers/bluetooth/hci_bcm.c
-index d7e0b75db8a6..2b6c0e1922cb 100644
---- a/drivers/bluetooth/hci_bcm.c
-+++ b/drivers/bluetooth/hci_bcm.c
-@@ -53,11 +53,13 @@
-  * struct bcm_device_data - device specific data
-  * @no_early_set_baudrate: Disallow set baudrate before driver setup()
-  * @drive_rts_on_open: drive RTS signal on ->open() when platform requires it
-+ * @no_uart_clock_set: UART clock set command for >3Mbps mode is unavailable
-  * @max_autobaud_speed: max baudrate supported by device in autobaud mode
-  */
- struct bcm_device_data {
- 	bool	no_early_set_baudrate;
- 	bool	drive_rts_on_open;
-+	bool	no_uart_clock_set;
- 	u32	max_autobaud_speed;
- };
+diff --git a/drivers/media/usb/dvb-usb/dvb-usb-init.c b/drivers/media/usb/dvb-usb/dvb-usb-init.c
+index 61439c8f33ca..58eea8ab5477 100644
+--- a/drivers/media/usb/dvb-usb/dvb-usb-init.c
++++ b/drivers/media/usb/dvb-usb/dvb-usb-init.c
+@@ -81,7 +81,7 @@ static int dvb_usb_adapter_init(struct dvb_usb_device *d, short *adapter_nrs)
  
-@@ -100,6 +102,7 @@ struct bcm_device_data {
-  * @is_suspended: whether flow control is currently disabled
-  * @no_early_set_baudrate: don't set_baudrate before setup()
-  * @drive_rts_on_open: drive RTS signal on ->open() when platform requires it
-+ * @no_uart_clock_set: UART clock set command for >3Mbps mode is unavailable
-  * @pcm_int_params: keep the initial PCM configuration
-  * @use_autobaud_mode: start Bluetooth device in autobaud mode
-  * @max_autobaud_speed: max baudrate supported by device in autobaud mode
-@@ -140,6 +143,7 @@ struct bcm_device {
- #endif
- 	bool			no_early_set_baudrate;
- 	bool			drive_rts_on_open;
-+	bool			no_uart_clock_set;
- 	bool			use_autobaud_mode;
- 	u8			pcm_int_params[5];
- 	u32			max_autobaud_speed;
-@@ -172,10 +176,11 @@ static inline void host_set_baudrate(struct hci_uart *hu, unsigned int speed)
- static int bcm_set_baudrate(struct hci_uart *hu, unsigned int speed)
- {
- 	struct hci_dev *hdev = hu->hdev;
-+	struct bcm_data *bcm = hu->priv;
- 	struct sk_buff *skb;
- 	struct bcm_update_uart_baud_rate param;
+ 		ret = dvb_usb_adapter_stream_init(adap);
+ 		if (ret)
+-			return ret;
++			goto stream_init_err;
  
--	if (speed > 3000000) {
-+	if (speed > 3000000 && !bcm->dev->no_uart_clock_set) {
- 		struct bcm_write_uart_clock_setting clock;
+ 		ret = dvb_usb_adapter_dvb_init(adap, adapter_nrs);
+ 		if (ret)
+@@ -114,6 +114,8 @@ static int dvb_usb_adapter_init(struct dvb_usb_device *d, short *adapter_nrs)
+ 	dvb_usb_adapter_dvb_exit(adap);
+ dvb_init_err:
+ 	dvb_usb_adapter_stream_exit(adap);
++stream_init_err:
++	kfree(adap->priv);
+ 	return ret;
+ }
  
- 		clock.type = BCM_UART_CLOCK_48MHZ;
-@@ -1529,6 +1534,7 @@ static int bcm_serdev_probe(struct serdev_device *serdev)
- 		bcmdev->max_autobaud_speed = data->max_autobaud_speed;
- 		bcmdev->no_early_set_baudrate = data->no_early_set_baudrate;
- 		bcmdev->drive_rts_on_open = data->drive_rts_on_open;
-+		bcmdev->no_uart_clock_set = data->no_uart_clock_set;
- 	}
- 
- 	return hci_uart_register_device(&bcmdev->serdev_hu, &bcm_proto);
-@@ -1550,6 +1556,10 @@ static struct bcm_device_data bcm43438_device_data = {
- 	.drive_rts_on_open = true,
- };
- 
-+static struct bcm_device_data cyw4373a0_device_data = {
-+	.no_uart_clock_set = true,
-+};
-+
- static struct bcm_device_data cyw55572_device_data = {
- 	.max_autobaud_speed = 921600,
- };
-@@ -1566,6 +1576,7 @@ static const struct of_device_id bcm_bluetooth_of_match[] = {
- 	{ .compatible = "brcm,bcm4349-bt", .data = &bcm43438_device_data },
- 	{ .compatible = "brcm,bcm43540-bt", .data = &bcm4354_device_data },
- 	{ .compatible = "brcm,bcm4335a0" },
-+	{ .compatible = "cypress,cyw4373a0-bt", .data = &cyw4373a0_device_data },
- 	{ .compatible = "infineon,cyw55572-bt", .data = &cyw55572_device_data },
- 	{ },
- };
 -- 
 2.35.1
 
