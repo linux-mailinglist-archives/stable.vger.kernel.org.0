@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE26565799C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:03:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44E3865799F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:03:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233436AbiL1PDK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:03:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48110 "EHLO
+        id S233452AbiL1PDN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:03:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233450AbiL1PCz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:02:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7997812D26
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:02:53 -0800 (PST)
+        with ESMTP id S233473AbiL1PDE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:03:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CE9A11C18
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:03:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 15FC061543
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:02:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2830BC433EF;
-        Wed, 28 Dec 2022 15:02:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BCFB1B816E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:03:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E5ECC433EF;
+        Wed, 28 Dec 2022 15:02:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239772;
-        bh=NM7+/03/Ofmj9VSJlLDbfWwJTWwmxRfjZeorAgHJtnE=;
+        s=korg; t=1672239780;
+        bh=wBd1nO3vG7R1jRWlw0UQbcKty0B+7WPECCQPSZK76ko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pO2meCd6deEg+3NYsauoavurdifztGsUjpX+HkYSV8JgGr+MApZuMISH6bTaTVuyv
-         lJqoBRSO8phqXkhjLdxhkaGDJTP845zdxMMJinrqwOW6R5dGubFc1iG6jRJPT2JZNM
-         AY6qOfV2rOFNcWOxa0xLTPUbnOIVWZ9B9axQdp84=
+        b=pS6ZzvraeRFByihGs7Y4v3nHMvmdIlBNRdDP1XqQ2dDfTA+2fFsw1+WSv+ScASWw/
+         ZYSbR34U4DVeyD4JksqTCxlN1b32ZYj6aguEZIyy82k5DYFTQbRkUq45RfqVHrMjzx
+         hD3XwQ3BbeukW7wxIzvDya0qy9E8tTpqfDyL+UsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
+        Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
         Geert Uytterhoeven <geert+renesas@glider.be>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0041/1146] arm64: dts: renesas: r8a779f0: Fix SCIF "brg_int" clock
-Date:   Wed, 28 Dec 2022 15:26:20 +0100
-Message-Id: <20221228144331.279576270@linuxfoundation.org>
+Subject: [PATCH 6.1 0042/1146] arm64: dts: renesas: r9a09g011: Fix unit address format error
+Date:   Wed, 28 Dec 2022 15:26:21 +0100
+Message-Id: <20221228144331.306857123@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -54,69 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Fabrizio Castro <fabrizio.castro.jz@renesas.com>
 
-[ Upstream commit 64416ef0b0c4d73349035d1b3206eed3d2047ee0 ]
+[ Upstream commit 278f5015a3deaa2ea0db6070bbc2a8edf2455643 ]
 
-As serial communication requires a clean clock signal, the Serial
-Communication Interfaces with FIFO (SCIF) are clocked by a clock that is
-not affected by Spread Spectrum or Fractional Multiplication.
+Although the HW User Manual for RZ/V2M states in the "Address Map"
+section that the interrupt controller is assigned addresses starting
+from 0x82000000, the memory locations from 0x82000000 0x0x8200FFFF
+are marked as reserved in the "Interrupt Controller (GIC)" section
+and are currently not used by the device tree, leading to the below
+warning:
 
-Hence change the clock input for the SCIF Baud Rate Generator internal
-clock from the S0D3_PER clock to the SASYNCPERD1 clock (which has the
-same clock rate), cfr. R-Car S4-8 Hardware User's Manual rev. 0.81.
+arch/arm64/boot/dts/renesas/r9a09g011.dtsi:51.38-63.5: Warning
+(simple_bus_reg): /soc/interrupt-controller@82000000: simple-bus unit
+address format error, expected "82010000"
 
-Fixes: c62331e8222f ("arm64: dts: renesas: Add Renesas R8A779F0 SoC support")
-Fixes: 40753144256b ("arm64: dts: renesas: r8a779f0: Add SCIF nodes")
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Link: https://lore.kernel.org/r/20221103143440.46449-5-wsa+renesas@sang-engineering.com
+Fix the unit address accordingly.
+
+Fixes: fb1929b98f2e ("arm64: dts: renesas: Add initial DTSI for RZ/V2M SoC")
+Signed-off-by: Fabrizio Castro <fabrizio.castro.jz@renesas.com>
+Link: https://lore.kernel.org/r/20221103230648.53748-2-fabrizio.castro.jz@renesas.com
 Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/renesas/r8a779f0.dtsi | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/renesas/r9a09g011.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a779f0.dtsi b/arch/arm64/boot/dts/renesas/r8a779f0.dtsi
-index 3be577dc9a93..4092c0016035 100644
---- a/arch/arm64/boot/dts/renesas/r8a779f0.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a779f0.dtsi
-@@ -657,7 +657,7 @@ scif0: serial@e6e60000 {
- 			reg = <0 0xe6e60000 0 64>;
- 			interrupts = <GIC_SPI 249 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&cpg CPG_MOD 702>,
--				 <&cpg CPG_CORE R8A779F0_CLK_S0D3_PER>,
-+				 <&cpg CPG_CORE R8A779F0_CLK_SASYNCPERD1>,
- 				 <&scif_clk>;
- 			clock-names = "fck", "brg_int", "scif_clk";
- 			dmas = <&dmac0 0x51>, <&dmac0 0x50>,
-@@ -674,7 +674,7 @@ scif1: serial@e6e68000 {
- 			reg = <0 0xe6e68000 0 64>;
- 			interrupts = <GIC_SPI 250 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&cpg CPG_MOD 703>,
--				 <&cpg CPG_CORE R8A779F0_CLK_S0D3_PER>,
-+				 <&cpg CPG_CORE R8A779F0_CLK_SASYNCPERD1>,
- 				 <&scif_clk>;
- 			clock-names = "fck", "brg_int", "scif_clk";
- 			dmas = <&dmac0 0x53>, <&dmac0 0x52>,
-@@ -691,7 +691,7 @@ scif3: serial@e6c50000 {
- 			reg = <0 0xe6c50000 0 64>;
- 			interrupts = <GIC_SPI 252 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&cpg CPG_MOD 704>,
--				 <&cpg CPG_CORE R8A779F0_CLK_S0D3_PER>,
-+				 <&cpg CPG_CORE R8A779F0_CLK_SASYNCPERD1>,
- 				 <&scif_clk>;
- 			clock-names = "fck", "brg_int", "scif_clk";
- 			dmas = <&dmac0 0x57>, <&dmac0 0x56>,
-@@ -708,7 +708,7 @@ scif4: serial@e6c40000 {
- 			reg = <0 0xe6c40000 0 64>;
- 			interrupts = <GIC_SPI 253 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&cpg CPG_MOD 705>,
--				 <&cpg CPG_CORE R8A779F0_CLK_S0D3_PER>,
-+				 <&cpg CPG_CORE R8A779F0_CLK_SASYNCPERD1>,
- 				 <&scif_clk>;
- 			clock-names = "fck", "brg_int", "scif_clk";
- 			dmas = <&dmac0 0x59>, <&dmac0 0x58>,
+diff --git a/arch/arm64/boot/dts/renesas/r9a09g011.dtsi b/arch/arm64/boot/dts/renesas/r9a09g011.dtsi
+index fb1a97202c38..0e72a66f8e3a 100644
+--- a/arch/arm64/boot/dts/renesas/r9a09g011.dtsi
++++ b/arch/arm64/boot/dts/renesas/r9a09g011.dtsi
+@@ -48,7 +48,7 @@ soc: soc {
+ 		#size-cells = <2>;
+ 		ranges;
+ 
+-		gic: interrupt-controller@82000000 {
++		gic: interrupt-controller@82010000 {
+ 			compatible = "arm,gic-400";
+ 			#interrupt-cells = <3>;
+ 			#address-cells = <0>;
 -- 
 2.35.1
 
