@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24B0265801B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:13:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D91D86578E9
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:55:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233130AbiL1QN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:13:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34112 "EHLO
+        id S233239AbiL1Ozi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:55:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234541AbiL1QNZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:13:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F6811AA21
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:11:37 -0800 (PST)
+        with ESMTP id S233238AbiL1Ozb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:55:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7072D12630
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:55:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF1F561560
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:11:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6286C433D2;
-        Wed, 28 Dec 2022 16:11:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D7C261540
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:55:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19122C433EF;
+        Wed, 28 Dec 2022 14:55:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243896;
-        bh=dJgZaAXz44OcIoZ8lj2GbfgRiJ7+2jo3eYjnptDEBUI=;
+        s=korg; t=1672239329;
+        bh=ookrESgwrp86AzZS0/qDL+j98Hi4H2vFMEKzMeXAAko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j+rTi37Rw7h9A3HH9df81v4tpf8kMejpob3q30rnnBekyQsW9pkeHMv5sMAXIK0VL
-         D0R4/FKD8NQHs3AetVOzsZhiGLrqQXKmR4jOexCzESUmYJKsB75aRC3DfGv3rmxxnG
-         /ptkapQ5kXBFxRI/+KAVy26kdHQV0GU5kVbexYY0=
+        b=cyxf1BNCiEvxh/A51cmtgnWMQ7HEf7Q3PKnAy9wS5Dbgc92JHvRwgBsMgvzAs11wq
+         YpWyCsUvv0EEC0xNS1rT/xQMJhZBfDrR36bN5x4od9e4lDHiiQa+KTfyEFIOI9l3aO
+         NzHeR+RoeTvcHkOGEFbNhQaebxviMVRtZjR3mvcE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        John Johansen <john.johansen@canonical.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0574/1146] apparmor: Fix regression in stacking due to label flags
+        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Mike Snitzer <snitzer@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 206/731] block: clear ->slave_dir when dropping the main slave_dir reference
 Date:   Wed, 28 Dec 2022 15:35:13 +0100
-Message-Id: <20221228144345.763098284@linuxfoundation.org>
+Message-Id: <20221228144302.531258831@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Johansen <john.johansen@canonical.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 1f939c6bd1512d0b39b470396740added3cb403f ]
+[ Upstream commit d90db3b1c8676bc88b4309c5a571333de2263b8e ]
 
-The unconfined label flag is not being computed correctly. It
-should only be set if all the profiles in the vector are set, which
-is different than what is required for the debug and stale flag
-that are set if any on the profile flags are set.
+Zero out the pointer to ->slave_dir so that the holder code doesn't
+incorrectly treat the object as alive when add_disk failed or after
+del_gendisk was called.
 
-Fixes: c1ed5da19765 ("apparmor: allow label to carry debug flags")
-Signed-off-by: John Johansen <john.johansen@canonical.com>
+Fixes: 89f871af1b26 ("dm: delay registering the gendisk")
+Reported-by: Yu Kuai <yukuai3@huawei.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Mike Snitzer <snitzer@kernel.org>
+Link: https://lore.kernel.org/r/20221115141054.1051801-2-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/label.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ block/genhd.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/security/apparmor/label.c b/security/apparmor/label.c
-index 0f36ee907438..a67c5897ee25 100644
---- a/security/apparmor/label.c
-+++ b/security/apparmor/label.c
-@@ -197,15 +197,18 @@ static bool vec_is_stale(struct aa_profile **vec, int n)
- 	return false;
- }
+diff --git a/block/genhd.c b/block/genhd.c
+index 68065189ca17..a1d9e785dcf7 100644
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -530,6 +530,7 @@ int device_add_disk(struct device *parent, struct gendisk *disk,
+ 	rq_qos_exit(disk->queue);
+ out_put_slave_dir:
+ 	kobject_put(disk->slave_dir);
++	disk->slave_dir = NULL;
+ out_put_holder_dir:
+ 	kobject_put(disk->part0->bd_holder_dir);
+ out_del_integrity:
+@@ -624,6 +625,7 @@ void del_gendisk(struct gendisk *disk)
  
--static long union_vec_flags(struct aa_profile **vec, int n, long mask)
-+static long accum_vec_flags(struct aa_profile **vec, int n)
- {
--	long u = 0;
-+	long u = FLAG_UNCONFINED;
- 	int i;
+ 	kobject_put(disk->part0->bd_holder_dir);
+ 	kobject_put(disk->slave_dir);
++	disk->slave_dir = NULL;
  
- 	AA_BUG(!vec);
- 
- 	for (i = 0; i < n; i++) {
--		u |= vec[i]->label.flags & mask;
-+		u |= vec[i]->label.flags & (FLAG_DEBUG1 | FLAG_DEBUG2 |
-+					    FLAG_STALE);
-+		if (!(u & vec[i]->label.flags & FLAG_UNCONFINED))
-+			u &= ~FLAG_UNCONFINED;
- 	}
- 
- 	return u;
-@@ -1097,8 +1100,7 @@ static struct aa_label *label_merge_insert(struct aa_label *new,
- 		else if (k == b->size)
- 			return aa_get_label(b);
- 	}
--	new->flags |= union_vec_flags(new->vec, new->size, FLAG_UNCONFINED |
--					      FLAG_DEBUG1 | FLAG_DEBUG2);
-+	new->flags |= accum_vec_flags(new->vec, new->size);
- 	ls = labels_set(new);
- 	write_lock_irqsave(&ls->lock, flags);
- 	label = __label_insert(labels_set(new), new, false);
+ 	part_stat_set_all(disk->part0, 0);
+ 	disk->part0->bd_stamp = 0;
 -- 
 2.35.1
 
