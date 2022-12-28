@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CFD8657DC0
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:46:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8EBB657CA4
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:34:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233601AbiL1Pq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:46:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34902 "EHLO
+        id S233442AbiL1Pee (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:34:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234033AbiL1Pq0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:46:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9960916582
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:46:22 -0800 (PST)
+        with ESMTP id S233209AbiL1Ped (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:34:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6672515FF3
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:34:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 139A96156C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:46:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 207B6C433EF;
-        Wed, 28 Dec 2022 15:46:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 04B9A61542
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:34:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15BB7C433D2;
+        Wed, 28 Dec 2022 15:34:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242381;
-        bh=B4p6ac1vo6S4lnTO/r0DmYyqz4wQjAU534Px32b8+Ko=;
+        s=korg; t=1672241671;
+        bh=CqQRcsSQq058uT3OMgNYfTs9DiLJtY+KpGVWtVw1EFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jHpVk0yWbuHJk3Zv2MI0cfAwEfVQFIxXaw8E2qxZPBhbaqL5SeL46ZBHxdg22DYIQ
-         qXR12vBggt//JcV+RI6dgsCWVfUpBA6ar/DUxuVVQiZe+58Xvsvr2y1g0mE0xTSpdg
-         HPafcK1P0nhYB24Cc/6TIGMrt0FHjLWKjMFMNVhY=
+        b=AafOt+nWhvRmd7VfDaH8ROJlpx+KfwtWuQ6o2h6MsUaHhWsIWDN8yxn0W3vi5RI+Z
+         4/MooIQX+uW2GLd45Tht+k4rj+7gKMTrkOdsXESA1Zaz1hG+9KOPYx/T8R1pW4bsSr
+         sHVo/O0WhKsRf2BMOoL1rFE2KQmQnccAmD9r8XsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Bayi Cheng <bayi.cheng@mediatek.com>,
-        Allen-KH Cheng <allen-kh.cheng@mediatek.com>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Dhruva Gole <d-gole@ti.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Pratyush Yadav <pratyush@kernel.org>,
+        patches@lists.linux.dev, Johannes Berg <johannes.berg@intel.com>,
+        Gregory Greenman <gregory.greenman@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0363/1146] mtd: spi-nor: Fix the number of bytes for the dummy cycles
+Subject: [PATCH 6.0 0314/1073] wifi: iwlwifi: mei: fix potential NULL-ptr deref after clone
 Date:   Wed, 28 Dec 2022 15:31:42 +0100
-Message-Id: <20221228144340.026535842@linuxfoundation.org>
+Message-Id: <20221228144336.535597562@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,44 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit fdc20370d93e8c6d2f448a539d08c2c064af7694 ]
+[ Upstream commit d3df49dda431f7ae4132a9a0ac25a5134c04e812 ]
 
-The number of bytes used by spi_nor_spimem_check_readop() may be
-incorrect for the dummy cycles. Since nor->read_dummy is not initialized
-before spi_nor_spimem_adjust_hwcaps().
+If cloning the SKB fails, don't try to use it, but rather return
+as if we should pass it.
 
-We use both mode and wait state clock cycles instead of nor->read_dummy.
+Coverity CID: 1503456
 
-Fixes: 0e30f47232ab ("mtd: spi-nor: add support for DTR protocol")
-Co-developed-by: Bayi Cheng <bayi.cheng@mediatek.com>
-Signed-off-by: Bayi Cheng <bayi.cheng@mediatek.com>
-Signed-off-by: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Tested-by: Dhruva Gole <d-gole@ti.com>
-Tested-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: Pratyush Yadav <pratyush@kernel.org>
-Link: https://lore.kernel.org/r/20221031124633.13189-1-allen-kh.cheng@mediatek.com
+Fixes: 2da4366f9e2c ("iwlwifi: mei: add the driver to allow cooperation with CSME")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Gregory Greenman <gregory.greenman@intel.com>
+Link: https://lore.kernel.org/r/20221030191011.0ce03ba99601.I87960b7cb0a3d16b9fd8d9144027e7e2587f5a58@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/spi-nor/core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/mei/net.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mtd/spi-nor/core.c b/drivers/mtd/spi-nor/core.c
-index bee8fc4c9f07..0cf1a1797ea3 100644
---- a/drivers/mtd/spi-nor/core.c
-+++ b/drivers/mtd/spi-nor/core.c
-@@ -1914,7 +1914,8 @@ static int spi_nor_spimem_check_readop(struct spi_nor *nor,
- 	spi_nor_spimem_setup_op(nor, &op, read->proto);
+diff --git a/drivers/net/wireless/intel/iwlwifi/mei/net.c b/drivers/net/wireless/intel/iwlwifi/mei/net.c
+index 3472167c8370..eac46d1a397a 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mei/net.c
++++ b/drivers/net/wireless/intel/iwlwifi/mei/net.c
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0-only
+ /*
+- * Copyright (C) 2021 Intel Corporation
++ * Copyright (C) 2021-2022 Intel Corporation
+  */
  
- 	/* convert the dummy cycles to the number of bytes */
--	op.dummy.nbytes = (nor->read_dummy * op.dummy.buswidth) / 8;
-+	op.dummy.nbytes = (read->num_mode_clocks + read->num_wait_states) *
-+			  op.dummy.buswidth / 8;
- 	if (spi_nor_protocol_is_dtr(nor->read_proto))
- 		op.dummy.nbytes *= 2;
+ #include <uapi/linux/if_ether.h>
+@@ -337,10 +337,14 @@ rx_handler_result_t iwl_mei_rx_filter(struct sk_buff *orig_skb,
+ 	if (!*pass_to_csme)
+ 		return RX_HANDLER_PASS;
  
+-	if (ret == RX_HANDLER_PASS)
++	if (ret == RX_HANDLER_PASS) {
+ 		skb = skb_copy(orig_skb, GFP_ATOMIC);
+-	else
++
++		if (!skb)
++			return RX_HANDLER_PASS;
++	} else {
+ 		skb = orig_skb;
++	}
+ 
+ 	/* CSME wants the MAC header as well, push it back */
+ 	skb_push(skb, skb->data - skb_mac_header(skb));
 -- 
 2.35.1
 
