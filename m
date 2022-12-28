@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD35E657F28
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:02:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6401865842E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:55:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234293AbiL1QCa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:02:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48090 "EHLO
+        id S235237AbiL1QzS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:55:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234295AbiL1QCF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:02:05 -0500
+        with ESMTP id S235238AbiL1Qyy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:54:54 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D93D19295
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:01:45 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA60C1EAD9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:49:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73191B817F6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:01:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0C67C433F0;
-        Wed, 28 Dec 2022 16:01:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63FAAB8188C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:49:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6304C433EF;
+        Wed, 28 Dec 2022 16:49:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243303;
-        bh=fCTy5XsnxXJd1DH8S1nEC1bP1x0RlusDZgk6MB26vuw=;
+        s=korg; t=1672246180;
+        bh=RcWnq7GP/UzPFJHuOTgz5KeYcbscuCrl+RsL6vKS3p0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F8Ba60BX6ZKP1YvhnFySk+FV2Wqap/o+1muNSjmSCpIh6LQpaGA7iPDwR+F8bQuMH
-         UFNf1Aa+NSnPynmdOd2LvVDK2lT7PDURp1u0eCEY/N55PsjJh/OLdL/zWyuKJd8AMo
-         DQc9Xa/iAESah9GP0wh50keJy9Q7cjAnOxSVsylU=
+        b=Npf+C7GH/CyYGqBU1j+vs/Qa8jMfgUzugXhcgP8ufd+uNprUkAsGoY6kfb5xVr24C
+         1FQy9ERfN+OIzY97DslpTBH8DgHShtwcV3CaxVX5sbF3gCnL0/327Oe6z1PUFcXPb0
+         ylxaA6p/ZHs6+SRBTTHAW4/eUSXrllkVazdzQAaw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Chen <peter.chen@kernel.org>,
-        Pawel Laszczak <pawell@cadence.com>
-Subject: [PATCH 5.15 706/731] usb: cdnsp: fix lack of ZLP for ep0
+        patches@lists.linux.dev, Jeff LaBundy <jeff@labundy.com>,
+        Rob Herring <robh@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 1025/1073] dt-bindings: input: iqs7222: Add support for IQS7222A v1.13+
 Date:   Wed, 28 Dec 2022 15:43:33 +0100
-Message-Id: <20221228144316.920532572@linuxfoundation.org>
+Message-Id: <20221228144356.032045338@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,104 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Laszczak <pawell@cadence.com>
+From: Jeff LaBundy <jeff@labundy.com>
 
-commit ae423ef5d095e09970f52c08020fdbf7f9d87c22 upstream.
+[ Upstream commit 97384a65c5e304ccab0477751546f5519d9371c3 ]
 
-Patch implements the handling of ZLP for control transfer.
-To send the ZLP driver must prepare the extra TRB in TD with
-length set to zero and TRB type to TRB_NORMAL.
-The first TRB must have set TRB_CHAIN flag, TD_SIZE = 1
-and TRB type to TRB_DATA.
+IQS7222A revisions 1.13 and later widen the gesture multiplier from
+x4 ms to x16 ms; update the binding accordingly.
 
-Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
-cc: <stable@vger.kernel.org>
-Reviewed-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-Link: https://lore.kernel.org/r/20221122085138.332434-1-pawell@cadence.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+As part of this change, refresh the corresponding properties in the
+example as well.
+
+Fixes: 44dc42d254bf ("dt-bindings: input: Add bindings for Azoteq IQS7222A/B/C")
+Signed-off-by: Jeff LaBundy <jeff@labundy.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/Y1SRaVGwj30z/g6r@nixie71
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/cdns3/cdnsp-ring.c |   42 +++++++++++++++++++++++++++++++----------
- 1 file changed, 32 insertions(+), 10 deletions(-)
+ .../bindings/input/azoteq,iqs7222.yaml           | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/usb/cdns3/cdnsp-ring.c
-+++ b/drivers/usb/cdns3/cdnsp-ring.c
-@@ -2006,10 +2006,11 @@ int cdnsp_queue_bulk_tx(struct cdnsp_dev
+diff --git a/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml b/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
+index 913fd2da9862..9ddba7f2e7aa 100644
+--- a/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
++++ b/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
+@@ -572,9 +572,9 @@ patternProperties:
+           linux,code: true
  
- int cdnsp_queue_ctrl_tx(struct cdnsp_device *pdev, struct cdnsp_request *preq)
- {
--	u32 field, length_field, remainder;
-+	u32 field, length_field, zlp = 0;
- 	struct cdnsp_ep *pep = preq->pep;
- 	struct cdnsp_ring *ep_ring;
- 	int num_trbs;
-+	u32 maxp;
- 	int ret;
+           azoteq,gesture-max-ms:
+-            multipleOf: 4
++            multipleOf: 16
+             minimum: 0
+-            maximum: 1020
++            maximum: 4080
+             description:
+               Specifies the length of time (in ms) within which a tap, swipe
+               or flick gesture must be completed in order to be acknowledged
+@@ -582,9 +582,9 @@ patternProperties:
+               gesture applies to all remaining swipe or flick gestures.
  
- 	ep_ring = cdnsp_request_to_transfer_ring(pdev, preq);
-@@ -2019,26 +2020,33 @@ int cdnsp_queue_ctrl_tx(struct cdnsp_dev
- 	/* 1 TRB for data, 1 for status */
- 	num_trbs = (pdev->three_stage_setup) ? 2 : 1;
+           azoteq,gesture-min-ms:
+-            multipleOf: 4
++            multipleOf: 16
+             minimum: 0
+-            maximum: 124
++            maximum: 496
+             description:
+               Specifies the length of time (in ms) for which a tap gesture must
+               be held in order to be acknowledged by the device.
+@@ -930,14 +930,14 @@ examples:
  
-+	maxp = usb_endpoint_maxp(pep->endpoint.desc);
-+
-+	if (preq->request.zero && preq->request.length &&
-+	    (preq->request.length % maxp == 0)) {
-+		num_trbs++;
-+		zlp = 1;
-+	}
-+
- 	ret = cdnsp_prepare_transfer(pdev, preq, num_trbs);
- 	if (ret)
- 		return ret;
+                             event-tap {
+                                     linux,code = <KEY_PLAYPAUSE>;
+-                                    azoteq,gesture-max-ms = <600>;
+-                                    azoteq,gesture-min-ms = <24>;
++                                    azoteq,gesture-max-ms = <400>;
++                                    azoteq,gesture-min-ms = <32>;
+                             };
  
- 	/* If there's data, queue data TRBs */
--	if (pdev->ep0_expect_in)
--		field = TRB_TYPE(TRB_DATA) | TRB_IOC;
--	else
--		field = TRB_ISP | TRB_TYPE(TRB_DATA) | TRB_IOC;
--
- 	if (preq->request.length > 0) {
--		remainder = cdnsp_td_remainder(pdev, 0, preq->request.length,
--					       preq->request.length, preq, 1, 0);
-+		field = TRB_TYPE(TRB_DATA);
+                             event-flick-pos {
+                                     linux,code = <KEY_NEXTSONG>;
+-                                    azoteq,gesture-max-ms = <600>;
+-                                    azoteq,gesture-dist = <816>;
++                                    azoteq,gesture-max-ms = <800>;
++                                    azoteq,gesture-dist = <800>;
+                             };
  
--		length_field = TRB_LEN(preq->request.length) |
--				TRB_TD_SIZE(remainder) | TRB_INTR_TARGET(0);
-+		if (zlp)
-+			field |= TRB_CHAIN;
-+		else
-+			field |= TRB_IOC | (pdev->ep0_expect_in ? 0 : TRB_ISP);
- 
- 		if (pdev->ep0_expect_in)
- 			field |= TRB_DIR_IN;
- 
-+		length_field = TRB_LEN(preq->request.length) |
-+			       TRB_TD_SIZE(zlp) | TRB_INTR_TARGET(0);
-+
- 		cdnsp_queue_trb(pdev, ep_ring, true,
- 				lower_32_bits(preq->request.dma),
- 				upper_32_bits(preq->request.dma), length_field,
-@@ -2046,6 +2054,20 @@ int cdnsp_queue_ctrl_tx(struct cdnsp_dev
- 				TRB_SETUPID(pdev->setup_id) |
- 				pdev->setup_speed);
- 
-+		if (zlp) {
-+			field = TRB_TYPE(TRB_NORMAL) | TRB_IOC;
-+
-+			if (!pdev->ep0_expect_in)
-+				field = TRB_ISP;
-+
-+			cdnsp_queue_trb(pdev, ep_ring, true,
-+					lower_32_bits(preq->request.dma),
-+					upper_32_bits(preq->request.dma), 0,
-+					field | ep_ring->cycle_state |
-+					TRB_SETUPID(pdev->setup_id) |
-+					pdev->setup_speed);
-+		}
-+
- 		pdev->ep0_stage = CDNSP_DATA_STAGE;
- 	}
- 
+                             event-flick-neg {
+-- 
+2.35.1
+
 
 
