@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B544565797D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:02:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21A7D658093
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:18:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233425AbiL1PCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:02:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48992 "EHLO
+        id S234562AbiL1QSX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:18:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233487AbiL1PB4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:01:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DE9A13D6D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:01:33 -0800 (PST)
+        with ESMTP id S234523AbiL1QRm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:17:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6C4513D57
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:16:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2CED8B8171A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:01:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82567C433EF;
-        Wed, 28 Dec 2022 15:01:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F154B81888
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:16:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18E56C433D2;
+        Wed, 28 Dec 2022 16:16:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239690;
-        bh=LaMzkt2oN6Sna29QHHiuJLTDVCuiNrMw8J/cW8wKr9A=;
+        s=korg; t=1672244189;
+        bh=RzEIUAesqYcJRafgTuqgoRCUf/h07qY1FAWwRlKzgz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mDZ3jLwCxGMZ29JlToKr8XCjvITczXyRvQDTd9YW7a9uU+9lGoLaY7AgAzLJVBsMy
-         VgbhvcFvvBmEezx1/j2tLzupgVgHV5Rsk7Gmh+1jmgm3UILyB4M7v8TirHmHify5e3
-         8pVwamFJLRTw2ksqapigPId9eiq8v+rVbxNQ4tHo=
+        b=D/WoC+eZMUAa7DXxKWcYZoDzoedh3Njq6K0U48Dd6KiYAR/0UGmx6C8HdTudTDvkh
+         I5+V0Tr/ipOxJfvcMMHijql5BWnZDQ46kpcrcctsTdcUf4Rh6OveNGCTMrspz/EBbv
+         s8NSLccYVAjmimq9I/BLLmeiILQjzh1RuAUuzR/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 258/731] ASoC: pcm512x: Fix PM disable depth imbalance in pcm512x_probe
+Subject: [PATCH 6.1 0626/1146] RDMA/hns: fix memory leak in hns_roce_alloc_mr()
 Date:   Wed, 28 Dec 2022 15:36:05 +0100
-Message-Id: <20221228144304.038866002@linuxfoundation.org>
+Message-Id: <20221228144347.172210162@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 97b801be6f8e53676b9f2b105f54e35c745c1b22 ]
+[ Upstream commit a115aa00b18f7b8982b8f458149632caf64a862a ]
 
-The pm_runtime_enable will increase power disable depth. Thus
-a pairing decrement is needed on the error handling path to
-keep it balanced according to context. We fix it by going to
-err_pm instead of err_clk.
+When hns_roce_mr_enable() failed in hns_roce_alloc_mr(), mr_key is not
+released. Compiled test only.
 
-Fixes:f086ba9d5389c ("ASoC: pcm512x: Support mastering BCLK/LRCLK using the PLL")
-
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20220928160402.126140-1-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 9b2cf76c9f05 ("RDMA/hns: Optimize PBL buffer allocation process")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Link: https://lore.kernel.org/r/20221119070834.48502-1-shaozhengchao@huawei.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/pcm512x.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/infiniband/hw/hns/hns_roce_mr.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/pcm512x.c b/sound/soc/codecs/pcm512x.c
-index 60dee41816dc..1c26577f08ee 100644
---- a/sound/soc/codecs/pcm512x.c
-+++ b/sound/soc/codecs/pcm512x.c
-@@ -1635,7 +1635,7 @@ int pcm512x_probe(struct device *dev, struct regmap *regmap)
- 			if (val > 6) {
- 				dev_err(dev, "Invalid pll-in\n");
- 				ret = -EINVAL;
--				goto err_clk;
-+				goto err_pm;
- 			}
- 			pcm512x->pll_in = val;
- 		}
-@@ -1644,7 +1644,7 @@ int pcm512x_probe(struct device *dev, struct regmap *regmap)
- 			if (val > 6) {
- 				dev_err(dev, "Invalid pll-out\n");
- 				ret = -EINVAL;
--				goto err_clk;
-+				goto err_pm;
- 			}
- 			pcm512x->pll_out = val;
- 		}
-@@ -1653,12 +1653,12 @@ int pcm512x_probe(struct device *dev, struct regmap *regmap)
- 			dev_err(dev,
- 				"Error: both pll-in and pll-out, or none\n");
- 			ret = -EINVAL;
--			goto err_clk;
-+			goto err_pm;
- 		}
- 		if (pcm512x->pll_in && pcm512x->pll_in == pcm512x->pll_out) {
- 			dev_err(dev, "Error: pll-in == pll-out\n");
- 			ret = -EINVAL;
--			goto err_clk;
-+			goto err_pm;
- 		}
- 	}
- #endif
+diff --git a/drivers/infiniband/hw/hns/hns_roce_mr.c b/drivers/infiniband/hw/hns/hns_roce_mr.c
+index 845ac7d3831f..37a5cf62f88b 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_mr.c
++++ b/drivers/infiniband/hw/hns/hns_roce_mr.c
+@@ -392,10 +392,10 @@ struct ib_mr *hns_roce_alloc_mr(struct ib_pd *pd, enum ib_mr_type mr_type,
+ 
+ 	return &mr->ibmr;
+ 
+-err_key:
+-	free_mr_key(hr_dev, mr);
+ err_pbl:
+ 	free_mr_pbl(hr_dev, mr);
++err_key:
++	free_mr_key(hr_dev, mr);
+ err_free:
+ 	kfree(mr);
+ 	return ERR_PTR(ret);
 -- 
 2.35.1
 
