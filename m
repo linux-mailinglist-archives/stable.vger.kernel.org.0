@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 787B0657F3F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93EE865789F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:53:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232799AbiL1QDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:03:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48274 "EHLO
+        id S233131AbiL1OxB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:53:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233076AbiL1QCv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:02:51 -0500
+        with ESMTP id S233191AbiL1Ow0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:52:26 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FAA3186CE
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:02:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6624E1260D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:52:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CB2A6156E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:02:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 813DFC433EF;
-        Wed, 28 Dec 2022 16:02:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F330461551
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:52:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06BCDC433F0;
+        Wed, 28 Dec 2022 14:52:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243367;
-        bh=jBE6hruOnRQMIgFsUWDkBDqedX+JURaItPYusGic2g8=;
+        s=korg; t=1672239140;
+        bh=Q+y8zfkE5LlwwWBG4QK6ErHAQ+c8JfDt/6uVSPdlxsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R+AcDAEJJ0QcyvYy3ybJ8bFlXFIdz9uOnWDZL8xrjraG0DQfCfeJjtQqb7Q1Oy38G
-         DDOPqjfHDbwSmQyKnNSaiyBEZj7nNzuyvJrVsiU+FwLRxbCfh83FZgMW/eHhEnTph7
-         3c1jIAWC5jOs0N28NB4Fwv2AnMKY/+b6uvJ6l/Lc=
+        b=ixyRTmOYMQk6/4/3jfHeAE3c+0DQe7xSDus5dtYB7289mny+dQsmB5QuoyiFekPHo
+         Ji4tTh66KQ/MtAruj2x1MQ+Wh77eUH3mAfyh4Ic/5bVHXeVcMl8gqYPft3rAUtcY04
+         pqun82uYDoaCOTShsqvd8r7+fgj3zH+lbeQwWlIM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        patches@lists.linux.dev, Alexey Izbyshev <izbyshev@ispras.ru>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0485/1146] pinctrl: thunderbay: fix possible memory leak in thunderbay_build_functions()
+Subject: [PATCH 5.15 117/731] futex: Resend potentially swallowed owner death notification
 Date:   Wed, 28 Dec 2022 15:33:44 +0100
-Message-Id: <20221228144343.355894350@linuxfoundation.org>
+Message-Id: <20221228144259.944302153@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +54,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Alexey Izbyshev <izbyshev@ispras.ru>
 
-[ Upstream commit 83e1bcaf8cef26edaaf2a6098ef760f563683483 ]
+[ Upstream commit 90d758896787048fa3d4209309d4800f3920e66f ]
 
-The thunderbay_add_functions() will free memory of thunderbay_funcs
-when everything is ok, but thunderbay_funcs will not be freed when
-thunderbay_add_functions() fails, then there will be a memory leak,
-so we need to add kfree() when thunderbay_add_functions() fails to
-fix it.
+Commit ca16d5bee598 ("futex: Prevent robust futex exit race") addressed
+two cases when tasks waiting on a robust non-PI futex remained blocked
+despite the futex not being owned anymore:
 
-In addition, doing some cleaner works, moving kfree(funcs) from
-thunderbay_add_functions() to thunderbay_build_functions().
+* if the owner died after writing zero to the futex word, but before
+  waking up a waiter
 
-Fixes: 12422af8194d ("pinctrl: Add Intel Thunder Bay pinctrl driver")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Reviewed-by: Rafał Miłecki <rafal@milecki.pl>
-Link: https://lore.kernel.org/r/20221129120126.1567338-1-cuigaosheng1@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+* if a task waiting on the futex was woken up, but died before updating
+  the futex word (effectively swallowing the notification without acting
+  on it)
+
+In the second case, the task could be woken up either by the previous
+owner (after the futex word was reset to zero) or by the kernel (after
+the OWNER_DIED bit was set and the TID part of the futex word was reset
+to zero) if the previous owner died without the resetting the futex.
+
+Because the referenced commit wakes up a potential waiter only if the
+whole futex word is zero, the latter subcase remains unaddressed.
+
+Fix this by looking only at the TID part of the futex when deciding
+whether a wake up is needed.
+
+Fixes: ca16d5bee598 ("futex: Prevent robust futex exit race")
+Signed-off-by: Alexey Izbyshev <izbyshev@ispras.ru>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20221111215439.248185-1-izbyshev@ispras.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-thunderbay.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ kernel/futex/core.c | 26 +++++++++++++++++---------
+ 1 file changed, 17 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-thunderbay.c b/drivers/pinctrl/pinctrl-thunderbay.c
-index 9328b17485cf..590bbbf619af 100644
---- a/drivers/pinctrl/pinctrl-thunderbay.c
-+++ b/drivers/pinctrl/pinctrl-thunderbay.c
-@@ -808,7 +808,7 @@ static int thunderbay_add_functions(struct thunderbay_pinctrl *tpc, struct funct
- 					    funcs[i].num_group_names,
- 					    funcs[i].data);
- 	}
--	kfree(funcs);
-+
- 	return 0;
- }
+diff --git a/kernel/futex/core.c b/kernel/futex/core.c
+index f9bc9aa0ce1e..764e73622b38 100644
+--- a/kernel/futex/core.c
++++ b/kernel/futex/core.c
+@@ -3632,6 +3632,7 @@ static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr,
+ 			      bool pi, bool pending_op)
+ {
+ 	u32 uval, nval, mval;
++	pid_t owner;
+ 	int err;
  
-@@ -817,6 +817,7 @@ static int thunderbay_build_functions(struct thunderbay_pinctrl *tpc)
- 	struct function_desc *thunderbay_funcs;
- 	void *ptr;
- 	int pin;
-+	int ret;
+ 	/* Futex address must be 32bit aligned */
+@@ -3653,6 +3654,10 @@ static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr,
+ 	 * 2. A woken up waiter is killed before it can acquire the
+ 	 *    futex in user space.
+ 	 *
++	 * In the second case, the wake up notification could be generated
++	 * by the unlock path in user space after setting the futex value
++	 * to zero or by the kernel after setting the OWNER_DIED bit below.
++	 *
+ 	 * In both cases the TID validation below prevents a wakeup of
+ 	 * potential waiters which can cause these waiters to block
+ 	 * forever.
+@@ -3661,24 +3666,27 @@ static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr,
+ 	 *
+ 	 *	1) task->robust_list->list_op_pending != NULL
+ 	 *	   @pending_op == true
+-	 *	2) User space futex value == 0
++	 *	2) The owner part of user space futex value == 0
+ 	 *	3) Regular futex: @pi == false
+ 	 *
+ 	 * If these conditions are met, it is safe to attempt waking up a
+ 	 * potential waiter without touching the user space futex value and
+-	 * trying to set the OWNER_DIED bit. The user space futex value is
+-	 * uncontended and the rest of the user space mutex state is
+-	 * consistent, so a woken waiter will just take over the
+-	 * uncontended futex. Setting the OWNER_DIED bit would create
+-	 * inconsistent state and malfunction of the user space owner died
+-	 * handling.
++	 * trying to set the OWNER_DIED bit. If the futex value is zero,
++	 * the rest of the user space mutex state is consistent, so a woken
++	 * waiter will just take over the uncontended futex. Setting the
++	 * OWNER_DIED bit would create inconsistent state and malfunction
++	 * of the user space owner died handling. Otherwise, the OWNER_DIED
++	 * bit is already set, and the woken waiter is expected to deal with
++	 * this.
+ 	 */
+-	if (pending_op && !pi && !uval) {
++	owner = uval & FUTEX_TID_MASK;
++
++	if (pending_op && !pi && !owner) {
+ 		futex_wake(uaddr, 1, 1, FUTEX_BITSET_MATCH_ANY);
+ 		return 0;
+ 	}
+ 
+-	if ((uval & FUTEX_TID_MASK) != task_pid_vnr(curr))
++	if (owner != task_pid_vnr(curr))
+ 		return 0;
  
  	/*
- 	 * Allocate maximum possible number of functions. Assume every pin
-@@ -860,7 +861,10 @@ static int thunderbay_build_functions(struct thunderbay_pinctrl *tpc)
- 		return -ENOMEM;
- 
- 	thunderbay_funcs = ptr;
--	return thunderbay_add_functions(tpc, thunderbay_funcs);
-+	ret = thunderbay_add_functions(tpc, thunderbay_funcs);
-+
-+	kfree(thunderbay_funcs);
-+	return ret;
- }
- 
- static int thunderbay_pinconf_set_tristate(struct thunderbay_pinctrl *tpc,
 -- 
 2.35.1
 
