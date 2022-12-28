@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E7A9657AC7
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:15:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FF1C657BE4
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:27:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230368AbiL1PPA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:15:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59864 "EHLO
+        id S233729AbiL1P0y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:26:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233106AbiL1POp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:14:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A978A13F03
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:14:44 -0800 (PST)
+        with ESMTP id S233762AbiL1P01 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:26:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8B45FF5
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:26:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 479B261551
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:14:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E6ABC433D2;
-        Wed, 28 Dec 2022 15:14:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 72FEBB8171F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:26:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D34C7C433D2;
+        Wed, 28 Dec 2022 15:26:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240483;
-        bh=gSgm6LQQfsEO2y8HppxXCNE+XplTED457Yy7BzqRfgA=;
+        s=korg; t=1672241183;
+        bh=8L2PcGEli8Hm1CSaPBM8Gp1Z/5rQDUi3GMj5KUVG/CY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1BGh+ZhkTdKsM5vpgbfTjC/ExOAklt4MMxUGzRMht0X6yldH9kacI29XwoJa1JJbg
-         rSJSFwNjfA0DQ9a3Qk+N1Tn0pKvdC7rEqunLDo2YPcVd36yjkn0uQquilmrDUwusK+
-         +GDHZ3YiTQQlp2r+aqQy6+AHXdS0DJSfCtlLe4tY=
+        b=W/aOovpwSfiWPbDkzf1LFkTW+9+AIocvDRW57i0cVQDkVSN79v2r/ePj8twFGPjLU
+         6JKTjuFhq2bVqN7+ira0tVJ+UylsEITRnvZVPki8ULDSARho5KMDQvPlLrwFskvg10
+         plCDGs7Gxbtd7BZWpD9lTSTKDjoONRbDPqw536g0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+6f8cd9a0155b366d227f@syzkaller.appspotmail.com,
-        Chen Zhongjin <chenzhongjin@huawei.com>,
-        Yue Hu <huyue2@coolpad.com>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
-        Chao Yu <chao@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0166/1073] erofs: Fix pcluster memleak when its block address is zero
-Date:   Wed, 28 Dec 2022 15:29:14 +0100
-Message-Id: <20221228144332.524276437@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Horatiu Vultur <horatiu.vultur@microchip.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0216/1146] pinctrl: ocelot: add missing destroy_workqueue() in error path in ocelot_pinctrl_probe()
+Date:   Wed, 28 Dec 2022 15:29:15 +0100
+Message-Id: <20221228144336.013490722@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,65 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit c42c0ffe81176940bd5dead474216b7198d77675 ]
+[ Upstream commit 8ada020ade3bc4125b639a1dca50a6df687dd986 ]
 
-syzkaller reported a memleak:
-https://syzkaller.appspot.com/bug?id=62f37ff612f0021641eda5b17f056f1668aa9aed
+Using devm_add_action_or_reset() to make workqueue device-managed, so it can be
+destroy whenever the driver is unbound.
 
-unreferenced object 0xffff88811009c7f8 (size 136):
-  ...
-  backtrace:
-    [<ffffffff821db19b>] z_erofs_do_read_page+0x99b/0x1740
-    [<ffffffff821dee9e>] z_erofs_readahead+0x24e/0x580
-    [<ffffffff814bc0d6>] read_pages+0x86/0x3d0
-    ...
-
-syzkaller constructed a case: in z_erofs_register_pcluster(),
-ztailpacking = false and map->m_pa = zero. This makes pcl->obj.index be
-zero although pcl is not a inline pcluster.
-
-Then following path adds refcount for grp, but the refcount won't be put
-because pcl is inline.
-
-z_erofs_readahead()
-  z_erofs_do_read_page() # for another page
-    z_erofs_collector_begin()
-      erofs_find_workgroup()
-        erofs_workgroup_get()
-
-Since it's illegal for the block address of a non-inlined pcluster to
-be zero, add check here to avoid registering the pcluster which would
-be leaked.
-
-Fixes: cecf864d3d76 ("erofs: support inline data decompression")
-Reported-by: syzbot+6f8cd9a0155b366d227f@syzkaller.appspotmail.com
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Reviewed-by: Yue Hu <huyue2@coolpad.com>
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Link: https://lore.kernel.org/r/Y42Kz6sVkf+XqJRB@debian
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Fixes: c297561bc98a ("pinctrl: ocelot: Fix interrupt controller")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+Link: https://lore.kernel.org/r/20220925021258.1492905-1-yangyingliang@huawei.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/erofs/zdata.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/pinctrl/pinctrl-ocelot.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index c7511b431776..f19875d96cc1 100644
---- a/fs/erofs/zdata.c
-+++ b/fs/erofs/zdata.c
-@@ -487,7 +487,8 @@ static int z_erofs_register_pcluster(struct z_erofs_decompress_frontend *fe)
- 	struct erofs_workgroup *grp;
- 	int err;
+diff --git a/drivers/pinctrl/pinctrl-ocelot.c b/drivers/pinctrl/pinctrl-ocelot.c
+index 687aaa601555..3d5995cbcb78 100644
+--- a/drivers/pinctrl/pinctrl-ocelot.c
++++ b/drivers/pinctrl/pinctrl-ocelot.c
+@@ -2047,6 +2047,11 @@ static struct regmap *ocelot_pinctrl_create_pincfg(struct platform_device *pdev,
+ 	return devm_regmap_init_mmio(&pdev->dev, base, &regmap_config);
+ }
  
--	if (!(map->m_flags & EROFS_MAP_ENCODED)) {
-+	if (!(map->m_flags & EROFS_MAP_ENCODED) ||
-+	    (!ztailpacking && !(map->m_pa >> PAGE_SHIFT))) {
- 		DBG_BUGON(1);
- 		return -EFSCORRUPTED;
- 	}
++static void ocelot_destroy_workqueue(void *data)
++{
++	destroy_workqueue(data);
++}
++
+ static int ocelot_pinctrl_probe(struct platform_device *pdev)
+ {
+ 	const struct ocelot_match_data *data;
+@@ -2078,6 +2083,11 @@ static int ocelot_pinctrl_probe(struct platform_device *pdev)
+ 	if (!info->wq)
+ 		return -ENOMEM;
+ 
++	ret = devm_add_action_or_reset(dev, ocelot_destroy_workqueue,
++				       info->wq);
++	if (ret)
++		return ret;
++
+ 	info->pincfg_data = &data->pincfg_data;
+ 
+ 	reset = devm_reset_control_get_optional_shared(dev, "switch");
+@@ -2119,15 +2129,6 @@ static int ocelot_pinctrl_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static int ocelot_pinctrl_remove(struct platform_device *pdev)
+-{
+-	struct ocelot_pinctrl *info = platform_get_drvdata(pdev);
+-
+-	destroy_workqueue(info->wq);
+-
+-	return 0;
+-}
+-
+ static struct platform_driver ocelot_pinctrl_driver = {
+ 	.driver = {
+ 		.name = "pinctrl-ocelot",
+@@ -2135,7 +2136,6 @@ static struct platform_driver ocelot_pinctrl_driver = {
+ 		.suppress_bind_attrs = true,
+ 	},
+ 	.probe = ocelot_pinctrl_probe,
+-	.remove = ocelot_pinctrl_remove,
+ };
+ module_platform_driver(ocelot_pinctrl_driver);
+ 
 -- 
 2.35.1
 
