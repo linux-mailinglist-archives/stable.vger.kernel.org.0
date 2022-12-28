@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DFCB657885
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:52:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEC37657F4D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232995AbiL1OwI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:52:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38900 "EHLO
+        id S234268AbiL1QDh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:03:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233000AbiL1Ovl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:51:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4778BCF1
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:51:18 -0800 (PST)
+        with ESMTP id S234275AbiL1QDS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:03:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C29B1901E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:03:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EAE5661365
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:51:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EFC0C433EF;
-        Wed, 28 Dec 2022 14:51:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E52FDB81730
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:03:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 395C1C433D2;
+        Wed, 28 Dec 2022 16:03:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239077;
-        bh=1VRA98DtIypg+5pvhqP+KOO6DnS43DUQXm/uUmTP+Vc=;
+        s=korg; t=1672243394;
+        bh=3ROR7Pygs5uRnlq+T2ja4v4/0meU851q6weNso+gY1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qcOKwG9aGEPZITtJyJmSZLz7R0X8nrLFOYCmvcXoDJe6X1DMkYZJ/S6epEDKfdpr/
-         sgZ8BTxEwE+Un9VLxnNx9N+4rKK1VrCOe35812me275zqnyKHNotAzLX4vkxpsWshH
-         /oh/6nlysHWyY8cy46NWsO+iJcIPurblLwQbGYWk=
+        b=hSMleAgMiqAkc4UCwVVtv9uHLjN01S5lUjp6ks0LRpQIkF2ES5xTRjxSjU4yTTfUd
+         tmd2ey5Fs1SCSUR6XotZZrpyM5HG/t2GEr+BoPdvUmP34i1E6vTP+6LM1fOGf3aL24
+         V6eOFFkWSW2aAYPuZvUgtCtnYpgXn74dfos/rYRg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Daniel Lezcano <daniel.lezcano@kernel.org>,
+        patches@lists.linux.dev,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 120/731] clocksource/drivers/timer-ti-dm: Fix missing clk_disable_unprepare in dmtimer_systimer_init_clock()
+Subject: [PATCH 6.1 0488/1146] NFSv4.2: Set the correct size scratch buffer for decoding READ_PLUS
 Date:   Wed, 28 Dec 2022 15:33:47 +0100
-Message-Id: <20221228144300.031137175@linuxfoundation.org>
+Message-Id: <20221228144343.439949547@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Anna Schumaker <Anna.Schumaker@Netapp.com>
 
-[ Upstream commit 180d35a7c05d520314a590c99ad8643d0213f28b ]
+[ Upstream commit 36357fe74ef736524a29fbd3952948768510a8b9 ]
 
-If clk_get_rate() fails which is called after clk_prepare_enable(),
-clk_disable_unprepare() need be called in error path to disable the
-clock in dmtimer_systimer_init_clock().
+The scratch_buf array is 16 bytes, but I was passing 32 to the
+xdr_set_scratch_buffer() function. Fix this by using sizeof(), which is
+what I probably should have been doing this whole time.
 
-Fixes: 52762fbd1c47 ("clocksource/drivers/timer-ti-dm: Add clockevent and clocksource support")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20221029114427.946520-1-yangyingliang@huawei.com
-Signed-off-by: Daniel Lezcano <daniel.lezcano@kernel.org>
+Fixes: d3b00a802c84 ("NFS: Replace the READ_PLUS decoding code")
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/timer-ti-dm-systimer.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/nfs/nfs42xdr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clocksource/timer-ti-dm-systimer.c b/drivers/clocksource/timer-ti-dm-systimer.c
-index 2737407ff069..632523c1232f 100644
---- a/drivers/clocksource/timer-ti-dm-systimer.c
-+++ b/drivers/clocksource/timer-ti-dm-systimer.c
-@@ -345,8 +345,10 @@ static int __init dmtimer_systimer_init_clock(struct dmtimer_systimer *t,
- 		return error;
+diff --git a/fs/nfs/nfs42xdr.c b/fs/nfs/nfs42xdr.c
+index fe1aeb0f048f..2fd465cab631 100644
+--- a/fs/nfs/nfs42xdr.c
++++ b/fs/nfs/nfs42xdr.c
+@@ -1142,7 +1142,7 @@ static int decode_read_plus(struct xdr_stream *xdr, struct nfs_pgio_res *res)
+ 	if (!segs)
+ 		return -ENOMEM;
  
- 	r = clk_get_rate(clock);
--	if (!r)
-+	if (!r) {
-+		clk_disable_unprepare(clock);
- 		return -ENODEV;
-+	}
- 
- 	if (is_ick)
- 		t->ick = clock;
+-	xdr_set_scratch_buffer(xdr, &scratch_buf, 32);
++	xdr_set_scratch_buffer(xdr, &scratch_buf, sizeof(scratch_buf));
+ 	status = -EIO;
+ 	for (i = 0; i < segments; i++) {
+ 		status = decode_read_plus_segment(xdr, &segs[i]);
 -- 
 2.35.1
 
