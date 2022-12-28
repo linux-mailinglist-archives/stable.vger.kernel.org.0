@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBE3D657E98
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:55:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E73DB6583B6
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:50:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233724AbiL1PzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:55:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42990 "EHLO
+        id S234968AbiL1Quz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:50:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234159AbiL1PzX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:55:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B476D186FA
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:55:22 -0800 (PST)
+        with ESMTP id S235127AbiL1Qu3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:50:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D31311FFAD
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:45:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5BFC0B81733
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:55:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB1ADC433EF;
-        Wed, 28 Dec 2022 15:55:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8609BB8171F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:45:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4AD7C433EF;
+        Wed, 28 Dec 2022 16:45:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242920;
-        bh=zj4Qla6FW38MAVqVWW2OZCFZVQ7hi5ig+svWj3pUsPs=;
+        s=korg; t=1672245918;
+        bh=ld4GI8IxkG5GhH1HYhSS/uEu2E7iHy1QQzt0YzYVSSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YrcSbm/1DQtsjEJVAXVkW4M2HzRNkngzud2w1LSgRa/NPZCw3M462VpZDJCMnWcTG
-         159vv8yQPk80wIsxF/epVk7lXCSs9dSsoIeGcRZkE3bb4REJXGgQbv4tUZnsQ1uGJ+
-         xJMtih/E/BT42rYwQVIPNacqZ5uE0D1eaXkwGg8g=
+        b=qkGg8oD1fZLQOU0mvZrn3e8Yb0C0uc0h37+1dJaCybGLyMWeAgwIZJcmS8VdOo+Rm
+         e3x3glR650/wSy5UVxHfwurs4GvKY3PrWDJ2FHhfcG4ofmjb2+OiBb2I+cGCxMfKn5
+         4iazE81Zgvl/cU/IMf30xWLznMTbrsIL3LXlSENY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Maxim Korotkov <korotkov.maxim.s@gmail.com>,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Justin Tee <justin.tee@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 661/731] ethtool: avoiding integer overflow in ethtool_phys_id()
+Subject: [PATCH 6.0 0980/1073] scsi: lpfc: Fix hard lockup when reading the rx_monitor from debugfs
 Date:   Wed, 28 Dec 2022 15:42:48 +0100
-Message-Id: <20221228144315.654432715@linuxfoundation.org>
+Message-Id: <20221228144354.698033945@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Korotkov <korotkov.maxim.s@gmail.com>
+From: Justin Tee <justin.tee@broadcom.com>
 
-[ Upstream commit 64a8f8f7127da228d59a39e2c5e75f86590f90b4 ]
+[ Upstream commit c44e50f4a0ec00c2298f31f91bc2c3e9bbd81c7e ]
 
-The value of an arithmetic expression "n * id.data" is subject
-to possible overflow due to a failure to cast operands to a larger data
-type before performing arithmetic. Used macro for multiplication instead
-operator for avoiding overflow.
+During I/O and simultaneous cat of /sys/kernel/debug/lpfc/fnX/rx_monitor, a
+hard lockup similar to the call trace below may occur.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+The spin_lock_bh in lpfc_rx_monitor_report is not protecting from timer
+interrupts as expected, so change the strength of the spin lock to _irq.
 
-Signed-off-by: Maxim Korotkov <korotkov.maxim.s@gmail.com>
-Reviewed-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20221122122901.22294-1-korotkov.maxim.s@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Kernel panic - not syncing: Hard LOCKUP
+CPU: 3 PID: 110402 Comm: cat Kdump: loaded
+
+exception RIP: native_queued_spin_lock_slowpath+91
+
+[IRQ stack]
+ native_queued_spin_lock_slowpath at ffffffffb814e30b
+ _raw_spin_lock at ffffffffb89a667a
+ lpfc_rx_monitor_record at ffffffffc0a73a36 [lpfc]
+ lpfc_cmf_timer at ffffffffc0abbc67 [lpfc]
+ __hrtimer_run_queues at ffffffffb8184250
+ hrtimer_interrupt at ffffffffb8184ab0
+ smp_apic_timer_interrupt at ffffffffb8a026ba
+ apic_timer_interrupt at ffffffffb8a01c4f
+[End of IRQ stack]
+
+ apic_timer_interrupt at ffffffffb8a01c4f
+ lpfc_rx_monitor_report at ffffffffc0a73c80 [lpfc]
+ lpfc_rx_monitor_read at ffffffffc0addde1 [lpfc]
+ full_proxy_read at ffffffffb83e7fc3
+ vfs_read at ffffffffb833fe71
+ ksys_read at ffffffffb83402af
+ do_syscall_64 at ffffffffb800430b
+ entry_SYSCALL_64_after_hwframe at ffffffffb8a000ad
+
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Link: https://lore.kernel.org/r/20221017164323.14536-2-justintee8345@gmail.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ethtool/ioctl.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_sli.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/ethtool/ioctl.c b/net/ethtool/ioctl.c
-index e4983f473a3c..6991d77dcb2e 100644
---- a/net/ethtool/ioctl.c
-+++ b/net/ethtool/ioctl.c
-@@ -1988,7 +1988,8 @@ static int ethtool_phys_id(struct net_device *dev, void __user *useraddr)
- 	} else {
- 		/* Driver expects to be called at twice the frequency in rc */
- 		int n = rc * 2, interval = HZ / n;
--		u64 count = n * id.data, i = 0;
-+		u64 count = mul_u32_u32(n, id.data);
-+		u64 i = 0;
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 03c21167fc85..c4960da4c1c4 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -8076,10 +8076,10 @@ u32 lpfc_rx_monitor_report(struct lpfc_hba *phba,
+ 					"IO_cnt", "Info", "BWutil(ms)");
+ 	}
  
- 		do {
- 			rtnl_lock();
+-	/* Needs to be _bh because record is called from timer interrupt
++	/* Needs to be _irq because record is called from timer interrupt
+ 	 * context
+ 	 */
+-	spin_lock_bh(ring_lock);
++	spin_lock_irq(ring_lock);
+ 	while (*head_idx != *tail_idx) {
+ 		entry = &ring[*head_idx];
+ 
+@@ -8123,7 +8123,7 @@ u32 lpfc_rx_monitor_report(struct lpfc_hba *phba,
+ 		if (cnt >= max_read_entries)
+ 			break;
+ 	}
+-	spin_unlock_bh(ring_lock);
++	spin_unlock_irq(ring_lock);
+ 
+ 	return cnt;
+ }
 -- 
 2.35.1
 
