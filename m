@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4DD8657DDC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:47:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9350657CC0
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:35:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234037AbiL1Prl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:47:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35024 "EHLO
+        id S233889AbiL1Pfj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:35:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233614AbiL1Pr0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:47:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0686F0B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:47:25 -0800 (PST)
+        with ESMTP id S233473AbiL1Pfh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:35:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A9C4164B3
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:35:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3D30DB8172E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:47:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 980AAC433D2;
-        Wed, 28 Dec 2022 15:47:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CC11E61553
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:35:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEB03C433EF;
+        Wed, 28 Dec 2022 15:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242443;
-        bh=3zxdj9fRZxlIrvdw1ZwgYZhi4ueY1HbY+3DNRBCDTxA=;
+        s=korg; t=1672241735;
+        bh=bmwe9hza0Kq2PcA9tFkgJDySBGKlVx+NuVKGOQmv3Mg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tkzObxt8fsiAT2nnRCahC47YjjplWE0DfneXTntvux2SZXc8C0eExPe99CR6+cl1e
-         w8WwdV5YOmAH1N6ps6pUTiDCgKOvsbxxhjx148PARcMmuj/AIDacHST7fYJRBuzx4c
-         w1RvxR5iU5AXmbPQg4gwANDmLs01ShBLxQ0ptwC4=
+        b=Ilyy+57xoqWO7KKmoXXTZ21Jj3+GPM5pCGREippPfUUx0PSnj7JC8EJ0miX5pvQzX
+         YPu67xbFPIfInYqlCHYtWSIbokMRTCM3wT/v2Cj7beTBmaYf/kcUXoe4xuusJwvFdp
+         aWbQyOeU7lDnRo+ZHpemGwAeinchTdhUa6BpbSQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Marcus Folkesson <marcus.folkesson@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0370/1146] HID: hid-sensor-custom: set fixed size for custom attributes
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        Keith Busch <kbusch@kernel.org>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0321/1073] nvmet: only allocate a single slab for bvecs
 Date:   Wed, 28 Dec 2022 15:31:49 +0100
-Message-Id: <20221228144340.214411116@linuxfoundation.org>
+Message-Id: <20221228144336.726985290@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +56,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 9d013910df22de91333a0acc81d1dbb115bd76f6 ]
+[ Upstream commit fa8f9ac42350edd3ce82d0d148a60f0fa088f995 ]
 
-This is no bugfix (so no Fixes: tag is necessary) as it is
-taken care of in hid_sensor_custom_add_attributes().
+There is no need to have a separate slab cache for each namespace,
+and having separate ones creates duplicate debugs file names as well.
 
-The motivation for this patch is that:
-hid_sensor_custom_field.attr_name and
-hid_sensor_custom_field.attrs
-has the size of HID_CUSTOM_TOTAL_ATTRS and used in same context.
-
-We compare against HID_CUSTOM_TOTAL_ATTRS when
-looping through hid_custom_attrs.
-
-We will silent the smatch error:
-hid_sensor_custom_add_attributes() error: buffer overflow
-'hid_custom_attrs' 8 <= 10
-
-Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
-Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: d5eff33ee6f8 ("nvmet: add simple file backed ns support")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-sensor-custom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/target/core.c        | 22 ++++++++++++++--------
+ drivers/nvme/target/io-cmd-file.c | 16 +++-------------
+ drivers/nvme/target/nvmet.h       |  3 ++-
+ 3 files changed, 19 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-sensor-custom.c
-index 32c2306e240d..602465ad2745 100644
---- a/drivers/hid/hid-sensor-custom.c
-+++ b/drivers/hid/hid-sensor-custom.c
-@@ -62,7 +62,7 @@ struct hid_sensor_sample {
- 	u32 raw_len;
- } __packed;
+diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
+index aecb5853f8da..683b75a992b3 100644
+--- a/drivers/nvme/target/core.c
++++ b/drivers/nvme/target/core.c
+@@ -15,6 +15,7 @@
  
--static struct attribute hid_custom_attrs[] = {
-+static struct attribute hid_custom_attrs[HID_CUSTOM_TOTAL_ATTRS] = {
- 	{.name = "name", .mode = S_IRUGO},
- 	{.name = "units", .mode = S_IRUGO},
- 	{.name = "unit-expo", .mode = S_IRUGO},
+ #include "nvmet.h"
+ 
++struct kmem_cache *nvmet_bvec_cache;
+ struct workqueue_struct *buffered_io_wq;
+ struct workqueue_struct *zbd_wq;
+ static const struct nvmet_fabrics_ops *nvmet_transports[NVMF_TRTYPE_MAX];
+@@ -1631,26 +1632,28 @@ void nvmet_subsys_put(struct nvmet_subsys *subsys)
+ 
+ static int __init nvmet_init(void)
+ {
+-	int error;
++	int error = -ENOMEM;
+ 
+ 	nvmet_ana_group_enabled[NVMET_DEFAULT_ANA_GRPID] = 1;
+ 
++	nvmet_bvec_cache = kmem_cache_create("nvmet-bvec",
++			NVMET_MAX_MPOOL_BVEC * sizeof(struct bio_vec), 0,
++			SLAB_HWCACHE_ALIGN, NULL);
++	if (!nvmet_bvec_cache)
++		return -ENOMEM;
++
+ 	zbd_wq = alloc_workqueue("nvmet-zbd-wq", WQ_MEM_RECLAIM, 0);
+ 	if (!zbd_wq)
+-		return -ENOMEM;
++		goto out_destroy_bvec_cache;
+ 
+ 	buffered_io_wq = alloc_workqueue("nvmet-buffered-io-wq",
+ 			WQ_MEM_RECLAIM, 0);
+-	if (!buffered_io_wq) {
+-		error = -ENOMEM;
++	if (!buffered_io_wq)
+ 		goto out_free_zbd_work_queue;
+-	}
+ 
+ 	nvmet_wq = alloc_workqueue("nvmet-wq", WQ_MEM_RECLAIM, 0);
+-	if (!nvmet_wq) {
+-		error = -ENOMEM;
++	if (!nvmet_wq)
+ 		goto out_free_buffered_work_queue;
+-	}
+ 
+ 	error = nvmet_init_discovery();
+ 	if (error)
+@@ -1669,6 +1672,8 @@ static int __init nvmet_init(void)
+ 	destroy_workqueue(buffered_io_wq);
+ out_free_zbd_work_queue:
+ 	destroy_workqueue(zbd_wq);
++out_destroy_bvec_cache:
++	kmem_cache_destroy(nvmet_bvec_cache);
+ 	return error;
+ }
+ 
+@@ -1680,6 +1685,7 @@ static void __exit nvmet_exit(void)
+ 	destroy_workqueue(nvmet_wq);
+ 	destroy_workqueue(buffered_io_wq);
+ 	destroy_workqueue(zbd_wq);
++	kmem_cache_destroy(nvmet_bvec_cache);
+ 
+ 	BUILD_BUG_ON(sizeof(struct nvmf_disc_rsp_page_entry) != 1024);
+ 	BUILD_BUG_ON(sizeof(struct nvmf_disc_rsp_page_hdr) != 1024);
+diff --git a/drivers/nvme/target/io-cmd-file.c b/drivers/nvme/target/io-cmd-file.c
+index 64b47e2a4633..e55ec6fefd7f 100644
+--- a/drivers/nvme/target/io-cmd-file.c
++++ b/drivers/nvme/target/io-cmd-file.c
+@@ -11,7 +11,6 @@
+ #include <linux/fs.h>
+ #include "nvmet.h"
+ 
+-#define NVMET_MAX_MPOOL_BVEC		16
+ #define NVMET_MIN_MPOOL_OBJ		16
+ 
+ void nvmet_file_ns_revalidate(struct nvmet_ns *ns)
+@@ -26,8 +25,6 @@ void nvmet_file_ns_disable(struct nvmet_ns *ns)
+ 			flush_workqueue(buffered_io_wq);
+ 		mempool_destroy(ns->bvec_pool);
+ 		ns->bvec_pool = NULL;
+-		kmem_cache_destroy(ns->bvec_cache);
+-		ns->bvec_cache = NULL;
+ 		fput(ns->file);
+ 		ns->file = NULL;
+ 	}
+@@ -59,16 +56,8 @@ int nvmet_file_ns_enable(struct nvmet_ns *ns)
+ 	ns->blksize_shift = min_t(u8,
+ 			file_inode(ns->file)->i_blkbits, 12);
+ 
+-	ns->bvec_cache = kmem_cache_create("nvmet-bvec",
+-			NVMET_MAX_MPOOL_BVEC * sizeof(struct bio_vec),
+-			0, SLAB_HWCACHE_ALIGN, NULL);
+-	if (!ns->bvec_cache) {
+-		ret = -ENOMEM;
+-		goto err;
+-	}
+-
+ 	ns->bvec_pool = mempool_create(NVMET_MIN_MPOOL_OBJ, mempool_alloc_slab,
+-			mempool_free_slab, ns->bvec_cache);
++			mempool_free_slab, nvmet_bvec_cache);
+ 
+ 	if (!ns->bvec_pool) {
+ 		ret = -ENOMEM;
+@@ -77,9 +66,10 @@ int nvmet_file_ns_enable(struct nvmet_ns *ns)
+ 
+ 	return ret;
+ err:
++	fput(ns->file);
++	ns->file = NULL;
+ 	ns->size = 0;
+ 	ns->blksize_shift = 0;
+-	nvmet_file_ns_disable(ns);
+ 	return ret;
+ }
+ 
+diff --git a/drivers/nvme/target/nvmet.h b/drivers/nvme/target/nvmet.h
+index dfe3894205aa..bda1c1f71f39 100644
+--- a/drivers/nvme/target/nvmet.h
++++ b/drivers/nvme/target/nvmet.h
+@@ -77,7 +77,6 @@ struct nvmet_ns {
+ 
+ 	struct completion	disable_done;
+ 	mempool_t		*bvec_pool;
+-	struct kmem_cache	*bvec_cache;
+ 
+ 	int			use_p2pmem;
+ 	struct pci_dev		*p2p_dev;
+@@ -393,6 +392,8 @@ struct nvmet_req {
+ 	u64			error_slba;
+ };
+ 
++#define NVMET_MAX_MPOOL_BVEC		16
++extern struct kmem_cache *nvmet_bvec_cache;
+ extern struct workqueue_struct *buffered_io_wq;
+ extern struct workqueue_struct *zbd_wq;
+ extern struct workqueue_struct *nvmet_wq;
 -- 
 2.35.1
 
