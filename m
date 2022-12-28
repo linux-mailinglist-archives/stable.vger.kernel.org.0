@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EF9B65821C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:33:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B939657C72
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:33:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234613AbiL1QdO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:33:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50710 "EHLO
+        id S233851AbiL1Pc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:32:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234796AbiL1Qcv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:32:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7B3B2C1
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:30:01 -0800 (PST)
+        with ESMTP id S233957AbiL1Pcd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:32:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D38A115F2F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:32:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7DC77B8171E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:30:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C60C4C433D2;
-        Wed, 28 Dec 2022 16:29:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8A885B8171F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:32:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D46E3C433EF;
+        Wed, 28 Dec 2022 15:32:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244999;
-        bh=48eXULuY7uQlPhiWiZHOXvMLCxUfQFUOGMaZy7Spq00=;
+        s=korg; t=1672241549;
+        bh=jhZpX19fBZ2alVq1ufkdqLv0Yzsjw9K51GnezOInTJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CIu254YxV0qU/sUKEhSjEzp+mxe5Pd9y/y2YGOBz12VG/xc7w2yUHmARzMy0xwwQM
-         Oyb1wbnrYDgqjUzdKRgYR1EB3eyxTLcCKUavMXkIRj/QRbyb2NKyQDezLktqxHvYjv
-         P3tzVqfpB7WeE16nQwqqLE1s8uTMckqXvA8dET4g=
+        b=uPOJxGbD7ovTcMpafHvRQNnKjnoLFVfRuHbeJ+iO8AjMcySo4SO1eiPuufeRcBk3k
+         u0lmv7ZnVHSyhPzyupiebcTCVDtLOxGRQG0P6xDaK5yUx4S+1tjrykL+WcpXrr0+Ik
+         RvcTC+HMwvq3U+FOkxmMY4GZgB9AnQteKRv+4cE4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yong Wu <yong.wu@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0813/1073] iommu/mediatek: Add error path for loop of mm_dts_parse
-Date:   Wed, 28 Dec 2022 15:40:01 +0100
-Message-Id: <20221228144350.090579100@linuxfoundation.org>
+        patches@lists.linux.dev, Zheyu Ma <zheyuma97@gmail.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 495/731] i2c: ismt: Fix an out-of-bounds bug in ismt_access()
+Date:   Wed, 28 Dec 2022 15:40:02 +0100
+Message-Id: <20221228144310.895832502@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,88 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yong Wu <yong.wu@mediatek.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 26593928564cf5b576ff05d3cbd958f57c9534bb ]
+[ Upstream commit 39244cc754829bf707dccd12e2ce37510f5b1f8d ]
 
-The mtk_iommu_mm_dts_parse will parse the smi larbs nodes. if the i+1
-larb is parsed fail, we should put_device for the i..0 larbs.
+When the driver does not check the data from the user, the variable
+'data->block[0]' may be very large to cause an out-of-bounds bug.
 
-There are two places need to comment:
-1) The larbid may be not linear mapping, we should loop whole
-   the array in the error path.
-2) I move this line position: "data->larb_imu[id].dev = &plarbdev->dev;"
-   before "if (!plarbdev->dev.driver)", That means set
-   data->larb_imu[id].dev before the error path. then we don't need
-   "platform_device_put(plarbdev)" again in probe_defer case. All depend
-   on "put_device" of the error path in error cases.
+The following log can reveal it:
 
-Fixes: d2e9a1102cfc ("iommu/mediatek: Contain MM IOMMU flow with the MM TYPE")
-Signed-off-by: Yong Wu <yong.wu@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Link: https://lore.kernel.org/r/20221018024258.19073-4-yong.wu@mediatek.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+[   33.995542] i2c i2c-1: ioctl, cmd=0x720, arg=0x7ffcb3dc3a20
+[   33.995978] ismt_smbus 0000:00:05.0: I2C_SMBUS_BLOCK_DATA:  WRITE
+[   33.996475] ==================================================================
+[   33.996995] BUG: KASAN: out-of-bounds in ismt_access.cold+0x374/0x214b
+[   33.997473] Read of size 18446744073709551615 at addr ffff88810efcfdb1 by task ismt_poc/485
+[   33.999450] Call Trace:
+[   34.001849]  memcpy+0x20/0x60
+[   34.002077]  ismt_access.cold+0x374/0x214b
+[   34.003382]  __i2c_smbus_xfer+0x44f/0xfb0
+[   34.004007]  i2c_smbus_xfer+0x10a/0x390
+[   34.004291]  i2cdev_ioctl_smbus+0x2c8/0x710
+[   34.005196]  i2cdev_ioctl+0x5ec/0x74c
+
+Fix this bug by checking the size of 'data->block[0]' first.
+
+Fixes: 13f35ac14cd0 ("i2c: Adding support for Intel iSMT SMBus 2.0 host controller")
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/mtk_iommu.c | 27 ++++++++++++++++++++-------
- 1 file changed, 20 insertions(+), 7 deletions(-)
+ drivers/i2c/busses/i2c-ismt.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index ce9288695f9b..39f4c79e9c71 100644
---- a/drivers/iommu/mtk_iommu.c
-+++ b/drivers/iommu/mtk_iommu.c
-@@ -1053,8 +1053,10 @@ static int mtk_iommu_mm_dts_parse(struct device *dev, struct component_match **m
- 		u32 id;
- 
- 		larbnode = of_parse_phandle(dev->of_node, "mediatek,larbs", i);
--		if (!larbnode)
--			return -EINVAL;
-+		if (!larbnode) {
-+			ret = -EINVAL;
-+			goto err_larbdev_put;
-+		}
- 
- 		if (!of_device_is_available(larbnode)) {
- 			of_node_put(larbnode);
-@@ -1067,14 +1069,16 @@ static int mtk_iommu_mm_dts_parse(struct device *dev, struct component_match **m
- 
- 		plarbdev = of_find_device_by_node(larbnode);
- 		of_node_put(larbnode);
--		if (!plarbdev)
--			return -ENODEV;
-+		if (!plarbdev) {
-+			ret = -ENODEV;
-+			goto err_larbdev_put;
-+		}
-+		data->larb_imu[id].dev = &plarbdev->dev;
- 
- 		if (!plarbdev->dev.driver) {
--			platform_device_put(plarbdev);
--			return -EPROBE_DEFER;
-+			ret = -EPROBE_DEFER;
-+			goto err_larbdev_put;
- 		}
--		data->larb_imu[id].dev = &plarbdev->dev;
- 
- 		component_match_add(dev, match, component_compare_dev, &plarbdev->dev);
- 		platform_device_put(plarbdev);
-@@ -1109,6 +1113,15 @@ static int mtk_iommu_mm_dts_parse(struct device *dev, struct component_match **m
- 		return -EINVAL;
- 	}
- 	return 0;
+diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+index 483428c5e30b..10cdd501d4c5 100644
+--- a/drivers/i2c/busses/i2c-ismt.c
++++ b/drivers/i2c/busses/i2c-ismt.c
+@@ -509,6 +509,9 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+ 		if (read_write == I2C_SMBUS_WRITE) {
+ 			/* Block Write */
+ 			dev_dbg(dev, "I2C_SMBUS_BLOCK_DATA:  WRITE\n");
++			if (data->block[0] < 1 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
++				return -EINVAL;
 +
-+err_larbdev_put:
-+	/* id may be not linear mapping, loop whole the array */
-+	for (i = MTK_LARB_NR_MAX - 1; i >= 0; i++) {
-+		if (!data->larb_imu[i].dev)
-+			continue;
-+		put_device(data->larb_imu[i].dev);
-+	}
-+	return ret;
- }
- 
- static int mtk_iommu_probe(struct platform_device *pdev)
+ 			dma_size = data->block[0] + 1;
+ 			dma_direction = DMA_TO_DEVICE;
+ 			desc->wr_len_cmd = dma_size;
 -- 
 2.35.1
 
