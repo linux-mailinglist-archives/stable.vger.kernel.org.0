@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 871E8657D9D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:45:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9A09657C8A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:33:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234000AbiL1PpG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:45:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33270 "EHLO
+        id S233288AbiL1Pdj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:33:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233592AbiL1PpF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:45:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 755B617599
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:45:04 -0800 (PST)
+        with ESMTP id S233856AbiL1Pde (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:33:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 237A41649A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:33:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 15EF8B8172B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:45:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68D61C433D2;
-        Wed, 28 Dec 2022 15:45:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF9ABB81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:33:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 356FAC433F0;
+        Wed, 28 Dec 2022 15:33:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242301;
-        bh=vRLkE86fpirHqul2CUIg/o2NFoI2q2mrfmZebt6V5PA=;
+        s=korg; t=1672241610;
+        bh=7OqLrE8VqfaKw/7UH8Ppl+h4W6SzmKut1joDfri5VkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G7bXHWWqUbVLlrlMwMJVwhKiUj+oEEotG54caWtIuNwj1gaW+0P9t/I0Xl4MwUp0D
-         Eng03XwBuyJ/JQeEOb09+WEJcHuN/qse2Telf3yJ2NPLASm0ed3hCU7YTNni8MNygG
-         CjFHTwMGwvRplFEvO0XMq/8xJ0G7RG44GHKtAvcg=
+        b=MUC0ooNmVT5zC7loX2fTsTsZUJrwX8/cP8A08vgrs6gF7nEQEXOBlgsXYv00skynF
+         l/w8H7sFkDyq/sPOqH7YPaXbZXKp8/59cA+0RHeNsCPaKzmL1GEhiHc8fVP11euAh7
+         wTh97bEdJLNVIn9rG5KfqscmItGRqeiSq/m042Qk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ming Qian <ming.qian@nxp.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        patches@lists.linux.dev,
+        Yassine Oudjana <y.oudjana@protonmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0352/1146] media: amphion: add lock around vdec_g_fmt
-Date:   Wed, 28 Dec 2022 15:31:31 +0100
-Message-Id: <20221228144339.724260199@linuxfoundation.org>
+Subject: [PATCH 6.0 0304/1073] regmap-irq: Use the new num_config_regs property in regmap_add_irq_chip_fwnode
+Date:   Wed, 28 Dec 2022 15:31:32 +0100
+Message-Id: <20221228144336.268373551@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Qian <ming.qian@nxp.com>
+From: Yassine Oudjana <y.oudjana@protonmail.com>
 
-[ Upstream commit 8480dd5fb3c82b5887d456b3fbe4201d99231814 ]
+[ Upstream commit 84498d1fb35de6ab71bdfdb6270a464fb4a0951b ]
 
-the capture format may be changed when
-sequence header is parsed,
-it may be read and write in the same time,
-add lock around vdec_g_fmt to synchronize it
+Commit faa87ce9196d ("regmap-irq: Introduce config registers for irq
+types") added the num_config_regs, then commit 9edd4f5aee84 ("regmap-irq:
+Deprecate type registers and virtual registers") suggested to replace
+num_type_reg with it. However, regmap_add_irq_chip_fwnode wasn't modified
+to use the new property. Later on, commit 255a03bb1bb3 ("ASoC: wcd9335:
+Convert irq chip to config regs") removed the old num_type_reg property
+from the WCD9335 driver's struct regmap_irq_chip, causing a null pointer
+dereference in regmap_irq_set_type when it tried to index d->type_buf as
+it was never allocated in regmap_add_irq_chip_fwnode:
 
-Fixes: 6de8d628df6e ("media: amphion: add v4l2 m2m vpu decoder stateful driver")
-Signed-off-by: Ming Qian <ming.qian@nxp.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+[   39.199374] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+
+[   39.200006] Call trace:
+[   39.200014]  regmap_irq_set_type+0x84/0x1c0
+[   39.200026]  __irq_set_trigger+0x60/0x1c0
+[   39.200040]  __setup_irq+0x2f4/0x78c
+[   39.200051]  request_threaded_irq+0xe8/0x1a0
+
+Use num_config_regs in regmap_add_irq_chip_fwnode instead of num_type_reg,
+and fall back to it if num_config_regs isn't defined to maintain backward
+compatibility.
+
+Fixes: faa87ce9196d ("regmap-irq: Introduce config registers for irq types")
+Signed-off-by: Yassine Oudjana <y.oudjana@protonmail.com>
+Link: https://lore.kernel.org/r/20221107202114.823975-1-y.oudjana@protonmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/amphion/vdec.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/base/regmap/regmap-irq.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/platform/amphion/vdec.c b/drivers/media/platform/amphion/vdec.c
-index 84c90ce265f2..b27e6bed85f0 100644
---- a/drivers/media/platform/amphion/vdec.c
-+++ b/drivers/media/platform/amphion/vdec.c
-@@ -286,6 +286,7 @@ static int vdec_g_fmt(struct file *file, void *fh, struct v4l2_format *f)
- 	struct vpu_format *cur_fmt;
+diff --git a/drivers/base/regmap/regmap-irq.c b/drivers/base/regmap/regmap-irq.c
+index 4ef9488d05cd..3de89795f584 100644
+--- a/drivers/base/regmap/regmap-irq.c
++++ b/drivers/base/regmap/regmap-irq.c
+@@ -722,6 +722,7 @@ int regmap_add_irq_chip_fwnode(struct fwnode_handle *fwnode,
  	int i;
+ 	int ret = -ENOMEM;
+ 	int num_type_reg;
++	int num_regs;
+ 	u32 reg;
  
-+	vpu_inst_lock(inst);
- 	cur_fmt = vpu_get_format(inst, f->type);
+ 	if (chip->num_regs <= 0)
+@@ -796,14 +797,20 @@ int regmap_add_irq_chip_fwnode(struct fwnode_handle *fwnode,
+ 			goto err_alloc;
+ 	}
  
- 	pixmp->pixelformat = cur_fmt->pixfmt;
-@@ -303,6 +304,7 @@ static int vdec_g_fmt(struct file *file, void *fh, struct v4l2_format *f)
- 	f->fmt.pix_mp.xfer_func = vdec->codec_info.transfer_chars;
- 	f->fmt.pix_mp.ycbcr_enc = vdec->codec_info.matrix_coeffs;
- 	f->fmt.pix_mp.quantization = vdec->codec_info.full_range;
-+	vpu_inst_unlock(inst);
+-	num_type_reg = chip->type_in_mask ? chip->num_regs : chip->num_type_reg;
+-	if (num_type_reg) {
+-		d->type_buf_def = kcalloc(num_type_reg,
++	/*
++	 * Use num_config_regs if defined, otherwise fall back to num_type_reg
++	 * to maintain backward compatibility.
++	 */
++	num_type_reg = chip->num_config_regs ? chip->num_config_regs
++			: chip->num_type_reg;
++	num_regs = chip->type_in_mask ? chip->num_regs : num_type_reg;
++	if (num_regs) {
++		d->type_buf_def = kcalloc(num_regs,
+ 					  sizeof(*d->type_buf_def), GFP_KERNEL);
+ 		if (!d->type_buf_def)
+ 			goto err_alloc;
  
- 	return 0;
- }
+-		d->type_buf = kcalloc(num_type_reg, sizeof(*d->type_buf),
++		d->type_buf = kcalloc(num_regs, sizeof(*d->type_buf),
+ 				      GFP_KERNEL);
+ 		if (!d->type_buf)
+ 			goto err_alloc;
 -- 
 2.35.1
 
