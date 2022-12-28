@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CFFA658285
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:38:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E10E8657CE8
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:37:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233589AbiL1Qhi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:37:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53668 "EHLO
+        id S233908AbiL1PhW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:37:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234981AbiL1Qgh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:36:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF4CF19C3A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:33:01 -0800 (PST)
+        with ESMTP id S233492AbiL1PhV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:37:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71FFB14D10
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:37:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CC8D61541
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:33:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E65BC433D2;
-        Wed, 28 Dec 2022 16:33:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2A6F0B81710
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:37:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9124EC433D2;
+        Wed, 28 Dec 2022 15:37:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245180;
-        bh=pm5Zv/Er1KLMVxZNDI/ktZnJaPYbszTji8K/IG4IT1M=;
+        s=korg; t=1672241837;
+        bh=wHvCMiDEAvVz8k7yAsD88jMAnGezdXv8HKXJaKfbMCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QAQ2VmWvTeBl/0I1RhsB2CUVudHuK5nGc1wIAcvLTirSq9uZyiT8/7UK8PWEeatxa
-         F433eXqbahXy0XVUzPtq8zvsanXtxKKCzzZlKdw39+VqJQrCl9hkRQ9bQqkLUq5Yrs
-         o8fNTD6J+R1p+iDdvirMnBP0FD8ZVS5lB6Uvpjz0=
+        b=e7MyjMGiTiXm4D+6cua4XQixxT0fxSr5MNUXN/MvRPMlL/XXNwSWqEAcCOEIV1ouk
+         61XeTU3G+cPi/7ktdmAdo/Bj6FuikV/pf4atGk03IAe1WK62db55CbgTFDf/KQRbZa
+         eI6SJe7q8TE975BN5PZbF6KUJiyO0SRicDSTCxkQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Milan Landaverde <milan@mdaverde.com>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Stanislav Fomichev <sdf@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0846/1073] bpf: prevent leak of lsm program after failed attach
-Date:   Wed, 28 Dec 2022 15:40:34 +0100
-Message-Id: <20221228144351.000064682@linuxfoundation.org>
+        patches@lists.linux.dev, Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 528/731] iommu/sun50i: Fix reset release
+Date:   Wed, 28 Dec 2022 15:40:35 +0100
+Message-Id: <20221228144311.850001534@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Milan Landaverde <milan@mdaverde.com>
+From: Jernej Skrabec <jernej.skrabec@gmail.com>
 
-[ Upstream commit e89f3edffb860a0f54a9ed16deadb7a4a1fa3862 ]
+[ Upstream commit 9ad0c1252e84dbc664f0462707182245ed603237 ]
 
-In [0], we added the ability to bpf_prog_attach LSM programs to cgroups,
-but in our validation to make sure the prog is meant to be attached to
-BPF_LSM_CGROUP, we return too early if the check fails. This results in
-lack of decrementing prog's refcnt (through bpf_prog_put)
-leaving the LSM program alive past the point of the expected lifecycle.
-This fix allows for the decrement to take place.
+Reset signal is asserted by writing 0 to the corresponding locations of
+masters we want to reset. So in order to deassert all reset signals, we
+should write 1's to all locations.
 
-[0] https://lore.kernel.org/all/20220628174314.1216643-4-sdf@google.com/
+Current code writes 1's to locations of masters which were just reset
+which is good. However, at the same time it also writes 0's to other
+locations and thus asserts reset signals of remaining masters. Fix code
+by writing all 1's when we want to deassert all reset signals.
 
-Fixes: 69fd337a975c ("bpf: per-cgroup lsm flavor")
-Signed-off-by: Milan Landaverde <milan@mdaverde.com>
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Stanislav Fomichev <sdf@google.com>
-Link: https://lore.kernel.org/r/20221213175714.31963-1-milan@mdaverde.com
+This bug was discovered when working with Cedrus (video decoder). When
+it faulted, display went blank due to reset signal assertion.
+
+Fixes: 4100b8c229b3 ("iommu: Add Allwinner H6 IOMMU driver")
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Link: https://lore.kernel.org/r/20221025165415.307591-2-jernej.skrabec@gmail.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/syscall.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/iommu/sun50i-iommu.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-index 0e758911d963..6b6fb7237ebe 100644
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -3505,9 +3505,9 @@ static int bpf_prog_attach(const union bpf_attr *attr)
- 	case BPF_PROG_TYPE_LSM:
- 		if (ptype == BPF_PROG_TYPE_LSM &&
- 		    prog->expected_attach_type != BPF_LSM_CGROUP)
--			return -EINVAL;
--
--		ret = cgroup_bpf_prog_attach(attr, ptype, prog);
-+			ret = -EINVAL;
-+		else
-+			ret = cgroup_bpf_prog_attach(attr, ptype, prog);
- 		break;
- 	default:
- 		ret = -EINVAL;
+diff --git a/drivers/iommu/sun50i-iommu.c b/drivers/iommu/sun50i-iommu.c
+index 92997021e188..3fd1ee147953 100644
+--- a/drivers/iommu/sun50i-iommu.c
++++ b/drivers/iommu/sun50i-iommu.c
+@@ -27,6 +27,7 @@
+ #include <linux/types.h>
+ 
+ #define IOMMU_RESET_REG			0x010
++#define IOMMU_RESET_RELEASE_ALL			0xffffffff
+ #define IOMMU_ENABLE_REG		0x020
+ #define IOMMU_ENABLE_ENABLE			BIT(0)
+ 
+@@ -894,7 +895,7 @@ static irqreturn_t sun50i_iommu_irq(int irq, void *dev_id)
+ 	iommu_write(iommu, IOMMU_INT_CLR_REG, status);
+ 
+ 	iommu_write(iommu, IOMMU_RESET_REG, ~status);
+-	iommu_write(iommu, IOMMU_RESET_REG, status);
++	iommu_write(iommu, IOMMU_RESET_REG, IOMMU_RESET_RELEASE_ALL);
+ 
+ 	spin_unlock(&iommu->iommu_lock);
+ 
 -- 
 2.35.1
 
