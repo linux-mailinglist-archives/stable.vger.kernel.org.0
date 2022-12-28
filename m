@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B7FF657814
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65EA365783E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232658AbiL1OsA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:48:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36026 "EHLO
+        id S233033AbiL1Os5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:48:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233033AbiL1Org (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:47:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C1A411C34
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:46:48 -0800 (PST)
+        with ESMTP id S233069AbiL1Osa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:48:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4347B7F1
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:48:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF8C0B8171A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:46:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C1F8C433D2;
-        Wed, 28 Dec 2022 14:46:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 517DC6153B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:48:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6458BC433D2;
+        Wed, 28 Dec 2022 14:48:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238805;
-        bh=X6pIe/vcPlIeOVVKFsNobKb7x1C8QXWcFn0Z17KpYos=;
+        s=korg; t=1672238908;
+        bh=I4ReXCxBHQxCRGL4VTGkps6QkdJ8vIiK1wxjQpiYzb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CafY/RU6wtfVlIuwbOZkaFP3WHuFmQ8PMznXLnuMysAmKsmx0N1J0r/YiTCU7Ka0J
-         HOLzCDTcvRWAc1XhnZ7Sj/F4Llb2FBp/gs0KUQzDnNRJckT5mEYYTlGLT1S8Mt8TFH
-         54Nv6ivX+9vyx+NfmotDSYPfCpN7RydslNSYt2k4=
+        b=0NlK6CPinhF+XDC6NSxl5YGWPbhiTQCkz6JEjC97/44zsW4anGldHaVIo1Cu97JHm
+         Jqb7/vNqnmyiLfYE7F40w1VA0NLvbjar8FnZiJpwpdq9yWrbqOa9ZIvV/Elhb1meYa
+         AmYMzNp8AYZgZIzCGYjg7z3T34w+1OfHR91dDCHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
+        patches@lists.linux.dev, Luca Weiss <luca.weiss@fairphone.com>,
         Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 017/731] arm64: dts: qcom: sm8250: correct LPASS pin pull down
-Date:   Wed, 28 Dec 2022 15:32:04 +0100
-Message-Id: <20221228144257.037556023@linuxfoundation.org>
+Subject: [PATCH 5.15 018/731] soc: qcom: llcc: make irq truly optional
+Date:   Wed, 28 Dec 2022 15:32:05 +0100
+Message-Id: <20221228144257.066473472@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
 References: <20221228144256.536395940@linuxfoundation.org>
@@ -55,35 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Luca Weiss <luca.weiss@fairphone.com>
 
-[ Upstream commit 195a0a11d66d6c696cbcf398d6bc3f3a3a462f7c ]
+[ Upstream commit c882c899ead3545102a4d71b5fbe73b9e4bc2657 ]
 
-The pull-down property is actually bias-pull-down.
+The function platform_get_irq prints an error message into the kernel
+log when the irq isn't found.
 
-Fixes: 3160c1b894d9 ("arm64: dts: qcom: sm8250: add lpass lpi pin controller node")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Since the interrupt is actually optional and not provided by some SoCs,
+use platform_get_irq_optional which does not print an error message.
+
+Fixes: c081f3060fab ("soc: qcom: Add support to register LLCC EDAC driver")
+Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
 Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20220927153429.55365-4-krzysztof.kozlowski@linaro.org
+Link: https://lore.kernel.org/r/20221104153041.412020-1-luca.weiss@fairphone.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sm8250.dtsi | 2 +-
+ drivers/soc/qcom/llcc-qcom.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm8250.dtsi b/arch/arm64/boot/dts/qcom/sm8250.dtsi
-index b710bca45648..9a95c15c7e8b 100644
---- a/arch/arm64/boot/dts/qcom/sm8250.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm8250.dtsi
-@@ -1933,7 +1933,7 @@ data {
- 					pins = "gpio7";
- 					function = "dmic1_data";
- 					drive-strength = <2>;
--					pull-down;
-+					bias-pull-down;
- 					input-enable;
- 				};
- 			};
+diff --git a/drivers/soc/qcom/llcc-qcom.c b/drivers/soc/qcom/llcc-qcom.c
+index cabd8870316d..47d41804fdf6 100644
+--- a/drivers/soc/qcom/llcc-qcom.c
++++ b/drivers/soc/qcom/llcc-qcom.c
+@@ -607,7 +607,7 @@ static int qcom_llcc_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err;
+ 
+-	drv_data->ecc_irq = platform_get_irq(pdev, 0);
++	drv_data->ecc_irq = platform_get_irq_optional(pdev, 0);
+ 	if (drv_data->ecc_irq >= 0) {
+ 		llcc_edac = platform_device_register_data(&pdev->dev,
+ 						"qcom_llcc_edac", -1, drv_data,
 -- 
 2.35.1
 
