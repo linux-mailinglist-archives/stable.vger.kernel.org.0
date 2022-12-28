@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29BD0657B61
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:20:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DF58657C71
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:33:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233540AbiL1PU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:20:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39866 "EHLO
+        id S233850AbiL1Pc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:32:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233526AbiL1PUy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:20:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F70AB9B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:20:53 -0800 (PST)
+        with ESMTP id S233950AbiL1Pcb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:32:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8888B15F3E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:32:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C56C61544
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:20:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 322B1C433EF;
-        Wed, 28 Dec 2022 15:20:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25C896155C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:32:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37999C433D2;
+        Wed, 28 Dec 2022 15:32:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240852;
-        bh=QXRs9cy1VSHV67JP2WA2HF8wuo12XqBoOATJGQpR0tA=;
+        s=korg; t=1672241546;
+        bh=e0iugbZSA8YJy0JzlOv12gzQwF4jKIBTfD34kkqZM+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=clTIGVUFpC3nxYq4bUEYpBNy7FEuKz6PAzYVk2tEQ3AWOEZ4GRyoJX3lauRlWazVT
-         gFE5HkbPstPo4Uvc6TLFlZt1I217+v8TA+I4ihAbSXcjJBY4MDxohSSTNVP3RxD2Gl
-         DOqDAfVrv/Qu5bdEYSprOudHG3fX0alVUXbHQ328=
+        b=RGIGXwmVmcCsV37Gi4m3Gj5brWyW5LLAiFusLGJdO/4/I2GuASeBvqxOIAOl6WdkT
+         XTRlzITDP2Th9tpgw2IRsSjjsTaLIn91VwJXXK3Rx+M8OG1FmVzPpKs9a0Smf5xkOW
+         u8z2kP8HKJgOoVzcQkZB0s/EyA/0lVJeXziR6u7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Marek Vasut <marex@denx.de>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>,
-        Liu Ying <victor.liu@nxp.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0210/1073] drm: lcdif: Switch to limited range for RGB to YUV conversion
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0259/1146] dw9768: Enable low-power probe on ACPI
 Date:   Wed, 28 Dec 2022 15:29:58 +0100
-Message-Id: <20221228144333.723225565@linuxfoundation.org>
+Message-Id: <20221228144337.172368085@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,68 +53,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-[ Upstream commit ec39dee8b25229a646271815cc86a8fc865525cf ]
+[ Upstream commit 5f9a089b6de34655318afe8e544d9a9cc0fc1d29 ]
 
-Up to and including v1.3, HDMI supported limited quantization range only
-for YCbCr. HDMI v1.4 introduced selectable quantization ranges, but this
-feature isn't supported in the dw-hdmi driver that is used in
-conjunction with the LCDIF in the i.MX8MP. The HDMI YCbCr output is thus
-always advertised in the AVI infoframe as limited range.
+Add support for low-power probe to the driver. Also fix runtime PM API
+usage in the driver.
 
-The LCDIF driver, on the other hand, configures the CSC to produce full
-range YCbCr. This mismatch results in loss of details and incorrect
-colours. Fix it by switching to limited range YCbCr.
+Much of the hassle comes from different factors affecting device power
+states during probe for ACPI and DT.
 
-The coefficients are copied from drivers/media/platforms/nxp/imx-pxp.c
-for coherency, as the hardware is most likely identical.
-
-Fixes: 9db35bb349a0 ("drm: lcdif: Add support for i.MX8MP LCDIF variant")
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Marek Vasut <marex@denx.de>
-Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
-Reviewed-by: Liu Ying <victor.liu@nxp.com>
-Signed-off-by: Marek Vasut <marex@denx.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220930083955.31580-4-laurent.pinchart@ideasonboard.com
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Fixes: 859891228e56 ("media: i2c: dw9768: Add DW9768 VCM driver")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mxsfb/lcdif_kms.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/media/i2c/dw9768.c | 33 +++++++++++++++++++++++++--------
+ 1 file changed, 25 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/mxsfb/lcdif_kms.c b/drivers/gpu/drm/mxsfb/lcdif_kms.c
-index 1bec1279c8b5..11f881554f74 100644
---- a/drivers/gpu/drm/mxsfb/lcdif_kms.c
-+++ b/drivers/gpu/drm/mxsfb/lcdif_kms.c
-@@ -53,16 +53,22 @@ static void lcdif_set_formats(struct lcdif_drm_private *lcdif,
- 		writel(DISP_PARA_LINE_PATTERN_UYVY_H,
- 		       lcdif->base + LCDC_V8_DISP_PARA);
+diff --git a/drivers/media/i2c/dw9768.c b/drivers/media/i2c/dw9768.c
+index 0f47ef015a1d..83a3ee275bbe 100644
+--- a/drivers/media/i2c/dw9768.c
++++ b/drivers/media/i2c/dw9768.c
+@@ -414,6 +414,7 @@ static int dw9768_probe(struct i2c_client *client)
+ {
+ 	struct device *dev = &client->dev;
+ 	struct dw9768 *dw9768;
++	bool full_power;
+ 	unsigned int i;
+ 	int ret;
  
--		/* CSC: BT.601 Full Range RGB to YCbCr coefficients. */
--		writel(CSC0_COEF0_A2(0x096) | CSC0_COEF0_A1(0x04c),
-+		/*
-+		 * CSC: BT.601 Limited Range RGB to YCbCr coefficients.
-+		 *
-+		 * |Y |   | 0.2568  0.5041  0.0979|   |R|   |16 |
-+		 * |Cb| = |-0.1482 -0.2910  0.4392| * |G| + |128|
-+		 * |Cr|   | 0.4392  0.4392 -0.3678|   |B|   |128|
-+		 */
-+		writel(CSC0_COEF0_A2(0x081) | CSC0_COEF0_A1(0x041),
- 		       lcdif->base + LCDC_V8_CSC0_COEF0);
--		writel(CSC0_COEF1_B1(0x7d5) | CSC0_COEF1_A3(0x01d),
-+		writel(CSC0_COEF1_B1(0x7db) | CSC0_COEF1_A3(0x019),
- 		       lcdif->base + LCDC_V8_CSC0_COEF1);
--		writel(CSC0_COEF2_B3(0x080) | CSC0_COEF2_B2(0x7ac),
-+		writel(CSC0_COEF2_B3(0x070) | CSC0_COEF2_B2(0x7b6),
- 		       lcdif->base + LCDC_V8_CSC0_COEF2);
--		writel(CSC0_COEF3_C2(0x795) | CSC0_COEF3_C1(0x080),
-+		writel(CSC0_COEF3_C2(0x7a2) | CSC0_COEF3_C1(0x070),
- 		       lcdif->base + LCDC_V8_CSC0_COEF3);
--		writel(CSC0_COEF4_D1(0x000) | CSC0_COEF4_C3(0x7ec),
-+		writel(CSC0_COEF4_D1(0x010) | CSC0_COEF4_C3(0x7ee),
- 		       lcdif->base + LCDC_V8_CSC0_COEF4);
- 		writel(CSC0_COEF5_D3(0x080) | CSC0_COEF5_D2(0x080),
- 		       lcdif->base + LCDC_V8_CSC0_COEF5);
+@@ -469,13 +470,23 @@ static int dw9768_probe(struct i2c_client *client)
+ 
+ 	dw9768->sd.entity.function = MEDIA_ENT_F_LENS;
+ 
++	/*
++	 * Figure out whether we're going to power up the device here. Generally
++	 * this is done if CONFIG_PM is disabled in a DT system or the device is
++	 * to be powered on in an ACPI system. Similarly for power off in
++	 * remove.
++	 */
+ 	pm_runtime_enable(dev);
+-	if (!pm_runtime_enabled(dev)) {
++	full_power = (is_acpi_node(dev_fwnode(dev)) &&
++		      acpi_dev_state_d0(dev)) ||
++		     (is_of_node(dev_fwnode(dev)) && !pm_runtime_enabled(dev));
++	if (full_power) {
+ 		ret = dw9768_runtime_resume(dev);
+ 		if (ret < 0) {
+ 			dev_err(dev, "failed to power on: %d\n", ret);
+ 			goto err_clean_entity;
+ 		}
++		pm_runtime_set_active(dev);
+ 	}
+ 
+ 	ret = v4l2_async_register_subdev(&dw9768->sd);
+@@ -484,14 +495,17 @@ static int dw9768_probe(struct i2c_client *client)
+ 		goto err_power_off;
+ 	}
+ 
++	pm_runtime_idle(dev);
++
+ 	return 0;
+ 
+ err_power_off:
+-	if (pm_runtime_enabled(dev))
+-		pm_runtime_disable(dev);
+-	else
++	if (full_power) {
+ 		dw9768_runtime_suspend(dev);
++		pm_runtime_set_suspended(dev);
++	}
+ err_clean_entity:
++	pm_runtime_disable(dev);
+ 	media_entity_cleanup(&dw9768->sd.entity);
+ err_free_handler:
+ 	v4l2_ctrl_handler_free(&dw9768->ctrls);
+@@ -503,14 +517,17 @@ static void dw9768_remove(struct i2c_client *client)
+ {
+ 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
+ 	struct dw9768 *dw9768 = sd_to_dw9768(sd);
++	struct device *dev = &client->dev;
+ 
+ 	v4l2_async_unregister_subdev(&dw9768->sd);
+ 	v4l2_ctrl_handler_free(&dw9768->ctrls);
+ 	media_entity_cleanup(&dw9768->sd.entity);
+-	pm_runtime_disable(&client->dev);
+-	if (!pm_runtime_status_suspended(&client->dev))
+-		dw9768_runtime_suspend(&client->dev);
+-	pm_runtime_set_suspended(&client->dev);
++	if ((is_acpi_node(dev_fwnode(dev)) && acpi_dev_state_d0(dev)) ||
++	    (is_of_node(dev_fwnode(dev)) && !pm_runtime_enabled(dev))) {
++		dw9768_runtime_suspend(dev);
++		pm_runtime_set_suspended(dev);
++	}
++	pm_runtime_disable(dev);
+ }
+ 
+ static const struct of_device_id dw9768_of_table[] = {
 -- 
 2.35.1
 
