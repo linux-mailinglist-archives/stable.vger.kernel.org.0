@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE241657C81
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:33:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 429B5657C84
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:33:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233187AbiL1PdW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:33:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51272 "EHLO
+        id S233842AbiL1Pdb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:33:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233868AbiL1PdL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:33:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9E7515FE3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:33:08 -0800 (PST)
+        with ESMTP id S233884AbiL1PdT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:33:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B44415FE9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:33:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6CF2CB81647
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:33:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9D62C43396;
-        Wed, 28 Dec 2022 15:33:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6A3E8B81710
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:33:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0D5FC433D2;
+        Wed, 28 Dec 2022 15:33:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241586;
-        bh=HRL0szz7m3tX6TfUqS2i3vmZRRETeIWr52yGzkEUzXg=;
+        s=korg; t=1672241594;
+        bh=72Wh5J16EpVtZQMTyye0rh1CNnnfej2Qm+l0VhW9Oa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JWse75ZBKCSn9SNXwExjs2JvccBgz9NY/DS/hHkj58BX3OJpIQI/gnFr8XIb3Dxhm
-         IWlWoYzhzMCWCVtVr+AfMI6F1G2I1c0zb0HM1OSrOoLP+AzmyrI9uRTU8L9laphaIv
-         2q5UHGvQPKFGt6eZgQ6q22d01BlBGO54rtMOLGZw=
+        b=Uw2vUXu0PdeaBQsGW6UUKpdS1HB9KZuBD2JDdhT8RyCgpiSBxSEN3eDKC6R9J9rib
+         W8+iv/+OwazMM98BNn9cSramqZtsuZdZTzJc2rR7LM2GpgoqwUIGClQ1LoeES5SDFC
+         6sTLzJ9oz+iGpgtXbQ8RCDw2yK4uX2qAJkqliPaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        patches@lists.linux.dev,
+        Marcus Folkesson <marcus.folkesson@gmail.com>,
+        Jacky Bai <ping.bai@nxp.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 499/731] samples: vfio-mdev: Fix missing pci_disable_device() in mdpy_fb_probe()
-Date:   Wed, 28 Dec 2022 15:40:06 +0100
-Message-Id: <20221228144311.012237551@linuxfoundation.org>
+Subject: [PATCH 5.15 500/731] thermal/drivers/imx8mm_thermal: Validate temperature range
+Date:   Wed, 28 Dec 2022 15:40:07 +0100
+Message-Id: <20221228144311.041052589@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
 References: <20221228144256.536395940@linuxfoundation.org>
@@ -53,56 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
 
-[ Upstream commit d1f0f50fbbbbca1e3e8157e51934613bf88f6d44 ]
+[ Upstream commit d37edc7370273306d8747097fafa62436c1cfe16 ]
 
-Add missing pci_disable_device() in fail path of mdpy_fb_probe().
-Besides, fix missing release functions in mdpy_fb_remove().
+Check against the upper temperature limit (125 degrees C) before
+consider the temperature valid.
 
-Fixes: cacade1946a4 ("sample: vfio mdev display - guest driver")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Link: https://lore.kernel.org/r/20221208013341.3999-1-shangxiaojing@huawei.com
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: 5eed800a6811 ("thermal: imx8mm: Add support for i.MX8MM thermal monitoring unit")
+Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+Reviewed-by: Jacky Bai <ping.bai@nxp.com>
+Link: https://lore.kernel.org/r/20221014073507.1594844-1-marcus.folkesson@gmail.com
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/vfio-mdev/mdpy-fb.c | 8 +++++++-
+ drivers/thermal/imx8mm_thermal.c | 8 +++++++-
  1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/samples/vfio-mdev/mdpy-fb.c b/samples/vfio-mdev/mdpy-fb.c
-index 9ec93d90e8a5..4eb7aa11cfbb 100644
---- a/samples/vfio-mdev/mdpy-fb.c
-+++ b/samples/vfio-mdev/mdpy-fb.c
-@@ -109,7 +109,7 @@ static int mdpy_fb_probe(struct pci_dev *pdev,
+diff --git a/drivers/thermal/imx8mm_thermal.c b/drivers/thermal/imx8mm_thermal.c
+index af666bd9e8d4..c5cd873c6e01 100644
+--- a/drivers/thermal/imx8mm_thermal.c
++++ b/drivers/thermal/imx8mm_thermal.c
+@@ -65,8 +65,14 @@ static int imx8mm_tmu_get_temp(void *data, int *temp)
+ 	u32 val;
  
- 	ret = pci_request_regions(pdev, "mdpy-fb");
- 	if (ret < 0)
--		return ret;
-+		goto err_disable_dev;
- 
- 	pci_read_config_dword(pdev, MDPY_FORMAT_OFFSET, &format);
- 	pci_read_config_dword(pdev, MDPY_WIDTH_OFFSET,	&width);
-@@ -191,6 +191,9 @@ static int mdpy_fb_probe(struct pci_dev *pdev,
- err_release_regions:
- 	pci_release_regions(pdev);
- 
-+err_disable_dev:
-+	pci_disable_device(pdev);
+ 	val = readl_relaxed(tmu->base + TRITSR) & TRITSR_TEMP0_VAL_MASK;
 +
- 	return ret;
- }
++	/*
++	 * Do not validate against the V bit (bit 31) due to errata
++	 * ERR051272: TMU: Bit 31 of registers TMU_TSCR/TMU_TRITSR/TMU_TRATSR invalid
++	 */
++
+ 	*temp = val * 1000;
+-	if (*temp < VER1_TEMP_LOW_LIMIT)
++	if (*temp < VER1_TEMP_LOW_LIMIT || *temp > VER2_TEMP_HIGH_LIMIT)
+ 		return -EAGAIN;
  
-@@ -199,7 +202,10 @@ static void mdpy_fb_remove(struct pci_dev *pdev)
- 	struct fb_info *info = pci_get_drvdata(pdev);
- 
- 	unregister_framebuffer(info);
-+	iounmap(info->screen_base);
- 	framebuffer_release(info);
-+	pci_release_regions(pdev);
-+	pci_disable_device(pdev);
- }
- 
- static struct pci_device_id mdpy_fb_pci_table[] = {
+ 	return 0;
 -- 
 2.35.1
 
