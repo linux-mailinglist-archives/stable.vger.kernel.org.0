@@ -2,50 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43F33657A2D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:08:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CBE4657B4B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:20:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233634AbiL1PIt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:08:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56170 "EHLO
+        id S233268AbiL1PUB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:20:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233635AbiL1PIh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:08:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0F0413DD2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:08:32 -0800 (PST)
+        with ESMTP id S233272AbiL1PUA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:20:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35DAF13F85
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:19:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA4DAB8172A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:08:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05A77C433D2;
-        Wed, 28 Dec 2022 15:08:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CB70CB8170E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:19:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22DA9C433EF;
+        Wed, 28 Dec 2022 15:19:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240110;
-        bh=eccMzzW7OTu/ILpwwXrtUuwxSel4GtIOVIcZ8FAaf2w=;
+        s=korg; t=1672240796;
+        bh=QLtgT65ZnjMkRthxpmKOkw7FSPmIz6FHAdc0DP+xk14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OiitDJH3mFaD7kw7Voe+YDsb+v93J/Zj7eEwxXShShVoN41U4/t0KYRKXZmeWYx6P
-         uPgdzcPDYgPIWNo/6vXSd/Kx/oISctHMZj0v3VnvinQFszJwMjgPU4snp6mYnLa9u/
-         DzTU9X9IPu+kgrpT7gRS7PRxCwfkWpun/g+c/LBw=
+        b=iMumOkDrp8P/vy9wzAUA5NJuRE8mBgjg5T4Mb4vxNRMYepGxV4jR1U5S7fzIqpRGi
+         OLsW2rK97eryU2kDXuSHX9KueWyvekdD4lXzy9yi668fxPIs/2uWJ89vk5DWAqbRUi
+         ybWtn5tyL6g1kUN0sJ4VYt43Xy2wt/eeHnsyGagQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0119/1073] ocfs2: fix memory leak in ocfs2_stack_glue_init()
+Subject: [PATCH 6.1 0168/1146] ACPICA: Fix use-after-free in acpi_ut_copy_ipackage_to_ipackage()
 Date:   Wed, 28 Dec 2022 15:28:27 +0100
-Message-Id: <20221228144331.271093656@linuxfoundation.org>
+Message-Id: <20221228144334.723215235@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,71 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Li Zetao <lizetao1@huawei.com>
 
-[ Upstream commit 13b6269dd022aaa69ca8d1df374ab327504121cf ]
+[ Upstream commit 470188b09e92d83c5a997f25f0e8fb8cd2bc3469 ]
 
-ocfs2_table_header should be free in ocfs2_stack_glue_init() if
-ocfs2_sysfs_init() failed, otherwise kmemleak will report memleak.
+There is an use-after-free reported by KASAN:
 
-BUG: memory leak
-unreferenced object 0xffff88810eeb5800 (size 128):
-  comm "modprobe", pid 4507, jiffies 4296182506 (age 55.888s)
-  hex dump (first 32 bytes):
-    c0 40 14 a0 ff ff ff ff 00 00 00 00 01 00 00 00  .@..............
-    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000001e59e1cd>] __register_sysctl_table+0xca/0xef0
-    [<00000000c04f70f7>] 0xffffffffa0050037
-    [<000000001bd12912>] do_one_initcall+0xdb/0x480
-    [<0000000064f766c9>] do_init_module+0x1cf/0x680
-    [<000000002ba52db0>] load_module+0x6441/0x6f20
-    [<000000009772580d>] __do_sys_finit_module+0x12f/0x1c0
-    [<00000000380c1f22>] do_syscall_64+0x3f/0x90
-    [<000000004cf473bc>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
+  BUG: KASAN: use-after-free in acpi_ut_remove_reference+0x3b/0x82
+  Read of size 1 at addr ffff888112afc460 by task modprobe/2111
+  CPU: 0 PID: 2111 Comm: modprobe Not tainted 6.1.0-rc7-dirty
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
+  Call Trace:
+   <TASK>
+   kasan_report+0xae/0xe0
+   acpi_ut_remove_reference+0x3b/0x82
+   acpi_ut_copy_iobject_to_iobject+0x3be/0x3d5
+   acpi_ds_store_object_to_local+0x15d/0x3a0
+   acpi_ex_store+0x78d/0x7fd
+   acpi_ex_opcode_1A_1T_1R+0xbe4/0xf9b
+   acpi_ps_parse_aml+0x217/0x8d5
+   ...
+   </TASK>
 
-Link: https://lkml.kernel.org/r/41651ca1-432a-db34-eb97-d35744559de1@linux.alibaba.com
-Fixes: 3878f110f71a ("ocfs2: Move the hb_ctl_path sysctl into the stack glue.")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+The root cause of the problem is that the acpi_operand_object
+is freed when acpi_ut_walk_package_tree() fails in
+acpi_ut_copy_ipackage_to_ipackage(), lead to repeated release in
+acpi_ut_copy_iobject_to_iobject(). The problem was introduced
+by "8aa5e56eeb61" commit, this commit is to fix memory leak in
+acpi_ut_copy_iobject_to_iobject(), repeatedly adding remove
+operation, lead to "acpi_operand_object" used after free.
+
+Fix it by removing acpi_ut_remove_reference() in
+acpi_ut_copy_ipackage_to_ipackage(). acpi_ut_copy_ipackage_to_ipackage()
+is called to copy an internal package object into another internal
+package object, when it fails, the memory of acpi_operand_object
+should be freed by the caller.
+
+Fixes: 8aa5e56eeb61 ("ACPICA: Utilities: Fix memory leak in acpi_ut_copy_iobject_to_iobject")
+Signed-off-by: Li Zetao <lizetao1@huawei.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/stackglue.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/acpi/acpica/utcopy.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/fs/ocfs2/stackglue.c b/fs/ocfs2/stackglue.c
-index dd77b7aaabf5..3633da5f7117 100644
---- a/fs/ocfs2/stackglue.c
-+++ b/fs/ocfs2/stackglue.c
-@@ -669,6 +669,8 @@ static struct ctl_table_header *ocfs2_table_header;
- 
- static int __init ocfs2_stack_glue_init(void)
- {
-+	int ret;
-+
- 	strcpy(cluster_stack_name, OCFS2_STACK_PLUGIN_O2CB);
- 
- 	ocfs2_table_header = register_sysctl("fs/ocfs2/nm", ocfs2_nm_table);
-@@ -678,7 +680,11 @@ static int __init ocfs2_stack_glue_init(void)
- 		return -ENOMEM; /* or something. */
- 	}
- 
--	return ocfs2_sysfs_init();
-+	ret = ocfs2_sysfs_init();
-+	if (ret)
-+		unregister_sysctl_table(ocfs2_table_header);
-+
-+	return ret;
+diff --git a/drivers/acpi/acpica/utcopy.c b/drivers/acpi/acpica/utcopy.c
+index 400b9e15a709..63c17f420fb8 100644
+--- a/drivers/acpi/acpica/utcopy.c
++++ b/drivers/acpi/acpica/utcopy.c
+@@ -916,13 +916,6 @@ acpi_ut_copy_ipackage_to_ipackage(union acpi_operand_object *source_obj,
+ 	status = acpi_ut_walk_package_tree(source_obj, dest_obj,
+ 					   acpi_ut_copy_ielement_to_ielement,
+ 					   walk_state);
+-	if (ACPI_FAILURE(status)) {
+-
+-		/* On failure, delete the destination package object */
+-
+-		acpi_ut_remove_reference(dest_obj);
+-	}
+-
+ 	return_ACPI_STATUS(status);
  }
  
- static void __exit ocfs2_stack_glue_exit(void)
 -- 
 2.35.1
 
