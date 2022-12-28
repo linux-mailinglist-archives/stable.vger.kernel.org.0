@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8451657CD1
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:36:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDD5E657DEC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:48:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233887AbiL1PgV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:36:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54076 "EHLO
+        id S234054AbiL1PsK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:48:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233448AbiL1PgV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:36:21 -0500
+        with ESMTP id S234060AbiL1PsJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:48:09 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E160140DA
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:36:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DAEE17E08
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:48:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0E3CB816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:36:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D6D7C433D2;
-        Wed, 28 Dec 2022 15:36:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BD8DAB81716
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:48:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33A84C433D2;
+        Wed, 28 Dec 2022 15:48:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241777;
-        bh=ezCmNJaRnXxW8eiBtplTqFHw8mrhOotUHAKRMgMxQuE=;
+        s=korg; t=1672242485;
+        bh=q4sc++3K2GfvUAKwubTjvcqFLgZ2ewrtLeGPqSmaAzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cMOA84IDz7sZ6ggSSNKDa7ALaR0XO7AJh+cyV+OFhqp7y5fnCR7EjDvJr0i7movms
-         BSHtksL1I1BO7LGvV3qg9+OAR5EWbULn2LTKoMW13BJjng/hgcFB7fLZBw/14KKMWI
-         CueArpV85OPalHV4GNpqXBnPjJ+9lxCnCriMfTvA=
+        b=YzJzgudxDlJK9lhXIxsCHDVSpIjWye5TJOkP9dQyCnCWK7sn6gmZm6lkWW4nZiHSF
+         dJshOhiw5/47vm8Efp4DEZsQ5qZbCijDIuInCwKPtxoEMTA/7czASU0mgzUrgbOmbw
+         u/YOBke+IQkgOwvV8IVAdbumiSMaR4BkkfDH/5Ck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
+        patches@lists.linux.dev,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0326/1073] regulator: qcom-rpmh: Fix PMR735a S3 regulator spec
+Subject: [PATCH 6.1 0375/1146] ASoC: Intel: avs: Lock substream before snd_pcm_stop()
 Date:   Wed, 28 Dec 2022 15:31:54 +0100
-Message-Id: <20221228144336.861712370@linuxfoundation.org>
+Message-Id: <20221228144340.349340657@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@linaro.org>
+From: Cezary Rojewski <cezary.rojewski@intel.com>
 
-[ Upstream commit dd801b2265c81bf0c8b0b4b8f7c1e7bfed078403 ]
+[ Upstream commit c30c8f9d51ec24b36e2c65a6307a5c8cbc5a0ebc ]
 
-PMR735a has a wider range than previously defined. Fix it.
+snd_pcm_stop() shall be called with stream lock held to prevent any
+races between nonatomic streaming operations.
 
-Fixes: c4e5aa3dbee5 ("regulator: qcom-rpmh: Add PM7325/PMR735A regulator support")
-Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Link: https://lore.kernel.org/r/20221110210706.80301-1-konrad.dybcio@linaro.org
+Fixes: 2f1f570cd730 ("ASoC: Intel: avs: Coredump and recovery flow")
+Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Link: https://lore.kernel.org/r/20221116115550.1100398-2-cezary.rojewski@intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/qcom-rpmh-regulator.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/intel/avs/ipc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/regulator/qcom-rpmh-regulator.c b/drivers/regulator/qcom-rpmh-regulator.c
-index 561de6b2e6e3..5839e4732336 100644
---- a/drivers/regulator/qcom-rpmh-regulator.c
-+++ b/drivers/regulator/qcom-rpmh-regulator.c
-@@ -1188,7 +1188,7 @@ static const struct rpmh_vreg_init_data pm7325_vreg_data[] = {
- static const struct rpmh_vreg_init_data pmr735a_vreg_data[] = {
- 	RPMH_VREG("smps1",  "smp%s1",  &pmic5_ftsmps520, "vdd-s1"),
- 	RPMH_VREG("smps2",  "smp%s2",  &pmic5_ftsmps520, "vdd-s2"),
--	RPMH_VREG("smps3",  "smp%s3",  &pmic5_hfsmps510, "vdd-s3"),
-+	RPMH_VREG("smps3",  "smp%s3",  &pmic5_hfsmps515, "vdd-s3"),
- 	RPMH_VREG("ldo1",   "ldo%s1",  &pmic5_nldo,      "vdd-l1-l2"),
- 	RPMH_VREG("ldo2",   "ldo%s2",  &pmic5_nldo,      "vdd-l1-l2"),
- 	RPMH_VREG("ldo3",   "ldo%s3",  &pmic5_nldo,      "vdd-l3"),
+diff --git a/sound/soc/intel/avs/ipc.c b/sound/soc/intel/avs/ipc.c
+index 77da206f7dbb..306f0dc4eaf5 100644
+--- a/sound/soc/intel/avs/ipc.c
++++ b/sound/soc/intel/avs/ipc.c
+@@ -123,7 +123,10 @@ static void avs_dsp_recovery(struct avs_dev *adev)
+ 				if (!substream || !substream->runtime)
+ 					continue;
+ 
++				/* No need for _irq() as we are in nonatomic context. */
++				snd_pcm_stream_lock(substream);
+ 				snd_pcm_stop(substream, SNDRV_PCM_STATE_DISCONNECTED);
++				snd_pcm_stream_unlock(substream);
+ 			}
+ 		}
+ 	}
 -- 
 2.35.1
 
