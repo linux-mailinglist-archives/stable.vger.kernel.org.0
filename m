@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6E08657B95
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77D2C657B99
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233621AbiL1PX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:23:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40980 "EHLO
+        id S233674AbiL1PX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:23:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233328AbiL1PXR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:23:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0FCB13E18
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:23:16 -0800 (PST)
+        with ESMTP id S233619AbiL1PX1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:23:27 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 786B91400A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:23:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D294B816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:23:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBDA2C433D2;
-        Wed, 28 Dec 2022 15:23:13 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C41D4CE1369
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:23:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB5FBC433EF;
+        Wed, 28 Dec 2022 15:23:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240994;
-        bh=MGeFGa+t+de0D4N0m5cs3jCD0iHHSXGXUzRPsSh/mYs=;
+        s=korg; t=1672241002;
+        bh=H0vaa3FeoIgozeIa0nSo6BGTP4KJIvVwr5Garer8nj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gCdfU6ERDxzJx7SOGTLw3PYUjpio7Q6nsujMeT+Dd9h1REHcpgo/LGyNcZA5bcLKM
-         DRkS2NdnlbWpxgXhVcQLv0f3M5l4UFCtxszFfoCuPlh0/Z/eGWjl6ekgr7qR9hvCsz
-         heMdl2jbFZV6sN+pf2Eb1nNefXMBWJQgXX4ZIxR0=
+        b=K58CSHUH7cLDEi27QSPW3E0M1apE90YsYTRi70Zvm+QU4n0VwD58IXJUY/rfRIH7B
+         YQjfYMoqI3nC9f7Kpu9hY5QOU+kh38btKE8nsDzWTkVIQQEuTrZ8oun0P9dSod0nQF
+         G8bFBaYsFcWJT30eMrCRKWsNnzf6oWFWSIaq/eOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev, Bjorn Helgaas <bhelgaas@google.com>,
+        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 425/731] RDMA/srp: Fix error return code in srp_parse_options()
-Date:   Wed, 28 Dec 2022 15:38:52 +0100
-Message-Id: <20221228144308.886921594@linuxfoundation.org>
+Subject: [PATCH 5.15 426/731] PCI: mt7621: Rename mt7621_pci_ to mt7621_pcie_
+Date:   Wed, 28 Dec 2022 15:38:53 +0100
+Message-Id: <20221228144308.915972067@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
 References: <20221228144256.536395940@linuxfoundation.org>
@@ -54,239 +54,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Bjorn Helgaas <bhelgaas@google.com>
 
-[ Upstream commit ed461b30b22c8fa85c25189c14cb89f29595cd14 ]
+[ Upstream commit 4793895f597d42eb54a0f54711b61263b6a8dd03 ]
 
-In the previous iteration of the while loop, the "ret" may have been
-assigned a value of 0, so the error return code -EINVAL may have been
-incorrectly set to 0. To fix set valid return code before calling to
-goto. Also investigate each case separately as Andy suggessted.
+Rename mt7621_pci_* structs and functions to mt7621_pcie_* for consistency
+with the rest of the file.
 
-Fixes: e711f968c49c ("IB/srp: replace custom implementation of hex2bin()")
-Fixes: 2a174df0c602 ("IB/srp: Use kstrtoull() instead of simple_strtoull()")
-Fixes: 19f313438c77 ("IB/srp: Add RDMA/CM support")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Link: https://lore.kernel.org/r/1669953638-11747-2-git-send-email-wangyufen@huawei.com
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Link: https://lore.kernel.org/r/20211223011054.1227810-18-helgaas@kernel.org
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>
+Stable-dep-of: 19098934f910 ("PCI: mt7621: Add sentinel to quirks table")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/srp/ib_srp.c | 96 ++++++++++++++++++++++++-----
- 1 file changed, 82 insertions(+), 14 deletions(-)
+ drivers/staging/mt7621-pci/pci-mt7621.c | 36 ++++++++++++-------------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
-index 2f4991cea98c..a6117a7d0ab1 100644
---- a/drivers/infiniband/ulp/srp/ib_srp.c
-+++ b/drivers/infiniband/ulp/srp/ib_srp.c
-@@ -3397,7 +3397,8 @@ static int srp_parse_options(struct net *net, const char *buf,
- 			break;
+diff --git a/drivers/staging/mt7621-pci/pci-mt7621.c b/drivers/staging/mt7621-pci/pci-mt7621.c
+index 6acfc94a16e7..c4f57bb63482 100644
+--- a/drivers/staging/mt7621-pci/pci-mt7621.c
++++ b/drivers/staging/mt7621-pci/pci-mt7621.c
+@@ -93,8 +93,8 @@ struct mt7621_pcie_port {
+  * reset lines are inverted.
+  */
+ struct mt7621_pcie {
+-	void __iomem *base;
+ 	struct device *dev;
++	void __iomem *base;
+ 	struct list_head ports;
+ 	bool resets_inverted;
+ };
+@@ -129,7 +129,7 @@ static inline void pcie_port_write(struct mt7621_pcie_port *port,
+ 	writel_relaxed(val, port->base + reg);
+ }
  
- 		case SRP_OPT_PKEY:
--			if (match_hex(args, &token)) {
-+			ret = match_hex(args, &token);
-+			if (ret) {
- 				pr_warn("bad P_Key parameter '%s'\n", p);
- 				goto out;
- 			}
-@@ -3457,7 +3458,8 @@ static int srp_parse_options(struct net *net, const char *buf,
- 			break;
+-static inline u32 mt7621_pci_get_cfgaddr(unsigned int bus, unsigned int slot,
++static inline u32 mt7621_pcie_get_cfgaddr(unsigned int bus, unsigned int slot,
+ 					 unsigned int func, unsigned int where)
+ {
+ 	return (((where & 0xF00) >> 8) << 24) | (bus << 16) | (slot << 11) |
+@@ -140,7 +140,7 @@ static void __iomem *mt7621_pcie_map_bus(struct pci_bus *bus,
+ 					 unsigned int devfn, int where)
+ {
+ 	struct mt7621_pcie *pcie = bus->sysdata;
+-	u32 address = mt7621_pci_get_cfgaddr(bus->number, PCI_SLOT(devfn),
++	u32 address = mt7621_pcie_get_cfgaddr(bus->number, PCI_SLOT(devfn),
+ 					     PCI_FUNC(devfn), where);
  
- 		case SRP_OPT_MAX_SECT:
--			if (match_int(args, &token)) {
-+			ret = match_int(args, &token);
-+			if (ret) {
- 				pr_warn("bad max sect parameter '%s'\n", p);
- 				goto out;
- 			}
-@@ -3465,8 +3467,15 @@ static int srp_parse_options(struct net *net, const char *buf,
- 			break;
+ 	writel_relaxed(address, pcie->base + RALINK_PCI_CONFIG_ADDR);
+@@ -148,7 +148,7 @@ static void __iomem *mt7621_pcie_map_bus(struct pci_bus *bus,
+ 	return pcie->base + RALINK_PCI_CONFIG_DATA + (where & 3);
+ }
  
- 		case SRP_OPT_QUEUE_SIZE:
--			if (match_int(args, &token) || token < 1) {
-+			ret = match_int(args, &token);
-+			if (ret) {
-+				pr_warn("match_int() failed for queue_size parameter '%s', Error %d\n",
-+					p, ret);
-+				goto out;
-+			}
-+			if (token < 1) {
- 				pr_warn("bad queue_size parameter '%s'\n", p);
-+				ret = -EINVAL;
- 				goto out;
- 			}
- 			target->scsi_host->can_queue = token;
-@@ -3477,25 +3486,40 @@ static int srp_parse_options(struct net *net, const char *buf,
- 			break;
+-struct pci_ops mt7621_pci_ops = {
++struct pci_ops mt7621_pcie_ops = {
+ 	.map_bus	= mt7621_pcie_map_bus,
+ 	.read		= pci_generic_config_read,
+ 	.write		= pci_generic_config_write,
+@@ -156,7 +156,7 @@ struct pci_ops mt7621_pci_ops = {
  
- 		case SRP_OPT_MAX_CMD_PER_LUN:
--			if (match_int(args, &token) || token < 1) {
-+			ret = match_int(args, &token);
-+			if (ret) {
-+				pr_warn("match_int() failed for max cmd_per_lun parameter '%s', Error %d\n",
-+					p, ret);
-+				goto out;
-+			}
-+			if (token < 1) {
- 				pr_warn("bad max cmd_per_lun parameter '%s'\n",
- 					p);
-+				ret = -EINVAL;
- 				goto out;
- 			}
- 			target->scsi_host->cmd_per_lun = token;
- 			break;
+ static u32 read_config(struct mt7621_pcie *pcie, unsigned int dev, u32 reg)
+ {
+-	u32 address = mt7621_pci_get_cfgaddr(0, dev, 0, reg);
++	u32 address = mt7621_pcie_get_cfgaddr(0, dev, 0, reg);
  
- 		case SRP_OPT_TARGET_CAN_QUEUE:
--			if (match_int(args, &token) || token < 1) {
-+			ret = match_int(args, &token);
-+			if (ret) {
-+				pr_warn("match_int() failed for max target_can_queue parameter '%s', Error %d\n",
-+					p, ret);
-+				goto out;
-+			}
-+			if (token < 1) {
- 				pr_warn("bad max target_can_queue parameter '%s'\n",
- 					p);
-+				ret = -EINVAL;
- 				goto out;
- 			}
- 			target->target_can_queue = token;
- 			break;
+ 	pcie_write(pcie, address, RALINK_PCI_CONFIG_ADDR);
+ 	return pcie_read(pcie, RALINK_PCI_CONFIG_DATA);
+@@ -165,7 +165,7 @@ static u32 read_config(struct mt7621_pcie *pcie, unsigned int dev, u32 reg)
+ static void write_config(struct mt7621_pcie *pcie, unsigned int dev,
+ 			 u32 reg, u32 val)
+ {
+-	u32 address = mt7621_pci_get_cfgaddr(0, dev, 0, reg);
++	u32 address = mt7621_pcie_get_cfgaddr(0, dev, 0, reg);
  
- 		case SRP_OPT_IO_CLASS:
--			if (match_hex(args, &token)) {
-+			ret = match_hex(args, &token);
-+			if (ret) {
- 				pr_warn("bad IO class parameter '%s'\n", p);
- 				goto out;
- 			}
-@@ -3504,6 +3528,7 @@ static int srp_parse_options(struct net *net, const char *buf,
- 				pr_warn("unknown IO class parameter value %x specified (use %x or %x).\n",
- 					token, SRP_REV10_IB_IO_CLASS,
- 					SRP_REV16A_IB_IO_CLASS);
-+				ret = -EINVAL;
- 				goto out;
- 			}
- 			target->io_class = token;
-@@ -3526,16 +3551,24 @@ static int srp_parse_options(struct net *net, const char *buf,
- 			break;
+ 	pcie_write(pcie, address, RALINK_PCI_CONFIG_ADDR);
+ 	pcie_write(pcie, val, RALINK_PCI_CONFIG_DATA);
+@@ -505,16 +505,16 @@ static int mt7621_pcie_register_host(struct pci_host_bridge *host)
+ {
+ 	struct mt7621_pcie *pcie = pci_host_bridge_priv(host);
  
- 		case SRP_OPT_CMD_SG_ENTRIES:
--			if (match_int(args, &token) || token < 1 || token > 255) {
-+			ret = match_int(args, &token);
-+			if (ret) {
-+				pr_warn("match_int() failed for max cmd_sg_entries parameter '%s', Error %d\n",
-+					p, ret);
-+				goto out;
-+			}
-+			if (token < 1 || token > 255) {
- 				pr_warn("bad max cmd_sg_entries parameter '%s'\n",
- 					p);
-+				ret = -EINVAL;
- 				goto out;
- 			}
- 			target->cmd_sg_cnt = token;
- 			break;
+-	host->ops = &mt7621_pci_ops;
++	host->ops = &mt7621_pcie_ops;
+ 	host->sysdata = pcie;
+ 	return pci_host_probe(host);
+ }
  
- 		case SRP_OPT_ALLOW_EXT_SG:
--			if (match_int(args, &token)) {
-+			ret = match_int(args, &token);
-+			if (ret) {
- 				pr_warn("bad allow_ext_sg parameter '%s'\n", p);
- 				goto out;
- 			}
-@@ -3543,43 +3576,77 @@ static int srp_parse_options(struct net *net, const char *buf,
- 			break;
+-static const struct soc_device_attribute mt7621_pci_quirks_match[] = {
++static const struct soc_device_attribute mt7621_pcie_quirks_match[] = {
+ 	{ .soc_id = "mt7621", .revision = "E2" }
+ };
  
- 		case SRP_OPT_SG_TABLESIZE:
--			if (match_int(args, &token) || token < 1 ||
--					token > SG_MAX_SEGMENTS) {
-+			ret = match_int(args, &token);
-+			if (ret) {
-+				pr_warn("match_int() failed for max sg_tablesize parameter '%s', Error %d\n",
-+					p, ret);
-+				goto out;
-+			}
-+			if (token < 1 || token > SG_MAX_SEGMENTS) {
- 				pr_warn("bad max sg_tablesize parameter '%s'\n",
- 					p);
-+				ret = -EINVAL;
- 				goto out;
- 			}
- 			target->sg_tablesize = token;
- 			break;
+-static int mt7621_pci_probe(struct platform_device *pdev)
++static int mt7621_pcie_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+ 	const struct soc_device_attribute *attr;
+@@ -535,7 +535,7 @@ static int mt7621_pci_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, pcie);
+ 	INIT_LIST_HEAD(&pcie->ports);
  
- 		case SRP_OPT_COMP_VECTOR:
--			if (match_int(args, &token) || token < 0) {
-+			ret = match_int(args, &token);
-+			if (ret) {
-+				pr_warn("match_int() failed for comp_vector parameter '%s', Error %d\n",
-+					p, ret);
-+				goto out;
-+			}
-+			if (token < 0) {
- 				pr_warn("bad comp_vector parameter '%s'\n", p);
-+				ret = -EINVAL;
- 				goto out;
- 			}
- 			target->comp_vector = token;
- 			break;
+-	attr = soc_device_match(mt7621_pci_quirks_match);
++	attr = soc_device_match(mt7621_pcie_quirks_match);
+ 	if (attr)
+ 		pcie->resets_inverted = true;
  
- 		case SRP_OPT_TL_RETRY_COUNT:
--			if (match_int(args, &token) || token < 2 || token > 7) {
-+			ret = match_int(args, &token);
-+			if (ret) {
-+				pr_warn("match_int() failed for tl_retry_count parameter '%s', Error %d\n",
-+					p, ret);
-+				goto out;
-+			}
-+			if (token < 2 || token > 7) {
- 				pr_warn("bad tl_retry_count parameter '%s' (must be a number between 2 and 7)\n",
- 					p);
-+				ret = -EINVAL;
- 				goto out;
- 			}
- 			target->tl_retry_count = token;
- 			break;
+@@ -572,7 +572,7 @@ static int mt7621_pci_probe(struct platform_device *pdev)
+ 	return err;
+ }
  
- 		case SRP_OPT_MAX_IT_IU_SIZE:
--			if (match_int(args, &token) || token < 0) {
-+			ret = match_int(args, &token);
-+			if (ret) {
-+				pr_warn("match_int() failed for max it_iu_size parameter '%s', Error %d\n",
-+					p, ret);
-+				goto out;
-+			}
-+			if (token < 0) {
- 				pr_warn("bad maximum initiator to target IU size '%s'\n", p);
-+				ret = -EINVAL;
- 				goto out;
- 			}
- 			target->max_it_iu_size = token;
- 			break;
+-static int mt7621_pci_remove(struct platform_device *pdev)
++static int mt7621_pcie_remove(struct platform_device *pdev)
+ {
+ 	struct mt7621_pcie *pcie = platform_get_drvdata(pdev);
+ 	struct mt7621_pcie_port *port;
+@@ -583,18 +583,18 @@ static int mt7621_pci_remove(struct platform_device *pdev)
+ 	return 0;
+ }
  
- 		case SRP_OPT_CH_COUNT:
--			if (match_int(args, &token) || token < 1) {
-+			ret = match_int(args, &token);
-+			if (ret) {
-+				pr_warn("match_int() failed for channel count parameter '%s', Error %d\n",
-+					p, ret);
-+				goto out;
-+			}
-+			if (token < 1) {
- 				pr_warn("bad channel count %s\n", p);
-+				ret = -EINVAL;
- 				goto out;
- 			}
- 			target->ch_count = token;
-@@ -3588,6 +3655,7 @@ static int srp_parse_options(struct net *net, const char *buf,
- 		default:
- 			pr_warn("unknown parameter or missing value '%s' in target creation request\n",
- 				p);
-+			ret = -EINVAL;
- 			goto out;
- 		}
- 	}
+-static const struct of_device_id mt7621_pci_ids[] = {
++static const struct of_device_id mt7621_pcie_ids[] = {
+ 	{ .compatible = "mediatek,mt7621-pci" },
+ 	{},
+ };
+-MODULE_DEVICE_TABLE(of, mt7621_pci_ids);
++MODULE_DEVICE_TABLE(of, mt7621_pcie_ids);
+ 
+-static struct platform_driver mt7621_pci_driver = {
+-	.probe = mt7621_pci_probe,
+-	.remove = mt7621_pci_remove,
++static struct platform_driver mt7621_pcie_driver = {
++	.probe = mt7621_pcie_probe,
++	.remove = mt7621_pcie_remove,
+ 	.driver = {
+ 		.name = "mt7621-pci",
+-		.of_match_table = of_match_ptr(mt7621_pci_ids),
++		.of_match_table = of_match_ptr(mt7621_pcie_ids),
+ 	},
+ };
+-builtin_platform_driver(mt7621_pci_driver);
++builtin_platform_driver(mt7621_pcie_driver);
 -- 
 2.35.1
 
