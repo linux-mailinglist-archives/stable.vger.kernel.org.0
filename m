@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A35E4657EED
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:59:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 361646584A9
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:00:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233034AbiL1P7R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:59:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46364 "EHLO
+        id S235025AbiL1RAF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:00:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234221AbiL1P7Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:59:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C051618B1F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:59:15 -0800 (PST)
+        with ESMTP id S235453AbiL1Q72 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:59:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9AB11FF88
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:54:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 598C861563
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:59:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B4AEC433EF;
-        Wed, 28 Dec 2022 15:59:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6A197B81707
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:54:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEBDDC433EF;
+        Wed, 28 Dec 2022 16:54:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243154;
-        bh=u6MaG4xWvQTER4Qs822buU63yqRgryUF+fmgpGr/K0U=;
+        s=korg; t=1672246495;
+        bh=Yhax/MwVbtU6W9yuuNo0wM5O1TjPnhk2PUjHwj/80aA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RAPmLkXtSgUFkXFvoi265lEvP8DqPIEB+tT9c2RgO8feK5NjCJ7HqewjLuHBNWCx7
-         eBdDrdTt8fm6gwDEJz0A8k/XuWm+3Km7ewfIgeGkONhKb57jYvsGJVYaXBybYaNOFn
-         4dY9UE/2KimMfQtnly7m+jm1Tdt+mBxE6/t+zdRA=
+        b=c6aGuW0N4qLh30Z3eoMdzv0jEWBGFyej5kbXHIfzRkfj0u4cND/8irApKFtQjoj7U
+         PZiFYMSTm0zzpT/73qZ12v6Pu4IoRNeNUIzSRd1NgTpL3t1i4CVOkl0jZnJhCmVh8e
+         Am4FVcD2lHjCdy0ACvevmlg41g4+2beIIWSfOC7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Scott Benesh <scott.benesh@microchip.com>,
+        Scott Teel <scott.teel@microchip.com>,
+        Mike McGowen <mike.mcgowen@microchip.com>,
+        Don Brace <don.brace@microchip.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 689/731] ASoC: mediatek: mt8173-rt5650-rt5514: fix refcount leak in mt8173_rt5650_rt5514_dev_probe()
+Subject: [PATCH 6.1 1057/1146] scsi: smartpqi: Add new controller PCI IDs
 Date:   Wed, 28 Dec 2022 15:43:16 +0100
-Message-Id: <20221228144316.437471899@linuxfoundation.org>
+Message-Id: <20221228144359.003522026@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +56,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Mike McGowen <mike.mcgowen@microchip.com>
 
-[ Upstream commit 3327d721114c109ba0575f86f8fda3b525404054 ]
+[ Upstream commit 0b93cf2a9097b1c3d75642ef878ba87f15f03043 ]
 
-The node returned by of_parse_phandle() with refcount incremented,
-of_node_put() needs be called when finish using it. So add it in the
-error path in mt8173_rt5650_rt5514_dev_probe().
+All PCI ID entries in Hex.
+Add PCI IDs for ByteDance controllers:
+                                            VID  / DID  / SVID / SDID
+                                            ----   ----   ----   ----
+    ByteHBA JGH43024-8                      9005 / 028f / 1e93 / 1000
+    ByteHBA JGH43034-8                      9005 / 028f / 1e93 / 1001
+    ByteHBA JGH44014-8                      9005 / 028f / 1e93 / 1002
 
-Fixes: 0d1d7a664288 ("ASoC: mediatek: Refine mt8173 driver and change config option")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Link: https://lore.kernel.org/r/1670234664-24246-1-git-send-email-wangyufen@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Add PCI IDs for new Inspur controllers:
+                                            VID  / DID  / SVID / SDID
+                                            ----   ----   ----   ----
+    INSPUR RT0800M7E                        9005 / 028f / 1bd4 / 0086
+    INSPUR RT0800M7H                        9005 / 028f / 1bd4 / 0087
+    INSPUR RT0804M7R                        9005 / 028f / 1bd4 / 0088
+    INSPUR RT0808M7R                        9005 / 028f / 1bd4 / 0089
+
+Add PCI IDs for new FAB A controllers:
+                                            VID  / DID  / SVID / SDID
+                                            ----   ----   ----   ----
+    Adaptec SmartRAID 3254-16e /e           9005 / 028f / 9005 / 1475
+    Adaptec HBA 1200-16e                    9005 / 028f / 9005 / 14c3
+    Adaptec HBA 1200-8e                     9005 / 028f / 9005 / 14c4
+
+Add H3C controller PCI IDs:
+                                            VID  / DID  / SVID / SDID
+                                            ----   ----   ----   ----
+    H3C H4508-Mf-8i                         9005 / 028f / 193d / 110b
+
+Reviewed-by: Scott Benesh <scott.benesh@microchip.com>
+Reviewed-by: Scott Teel <scott.teel@microchip.com>
+Signed-off-by: Mike McGowen <mike.mcgowen@microchip.com>
+Signed-off-by: Don Brace <don.brace@microchip.com>
+Link: https://lore.kernel.org/r/166793530327.322537.6056884426657539311.stgit@brunhilda
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/scsi/smartpqi/smartpqi_init.c | 44 +++++++++++++++++++++++++++
+ 1 file changed, 44 insertions(+)
 
-diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
-index 390da5bf727e..9421b919d462 100644
---- a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
-+++ b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
-@@ -200,14 +200,16 @@ static int mt8173_rt5650_rt5514_dev_probe(struct platform_device *pdev)
- 	if (!mt8173_rt5650_rt5514_dais[DAI_LINK_CODEC_I2S].codecs[0].of_node) {
- 		dev_err(&pdev->dev,
- 			"Property 'audio-codec' missing or invalid\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto out;
- 	}
- 	mt8173_rt5650_rt5514_dais[DAI_LINK_CODEC_I2S].codecs[1].of_node =
- 		of_parse_phandle(pdev->dev.of_node, "mediatek,audio-codec", 1);
- 	if (!mt8173_rt5650_rt5514_dais[DAI_LINK_CODEC_I2S].codecs[1].of_node) {
- 		dev_err(&pdev->dev,
- 			"Property 'audio-codec' missing or invalid\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto out;
- 	}
- 	mt8173_rt5650_rt5514_codec_conf[0].dlc.of_node =
- 		mt8173_rt5650_rt5514_dais[DAI_LINK_CODEC_I2S].codecs[1].of_node;
-@@ -219,6 +221,7 @@ static int mt8173_rt5650_rt5514_dev_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
- 			__func__, ret);
- 
-+out:
- 	of_node_put(platform_node);
- 	return ret;
- }
+diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
+index b971fbe3b3a1..78fc743f46e4 100644
+--- a/drivers/scsi/smartpqi/smartpqi_init.c
++++ b/drivers/scsi/smartpqi/smartpqi_init.c
+@@ -9302,6 +9302,10 @@ static const struct pci_device_id pqi_pci_id_table[] = {
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       0x193d, 0x1109)
+ 	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       0x193d, 0x110b)
++	},
+ 	{
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       0x193d, 0x8460)
+@@ -9402,6 +9406,22 @@ static const struct pci_device_id pqi_pci_id_table[] = {
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       0x1bd4, 0x0072)
+ 	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       0x1bd4, 0x0086)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       0x1bd4, 0x0087)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       0x1bd4, 0x0088)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       0x1bd4, 0x0089)
++	},
+ 	{
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       0x19e5, 0xd227)
+@@ -9650,6 +9670,10 @@ static const struct pci_device_id pqi_pci_id_table[] = {
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       PCI_VENDOR_ID_ADAPTEC2, 0x1474)
+ 	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x1475)
++	},
+ 	{
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       PCI_VENDOR_ID_ADAPTEC2, 0x1480)
+@@ -9706,6 +9730,14 @@ static const struct pci_device_id pqi_pci_id_table[] = {
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       PCI_VENDOR_ID_ADAPTEC2, 0x14c2)
+ 	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x14c3)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x14c4)
++	},
+ 	{
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       PCI_VENDOR_ID_ADAPTEC2, 0x14d0)
+@@ -9942,6 +9974,18 @@ static const struct pci_device_id pqi_pci_id_table[] = {
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       PCI_VENDOR_ID_LENOVO, 0x0623)
+ 	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++				0x1e93, 0x1000)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++				0x1e93, 0x1001)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++				0x1e93, 0x1002)
++	},
+ 	{
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       PCI_ANY_ID, PCI_ANY_ID)
 -- 
 2.35.1
 
