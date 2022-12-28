@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E2FF657B8F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:23:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EFB765823E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:34:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233335AbiL1PXW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:23:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40246 "EHLO
+        id S234732AbiL1QeT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:34:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233674AbiL1PXB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:23:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D23C13F5A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:22:56 -0800 (PST)
+        with ESMTP id S234813AbiL1Qdj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 748A01C410
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:31:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C21061544
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:22:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A1B3C433EF;
-        Wed, 28 Dec 2022 15:22:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BD90EB8171E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:31:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A503C433EF;
+        Wed, 28 Dec 2022 16:31:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240975;
-        bh=GmCXSwPE5NP+SaO5s7kju7LigtOKyGlQFSX61WElufY=;
+        s=korg; t=1672245069;
+        bh=PlHBVn08YpjN7k+XsOfJZRjQJPmkDDTrkLM3CKK5tBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L6ZyAlxiLGB5L64nFQqNTa4nZGb83246heH6+NHvhMRZjbgDvQarDffcjRy0sFzyb
-         cx+iZBDfoiIncueAP5DkQTWc2P7ffZbTqOd6baJ3+JTvFUSK5VxaZMaxgNAd0OzL1y
-         dHIE54d+9YQV80ae9QMbQN1Y+xH52FbR+c/JQaQI=
+        b=pCt1wcqzoVC58JJu+YQ+jWAQuwhzi/GyxLjfrf61bLNUuOlYPmNfl83ZQ8xNoDQPo
+         iQvMK+KvDpKpCYRvn2zjef46Q83HeZtiZd/UajzfcYkpBt3HVz2fCF2LDkELOF+gXs
+         LcswhCgh26rzGLACWkKLn094G4pHwpPivFqo/sMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tong Tiangen <tongtiangen@huawei.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        patches@lists.linux.dev, Dan Carpenter <dan.carpenter@oracle.com>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 423/731] riscv/mm: add arch hook arch_clear_hugepage_flags
+Subject: [PATCH 6.1 0791/1146] fs/ntfs3: Harden against integer overflows
 Date:   Wed, 28 Dec 2022 15:38:50 +0100
-Message-Id: <20221228144308.830342918@linuxfoundation.org>
+Message-Id: <20221228144351.633958159@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Tiangen <tongtiangen@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit d8bf77a1dc3079692f54be3087a5fd16d90027b0 ]
+[ Upstream commit e001e60869390686809663c02bceb1d3922548fb ]
 
-With the PG_arch_1 we keep track if the page's data cache is clean,
-architecture rely on this property to treat new pages as dirty with
-respect to the data cache and perform the flushing before mapping the pages
-into userspace.
+Smatch complains that the "add_bytes" is not to be trusted.  Use
+size_add() to prevent an integer overflow.
 
-This patch adds a new architecture hook, arch_clear_hugepage_flags,so that
-architectures which rely on the page flags being in a particular state for
-fresh allocations can adjust the flags accordingly when a page is freed
-into the pool.
-
-Fixes: 9e953cda5cdf ("riscv: Introduce huge page support for 32/64bit kernel")
-Signed-off-by: Tong Tiangen <tongtiangen@huawei.com>
-Link: https://lore.kernel.org/r/20221024094725.3054311-3-tongtiangen@huawei.com
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Fixes: be71b5cba2e6 ("fs/ntfs3: Add attrib operations")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/include/asm/hugetlb.h | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/ntfs3/xattr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/riscv/include/asm/hugetlb.h b/arch/riscv/include/asm/hugetlb.h
-index a5c2ca1d1cd8..ec19d6afc896 100644
---- a/arch/riscv/include/asm/hugetlb.h
-+++ b/arch/riscv/include/asm/hugetlb.h
-@@ -5,4 +5,10 @@
- #include <asm-generic/hugetlb.h>
- #include <asm/page.h>
+diff --git a/fs/ntfs3/xattr.c b/fs/ntfs3/xattr.c
+index 7de8718c68a9..ea582b4fe1d9 100644
+--- a/fs/ntfs3/xattr.c
++++ b/fs/ntfs3/xattr.c
+@@ -107,7 +107,7 @@ static int ntfs_read_ea(struct ntfs_inode *ni, struct EA_FULL **ea,
+ 		return -EFBIG;
  
-+static inline void arch_clear_hugepage_flags(struct page *page)
-+{
-+	clear_bit(PG_dcache_clean, &page->flags);
-+}
-+#define arch_clear_hugepage_flags arch_clear_hugepage_flags
-+
- #endif /* _ASM_RISCV_HUGETLB_H */
+ 	/* Allocate memory for packed Ea. */
+-	ea_p = kmalloc(size + add_bytes, GFP_NOFS);
++	ea_p = kmalloc(size_add(size, add_bytes), GFP_NOFS);
+ 	if (!ea_p)
+ 		return -ENOMEM;
+ 
 -- 
 2.35.1
 
