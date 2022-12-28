@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A76A65792E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:58:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA180658019
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:13:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233302AbiL1O6z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:58:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45762 "EHLO
+        id S234466AbiL1QNp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:13:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233398AbiL1O6V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:58:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46A1112D0D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:58:19 -0800 (PST)
+        with ESMTP id S234467AbiL1QNJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:13:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8145F1AA06
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:11:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA8556154E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:58:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA0DBC433F0;
-        Wed, 28 Dec 2022 14:58:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6A64B81710
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:11:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3202EC433D2;
+        Wed, 28 Dec 2022 16:11:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239498;
-        bh=UdG7QiJygTiMMda7IGG6h6/bVahLIEclrvlPsHKeqKM=;
+        s=korg; t=1672243885;
+        bh=e2aaQ2Y2YJbiLzEGOzXnq9KhHn6R4/v594YV73e4B6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NIGr5IPN7Vf8FkIpBIMDjrYw1mOTvY6Q+QmVBe4FJdCrRmxOsu1La5qrrUnblSKsy
-         sC8slipPq+4kgCC/Q/zfG1Y8DVCpZ/HpCAn8dL1XyGHYz4jx8bL70DetaTNxJLQErK
-         KcEMAoTClYGxXTAayU39pY4PRAnBI4vmyhI+JVWc=
+        b=h2bCmTCv5jJkYbz3VXPwupXadbk+QTSk4EYQIdK8315I1q/dhkimQzrD75zMPnaWN
+         lrrv6TTt8LRr4ZXZ6Mbf8B6ddX93lE21qbF8HOW2dnbTNKe9hElmMlnaZCZ7Dm9lx1
+         vSAGzGtJOKky2I2jZEcMFevRDtefUNcCa43H6R7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, GUO Zihua <guozihua@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        patches@lists.linux.dev,
+        John Johansen <john.johansen@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 204/731] integrity: Fix memory leakage in keyring allocation error path
+Subject: [PATCH 6.1 0572/1146] apparmor: fix lockdep warning when removing a namespace
 Date:   Wed, 28 Dec 2022 15:35:11 +0100
-Message-Id: <20221228144302.473554173@linuxfoundation.org>
+Message-Id: <20221228144345.709740307@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: GUO Zihua <guozihua@huawei.com>
+From: John Johansen <john.johansen@canonical.com>
 
-[ Upstream commit 39419ef7af0916cc3620ecf1ed42d29659109bf3 ]
+[ Upstream commit 9c4557efc558a68e4cd973490fd936d6e3414db8 ]
 
-Key restriction is allocated in integrity_init_keyring(). However, if
-keyring allocation failed, it is not freed, causing memory leaks.
+Fix the following lockdep warning
 
-Fixes: 2b6aa412ff23 ("KEYS: Use structure to capture key restriction function and data")
-Signed-off-by: GUO Zihua <guozihua@huawei.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+[ 1119.158984] ============================================
+[ 1119.158988] WARNING: possible recursive locking detected
+[ 1119.158996] 6.0.0-rc1+ #257 Tainted: G            E    N
+[ 1119.158999] --------------------------------------------
+[ 1119.159001] bash/80100 is trying to acquire lock:
+[ 1119.159007] ffff88803e79b4a0 (&ns->lock/1){+.+.}-{4:4}, at: destroy_ns.part.0+0x43/0x140
+[ 1119.159028]
+               but task is already holding lock:
+[ 1119.159030] ffff8881009764a0 (&ns->lock/1){+.+.}-{4:4}, at: aa_remove_profiles+0x3f0/0x640
+[ 1119.159040]
+               other info that might help us debug this:
+[ 1119.159042]  Possible unsafe locking scenario:
+
+[ 1119.159043]        CPU0
+[ 1119.159045]        ----
+[ 1119.159047]   lock(&ns->lock/1);
+[ 1119.159051]   lock(&ns->lock/1);
+[ 1119.159055]
+                *** DEADLOCK ***
+
+Which is caused by an incorrect lockdep nesting notation
+
+Fixes: feb3c766a3ab ("apparmor: fix possible recursive lock warning in __aa_create_ns")
+Signed-off-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/digsig.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ security/apparmor/policy.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/integrity/digsig.c b/security/integrity/digsig.c
-index 3b06a01bd0fd..aa93b750a9f3 100644
---- a/security/integrity/digsig.c
-+++ b/security/integrity/digsig.c
-@@ -122,6 +122,7 @@ int __init integrity_init_keyring(const unsigned int id)
- {
- 	struct key_restriction *restriction;
- 	key_perm_t perm;
-+	int ret;
+diff --git a/security/apparmor/policy.c b/security/apparmor/policy.c
+index 499c0209b6a4..fbdfcef91c61 100644
+--- a/security/apparmor/policy.c
++++ b/security/apparmor/policy.c
+@@ -1170,7 +1170,7 @@ ssize_t aa_remove_profiles(struct aa_ns *policy_ns, struct aa_label *subj,
  
- 	perm = (KEY_POS_ALL & ~KEY_POS_SETATTR) | KEY_USR_VIEW
- 		| KEY_USR_READ | KEY_USR_SEARCH;
-@@ -142,7 +143,10 @@ int __init integrity_init_keyring(const unsigned int id)
- 	perm |= KEY_USR_WRITE;
- 
- out:
--	return __integrity_init_keyring(id, perm, restriction);
-+	ret = __integrity_init_keyring(id, perm, restriction);
-+	if (ret)
-+		kfree(restriction);
-+	return ret;
- }
- 
- static int __init integrity_add_key(const unsigned int id, const void *data,
+ 	if (!name) {
+ 		/* remove namespace - can only happen if fqname[0] == ':' */
+-		mutex_lock_nested(&ns->parent->lock, ns->level);
++		mutex_lock_nested(&ns->parent->lock, ns->parent->level);
+ 		__aa_bump_ns_revision(ns);
+ 		__aa_remove_ns(ns);
+ 		mutex_unlock(&ns->parent->lock);
 -- 
 2.35.1
 
