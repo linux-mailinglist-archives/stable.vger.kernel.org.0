@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08DE0657869
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:50:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 245B5657F04
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:00:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233122AbiL1Ou1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:50:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37920 "EHLO
+        id S234239AbiL1QAS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:00:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233098AbiL1OuP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:50:15 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2DC811808
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:50:14 -0800 (PST)
+        with ESMTP id S234242AbiL1QAO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:00:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEC3A19001
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:00:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 19740CE134B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:50:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D2CEC433D2;
-        Wed, 28 Dec 2022 14:50:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 59841613E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:00:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68569C433D2;
+        Wed, 28 Dec 2022 16:00:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239011;
-        bh=3A+SBrRFxWKVJUUDtRJhCLdZyBljL+UkRhtIduD9JIs=;
+        s=korg; t=1672243212;
+        bh=68xVN3VZeD0h3tBkM7WjOn+syreLcmrMvcQukqO9hsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YAFfPrJPiOlZEglz24Tgkehdby1IbDqQjgw1pExjvwqB5g2wBy0/8kKmgAUFwCMhU
-         EVismXNoxt8oOrg4/LRMf2My4Y7d/kBL9DdiqKMokDk1BE5WluVUKy4LsMeunOYmcM
-         KN8QHaO6Y6OetCkghOJ+MwXyJGomXtjz6tVH95UU=
+        b=NO4PUmBZpDXs8okx1sc7g68S+g1II+W0vtnEmnyMs0bcrMQYw2olpxo2sVeYpo1Wp
+         4HL3ygdjLpPlUQP6VhYVAFT/yl99bPFHNgi9ttvKguCtHcFSZJV5jFudd98QOV8Qfc
+         V2fdXyzioqzUtvaNcrdTeaTGzg6C0jGSW/a1kgIo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 095/731] perf/x86/intel/uncore: Fix reference count leak in snr_uncore_mmio_map()
+        patches@lists.linux.dev, Deren Wu <deren.wu@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0463/1146] wifi: mt76: do not send firmware FW_FEATURE_NON_DL region
 Date:   Wed, 28 Dec 2022 15:33:22 +0100
-Message-Id: <20221228144259.304208786@linuxfoundation.org>
+Message-Id: <20221228144342.759041031@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Deren Wu <deren.wu@mediatek.com>
 
-[ Upstream commit 8ebd16c11c346751b3944d708e6c181ed4746c39 ]
+[ Upstream commit f37f76d43865c58cb96aa13c87164abb41f22d0b ]
 
-pci_get_device() will increase the reference count for the returned
-pci_dev, so snr_uncore_get_mc_dev() will return a pci_dev with its
-reference count increased. We need to call pci_dev_put() to decrease the
-reference count. Let's add the missing pci_dev_put().
+skip invalid section to avoid potential risks
 
-Fixes: ee49532b38dd ("perf/x86/intel/uncore: Add IMC uncore support for Snow Ridge")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-Link: https://lore.kernel.org/r/20221118063137.121512-4-wangxiongfeng2@huawei.com
+Fixes: 23bdc5d8cadf ("wifi: mt76: mt7921: introduce Country Location Control support")
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/uncore_snbep.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index f5d89d06c66a..fcd95e93f479 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -4860,6 +4860,8 @@ static int snr_uncore_mmio_map(struct intel_uncore_box *box,
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
+index 011fc9729b38..025a237c1cce 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
+@@ -2834,6 +2834,9 @@ mt76_connac_mcu_send_ram_firmware(struct mt76_dev *dev,
+ 		len = le32_to_cpu(region->len);
+ 		addr = le32_to_cpu(region->addr);
  
- 	addr += box_ctl;
- 
-+	pci_dev_put(pdev);
++		if (region->feature_set & FW_FEATURE_NON_DL)
++			goto next;
 +
- 	box->io_addr = ioremap(addr, type->mmio_map_size);
- 	if (!box->io_addr) {
- 		pr_warn("perf uncore: Failed to ioremap for %s.\n", type->name);
+ 		if (region->feature_set & FW_FEATURE_OVERRIDE_ADDR)
+ 			override = addr;
+ 
+@@ -2850,6 +2853,7 @@ mt76_connac_mcu_send_ram_firmware(struct mt76_dev *dev,
+ 			return err;
+ 		}
+ 
++next:
+ 		offset += len;
+ 	}
+ 
 -- 
 2.35.1
 
