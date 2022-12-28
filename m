@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A787658249
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:34:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18F24657CA6
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:34:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234806AbiL1QeX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:34:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54004 "EHLO
+        id S233860AbiL1Pej (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:34:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233740AbiL1Qdq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EE9E1C412
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:31:18 -0800 (PST)
+        with ESMTP id S233854AbiL1Pei (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:34:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A507216488
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:34:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F22FA61541
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:31:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14DF0C433F2;
-        Wed, 28 Dec 2022 16:31:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 40E9B6154D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:34:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 576FFC433F1;
+        Wed, 28 Dec 2022 15:34:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245077;
-        bh=i3rRHJpelpK4X9bMAF/uRbTY5W3rREeReKQxBhgnHDU=;
+        s=korg; t=1672241676;
+        bh=j46zpKOl6k0n7AFT8PXbXAe/Di5YT7Br9fHCHK91+k4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J0uDfhF0etIGGzXbdVbIgW8gSES1VFg+uT70DeX/NwOfZHV/vwPIR/O22J2bmoJ8J
-         jyV79b8Gcl3ksS/Hw6yjO61jo2IecYIbLKGoWxLZlX+qJ6/LcOSNI6uhkHrL8tdmu9
-         xNVJrpeS7DVz0X2m21J2aKq/m8sKhVyb8aaAXqMA=
+        b=m3xbYnuGdoilMS0dVbJmK6zuEe3YSLGg9AbyJbetXYYOEW8JlPtn3eBU1Tra/poQq
+         v7BWOC8KIuM+FnU2aKSJ183pGV+TJZWf6Wje1HVtLrQbz4/2X2hkiFmH5HSF6UL8fD
+         hPLDHwBqvFNloI2zi0/5HegVbygRC29UlCO4cyzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
-        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0829/1073] mfd: bd957x: Fix Kconfig dependency on REGMAP_IRQ
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 510/731] fbdev: uvesafb: Fixes an error handling path in uvesafb_probe()
 Date:   Wed, 28 Dec 2022 15:40:17 +0100
-Message-Id: <20221228144350.532954750@linuxfoundation.org>
+Message-Id: <20221228144311.329647240@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 85842c46fd47fa6bd78681c154223bed27d5fd19 ]
+[ Upstream commit a94371040712031ba129c7e9d8ff04a06a2f8207 ]
 
-The BD957x driver uses REGMAP_IRQ but does not 'select' to depend on
-it. This can cause build failures.  Select REGMAP_IRQ for BD957X.
+If an error occurs after a successful uvesafb_init_mtrr() call, it must be
+undone by a corresponding arch_phys_wc_del() call, as already done in the
+remove function.
 
-Fixes: 0e9692607f94 ("mfd: bd9576: Add IRQ support")
-Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/Y3SdCWkRr1L64SWK@dc75zzyyyyyyyyyyyyydt-3.rev.dnainternet.fi
+This has been added in the remove function in commit 63e28a7a5ffc
+("uvesafb: Clean up MTRR code")
+
+Fixes: 8bdb3a2d7df4 ("uvesafb: the driver core")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/Kconfig | 1 +
+ drivers/video/fbdev/uvesafb.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index abb58ab1a1a4..3e8becef3cb0 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -1968,6 +1968,7 @@ config MFD_ROHM_BD957XMUF
- 	depends on I2C=y
- 	depends on OF
- 	select REGMAP_I2C
-+	select REGMAP_IRQ
- 	select MFD_CORE
- 	help
- 	  Select this option to get support for the ROHM BD9576MUF and
+diff --git a/drivers/video/fbdev/uvesafb.c b/drivers/video/fbdev/uvesafb.c
+index 4df6772802d7..1f3b7e013568 100644
+--- a/drivers/video/fbdev/uvesafb.c
++++ b/drivers/video/fbdev/uvesafb.c
+@@ -1758,6 +1758,7 @@ static int uvesafb_probe(struct platform_device *dev)
+ out_unmap:
+ 	iounmap(info->screen_base);
+ out_mem:
++	arch_phys_wc_del(par->mtrr_handle);
+ 	release_mem_region(info->fix.smem_start, info->fix.smem_len);
+ out_reg:
+ 	release_region(0x3c0, 32);
 -- 
 2.35.1
 
