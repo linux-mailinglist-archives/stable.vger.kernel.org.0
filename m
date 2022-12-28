@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DC2F657979
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:02:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 361A6658090
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:18:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233481AbiL1PBz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:01:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48932 "EHLO
+        id S233242AbiL1QSU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:18:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233519AbiL1PB1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:01:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F3AB1263D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:01:21 -0800 (PST)
+        with ESMTP id S233244AbiL1QRd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:17:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0395B12A8E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:16:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F30D6153B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:01:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 199A6C433D2;
-        Wed, 28 Dec 2022 15:01:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6467B81707
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:16:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C33EC433EF;
+        Wed, 28 Dec 2022 16:16:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239680;
-        bh=PE46jcV5/Eb6XVjfPOGWJle3O1NjZM7IpF0HWuBm72w=;
+        s=korg; t=1672244181;
+        bh=sBVBxC3idSlA6Fa2PoZPiNDNc5jGQgjGW2Vq+uhcgFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ibtvx8RFXZ2+p/m9r7RbJTm7jSZhkxix3hxl6wfD9AYqmTuy2M2cM1kxKOHEq8JEJ
-         oKdUNagnfLvsyNNq2n/gNFwPpPw7pRcm20Z6wEgNu0Sq9mo2N+TsOnzOpvGPmrTTE8
-         SKEipm/xDycggRCgX8/3oyPAbeMuVcSV7Zp1/Lw4=
+        b=bKENE7vrdvjrNGvITBy5NfQqzB5csTjKvG0Id4EEyiPM6O8d6JtZqcmD1Myy/0iCw
+         +EDzb2O/Bidos1SftG9ivjSa4S79/BVu2quuQ6gm4gA+amUSW2sHh6fi0bNpXsC5QN
+         1k7MFB2o0YMokiMKJonVkdWceuw9Dwe7m+k3MJqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Konstantin Meskhidze <konstantin.meskhidze@huawei.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Mustafa Ismail <mustafa.ismail@intel.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 257/731] drm/amdkfd: Fix memory leakage
+Subject: [PATCH 6.1 0625/1146] RDMA/irdma: Initialize net_type before checking it
 Date:   Wed, 28 Dec 2022 15:36:04 +0100
-Message-Id: <20221228144304.010170225@linuxfoundation.org>
+Message-Id: <20221228144347.144626676@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Meskhidze <konstantin.meskhidze@huawei.com>
+From: Mustafa Ismail <mustafa.ismail@intel.com>
 
-[ Upstream commit 75818afff631e1ea785a82c3e8bb82eb0dee539c ]
+[ Upstream commit 9907526d25c4ad8a6e3006487a544140776ba005 ]
 
-This patch fixes potential memory leakage and seg fault
-in  _gpuvm_import_dmabuf() function
+The av->net_type is not initialized before it is checked in
+irdma_modify_qp_roce. This leads to an incorrect update to the ARP cache
+and QP context. RoCEv2 connections might fail as result.
 
-Fixes: d4ec4bdc0bd5 ("drm/amdkfd: Allow access for mmapping KFD BOs")
-Signed-off-by: Konstantin Meskhidze <konstantin.meskhidze@huawei.com>
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Set the net_type using rdma_gid_attr_network_type.
+
+Fixes: 80005c43d4c8 ("RDMA/irdma: Use net_type to check network type")
+Signed-off-by: Mustafa Ismail <mustafa.ismail@intel.com>
+Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Link: https://lore.kernel.org/r/20221122004410.1471-1-shiraz.saleem@intel.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/irdma/verbs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-index 477ab3551177..34303dd3ada9 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-@@ -1910,7 +1910,7 @@ int amdgpu_amdkfd_gpuvm_import_dmabuf(struct kgd_dev *kgd,
- 
- 	ret = drm_vma_node_allow(&obj->vma_node, drm_priv);
- 	if (ret) {
--		kfree(mem);
-+		kfree(*mem);
- 		return ret;
- 	}
- 
+diff --git a/drivers/infiniband/hw/irdma/verbs.c b/drivers/infiniband/hw/irdma/verbs.c
+index dc3f5f3fee90..f6973ea55eda 100644
+--- a/drivers/infiniband/hw/irdma/verbs.c
++++ b/drivers/infiniband/hw/irdma/verbs.c
+@@ -1213,6 +1213,7 @@ int irdma_modify_qp_roce(struct ib_qp *ibqp, struct ib_qp_attr *attr,
+ 		av->attrs = attr->ah_attr;
+ 		rdma_gid2ip((struct sockaddr *)&av->sgid_addr, &sgid_attr->gid);
+ 		rdma_gid2ip((struct sockaddr *)&av->dgid_addr, &attr->ah_attr.grh.dgid);
++		av->net_type = rdma_gid_attr_network_type(sgid_attr);
+ 		if (av->net_type == RDMA_NETWORK_IPV6) {
+ 			__be32 *daddr =
+ 				av->dgid_addr.saddr_in6.sin6_addr.in6_u.u6_addr32;
 -- 
 2.35.1
 
