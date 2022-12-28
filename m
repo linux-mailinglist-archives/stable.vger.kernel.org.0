@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C74C8658060
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:17:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1015E657A2F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:08:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233193AbiL1QRf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:17:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59872 "EHLO
+        id S233638AbiL1PIw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:08:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234528AbiL1QQf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:16:35 -0500
+        with ESMTP id S233675AbiL1PIj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:08:39 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4464C1AA0C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:14:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5505713DC5
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:08:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F2752B81886
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:14:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A445C433EF;
-        Wed, 28 Dec 2022 16:14:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 08C9DB8171F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:08:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FFC6C433D2;
+        Wed, 28 Dec 2022 15:08:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244056;
-        bh=lV8BVZtD0eHnwAEuUs7Ehw9QERV+KVmNiw3i/+e3R00=;
+        s=korg; t=1672240115;
+        bh=l6cXAvTD5xBYkwinVMf3KSkDyng3QPUJvJg7BzLk4Yg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=miQmdBmIzDBrz9iD2udUQvKriOnFobNXquSzkrvjSjnkIJABGINMQiWX7s/y9VtAg
-         sOj+fppO35Ltl5NtMTjOZ/ILw+UPyFPBXaBiRx8nmdJS1L/91XhiMMY87BR2cB4iNU
-         HNNc/0uWb0pStAYmYuFQmTMevzh4OvQkvOWbgzDc=
+        b=PwKuv2xxDfR6g1+nU6u5z4vceDzhhUjL0B9rwEINMlf9tb4Qvmq3yWk7LxYH6c+5n
+         QDpfzhDfnMmkB7hn/oWaE1bHSvh4NuiWgir+VYsmnp9ykkMZIvK8JnL9VnTCrJZONQ
+         0JGKkkkbi+42PY5oiETvCBY9TU8COJl5FhYpE2yU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        Rob Herring <robh@kernel.org>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0612/1073] dt-bindings: visconti-pcie: Fix interrupts array max constraints
+Subject: [PATCH 5.15 293/731] mmc: mxcmmc: fix return value check of mmc_add_host()
 Date:   Wed, 28 Dec 2022 15:36:40 +0100
-Message-Id: <20221228144344.667886524@linuxfoundation.org>
+Message-Id: <20221228144305.066143036@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,53 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 4cf4b9b70ab2785461190c08a3542d2d74c28b46 ]
+[ Upstream commit cde600af7b413c9fe03e85c58c4279df90e91d13 ]
 
-In accordance with the way the device DT-node is actually defined in
-arch/arm64/boot/dts/toshiba/tmpv7708.dtsi and the way the device is probed
-by the DW PCIe driver there are two IRQs it actually has. It's MSI IRQ the
-DT-bindings lack. Let's extend the interrupts property constraints then
-and fix the schema example so one would be acceptable by the actual device
-DT-bindings.
+mmc_add_host() may return error, if we ignore its return value, the memory
+that allocated in mmc_alloc_host() will be leaked and it will lead a kernel
+crash because of deleting not added device in the remove path.
 
-Link: https://lore.kernel.org/r/20221113191301.5526-3-Sergey.Semin@baikalelectronics.ru
-Fixes: 17c1b16340f0 ("dt-bindings: pci: Add DT binding for Toshiba Visconti PCIe controller")
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
-Acked-by: Rob Herring <robh@kernel.org>
-Acked-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+So fix this by checking the return value and goto error path which will call
+mmc_free_host().
+
+Fixes: d96be879ff46 ("mmc: Add a MX2/MX3 specific SDHC driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221101063023.1664968-4-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../devicetree/bindings/pci/toshiba,visconti-pcie.yaml     | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/mmc/host/mxcmmc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/pci/toshiba,visconti-pcie.yaml b/Documentation/devicetree/bindings/pci/toshiba,visconti-pcie.yaml
-index 30b6396d83c8..aea0e2bcdd77 100644
---- a/Documentation/devicetree/bindings/pci/toshiba,visconti-pcie.yaml
-+++ b/Documentation/devicetree/bindings/pci/toshiba,visconti-pcie.yaml
-@@ -36,7 +36,7 @@ properties:
-       - const: mpu
+diff --git a/drivers/mmc/host/mxcmmc.c b/drivers/mmc/host/mxcmmc.c
+index 9bf95ba217fa..97227ad71715 100644
+--- a/drivers/mmc/host/mxcmmc.c
++++ b/drivers/mmc/host/mxcmmc.c
+@@ -1143,7 +1143,9 @@ static int mxcmci_probe(struct platform_device *pdev)
  
-   interrupts:
--    maxItems: 1
-+    maxItems: 2
+ 	timer_setup(&host->watchdog, mxcmci_watchdog, 0);
  
-   clocks:
-     items:
-@@ -94,8 +94,9 @@ examples:
-             #interrupt-cells = <1>;
-             ranges = <0x81000000 0 0x40000000 0 0x40000000 0 0x00010000>,
-                      <0x82000000 0 0x50000000 0 0x50000000 0 0x20000000>;
--            interrupts = <GIC_SPI 215 IRQ_TYPE_LEVEL_HIGH>;
--            interrupt-names = "intr";
-+            interrupts = <GIC_SPI 211 IRQ_TYPE_LEVEL_HIGH>,
-+                         <GIC_SPI 215 IRQ_TYPE_LEVEL_HIGH>;
-+            interrupt-names = "msi", "intr";
-             interrupt-map-mask = <0 0 0 7>;
-             interrupt-map =
-                 <0 0 0 1 &gic GIC_SPI 215 IRQ_TYPE_LEVEL_HIGH
+-	mmc_add_host(mmc);
++	ret = mmc_add_host(mmc);
++	if (ret)
++		goto out_free_dma;
+ 
+ 	return 0;
+ 
 -- 
 2.35.1
 
