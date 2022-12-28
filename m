@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9A82657FD0
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:10:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73B3B657973
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:01:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233022AbiL1QKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:10:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52564 "EHLO
+        id S233190AbiL1PBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:01:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233119AbiL1QJu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:09:50 -0500
+        with ESMTP id S233374AbiL1PBI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:01:08 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 485EC17E18
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:08:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B7533AE
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:01:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B3FC6B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:08:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24D70C433EF;
-        Wed, 28 Dec 2022 16:08:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D178CB8171A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:01:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36D86C433D2;
+        Wed, 28 Dec 2022 15:01:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243707;
-        bh=E3DFW+lNHelMJDUaAEh6db0obghbC4BF8bq34TLnXiM=;
+        s=korg; t=1672239664;
+        bh=i+rZrYsQF5L/j/g4JaaIbpwtUzmf4qv55bP3vVOFMHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iqOqCnPHyEjlWAmjQ+R4a/9nD8y94DKwqFEbzTv/cTB71bzD896pdYZwRSd6GfGqX
-         EnTnKy6w2K6LgfPUyGbUpMatU6Xbu2RTqwD8VuWbaM6Ag7hxvWZ8uWhe/fFyKaq1uc
-         DpYAA0dHDChxILCKoiFCzlK0V8VseIu8dm0H3S+M=
+        b=DKc3OMBQccyCMFHKVelwwYpSnY/tT89sPwi6fRr91Vh1XQFYwn+bOBaJRStcXSx5O
+         NBaQguxl3dWW0Ydo2ATIevi/lt5hfjoeirmToXEyFmkPeqtHsVYoeLsNVuaxtumx/l
+         n9m1bAH9sI/Dj/eE4ybX/wprXoIY6t3V307a/LYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, John Keeping <john@metanate.com>,
-        Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        patches@lists.linux.dev,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0573/1073] crypto: rockchip - better handle cipher key
-Date:   Wed, 28 Dec 2022 15:36:01 +0100
-Message-Id: <20221228144343.616615992@linuxfoundation.org>
+Subject: [PATCH 5.15 255/731] drm/radeon: Fix PCI device refcount leak in radeon_atrm_get_bios()
+Date:   Wed, 28 Dec 2022 15:36:02 +0100
+Message-Id: <20221228144303.952742881@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,92 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit d6b23ccef82816050c2fd458c9dabfa0e0af09b9 ]
+[ Upstream commit 725a521a18734f65de05b8d353b5bd0d3ca4c37a ]
 
-The key should not be set in hardware too much in advance, this will
-fail it 2 TFM with different keys generate alternative requests.
-The key should be stored and used just before doing cipher operations.
+As comment of pci_get_class() says, it returns a pci_device with its
+refcount increased and decreased the refcount for the input parameter
+@from if it is not NULL.
 
-Fixes: ce0183cb6464b ("crypto: rockchip - switch to skcipher API")
-Reviewed-by: John Keeping <john@metanate.com>
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+If we break the loop in radeon_atrm_get_bios() with 'pdev' not NULL, we
+need to call pci_dev_put() to decrease the refcount. Add the missing
+pci_dev_put() to avoid refcount leak.
+
+Fixes: d8ade3526b2a ("drm/radeon: handle non-VGA class pci devices with ATRM")
+Fixes: c61e2775873f ("drm/radeon: split ATRM support out from the ATPX handler (v3)")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/rockchip/rk3288_crypto.h          |  1 +
- drivers/crypto/rockchip/rk3288_crypto_skcipher.c | 10 +++++++---
- 2 files changed, 8 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/radeon/radeon_bios.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/crypto/rockchip/rk3288_crypto.h b/drivers/crypto/rockchip/rk3288_crypto.h
-index dfff0e2a83e4..665cc0bb2264 100644
---- a/drivers/crypto/rockchip/rk3288_crypto.h
-+++ b/drivers/crypto/rockchip/rk3288_crypto.h
-@@ -245,6 +245,7 @@ struct rk_ahash_rctx {
- struct rk_cipher_ctx {
- 	struct rk_crypto_info		*dev;
- 	unsigned int			keylen;
-+	u8				key[AES_MAX_KEY_SIZE];
- 	u8				iv[AES_BLOCK_SIZE];
- 	struct crypto_skcipher *fallback_tfm;
- };
-diff --git a/drivers/crypto/rockchip/rk3288_crypto_skcipher.c b/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
-index eac5bba66e25..1ef94f8db2c5 100644
---- a/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
-+++ b/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
-@@ -95,7 +95,7 @@ static int rk_aes_setkey(struct crypto_skcipher *cipher,
- 	    keylen != AES_KEYSIZE_256)
- 		return -EINVAL;
- 	ctx->keylen = keylen;
--	memcpy_toio(ctx->dev->reg + RK_CRYPTO_AES_KEY_0, key, keylen);
-+	memcpy(ctx->key, key, keylen);
+diff --git a/drivers/gpu/drm/radeon/radeon_bios.c b/drivers/gpu/drm/radeon/radeon_bios.c
+index 1d99c9a2b56e..63bdc9f6fc24 100644
+--- a/drivers/gpu/drm/radeon/radeon_bios.c
++++ b/drivers/gpu/drm/radeon/radeon_bios.c
+@@ -227,6 +227,7 @@ static bool radeon_atrm_get_bios(struct radeon_device *rdev)
  
- 	return crypto_skcipher_setkey(ctx->fallback_tfm, key, keylen);
- }
-@@ -111,7 +111,7 @@ static int rk_des_setkey(struct crypto_skcipher *cipher,
- 		return err;
+ 	if (!found)
+ 		return false;
++	pci_dev_put(pdev);
  
- 	ctx->keylen = keylen;
--	memcpy_toio(ctx->dev->reg + RK_CRYPTO_TDES_KEY1_0, key, keylen);
-+	memcpy(ctx->key, key, keylen);
- 
- 	return crypto_skcipher_setkey(ctx->fallback_tfm, key, keylen);
- }
-@@ -127,7 +127,8 @@ static int rk_tdes_setkey(struct crypto_skcipher *cipher,
- 		return err;
- 
- 	ctx->keylen = keylen;
--	memcpy_toio(ctx->dev->reg + RK_CRYPTO_TDES_KEY1_0, key, keylen);
-+	memcpy(ctx->key, key, keylen);
-+
- 	return crypto_skcipher_setkey(ctx->fallback_tfm, key, keylen);
- }
- 
-@@ -283,6 +284,7 @@ static void rk_ablk_hw_init(struct rk_crypto_info *dev)
- 			     RK_CRYPTO_TDES_BYTESWAP_IV;
- 		CRYPTO_WRITE(dev, RK_CRYPTO_TDES_CTRL, rctx->mode);
- 		memcpy_toio(dev->reg + RK_CRYPTO_TDES_IV_0, req->iv, ivsize);
-+		memcpy_toio(ctx->dev->reg + RK_CRYPTO_TDES_KEY1_0, ctx->key, ctx->keylen);
- 		conf_reg = RK_CRYPTO_DESSEL;
- 	} else {
- 		rctx->mode |= RK_CRYPTO_AES_FIFO_MODE |
-@@ -295,6 +297,7 @@ static void rk_ablk_hw_init(struct rk_crypto_info *dev)
- 			rctx->mode |= RK_CRYPTO_AES_256BIT_key;
- 		CRYPTO_WRITE(dev, RK_CRYPTO_AES_CTRL, rctx->mode);
- 		memcpy_toio(dev->reg + RK_CRYPTO_AES_IV_0, req->iv, ivsize);
-+		memcpy_toio(ctx->dev->reg + RK_CRYPTO_AES_KEY_0, ctx->key, ctx->keylen);
- 	}
- 	conf_reg |= RK_CRYPTO_BYTESWAP_BTFIFO |
- 		    RK_CRYPTO_BYTESWAP_BRFIFO;
-@@ -484,6 +487,7 @@ static void rk_ablk_exit_tfm(struct crypto_skcipher *tfm)
- {
- 	struct rk_cipher_ctx *ctx = crypto_skcipher_ctx(tfm);
- 
-+	memzero_explicit(ctx->key, ctx->keylen);
- 	free_page((unsigned long)ctx->dev->addr_vir);
- 	crypto_free_skcipher(ctx->fallback_tfm);
- }
+ 	rdev->bios = kmalloc(size, GFP_KERNEL);
+ 	if (!rdev->bios) {
 -- 
 2.35.1
 
