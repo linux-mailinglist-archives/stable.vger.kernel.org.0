@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5C01657BDA
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:27:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C90BC657AC4
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:14:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233365AbiL1P0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:26:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43406 "EHLO
+        id S233050AbiL1POv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:14:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233864AbiL1PZ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:25:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34EE413F71
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:25:54 -0800 (PST)
+        with ESMTP id S233065AbiL1POh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:14:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B925B13E9D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:14:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4259B8170E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:25:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CC41C433EF;
-        Wed, 28 Dec 2022 15:25:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 58D1261551
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:14:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 710E7C433EF;
+        Wed, 28 Dec 2022 15:14:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241151;
-        bh=2qceR9AcN3nFhGHT2+Op9iWgbpDKsdi52uZZXhTeoE0=;
+        s=korg; t=1672240475;
+        bh=6rVLKENdfv0mxhhkx6J8QNlfvoBiuXKXQCv4wAUGhDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hnm7gKl1g/Cq0BdIVk7KV+EOEG/+u1gZcks+zvsgoRcHXR/7AV4itHVDRV3p3LDHK
-         ZGiGkPnlCw26DKeAu0RvojYdG7aEqWGdMG4TlHfibkfTOxkYr3d9vOqFZGQsBTcQrO
-         O028eVQRtOE/QoMt62lMNPVU2fgihXl4JYRZjjwE=
+        b=014jgL2vpLtPNzRzzL1NaIegXLSqDxCi2Hn0aLWsrTvHouL5aejIJpTdwYwtJP1Vk
+         cQ1r0r2jaYlLK9gUBtAyylKij5M/Mn6W7/0n9FpnVChEJ4+TVkVTVPd+rHfh0hoGDv
+         PJRC74gbdvuP7tm1lG1Wt7ynCcUEsi4f8ilt5N2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shung-Hsi Yu <shung-hsi.yu@suse.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        patches@lists.linux.dev,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0213/1146] libbpf: Fix null-pointer dereference in find_prog_by_sec_insn()
-Date:   Wed, 28 Dec 2022 15:29:12 +0100
-Message-Id: <20221228144335.932302242@linuxfoundation.org>
+Subject: [PATCH 6.0 0165/1073] PM: runtime: Do not call __rpm_callback() from rpm_idle()
+Date:   Wed, 28 Dec 2022 15:29:13 +0100
+Message-Id: <20221228144332.497679138@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shung-Hsi Yu <shung-hsi.yu@suse.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit d0d382f95a9270dcf803539d6781d6bd67e3f5b2 ]
+[ Upstream commit bc80c2e438dcbfcf748452ec0f7ad5b79ff3ad88 ]
 
-When there are no program sections, obj->programs is left unallocated,
-and find_prog_by_sec_insn()'s search lands on &obj->programs[0] == NULL,
-and will cause null-pointer dereference in the following access to
-prog->sec_idx.
+Calling __rpm_callback() from rpm_idle() after adding device links
+support to the former is a clear mistake.
 
-Guard the search with obj->nr_programs similar to what's being done in
-__bpf_program__iter() to prevent null-pointer access from happening.
+Not only it causes rpm_idle() to carry out unnecessary actions, but it
+is also against the assumption regarding the stability of PM-runtime
+status across __rpm_callback() invocations, because rpm_suspend() and
+rpm_resume() may run in parallel with __rpm_callback() when it is called
+by rpm_idle() and the device's PM-runtime status can be updated by any
+of them.
 
-Fixes: db2b8b06423c ("libbpf: Support CO-RE relocations for multi-prog sections")
-Signed-off-by: Shung-Hsi Yu <shung-hsi.yu@suse.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20221012022353.7350-4-shung-hsi.yu@suse.com
+Fixes: 21d5c57b3726 ("PM / runtime: Use device links")
+Link: https://lore.kernel.org/linux-pm/36aed941-a73e-d937-2721-4f0decd61ce0@quicinc.com
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/base/power/runtime.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-index a0d3cc39ea73..b9a29d105376 100644
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -4115,6 +4115,9 @@ static struct bpf_program *find_prog_by_sec_insn(const struct bpf_object *obj,
- 	int l = 0, r = obj->nr_programs - 1, m;
- 	struct bpf_program *prog;
+diff --git a/drivers/base/power/runtime.c b/drivers/base/power/runtime.c
+index 997be3ac20a7..d36fb07190bf 100644
+--- a/drivers/base/power/runtime.c
++++ b/drivers/base/power/runtime.c
+@@ -484,7 +484,17 @@ static int rpm_idle(struct device *dev, int rpmflags)
  
-+	if (!obj->nr_programs)
-+		return NULL;
+ 	dev->power.idle_notification = true;
+ 
+-	retval = __rpm_callback(callback, dev);
++	if (dev->power.irq_safe)
++		spin_unlock(&dev->power.lock);
++	else
++		spin_unlock_irq(&dev->power.lock);
 +
- 	while (l < r) {
- 		m = l + (r - l + 1) / 2;
- 		prog = &obj->programs[m];
++	retval = callback(dev);
++
++	if (dev->power.irq_safe)
++		spin_lock(&dev->power.lock);
++	else
++		spin_lock_irq(&dev->power.lock);
+ 
+ 	dev->power.idle_notification = false;
+ 	wake_up_all(&dev->power.wait_queue);
 -- 
 2.35.1
 
