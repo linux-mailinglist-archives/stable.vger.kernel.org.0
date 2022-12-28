@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7539D6584CB
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:02:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64976657F5A
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:04:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234486AbiL1RCl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:02:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56440 "EHLO
+        id S234298AbiL1QEN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:04:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234865AbiL1RCK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:02:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49AA21F2D3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:56:21 -0800 (PST)
+        with ESMTP id S234318AbiL1QDz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:03:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 718B819028
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:03:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 222A36157A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:56:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35568C433F0;
-        Wed, 28 Dec 2022 16:56:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2A47EB8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:03:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90667C433EF;
+        Wed, 28 Dec 2022 16:03:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246579;
-        bh=00NmHKHRLwzQLMEdhQ7IO6s1VJuatijNqi22o4B2TiE=;
+        s=korg; t=1672243432;
+        bh=sab/sXztno/3zqSpsXMjLfQipiAEXgFC/BJX8Gr59uk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=of38uMQYJtYvrfjOUZC5ubexpD2aGL7Udw851XJnjpq2lSklzd8uJqrsvmz6xpngd
-         FMEyGeOzALYpufMg8hJjHWbYINIgIPXYMgBFvLLISvKFY5GWbpVnFb78lctTImdbou
-         SrbqkVacdHmM6bZsPmmfhacuAoaRmZzHKI0LMhno=
+        b=zpmcjyMgBeQz8Xnb2VrKUK1T6MCjcYU0QC66omd3wGRgX94yp5uJNuTEmMIoEjHD7
+         5yinxdOoh9HIaYryEZvAvATSeBwUXVI1prDyqrr9oQYOKwkqMQSjmITBqaDCwwhq1d
+         gM0F15WYg91CM3L7EzxW8LnvC5XcnBywg5p+3ywQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        linux-afs@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 1088/1146] afs: Fix lost servers_outstanding count
+        patches@lists.linux.dev,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.15 720/731] iio: adc128s052: add proper .data members in adc128_of_match table
 Date:   Wed, 28 Dec 2022 15:43:47 +0100
-Message-Id: <20221228144359.742298802@linuxfoundation.org>
+Message-Id: <20221228144317.318095133@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,59 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-[ Upstream commit 36f82c93ee0bd88f1c95a52537906b8178b537f1 ]
+commit e2af60f5900c6ade53477b494ffb54690eee11f5 upstream.
 
-The afs_fs_probe_dispatcher() work function is passed a count on
-net->servers_outstanding when it is scheduled (which may come via its
-timer).  This is passed back to the work_item, passed to the timer or
-dropped at the end of the dispatcher function.
+Prior to commit bd5d54e4d49d ("iio: adc128s052: add ACPI _HID
+AANT1280"), the driver unconditionally used spi_get_device_id() to get
+the index into the adc128_config array.
 
-But, at the top of the dispatcher function, there are two checks which
-skip the rest of the function: if the network namespace is being destroyed
-or if there are no fileservers to probe.  These two return paths, however,
-do not drop the count passed to the dispatcher, and so, sometimes, the
-destruction of a network namespace, such as induced by rmmod of the kafs
-module, may get stuck in afs_purge_servers(), waiting for
-net->servers_outstanding to become zero.
+However, with that commit, OF-based boards now incorrectly treat all
+supported sensors as if they are an adc128s052, because all the .data
+members of the adc128_of_match table are implicitly 0. Our board,
+which has an adc122s021, thus exposes 8 channels whereas it really
+only has two.
 
-Fix this by adding the missing decrements in afs_fs_probe_dispatcher().
-
-Fixes: f6cbb368bcb0 ("afs: Actively poll fileservers to maintain NAT or firewall openings")
-Reported-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Tested-by: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
-Link: https://lore.kernel.org/r/167164544917.2072364.3759519569649459359.stgit@warthog.procyon.org.uk/
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: bd5d54e4d49d ("iio: adc128s052: add ACPI _HID AANT1280")
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20221115132324.1078169-1-linux@rasmusvillemoes.dk
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/afs/fs_probe.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/iio/adc/ti-adc128s052.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/fs/afs/fs_probe.c b/fs/afs/fs_probe.c
-index 3ac5fcf98d0d..daaf3810cc92 100644
---- a/fs/afs/fs_probe.c
-+++ b/fs/afs/fs_probe.c
-@@ -366,12 +366,15 @@ void afs_fs_probe_dispatcher(struct work_struct *work)
- 	unsigned long nowj, timer_at, poll_at;
- 	bool first_pass = true, set_timer = false;
+--- a/drivers/iio/adc/ti-adc128s052.c
++++ b/drivers/iio/adc/ti-adc128s052.c
+@@ -193,13 +193,13 @@ static int adc128_remove(struct spi_devi
+ }
  
--	if (!net->live)
-+	if (!net->live) {
-+		afs_dec_servers_outstanding(net);
- 		return;
-+	}
- 
- 	_enter("");
- 
- 	if (list_empty(&net->fs_probe_fast) && list_empty(&net->fs_probe_slow)) {
-+		afs_dec_servers_outstanding(net);
- 		_leave(" [none]");
- 		return;
- 	}
--- 
-2.35.1
-
+ static const struct of_device_id adc128_of_match[] = {
+-	{ .compatible = "ti,adc128s052", },
+-	{ .compatible = "ti,adc122s021", },
+-	{ .compatible = "ti,adc122s051", },
+-	{ .compatible = "ti,adc122s101", },
+-	{ .compatible = "ti,adc124s021", },
+-	{ .compatible = "ti,adc124s051", },
+-	{ .compatible = "ti,adc124s101", },
++	{ .compatible = "ti,adc128s052", .data = (void*)0L, },
++	{ .compatible = "ti,adc122s021", .data = (void*)1L, },
++	{ .compatible = "ti,adc122s051", .data = (void*)1L, },
++	{ .compatible = "ti,adc122s101", .data = (void*)1L, },
++	{ .compatible = "ti,adc124s021", .data = (void*)2L, },
++	{ .compatible = "ti,adc124s051", .data = (void*)2L, },
++	{ .compatible = "ti,adc124s101", .data = (void*)2L, },
+ 	{ /* sentinel */ },
+ };
+ MODULE_DEVICE_TABLE(of, adc128_of_match);
 
 
