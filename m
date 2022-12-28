@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E82D56579D3
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:05:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AECC6580D8
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:22:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233522AbiL1PFK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:05:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52552 "EHLO
+        id S234593AbiL1QV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:21:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233528AbiL1PFI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:05:08 -0500
+        with ESMTP id S234692AbiL1QVA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:21:00 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22FF913D60
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:05:07 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BCA618B32
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:18:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 839F861540
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:05:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98B11C433EF;
-        Wed, 28 Dec 2022 15:05:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CC69C61577
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:18:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF027C433D2;
+        Wed, 28 Dec 2022 16:18:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239906;
-        bh=A81OPmsbg3MY1IXMU7guZBwmSFZMZT9M/mVvPlZmTrE=;
+        s=korg; t=1672244332;
+        bh=qtRNaFWP/S9246Vt70Ya97ShjkPQZHDyDmVB5FtagRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z4XOI3TA4BG8y+5XkzTDLvYbPr7lWI1O4RpAaLvWTR/VG/U4/AEpONJJUa3j4x/Dk
-         6WeCsUoZ4WpfDw1HfQe3VOe3EXcoGkKqJeo7fE3adJgM6Qrk3aTp3eTKpvNlE4f0BA
-         vxT+OxtNhPaTYwR/3UuKQQ1bUwGou9fWrCZe3X6M=
+        b=TV8B0Omea9IsuzLKdN8LjrJbR8Ir4gC+Gcoxp47hvUd1M7+5rqY1XFFUh5Xn3j2oG
+         l2P4+N87iz469azOZfi2u96YThmtZ528xyF7j6jFCYS9+XPe/xDR8oekIkIhNirhhe
+         bONHBMHuLHeyNUknDMq97u71rURRzve3GzMr7VIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 284/731] ALSA: pcm: Set missing stop_operating flag at undoing trigger start
+Subject: [PATCH 6.1 0652/1146] scsi: scsi_debug: Fix possible name leak in sdebug_add_host_helper()
 Date:   Wed, 28 Dec 2022 15:36:31 +0100
-Message-Id: <20221228144304.804347993@linuxfoundation.org>
+Message-Id: <20221228144347.868450863@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,44 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 5c8cc93b06d1ff860327a273abf3ac006290d242 ]
+[ Upstream commit e6d773f93a49e0eda88a903a2a6542ca83380eb1 ]
 
-When a PCM trigger-start fails at snd_pcm_do_start(), PCM core tries
-to undo the action at snd_pcm_undo_start() by issuing the trigger STOP
-manually.  At that point, we forgot to set the stop_operating flag,
-hence the sync-stop won't be issued at the next prepare or other
-calls.
+Afer commit 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id
+string array"), the name of device is allocated dynamically, it needs be
+freed when device_register() returns error.
 
-This patch adds the missing stop_operating flag at
-snd_pcm_undo_start().
+As comment of device_register() says, one should use put_device() to give
+up the reference in the error path. Fix this by calling put_device(), then
+the name can be freed in kobject_cleanup(), and sdbg_host is freed in
+sdebug_release_adapter().
 
-Fixes: 1e850beea278 ("ALSA: pcm: Add the support for sync-stop operation")
-Link: https://lore.kernel.org/r/b4e71631-4a94-613-27b2-fb595792630@carlh.net
-Link: https://lore.kernel.org/r/20221205132124.11585-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+When the device release is not set, it means the device is not initialized.
+We can not call put_device() in this case. Use kfree() to free memory.
+
+Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221112131010.3757845-1-yangyingliang@huawei.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/pcm_native.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/scsi/scsi_debug.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
-index f38c2e5e9a29..44e06ef4ff0b 100644
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -1419,8 +1419,10 @@ static int snd_pcm_do_start(struct snd_pcm_substream *substream,
- static void snd_pcm_undo_start(struct snd_pcm_substream *substream,
- 			       snd_pcm_state_t state)
- {
--	if (substream->runtime->trigger_master == substream)
-+	if (substream->runtime->trigger_master == substream) {
- 		substream->ops->trigger(substream, SNDRV_PCM_TRIGGER_STOP);
-+		substream->runtime->stop_operating = true;
-+	}
+diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
+index 20e64b7d3f7b..b77035ddc944 100644
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -7340,7 +7340,10 @@ static int sdebug_add_host_helper(int per_host_idx)
+ 		kfree(sdbg_devinfo->zstate);
+ 		kfree(sdbg_devinfo);
+ 	}
+-	kfree(sdbg_host);
++	if (sdbg_host->dev.release)
++		put_device(&sdbg_host->dev);
++	else
++		kfree(sdbg_host);
+ 	pr_warn("%s: failed, errno=%d\n", __func__, -error);
+ 	return error;
  }
- 
- static void snd_pcm_post_start(struct snd_pcm_substream *substream,
 -- 
 2.35.1
 
