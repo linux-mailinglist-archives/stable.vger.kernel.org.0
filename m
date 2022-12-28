@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 833D8657F35
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 034446584BC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:01:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232994AbiL1QDC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:03:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48500 "EHLO
+        id S234929AbiL1RBO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:01:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234318AbiL1QCh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:02:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12C721902B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:02:20 -0800 (PST)
+        with ESMTP id S235313AbiL1RAm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:00:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3BD31BF
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:55:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A8B37B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:02:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 215F2C433D2;
-        Wed, 28 Dec 2022 16:02:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B0BA613E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:55:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 908B0C433D2;
+        Wed, 28 Dec 2022 16:55:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243337;
-        bh=vKCceEtCG+j9139TOxtTjlTcNBL8YiZXWWL6QjbaQbE=;
+        s=korg; t=1672246548;
+        bh=wks1ap0L0Hh1oGAToVjd5pGJz4gg8sTFWm8Tit59i80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eDfjmhyNpaESIdTimhsVvWre2SV0AMCDSWLL2xnsLZUqs9/j13nGjzxAOS8bf6aQG
-         mNAWbHJ05j1spvcjQvT/6jIymRmpzeCjVc/dhjowvHHpQwBvOHDqg4Kgs7v9snzhvX
-         aVFeMxJh4GV6P1cMRzalpF8VPdUYhiOdgobhfODU=
+        b=ehO/dxSDCSxqSqeVLMSla4gp8JpjdNmKFm9teaTSwVIoIKyvbHApiAZRiC85vgvOA
+         dUHtUA/yijtfgCgzeCA2rUL/w+HjqYiGCLR3tJoRUN3IJyOODlJImUCY/pmbGr0MQv
+         96NXQFPlMBBPhOIvELo5aFAxeIid4pwC7H6kPMy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Ferry Toth <ftoth@exalondelft.nl>
-Subject: [PATCH 5.15 710/731] usb: dwc3: core: defer probe on ulpi_read_id timeout
+        patches@lists.linux.dev, Imre Deak <imre.deak@intel.com>,
+        Clint Taylor <clinton.a.taylor@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Khaled Almahallawy <khaled.almahallawy@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 1078/1146] drm/i915/display: Dont disable DDI/Transcoder when setting phy test pattern
 Date:   Wed, 28 Dec 2022 15:43:37 +0100
-Message-Id: <20221228144317.030579841@linuxfoundation.org>
+Message-Id: <20221228144359.500751030@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,58 +56,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ferry Toth <ftoth@exalondelft.nl>
+From: Khaled Almahallawy <khaled.almahallawy@intel.com>
 
-commit 63130462c919ece0ad0d9bb5a1f795ef8d79687e upstream.
+[ Upstream commit 3153eebb7a76e663ac76d6670dc113296de96622 ]
 
-Since commit 0f0101719138 ("usb: dwc3: Don't switch OTG -> peripheral
-if extcon is present"), Dual Role support on Intel Merrifield platform
-broke due to rearranging the call to dwc3_get_extcon().
+Bspecs has updated recently to remove the restriction to disable
+DDI/Transcoder before setting PHY test pattern. This update is to
+address PHY compliance test failures observed on a port with LTTPR.
+The issue is that when Transc. is disabled, the main link signals fed
+to LTTPR will be dropped invalidating link training, which will affect
+the quality of the phy test pattern when the transcoder is enabled again.
 
-It appears to be caused by ulpi_read_id() masking the timeout on the first
-test write. In the past dwc3 probe continued by calling dwc3_core_soft_reset()
-followed by dwc3_get_extcon() which happend to return -EPROBE_DEFER.
-On deferred probe ulpi_read_id() finally succeeded. Due to above mentioned
-rearranging -EPROBE_DEFER is not returned and probe completes without phy.
+v2: Update commit message (Clint)
+v3: Add missing Signed-off in v2
+v4: Update Bspec and commit message for pre-gen12 (Jani)
 
-On Intel Merrifield the timeout on the first test write issue is reproducible
-but it is difficult to find the root cause. Using a mainline kernel and
-rootfs with buildroot ulpi_read_id() succeeds. As soon as adding
-ftrace / bootconfig to find out why, ulpi_read_id() fails and we can't
-analyze the flow. Using another rootfs ulpi_read_id() fails even without
-adding ftrace. We suspect the issue is some kind of timing / race, but
-merely retrying ulpi_read_id() does not resolve the issue.
-
-As we now changed ulpi_read_id() to return -ETIMEDOUT in this case, we
-need to handle the error by calling dwc3_core_soft_reset() and request
--EPROBE_DEFER. On deferred probe ulpi_read_id() is retried and succeeds.
-
-Fixes: ef6a7bcfb01c ("usb: ulpi: Support device discovery via DT")
-Cc: stable@vger.kernel.org
-Acked-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Signed-off-by: Ferry Toth <ftoth@exalondelft.nl>
-Link: https://lore.kernel.org/r/20221205201527.13525-3-ftoth@exalondelft.nl
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Bspec: 50482, 7555
+Fixes: 8cdf72711928 ("drm/i915/dp: Program vswing, pre-emphasis, test-pattern")
+Cc: Imre Deak <imre.deak@intel.com>
+Cc: Clint Taylor <clinton.a.taylor@intel.com>
+CC: Jani Nikula <jani.nikula@intel.com>
+Tested-by: Khaled Almahallawy <khaled.almahallawy@intel.com>
+Reviewed-by: Clint Taylor <clinton.a.taylor@intel.com>
+Signed-off-by: Khaled Almahallawy <khaled.almahallawy@intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221123220926.170034-1-khaled.almahallawy@intel.com
+(cherry picked from commit be4a847652056b067d6dc6fe0fc024a9e2e987ca)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/core.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/display/intel_dp.c | 59 -------------------------
+ 1 file changed, 59 deletions(-)
 
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -963,8 +963,13 @@ static int dwc3_core_init(struct dwc3 *d
- 
- 	if (!dwc->ulpi_ready) {
- 		ret = dwc3_core_ulpi_init(dwc);
--		if (ret)
-+		if (ret) {
-+			if (ret == -ETIMEDOUT) {
-+				dwc3_core_soft_reset(dwc);
-+				ret = -EPROBE_DEFER;
-+			}
- 			goto err0;
-+		}
- 		dwc->ulpi_ready = true;
+diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+index 2b5bc95a8b0d..78b3427471bd 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp.c
++++ b/drivers/gpu/drm/i915/display/intel_dp.c
+@@ -3675,61 +3675,6 @@ static void intel_dp_phy_pattern_update(struct intel_dp *intel_dp,
  	}
+ }
  
+-static void
+-intel_dp_autotest_phy_ddi_disable(struct intel_dp *intel_dp,
+-				  const struct intel_crtc_state *crtc_state)
+-{
+-	struct intel_digital_port *dig_port = dp_to_dig_port(intel_dp);
+-	struct drm_device *dev = dig_port->base.base.dev;
+-	struct drm_i915_private *dev_priv = to_i915(dev);
+-	struct intel_crtc *crtc = to_intel_crtc(dig_port->base.base.crtc);
+-	enum pipe pipe = crtc->pipe;
+-	u32 trans_ddi_func_ctl_value, trans_conf_value, dp_tp_ctl_value;
+-
+-	trans_ddi_func_ctl_value = intel_de_read(dev_priv,
+-						 TRANS_DDI_FUNC_CTL(pipe));
+-	trans_conf_value = intel_de_read(dev_priv, PIPECONF(pipe));
+-	dp_tp_ctl_value = intel_de_read(dev_priv, TGL_DP_TP_CTL(pipe));
+-
+-	trans_ddi_func_ctl_value &= ~(TRANS_DDI_FUNC_ENABLE |
+-				      TGL_TRANS_DDI_PORT_MASK);
+-	trans_conf_value &= ~PIPECONF_ENABLE;
+-	dp_tp_ctl_value &= ~DP_TP_CTL_ENABLE;
+-
+-	intel_de_write(dev_priv, PIPECONF(pipe), trans_conf_value);
+-	intel_de_write(dev_priv, TRANS_DDI_FUNC_CTL(pipe),
+-		       trans_ddi_func_ctl_value);
+-	intel_de_write(dev_priv, TGL_DP_TP_CTL(pipe), dp_tp_ctl_value);
+-}
+-
+-static void
+-intel_dp_autotest_phy_ddi_enable(struct intel_dp *intel_dp,
+-				 const struct intel_crtc_state *crtc_state)
+-{
+-	struct intel_digital_port *dig_port = dp_to_dig_port(intel_dp);
+-	struct drm_device *dev = dig_port->base.base.dev;
+-	struct drm_i915_private *dev_priv = to_i915(dev);
+-	enum port port = dig_port->base.port;
+-	struct intel_crtc *crtc = to_intel_crtc(dig_port->base.base.crtc);
+-	enum pipe pipe = crtc->pipe;
+-	u32 trans_ddi_func_ctl_value, trans_conf_value, dp_tp_ctl_value;
+-
+-	trans_ddi_func_ctl_value = intel_de_read(dev_priv,
+-						 TRANS_DDI_FUNC_CTL(pipe));
+-	trans_conf_value = intel_de_read(dev_priv, PIPECONF(pipe));
+-	dp_tp_ctl_value = intel_de_read(dev_priv, TGL_DP_TP_CTL(pipe));
+-
+-	trans_ddi_func_ctl_value |= TRANS_DDI_FUNC_ENABLE |
+-				    TGL_TRANS_DDI_SELECT_PORT(port);
+-	trans_conf_value |= PIPECONF_ENABLE;
+-	dp_tp_ctl_value |= DP_TP_CTL_ENABLE;
+-
+-	intel_de_write(dev_priv, PIPECONF(pipe), trans_conf_value);
+-	intel_de_write(dev_priv, TGL_DP_TP_CTL(pipe), dp_tp_ctl_value);
+-	intel_de_write(dev_priv, TRANS_DDI_FUNC_CTL(pipe),
+-		       trans_ddi_func_ctl_value);
+-}
+-
+ static void intel_dp_process_phy_request(struct intel_dp *intel_dp,
+ 					 const struct intel_crtc_state *crtc_state)
+ {
+@@ -3748,14 +3693,10 @@ static void intel_dp_process_phy_request(struct intel_dp *intel_dp,
+ 	intel_dp_get_adjust_train(intel_dp, crtc_state, DP_PHY_DPRX,
+ 				  link_status);
+ 
+-	intel_dp_autotest_phy_ddi_disable(intel_dp, crtc_state);
+-
+ 	intel_dp_set_signal_levels(intel_dp, crtc_state, DP_PHY_DPRX);
+ 
+ 	intel_dp_phy_pattern_update(intel_dp, crtc_state);
+ 
+-	intel_dp_autotest_phy_ddi_enable(intel_dp, crtc_state);
+-
+ 	drm_dp_dpcd_write(&intel_dp->aux, DP_TRAINING_LANE0_SET,
+ 			  intel_dp->train_set, crtc_state->lane_count);
+ 
+-- 
+2.35.1
+
 
 
