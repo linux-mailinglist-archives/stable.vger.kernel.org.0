@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE5346582DC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D238C657D45
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:41:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234889AbiL1Qmm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:42:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33708 "EHLO
+        id S233964AbiL1Pl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:41:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234577AbiL1QmJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:42:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C0A31D0C1
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:36:25 -0800 (PST)
+        with ESMTP id S233987AbiL1PlT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:41:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81F831707A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:41:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B9BFEB816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:35:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B54CC433D2;
-        Wed, 28 Dec 2022 16:35:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 479576156C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:41:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 576A3C433F1;
+        Wed, 28 Dec 2022 15:41:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245353;
-        bh=13a7YM9MqNunMOp1Rzij0Ac6TUJ8cIhNvHKEvxD+xXg=;
+        s=korg; t=1672242074;
+        bh=CtOsUtLV5fZgs9nI6FoYthy1F4MotYj864tZjn7MvUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Itr+bq87O5qAulXW3IvtMEfhYeRXbNVxehLGQzYHwNphteS+cbKWpJYA2P6m3YHFl
-         ofFEZuDm4ALaiXV54+FB0SOysBUf1kzkx5jtMBJG+X4lDAd7WofoMCKmfIbCYF135L
-         0De6fJYnMb56kqoYEvuxzaAzCSo6+tQk+VooW5j8=
+        b=L6ZM4gvGkgIQxmZagH+R0hW7J2Uy+FdNq5xt5GpFsZnBzZp4R8MuMrigI0MUh1la5
+         tLQHji+O2fSJ3d7gR0NcB6wAlywoWAlYuWt8CoyFeJJcXZjto1SJeR0tl7upcH9vD3
+         8kVJRGnLAfUCWhALH0T3my2kxXNujQsWOpy7zIsw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jun Nie <jun.nie@linaro.org>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+4caeae4c7103813598ae@syzkaller.appspotmail.com
-Subject: [PATCH 6.0 0878/1073] net_sched: reject TCF_EM_SIMPLE case for complex ematch module
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 559/731] powerpc/83xx/mpc832x_rdb: call platform_device_put() in error case in of_fsl_spi_probe()
 Date:   Wed, 28 Dec 2022 15:41:06 +0100
-Message-Id: <20221228144351.872855845@linuxfoundation.org>
+Message-Id: <20221228144312.769323701@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,50 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <cong.wang@bytedance.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 9cd3fd2054c3b3055163accbf2f31a4426f10317 ]
+[ Upstream commit 4d0eea415216fe3791da2f65eb41399e70c7bedf ]
 
-When TCF_EM_SIMPLE was introduced, it is supposed to be convenient
-for ematch implementation:
+If platform_device_add() is not called or failed, it can not call
+platform_device_del() to clean up memory, it should call
+platform_device_put() in error case.
 
-https://lore.kernel.org/all/20050105110048.GO26856@postel.suug.ch/
-
-"You don't have to, providing a 32bit data chunk without TCF_EM_SIMPLE
-set will simply result in allocating & copy. It's an optimization,
-nothing more."
-
-So if an ematch module provides ops->datalen that means it wants a
-complex data structure (saved in its em->data) instead of a simple u32
-value. We should simply reject such a combination, otherwise this u32
-could be misinterpreted as a pointer.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-and-tested-by: syzbot+4caeae4c7103813598ae@syzkaller.appspotmail.com
-Reported-by: Jun Nie <jun.nie@linaro.org>
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Cong Wang <cong.wang@bytedance.com>
-Acked-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 26f6cb999366 ("[POWERPC] fsl_soc: add support for fsl_spi")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20221029111626.429971-1-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/ematch.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/powerpc/platforms/83xx/mpc832x_rdb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/sched/ematch.c b/net/sched/ematch.c
-index 4ce681361851..5c1235e6076a 100644
---- a/net/sched/ematch.c
-+++ b/net/sched/ematch.c
-@@ -255,6 +255,8 @@ static int tcf_em_validate(struct tcf_proto *tp,
- 			 * the value carried.
- 			 */
- 			if (em_hdr->flags & TCF_EM_SIMPLE) {
-+				if (em->ops->datalen > 0)
-+					goto errout;
- 				if (data_len < sizeof(u32))
- 					goto errout;
- 				em->data = *(u32 *) data;
+diff --git a/arch/powerpc/platforms/83xx/mpc832x_rdb.c b/arch/powerpc/platforms/83xx/mpc832x_rdb.c
+index b6133a237a70..6e18d0703568 100644
+--- a/arch/powerpc/platforms/83xx/mpc832x_rdb.c
++++ b/arch/powerpc/platforms/83xx/mpc832x_rdb.c
+@@ -106,7 +106,7 @@ static int __init of_fsl_spi_probe(char *type, char *compatible, u32 sysclk,
+ 
+ 		goto next;
+ unreg:
+-		platform_device_del(pdev);
++		platform_device_put(pdev);
+ err:
+ 		pr_err("%pOF: registration failed\n", np);
+ next:
 -- 
 2.35.1
 
