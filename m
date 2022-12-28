@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE7DF6582EF
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:43:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51CCE657C65
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:32:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234969AbiL1QnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:43:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32854 "EHLO
+        id S233814AbiL1Pcs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:32:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235052AbiL1QnA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 425491F9E9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:08 -0800 (PST)
+        with ESMTP id S233851AbiL1PcE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:32:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7024F15FED
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:31:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6DF1B8171F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:37:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15EE4C433D2;
-        Wed, 28 Dec 2022 16:37:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F66A6155C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:31:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B5F9C433D2;
+        Wed, 28 Dec 2022 15:31:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245425;
-        bh=lJ5DHcfO1xOKSXz83OpP0zmNaE8wzMtxO9ycAOEL6YI=;
+        s=korg; t=1672241514;
+        bh=LLQY0HhUmwEZwBj0IiYZMG+YxjZKk1Pc4jfljUHyRZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1EKaLjIIOuvBE+KJOHTPJ/uuItO6freg/A2YNsRotGVAx3FEysTmhUQA2WOaLTSwW
-         38m4lp1bXqHpCCZathD8SdC7nBe7tN5N1e4we+eDy/sSalMp88FXEUaeO6iuPgq0pR
-         5SmNnx1Aw2M/zyVMKKAeSkZksDSCkZuAcBj8q0Gw=
+        b=If1juM4+IdMKmd2lWZaan5qDw9FIeZwljsWQ/Zflqh4fv/YjPfe4wndaMGpahyVmH
+         zR0Uwiwu5R6URd9tC54iZYLApd6h+JteAI7HsTo888HF6mWjYyu0gPWDRURAJtoC02
+         1ul57JEB6zn3nduHSoAjsziMADAj/DcwENt2xxOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kajol Jain <kjain@linux.ibm.com>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        patches@lists.linux.dev,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0859/1146] powerpc/hv-gpci: Fix hv_gpci event list
+Subject: [PATCH 5.15 491/731] gpiolib: cdev: fix NULL-pointer dereferences
 Date:   Wed, 28 Dec 2022 15:39:58 +0100
-Message-Id: <20221228144353.487301093@linuxfoundation.org>
+Message-Id: <20221228144310.780026846@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,175 +55,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kajol Jain <kjain@linux.ibm.com>
+From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
 
-[ Upstream commit 03f7c1d2a49acd30e38789cd809d3300721e9b0e ]
+[ Upstream commit 533aae7c94dbc2b14301cfd68ae7e0e90f0c8438 ]
 
-Based on getPerfCountInfo v1.018 documentation, some of the
-hv_gpci events were deprecated for platform firmware that
-supports counter_info_version 0x8 or above.
+There are several places where we can crash the kernel by requesting
+lines, unbinding the GPIO device, then calling any of the system calls
+relevant to the GPIO character device's annonymous file descriptors:
+ioctl(), read(), poll().
 
-Fix the hv_gpci event list by adding a new attribute group
-called "hv_gpci_event_attrs_v6" and a "ENABLE_EVENTS_COUNTERINFO_V6"
-macro to enable these events for platform firmware
-that supports counter_info_version 0x6 or below. And assigning
-the hv_gpci event list based on output counter info version
-of underlying plaform.
+While I observed it with the GPIO simulator, it will also happen for any
+of the GPIO devices that can be hot-unplugged - for instance any HID GPIO
+expander (e.g. CP2112).
 
-Fixes: 97bf2640184f ("powerpc/perf/hv-gpci: add the remaining gpci requests")
-Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
-Reviewed-by: Madhavan Srinivasan <maddy@linux.ibm.com>
-Reviewed-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20221130174513.87501-1-kjain@linux.ibm.com
+This affects both v1 and v2 uAPI.
+
+This fixes it partially by checking if gdev->chip is not NULL but it
+doesn't entirely remedy the situation as we still have a race condition
+in which another thread can remove the device after the check.
+
+Fixes: d7c51b47ac11 ("gpio: userspace ABI for reading/writing GPIO lines")
+Fixes: 3c0d9c635ae2 ("gpiolib: cdev: support GPIO_V2_GET_LINE_IOCTL and GPIO_V2_LINE_GET_VALUES_IOCTL")
+Fixes: aad955842d1c ("gpiolib: cdev: support GPIO_V2_GET_LINEINFO_IOCTL and GPIO_V2_GET_LINEINFO_WATCH_IOCTL")
+Fixes: a54756cb24ea ("gpiolib: cdev: support GPIO_V2_LINE_SET_CONFIG_IOCTL")
+Fixes: 7b8e00d98168 ("gpiolib: cdev: support GPIO_V2_LINE_SET_VALUES_IOCTL")
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/hv-gpci-requests.h |  4 ++++
- arch/powerpc/perf/hv-gpci.c          | 35 ++++++++++++++++++++++++++--
- arch/powerpc/perf/hv-gpci.h          |  1 +
- arch/powerpc/perf/req-gen/perf.h     | 20 ++++++++++++++++
- 4 files changed, 58 insertions(+), 2 deletions(-)
+ drivers/gpio/gpiolib-cdev.c | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
-diff --git a/arch/powerpc/perf/hv-gpci-requests.h b/arch/powerpc/perf/hv-gpci-requests.h
-index 8965b4463d43..5e86371a20c7 100644
---- a/arch/powerpc/perf/hv-gpci-requests.h
-+++ b/arch/powerpc/perf/hv-gpci-requests.h
-@@ -79,6 +79,7 @@ REQUEST(__field(0,	8,	partition_id)
- )
- #include I(REQUEST_END)
+diff --git a/drivers/gpio/gpiolib-cdev.c b/drivers/gpio/gpiolib-cdev.c
+index a20396a6448b..64e37618216f 100644
+--- a/drivers/gpio/gpiolib-cdev.c
++++ b/drivers/gpio/gpiolib-cdev.c
+@@ -200,6 +200,9 @@ static long linehandle_ioctl(struct file *file, unsigned int cmd,
+ 	unsigned int i;
+ 	int ret;
  
-+#ifdef ENABLE_EVENTS_COUNTERINFO_V6
- /*
-  * Not available for counter_info_version >= 0x8, use
-  * run_instruction_cycles_by_partition(0x100) instead.
-@@ -92,6 +93,7 @@ REQUEST(__field(0,	8,	partition_id)
- 	__count(0x10,	8,	cycles)
- )
- #include I(REQUEST_END)
-+#endif
- 
- #define REQUEST_NAME system_performance_capabilities
- #define REQUEST_NUM 0x40
-@@ -103,6 +105,7 @@ REQUEST(__field(0,	1,	perf_collect_privileged)
- )
- #include I(REQUEST_END)
- 
-+#ifdef ENABLE_EVENTS_COUNTERINFO_V6
- #define REQUEST_NAME processor_bus_utilization_abc_links
- #define REQUEST_NUM 0x50
- #define REQUEST_IDX_KIND "hw_chip_id=?"
-@@ -194,6 +197,7 @@ REQUEST(__field(0,	4,	phys_processor_idx)
- 	__count(0x28,	8,	instructions_completed)
- )
- #include I(REQUEST_END)
-+#endif
- 
- /* Processor_core_power_mode (0x95) skipped, no counters */
- /* Affinity_domain_information_by_virtual_processor (0xA0) skipped,
-diff --git a/arch/powerpc/perf/hv-gpci.c b/arch/powerpc/perf/hv-gpci.c
-index 5eb60ed5b5e8..7ff8ff3509f5 100644
---- a/arch/powerpc/perf/hv-gpci.c
-+++ b/arch/powerpc/perf/hv-gpci.c
-@@ -70,9 +70,9 @@ static const struct attribute_group format_group = {
- 	.attrs = format_attrs,
- };
- 
--static const struct attribute_group event_group = {
-+static struct attribute_group event_group = {
- 	.name  = "events",
--	.attrs = hv_gpci_event_attrs,
-+	/* .attrs is set in init */
- };
- 
- #define HV_CAPS_ATTR(_name, _format)				\
-@@ -330,6 +330,7 @@ static int hv_gpci_init(void)
- 	int r;
- 	unsigned long hret;
- 	struct hv_perf_caps caps;
-+	struct hv_gpci_request_buffer *arg;
- 
- 	hv_gpci_assert_offsets_correct();
- 
-@@ -353,6 +354,36 @@ static int hv_gpci_init(void)
- 	/* sampling not supported */
- 	h_gpci_pmu.capabilities |= PERF_PMU_CAP_NO_INTERRUPT;
- 
-+	arg = (void *)get_cpu_var(hv_gpci_reqb);
-+	memset(arg, 0, HGPCI_REQ_BUFFER_SIZE);
++	if (!lh->gdev->chip)
++		return -ENODEV;
 +
-+	/*
-+	 * hcall H_GET_PERF_COUNTER_INFO populates the output
-+	 * counter_info_version value based on the system hypervisor.
-+	 * Pass the counter request 0x10 corresponds to request type
-+	 * 'Dispatch_timebase_by_processor', to get the supported
-+	 * counter_info_version.
-+	 */
-+	arg->params.counter_request = cpu_to_be32(0x10);
-+
-+	r = plpar_hcall_norets(H_GET_PERF_COUNTER_INFO,
-+			virt_to_phys(arg), HGPCI_REQ_BUFFER_SIZE);
-+	if (r) {
-+		pr_devel("hcall failed, can't get supported counter_info_version: 0x%x\n", r);
-+		arg->params.counter_info_version_out = 0x8;
-+	}
-+
-+	/*
-+	 * Use counter_info_version_out value to assign
-+	 * required hv-gpci event list.
-+	 */
-+	if (arg->params.counter_info_version_out >= 0x8)
-+		event_group.attrs = hv_gpci_event_attrs;
-+	else
-+		event_group.attrs = hv_gpci_event_attrs_v6;
-+
-+	put_cpu_var(hv_gpci_reqb);
-+
- 	r = perf_pmu_register(&h_gpci_pmu, h_gpci_pmu.name, -1);
- 	if (r)
- 		return r;
-diff --git a/arch/powerpc/perf/hv-gpci.h b/arch/powerpc/perf/hv-gpci.h
-index 4d108262bed7..c72020912dea 100644
---- a/arch/powerpc/perf/hv-gpci.h
-+++ b/arch/powerpc/perf/hv-gpci.h
-@@ -26,6 +26,7 @@ enum {
- #define REQUEST_FILE "../hv-gpci-requests.h"
- #define NAME_LOWER hv_gpci
- #define NAME_UPPER HV_GPCI
-+#define ENABLE_EVENTS_COUNTERINFO_V6
- #include "req-gen/perf.h"
- #undef REQUEST_FILE
- #undef NAME_LOWER
-diff --git a/arch/powerpc/perf/req-gen/perf.h b/arch/powerpc/perf/req-gen/perf.h
-index fa9bc804e67a..6b2a59fefffa 100644
---- a/arch/powerpc/perf/req-gen/perf.h
-+++ b/arch/powerpc/perf/req-gen/perf.h
-@@ -139,6 +139,26 @@ PMU_EVENT_ATTR_STRING(							\
- #define REQUEST_(r_name, r_value, r_idx_1, r_fields)			\
- 	r_fields
+ 	switch (cmd) {
+ 	case GPIOHANDLE_GET_LINE_VALUES_IOCTL:
+ 		/* NOTE: It's okay to read values of output lines */
+@@ -1188,6 +1191,9 @@ static long linereq_ioctl(struct file *file, unsigned int cmd,
+ 	struct linereq *lr = file->private_data;
+ 	void __user *ip = (void __user *)arg;
  
-+/* Generate event list for platforms with counter_info_version 0x6 or below */
-+static __maybe_unused struct attribute *hv_gpci_event_attrs_v6[] = {
-+#include REQUEST_FILE
-+	NULL
-+};
++	if (!lr->gdev->chip)
++		return -ENODEV;
 +
-+/*
-+ * Based on getPerfCountInfo v1.018 documentation, some of the hv-gpci
-+ * events were deprecated for platform firmware that supports
-+ * counter_info_version 0x8 or above.
-+ * Those deprecated events are still part of platform firmware that
-+ * support counter_info_version 0x6 and below. As per the getPerfCountInfo
-+ * v1.018 documentation there is no counter_info_version 0x7.
-+ * Undefining macro ENABLE_EVENTS_COUNTERINFO_V6, to disable the addition of
-+ * deprecated events in "hv_gpci_event_attrs" attribute group, for platforms
-+ * that supports counter_info_version 0x8 or above.
-+ */
-+#undef ENABLE_EVENTS_COUNTERINFO_V6
+ 	switch (cmd) {
+ 	case GPIO_V2_LINE_GET_VALUES_IOCTL:
+ 		return linereq_get_values(lr, ip);
+@@ -1214,6 +1220,9 @@ static __poll_t linereq_poll(struct file *file,
+ 	struct linereq *lr = file->private_data;
+ 	__poll_t events = 0;
+ 
++	if (!lr->gdev->chip)
++		return EPOLLHUP | EPOLLERR;
 +
-+/* Generate event list for platforms with counter_info_version 0x8 or above*/
- static __maybe_unused struct attribute *hv_gpci_event_attrs[] = {
- #include REQUEST_FILE
- 	NULL
+ 	poll_wait(file, &lr->wait, wait);
+ 
+ 	if (!kfifo_is_empty_spinlocked_noirqsave(&lr->events,
+@@ -1233,6 +1242,9 @@ static ssize_t linereq_read(struct file *file,
+ 	ssize_t bytes_read = 0;
+ 	int ret;
+ 
++	if (!lr->gdev->chip)
++		return -ENODEV;
++
+ 	if (count < sizeof(le))
+ 		return -EINVAL;
+ 
+@@ -1498,6 +1510,9 @@ static __poll_t lineevent_poll(struct file *file,
+ 	struct lineevent_state *le = file->private_data;
+ 	__poll_t events = 0;
+ 
++	if (!le->gdev->chip)
++		return EPOLLHUP | EPOLLERR;
++
+ 	poll_wait(file, &le->wait, wait);
+ 
+ 	if (!kfifo_is_empty_spinlocked_noirqsave(&le->events, &le->wait.lock))
+@@ -1522,6 +1537,9 @@ static ssize_t lineevent_read(struct file *file,
+ 	ssize_t ge_size;
+ 	int ret;
+ 
++	if (!le->gdev->chip)
++		return -ENODEV;
++
+ 	/*
+ 	 * When compatible system call is being used the struct gpioevent_data,
+ 	 * in case of at least ia32, has different size due to the alignment
+@@ -1603,6 +1621,9 @@ static long lineevent_ioctl(struct file *file, unsigned int cmd,
+ 	void __user *ip = (void __user *)arg;
+ 	struct gpiohandle_data ghd;
+ 
++	if (!le->gdev->chip)
++		return -ENODEV;
++
+ 	/*
+ 	 * We can get the value for an event line but not set it,
+ 	 * because it is input by definition.
+@@ -2187,6 +2208,9 @@ static __poll_t lineinfo_watch_poll(struct file *file,
+ 	struct gpio_chardev_data *cdev = file->private_data;
+ 	__poll_t events = 0;
+ 
++	if (!cdev->gdev->chip)
++		return EPOLLHUP | EPOLLERR;
++
+ 	poll_wait(file, &cdev->wait, pollt);
+ 
+ 	if (!kfifo_is_empty_spinlocked_noirqsave(&cdev->events,
+@@ -2205,6 +2229,9 @@ static ssize_t lineinfo_watch_read(struct file *file, char __user *buf,
+ 	int ret;
+ 	size_t event_size;
+ 
++	if (!cdev->gdev->chip)
++		return -ENODEV;
++
+ #ifndef CONFIG_GPIO_CDEV_V1
+ 	event_size = sizeof(struct gpio_v2_line_info_changed);
+ 	if (count < event_size)
 -- 
 2.35.1
 
