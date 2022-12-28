@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B4766583B1
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:50:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 221F2658479
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234401AbiL1QuR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:50:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43276 "EHLO
+        id S235021AbiL1Q5g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:57:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234955AbiL1Qtu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:49:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29AD01F627
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:45:07 -0800 (PST)
+        with ESMTP id S235329AbiL1Q4p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:56:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6941F10C2
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:52:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D8130B817AC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:45:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B606C433D2;
-        Wed, 28 Dec 2022 16:45:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0AF0CB81707
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:52:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D088C433EF;
+        Wed, 28 Dec 2022 16:52:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245904;
-        bh=nvnkWN3BEN2p39C1nsMomAZZQoBsELZOox29IxQ0/Cc=;
+        s=korg; t=1672246373;
+        bh=KuoKBNcyqTfYCus5XqiP+5s9OwApLwtBqGwy//0dO0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ub7c/uvQACu4JnCncZudOnyB+pFzH6RkNKjRJR7SgB8XvRC1hSlxQ5aa7h+C6r0B8
-         MA5EC11Lfb79ziSsPbZQKZyCdNOlqdgc2CJ9GGpcchM6eSDz3OI/n35CyFL0R/OccG
-         ZMimvaFngoSXaBEbitQNJ6FWfq7saTMoz7mFsDDI=
+        b=xFDKg+t/Z9jmMeFAbh7EU6lCrnYKV/b64ZhPpT8DALhksNWy/8FkJB3UDDlFHD6yz
+         dIH1q0KbNBCBLi+hvmxo33eRa7l+aIpx5O4ZskgOnJzNo0eI+2TYrznLZMO3RgoIwX
+         +B4M1VmsqZLR8Abcw7dsaaQpmkGlQmZRRnxr8+G0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        ChiYuan Huang <cy_huang@richtek.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Liang He <windhl@126.com>,
+        Luben Tuikov <luben.tuikov@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0978/1073] regulator: core: Fix resolve supply lookup issue
-Date:   Wed, 28 Dec 2022 15:42:46 +0100
-Message-Id: <20221228144354.639722671@linuxfoundation.org>
+Subject: [PATCH 6.1 1028/1146] drm/amdgpu: Fix potential double free and null pointer dereference
+Date:   Wed, 28 Dec 2022 15:42:47 +0100
+Message-Id: <20221228144358.283271665@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChiYuan Huang <cy_huang@richtek.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 0debed5b117d11e33cba52870c4dcb64f5911891 ]
+[ Upstream commit dfd0287bd3920e132a8dae2a0ec3d92eaff5f2dd ]
 
->From Marek's log, the previous change modify the parent of rdev.
-https://lore.kernel.org/all/58b92e75-f373-dae7-7031-8abd465bb874@samsung.com/
+In amdgpu_get_xgmi_hive(), we should not call kfree() after
+kobject_put() as the PUT will call kfree().
 
-In 'regulator_resolve_supply', it uses the parent DT node of rdev as the
-DT-lookup starting node. But the parent DT node may not exist. This will
-cause the NULL supply issue.
+In amdgpu_device_ip_init(), we need to check the returned *hive*
+which can be NULL before we dereference it.
 
-This patch modify the parent of rdev back to the device that provides
-from 'regulator_config' in 'regulator_register'.
-
-Fixes: 8f3cbcd6b440 ("regulator: core: Use different devices for resource allocation and DT lookup")
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: ChiYuan Huang <cy_huang@richtek.com>
-Link: https://lore.kernel.org/r/1670981831-12583-1-git-send-email-u0084500@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Liang He <windhl@126.com>
+Reviewed-by: Luben Tuikov <luben.tuikov@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 5 +++++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c   | 2 --
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index c095ca9f01e8..93da2b4cbc72 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -5531,7 +5531,7 @@ regulator_register(struct device *dev,
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+index 2cf72cfa2e60..913f22d41673 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -2462,6 +2462,11 @@ static int amdgpu_device_ip_init(struct amdgpu_device *adev)
+ 			if (!amdgpu_sriov_vf(adev)) {
+ 				struct amdgpu_hive_info *hive = amdgpu_get_xgmi_hive(adev);
  
- 	/* register with sysfs */
- 	rdev->dev.class = &regulator_class;
--	rdev->dev.parent = dev;
-+	rdev->dev.parent = config->dev;
- 	dev_set_name(&rdev->dev, "regulator.%lu",
- 		    (unsigned long) atomic_inc_return(&regulator_no));
- 	dev_set_drvdata(&rdev->dev, rdev);
++				if (WARN_ON(!hive)) {
++					r = -ENOENT;
++					goto init_failed;
++				}
++
+ 				if (!hive->reset_domain ||
+ 				    !amdgpu_reset_get_reset_domain(hive->reset_domain)) {
+ 					r = -ENOENT;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
+index 47159e9a0884..4b9e7b050ccd 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
+@@ -386,7 +386,6 @@ struct amdgpu_hive_info *amdgpu_get_xgmi_hive(struct amdgpu_device *adev)
+ 	if (ret) {
+ 		dev_err(adev->dev, "XGMI: failed initializing kobject for xgmi hive\n");
+ 		kobject_put(&hive->kobj);
+-		kfree(hive);
+ 		hive = NULL;
+ 		goto pro_end;
+ 	}
+@@ -410,7 +409,6 @@ struct amdgpu_hive_info *amdgpu_get_xgmi_hive(struct amdgpu_device *adev)
+ 				dev_err(adev->dev, "XGMI: failed initializing reset domain for xgmi hive\n");
+ 				ret = -ENOMEM;
+ 				kobject_put(&hive->kobj);
+-				kfree(hive);
+ 				hive = NULL;
+ 				goto pro_end;
+ 			}
 -- 
 2.35.1
 
