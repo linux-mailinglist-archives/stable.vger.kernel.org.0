@@ -2,47 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37EBE658369
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:47:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 828EC658430
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:55:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235061AbiL1Qrs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:47:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42514 "EHLO
+        id S235278AbiL1QzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:55:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235052AbiL1QrS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:47:18 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DB8610FDD
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:42:14 -0800 (PST)
+        with ESMTP id S235034AbiL1Qyz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:54:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C62A1EAE0;
+        Wed, 28 Dec 2022 08:49:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EC05ECE134F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:42:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB976C433D2;
-        Wed, 28 Dec 2022 16:42:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7821E6156B;
+        Wed, 28 Dec 2022 16:49:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 539E5C433EF;
+        Wed, 28 Dec 2022 16:49:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245731;
-        bh=qf0oSLV4E6w5ebS0SOBfjay3IS6Hh2aOO/vzy9pPhyY=;
+        s=korg; t=1672246182;
+        bh=2H7iW4kVyojt67OLaGBKKyCKy4p556pE4MJIqK6mm7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=peQkNj8wmZkXsfuONAg/gORZ/439BsTtwrl7mh9tHubbq4eKKj3HnByBQQuQ8prDe
-         i0wZGRXBC611iRqtJdtDHEMMIgNAnIKLUEVz6oQ7uGdA4b5Pz5RXZ/h5GCWzZU1Gpr
-         rz5VNSvOq9cwahC7GJxKuTvlaoabJ7yD+nvZuAyE=
+        b=smL13GMeT82AMSCLGxjqHbSbdql0Utb7Tk/Q25guxQlc0Cq7nwq+VkJAGKk1j6mr4
+         cTNX0MRdY/VvTc4NsGIspSj9wu0RsS18PrdQsPmF4ne/+P2v2MtCSIqBjJcFcQnbMx
+         nMLHjeBVffWkx0AYp8zdesU3FEH4S4RTANRdHtBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Martin Leung <Martin.Leung@amd.com>,
-        Tom Chung <chiahsuan.chung@amd.com>,
-        Aurabindo Pillai <aurabindo.pillai@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0945/1073] drm/amd/display: fix array index out of bound error in bios parser
+        patches@lists.linux.dev,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>,
+        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 6.1 0994/1146] igb: Do not free q_vector unless new one was allocated
 Date:   Wed, 28 Dec 2022 15:42:13 +0100
-Message-Id: <20221228144353.706661398@linuxfoundation.org>
+Message-Id: <20221228144357.366454227@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,66 +63,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aurabindo Pillai <aurabindo.pillai@amd.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 4fc1ba4aa589ca267468ad23fedef37562227d32 ]
+[ Upstream commit 0668716506ca66f90d395f36ccdaebc3e0e84801 ]
 
-[Why&How]
-Firmware headers dictate that gpio_pin array only has a size of 8. The
-count returned from vbios however is greater than 8.
+Avoid potential use-after-free condition under memory pressure. If the
+kzalloc() fails, q_vector will be freed but left in the original
+adapter->q_vector[v_idx] array position.
 
-Fix this by not using array indexing but incrementing the pointer since
-gpio_pin definition in atomfirmware.h is hardcoded to size 8
-
-Reviewed-by: Martin Leung <Martin.Leung@amd.com>
-Acked-by: Tom Chung <chiahsuan.chung@amd.com>
-Signed-off-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Cc: Tony Nguyen <anthony.l.nguyen@intel.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: intel-wired-lan@lists.osuosl.org
+Cc: netdev@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
+Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/dc/bios/bios_parser2.c   | 16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/intel/igb/igb_main.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c b/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
-index de3a1f3fd4f1..c98cd7c5b9f7 100644
---- a/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
-+++ b/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
-@@ -487,6 +487,7 @@ static enum bp_result get_gpio_i2c_info(
- 	uint32_t count = 0;
- 	unsigned int table_index = 0;
- 	bool find_valid = false;
-+	struct atom_gpio_pin_assignment *pin;
- 
- 	if (!info)
- 		return BP_RESULT_BADINPUT;
-@@ -514,20 +515,17 @@ static enum bp_result get_gpio_i2c_info(
- 			- sizeof(struct atom_common_table_header))
- 				/ sizeof(struct atom_gpio_pin_assignment);
- 
-+	pin = (struct atom_gpio_pin_assignment *) header->gpio_pin;
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index 473158c09f1d..24a6ae19ad8e 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -1202,8 +1202,12 @@ static int igb_alloc_q_vector(struct igb_adapter *adapter,
+ 	if (!q_vector) {
+ 		q_vector = kzalloc(size, GFP_KERNEL);
+ 	} else if (size > ksize(q_vector)) {
+-		kfree_rcu(q_vector, rcu);
+-		q_vector = kzalloc(size, GFP_KERNEL);
++		struct igb_q_vector *new_q_vector;
 +
- 	for (table_index = 0; table_index < count; table_index++) {
--		if (((record->i2c_id & I2C_HW_CAP) == (
--		header->gpio_pin[table_index].gpio_id &
--						I2C_HW_CAP)) &&
--		((record->i2c_id & I2C_HW_ENGINE_ID_MASK)  ==
--		(header->gpio_pin[table_index].gpio_id &
--					I2C_HW_ENGINE_ID_MASK)) &&
--		((record->i2c_id & I2C_HW_LANE_MUX) ==
--		(header->gpio_pin[table_index].gpio_id &
--						I2C_HW_LANE_MUX))) {
-+		if (((record->i2c_id & I2C_HW_CAP) 				== (pin->gpio_id & I2C_HW_CAP)) &&
-+		    ((record->i2c_id & I2C_HW_ENGINE_ID_MASK)	== (pin->gpio_id & I2C_HW_ENGINE_ID_MASK)) &&
-+		    ((record->i2c_id & I2C_HW_LANE_MUX) 		== (pin->gpio_id & I2C_HW_LANE_MUX))) {
- 			/* still valid */
- 			find_valid = true;
- 			break;
- 		}
-+		pin = (struct atom_gpio_pin_assignment *)((uint8_t *)pin + sizeof(struct atom_gpio_pin_assignment));
++		new_q_vector = kzalloc(size, GFP_KERNEL);
++		if (new_q_vector)
++			kfree_rcu(q_vector, rcu);
++		q_vector = new_q_vector;
+ 	} else {
+ 		memset(q_vector, 0, size);
  	}
- 
- 	/* If we don't find the entry that we are looking for then
 -- 
 2.35.1
 
