@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98C54657C32
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:29:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81509657B25
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:18:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233768AbiL1P3z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:29:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47674 "EHLO
+        id S233201AbiL1PSe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:18:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233779AbiL1P3y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:29:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 722751581E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:29:53 -0800 (PST)
+        with ESMTP id S233250AbiL1PS3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:18:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AE7313F92
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:18:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0139A6152F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:29:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10712C433D2;
-        Wed, 28 Dec 2022 15:29:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 39A2EB81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:18:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C4D9C433F0;
+        Wed, 28 Dec 2022 15:18:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241392;
-        bh=DJuE1VWFPAMDDM6fZMfmbX/5rs8RUDv3l5E/3V9lC7k=;
+        s=korg; t=1672240705;
+        bh=uKzi9ejkKO/63JDSZ9uQu2gtGHfmFFhrjJt9doR9STo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V1cWRuuU+9rJ1eTFtrl1Rb6O/XxZ/+ZeBS9X2fJjmUPW7o7GXyeS89ocROWyzKovY
-         zZObTcCQgckPI4YBJWT0R5tkiTPo5ux9Hiixm/WpHoFTJAwzrKEVx/nr0ZDAc0RSY4
-         RLEQdGS3KZRCXcCTJbQLvLI7s8TAXrpIXXQXaGlI=
+        b=JNE5rW7uu6t9BGdtAbfaqx/hZY9RzNhLdFHkzfEZbVw2xxEbhwQejHuPruh/ym1lZ
+         9hdq1xJ6v48F7fnx2VEKoXcIlYGs7frvGU33V+1vA3QO5+piO9xhPKE5Ti80A4ol7a
+         eFZjGp0FaCQGpHNCqANn1+m12lAwjwfYHuciDrU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kazuho Oku <kazuhooku@gmail.com>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Fedor Pchelkin <pchelkin@ispras.ru>,
+        Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0241/1146] soreuseport: Fix socket selection for SO_INCOMING_CPU.
-Date:   Wed, 28 Dec 2022 15:29:40 +0100
-Message-Id: <20221228144336.682722189@linuxfoundation.org>
+Subject: [PATCH 6.0 0193/1073] wifi: ath9k: hif_usb: fix memory leak of urbs in ath9k_hif_usb_dealloc_tx_urbs()
+Date:   Wed, 28 Dec 2022 15:29:41 +0100
+Message-Id: <20221228144333.257544695@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,299 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-[ Upstream commit b261eda84ec136240a9ca753389853a3a1bccca2 ]
+[ Upstream commit c2a94de38c74e86f49124ac14f093d6a5c377a90 ]
 
-Kazuho Oku reported that setsockopt(SO_INCOMING_CPU) does not work
-with setsockopt(SO_REUSEPORT) since v4.6.
+Syzkaller reports a long-known leak of urbs in
+ath9k_hif_usb_dealloc_tx_urbs().
 
-With the combination of SO_REUSEPORT and SO_INCOMING_CPU, we could
-build a highly efficient server application.
+The cause of the leak is that usb_get_urb() is called but usb_free_urb()
+(or usb_put_urb()) is not called inside usb_kill_urb() as urb->dev or
+urb->ep fields have not been initialized and usb_kill_urb() returns
+immediately.
 
-setsockopt(SO_INCOMING_CPU) associates a CPU with a TCP listener
-or UDP socket, and then incoming packets processed on the CPU will
-likely be distributed to the socket.  Technically, a socket could
-even receive packets handled on another CPU if no sockets in the
-reuseport group have the same CPU receiving the flow.
+The patch removes trying to kill urbs located in hif_dev->tx.tx_buf
+because hif_dev->tx.tx_buf is not supposed to contain urbs which are in
+pending state (the pending urbs are stored in hif_dev->tx.tx_pending).
+The tx.tx_lock is acquired so there should not be any changes in the list.
 
-The logic exists in compute_score() so that a socket will get a higher
-score if it has the same CPU with the flow.  However, the score gets
-ignored after the blamed two commits, which introduced a faster socket
-selection algorithm for SO_REUSEPORT.
+Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
 
-This patch introduces a counter of sockets with SO_INCOMING_CPU in
-a reuseport group to check if we should iterate all sockets to find
-a proper one.  We increment the counter when
-
-  * calling listen() if the socket has SO_INCOMING_CPU and SO_REUSEPORT
-
-  * enabling SO_INCOMING_CPU if the socket is in a reuseport group
-
-Also, we decrement it when
-
-  * detaching a socket out of the group to apply SO_INCOMING_CPU to
-    migrated TCP requests
-
-  * disabling SO_INCOMING_CPU if the socket is in a reuseport group
-
-When the counter reaches 0, we can get back to the O(1) selection
-algorithm.
-
-The overall changes are negligible for the non-SO_INCOMING_CPU case,
-and the only notable thing is that we have to update sk_incomnig_cpu
-under reuseport_lock.  Otherwise, the race prevents transitioning to
-the O(n) algorithm and results in the wrong socket selection.
-
- cpu1 (setsockopt)               cpu2 (listen)
-+-----------------+             +-------------+
-
-lock_sock(sk1)                  lock_sock(sk2)
-
-reuseport_update_incoming_cpu(sk1, val)
-.
-|  /* set CPU as 0 */
-|- WRITE_ONCE(sk1->incoming_cpu, val)
-|
-|                               spin_lock_bh(&reuseport_lock)
-|                               reuseport_grow(sk2, reuse)
-|                               .
-|                               |- more_socks_size = reuse->max_socks * 2U;
-|                               |- if (more_socks_size > U16_MAX &&
-|                               |       reuse->num_closed_socks)
-|                               |  .
-|                               |  |- RCU_INIT_POINTER(sk1->sk_reuseport_cb, NULL);
-|                               |  `- __reuseport_detach_closed_sock(sk1, reuse)
-|                               |     .
-|                               |     `- reuseport_put_incoming_cpu(sk1, reuse)
-|                               |        .
-|                               |        |  /* Read shutdown()ed sk1's sk_incoming_cpu
-|                               |        |   * without lock_sock().
-|                               |        |   */
-|                               |        `- if (sk1->sk_incoming_cpu >= 0)
-|                               |           .
-|                               |           |  /* decrement not-yet-incremented
-|                               |           |   * count, which is never incremented.
-|                               |           |   */
-|                               |           `- __reuseport_put_incoming_cpu(reuse);
-|                               |
-|                               `- spin_lock_bh(&reuseport_lock)
-|
-|- spin_lock_bh(&reuseport_lock)
-|
-|- reuse = rcu_dereference_protected(sk1->sk_reuseport_cb, ...)
-|- if (!reuse)
-|  .
-|  |  /* Cannot increment reuse->incoming_cpu. */
-|  `- goto out;
-|
-`- spin_unlock_bh(&reuseport_lock)
-
-Fixes: e32ea7e74727 ("soreuseport: fast reuseport UDP socket selection")
-Fixes: c125e80b8868 ("soreuseport: fast reuseport TCP socket selection")
-Reported-by: Kazuho Oku <kazuhooku@gmail.com>
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 03fb92a432ea ("ath9k: hif_usb: fix race condition between usb_get_urb() and usb_kill_anchored_urbs()")
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220725151359.283704-1-pchelkin@ispras.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sock_reuseport.h |  2 +
- net/core/sock.c              |  2 +-
- net/core/sock_reuseport.c    | 94 ++++++++++++++++++++++++++++++++++--
- 3 files changed, 92 insertions(+), 6 deletions(-)
+ drivers/net/wireless/ath/ath9k/hif_usb.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/include/net/sock_reuseport.h b/include/net/sock_reuseport.h
-index efc9085c6892..6ec140b0a61b 100644
---- a/include/net/sock_reuseport.h
-+++ b/include/net/sock_reuseport.h
-@@ -16,6 +16,7 @@ struct sock_reuseport {
- 	u16			max_socks;		/* length of socks */
- 	u16			num_socks;		/* elements in socks */
- 	u16			num_closed_socks;	/* closed elements in socks */
-+	u16			incoming_cpu;
- 	/* The last synq overflow event timestamp of this
- 	 * reuse->socks[] group.
- 	 */
-@@ -58,5 +59,6 @@ static inline bool reuseport_has_conns(struct sock *sk)
- }
+diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
+index 4d9002a9d082..b6b5ce9b9b68 100644
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.c
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
+@@ -780,14 +780,10 @@ static void ath9k_hif_usb_dealloc_tx_urbs(struct hif_device_usb *hif_dev)
+ 	spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
+ 	list_for_each_entry_safe(tx_buf, tx_buf_tmp,
+ 				 &hif_dev->tx.tx_buf, list) {
+-		usb_get_urb(tx_buf->urb);
+-		spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
+-		usb_kill_urb(tx_buf->urb);
+ 		list_del(&tx_buf->list);
+ 		usb_free_urb(tx_buf->urb);
+ 		kfree(tx_buf->buf);
+ 		kfree(tx_buf);
+-		spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
+ 	}
+ 	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
  
- void reuseport_has_conns_set(struct sock *sk);
-+void reuseport_update_incoming_cpu(struct sock *sk, int val);
- 
- #endif  /* _SOCK_REUSEPORT_H */
-diff --git a/net/core/sock.c b/net/core/sock.c
-index a3ba0358c77c..30407b2dd2ac 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -1436,7 +1436,7 @@ int sk_setsockopt(struct sock *sk, int level, int optname,
- 		break;
- 		}
- 	case SO_INCOMING_CPU:
--		WRITE_ONCE(sk->sk_incoming_cpu, val);
-+		reuseport_update_incoming_cpu(sk, val);
- 		break;
- 
- 	case SO_CNX_ADVICE:
-diff --git a/net/core/sock_reuseport.c b/net/core/sock_reuseport.c
-index fb90e1e00773..5a165286e4d8 100644
---- a/net/core/sock_reuseport.c
-+++ b/net/core/sock_reuseport.c
-@@ -37,6 +37,70 @@ void reuseport_has_conns_set(struct sock *sk)
- }
- EXPORT_SYMBOL(reuseport_has_conns_set);
- 
-+static void __reuseport_get_incoming_cpu(struct sock_reuseport *reuse)
-+{
-+	/* Paired with READ_ONCE() in reuseport_select_sock_by_hash(). */
-+	WRITE_ONCE(reuse->incoming_cpu, reuse->incoming_cpu + 1);
-+}
-+
-+static void __reuseport_put_incoming_cpu(struct sock_reuseport *reuse)
-+{
-+	/* Paired with READ_ONCE() in reuseport_select_sock_by_hash(). */
-+	WRITE_ONCE(reuse->incoming_cpu, reuse->incoming_cpu - 1);
-+}
-+
-+static void reuseport_get_incoming_cpu(struct sock *sk, struct sock_reuseport *reuse)
-+{
-+	if (sk->sk_incoming_cpu >= 0)
-+		__reuseport_get_incoming_cpu(reuse);
-+}
-+
-+static void reuseport_put_incoming_cpu(struct sock *sk, struct sock_reuseport *reuse)
-+{
-+	if (sk->sk_incoming_cpu >= 0)
-+		__reuseport_put_incoming_cpu(reuse);
-+}
-+
-+void reuseport_update_incoming_cpu(struct sock *sk, int val)
-+{
-+	struct sock_reuseport *reuse;
-+	int old_sk_incoming_cpu;
-+
-+	if (unlikely(!rcu_access_pointer(sk->sk_reuseport_cb))) {
-+		/* Paired with REAE_ONCE() in sk_incoming_cpu_update()
-+		 * and compute_score().
-+		 */
-+		WRITE_ONCE(sk->sk_incoming_cpu, val);
-+		return;
-+	}
-+
-+	spin_lock_bh(&reuseport_lock);
-+
-+	/* This must be done under reuseport_lock to avoid a race with
-+	 * reuseport_grow(), which accesses sk->sk_incoming_cpu without
-+	 * lock_sock() when detaching a shutdown()ed sk.
-+	 *
-+	 * Paired with READ_ONCE() in reuseport_select_sock_by_hash().
-+	 */
-+	old_sk_incoming_cpu = sk->sk_incoming_cpu;
-+	WRITE_ONCE(sk->sk_incoming_cpu, val);
-+
-+	reuse = rcu_dereference_protected(sk->sk_reuseport_cb,
-+					  lockdep_is_held(&reuseport_lock));
-+
-+	/* reuseport_grow() has detached a closed sk. */
-+	if (!reuse)
-+		goto out;
-+
-+	if (old_sk_incoming_cpu < 0 && val >= 0)
-+		__reuseport_get_incoming_cpu(reuse);
-+	else if (old_sk_incoming_cpu >= 0 && val < 0)
-+		__reuseport_put_incoming_cpu(reuse);
-+
-+out:
-+	spin_unlock_bh(&reuseport_lock);
-+}
-+
- static int reuseport_sock_index(struct sock *sk,
- 				const struct sock_reuseport *reuse,
- 				bool closed)
-@@ -64,6 +128,7 @@ static void __reuseport_add_sock(struct sock *sk,
- 	/* paired with smp_rmb() in reuseport_(select|migrate)_sock() */
- 	smp_wmb();
- 	reuse->num_socks++;
-+	reuseport_get_incoming_cpu(sk, reuse);
- }
- 
- static bool __reuseport_detach_sock(struct sock *sk,
-@@ -76,6 +141,7 @@ static bool __reuseport_detach_sock(struct sock *sk,
- 
- 	reuse->socks[i] = reuse->socks[reuse->num_socks - 1];
- 	reuse->num_socks--;
-+	reuseport_put_incoming_cpu(sk, reuse);
- 
- 	return true;
- }
-@@ -86,6 +152,7 @@ static void __reuseport_add_closed_sock(struct sock *sk,
- 	reuse->socks[reuse->max_socks - reuse->num_closed_socks - 1] = sk;
- 	/* paired with READ_ONCE() in inet_csk_bind_conflict() */
- 	WRITE_ONCE(reuse->num_closed_socks, reuse->num_closed_socks + 1);
-+	reuseport_get_incoming_cpu(sk, reuse);
- }
- 
- static bool __reuseport_detach_closed_sock(struct sock *sk,
-@@ -99,6 +166,7 @@ static bool __reuseport_detach_closed_sock(struct sock *sk,
- 	reuse->socks[i] = reuse->socks[reuse->max_socks - reuse->num_closed_socks];
- 	/* paired with READ_ONCE() in inet_csk_bind_conflict() */
- 	WRITE_ONCE(reuse->num_closed_socks, reuse->num_closed_socks - 1);
-+	reuseport_put_incoming_cpu(sk, reuse);
- 
- 	return true;
- }
-@@ -166,6 +234,7 @@ int reuseport_alloc(struct sock *sk, bool bind_inany)
- 	reuse->bind_inany = bind_inany;
- 	reuse->socks[0] = sk;
- 	reuse->num_socks = 1;
-+	reuseport_get_incoming_cpu(sk, reuse);
- 	rcu_assign_pointer(sk->sk_reuseport_cb, reuse);
- 
- out:
-@@ -209,6 +278,7 @@ static struct sock_reuseport *reuseport_grow(struct sock_reuseport *reuse)
- 	more_reuse->reuseport_id = reuse->reuseport_id;
- 	more_reuse->bind_inany = reuse->bind_inany;
- 	more_reuse->has_conns = reuse->has_conns;
-+	more_reuse->incoming_cpu = reuse->incoming_cpu;
- 
- 	memcpy(more_reuse->socks, reuse->socks,
- 	       reuse->num_socks * sizeof(struct sock *));
-@@ -458,18 +528,32 @@ static struct sock *run_bpf_filter(struct sock_reuseport *reuse, u16 socks,
- static struct sock *reuseport_select_sock_by_hash(struct sock_reuseport *reuse,
- 						  u32 hash, u16 num_socks)
- {
-+	struct sock *first_valid_sk = NULL;
- 	int i, j;
- 
- 	i = j = reciprocal_scale(hash, num_socks);
--	while (reuse->socks[i]->sk_state == TCP_ESTABLISHED) {
-+	do {
-+		struct sock *sk = reuse->socks[i];
-+
-+		if (sk->sk_state != TCP_ESTABLISHED) {
-+			/* Paired with WRITE_ONCE() in __reuseport_(get|put)_incoming_cpu(). */
-+			if (!READ_ONCE(reuse->incoming_cpu))
-+				return sk;
-+
-+			/* Paired with WRITE_ONCE() in reuseport_update_incoming_cpu(). */
-+			if (READ_ONCE(sk->sk_incoming_cpu) == raw_smp_processor_id())
-+				return sk;
-+
-+			if (!first_valid_sk)
-+				first_valid_sk = sk;
-+		}
-+
- 		i++;
- 		if (i >= num_socks)
- 			i = 0;
--		if (i == j)
--			return NULL;
--	}
-+	} while (i != j);
- 
--	return reuse->socks[i];
-+	return first_valid_sk;
- }
- 
- /**
 -- 
 2.35.1
 
