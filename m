@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A9D3657C94
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:34:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57A44657C98
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:34:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233452AbiL1PeH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:34:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52044 "EHLO
+        id S233424AbiL1PeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:34:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233455AbiL1PeG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:34:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D011815F0C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:34:04 -0800 (PST)
+        with ESMTP id S233853AbiL1PeO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:34:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C487315FC3
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:34:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6837BB81647
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:34:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCE40C433EF;
-        Wed, 28 Dec 2022 15:34:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 602E26154D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:34:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75C2BC433D2;
+        Wed, 28 Dec 2022 15:34:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241642;
-        bh=EcXksoM8Re/d5aHV+QElhZ1StwOq+x6n/do5HXugy9s=;
+        s=korg; t=1672241652;
+        bh=q39LaOa2W43HErDuWLiPWEb7xwgNIST8ul/1nBzXxHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V2qbCQojEf0JGPMqqf98r5CQActFNzhwjpqRmOu/9Pyxn0YoNg66tKN37ske0HzR8
-         /AVGw5uEP3MLbk5KsZHdr0dGwjWsuZd6TTaa4zXn7aG/5oc4J120E9xYSNuuEvjViF
-         Xh1TBo1HKylDCsEAKCYnHV31PTpV16pmSIbLAdWI=
+        b=XZStf0z76dy4U7ymAcpjsanwfjrORxWe/sEIY8xTczlk5aZwSJDGwAx/JbzGFjOkX
+         dCmqMdvyZ6v1GBZOJ7UnGoCuAsJE8BZAVWstBOlWj516IpM9Ocfq97a24klygITKKO
+         gn3kYdqJmXvc+p2efWP63ozz384kHnIyqRzMOMxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        patches@lists.linux.dev, GUO Zihua <guozihua@huawei.com>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0272/1146] drm/msm/mdp5: stop overriding drvdata
-Date:   Wed, 28 Dec 2022 15:30:11 +0100
-Message-Id: <20221228144337.523253791@linuxfoundation.org>
+Subject: [PATCH 6.1 0273/1146] ima: Handle -ESTALE returned by ima_filter_rule_match()
+Date:   Wed, 28 Dec 2022 15:30:12 +0100
+Message-Id: <20221228144337.550500105@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -54,142 +54,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: GUO Zihua <guozihua@huawei.com>
 
-[ Upstream commit c6122688f2652d7f8a44000ce21e84e82bae2b5e ]
+[ Upstream commit c7423dbdbc9ecef7fff5239d144cad4b9887f4de ]
 
-The rest of the code expects that master's device drvdata is the
-struct msm_drm_private instance. Do not override the mdp5's drvdata.
+IMA relies on the blocking LSM policy notifier callback to update the
+LSM based IMA policy rules.
 
-Fixes: 6874f48bb8b0 ("drm/msm: make mdp5/dpu devices master components")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/508334/
-Link: https://lore.kernel.org/r/20221024152642.3213488-1-dmitry.baryshkov@linaro.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+When SELinux update its policies, IMA would be notified and starts
+updating all its lsm rules one-by-one. During this time, -ESTALE would
+be returned by ima_filter_rule_match() if it is called with a LSM rule
+that has not yet been updated. In ima_match_rules(), -ESTALE is not
+handled, and the LSM rule is considered a match, causing extra files
+to be measured by IMA.
+
+Fix it by re-initializing a temporary rule if -ESTALE is returned by
+ima_filter_rule_match(). The origin rule in the rule list would be
+updated by the LSM policy notifier callback.
+
+Fixes: b16942455193 ("ima: use the lsm policy update notifier")
+Signed-off-by: GUO Zihua <guozihua@huawei.com>
+Reviewed-by: Roberto Sassu <roberto.sassu@huawei.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c | 32 +++++++++++++-----------
- 1 file changed, 17 insertions(+), 15 deletions(-)
+ security/integrity/ima/ima_policy.c | 41 ++++++++++++++++++++++-------
+ 1 file changed, 32 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
-index b0d21838a134..b46f983f2b46 100644
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
-@@ -203,7 +203,7 @@ static int mdp5_set_split_display(struct msm_kms *kms,
- 							  slave_encoder);
- }
- 
--static void mdp5_destroy(struct platform_device *pdev);
-+static void mdp5_destroy(struct mdp5_kms *mdp5_kms);
- 
- static void mdp5_kms_destroy(struct msm_kms *kms)
+diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+index a8802b8da946..bb3707160b01 100644
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -549,6 +549,9 @@ static bool ima_match_rules(struct ima_rule_entry *rule,
+ 			    const char *func_data)
  {
-@@ -223,7 +223,7 @@ static void mdp5_kms_destroy(struct msm_kms *kms)
- 	}
- 
- 	mdp_kms_destroy(&mdp5_kms->base);
--	mdp5_destroy(mdp5_kms->pdev);
-+	mdp5_destroy(mdp5_kms);
- }
- 
- #ifdef CONFIG_DEBUG_FS
-@@ -519,9 +519,10 @@ static void read_mdp_hw_revision(struct mdp5_kms *mdp5_kms,
- 	struct device *dev = &mdp5_kms->pdev->dev;
- 	u32 version;
- 
--	pm_runtime_get_sync(dev);
-+	/* Manually enable the MDP5, as pm runtime isn't usable yet. */
-+	mdp5_enable(mdp5_kms);
- 	version = mdp5_read(mdp5_kms, REG_MDP5_HW_VERSION);
--	pm_runtime_put_sync(dev);
-+	mdp5_disable(mdp5_kms);
- 
- 	*major = FIELD(version, MDP5_HW_VERSION_MAJOR);
- 	*minor = FIELD(version, MDP5_HW_VERSION_MINOR);
-@@ -559,6 +560,8 @@ static int mdp5_kms_init(struct drm_device *dev)
- 	int irq, i, ret;
- 
- 	ret = mdp5_init(to_platform_device(dev->dev), dev);
-+	if (ret)
-+		return ret;
- 
- 	/* priv->kms would have been populated by the MDP5 driver */
- 	kms = priv->kms;
-@@ -632,9 +635,8 @@ static int mdp5_kms_init(struct drm_device *dev)
- 	return ret;
- }
- 
--static void mdp5_destroy(struct platform_device *pdev)
-+static void mdp5_destroy(struct mdp5_kms *mdp5_kms)
- {
--	struct mdp5_kms *mdp5_kms = platform_get_drvdata(pdev);
  	int i;
++	bool result = false;
++	struct ima_rule_entry *lsm_rule = rule;
++	bool rule_reinitialized = false;
  
- 	if (mdp5_kms->ctlm)
-@@ -648,7 +650,7 @@ static void mdp5_destroy(struct platform_device *pdev)
- 		kfree(mdp5_kms->intfs[i]);
+ 	if ((rule->flags & IMA_FUNC) &&
+ 	    (rule->func != func && func != POST_SETATTR))
+@@ -610,35 +613,55 @@ static bool ima_match_rules(struct ima_rule_entry *rule,
+ 		int rc = 0;
+ 		u32 osid;
  
- 	if (mdp5_kms->rpm_enabled)
--		pm_runtime_disable(&pdev->dev);
-+		pm_runtime_disable(&mdp5_kms->pdev->dev);
- 
- 	drm_atomic_private_obj_fini(&mdp5_kms->glob_state);
- 	drm_modeset_lock_fini(&mdp5_kms->glob_state_lock);
-@@ -797,8 +799,6 @@ static int mdp5_init(struct platform_device *pdev, struct drm_device *dev)
- 		goto fail;
- 	}
- 
--	platform_set_drvdata(pdev, mdp5_kms);
--
- 	spin_lock_init(&mdp5_kms->resource_lock);
- 
- 	mdp5_kms->dev = dev;
-@@ -839,9 +839,6 @@ static int mdp5_init(struct platform_device *pdev, struct drm_device *dev)
- 	 */
- 	clk_set_rate(mdp5_kms->core_clk, 200000000);
- 
--	pm_runtime_enable(&pdev->dev);
--	mdp5_kms->rpm_enabled = true;
--
- 	read_mdp_hw_revision(mdp5_kms, &major, &minor);
- 
- 	mdp5_kms->cfg = mdp5_cfg_init(mdp5_kms, major, minor);
-@@ -893,10 +890,13 @@ static int mdp5_init(struct platform_device *pdev, struct drm_device *dev)
- 	/* set uninit-ed kms */
- 	priv->kms = &mdp5_kms->base.base;
- 
-+	pm_runtime_enable(&pdev->dev);
-+	mdp5_kms->rpm_enabled = true;
+-		if (!rule->lsm[i].rule) {
+-			if (!rule->lsm[i].args_p)
++		if (!lsm_rule->lsm[i].rule) {
++			if (!lsm_rule->lsm[i].args_p)
+ 				continue;
+ 			else
+ 				return false;
+ 		}
 +
- 	return 0;
- fail:
- 	if (mdp5_kms)
--		mdp5_destroy(pdev);
-+		mdp5_destroy(mdp5_kms);
- 	return ret;
++retry:
+ 		switch (i) {
+ 		case LSM_OBJ_USER:
+ 		case LSM_OBJ_ROLE:
+ 		case LSM_OBJ_TYPE:
+ 			security_inode_getsecid(inode, &osid);
+-			rc = ima_filter_rule_match(osid, rule->lsm[i].type,
++			rc = ima_filter_rule_match(osid, lsm_rule->lsm[i].type,
+ 						   Audit_equal,
+-						   rule->lsm[i].rule);
++						   lsm_rule->lsm[i].rule);
+ 			break;
+ 		case LSM_SUBJ_USER:
+ 		case LSM_SUBJ_ROLE:
+ 		case LSM_SUBJ_TYPE:
+-			rc = ima_filter_rule_match(secid, rule->lsm[i].type,
++			rc = ima_filter_rule_match(secid, lsm_rule->lsm[i].type,
+ 						   Audit_equal,
+-						   rule->lsm[i].rule);
++						   lsm_rule->lsm[i].rule);
+ 			break;
+ 		default:
+ 			break;
+ 		}
+-		if (!rc)
+-			return false;
++
++		if (rc == -ESTALE && !rule_reinitialized) {
++			lsm_rule = ima_lsm_copy_rule(rule);
++			if (lsm_rule) {
++				rule_reinitialized = true;
++				goto retry;
++			}
++		}
++		if (!rc) {
++			result = false;
++			goto out;
++		}
+ 	}
+-	return true;
++	result = true;
++
++out:
++	if (rule_reinitialized) {
++		for (i = 0; i < MAX_LSM_RULES; i++)
++			ima_filter_rule_free(lsm_rule->lsm[i].rule);
++		kfree(lsm_rule);
++	}
++	return result;
  }
  
-@@ -953,7 +953,8 @@ static int mdp5_dev_remove(struct platform_device *pdev)
- static __maybe_unused int mdp5_runtime_suspend(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
--	struct mdp5_kms *mdp5_kms = platform_get_drvdata(pdev);
-+	struct msm_drm_private *priv = platform_get_drvdata(pdev);
-+	struct mdp5_kms *mdp5_kms = to_mdp5_kms(to_mdp_kms(priv->kms));
- 
- 	DBG("");
- 
-@@ -963,7 +964,8 @@ static __maybe_unused int mdp5_runtime_suspend(struct device *dev)
- static __maybe_unused int mdp5_runtime_resume(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
--	struct mdp5_kms *mdp5_kms = platform_get_drvdata(pdev);
-+	struct msm_drm_private *priv = platform_get_drvdata(pdev);
-+	struct mdp5_kms *mdp5_kms = to_mdp5_kms(to_mdp_kms(priv->kms));
- 
- 	DBG("");
- 
+ /*
 -- 
 2.35.1
 
