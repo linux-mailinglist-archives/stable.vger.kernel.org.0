@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7AAE65849F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:59:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3DCD6584E7
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:03:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235135AbiL1Q7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:59:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47088 "EHLO
+        id S229745AbiL1RDt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:03:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235331AbiL1Q6j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:58:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7968B205CB
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:54:34 -0800 (PST)
+        with ESMTP id S235076AbiL1RDV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:03:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B84A1DDC2
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:57:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 102BC6157E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:54:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25011C433D2;
-        Wed, 28 Dec 2022 16:54:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 053AEB8188B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:57:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A1ABC433F0;
+        Wed, 28 Dec 2022 16:57:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246473;
-        bh=AOFeGhJs+iHS2V+PyPuMXQ0fYYZNxJJudt4+jGq0M0I=;
+        s=korg; t=1672246654;
+        bh=BrglO72aGgIDUCnSTd7qS7EwqALWhU6mg7lEWRQ2jfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VIvROadjQydjQ5kme4DItN2LmMYcOm+74gPJaRApohwswUMLOP5umIEfykS9rYSYd
-         ZSX/sC1NSQXZSIcIXKpe2Hctx6xWYn0717JADi+mU/LPM7vw3Lpa3OHwvNI3j4eWoJ
-         Ft8wmum2+yjFaxJncitTp3ChdMj2jONiYpi88Vtg=
+        b=FZavCSwGiJ5W/g8bgngmTw+Ubjb2yrsn4o9E3OmOyVRb+OAHLHvhfctHO0VHzTtir
+         eoMS/iLDVverQZk3hZ5zrYXYZ/Hhi3u+usIEOYe+l67nce21XY7CBB6iT6qpyssNR0
+         kHSilbGLSiDRWexmPIXcWeP/Glj6MpTZzma3nRtc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 6.0 1064/1073] net: stmmac: fix errno when create_singlethread_workqueue() fails
-Date:   Wed, 28 Dec 2022 15:44:12 +0100
-Message-Id: <20221228144357.136361079@linuxfoundation.org>
+        patches@lists.linux.dev,
+        =?UTF-8?q?Sven=20Z=C3=BChlsdorf?= <sven.zuehlsdorf@vigem.de>,
+        Enrik Berkhan <Enrik.Berkhan@inka.de>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 6.1 1114/1146] HID: mcp2221: dont connect hidraw
+Date:   Wed, 28 Dec 2022 15:44:13 +0100
+Message-Id: <20221228144400.409180355@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Enrik Berkhan <Enrik.Berkhan@inka.de>
 
-commit 2cb815cfc78b137ee38bcd65e7c955d6cc2cc250 upstream.
+commit 67c90d14018775556d5420382ace86521421f9ff upstream.
 
-We should set the return value to -ENOMEM explicitly when
-create_singlethread_workqueue() fails in stmmac_dvr_probe(),
-otherwise we'll lose the error value.
+The MCP2221 driver should not connect to the hidraw userspace interface,
+as it needs exclusive access to the chip.
 
-Fixes: a137f3f27f92 ("net: stmmac: fix possible memory leak in stmmac_dvr_probe()")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Link: https://lore.kernel.org/r/20221214080117.3514615-1-cuigaosheng1@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+If you want to use /dev/hidrawX with the MCP2221, you need to avoid
+binding this driver to the device and use the hid generic driver instead
+(e.g. using udev rules).
+
+Cc: stable@vger.kernel.org
+Reported-by: Sven Zühlsdorf <sven.zuehlsdorf@vigem.de>
+Signed-off-by: Enrik Berkhan <Enrik.Berkhan@inka.de>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Link: https://lore.kernel.org/r/20221103222714.21566-2-Enrik.Berkhan@inka.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-mcp2221.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -7115,6 +7115,7 @@ int stmmac_dvr_probe(struct device *devi
- 	priv->wq = create_singlethread_workqueue("stmmac_wq");
- 	if (!priv->wq) {
- 		dev_err(priv->device, "failed to create workqueue\n");
-+		ret = -ENOMEM;
- 		goto error_wq_init;
+--- a/drivers/hid/hid-mcp2221.c
++++ b/drivers/hid/hid-mcp2221.c
+@@ -840,12 +840,19 @@ static int mcp2221_probe(struct hid_devi
+ 		return ret;
  	}
  
+-	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
++	/*
++	 * This driver uses the .raw_event callback and therefore does not need any
++	 * HID_CONNECT_xxx flags.
++	 */
++	ret = hid_hw_start(hdev, 0);
+ 	if (ret) {
+ 		hid_err(hdev, "can't start hardware\n");
+ 		return ret;
+ 	}
+ 
++	hid_info(hdev, "USB HID v%x.%02x Device [%s] on %s\n", hdev->version >> 8,
++			hdev->version & 0xff, hdev->name, hdev->phys);
++
+ 	ret = hid_hw_open(hdev);
+ 	if (ret) {
+ 		hid_err(hdev, "can't open device\n");
+@@ -870,8 +877,7 @@ static int mcp2221_probe(struct hid_devi
+ 	mcp->adapter.retries = 1;
+ 	mcp->adapter.dev.parent = &hdev->dev;
+ 	snprintf(mcp->adapter.name, sizeof(mcp->adapter.name),
+-			"MCP2221 usb-i2c bridge on hidraw%d",
+-			((struct hidraw *)hdev->hidraw)->minor);
++			"MCP2221 usb-i2c bridge");
+ 
+ 	ret = i2c_add_adapter(&mcp->adapter);
+ 	if (ret) {
 
 
