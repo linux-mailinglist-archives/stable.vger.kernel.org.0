@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60D3C657A15
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:07:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB3CB658036
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:16:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233595AbiL1PHj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:07:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55228 "EHLO
+        id S234378AbiL1QP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:15:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233599AbiL1PHi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:07:38 -0500
+        with ESMTP id S234416AbiL1QPg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:15:36 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7470F13D6D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:07:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4435213F5A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:12:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1438BB8171F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:07:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77195C433EF;
-        Wed, 28 Dec 2022 15:07:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE400B8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:12:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 513FEC433EF;
+        Wed, 28 Dec 2022 16:12:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240054;
-        bh=AskKKRRcQqzLYBTMTG/5uzaH5GQVZxK81UJLrVlqNPc=;
+        s=korg; t=1672243962;
+        bh=/Jz+4lxrnwABy4dVl/qgCo+M40vkFR934u+DyWQuS08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HEgpz3Mv1CshhJhkqSAnfFjJuYSDNSbBb/3GMhzUP+xSz2YAa9lwGrsYY2FvgNDrA
-         DhwPTZg5bYY4MU7AXKjcfFJ4gPRrDkg24Xt5q2te0Yu1TNXEfYz2jpyqyX8t4Eyofe
-         7aa/qmEyLSOoZH6opSPihe0wXYhpmuc3iEkU7Tzs=
+        b=oWWOU0O+3jXUbFGEPoKoDsuDz3p7S6Ff7U6gLax6fCO70E7mJo69cWO0pHudnUq9J
+         EnZhJT5tnCdJGz4pWHoLdO0AUmFAJTZGyG96vY3824MKCTW5sjwFB5izHTJC8kqp+W
+         hLJ7jwe3SZKgdWfysd140npxQ6sa4LIkOOxkVMFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        patches@lists.linux.dev,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 304/731] mmc: wbsd: fix return value check of mmc_add_host()
+Subject: [PATCH 6.0 0623/1073] scsi: scsi_debug: Fix a warning in resp_report_zones()
 Date:   Wed, 28 Dec 2022 15:36:51 +0100
-Message-Id: <20221228144305.387096576@linuxfoundation.org>
+Message-Id: <20221228144344.965783619@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 
-[ Upstream commit dc5b9b50fc9d1334407e316e6e29a5097ef833bd ]
+[ Upstream commit 07f2ca139d9a7a1ba71c4c03997c8de161db2346 ]
 
-mmc_add_host() may return error, if we ignore its return value,
-it will lead two issues:
-1. The memory that allocated in mmc_alloc_host() is leaked.
-2. In the remove() path, mmc_remove_host() will be called to
-   delete device, but it's not added yet, it will lead a kernel
-   crash because of null-ptr-deref in device_del().
+As 'alloc_len' is user controlled data, if user tries to allocate memory
+larger than(>=) MAX_ORDER, then kcalloc() will fail, it creates a stack
+trace and messes up dmesg with a warning.
 
-So fix this by checking the return value and goto error path which
-will call mmc_free_host(), besides, other resources also need be
-released.
+Add __GFP_NOWARN in order to avoid too large allocation warning.  This is
+detected by static analysis using smatch.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221109133237.3273558-1-yangyingliang@huawei.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 7db0e0c8190a ("scsi: scsi_debug: Fix buffer size of REPORT ZONES command")
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Link: https://lore.kernel.org/r/20221112070612.2121535-1-harshit.m.mogalapalli@oracle.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/wbsd.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/scsi/scsi_debug.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/wbsd.c b/drivers/mmc/host/wbsd.c
-index 67ecd342fe5f..7c7ec8d10232 100644
---- a/drivers/mmc/host/wbsd.c
-+++ b/drivers/mmc/host/wbsd.c
-@@ -1698,7 +1698,17 @@ static int wbsd_init(struct device *dev, int base, int irq, int dma,
- 	 */
- 	wbsd_init_device(host);
+diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
+index 077782eb55e7..3452fef3f749 100644
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -4504,7 +4504,7 @@ static int resp_report_zones(struct scsi_cmnd *scp,
  
--	mmc_add_host(mmc);
-+	ret = mmc_add_host(mmc);
-+	if (ret) {
-+		if (!pnp)
-+			wbsd_chip_poweroff(host);
-+
-+		wbsd_release_resources(host);
-+		wbsd_free_mmc(dev);
-+
-+		mmc_free_host(mmc);
-+		return ret;
-+	}
+ 	rep_max_zones = (alloc_len - 64) >> ilog2(RZONES_DESC_HD);
  
- 	pr_info("%s: W83L51xD", mmc_hostname(mmc));
- 	if (host->chip_id != 0)
+-	arr = kzalloc(alloc_len, GFP_ATOMIC);
++	arr = kzalloc(alloc_len, GFP_ATOMIC | __GFP_NOWARN);
+ 	if (!arr) {
+ 		mk_sense_buffer(scp, ILLEGAL_REQUEST, INSUFF_RES_ASC,
+ 				INSUFF_RES_ASCQ);
 -- 
 2.35.1
 
