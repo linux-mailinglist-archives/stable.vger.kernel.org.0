@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C60B65790A
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:56:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B740F657A13
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:07:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233276AbiL1O45 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:56:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44310 "EHLO
+        id S233594AbiL1PHe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:07:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233278AbiL1O44 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:56:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32702DF1
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:56:55 -0800 (PST)
+        with ESMTP id S233593AbiL1PHd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:07:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F34413D6D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:07:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BDA72614B2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:56:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0CE7C433D2;
-        Wed, 28 Dec 2022 14:56:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C026A6151F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:07:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA326C433D2;
+        Wed, 28 Dec 2022 15:07:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239414;
-        bh=BI81VsQgUesnbRAeUXPSJMeE4jCEZUlWXKKX1VZNNp4=;
+        s=korg; t=1672240052;
+        bh=C5LCNxx27JrnHNGcVXG8Z8y7QGx76sJN0z+c5Ri6/5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rQv/ZUpNVoGZw3QUw+nLEJdA5XLkygW5pUU6NjkjWGCFzEdee1jf3Br79D1U54gQh
-         SYlB+h2+vo8wqXS5A/FMBpuBNgTzi6w53GrCz74sTdlfMhzH2bW0ebRzX76ARj/tX2
-         yOI6Q6MCA5QiSD3zWqipPo/qUo9LRvnzl0mkkzW8=
+        b=C0ggtjPaZ8/nXiER6bp2xwvGwXYYK5CGxtvpUu6bPwWYTa0fYhftCh8zpqHVXWL0A
+         1JwMSOkQLEBI5UIadDFNP9CuRw6kUns/C4nUHqSI3TsIJEXCSTHRCozY2RH56HBEzq
+         XkGC25mYCD9izAZa3uPT5ZKC7MH/WhgYViAMnp+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Jiahao <chenjiahao16@huawei.com>,
-        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0025/1073] drivers: soc: ti: knav_qmss_queue: Mark knav_acc_firmwares as static
-Date:   Wed, 28 Dec 2022 15:26:53 +0100
-Message-Id: <20221228144328.833462049@linuxfoundation.org>
+        patches@lists.linux.dev,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0075/1146] arm64: dts: mt2712-evb: Fix usb vbus regulators unit names
+Date:   Wed, 28 Dec 2022 15:26:54 +0100
+Message-Id: <20221228144332.188496352@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,40 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Jiahao <chenjiahao16@huawei.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit adf85adc2a7199b41e7a4da083bd17274a3d6969 ]
+[ Upstream commit ec1ae39a8d25cfb067b5459fac7c5b7b9bce6f6a ]
 
-There is a sparse warning shown below:
+Update the names to regulator-usb-p{0-3}-vbus to fix unit_address_vs_reg
+warnings for those.
 
-drivers/soc/ti/knav_qmss_queue.c:70:12: warning: symbol
-'knav_acc_firmwares' was not declared. Should it be static?
-
-Since 'knav_acc_firmwares' is only called within knav_qmss_queue.c,
-mark it as static to fix the warning.
-
-Fixes: 96ee19becc3b ("soc: ti: add firmware file name as part of the driver")
-Signed-off-by: Chen Jiahao <chenjiahao16@huawei.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20221019153212.72350-1-chenjiahao16@huawei.com
+Fixes: 1724f4cc5133 ("arm64: dts: Add USB3 related nodes for MT2712")
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221013152212.416661-7-angelogioacchino.delregno@collabora.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/ti/knav_qmss_queue.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/mediatek/mt2712-evb.dts | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/soc/ti/knav_qmss_queue.c b/drivers/soc/ti/knav_qmss_queue.c
-index 92af7d1b6f5b..16a6d530a0d4 100644
---- a/drivers/soc/ti/knav_qmss_queue.c
-+++ b/drivers/soc/ti/knav_qmss_queue.c
-@@ -67,7 +67,7 @@ static DEFINE_MUTEX(knav_dev_lock);
-  * Newest followed by older ones. Search is done from start of the array
-  * until a firmware file is found.
-  */
--const char *knav_acc_firmwares[] = {"ks2_qmss_pdsp_acc48.bin"};
-+static const char * const knav_acc_firmwares[] = {"ks2_qmss_pdsp_acc48.bin"};
+diff --git a/arch/arm64/boot/dts/mediatek/mt2712-evb.dts b/arch/arm64/boot/dts/mediatek/mt2712-evb.dts
+index 638908773706..d31a194124c9 100644
+--- a/arch/arm64/boot/dts/mediatek/mt2712-evb.dts
++++ b/arch/arm64/boot/dts/mediatek/mt2712-evb.dts
+@@ -50,7 +50,7 @@ extcon_usb1: extcon_iddig1 {
+ 		id-gpio = <&pio 14 GPIO_ACTIVE_HIGH>;
+ 	};
  
- static bool device_ready;
- bool knav_qmss_device_ready(void)
+-	usb_p0_vbus: regulator@2 {
++	usb_p0_vbus: regulator-usb-p0-vbus {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "p0_vbus";
+ 		regulator-min-microvolt = <5000000>;
+@@ -59,7 +59,7 @@ usb_p0_vbus: regulator@2 {
+ 		enable-active-high;
+ 	};
+ 
+-	usb_p1_vbus: regulator@3 {
++	usb_p1_vbus: regulator-usb-p1-vbus {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "p1_vbus";
+ 		regulator-min-microvolt = <5000000>;
+@@ -68,7 +68,7 @@ usb_p1_vbus: regulator@3 {
+ 		enable-active-high;
+ 	};
+ 
+-	usb_p2_vbus: regulator@4 {
++	usb_p2_vbus: regulator-usb-p2-vbus {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "p2_vbus";
+ 		regulator-min-microvolt = <5000000>;
+@@ -77,7 +77,7 @@ usb_p2_vbus: regulator@4 {
+ 		enable-active-high;
+ 	};
+ 
+-	usb_p3_vbus: regulator@5 {
++	usb_p3_vbus: regulator-usb-p3-vbus {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "p3_vbus";
+ 		regulator-min-microvolt = <5000000>;
 -- 
 2.35.1
 
