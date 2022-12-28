@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09CCC657E06
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:49:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47CD4657CF9
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:38:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234066AbiL1PtR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:49:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37282 "EHLO
+        id S233918AbiL1PiF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:38:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234070AbiL1PtQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:49:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13DAD18394
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:49:16 -0800 (PST)
+        with ESMTP id S233920AbiL1PiD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:38:03 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F15FF16596
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:38:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A1B1161560
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:49:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF0ACC433EF;
-        Wed, 28 Dec 2022 15:49:14 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 63350CE136B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:38:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59E86C433EF;
+        Wed, 28 Dec 2022 15:37:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242555;
-        bh=chIMfwcOYDHl4mDXEwwPaMq4rfl47D+aSwyteTFjYxw=;
+        s=korg; t=1672241878;
+        bh=gLMAYmGvZXOm+sdEvg9NA9/6gcoOyK5lv4EWGoSi33Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=so+cBHfWimk9J25rJCozhu4XRJ7mrTbVTu4fZiibpiB+zLyWceVbDRDUqM2CV6ruA
-         UDqiFXi4AXw90JgZlpI9fWfiLqIIkuVvLJXmUzR4u2alWKceEC/bgwrgtUhtz13cDV
-         lEjAcGoojk9tiviyw15rBnBIG/himo6c0hfCGphA=
+        b=Au1XGm4/9gg7uz68O8SAOMpbqVH5L8z0zt+3bgQWucEb5lO2NZXVaOoyJgkL/AEGY
+         tQ6r51USzave6lx5NxRLyI+Yv4/c9v9Oo+PrkBvJY71NAMGWxMApa9+szvrQhwJMkw
+         5Ki3CPsAZOKGY5HZKh10PjbKT3AutKRQnpCre3/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheng Yongjun <zhengyongjun3@huawei.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        patches@lists.linux.dev, Douglas Anderson <dianders@chromium.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0387/1146] mtd: maps: pxa2xx-flash: fix memory leak in probe
-Date:   Wed, 28 Dec 2022 15:32:06 +0100
-Message-Id: <20221228144340.676026563@linuxfoundation.org>
+Subject: [PATCH 6.0 0339/1073] Input: elants_i2c - properly handle the reset GPIO when power is off
+Date:   Wed, 28 Dec 2022 15:32:07 +0100
+Message-Id: <20221228144337.213406666@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +53,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yongjun <zhengyongjun3@huawei.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 2399401feee27c639addc5b7e6ba519d3ca341bf ]
+[ Upstream commit a85fbd6498441694475716a4d5c65f9d3e073faf ]
 
-Free 'info' upon remapping error to avoid a memory leak.
+As can be seen in elants_i2c_power_off(), we want the reset GPIO
+asserted when power is off. The reset GPIO is active low so we need
+the reset line logic low when power is off to avoid leakage.
 
-Fixes: e644f7d62894 ("[MTD] MAPS: Merge Lubbock and Mainstone drivers into common PXA2xx driver")
-Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
-[<miquel.raynal@bootlin.com>: Reword the commit log]
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20221119073307.22929-1-zhengyongjun3@huawei.com
+We have a problem, though, at probe time. At probe time we haven't
+powered the regulators on yet but we have:
+
+  devm_gpiod_get(&client->dev, "reset", GPIOD_OUT_LOW);
+
+While that _looks_ right, it turns out that it's not. The
+GPIOD_OUT_LOW doesn't mean to init the GPIO to low. It means init the
+GPIO to "not asserted". Since this is an active low GPIO that inits it
+to be high.
+
+Let's fix this to properly init the GPIO. Now after both probe and
+power off the state of the GPIO is consistent (it's "asserted" or
+level low).
+
+Once we fix this, we can see that at power on time we no longer to
+assert the reset GPIO as the first thing. The reset GPIO is _always_
+asserted before powering on. Let's fix powering on to account for
+this.
+
+Fixes: afe10358e47a ("Input: elants_i2c - wire up regulator support")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://lore.kernel.org/r/20221117123805.1.I9959ac561dd6e1e8e1ce7085e4de6167b27c574f@changeid
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/maps/pxa2xx-flash.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/input/touchscreen/elants_i2c.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/mtd/maps/pxa2xx-flash.c b/drivers/mtd/maps/pxa2xx-flash.c
-index 1749dbbacc13..62a5bf41a6d7 100644
---- a/drivers/mtd/maps/pxa2xx-flash.c
-+++ b/drivers/mtd/maps/pxa2xx-flash.c
-@@ -64,6 +64,7 @@ static int pxa2xx_flash_probe(struct platform_device *pdev)
- 	if (!info->map.virt) {
- 		printk(KERN_WARNING "Failed to ioremap %s\n",
- 		       info->map.name);
-+		kfree(info);
- 		return -ENOMEM;
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index 879a4d984c90..e1308e179dd6 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -1329,14 +1329,12 @@ static int elants_i2c_power_on(struct elants_data *ts)
+ 	if (IS_ERR_OR_NULL(ts->reset_gpio))
+ 		return 0;
+ 
+-	gpiod_set_value_cansleep(ts->reset_gpio, 1);
+-
+ 	error = regulator_enable(ts->vcc33);
+ 	if (error) {
+ 		dev_err(&ts->client->dev,
+ 			"failed to enable vcc33 regulator: %d\n",
+ 			error);
+-		goto release_reset_gpio;
++		return error;
  	}
- 	info->map.cached = ioremap_cache(info->map.phys, info->map.size);
-@@ -85,6 +86,7 @@ static int pxa2xx_flash_probe(struct platform_device *pdev)
- 		iounmap((void *)info->map.virt);
- 		if (info->map.cached)
- 			iounmap(info->map.cached);
-+		kfree(info);
- 		return -EIO;
+ 
+ 	error = regulator_enable(ts->vccio);
+@@ -1345,7 +1343,7 @@ static int elants_i2c_power_on(struct elants_data *ts)
+ 			"failed to enable vccio regulator: %d\n",
+ 			error);
+ 		regulator_disable(ts->vcc33);
+-		goto release_reset_gpio;
++		return error;
  	}
- 	info->mtd->dev.parent = &pdev->dev;
+ 
+ 	/*
+@@ -1354,7 +1352,6 @@ static int elants_i2c_power_on(struct elants_data *ts)
+ 	 */
+ 	udelay(ELAN_POWERON_DELAY_USEC);
+ 
+-release_reset_gpio:
+ 	gpiod_set_value_cansleep(ts->reset_gpio, 0);
+ 	if (error)
+ 		return error;
+@@ -1462,7 +1459,7 @@ static int elants_i2c_probe(struct i2c_client *client)
+ 		return error;
+ 	}
+ 
+-	ts->reset_gpio = devm_gpiod_get(&client->dev, "reset", GPIOD_OUT_LOW);
++	ts->reset_gpio = devm_gpiod_get(&client->dev, "reset", GPIOD_OUT_HIGH);
+ 	if (IS_ERR(ts->reset_gpio)) {
+ 		error = PTR_ERR(ts->reset_gpio);
+ 
 -- 
 2.35.1
 
