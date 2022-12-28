@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE688657C2B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:29:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FA2C658192
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:29:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233425AbiL1P3j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:29:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47336 "EHLO
+        id S233486AbiL1Q3o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:29:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233761AbiL1P3h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:29:37 -0500
+        with ESMTP id S234084AbiL1Q3U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:29:20 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8849915807
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:29:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBB531B1C2
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:25:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2E283B816D9
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:29:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91ED7C433D2;
-        Wed, 28 Dec 2022 15:29:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 05998B81717
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:25:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 698B6C433EF;
+        Wed, 28 Dec 2022 16:25:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241373;
-        bh=tCKhIKES01vCm26ZLEvARUQHAFuL/43QG7Or5OiUYno=;
+        s=korg; t=1672244729;
+        bh=vDNttQro2rZ1btYr9mz5SKAaJBGFtWPmInT6noPodaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aCU5kk0+o/4Z3p4wEcWG4arP5eyhDGJI4dM7ZTwyJU12bANk97TjMO6np2foFYQTU
-         JEUzkTv+TbkG+5lCpN9MVVz03Y7C1rDzhVqHbJ/lDft07Na9i3jKk/IS3hyTr1LkbA
-         bl28kyx5HmsJMCB2359CEsuk5e4HKvuL/MUuXlQI=
+        b=kL+hY+xGpaBz7OB/46RM3I/hdu2PcqZqkxKf/3yxvDK1RacXCxPMrMc4TVqubizUP
+         3ZDwU3e7NaPQA0N7f0ZhYVSix0qf4PSL8X1oAGqKCkgkyKTIF7hOwoGBTktWFufDfk
+         y6nDmySdQKab0Ujw9uby7ps1jS+i9+2ncWA2sZx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 445/731] usb: fotg210-udc: Fix ages old endianness issues
+        patches@lists.linux.dev,
+        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0764/1073] dmaengine: apple-admac: Do not use devres for IRQs
 Date:   Wed, 28 Dec 2022 15:39:12 +0100
-Message-Id: <20221228144309.455018826@linuxfoundation.org>
+Message-Id: <20221228144348.766037262@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,69 +53,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Martin Povišer <povik+lin@cutebit.org>
 
-[ Upstream commit 46ed6026ca2181c917c8334a82e3eaf40a6234dd ]
+[ Upstream commit 072431595a57bc6605c29724afce5f9ef8114915 ]
 
-The code in the FOTG210 driver isn't entirely endianness-agnostic
-as reported by the kernel robot sparse testing. This came to
-the surface while moving the files around.
+This is in advance of adding support for triggering the reset signal to
+the peripheral, since registering the IRQ handler will have to be
+sequenced with it.
 
-The driver is only used on little-endian systems, so this causes
-no real-world regression, but it is nice to be strict and have
-some compile coverage also on big endian machines, so fix it
-up with the right LE accessors.
-
-Fixes: b84a8dee23fd ("usb: gadget: add Faraday fotg210_udc driver")
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/linux-usb/202211110910.0dJ7nZCn-lkp@intel.com/
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20221111090317.94228-1-linus.walleij@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
+Link: https://lore.kernel.org/r/20220918095845.68860-4-povik+lin@cutebit.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Stable-dep-of: 568aa6dd641f ("dmaengine: apple-admac: Allocate cache SRAM to channels")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/fotg210-udc.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/dma/apple-admac.c | 27 ++++++++++++++++++---------
+ 1 file changed, 18 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/fotg210-udc.c b/drivers/usb/gadget/udc/fotg210-udc.c
-index fdca28e72a3b..d0e051beb3af 100644
---- a/drivers/usb/gadget/udc/fotg210-udc.c
-+++ b/drivers/usb/gadget/udc/fotg210-udc.c
-@@ -629,10 +629,10 @@ static void fotg210_request_error(struct fotg210_udc *fotg210)
- static void fotg210_set_address(struct fotg210_udc *fotg210,
- 				struct usb_ctrlrequest *ctrl)
- {
--	if (ctrl->wValue >= 0x0100) {
-+	if (le16_to_cpu(ctrl->wValue) >= 0x0100) {
- 		fotg210_request_error(fotg210);
- 	} else {
--		fotg210_set_dev_addr(fotg210, ctrl->wValue);
-+		fotg210_set_dev_addr(fotg210, le16_to_cpu(ctrl->wValue));
- 		fotg210_set_cxdone(fotg210);
- 	}
- }
-@@ -713,17 +713,17 @@ static void fotg210_get_status(struct fotg210_udc *fotg210,
+diff --git a/drivers/dma/apple-admac.c b/drivers/dma/apple-admac.c
+index 6780761a1640..d69ed9c93648 100644
+--- a/drivers/dma/apple-admac.c
++++ b/drivers/dma/apple-admac.c
+@@ -96,6 +96,7 @@ struct admac_data {
+ 	struct device *dev;
+ 	__iomem void *base;
  
- 	switch (ctrl->bRequestType & USB_RECIP_MASK) {
- 	case USB_RECIP_DEVICE:
--		fotg210->ep0_data = 1 << USB_DEVICE_SELF_POWERED;
-+		fotg210->ep0_data = cpu_to_le16(1 << USB_DEVICE_SELF_POWERED);
- 		break;
- 	case USB_RECIP_INTERFACE:
--		fotg210->ep0_data = 0;
-+		fotg210->ep0_data = cpu_to_le16(0);
- 		break;
- 	case USB_RECIP_ENDPOINT:
- 		epnum = ctrl->wIndex & USB_ENDPOINT_NUMBER_MASK;
- 		if (epnum)
- 			fotg210->ep0_data =
--				fotg210_is_epnstall(fotg210->ep[epnum])
--				<< USB_ENDPOINT_HALT;
-+				cpu_to_le16(fotg210_is_epnstall(fotg210->ep[epnum])
-+					    << USB_ENDPOINT_HALT);
- 		else
- 			fotg210_request_error(fotg210);
- 		break;
++	int irq;
+ 	int irq_index;
+ 	int nchannels;
+ 	struct admac_chan channels[];
+@@ -724,12 +725,7 @@ static int admac_probe(struct platform_device *pdev)
+ 
+ 	if (irq < 0)
+ 		return dev_err_probe(&pdev->dev, irq, "no usable interrupt\n");
+-
+-	err = devm_request_irq(&pdev->dev, irq, admac_interrupt,
+-			       0, dev_name(&pdev->dev), ad);
+-	if (err)
+-		return dev_err_probe(&pdev->dev, err,
+-				     "unable to register interrupt\n");
++	ad->irq = irq;
+ 
+ 	ad->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(ad->base))
+@@ -774,17 +770,29 @@ static int admac_probe(struct platform_device *pdev)
+ 		tasklet_setup(&adchan->tasklet, admac_chan_tasklet);
+ 	}
+ 
+-	err = dma_async_device_register(&ad->dma);
++	err = request_irq(irq, admac_interrupt, 0, dev_name(&pdev->dev), ad);
+ 	if (err)
+-		return dev_err_probe(&pdev->dev, err, "failed to register DMA device\n");
++		return dev_err_probe(&pdev->dev, err,
++				     "unable to register interrupt\n");
++
++	err = dma_async_device_register(&ad->dma);
++	if (err) {
++		dev_err_probe(&pdev->dev, err, "failed to register DMA device\n");
++		goto free_irq;
++	}
+ 
+ 	err = of_dma_controller_register(pdev->dev.of_node, admac_dma_of_xlate, ad);
+ 	if (err) {
+ 		dma_async_device_unregister(&ad->dma);
+-		return dev_err_probe(&pdev->dev, err, "failed to register with OF\n");
++		dev_err_probe(&pdev->dev, err, "failed to register with OF\n");
++		goto free_irq;
+ 	}
+ 
+ 	return 0;
++
++free_irq:
++	free_irq(ad->irq, ad);
++	return err;
+ }
+ 
+ static int admac_remove(struct platform_device *pdev)
+@@ -793,6 +801,7 @@ static int admac_remove(struct platform_device *pdev)
+ 
+ 	of_dma_controller_free(pdev->dev.of_node);
+ 	dma_async_device_unregister(&ad->dma);
++	free_irq(ad->irq, ad);
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
