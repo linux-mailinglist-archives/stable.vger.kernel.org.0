@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B20E0657DC3
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:46:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D2E7658439
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:56:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234061AbiL1Pqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:46:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34914 "EHLO
+        id S232635AbiL1Q4B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:56:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234034AbiL1Pq3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:46:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3465E164B6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:46:25 -0800 (PST)
+        with ESMTP id S235150AbiL1QzB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:55:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 008DA1CB1E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:49:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C4DAD6155C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:46:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2288C433D2;
-        Wed, 28 Dec 2022 15:46:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD150B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:49:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CCB6C433EF;
+        Wed, 28 Dec 2022 16:49:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242384;
-        bh=ddEyr2L5NZjhQkReltEmm30D5lRXSJMwbWEk530wFlU=;
+        s=korg; t=1672246196;
+        bh=gWX7FAuymLzIe0lTlL9cbB0Xr8qLpez2pdwNDs2A8Yw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PnydTcpl4uOg46CCL81112bh7CQfGbwPfLZMIw+wLA8nD8HW/d1YhZW0Ye2zwWRXL
-         S8LLGYhA6UTwZ5QWqTpk3b1f+bR+m6mgiNW0BQhm2mZUX7szvmDNvvPrFwoK4tf+jr
-         m3085Lcj6EteMKVbHIFsZSxaEA7cpp/gyCyKPkuE=
+        b=TlO313Ku9LIcb7QsyjunHuuzqXfFPiWwiRIki2zu1zWnRuHQR3E/yx53aob9+5goJ
+         gBOknGLZnSL6HdxNSUcWF0Rs7MuVrSO8v68GiKHHkuE8dFzEPBAAaU4M4ptUGOkzat
+         fUPqj93Nj0p+WBYU7OKgVcJ9pQdm1OL4jslDnPMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>,
-        Tan Tee Min <tee.min.tan@linux.intel.com>,
-        Naama Meir <naamax.meir@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        patches@lists.linux.dev, Doug Brown <doug@schmorgal.com>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 597/731] igc: allow BaseTime 0 enrollment for Qbv
+Subject: [PATCH 6.1 0965/1146] drm/etnaviv: add missing quirks for GC300
 Date:   Wed, 28 Dec 2022 15:41:44 +0100
-Message-Id: <20221228144313.846280652@linuxfoundation.org>
+Message-Id: <20221228144356.534489201@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,63 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tan Tee Min <tee.min.tan@linux.intel.com>
+From: Doug Brown <doug@schmorgal.com>
 
-[ Upstream commit e17090eb24944fbbe1f24d9f336d7bad4fbe47e8 ]
+[ Upstream commit cc7d3fb446a91f24978a6aa59cbb578f92e22242 ]
 
-Introduce qbv_enable flag in igc_adapter struct to store the Qbv on/off.
-So this allow the BaseTime to enroll with zero value.
+The GC300's features register doesn't specify that a 2D pipe is
+available, and like the GC600, its idle register reports zero bits where
+modules aren't present.
 
-Fixes: 61572d5f8f91 ("igc: Simplify TSN flags handling")
-Signed-off-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
-Signed-off-by: Tan Tee Min <tee.min.tan@linux.intel.com>
-Tested-by: Naama Meir <naamax.meir@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Doug Brown <doug@schmorgal.com>
+Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igc/igc.h      | 1 +
- drivers/net/ethernet/intel/igc/igc_main.c | 2 ++
- drivers/net/ethernet/intel/igc/igc_tsn.c  | 2 +-
- 3 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/etnaviv/etnaviv_gpu.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/igc/igc.h b/drivers/net/ethernet/intel/igc/igc.h
-index b69373d67e2d..66678cd72a6c 100644
---- a/drivers/net/ethernet/intel/igc/igc.h
-+++ b/drivers/net/ethernet/intel/igc/igc.h
-@@ -184,6 +184,7 @@ struct igc_adapter {
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
+index 37018bc55810..f667e7906d1f 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
+@@ -416,6 +416,12 @@ static void etnaviv_hw_identify(struct etnaviv_gpu *gpu)
+ 	if (gpu->identity.model == chipModel_GC700)
+ 		gpu->identity.features &= ~chipFeatures_FAST_CLEAR;
  
- 	ktime_t base_time;
- 	ktime_t cycle_time;
-+	bool qbv_enable;
- 
- 	/* OS defined structs */
- 	struct pci_dev *pdev;
-diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
-index 26dd710fba8f..f06b67ae3602 100644
---- a/drivers/net/ethernet/intel/igc/igc_main.c
-+++ b/drivers/net/ethernet/intel/igc/igc_main.c
-@@ -5981,6 +5981,8 @@ static int igc_save_qbv_schedule(struct igc_adapter *adapter,
- 	u32 start_time = 0, end_time = 0;
- 	size_t n;
- 
-+	adapter->qbv_enable = qopt->enable;
++	/* These models/revisions don't have the 2D pipe bit */
++	if ((gpu->identity.model == chipModel_GC500 &&
++	     gpu->identity.revision <= 2) ||
++	    gpu->identity.model == chipModel_GC300)
++		gpu->identity.features |= chipFeatures_PIPE_2D;
 +
- 	if (!qopt->enable)
- 		return igc_tsn_clear_schedule(adapter);
+ 	if ((gpu->identity.model == chipModel_GC500 &&
+ 	     gpu->identity.revision < 2) ||
+ 	    (gpu->identity.model == chipModel_GC300 &&
+@@ -449,8 +455,9 @@ static void etnaviv_hw_identify(struct etnaviv_gpu *gpu)
+ 				gpu_read(gpu, VIVS_HI_CHIP_MINOR_FEATURE_5);
+ 	}
  
-diff --git a/drivers/net/ethernet/intel/igc/igc_tsn.c b/drivers/net/ethernet/intel/igc/igc_tsn.c
-index 4a019954cadb..356c7455c5ce 100644
---- a/drivers/net/ethernet/intel/igc/igc_tsn.c
-+++ b/drivers/net/ethernet/intel/igc/igc_tsn.c
-@@ -36,7 +36,7 @@ static unsigned int igc_tsn_new_flags(struct igc_adapter *adapter)
- {
- 	unsigned int new_flags = adapter->flags & ~IGC_FLAG_TSN_ANY_ENABLED;
- 
--	if (adapter->base_time)
-+	if (adapter->qbv_enable)
- 		new_flags |= IGC_FLAG_TSN_QBV_ENABLED;
- 
- 	if (is_any_launchtime(adapter))
+-	/* GC600 idle register reports zero bits where modules aren't present */
+-	if (gpu->identity.model == chipModel_GC600)
++	/* GC600/300 idle register reports zero bits where modules aren't present */
++	if (gpu->identity.model == chipModel_GC600 ||
++	    gpu->identity.model == chipModel_GC300)
+ 		gpu->idle_mask = VIVS_HI_IDLE_STATE_TX |
+ 				 VIVS_HI_IDLE_STATE_RA |
+ 				 VIVS_HI_IDLE_STATE_SE |
 -- 
 2.35.1
 
