@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A48E657A67
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:11:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E0AA657947
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:59:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233161AbiL1PLP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:11:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58010 "EHLO
+        id S233357AbiL1O72 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:59:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233669AbiL1PKl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:10:41 -0500
+        with ESMTP id S233322AbiL1O7X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:59:23 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E861813E0B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:10:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89D9C120B8
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:59:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 81E3361551
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:10:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9368AC433D2;
-        Wed, 28 Dec 2022 15:10:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E37B61365
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:59:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23818C433D2;
+        Wed, 28 Dec 2022 14:59:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240239;
-        bh=Mdsob+SE7nZK0xnBTXgXVW89uWMn9GX9eUzueW0JSjA=;
+        s=korg; t=1672239561;
+        bh=LTk0HC67kJzy0V0k9YUL0lG28T71msPFZf2kbDSEcc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xrwWajscmJIyOxUlvfYqFSU79Gh6FS0hGP0ZEjBiQieZgKWgZZqGZI5t/RpyIiNT+
-         OW7g4QCW67ya1YK9s69nW8l7AtoUmYCr3EOgRFI0hVCQfYt0gv3PrwcYGA7dBAMZAD
-         Zmky5IC6A61C9TtALy+oJPK0dM+g8wCl9IGyl75g=
+        b=VeKI7nostPP9bDrGXngwyGm6bNm2KD5czZ86dwdI1ylZJwcld8aAH3cFhWeNy/sSL
+         rW8kl0sPS/a4jtaB9dTrgyexkt0hLg2BOrgQQm+8TjfPQIPlxVd+S2bgzjO4nTrCn5
+         OlDZ772eqsiymxMG8y+127vugFhEgkjBkvVK9n2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Janne Grunau <j@jannau.net>,
-        Mark Kettenis <kettenis@openbsd.org>,
-        Hector Martin <marcan@marcan.st>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0099/1146] arch: arm64: apple: t8103: Use standard "iommu" node name
+        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
+        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0050/1073] soc: ti: smartreflex: Fix PM disable depth imbalance in omap_sr_probe
 Date:   Wed, 28 Dec 2022 15:27:18 +0100
-Message-Id: <20221228144332.833152087@linuxfoundation.org>
+Message-Id: <20221228144329.473912396@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janne Grunau <j@jannau.net>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 56d32c51dffac8a431b472a4c31efb8563b048d1 ]
+[ Upstream commit 69460e68eb662064ab4188d4e129ff31c1f23ed9 ]
 
-The PCIe iommu nodes use "dart" as node names. Replace it with the
-the standard "iommu" node name as all other iommu nodes.
+The pm_runtime_enable will increase power disable depth. Thus
+a pairing decrement is needed on the error handling path to
+keep it balanced according to context.
 
-Fixes: 3c866bb79577 ("arm64: dts: apple: t8103: Add PCIe DARTs")
-Signed-off-by: Janne Grunau <j@jannau.net>
-Reviewed-by: Mark Kettenis <kettenis@openbsd.org>
-Signed-off-by: Hector Martin <marcan@marcan.st>
+Fixes: 984aa6dbf4ca ("OMAP3: PM: Adding smartreflex driver support.")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Link: https://lore.kernel.org/r/20221108080322.52268-3-zhangqilong3@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/apple/t8103.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/soc/ti/smartreflex.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/apple/t8103.dtsi b/arch/arm64/boot/dts/apple/t8103.dtsi
-index 51a63b29d404..a4d195e9eb8c 100644
---- a/arch/arm64/boot/dts/apple/t8103.dtsi
-+++ b/arch/arm64/boot/dts/apple/t8103.dtsi
-@@ -412,7 +412,7 @@ nvme@27bcc0000 {
- 			resets = <&ps_ans2>;
- 		};
+diff --git a/drivers/soc/ti/smartreflex.c b/drivers/soc/ti/smartreflex.c
+index ad2bb72e640c..6a389a6444f3 100644
+--- a/drivers/soc/ti/smartreflex.c
++++ b/drivers/soc/ti/smartreflex.c
+@@ -932,6 +932,7 @@ static int omap_sr_probe(struct platform_device *pdev)
+ err_debugfs:
+ 	debugfs_remove_recursive(sr_info->dbg_dir);
+ err_list_del:
++	pm_runtime_disable(&pdev->dev);
+ 	list_del(&sr_info->node);
+ 	clk_unprepare(sr_info->fck);
  
--		pcie0_dart_0: dart@681008000 {
-+		pcie0_dart_0: iommu@681008000 {
- 			compatible = "apple,t8103-dart";
- 			reg = <0x6 0x81008000 0x0 0x4000>;
- 			#iommu-cells = <1>;
-@@ -421,7 +421,7 @@ pcie0_dart_0: dart@681008000 {
- 			power-domains = <&ps_apcie_gp>;
- 		};
- 
--		pcie0_dart_1: dart@682008000 {
-+		pcie0_dart_1: iommu@682008000 {
- 			compatible = "apple,t8103-dart";
- 			reg = <0x6 0x82008000 0x0 0x4000>;
- 			#iommu-cells = <1>;
-@@ -430,7 +430,7 @@ pcie0_dart_1: dart@682008000 {
- 			power-domains = <&ps_apcie_gp>;
- 		};
- 
--		pcie0_dart_2: dart@683008000 {
-+		pcie0_dart_2: iommu@683008000 {
- 			compatible = "apple,t8103-dart";
- 			reg = <0x6 0x83008000 0x0 0x4000>;
- 			#iommu-cells = <1>;
 -- 
 2.35.1
 
