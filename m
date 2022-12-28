@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 972C8657FDC
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:11:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18F44658099
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:18:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234485AbiL1QLB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:11:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55054 "EHLO
+        id S234583AbiL1QS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:18:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234567AbiL1QKb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:10:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 794271AA00
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:09:04 -0800 (PST)
+        with ESMTP id S234580AbiL1QSB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:18:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66B41165B4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:16:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E267961579
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:08:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00AB0C433EF;
-        Wed, 28 Dec 2022 16:08:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E58B7B81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:16:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56373C433D2;
+        Wed, 28 Dec 2022 16:16:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243739;
-        bh=b0mLw23YEEGO5QtvlzuDhKg7RuVactZgpj4TokLm3RE=;
+        s=korg; t=1672244205;
+        bh=K0YOuC+M8aF8XcBEKcJIg0z82Uzjl1kl0ANjhO5Ouyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zbDVnAxHdNcHfFS4Oc+WTatsrPiyZK1YMqyVUa2tBrg1BKxRz3SJC4uP59vkG7suy
-         PObpAhdbawAkrCkDbYEtnm+kJhP9eWNPWd7oq5wMZtReKE6HUeGJZBDTYN+tXsBEif
-         XoDrxcLGz0W1oml1CrNmPsMGDlz6FSYmjo4kWPuk=
+        b=DrkKB9h8gFNDokL4p+6PfQpycraW4JQB5kivezDp55Yd2oNoFXqsWwypwEs2MKQT7
+         zuQzf0gBwl/NFeW0YQKW9a4zCqLDa0Xs9RZMI0wBiOfrlyIFqAheyO1/29J/VJfznK
+         N76VO9rXyBm76E2PXxAh1OP75A2ADlNeEVAlPtRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dongdong Zhang <zhangdongdong1@oppo.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        patches@lists.linux.dev,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0580/1073] f2fs: fix normal discard process
+Subject: [PATCH 6.1 0629/1146] dt-bindings: visconti-pcie: Fix interrupts array max constraints
 Date:   Wed, 28 Dec 2022 15:36:08 +0100
-Message-Id: <20221228144343.803060388@linuxfoundation.org>
+Message-Id: <20221228144347.253845277@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +56,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongdong Zhang <zhangdongdong1@oppo.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit b5f1a218ae5e4339130d6e733f0e63d623e09a2c ]
+[ Upstream commit 4cf4b9b70ab2785461190c08a3542d2d74c28b46 ]
 
-In the DPOLICY_BG mode, there is a conflict between
-the two conditions "i + 1 < dpolicy->granularity" and
-"i < DEFAULT_DISCARD_GRANULARITY". If i = 15, the first
-condition is false, it will enter the second condition
-and dispatch all small granularity discards in function
- __issue_discard_cmd_orderly. The restrictive effect
-of the first condition to small discards will be
-invalidated. These two conditions should align.
+In accordance with the way the device DT-node is actually defined in
+arch/arm64/boot/dts/toshiba/tmpv7708.dtsi and the way the device is probed
+by the DW PCIe driver there are two IRQs it actually has. It's MSI IRQ the
+DT-bindings lack. Let's extend the interrupts property constraints then
+and fix the schema example so one would be acceptable by the actual device
+DT-bindings.
 
-Fixes: 20ee4382322c ("f2fs: issue small discard by LBA order")
-Signed-off-by: Dongdong Zhang <zhangdongdong1@oppo.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Link: https://lore.kernel.org/r/20221113191301.5526-3-Sergey.Semin@baikalelectronics.ru
+Fixes: 17c1b16340f0 ("dt-bindings: pci: Add DT binding for Toshiba Visconti PCIe controller")
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Acked-by: Rob Herring <robh@kernel.org>
+Acked-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/segment.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../devicetree/bindings/pci/toshiba,visconti-pcie.yaml     | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 10d8bc81cff7..27690f757913 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -1449,7 +1449,7 @@ static int __issue_discard_cmd(struct f2fs_sb_info *sbi,
- 		if (i + 1 < dpolicy->granularity)
- 			break;
+diff --git a/Documentation/devicetree/bindings/pci/toshiba,visconti-pcie.yaml b/Documentation/devicetree/bindings/pci/toshiba,visconti-pcie.yaml
+index 48ed227fc5b9..53da2edd7c9a 100644
+--- a/Documentation/devicetree/bindings/pci/toshiba,visconti-pcie.yaml
++++ b/Documentation/devicetree/bindings/pci/toshiba,visconti-pcie.yaml
+@@ -36,7 +36,7 @@ properties:
+       - const: mpu
  
--		if (i < DEFAULT_DISCARD_GRANULARITY && dpolicy->ordered)
-+		if (i + 1 < DEFAULT_DISCARD_GRANULARITY && dpolicy->ordered)
- 			return __issue_discard_cmd_orderly(sbi, dpolicy);
+   interrupts:
+-    maxItems: 1
++    maxItems: 2
  
- 		pend_list = &dcc->pend_list[i];
+   clocks:
+     items:
+@@ -94,8 +94,9 @@ examples:
+             #interrupt-cells = <1>;
+             ranges = <0x81000000 0 0x40000000 0 0x40000000 0 0x00010000>,
+                      <0x82000000 0 0x50000000 0 0x50000000 0 0x20000000>;
+-            interrupts = <GIC_SPI 215 IRQ_TYPE_LEVEL_HIGH>;
+-            interrupt-names = "intr";
++            interrupts = <GIC_SPI 211 IRQ_TYPE_LEVEL_HIGH>,
++                         <GIC_SPI 215 IRQ_TYPE_LEVEL_HIGH>;
++            interrupt-names = "msi", "intr";
+             interrupt-map-mask = <0 0 0 7>;
+             interrupt-map =
+                 <0 0 0 1 &gic GIC_SPI 215 IRQ_TYPE_LEVEL_HIGH
 -- 
 2.35.1
 
