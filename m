@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22A5B65803F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:16:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6AFD65811E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234476AbiL1QQW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:16:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33210 "EHLO
+        id S233274AbiL1QZK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:25:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234479AbiL1QPy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:15:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E95C61A80B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:13:07 -0800 (PST)
+        with ESMTP id S234787AbiL1QYV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:24:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54CF8193F3
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:21:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 84E3C6155B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:13:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94300C433D2;
-        Wed, 28 Dec 2022 16:13:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E2A42B81707
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:21:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55CCCC433D2;
+        Wed, 28 Dec 2022 16:21:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243987;
-        bh=GCAwWLTS2dS7azZOv1nhK2HejKNwVOj1082OnAyfARU=;
+        s=korg; t=1672244486;
+        bh=xRj2zAE3lEOGlozonGI9PfAv12yBVV/t3FQ8OXG8rNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rssb0jYTzlh0Qb+9iHNcQaE4sWqzKFJvOX0CgTU6jY3edffvjlqdMu0quYb/E8alM
-         xW8bkjMhMlBNC/oC94tvOKvlDPktkXSRXSBWd4AQckKw+0xGeZOm/zpq3WdyVu+E3P
-         h12SThD7irSKLJSYAlvqY015aojczuUCqD88l2Ig=
+        b=oproYsckLCW4+d+HgMTU0BX3kT39746WL3aPvysHgLFoyk6YFkyQAi0o9BEXnJjpb
+         K09Oj0XVUdsRpYIcwvR4kDMEysxDR0WzVGfeocpfUbGKJchEsM+5S0LDgSQIZ7YBCW
+         4nAa4kXARvwJ8qGlZaZHMYtyAj2xifqUjSaTzqhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Andrew Bresticker <abrestic@rivosinc.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0627/1073] scsi: fcoe: Fix transport not deattached when fcoe_if_init() fails
-Date:   Wed, 28 Dec 2022 15:36:55 +0100
-Message-Id: <20221228144345.072571960@linuxfoundation.org>
+Subject: [PATCH 6.1 0677/1146] RISC-V: Fix unannoted hardirqs-on in return to userspace slow-path
+Date:   Wed, 28 Dec 2022 15:36:56 +0100
+Message-Id: <20221228144348.535278250@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +53,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Andrew Bresticker <abrestic@rivosinc.com>
 
-[ Upstream commit 4155658cee394b22b24c6d64e49247bf26d95b92 ]
+[ Upstream commit b0f4c74eadbf69a3298f38566bfaa2e202541f2f ]
 
-fcoe_init() calls fcoe_transport_attach(&fcoe_sw_transport), but when
-fcoe_if_init() fails, &fcoe_sw_transport is not detached and leaves freed
-&fcoe_sw_transport on fcoe_transports list. This causes panic when
-reinserting module.
+The return to userspace path in entry.S may enable interrupts without the
+corresponding lockdep annotation, producing a splat[0] when DEBUG_LOCKDEP
+is enabled. Simply calling __trace_hardirqs_on() here gets a bit messy
+due to the use of RA to point back to ret_from_exception, so just move
+the whole slow-path loop into C. It's more readable and it lets us use
+local_irq_{enable,disable}(), avoiding the need for manual annotations
+altogether.
 
- BUG: unable to handle page fault for address: fffffbfff82e2213
- RIP: 0010:fcoe_transport_attach+0xe1/0x230 [libfcoe]
- Call Trace:
-  <TASK>
-  do_one_initcall+0xd0/0x4e0
-  load_module+0x5eee/0x7210
-  ...
+[0]:
+  ------------[ cut here ]------------
+  DEBUG_LOCKS_WARN_ON(!lockdep_hardirqs_enabled())
+  WARNING: CPU: 2 PID: 1 at kernel/locking/lockdep.c:5512 check_flags+0x10a/0x1e0
+  Modules linked in:
+  CPU: 2 PID: 1 Comm: init Not tainted 6.1.0-rc4-00160-gb56b6e2b4f31 #53
+  Hardware name: riscv-virtio,qemu (DT)
+  epc : check_flags+0x10a/0x1e0
+  ra : check_flags+0x10a/0x1e0
+  <snip>
+   status: 0000000200000100 badaddr: 0000000000000000 cause: 0000000000000003
+  [<ffffffff808edb90>] lock_is_held_type+0x78/0x14e
+  [<ffffffff8003dae2>] __might_resched+0x26/0x22c
+  [<ffffffff8003dd24>] __might_sleep+0x3c/0x66
+  [<ffffffff80022c60>] get_signal+0x9e/0xa70
+  [<ffffffff800054a2>] do_notify_resume+0x6e/0x422
+  [<ffffffff80003c68>] ret_from_exception+0x0/0x10
+  irq event stamp: 44512
+  hardirqs last  enabled at (44511): [<ffffffff808f901c>] _raw_spin_unlock_irqrestore+0x54/0x62
+  hardirqs last disabled at (44512): [<ffffffff80008200>] __trace_hardirqs_off+0xc/0x14
+  softirqs last  enabled at (44472): [<ffffffff808f9fbe>] __do_softirq+0x3de/0x51e
+  softirqs last disabled at (44467): [<ffffffff80017760>] irq_exit+0xd6/0x104
+  ---[ end trace 0000000000000000 ]---
+  possible reason: unannotated irqs-on.
 
-Fixes: 78a582463c1e ("[SCSI] fcoe: convert fcoe.ko to become an fcoe transport provider driver")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Link: https://lore.kernel.org/r/20221115092442.133088-1-chenzhongjin@huawei.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Andrew Bresticker <abrestic@rivosinc.com>
+Fixes: 3c4697982982 ("riscv: Enable LOCKDEP_SUPPORT & fixup TRACE_IRQFLAGS_SUPPORT")
+Link: https://lore.kernel.org/r/20221111223108.1976562-1-abrestic@rivosinc.com
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/fcoe/fcoe.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/riscv/kernel/entry.S  | 18 +++++-------------
+ arch/riscv/kernel/signal.c | 34 +++++++++++++++++++++-------------
+ 2 files changed, 26 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/scsi/fcoe/fcoe.c b/drivers/scsi/fcoe/fcoe.c
-index 6ec296321ffc..38774a272e62 100644
---- a/drivers/scsi/fcoe/fcoe.c
-+++ b/drivers/scsi/fcoe/fcoe.c
-@@ -2491,6 +2491,7 @@ static int __init fcoe_init(void)
+diff --git a/arch/riscv/kernel/entry.S b/arch/riscv/kernel/entry.S
+index 186abd146eaf..3221a9e5f372 100644
+--- a/arch/riscv/kernel/entry.S
++++ b/arch/riscv/kernel/entry.S
+@@ -263,12 +263,11 @@ ret_from_exception:
+ #endif
+ 	bnez s0, resume_kernel
  
- out_free:
- 	mutex_unlock(&fcoe_config_mutex);
-+	fcoe_transport_detach(&fcoe_sw_transport);
- out_destroy:
- 	destroy_workqueue(fcoe_wq);
- 	return rc;
+-resume_userspace:
+ 	/* Interrupts must be disabled here so flags are checked atomically */
+ 	REG_L s0, TASK_TI_FLAGS(tp) /* current_thread_info->flags */
+ 	andi s1, s0, _TIF_WORK_MASK
+-	bnez s1, work_pending
+-
++	bnez s1, resume_userspace_slow
++resume_userspace:
+ #ifdef CONFIG_CONTEXT_TRACKING_USER
+ 	call user_enter_callable
+ #endif
+@@ -368,19 +367,12 @@ resume_kernel:
+ 	j restore_all
+ #endif
+ 
+-work_pending:
++resume_userspace_slow:
+ 	/* Enter slow path for supplementary processing */
+-	la ra, ret_from_exception
+-	andi s1, s0, _TIF_NEED_RESCHED
+-	bnez s1, work_resched
+-work_notifysig:
+-	/* Handle pending signals and notify-resume requests */
+-	csrs CSR_STATUS, SR_IE /* Enable interrupts for do_notify_resume() */
+ 	move a0, sp /* pt_regs */
+ 	move a1, s0 /* current_thread_info->flags */
+-	tail do_notify_resume
+-work_resched:
+-	tail schedule
++	call do_work_pending
++	j resume_userspace
+ 
+ /* Slow paths for ptrace. */
+ handle_syscall_trace_enter:
+diff --git a/arch/riscv/kernel/signal.c b/arch/riscv/kernel/signal.c
+index 5c591123c440..bfb2afa4135f 100644
+--- a/arch/riscv/kernel/signal.c
++++ b/arch/riscv/kernel/signal.c
+@@ -313,19 +313,27 @@ static void do_signal(struct pt_regs *regs)
+ }
+ 
+ /*
+- * notification of userspace execution resumption
+- * - triggered by the _TIF_WORK_MASK flags
++ * Handle any pending work on the resume-to-userspace path, as indicated by
++ * _TIF_WORK_MASK. Entered from assembly with IRQs off.
+  */
+-asmlinkage __visible void do_notify_resume(struct pt_regs *regs,
+-					   unsigned long thread_info_flags)
++asmlinkage __visible void do_work_pending(struct pt_regs *regs,
++					  unsigned long thread_info_flags)
+ {
+-	if (thread_info_flags & _TIF_UPROBE)
+-		uprobe_notify_resume(regs);
+-
+-	/* Handle pending signal delivery */
+-	if (thread_info_flags & (_TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL))
+-		do_signal(regs);
+-
+-	if (thread_info_flags & _TIF_NOTIFY_RESUME)
+-		resume_user_mode_work(regs);
++	do {
++		if (thread_info_flags & _TIF_NEED_RESCHED) {
++			schedule();
++		} else {
++			local_irq_enable();
++			if (thread_info_flags & _TIF_UPROBE)
++				uprobe_notify_resume(regs);
++			/* Handle pending signal delivery */
++			if (thread_info_flags & (_TIF_SIGPENDING |
++						 _TIF_NOTIFY_SIGNAL))
++				do_signal(regs);
++			if (thread_info_flags & _TIF_NOTIFY_RESUME)
++				resume_user_mode_work(regs);
++		}
++		local_irq_disable();
++		thread_info_flags = read_thread_flags();
++	} while (thread_info_flags & _TIF_WORK_MASK);
+ }
 -- 
 2.35.1
 
