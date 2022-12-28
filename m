@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F6CE657C75
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:33:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 695E7657C2E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:29:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233813AbiL1PdB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:33:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48912 "EHLO
+        id S233761AbiL1P3q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:29:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233393AbiL1Pcg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:32:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E15615FC6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:32:35 -0800 (PST)
+        with ESMTP id S233443AbiL1P3p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:29:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E8111570B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:29:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C11861553
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:32:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F5AAC433EF;
-        Wed, 28 Dec 2022 15:32:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1EAF2B81647
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:29:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70E08C433EF;
+        Wed, 28 Dec 2022 15:29:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241554;
-        bh=0mKcsKVZSW7uTU7PHv/f61YbEIXyIzV95zFAt+NgxrQ=;
+        s=korg; t=1672241381;
+        bh=yXGtZAZTiudI3zguMuMC+V8jji17qGcI593z3QFmBAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b1NKBvD5M1Fyu22v0cyPDniO5D5c43qqMWAz3wuhsaJovfp5IUvUNbKrb5T69O21M
-         VbQsrrJzga11VJ6K1hRNVYADVcs2YfuQIeVH5eahjJpTK6weWwbIBChlvi+S7MnHk5
-         Z4f4FBzbSsgM3e0fCJpsiAHUgvcYdXSm9TlA1e6U=
+        b=c7FmwaDnoh8AlDJBOI/H4pJPqEXhfLPxlklbZTjrQyuhRlD3Yj3t+qNxNsYu2OoAS
+         BXhIynjxnFI7z+HEAP2KNPdsQEzv9paBVzttQzbqqueJy+Zb94wNL/59CGLZU705ZW
+         A+u3UN6gxym9vC9U61JtUSIE45Ia7C7gh93cDAVk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Marijn Suijten <marijn.suijten@somainline.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0276/1073] drm/msm/dsi: Reuse earlier computed dsc->slice_chunk_size
-Date:   Wed, 28 Dec 2022 15:31:04 +0100
-Message-Id: <20221228144335.513081477@linuxfoundation.org>
+Subject: [PATCH 6.0 0277/1073] drm/msm/dsi: Appropriately set dsc->mux_word_size based on bpc
+Date:   Wed, 28 Dec 2022 15:31:05 +0100
+Message-Id: <20221228144335.544636705@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
 References: <20221228144328.162723588@linuxfoundation.org>
@@ -56,58 +56,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marijn Suijten <marijn.suijten@somainline.org>
 
-[ Upstream commit e443459e2e6b8e0d3187dd0d09ef7fcea87531d2 ]
+[ Upstream commit 0ca870ca304d3449b2ccdc3f0bad9843ff1519f0 ]
 
-dsi_populate_dsc_params() is called prior to dsi_update_dsc_timing() and
-already computes a value for slice_chunk_size, whose value doesn't need
-to be recomputed and re-set here.
+This field is currently unread but will come into effect when duplicated
+code below is migrated to call drm_dsc_compute_rc_parameters(), which
+uses the bpc-dependent value of the local variable mux_words_size in
+much the same way.
 
-Fixes: 08802f515c3c ("drm/msm/dsi: Add support for DSC configuration")
+The hardcoded constant seems to be a remnant from the `/* bpc 8 */`
+comment right above, indicating that this group of field assignments is
+applicable to bpc = 8 exclusively and should probably bail out on
+different bpc values, until constants for other bpc values are added (or
+the current ones are confirmed to be correct across multiple bpc's).
+
+Fixes: b9080324d6ca ("drm/msm/dsi: add support for dsc data")
 Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
 Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Patchwork: https://patchwork.freedesktop.org/patch/508934/
-Link: https://lore.kernel.org/r/20221026182824.876933-5-marijn.suijten@somainline.org
+Patchwork: https://patchwork.freedesktop.org/patch/508943/
+Link: https://lore.kernel.org/r/20221026182824.876933-6-marijn.suijten@somainline.org
 Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi_host.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/msm/dsi/dsi_host.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
-index 3459cac6f770..a99c54556f51 100644
+index a99c54556f51..5e5eb1a10f94 100644
 --- a/drivers/gpu/drm/msm/dsi/dsi_host.c
 +++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
-@@ -920,7 +920,6 @@ static void dsi_update_dsc_timing(struct msm_dsi_host *msm_host, bool is_cmd_mod
- 	u32 reg, reg_ctrl, reg_ctrl2;
- 	u32 slice_per_intf, total_bytes_per_intf;
- 	u32 pkt_per_line;
--	u32 bytes_in_slice;
- 	u32 eol_byte_num;
+@@ -1873,6 +1873,7 @@ static int dsi_populate_dsc_params(struct drm_dsc_config *dsc)
+ 	if (dsc->bits_per_component == 12)
+ 		mux_words_size = 64;
  
- 	/* first calculate dsc parameters and then program
-@@ -935,11 +934,7 @@ static void dsi_update_dsc_timing(struct msm_dsi_host *msm_host, bool is_cmd_mod
- 	if (slice_per_intf > dsc->slice_count)
- 		dsc->slice_count = 1;
++	dsc->mux_word_size = mux_words_size;
+ 	dsc->initial_xmit_delay = 512;
+ 	dsc->initial_scale_value = 32;
+ 	dsc->first_line_bpg_offset = 12;
+@@ -1883,7 +1884,6 @@ static int dsi_populate_dsc_params(struct drm_dsc_config *dsc)
+ 	dsc->flatness_max_qp = 12;
+ 	dsc->rc_quant_incr_limit0 = 11;
+ 	dsc->rc_quant_incr_limit1 = 11;
+-	dsc->mux_word_size = DSC_MUX_WORD_SIZE_8_10_BPC;
  
--	bytes_in_slice = DIV_ROUND_UP(dsc->slice_width * dsc->bits_per_pixel, 8);
--
--	dsc->slice_chunk_size = bytes_in_slice;
--
--	total_bytes_per_intf = bytes_in_slice * slice_per_intf;
-+	total_bytes_per_intf = dsc->slice_chunk_size * slice_per_intf;
- 
- 	eol_byte_num = total_bytes_per_intf % 3;
- 	pkt_per_line = slice_per_intf / dsc->slice_count;
-@@ -965,7 +960,7 @@ static void dsi_update_dsc_timing(struct msm_dsi_host *msm_host, bool is_cmd_mod
- 		reg_ctrl |= reg;
- 
- 		reg_ctrl2 &= ~DSI_COMMAND_COMPRESSION_MODE_CTRL2_STREAM0_SLICE_WIDTH__MASK;
--		reg_ctrl2 |= DSI_COMMAND_COMPRESSION_MODE_CTRL2_STREAM0_SLICE_WIDTH(bytes_in_slice);
-+		reg_ctrl2 |= DSI_COMMAND_COMPRESSION_MODE_CTRL2_STREAM0_SLICE_WIDTH(dsc->slice_chunk_size);
- 
- 		dsi_write(msm_host, REG_DSI_COMMAND_COMPRESSION_MODE_CTRL, reg_ctrl);
- 		dsi_write(msm_host, REG_DSI_COMMAND_COMPRESSION_MODE_CTRL2, reg_ctrl2);
+ 	/* FIXME: need to call drm_dsc_compute_rc_parameters() so that rest of
+ 	 * params are calculated
 -- 
 2.35.1
 
