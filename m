@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0DA5657836
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:48:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB441657E9F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:55:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232755AbiL1Osi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:48:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36084 "EHLO
+        id S232837AbiL1Pzp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:55:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232999AbiL1OsL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:48:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74E2011838
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:48:10 -0800 (PST)
+        with ESMTP id S234168AbiL1Pzm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:55:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0954018B30
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:55:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 14045B81707
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:48:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69B7AC433D2;
-        Wed, 28 Dec 2022 14:48:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 95BDE6155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:55:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A948C433D2;
+        Wed, 28 Dec 2022 15:55:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672238887;
-        bh=Iv+k1qt2dE+P+obIjqCuvMAVgJ6Ys1BAGipPgiyqWjw=;
+        s=korg; t=1672242940;
+        bh=wlpB7vzVpR/Jkll+kT2TQvJwvocQjmwKWaqr3cK5FXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ivIDQhp7LB5rRXt6c/mwXFKtAif2vj4pWpxH9l3uJQbYWKQJEw2MY/vcFFuFolveh
-         q+cQeddkeiYrb8o9B7cpHMNGk7K/g6Mq0WJtUlCnCsTm/DWo6b7yoQ2uVyU2l0K/xW
-         jSr6LmOHs1dNqLblpyTAawrQbfMTpbGI+swEtmAg=
+        b=jtH3ConPOEhzEtGC37c++SqtJV48VPSAGKz9w57iimRQwWlxqVa5abLHVGaJjVDXO
+         xMh80mtNMbfIBrq7Q/MWpujpakz9UUghdvFcM+MU6QhUeKRSDk9hPXOFfRv7f1jTD1
+         xzJEkG1Z4ImxLNreXTPlp3Wd3ylhE9Ztm27X1tNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        patches@lists.linux.dev, Yunfei Dong <yunfei.dong@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 047/731] ARM: dts: armada-370: Fix assigned-addresses for every PCIe Root Port
+Subject: [PATCH 6.1 0415/1146] media: mediatek: vcodec: Setting lat buf to lat_list when lat decode error
 Date:   Wed, 28 Dec 2022 15:32:34 +0100
-Message-Id: <20221228144257.917787522@linuxfoundation.org>
+Message-Id: <20221228144341.440429933@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +56,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Yunfei Dong <yunfei.dong@mediatek.com>
 
-[ Upstream commit d9208b0fa2e803d16b28d91bf1d46b7ee9ea13c6 ]
+[ Upstream commit 12ac20d60213a439d1552382d04aabb905e0b784 ]
 
-BDF of resource in DT assigned-addresses property of Marvell PCIe Root Port
-(PCI-to-PCI bridge) should match BDF in address part in that DT node name
-as specified resource belongs to Marvell PCIe Root Port itself.
+Need to set lat buf to lat_list when lat decode error, or lat buffer will
+be lost.
 
-Fixes: a09a0b7c6ff1 ("arm: mvebu: add PCIe Device Tree informations for Armada 370")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Fixes: 5d418351ca8f ("media: mediatek: vcodec: support stateless VP9 decoding")
+Signed-off-by: Yunfei Dong <yunfei.dong@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/armada-370.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../mediatek/vcodec/vdec/vdec_vp9_req_lat_if.c    | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/armada-370.dtsi b/arch/arm/boot/dts/armada-370.dtsi
-index 46e6d3ed8f35..c042c416a94a 100644
---- a/arch/arm/boot/dts/armada-370.dtsi
-+++ b/arch/arm/boot/dts/armada-370.dtsi
-@@ -74,7 +74,7 @@ pcie0: pcie@1,0 {
+diff --git a/drivers/media/platform/mediatek/vcodec/vdec/vdec_vp9_req_lat_if.c b/drivers/media/platform/mediatek/vcodec/vdec/vdec_vp9_req_lat_if.c
+index fb1c36a3592d..cbb6728b8a40 100644
+--- a/drivers/media/platform/mediatek/vcodec/vdec/vdec_vp9_req_lat_if.c
++++ b/drivers/media/platform/mediatek/vcodec/vdec/vdec_vp9_req_lat_if.c
+@@ -2073,21 +2073,23 @@ static int vdec_vp9_slice_lat_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
+ 		return -EBUSY;
+ 	}
+ 	pfc = (struct vdec_vp9_slice_pfc *)lat_buf->private_data;
+-	if (!pfc)
+-		return -EINVAL;
++	if (!pfc) {
++		ret = -EINVAL;
++		goto err_free_fb_out;
++	}
+ 	vsi = &pfc->vsi;
  
- 			pcie2: pcie@2,0 {
- 				device_type = "pci";
--				assigned-addresses = <0x82002800 0 0x80000 0 0x2000>;
-+				assigned-addresses = <0x82001000 0 0x80000 0 0x2000>;
- 				reg = <0x1000 0 0 0 0>;
- 				#address-cells = <3>;
- 				#size-cells = <2>;
+ 	ret = vdec_vp9_slice_setup_lat(instance, bs, lat_buf, pfc);
+ 	if (ret) {
+ 		mtk_vcodec_err(instance, "Failed to setup VP9 lat ret %d\n", ret);
+-		return ret;
++		goto err_free_fb_out;
+ 	}
+ 	vdec_vp9_slice_vsi_to_remote(vsi, instance->vsi);
+ 
+ 	ret = vpu_dec_start(&instance->vpu, NULL, 0);
+ 	if (ret) {
+ 		mtk_vcodec_err(instance, "Failed to dec VP9 ret %d\n", ret);
+-		return ret;
++		goto err_free_fb_out;
+ 	}
+ 
+ 	if (instance->irq) {
+@@ -2107,7 +2109,7 @@ static int vdec_vp9_slice_lat_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
+ 	/* LAT trans full, no more UBE or decode timeout */
+ 	if (ret) {
+ 		mtk_vcodec_err(instance, "VP9 decode error: %d\n", ret);
+-		return ret;
++		goto err_free_fb_out;
+ 	}
+ 
+ 	mtk_vcodec_debug(instance, "lat dma addr: 0x%lx 0x%lx\n",
+@@ -2120,6 +2122,9 @@ static int vdec_vp9_slice_lat_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
+ 	vdec_msg_queue_qbuf(&ctx->dev->msg_queue_core_ctx, lat_buf);
+ 
+ 	return 0;
++err_free_fb_out:
++	vdec_msg_queue_qbuf(&ctx->msg_queue.lat_ctx, lat_buf);
++	return ret;
+ }
+ 
+ static int vdec_vp9_slice_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
 -- 
 2.35.1
 
