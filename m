@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 884C4657A6B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:11:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A27F265794B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:00:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232992AbiL1PLS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:11:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58374 "EHLO
+        id S233361AbiL1O75 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:59:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233728AbiL1PKw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:10:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F279312D2F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:10:50 -0800 (PST)
+        with ESMTP id S233373AbiL1O7d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:59:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00D0910053
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:59:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6AB58B8170E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:10:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3135C433EF;
-        Wed, 28 Dec 2022 15:10:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 93C3F61540
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:59:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A59E1C433EF;
+        Wed, 28 Dec 2022 14:59:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240248;
-        bh=NRPKHk3u4TgHIlrVRVUc/Qx93ttIyR+OcxlN2OrSFD0=;
+        s=korg; t=1672239572;
+        bh=5R1ObGQQYvultph7900Pb/VVwMdrKCAcYNF/LlI8B84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Opp/3HuPcZvUrs2NY1XxCxp6dQu6fAaHZTUHxjMg8DCfsxS9mhwk/TQwLYKNhq1mx
-         a9CtKqk3gLb7zBK6DnDBLT8eJ38EpGlzEltxnRj8oBGAMBHHta8NL1bm2XFDk3RxaD
-         19+/e04rm9o6AZmfg35gm6Lc0yD8vcInST+fzTs8=
+        b=XuGun1LlrJD+a7JCxOPyXPUP87AXFLfdHYvwcD/wkId2uxPOij994l8QInotqPH2Y
+         MOeBFVkIokrDOkw2nA6nF66VWgYdi3hy1kxzttsLNdQ9YstiYNSapQcItBa1DC4p5C
+         XzJSDFVzrOSlCj29snPfQ+QkBKYtTHxjpJWKblTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eddie James <eajames@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0100/1146] tpm: tis_i2c: Fix sanity check interrupt enable mask
+        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
+        Alexander Potapenko <glider@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Marco Elver <elver@google.com>, Will Deacon <will@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 0051/1073] arm64: mm: kfence: only handle translation faults
 Date:   Wed, 28 Dec 2022 15:27:19 +0100
-Message-Id: <20221228144332.859637635@linuxfoundation.org>
+Message-Id: <20221228144329.499318523@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddie James <eajames@linux.ibm.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit 561d6ef75628db9cce433e573aa3cdb6b3bba903 ]
+[ Upstream commit 0bb1fbffc631064db567ccaeb9ed6b6df6342b66 ]
 
-The sanity check mask for TPM_INT_ENABLE register was off by 8 bits,
-resulting in failure to probe if the TPM_INT_ENABLE register was a
-valid value.
+Alexander noted that KFENCE only expects to handle faults from invalid page
+table entries (i.e. translation faults), but arm64's fault handling logic will
+call kfence_handle_page_fault() for other types of faults, including alignment
+faults caused by unaligned atomics. This has the unfortunate property of
+causing those other faults to be reported as "KFENCE: use-after-free",
+which is misleading and hinders debugging.
 
-Fixes: bbc23a07b072 ("tpm: Add tpm_tis_i2c backend for tpm_tis_core")
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Tested-by: Joel Stanley <joel@jms.id.au>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Fix this by only forwarding unhandled translation faults to the KFENCE
+code, similar to what x86 does already.
+
+Alexander has verified that this passes all the tests in the KFENCE test
+suite and avoids bogus reports on misaligned atomics.
+
+Link: https://lore.kernel.org/all/20221102081620.1465154-1-zhongbaisong@huawei.com/
+Fixes: 840b23986344 ("arm64, kfence: enable KFENCE for ARM64")
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Reviewed-by: Alexander Potapenko <glider@google.com>
+Tested-by: Alexander Potapenko <glider@google.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Marco Elver <elver@google.com>
+Cc: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20221114104411.2853040-1-mark.rutland@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/tpm_tis_i2c.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/mm/fault.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/char/tpm/tpm_tis_i2c.c b/drivers/char/tpm/tpm_tis_i2c.c
-index 0692510dfcab..635a69dfcbbd 100644
---- a/drivers/char/tpm/tpm_tis_i2c.c
-+++ b/drivers/char/tpm/tpm_tis_i2c.c
-@@ -49,7 +49,7 @@
+diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
+index c33f1fad2745..89628bd370d9 100644
+--- a/arch/arm64/mm/fault.c
++++ b/arch/arm64/mm/fault.c
+@@ -353,6 +353,11 @@ static bool is_el1_mte_sync_tag_check_fault(unsigned long esr)
+ 	return false;
+ }
  
- /* Masks with bits that must be read zero */
- #define TPM_ACCESS_READ_ZERO 0x48
--#define TPM_INT_ENABLE_ZERO 0x7FFFFF6
-+#define TPM_INT_ENABLE_ZERO 0x7FFFFF60
- #define TPM_STS_READ_ZERO 0x23
- #define TPM_INTF_CAPABILITY_ZERO 0x0FFFF000
- #define TPM_I2C_INTERFACE_CAPABILITY_ZERO 0x80000000
++static bool is_translation_fault(unsigned long esr)
++{
++	return (esr & ESR_ELx_FSC_TYPE) == ESR_ELx_FSC_FAULT;
++}
++
+ static void __do_kernel_fault(unsigned long addr, unsigned long esr,
+ 			      struct pt_regs *regs)
+ {
+@@ -385,7 +390,8 @@ static void __do_kernel_fault(unsigned long addr, unsigned long esr,
+ 	} else if (addr < PAGE_SIZE) {
+ 		msg = "NULL pointer dereference";
+ 	} else {
+-		if (kfence_handle_page_fault(addr, esr & ESR_ELx_WNR, regs))
++		if (is_translation_fault(esr) &&
++		    kfence_handle_page_fault(addr, esr & ESR_ELx_WNR, regs))
+ 			return;
+ 
+ 		msg = "paging request";
 -- 
 2.35.1
 
