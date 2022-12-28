@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57C2C657CD6
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:36:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 760C6658282
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:38:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233401AbiL1Pgg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:36:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54230 "EHLO
+        id S231452AbiL1Qhe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:37:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233150AbiL1Pge (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:36:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90CD8140DA
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:36:33 -0800 (PST)
+        with ESMTP id S234920AbiL1Qg0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:36:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D74311478
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:32:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31875B81719
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:36:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B9FAC433EF;
-        Wed, 28 Dec 2022 15:36:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AECA661572
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:32:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97E53C433EF;
+        Wed, 28 Dec 2022 16:32:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241790;
-        bh=UMZxzUxM2w3yHHaiV/fL6Jcn9pycH5IaWXvnE/dl/TQ=;
+        s=korg; t=1672245170;
+        bh=Rg8+MlLZcxNWeaWneO5vyQy1f/u1KBeebCoUCwQ8y3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uza5u+gVXbgTCSNdPC2GvqUhtuK6J/XgJjAAbRQ2Oc8OpU5TUsr1YsoJnjLRvqk2X
-         ZJgebg7nS9IXVFCuYzdGqSNFikXM1K//JuKuyE6TY9Xo0Kv9nVXgYXPO4wwcFOmjSP
-         nSdtGqxHhT9kgzfCQ+mn5qWAZ6GKOzBybe9uPvqE=
+        b=DHAU6kXJGVRwK7m1CHnoq1iUgDZpukDqXUUhHV/SGWEvk3aHc4pECnXvTkslSjbPN
+         QSGX+8bxzfFVgzL/wNoJ1oXwyDPgOW23ugAuGzwZ3aTyrkY1yML590lmpnpI372LZw
+         tdBJ5mu22u4v9QwWQIa8a/6NY98KAyM4+KCY35ls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Daniel Lezcano <daniel.lezcano@kernel.org>,
+        patches@lists.linux.dev, Mukesh Ojha <quic_mojha@quicinc.com>,
+        Luca Weiss <luca.weiss@fairphone.com>,
+        Caleb Connolly <caleb.connolly@linaro.org>,
+        Sibi Sankar <quic_sibis@quicinc.com>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 502/731] thermal/drivers/qcom/lmh: Fix irq handler return value
-Date:   Wed, 28 Dec 2022 15:40:09 +0100
-Message-Id: <20221228144311.099596306@linuxfoundation.org>
+Subject: [PATCH 6.0 0822/1073] remoteproc: qcom_q6v5_pas: disable wakeup on probe fail or remove
+Date:   Wed, 28 Dec 2022 15:40:10 +0100
+Message-Id: <20221228144350.341742843@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,37 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Luca Weiss <luca.weiss@fairphone.com>
 
-[ Upstream commit 46a891e45be97c6781ac34f5ec777d69370e252b ]
+[ Upstream commit 9a70551996e699fda262e8d54bbd41739d7aad6d ]
 
-After enough invocations the LMh irq is eventually reported as bad, because the
-handler doesn't return IRQ_HANDLED, fix this.
+Leaving wakeup enabled during probe fail (-EPROBE_DEFER) or remove makes
+the subsequent probe fail.
 
-Fixes: 53bca371cdf7 ("thermal/drivers/qcom: Add support for LMh driver")
-Reported-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20220316180322.88132-1-bjorn.andersson@linaro.org
-Signed-off-by: Daniel Lezcano <daniel.lezcano@kernel.org>
+[    3.749454] remoteproc remoteproc0: releasing 3000000.remoteproc
+[    3.752949] qcom_q6v5_pas: probe of 3000000.remoteproc failed with error -17
+[    3.878935] remoteproc remoteproc0: releasing 4080000.remoteproc
+[    3.887602] qcom_q6v5_pas: probe of 4080000.remoteproc failed with error -17
+[    4.319552] remoteproc remoteproc0: releasing 8300000.remoteproc
+[    4.332716] qcom_q6v5_pas: probe of 8300000.remoteproc failed with error -17
+
+Fix this by disabling wakeup in both cases so the driver can properly
+probe on the next try.
+
+Fixes: a781e5aa5911 ("remoteproc: core: Prevent system suspend during remoteproc recovery")
+Fixes: dc86c129b4fb ("remoteproc: qcom: pas: Mark devices as wakeup capable")
+Reviewed-by: Mukesh Ojha <quic_mojha@quicinc.com>
+Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
+Reviewed-by: Caleb Connolly <caleb.connolly@linaro.org>
+Reviewed-by: Sibi Sankar <quic_sibis@quicinc.com>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221118090816.100012-1-luca.weiss@fairphone.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/qcom/lmh.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/remoteproc/qcom_q6v5_pas.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/thermal/qcom/lmh.c b/drivers/thermal/qcom/lmh.c
-index eafa7526eb8b..cc94d8b005d4 100644
---- a/drivers/thermal/qcom/lmh.c
-+++ b/drivers/thermal/qcom/lmh.c
-@@ -43,7 +43,7 @@ static irqreturn_t lmh_handle_irq(int hw_irq, void *data)
- 	if (irq)
- 		generic_handle_irq(irq);
+diff --git a/drivers/remoteproc/qcom_q6v5_pas.c b/drivers/remoteproc/qcom_q6v5_pas.c
+index 6afd0941e552..67f5152e2398 100644
+--- a/drivers/remoteproc/qcom_q6v5_pas.c
++++ b/drivers/remoteproc/qcom_q6v5_pas.c
+@@ -556,6 +556,7 @@ static int adsp_probe(struct platform_device *pdev)
+ detach_proxy_pds:
+ 	adsp_pds_detach(adsp, adsp->proxy_pds, adsp->proxy_pd_count);
+ free_rproc:
++	device_init_wakeup(adsp->dev, false);
+ 	rproc_free(rproc);
  
--	return 0;
-+	return IRQ_HANDLED;
- }
+ 	return ret;
+@@ -572,6 +573,7 @@ static int adsp_remove(struct platform_device *pdev)
+ 	qcom_remove_sysmon_subdev(adsp->sysmon);
+ 	qcom_remove_smd_subdev(adsp->rproc, &adsp->smd_subdev);
+ 	qcom_remove_ssr_subdev(adsp->rproc, &adsp->ssr_subdev);
++	device_init_wakeup(adsp->dev, false);
+ 	rproc_free(adsp->rproc);
  
- static void lmh_enable_interrupt(struct irq_data *d)
+ 	return 0;
 -- 
 2.35.1
 
