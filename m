@@ -2,119 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2725E6583D6
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:52:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB65E657D4B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:42:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235152AbiL1Qwu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:52:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43290 "EHLO
+        id S233980AbiL1PmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:42:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235192AbiL1Qw0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:52:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8AAB1DDC8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:46:45 -0800 (PST)
+        with ESMTP id S234003AbiL1Pll (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:41:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DDDE17410
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:41:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 75FD26155B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:46:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EC2FC433EF;
-        Wed, 28 Dec 2022 16:46:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 719816154D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:41:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CA03C433EF;
+        Wed, 28 Dec 2022 15:41:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246004;
-        bh=P3WyXf/dSs53dEmUuSCUh+K09nP3kH1MZb9L2SNHszw=;
+        s=korg; t=1672242094;
+        bh=7X3EPHkrS1AJxEX5e9jWv5DSJfhPuqDUQ+9HC7IiKVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dG1BsAit6QfTr+WsLwwV3OXb7evyBHfavpPLfRwK3K6SyB6Xxoulv0Nua9nuQfa+6
-         17XpYUBxKceE9hPLIQ01LvKx/UbZKUM2Nfh2o0eipPNbjUGsfcBXdYv2TlrxITcrb2
-         /iaE2CXv7oTA72ByzS4YYjzXdpneJRRk5aWFAKC4=
+        b=sUVsCep0cJFB16a2QmAuLaYoV72nC08Cv685ggLod519Gw7H0RPUUCIZYthYcOUW/
+         nSlMIkyt95+c4mKXZxSKPqVr6cQ3l50wT6saZVPLWb6ZrCba0Lgv4tuwvVR+RppQ6P
+         ueUAH2WIUGoLqtx7zswIV9TfRJmKRVEh5Q5NeW48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Changheon Lee <darklight2357@icloud.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0930/1146] net: stream: purge sk_error_queue in sk_stream_kill_queues()
+        patches@lists.linux.dev, Jason Gunthorpe <jgg@nvidia.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 562/731] iommu/sun50i: Remove IOMMU_DOMAIN_IDENTITY
 Date:   Wed, 28 Dec 2022 15:41:09 +0100
-Message-Id: <20221228144355.544126930@linuxfoundation.org>
+Message-Id: <20221228144312.854540737@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-[ Upstream commit e0c8bccd40fc1c19e1d246c39bcf79e357e1ada3 ]
+[ Upstream commit ef5bb8e7a7127218f826b9ccdf7508e7a339f4c2 ]
 
-Changheon Lee reported TCP socket leaks, with a nice repro.
+This driver treats IOMMU_DOMAIN_IDENTITY the same as UNMANAGED, which
+cannot possibly be correct.
 
-It seems we leak TCP sockets with the following sequence:
+UNMANAGED domains are required to start out blocking all DMAs. This seems
+to be what this driver does as it allocates a first level 'dt' for the IO
+page table that is 0 filled.
 
-1) SOF_TIMESTAMPING_TX_ACK is enabled on the socket.
+Thus UNMANAGED looks like a working IO page table, and so IDENTITY must be
+a mistake. Remove it.
 
-   Each ACK will cook an skb put in error queue, from __skb_tstamp_tx().
-   __skb_tstamp_tx() is using skb_clone(), unless
-   SOF_TIMESTAMPING_OPT_TSONLY was also requested.
-
-2) If the application is also using MSG_ZEROCOPY, then we put in the
-   error queue cloned skbs that had a struct ubuf_info attached to them.
-
-   Whenever an struct ubuf_info is allocated, sock_zerocopy_alloc()
-   does a sock_hold().
-
-   As long as the cloned skbs are still in sk_error_queue,
-   socket refcount is kept elevated.
-
-3) Application closes the socket, while error queue is not empty.
-
-Since tcp_close() no longer purges the socket error queue,
-we might end up with a TCP socket with at least one skb in
-error queue keeping the socket alive forever.
-
-This bug can be (ab)used to consume all kernel memory
-and freeze the host.
-
-We need to purge the error queue, with proper synchronization
-against concurrent writers.
-
-Fixes: 24bcbe1cc69f ("net: stream: don't purge sk_error_queue in sk_stream_kill_queues()")
-Reported-by: Changheon Lee <darklight2357@icloud.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 4100b8c229b3 ("iommu: Add Allwinner H6 IOMMU driver")
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Link: https://lore.kernel.org/r/0-v1-97f0adf27b5e+1f0-s50_identity_jgg@nvidia.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/stream.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/iommu/sun50i-iommu.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/net/core/stream.c b/net/core/stream.c
-index 75fded8495f5..516895f48235 100644
---- a/net/core/stream.c
-+++ b/net/core/stream.c
-@@ -196,6 +196,12 @@ void sk_stream_kill_queues(struct sock *sk)
- 	/* First the read buffer. */
- 	__skb_queue_purge(&sk->sk_receive_queue);
+diff --git a/drivers/iommu/sun50i-iommu.c b/drivers/iommu/sun50i-iommu.c
+index ece3d4b4d7ca..ed3574195599 100644
+--- a/drivers/iommu/sun50i-iommu.c
++++ b/drivers/iommu/sun50i-iommu.c
+@@ -602,7 +602,6 @@ static struct iommu_domain *sun50i_iommu_domain_alloc(unsigned type)
+ 	struct sun50i_iommu_domain *sun50i_domain;
  
-+	/* Next, the error queue.
-+	 * We need to use queue lock, because other threads might
-+	 * add packets to the queue without socket lock being held.
-+	 */
-+	skb_queue_purge(&sk->sk_error_queue);
-+
- 	/* Next, the write queue. */
- 	WARN_ON_ONCE(!skb_queue_empty(&sk->sk_write_queue));
+ 	if (type != IOMMU_DOMAIN_DMA &&
+-	    type != IOMMU_DOMAIN_IDENTITY &&
+ 	    type != IOMMU_DOMAIN_UNMANAGED)
+ 		return NULL;
  
 -- 
 2.35.1
