@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 452E8657A99
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:13:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E062E65797C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:02:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232967AbiL1PNf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:13:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59238 "EHLO
+        id S233414AbiL1PCN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:02:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232660AbiL1PNB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:13:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F91313E81
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:12:44 -0800 (PST)
+        with ESMTP id S233450AbiL1PBt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:01:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F41E912D2A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:01:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 29617B81719
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:12:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F972C433EF;
-        Wed, 28 Dec 2022 15:12:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D917861540
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:01:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA565C433D2;
+        Wed, 28 Dec 2022 15:01:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240361;
-        bh=qY16RBtuxcD3RstD6hVr5F6RiT/+hNpK2zQhV3Y6A1k=;
+        s=korg; t=1672239688;
+        bh=+8C5TD0uVy2aZN8sHo/7+k0ZY9KAbPu+uh9uqy9bU4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gnydmrogOT9MWU82VKOhsNDS/do511JZWxqR9xqG1+YPfe7fzAqefBLgqBoBR//ly
-         CnL78Eu70KgIa/Suom7W4IM0hdzJJe4MLY/eys0F45QFfhEI8E+mPVwHnFRaCbicL+
-         P+BXRejr89mHEIGZrpnmh8p6rarEo8n48Lfy5648=
+        b=tWQgpLBrbWxilEqTTm/Gp+lXB4QYq9fKMgfVHW4nO0Qq16rZ/mGcOCGPTNpDapfNc
+         LtUMrWrz6pETzh/KvmU/2Z8qeF7/m9+Anir1s+1s+ZKbvqkMeLEUAOuZhYRnD9MO3E
+         W72BZ/V8XpSXlo03skBcLjqn/cw6ETJ/rMnUEwbE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ulf Hansson <ulf.hansson@linaro.org>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0113/1146] cpuidle: dt: Return the correct numbers of parsed idle states
+Subject: [PATCH 6.0 0064/1073] arm64: dts: mt2712e: Fix unit address for pinctrl node
 Date:   Wed, 28 Dec 2022 15:27:32 +0100
-Message-Id: <20221228144333.223947542@linuxfoundation.org>
+Message-Id: <20221228144329.831314681@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit ee3c2c8ad6ba6785f14a60e4081d7c82e88162a2 ]
+[ Upstream commit 1d4516f53a611b362db7ba7a8889923d469f57e1 ]
 
-While we correctly skips to initialize an idle state from a disabled idle
-state node in DT, the returned value from dt_init_idle_driver() don't get
-adjusted accordingly. Instead the number of found idle state nodes are
-returned, while the callers are expecting the number of successfully
-initialized idle states from DT.
+The unit address for the pinctrl node is (0x)1000b000 and not
+(0x)10005000, which is the syscfg_pctl_a address instead.
 
-This leads to cpuidle drivers unnecessarily continues to initialize their
-idle state specific data. Moreover, in the case when all idle states have
-been disabled in DT, we would end up registering a cpuidle driver, rather
-than relying on the default arch specific idle call.
+This fixes the following warning:
+arch/arm64/boot/dts/mediatek/mt2712e.dtsi:264.40-267.4: Warning
+(unique_unit_address): /syscfg_pctl_a@10005000: duplicate
+unit-address (also used in node /pinctrl@10005000)
 
-Fixes: 9f14da345599 ("drivers: cpuidle: implement DT based idle states infrastructure")
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: f0c64340b748 ("arm64: dts: mt2712: add pintcrl device node.")
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221013152212.416661-5-angelogioacchino.delregno@collabora.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpuidle/dt_idle_states.c | 2 +-
+ arch/arm64/boot/dts/mediatek/mt2712e.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/cpuidle/dt_idle_states.c b/drivers/cpuidle/dt_idle_states.c
-index 252f2a9686a6..448bc796b0b4 100644
---- a/drivers/cpuidle/dt_idle_states.c
-+++ b/drivers/cpuidle/dt_idle_states.c
-@@ -223,6 +223,6 @@ int dt_init_idle_driver(struct cpuidle_driver *drv,
- 	 * also be 0 on platforms with missing DT idle states or legacy DT
- 	 * configuration predating the DT idle states bindings.
- 	 */
--	return i;
-+	return state_idx - start_idx;
- }
- EXPORT_SYMBOL_GPL(dt_init_idle_driver);
+diff --git a/arch/arm64/boot/dts/mediatek/mt2712e.dtsi b/arch/arm64/boot/dts/mediatek/mt2712e.dtsi
+index dcd3df8eb4da..2ebefd144d6f 100644
+--- a/arch/arm64/boot/dts/mediatek/mt2712e.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt2712e.dtsi
+@@ -266,7 +266,7 @@ syscfg_pctl_a: syscfg_pctl_a@10005000 {
+ 		reg = <0 0x10005000 0 0x1000>;
+ 	};
+ 
+-	pio: pinctrl@10005000 {
++	pio: pinctrl@1000b000 {
+ 		compatible = "mediatek,mt2712-pinctrl";
+ 		reg = <0 0x1000b000 0 0x1000>;
+ 		mediatek,pctl-regmap = <&syscfg_pctl_a>;
 -- 
 2.35.1
 
