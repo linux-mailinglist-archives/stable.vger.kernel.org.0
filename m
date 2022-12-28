@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7A6265803C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:16:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A939F65790B
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:57:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234547AbiL1QQR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:16:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34204 "EHLO
+        id S233278AbiL1O47 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:56:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233033AbiL1QPu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:15:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ACBE1A223
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:13:01 -0800 (PST)
+        with ESMTP id S233271AbiL1O46 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:56:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5D88B69
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:56:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3715FB8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:13:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9649DC433D2;
-        Wed, 28 Dec 2022 16:12:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 607DE61544
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:56:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FEA6C433D2;
+        Wed, 28 Dec 2022 14:56:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243978;
-        bh=ekM7PxMiAF1QhFuSLHpNpPze+NPIKVh0kSGq6/Xp3+I=;
+        s=korg; t=1672239416;
+        bh=oCmsP0iqexY3xvxWCYLZRnqXdNwamHrdLKCw8Mvsncs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GF79sWftmTYD9+5VuDSoeNh1d/mIX+TLCFaolOdt1fCLOxNHB5orXnngsFWJwjMzE
-         voLHgsl3N/HRAPXuHhG4MxhhlcfG1AgTYFuFN4wlQc1njxMqdS5dY+YJ8lr35UP3BC
-         PROfTermue3fOe3zm4wQuqypplqAFs7pYYbz7gUs=
+        b=nwzRfFpr3dJ1R9jgJtBiuFvCGlDRT8UO0awr+NDlumLMfEAUw2su2XJaUbeSCBvsH
+         b6fv7vIMn6j8yxhZXoQUiyMuHdA7njZFhJE8BXL4pwZWnfYtwfyD8cOzePkmagHZBO
+         3MNV7wdX5lWOate+zUa8OeV7Nwk/yoVYbm4DCFWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, John Keeping <john@metanate.com>,
-        Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0589/1146] crypto: rockchip - add fallback for ahash
+        patches@lists.linux.dev, Baisong Zhong <zhongbaisong@huawei.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 221/731] ALSA: pcm: fix undefined behavior in bit shift for SNDRV_PCM_RATE_KNOT
 Date:   Wed, 28 Dec 2022 15:35:28 +0100
-Message-Id: <20221228144346.169460781@linuxfoundation.org>
+Message-Id: <20221228144302.970905679@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,84 +52,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Baisong Zhong <zhongbaisong@huawei.com>
 
-[ Upstream commit 816600485cb597b3ff7d6806a95a78512839f775 ]
+[ Upstream commit b5172e62458f8e6ff359e5f096044a488db90ac5 ]
 
-Adds a fallback for all case hardware cannot handle.
+Shifting signed 32-bit value by 31 bits is undefined, so changing
+significant bit to unsigned. The UBSAN warning calltrace like below:
 
-Fixes: ce0183cb6464b ("crypto: rockchip - switch to skcipher API")
-Reviewed-by: John Keeping <john@metanate.com>
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+UBSAN: shift-out-of-bounds in sound/core/pcm_native.c:2676:21
+left shift of 1 by 31 places cannot be represented in type 'int'
+...
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x8d/0xcf
+ ubsan_epilogue+0xa/0x44
+ __ubsan_handle_shift_out_of_bounds+0x1e7/0x208
+ snd_pcm_open_substream+0x9f0/0xa90
+ snd_pcm_oss_open.part.26+0x313/0x670
+ snd_pcm_oss_open+0x30/0x40
+ soundcore_open+0x18b/0x2e0
+ chrdev_open+0xe2/0x270
+ do_dentry_open+0x2f7/0x620
+ path_openat+0xd66/0xe70
+ do_filp_open+0xe3/0x170
+ do_sys_openat2+0x357/0x4a0
+ do_sys_open+0x87/0xd0
+ do_syscall_64+0x34/0x80
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Baisong Zhong <zhongbaisong@huawei.com>
+Link: https://lore.kernel.org/r/20221121110044.3115686-1-zhongbaisong@huawei.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/rockchip/rk3288_crypto_ahash.c | 38 +++++++++++++++++++
- 1 file changed, 38 insertions(+)
+ include/sound/pcm.h | 36 ++++++++++++++++++------------------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/crypto/rockchip/rk3288_crypto_ahash.c b/drivers/crypto/rockchip/rk3288_crypto_ahash.c
-index 49017d1fb510..16009bb0bf16 100644
---- a/drivers/crypto/rockchip/rk3288_crypto_ahash.c
-+++ b/drivers/crypto/rockchip/rk3288_crypto_ahash.c
-@@ -16,6 +16,40 @@
-  * so we put the fixed hash out when met zero message.
-  */
+diff --git a/include/sound/pcm.h b/include/sound/pcm.h
+index e08bf475d02d..181df0452ae2 100644
+--- a/include/sound/pcm.h
++++ b/include/sound/pcm.h
+@@ -106,24 +106,24 @@ struct snd_pcm_ops {
+ #define SNDRV_PCM_POS_XRUN		((snd_pcm_uframes_t)-1)
  
-+static bool rk_ahash_need_fallback(struct ahash_request *req)
-+{
-+	struct scatterlist *sg;
+ /* If you change this don't forget to change rates[] table in pcm_native.c */
+-#define SNDRV_PCM_RATE_5512		(1<<0)		/* 5512Hz */
+-#define SNDRV_PCM_RATE_8000		(1<<1)		/* 8000Hz */
+-#define SNDRV_PCM_RATE_11025		(1<<2)		/* 11025Hz */
+-#define SNDRV_PCM_RATE_16000		(1<<3)		/* 16000Hz */
+-#define SNDRV_PCM_RATE_22050		(1<<4)		/* 22050Hz */
+-#define SNDRV_PCM_RATE_32000		(1<<5)		/* 32000Hz */
+-#define SNDRV_PCM_RATE_44100		(1<<6)		/* 44100Hz */
+-#define SNDRV_PCM_RATE_48000		(1<<7)		/* 48000Hz */
+-#define SNDRV_PCM_RATE_64000		(1<<8)		/* 64000Hz */
+-#define SNDRV_PCM_RATE_88200		(1<<9)		/* 88200Hz */
+-#define SNDRV_PCM_RATE_96000		(1<<10)		/* 96000Hz */
+-#define SNDRV_PCM_RATE_176400		(1<<11)		/* 176400Hz */
+-#define SNDRV_PCM_RATE_192000		(1<<12)		/* 192000Hz */
+-#define SNDRV_PCM_RATE_352800		(1<<13)		/* 352800Hz */
+-#define SNDRV_PCM_RATE_384000		(1<<14)		/* 384000Hz */
+-
+-#define SNDRV_PCM_RATE_CONTINUOUS	(1<<30)		/* continuous range */
+-#define SNDRV_PCM_RATE_KNOT		(1<<31)		/* supports more non-continuos rates */
++#define SNDRV_PCM_RATE_5512		(1U<<0)		/* 5512Hz */
++#define SNDRV_PCM_RATE_8000		(1U<<1)		/* 8000Hz */
++#define SNDRV_PCM_RATE_11025		(1U<<2)		/* 11025Hz */
++#define SNDRV_PCM_RATE_16000		(1U<<3)		/* 16000Hz */
++#define SNDRV_PCM_RATE_22050		(1U<<4)		/* 22050Hz */
++#define SNDRV_PCM_RATE_32000		(1U<<5)		/* 32000Hz */
++#define SNDRV_PCM_RATE_44100		(1U<<6)		/* 44100Hz */
++#define SNDRV_PCM_RATE_48000		(1U<<7)		/* 48000Hz */
++#define SNDRV_PCM_RATE_64000		(1U<<8)		/* 64000Hz */
++#define SNDRV_PCM_RATE_88200		(1U<<9)		/* 88200Hz */
++#define SNDRV_PCM_RATE_96000		(1U<<10)	/* 96000Hz */
++#define SNDRV_PCM_RATE_176400		(1U<<11)	/* 176400Hz */
++#define SNDRV_PCM_RATE_192000		(1U<<12)	/* 192000Hz */
++#define SNDRV_PCM_RATE_352800		(1U<<13)	/* 352800Hz */
++#define SNDRV_PCM_RATE_384000		(1U<<14)	/* 384000Hz */
 +
-+	sg = req->src;
-+	while (sg) {
-+		if (!IS_ALIGNED(sg->offset, sizeof(u32))) {
-+			return true;
-+		}
-+		if (sg->length % 4) {
-+			return true;
-+		}
-+		sg = sg_next(sg);
-+	}
-+	return false;
-+}
-+
-+static int rk_ahash_digest_fb(struct ahash_request *areq)
-+{
-+	struct rk_ahash_rctx *rctx = ahash_request_ctx(areq);
-+	struct crypto_ahash *tfm = crypto_ahash_reqtfm(areq);
-+	struct rk_ahash_ctx *tfmctx = crypto_ahash_ctx(tfm);
-+
-+	ahash_request_set_tfm(&rctx->fallback_req, tfmctx->fallback_tfm);
-+	rctx->fallback_req.base.flags = areq->base.flags &
-+					CRYPTO_TFM_REQ_MAY_SLEEP;
-+
-+	rctx->fallback_req.nbytes = areq->nbytes;
-+	rctx->fallback_req.src = areq->src;
-+	rctx->fallback_req.result = areq->result;
-+
-+	return crypto_ahash_digest(&rctx->fallback_req);
-+}
-+
- static int zero_message_process(struct ahash_request *req)
- {
- 	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
-@@ -167,6 +201,9 @@ static int rk_ahash_digest(struct ahash_request *req)
- 	struct rk_ahash_ctx *tctx = crypto_tfm_ctx(req->base.tfm);
- 	struct rk_crypto_info *dev = tctx->dev;
++#define SNDRV_PCM_RATE_CONTINUOUS	(1U<<30)	/* continuous range */
++#define SNDRV_PCM_RATE_KNOT		(1U<<31)	/* supports more non-continuos rates */
  
-+	if (rk_ahash_need_fallback(req))
-+		return rk_ahash_digest_fb(req);
-+
- 	if (!req->nbytes)
- 		return zero_message_process(req);
- 	else
-@@ -309,6 +346,7 @@ static void rk_cra_hash_exit(struct crypto_tfm *tfm)
- 	struct rk_ahash_ctx *tctx = crypto_tfm_ctx(tfm);
- 
- 	free_page((unsigned long)tctx->dev->addr_vir);
-+	crypto_free_ahash(tctx->fallback_tfm);
- }
- 
- struct rk_crypto_tmp rk_ahash_sha1 = {
+ #define SNDRV_PCM_RATE_8000_44100	(SNDRV_PCM_RATE_8000|SNDRV_PCM_RATE_11025|\
+ 					 SNDRV_PCM_RATE_16000|SNDRV_PCM_RATE_22050|\
 -- 
 2.35.1
 
