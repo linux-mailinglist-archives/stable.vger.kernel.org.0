@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCAB9657A96
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:13:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E1C0657978
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:01:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232848AbiL1PNd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:13:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60058 "EHLO
+        id S233438AbiL1PBr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:01:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233165AbiL1PM6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:12:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8D1A13E34
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:12:36 -0800 (PST)
+        with ESMTP id S233494AbiL1PBV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:01:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E847A11C35
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:01:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4DC7EB8170E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:12:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 968FBC433D2;
-        Wed, 28 Dec 2022 15:12:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EC2B61540
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:01:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53F5BC433F0;
+        Wed, 28 Dec 2022 15:01:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240354;
-        bh=/8TxWuYneagStKLzPona12VDqy8AkK9MDeAhuODTY4w=;
+        s=korg; t=1672239677;
+        bh=jRbeFBzx2Kgv/hzgpUvMlaoNDixqCWpOdj4UHWO3d3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JjSUxFxAUFtedXL08yefchkV22uF5/rjEt9Ip4o0cuMuESkHesbrpJbt9iV1oe4zp
-         MsWr3DiBASWa/JyCG7qde8fGFfnrIaJZ+0DGCs2u6UH+0RYfW9lc8KafbKbJuRmL9i
-         uzxrne9W8Ew90Fgznd/iw6hsjAvKbUFT9Z6/ED3c=
+        b=nVljsY4EGROJHKuUAyZ9X982GKWWY7EUAJf1PnyHcJ0vYTakBN5UDot3CGI3kjHhp
+         Vhyf92eKT8tIKCm1F2EUwijlTpEjtHdHEFIcgQ5xg6j/zS/PAE3ChD0d+I4dmgmeGP
+         lW9RGdU8nWC3l/YfIYXcLmjkYAe7RUQ8xx+kmRjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        patches@lists.linux.dev,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0112/1146] sched/uclamp: Cater for uclamp in find_energy_efficient_cpu()s early exit condition
+Subject: [PATCH 6.0 0063/1073] arm64: dts: mt2712e: Fix unit_address_vs_reg warning for oscillators
 Date:   Wed, 28 Dec 2022 15:27:31 +0100
-Message-Id: <20221228144333.196665205@linuxfoundation.org>
+Message-Id: <20221228144329.805359627@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,64 +55,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qais Yousef <qais.yousef@arm.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit d81304bc6193554014d4372a01debdf65e1e9a4d ]
+[ Upstream commit e4495a0a8b3d84816c9a46edf3ce060bbf267475 ]
 
-If the utilization of the woken up task is 0, we skip the energy
-calculation because it has no impact.
+Rename the fixed-clock oscillators to remove the unit address.
 
-But if the task is boosted (uclamp_min != 0) will have an impact on task
-placement and frequency selection. Only skip if the util is truly
-0 after applying uclamp values.
+This solves unit_address_vs_reg warnings.
 
-Change uclamp_task_cpu() signature to avoid unnecessary additional calls
-to uclamp_eff_get(). feec() is the only user now.
-
-Fixes: 732cd75b8c920 ("sched/fair: Select an energy-efficient CPU on task wake-up")
-Signed-off-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220804143609.515789-8-qais.yousef@arm.com
+Fixes: 5d4839709c8e ("arm64: dts: mt2712: Add clock controller device nodes")
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221013152212.416661-4-angelogioacchino.delregno@collabora.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt2712e.dtsi | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index a0ee3192e5a7..0f32acb05055 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4280,14 +4280,16 @@ static inline unsigned long task_util_est(struct task_struct *p)
- }
+diff --git a/arch/arm64/boot/dts/mediatek/mt2712e.dtsi b/arch/arm64/boot/dts/mediatek/mt2712e.dtsi
+index 4797537cb368..dcd3df8eb4da 100644
+--- a/arch/arm64/boot/dts/mediatek/mt2712e.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt2712e.dtsi
+@@ -160,70 +160,70 @@ sys_clk: dummyclk {
+ 		#clock-cells = <0>;
+ 	};
  
- #ifdef CONFIG_UCLAMP_TASK
--static inline unsigned long uclamp_task_util(struct task_struct *p)
-+static inline unsigned long uclamp_task_util(struct task_struct *p,
-+					     unsigned long uclamp_min,
-+					     unsigned long uclamp_max)
- {
--	return clamp(task_util_est(p),
--		     uclamp_eff_value(p, UCLAMP_MIN),
--		     uclamp_eff_value(p, UCLAMP_MAX));
-+	return clamp(task_util_est(p), uclamp_min, uclamp_max);
- }
- #else
--static inline unsigned long uclamp_task_util(struct task_struct *p)
-+static inline unsigned long uclamp_task_util(struct task_struct *p,
-+					     unsigned long uclamp_min,
-+					     unsigned long uclamp_max)
- {
- 	return task_util_est(p);
- }
-@@ -7205,7 +7207,7 @@ static int find_energy_efficient_cpu(struct task_struct *p, int prev_cpu)
- 	target = prev_cpu;
+-	clk26m: oscillator@0 {
++	clk26m: oscillator-26m {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <26000000>;
+ 		clock-output-names = "clk26m";
+ 	};
  
- 	sync_entity_load_avg(&p->se);
--	if (!task_util_est(p))
-+	if (!uclamp_task_util(p, p_util_min, p_util_max))
- 		goto unlock;
+-	clk32k: oscillator@1 {
++	clk32k: oscillator-32k {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <32768>;
+ 		clock-output-names = "clk32k";
+ 	};
  
- 	eenv_task_busy_time(&eenv, p, prev_cpu);
+-	clkfpc: oscillator@2 {
++	clkfpc: oscillator-50m {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <50000000>;
+ 		clock-output-names = "clkfpc";
+ 	};
+ 
+-	clkaud_ext_i_0: oscillator@3 {
++	clkaud_ext_i_0: oscillator-aud0 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <6500000>;
+ 		clock-output-names = "clkaud_ext_i_0";
+ 	};
+ 
+-	clkaud_ext_i_1: oscillator@4 {
++	clkaud_ext_i_1: oscillator-aud1 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <196608000>;
+ 		clock-output-names = "clkaud_ext_i_1";
+ 	};
+ 
+-	clkaud_ext_i_2: oscillator@5 {
++	clkaud_ext_i_2: oscillator-aud2 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <180633600>;
+ 		clock-output-names = "clkaud_ext_i_2";
+ 	};
+ 
+-	clki2si0_mck_i: oscillator@6 {
++	clki2si0_mck_i: oscillator-i2s0 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <30000000>;
+ 		clock-output-names = "clki2si0_mck_i";
+ 	};
+ 
+-	clki2si1_mck_i: oscillator@7 {
++	clki2si1_mck_i: oscillator-i2s1 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <30000000>;
+ 		clock-output-names = "clki2si1_mck_i";
+ 	};
+ 
+-	clki2si2_mck_i: oscillator@8 {
++	clki2si2_mck_i: oscillator-i2s2 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <30000000>;
+ 		clock-output-names = "clki2si2_mck_i";
+ 	};
+ 
+-	clktdmin_mclk_i: oscillator@9 {
++	clktdmin_mclk_i: oscillator-mclk {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <30000000>;
 -- 
 2.35.1
 
