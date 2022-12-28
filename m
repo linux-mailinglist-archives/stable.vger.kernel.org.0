@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC8EE65850B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:05:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67CBF65850C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 18:05:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235383AbiL1RFM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 12:05:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58052 "EHLO
+        id S235390AbiL1RFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 12:05:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235478AbiL1REv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:04:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C680205D7
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:59:13 -0800 (PST)
+        with ESMTP id S235482AbiL1REw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 12:04:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36FF5218BB
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:59:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5AB9B81889
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:59:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1207C433EF;
-        Wed, 28 Dec 2022 16:59:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BFE1D61541
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:59:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF26FC433EF;
+        Wed, 28 Dec 2022 16:59:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672246750;
-        bh=dyDOPyg+jePFsFzNOFPEqmBLbY1R9nkzmMXaWUBtCLI=;
+        s=korg; t=1672246753;
+        bh=ChABwfarEnxpiZ8bKwylaKD1+QV4NBac45YFxo79hTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l7UsChisLbdnlIkeMN/eUsAPUSE2UH+Y2cfddj4Tw8cdTLJKvAOxfNPLqeFMSeJ0s
-         eYUxrXXQdpxX+SKccbONIX4lTpahGiqqUZc8IWYQQMt6UJmUFM5Swf69f2LuKOYOS3
-         Ypy2qgcY6BPjH96/ctAMRuzEUL6Y8UYAaAWW+IE0=
+        b=PvuxIqhKeiCxa6bVoeKCFykHiKmmIjdaRjYY7PK8KPUIDPs04F5S/qq8t0aiFdRm6
+         1Q1K+zGx39UOS/ZwwqcWRVAcTzyOk9K52c4Unr491ajBr4a5zPHknN9NNNesHs8WWR
+         Fu5VTSiOk+2RjMsE9ShzwOk9Moy2iaBgodFStJhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Denis Efremov <efremov@linux.com>
-Subject: [PATCH 6.1 1125/1146] floppy: Fix memory leak in do_floppy_init()
-Date:   Wed, 28 Dec 2022 15:44:24 +0100
-Message-Id: <20221228144400.704280996@linuxfoundation.org>
+        patches@lists.linux.dev, Rickard x Andersson <rickaran@axis.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Martin Liska <mliska@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.1 1126/1146] gcov: add support for checksum field
+Date:   Wed, 28 Dec 2022 15:44:25 +0100
+Message-Id: <20221228144400.730451246@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -52,90 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Rickard x Andersson <rickaran@axis.com>
 
-commit f8ace2e304c5dd8a7328db9cd2b8a4b1b98d83ec upstream.
+commit e96b95c2b7a63a454b6498e2df67aac14d046d13 upstream.
 
-A memory leak was reported when floppy_alloc_disk() failed in
-do_floppy_init().
+In GCC version 12.1 a checksum field was added.
 
-unreferenced object 0xffff888115ed25a0 (size 8):
-  comm "modprobe", pid 727, jiffies 4295051278 (age 25.529s)
-  hex dump (first 8 bytes):
-    00 ac 67 5b 81 88 ff ff                          ..g[....
-  backtrace:
-    [<000000007f457abb>] __kmalloc_node+0x4c/0xc0
-    [<00000000a87bfa9e>] blk_mq_realloc_tag_set_tags.part.0+0x6f/0x180
-    [<000000006f02e8b1>] blk_mq_alloc_tag_set+0x573/0x1130
-    [<0000000066007fd7>] 0xffffffffc06b8b08
-    [<0000000081f5ac40>] do_one_initcall+0xd0/0x4f0
-    [<00000000e26d04ee>] do_init_module+0x1a4/0x680
-    [<000000001bb22407>] load_module+0x6249/0x7110
-    [<00000000ad31ac4d>] __do_sys_finit_module+0x140/0x200
-    [<000000007bddca46>] do_syscall_64+0x35/0x80
-    [<00000000b5afec39>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
-unreferenced object 0xffff88810fc30540 (size 32):
-  comm "modprobe", pid 727, jiffies 4295051278 (age 25.529s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000007f457abb>] __kmalloc_node+0x4c/0xc0
-    [<000000006b91eab4>] blk_mq_alloc_tag_set+0x393/0x1130
-    [<0000000066007fd7>] 0xffffffffc06b8b08
-    [<0000000081f5ac40>] do_one_initcall+0xd0/0x4f0
-    [<00000000e26d04ee>] do_init_module+0x1a4/0x680
-    [<000000001bb22407>] load_module+0x6249/0x7110
-    [<00000000ad31ac4d>] __do_sys_finit_module+0x140/0x200
-    [<000000007bddca46>] do_syscall_64+0x35/0x80
-    [<00000000b5afec39>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+This patch fixes a kernel crash occurring during boot when using
+gcov-kernel with GCC version 12.2.  The crash occurred on a system running
+on i.MX6SX.
 
-If the floppy_alloc_disk() failed, disks of current drive will not be set,
-thus the lastest allocated set->tag cannot be freed in the error handling
-path. A simple call graph shown as below:
-
- floppy_module_init()
-   floppy_init()
-     do_floppy_init()
-       for (drive = 0; drive < N_DRIVE; drive++)
-         blk_mq_alloc_tag_set()
-           blk_mq_alloc_tag_set_tags()
-             blk_mq_realloc_tag_set_tags() # set->tag allocated
-         floppy_alloc_disk()
-           blk_mq_alloc_disk() # error occurred, disks failed to allocated
-
-       ->out_put_disk:
-       for (drive = 0; drive < N_DRIVE; drive++)
-         if (!disks[drive][0]) # the last disks is not set and loop break
-           break;
-         blk_mq_free_tag_set() # the latest allocated set->tag leaked
-
-Fix this problem by free the set->tag of current drive before jump to
-error handling path.
-
-Cc: stable@vger.kernel.org
-Fixes: 302cfee15029 ("floppy: use a separate gendisk for each media format")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-[efremov: added stable list, changed title]
-Signed-off-by: Denis Efremov <efremov@linux.com>
+Link: https://lkml.kernel.org/r/20221220102318.3418501-1-rickaran@axis.com
+Fixes: 977ef30a7d88 ("gcov: support GCC 12.1 and newer compilers")
+Signed-off-by: Rickard x Andersson <rickaran@axis.com>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Tested-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Reviewed-by: Martin Liska <mliska@suse.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/floppy.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/gcov/gcc_4_7.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -4593,8 +4593,10 @@ static int __init do_floppy_init(void)
- 			goto out_put_disk;
- 
- 		err = floppy_alloc_disk(drive, 0);
--		if (err)
-+		if (err) {
-+			blk_mq_free_tag_set(&tag_sets[drive]);
- 			goto out_put_disk;
-+		}
- 
- 		timer_setup(&motor_off_timer[drive], motor_off_callback, 0);
- 	}
+--- a/kernel/gcov/gcc_4_7.c
++++ b/kernel/gcov/gcc_4_7.c
+@@ -82,6 +82,7 @@ struct gcov_fn_info {
+  * @version: gcov version magic indicating the gcc version used for compilation
+  * @next: list head for a singly-linked list
+  * @stamp: uniquifying time stamp
++ * @checksum: unique object checksum
+  * @filename: name of the associated gcov data file
+  * @merge: merge functions (null for unused counter type)
+  * @n_functions: number of instrumented functions
+@@ -94,6 +95,10 @@ struct gcov_info {
+ 	unsigned int version;
+ 	struct gcov_info *next;
+ 	unsigned int stamp;
++ /* Since GCC 12.1 a checksum field is added. */
++#if (__GNUC__ >= 12)
++	unsigned int checksum;
++#endif
+ 	const char *filename;
+ 	void (*merge[GCOV_COUNTERS])(gcov_type *, unsigned int);
+ 	unsigned int n_functions;
 
 
