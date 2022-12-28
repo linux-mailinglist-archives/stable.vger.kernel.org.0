@@ -2,51 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA0EF657CB3
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:35:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F3E1658260
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:36:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233868AbiL1PfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:35:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52906 "EHLO
+        id S234730AbiL1QfV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:35:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233866AbiL1PfP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:35:15 -0500
+        with ESMTP id S233721AbiL1QeS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:34:18 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E29EA164AE;
-        Wed, 28 Dec 2022 07:35:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F34FB1D0E2
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:31:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85165B816D9;
-        Wed, 28 Dec 2022 15:35:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3F97C433F0;
-        Wed, 28 Dec 2022 15:35:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 932CAB816F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:31:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC92CC433F2;
+        Wed, 28 Dec 2022 16:31:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241711;
-        bh=dubQICoRUaMZoxPUUNZWHpXkhoid96dHvEkNtoni8vA=;
+        s=korg; t=1672245101;
+        bh=yNMT92ZbzXNjoqChQJjK40MRe4b4PoN7RptVuUn+rVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uR/zRPmfzKmIF8IwlhrC+1PYbeufJz11WMtJjfJMQP+x+19nv7Ppj0/yNIR3hFHpv
-         X0GuqfSnBt2/QG50wG1Qo1jtFbPp9e0t7tZWOG3COt4yo8x7e+1ax3DFSX6l6cf8pR
-         Soo8yXjj6W0zM4wxG8uzE1r2NKR0B7MCd7otki88=
+        b=HuXyo6SzhOCwzWmHKJ1hhvFTCnYW4hzLNRS2K7iC5m+hW1NPw88vbsXaIpEHRiYuM
+         dSsRbinsveA58tyCWT2OgQFvUeN1r0m/PDU344mLnVQfZv36RRB4xqjrWr9z5NOiIM
+         dn2lnwCOfYHweny/73LShEuF9SZzFBnzAPQQ8i/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Leo Yan <leo.yan@linaro.org>,
-        Ian Rogers <irogers@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        bpf@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 514/731] perf trace: Return error if a system call doesnt exist
+Subject: [PATCH 6.0 0833/1073] rtc: st-lpc: Add missing clk_disable_unprepare in st_rtc_probe()
 Date:   Wed, 28 Dec 2022 15:40:21 +0100
-Message-Id: <20221228144311.443765467@linuxfoundation.org>
+Message-Id: <20221228144350.643061550@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,53 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit d4223e1776c30b2ce8d0e6eaadcbf696e60fca3c ]
+[ Upstream commit 5fb733d7bd6949e90028efdce8bd528c6ab7cf1e ]
 
-When a system call is not detected, the reason is either because the
-system call ID is out of scope or failure to find the corresponding path
-in the sysfs, trace__read_syscall_info() returns zero.  Finally, without
-returning an error value it introduces confusion for the caller.
+The clk_disable_unprepare() should be called in the error handling
+of clk_get_rate(), fix it.
 
-This patch lets the function trace__read_syscall_info() to return
--EEXIST when a system call doesn't exist.
-
-Fixes: b8b1033fcaa091d8 ("perf trace: Mark syscall ids that are not allocated to avoid unnecessary error messages")
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Acked-by: Ian Rogers <irogers@google.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: bpf@vger.kernel.org
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20221121075237.127706-3-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: b5b2bdfc2893 ("rtc: st: Add new driver for ST's LPC RTC")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Link: https://lore.kernel.org/r/20221123014805.1993052-1-cuigaosheng1@huawei.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-trace.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-st-lpc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/perf/builtin-trace.c b/tools/perf/builtin-trace.c
-index 2bf21194c7b3..aaa465d7f011 100644
---- a/tools/perf/builtin-trace.c
-+++ b/tools/perf/builtin-trace.c
-@@ -1782,11 +1782,11 @@ static int trace__read_syscall_info(struct trace *trace, int id)
- #endif
- 	sc = trace->syscalls.table + id;
- 	if (sc->nonexistent)
--		return 0;
-+		return -EEXIST;
+diff --git a/drivers/rtc/rtc-st-lpc.c b/drivers/rtc/rtc-st-lpc.c
+index bdb20f63254e..0f8e4231098e 100644
+--- a/drivers/rtc/rtc-st-lpc.c
++++ b/drivers/rtc/rtc-st-lpc.c
+@@ -238,6 +238,7 @@ static int st_rtc_probe(struct platform_device *pdev)
  
- 	if (name == NULL) {
- 		sc->nonexistent = true;
--		return 0;
-+		return -EEXIST;
+ 	rtc->clkrate = clk_get_rate(rtc->clk);
+ 	if (!rtc->clkrate) {
++		clk_disable_unprepare(rtc->clk);
+ 		dev_err(&pdev->dev, "Unable to fetch clock rate\n");
+ 		return -EINVAL;
  	}
- 
- 	sc->name = name;
 -- 
 2.35.1
 
