@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AE7A657DC9
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:47:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8247E65787E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:51:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234027AbiL1PrD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:47:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35190 "EHLO
+        id S233085AbiL1Ovi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:51:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233606AbiL1Pqk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:46:40 -0500
+        with ESMTP id S233103AbiL1OvC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:51:02 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D554165A0
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:46:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C74810068
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:51:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3CD6CB8172A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:46:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6220C433EF;
-        Wed, 28 Dec 2022 15:46:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 10416B81710
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:51:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82891C433EF;
+        Wed, 28 Dec 2022 14:50:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242395;
-        bh=i4kn/bkOE2FWuqdT+xmrCUi/bo4Ef6WDtqiFk35+D7k=;
+        s=korg; t=1672239058;
+        bh=l4mdijT3DXLoB3FEQAQQT3XWHgMtUjdefbiHKLqvrG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dDcBJdinGDiHBRA08CG2vd6FKC7Z+mxapcxX5bX16QgtVEx/hixmFmPZkaPZs7iBs
-         aytcLKxEdel/WUl0QEwEwHHzb9C8+fF1AilHrrUtbmihF5Z4SkXUIcqdMxt1zgQwL3
-         58z3+HF7VPHF028U1xRAzBfz43O1//Id7YM/jdjw=
+        b=ZRhfdB0WRpvenxzwSXjJ2ar8mfBk24YGkx3OYPnFOMGmJ0faMDNxNfgZ5rvDbYQ6/
+         9kXaHrgc03b4yBwdX91JRQcSEza/4Kd/08K2xyZKzWruF0tWu+ttbSXHldeuS+PoXO
+         sm1wZRZmSAQmkBvI1Y+wzXYoUaJQly/wTuPxHpjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        patches@lists.linux.dev, Alexey Dobriyan <adobriyan@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0405/1073] drm/msm/mdp5: fix reading hw revision on db410c platform
+Subject: [PATCH 5.15 086/731] proc: fixup uptime selftest
 Date:   Wed, 28 Dec 2022 15:33:13 +0100
-Message-Id: <20221228144339.019136994@linuxfoundation.org>
+Message-Id: <20221228144259.045056394@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Alexey Dobriyan <adobriyan@gmail.com>
 
-[ Upstream commit 5d8c0417ea62fed3cec7f5daed06a20477efeb39 ]
+[ Upstream commit 5cc81d5c81af0dee54da9a67a3ebe4be076a13db ]
 
-Since the commit commit c6122688f265 ("drm/msm/mdp5: stop overriding
-drvdata") reading the MDP5 hw revision on db410c will crash the board
-as the MDSS_GDSC is not enabled. Revert a part of the offending commit
-(moving rpm enablement) and set priv->kms earlier. This make it possible
-to use pm_runtime_get_sync() during read_mdp_hw_revision(), which will
-power up both the MDP5 and MDSS devices.
+syscall(3) returns -1 and sets errno on error, unlike "syscall"
+instruction.
 
-Fixes: c6122688f265 ("drm/msm/mdp5: stop overriding drvdata")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/512985/
-Link: https://lore.kernel.org/r/20221125000213.252115-1-dmitry.baryshkov@linaro.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Systems which have <= 32/64 CPUs are unaffected. Test won't bounce
+to all CPUs before completing if there are more of them.
+
+Link: https://lkml.kernel.org/r/Y1bUiT7VRXlXPQa1@p183
+Fixes: 1f5bd0547654 ("proc: selftests: test /proc/uptime")
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ tools/testing/selftests/proc/proc-uptime-002.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
-index b46f983f2b46..29ae5c9613f3 100644
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
-@@ -519,10 +519,9 @@ static void read_mdp_hw_revision(struct mdp5_kms *mdp5_kms,
- 	struct device *dev = &mdp5_kms->pdev->dev;
- 	u32 version;
+diff --git a/tools/testing/selftests/proc/proc-uptime-002.c b/tools/testing/selftests/proc/proc-uptime-002.c
+index e7ceabed7f51..7d0aa22bdc12 100644
+--- a/tools/testing/selftests/proc/proc-uptime-002.c
++++ b/tools/testing/selftests/proc/proc-uptime-002.c
+@@ -17,6 +17,7 @@
+ // while shifting across CPUs.
+ #undef NDEBUG
+ #include <assert.h>
++#include <errno.h>
+ #include <unistd.h>
+ #include <sys/syscall.h>
+ #include <stdlib.h>
+@@ -54,7 +55,7 @@ int main(void)
+ 		len += sizeof(unsigned long);
+ 		free(m);
+ 		m = malloc(len);
+-	} while (sys_sched_getaffinity(0, len, m) == -EINVAL);
++	} while (sys_sched_getaffinity(0, len, m) == -1 && errno == EINVAL);
  
--	/* Manually enable the MDP5, as pm runtime isn't usable yet. */
--	mdp5_enable(mdp5_kms);
-+	pm_runtime_get_sync(dev);
- 	version = mdp5_read(mdp5_kms, REG_MDP5_HW_VERSION);
--	mdp5_disable(mdp5_kms);
-+	pm_runtime_put_sync(dev);
- 
- 	*major = FIELD(version, MDP5_HW_VERSION_MAJOR);
- 	*minor = FIELD(version, MDP5_HW_VERSION_MINOR);
-@@ -839,6 +838,12 @@ static int mdp5_init(struct platform_device *pdev, struct drm_device *dev)
- 	 */
- 	clk_set_rate(mdp5_kms->core_clk, 200000000);
- 
-+	/* set uninit-ed kms */
-+	priv->kms = &mdp5_kms->base.base;
-+
-+	pm_runtime_enable(&pdev->dev);
-+	mdp5_kms->rpm_enabled = true;
-+
- 	read_mdp_hw_revision(mdp5_kms, &major, &minor);
- 
- 	mdp5_kms->cfg = mdp5_cfg_init(mdp5_kms, major, minor);
-@@ -887,12 +892,6 @@ static int mdp5_init(struct platform_device *pdev, struct drm_device *dev)
- 	if (ret)
- 		goto fail;
- 
--	/* set uninit-ed kms */
--	priv->kms = &mdp5_kms->base.base;
--
--	pm_runtime_enable(&pdev->dev);
--	mdp5_kms->rpm_enabled = true;
--
- 	return 0;
- fail:
- 	if (mdp5_kms)
+ 	fd = open("/proc/uptime", O_RDONLY);
+ 	assert(fd >= 0);
 -- 
 2.35.1
 
