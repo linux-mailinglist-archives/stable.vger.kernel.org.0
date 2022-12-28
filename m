@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 146CE657AAB
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:14:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76ADA658094
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:18:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233038AbiL1POL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:14:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59618 "EHLO
+        id S234523AbiL1QSY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:18:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233015AbiL1PNj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:13:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEF6313E82
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:13:31 -0800 (PST)
+        with ESMTP id S234531AbiL1QRq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:17:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9FFE13E3D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:16:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6622B8170E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:13:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07588C433D2;
-        Wed, 28 Dec 2022 15:13:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49757B816F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:16:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA47AC433D2;
+        Wed, 28 Dec 2022 16:16:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240409;
-        bh=xLT3ZJgbIclUhF/mgdBW/tR/+K8UNJkMPjVmWCCdR+I=;
+        s=korg; t=1672244192;
+        bh=XfUw6PyYJpxjAdrmcyQVFb7XdAjV8j8X6jiNVwyqxL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QST51WAogPZYm/rLr7TzaLkIIQMpITVhjBRU0P3ip6+UZROilg9dNTaK6dH7uJ3cK
-         QvnjjhzRZ4OSW+5r/Wi20l093ZiKqAdqRsHcp+/ws2fUxxkw4M3/zCaROCNrnb/XIC
-         lUym8U9JsOc1o6b/A599PMVShWgRXjeJ7O3hC/pQ=
+        b=Tp7yVFAu+VqeXBmZYKJV3er32s21pF3xLOM9Helq5kAwO5KDBCTQwC6BRikd7GXwv
+         7pBJP3MPppRI8AIITi2Z2sV+vcjeKa9u31HK8CT8Z1UUaDyW1yJJ61Pz4fMVL6N4ju
+         7hJyFZjFhRNsbxTqrHsxmtR8o4UGFaPsZOdsH1dw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Inga Stotland <inga.stotland@intel.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev, Duoming Zhou <duoming@zju.edu.cn>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 346/731] Bluetooth: MGMT: Fix error report for ADD_EXT_ADV_PARAMS
-Date:   Wed, 28 Dec 2022 15:37:33 +0100
-Message-Id: <20221228144306.594628188@linuxfoundation.org>
+Subject: [PATCH 6.0 0666/1073] drivers: staging: r8188eu: Fix sleep-in-atomic-context bug in rtw_join_timeout_handler
+Date:   Wed, 28 Dec 2022 15:37:34 +0100
+Message-Id: <20221228144346.132671599@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +52,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Inga Stotland <inga.stotland@intel.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 3b1c7c00b8c22b3cb79532252c59eb0b287bb86d ]
+[ Upstream commit ce8cc75c7419ad54cb99437543a54c97c7446db5 ]
 
-When validating the parameter length for MGMT_OP_ADD_EXT_ADV_PARAMS
-command, use the correct op code in error status report:
-was MGMT_OP_ADD_ADVERTISING, changed to MGMT_OP_ADD_EXT_ADV_PARAMS.
+The rtw_join_timeout_handler() is a timer handler that
+runs in atomic context, but it could call msleep().
+As a result, the sleep-in-atomic-context bug will happen.
+The process is shown below:
 
-Fixes: 12410572833a2 ("Bluetooth: Break add adv into two mgmt commands")
-Signed-off-by: Inga Stotland <inga.stotland@intel.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+     (atomic context)
+rtw_join_timeout_handler
+ _rtw_join_timeout_handler
+  rtw_do_join
+   rtw_select_and_join_from_scanned_queue
+    rtw_indicate_disconnect
+     rtw_lps_ctrl_wk_cmd
+      lps_ctrl_wk_hdl
+       LPS_Leave
+        LPS_RF_ON_check
+         msleep //sleep in atomic context
+
+Fix by removing msleep() and replacing with mdelay().
+
+Fixes: 15865124feed ("staging: r8188eu: introduce new core dir for RTL8188eu driver")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Link: https://lore.kernel.org/r/20221018083424.79741-1-duoming@zju.edu.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/mgmt.c | 2 +-
+ drivers/staging/r8188eu/core/rtw_pwrctrl.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
-index f09f0a78eb7b..04000499f4a2 100644
---- a/net/bluetooth/mgmt.c
-+++ b/net/bluetooth/mgmt.c
-@@ -7971,7 +7971,7 @@ static int add_ext_adv_params(struct sock *sk, struct hci_dev *hdev,
- 	 * extra parameters we don't know about will be ignored in this request.
- 	 */
- 	if (data_len < MGMT_ADD_EXT_ADV_PARAMS_MIN_SIZE)
--		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_ADD_ADVERTISING,
-+		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_ADD_EXT_ADV_PARAMS,
- 				       MGMT_STATUS_INVALID_PARAMS);
+diff --git a/drivers/staging/r8188eu/core/rtw_pwrctrl.c b/drivers/staging/r8188eu/core/rtw_pwrctrl.c
+index 10550bd2c16d..abfd14bfd5fb 100644
+--- a/drivers/staging/r8188eu/core/rtw_pwrctrl.c
++++ b/drivers/staging/r8188eu/core/rtw_pwrctrl.c
+@@ -273,7 +273,7 @@ static s32 LPS_RF_ON_check(struct adapter *padapter, u32 delay_ms)
+ 			err = -1;
+ 			break;
+ 		}
+-		msleep(1);
++		mdelay(1);
+ 	}
  
- 	flags = __le32_to_cpu(cp->flags);
+ 	return err;
 -- 
 2.35.1
 
