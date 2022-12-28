@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5438C6580F6
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:23:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA6956581DD
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:32:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234731AbiL1QXd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:23:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43034 "EHLO
+        id S234758AbiL1QcI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:32:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234957AbiL1QWj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:22:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 534991A80F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:20:11 -0800 (PST)
+        with ESMTP id S234754AbiL1Qbm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:31:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9B6E1CFE8
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:28:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF2EAB81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:20:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3340CC433EF;
-        Wed, 28 Dec 2022 16:20:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 47C606157B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:28:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A205C433D2;
+        Wed, 28 Dec 2022 16:27:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244408;
-        bh=inN9e4ytR+NXrAHnhQ1/s4gFHfne7lWj4TQ3jrvLG2c=;
+        s=korg; t=1672244879;
+        bh=Pnf9XD4XvEC6KCYmfGfHJiQ9Ts8ejEgSvRNs+LSI2B8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ODG6E5QRSNq62cQlxgaNhCKrpa43e+1J4BAqY0TR7qyDy+DeBUrwrJEZP8zY6YT8k
-         QYyC8arETvBPaauZo2OBrnbT/yN/m1OeCq1l1v9goyyHZGLi2u1mgEDPwJOOvGAF6J
-         9JC31tPQ1vmyPIjEZEGhcrnH2RZtI4YH132UwJns=
+        b=TQbXjQb8FZZ15s52AN/vnp7wl7WZygp6I65kKU1z/dlZHt7TsSl2/C9Jirt6/aCAQ
+         L8j609ZZzM5xksjK7+xjIaodc4P1DHWZc9/gcPiWGDEW1KSuk71mY6+5xDadkoXaTg
+         bxUsDO+sBoHC1mKVN4Ut85jXGh5YCZAvAfGJwTBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0705/1073] usb: roles: fix of node refcount leak in usb_role_switch_is_parent()
-Date:   Wed, 28 Dec 2022 15:38:13 +0100
-Message-Id: <20221228144347.181340736@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0755/1146] fbdev: pm2fb: fix missing pci_disable_device()
+Date:   Wed, 28 Dec 2022 15:38:14 +0100
+Message-Id: <20221228144350.652038798@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +54,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 1ab30c610630da5391a373cddb8a065bf4c4bc01 ]
+[ Upstream commit ed359a464846b48f76ea6cc5cd8257e545ac97f4 ]
 
-I got the following report while doing device(mt6370-tcpc) load
-test with CONFIG_OF_UNITTEST and CONFIG_OF_DYNAMIC enabled:
+Add missing pci_disable_device() in error path of probe() and remove() path.
 
-  OF: ERROR: memory leak, expected refcount 1 instead of 2,
-  of_node_get()/of_node_put() unbalanced - destroy cset entry:
-  attach overlay node /i2c/pmic@34
-
-The 'parent' returned by fwnode_get_parent() with refcount incremented.
-it needs be put after using.
-
-Fixes: 6fadd72943b8 ("usb: roles: get usb-role-switch from parent")
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221122111226.251588-1-yangyingliang@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/roles/class.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/pm2fb.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/roles/class.c b/drivers/usb/roles/class.c
-index dfaed7eee94f..32e6d19f7011 100644
---- a/drivers/usb/roles/class.c
-+++ b/drivers/usb/roles/class.c
-@@ -106,10 +106,13 @@ usb_role_switch_is_parent(struct fwnode_handle *fwnode)
- 	struct fwnode_handle *parent = fwnode_get_parent(fwnode);
- 	struct device *dev;
+diff --git a/drivers/video/fbdev/pm2fb.c b/drivers/video/fbdev/pm2fb.c
+index 7da715d31a93..7a8609c40ae9 100644
+--- a/drivers/video/fbdev/pm2fb.c
++++ b/drivers/video/fbdev/pm2fb.c
+@@ -1533,8 +1533,10 @@ static int pm2fb_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	}
  
--	if (!parent || !fwnode_property_present(parent, "usb-role-switch"))
-+	if (!fwnode_property_present(parent, "usb-role-switch")) {
-+		fwnode_handle_put(parent);
- 		return NULL;
+ 	info = framebuffer_alloc(sizeof(struct pm2fb_par), &pdev->dev);
+-	if (!info)
+-		return -ENOMEM;
++	if (!info) {
++		err = -ENOMEM;
++		goto err_exit_disable;
 +	}
+ 	default_par = info->par;
  
- 	dev = class_find_device_by_fwnode(role_class, parent);
-+	fwnode_handle_put(parent);
- 	return dev ? to_role_switch(dev) : ERR_PTR(-EPROBE_DEFER);
+ 	switch (pdev->device) {
+@@ -1715,6 +1717,8 @@ static int pm2fb_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	release_mem_region(pm2fb_fix.mmio_start, pm2fb_fix.mmio_len);
+  err_exit_neither:
+ 	framebuffer_release(info);
++ err_exit_disable:
++	pci_disable_device(pdev);
+ 	return retval;
  }
  
+@@ -1739,6 +1743,7 @@ static void pm2fb_remove(struct pci_dev *pdev)
+ 	fb_dealloc_cmap(&info->cmap);
+ 	kfree(info->pixmap.addr);
+ 	framebuffer_release(info);
++	pci_disable_device(pdev);
+ }
+ 
+ static const struct pci_device_id pm2fb_id_table[] = {
 -- 
 2.35.1
 
