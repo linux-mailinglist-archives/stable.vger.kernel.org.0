@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C06CB658294
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:38:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A4AA657D3D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:41:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233333AbiL1Qik (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:38:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59756 "EHLO
+        id S233951AbiL1PlD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:41:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234972AbiL1Qhc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:37:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B00521B1C5
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:33:37 -0800 (PST)
+        with ESMTP id S233952AbiL1PlA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:41:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F05515FFC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:40:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6799CB816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:33:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC517C433F0;
-        Wed, 28 Dec 2022 16:33:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E2E46155C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:40:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 245F0C433EF;
+        Wed, 28 Dec 2022 15:40:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245215;
-        bh=LyVP3Y98azTmWDuoPdwqUDaknN1faS2vSn3+8ydW5B0=;
+        s=korg; t=1672242058;
+        bh=iipozZfwKxuvFHMN2/LylZ200fRqCNZUPm8J4aIeik0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VD2t6q7vQUPrwzGSPwyjcLDGhxR9dYF2tBCIyquLkm4af1C5JcgUMcfeSZrCJOrXl
-         Qrs6m7aIulUFCZpnmMNvxa2nUklQjy8X5ZI016EC/Y6gW5kDkKiLmHOZogXtUNJHLT
-         s/4hqWF6a+I3Y4297J5ZU/MTFspT0ZS13bjVQEyU=
+        b=e2j7hsPcB3DJOfSbDZhObpsTxyrqp4J5AhpTndkqeLYsG1S2QgjTzqfJjIrqWWpOL
+         0U7CFutXgmXT4oEnO/2XqJz6HYC7mhaG6QVW0DweB5yh+LI05UIAaQdJjCzBlpAN0l
+         teKXJvQ0q4kE5UokpBrdx5i4CLT4TOralkpjm0Yw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Andreas Herrmann <aherrmann@suse.de>,
-        Tejun Heo <tj@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+        patches@lists.linux.dev, Matt Redfearn <matt.redfearn@mips.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <nathan@kernel.org>,
+        =?UTF-8?q?Petr=20Van=C4=9Bk?= <arkamar@atlas.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0852/1073] blk-iocost: simplify ioc_name
-Date:   Wed, 28 Dec 2022 15:40:40 +0100
-Message-Id: <20221228144351.160644270@linuxfoundation.org>
+Subject: [PATCH 5.15 534/731] include/uapi/linux/swab: Fix potentially missing __always_inline
+Date:   Wed, 28 Dec 2022 15:40:41 +0100
+Message-Id: <20221228144312.022247946@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Matt Redfearn <matt.redfearn@mips.com>
 
-[ Upstream commit 9df3e65139b923dfe98f76b7057882c7afb2d3e4 ]
+[ Upstream commit defbab270d45e32b068e7e73c3567232d745c60f ]
 
-Just directly dereference the disk name instead of going through multiple
-hoops to find the same value.
+Commit bc27fb68aaad ("include/uapi/linux/byteorder, swab: force inlining
+of some byteswap operations") added __always_inline to swab functions
+and commit 283d75737837 ("uapi/linux/stddef.h: Provide __always_inline to
+userspace headers") added a definition of __always_inline for use in
+exported headers when the kernel's compiler.h is not available.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Andreas Herrmann <aherrmann@suse.de>
-Acked-by: Tejun Heo <tj@kernel.org>
-Link: https://lore.kernel.org/r/20220921180501.1539876-10-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Stable-dep-of: d36a9ea5e776 ("block: fix use-after-free of q->q_usage_counter")
+However, since swab.h does not include stddef.h, if the header soup does
+not indirectly include it, the definition of __always_inline is missing,
+resulting in a compilation failure, which was observed compiling the
+perf tool using exported headers containing this commit:
+
+In file included from /usr/include/linux/byteorder/little_endian.h:12:0,
+                 from /usr/include/asm/byteorder.h:14,
+                 from tools/include/uapi/linux/perf_event.h:20,
+                 from perf.h:8,
+                 from builtin-bench.c:18:
+/usr/include/linux/swab.h:160:8: error: unknown type name `__always_inline'
+ static __always_inline __u16 __swab16p(const __u16 *p)
+
+Fix this by replacing the inclusion of linux/compiler.h with
+linux/stddef.h to ensure that we pick up that definition if required,
+without relying on it's indirect inclusion. compiler.h is then included
+indirectly, via stddef.h.
+
+Fixes: 283d75737837 ("uapi/linux/stddef.h: Provide __always_inline to userspace headers")
+Signed-off-by: Matt Redfearn <matt.redfearn@mips.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Petr Vaněk <arkamar@atlas.cz>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-iocost.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ include/uapi/linux/swab.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/blk-iocost.c b/block/blk-iocost.c
-index 7936e5f5821c..cba9d3ad58e1 100644
---- a/block/blk-iocost.c
-+++ b/block/blk-iocost.c
-@@ -664,17 +664,13 @@ static struct ioc *q_to_ioc(struct request_queue *q)
- 	return rqos_to_ioc(rq_qos_id(q, RQ_QOS_COST));
- }
+diff --git a/include/uapi/linux/swab.h b/include/uapi/linux/swab.h
+index 7272f85d6d6a..3736f2fe1541 100644
+--- a/include/uapi/linux/swab.h
++++ b/include/uapi/linux/swab.h
+@@ -3,7 +3,7 @@
+ #define _UAPI_LINUX_SWAB_H
  
--static const char *q_name(struct request_queue *q)
--{
--	if (blk_queue_registered(q))
--		return kobject_name(q->kobj.parent);
--	else
--		return "<unknown>";
--}
--
- static const char __maybe_unused *ioc_name(struct ioc *ioc)
- {
--	return q_name(ioc->rqos.q);
-+	struct gendisk *disk = ioc->rqos.q->disk;
-+
-+	if (!disk)
-+		return "<unknown>";
-+	return disk->disk_name;
- }
+ #include <linux/types.h>
+-#include <linux/compiler.h>
++#include <linux/stddef.h>
+ #include <asm/bitsperlong.h>
+ #include <asm/swab.h>
  
- static struct ioc_gq *pd_to_iocg(struct blkg_policy_data *pd)
 -- 
 2.35.1
 
