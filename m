@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B558F658138
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:26:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 451AF6580C8
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:20:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233236AbiL1Q0O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:26:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43342 "EHLO
+        id S234640AbiL1QUn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:20:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234706AbiL1QZs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:25:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5070D1C104
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:22:38 -0800 (PST)
+        with ESMTP id S234654AbiL1QUV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:20:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56DC411C0D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:18:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F14E3B816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:22:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62D71C433D2;
-        Wed, 28 Dec 2022 16:22:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E8596613E9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:18:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09CB7C433EF;
+        Wed, 28 Dec 2022 16:18:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244555;
-        bh=kTAUy8Qzi8QrrkKuCj6OjCd6nTzlyaATe0MpzQjGmzw=;
+        s=korg; t=1672244288;
+        bh=O4cQUMK7hWJ+FXEHEO6/mZRPa3tQuqcXw+rM/CzyI4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mF9j8h9epZmBKc0xoJgp71RR1m7uUjC/SOrI1fLjYfUgfOymeizX5+sgy+8Q705sG
-         k6zK4F/fBM1U8v66uH/wBEJEqFCcV1H3gXUxGJScPO+/3u8vCrLi8UZ+oM//5U6pDA
-         cC5UoQVBzlKg38todLSZVTkUg/WF3KksO33wSsRk=
+        b=dvmNPeGtpcWSBEqvDsmphs9/3p3TyX0AaOIHs64vi6yvhFxFwMzwg8jZXDCA3y9F0
+         amyUdgePuERg6HvUEzvuVEarXRnJj0d0I+ywGo1sqvE6hqMkgN/CqCfn2fiFsGH0m8
+         vuwghqsu0NFbrP5MylmS8xiIgDotEn1nyI5+jhpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Avihai Horon <avihaih@nvidia.com>,
-        Joao Martins <joao.m.martins@oracle.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        patches@lists.linux.dev,
+        Francisco Munoz <francisco.munoz.ruiz@linux.intel.com>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        Nirmal Patel <nirmal.patel@linux.intel.com>,
+        Jonathan Derrick <jonathan.derrick@linux.dev>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0693/1146] vfio/iova_bitmap: Fix PAGE_SIZE unaligned bitmaps
+Subject: [PATCH 6.0 0644/1073] PCI: vmd: Fix secondary bus reset for Intel bridges
 Date:   Wed, 28 Dec 2022 15:37:12 +0100
-Message-Id: <20221228144348.965734810@linuxfoundation.org>
+Message-Id: <20221228144345.536598975@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +56,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joao Martins <joao.m.martins@oracle.com>
+From: Francisco Munoz <francisco.munoz.ruiz@linux.intel.com>
 
-[ Upstream commit f38044e5ef58ad0346fdabd7027ea5c1e1a3b624 ]
+[ Upstream commit 0a584655ef89541dae4d48d2c523b1480ae80284 ]
 
-iova_bitmap_set() doesn't consider the end of the page boundary when the
-first bitmap page offset isn't zero, and wrongly changes the consecutive
-page right after. Consequently this leads to missing dirty pages from
-reported by the device as seen from the VMM.
+The reset was never applied in the current implementation because Intel
+Bridges owned by VMD are parentless. Internally, pci_reset_bus() applies
+a reset to the parent of the PCI device supplied as argument, but in this
+case it failed because there wasn't a parent.
 
-The current logic iterates over a given number of base pages and clamps it
-to the remaining indexes to iterate in the last page.  Instead of having to
-consider extra pages to pin (e.g. first and extra pages), just handle the
-first page as its own range and let the rest of the bitmap be handled as if
-it was base page aligned.
+In more detail, this change allows the VMD driver to enumerate NVMe devices
+in pass-through configurations when guest reboots are performed. There was
+an attempted to fix this, but later we discovered that the code inside
+pci_reset_bus() wasn’t triggering secondary bus resets. Therefore, we
+updated the parameters passed to it, and now NVMe SSDs attached to VMD
+bridges are properly enumerated in VT-d pass-through scenarios.
 
-This is done by changing iova_bitmap_mapped_remaining() to return PAGE_SIZE
-- pgoff (on the first bitmap page), and leads to pgoff being set to 0 on
-following iterations.
-
-Fixes: 58ccf0190d19 ("vfio: Add an IOVA bitmap support")
-Reported-by: Avihai Horon <avihaih@nvidia.com>
-Tested-by: Avihai Horon <avihaih@nvidia.com>
-Signed-off-by: Joao Martins <joao.m.martins@oracle.com>
-Link: https://lore.kernel.org/r/20221025193114.58695-3-joao.m.martins@oracle.com
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Link: https://lore.kernel.org/r/20221206001637.4744-1-francisco.munoz.ruiz@linux.intel.com
+Fixes: 6aab5622296b ("PCI: vmd: Clean up domain before enumeration")
+Signed-off-by: Francisco Munoz <francisco.munoz.ruiz@linux.intel.com>
+Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Reviewed-by: Nirmal Patel <nirmal.patel@linux.intel.com>
+Reviewed-by: Jonathan Derrick <jonathan.derrick@linux.dev>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/iova_bitmap.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/pci/controller/vmd.c | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/vfio/iova_bitmap.c b/drivers/vfio/iova_bitmap.c
-index 6631e8befe1b..2dd65f040127 100644
---- a/drivers/vfio/iova_bitmap.c
-+++ b/drivers/vfio/iova_bitmap.c
-@@ -295,11 +295,15 @@ void iova_bitmap_free(struct iova_bitmap *bitmap)
-  */
- static unsigned long iova_bitmap_mapped_remaining(struct iova_bitmap *bitmap)
- {
--	unsigned long remaining;
-+	unsigned long remaining, bytes;
+diff --git a/drivers/pci/controller/vmd.c b/drivers/pci/controller/vmd.c
+index 98e0746e681c..769eedeb8802 100644
+--- a/drivers/pci/controller/vmd.c
++++ b/drivers/pci/controller/vmd.c
+@@ -719,6 +719,7 @@ static int vmd_enable_domain(struct vmd_dev *vmd, unsigned long features)
+ 	resource_size_t offset[2] = {0};
+ 	resource_size_t membar2_offset = 0x2000;
+ 	struct pci_bus *child;
++	struct pci_dev *dev;
+ 	int ret;
+ 
+ 	/*
+@@ -859,8 +860,25 @@ static int vmd_enable_domain(struct vmd_dev *vmd, unsigned long features)
+ 
+ 	pci_scan_child_bus(vmd->bus);
+ 	vmd_domain_reset(vmd);
+-	list_for_each_entry(child, &vmd->bus->children, node)
+-		pci_reset_bus(child->self);
 +
-+	/* Cap to one page in the first iteration, if PAGE_SIZE unaligned. */
-+	bytes = !bitmap->mapped.pgoff ? bitmap->mapped.npages << PAGE_SHIFT :
-+					PAGE_SIZE - bitmap->mapped.pgoff;
++	/* When Intel VMD is enabled, the OS does not discover the Root Ports
++	 * owned by Intel VMD within the MMCFG space. pci_reset_bus() applies
++	 * a reset to the parent of the PCI device supplied as argument. This
++	 * is why we pass a child device, so the reset can be triggered at
++	 * the Intel bridge level and propagated to all the children in the
++	 * hierarchy.
++	 */
++	list_for_each_entry(child, &vmd->bus->children, node) {
++		if (!list_empty(&child->devices)) {
++			dev = list_first_entry(&child->devices,
++					       struct pci_dev, bus_list);
++			if (pci_reset_bus(dev))
++				pci_warn(dev, "can't reset device: %d\n", ret);
++
++			break;
++		}
++	}
++
+ 	pci_assign_unassigned_bus_resources(vmd->bus);
  
- 	remaining = bitmap->mapped_total_index - bitmap->mapped_base_index;
- 	remaining = min_t(unsigned long, remaining,
--	      (bitmap->mapped.npages << PAGE_SHIFT) / sizeof(*bitmap->bitmap));
-+			  bytes / sizeof(*bitmap->bitmap));
- 
- 	return remaining;
- }
+ 	/*
 -- 
 2.35.1
 
