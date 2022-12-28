@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D55D6658031
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:15:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C2F7657902
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:56:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234329AbiL1QPK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:15:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59140 "EHLO
+        id S232969AbiL1O4g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:56:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234340AbiL1QOr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:14:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 442061B1E2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:12:30 -0800 (PST)
+        with ESMTP id S233267AbiL1O4e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:56:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EFBEDCD
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:56:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D507B6156E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:12:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4C53C433EF;
-        Wed, 28 Dec 2022 16:12:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D142A6151F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:56:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9830C433D2;
+        Wed, 28 Dec 2022 14:56:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243949;
-        bh=YUBis+tT8w+lO4tG4YLycwP6fN4qhdzYbb9HMpZyiDo=;
+        s=korg; t=1672239393;
+        bh=3UZsrscQAhHUPMxHaWIwGPS1ErmCZxHE+xGCGOML0+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BiF1ECxRqrRysD28emaV9BQJS7T1n69ivurCxnB6IXvfyCs3nuXDThFM5jRAaMc80
-         F7OYlhgWGR0qGSlDWQunf4uRNsl4PYOr6BRRIRb56FbOMUjpouPQMpB5SubN8ZvTG8
-         d+qe+C9X4zqoY+BjJMpHp5zPvrT/Dhci/cVVkKm0=
+        b=gfk1lKi+bv3ydn3R1cYZfOtpwvqMfM8ctOxA/OPrcpHXD16+w/Euw873E9ke2A7N2
+         yyBZNIXsyZt4USNqyUYeoQZy59cYR/ghSoZwYvzGwRt1zAHc7xDM4DeoqGyhojpaJ9
+         K/UHYtzcfWyRJmW6pZXsexU7zvllLVK2mjDPxarQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        Om Prakash Singh <omp@nvidia.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
+        patches@lists.linux.dev, Bayi Cheng <bayi.cheng@mediatek.com>,
+        Allen-KH Cheng <allen-kh.cheng@mediatek.com>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Dhruva Gole <d-gole@ti.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Pratyush Yadav <pratyush@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0584/1146] PCI: pci-epf-test: Register notifier if only core_init_notifier is enabled
-Date:   Wed, 28 Dec 2022 15:35:23 +0100
-Message-Id: <20221228144346.035658070@linuxfoundation.org>
+Subject: [PATCH 5.15 217/731] mtd: spi-nor: Fix the number of bytes for the dummy cycles
+Date:   Wed, 28 Dec 2022 15:35:24 +0100
+Message-Id: <20221228144302.850842359@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,37 +58,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+From: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
 
-[ Upstream commit 6acd25cc98ce0c9ee4fefdaf44fc8bca534b26e5 ]
+[ Upstream commit fdc20370d93e8c6d2f448a539d08c2c064af7694 ]
 
-The pci_epf_test_notifier function should be installed also if only
-core_init_notifier is enabled. Fix the current logic.
+The number of bytes used by spi_nor_spimem_check_readop() may be
+incorrect for the dummy cycles. Since nor->read_dummy is not initialized
+before spi_nor_spimem_adjust_hwcaps().
 
-Link: https://lore.kernel.org/r/20220825090101.20474-1-hayashi.kunihiko@socionext.com
-Fixes: 5e50ee27d4a5 ("PCI: pci-epf-test: Add support to defer core initialization")
-Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
-Acked-by: Om Prakash Singh <omp@nvidia.com>
-Acked-by: Kishon Vijay Abraham I <kishon@ti.com>
+We use both mode and wait state clock cycles instead of nor->read_dummy.
+
+Fixes: 0e30f47232ab ("mtd: spi-nor: add support for DTR protocol")
+Co-developed-by: Bayi Cheng <bayi.cheng@mediatek.com>
+Signed-off-by: Bayi Cheng <bayi.cheng@mediatek.com>
+Signed-off-by: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Tested-by: Dhruva Gole <d-gole@ti.com>
+Tested-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Reviewed-by: Pratyush Yadav <pratyush@kernel.org>
+Link: https://lore.kernel.org/r/20221031124633.13189-1-allen-kh.cheng@mediatek.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/endpoint/functions/pci-epf-test.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/spi-nor/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/endpoint/functions/pci-epf-test.c b/drivers/pci/endpoint/functions/pci-epf-test.c
-index 36b1801a061b..55283d2379a6 100644
---- a/drivers/pci/endpoint/functions/pci-epf-test.c
-+++ b/drivers/pci/endpoint/functions/pci-epf-test.c
-@@ -979,7 +979,7 @@ static int pci_epf_test_bind(struct pci_epf *epf)
- 	if (ret)
- 		epf_test->dma_supported = false;
+diff --git a/drivers/mtd/spi-nor/core.c b/drivers/mtd/spi-nor/core.c
+index eb5d7b3d1860..aad7076ae020 100644
+--- a/drivers/mtd/spi-nor/core.c
++++ b/drivers/mtd/spi-nor/core.c
+@@ -2155,7 +2155,8 @@ static int spi_nor_spimem_check_readop(struct spi_nor *nor,
+ 	spi_nor_spimem_setup_op(nor, &op, read->proto);
  
--	if (linkup_notifier) {
-+	if (linkup_notifier || core_init_notifier) {
- 		epf->nb.notifier_call = pci_epf_test_notifier;
- 		pci_epc_register_notifier(epc, &epf->nb);
- 	} else {
+ 	/* convert the dummy cycles to the number of bytes */
+-	op.dummy.nbytes = (nor->read_dummy * op.dummy.buswidth) / 8;
++	op.dummy.nbytes = (read->num_mode_clocks + read->num_wait_states) *
++			  op.dummy.buswidth / 8;
+ 	if (spi_nor_protocol_is_dtr(nor->read_proto))
+ 		op.dummy.nbytes *= 2;
+ 
 -- 
 2.35.1
 
