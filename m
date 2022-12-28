@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 676A7657BA5
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:24:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EBD1658174
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:28:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233619AbiL1PX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:23:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42732 "EHLO
+        id S234663AbiL1Q2m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:28:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233689AbiL1PX6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:23:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F8F714015
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:23:58 -0800 (PST)
+        with ESMTP id S234660AbiL1Q2V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:28:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C8521CA
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:24:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A07BB61564
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:23:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD6D3C433F0;
-        Wed, 28 Dec 2022 15:23:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 170ED61578
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:24:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A8EFC433D2;
+        Wed, 28 Dec 2022 16:24:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241037;
-        bh=sDHlsdPxoHtrjE+KOGxmKB4sLbLBuUPDjfVXfdwxAIM=;
+        s=korg; t=1672244657;
+        bh=Q3y9vALH9h1rU+RebOmrtFuTgf/yZ+V4xxFKJAIgKHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bhhXPfVCoKuQJ80Q88L43yWjYHJ5vw1WOkHNbYFs/xGmUh35VoRGZViEBDnGFRSzq
-         LBDTPMrcfoM6m95PxXuSYkQW2UNz2XGK8rYAwrjR4/FKr/m39AMtbBfPn/BX/g74pN
-         Hv9rGazm3On+F/CJkJ9PfhU3fSnAcx+YX4OUms8A=
+        b=DBc26ecEg6YrXDxESH+YwuC48u5CbvdGQgVVAg+1UIqrPp8moZ9R2PlAa2+oBnQoE
+         fkd4JhCK9Kp1KwimLQw+z7VYM3r9+9TGIhiUTXwwf2HDJz6OmTDcvEx+MPMhhsWeER
+         dAnsXNQbnnnWpFTM+ZiOigfDbq+QkqeruBVkONoU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Chengchang Tang <tangchengchang@huawei.com>,
-        Haoyue Xu <xuhaoyue1@hisilicon.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 430/731] RDMA/hns: Fix PBL page MTR find
+Subject: [PATCH 6.0 0749/1073] HSI: omap_ssi_core: Fix error handling in ssi_init()
 Date:   Wed, 28 Dec 2022 15:38:57 +0100
-Message-Id: <20221228144309.029731058@linuxfoundation.org>
+Message-Id: <20221228144348.365936215@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengchang Tang <tangchengchang@huawei.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 9fb39ef2ff3e18f1740625ba04093dfbef086d2b ]
+[ Upstream commit 3ffa9f713c39a213a08d9ff13ab983a8aa5d8b5d ]
 
-Now, The address of the first two pages in the MR will be searched, which
-use to speed up the lookup of the pbl table for hardware.  An exception
-will occur when there is only one page in this MR.  This patch fix the
-number of page to search.
+The ssi_init() returns the platform_driver_register() directly without
+checking its return value, if platform_driver_register() failed, the
+ssi_pdriver is not unregistered.
+Fix by unregister ssi_pdriver when the last platform_driver_register()
+failed.
 
-Fixes: 9b2cf76c9f05 ("RDMA/hns: Optimize PBL buffer allocation process")
-Link: https://lore.kernel.org/r/20221126102911.2921820-4-xuhaoyue1@hisilicon.com
-Signed-off-by: Chengchang Tang <tangchengchang@huawei.com>
-Signed-off-by: Haoyue Xu <xuhaoyue1@hisilicon.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 0fae198988b8 ("HSI: omap_ssi: built omap_ssi and omap_ssi_port into one module")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hsi/controllers/omap_ssi_core.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index 155ae202b1ec..b9557be812b7 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -3024,7 +3024,8 @@ static int set_mtpt_pbl(struct hns_roce_dev *hr_dev,
- 	int i, count;
+diff --git a/drivers/hsi/controllers/omap_ssi_core.c b/drivers/hsi/controllers/omap_ssi_core.c
+index 052cf3e92dd6..26f2c3c01297 100644
+--- a/drivers/hsi/controllers/omap_ssi_core.c
++++ b/drivers/hsi/controllers/omap_ssi_core.c
+@@ -631,7 +631,13 @@ static int __init ssi_init(void) {
+ 	if (ret)
+ 		return ret;
  
- 	count = hns_roce_mtr_find(hr_dev, &mr->pbl_mtr, 0, pages,
--				  ARRAY_SIZE(pages), &pbl_ba);
-+				  min_t(int, ARRAY_SIZE(pages), mr->npages),
-+				  &pbl_ba);
- 	if (count < 1) {
- 		ibdev_err(ibdev, "failed to find PBL mtr, count = %d.\n",
- 			  count);
+-	return platform_driver_register(&ssi_port_pdriver);
++	ret = platform_driver_register(&ssi_port_pdriver);
++	if (ret) {
++		platform_driver_unregister(&ssi_pdriver);
++		return ret;
++	}
++
++	return 0;
+ }
+ module_init(ssi_init);
+ 
 -- 
 2.35.1
 
