@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9D04657A54
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:11:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07B45657B06
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:17:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232929AbiL1PKi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:10:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56706 "EHLO
+        id S233189AbiL1PR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:17:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233773AbiL1PKC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:10:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39A5613E3C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:10:01 -0800 (PST)
+        with ESMTP id S233197AbiL1PRT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:17:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B77AC13F18
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:17:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CD1CD61553
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:10:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9842C433D2;
-        Wed, 28 Dec 2022 15:09:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 55627B8172A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:17:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A000CC433EF;
+        Wed, 28 Dec 2022 15:17:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240200;
-        bh=zNy7dK0/Oxb5jdNssSMEOqWdVoQ44y/IpBndXNKaHJM=;
+        s=korg; t=1672240636;
+        bh=In8AWe4cx5K5Jc3dbiscc2C85Y+3tmNLBFVVzKEGWHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bMdxuQd6ctaKYsaZPrb9Az/N0fjXF5FgXhasScBrxyFZgyHO4fpfmPzhD8SdGMuvQ
-         Vm5RuJpnVKx+heZygO3/zDPqxJzYnZA8WBT6BE+nPncKv9k1Bjbh2kpiqKy6ITj7Hq
-         q7TRWlqkiRbKt+LyuPVRGBnwRl222fSpBjwUxon0=
+        b=EWVuALRasJeVWPJJvDA0WlfU/r17TzrtYp2hMHh4Be7DcTx9VryCCf64pvtKlnLeW
+         /9RrYxTdxBVw7G+n42L5Xxd4RqmKrrmTLOycrwBw8TTDAIkSvO3CBDr8gl3VgB6HuY
+         HWgPRHyGASpjdcJcOeYpEMN03lH9wrEW7mvanGxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0099/1073] sched/uclamp: Make asym_fits_capacity() use util_fits_cpu()
+        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
+        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0148/1146] irqchip/wpcm450: Fix memory leak in wpcm450_aic_of_init()
 Date:   Wed, 28 Dec 2022 15:28:07 +0100
-Message-Id: <20221228144330.738360355@linuxfoundation.org>
+Message-Id: <20221228144334.165883182@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,100 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qais Yousef <qais.yousef@arm.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit a2e7f03ed28fce26c78b985f87913b6ce3accf9d ]
+[ Upstream commit 4208d4faf36573a507b5e5de17abe342e9276759 ]
 
-Use the new util_fits_cpu() to ensure migration margin and capacity
-pressure are taken into account correctly when uclamp is being used
-otherwise we will fail to consider CPUs as fitting in scenarios where
-they should.
+If of_iomap() failed, 'aic' should be freed before return. Otherwise
+there is a memory leak.
 
-s/asym_fits_capacity/asym_fits_cpu/ to better reflect what it does now.
-
-Fixes: b4c9c9f15649 ("sched/fair: Prefer prev cpu in asymmetric wakeup path")
-Signed-off-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220804143609.515789-6-qais.yousef@arm.com
+Fixes: fead4dd49663 ("irqchip: Add driver for WPCM450 interrupt controller")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Reviewed-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20221115092532.1704032-1-weiyongjun@huaweicloud.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ drivers/irqchip/irq-wpcm450-aic.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 1fe3f3b96251..cb4d47441a41 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -6631,10 +6631,13 @@ select_idle_capacity(struct task_struct *p, struct sched_domain *sd, int target)
- 	return best_cpu;
- }
- 
--static inline bool asym_fits_capacity(unsigned long task_util, int cpu)
-+static inline bool asym_fits_cpu(unsigned long util,
-+				 unsigned long util_min,
-+				 unsigned long util_max,
-+				 int cpu)
- {
- 	if (sched_asym_cpucap_active())
--		return fits_capacity(task_util, capacity_of(cpu));
-+		return util_fits_cpu(util, util_min, util_max, cpu);
- 
- 	return true;
- }
-@@ -6646,7 +6649,7 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
- {
- 	bool has_idle_core = false;
- 	struct sched_domain *sd;
--	unsigned long task_util;
-+	unsigned long task_util, util_min, util_max;
- 	int i, recent_used_cpu;
- 
- 	/*
-@@ -6655,7 +6658,9 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
- 	 */
- 	if (sched_asym_cpucap_active()) {
- 		sync_entity_load_avg(&p->se);
--		task_util = uclamp_task_util(p);
-+		task_util = task_util_est(p);
-+		util_min = uclamp_eff_value(p, UCLAMP_MIN);
-+		util_max = uclamp_eff_value(p, UCLAMP_MAX);
- 	}
- 
- 	/*
-@@ -6664,7 +6669,7 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
- 	lockdep_assert_irqs_disabled();
- 
- 	if ((available_idle_cpu(target) || sched_idle_cpu(target)) &&
--	    asym_fits_capacity(task_util, target))
-+	    asym_fits_cpu(task_util, util_min, util_max, target))
- 		return target;
- 
- 	/*
-@@ -6672,7 +6677,7 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
- 	 */
- 	if (prev != target && cpus_share_cache(prev, target) &&
- 	    (available_idle_cpu(prev) || sched_idle_cpu(prev)) &&
--	    asym_fits_capacity(task_util, prev))
-+	    asym_fits_cpu(task_util, util_min, util_max, prev))
- 		return prev;
- 
- 	/*
-@@ -6687,7 +6692,7 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
- 	    in_task() &&
- 	    prev == smp_processor_id() &&
- 	    this_rq()->nr_running <= 1 &&
--	    asym_fits_capacity(task_util, prev)) {
-+	    asym_fits_cpu(task_util, util_min, util_max, prev)) {
- 		return prev;
- 	}
- 
-@@ -6699,7 +6704,7 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
- 	    cpus_share_cache(recent_used_cpu, target) &&
- 	    (available_idle_cpu(recent_used_cpu) || sched_idle_cpu(recent_used_cpu)) &&
- 	    cpumask_test_cpu(p->recent_used_cpu, p->cpus_ptr) &&
--	    asym_fits_capacity(task_util, recent_used_cpu)) {
-+	    asym_fits_cpu(task_util, util_min, util_max, recent_used_cpu)) {
- 		return recent_used_cpu;
+diff --git a/drivers/irqchip/irq-wpcm450-aic.c b/drivers/irqchip/irq-wpcm450-aic.c
+index 0dcbeb1a05a1..91df62a64cd9 100644
+--- a/drivers/irqchip/irq-wpcm450-aic.c
++++ b/drivers/irqchip/irq-wpcm450-aic.c
+@@ -146,6 +146,7 @@ static int __init wpcm450_aic_of_init(struct device_node *node,
+ 	aic->regs = of_iomap(node, 0);
+ 	if (!aic->regs) {
+ 		pr_err("Failed to map WPCM450 AIC registers\n");
++		kfree(aic);
+ 		return -ENOMEM;
  	}
  
 -- 
