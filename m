@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AE9A6582D2
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:42:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A941C657CF7
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:38:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233841AbiL1QmG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:42:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60818 "EHLO
+        id S233508AbiL1Ph7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:37:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234892AbiL1Qla (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:41:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6256A1403E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:35:57 -0800 (PST)
+        with ESMTP id S233505AbiL1Ph5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:37:57 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEABD1658D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:37:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7C32EB81707
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:35:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9130C433D2;
-        Wed, 28 Dec 2022 16:35:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 06A0CCE1361
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:37:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00289C433F1;
+        Wed, 28 Dec 2022 15:37:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245356;
-        bh=uDorpQ+jvXyiKodZwc1Qzokg5j+zVX948Cb/FLcavMQ=;
+        s=korg; t=1672241873;
+        bh=rJidGOASI21CnwPAr8do/50wsEnGYMJOUvCNeFFlXLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RUJpN6lsAHfyciNSw73zaBw/aBQ/G7O8p/w1KBx5Din6KXrMS3aNDHM/MrqbeUo1R
-         CZ4M/ktFWTE1cjUtYQVDQx2+Mb/bTD6KjAk08GNCxbZyykSeN+sGce2xC3e9Im2hqV
-         +qV3tC+I5WLVF7MSb8YbeWsTcDb5Gb/8Hv/yskkU=
+        b=u8rhtsfewuuh/aenxBCEGlo/VQoC2LOYqAk5+vF6rsZhbCDfOkWDprduq8o8i5cz1
+         aqf1Nvv5WEi50vz2VeP5lg7hKo5Kg0e/r8zn5k03UB0HKtoCElW5WwGAn4ZM82/jUf
+         5IKO5q8v+kDl/jYAiVFpogHYwTHFNnH7s9cDEvxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0856/1073] block: fix error unwinding in blk_register_queue
+        patches@lists.linux.dev, Nirav N Shah <nirav.n.shah@intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 537/731] dmaengine: idxd: Fix crc_val field for completion record
 Date:   Wed, 28 Dec 2022 15:40:44 +0100
-Message-Id: <20221228144351.269645767@linuxfoundation.org>
+Message-Id: <20221228144312.111278086@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,99 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Fenghua Yu <fenghua.yu@intel.com>
 
-[ Upstream commit 40602997be26887bdfa3d58659c3acb4579099e9 ]
+[ Upstream commit dc901d98b1fe6e52ab81cd3e0879379168e06daa ]
 
-blk_register_queue fails to handle errors from blk_mq_sysfs_register,
-leaks various resources on errors and accidentally sets queue refs percpu
-refcount to percpu mode on kobject_add failure.  Fix all that by
-properly unwinding on errors.
+The crc_val in the completion record should be 64 bits and not 32 bits.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20221114042637.1009333-4-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Stable-dep-of: d36a9ea5e776 ("block: fix use-after-free of q->q_usage_counter")
+Fixes: 4ac823e9cd85 ("dmaengine: idxd: fix delta_rec and crc size field for completion record")
+Reported-by: Nirav N Shah <nirav.n.shah@intel.com>
+Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
+Reviewed-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/20221111012715.2031481-1-fenghua.yu@intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-sysfs.c | 28 ++++++++++++++++------------
- 1 file changed, 16 insertions(+), 12 deletions(-)
+ include/uapi/linux/idxd.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/blk-sysfs.c b/block/blk-sysfs.c
-index 4825eaa4363a..02931b6f25c5 100644
---- a/block/blk-sysfs.c
-+++ b/block/blk-sysfs.c
-@@ -820,13 +820,15 @@ int blk_register_queue(struct gendisk *disk)
- 	int ret;
+diff --git a/include/uapi/linux/idxd.h b/include/uapi/linux/idxd.h
+index c750eac09fc9..f7c01709cb0f 100644
+--- a/include/uapi/linux/idxd.h
++++ b/include/uapi/linux/idxd.h
+@@ -272,7 +272,7 @@ struct dsa_completion_record {
+ 		};
  
- 	mutex_lock(&q->sysfs_dir_lock);
--
- 	ret = kobject_add(&q->kobj, &disk_to_dev(disk)->kobj, "queue");
- 	if (ret < 0)
--		goto unlock;
-+		goto out_unlock_dir;
+ 		uint32_t	delta_rec_size;
+-		uint32_t	crc_val;
++		uint64_t	crc_val;
  
--	if (queue_is_mq(q))
--		blk_mq_sysfs_register(disk);
-+	if (queue_is_mq(q)) {
-+		ret = blk_mq_sysfs_register(disk);
-+		if (ret)
-+			goto out_del_queue_kobj;
-+	}
- 	mutex_lock(&q->sysfs_lock);
- 
- 	mutex_lock(&q->debugfs_mutex);
-@@ -838,17 +840,17 @@ int blk_register_queue(struct gendisk *disk)
- 
- 	ret = disk_register_independent_access_ranges(disk);
- 	if (ret)
--		goto put_dev;
-+		goto out_debugfs_remove;
- 
- 	if (q->elevator) {
- 		ret = elv_register_queue(q, false);
- 		if (ret)
--			goto put_dev;
-+			goto out_unregister_ia_ranges;
- 	}
- 
- 	ret = blk_crypto_sysfs_register(disk);
- 	if (ret)
--		goto put_dev;
-+		goto out_elv_unregister;
- 
- 	blk_queue_flag_set(QUEUE_FLAG_REGISTERED, q);
- 	wbt_enable_default(q);
-@@ -859,8 +861,6 @@ int blk_register_queue(struct gendisk *disk)
- 	if (q->elevator)
- 		kobject_uevent(&q->elevator->kobj, KOBJ_ADD);
- 	mutex_unlock(&q->sysfs_lock);
--
--unlock:
- 	mutex_unlock(&q->sysfs_dir_lock);
- 
- 	/*
-@@ -879,13 +879,17 @@ int blk_register_queue(struct gendisk *disk)
- 
- 	return ret;
- 
--put_dev:
-+out_elv_unregister:
- 	elv_unregister_queue(q);
-+out_unregister_ia_ranges:
- 	disk_unregister_independent_access_ranges(disk);
-+out_debugfs_remove:
-+	blk_debugfs_remove(disk);
- 	mutex_unlock(&q->sysfs_lock);
--	mutex_unlock(&q->sysfs_dir_lock);
-+out_del_queue_kobj:
- 	kobject_del(&q->kobj);
--
-+out_unlock_dir:
-+	mutex_unlock(&q->sysfs_dir_lock);
- 	return ret;
- }
- 
+ 		/* DIF check & strip */
+ 		struct {
 -- 
 2.35.1
 
