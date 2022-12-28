@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91C0A657C7D
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:33:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22E6F658300
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233428AbiL1PdI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:33:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49654 "EHLO
+        id S234644AbiL1Qn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:43:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233828AbiL1PdB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:33:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 821E515F2F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:32:58 -0800 (PST)
+        with ESMTP id S234982AbiL1Qn2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72DC8BF2
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C4FF0B81729
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:32:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17E18C433EF;
-        Wed, 28 Dec 2022 15:32:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C5AB61572
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:37:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20458C433D2;
+        Wed, 28 Dec 2022 16:37:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241575;
-        bh=i+FxZC7eaVkFPDHW+LHw3Z/h2CMkCeNb8O9v0DMTFcI=;
+        s=korg; t=1672245471;
+        bh=XgXKQ4lJt3xgbn4wnwUGVj4qQSLeGJDxzzr5jcmLDYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=doPIY/MCWf1D9/gnET0AalAP6xmUyS4dW2YlV7l//0iKtIL6pdg4xSxAtBXCbzmIW
-         rdweetobh7t0f3fpg3fxVO8uM/MBEXOjMVufAdHakRWGioHLAyHTjG0ZF23BSdn2LS
-         41XPZyaBo1FO3BS5siWcQbIcfqCxVcEl+PfN4Egw=
+        b=1eXjrOb/pnyMWYVsSF700vit2tYGSU+fTeWGpL8ytXlqki0fygQiiL2SBXTAbUBfq
+         mxIliuyN/WF56PHZf4zWq8VdDwzn6KUeoL4B1aHYc7HHfcgREQ1Rx1StWQvKwXgaOo
+         4wEseXACwh6I6+XI7UH8UXbvf5M3K/G5sT+x/yf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>,
+        patches@lists.linux.dev, xinlei lee <xinlei.lee@mediatek.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 498/731] ksmbd: Fix resource leak in ksmbd_session_rpc_open()
-Date:   Wed, 28 Dec 2022 15:40:05 +0100
-Message-Id: <20221228144310.982495557@linuxfoundation.org>
+Subject: [PATCH 6.1 0867/1146] pwm: mtk-disp: Fix the parameters calculated by the enabled flag of disp_pwm
+Date:   Wed, 28 Dec 2022 15:40:06 +0100
+Message-Id: <20221228144353.718909018@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +57,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: xinlei lee <xinlei.lee@mediatek.com>
 
-[ Upstream commit bc044414fa0326a4e5c3c509c00b1fcaf621b5f4 ]
+[ Upstream commit 0b5ef3429d8f78427558ab0dcbfd862098ba2a63 ]
 
-When ksmbd_rpc_open() fails then it must call ksmbd_rpc_id_free() to
-undo the result of ksmbd_ipc_id_alloc().
+In the original mtk_disp_pwm_get_state() function wrongly uses bit 0 of
+CON0 to judge if the PWM is enabled.
+However that is indicated by a bit (at a machine dependent position) in
+the DISP_PWM_EN register. Fix this accordingly.
 
-Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Acked-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: 3f2b16734914 ("pwm: mtk-disp: Implement atomic API .get_state()")
+Signed-off-by: xinlei lee <xinlei.lee@mediatek.com>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/1666172538-11652-1-git-send-email-xinlei.lee@mediatek.com
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/mgmt/user_session.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/pwm/pwm-mtk-disp.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ksmbd/mgmt/user_session.c b/fs/ksmbd/mgmt/user_session.c
-index 8d8ffd8c6f19..0fa467f2c897 100644
---- a/fs/ksmbd/mgmt/user_session.c
-+++ b/fs/ksmbd/mgmt/user_session.c
-@@ -106,15 +106,17 @@ int ksmbd_session_rpc_open(struct ksmbd_session *sess, char *rpc_name)
- 	entry->method = method;
- 	entry->id = ksmbd_ipc_id_alloc();
- 	if (entry->id < 0)
--		goto error;
-+		goto free_entry;
+diff --git a/drivers/pwm/pwm-mtk-disp.c b/drivers/pwm/pwm-mtk-disp.c
+index c605013e4114..3fbb4bae93a4 100644
+--- a/drivers/pwm/pwm-mtk-disp.c
++++ b/drivers/pwm/pwm-mtk-disp.c
+@@ -178,7 +178,7 @@ static void mtk_disp_pwm_get_state(struct pwm_chip *chip,
+ {
+ 	struct mtk_disp_pwm *mdp = to_mtk_disp_pwm(chip);
+ 	u64 rate, period, high_width;
+-	u32 clk_div, con0, con1;
++	u32 clk_div, pwm_en, con0, con1;
+ 	int err;
  
- 	resp = ksmbd_rpc_open(sess, entry->id);
- 	if (!resp)
--		goto error;
-+		goto free_id;
- 
- 	kvfree(resp);
- 	return entry->id;
--error:
-+free_id:
-+	ksmbd_rpc_id_free(entry->id);
-+free_entry:
- 	list_del(&entry->list);
- 	kfree(entry);
- 	return -EINVAL;
+ 	err = clk_prepare_enable(mdp->clk_main);
+@@ -197,7 +197,8 @@ static void mtk_disp_pwm_get_state(struct pwm_chip *chip,
+ 	rate = clk_get_rate(mdp->clk_main);
+ 	con0 = readl(mdp->base + mdp->data->con0);
+ 	con1 = readl(mdp->base + mdp->data->con1);
+-	state->enabled = !!(con0 & BIT(0));
++	pwm_en = readl(mdp->base + DISP_PWM_EN);
++	state->enabled = !!(pwm_en & mdp->data->enable_mask);
+ 	clk_div = FIELD_GET(PWM_CLKDIV_MASK, con0);
+ 	period = FIELD_GET(PWM_PERIOD_MASK, con1);
+ 	/*
 -- 
 2.35.1
 
