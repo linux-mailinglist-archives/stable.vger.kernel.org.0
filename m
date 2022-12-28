@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 113D2657916
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:57:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDE6A657F47
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233311AbiL1O53 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 09:57:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44818 "EHLO
+        id S234361AbiL1QD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:03:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233297AbiL1O5Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:57:24 -0500
+        with ESMTP id S234298AbiL1QDF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:03:05 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2375312614
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:57:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 033A518B09
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:03:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B4EB8B8171C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:57:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BA1DC433D2;
-        Wed, 28 Dec 2022 14:57:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97530B81719
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:03:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 047BFC433EF;
+        Wed, 28 Dec 2022 16:03:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239440;
-        bh=omQNA+MOXCGB0hnqNGHrDoE8LzwnTXz8tfT2bGvnaT0=;
+        s=korg; t=1672243381;
+        bh=nuhgNwAkISOMVefjFTxIVp/3YECikFWFhUdihRwdp2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bDw7hTI9S5ZqQ12jhtQii1cfU/sqTsmyIvx7MTQLzFbNwRnC/C65EXg9NZ9P2VMAO
-         3zE8jz2o3dZbkAeV/Fzu7M38lh//zWNGgJsPQ8WBLwgMtq6RraG0sWYoqmWcVnDD4M
-         F8T/zSpHyRHXWG4o2ohMLwHI50XGxby7tOB76qDc=
+        b=NV+wDc1/3wGMg0Yxe2OT70DIFNWKoUcs5dCFor2eeNQZbxBhX02gETGjsw8z/Tc+V
+         D0u0ygjTNEkdf6DHADjWv8wDeVHaemd/5Er5YM/bAmcXCu7hM1pTplhhzKWmhHdTcm
+         NBp+5Io6nKV5DvDDwJoQutnKQNCP8Sl0uBRvrr6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        George Kennedy <george.kennedy@oracle.com>,
-        butt3rflyh4ck <butterflyhuangxx@gmail.com>,
-        Brian Starkey <brian.starkey@arm.com>,
-        Liviu Dudau <liviu.dudau@arm.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 203/731] drm/fourcc: Fix vsub/hsub for Q410 and Q401
-Date:   Wed, 28 Dec 2022 15:35:10 +0100
-Message-Id: <20221228144302.445504572@linuxfoundation.org>
+Subject: [PATCH 6.0 0523/1073] net: emaclite: dont call dev_kfree_skb() under spin_lock_irqsave()
+Date:   Wed, 28 Dec 2022 15:35:11 +0100
+Message-Id: <20221228144342.250414513@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,46 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Starkey <brian.starkey@arm.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit b230555f3257f197dd98641ef6ebaf778b52dd51 ]
+[ Upstream commit d1678bf45f21fa5ae4a456f821858679556ea5f8 ]
 
-These formats are not subsampled, but that means hsub and vsub should be
-1, not 0.
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-Fixes: 94b292b27734 ("drm: drm_fourcc: add NV15, Q410, Q401 YUV formats")
-Reported-by: George Kennedy <george.kennedy@oracle.com>
-Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Signed-off-by: Brian Starkey <brian.starkey@arm.com>
-Reviewed-by: Liviu Dudau <liviu.dudau@arm.com>
-Signed-off-by: Liviu Dudau <liviu.dudau@arm.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220913144306.17279-1-brian.starkey@arm.com
+It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
+The difference between them is free reason, dev_kfree_skb_irq() means
+the SKB is dropped in error and dev_consume_skb_irq() means the SKB
+is consumed in normal.
+
+In this case, dev_kfree_skb() is called in xemaclite_tx_timeout() to
+drop the SKB, when tx timeout, so replace it with dev_kfree_skb_irq().
+
+Fixes: bb81b2ddfa19 ("net: add Xilinx emac lite device driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_fourcc.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/xilinx/xilinx_emaclite.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_fourcc.c b/drivers/gpu/drm/drm_fourcc.c
-index aa747111476f..32ee023aed26 100644
---- a/drivers/gpu/drm/drm_fourcc.c
-+++ b/drivers/gpu/drm/drm_fourcc.c
-@@ -260,12 +260,12 @@ const struct drm_format_info *__drm_format_info(u32 format)
- 		  .vsub = 2, .is_yuv = true },
- 		{ .format = DRM_FORMAT_Q410,		.depth = 0,
- 		  .num_planes = 3, .char_per_block = { 2, 2, 2 },
--		  .block_w = { 1, 1, 1 }, .block_h = { 1, 1, 1 }, .hsub = 0,
--		  .vsub = 0, .is_yuv = true },
-+		  .block_w = { 1, 1, 1 }, .block_h = { 1, 1, 1 }, .hsub = 1,
-+		  .vsub = 1, .is_yuv = true },
- 		{ .format = DRM_FORMAT_Q401,		.depth = 0,
- 		  .num_planes = 3, .char_per_block = { 2, 2, 2 },
--		  .block_w = { 1, 1, 1 }, .block_h = { 1, 1, 1 }, .hsub = 0,
--		  .vsub = 0, .is_yuv = true },
-+		  .block_w = { 1, 1, 1 }, .block_h = { 1, 1, 1 }, .hsub = 1,
-+		  .vsub = 1, .is_yuv = true },
- 		{ .format = DRM_FORMAT_P030,            .depth = 0,  .num_planes = 2,
- 		  .char_per_block = { 4, 8, 0 }, .block_w = { 3, 3, 0 }, .block_h = { 1, 1, 0 },
- 		  .hsub = 2, .vsub = 2, .is_yuv = true},
+diff --git a/drivers/net/ethernet/xilinx/xilinx_emaclite.c b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
+index 016a9c4f2c6c..ce0444b09664 100644
+--- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
++++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
+@@ -536,7 +536,7 @@ static void xemaclite_tx_timeout(struct net_device *dev, unsigned int txqueue)
+ 	xemaclite_enable_interrupts(lp);
+ 
+ 	if (lp->deferred_skb) {
+-		dev_kfree_skb(lp->deferred_skb);
++		dev_kfree_skb_irq(lp->deferred_skb);
+ 		lp->deferred_skb = NULL;
+ 		dev->stats.tx_errors++;
+ 	}
 -- 
 2.35.1
 
