@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1D4E657BC1
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:25:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A0D365827C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:37:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233373AbiL1PZH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:25:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43392 "EHLO
+        id S234802AbiL1QhH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:37:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233753AbiL1PY7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:24:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4282B1403F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:24:59 -0800 (PST)
+        with ESMTP id S234894AbiL1Qf7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:35:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 604B51D30F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:32:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D3D0D61544
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:24:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAC77C433D2;
-        Wed, 28 Dec 2022 15:24:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 10C71B816F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:32:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63F37C433EF;
+        Wed, 28 Dec 2022 16:32:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241098;
-        bh=JHJyKlY87Qy81zBY9v339lqbKvF9+rFMK2/AGZ6o9pg=;
+        s=korg; t=1672245148;
+        bh=U8OW2JTaqhl1eh0qeb5Cl7Hp18Obm5wbV2z950c9jCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LdZrOgqisxTWTvo4Y3pF0+Dd61fXtcdEIB/SVit1UdWitNrxKpC0mvO2Ok10xqQHb
-         csWZ/LGS4kP2BK6HOvY+othUhE2+m/ifFS7t7+sGg2KIpaJ5BIZ87SNOFBOElw1jue
-         5ZHd+ewooJCR1fEzpUP+uP5lyJoNZnxwNy9rdvr0=
+        b=qCaHZFozVRIchzFyrsyGvAgkcbPfBbPvtUFmYWTqDSiOeVaI0dNbiWqMCeR/rJ6tr
+         VY2DnsiamSS5jfawb1yxdH9B7HrTJWNYwo1TDM/oucnTtjFpGGmEDn8+4XJtiBgcQd
+         4YF2Qoi6vbsVz+ExjalBESxf8f50cUA2OzIovTUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jisheng Zhang <jszhang@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 437/731] RISC-V: Align the shadow stack
+        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0805/1146] phy: qcom-qmp-usb: clean up status polling
 Date:   Wed, 28 Dec 2022 15:39:04 +0100
-Message-Id: <20221228144309.227108726@linuxfoundation.org>
+Message-Id: <20221228144352.019169847@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,185 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Palmer Dabbelt <palmer@rivosinc.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit b003b3b77d65133a0011ae3b7b255347438c12f6 ]
+[ Upstream commit f5ef85adece529a6cd1e7563081c41038923a9ed ]
 
-The standard RISC-V ABIs all require 16-byte stack alignment.  We're
-only calling that one function on the shadow stack so I doubt it'd
-result in a real issue, but might as well keep this lined up.
+Clean up the PHY status polling by dropping the configuration mask which
+is no longer needed since the QMP driver split.
 
-Fixes: 31da94c25aea ("riscv: add VMAP_STACK overflow detection")
-Reviewed-by: Jisheng Zhang <jszhang@kernel.org>
-Link: https://lore.kernel.org/r/20221130023515.20217-1-palmer@rivosinc.com
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20221012085002.24099-13-johan+linaro@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Stable-dep-of: 922adfd59efd ("phy: qcom-qmp-usb: correct registers layout for IPQ8074 USB3 PHY")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/traps.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/phy/qualcomm/phy-qcom-qmp-usb.c | 25 ++-----------------------
+ 1 file changed, 2 insertions(+), 23 deletions(-)
 
-diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
-index 2f4cd85fb651..4102c97309cc 100644
---- a/arch/riscv/kernel/traps.c
-+++ b/arch/riscv/kernel/traps.c
-@@ -211,7 +211,7 @@ static DEFINE_PER_CPU(unsigned long [OVERFLOW_STACK_SIZE/sizeof(long)],
-  * shadow stack, handled_ kernel_ stack_ overflow(in kernel/entry.S) is used
-  * to get per-cpu overflow stack(get_overflow_stack).
-  */
--long shadow_stack[SHADOW_OVERFLOW_STACK_SIZE/sizeof(long)];
-+long shadow_stack[SHADOW_OVERFLOW_STACK_SIZE/sizeof(long)] __aligned(16);
- asmlinkage unsigned long get_overflow_stack(void)
- {
- 	return (unsigned long)this_cpu_ptr(overflow_stack) +
+diff --git a/drivers/phy/qualcomm/phy-qcom-qmp-usb.c b/drivers/phy/qualcomm/phy-qcom-qmp-usb.c
+index f8a300f0aec3..a551ef4b5777 100644
+--- a/drivers/phy/qualcomm/phy-qcom-qmp-usb.c
++++ b/drivers/phy/qualcomm/phy-qcom-qmp-usb.c
+@@ -1458,8 +1458,6 @@ struct qmp_phy_cfg {
+ 
+ 	unsigned int start_ctrl;
+ 	unsigned int pwrdn_ctrl;
+-	/* bit offset of PHYSTATUS in QPHY_PCS_STATUS register */
+-	unsigned int phy_status;
+ 
+ 	/* true, if PHY needs delay after POWER_DOWN */
+ 	bool has_pwrdn_delay;
+@@ -1617,7 +1615,6 @@ static const struct qmp_phy_cfg ipq8074_usb3phy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.phy_status		= PHYSTATUS,
+ };
+ 
+ static const struct qmp_phy_cfg msm8996_usb3phy_cfg = {
+@@ -1641,7 +1638,6 @@ static const struct qmp_phy_cfg msm8996_usb3phy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.phy_status		= PHYSTATUS,
+ };
+ 
+ static const struct qmp_phy_cfg qmp_v3_usb3phy_cfg = {
+@@ -1665,7 +1661,6 @@ static const struct qmp_phy_cfg qmp_v3_usb3phy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.phy_status		= PHYSTATUS,
+ 
+ 	.has_pwrdn_delay	= true,
+ 	.has_phy_dp_com_ctrl	= true,
+@@ -1692,7 +1687,6 @@ static const struct qmp_phy_cfg sc7180_usb3phy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.phy_status		= PHYSTATUS,
+ 
+ 	.has_pwrdn_delay	= true,
+ 	.has_phy_dp_com_ctrl	= true,
+@@ -1719,7 +1713,6 @@ static const struct qmp_phy_cfg sc8280xp_usb3_uniphy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.phy_status		= PHYSTATUS,
+ };
+ 
+ static const struct qmp_phy_cfg qmp_v3_usb3_uniphy_cfg = {
+@@ -1743,7 +1736,6 @@ static const struct qmp_phy_cfg qmp_v3_usb3_uniphy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.phy_status		= PHYSTATUS,
+ 
+ 	.has_pwrdn_delay	= true,
+ };
+@@ -1769,7 +1761,6 @@ static const struct qmp_phy_cfg msm8998_usb3phy_cfg = {
+ 
+ 	.start_ctrl             = SERDES_START | PCS_START,
+ 	.pwrdn_ctrl             = SW_PWRDN,
+-	.phy_status		= PHYSTATUS,
+ };
+ 
+ static const struct qmp_phy_cfg sm8150_usb3phy_cfg = {
+@@ -1796,7 +1787,6 @@ static const struct qmp_phy_cfg sm8150_usb3phy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.phy_status		= PHYSTATUS,
+ 
+ 	.has_pwrdn_delay	= true,
+ 	.has_phy_dp_com_ctrl	= true,
+@@ -1826,7 +1816,6 @@ static const struct qmp_phy_cfg sm8150_usb3_uniphy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.phy_status		= PHYSTATUS,
+ 
+ 	.has_pwrdn_delay	= true,
+ };
+@@ -1855,7 +1844,6 @@ static const struct qmp_phy_cfg sm8250_usb3phy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.phy_status		= PHYSTATUS,
+ 
+ 	.has_pwrdn_delay	= true,
+ 	.has_phy_dp_com_ctrl	= true,
+@@ -1885,7 +1873,6 @@ static const struct qmp_phy_cfg sm8250_usb3_uniphy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.phy_status		= PHYSTATUS,
+ 
+ 	.has_pwrdn_delay	= true,
+ };
+@@ -1914,7 +1901,6 @@ static const struct qmp_phy_cfg sdx55_usb3_uniphy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.phy_status		= PHYSTATUS,
+ 
+ 	.has_pwrdn_delay	= true,
+ };
+@@ -1943,7 +1929,6 @@ static const struct qmp_phy_cfg sdx65_usb3_uniphy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.phy_status		= PHYSTATUS,
+ 
+ 	.has_pwrdn_delay	= true,
+ };
+@@ -1972,7 +1957,6 @@ static const struct qmp_phy_cfg sm8350_usb3phy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.phy_status		= PHYSTATUS,
+ 
+ 	.has_pwrdn_delay	= true,
+ 	.has_phy_dp_com_ctrl	= true,
+@@ -2002,7 +1986,6 @@ static const struct qmp_phy_cfg sm8350_usb3_uniphy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.phy_status		= PHYSTATUS,
+ 
+ 	.has_pwrdn_delay	= true,
+ };
+@@ -2028,7 +2011,6 @@ static const struct qmp_phy_cfg qcm2290_usb3phy_cfg = {
+ 
+ 	.start_ctrl		= SERDES_START | PCS_START,
+ 	.pwrdn_ctrl		= SW_PWRDN,
+-	.phy_status		= PHYSTATUS,
+ };
+ 
+ static void qmp_usb_configure_lane(void __iomem *base,
+@@ -2166,7 +2148,7 @@ static int qmp_usb_power_on(struct phy *phy)
+ 	void __iomem *rx = qphy->rx;
+ 	void __iomem *pcs = qphy->pcs;
+ 	void __iomem *status;
+-	unsigned int mask, val, ready;
++	unsigned int val;
+ 	int ret;
+ 
+ 	qmp_usb_serdes_init(qphy);
+@@ -2205,10 +2187,7 @@ static int qmp_usb_power_on(struct phy *phy)
+ 	qphy_setbits(pcs, cfg->regs[QPHY_START_CTRL], cfg->start_ctrl);
+ 
+ 	status = pcs + cfg->regs[QPHY_PCS_STATUS];
+-	mask = cfg->phy_status;
+-	ready = 0;
+-
+-	ret = readl_poll_timeout(status, val, (val & mask) == ready, 10,
++	ret = readl_poll_timeout(status, val, !(val & PHYSTATUS), 10,
+ 				 PHY_INIT_COMPLETE_TIMEOUT);
+ 	if (ret) {
+ 		dev_err(qmp->dev, "phy initialization timed-out\n");
 -- 
 2.35.1
 
