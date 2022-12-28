@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A27156580D2
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:21:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 017C56579CD
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:04:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233378AbiL1QVY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:21:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38736 "EHLO
+        id S233506AbiL1PE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:04:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234667AbiL1QUu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:20:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0F3D17040
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:18:34 -0800 (PST)
+        with ESMTP id S233509AbiL1PEy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:04:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95EF4E7D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:04:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CFFF61562
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:18:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 556A8C433D2;
-        Wed, 28 Dec 2022 16:18:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 33072B816F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:04:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EBF1C433EF;
+        Wed, 28 Dec 2022 15:04:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244313;
-        bh=nhVLOn9tQ1IgdvyQjuR0l3ISCzx0EW2vFTSi8xyFKEw=;
+        s=korg; t=1672239891;
+        bh=6s1DubVKumRT8kawU7Q+an1rKQYEAy268tWyp3jY/7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RSOKBwenDvUo47xKOf8eFQdQqiCe+BjNhZJvW7hAO41hlGr7RM1XNHViwWdmd+K31
-         RaXkJ45hG9GcGlbeVebhY7wKVAhVhRgN8b4AjFxppMBG9Z86e7IT7FnP4Kwnw+uFBM
-         xgHEiBI/wi/cg+735tzD2u9gZG+6KNsfeK7cfEi4=
+        b=CNm0TkRUt5uvstRdyV3s3DHyPuv7aRjYqwsUH2xPdNVu9DZIP83j0DPyFGZfJvws1
+         Oo3qc8sWYhH5ICOrOodobXx+jpljrGmZMrCTZaQFDBUjJgB+i2KntOCrvL20aIYtfp
+         lu+R7J4pmNZz3B/pcLiI5O9zyiJdBJH3k+1mSyJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Guenter Roeck <linux@roeck-us.net>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0649/1146] scsi: scsi_debug: Fix a warning in resp_verify()
-Date:   Wed, 28 Dec 2022 15:36:28 +0100
-Message-Id: <20221228144347.786242417@linuxfoundation.org>
+Subject: [PATCH 5.15 282/731] hwmon: (jc42) Restore the min/max/critical temperatures on resume
+Date:   Wed, 28 Dec 2022 15:36:29 +0100
+Message-Id: <20221228144304.747169257@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit ed0f17b748b20271cb568c7ca0b23b120316a47d ]
+[ Upstream commit 084ed144c448fd5bc8ed5a58247153fbbfd115c3 ]
 
-As 'vnum' is controlled by user, so if user tries to allocate memory larger
-than(>=) MAX_ORDER, then kcalloc() will fail, it creates a stack trace and
-messes up dmesg with a warning.
+The JC42 compatible thermal sensor on Kingston KSM32ES8/16ME DIMMs
+(using Micron E-Die) is an ST Microelectronics STTS2004 (manufacturer
+0x104a, device 0x2201). It does not keep the previously programmed
+minimum, maximum and critical temperatures after system suspend and
+resume (which is a shutdown / startup cycle for the JC42 temperature
+sensor). This results in an alarm on system resume because the hardware
+default for these values is 0°C (so any environment temperature greater
+than 0°C will trigger the alarm).
 
-Add __GFP_NOWARN in order to avoid too large allocation warning.  This is
-detected by static analysis using smatch.
+Example before system suspend:
+  jc42-i2c-0-1a
+  Adapter: SMBus PIIX4 adapter port 0 at 0b00
+  temp1:        +34.8°C  (low  =  +0.0°C)
+                         (high = +85.0°C, hyst = +85.0°C)
+                         (crit = +95.0°C, hyst = +95.0°C)
 
-Fixes: c3e2fe9222d4 ("scsi: scsi_debug: Implement VERIFY(10), add VERIFY(16)")
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Link: https://lore.kernel.org/r/20221112070031.2121068-1-harshit.m.mogalapalli@oracle.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Example after system resume (without this change):
+  jc42-i2c-0-1a
+  Adapter: SMBus PIIX4 adapter port 0 at 0b00
+  temp1:        +34.8°C  (low  =  +0.0°C)             ALARM (HIGH, CRIT)
+                         (high =  +0.0°C, hyst =  +0.0°C)
+                         (crit =  +0.0°C, hyst =  +0.0°C)
+
+Apply the cached values from the JC42_REG_TEMP_UPPER,
+JC42_REG_TEMP_LOWER, JC42_REG_TEMP_CRITICAL and JC42_REG_SMBUS (where
+the SMBUS register is not related to this issue but a side-effect of
+using regcache_sync() during system resume with the previously
+cached/programmed values. This fixes the alarm due to the hardware
+defaults of 0°C because the previously applied limits (set by userspace)
+are re-applied on system resume.
+
+Fixes: 175c490c9e7f ("hwmon: (jc42) Add support for STTS2004 and AT30TSE004")
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Link: https://lore.kernel.org/r/20221023213157.11078-3-martin.blumenstingl@googlemail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_debug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/jc42.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
-index 57b091f1767f..78cfb706a4a7 100644
---- a/drivers/scsi/scsi_debug.c
-+++ b/drivers/scsi/scsi_debug.c
-@@ -4436,7 +4436,7 @@ static int resp_verify(struct scsi_cmnd *scp, struct sdebug_dev_info *devip)
- 	if (ret)
- 		return ret;
+diff --git a/drivers/hwmon/jc42.c b/drivers/hwmon/jc42.c
+index 9a2a062eb7b8..5240bfdfcf2e 100644
+--- a/drivers/hwmon/jc42.c
++++ b/drivers/hwmon/jc42.c
+@@ -567,6 +567,10 @@ static int jc42_suspend(struct device *dev)
  
--	arr = kcalloc(lb_size, vnum, GFP_ATOMIC);
-+	arr = kcalloc(lb_size, vnum, GFP_ATOMIC | __GFP_NOWARN);
- 	if (!arr) {
- 		mk_sense_buffer(scp, ILLEGAL_REQUEST, INSUFF_RES_ASC,
- 				INSUFF_RES_ASCQ);
+ 	data->config |= JC42_CFG_SHUTDOWN;
+ 	regmap_write(data->regmap, JC42_REG_CONFIG, data->config);
++
++	regcache_cache_only(data->regmap, true);
++	regcache_mark_dirty(data->regmap);
++
+ 	return 0;
+ }
+ 
+@@ -574,9 +578,13 @@ static int jc42_resume(struct device *dev)
+ {
+ 	struct jc42_data *data = dev_get_drvdata(dev);
+ 
++	regcache_cache_only(data->regmap, false);
++
+ 	data->config &= ~JC42_CFG_SHUTDOWN;
+ 	regmap_write(data->regmap, JC42_REG_CONFIG, data->config);
+-	return 0;
++
++	/* Restore cached register values to hardware */
++	return regcache_sync(data->regmap);
+ }
+ 
+ static const struct dev_pm_ops jc42_dev_pm_ops = {
 -- 
 2.35.1
 
