@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55DE0657F52
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96A9E658000
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:13:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234319AbiL1QDx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:03:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50134 "EHLO
+        id S234455AbiL1QNG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:13:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234318AbiL1QDc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:03:32 -0500
+        with ESMTP id S234612AbiL1QMG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:12:06 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C8741901F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:03:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5053C18E19
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:10:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3B223B81730
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:03:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A511DC433D2;
-        Wed, 28 Dec 2022 16:03:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4B83B81710
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:10:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57AEFC433D2;
+        Wed, 28 Dec 2022 16:10:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243408;
-        bh=85omXn5FVO11lwaIPOdLpY9zVnj8HCnM54sZwW8BRuw=;
+        s=korg; t=1672243814;
+        bh=h0ebuQw6yeNwxYI/mYOm5b0nhaqnrYRwf9i0frYrl+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yhcQIF8lFyx6hqNNjyHzkTgSR/rjiVwmnHBtSqfBLuYT2qkJPPf/9K9bEweuYZgI9
-         Jens71Smkv4UAYWzG5/GLXWtFZzkU56es8x+FgZlYkJB72Gcv4INseBi16M3i+4yAF
-         qOLbImuysEq0ALR0pCF+hksLFwuw6GCVY8S2h39w=
+        b=ALG+pfJkgx37uzOtbrcaS57cu98C9ZVHViI3NIZ1nlzCh8fh+8OrpsaN2yfG0Vu0M
+         HRRrPI/ptDLwUG9R4UQt55F7IwGiMxRrqBlCJSSrEfMv2q/2fQhgTwT4Jbm3qCjkkQ
+         JefX3/dBD2UaTwuXZcSrGUu4nranWPyW2DWxSF64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yongqiang Liu <liuyongqiang13@huawei.com>,
-        Jiri Pirko <jiri@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0511/1073] net: defxx: Fix missing err handling in dfx_init()
+Subject: [PATCH 6.1 0560/1146] Bluetooth: btusb: dont call kfree_skb() under spin_lock_irqsave()
 Date:   Wed, 28 Dec 2022 15:34:59 +0100
-Message-Id: <20221228144341.925570705@linuxfoundation.org>
+Message-Id: <20221228144345.379684337@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,59 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yongqiang Liu <liuyongqiang13@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit ae18dcdff0f8d7e84cd3fd9f496518b5e72d185d ]
+[ Upstream commit b15a6bd3c80c77faec8317319b97f976b1a08332 ]
 
-When eisa_driver_register() or tc_register_driver() failed,
-the modprobe defxx would fail with some err log as follows:
+It is not allowed to call kfree_skb() from hardware interrupt
+context or with interrupts being disabled. So replace kfree_skb()
+with dev_kfree_skb_irq() under spin_lock_irqsave().
 
- Error: Driver 'defxx' is already registered, aborting...
-
-Fix this issue by adding err hanling in dfx_init().
-
-Fixes: e89a2cfb7d7b5 ("[TC] defxx: TURBOchannel support")
-Signed-off-by: Yongqiang Liu <liuyongqiang13@huawei.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 803b58367ffb ("Bluetooth: btusb: Implement driver internal packet reassembly")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/fddi/defxx.c | 22 ++++++++++++++++++----
- 1 file changed, 18 insertions(+), 4 deletions(-)
+ drivers/bluetooth/btusb.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/fddi/defxx.c b/drivers/net/fddi/defxx.c
-index b584ffe38ad6..1fef8a9b1a0f 100644
---- a/drivers/net/fddi/defxx.c
-+++ b/drivers/net/fddi/defxx.c
-@@ -3831,10 +3831,24 @@ static int dfx_init(void)
- 	int status;
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index f05018988a17..6beafd62d722 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -802,13 +802,13 @@ static inline void btusb_free_frags(struct btusb_data *data)
  
- 	status = pci_register_driver(&dfx_pci_driver);
--	if (!status)
--		status = eisa_driver_register(&dfx_eisa_driver);
--	if (!status)
--		status = tc_register_driver(&dfx_tc_driver);
-+	if (status)
-+		goto err_pci_register;
-+
-+	status = eisa_driver_register(&dfx_eisa_driver);
-+	if (status)
-+		goto err_eisa_register;
-+
-+	status = tc_register_driver(&dfx_tc_driver);
-+	if (status)
-+		goto err_tc_register;
-+
-+	return 0;
-+
-+err_tc_register:
-+	eisa_driver_unregister(&dfx_eisa_driver);
-+err_eisa_register:
-+	pci_unregister_driver(&dfx_pci_driver);
-+err_pci_register:
- 	return status;
- }
+ 	spin_lock_irqsave(&data->rxlock, flags);
  
+-	kfree_skb(data->evt_skb);
++	dev_kfree_skb_irq(data->evt_skb);
+ 	data->evt_skb = NULL;
+ 
+-	kfree_skb(data->acl_skb);
++	dev_kfree_skb_irq(data->acl_skb);
+ 	data->acl_skb = NULL;
+ 
+-	kfree_skb(data->sco_skb);
++	dev_kfree_skb_irq(data->sco_skb);
+ 	data->sco_skb = NULL;
+ 
+ 	spin_unlock_irqrestore(&data->rxlock, flags);
 -- 
 2.35.1
 
