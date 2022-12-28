@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FD71658327
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A734A6583DC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:53:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234958AbiL1Qoo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:44:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33832 "EHLO
+        id S235195AbiL1Qwz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:52:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234968AbiL1QoT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B8BD1C434
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:39:46 -0800 (PST)
+        with ESMTP id S235205AbiL1Qwa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:52:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D6E91DDD0
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:46:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CF8316157D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:39:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E609BC433D2;
-        Wed, 28 Dec 2022 16:39:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A55860D41
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:46:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BC53C433EF;
+        Wed, 28 Dec 2022 16:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245585;
-        bh=ic71UI3Iq3QBhbl9IBsyk7r3/Jf1+iWnxsPPPgm89vo=;
+        s=korg; t=1672246018;
+        bh=U4wrb/1sIcb+wSoSHj+3kJqTPWq/eVa4BTL9SqXFRIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=viR2aFeY06aoj5kx0EPibJaRiHbWENgWsGejb2Sr1dfD4ldUyXHm/IPMpjfvAEwCJ
-         NJmgLBlBd1qkYqB7ynQFDC4SG8B6e9LahQYDJpXCo3DTIL2tPPPNxGYJnPRf8Ezy6e
-         QIHYyh22+qA+cj5ek+ddZISAlNZmoCJlPX1bBWMg=
+        b=VE4fQvN3w3TMUmmSyw7uR2K7gjcpXD4/oFRqrv9/xF9L9cVBtBz1GsiqnnrCv2eXJ
+         y386opvs+8F9IzOCZLGRu7859HQCVDNA8teq2tG41LA8dO8WUz67kBxvV+i8nOGUtZ
+         Q8OnycSrSW5wr8dcBF+adHN51gQoTTmN8Z7RF/7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        patches@lists.linux.dev, Wright Feng <wright.feng@cypress.com>,
+        Chi-hsien Lin <chi-hsien.lin@cypress.com>,
+        Ian Lin <ian.lin@infineon.com>, Kalle Valo <kvalo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0918/1073] drm/rockchip: use pm_runtime_resume_and_get() instead of pm_runtime_get_sync()
+Subject: [PATCH 6.1 0967/1146] brcmfmac: return error when getting invalid max_flowrings from dongle
 Date:   Wed, 28 Dec 2022 15:41:46 +0100
-Message-Id: <20221228144352.963570506@linuxfoundation.org>
+Message-Id: <20221228144356.595020946@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Wright Feng <wright.feng@cypress.com>
 
-[ Upstream commit e3558747ebe15306e6d0b75bd6d211436be4a7d5 ]
+[ Upstream commit 2aca4f3734bd717e04943ddf340d49ab62299a00 ]
 
-Replace pm_runtime_get_sync() with pm_runtime_resume_and_get() to avoid
-device usage counter leak.
+When firmware hit trap at initialization, host will read abnormal
+max_flowrings number from dongle, and it will cause kernel panic when
+doing iowrite to initialize dongle ring.
+To detect this error at early stage, we directly return error when getting
+invalid max_flowrings(>256).
 
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220615062644.96837-1-yuancan@huawei.com
+Signed-off-by: Wright Feng <wright.feng@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+Signed-off-by: Ian Lin <ian.lin@infineon.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220929031001.9962-3-ian.lin@infineon.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c | 2 +-
- drivers/gpu/drm/rockchip/rockchip_drm_vop.c     | 4 ++--
- drivers/gpu/drm/rockchip/rockchip_drm_vop2.c    | 2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-index 1aa3700551f4..1e1a8bc6c856 100644
---- a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-+++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-@@ -1201,7 +1201,7 @@ static int dw_mipi_dsi_dphy_power_on(struct phy *phy)
- 		return i;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+index aaf8e126478d..5630f6e718e1 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+@@ -1218,6 +1218,10 @@ static int brcmf_pcie_init_ringbuffers(struct brcmf_pciedev_info *devinfo)
+ 				BRCMF_NROF_H2D_COMMON_MSGRINGS;
+ 		max_completionrings = BRCMF_NROF_D2H_COMMON_MSGRINGS;
  	}
++	if (max_flowrings > 256) {
++		brcmf_err(bus, "invalid max_flowrings(%d)\n", max_flowrings);
++		return -EIO;
++	}
  
--	ret = pm_runtime_get_sync(dsi->dev);
-+	ret = pm_runtime_resume_and_get(dsi->dev);
- 	if (ret < 0) {
- 		DRM_DEV_ERROR(dsi->dev, "failed to enable device: %d\n", ret);
- 		return ret;
-diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-index ad3958b6f8bf..9a039a31fe48 100644
---- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-@@ -605,7 +605,7 @@ static int vop_enable(struct drm_crtc *crtc, struct drm_crtc_state *old_state)
- 	struct vop *vop = to_vop(crtc);
- 	int ret, i;
- 
--	ret = pm_runtime_get_sync(vop->dev);
-+	ret = pm_runtime_resume_and_get(vop->dev);
- 	if (ret < 0) {
- 		DRM_DEV_ERROR(vop->dev, "failed to get pm runtime: %d\n", ret);
- 		return ret;
-@@ -1953,7 +1953,7 @@ static int vop_initial(struct vop *vop)
- 		return PTR_ERR(vop->dclk);
- 	}
- 
--	ret = pm_runtime_get_sync(vop->dev);
-+	ret = pm_runtime_resume_and_get(vop->dev);
- 	if (ret < 0) {
- 		DRM_DEV_ERROR(vop->dev, "failed to get pm runtime: %d\n", ret);
- 		return ret;
-diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop2.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop2.c
-index 1fc04019dfd8..6dc14ea7f6fc 100644
---- a/drivers/gpu/drm/rockchip/rockchip_drm_vop2.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop2.c
-@@ -823,7 +823,7 @@ static void vop2_enable(struct vop2 *vop2)
- {
- 	int ret;
- 
--	ret = pm_runtime_get_sync(vop2->dev);
-+	ret = pm_runtime_resume_and_get(vop2->dev);
- 	if (ret < 0) {
- 		drm_err(vop2->drm, "failed to get pm runtime: %d\n", ret);
- 		return;
+ 	if (devinfo->dma_idx_sz != 0) {
+ 		bufsz = (max_submissionrings + max_completionrings) *
 -- 
 2.35.1
 
