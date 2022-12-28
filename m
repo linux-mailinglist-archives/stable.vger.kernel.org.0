@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D8BC65832E
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4795A657CC5
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:35:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235019AbiL1Qow (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:44:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35922 "EHLO
+        id S233884AbiL1Pfv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:35:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234962AbiL1QoX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5F641C923
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:39:55 -0800 (PST)
+        with ESMTP id S233886AbiL1Pfu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:35:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99E8EE37
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:35:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A013B8171F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:39:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEF02C433F0;
-        Wed, 28 Dec 2022 16:39:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 39E6261553
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:35:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45FFEC433EF;
+        Wed, 28 Dec 2022 15:35:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245593;
-        bh=eAKfMkpyaPtULq7HVnBt6bbq5fLHSIycVXsUecwLeAo=;
+        s=korg; t=1672241748;
+        bh=qCQ80+QQo12orqyGZ6uPIYTEipujiuUJsbMwyPWVve8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L0QkwOWGLJnWF0B/GoRBYddkzqChISl55uuP84uu3UlUyHX2nPisFYGt6vymHjv3v
-         ZPUGTcoBbzUnr9jxrkNQIgw+TZHvj8XcLJPNr3Ffh5Ey+m2zm3xH5WznTNHlsn3D52
-         7IhTZ5H6YeXKo+fI8fRCTxtw75jbkVMzJ38l0VCc=
+        b=P+ZRg/icOxfcJexru0c/x2MDTk6+7OlLsg+FqYp7VrfsGTdNSQAx1BM09Db5t+bbi
+         r4sCD9eSZkM9KycZ53M1KkaQDE2BD8va+XTrTWVK5CIkLsjzXtK6GrUweRVAB0O11u
+         LtAfl1L4RB2MV392FH6/e1E+ljVQ7IJ0Pb77ljxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Yong Wu <yong.wu@mediatek.com>, Joerg Roedel <jroedel@suse.de>,
+        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0886/1146] iommu/mediatek: Fix forever loop in error handling
+Subject: [PATCH 5.15 518/731] power: supply: z2_battery: Fix possible memleak in z2_batt_probe()
 Date:   Wed, 28 Dec 2022 15:40:25 +0100
-Message-Id: <20221228144354.239761957@linuxfoundation.org>
+Message-Id: <20221228144311.563637956@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 462e768b55a2331324ff72e74706261134369826 ]
+[ Upstream commit 955bee204f3dd307642c101b75e370662987e735 ]
 
-There is a typo so this loop does i++ where i-- was intended.  It will
-result in looping until the kernel crashes.
+If devm_gpiod_get_optional() returns error, the charger should be
+freed before z2_batt_probe returns according to the context. We
+fix it by just gotoing to 'err' branch.
 
-Fixes: 26593928564c ("iommu/mediatek: Add error path for loop of mm_dts_parse")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Reviewed-by: Yong Wu <yong.wu@mediatek.com>
-Link: https://lore.kernel.org/r/Y5C3mTam2nkbaz6o@kili
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: a3b4388ea19b ("power: supply: z2_battery: Convert to GPIO descriptors")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/mtk_iommu.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/power/supply/z2_battery.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index f1547199026c..dad2f238ffbf 100644
---- a/drivers/iommu/mtk_iommu.c
-+++ b/drivers/iommu/mtk_iommu.c
-@@ -1130,8 +1130,7 @@ static int mtk_iommu_mm_dts_parse(struct device *dev, struct component_match **m
- 	return 0;
+diff --git a/drivers/power/supply/z2_battery.c b/drivers/power/supply/z2_battery.c
+index 7ed4e4bb26ec..fd33cdf9cf12 100644
+--- a/drivers/power/supply/z2_battery.c
++++ b/drivers/power/supply/z2_battery.c
+@@ -206,10 +206,12 @@ static int z2_batt_probe(struct i2c_client *client,
  
- err_larbdev_put:
--	/* id may be not linear mapping, loop whole the array */
--	for (i = MTK_LARB_NR_MAX - 1; i >= 0; i++) {
-+	for (i = MTK_LARB_NR_MAX - 1; i >= 0; i--) {
- 		if (!data->larb_imu[i].dev)
- 			continue;
- 		put_device(data->larb_imu[i].dev);
+ 	charger->charge_gpiod = devm_gpiod_get_optional(&client->dev,
+ 							NULL, GPIOD_IN);
+-	if (IS_ERR(charger->charge_gpiod))
+-		return dev_err_probe(&client->dev,
++	if (IS_ERR(charger->charge_gpiod)) {
++		ret = dev_err_probe(&client->dev,
+ 				     PTR_ERR(charger->charge_gpiod),
+ 				     "failed to get charge GPIO\n");
++		goto err;
++	}
+ 
+ 	if (charger->charge_gpiod) {
+ 		gpiod_set_consumer_name(charger->charge_gpiod, "BATT CHRG");
 -- 
 2.35.1
 
