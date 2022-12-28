@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96B5C657A9C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:13:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D02C765797F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:02:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233008AbiL1PNi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:13:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59456 "EHLO
+        id S233510AbiL1PCn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:02:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233036AbiL1PNK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:13:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D533613EA5
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:12:50 -0800 (PST)
+        with ESMTP id S233520AbiL1PCE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:02:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D28513DC9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:01:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 71ACD614BA
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:12:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 803A3C433D2;
-        Wed, 28 Dec 2022 15:12:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3FE30B81717
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:01:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB059C433D2;
+        Wed, 28 Dec 2022 15:01:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672240369;
-        bh=cPiucVB+lQ5BIgLNGhp1LWwg126blwaS1B5Ekx4K8kM=;
+        s=korg; t=1672239696;
+        bh=omBc3ScJUWtsOWSPluRFNtly+g4OLl7z5Xs4Hj3y6IQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VrphcOaR8+84mN3im7+jxr2W4dpAqYM+P0w29qIc5QvziszRPe/ddlG27UPHHiQaT
-         cy2BF6ytyWFarLzrBet1hkj5O8qGX+ujHA6a9E7QIZM0yTXFtRxjR9b6Obb7PsAFwy
-         KRWq8l99NLJs4UZ3KumYhwd6MKW8VCC5xTzRGd+Q=
+        b=zAwTCxc9UCl75t0cAF9rx5DmxUET2/jaIRySxOa3PmOmBTwXmJ+sod8ly9PKS+MW2
+         cHzuslFMVsTb4b9cS06Oh+EC2RMD33r0j1TrgbhD3TnY7a8YLHhmxTtuZKsYoLidxF
+         gvzu4dNb0W6+vi2x8gVFjT1c/VX2v26ASQD6ccCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Al Viro <viro@zeniv.linux.org.uk>,
+        patches@lists.linux.dev,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0114/1146] alpha: fix TIF_NOTIFY_SIGNAL handling
+Subject: [PATCH 6.0 0065/1073] arm64: dts: mt2712-evb: Fix vproc fixed regulators unit names
 Date:   Wed, 28 Dec 2022 15:27:33 +0100
-Message-Id: <20221228144333.250983943@linuxfoundation.org>
+Message-Id: <20221228144329.856631352@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,33 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit e2c7554cc6d85f95e3c6635f270ec839ab9fe05e ]
+[ Upstream commit 377063156893bf6c088309ac799fe5c6dce2822d ]
 
-it needs to be added to _TIF_WORK_MASK, or we might not reach
-do_work_pending() in the first place...
+Update the names to regulator-vproc-buck{0,1} to fix unit_addres_vs_reg
+warnings for those.
 
-Fixes: 5a9a8897c253a "alpha: add support for TIF_NOTIFY_SIGNAL"
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Fixes: f75dd8bdd344 ("arm64: dts: mediatek: add mt2712 cpufreq related device nodes")
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221013152212.416661-6-angelogioacchino.delregno@collabora.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/alpha/include/asm/thread_info.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/mediatek/mt2712-evb.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/alpha/include/asm/thread_info.h b/arch/alpha/include/asm/thread_info.h
-index fdc485d7787a..084c27cb0c70 100644
---- a/arch/alpha/include/asm/thread_info.h
-+++ b/arch/alpha/include/asm/thread_info.h
-@@ -75,7 +75,7 @@ register struct thread_info *__current_thread_info __asm__("$8");
+diff --git a/arch/arm64/boot/dts/mediatek/mt2712-evb.dts b/arch/arm64/boot/dts/mediatek/mt2712-evb.dts
+index 9b1af9c80130..638908773706 100644
+--- a/arch/arm64/boot/dts/mediatek/mt2712-evb.dts
++++ b/arch/arm64/boot/dts/mediatek/mt2712-evb.dts
+@@ -26,14 +26,14 @@ chosen {
+ 		stdout-path = "serial0:921600n8";
+ 	};
  
- /* Work to do on interrupt/exception return.  */
- #define _TIF_WORK_MASK		(_TIF_SIGPENDING | _TIF_NEED_RESCHED | \
--				 _TIF_NOTIFY_RESUME)
-+				 _TIF_NOTIFY_RESUME | _TIF_NOTIFY_SIGNAL)
+-	cpus_fixed_vproc0: fixedregulator@0 {
++	cpus_fixed_vproc0: regulator-vproc-buck0 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "vproc_buck0";
+ 		regulator-min-microvolt = <1000000>;
+ 		regulator-max-microvolt = <1000000>;
+ 	};
  
- /* Work to do on any return to userspace.  */
- #define _TIF_ALLWORK_MASK	(_TIF_WORK_MASK		\
+-	cpus_fixed_vproc1: fixedregulator@1 {
++	cpus_fixed_vproc1: regulator-vproc-buck1 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "vproc_buck1";
+ 		regulator-min-microvolt = <1000000>;
 -- 
 2.35.1
 
