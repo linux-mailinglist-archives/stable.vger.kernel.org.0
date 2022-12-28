@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89921657D56
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:42:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95614658393
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:49:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233585AbiL1Pmg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:42:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58286 "EHLO
+        id S234374AbiL1QtB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:49:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234012AbiL1PmH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:42:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3578617045
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:42:03 -0800 (PST)
+        with ESMTP id S234401AbiL1QsV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:48:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F31601EAF0
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:43:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C73436154D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:42:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBD8CC433D2;
-        Wed, 28 Dec 2022 15:42:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2813BB8171F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:43:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97B4DC433D2;
+        Wed, 28 Dec 2022 16:43:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242122;
-        bh=5V9D/yePDhYw4ca0MNLRKL0nFPjL0FyosZNzrKHH7QE=;
+        s=korg; t=1672245835;
+        bh=3swcK/NmKUbI4gOk2irO20suKHXcAyadUszm2JI/quQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VNMjdjKrBEiMT49au5at2hOh33kDBoMmZAFJwBoBc9zcW//rNz0EJ5h1JxqPLTsXz
-         FMmC3AKzc5tanQphV8WVUCtapogvBTvjGQ6R9m6jgPoW72yKwqEYWACLirxpVF1WCY
-         N68c2X4Ur/xGDWNrfqO6s165fHy6nnndzvdllJFQ=
+        b=ivi3aI6e2ctSdRyH1jWcix8xgVlhEFKGsYU1m0W37m1hfoVkdEhAn1AoqpG/ZKdzH
+         l9mrLql9kleXXGfBzmt14u4SQL4mLBUWduUVIwhOlCE2MJTKC+MHCu2rbCVjGTpOT+
+         pn7//WWGCTSCkTiKChZtwnlmNmrVQBRVfU0eFAw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Daniel Golle <daniel@makrotopia.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        patches@lists.linux.dev, Christian Eggers <ceggers@arri.de>,
+        Arun Ramadoss <arun.ramadoss@microchip.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 565/731] pwm: mediatek: always use bus clock for PWM on MT7622
+Subject: [PATCH 6.1 0933/1146] net: dsa: microchip: remove IRQF_TRIGGER_FALLING in request_threaded_irq
 Date:   Wed, 28 Dec 2022 15:41:12 +0100
-Message-Id: <20221228144312.937785806@linuxfoundation.org>
+Message-Id: <20221228144355.635079983@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,44 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Golle <daniel@makrotopia.org>
+From: Arun Ramadoss <arun.ramadoss@microchip.com>
 
-[ Upstream commit aa3c668f2f98856af96e13f44da6ca4f26f0b98c ]
+[ Upstream commit 62e027fb0e5293d95e8d36655757ef4687c8795d ]
 
-According to MT7622 Reference Manual for Development Board v1.0 the PWM
-unit found in the MT7622 SoC also comes with the PWM_CK_26M_SEL register
-at offset 0x210 just like other modern MediaTek ARM64 SoCs.
-And also MT7622 sets that register to 0x00000001 on reset which is
-described as 'Select 26M fix CLK as BCLK' in the datasheet.
-Hence set has_ck_26m_sel to true also for MT7622 which results in the
-driver writing 0 to the PWM_CK_26M_SEL register which is described as
-'Select bus CLK as BCLK'.
+KSZ swithes used interrupts for detecting the phy link up and down.
+During registering the interrupt handler, it used IRQF_TRIGGER_FALLING
+flag. But this flag has to be retrieved from device tree instead of hard
+coding in the driver, so removing the flag.
 
-Fixes: 0c0ead76235db0 ("pwm: mediatek: Always use bus clock")
-Signed-off-by: Daniel Golle <daniel@makrotopia.org>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Link: https://lore.kernel.org/r/Y1iF2slvSblf6bYK@makrotopia.org
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Fixes: ff319a644829 ("net: dsa: microchip: move interrupt handling logic from lan937x to ksz_common")
+Reported-by: Christian Eggers <ceggers@arri.de>
+Signed-off-by: Arun Ramadoss <arun.ramadoss@microchip.com>
+Link: https://lore.kernel.org/r/20221213101440.24667-1-arun.ramadoss@microchip.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-mediatek.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/dsa/microchip/ksz_common.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/pwm/pwm-mediatek.c b/drivers/pwm/pwm-mediatek.c
-index 0d4dd80e9f07..f8f9a7489129 100644
---- a/drivers/pwm/pwm-mediatek.c
-+++ b/drivers/pwm/pwm-mediatek.c
-@@ -275,7 +275,7 @@ static const struct pwm_mediatek_of_data mt2712_pwm_data = {
- static const struct pwm_mediatek_of_data mt7622_pwm_data = {
- 	.num_pwms = 6,
- 	.pwm45_fixup = false,
--	.has_ck_26m_sel = false,
-+	.has_ck_26m_sel = true,
- };
+diff --git a/drivers/net/dsa/microchip/ksz_common.c b/drivers/net/dsa/microchip/ksz_common.c
+index d612181b3226..c68f48cd1ec0 100644
+--- a/drivers/net/dsa/microchip/ksz_common.c
++++ b/drivers/net/dsa/microchip/ksz_common.c
+@@ -1883,8 +1883,7 @@ static int ksz_irq_common_setup(struct ksz_device *dev, struct ksz_irq *kirq)
+ 		irq_create_mapping(kirq->domain, n);
  
- static const struct pwm_mediatek_of_data mt7623_pwm_data = {
+ 	ret = request_threaded_irq(kirq->irq_num, NULL, ksz_irq_thread_fn,
+-				   IRQF_ONESHOT | IRQF_TRIGGER_FALLING,
+-				   kirq->name, kirq);
++				   IRQF_ONESHOT, kirq->name, kirq);
+ 	if (ret)
+ 		goto out;
+ 
 -- 
 2.35.1
 
