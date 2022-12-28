@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFDE5658236
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:33:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85990657B14
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:17:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233548AbiL1Qdp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:33:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51142 "EHLO
+        id S233192AbiL1PR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:17:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233797AbiL1QdV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52F3113F08
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:30:51 -0800 (PST)
+        with ESMTP id S233210AbiL1PRw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:17:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EACC013F9D
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:17:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E540561541
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:30:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 028C8C433F0;
-        Wed, 28 Dec 2022 16:30:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8788261555
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:17:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 987A9C433EF;
+        Wed, 28 Dec 2022 15:17:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245050;
-        bh=HRL0szz7m3tX6TfUqS2i3vmZRRETeIWr52yGzkEUzXg=;
+        s=korg; t=1672240671;
+        bh=fynafiYg1CXyqNncemz0Iuu/0ZbQviEMUZ77osM7yr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y/TqCCOHpl8tdhgqjjQUUwMA1hsFjjJ6kJmbNIyEkZcT6ey8Fc3xASQQiTbKs6/VQ
-         fywdhupwAj3muxce/dD5zgiRr1p+ckTeYlYEY0UUqdcygJq5dGLOloaqe2KxgZB5rV
-         3wZMsxbD60hIruWiVaaB0vWIeQP67AW16rJuRlB4=
+        b=gKMlAt7sumLMBCDMASC1D9JqSk6f2ICP/0KRO+mvDVudS5Zpmqa/HkhuT9hXlxCf7
+         Wb1RXab5xfNmQjDtmMLIJWCQRLg/08ph6vNn+FydQtaYkkWgbpPhtEn2T5A+YSXlB8
+         EjQ6O4R4ubC+ruA25oMh77dYjCp2JlnqlwPgJnLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        patches@lists.linux.dev, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0748/1146] samples: vfio-mdev: Fix missing pci_disable_device() in mdpy_fb_probe()
+Subject: [PATCH 5.15 380/731] f2fs: fix to destroy sbi->post_read_wq in error path of f2fs_fill_super()
 Date:   Wed, 28 Dec 2022 15:38:07 +0100
-Message-Id: <20221228144350.463732454@linuxfoundation.org>
+Message-Id: <20221228144307.576836803@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Chao Yu <chao@kernel.org>
 
-[ Upstream commit d1f0f50fbbbbca1e3e8157e51934613bf88f6d44 ]
+[ Upstream commit 7b02b2201893a71b881026cf574902019ab00db5 ]
 
-Add missing pci_disable_device() in fail path of mdpy_fb_probe().
-Besides, fix missing release functions in mdpy_fb_remove().
+In error path of f2fs_fill_super(), this patch fixes to call
+f2fs_destroy_post_read_wq() once if we fail in f2fs_start_ckpt_thread().
 
-Fixes: cacade1946a4 ("sample: vfio mdev display - guest driver")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Link: https://lore.kernel.org/r/20221208013341.3999-1-shangxiaojing@huawei.com
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: 261eeb9c1585 ("f2fs: introduce checkpoint_merge mount option")
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/vfio-mdev/mdpy-fb.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ fs/f2fs/super.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/samples/vfio-mdev/mdpy-fb.c b/samples/vfio-mdev/mdpy-fb.c
-index 9ec93d90e8a5..4eb7aa11cfbb 100644
---- a/samples/vfio-mdev/mdpy-fb.c
-+++ b/samples/vfio-mdev/mdpy-fb.c
-@@ -109,7 +109,7 @@ static int mdpy_fb_probe(struct pci_dev *pdev,
- 
- 	ret = pci_request_regions(pdev, "mdpy-fb");
- 	if (ret < 0)
--		return ret;
-+		goto err_disable_dev;
- 
- 	pci_read_config_dword(pdev, MDPY_FORMAT_OFFSET, &format);
- 	pci_read_config_dword(pdev, MDPY_WIDTH_OFFSET,	&width);
-@@ -191,6 +191,9 @@ static int mdpy_fb_probe(struct pci_dev *pdev,
- err_release_regions:
- 	pci_release_regions(pdev);
- 
-+err_disable_dev:
-+	pci_disable_device(pdev);
-+
- 	return ret;
- }
- 
-@@ -199,7 +202,10 @@ static void mdpy_fb_remove(struct pci_dev *pdev)
- 	struct fb_info *info = pci_get_drvdata(pdev);
- 
- 	unregister_framebuffer(info);
-+	iounmap(info->screen_base);
- 	framebuffer_release(info);
-+	pci_release_regions(pdev);
-+	pci_disable_device(pdev);
- }
- 
- static struct pci_device_id mdpy_fb_pci_table[] = {
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index a0d1ef73b83e..f4e8de1f4789 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -4428,9 +4428,9 @@ static int f2fs_fill_super(struct super_block *sb, void *data, int silent)
+ 	f2fs_destroy_node_manager(sbi);
+ free_sm:
+ 	f2fs_destroy_segment_manager(sbi);
+-	f2fs_destroy_post_read_wq(sbi);
+ stop_ckpt_thread:
+ 	f2fs_stop_ckpt_thread(sbi);
++	f2fs_destroy_post_read_wq(sbi);
+ free_devices:
+ 	destroy_device_list(sbi);
+ 	kvfree(sbi->ckpt);
 -- 
 2.35.1
 
