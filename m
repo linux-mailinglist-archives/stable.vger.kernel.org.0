@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1E4F65795F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:00:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB829657FC4
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:09:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233408AbiL1PAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:00:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47578 "EHLO
+        id S232871AbiL1QI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:08:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233398AbiL1PAP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:00:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F015212A95
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:00:13 -0800 (PST)
+        with ESMTP id S234432AbiL1QH7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:07:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C65D6186CD
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:07:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8DB4BB81717
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:00:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 012CFC433F0;
-        Wed, 28 Dec 2022 15:00:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6378F6155B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:07:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43CAEC433EF;
+        Wed, 28 Dec 2022 16:07:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672239611;
-        bh=huGaUln7DLM94fkkXiOmDQ3tWshWDhzO/SgJm1Y2feI=;
+        s=korg; t=1672243677;
+        bh=aVQDBF5UZRcD4LY+cDsLA6JkPaJ954vkwqWl5qyAyyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wO2RuExeo9b95jgmHwIu9lYh0dhsl3MMSvDP85iIfS7pl2M9el8x/Z8Z5K4zEFOMU
-         o6yw4qlKBJazoBQ0zMsZrAL8AEIXH72fBUithbS/ZU1I5QV+irFjjINlNLm4+PeVLN
-         Cvdq08BHSDzPMuznOGsykaA2wmx1n9ltjqioTJqs=
+        b=NpMA1KTjoEiRXoPi6LPnyOuHSnYqO8zxg8vKKt9HwEPDbFPTrOK/NJJdcnDjH8c7I
+         QAi1IM6O8eiZSzm2lYb1PzYIAScZnPIZkUJ6la8bJ5qJiKh564elQvmamLof4hHNJR
+         GU/M1Fby0xv0UADyaETTW6g9F+3+uMmB2uAuBGMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Zhang Qilong <zhangqilong3@huawei.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 249/731] NFS: Fix an Oops in nfs_d_automount()
+Subject: [PATCH 6.0 0568/1073] f2fs: Fix the race condition of resize flag between resizefs
 Date:   Wed, 28 Dec 2022 15:35:56 +0100
-Message-Id: <20221228144303.779063564@linuxfoundation.org>
+Message-Id: <20221228144343.483025561@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 35e3b6ae84935d0d7ff76cbdaa83411b0ad5e471 ]
+[ Upstream commit 28fc4e9077ce59ab28c89c20dc6be5154473218f ]
 
-When mounting from a NFSv4 referral, path->dentry can end up being a
-negative dentry, so derive the struct nfs_server from the dentry
-itself instead.
+Because the set/clear SBI_IS_RESIZEFS flag not between any locks,
+In the following case:
+  thread1			thread2
+   ->ioctl(resizefs)
+    ->set RESIZEFS flag		 ->ioctl(resizefs)
+    ...                   	  ->set RESIZEFS flag
+    ->clear RESIZEFS flag
+    				  ->resizefs stream
+				    # No RESIZEFS flag in the stream
 
-Fixes: 2b0143b5c986 ("VFS: normal filesystems (and lustre): d_inode() annotations")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Also before freeze_super, the resizefs not started, we should not set
+the SBI_IS_RESIZEFS flag.
+
+So move the set/clear SBI_IS_RESIZEFS flag between the cp_mutex and
+gc_lock.
+
+Fixes: b4b10061ef98 ("f2fs: refactor resize_fs to avoid meta updates in progress")
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/namespace.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/f2fs/gc.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/fs/nfs/namespace.c b/fs/nfs/namespace.c
-index bc0c698f3350..565421c6682e 100644
---- a/fs/nfs/namespace.c
-+++ b/fs/nfs/namespace.c
-@@ -147,7 +147,7 @@ struct vfsmount *nfs_d_automount(struct path *path)
- 	struct nfs_fs_context *ctx;
- 	struct fs_context *fc;
- 	struct vfsmount *mnt = ERR_PTR(-ENOMEM);
--	struct nfs_server *server = NFS_SERVER(d_inode(path->dentry));
-+	struct nfs_server *server = NFS_SB(path->dentry->d_sb);
- 	struct nfs_client *client = server->nfs_client;
- 	int timeout = READ_ONCE(nfs_mountpoint_expiry_timeout);
- 	int ret;
+diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
+index 73881314bdda..af915f801455 100644
+--- a/fs/f2fs/gc.c
++++ b/fs/f2fs/gc.c
+@@ -2127,8 +2127,6 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
+ 	if (err)
+ 		return err;
+ 
+-	set_sbi_flag(sbi, SBI_IS_RESIZEFS);
+-
+ 	freeze_super(sbi->sb);
+ 	f2fs_down_write(&sbi->gc_lock);
+ 	f2fs_down_write(&sbi->cp_global_sem);
+@@ -2144,6 +2142,7 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
+ 	if (err)
+ 		goto out_err;
+ 
++	set_sbi_flag(sbi, SBI_IS_RESIZEFS);
+ 	err = free_segment_range(sbi, secs, false);
+ 	if (err)
+ 		goto recover_out;
+@@ -2167,6 +2166,7 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
+ 		f2fs_commit_super(sbi, false);
+ 	}
+ recover_out:
++	clear_sbi_flag(sbi, SBI_IS_RESIZEFS);
+ 	if (err) {
+ 		set_sbi_flag(sbi, SBI_NEED_FSCK);
+ 		f2fs_err(sbi, "resize_fs failed, should run fsck to repair!");
+@@ -2179,6 +2179,5 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
+ 	f2fs_up_write(&sbi->cp_global_sem);
+ 	f2fs_up_write(&sbi->gc_lock);
+ 	thaw_super(sbi->sb);
+-	clear_sbi_flag(sbi, SBI_IS_RESIZEFS);
+ 	return err;
+ }
 -- 
 2.35.1
 
