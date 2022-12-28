@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70D85657BD9
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:27:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28100657BE1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:27:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233744AbiL1P0q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:26:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43476 "EHLO
+        id S233781AbiL1P0w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:26:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233869AbiL1P0B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:26:01 -0500
+        with ESMTP id S233745AbiL1P0R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:26:17 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CF4D13F8E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:26:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 457A8BA9
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:26:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 186AD6155C
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:26:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A314C433D2;
-        Wed, 28 Dec 2022 15:25:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D72CD6152F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:26:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED352C433EF;
+        Wed, 28 Dec 2022 15:26:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241159;
-        bh=UVldHqLKx3q/meGvv4NHPJcPuJxemRpYLNiCtT3mBq4=;
+        s=korg; t=1672241175;
+        bh=yYMALOVS9m0/dT5R4SvMAaRuaKcQbuyAOhleF1HWvAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1axWRSKZ6Pqru8mH6hiQYOXBVMowEDHNsdSPtOmxMknJ/jRVX0ouNz8YMyFoidjEK
-         I0x08Kl5EzCJzW0u06EhRlseONm32PiGg9nTHfkwWY+A3UTP2mKFb4zXUmuofgr/lG
-         YHCAyx9qn3Mj7+uQDD4D6v4ojfY9I2IQi488HVg0=
+        b=msIfY9laqTwaT9mk6om72CtK1cxlNdhyVVd8rvBRT+uL/1QOaKkXbfMdJrAr5ROZW
+         UcIetUAZBSP59CwyPLH+RgVboYEQ+gBMUgDt7wojM7PBKbSLcrHm37NlIA2DkToj0g
+         eYUOGeuY56X2l9kk4Doibeiku1ozX0DiYYeQkufU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Marek Vasut <marex@denx.de>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>,
-        Liu Ying <victor.liu@nxp.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0214/1146] drm: lcdif: Switch to limited range for RGB to YUV conversion
-Date:   Wed, 28 Dec 2022 15:29:13 +0100
-Message-Id: <20221228144335.959272240@linuxfoundation.org>
+        patches@lists.linux.dev, Niklas Cassel <niklas.cassel@wdc.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0215/1146] ata: libata: fix NCQ autosense logic
+Date:   Wed, 28 Dec 2022 15:29:14 +0100
+Message-Id: <20221228144335.986049071@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
 References: <20221228144330.180012208@linuxfoundation.org>
@@ -55,68 +53,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-[ Upstream commit ec39dee8b25229a646271815cc86a8fc865525cf ]
+[ Upstream commit 7390896b3484d44cbdb8bc4859964314ac66d3c9 ]
 
-Up to and including v1.3, HDMI supported limited quantization range only
-for YCbCr. HDMI v1.4 introduced selectable quantization ranges, but this
-feature isn't supported in the dw-hdmi driver that is used in
-conjunction with the LCDIF in the i.MX8MP. The HDMI YCbCr output is thus
-always advertised in the AVI infoframe as limited range.
+Currently, the logic if we should call ata_scsi_set_sense()
+(and set flag ATA_QCFLAG_SENSE_VALID to indicate that we have
+successfully added sense data to the struct ata_queued_cmd)
+looks like this:
 
-The LCDIF driver, on the other hand, configures the CSC to produce full
-range YCbCr. This mismatch results in loss of details and incorrect
-colours. Fix it by switching to limited range YCbCr.
+if (dev->class == ATA_DEV_ZAC &&
+    ((qc->result_tf.status & ATA_SENSE) || qc->result_tf.auxiliary))
 
-The coefficients are copied from drivers/media/platforms/nxp/imx-pxp.c
-for coherency, as the hardware is most likely identical.
+The problem with this is that a drive can support the NCQ command
+error log without supporting NCQ autosense.
 
-Fixes: 9db35bb349a0 ("drm: lcdif: Add support for i.MX8MP LCDIF variant")
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Marek Vasut <marex@denx.de>
-Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
-Reviewed-by: Liu Ying <victor.liu@nxp.com>
-Signed-off-by: Marek Vasut <marex@denx.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220930083955.31580-4-laurent.pinchart@ideasonboard.com
+On such a drive, if the failing command has sense data, the status
+field in the NCQ command error log will have the ATA_SENSE bit set.
+
+It is just that this sense data is not included in the NCQ command
+error log when NCQ autosense is not supported. Instead the sense
+data has to be fetched using the REQUEST SENSE DATA EXT command.
+
+Therefore, we should only add the sense data if the drive supports
+NCQ autosense AND the ATA_SENSE bit is set in the status field.
+
+Fix this, and at the same time, remove the duplicated ATA_DEV_ZAC
+check. The struct ata_taskfile supplied to ata_eh_read_log_10h()
+is memset:ed before calling the function, so simply checking if
+qc->result_tf.auxiliary is set is sufficient to tell us that the
+log actually contained sense data.
+
+Fixes: d238ffd59d3c ("libata: do not attempt to retrieve sense code twice")
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mxsfb/lcdif_kms.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/ata/libata-sata.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/mxsfb/lcdif_kms.c b/drivers/gpu/drm/mxsfb/lcdif_kms.c
-index b1092aab1423..9f212e29059b 100644
---- a/drivers/gpu/drm/mxsfb/lcdif_kms.c
-+++ b/drivers/gpu/drm/mxsfb/lcdif_kms.c
-@@ -52,16 +52,22 @@ static void lcdif_set_formats(struct lcdif_drm_private *lcdif,
- 		writel(DISP_PARA_LINE_PATTERN_UYVY_H,
- 		       lcdif->base + LCDC_V8_DISP_PARA);
+diff --git a/drivers/ata/libata-sata.c b/drivers/ata/libata-sata.c
+index b6806d41a8c5..fd4dccc25389 100644
+--- a/drivers/ata/libata-sata.c
++++ b/drivers/ata/libata-sata.c
+@@ -1392,7 +1392,8 @@ static int ata_eh_read_log_10h(struct ata_device *dev,
+ 	tf->hob_lbah = buf[10];
+ 	tf->nsect = buf[12];
+ 	tf->hob_nsect = buf[13];
+-	if (dev->class == ATA_DEV_ZAC && ata_id_has_ncq_autosense(dev->id))
++	if (dev->class == ATA_DEV_ZAC && ata_id_has_ncq_autosense(dev->id) &&
++	    (tf->status & ATA_SENSE))
+ 		tf->auxiliary = buf[14] << 16 | buf[15] << 8 | buf[16];
  
--		/* CSC: BT.601 Full Range RGB to YCbCr coefficients. */
--		writel(CSC0_COEF0_A2(0x096) | CSC0_COEF0_A1(0x04c),
-+		/*
-+		 * CSC: BT.601 Limited Range RGB to YCbCr coefficients.
-+		 *
-+		 * |Y |   | 0.2568  0.5041  0.0979|   |R|   |16 |
-+		 * |Cb| = |-0.1482 -0.2910  0.4392| * |G| + |128|
-+		 * |Cr|   | 0.4392  0.4392 -0.3678|   |B|   |128|
-+		 */
-+		writel(CSC0_COEF0_A2(0x081) | CSC0_COEF0_A1(0x041),
- 		       lcdif->base + LCDC_V8_CSC0_COEF0);
--		writel(CSC0_COEF1_B1(0x7d5) | CSC0_COEF1_A3(0x01d),
-+		writel(CSC0_COEF1_B1(0x7db) | CSC0_COEF1_A3(0x019),
- 		       lcdif->base + LCDC_V8_CSC0_COEF1);
--		writel(CSC0_COEF2_B3(0x080) | CSC0_COEF2_B2(0x7ac),
-+		writel(CSC0_COEF2_B3(0x070) | CSC0_COEF2_B2(0x7b6),
- 		       lcdif->base + LCDC_V8_CSC0_COEF2);
--		writel(CSC0_COEF3_C2(0x795) | CSC0_COEF3_C1(0x080),
-+		writel(CSC0_COEF3_C2(0x7a2) | CSC0_COEF3_C1(0x070),
- 		       lcdif->base + LCDC_V8_CSC0_COEF3);
--		writel(CSC0_COEF4_D1(0x000) | CSC0_COEF4_C3(0x7ec),
-+		writel(CSC0_COEF4_D1(0x010) | CSC0_COEF4_C3(0x7ee),
- 		       lcdif->base + LCDC_V8_CSC0_COEF4);
- 		writel(CSC0_COEF5_D3(0x080) | CSC0_COEF5_D2(0x080),
- 		       lcdif->base + LCDC_V8_CSC0_COEF5);
+ 	return 0;
+@@ -1456,8 +1457,12 @@ void ata_eh_analyze_ncq_error(struct ata_link *link)
+ 	memcpy(&qc->result_tf, &tf, sizeof(tf));
+ 	qc->result_tf.flags = ATA_TFLAG_ISADDR | ATA_TFLAG_LBA | ATA_TFLAG_LBA48;
+ 	qc->err_mask |= AC_ERR_DEV | AC_ERR_NCQ;
+-	if (dev->class == ATA_DEV_ZAC &&
+-	    ((qc->result_tf.status & ATA_SENSE) || qc->result_tf.auxiliary)) {
++
++	/*
++	 * If the device supports NCQ autosense, ata_eh_read_log_10h() will have
++	 * stored the sense data in qc->result_tf.auxiliary.
++	 */
++	if (qc->result_tf.auxiliary) {
+ 		char sense_key, asc, ascq;
+ 
+ 		sense_key = (qc->result_tf.auxiliary >> 16) & 0xff;
 -- 
 2.35.1
 
