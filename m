@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22E6F658300
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 916D365822D
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:33:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234644AbiL1Qn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:43:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33832 "EHLO
+        id S233726AbiL1Qdc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:33:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234982AbiL1Qn2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:43:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72DC8BF2
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:37:52 -0800 (PST)
+        with ESMTP id S234432AbiL1QdJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E10E61B1C3
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:30:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C5AB61572
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:37:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20458C433D2;
-        Wed, 28 Dec 2022 16:37:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 99BCCB81729
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:30:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E507DC433D2;
+        Wed, 28 Dec 2022 16:30:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672245471;
-        bh=XgXKQ4lJt3xgbn4wnwUGVj4qQSLeGJDxzzr5jcmLDYI=;
+        s=korg; t=1672245028;
+        bh=Mt3ekxmlDTqRJ1l1rjm3C8i3c0nhGxYJwi4DCc/D+TE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1eXjrOb/pnyMWYVsSF700vit2tYGSU+fTeWGpL8ytXlqki0fygQiiL2SBXTAbUBfq
-         mxIliuyN/WF56PHZf4zWq8VdDwzn6KUeoL4B1aHYc7HHfcgREQ1Rx1StWQvKwXgaOo
-         4wEseXACwh6I6+XI7UH8UXbvf5M3K/G5sT+x/yf8=
+        b=LIqbgnDA9FVV+Oaj7j4kta/HogYXhCrjIsdcXEw91f4VxZOcoPy87VnTDCOrdTlf+
+         8UGa3LpIAfBYRBK0guWeccKdY+gpecghs1pN8b8jvMMPhbvbOBpJdFPVIdcr401Arx
+         OqWdTX64VDskOqERloywMOpjRue2K/ef4h0CKgMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, xinlei lee <xinlei.lee@mediatek.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
+        patches@lists.linux.dev, Daniel Golle <daniel@makrotopia.org>,
         AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
         Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0867/1146] pwm: mtk-disp: Fix the parameters calculated by the enabled flag of disp_pwm
+Subject: [PATCH 6.0 0818/1073] pwm: mediatek: always use bus clock for PWM on MT7622
 Date:   Wed, 28 Dec 2022 15:40:06 +0100
-Message-Id: <20221228144353.718909018@linuxfoundation.org>
+Message-Id: <20221228144350.230000250@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,50 +57,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: xinlei lee <xinlei.lee@mediatek.com>
+From: Daniel Golle <daniel@makrotopia.org>
 
-[ Upstream commit 0b5ef3429d8f78427558ab0dcbfd862098ba2a63 ]
+[ Upstream commit aa3c668f2f98856af96e13f44da6ca4f26f0b98c ]
 
-In the original mtk_disp_pwm_get_state() function wrongly uses bit 0 of
-CON0 to judge if the PWM is enabled.
-However that is indicated by a bit (at a machine dependent position) in
-the DISP_PWM_EN register. Fix this accordingly.
+According to MT7622 Reference Manual for Development Board v1.0 the PWM
+unit found in the MT7622 SoC also comes with the PWM_CK_26M_SEL register
+at offset 0x210 just like other modern MediaTek ARM64 SoCs.
+And also MT7622 sets that register to 0x00000001 on reset which is
+described as 'Select 26M fix CLK as BCLK' in the datasheet.
+Hence set has_ck_26m_sel to true also for MT7622 which results in the
+driver writing 0 to the PWM_CK_26M_SEL register which is described as
+'Select bus CLK as BCLK'.
 
-Fixes: 3f2b16734914 ("pwm: mtk-disp: Implement atomic API .get_state()")
-Signed-off-by: xinlei lee <xinlei.lee@mediatek.com>
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Fixes: 0c0ead76235db0 ("pwm: mediatek: Always use bus clock")
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
 Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/1666172538-11652-1-git-send-email-xinlei.lee@mediatek.com
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/Y1iF2slvSblf6bYK@makrotopia.org
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-mtk-disp.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/pwm/pwm-mediatek.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pwm/pwm-mtk-disp.c b/drivers/pwm/pwm-mtk-disp.c
-index c605013e4114..3fbb4bae93a4 100644
---- a/drivers/pwm/pwm-mtk-disp.c
-+++ b/drivers/pwm/pwm-mtk-disp.c
-@@ -178,7 +178,7 @@ static void mtk_disp_pwm_get_state(struct pwm_chip *chip,
- {
- 	struct mtk_disp_pwm *mdp = to_mtk_disp_pwm(chip);
- 	u64 rate, period, high_width;
--	u32 clk_div, con0, con1;
-+	u32 clk_div, pwm_en, con0, con1;
- 	int err;
+diff --git a/drivers/pwm/pwm-mediatek.c b/drivers/pwm/pwm-mediatek.c
+index 6901a44dc428..a337b47dc2f7 100644
+--- a/drivers/pwm/pwm-mediatek.c
++++ b/drivers/pwm/pwm-mediatek.c
+@@ -296,7 +296,7 @@ static const struct pwm_mediatek_of_data mt6795_pwm_data = {
+ static const struct pwm_mediatek_of_data mt7622_pwm_data = {
+ 	.num_pwms = 6,
+ 	.pwm45_fixup = false,
+-	.has_ck_26m_sel = false,
++	.has_ck_26m_sel = true,
+ };
  
- 	err = clk_prepare_enable(mdp->clk_main);
-@@ -197,7 +197,8 @@ static void mtk_disp_pwm_get_state(struct pwm_chip *chip,
- 	rate = clk_get_rate(mdp->clk_main);
- 	con0 = readl(mdp->base + mdp->data->con0);
- 	con1 = readl(mdp->base + mdp->data->con1);
--	state->enabled = !!(con0 & BIT(0));
-+	pwm_en = readl(mdp->base + DISP_PWM_EN);
-+	state->enabled = !!(pwm_en & mdp->data->enable_mask);
- 	clk_div = FIELD_GET(PWM_CLKDIV_MASK, con0);
- 	period = FIELD_GET(PWM_PERIOD_MASK, con1);
- 	/*
+ static const struct pwm_mediatek_of_data mt7623_pwm_data = {
 -- 
 2.35.1
 
