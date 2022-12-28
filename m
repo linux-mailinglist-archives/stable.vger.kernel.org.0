@@ -2,188 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9342D657C22
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:29:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C88FB6582C1
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:41:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233399AbiL1P3X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:29:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46982 "EHLO
+        id S233231AbiL1QlU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:41:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233639AbiL1P3Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:29:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD47A1571A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:29:14 -0800 (PST)
+        with ESMTP id S235100AbiL1Qkk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:40:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB29B1C113
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:35:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 79FB6B81647
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:29:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFC1FC433D2;
-        Wed, 28 Dec 2022 15:29:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EBDE6157B
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:35:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90E6AC433D2;
+        Wed, 28 Dec 2022 16:35:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241352;
-        bh=n7nBq+t+bWoVTOO4n4naVn+SgWZsHkjWNjq9+BajzMw=;
+        s=korg; t=1672245310;
+        bh=ZNqTtWOn2vMG1EH6bQnAzJfZfj7e79dr/PqWV1t5Vt4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V+Mmqy8Va69C8E7v9fauE7M9qWvjVmeheuC6f26L//qxRXYB/WMAWOmusGvIdcJC1
-         +sL+Wz2FSU4BqZbhMSeknV3/Gbsk92QnJb8x/NzVIkh7KYQ9zQVOWYTlogGpi/iWjE
-         ngAuGralm5AaQUZzJzHvnpmfGhz2mbmNlv7Lor0Y=
+        b=gXSR82cCSJ0KCqS9LzkD6FscEjrGXO+HeKhuk/op3FCuj8Utso1/RPj/DvLFh8Y7U
+         CzNjqoEWzZbCS4XUOP+wpZL85/6cqawmIBhBDteQvkapW34fZhRi6SpwD40AmHIobb
+         IrhCbHoR+Soi4243d9fCoZvlSTludCfowuOh7oTo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
-        Dimitri Sivanich <sivanich@hpe.com>,
+        patches@lists.linux.dev,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 469/731] misc: sgi-gru: fix use-after-free error in gru_set_context_option, gru_fault and gru_handle_user_call_os
+Subject: [PATCH 6.1 0837/1146] rtc: cmos: Rename ACPI-related functions
 Date:   Wed, 28 Dec 2022 15:39:36 +0100
-Message-Id: <20221228144310.144317613@linuxfoundation.org>
+Message-Id: <20221228144352.892158428@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Wang <zyytlz.wz@163.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 643a16a0eb1d6ac23744bb6e90a00fc21148a9dc ]
+[ Upstream commit d13e9ad9f5146f066a5c5a1cc993d09e4fb21ead ]
 
-In some bad situation, the gts may be freed gru_check_chiplet_assignment.
-The call chain can be gru_unload_context->gru_free_gru_context->gts_drop
-and kfree finally. However, the caller didn't know if the gts is freed
-or not and use it afterwards. This will trigger a Use after Free bug.
+The names of rtc_wake_setup() and cmos_wake_setup() don't indicate
+that these functions are ACPI-related, which is the case, and the
+former doesn't really reflect the role of the function.
 
-Fix it by introducing a return value to see if it's in error path or not.
-Free the gts in caller if gru_check_chiplet_assignment check failed.
+Rename them to acpi_rtc_event_setup() and acpi_cmos_wake_setup(),
+respectively, to address this shortcoming.
 
-Fixes: 55484c45dbec ("gru: allow users to specify gru chiplet 2")
-Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
-Acked-by: Dimitri Sivanich <sivanich@hpe.com>
-Link: https://lore.kernel.org/r/20221110035033.19498-1-zyytlz.wz@163.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+No intentional functional impact.
+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Zhang Rui <rui.zhang@intel.com>
+Tested-by: Zhang Rui <rui.zhang@intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/3225614.44csPzL39Z@kreacher
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Stable-dep-of: 83ebb7b3036d ("rtc: cmos: Disable ACPI RTC event on removal")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/sgi-gru/grufault.c  | 13 +++++++++++--
- drivers/misc/sgi-gru/grumain.c   | 22 ++++++++++++++++++----
- drivers/misc/sgi-gru/grutables.h |  2 +-
- 3 files changed, 30 insertions(+), 7 deletions(-)
+ drivers/rtc/rtc-cmos.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/misc/sgi-gru/grufault.c b/drivers/misc/sgi-gru/grufault.c
-index d7ef61e602ed..b836936e9747 100644
---- a/drivers/misc/sgi-gru/grufault.c
-+++ b/drivers/misc/sgi-gru/grufault.c
-@@ -648,6 +648,7 @@ int gru_handle_user_call_os(unsigned long cb)
- 	if ((cb & (GRU_HANDLE_STRIDE - 1)) || ucbnum >= GRU_NUM_CB)
- 		return -EINVAL;
- 
-+again:
- 	gts = gru_find_lock_gts(cb);
- 	if (!gts)
- 		return -EINVAL;
-@@ -656,7 +657,11 @@ int gru_handle_user_call_os(unsigned long cb)
- 	if (ucbnum >= gts->ts_cbr_au_count * GRU_CBR_AU_SIZE)
- 		goto exit;
- 
--	gru_check_context_placement(gts);
-+	if (gru_check_context_placement(gts)) {
-+		gru_unlock_gts(gts);
-+		gru_unload_context(gts, 1);
-+		goto again;
-+	}
- 
- 	/*
- 	 * CCH may contain stale data if ts_force_cch_reload is set.
-@@ -874,7 +879,11 @@ int gru_set_context_option(unsigned long arg)
- 		} else {
- 			gts->ts_user_blade_id = req.val1;
- 			gts->ts_user_chiplet_id = req.val0;
--			gru_check_context_placement(gts);
-+			if (gru_check_context_placement(gts)) {
-+				gru_unlock_gts(gts);
-+				gru_unload_context(gts, 1);
-+				return ret;
-+			}
- 		}
- 		break;
- 	case sco_gseg_owner:
-diff --git a/drivers/misc/sgi-gru/grumain.c b/drivers/misc/sgi-gru/grumain.c
-index 9afda47efbf2..3a16eb8e03f7 100644
---- a/drivers/misc/sgi-gru/grumain.c
-+++ b/drivers/misc/sgi-gru/grumain.c
-@@ -716,9 +716,10 @@ static int gru_check_chiplet_assignment(struct gru_state *gru,
-  * chiplet. Misassignment can occur if the process migrates to a different
-  * blade or if the user changes the selected blade/chiplet.
-  */
--void gru_check_context_placement(struct gru_thread_state *gts)
-+int gru_check_context_placement(struct gru_thread_state *gts)
- {
- 	struct gru_state *gru;
-+	int ret = 0;
- 
- 	/*
- 	 * If the current task is the context owner, verify that the
-@@ -726,15 +727,23 @@ void gru_check_context_placement(struct gru_thread_state *gts)
- 	 * references. Pthread apps use non-owner references to the CBRs.
- 	 */
- 	gru = gts->ts_gru;
-+	/*
-+	 * If gru or gts->ts_tgid_owner isn't initialized properly, return
-+	 * success to indicate that the caller does not need to unload the
-+	 * gru context.The caller is responsible for their inspection and
-+	 * reinitialization if needed.
-+	 */
- 	if (!gru || gts->ts_tgid_owner != current->tgid)
--		return;
-+		return ret;
- 
- 	if (!gru_check_chiplet_assignment(gru, gts)) {
- 		STAT(check_context_unload);
--		gru_unload_context(gts, 1);
-+		ret = -EINVAL;
- 	} else if (gru_retarget_intr(gts)) {
- 		STAT(check_context_retarget_intr);
- 	}
-+
-+	return ret;
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 2a21d8281aa6..039486bfedf4 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -784,7 +784,7 @@ static u32 rtc_handler(void *context)
+ 	return ACPI_INTERRUPT_HANDLED;
  }
  
+-static void rtc_wake_setup(struct device *dev)
++static void acpi_rtc_event_setup(struct device *dev)
+ {
+ 	if (acpi_disabled)
+ 		return;
+@@ -828,7 +828,7 @@ static void use_acpi_alarm_quirks(void)
+ static inline void use_acpi_alarm_quirks(void) { }
+ #endif
  
-@@ -934,7 +943,12 @@ vm_fault_t gru_fault(struct vm_fault *vmf)
- 	mutex_lock(&gts->ts_ctxlock);
- 	preempt_disable();
+-static void cmos_wake_setup(struct device *dev)
++static void acpi_cmos_wake_setup(struct device *dev)
+ {
+ 	if (acpi_disabled)
+ 		return;
+@@ -880,11 +880,11 @@ static void cmos_check_acpi_rtc_status(struct device *dev,
  
--	gru_check_context_placement(gts);
-+	if (gru_check_context_placement(gts)) {
-+		preempt_enable();
-+		mutex_unlock(&gts->ts_ctxlock);
-+		gru_unload_context(gts, 1);
-+		return VM_FAULT_NOPAGE;
-+	}
+ #else /* !CONFIG_ACPI */
  
- 	if (!gts->ts_gru) {
- 		STAT(load_user_context);
-diff --git a/drivers/misc/sgi-gru/grutables.h b/drivers/misc/sgi-gru/grutables.h
-index e4c067c61251..5c9783150cdf 100644
---- a/drivers/misc/sgi-gru/grutables.h
-+++ b/drivers/misc/sgi-gru/grutables.h
-@@ -638,7 +638,7 @@ extern int gru_user_flush_tlb(unsigned long arg);
- extern int gru_user_unload_context(unsigned long arg);
- extern int gru_get_exception_detail(unsigned long arg);
- extern int gru_set_context_option(unsigned long address);
--extern void gru_check_context_placement(struct gru_thread_state *gts);
-+extern int gru_check_context_placement(struct gru_thread_state *gts);
- extern int gru_cpu_fault_map_id(void);
- extern struct vm_area_struct *gru_find_vma(unsigned long vaddr);
- extern void gru_flush_all_tlb(struct gru_state *gru);
+-static inline void rtc_wake_setup(struct device *dev)
++static inline void acpi_rtc_event_setup(struct device *dev)
+ {
+ }
+ 
+-static inline void cmos_wake_setup(struct device *dev)
++static inline void acpi_cmos_wake_setup(struct device *dev)
+ {
+ }
+ 
+@@ -986,7 +986,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+ 			cmos_rtc.wake_off = info->wake_off;
+ 		}
+ 	} else {
+-		cmos_wake_setup(dev);
++		acpi_cmos_wake_setup(dev);
+ 	}
+ 
+ 	if (cmos_rtc.day_alrm >= 128)
+@@ -1091,7 +1091,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+ 	 * the ACPI RTC fixed event.
+ 	 */
+ 	if (!info)
+-		rtc_wake_setup(dev);
++		acpi_rtc_event_setup(dev);
+ 
+ 	dev_info(dev, "%s%s, %d bytes nvram%s\n",
+ 		 !is_valid_irq(rtc_irq) ? "no alarms" :
 -- 
 2.35.1
 
