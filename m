@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5E2C657DD4
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:47:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0ADB657863
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:50:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233609AbiL1Prf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:47:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35024 "EHLO
+        id S233071AbiL1OuB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:50:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234037AbiL1PrF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:47:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62D3D16593
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:47:04 -0800 (PST)
+        with ESMTP id S233072AbiL1OuA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:50:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B91AB60
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:49:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1562FB8172A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:47:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EC67C433D2;
-        Wed, 28 Dec 2022 15:47:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE86E61365
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:49:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF5D3C433D2;
+        Wed, 28 Dec 2022 14:49:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242421;
-        bh=D3Qpo4WvRoM3MQEmckjJHuzWqUjNIxWOpDs4bzQ4Zc0=;
+        s=korg; t=1672238998;
+        bh=lx1ls6BJYhsGptyycfrqrX5A8rYuX6cFVvKtRoB/R/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CX/zL1zkYpcxDZAzkBbdry307VkYS5D0WTclJvDYEXk/Ewrz05Ig7wkrbtVKYbB0w
-         mLf5r2lvgF6nLkOAlOJ2RzKTFZZwpHGGi94mRuvMg5UtF2sETIqZdpkc9G+pHwKWwh
-         Ct8RqIDyswZXmMUA1QcHActt21LxXbGKN7k3n6V8=
+        b=OIPQPZyliwoaHbnL/kGMc25OSaIgyG873RYxHHK+uHXjPWfxePtNgcJYDSDrk/qBU
+         6y/cnq0IdrQvHVxUje4VUSrf0sfmt0DLGm54OJNEBMGs7S8qYBvt2U6/T5omYxUB+Q
+         N0MgRnKmmq7eKHgwwN/fDXfv59oa9hKIuZ96+7k8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0408/1073] NFSv4.2: Fix a memory stomp in decode_attr_security_label
-Date:   Wed, 28 Dec 2022 15:33:16 +0100
-Message-Id: <20221228144339.101275273@linuxfoundation.org>
+Subject: [PATCH 5.15 090/731] MIPS: vpe-cmp: fix possible memory leak while module exiting
+Date:   Wed, 28 Dec 2022 15:33:17 +0100
+Message-Id: <20221228144259.158848186@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 43c1031f7110967c240cb6e922adcfc4b8899183 ]
+[ Upstream commit c5ed1fe0801f0c66b0fbce2785239a5664629057 ]
 
-We must not change the value of label->len if it is zero, since that
-indicates we stored a label.
+dev_set_name() allocates memory for name, it need be freed
+when module exiting, call put_device() to give up reference,
+so that it can be freed in kobject_cleanup() when the refcount
+hit to 0. The vpe_device is static, so remove kfree() from
+vpe_device_release().
 
-Fixes: b4487b935452 ("nfs: Fix getxattr kernel panic and memory overflow")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: 17a1d523aa58 ("MIPS: APRP: Add VPE loader support for CMP platforms.")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4xdr.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ arch/mips/kernel/vpe-cmp.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
-index 9103e022376a..deec76cf5afe 100644
---- a/fs/nfs/nfs4xdr.c
-+++ b/fs/nfs/nfs4xdr.c
-@@ -4236,12 +4236,10 @@ static int decode_attr_security_label(struct xdr_stream *xdr, uint32_t *bitmap,
- 			return -EIO;
- 		bitmap[2] &= ~FATTR4_WORD2_SECURITY_LABEL;
- 		if (len < NFS4_MAXLABELLEN) {
--			if (label) {
--				if (label->len) {
--					if (label->len < len)
--						return -ERANGE;
--					memcpy(label->label, p, len);
--				}
-+			if (label && label->len) {
-+				if (label->len < len)
-+					return -ERANGE;
-+				memcpy(label->label, p, len);
- 				label->len = len;
- 				label->pi = pi;
- 				label->lfs = lfs;
+diff --git a/arch/mips/kernel/vpe-cmp.c b/arch/mips/kernel/vpe-cmp.c
+index e673603e11e5..92140edb3ce3 100644
+--- a/arch/mips/kernel/vpe-cmp.c
++++ b/arch/mips/kernel/vpe-cmp.c
+@@ -75,7 +75,6 @@ ATTRIBUTE_GROUPS(vpe);
+ 
+ static void vpe_device_release(struct device *cd)
+ {
+-	kfree(cd);
+ }
+ 
+ static struct class vpe_class = {
+@@ -157,6 +156,7 @@ int __init vpe_module_init(void)
+ 	device_del(&vpe_device);
+ 
+ out_class:
++	put_device(&vpe_device);
+ 	class_unregister(&vpe_class);
+ 
+ out_chrdev:
+@@ -169,7 +169,7 @@ void __exit vpe_module_exit(void)
+ {
+ 	struct vpe *v, *n;
+ 
+-	device_del(&vpe_device);
++	device_unregister(&vpe_device);
+ 	class_unregister(&vpe_class);
+ 	unregister_chrdev(major, VPE_MODULE_NAME);
+ 
 -- 
 2.35.1
 
