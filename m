@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B68A2657C4B
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:31:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5F45658201
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:32:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233819AbiL1PbA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:31:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48878 "EHLO
+        id S233715AbiL1Qcr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:32:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233820AbiL1Pa6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:30:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C9A912098
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:30:57 -0800 (PST)
+        with ESMTP id S234799AbiL1QcS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:32:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95A9A13D4F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:29:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A1DE6154D
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:30:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAE77C433D2;
-        Wed, 28 Dec 2022 15:30:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F38D6157E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:29:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D563C433D2;
+        Wed, 28 Dec 2022 16:29:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241456;
-        bh=HuhbE6NE4mxiR3nqkrr9+D4M4gR4/rGw8e7UU0+8XNQ=;
+        s=korg; t=1672244940;
+        bh=ExFAmNH5mIw0yinUvm0KNakICdbGLYc9L+GW9mv+vhY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N26dHSofpBy1rgdRi5bknvQhIsRJXXlkC8d+JUrX4ty3HcTLK96D71iw8L3l5kXRE
-         4okZ0C3xZ0zS6LDNciTkA0SEVHGCrJEc+vBfpnb8rQLYgEBTsTzYkxR6n3EI1gqRyZ
-         pV8d/qYd4d7j1B8AXtWd/qYu5brWg3v+neV/DUyA=
+        b=JevjTesgv93d3dJ79hSLsOSUEgaXSIzYB+h/Obb1xKbHBPCRo9c1US6sM+vfhnUJP
+         kTemIVvUIDuyx8hD6fRiW03QH656lC2Bq3EkYH2Y00lkW2EdPPE+w4K8ZbHAg5smUS
+         4NFPgValYCilqqedH9ES7U462JKtaXkI7Pp5H6LM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johannes Thumshirn <jth@kernel.org>,
-        Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev, Nayna Jain <nayna@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 484/731] mcb: mcb-parse: fix error handing in chameleon_parse_gdd()
+Subject: [PATCH 6.0 0803/1073] powerpc/pseries: Return -EIO instead of -EINTR for H_ABORTED error
 Date:   Wed, 28 Dec 2022 15:39:51 +0100
-Message-Id: <20221228144310.579579266@linuxfoundation.org>
+Message-Id: <20221228144349.821035968@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Nayna Jain <nayna@linux.ibm.com>
 
-[ Upstream commit 728ac3389296caf68638628c987aeae6c8851e2d ]
+[ Upstream commit bb8e4c7cb759b90a04f2e94056b50288ff46a0ed ]
 
-If mcb_device_register() returns error in chameleon_parse_gdd(), the refcount
-of bus and device name are leaked. Fix this by calling put_device() to give up
-the reference, so they can be released in mcb_release_dev() and kobject_cleanup().
+Some commands for eg. "cat" might continue to retry on encountering
+EINTR. This is not expected for original error code H_ABORTED.
 
-Fixes: 3764e82e5150 ("drivers: Introduce MEN Chameleon Bus")
-Reviewed-by: Johannes Thumshirn <jth@kernel.org>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Johannes Thumshirn <jth@kernel.org>
-Link: https://lore.kernel.org/r/ebfb06e39b19272f0197fa9136b5e4b6f34ad732.1669624063.git.johannes.thumshirn@wdc.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Map H_ABORTED to more relevant Linux error code EIO.
+
+Fixes: 2454a7af0f2a ("powerpc/pseries: define driver for Platform KeyStore")
+Signed-off-by: Nayna Jain <nayna@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20221106205839.600442-4-nayna@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mcb/mcb-parse.c | 2 +-
+ arch/powerpc/platforms/pseries/plpks.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mcb/mcb-parse.c b/drivers/mcb/mcb-parse.c
-index 0266bfddfbe2..aa6938da0db8 100644
---- a/drivers/mcb/mcb-parse.c
-+++ b/drivers/mcb/mcb-parse.c
-@@ -108,7 +108,7 @@ static int chameleon_parse_gdd(struct mcb_bus *bus,
- 	return 0;
- 
- err:
--	mcb_free_dev(mdev);
-+	put_device(&mdev->dev);
- 
- 	return ret;
- }
+diff --git a/arch/powerpc/platforms/pseries/plpks.c b/arch/powerpc/platforms/pseries/plpks.c
+index 32ce4d780d8f..cbea447122ca 100644
+--- a/arch/powerpc/platforms/pseries/plpks.c
++++ b/arch/powerpc/platforms/pseries/plpks.c
+@@ -111,7 +111,7 @@ static int pseries_status_to_err(int rc)
+ 		err = -EEXIST;
+ 		break;
+ 	case H_ABORTED:
+-		err = -EINTR;
++		err = -EIO;
+ 		break;
+ 	default:
+ 		err = -EINVAL;
 -- 
 2.35.1
 
