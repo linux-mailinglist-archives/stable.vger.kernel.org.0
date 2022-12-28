@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CAAA657CFA
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:38:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94A1C657D05
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:38:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233919AbiL1PiF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:38:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55418 "EHLO
+        id S233506AbiL1Pie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:38:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233921AbiL1PiD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:38:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CDCC1659B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:38:02 -0800 (PST)
+        with ESMTP id S233926AbiL1Pic (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:38:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72A3D165A3
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:38:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E585A61553
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:38:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02948C433EF;
-        Wed, 28 Dec 2022 15:38:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BF6661553
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:38:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17D66C433D2;
+        Wed, 28 Dec 2022 15:38:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241881;
-        bh=SW+uCNtMoisbJTVwCKWH3BEOYdsx4fwS7gpKikz2TFM=;
+        s=korg; t=1672241910;
+        bh=+BcBWFIfmpfxX+bozeJww/U2XiKBWratuyo/4KW339o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2AaUZP8hDOwgCmnIjyuQW/aI9yutiXLfelnkabP34sELdI2Rb8VRaMK+vO7mPqvZ+
-         raEMAkFAlr2o/qrhZYPbMr2f+DlguCb88DZPuvxcUNsLntXJbamEH+mzxg5o1T1ZGU
-         1jZPEukZes8zpjh4ywVOoa910Dxu4wOWjVm5gUVc=
+        b=Ze8Gn9UHGJaDMDvLL7bF5jYvs8zLfDbSKellXUqVHRZpmmmXyoPoyRP09FAs6+b5d
+         6eQcWzhlVG4rooTNS7KThuEBzsObE6K7GW8jYscJVNFL0YLBetBL+LMdbqrulAbGK2
+         Dd6hC5aSlQSI1cthol3ann8SjBIGAaA55+ohwPY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jernej Skrabec <jernej.skrabec@gmail.com>,
+        patches@lists.linux.dev,
+        Michael Riesch <michael.riesch@wolfvision.net>,
+        Heiko Stuebner <heiko@sntech.de>,
         Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 531/731] iommu/sun50i: Fix flush size
-Date:   Wed, 28 Dec 2022 15:40:38 +0100
-Message-Id: <20221228144311.935476938@linuxfoundation.org>
+Subject: [PATCH 5.15 532/731] iommu/rockchip: fix permission bits in page table entries v2
+Date:   Wed, 28 Dec 2022 15:40:39 +0100
+Message-Id: <20221228144311.963677707@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
 References: <20221228144256.536395940@linuxfoundation.org>
@@ -52,35 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@gmail.com>
+From: Michael Riesch <michael.riesch@wolfvision.net>
 
-[ Upstream commit 67a8a67f9eceb72e4c73d1d09ed9ab04f4b8e12d ]
+[ Upstream commit 7eb99841f340b80be0d0973b0deb592d75fb8928 ]
 
-Function sun50i_table_flush() takes number of entries as an argument,
-not number of bytes. Fix that mistake in sun50i_dte_get_page_table().
+As pointed out in the corresponding downstream fix [0], the permission bits
+of the page table entries are compatible between v1 and v2 of the IOMMU.
+This is in contrast to the current mainline code that incorrectly assumes
+that the read and write permission bits are switched. Fix the permission
+bits by reusing the v1 bit defines.
 
-Fixes: 4100b8c229b3 ("iommu: Add Allwinner H6 IOMMU driver")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20221025165415.307591-5-jernej.skrabec@gmail.com
+[0] https://github.com/rockchip-linux/kernel/commit/e3bc123a2260145e34b57454da3db0edd117eb8e
+
+Fixes: c55356c534aa ("iommu: rockchip: Add support for iommu v2")
+Signed-off-by: Michael Riesch <michael.riesch@wolfvision.net>
+Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://lore.kernel.org/r/20221102063553.2464161-1-michael.riesch@wolfvision.net
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/sun50i-iommu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/rockchip-iommu.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/iommu/sun50i-iommu.c b/drivers/iommu/sun50i-iommu.c
-index 16bfba1faee1..ece3d4b4d7ca 100644
---- a/drivers/iommu/sun50i-iommu.c
-+++ b/drivers/iommu/sun50i-iommu.c
-@@ -512,7 +512,7 @@ static u32 *sun50i_dte_get_page_table(struct sun50i_iommu_domain *sun50i_domain,
- 		sun50i_iommu_free_page_table(iommu, drop_pt);
- 	}
+diff --git a/drivers/iommu/rockchip-iommu.c b/drivers/iommu/rockchip-iommu.c
+index 7f23ad61c094..823f1a7d8c6e 100644
+--- a/drivers/iommu/rockchip-iommu.c
++++ b/drivers/iommu/rockchip-iommu.c
+@@ -280,19 +280,17 @@ static u32 rk_mk_pte(phys_addr_t page, int prot)
+  *  11:9 - Page address bit 34:32
+  *   8:4 - Page address bit 39:35
+  *     3 - Security
+- *     2 - Readable
+- *     1 - Writable
++ *     2 - Writable
++ *     1 - Readable
+  *     0 - 1 if Page @ Page address is valid
+  */
+-#define RK_PTE_PAGE_READABLE_V2      BIT(2)
+-#define RK_PTE_PAGE_WRITABLE_V2      BIT(1)
  
--	sun50i_table_flush(sun50i_domain, page_table, PT_SIZE);
-+	sun50i_table_flush(sun50i_domain, page_table, NUM_PT_ENTRIES);
- 	sun50i_table_flush(sun50i_domain, dte_addr, 1);
+ static u32 rk_mk_pte_v2(phys_addr_t page, int prot)
+ {
+ 	u32 flags = 0;
  
- 	return page_table;
+-	flags |= (prot & IOMMU_READ) ? RK_PTE_PAGE_READABLE_V2 : 0;
+-	flags |= (prot & IOMMU_WRITE) ? RK_PTE_PAGE_WRITABLE_V2 : 0;
++	flags |= (prot & IOMMU_READ) ? RK_PTE_PAGE_READABLE : 0;
++	flags |= (prot & IOMMU_WRITE) ? RK_PTE_PAGE_WRITABLE : 0;
+ 
+ 	return rk_mk_dte_v2(page) | flags;
+ }
 -- 
 2.35.1
 
