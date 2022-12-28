@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01C0D6581C8
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:31:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA014657B73
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:22:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234479AbiL1Qbw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:31:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51736 "EHLO
+        id S233723AbiL1PWb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:22:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234613AbiL1Qba (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:31:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 791F61CB0F
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:27:31 -0800 (PST)
+        with ESMTP id S233316AbiL1PWJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:22:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACFB8140EE
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:21:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1EB32B816F4
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:27:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AEBCC433D2;
-        Wed, 28 Dec 2022 16:27:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 460BF61365
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:21:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 566D8C433EF;
+        Wed, 28 Dec 2022 15:21:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244848;
-        bh=GtikZnRZ4OaT2m0mUo8jo9s7mJwxMQk3RZknu1q13mo=;
+        s=korg; t=1672240900;
+        bh=uDniHmXSBUzrvnEKTj8QBlPmhwTGemgZlim2KMDpL9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W72qYqmxpu+VxsOmURv4bzeRi9MK8RDcLnlWF0ujfoj2hZ6LgmpCyLP7BG2fvadH+
-         Fe8HAJG85dQPldAEt5gQYILqIxrz4kPHEi+Z73kwhCvMm/3A9OmmyIDpHZH/UWO8de
-         f1O8oUYOwj06Ac+YoRhbER9lFrWmoZCkIEGsR4bE=
+        b=icrU65paPzlyUg2BTzjPgB8TXECqPYsPFbKZbIIcYGEnkoKxtmN8ya5d1/ZfKu8uz
+         N5N2H4m6DOlWmmjv5o/selGj+tJ/gTbDqierglM+rFQXVaNgb+z4N7UDognw0NTUIR
+         SSpH5M62ewt0M29RDggaANPoA74lNRV19gD9wmP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>,
+        patches@lists.linux.dev, Dongdong Zhang <zhangdongdong1@oppo.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0747/1146] ksmbd: Fix resource leak in ksmbd_session_rpc_open()
+Subject: [PATCH 5.15 379/731] f2fs: fix normal discard process
 Date:   Wed, 28 Dec 2022 15:38:06 +0100
-Message-Id: <20221228144350.436287025@linuxfoundation.org>
+Message-Id: <20221228144307.547165034@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Dongdong Zhang <zhangdongdong1@oppo.com>
 
-[ Upstream commit bc044414fa0326a4e5c3c509c00b1fcaf621b5f4 ]
+[ Upstream commit b5f1a218ae5e4339130d6e733f0e63d623e09a2c ]
 
-When ksmbd_rpc_open() fails then it must call ksmbd_rpc_id_free() to
-undo the result of ksmbd_ipc_id_alloc().
+In the DPOLICY_BG mode, there is a conflict between
+the two conditions "i + 1 < dpolicy->granularity" and
+"i < DEFAULT_DISCARD_GRANULARITY". If i = 15, the first
+condition is false, it will enter the second condition
+and dispatch all small granularity discards in function
+ __issue_discard_cmd_orderly. The restrictive effect
+of the first condition to small discards will be
+invalidated. These two conditions should align.
 
-Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Acked-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: 20ee4382322c ("f2fs: issue small discard by LBA order")
+Signed-off-by: Dongdong Zhang <zhangdongdong1@oppo.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/mgmt/user_session.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ fs/f2fs/segment.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ksmbd/mgmt/user_session.c b/fs/ksmbd/mgmt/user_session.c
-index 3fa2139a0b30..92b1603b5abe 100644
---- a/fs/ksmbd/mgmt/user_session.c
-+++ b/fs/ksmbd/mgmt/user_session.c
-@@ -108,15 +108,17 @@ int ksmbd_session_rpc_open(struct ksmbd_session *sess, char *rpc_name)
- 	entry->method = method;
- 	entry->id = ksmbd_ipc_id_alloc();
- 	if (entry->id < 0)
--		goto error;
-+		goto free_entry;
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index 28939e3573ea..194c0811fbdf 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -1551,7 +1551,7 @@ static int __issue_discard_cmd(struct f2fs_sb_info *sbi,
+ 		if (i + 1 < dpolicy->granularity)
+ 			break;
  
- 	resp = ksmbd_rpc_open(sess, entry->id);
- 	if (!resp)
--		goto error;
-+		goto free_id;
+-		if (i < DEFAULT_DISCARD_GRANULARITY && dpolicy->ordered)
++		if (i + 1 < DEFAULT_DISCARD_GRANULARITY && dpolicy->ordered)
+ 			return __issue_discard_cmd_orderly(sbi, dpolicy);
  
- 	kvfree(resp);
- 	return entry->id;
--error:
-+free_id:
-+	ksmbd_rpc_id_free(entry->id);
-+free_entry:
- 	list_del(&entry->list);
- 	kfree(entry);
- 	return -EINVAL;
+ 		pend_list = &dcc->pend_list[i];
 -- 
 2.35.1
 
