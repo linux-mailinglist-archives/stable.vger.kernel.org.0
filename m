@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A876A657F5C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:04:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEFCA65844F
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:57:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234337AbiL1QES (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:04:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50374 "EHLO
+        id S235312AbiL1Q4m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:56:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234274AbiL1QEC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:04:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64F8F186CC
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:04:01 -0800 (PST)
+        with ESMTP id S235311AbiL1Qzv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:55:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 155772C7
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:51:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 03FD76156E
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:04:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B796C433D2;
-        Wed, 28 Dec 2022 16:03:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C3CACB8172A
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:51:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B439C433D2;
+        Wed, 28 Dec 2022 16:51:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243440;
-        bh=j9VCBPycalEhpmLtv/MtSgK8qc3wOVsmd0i+c2JzMMk=;
+        s=korg; t=1672246260;
+        bh=vmx0QPj7LGc340EO84PPItZSxGvdh2PDT2pBaIiWUIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q8OfO1t65emLB+rG0nfvj33PPyEa2Lu2CtcMzGCrCSm65DRPMhnoO4Ol++P8D8mtT
-         /dJtaP0MIYNtSPBQpoGr4e6//T8Rtic1QMNM1TXVGfGkO/7Y8/vpfU8du+QrXDVSGV
-         TNPJC3/JfQaXp9YFXwqk4d+o0wrlam4oIdRfSJ+0=
+        b=LQ+Z9imW/ZBrdQm/9DUvbDdiy3fCZ8Ww0Tn9y6E/y9OkvNmrf4Ls7o1AM1WgwX1q4
+         FmgXrrVj29jtvr4yVZIGr2HlAXAw7NSetb0B9BR1eWWcY1Gc/aGEVED85gEjDyntQW
+         jWFP0G+8BL6tu6yRp3++yE21G+MtMrE/g/uID5lM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.15 721/731] regulator: core: fix deadlock on regulator enable
+        patches@lists.linux.dev,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 6.0 1040/1073] xhci: Prevent infinite loop in transaction errors recovery for streams
 Date:   Wed, 28 Dec 2022 15:43:48 +0100
-Message-Id: <20221228144317.344570905@linuxfoundation.org>
+Message-Id: <20221228144356.442568545@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,65 +52,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit cb3543cff90a4448ed560ac86c98033ad5fecda9 upstream.
+commit a1575120972ecd7baa6af6a69e4e7ea9213bde7c upstream.
 
-When updating the operating mode as part of regulator enable, the caller
-has already locked the regulator tree and drms_uA_update() must not try
-to do the same in order not to trigger a deadlock.
+Make sure to also limit the amount of soft reset retries for transaction
+errors on streams in cases where the transaction error event doesn't point
+to any specific TRB.
 
-The lock inversion is reported by lockdep as:
+In these cases we don't know the TRB or stream ring, but we do know which
+endpoint had the error.
 
-  ======================================================
-  WARNING: possible circular locking dependency detected
-  6.1.0-next-20221215 #142 Not tainted
-  ------------------------------------------------------
-  udevd/154 is trying to acquire lock:
-  ffffc11f123d7e50 (regulator_list_mutex){+.+.}-{3:3}, at: regulator_lock_dependent+0x54/0x280
+To keep error counting simple and functional, move the current err_count
+from ring structure to endpoint structure.
 
-  but task is already holding lock:
-  ffff80000e4c36e8 (regulator_ww_class_acquire){+.+.}-{0:0}, at: regulator_enable+0x34/0x80
-
-  which lock already depends on the new lock.
-
-  ...
-
-   Possible unsafe locking scenario:
-
-         CPU0                    CPU1
-         ----                    ----
-    lock(regulator_ww_class_acquire);
-                                 lock(regulator_list_mutex);
-                                 lock(regulator_ww_class_acquire);
-    lock(regulator_list_mutex);
-
-   *** DEADLOCK ***
-
-just before probe of a Qualcomm UFS controller (occasionally) deadlocks
-when enabling one of its regulators.
-
-Fixes: 9243a195be7a ("regulator: core: Change voltage setting path")
-Fixes: f8702f9e4aa7 ("regulator: core: Use ww_mutex for regulators locking")
-Cc: stable@vger.kernel.org      # 5.0
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20221215104646.19818-1-johan+linaro@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20221130091944.2171610-6-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/regulator/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/xhci-ring.c |   14 ++++++++++----
+ drivers/usb/host/xhci.h      |    2 +-
+ 2 files changed, 11 insertions(+), 5 deletions(-)
 
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -962,7 +962,7 @@ static int drms_uA_update(struct regulat
- 		/* get input voltage */
- 		input_uV = 0;
- 		if (rdev->supply)
--			input_uV = regulator_get_voltage(rdev->supply);
-+			input_uV = regulator_get_voltage_rdev(rdev->supply->rdev);
- 		if (input_uV <= 0)
- 			input_uV = rdev->constraints->input_uV;
- 		if (input_uV <= 0) {
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -2458,7 +2458,7 @@ static int process_bulk_intr_td(struct x
+ 
+ 	switch (trb_comp_code) {
+ 	case COMP_SUCCESS:
+-		ep_ring->err_count = 0;
++		ep->err_count = 0;
+ 		/* handle success with untransferred data as short packet */
+ 		if (ep_trb != td->last_trb || remaining) {
+ 			xhci_warn(xhci, "WARN Successful completion on short TX\n");
+@@ -2484,7 +2484,7 @@ static int process_bulk_intr_td(struct x
+ 		break;
+ 	case COMP_USB_TRANSACTION_ERROR:
+ 		if (xhci->quirks & XHCI_NO_SOFT_RETRY ||
+-		    (ep_ring->err_count++ > MAX_SOFT_RETRY) ||
++		    (ep->err_count++ > MAX_SOFT_RETRY) ||
+ 		    le32_to_cpu(slot_ctx->tt_info) & TT_SLOT)
+ 			break;
+ 
+@@ -2565,8 +2565,14 @@ static int handle_tx_event(struct xhci_h
+ 		case COMP_USB_TRANSACTION_ERROR:
+ 		case COMP_INVALID_STREAM_TYPE_ERROR:
+ 		case COMP_INVALID_STREAM_ID_ERROR:
+-			xhci_handle_halted_endpoint(xhci, ep, 0, NULL,
+-						    EP_SOFT_RESET);
++			xhci_dbg(xhci, "Stream transaction error ep %u no id\n",
++				 ep_index);
++			if (ep->err_count++ > MAX_SOFT_RETRY)
++				xhci_handle_halted_endpoint(xhci, ep, 0, NULL,
++							    EP_HARD_RESET);
++			else
++				xhci_handle_halted_endpoint(xhci, ep, 0, NULL,
++							    EP_SOFT_RESET);
+ 			goto cleanup;
+ 		case COMP_RING_UNDERRUN:
+ 		case COMP_RING_OVERRUN:
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -933,6 +933,7 @@ struct xhci_virt_ep {
+ 	 * have to restore the device state to the previous state
+ 	 */
+ 	struct xhci_ring		*new_ring;
++	unsigned int			err_count;
+ 	unsigned int			ep_state;
+ #define SET_DEQ_PENDING		(1 << 0)
+ #define EP_HALTED		(1 << 1)	/* For stall handling */
+@@ -1627,7 +1628,6 @@ struct xhci_ring {
+ 	 * if we own the TRB (if we are the consumer).  See section 4.9.1.
+ 	 */
+ 	u32			cycle_state;
+-	unsigned int            err_count;
+ 	unsigned int		stream_id;
+ 	unsigned int		num_segs;
+ 	unsigned int		num_trbs_free;
 
 
