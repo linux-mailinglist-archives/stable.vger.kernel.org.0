@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAC29657D75
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:43:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BB13657E92
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:55:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233564AbiL1Pn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:43:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60190 "EHLO
+        id S234176AbiL1PzM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:55:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233423AbiL1Pn1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:43:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 171D917400
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:43:26 -0800 (PST)
+        with ESMTP id S234162AbiL1PzF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:55:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA9AE18B1C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:55:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80791B8172A
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:43:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C96D5C433D2;
-        Wed, 28 Dec 2022 15:43:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 876CA6156C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:55:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92C01C433D2;
+        Wed, 28 Dec 2022 15:55:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242204;
-        bh=QuZSC6L8uDtz07DbDVoSKyZPl1gamvPDKwbXQftAIPQ=;
+        s=korg; t=1672242903;
+        bh=FoxYHp9WbO8yNbj/wlK5JvWJiKXSe9+l6W+iEX6c9Cc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tzyIkyBbBNBDjfX9jCBVeoNII/yn81qE9W3BWVCpLzCgCKb6YDHVukgOIxPU3fo+7
-         uaI6GYfDqtxyzL7jww/WZ+HVGuHHVzKYdderQFP25pfou2l/DcNVc3Ltnfi0caOlPC
-         W1QP7P4aKQWkqwIe6QFiTkYLdYQ4SeeTONtcbi7w=
+        b=aqIxoPIEo+0pew/uunlrTjjyoKBT6nO4ir5x8lMRlbuVv1GOB7RiSwHGe465E8FCk
+         Vn7Tbmoh9LFxs5NhNhV/rvd0K2zkm2WKLdwb8BZuQEFHbx2t+I/QJdd5Cjtkv4SQ7W
+         4C/NKVwp1rkNx9n5jxpTLJX1+2lQHVMD7qh+ANfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Paul Elder <paul.elder@ideasonboard.com>,
-        Rui Miguel Silva <rmfrfs@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0379/1073] media: imx: imx7-media-csi: Clear BIT_MIPI_DOUBLE_CMPNT for <16b formats
-Date:   Wed, 28 Dec 2022 15:32:47 +0100
-Message-Id: <20221228144338.300218239@linuxfoundation.org>
+        patches@lists.linux.dev, Liu Shixin <liushixin2@huawei.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0429/1146] ALSA: asihpi: fix missing pci_disable_device()
+Date:   Wed, 28 Dec 2022 15:32:48 +0100
+Message-Id: <20221228144341.835358891@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Liu Shixin <liushixin2@huawei.com>
 
-[ Upstream commit cccc08a95ca57624563daafd47df5691e8c38995 ]
+[ Upstream commit 9d86515c3d4c0564a0c31a2df87d735353a1971e ]
 
-Commit 9babbbaaeb87 ("media: imx: imx7-media-csi: Use dual sampling for
-YUV 1X16") set BIT_MIPI_DOUBLE_CMPNT in the CR18 register for 16-bit YUV
-formats in imx7_csi_configure(). The CR18 register is always updated
-with read-modify-write cycles, so if a 16-bit YUV format is selected,
-the bit will stay set forever, even if the format is changed. Fix it by
-clearing the bit at the beginning of the imx7_csi_configure() function.
+pci_disable_device() need be called while module exiting, switch to use
+pcim_enable(), pci_disable_device() will be called in pcim_release().
 
-While at it, swap two of the bits being cleared to match the MSB to LSB
-order. This doesn't cause any functional change.
-
-Fixes: 9babbbaaeb87 ("media: imx: imx7-media-csi: Use dual sampling for YUV 1X16")
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Paul Elder <paul.elder@ideasonboard.com>
-Acked-by: Rui Miguel Silva <rmfrfs@gmail.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 3285ea10e9b0 ("ALSA: asihpi - Interrelated HPI tidy up.")
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Link: https://lore.kernel.org/r/20221126021429.3029562-1-liushixin2@huawei.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/imx/imx7-media-csi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/pci/asihpi/hpioctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/imx/imx7-media-csi.c b/drivers/staging/media/imx/imx7-media-csi.c
-index a0553c24cce4..7eee2f8dca47 100644
---- a/drivers/staging/media/imx/imx7-media-csi.c
-+++ b/drivers/staging/media/imx/imx7-media-csi.c
-@@ -521,9 +521,9 @@ static void imx7_csi_configure(struct imx7_csi *csi)
- 	cr18 = imx7_csi_reg_read(csi, CSI_CSICR18);
+diff --git a/sound/pci/asihpi/hpioctl.c b/sound/pci/asihpi/hpioctl.c
+index bb31b7fe867d..477a5b4b50bc 100644
+--- a/sound/pci/asihpi/hpioctl.c
++++ b/sound/pci/asihpi/hpioctl.c
+@@ -361,7 +361,7 @@ int asihpi_adapter_probe(struct pci_dev *pci_dev,
+ 		pci_dev->device, pci_dev->subsystem_vendor,
+ 		pci_dev->subsystem_device, pci_dev->devfn);
  
- 	cr18 &= ~(BIT_CSI_HW_ENABLE | BIT_MIPI_DATA_FORMAT_MASK |
--		  BIT_DATA_FROM_MIPI | BIT_BASEADDR_CHG_ERR_EN |
--		  BIT_BASEADDR_SWITCH_EN | BIT_BASEADDR_SWITCH_SEL |
--		  BIT_DEINTERLACE_EN);
-+		  BIT_DATA_FROM_MIPI | BIT_MIPI_DOUBLE_CMPNT |
-+		  BIT_BASEADDR_CHG_ERR_EN | BIT_BASEADDR_SWITCH_SEL |
-+		  BIT_BASEADDR_SWITCH_EN | BIT_DEINTERLACE_EN);
- 
- 	if (out_pix->field == V4L2_FIELD_INTERLACED) {
- 		cr18 |= BIT_DEINTERLACE_EN;
+-	if (pci_enable_device(pci_dev) < 0) {
++	if (pcim_enable_device(pci_dev) < 0) {
+ 		dev_err(&pci_dev->dev,
+ 			"pci_enable_device failed, disabling device\n");
+ 		return -EIO;
 -- 
 2.35.1
 
