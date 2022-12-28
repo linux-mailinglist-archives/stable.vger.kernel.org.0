@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DFBA658132
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:25:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B31AD658226
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:33:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232973AbiL1QZl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:25:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43032 "EHLO
+        id S234864AbiL1Qd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:33:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234727AbiL1QY4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:24:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11EC01AF12
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:22:26 -0800 (PST)
+        with ESMTP id S234847AbiL1QdD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:33:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECC331A219
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:30:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D4A961578
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:22:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A174DC433EF;
-        Wed, 28 Dec 2022 16:22:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8EB5AB816F4
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:30:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06DA8C433D2;
+        Wed, 28 Dec 2022 16:30:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244545;
-        bh=SzcUNELs8EVr24QcRJ18nd+cPbQCAYgJOWh5yzdJPu4=;
+        s=korg; t=1672245020;
+        bh=4hEtNKm4C3mnB40PXHEoFjhTSymawBm29/B8KKyP6Z8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2DfpDL5gZJ5U9gcS3NmhINz/1ujaCQkEF16YumRTw+6U/W4GFjmHtyu9sMLayGPhA
-         5PldmYiUJlDm60ChrxdGoYAQ60hBfN1hb/sU1jOH5N9JRgLu1Ld2p/yXbcsJ/c6Ama
-         mlTi6gg2qWiikQu4ZuqVAgKg0GTznmozwnw5KV0Y=
+        b=EudtIygM7G0P47ByqJ2KDfV5hXVEa3xk0raxaQ1AO5r4DLFD0KTEvWJGyQHFXoX6K
+         R58HQvkw+1DCAVzF+u84vsuG+O50TbECYTH0Fm3SaAQyPYSZz/jYZKtZQ7WulGaTny
+         pKYOYKku4lKq1xp4z5nedO0XXX0BXj840TgFDOP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0730/1073] fbdev: pm2fb: fix missing pci_disable_device()
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        Marek Vasut <marex@denx.de>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 0779/1146] power: supply: bq25890: Factor out regulator registration code
 Date:   Wed, 28 Dec 2022 15:38:38 +0100
-Message-Id: <20221228144347.850903098@linuxfoundation.org>
+Message-Id: <20221228144351.307102068@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,54 +54,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit ed359a464846b48f76ea6cc5cd8257e545ac97f4 ]
+[ Upstream commit 5f5c10ecaf3fdeba9b2b0af5301977420c2c4df0 ]
 
-Add missing pci_disable_device() in error path of probe() and remove() path.
+Pull the regulator registration code into separate function, so it can
+be extended to register more regulators later. Currently this is only
+moving ifdeffery into one place and other preparatory changes. The
+dev_err_probe() output string is changed to explicitly list vbus
+regulator failure, so that once more regulators are registered, it
+would be clear which one failed.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Stable-dep-of: a7aaa80098d5 ("power: supply: bq25890: Ensure pump_express_work is cancelled on remove")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/pm2fb.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/power/supply/bq25890_charger.c | 51 ++++++++++++++++++--------
+ 1 file changed, 35 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/video/fbdev/pm2fb.c b/drivers/video/fbdev/pm2fb.c
-index 8fd79deb1e2a..94f1f33f88f9 100644
---- a/drivers/video/fbdev/pm2fb.c
-+++ b/drivers/video/fbdev/pm2fb.c
-@@ -1528,8 +1528,10 @@ static int pm2fb_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	}
- 
- 	info = framebuffer_alloc(sizeof(struct pm2fb_par), &pdev->dev);
--	if (!info)
--		return -ENOMEM;
-+	if (!info) {
-+		err = -ENOMEM;
-+		goto err_exit_disable;
+diff --git a/drivers/power/supply/bq25890_charger.c b/drivers/power/supply/bq25890_charger.c
+index 6020b58c641d..624e466e2cfa 100644
+--- a/drivers/power/supply/bq25890_charger.c
++++ b/drivers/power/supply/bq25890_charger.c
+@@ -1049,6 +1049,36 @@ static const struct regulator_desc bq25890_vbus_desc = {
+ 	.fixed_uV = 5000000,
+ 	.n_voltages = 1,
+ };
++
++static int bq25890_register_regulator(struct bq25890_device *bq)
++{
++	struct bq25890_platform_data *pdata = dev_get_platdata(bq->dev);
++	struct regulator_config cfg = {
++		.dev = bq->dev,
++		.driver_data = bq,
++	};
++	struct regulator_dev *reg;
++
++	if (!IS_ERR_OR_NULL(bq->usb_phy))
++		return 0;
++
++	if (pdata)
++		cfg.init_data = pdata->regulator_init_data;
++
++	reg = devm_regulator_register(bq->dev, &bq25890_vbus_desc, &cfg);
++	if (IS_ERR(reg)) {
++		return dev_err_probe(bq->dev, PTR_ERR(reg),
++				     "registering vbus regulator");
 +	}
- 	default_par = info->par;
++
++	return 0;
++}
++#else
++static inline int
++bq25890_register_regulator(struct bq25890_device *bq)
++{
++	return 0;
++}
+ #endif
  
- 	switch (pdev->device) {
-@@ -1710,6 +1712,8 @@ static int pm2fb_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	release_mem_region(pm2fb_fix.mmio_start, pm2fb_fix.mmio_len);
-  err_exit_neither:
- 	framebuffer_release(info);
-+ err_exit_disable:
-+	pci_disable_device(pdev);
- 	return retval;
- }
+ static int bq25890_get_chip_version(struct bq25890_device *bq)
+@@ -1244,27 +1274,16 @@ static int bq25890_probe(struct i2c_client *client,
  
-@@ -1734,6 +1738,7 @@ static void pm2fb_remove(struct pci_dev *pdev)
- 	fb_dealloc_cmap(&info->cmap);
- 	kfree(info->pixmap.addr);
- 	framebuffer_release(info);
-+	pci_disable_device(pdev);
- }
+ 	/* OTG reporting */
+ 	bq->usb_phy = devm_usb_get_phy(dev, USB_PHY_TYPE_USB2);
++
++	ret = bq25890_register_regulator(bq);
++	if (ret)
++		return ret;
++
+ 	if (!IS_ERR_OR_NULL(bq->usb_phy)) {
+ 		INIT_WORK(&bq->usb_work, bq25890_usb_work);
+ 		bq->usb_nb.notifier_call = bq25890_usb_notifier;
+ 		usb_register_notifier(bq->usb_phy, &bq->usb_nb);
+ 	}
+-#ifdef CONFIG_REGULATOR
+-	else {
+-		struct bq25890_platform_data *pdata = dev_get_platdata(dev);
+-		struct regulator_config cfg = { };
+-		struct regulator_dev *reg;
+-
+-		cfg.dev = dev;
+-		cfg.driver_data = bq;
+-		if (pdata)
+-			cfg.init_data = pdata->regulator_init_data;
+-
+-		reg = devm_regulator_register(dev, &bq25890_vbus_desc, &cfg);
+-		if (IS_ERR(reg))
+-			return dev_err_probe(dev, PTR_ERR(reg), "registering regulator");
+-	}
+-#endif
  
- static const struct pci_device_id pm2fb_id_table[] = {
+ 	ret = bq25890_power_supply_init(bq);
+ 	if (ret < 0) {
 -- 
 2.35.1
 
