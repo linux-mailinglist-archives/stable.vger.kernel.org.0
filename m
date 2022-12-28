@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58B2265805C
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:17:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36797657F9C
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:07:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234340AbiL1QRg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:17:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36580 "EHLO
+        id S234412AbiL1QHU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:07:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234551AbiL1QQg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:16:36 -0500
+        with ESMTP id S234465AbiL1QGu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:06:50 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E89261A213
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:14:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B962AC07
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:06:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 81E6561560
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:14:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96C09C433D2;
-        Wed, 28 Dec 2022 16:14:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5578461576
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:06:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62B31C433F0;
+        Wed, 28 Dec 2022 16:06:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672244062;
-        bh=63tR6qPp/UwI1Ikt7A38gIkXkKy9HK27cS4inHeaIo8=;
+        s=korg; t=1672243597;
+        bh=e2aaQ2Y2YJbiLzEGOzXnq9KhHn6R4/v594YV73e4B6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hIKYZDXcETQ7AoFG8DDBcntoMW5RPTou2CRoDH22htkj0lYBNQV4stp5p2wJd4eEp
-         +gmEKi1Ngj0y/mid9/18WYFFbyd5Y9ZPZW95hQ+Esy74SizLFuKkN2HEm8KT4E8/cr
-         YLzyD2g5c7xM8LIzRUizvyJFUeHDrvlmZJ/I83fs=
+        b=YIkAA7OQHoC2Q3C0Vg7kPBVp/xf85tzgn8kYtCktEA6mxhikSAU87dJTLkBlv7HL+
+         Zm1kBkPOaZg7MyaGcfwQpdMkx9x9oQj2rKAZNDMU/sT+gkAcid9fpC3kwuglZ23Eue
+         XGqnfSy0SG5cgyyNAn6sDubRhsQrD4t8D8atBu3w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Olga Kornievskaia <kolga@netapp.com>,
-        Tom Talpey <tom@talpey.com>,
-        Bernard Metzler <bmt@zurich.ibm.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev,
+        John Johansen <john.johansen@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0603/1146] RDMA/siw: Fix immediate work request flush to completion queue
+Subject: [PATCH 6.0 0554/1073] apparmor: fix lockdep warning when removing a namespace
 Date:   Wed, 28 Dec 2022 15:35:42 +0100
-Message-Id: <20221228144346.552344368@linuxfoundation.org>
+Message-Id: <20221228144343.103081817@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,135 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bernard Metzler <bmt@zurich.ibm.com>
+From: John Johansen <john.johansen@canonical.com>
 
-[ Upstream commit bdf1da5df9da680589a7f74448dd0a94dd3e1446 ]
+[ Upstream commit 9c4557efc558a68e4cd973490fd936d6e3414db8 ]
 
-Correctly set send queue element opcode during immediate work request
-flushing in post sendqueue operation, if the QP is in ERROR state.
-An undefined ocode value results in out-of-bounds access to an array
-for mapping the opcode between siw internal and RDMA core representation
-in work completion generation. It resulted in a KASAN BUG report
-of type 'global-out-of-bounds' during NFSoRDMA testing.
+Fix the following lockdep warning
 
-This patch further fixes a potential case of a malicious user which may
-write undefined values for completion queue elements status or opcode,
-if the CQ is memory mapped to user land. It avoids the same out-of-bounds
-access to arrays for status and opcode mapping as described above.
+[ 1119.158984] ============================================
+[ 1119.158988] WARNING: possible recursive locking detected
+[ 1119.158996] 6.0.0-rc1+ #257 Tainted: G            E    N
+[ 1119.158999] --------------------------------------------
+[ 1119.159001] bash/80100 is trying to acquire lock:
+[ 1119.159007] ffff88803e79b4a0 (&ns->lock/1){+.+.}-{4:4}, at: destroy_ns.part.0+0x43/0x140
+[ 1119.159028]
+               but task is already holding lock:
+[ 1119.159030] ffff8881009764a0 (&ns->lock/1){+.+.}-{4:4}, at: aa_remove_profiles+0x3f0/0x640
+[ 1119.159040]
+               other info that might help us debug this:
+[ 1119.159042]  Possible unsafe locking scenario:
 
-Fixes: 303ae1cdfdf7 ("rdma/siw: application interface")
-Fixes: b0fff7317bb4 ("rdma/siw: completion queue methods")
-Reported-by: Olga Kornievskaia <kolga@netapp.com>
-Reviewed-by: Tom Talpey <tom@talpey.com>
-Signed-off-by: Bernard Metzler <bmt@zurich.ibm.com>
-Link: https://lore.kernel.org/r/20221107145057.895747-1-bmt@zurich.ibm.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+[ 1119.159043]        CPU0
+[ 1119.159045]        ----
+[ 1119.159047]   lock(&ns->lock/1);
+[ 1119.159051]   lock(&ns->lock/1);
+[ 1119.159055]
+                *** DEADLOCK ***
+
+Which is caused by an incorrect lockdep nesting notation
+
+Fixes: feb3c766a3ab ("apparmor: fix possible recursive lock warning in __aa_create_ns")
+Signed-off-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/siw/siw_cq.c    | 24 ++++++++++++++--
- drivers/infiniband/sw/siw/siw_verbs.c | 40 ++++++++++++++++++++++++---
- 2 files changed, 58 insertions(+), 6 deletions(-)
+ security/apparmor/policy.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/siw/siw_cq.c b/drivers/infiniband/sw/siw/siw_cq.c
-index d68e37859e73..acc7bcd538b5 100644
---- a/drivers/infiniband/sw/siw/siw_cq.c
-+++ b/drivers/infiniband/sw/siw/siw_cq.c
-@@ -56,8 +56,6 @@ int siw_reap_cqe(struct siw_cq *cq, struct ib_wc *wc)
- 	if (READ_ONCE(cqe->flags) & SIW_WQE_VALID) {
- 		memset(wc, 0, sizeof(*wc));
- 		wc->wr_id = cqe->id;
--		wc->status = map_cqe_status[cqe->status].ib;
--		wc->opcode = map_wc_opcode[cqe->opcode];
- 		wc->byte_len = cqe->bytes;
+diff --git a/security/apparmor/policy.c b/security/apparmor/policy.c
+index 499c0209b6a4..fbdfcef91c61 100644
+--- a/security/apparmor/policy.c
++++ b/security/apparmor/policy.c
+@@ -1170,7 +1170,7 @@ ssize_t aa_remove_profiles(struct aa_ns *policy_ns, struct aa_label *subj,
  
- 		/*
-@@ -71,10 +69,32 @@ int siw_reap_cqe(struct siw_cq *cq, struct ib_wc *wc)
- 				wc->wc_flags = IB_WC_WITH_INVALIDATE;
- 			}
- 			wc->qp = cqe->base_qp;
-+			wc->opcode = map_wc_opcode[cqe->opcode];
-+			wc->status = map_cqe_status[cqe->status].ib;
- 			siw_dbg_cq(cq,
- 				   "idx %u, type %d, flags %2x, id 0x%pK\n",
- 				   cq->cq_get % cq->num_cqe, cqe->opcode,
- 				   cqe->flags, (void *)(uintptr_t)cqe->id);
-+		} else {
-+			/*
-+			 * A malicious user may set invalid opcode or
-+			 * status in the user mmapped CQE array.
-+			 * Sanity check and correct values in that case
-+			 * to avoid out-of-bounds access to global arrays
-+			 * for opcode and status mapping.
-+			 */
-+			u8 opcode = cqe->opcode;
-+			u16 status = cqe->status;
-+
-+			if (opcode >= SIW_NUM_OPCODES) {
-+				opcode = 0;
-+				status = IB_WC_GENERAL_ERR;
-+			} else if (status >= SIW_NUM_WC_STATUS) {
-+				status = IB_WC_GENERAL_ERR;
-+			}
-+			wc->opcode = map_wc_opcode[opcode];
-+			wc->status = map_cqe_status[status].ib;
-+
- 		}
- 		WRITE_ONCE(cqe->flags, 0);
- 		cq->cq_get++;
-diff --git a/drivers/infiniband/sw/siw/siw_verbs.c b/drivers/infiniband/sw/siw/siw_verbs.c
-index 3e814cfb298c..906fde1a2a0d 100644
---- a/drivers/infiniband/sw/siw/siw_verbs.c
-+++ b/drivers/infiniband/sw/siw/siw_verbs.c
-@@ -676,13 +676,45 @@ static int siw_copy_inline_sgl(const struct ib_send_wr *core_wr,
- static int siw_sq_flush_wr(struct siw_qp *qp, const struct ib_send_wr *wr,
- 			   const struct ib_send_wr **bad_wr)
- {
--	struct siw_sqe sqe = {};
- 	int rv = 0;
- 
- 	while (wr) {
--		sqe.id = wr->wr_id;
--		sqe.opcode = wr->opcode;
--		rv = siw_sqe_complete(qp, &sqe, 0, SIW_WC_WR_FLUSH_ERR);
-+		struct siw_sqe sqe = {};
-+
-+		switch (wr->opcode) {
-+		case IB_WR_RDMA_WRITE:
-+			sqe.opcode = SIW_OP_WRITE;
-+			break;
-+		case IB_WR_RDMA_READ:
-+			sqe.opcode = SIW_OP_READ;
-+			break;
-+		case IB_WR_RDMA_READ_WITH_INV:
-+			sqe.opcode = SIW_OP_READ_LOCAL_INV;
-+			break;
-+		case IB_WR_SEND:
-+			sqe.opcode = SIW_OP_SEND;
-+			break;
-+		case IB_WR_SEND_WITH_IMM:
-+			sqe.opcode = SIW_OP_SEND_WITH_IMM;
-+			break;
-+		case IB_WR_SEND_WITH_INV:
-+			sqe.opcode = SIW_OP_SEND_REMOTE_INV;
-+			break;
-+		case IB_WR_LOCAL_INV:
-+			sqe.opcode = SIW_OP_INVAL_STAG;
-+			break;
-+		case IB_WR_REG_MR:
-+			sqe.opcode = SIW_OP_REG_MR;
-+			break;
-+		default:
-+			rv = -EINVAL;
-+			break;
-+		}
-+		if (!rv) {
-+			sqe.id = wr->wr_id;
-+			rv = siw_sqe_complete(qp, &sqe, 0,
-+					      SIW_WC_WR_FLUSH_ERR);
-+		}
- 		if (rv) {
- 			if (bad_wr)
- 				*bad_wr = wr;
+ 	if (!name) {
+ 		/* remove namespace - can only happen if fqname[0] == ':' */
+-		mutex_lock_nested(&ns->parent->lock, ns->level);
++		mutex_lock_nested(&ns->parent->lock, ns->parent->level);
+ 		__aa_bump_ns_revision(ns);
+ 		__aa_remove_ns(ns);
+ 		mutex_unlock(&ns->parent->lock);
 -- 
 2.35.1
 
