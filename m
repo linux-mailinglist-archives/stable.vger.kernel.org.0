@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73CF4657E21
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:50:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05642657F32
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:03:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233580AbiL1PuY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:50:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38204 "EHLO
+        id S230398AbiL1QDA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:03:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234093AbiL1PuX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:50:23 -0500
+        with ESMTP id S234303AbiL1QCe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:02:34 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27B81183A3
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:50:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6014192AC
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:02:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D10DDB81730
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:50:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D66FC433D2;
-        Wed, 28 Dec 2022 15:50:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9AEA5B81886
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:02:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2530C433F0;
+        Wed, 28 Dec 2022 16:02:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672242619;
-        bh=aqhTVUAqNs5uG0668dzDfneghVWFgYrpeQTgcxSUuxg=;
+        s=korg; t=1672243332;
+        bh=ScbmVO2G9W420ThA0cgjAtmOyYxKf4s7sgdebJVQe5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1q62YUm0uQ1EJfcUezV/swwDjWThqAMl2qh1vLa/ie2bB18I+spIlulj5sLmCU/wq
-         vNr1J5dfnIgx2y/E5JBgas+n1Z9fC6JK8B/ImzZvzwa4ab5oenS7gUBJHXw4DXaEKc
-         BREvSgZ8jwUkC3WTSrkblOy+3opWZEsI4O7TP0JM=
+        b=epD05XKETFrZr2TwQnRLFirHz8NDrubly6ztTgI0PEsqW3K2mY4wiQcsbVQ6NQrGe
+         +d52fdBdy90V+4/hAMYqmNwdHXSnh+PsKQu12NleylJtB+T3L2QVr6eHFwm9C+vCcS
+         h0vj+lutGJpcBkrvSuaUexyIzVdoQpTrueKrC+U8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pengcheng Yang <yangpc@wangsu.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
+        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0432/1073] bpf, sockmap: Fix data loss caused by using apply_bytes on ingress redirect
+Subject: [PATCH 6.1 0481/1146] ALSA: pcm: Set missing stop_operating flag at undoing trigger start
 Date:   Wed, 28 Dec 2022 15:33:40 +0100
-Message-Id: <20221228144339.760871123@linuxfoundation.org>
+Message-Id: <20221228144343.248602541@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pengcheng Yang <yangpc@wangsu.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 9072931f020bfd907d6d89ee21ff1481cd78b407 ]
+[ Upstream commit 5c8cc93b06d1ff860327a273abf3ac006290d242 ]
 
-Use apply_bytes on ingress redirect, when apply_bytes is less than
-the length of msg data, some data may be skipped and lost in
-bpf_tcp_ingress().
+When a PCM trigger-start fails at snd_pcm_do_start(), PCM core tries
+to undo the action at snd_pcm_undo_start() by issuing the trigger STOP
+manually.  At that point, we forgot to set the stop_operating flag,
+hence the sync-stop won't be issued at the next prepare or other
+calls.
 
-If there is still data in the scatterlist that has not been consumed,
-we cannot move the msg iter.
+This patch adds the missing stop_operating flag at
+snd_pcm_undo_start().
 
-Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
-Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/1669718441-2654-4-git-send-email-yangpc@wangsu.com
+Fixes: 1e850beea278 ("ALSA: pcm: Add the support for sync-stop operation")
+Link: https://lore.kernel.org/r/b4e71631-4a94-613-27b2-fb595792630@carlh.net
+Link: https://lore.kernel.org/r/20221205132124.11585-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_bpf.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ sound/core/pcm_native.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
-index 275c5ca9e04d..94aad3870c5f 100644
---- a/net/ipv4/tcp_bpf.c
-+++ b/net/ipv4/tcp_bpf.c
-@@ -45,8 +45,11 @@ static int bpf_tcp_ingress(struct sock *sk, struct sk_psock *psock,
- 		tmp->sg.end = i;
- 		if (apply) {
- 			apply_bytes -= size;
--			if (!apply_bytes)
-+			if (!apply_bytes) {
-+				if (sge->length)
-+					sk_msg_iter_var_prev(i);
- 				break;
-+			}
- 		}
- 	} while (i != msg->sg.end);
+diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
+index 33769ca78cc8..9238abbfb2d6 100644
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -1432,8 +1432,10 @@ static int snd_pcm_do_start(struct snd_pcm_substream *substream,
+ static void snd_pcm_undo_start(struct snd_pcm_substream *substream,
+ 			       snd_pcm_state_t state)
+ {
+-	if (substream->runtime->trigger_master == substream)
++	if (substream->runtime->trigger_master == substream) {
+ 		substream->ops->trigger(substream, SNDRV_PCM_TRIGGER_STOP);
++		substream->runtime->stop_operating = true;
++	}
+ }
  
+ static void snd_pcm_post_start(struct snd_pcm_substream *substream,
 -- 
 2.35.1
 
