@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3711657D19
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:39:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01A906582B2
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:40:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233520AbiL1PjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:39:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56288 "EHLO
+        id S233329AbiL1QkP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:40:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233522AbiL1PjX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:39:23 -0500
+        with ESMTP id S234935AbiL1Qj1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:39:27 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73CC6167C6
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:39:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 280F51CB33
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:34:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 130CB61553
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:39:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 272A7C433D2;
-        Wed, 28 Dec 2022 15:39:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A5D6A6157E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:34:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9850C433EF;
+        Wed, 28 Dec 2022 16:34:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241961;
-        bh=2u+JqZVFjNOYCm9GMc8BJ4EA8rIcooMLdSQI+41VY6U=;
+        s=korg; t=1672245284;
+        bh=6r83UmyEojnJe0KmDqlFBjWI5QaMWo7hSYxDTIb1vQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jC6lZ6J4PgXm9R1gGkjLB/add1fdCgfKtPSoh/2E29W1uj0gXk5oP7rYd1hxKmuev
-         wNIZnFTPhm5Bu5Hbw2ktDT2NC791gmYjLjQxyD3+9GzLHnqywabL1+t8ieMhkU8WTO
-         j+L2JO1O0mmrJp+vQd3Mce7UGBdFp96ML1+CIPBc=
+        b=ab45G+esCbesv9DkbIzCJYbbFDO/NV2uRwCsdXJ9eI3AT8B7hQAI/PbQIdj3DuZA/
+         69Pegu1IpdZNQsexX2h9aSCxfQ9SNbZTOXmfqPSkB3Hzh3g1kS9ZbboNY7xjK/2GhQ
+         fbHF+KZyK4po9bhlkNShpIPAx/O7OJb95wq8JfI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Stefan Eichenberger <stefan.eichenberger@toradex.com>,
-        Francesco Dolcini <francesco@dolcini.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        patches@lists.linux.dev, Tan Tee Min <tee.min.tan@linux.intel.com>,
+        Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>,
+        Naama Meir <naamax.meir@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 547/731] rtc: snvs: Allow a time difference on clock register read
+Subject: [PATCH 6.0 0866/1073] igc: Set Qbv start_time and end_time to end_time if not being configured in GCL
 Date:   Wed, 28 Dec 2022 15:40:54 +0100
-Message-Id: <20221228144312.396944773@linuxfoundation.org>
+Message-Id: <20221228144351.544154997@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,90 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Eichenberger <stefan.eichenberger@toradex.com>
+From: Tan Tee Min <tee.min.tan@linux.intel.com>
 
-[ Upstream commit 0462681e207ccc44778a77b3297af728b1cf5b9f ]
+[ Upstream commit 72abeedd83982c1bc6023f631e412db78374d9b4 ]
 
-On an iMX6ULL the following message appears when a wakealarm is set:
+The default setting of end_time minus start_time is whole 1 second.
+Thus, if it's not being configured in any GCL entry then it will be
+staying at original 1 second.
 
-echo 0 > /sys/class/rtc/rtc1/wakealarm
-rtc rtc1: Timeout trying to get valid LPSRT Counter read
+This patch is changing the start_time and end_time to be end_time as
+if setting zero will be having weird HW behavior where the gate will
+not be fully closed.
 
-This does not always happen but is reproducible quite often (7 out of 10
-times). The problem appears because the iMX6ULL is not able to read the
-registers within one 32kHz clock cycle which is the base clock of the
-RTC. Therefore, this patch allows a difference of up to 320 cycles
-(10ms). 10ms was chosen to be big enough even on systems with less cpu
-power (e.g. iMX6ULL). According to the reference manual a difference is
-fine:
-- If the two consecutive reads are similar, the value is correct.
-The values have to be similar, not equal.
-
-Fixes: cd7f3a249dbe ("rtc: snvs: Add timeouts to avoid kernel lockups")
-Reviewed-by: Francesco Dolcini <francesco.dolcini@toradex.com>
-Signed-off-by: Stefan Eichenberger <stefan.eichenberger@toradex.com>
-Signed-off-by: Francesco Dolcini <francesco@dolcini.it>
-Link: https://lore.kernel.org/r/20221106115915.7930-1-francesco@dolcini.it
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: ec50a9d437f0 ("igc: Add support for taprio offloading")
+Signed-off-by: Tan Tee Min <tee.min.tan@linux.intel.com>
+Signed-off-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
+Tested-by: Naama Meir <naamax.meir@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-snvs.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/igc/igc_main.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-index bd929b0e7d7d..d82acf1af1fa 100644
---- a/drivers/rtc/rtc-snvs.c
-+++ b/drivers/rtc/rtc-snvs.c
-@@ -32,6 +32,14 @@
- #define SNVS_LPPGDR_INIT	0x41736166
- #define CNTR_TO_SECS_SH		15
+diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
+index 207b4b5b2e5f..76f015196fbf 100644
+--- a/drivers/net/ethernet/intel/igc/igc_main.c
++++ b/drivers/net/ethernet/intel/igc/igc_main.c
+@@ -5999,6 +5999,7 @@ static int igc_save_qbv_schedule(struct igc_adapter *adapter,
+ 	bool queue_configured[IGC_MAX_TX_QUEUES] = { };
+ 	u32 start_time = 0, end_time = 0;
+ 	size_t n;
++	int i;
  
-+/* The maximum RTC clock cycles that are allowed to pass between two
-+ * consecutive clock counter register reads. If the values are corrupted a
-+ * bigger difference is expected. The RTC frequency is 32kHz. With 320 cycles
-+ * we end at 10ms which should be enough for most cases. If it once takes
-+ * longer than expected we do a retry.
-+ */
-+#define MAX_RTC_READ_DIFF_CYCLES	320
+ 	adapter->qbv_enable = qopt->enable;
+ 
+@@ -6019,7 +6020,6 @@ static int igc_save_qbv_schedule(struct igc_adapter *adapter,
+ 
+ 	for (n = 0; n < qopt->num_entries; n++) {
+ 		struct tc_taprio_sched_entry *e = &qopt->entries[n];
+-		int i;
+ 
+ 		end_time += e->interval;
+ 
+@@ -6058,6 +6058,18 @@ static int igc_save_qbv_schedule(struct igc_adapter *adapter,
+ 		start_time += e->interval;
+ 	}
+ 
++	/* Check whether a queue gets configured.
++	 * If not, set the start and end time to be end time.
++	 */
++	for (i = 0; i < adapter->num_tx_queues; i++) {
++		if (!queue_configured[i]) {
++			struct igc_ring *ring = adapter->tx_ring[i];
 +
- struct snvs_rtc_data {
- 	struct rtc_device *rtc;
- 	struct regmap *regmap;
-@@ -56,6 +64,7 @@ static u64 rtc_read_lpsrt(struct snvs_rtc_data *data)
- static u32 rtc_read_lp_counter(struct snvs_rtc_data *data)
- {
- 	u64 read1, read2;
-+	s64 diff;
- 	unsigned int timeout = 100;
++			ring->start_time = end_time;
++			ring->end_time = end_time;
++		}
++	}
++
+ 	return 0;
+ }
  
- 	/* As expected, the registers might update between the read of the LSB
-@@ -66,7 +75,8 @@ static u32 rtc_read_lp_counter(struct snvs_rtc_data *data)
- 	do {
- 		read2 = read1;
- 		read1 = rtc_read_lpsrt(data);
--	} while (read1 != read2 && --timeout);
-+		diff = read1 - read2;
-+	} while (((diff < 0) || (diff > MAX_RTC_READ_DIFF_CYCLES)) && --timeout);
- 	if (!timeout)
- 		dev_err(&data->rtc->dev, "Timeout trying to get valid LPSRT Counter read\n");
- 
-@@ -78,13 +88,15 @@ static u32 rtc_read_lp_counter(struct snvs_rtc_data *data)
- static int rtc_read_lp_counter_lsb(struct snvs_rtc_data *data, u32 *lsb)
- {
- 	u32 count1, count2;
-+	s32 diff;
- 	unsigned int timeout = 100;
- 
- 	regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &count1);
- 	do {
- 		count2 = count1;
- 		regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &count1);
--	} while (count1 != count2 && --timeout);
-+		diff = count1 - count2;
-+	} while (((diff < 0) || (diff > MAX_RTC_READ_DIFF_CYCLES)) && --timeout);
- 	if (!timeout) {
- 		dev_err(&data->rtc->dev, "Timeout trying to get valid LPSRT Counter read\n");
- 		return -ETIMEDOUT;
 -- 
 2.35.1
 
