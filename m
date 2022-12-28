@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD6A1657CAF
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:35:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 241D865831E
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:44:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233871AbiL1PfH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:35:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52746 "EHLO
+        id S234577AbiL1Qoi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 11:44:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233247AbiL1PfE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:35:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BAEF164A8
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:35:03 -0800 (PST)
+        with ESMTP id S233660AbiL1QoL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:44:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F6C71C422
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:39:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3809B81719
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:35:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4297EC433EF;
-        Wed, 28 Dec 2022 15:35:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AC01BB8171E
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:39:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4E0AC433EF;
+        Wed, 28 Dec 2022 16:39:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241700;
-        bh=OSuhkG8uCxVAUSYfSgJnBrFmjucIFSC8uTPCChrSGB0=;
+        s=korg; t=1672245566;
+        bh=mt5AZ1mURiWfYgcw7WIIujrgKsaHmkt9OYdGE26JT7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JGLDRk/76YuB8sk+rqPmmyZ4PddRR6HOgRKk5B/mHSjkL3aAYEwkZrlv1v8TQR0vl
-         X/Eb8Uwsb/DTY2cdMdGxIBtLU23QWPtF8o2vZqDnfELJWjaCmBfLIYzKnoRjkNmluw
-         S/9R02sF+MjhhcRVjvngYrn88FT6p29kVmjFfcsQ=
+        b=1xosab6tQ3ij1x+EvfKc7oK57HZKR76IF4dHUGUAFH1uXedPUTND9D1uM3NhsX4Sx
+         KY35qUi49rGroIX3+xAnS+tlRHluKy8mgJsjiENR2PBk3a7fz817acWTohuuryG0Sp
+         vRrcTKwTc3YNxbypvPHNvXYo2SP1XywLuKIEe9JY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zeng Heng <zengheng4@huawei.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        patches@lists.linux.dev, Qingfang DENG <dqfext@gmail.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 513/731] power: supply: fix residue sysfs file in error handle route of __power_supply_register()
-Date:   Wed, 28 Dec 2022 15:40:20 +0100
-Message-Id: <20221228144311.414814689@linuxfoundation.org>
+Subject: [PATCH 6.1 0882/1146] netfilter: flowtable: really fix NAT IPv6 offload
+Date:   Wed, 28 Dec 2022 15:40:21 +0100
+Message-Id: <20221228144354.121652129@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
-References: <20221228144256.536395940@linuxfoundation.org>
+In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
+References: <20221228144330.180012208@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zeng Heng <zengheng4@huawei.com>
+From: Qingfang DENG <dqfext@gmail.com>
 
-[ Upstream commit 5b79480ce1978864ac3f06f2134dfa3b6691fe74 ]
+[ Upstream commit 5fb45f95eec682621748b7cb012c6a8f0f981e6a ]
 
-If device_add() succeeds, we should call device_del() when want to
-get rid of it, so move it into proper jump symbol.
+The for-loop was broken from the start. It translates to:
 
-Otherwise, when __power_supply_register() returns fail and goto
-wakeup_init_failed to exit, there is still residue device file in sysfs.
-When attempt to probe device again, sysfs would complain as below:
+	for (i = 0; i < 4; i += 4)
 
-sysfs: cannot create duplicate filename '/devices/platform/i2c/i2c-0/0-001c/power_supply/adp5061'
-Call Trace:
- dump_stack_lvl+0x68/0x85
- sysfs_warn_dup.cold+0x1c/0x29
- sysfs_create_dir_ns+0x1b1/0x1d0
- kobject_add_internal+0x143/0x390
- kobject_add+0x108/0x170
+which means the loop statement is run only once, so only the highest
+32-bit of the IPv6 address gets mangled.
 
-Fixes: 80c6463e2fa3 ("power_supply: Fix Oops from NULL pointer dereference from wakeup_source_activate")
-Signed-off-by: Zeng Heng <zengheng4@huawei.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fix the loop increment.
+
+Fixes: 0e07e25b481a ("netfilter: flowtable: fix NAT IPv6 offload mangling")
+Fixes: 5c27d8d76ce8 ("netfilter: nf_flow_table_offload: add IPv6 support")
+Signed-off-by: Qingfang DENG <dqfext@gmail.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/power_supply_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nf_flow_table_offload.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/power/supply/power_supply_core.c b/drivers/power/supply/power_supply_core.c
-index a6e9afa5a1cf..c3af54421840 100644
---- a/drivers/power/supply/power_supply_core.c
-+++ b/drivers/power/supply/power_supply_core.c
-@@ -1220,8 +1220,8 @@ __power_supply_register(struct device *parent,
- register_cooler_failed:
- 	psy_unregister_thermal(psy);
- register_thermal_failed:
--	device_del(dev);
- wakeup_init_failed:
-+	device_del(dev);
- device_add_failed:
- check_supplies_failed:
- dev_set_name_failed:
+diff --git a/net/netfilter/nf_flow_table_offload.c b/net/netfilter/nf_flow_table_offload.c
+index 0fdcdb2c9ae4..4d9b99abe37d 100644
+--- a/net/netfilter/nf_flow_table_offload.c
++++ b/net/netfilter/nf_flow_table_offload.c
+@@ -383,12 +383,12 @@ static void flow_offload_ipv6_mangle(struct nf_flow_rule *flow_rule,
+ 				     const __be32 *addr, const __be32 *mask)
+ {
+ 	struct flow_action_entry *entry;
+-	int i, j;
++	int i;
+ 
+-	for (i = 0, j = 0; i < sizeof(struct in6_addr) / sizeof(u32); i += sizeof(u32), j++) {
++	for (i = 0; i < sizeof(struct in6_addr) / sizeof(u32); i++) {
+ 		entry = flow_action_entry_next(flow_rule);
+ 		flow_offload_mangle(entry, FLOW_ACT_MANGLE_HDR_TYPE_IP6,
+-				    offset + i, &addr[j], mask);
++				    offset + i * sizeof(u32), &addr[i], mask);
+ 	}
+ }
+ 
 -- 
 2.35.1
 
