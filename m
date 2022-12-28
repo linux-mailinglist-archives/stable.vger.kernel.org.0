@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60DFE657F19
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 17:01:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A190D6578CC
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 15:54:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234269AbiL1QBR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 11:01:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47970 "EHLO
+        id S233184AbiL1Oy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 09:54:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234253AbiL1QBG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 11:01:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96EA012AA0
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 08:01:05 -0800 (PST)
+        with ESMTP id S233192AbiL1OyU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 09:54:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CD9F3B3
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 06:54:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C127B8172B
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 16:01:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F70BC433EF;
-        Wed, 28 Dec 2022 16:01:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EECDD61544
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 14:54:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1254EC433D2;
+        Wed, 28 Dec 2022 14:54:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672243262;
-        bh=Ct+mYGhl3hN88rg24PYTXGECb/qTwT8CyWyh/9w1Ojg=;
+        s=korg; t=1672239258;
+        bh=a/wLJ97HZrYzmsj7pNmmK+UOr4Bw3OLWE45N67egTyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X+1oHC2BjCznzJHqATCcd7TsHgoGXibeYY9gbkyMh9uQe8Yfxmpu9d4UWUL56ZQHO
-         7mnpa7dRT/vACdsT8sK85fVQ8mdD+AAMTH2LCJeFYfbsaaAfmCuCXMlqOG3nNJXyp9
-         KXI2frNbi0buOK/4ZFxx3I8HdlPiJ5pWfAzSo3h8=
+        b=leMdRjjAVAUKwpY6g4ElYh4CsK36iewTJMlTK587T3WfTo2K9LyY7Unj3FKrMjG6i
+         FVNPddPFHn9QiiRNwlPNlaDd1j23KzW8AYAZmtD+CvtQGiH6oaHmu6+xy3Dat1qVuW
+         w+c49gQK9UK9ylYcTTKtdj0PGks5ogMjTfLPdF60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Jihong <yangjihong1@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 0507/1073] blktrace: Fix output non-blktrace event when blk_classic option enabled
+        patches@lists.linux.dev, Marek Vasut <marex@denx.de>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 188/731] wifi: rsi: Fix handling of 802.3 EAPOL frames sent via control port
 Date:   Wed, 28 Dec 2022 15:34:55 +0100
-Message-Id: <20221228144341.819410129@linuxfoundation.org>
+Message-Id: <20221228144302.009460362@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-References: <20221228144328.162723588@linuxfoundation.org>
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+References: <20221228144256.536395940@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,44 +52,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Jihong <yangjihong1@huawei.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit f596da3efaf4130ff61cd029558845808df9bf99 ]
+[ Upstream commit b8f6efccbb9dc0ff5dee7e20d69a4747298ee603 ]
 
-When the blk_classic option is enabled, non-blktrace events must be
-filtered out. Otherwise, events of other types are output in the blktrace
-classic format, which is unexpected.
+When using wpa_supplicant v2.10, this driver is no longer able to
+associate with any AP and fails in the EAPOL 4-way handshake while
+sending the 2/4 message to the AP. The problem is not present in
+wpa_supplicant v2.9 or older. The problem stems from HostAP commit
+144314eaa ("wpa_supplicant: Send EAPOL frames over nl80211 where available")
+which changes the way EAPOL frames are sent, from them being send
+at L2 frames to them being sent via nl80211 control port.
 
-The problem can be triggered in the following ways:
+An EAPOL frame sent as L2 frame is passed to the WiFi driver with
+skb->protocol ETH_P_PAE, while EAPOL frame sent via nl80211 control
+port has skb->protocol set to ETH_P_802_3 . The later happens in
+ieee80211_tx_control_port(), where the EAPOL frame is encapsulated
+into 802.3 frame.
 
-  # echo 1 > /sys/kernel/debug/tracing/options/blk_classic
-  # echo 1 > /sys/kernel/debug/tracing/events/enable
-  # echo blk > /sys/kernel/debug/tracing/current_tracer
-  # cat /sys/kernel/debug/tracing/trace_pipe
+The rsi_91x driver handles ETH_P_PAE EAPOL frames as high-priority
+frames and sends them via highest-priority transmit queue, while
+the ETH_P_802_3 frames are sent as regular frames. The EAPOL 4-way
+handshake frames must be sent as highest-priority, otherwise the
+4-way handshake times out.
 
-Fixes: c71a89615411 ("blktrace: add ftrace plugin")
-Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
-Link: https://lore.kernel.org/r/20221122040410.85113-1-yangjihong1@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Therefore, to fix this problem, inspect the skb control flags and
+if flag IEEE80211_TX_CTRL_PORT_CTRL_PROTO is set, assume this is
+an EAPOL frame and transmit the frame via high-priority queue just
+like other ETH_P_PAE frames.
+
+Fixes: 0eb42586cf87 ("rsi: data packet descriptor enhancements")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221104163339.227432-1-marex@denx.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/blktrace.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/rsi/rsi_91x_core.c | 4 +++-
+ drivers/net/wireless/rsi/rsi_91x_hal.c  | 6 +++++-
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
-index 7f5eb295fe19..ee22a3b1c181 100644
---- a/kernel/trace/blktrace.c
-+++ b/kernel/trace/blktrace.c
-@@ -1546,7 +1546,8 @@ blk_trace_event_print_binary(struct trace_iterator *iter, int flags,
+diff --git a/drivers/net/wireless/rsi/rsi_91x_core.c b/drivers/net/wireless/rsi/rsi_91x_core.c
+index 6bfaab48b507..6b64a103f39f 100644
+--- a/drivers/net/wireless/rsi/rsi_91x_core.c
++++ b/drivers/net/wireless/rsi/rsi_91x_core.c
+@@ -465,7 +465,9 @@ void rsi_core_xmit(struct rsi_common *common, struct sk_buff *skb)
+ 							      tid, 0);
+ 			}
+ 		}
+-		if (skb->protocol == cpu_to_be16(ETH_P_PAE)) {
++
++		if (IEEE80211_SKB_CB(skb)->control.flags &
++		    IEEE80211_TX_CTRL_PORT_CTRL_PROTO) {
+ 			q_num = MGMT_SOFT_Q;
+ 			skb->priority = q_num;
+ 		}
+diff --git a/drivers/net/wireless/rsi/rsi_91x_hal.c b/drivers/net/wireless/rsi/rsi_91x_hal.c
+index dca81a4bbdd7..30d2eccbcadd 100644
+--- a/drivers/net/wireless/rsi/rsi_91x_hal.c
++++ b/drivers/net/wireless/rsi/rsi_91x_hal.c
+@@ -162,12 +162,16 @@ int rsi_prepare_data_desc(struct rsi_common *common, struct sk_buff *skb)
+ 	u8 header_size;
+ 	u8 vap_id = 0;
+ 	u8 dword_align_bytes;
++	bool tx_eapol;
+ 	u16 seq_num;
  
- static enum print_line_t blk_tracer_print_line(struct trace_iterator *iter)
- {
--	if (!(blk_tracer_flags.val & TRACE_BLK_OPT_CLASSIC))
-+	if ((iter->ent->type != TRACE_BLK) ||
-+	    !(blk_tracer_flags.val & TRACE_BLK_OPT_CLASSIC))
- 		return TRACE_TYPE_UNHANDLED;
+ 	info = IEEE80211_SKB_CB(skb);
+ 	vif = info->control.vif;
+ 	tx_params = (struct skb_info *)info->driver_data;
  
- 	return print_one_line(iter, true);
++	tx_eapol = IEEE80211_SKB_CB(skb)->control.flags &
++		   IEEE80211_TX_CTRL_PORT_CTRL_PROTO;
++
+ 	header_size = FRAME_DESC_SZ + sizeof(struct rsi_xtended_desc);
+ 	if (header_size > skb_headroom(skb)) {
+ 		rsi_dbg(ERR_ZONE, "%s: Unable to send pkt\n", __func__);
+@@ -231,7 +235,7 @@ int rsi_prepare_data_desc(struct rsi_common *common, struct sk_buff *skb)
+ 		}
+ 	}
+ 
+-	if (skb->protocol == cpu_to_be16(ETH_P_PAE)) {
++	if (tx_eapol) {
+ 		rsi_dbg(INFO_ZONE, "*** Tx EAPOL ***\n");
+ 
+ 		data_desc->frame_info = cpu_to_le16(RATE_INFO_ENABLE);
 -- 
 2.35.1
 
