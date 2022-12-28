@@ -2,44 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CE8C657C1F
-	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:29:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1C46657B10
+	for <lists+stable@lfdr.de>; Wed, 28 Dec 2022 16:17:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233778AbiL1P3R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 10:29:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46990 "EHLO
+        id S233205AbiL1PRq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 10:17:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233773AbiL1P3J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:29:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45B1C15721
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:29:06 -0800 (PST)
+        with ESMTP id S233191AbiL1PRn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 10:17:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E62C13F1F
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 07:17:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 722FAB81647
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:29:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E05D1C433EF;
-        Wed, 28 Dec 2022 15:29:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5D8EEB8171C
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 15:17:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A610FC433EF;
+        Wed, 28 Dec 2022 15:17:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672241344;
-        bh=it1IqFbAMGrQR55YRJyMG3htlj7dBdDxPU83/mm0UFI=;
+        s=korg; t=1672240660;
+        bh=QEpW8Zqy4OW62L1PqM7FyKRgRMFmmip1U2fQd8wi8MY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aLUxPtND0hlRQyKTPf5r8v2LUr0QTs7CfBoWZWikeoEfsYIoUU8hz7Q5pfiaQmMUg
-         iLYb1JKtv9Rf+2j9wnZtRBZg+ryXBYJWdG5CSLuYi+3BbZm9mDB0sAoMnP2r42kRW8
-         NhbcCfdrcPK6nxqnr9gtGC18nYPOK4M4s1PRac2U=
+        b=IaM6mBbZD+gsmglPoPDZ+rsswcerITxoTDYJu4hbawFPho4tQKipNtH0Knp7YWima
+         b+6UA4lDS93fTWHdPNV7wBOz+atWENBzvqkoGtvkBaK7VfwKsdk/zgpVEVSPP78/Hp
+         Y7iHIJljINyKuVSn6dklmJrI2a+DIfHhxqfhX1Og=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yunfei Dong <yunfei.dong@mediatek.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Alexey Gladkov <legion@kernel.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Jingyu Wang <jingyuwang_vip@163.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Waiman Long <longman@redhat.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        YueHaibing <yuehaibing@huawei.com>, Yu Zhe <yuzhe@nfschina.com>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 0235/1146] media: mediatek: vcodec: fix h264 cavlc bitstream fail
+Subject: [PATCH 6.0 0186/1073] ipc: fix memory leak in init_mqueue_fs()
 Date:   Wed, 28 Dec 2022 15:29:34 +0100
-Message-Id: <20221228144336.521581223@linuxfoundation.org>
+Message-Id: <20221228144333.063534094@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+References: <20221228144328.162723588@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,81 +63,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunfei Dong <yunfei.dong@mediatek.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit d555409dd1b7cc9e7e5b9e2924c0ef4bf23f6c9b ]
+[ Upstream commit 12b677f2c697d61e5ddbcb6c1650050a39392f54 ]
 
-Some cavlc bistream will decode fail when the frame size is less than
-20 bytes. Need to add pending data at the end of the bitstream.
+When setup_mq_sysctls() failed in init_mqueue_fs(), mqueue_inode_cachep is
+not released.  In order to fix this issue, the release path is reordered.
 
-For the minimum size of mapped memory is 256 bytes(16x16), adding four
-bytes data won't lead to access unknown virtual memory.
-
-Fixes: 59fba9eed5a7 ("media: mediatek: vcodec: support stateless H.264 decoding for mt8192")
-Signed-off-by: Yunfei Dong <yunfei.dong@mediatek.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Link: https://lkml.kernel.org/r/20221209092929.1978875-1-shaozhengchao@huawei.com
+Fixes: dc55e35f9e81 ("ipc: Store mqueue sysctls in the ipc namespace")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Cc: Alexey Gladkov <legion@kernel.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Jingyu Wang <jingyuwang_vip@163.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Roman Gushchin <roman.gushchin@linux.dev>
+Cc: Waiman Long <longman@redhat.com>
+Cc: Wei Yongjun <weiyongjun1@huawei.com>
+Cc: YueHaibing <yuehaibing@huawei.com>
+Cc: Yu Zhe <yuzhe@nfschina.com>
+Cc: Manfred Spraul <manfred@colorfullife.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../vcodec/vdec/vdec_h264_req_multi_if.c      | 32 +++++++++++++++++--
- 1 file changed, 29 insertions(+), 3 deletions(-)
+ ipc/mqueue.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/mediatek/vcodec/vdec/vdec_h264_req_multi_if.c b/drivers/media/platform/mediatek/vcodec/vdec/vdec_h264_req_multi_if.c
-index 4cc92700692b..18e048755d11 100644
---- a/drivers/media/platform/mediatek/vcodec/vdec/vdec_h264_req_multi_if.c
-+++ b/drivers/media/platform/mediatek/vcodec/vdec/vdec_h264_req_multi_if.c
-@@ -539,6 +539,29 @@ static int vdec_h264_slice_core_decode(struct vdec_lat_buf *lat_buf)
- 	return 0;
- }
+diff --git a/ipc/mqueue.c b/ipc/mqueue.c
+index 9cf314b3f079..b258f2455553 100644
+--- a/ipc/mqueue.c
++++ b/ipc/mqueue.c
+@@ -1727,7 +1727,8 @@ static int __init init_mqueue_fs(void)
  
-+static void vdec_h264_insert_startcode(struct mtk_vcodec_dev *vcodec_dev, unsigned char *buf,
-+				       size_t *bs_size, struct mtk_h264_pps_param *pps)
-+{
-+	struct device *dev = &vcodec_dev->plat_dev->dev;
-+
-+	/* Need to add pending data at the end of bitstream when bs_sz is small than
-+	 * 20 bytes for cavlc bitstream, or lat will decode fail. This pending data is
-+	 * useful for mt8192 and mt8195 platform.
-+	 *
-+	 * cavlc bitstream when entropy_coding_mode_flag is false.
-+	 */
-+	if (pps->entropy_coding_mode_flag || *bs_size > 20 ||
-+	    !(of_device_is_compatible(dev->of_node, "mediatek,mt8192-vcodec-dec") ||
-+	    of_device_is_compatible(dev->of_node, "mediatek,mt8195-vcodec-dec")))
-+		return;
-+
-+	buf[*bs_size] = 0;
-+	buf[*bs_size + 1] = 0;
-+	buf[*bs_size + 2] = 1;
-+	buf[*bs_size + 3] = 0xff;
-+	(*bs_size) += 4;
-+}
-+
- static int vdec_h264_slice_lat_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
- 				      struct vdec_fb *fb, bool *res_chg)
- {
-@@ -582,9 +605,6 @@ static int vdec_h264_slice_lat_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
+ 	if (!setup_mq_sysctls(&init_ipc_ns)) {
+ 		pr_warn("sysctl registration failed\n");
+-		return -ENOMEM;
++		error = -ENOMEM;
++		goto out_kmem;
  	}
  
- 	inst->vsi->dec.nal_info = buf[nal_start_idx];
--	inst->vsi->dec.bs_buf_addr = (u64)bs->dma_addr;
--	inst->vsi->dec.bs_buf_size = bs->size;
--
- 	lat_buf->src_buf_req = src_buf_info->m2m_buf.vb.vb2_buf.req_obj.req;
- 	v4l2_m2m_buf_copy_metadata(&src_buf_info->m2m_buf.vb, &lat_buf->ts_info, true);
+ 	error = register_filesystem(&mqueue_fs_type);
+@@ -1745,8 +1746,9 @@ static int __init init_mqueue_fs(void)
+ out_filesystem:
+ 	unregister_filesystem(&mqueue_fs_type);
+ out_sysctl:
+-	kmem_cache_destroy(mqueue_inode_cachep);
+ 	retire_mq_sysctls(&init_ipc_ns);
++out_kmem:
++	kmem_cache_destroy(mqueue_inode_cachep);
+ 	return error;
+ }
  
-@@ -592,6 +612,12 @@ static int vdec_h264_slice_lat_decode(void *h_vdec, struct mtk_vcodec_mem *bs,
- 	if (err)
- 		goto err_free_fb_out;
- 
-+	vdec_h264_insert_startcode(inst->ctx->dev, buf, &bs->size,
-+				   &share_info->h264_slice_params.pps);
-+
-+	inst->vsi->dec.bs_buf_addr = (uint64_t)bs->dma_addr;
-+	inst->vsi->dec.bs_buf_size = bs->size;
-+
- 	*res_chg = inst->resolution_changed;
- 	if (inst->resolution_changed) {
- 		mtk_vcodec_debug(inst, "- resolution changed -");
 -- 
 2.35.1
 
