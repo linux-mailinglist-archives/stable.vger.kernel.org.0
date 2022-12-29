@@ -2,275 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F14BE658EB1
-	for <lists+stable@lfdr.de>; Thu, 29 Dec 2022 17:00:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AE46658EBE
+	for <lists+stable@lfdr.de>; Thu, 29 Dec 2022 17:10:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231158AbiL2QAb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Dec 2022 11:00:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47712 "EHLO
+        id S229871AbiL2QKb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Dec 2022 11:10:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231149AbiL2QA3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Dec 2022 11:00:29 -0500
-Received: from EUR03-DBA-obe.outbound.protection.outlook.com (mail-dbaeur03on2070.outbound.protection.outlook.com [40.107.104.70])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 545F6D52
-        for <stable@vger.kernel.org>; Thu, 29 Dec 2022 08:00:27 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=YEtQdxDUXrVpjF52mT8wodAlPFUjGwTpj5mxGWIvKj7rS1TwoTL3HM/DpOOP0CZ4Mo+hC7G19+RWayQJIIldmSIundx6KnG71wvjyYVSLlc3t22FinrHCIjWptQowovkDocPfngBZjsv5Dpa0o+nxFcIl3KNtRB2Z3NdWzyFYUpfbZK3NMy6xdHDvKfSPHJvWzIju6h+VLcOtF9LNwHlbBBGua7nbnjFMF4txjyHvKzm3k2siJOmteLy3EuS9/XE/Qc8SpWixOWEV+8mg8SaKi1k4IfkuVbFtrup6vP+s8BEG2ORvgFmYt9lPJ2yfyOf69C9aFdZ/zmXu5mdmP5rAg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=cxA1dewoEQYsBBIfqqg+pBAzR2DlA1j9ZrcSXi2VvHA=;
- b=BaVIPt44SobX/DLfnGOK9nLTDbCm65Au9Ca0BggL81qsIJOrhM8OwJyMhKce/dZfiCbcmFNE2AZDhEqG3F6BiJjPzN+/8FwPoNQOcF8GhcYZCd3w4pJwBQsE36paQWx/mcoy4Eklr/GQfqrDyAS5UlJSNLl6xBjP0qwJMYagFYMKrbixOfJAznWtsi/pqOh7HJMeDl/5vUJDiIcbvbBdwZr1jl8ZNbcvN27bQ4ekfSzds4yLyVmgEvoZxxUFBQcUS9dTLjkHitej7vPLZT5ccZRNho8KMP7HHFeGr4XGpNytjYHtb6Z47js1T/G8f13KqA023hyeOrDdurAn2ojL0w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=seco.com; dmarc=pass action=none header.from=seco.com;
- dkim=pass header.d=seco.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seco.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=cxA1dewoEQYsBBIfqqg+pBAzR2DlA1j9ZrcSXi2VvHA=;
- b=wSW1gMg+JK3TBTAqOlNo700BVMK+N1td7rVP7ciMwRlEdjMCfX/rWvARc078W/hqB8cjBm2+JsmMIgJdep1Sg6khJQyEaIoN3jk0XemqgTYaNB4VNqiCe9mTKoLTEBpXLY9MAJqIVbiQVdNfSyRZIV/rpflkJmvOriTr7jXq8QuoOzlHwtX5fVnR2g2AvUdwvfB/JvfRAQM1VwnKTTMHPoDD0gwIj075xGeynTeQfZE2brzG5QNAHAmHdef9W+uRf06XHSSyFYGUEbXeTVJK0Loa/UVTEv5Kxg0uQTcHnRK6QD0Z81J0YosPVNWNumZqVaC4fjLPe9BUFwGXY2Gf6w==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=seco.com;
-Received: from DB9PR03MB8847.eurprd03.prod.outlook.com (2603:10a6:10:3dd::13)
- by PA4PR03MB7391.eurprd03.prod.outlook.com (2603:10a6:102:bd::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5944.16; Thu, 29 Dec
- 2022 16:00:25 +0000
-Received: from DB9PR03MB8847.eurprd03.prod.outlook.com
- ([fe80::2b95:1fe4:5d8f:22fb]) by DB9PR03MB8847.eurprd03.prod.outlook.com
- ([fe80::2b95:1fe4:5d8f:22fb%8]) with mapi id 15.20.5944.016; Thu, 29 Dec 2022
- 16:00:25 +0000
-Message-ID: <c46e40a7-d110-0968-e331-987e77c565a5@seco.com>
-Date:   Thu, 29 Dec 2022 11:00:19 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [PATCH 5.15 152/731] powerpc: dts: t208x: Mark MAC1 and MAC2 as
- 10G
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-References: <20221228144256.536395940@linuxfoundation.org>
- <20221228144300.959873542@linuxfoundation.org>
-From:   Sean Anderson <sean.anderson@seco.com>
-In-Reply-To: <20221228144300.959873542@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: BL1PR13CA0433.namprd13.prod.outlook.com
- (2603:10b6:208:2c3::18) To DB9PR03MB8847.eurprd03.prod.outlook.com
- (2603:10a6:10:3dd::13)
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DB9PR03MB8847:EE_|PA4PR03MB7391:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4ff640f9-1021-4866-0656-08dae9b5cc3e
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 0nHF3NcYTudgwEAMf0Uz6rOO3H1oMPITJYFvYP41Hrul2NeKDi5H8KIurNwixUosu/uOe1FUFriAZOlbk3fc+MHrcDGQ0ySvYxoi2+6MbcGATahfPFpCErUgIfDLDVbI+kB1pOfWE7geAyOOoyUZXxllxFV8AwaNhZvhQsMhCB9CHyNXkUtstyDOTpll6zlSqyTsUALo9A1qzIcXr2xSCJjeF8EHkGTLB0fp1s3XcI58znmA6ZZdE7phydZOw7EPTKGl0sFLLU0qiQCP3WX1SJvWwnksCkrUNzFg3Uz3s39K2pgMdzWeBPp0OvF4sn7BalRVYIZQXC4JWCL+4J7/aYjmH/hWoZeZTlpYknNQdTk+p/PTEV2Gm2g/mriK/i9jmsxvNCrjaAnUTbm8TP7rMtgbUaGszOMpp3nCQQqtJQ09lLUACzpEURKAQUV6yGPo5QnpKrOnn23l6UAVeM04bNpEFEPjlIH2px4VIiOd+kuJ2cpoW3PxfkCqMpGki0+okmyuYTobNml45DndYpX6BFvG+NA5h6tqcy0RpZ+SDzsQmSDRMnlSRpDh2HCCm8c0Owb8YM4VQaBa8HwQ005Af57iM1RjTyRECTANMz7CuA5DLW+P6ywqRWa3/3/ubZ7LW3Kv7WXseqD/1oQtYQzAJR6VASslabsdNAgcK0bmzNl6MaJafeaVRmRkZYZFlvvgHo3yWoD+AFiDWJBPJavyJBsMeu9apoXO+FsBSAemFRZ7Q7lab9JtfUCOWpylFPRkX5qxAqit9vsBtxVJYAvemJs/UnyUQyntpRz/3+sIRn4=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DB9PR03MB8847.eurprd03.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(136003)(396003)(366004)(39850400004)(376002)(346002)(451199015)(83380400001)(52116002)(966005)(2616005)(36756003)(6486002)(6512007)(478600001)(26005)(53546011)(6666004)(6506007)(86362001)(31696002)(38350700002)(5660300002)(31686004)(38100700002)(186003)(66946007)(8936002)(44832011)(2906002)(54906003)(316002)(4326008)(66556008)(8676002)(41300700001)(66476007)(45980500001)(43740500002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?QTRCbGo3dGJzMU5ycVhBK21tTjQwTEZUT2NxNFVmV2wzdnU3SzdzNmV1bU1q?=
- =?utf-8?B?ZFNsM3hjRTF6ODFuSXhNYTJlYkwwWjZ0SGhRdmJZT3IwZVBsd3dWQkwxOTll?=
- =?utf-8?B?QWtPdUR6V1lsb2VocGsveVVEOW5oNmdYYUVCZkpZZ1Fzc21sc1YxL0dSSEJm?=
- =?utf-8?B?VVo4TVdpSjhpaURJd3A1T09Wc1gvYnhIUzI4eklTa0dDbmUzeFZ4L3JPdUpv?=
- =?utf-8?B?aFZSYTdlbHFjeGsyaW5ya09PbEVGTHprbXRyVEJ4QjB1SUVWc3Vpck1WTGNT?=
- =?utf-8?B?WTVmWGtjS00rVHVRcUtMWHoxdGgrbWMrR2dORlk3bUUzczNldmN6UVBsaC8w?=
- =?utf-8?B?emgyaXFqWWY0ajZnRENkUUU3amRTSmp5RzlwczRVTk9QV0lIV2ZoL3VmaERN?=
- =?utf-8?B?aGZzVXA1NS9TMTE2N2swUDExOXFYa0MyTkR6b0d6Ri91cUU3N0dFSXNaMTkx?=
- =?utf-8?B?WVhZTWFobnE1RUUwbWpnaW9McC9KT0h4NnBwSEdhS1hoc04yaDdoR3JKamVP?=
- =?utf-8?B?SHVUQWY4VEFoNXV0VDhJTVZ2RW8zTjlGVkp3L1BXTnVubFlPeFZuMGNlRG8w?=
- =?utf-8?B?WDBaWUFneURCQ2tuOUgrR2pHSEYvVlpqUXk2RkFRUjI3YktDU0lEZlJRa3Mv?=
- =?utf-8?B?L1FwZnkrY1ZwVDRkSjZubHFjWjl6Q1JkOHRkQ3ltOFZBRXpWc2dKUFRBZW8v?=
- =?utf-8?B?Zm4xclV2RFZ6dHZGcHJ0Rm9XTWt4cE1kR2pEaitxWDZRVGZZVkxTUEVLalBX?=
- =?utf-8?B?N3FlU0lUK3VIeTFYbmxJNzVuVmthYnVRV08rSHdtR0lIK0hhMkJ2WTVUNFQr?=
- =?utf-8?B?QTV4L0JtWHl1cHUra3E0N3NWcENpU216b0dwMzlMaXFWQXlKMUtRODkwYVdn?=
- =?utf-8?B?cU45RWM2ak95S0VQMTBLNmIwNTljMDJGV3FGR2x3SHg5dktOMUM0a1lVTHZN?=
- =?utf-8?B?RGdXellpMVBpNFZvWUFTaEpWYTVrb1hzWDhsUWVyTWNyZ2RBcWlBNHh3NGNL?=
- =?utf-8?B?QXRHTlV0YVVqOHFWa0RINU5VSVora3hSNlB1WFNiRWw4OTdUR2pmbGkrMXVw?=
- =?utf-8?B?QXVjT2NwUHgybitZcTdxQVI3a0FFakFGNE5FaWRFdXRpOFlEWUV3S0tCNE9p?=
- =?utf-8?B?VkFRczBEL0ZiTURMOURNeVhCMFpGa0NUcGpXQVpWQ1RocEhWT00vOHV5c0VG?=
- =?utf-8?B?bVQzNU5QT1FzeHlGWUFadjZZV2JQZTIvVnpTdjBEdy9DTFBXREc1NjVOVDVt?=
- =?utf-8?B?ZkI2eTdqb3RRbWlsNnByb2d2MnVJZHIvSzhxclVPbU13Zk9ZdVNhak1raVF4?=
- =?utf-8?B?TEtnZzVCbEZ4OE8vK0FEbUtmT284N3Nvc0doemdpRVFiTVk1QTN0dXZKcklI?=
- =?utf-8?B?cDB5Qko3QnBXWiszRzNDM2FGY3lrYVhFNXZPTm9UR2VML1Z4TjZOYzhoR0Yv?=
- =?utf-8?B?ODBOL2NWOUtsdUtaMWhTS0FEZ0NIRkR2TjlMb20zMGFkTjBqMWZ3ZTVkZHR0?=
- =?utf-8?B?bEFnamtpUU9ZbFo4SmRNVjZhRno2WFVNcVNpTDMxOFJZOHVVdERjak03U2or?=
- =?utf-8?B?eFZoQTNlU0ppTnZoVHJPeG9raUlPTFBtY0ZsYkxKZGlseFFrZXYwZXN0ckpp?=
- =?utf-8?B?RWVZaU9HdUNiZU85cXFKWVllVWNMZ082OEZWcVdndUhTS3lTeDVnNUhVaU5r?=
- =?utf-8?B?SlJxWFVONHVuKzlwOXY1QUJ4Y0x4Z3VIU2puaG5NS2x0cUdBZSt1Z24rTC9C?=
- =?utf-8?B?Q0hTRVBmSllmRnhtNmUzbnlRSldCMlg3Z252cGRIM0NLdkZJRUZ0VGErYm9S?=
- =?utf-8?B?aWhwTkFOTHJYaHJ6Tlc2NVUzRUdXMUpiUVcwYXY5S3ZiY2NyaC9BeDJXSFRF?=
- =?utf-8?B?R2t3NkFYTFowOWxxZFRNeFAveEJvQUcrQ3JFUCs4bEFwN01Ib1BDcGNRVFYx?=
- =?utf-8?B?L1BmV2NTdlpDRnN6SmRCRVJISTArQVFOS3pQSkhWbzlsUjFrMWlVeFQwSEE4?=
- =?utf-8?B?U25zcmxGU015YUQ3MDBFenRjWm1rMkg3S0YzbTdWeVkxQnp5YXVCVGpuQ2VX?=
- =?utf-8?B?MG45dTFvLzNPdVI2TFlCSDUwRXhRWWE2TVJhMUhWZFJWVnFMU3JzcmRCeldx?=
- =?utf-8?B?VW84dlhZSUpTdk0vTjZBMTZnSXFCd0lkaEI0KzluNWY2Z041b2FKckl4bmJU?=
- =?utf-8?B?MFE9PQ==?=
-X-OriginatorOrg: seco.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4ff640f9-1021-4866-0656-08dae9b5cc3e
-X-MS-Exchange-CrossTenant-AuthSource: DB9PR03MB8847.eurprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Dec 2022 16:00:25.2877
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: bebe97c3-6438-442e-ade3-ff17aa50e733
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: +clcYhdYfuXaJbueenkJz8AHbJjQ8l01bZmcF/kLjLdj3yze2yBDVmcmyF9QAe5QMt6E6+4eYM8h3l0G9OTfBw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PA4PR03MB7391
-X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S229535AbiL2QKb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Dec 2022 11:10:31 -0500
+Received: from mail-yb1-xb2a.google.com (mail-yb1-xb2a.google.com [IPv6:2607:f8b0:4864:20::b2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23C7911A35
+        for <stable@vger.kernel.org>; Thu, 29 Dec 2022 08:10:30 -0800 (PST)
+Received: by mail-yb1-xb2a.google.com with SMTP id c124so20988743ybb.13
+        for <stable@vger.kernel.org>; Thu, 29 Dec 2022 08:10:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=joelfernandes.org; s=google;
+        h=to:in-reply-to:cc:references:message-id:date:subject:mime-version
+         :from:content-transfer-encoding:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=0SlNJLfS96B1Ap7tev1XkTq1jXyL6cDjILqwD2QbOmc=;
+        b=hk2Oghj+PA6RJQ262xlgf9G9dCHc5PZO+KeGiNMN1m1VWTXYypgncHv9arriXyENnk
+         8EVXcWxXi00oRvr6x6R/YLIe/xzLee6ProhYHWHV9/E939HHu84hO1qrb6AS6b2yNj7f
+         oe8gYCCkSN3f55KDq2Notv+9y6cQexVKFrTLs=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=to:in-reply-to:cc:references:message-id:date:subject:mime-version
+         :from:content-transfer-encoding:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=0SlNJLfS96B1Ap7tev1XkTq1jXyL6cDjILqwD2QbOmc=;
+        b=wZlBsCKZOOipp71QGzNVb+iSxgdP6BFHKVH4blhLwQmjSc6xAcrMIVxA37l8P2zzAp
+         B0CsUa/a0qe4yV/v9r4PNlmYblsS9kY0NPVAm2ZIaMcsMQDNshfAULQuiW9YG8On3MEr
+         MQRYZc0Qz7bV5iUwmNOGtweR4CGYCdZrvfkKtazssAu0vL7cfG12b+NqC8kF9aBDKw2s
+         btEBhsWKyOHVqbklWP4rhlIGiGSPNDGtnCp38Fo+O7t0UU/7tecoIxIny3nmXpajOJA3
+         N7GI0ud2qVrXluoecTVdv+bOAU/pTtdtnwoKlrwB2+4TlqEEcsqdFVGiafinrbeqg11U
+         0JVw==
+X-Gm-Message-State: AFqh2ko+vJMpBqaYgLSQPOe6FRyLnamTJU+L1BYPwv6NjxtuanRVueNx
+        uId4bMp5OnK1fVr/a4Uqof2XUQ==
+X-Google-Smtp-Source: AMrXdXsDkBpvI443hkmgNVkCjHLvFqZhpRaPn6HGiPqeQIRPAiZ95SqSldA5Fnwp4aZoO4RR0o8XUg==
+X-Received: by 2002:a05:6902:4e9:b0:77f:e6fd:eefd with SMTP id w9-20020a05690204e900b0077fe6fdeefdmr13226012ybs.50.1672330229258;
+        Thu, 29 Dec 2022 08:10:29 -0800 (PST)
+Received: from smtpclient.apple (c-98-249-43-138.hsd1.va.comcast.net. [98.249.43.138])
+        by smtp.gmail.com with ESMTPSA id s4-20020a05620a254400b006feb158e5e7sm13486607qko.70.2022.12.29.08.10.28
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 29 Dec 2022 08:10:28 -0800 (PST)
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+From:   Joel Fernandes <joel@joelfernandes.org>
+Mime-Version: 1.0 (1.0)
+Subject: Re: Please apply to v5.10 stable: 4d60b475f858 ("rcu: Prevent lockdep-RCU splats on lock acquisition/release")
+Date:   Thu, 29 Dec 2022 11:10:17 -0500
+Message-Id: <FA3EA215-5F84-4CFF-BC32-4B9CB7643948@joelfernandes.org>
+References: <Y6z9ygSGmPNz5hfd@google.com>
+Cc:     paulmck@kernel.org, rcu@vger.kernel.org
+In-Reply-To: <Y6z9ygSGmPNz5hfd@google.com>
+To:     stable@vger.kernel.org
+X-Mailer: iPhone Mail (20B101)
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
 
-On 12/28/22 09:34, Greg Kroah-Hartman wrote:
-> From: Sean Anderson <sean.anderson@seco.com>
-> 
-> [ Upstream commit 36926a7d70c2d462fca1ed85bfee000d17fd8662 ]
-> 
-> On the T208X SoCs, MAC1 and MAC2 support XGMII. Add some new MAC dtsi
-> fragments, and mark the QMAN ports as 10G.
-> 
-> Fixes: da414bb923d9 ("powerpc/mpc85xx: Add FSL QorIQ DPAA FMan support to the SoC device tree(s)")
-> Signed-off-by: Sean Anderson <sean.anderson@seco.com>
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-This shouldn't be backported without [1].
+> On Dec 28, 2022, at 9:39 PM, Joel Fernandes <joel@joelfernandes.org> wrote=
+:
+>=20
+> =EF=BB=BFHello,
+> Please apply to v5.10 stable: 4d60b475f858 ("rcu: Prevent lockdep-RCU spla=
+ts
+> on lock acquisition/release"). The patch made it in v5.11
+>=20
+> Without it, I get the follow splat on TREE05 rcutorture testing:
+>=20
+> [    1.253678] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.10.162-rc1+ #6
+> [    1.253678] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.=
+15.0-1 04/01/2014
+> [    1.253678] Call Trace:
+> [    1.253678]
+> [    1.253678] =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> [    1.253678] WARNING: suspicious RCU usage
+> [    1.253678] 5.10.162-rc1+ #6 Not tainted
+> [    1.253678] -----------------------------
+> [    1.253678] kernel/kprobes.c:300 RCU-list traversed in non-reader secti=
+on!!
+>=20
+> I tested with the patch and the warning is gone.
 
-That said, this fix isn't necessary for kernels which don't use phylink for this ethernet driver. 
+Please hold off on this particular one. After a 12 hour test, I am seeing so=
+me new warnings. Will update the thread after some more debug.
 
---Sean
+Sorry for the noise,
 
-[1] https://lore.kernel.org/netdev/20221216172937.2960054-1-sean.anderson@seco.com/
+ - Joel
 
-> ---
->  .../boot/dts/fsl/qoriq-fman3-0-10g-2.dtsi     | 44 +++++++++++++++++++
->  .../boot/dts/fsl/qoriq-fman3-0-10g-3.dtsi     | 44 +++++++++++++++++++
->  arch/powerpc/boot/dts/fsl/t2081si-post.dtsi   |  4 +-
->  3 files changed, 90 insertions(+), 2 deletions(-)
->  create mode 100644 arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-2.dtsi
->  create mode 100644 arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-3.dtsi
-> 
-> diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-2.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-2.dtsi
-> new file mode 100644
-> index 000000000000..437dab3fc017
-> --- /dev/null
-> +++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-2.dtsi
-> @@ -0,0 +1,44 @@
-> +// SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0-or-later
-> +/*
-> + * QorIQ FMan v3 10g port #2 device tree stub [ controller @ offset 0x400000 ]
-> + *
-> + * Copyright 2022 Sean Anderson <sean.anderson@seco.com>
-> + * Copyright 2012 - 2015 Freescale Semiconductor Inc.
-> + */
-> +
-> +fman@400000 {
-> +	fman0_rx_0x08: port@88000 {
-> +		cell-index = <0x8>;
-> +		compatible = "fsl,fman-v3-port-rx";
-> +		reg = <0x88000 0x1000>;
-> +		fsl,fman-10g-port;
-> +	};
-> +
-> +	fman0_tx_0x28: port@a8000 {
-> +		cell-index = <0x28>;
-> +		compatible = "fsl,fman-v3-port-tx";
-> +		reg = <0xa8000 0x1000>;
-> +		fsl,fman-10g-port;
-> +	};
-> +
-> +	ethernet@e0000 {
-> +		cell-index = <0>;
-> +		compatible = "fsl,fman-memac";
-> +		reg = <0xe0000 0x1000>;
-> +		fsl,fman-ports = <&fman0_rx_0x08 &fman0_tx_0x28>;
-> +		ptp-timer = <&ptp_timer0>;
-> +		pcsphy-handle = <&pcsphy0>;
-> +	};
-> +
-> +	mdio@e1000 {
-> +		#address-cells = <1>;
-> +		#size-cells = <0>;
-> +		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
-> +		reg = <0xe1000 0x1000>;
-> +		fsl,erratum-a011043; /* must ignore read errors */
-> +
-> +		pcsphy0: ethernet-phy@0 {
-> +			reg = <0x0>;
-> +		};
-> +	};
-> +};
-> diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-3.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-3.dtsi
-> new file mode 100644
-> index 000000000000..ad116b17850a
-> --- /dev/null
-> +++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-3.dtsi
-> @@ -0,0 +1,44 @@
-> +// SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0-or-later
-> +/*
-> + * QorIQ FMan v3 10g port #3 device tree stub [ controller @ offset 0x400000 ]
-> + *
-> + * Copyright 2022 Sean Anderson <sean.anderson@seco.com>
-> + * Copyright 2012 - 2015 Freescale Semiconductor Inc.
-> + */
-> +
-> +fman@400000 {
-> +	fman0_rx_0x09: port@89000 {
-> +		cell-index = <0x9>;
-> +		compatible = "fsl,fman-v3-port-rx";
-> +		reg = <0x89000 0x1000>;
-> +		fsl,fman-10g-port;
-> +	};
-> +
-> +	fman0_tx_0x29: port@a9000 {
-> +		cell-index = <0x29>;
-> +		compatible = "fsl,fman-v3-port-tx";
-> +		reg = <0xa9000 0x1000>;
-> +		fsl,fman-10g-port;
-> +	};
-> +
-> +	ethernet@e2000 {
-> +		cell-index = <1>;
-> +		compatible = "fsl,fman-memac";
-> +		reg = <0xe2000 0x1000>;
-> +		fsl,fman-ports = <&fman0_rx_0x09 &fman0_tx_0x29>;
-> +		ptp-timer = <&ptp_timer0>;
-> +		pcsphy-handle = <&pcsphy1>;
-> +	};
-> +
-> +	mdio@e3000 {
-> +		#address-cells = <1>;
-> +		#size-cells = <0>;
-> +		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
-> +		reg = <0xe3000 0x1000>;
-> +		fsl,erratum-a011043; /* must ignore read errors */
-> +
-> +		pcsphy1: ethernet-phy@0 {
-> +			reg = <0x0>;
-> +		};
-> +	};
-> +};
-> diff --git a/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi b/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi
-> index ecbb447920bc..74e17e134387 100644
-> --- a/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi
-> +++ b/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi
-> @@ -609,8 +609,8 @@ usb1: usb@211000 {
->  /include/ "qoriq-bman1.dtsi"
->  
->  /include/ "qoriq-fman3-0.dtsi"
-> -/include/ "qoriq-fman3-0-1g-0.dtsi"
-> -/include/ "qoriq-fman3-0-1g-1.dtsi"
-> +/include/ "qoriq-fman3-0-10g-2.dtsi"
-> +/include/ "qoriq-fman3-0-10g-3.dtsi"
->  /include/ "qoriq-fman3-0-1g-2.dtsi"
->  /include/ "qoriq-fman3-0-1g-3.dtsi"
->  /include/ "qoriq-fman3-0-1g-4.dtsi"
 
+>=20
+> thanks,
+>=20
+> - Joel
+>=20
