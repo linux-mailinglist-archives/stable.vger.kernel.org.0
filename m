@@ -2,44 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B2C4658D00
-	for <lists+stable@lfdr.de>; Thu, 29 Dec 2022 14:05:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5C59658D96
+	for <lists+stable@lfdr.de>; Thu, 29 Dec 2022 14:43:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229625AbiL2NFF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Dec 2022 08:05:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45964 "EHLO
+        id S229611AbiL2NnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Dec 2022 08:43:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229487AbiL2NFE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Dec 2022 08:05:04 -0500
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D70CDD78
-        for <stable@vger.kernel.org>; Thu, 29 Dec 2022 05:04:55 -0800 (PST)
-Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1pAsab-0003m7-Qf; Thu, 29 Dec 2022 14:04:53 +0100
-Message-ID: <e8d819e0-10c4-89c0-6b13-d1ceb01da0fc@leemhuis.info>
-Date:   Thu, 29 Dec 2022 14:04:53 +0100
+        with ESMTP id S233263AbiL2Nm7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Dec 2022 08:42:59 -0500
+Received: from mail-oi1-x235.google.com (mail-oi1-x235.google.com [IPv6:2607:f8b0:4864:20::235])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72D7C1C8;
+        Thu, 29 Dec 2022 05:42:58 -0800 (PST)
+Received: by mail-oi1-x235.google.com with SMTP id r11so17134324oie.13;
+        Thu, 29 Dec 2022 05:42:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=iU5YR6g7EfNu0IKYILG9gNX2NqRxPGtJQ3zhvrD7d40=;
+        b=Vjnbt8qCFN9vs5SeheQkjqX73L+5YrEyhgFYHuNft0EHBaacpA6LgS5zEvsxfdpjgZ
+         G5oiQcGyZSjoCfrB9kHrfIDFUcHZ9fBR4QLM0HK+FFOnKwOFPjB0o1Ok0BEo8bIgGKmY
+         /ZCUFD/f4xZJHelP9yi1cU4AdWCt8c5hTSoCfmT80dT9mpYbc4VQuW0xeodQPvthDLjp
+         bHMnjKDXp8LhCssXKaqDFwZuzHhAUyPuEZ9RP9HSOCSITztZFGS+knJXJXQAxGSwOFHF
+         yR6VK9tVleeQjRAE2UUyh40RIlwpeQ27z7F5CUpD7MpyJWjS1Rt2BXKnx0ZxYgdNRvml
+         RjPg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=iU5YR6g7EfNu0IKYILG9gNX2NqRxPGtJQ3zhvrD7d40=;
+        b=uN8+Omx6AAb+UdO+7X6O32l4FX9xVEUlItHz0AnYNVQ9djUEI0mGZ1NRucW0dkTdM+
+         iB6TPtuCM3Sehdw6LHW1AA27QstgrWERNbX39cYYE9EfOA2gJRLrM2+eLnM90Ox8QbWG
+         hUaJlTFF601QG6VrxTz5Ni83zItXvvd7uRN819NzD7WizOWiA2253QIAgmtPHV0LgneK
+         vmivnMnykZI6ETUVUOpDZmL5BC49jNuFz/Ku7BZ8OsxuPl4UpLvPcR1fJLKwfTHYwRX0
+         lNMXPnE7mSjXrV1H4m2QqTk4SgeZ7EzYvKBs5Y10K6zRpj22MldjZvNoP1y5q6vybuQ8
+         aaDQ==
+X-Gm-Message-State: AFqh2kqzBOPE03EjTp5OHd9obl00rF5LsyumDHbbLwbmWnyWvQWT1afN
+        q1EmDDfaVQ2T9vXd1kQCHb0=
+X-Google-Smtp-Source: AMrXdXuo9eYBLfUByRgvD9NMG9Rb66AbVGrS7Ha0n8FVfIwYn+QIzbcIG8zOwR37iOFykfujMN4XdA==
+X-Received: by 2002:a05:6808:1387:b0:361:25b3:b4e6 with SMTP id c7-20020a056808138700b0036125b3b4e6mr15394570oiw.22.1672321377725;
+        Thu, 29 Dec 2022 05:42:57 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id s8-20020aca4508000000b003549db40f38sm8037733oia.46.2022.12.29.05.42.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 29 Dec 2022 05:42:56 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Thu, 29 Dec 2022 05:42:55 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 5.15 000/731] 5.15.86-rc1 review
+Message-ID: <20221229134255.GA16547@roeck-us.net>
+References: <20221228144256.536395940@linuxfoundation.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-Subject: Re: [PATCH 6.1 0000/1146] 6.1.2-rc1 review
-Content-Language: en-US, de-DE
-To:     Vlastimil Babka <vbabka@suse.cz>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        =?UTF-8?Q?Holger_Hoffst=c3=a4tte?= <holger@applied-asynchrony.com>
-Cc:     stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>
-References: <20221228144330.180012208@linuxfoundation.org>
- <2bf086f8-aa9d-b576-ba8b-1fcfbc9a4ff1@applied-asynchrony.com>
- <Y6xkpmqxRQwDyLAb@kroah.com> <d5534922-0b33-268d-cfad-c175ff4f676e@suse.cz>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-In-Reply-To: <d5534922-0b33-268d-cfad-c175ff4f676e@suse.cz>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1672319095;2dafd897;
-X-HE-SMSGID: 1pAsab-0003m7-Qf
-X-Spam-Status: No, score=-3.0 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221228144256.536395940@linuxfoundation.org>
+X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,46 +77,24 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 28.12.22 19:57, Vlastimil Babka wrote:
-> On 12/28/22 16:45, Greg Kroah-Hartman wrote:
->> On Wed, Dec 28, 2022 at 04:02:57PM +0100, Holger Hoffstätte wrote:
->>> On 2022-12-28 15:25, Greg Kroah-Hartman wrote:
->>>> This is the start of the stable review cycle for the 6.1.2 release.
->>>> There are 1146 patches in this series, all will be posted as a response
->>>> to this one.  If anyone has any issues with these being applied, please
->>>> let me know.
->>>
->>> I know this is already a large set of updates, but it would be great if
->>> commit 6f12be792fde994ed934168f93c2a0d2a0cf0bc5 ("mm, mremap: fix mremap()
->>> expanding vma with addr inside vma") could be added as well; it applies and
->>> works fine on top of 6.1.1.
->>> This fixes quite a few annoying mmap-related out-of-memory failures.
->>
->> It's set up for future releases.  If this was such a big issue for
->> 6.1-final, why wasn't it sent to Linus before 6.2-rc1?
+On Wed, Dec 28, 2022 at 03:31:47PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.86 release.
+> There are 731 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Thorsten did question its upstreaming speed elsewhere. But it actually
-> is in 6.2-rc1. Andrew sent the PR on 22th and Linus merged on 23th [1].
-> I didn't try to accelerate it to stable as IIRC people already pointed
-> it out and you acknowledged it's on your radar, and it was a tracked
-> regression. Sucks that it didn't make it to 6.1.2.
+> Responses should be made by Fri, 30 Dec 2022 14:41:39 +0000.
+> Anything received after that time might be too late.
+> 
 
-Yup. I've been thinking somewhat what I could or should do to ensure
-things work more smoothly when similar situations arise in the future;
-ideally without me stepping on maintainer's toes too much. ;)
+Build results:
+	total: 160 pass: 158 fail: 2
+Failed builds:
+	arm:allmodconfig
+	arm64:allmodconfig
+Qemu test results:
+	total: 489 pass: 489 fail: 0
 
-Currently I consider doing the following two things:
+Build errors as reported.
 
-(1) if I notice something that looks like an important regression fix,
-reply with a "how fast do you think this fix should process through the
-ranks" inquiry to the developer. With such information I'd feel way more
-comfortable sending a "Linus, could you maybe pick this up directly"
-after some time in case the maintainer leaves the patch longer in -next.
-
-(2) once Linus merged the fix, send a quick mail to Greg/the stable team
-asking them to immediately queue it for the next release (in case
-problems show up it can still be de-queued).
-
-Does that sound sane? Or anyone any better idea?
-
-Ciao, Thorsten
+Guenter
