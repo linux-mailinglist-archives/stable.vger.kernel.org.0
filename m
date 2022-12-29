@@ -2,246 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D01B658EE3
-	for <lists+stable@lfdr.de>; Thu, 29 Dec 2022 17:22:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C193A658F28
+	for <lists+stable@lfdr.de>; Thu, 29 Dec 2022 17:44:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233287AbiL2QWO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Dec 2022 11:22:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54102 "EHLO
+        id S233747AbiL2QoS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Dec 2022 11:44:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230173AbiL2QWN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Dec 2022 11:22:13 -0500
-Received: from mail-vs1-xe32.google.com (mail-vs1-xe32.google.com [IPv6:2607:f8b0:4864:20::e32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A36313F37
-        for <stable@vger.kernel.org>; Thu, 29 Dec 2022 08:22:12 -0800 (PST)
-Received: by mail-vs1-xe32.google.com with SMTP id o63so14103840vsc.10
-        for <stable@vger.kernel.org>; Thu, 29 Dec 2022 08:22:12 -0800 (PST)
+        with ESMTP id S233685AbiL2Qnv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Dec 2022 11:43:51 -0500
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CE94A199;
+        Thu, 29 Dec 2022 08:43:50 -0800 (PST)
+Received: by mail-wr1-x42f.google.com with SMTP id h16so17827985wrz.12;
+        Thu, 29 Dec 2022 08:43:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=bQOSh25SYMN2/P2PglP6We39JwwFuMW1Z/fACD73SKY=;
-        b=J/6WobU1v+s8e5z29bJ9esEMLBgYVMQmSUMb9TgVjVRXOm7oUYxI5ZEfjZWLmrVebb
-         /qQGll/SVAe49l1t40CN23HNVKbOe+0XgAuzpEjD3ohLNE7dQcSZlsCwd6KkX3DA8zU2
-         j94G2RwGERusZILOLo7S5IUS9xAjZwfX/zNVCQup0athfFmK+ac4j8PW6CtlgI5lTt6C
-         LPruFBS8KpCLCxMhXIZOFuzmkcnyWa0zdZsanTQJP2ndXdU5Y6YMGQU4uI3ZnTUa6+HB
-         VmI4iJ9ocFNh43vP30ipB16AoCxlL9KvxKjHQgYLBKeaQ5+fSVfFJeeoCv04MLVVkfi+
-         LUmg==
+        bh=7DRy4n53RTFJK/svNsb/BzVssR7kQTw8N2fRZXaNdwU=;
+        b=IEY5UAWZ6uD/FP0uMQOSDS6RJRrh3DDUCLkLk1GIT5itCgllG5VG+qxEzuKQY4uG0Y
+         JSjjv/f1IEOz9ZxrJptTxgtKW4Ht0yJJWrbfeAtdEr0kZp0HcNmxUviJDCuzY9bsmxfU
+         5O0hY0AeGfSWjIKjRa7f5BexR4Gr7mApx5zh67skyXvsZpPbbqVlmBVypdsumdeYfhgp
+         X2zrP3G0iiksaKDQEnWJ/NssqoVJAogPXTYiHIbnMwFakDCOEip5xKc745fF9yr86iK1
+         wwLT24BIRVfYOaY24IvabRDVdhxCLUhSAaCLFOt3l7WCM566Zeovo3BlicCLaAn9F1wb
+         Al/g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=bQOSh25SYMN2/P2PglP6We39JwwFuMW1Z/fACD73SKY=;
-        b=jcQ4c94F/NG+60uc60gvsbHRjbSBkh+NxQ1N+EKKGNa2iwzmGn1ZC9XSptJ4WEaMaf
-         FyWIi6ez3JDs/mjDPIaJyXLVkLw/xXrAn+FvlhS5Bp2RP+BgM2Lu0167WncGEhIfFG3w
-         h68qllE4FpPjPoYISK9wnoxq0/Kg1ZLptzC499Uy4wk2ojO2ArlIxwhuAwnuc5dBEXcs
-         paCWSr84HzIGY3SjKAjF4ICb3TcSGPc0nvCFf8uqTV7hjb8YOQ17QiIH+1WSAAvYqm1G
-         Y4IxC78I6NjEpT5yUqgp9nIx6ZtkHEGKejrOSKt69HCnoJ4YXPUtm4aughE5FW8mwxEF
-         QH/Q==
-X-Gm-Message-State: AFqh2kqlLDAPJ1AZO5FtUIn+RWSzh8NO+axIfMz8FVaSSvYeZ3C97ml7
-        GfkEVVnwZhtKZCR0WQss5SOukt+PBTd1qqxja8Ykgw==
-X-Google-Smtp-Source: AMrXdXtGwLt1Gol5wxxu86/UY71kBoCq1sZn7FJVRDs67bdPu/eoxqTbmwHM62M33VtlUGvJLy7OfKQH+//RXqEChdI=
-X-Received: by 2002:a67:ec94:0:b0:3b5:32d0:edcc with SMTP id
- h20-20020a67ec94000000b003b532d0edccmr3224449vsp.24.1672330931315; Thu, 29
- Dec 2022 08:22:11 -0800 (PST)
+        bh=7DRy4n53RTFJK/svNsb/BzVssR7kQTw8N2fRZXaNdwU=;
+        b=aKl0D3iXTuwO660ixylvDb33gHrahT82Iy54jJgawqWA6JfdI60F1gyxjh6Xe/x8uz
+         zrSm0Sa1DiszhyNLYQFcnzTc+8gSumcz5QGsyOeTSIdRVrpcsPquz0SNaQJhNAmbT788
+         duYeuxYvH0B3deSb9ghKHTKs0VqAOvbdaFE1DsUm7cmZaksty/wHrKAQgmudH1FK/GA7
+         6TJe4PR0DFdz1tTOkdTHmVOjIq8+ziuY632fDJ+KBoYYtO5K2wbAemmUE27bAoDlFN99
+         RTPXD9nSYs235zNFixhhFBzBpBMpDoZgCK45+c6wxYH9g718hAr11pkb2dm1fmCS7/JV
+         USeA==
+X-Gm-Message-State: AFqh2kpRahxdEOr0u/c4JbCSprikPVELDMwWbfcWG5GtuRX4aTEtExrU
+        56r2asEzvQQUHXAF0tadXGQ=
+X-Google-Smtp-Source: AMrXdXuR5DfigdAyrXnl57aOMSBOwFw1spsU6cE9//4Ui2POlBodyJpPhYKQKidyKznT7GAkDWW9bw==
+X-Received: by 2002:a05:6000:1378:b0:268:72d5:c8aa with SMTP id q24-20020a056000137800b0026872d5c8aamr18633922wrz.23.1672332228651;
+        Thu, 29 Dec 2022 08:43:48 -0800 (PST)
+Received: from localhost.localdomain (host-82-55-238-56.retail.telecomitalia.it. [82.55.238.56])
+        by smtp.googlemail.com with ESMTPSA id t18-20020a5d42d2000000b00288a3fd9248sm4326586wrr.91.2022.12.29.08.43.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 29 Dec 2022 08:43:48 -0800 (PST)
+From:   Christian Marangi <ansuelsmth@gmail.com>
+To:     Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Christian Marangi <ansuelsmth@gmail.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Ronald Wahl <ronald.wahl@raritan.com>, stable@vger.kernel.org
+Subject: [net PATCH v2 1/5] net: dsa: qca8k: fix wrong length value for mgmt eth packet
+Date:   Thu, 29 Dec 2022 17:33:32 +0100
+Message-Id: <20221229163336.2487-2-ansuelsmth@gmail.com>
+X-Mailer: git-send-email 2.37.2
+In-Reply-To: <20221229163336.2487-1-ansuelsmth@gmail.com>
+References: <20221229163336.2487-1-ansuelsmth@gmail.com>
 MIME-Version: 1.0
-References: <20221228144330.180012208@linuxfoundation.org>
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 29 Dec 2022 21:51:59 +0530
-Message-ID: <CA+G9fYuZL8iMgz1XPnsTdXR7Afa=rNXiJR2C55+rZ_zu0y74xw@mail.gmail.com>
-Subject: Re: [PATCH 6.1 0000/1146] 6.1.2-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 28 Dec 2022 at 20:15, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 6.1.2 release.
-> There are 1146 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri, 30 Dec 2022 14:41:29 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-=
-6.1.2-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-6.1.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+The assumption that Documentation was right about how this value work was
+wrong. It was discovered that the length value of the mgmt header is in
+step of word size.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+As an example to process 4 byte of data the correct length to set is 2.
+To process 8 byte 4, 12 byte 6, 16 byte 8...
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Odd values will always return the next size on the ack packet.
+(length of 3 (6 byte) will always return 8 bytes of data)
 
-NOTE:
-Daniel D=C3=ADaz reported allmodconfig failures [1].
-[1] https://lore.kernel.org/stable/c3c2ef47-b46d-b446-5475-366867954528@lin=
-aro.org/
+This means that a value of 15 (0xf) actually means reading/writing 32 bytes
+of data instead of 16 bytes. This behaviour is totally absent and not
+documented in the switch Documentation.
 
-## Build
-* kernel: 6.1.2-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-6.1.y
-* git commit: aa2ec258c437267ab5178442982d02c59186cf96
-* git describe: v6.1.1-1147-gaa2ec258c437
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.1=
--1147-gaa2ec258c437
+In fact from Documentation the max value that mgmt eth can process is
+16 byte of data while in reality it can process 32 bytes at once.
 
-## Test Regressions (compared to v6.1-26-g4478ff938eb5)
+To handle this we always round up the length after deviding it for word
+size. We check if the result is odd and we round another time to align
+to what the switch will provide in the ack packet.
+The workaround for the length limit of 15 is still needed as the length
+reg max value is 0xf(15)
 
-## Metric Regressions (compared to v6.1-26-g4478ff938eb5)
+Reported-by: Ronald Wahl <ronald.wahl@raritan.com>
+Tested-by: Ronald Wahl <ronald.wahl@raritan.com>
+Fixes: 90386223f44e ("net: dsa: qca8k: add support for larger read/write size with mgmt Ethernet")
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+Cc: stable@vger.kernel.org # v5.18+
+---
+ drivers/net/dsa/qca/qca8k-8xxx.c | 45 +++++++++++++++++++++++++-------
+ 1 file changed, 35 insertions(+), 10 deletions(-)
 
-## Test Fixes (compared to v6.1-26-g4478ff938eb5)
+diff --git a/drivers/net/dsa/qca/qca8k-8xxx.c b/drivers/net/dsa/qca/qca8k-8xxx.c
+index c5c3b4e92f28..46151320b2a8 100644
+--- a/drivers/net/dsa/qca/qca8k-8xxx.c
++++ b/drivers/net/dsa/qca/qca8k-8xxx.c
+@@ -146,7 +146,16 @@ static void qca8k_rw_reg_ack_handler(struct dsa_switch *ds, struct sk_buff *skb)
+ 
+ 	command = get_unaligned_le32(&mgmt_ethhdr->command);
+ 	cmd = FIELD_GET(QCA_HDR_MGMT_CMD, command);
++
+ 	len = FIELD_GET(QCA_HDR_MGMT_LENGTH, command);
++	/* Special case for len of 15 as this is the max value for len and needs to
++	 * be increased before converting it from word to dword.
++	 */
++	if (len == 15)
++		len++;
++
++	/* We can ignore odd value, we always round up them in the alloc function. */
++	len *= sizeof(u16);
+ 
+ 	/* Make sure the seq match the requested packet */
+ 	if (get_unaligned_le32(&mgmt_ethhdr->seq) == mgmt_eth_data->seq)
+@@ -193,17 +202,33 @@ static struct sk_buff *qca8k_alloc_mdio_header(enum mdio_cmd cmd, u32 reg, u32 *
+ 	if (!skb)
+ 		return NULL;
+ 
+-	/* Max value for len reg is 15 (0xf) but the switch actually return 16 byte
+-	 * Actually for some reason the steps are:
+-	 * 0: nothing
+-	 * 1-4: first 4 byte
+-	 * 5-6: first 12 byte
+-	 * 7-15: all 16 byte
++	/* Hdr mgmt length value is in step of word size.
++	 * As an example to process 4 byte of data the correct length to set is 2.
++	 * To process 8 byte 4, 12 byte 6, 16 byte 8...
++	 *
++	 * Odd values will always return the next size on the ack packet.
++	 * (length of 3 (6 byte) will always return 8 bytes of data)
++	 *
++	 * This means that a value of 15 (0xf) actually means reading/writing 32 bytes
++	 * of data.
++	 *
++	 * To correctly calculate the length we devide the requested len by word and
++	 * round up.
++	 * On the ack function we can skip the odd check as we already handle the
++	 * case here.
++	 */
++	real_len = DIV_ROUND_UP(len, sizeof(u16));
++
++	/* We check if the result len is odd and we round up another time to
++	 * the next size. (length of 3 will be increased to 4 as switch will always
++	 * return 8 bytes)
+ 	 */
+-	if (len == 16)
+-		real_len = 15;
+-	else
+-		real_len = len;
++	if (real_len % sizeof(u16) != 0)
++		real_len++;
++
++	/* Max reg value is 0xf(15) but switch will always return the next size (32 byte) */
++	if (real_len == 16)
++		real_len--;
+ 
+ 	skb_reset_mac_header(skb);
+ 	skb_set_network_header(skb, skb->len);
+-- 
+2.37.2
 
-## Metric Fixes (compared to v6.1-26-g4478ff938eb5)
-
-## Test result summary
-total: 164885, pass: 147138, fail: 3231, skip: 14516, xfail: 0
-
-## Build Summary
-* arc: 5 total, 5 passed, 0 failed
-* arm: 151 total, 144 passed, 7 failed
-* arm64: 51 total, 47 passed, 4 failed
-* i386: 39 total, 35 passed, 4 failed
-* mips: 30 total, 27 passed, 3 failed
-* parisc: 8 total, 7 passed, 1 failed
-* powerpc: 38 total, 32 passed, 6 failed
-* riscv: 16 total, 15 passed, 1 failed
-* s390: 16 total, 14 passed, 2 failed
-* sh: 14 total, 12 passed, 2 failed
-* sparc: 8 total, 8 passed, 0 failed
-* x86_64: 44 total, 44 passed, 0 failed
-
-## Test suites summary
-* boot
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers-dma-buf
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-filesystems-binderfs
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net-forwarding
-* kselftest-net-mptcp
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cv
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ip
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-nptl++
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
