@@ -2,128 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89956658962
-	for <lists+stable@lfdr.de>; Thu, 29 Dec 2022 05:23:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2EAC6589DC
+	for <lists+stable@lfdr.de>; Thu, 29 Dec 2022 08:09:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230327AbiL2EXU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 23:23:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46826 "EHLO
+        id S230487AbiL2HJb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Dec 2022 02:09:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230078AbiL2EXN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 23:23:13 -0500
-Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6ED412757
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 20:23:12 -0800 (PST)
-Received: by mail-io1-xd42.google.com with SMTP id r72so9269947iod.5
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 20:23:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=reply-to:date:to:subject:content-description
-         :content-transfer-encoding:mime-version:from:message-id:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=jmvDLwpHkH8FaVzu/Ma7h71eJBYmgoQrtEyy6Z1Be8I=;
-        b=A8W9LrCdjeSw7C17gp2c/N2ftOmst+dm8guwB3/IlmFiCfkewvzIspoLHjGfJlRV5f
-         iwz5zfbfbtQlm88hxtv/TTaNqsHQAF369MWCU2JSkch+TBjtOB7r8Li8KxZOPI4ratWO
-         OjmTCjt93zMI0F2r4btzHNdo4GhoM277mV1aiHIz7y50yiEaWTb8GBQVE3iPY+p4g5Bc
-         IrUcDLvkWaCfr230TXdjlG3dYH5eFtsrJgp0tW3CCaF4s4/pES1GYBY05BDKZTAxhJn2
-         UVi6quEjtN82+xpmykJOOSxPgRABtag8KzmcANKMG4UrWgQ0AM6OOkM2xCZe3TLuLh+x
-         O7PA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=reply-to:date:to:subject:content-description
-         :content-transfer-encoding:mime-version:from:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=jmvDLwpHkH8FaVzu/Ma7h71eJBYmgoQrtEyy6Z1Be8I=;
-        b=jNFv58ZmIH4BWFffLmhFwdU/GxPrrcvx/Z75yywbEDQCFrjXZN60ca4efI2vdCyEnK
-         YQHfODH9AxWY6G23do7azjV9UTX6+jdHe2BXzsgwEP/VhoHkJ2fGNHDilZqykAF+yXpc
-         fv0CkLhM4dcpqeX8MtOxYdfvt9U/tDOcsOOlPotAV79uG6tem+LQ2bzE/tr3IF8o+Sx+
-         9TDOmKhVqYaqx6oXZ1QxCwQ3W/W8pWKHBgnluFl1j8q0KqwNtekHhbuuvtGl/5kY0f4P
-         SL1OHMr1TSE2pcGgbdXGdDY2Qh5zJ6LrFpf2ETeswuHgfstFTVTgUh1gCTdhCQ51Fgnk
-         3qQA==
-X-Gm-Message-State: AFqh2kr/aywEBUBBXgH74b4HoCETtN0mlO8K0ylNDWYfPR7+nza7uaAl
-        iSRdnLGNM5wkKIeBb6aR6II=
-X-Google-Smtp-Source: AMrXdXvs9t/7nO/DS1PVYExIImxlQu7MBC8+GJUTlqJFQ0n/X5HUfPc/HNcZW6jPoFD96lT0QBTdHw==
-X-Received: by 2002:a05:6602:2a47:b0:6df:3e46:ab2b with SMTP id k7-20020a0566022a4700b006df3e46ab2bmr29257622iov.6.1672287792011;
-        Wed, 28 Dec 2022 20:23:12 -0800 (PST)
-Received: from [0.0.0.96] ([96.9.208.18])
-        by smtp.googlemail.com with ESMTPSA id y23-20020a027317000000b00349c45fd3a8sm5642304jab.29.2022.12.28.20.23.09
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Wed, 28 Dec 2022 20:23:11 -0800 (PST)
-Message-ID: <63ad162f.020a0220.98ed5.6b79@mx.google.com>
-From:   Sopath Heang <vishalkumarmx@gmail.com>
-X-Google-Original-From: "Sopath Heang" <unknown@unknown.com>
-Content-Type: text/plain; charset="iso-8859-1"
+        with ESMTP id S229685AbiL2HJa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Dec 2022 02:09:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E520E9FFE;
+        Wed, 28 Dec 2022 23:09:28 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7758AB81909;
+        Thu, 29 Dec 2022 07:09:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B07DFC433D2;
+        Thu, 29 Dec 2022 07:09:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1672297766;
+        bh=VDIcM/qkw5mTEEc0H1KNyAj0dRgYpS69OnRANnygUIM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=C7E7e6IJxx3AUPTH+ulylNEEdfuHNWxQDn7sXCyAAwwj61/prZhph1MynvjtRFngO
+         xgHnCvpnxJUFKAPqc2TOPA6iBWF8Cs+584aozmFUV0GpoamIEBuM8bjtSsrT6XhVkx
+         Hnbvb0Iz2a/3tkjbF1n4UyUxnkXr7HPjNNJpgU1w=
+Date:   Thu, 29 Dec 2022 08:09:17 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Wang Yugui <wangyugui@e16-tech.com>
+Cc:     yukuai3@huawei.com, hch@lst.de, stable@vger.kernel.org,
+        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 6.1 0000/1146] 6.1.2-rc1 review
+Message-ID: <Y609HVxcOn+rtP1O@kroah.com>
+References: <20221228144330.180012208@linuxfoundation.org>
+ <20221229115707.098A.409509F4@e16-tech.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: From Heang S
-To:     Recipients <unknown@unknown.com>
-Date:   Thu, 29 Dec 2022 05:23:08 +0100
-Reply-To: sopaheg@gmail.com
-X-Spam-Status: Yes, score=7.7 required=5.0 tests=ADVANCE_FEE_3_NEW_MONEY,
-        BAYES_50,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,HK_SCAM,LOTS_OF_MONEY,
-        MONEY_FREEMAIL_REPTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_MONEY_PERCENT autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:d42 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5001]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [vishalkumarmx[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        *  0.0 LOTS_OF_MONEY Huge... sums of money
-        *  2.0 HK_SCAM No description available.
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-        *  1.4 MONEY_FREEMAIL_REPTO Lots of money from someone using free
-        *      email?
-        *  0.0 T_MONEY_PERCENT X% of a lot of money for you
-        *  2.7 ADVANCE_FEE_3_NEW_MONEY Advance Fee fraud and lots of money
-X-Spam-Level: *******
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221229115707.098A.409509F4@e16-tech.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On Thu, Dec 29, 2022 at 11:57:09AM +0800, Wang Yugui wrote:
+> Hi,
+> 
+> > This is the start of the stable review cycle for the 6.1.2 release.
+> > There are 1146 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Fri, 30 Dec 2022 14:41:29 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.2-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
+> > and the diffstat can be found below.
+> 
+> fstests(btrfs/056) hit a panic with the patch-6.1.2-rc1.
+> 
+> [  926.026568] run fstests btrfs/056 at 2022-12-29 08:35:25
+> [  926.254689] BTRFS info (device sdb1): using crc32c (crc32c-intel) checksum algorithm
+> [  926.263606] BTRFS info (device sdb1): using free space tree
+> [  926.273951] BTRFS info (device sdb1): enabling ssd optimizations
+> [  926.842618] BTRFS: device fsid 4c66cb1b-1661-4b5e-9446-1c610b079eb4 devid 1 transid 6 /dev/sdb2 scanned by systemd-udevd (342727)
+> [  926.924311] BTRFS info (device dm-0): using crc32c (crc32c-intel) checksum algorithm
+> [  926.933217] BTRFS info (device dm-0): using free space tree
+> [  926.941727] BTRFS info (device dm-0): enabling ssd optimizations
+> [  926.949066] BTRFS info (device dm-0): checking UUID tree
+> [  927.025958] BTRFS info: devid 1 device path /dev/mapper/flakey-test changed to /dev/dm-0 scanned by systemd-udevd (342802)
+> [  927.038851] BTRFS info: devid 1 device path /dev/dm-0 changed to /dev/mapper/flakey-test scanned by systemd-udevd (342802)
+> [  927.130611] BTRFS info (device dm-0): using crc32c (crc32c-intel) checksum algorithm
+> [  927.139316] BTRFS info (device dm-0): using free space tree
+> [  927.148273] BTRFS info (device dm-0): enabling ssd optimizations
+> [  927.155220] BTRFS info (device dm-0): start tree-log replay
+> [  927.177434] BTRFS info (device dm-0): checking UUID tree
+> [  927.239312] BUG: kernel NULL pointer dereference, address: 0000000000000058
+> [  927.246268] #PF: supervisor read access in kernel mode
+> [  927.253259] #PF: error_code(0x0000) - not-present page
+> [  927.259256] PGD 0 P4D 0
+> [  927.262261] Oops: 0000 [#1] PREEMPT SMP NOPTI
+> [  927.267251] CPU: 29 PID: 342867 Comm: dmsetup Not tainted 6.1.2-0.3.el7.x86_64 #1
+> [  927.275253] Hardware name: Dell Inc. Precision T7610/0NK70N, BIOS A18 09/11/2019
+> [  927.283253] RIP: 0010:blk_mq_wait_quiesce_done+0xc/0x30
+> [  927.290262] Code: 00 00 00 e8 c6 48 ff ff 4c 89 e6 5b 48 89 ef 5d 41 5c e9 f7 c5 66 00 0f 1f 80 00 00 00 00 0f 1f 44 00 00 48 8b 87 18 03 00 00 <f6> 40 58 20 74 0c 48 8b b8 a8 00 00 00 e9 f2 74 c4 ff e9 dd ef c4
+> [  927.311254] RSP: 0018:ffffbc5a8e41bc60 EFLAGS: 00010286
+> [  927.317255] RAX: 0000000000000000 RBX: ffffa0cf2a2fb000 RCX: 0000000000000000
+> [  927.325274] RDX: 0000000000000000 RSI: 0000000000000246 RDI: ffffa0cfa08e2260
+> [  927.333257] RBP: ffffa0cfa08e2260 R08: ffffa0b048488000 R09: ffffa0ceca2e5000
+> [  927.341253] R10: 0000000000000001 R11: ffffa0cf2a2fa800 R12: 0000000000000000
+> [  927.350258] R13: ffffa0cf9e4d0c80 R14: ffffa0d0130ab200 R15: ffffffffc19dc560
+> [  927.358261] FS:  00007f16c58cc580(0000) GS:ffffa0ce2fcc0000(0000) knlGS:0000000000000000
+> [  927.367251] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [  927.373265] CR2: 0000000000000058 CR3: 00000001a0b8c005 CR4: 00000000001706e0
+> [  927.382265] Call Trace:
+> [  927.385256]  <TASK>
+> [  927.388264]  del_gendisk+0x1ec/0x2c0
+> [  927.393254]  cleanup_mapped_device+0x130/0x140 [dm_mod]
+> [  927.399253]  __dm_destroy+0x13d/0x1e0 [dm_mod]
+> [  927.403254]  ? remove_all+0x30/0x30 [dm_mod]
+> [  927.410259]  dev_remove+0x117/0x190 [dm_mod]
+> [  927.415253]  ctl_ioctl+0x1ee/0x520 [dm_mod]
+> [  927.419258]  ? ipc_addid+0x37c/0x460
+> [  927.423252]  dm_ctl_ioctl+0xa/0x20 [dm_mod]
+> [  927.430291]  __x64_sys_ioctl+0x89/0xc0
+> [  927.434263]  do_syscall_64+0x58/0x80
+> [  927.439268]  ? syscall_exit_to_user_mode+0x12/0x30
+> [  927.445257]  ? do_syscall_64+0x67/0x80
+> [  927.449255]  ? exc_page_fault+0x64/0x140
+> [  927.454262]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+> [  927.459253] RIP: 0033:0x7f16c3a397cb
+> [  927.465253] Code: 73 01 c3 48 8b 0d bd 66 38 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 8d 66 38 00 f7 d8 64 89 01 48
+> [  927.485254] RSP: 002b:00007fffd5f91a98 EFLAGS: 00000206 ORIG_RAX: 0000000000000010
+> [  927.494267] RAX: ffffffffffffffda RBX: 00007f16c520e1f0 RCX: 00007f16c3a397cb
+> [  927.502268] RDX: 000055bace7bbb40 RSI: 00000000c138fd04 RDI: 0000000000000003
+> [  927.510263] RBP: 00007f16c524a143 R08: 00007f16c524ad38 R09: 00007fffd5f918f0
+> [  927.518262] R10: 0000000000000006 R11: 0000000000000206 R12: 000055bace7bbb40
+> [  927.526266] R13: 000055bace7bbbf0 R14: 000055bace7bb940 R15: 0000000000000001
+> [  927.535253]  </TASK>
+> [  927.538260] Modules linked in: dm_flakey ext4 mbcache jbd2 loop rpcsec_gss_krb5 nfsv4 dns_resolver nfs fscache netfs rpcrdma rdma_cm iw_cm ib_cm rfkill ib_core dm_multipath dm_mod intel_rapl_msr intel_rapl_common snd_hda_codec_realtek snd_hda_codec_generic ledtrig_audio snd_hda_codec_hdmi snd_hda_intel sb_edac snd_intel_dspcfg x86_pkg_temp_thermal intel_powerclamp snd_intel_sdw_acpi coretemp snd_hda_codec kvm_intel snd_hda_core mei_wdt snd_hwdep dcdbas iTCO_wdt btrfs iTCO_vendor_support kvm dell_smm_hwmon snd_seq irqbypass snd_seq_device crct10dif_pclmul crc32_pclmul blake2b_generic xor ghash_clmulni_intel snd_pcm raid6_pq snd_timer rapl zstd_compress intel_cstate snd mei_me i2c_i801 intel_uncore pcspkr lpc_ich i2c_smbus mei soundcore nfsd auth_rpcgss nfs_acl lockd grace sunrpc xfs sd_mod t10_pi amdgpu iommu_v2 gpu_sched drm_buddy sr_mod cdrom sg radeon video ahci drm_ttm_helper ttm libahci bnx2x mpt3sas libata drm_display_helper e1000e crc32c_intel mdio raid_class cec
+> [  927.538260]  scsi_transport_sas wmi i2c_dev
+> [  927.637256] CR2: 0000000000000058
+> [  927.642269] ---[ end trace 0000000000000000 ]---
+> [  927.822578] RIP: 0010:blk_mq_wait_quiesce_done+0xc/0x30
+> [  927.828966] Code: 00 00 00 e8 c6 48 ff ff 4c 89 e6 5b 48 89 ef 5d 41 5c e9 f7 c5 66 00 0f 1f 80 00 00 00 00 0f 1f 44 00 00 48 8b 87 18 03 00 00 <f6> 40 58 20 74 0c 48 8b b8 a8 00 00 00 e9 f2 74 c4 ff e9 dd ef c4
+> [  927.850187] RSP: 0018:ffffbc5a8e41bc60 EFLAGS: 00010286
+> [  927.856631] RAX: 0000000000000000 RBX: ffffa0cf2a2fb000 RCX: 0000000000000000
+> [  927.864996] RDX: 0000000000000000 RSI: 0000000000000246 RDI: ffffa0cfa08e2260
+> [  927.873366] RBP: ffffa0cfa08e2260 R08: ffffa0b048488000 R09: ffffa0ceca2e5000
+> [  927.881735] R10: 0000000000000001 R11: ffffa0cf2a2fa800 R12: 0000000000000000
+> [  927.890105] R13: ffffa0cf9e4d0c80 R14: ffffa0d0130ab200 R15: ffffffffc19dc560
+> [  927.898477] FS:  00007f16c58cc580(0000) GS:ffffa0ce2fcc0000(0000) knlGS:0000000000000000
+> [  927.907809] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [  927.914794] CR2: 0000000000000058 CR3: 00000001a0b8c005 CR4: 00000000001706e0
+> [  927.923182] Kernel panic - not syncing: Fatal exception
+> [  927.928253] Kernel Offset: 0x15800000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+> [  927.928253] Rebooting in 15 seconds..
+> 
+> the reason is yet not clear.
+> 
+> It still happen without these 4 patches.
+> dm-cleanup-open_table_device.patch
+> dm-cleanup-close_table_device.patch
+> dm-make-sure-create-and-remove-dm-device-won-t-race-.patch
+> dm-track-per-add_disk-holder-relations-in-dm.patch
 
-My name is Sopath Heang,a season banker here in Asia.I am account officer t=
-o a deceased customer of our bank who bears the same name as yours. He died=
- many years ago with his family without a WILL. His account with us $35.5 M=
-ILLION has been unclaimed due to unavailability of next of kin/relatives to=
- claim his estate.
+So this is also an issue with 6.1.1?  Can you use git bisect to track
+down the offending change?
 
-In accordance with the escheat laws in Cambodia as a kingdom, the Board of =
-Directors of the bank met forth night ago and resolved to turn the estate o=
-f the deceased over to Government pause having waited for too long without =
-the deceased relatives/next of kin surfacing property and if this is done, =
-invariably, the funds will end up to become Government property and it is a=
-s a result of this that am moved to contact you considering the fact that y=
-ou share almost the same name with the deceased.
+thanks,
 
-In view of this, am seeking your cooperation and understanding to stand as =
-the deceased next of kin to enable us claim the inheritance before the peri=
-od given by the bank elapse. If you are interested and in agreement with me=
-, get back to me quickly and I will send to you all our bank contacts and t=
-he informations you may need to proceed without coming to Cambodia, and be =
-rest assured that it is risk free deal and the proceedings will be shared 5=
-0% me -50% you once the fund are expatriated into your account anywhere in =
-the world.
-
-I await your prompt response immediately.
-
-Best Regards.
-Mr.Sopath Heang.
+greg k-h
