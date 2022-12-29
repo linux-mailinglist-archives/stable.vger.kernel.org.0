@@ -2,253 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6803D658F2D
-	for <lists+stable@lfdr.de>; Thu, 29 Dec 2022 17:44:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 518B0658F4B
+	for <lists+stable@lfdr.de>; Thu, 29 Dec 2022 17:56:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233785AbiL2QoU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Dec 2022 11:44:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35210 "EHLO
+        id S233581AbiL2Q4y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Dec 2022 11:56:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233726AbiL2Qny (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Dec 2022 11:43:54 -0500
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBD4DA199;
-        Thu, 29 Dec 2022 08:43:53 -0800 (PST)
-Received: by mail-wr1-x436.google.com with SMTP id co23so17864609wrb.4;
-        Thu, 29 Dec 2022 08:43:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jrqQ5aadtTFDZwC1mRGFpiDvvLuLZKkOGcKdL+4a/mA=;
-        b=Iov0wQJpvLY/j0lFfzCTPyIlmWC39JWU5cgkIICccu9F4gYaVJ5eG3vNMMUBcL1bDv
-         oytrHMlJWGlzA8tCHrbWbqhT8AmiNTDKWkyR/1lpK3/aV0djtOw3xNDHjLgt83i0Gjcb
-         CSy0NGZWsQMyT08dNJvIYkT0yB2xsLZDOH79JyjV+E4RyaSELi1D087tlYC8/0XWCjHQ
-         FQ3hteJEuIxCEyBcAtZY8YAMVzmi12kX6MV3gf1sPUC3djB6WiiDFWILmoPWJb5HekEA
-         n1jVyQOM9aUh5nsUSdwBBNuocZ+VUBBWIrM2QInkWzXRROCk0c9rbPYvTNbwOKKVR0Dp
-         72ZQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=jrqQ5aadtTFDZwC1mRGFpiDvvLuLZKkOGcKdL+4a/mA=;
-        b=7mB42A5Oktgtz6Zwweqjt/fw8g0Z5v55ZdMWyVzVTDsxPjctD1NxeCjmMNA+xbyZob
-         qikZtQg3BOMwo9XJJS/GJKZEEk6BTbqJA8jelMJXNvMh/kn0tSpX0gmiYd9MGpw0leKU
-         NZFOP1i95r0Gw+GI95FyLPr4iI80cPS6qXj9ntoPxAA4yrfIDDca79yYpD+vmsvRc4xR
-         KR5YYSUbb2MVZjS/Z1DlmuNP9SCe8RMy3xRQrN/ox2SFDNjY1PwJ4sTqnSHCkK3+9hkU
-         JVXhJTxgO5kS8ho3vvkmQ631hHhaaarST8wRW736WBDJuw/XMdjiezmY+j3aG38jhNNU
-         XmBg==
-X-Gm-Message-State: AFqh2krEUpsapzcG6rQm3VsCGLYSmMErpEXq0nAE4DZLNVUKheI4ZCOZ
-        JuY9hY5aQloj75tAzZux88o=
-X-Google-Smtp-Source: AMrXdXs0VKl1bl7hw5apjyEm7nwkQ51ocuMMgWBMkxIcHqjUyEg1KuMf3vG97yiA0aV7TCUWhZc1Dg==
-X-Received: by 2002:a5d:55c7:0:b0:242:5f1f:9d3b with SMTP id i7-20020a5d55c7000000b002425f1f9d3bmr17685769wrw.16.1672332232083;
-        Thu, 29 Dec 2022 08:43:52 -0800 (PST)
-Received: from localhost.localdomain (host-82-55-238-56.retail.telecomitalia.it. [82.55.238.56])
-        by smtp.googlemail.com with ESMTPSA id t18-20020a5d42d2000000b00288a3fd9248sm4326586wrr.91.2022.12.29.08.43.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Dec 2022 08:43:51 -0800 (PST)
-From:   Christian Marangi <ansuelsmth@gmail.com>
-To:     Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Christian Marangi <ansuelsmth@gmail.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Ronald Wahl <ronald.wahl@raritan.com>, stable@vger.kernel.org
-Subject: [net PATCH v2 3/5] Revert "net: dsa: qca8k: cache lo and hi for mdio write"
-Date:   Thu, 29 Dec 2022 17:33:34 +0100
-Message-Id: <20221229163336.2487-4-ansuelsmth@gmail.com>
-X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20221229163336.2487-1-ansuelsmth@gmail.com>
-References: <20221229163336.2487-1-ansuelsmth@gmail.com>
+        with ESMTP id S233553AbiL2Q4w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Dec 2022 11:56:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BD29F5A7;
+        Thu, 29 Dec 2022 08:56:51 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BC7F61839;
+        Thu, 29 Dec 2022 16:56:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66131C433EF;
+        Thu, 29 Dec 2022 16:56:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1672333010;
+        bh=ViY2BQZiltKQ4jvkmjytVNSOGiM2TZgrElzKyBr36hI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=il2VIfqB0ez0Rmb8rH8N8IDk4hm1ko30z46bpjv8Rg9GUkfXEeZbMhhL0NBzyw7Be
+         7Qj1a23+u68ocrKbH/Ulo2wwMFN0I6kYWMu/XOTRpxNRVIEQ3u6lQv4s7uJViJ/x5a
+         tL4qJBgqrQLGzDWbiLoPjYCfo1fzvPmJxjm6pZF0Xp03wjAU++P3v+j2EixzHLhPIs
+         ZpdJKbaT2VXdDAh+vEiXbFxquISfD4ySjIz7qZSZlXW9xToM2UbhVO7YrLzaZf113s
+         hNIvwVnW+IyikoDTK2Y3arQLyAT9eDZpN3ab145lcY1npyZCoyOwclqfjScbTRbtHq
+         oLfLjOEte7dvw==
+Date:   Thu, 29 Dec 2022 09:56:47 -0700
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, andrii@kernel.org,
+        dave.stevenson@raspberrypi.com, stable@vger.kernel.org,
+        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 5.15 000/731] 5.15.86-rc1 review
+Message-ID: <Y63Gz7Jpms95bz15@dev-arch.thelio-3990X>
+References: <20221228144256.536395940@linuxfoundation.org>
+ <Y62m85tYWONgSWmm@duo.ucw.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Y62m85tYWONgSWmm@duo.ucw.cz>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 2481d206fae7884cd07014fd1318e63af35e99eb.
+On Thu, Dec 29, 2022 at 03:40:51PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > This is the start of the stable review cycle for the 5.15.86 release.
+> > There are 731 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> 
+> These are just kCFI annotations. I don't believe we need them in 5.10
+> (and 5.15).
 
-The Documentation is very confusing about the topic.
-The cache logic for hi and lo is wrong and actually miss some regs to be
-actually written.
+The original CFI implementation exists in 5.15 and the problem described
+in those patches should still trigger with that implementation just like
+kCFI, so they should likely still go to 5.15. However, they were
+AUTOSEL'd and we have not had any reports of problems that are solved
+with these patches (although that is likely because nobody who is using
+this hardware has tried running a CONFIG_CFI_CLANG kernel), so I do not
+really care if they are applied or not.
 
-What the Documentation actually intended was that it's possible to skip
-writing hi OR lo if half of the reg is not needed to be written or read.
+> > Nathan Chancellor <nathan@kernel.org>
+> >     net: ethernet: ti: Fix return type of netcp_ndo_start_xmit()
+> > Nathan Chancellor <nathan@kernel.org>
+> >     drm/fsl-dcu: Fix return type of fsl_dcu_drm_connector_mode_valid()
+> > Nathan Chancellor <nathan@kernel.org>
+> >     drm/sti: Fix return type of sti_{dvo,hda,hdmi}_connector_mode_valid()
 
-Revert the change in favor of a better and correct implementation.
-
-Reported-by: Ronald Wahl <ronald.wahl@raritan.com>
-Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
-Cc: stable@vger.kernel.org # v5.18+
----
- drivers/net/dsa/qca/qca8k-8xxx.c | 61 +++++++-------------------------
- drivers/net/dsa/qca/qca8k.h      |  5 ---
- 2 files changed, 12 insertions(+), 54 deletions(-)
-
-diff --git a/drivers/net/dsa/qca/qca8k-8xxx.c b/drivers/net/dsa/qca/qca8k-8xxx.c
-index 46151320b2a8..fbcd5c2b13ae 100644
---- a/drivers/net/dsa/qca/qca8k-8xxx.c
-+++ b/drivers/net/dsa/qca/qca8k-8xxx.c
-@@ -36,44 +36,6 @@ qca8k_split_addr(u32 regaddr, u16 *r1, u16 *r2, u16 *page)
- 	*page = regaddr & 0x3ff;
- }
- 
--static int
--qca8k_set_lo(struct qca8k_priv *priv, int phy_id, u32 regnum, u16 lo)
--{
--	u16 *cached_lo = &priv->mdio_cache.lo;
--	struct mii_bus *bus = priv->bus;
--	int ret;
--
--	if (lo == *cached_lo)
--		return 0;
--
--	ret = bus->write(bus, phy_id, regnum, lo);
--	if (ret < 0)
--		dev_err_ratelimited(&bus->dev,
--				    "failed to write qca8k 32bit lo register\n");
--
--	*cached_lo = lo;
--	return 0;
--}
--
--static int
--qca8k_set_hi(struct qca8k_priv *priv, int phy_id, u32 regnum, u16 hi)
--{
--	u16 *cached_hi = &priv->mdio_cache.hi;
--	struct mii_bus *bus = priv->bus;
--	int ret;
--
--	if (hi == *cached_hi)
--		return 0;
--
--	ret = bus->write(bus, phy_id, regnum, hi);
--	if (ret < 0)
--		dev_err_ratelimited(&bus->dev,
--				    "failed to write qca8k 32bit hi register\n");
--
--	*cached_hi = hi;
--	return 0;
--}
--
- static int
- qca8k_mii_read32(struct mii_bus *bus, int phy_id, u32 regnum, u32 *val)
- {
-@@ -97,7 +59,7 @@ qca8k_mii_read32(struct mii_bus *bus, int phy_id, u32 regnum, u32 *val)
- }
- 
- static void
--qca8k_mii_write32(struct qca8k_priv *priv, int phy_id, u32 regnum, u32 val)
-+qca8k_mii_write32(struct mii_bus *bus, int phy_id, u32 regnum, u32 val)
- {
- 	u16 lo, hi;
- 	int ret;
-@@ -105,9 +67,12 @@ qca8k_mii_write32(struct qca8k_priv *priv, int phy_id, u32 regnum, u32 val)
- 	lo = val & 0xffff;
- 	hi = (u16)(val >> 16);
- 
--	ret = qca8k_set_lo(priv, phy_id, regnum, lo);
-+	ret = bus->write(bus, phy_id, regnum, lo);
- 	if (ret >= 0)
--		ret = qca8k_set_hi(priv, phy_id, regnum + 1, hi);
-+		ret = bus->write(bus, phy_id, regnum + 1, hi);
-+	if (ret < 0)
-+		dev_err_ratelimited(&bus->dev,
-+				    "failed to write qca8k 32bit register\n");
- }
- 
- static int
-@@ -442,7 +407,7 @@ qca8k_regmap_write(void *ctx, uint32_t reg, uint32_t val)
- 	if (ret < 0)
- 		goto exit;
- 
--	qca8k_mii_write32(priv, 0x10 | r2, r1, val);
-+	qca8k_mii_write32(bus, 0x10 | r2, r1, val);
- 
- exit:
- 	mutex_unlock(&bus->mdio_lock);
-@@ -475,7 +440,7 @@ qca8k_regmap_update_bits(void *ctx, uint32_t reg, uint32_t mask, uint32_t write_
- 
- 	val &= ~mask;
- 	val |= write_val;
--	qca8k_mii_write32(priv, 0x10 | r2, r1, val);
-+	qca8k_mii_write32(bus, 0x10 | r2, r1, val);
- 
- exit:
- 	mutex_unlock(&bus->mdio_lock);
-@@ -750,14 +715,14 @@ qca8k_mdio_write(struct qca8k_priv *priv, int phy, int regnum, u16 data)
- 	if (ret)
- 		goto exit;
- 
--	qca8k_mii_write32(priv, 0x10 | r2, r1, val);
-+	qca8k_mii_write32(bus, 0x10 | r2, r1, val);
- 
- 	ret = qca8k_mdio_busy_wait(bus, QCA8K_MDIO_MASTER_CTRL,
- 				   QCA8K_MDIO_MASTER_BUSY);
- 
- exit:
- 	/* even if the busy_wait timeouts try to clear the MASTER_EN */
--	qca8k_mii_write32(priv, 0x10 | r2, r1, 0);
-+	qca8k_mii_write32(bus, 0x10 | r2, r1, 0);
- 
- 	mutex_unlock(&bus->mdio_lock);
- 
-@@ -787,7 +752,7 @@ qca8k_mdio_read(struct qca8k_priv *priv, int phy, int regnum)
- 	if (ret)
- 		goto exit;
- 
--	qca8k_mii_write32(priv, 0x10 | r2, r1, val);
-+	qca8k_mii_write32(bus, 0x10 | r2, r1, val);
- 
- 	ret = qca8k_mdio_busy_wait(bus, QCA8K_MDIO_MASTER_CTRL,
- 				   QCA8K_MDIO_MASTER_BUSY);
-@@ -798,7 +763,7 @@ qca8k_mdio_read(struct qca8k_priv *priv, int phy, int regnum)
- 
- exit:
- 	/* even if the busy_wait timeouts try to clear the MASTER_EN */
--	qca8k_mii_write32(priv, 0x10 | r2, r1, 0);
-+	qca8k_mii_write32(bus, 0x10 | r2, r1, 0);
- 
- 	mutex_unlock(&bus->mdio_lock);
- 
-@@ -1968,8 +1933,6 @@ qca8k_sw_probe(struct mdio_device *mdiodev)
- 	}
- 
- 	priv->mdio_cache.page = 0xffff;
--	priv->mdio_cache.lo = 0xffff;
--	priv->mdio_cache.hi = 0xffff;
- 
- 	/* Check the detected switch id */
- 	ret = qca8k_read_switch_id(priv);
-diff --git a/drivers/net/dsa/qca/qca8k.h b/drivers/net/dsa/qca/qca8k.h
-index 0b7a5cb12321..03514f7a20be 100644
---- a/drivers/net/dsa/qca/qca8k.h
-+++ b/drivers/net/dsa/qca/qca8k.h
-@@ -375,11 +375,6 @@ struct qca8k_mdio_cache {
-  * mdio writes
-  */
- 	u16 page;
--/* lo and hi can also be cached and from Documentation we can skip one
-- * extra mdio write if lo or hi is didn't change.
-- */
--	u16 lo;
--	u16 hi;
- };
- 
- struct qca8k_pcs {
--- 
-2.37.2
-
+Cheers,
+Nathan
