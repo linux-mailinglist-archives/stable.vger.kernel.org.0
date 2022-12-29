@@ -2,74 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B28E658D98
-	for <lists+stable@lfdr.de>; Thu, 29 Dec 2022 14:44:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AD21658D9D
+	for <lists+stable@lfdr.de>; Thu, 29 Dec 2022 14:45:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233263AbiL2Nnn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Dec 2022 08:43:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33746 "EHLO
+        id S233373AbiL2Nor (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Dec 2022 08:44:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233445AbiL2Nnb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Dec 2022 08:43:31 -0500
-Received: from mail-ot1-x336.google.com (mail-ot1-x336.google.com [IPv6:2607:f8b0:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FE89228;
-        Thu, 29 Dec 2022 05:43:30 -0800 (PST)
-Received: by mail-ot1-x336.google.com with SMTP id x25-20020a056830115900b00670932eff32so11506096otq.3;
-        Thu, 29 Dec 2022 05:43:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=c/AKNkpjG3AzcQVd4ZQ2WSvobV2zMcJthzt1GCCuMa8=;
-        b=lx51HzEUMKRJNqK+LwX1Y783CIcF1MdK99uBpWNybmnsDgUNqgcC9xnqH3vMjqvE05
-         aJdGTrehGxkhMKHJHrHOpvGztuLhOx1mMSrACKXV0yRPlPwme+t2CGuvAsVbyTghEWtR
-         DBZUPsZAgYbzfkGZwiXlIYlJNTltoRB4VKe0GggcTJJ+H8RSJkvMP/XznQ1zCx+BSkgd
-         Z0DoPPkVZxFUGp46d0xkdgzJAqd+T+76DvozceDGkor1ZVJtHpMamoReswERHjg8JHHC
-         AoW+pLmx7u5l9vIG6SuxneBp15snj9SpOBLqLNU0W8q1s/LHH26bwkOqaobso/CyN8I6
-         OMvg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=c/AKNkpjG3AzcQVd4ZQ2WSvobV2zMcJthzt1GCCuMa8=;
-        b=wvDYsq5M4khl+c5EgLCbXAfAzbWMnAf57qyk2xuGhC3TW8S1/GiD2bQdgQq/TliUaO
-         pJrHNGAn2kanYGYxCVLQIQ8Yj3ZazXA3MSfgtbLobspZ+LT3XbYwznhLJn153YW4b5JB
-         YWBOO8kJDDG+UkNFzsk7IZwm7+pFr1EYu9yVVstwiwr0FiGtiywcoYoucUyZG2ITWLlc
-         P+JzjDzOmlHhaHGQcO/XymErEWf7o3A7azxY9VNZcI9fUveAtsGHb0rI/SZCO3RDP86l
-         gaObfcJ96+SxjYIm9Bv300IWkrlsScL9TQUYS9c07a+faHOtQm94vWSr0H5sQATGD7Uw
-         4rqQ==
-X-Gm-Message-State: AFqh2kpjEOkR7WloFDyVGG8KU19Yo0mhp1C/tZXK50ZlZLjmufrZMKQo
-        R+0E+QCF0ogV+6BKeaCb8ts=
-X-Google-Smtp-Source: AMrXdXvdz3WgDc5KZ8RSpx3y8x+2pyRuWkgjB81V/gHbU5qzSVNz9Fk5odUxbxUXLOQiozcJJzEnVw==
-X-Received: by 2002:a05:6830:611:b0:676:205a:605d with SMTP id w17-20020a056830061100b00676205a605dmr13867016oti.37.1672321409656;
-        Thu, 29 Dec 2022 05:43:29 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id m12-20020a9d400c000000b0066e80774203sm9169354ote.43.2022.12.29.05.43.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Dec 2022 05:43:29 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Thu, 29 Dec 2022 05:43:28 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.0 0000/1073] 6.0.16-rc1 review
-Message-ID: <20221229134328.GB16547@roeck-us.net>
-References: <20221228144328.162723588@linuxfoundation.org>
+        with ESMTP id S233380AbiL2NoS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Dec 2022 08:44:18 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83EC5280;
+        Thu, 29 Dec 2022 05:44:16 -0800 (PST)
+From:   John Ogness <john.ogness@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1672321453;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=ONVoAOSV4R74Fcc+S7klnQwitE7KOgWX9DTWXdoRQo0=;
+        b=TXVDMhPJGL1QCQYUmQxrJxkU/cypzAG1uj6UUvbwCzsXTADl0sr21wzpVAog+QM9x2iJo4
+        P+4oDQub8fT4ZCwg74hqVrTA1HXclyuPqL+Qhrz9vXHJ1N0m+Zz31b9t8e382J+34Oy7Ct
+        saOOgoK8aqg4YdOYU7lbfG4MUTmC+tJZ/khpoRJuvQwsU4GPbu8J8vn8eZfzuJJ5x7oGMl
+        02RHJ23JJ6x/sfVcX2dlYTiWVFTp6J71bOtOoVKgkGMYQbtzEJMJkP6gQUoh0lDy6rVm8l
+        2vShLjYpSiVzioTj9ycGy7eoFmN8DGyF7OEb+GcuJ2cDfO+jc0lNE8qbm3GQ7g==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1672321453;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=ONVoAOSV4R74Fcc+S7klnQwitE7KOgWX9DTWXdoRQo0=;
+        b=DB3b0cWA02D46fic+goYCvu+45MlQLaUlbBt0nfXLXaSAlWlRPKVkCxgo3+sXPj+TLlwCI
+        gAz9sAAlYmgnGsAg==
+To:     Petr Mladek <pmladek@suse.com>
+Cc:     Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        linux-kernel@vger.kernel.org, Baoquan He <bhe@redhat.com>,
+        Vivek Goyal <vgoyal@redhat.com>,
+        Dave Young <dyoung@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kexec@lists.infradead.org,
+        linux-doc@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH] docs: gdbmacros: print newest record
+Date:   Thu, 29 Dec 2022 14:49:39 +0106
+Message-Id: <20221229134339.197627-1-john.ogness@linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
-X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-3.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,INVALID_DATE_TZ_ABSURD,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -77,24 +57,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 28, 2022 at 03:26:28PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.16 release.
-> There are 1073 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 30 Dec 2022 14:41:34 +0000.
-> Anything received after that time might be too late.
-> 
+@head_id points to the newest record, but the printing loop
+exits when it increments to this value (before printing).
 
-Build results:
-	total: 155 pass: 153 fail: 2
-Failed builds:
-	arm:allmodconfig
-	arm64:allmodconfig
-Qemu test results:
-	total: 500 pass: 500 fail: 0
+Exit the printing loop after the newest record has been printed.
 
-Build errors as reported.
+The python-based function in scripts/gdb/linux/dmesg.py already
+does this correctly.
 
-Guenter
+Fixes: e60768311af8 ("scripts/gdb: update for lockless printk ringbuffer")
+Cc: stable@vger.kernel.org
+Signed-off-by: John Ogness <john.ogness@linutronix.de>
+---
+ Documentation/admin-guide/kdump/gdbmacros.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Documentation/admin-guide/kdump/gdbmacros.txt b/Documentation/admin-guide/kdump/gdbmacros.txt
+index 82aecdcae8a6..030de95e3e6b 100644
+--- a/Documentation/admin-guide/kdump/gdbmacros.txt
++++ b/Documentation/admin-guide/kdump/gdbmacros.txt
+@@ -312,10 +312,10 @@ define dmesg
+ 			set var $prev_flags = $info->flags
+ 		end
+ 
+-		set var $id = ($id + 1) & $id_mask
+ 		if ($id == $end_id)
+ 			loop_break
+ 		end
++		set var $id = ($id + 1) & $id_mask
+ 	end
+ end
+ document dmesg
+
+base-commit: 1b929c02afd37871d5afb9d498426f83432e71c2
+-- 
+2.30.2
+
