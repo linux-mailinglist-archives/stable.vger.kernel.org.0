@@ -2,87 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBE646588AD
-	for <lists+stable@lfdr.de>; Thu, 29 Dec 2022 03:39:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 409FC658924
+	for <lists+stable@lfdr.de>; Thu, 29 Dec 2022 04:27:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232678AbiL2CjL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Dec 2022 21:39:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51722 "EHLO
+        id S230254AbiL2D1R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Dec 2022 22:27:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232390AbiL2CjL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 21:39:11 -0500
-Received: from mail-qt1-x830.google.com (mail-qt1-x830.google.com [IPv6:2607:f8b0:4864:20::830])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D46C11A26
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 18:39:09 -0800 (PST)
-Received: by mail-qt1-x830.google.com with SMTP id a16so14096465qtw.10
-        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 18:39:09 -0800 (PST)
+        with ESMTP id S229716AbiL2D1P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Dec 2022 22:27:15 -0500
+Received: from mail-oi1-x22e.google.com (mail-oi1-x22e.google.com [IPv6:2607:f8b0:4864:20::22e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D56A13D59
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 19:27:14 -0800 (PST)
+Received: by mail-oi1-x22e.google.com with SMTP id c133so16315066oif.1
+        for <stable@vger.kernel.org>; Wed, 28 Dec 2022 19:27:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=joelfernandes.org; s=google;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=V+bI/PInPRC98qFA9k5hncItDaGS8mMQXxFI1nQJIp4=;
-        b=X2ynwz0q67XMuFqwnARpn+k6f6pCVwzBmSoa/JoVIJz0mpklDIwy4BQoCDO7AXr7X5
-         AVaodKL6gzNg9EWKnNAsdyX7N0JXDgaFH5lXFL91nNU4XwO/ULdXCvzYdk4LejlCrSli
-         8anKcO2Wc1N0IYw2RNS8d2rZHCxtYlJemvVSo=
+        bh=ume60yuS4x+mE+BLhmcB1fRz1PiHMSqP5MxjdySEIJo=;
+        b=Qsxuq2GoXCMpJrHvOFEeW67cYFWD4hm0rATXL1WzQ2zZSm4OCRcLqpnx0OMkf7GTu0
+         bAW7RKOd67aY0K3osSexeAVlF9ygVFwvl4hPuOoGFCgpRCYFTTPH6q2f7Fi0pvNdWyW0
+         mVFbarT0PQxaaqr3Ls6rpnR+A3PTR1RJdl7KZeXFNIJIb9cQ3dbkRCpkJK9g/pSY+XGc
+         6B4dTCrq9SMLDdHs38DX6428gyW8EQKEcnwMJFqnQ56q/s401wiYtRG1bmqfOgM/VC2B
+         3CHa16nrcInu4Wsesq2WqHIf9nH/Xs1p4EnUsKFSxu5v3AdV5/AaACxKDQmgkX+SN/hX
+         Te1g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=V+bI/PInPRC98qFA9k5hncItDaGS8mMQXxFI1nQJIp4=;
-        b=Xd/o6W7ABPMOvgC6XxCq4N57Rxi9XcfC5VUHDYN/2tu6O/ppk+k+DtgfMZ4Nx2CwOA
-         zkCSMFulCMA/BJwScEgS3MPyEfoUZcoZmNdCDXe+vmI6QvTn9auXi1vjUAl1tgEpJhOw
-         J9d/qszGEgaZ3zlzdCi9pgpxx4uN1K7+sBKuj0LubgtFeHP+5DlWX1ewVIBG4AB+IfvM
-         vkT14/Mx7V4mU5CfZMD8aoYdGf2TOjMfTiiDZKR/e5sNnc8j+0CY5ShWS514yk4QLURw
-         mi4oF4InsgIUkeaMKesvHXD/NANjsPU3MHs8amFFx1Bp0ueD258sp9k6+XuIyFI9LXyn
-         wqAA==
-X-Gm-Message-State: AFqh2krFTVyXeqoJRc76vwiQFqDT26Jyxag7CqX4QXTMPWeoojeFEx4f
-        6d2DUu4A5lucBiCklfmKcn0UjzqdHRRS0W8X
-X-Google-Smtp-Source: AMrXdXtfXEyda9itEIFjgy+iQfO5XoZd/e24ccb0xfNWsvdAR0VCxpQwY2mQqByeq5+GiAmig8uJAA==
-X-Received: by 2002:ac8:4998:0:b0:3a6:ee87:20e7 with SMTP id f24-20020ac84998000000b003a6ee8720e7mr32841312qtq.68.1672281548027;
-        Wed, 28 Dec 2022 18:39:08 -0800 (PST)
-Received: from localhost (228.221.150.34.bc.googleusercontent.com. [34.150.221.228])
-        by smtp.gmail.com with ESMTPSA id bl33-20020a05620a1aa100b006f474e6a715sm12257335qkb.131.2022.12.28.18.39.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Dec 2022 18:39:06 -0800 (PST)
-Date:   Thu, 29 Dec 2022 02:39:06 +0000
-From:   Joel Fernandes <joel@joelfernandes.org>
-To:     stable@vger.kernel.org
-Cc:     paulmck@kernel.org, rcu@vger.kernel.org
-Subject: Please apply to v5.10 stable: 4d60b475f858 ("rcu: Prevent
- lockdep-RCU splats on lock acquisition/release")
-Message-ID: <Y6z9ygSGmPNz5hfd@google.com>
+        bh=ume60yuS4x+mE+BLhmcB1fRz1PiHMSqP5MxjdySEIJo=;
+        b=UuXn1z6ITLNLjgxAgREnB9ptrD/lUEgDgJJkYkh0qF/hHIm432slv6iipX+B7XcWVb
+         G7yE8bakD2CUKM/WvIKo0/n8tITJ5NGSQ4XYRce1KmrYng9tyFN1KVPzDehVRg89yHre
+         BR2U3JIdm+6KUmAL0IqL42SdhMtDVwGjUiBiWwVqwBroV4PZMbcTaIqvVH5F1gjFXzbS
+         n3xIebbC9T19OYzEog8s6uUPBQYt0VwUHyuyEURoHrrD078HFdEJ68DI8Qk/nHdkm3TJ
+         5nR+N2kQBaRFbvKneZv5V3jtdzgk91GuHLh6ydaIS3/IrTXndSNUmeBK1F2nc/d6TFIa
+         DuNg==
+X-Gm-Message-State: AFqh2krlYyKX1/8mUJ0+7mZ9CVqG4j13WKqAp1xB7uubPJLFZkg2rnls
+        bMBuW79TiUJL/ghjbLzEZ7jg7g==
+X-Google-Smtp-Source: AMrXdXuCg8kFNsWR5lvVSgV6as5oJfuYPEbVQyU9jccM+jUhvdTCNej0glEW88K5/gnhQBW1YvDVyQ==
+X-Received: by 2002:a05:6808:1993:b0:35e:9090:2969 with SMTP id bj19-20020a056808199300b0035e90902969mr15074149oib.13.1672284433908;
+        Wed, 28 Dec 2022 19:27:13 -0800 (PST)
+Received: from [192.168.17.16] ([189.219.72.83])
+        by smtp.gmail.com with ESMTPSA id z10-20020a9d62ca000000b00660e833baddsm8630907otk.29.2022.12.28.19.27.12
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 28 Dec 2022 19:27:13 -0800 (PST)
+Message-ID: <c3c2ef47-b46d-b446-5475-366867954528@linaro.org>
+Date:   Wed, 28 Dec 2022 21:27:11 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+Subject: Re: [PATCH 6.0 0000/1073] 6.0.16-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+References: <20221228144328.162723588@linuxfoundation.org>
+From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
+In-Reply-To: <20221228144328.162723588@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
-Please apply to v5.10 stable: 4d60b475f858 ("rcu: Prevent lockdep-RCU splats
-on lock acquisition/release"). The patch made it in v5.11
+Hello!
 
-Without it, I get the follow splat on TREE05 rcutorture testing:
 
-[    1.253678] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.10.162-rc1+ #6
-[    1.253678] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1 04/01/2014
-[    1.253678] Call Trace:
-[    1.253678]
-[    1.253678] =============================
-[    1.253678] WARNING: suspicious RCU usage
-[    1.253678] 5.10.162-rc1+ #6 Not tainted
-[    1.253678] -----------------------------
-[    1.253678] kernel/kprobes.c:300 RCU-list traversed in non-reader section!!
+On 28/12/22 08:26, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.0.16 release.
+> There are 1073 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 30 Dec 2022 14:41:34 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.16-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-I tested with the patch and the warning is gone.
+We're seeing the following problems, as with 6.1, with GCC-8 on allmodconfig on the following architectures: Arm64 [2], Arm [1][2], i386 [1], mips [1], parisc [1], sh [1]. With GCC-12 on allmodconfig: arm64 [2], arm [2].
 
-thanks,
+[1] Problem on 32-bits:
+| /builds/linux/drivers/pwm/pwm-tegra.c: In function 'tegra_pwm_config':
+| /builds/linux/drivers/pwm/pwm-tegra.c:148:53: error: result of '1000000000 << 8' requires 39 bits to represent, but 'long int' only has 32 bits [-Werror=shift-overflow=]
+|    required_clk_rate = DIV_ROUND_UP_ULL(NSEC_PER_SEC << PWM_DUTY_WIDTH,
+|                                                      ^~
+| /builds/linux/include/linux/math.h:40:32: note: in definition of macro 'DIV_ROUND_DOWN_ULL'
+|   ({ unsigned long long _tmp = (ll); do_div(_tmp, d); _tmp; })
+|                                 ^~
+| /builds/linux/drivers/pwm/pwm-tegra.c:148:23: note: in expansion of macro 'DIV_ROUND_UP_ULL'
+|    required_clk_rate = DIV_ROUND_UP_ULL(NSEC_PER_SEC << PWM_DUTY_WIDTH,
+|                        ^~~~~~~~~~~~~~~~
+| cc1: all warnings being treated as errors
 
- - Joel
+And [2] problem with qcom_rpm:
+
+| /builds/linux/drivers/mfd/qcom_rpm.c: In function 'qcom_rpm_remove':
+| /builds/linux/drivers/mfd/qcom_rpm.c:680:19: error: unused variable 'rpm' [-Werror=unused-variable]
+|   struct qcom_rpm *rpm = dev_get_drvdata(&pdev->dev);
+|                    ^~~
+
+Greetings!
+
+Daniel Díaz
+daniel.diaz@linaro.org
 
