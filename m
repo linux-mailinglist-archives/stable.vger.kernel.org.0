@@ -2,85 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99976659BE0
-	for <lists+stable@lfdr.de>; Fri, 30 Dec 2022 21:22:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 620C9659C53
+	for <lists+stable@lfdr.de>; Fri, 30 Dec 2022 21:58:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235408AbiL3UWc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Dec 2022 15:22:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49224 "EHLO
+        id S229827AbiL3U6V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Dec 2022 15:58:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235468AbiL3UW3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Dec 2022 15:22:29 -0500
-Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A43814D14
-        for <stable@vger.kernel.org>; Fri, 30 Dec 2022 12:22:29 -0800 (PST)
-Received: from letrec.thunk.org (host-67-21-23-146.mtnsat.com [67.21.23.146] (may be forged))
-        (authenticated bits=0)
-        (User authenticated as tytso@ATHENA.MIT.EDU)
-        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 2BUKM0a3010174
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 30 Dec 2022 15:22:10 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
-        t=1672431732; bh=tE6+QatUZ4TgbJ1osuqxvSZAcNLGiSz1o9L4JHZPmCk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To;
-        b=YS7zl6XoXD9b02Ln9yW0VIUuTsQf4GK9cqBfKdiaoUA3Dq25b8/POkGNYDmUiZrsf
-         TkbKX4/0IrrD9jYybc5zeVVxxLXfOelYtx1++YfV3TNfnFBs9pbgy8WCGLIbMb3boB
-         FyFO6fvpRYaXC70FI6BLLEEsLyFD0iuoOUdLxSoYwdaiM5HnBL5O9j094TL/PB6G9P
-         9VhT5W52KJkhA+HtxxVdqWfK28qDFA3zTizGl3SjNxGYSY23CjD2ik/jbT+Cm9meXL
-         x1MB2UwE5SR0wxg5Rncv6BW7JeIYDp3LPuCLSOrbYnWLXXU76A+aBWLVuZW64eSISb
-         SZn4vHHNh7q2Q==
-Received: by letrec.thunk.org (Postfix, from userid 15806)
-        id 80A838C08C0; Fri, 30 Dec 2022 15:22:00 -0500 (EST)
-Date:   Fri, 30 Dec 2022 15:22:00 -0500
-From:   "Theodore Ts'o" <tytso@mit.edu>
-To:     Tudor Ambarus <tudor.ambarus@linaro.org>
-Cc:     Eric Biggers <ebiggers@kernel.org>, adilger.kernel@dilger.ca,
-        linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org,
-        joneslee@google.com,
-        syzbot+0827b4b52b5ebf65f219@syzkaller.appspotmail.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] ext4: Fix possible use-after-free in ext4_find_extent
-Message-ID: <Y69IaMqZvnGk5skX@mit.edu>
-References: <20221230062931.2344157-1-tudor.ambarus@linaro.org>
- <Y66LkPumQjHC2U7d@sol.localdomain>
- <cf1be149-392d-afa0-092a-c3426868f852@linaro.org>
+        with ESMTP id S229616AbiL3U6U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Dec 2022 15:58:20 -0500
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19FA813F7A;
+        Fri, 30 Dec 2022 12:58:20 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id p4so23460945pjk.2;
+        Fri, 30 Dec 2022 12:58:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=A5HECF9+rVuUX+brSXubDgLVHbeqG015MmzEZ9FF8VE=;
+        b=cSpq2X/PC9hjQIhn7TixPaxyLrIj2Echgf4Uompnm8LQwp9Xgo0+CSaK9/Sr/KXeJk
+         mOtg8BP7ddm/QCWE7JpxN3LP9Aqg5QzZVdGjnEYCW8wx32yseo85V5xV92i5ZvItDK2I
+         BfJVJkugU5z5I5OwKSA4dTR4rDLQjkw5mXhHAeqR1DLPATG9p8qVNS77vVFnkO06SMeJ
+         BgvnScHLQWSBIGL4Zfyph+eosR5jG+mOVn7GQuqPug6mrisNZDAOT0k2mx0Z2h1GfKbk
+         mI50xA2ykj84l2ZLzvjokG/uctzKIMfU8vI8kH3aXCrZ8NajkaxLNW2UONZZpeniHUsw
+         LNfg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=A5HECF9+rVuUX+brSXubDgLVHbeqG015MmzEZ9FF8VE=;
+        b=jmDQOm1oMzccirieGR3TVU2Y/PUbxE8EljswcDN2EDN77RPmt1WWDF30t4nauSTEQ6
+         rKJIZyYt4eIspQ1NzNT5hR62E8aR91LEQme6vB0zrwssLW9fK8PfCRRFB7IsslrPh65Z
+         YD+MBbwQMqW2Z6+z7CsiqqsJLlEG4Gi3huotMb32FcLYrQF4To0bMDAJnFGfmxcUN8iz
+         Sve6cGDwtY0xT5z1H4xG7dvrzopP/ft7IKSZvDYgB/2yo1yR1h93Fj/dcF/N2xn7KfdW
+         1iDaCP0SuaJGnMnzEE/4Zz9z/sysynkgXEr0sspT+8DcZzjpXfnR67bhkdGUxW5hh3Dd
+         OpCw==
+X-Gm-Message-State: AFqh2kpmLXe7c0GHZfAS9RJ/RDIHZd3KlgJQ4fBuO4YuDWpYEZPMh6e5
+        ULcArlnxsR5iM/kKvlHISTdGNLbUibCsMLS257Y=
+X-Google-Smtp-Source: AMrXdXs//T30asV4CVfSzhXj0gdwFo0Wu17EEcoS58I75cZvc0GcWON/DNDt1cGUFxotQ/fqO0EJG5T+Q1wMc6L5HFA=
+X-Received: by 2002:a17:90a:fd03:b0:219:d32a:ef96 with SMTP id
+ cv3-20020a17090afd0300b00219d32aef96mr2717571pjb.12.1672433899545; Fri, 30
+ Dec 2022 12:58:19 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cf1be149-392d-afa0-092a-c3426868f852@linaro.org>
-X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_INVALID,
-        DKIM_SIGNED,MAY_BE_FORGED,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+References: <20221230094059.698032393@linuxfoundation.org>
+In-Reply-To: <20221230094059.698032393@linuxfoundation.org>
+From:   Allen Pais <stable.kernel.dev@gmail.com>
+Date:   Fri, 30 Dec 2022 12:58:08 -0800
+Message-ID: <CAJq+SaATrjeJrBnqT9uR=i3OzmsPnYuvSvnv1N8cbaVDRN2djw@mail.gmail.com>
+Subject: Re: [PATCH 6.0 0000/1066] 6.0.16-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 30, 2022 at 01:42:45PM +0200, Tudor Ambarus wrote:
-> > This is (incompletely) validating the extent header in the inode.  Isn't that
-> > supposed to happen when the inode is loaded?  See how __ext4_iget() calls
-> > ext4_ext_check_inode().  Why isn't that working here?
-> > 
-> 
-> Seems that __ext4_iget() is not called on writes. You can find below the
-> sequence of calls that leads to the bug. The debug was done on v6.2-rc1.
-> I assume the extents check is no longer done on writes since
-> commit 7a262f7c69163cd4811f2f838faef5c5b18439c9. The commit doesn't
-> specify the reason though.
+>
+> This is the start of the stable review cycle for the 6.0.16 release.
+> There are 1066 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sun, 01 Jan 2023 09:38:41 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.16-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
 
-Commit 7a262f7c6916 no longer does the check if the inode is already
-in memory (which is the case when there is an open file descriptor).
-That's because it should have been checked when it was first read into
-memory.
+Compiled and boot tested on my x86 and arm64 test systems.
 
-So the the question is, did the inode get corrupted somehow after it
-was read in from disk?  If so that's the real problem, and that's what
-needs to be root caused and fixed.  It's not sufficient to just to
-make the syzbot reproducer only longer reproduce.  The question is
-understanding what is fundamentally going on and fixing the real root
-problem.
+Tested-by: Allen Pais <apais@linux.microsoft.com>
 
-Regards,
-
-						- Ted
+Thanks.
