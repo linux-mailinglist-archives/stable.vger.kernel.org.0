@@ -2,162 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49A356599BB
-	for <lists+stable@lfdr.de>; Fri, 30 Dec 2022 16:33:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEA22659A12
+	for <lists+stable@lfdr.de>; Fri, 30 Dec 2022 16:41:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235092AbiL3Pdc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Dec 2022 10:33:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46518 "EHLO
+        id S235181AbiL3PlL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Dec 2022 10:41:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229662AbiL3Pd2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Dec 2022 10:33:28 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9460FB841
-        for <stable@vger.kernel.org>; Fri, 30 Dec 2022 07:32:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1672414360;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=SQesEpyQ/TOk4+yr8stV7fGWHioPa/8NhDL6gLzIvW8=;
-        b=GxciC7IROpiWbgXpjV2Lbu4XHbgMXPydLbblXnLMHDjI9Qj6gFtV3Is94fL7PdcQ1fS0ix
-        AAQ2ps32iyXTZX/rD8Wf7F62ksJ0gwn+6YPbk/bV/Htqo/3F18+Jln3Ilf2tt4Yz2wIBCw
-        8k5vSY4BfrKuxnqFdMCQ/gsqw2MM36w=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-480-VLKffyMrMeidMbqSsxW8vw-1; Fri, 30 Dec 2022 10:32:37 -0500
-X-MC-Unique: VLKffyMrMeidMbqSsxW8vw-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 93B4F18483B3;
-        Fri, 30 Dec 2022 15:32:36 +0000 (UTC)
-Received: from llong.com (unknown [10.22.32.204])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id DDC0240C2004;
-        Fri, 30 Dec 2022 15:32:35 +0000 (UTC)
-From:   Waiman Long <longman@redhat.com>
-To:     Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Valentin Schneider <vschneid@redhat.com>
-Cc:     Phil Auld <pauld@redhat.com>,
-        Wenjie Li <wenjieli@qti.qualcomm.com>,
-        =?UTF-8?q?David=20Wang=20=E7=8E=8B=E6=A0=87?= 
-        <wangbiao3@xiaomi.com>, Quentin Perret <qperret@google.com>,
-        Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org,
-        Waiman Long <longman@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH v5 1/2] sched: Fix use-after-free bug in dup_user_cpus_ptr()
-Date:   Fri, 30 Dec 2022 10:32:17 -0500
-Message-Id: <20221230153218.354214-2-longman@redhat.com>
-In-Reply-To: <20221230153218.354214-1-longman@redhat.com>
-References: <20221230153218.354214-1-longman@redhat.com>
+        with ESMTP id S235259AbiL3Pkb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Dec 2022 10:40:31 -0500
+Received: from formenos.hmeau.com (helcar.hmeau.com [216.24.177.18])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEEA01C12A;
+        Fri, 30 Dec 2022 07:39:58 -0800 (PST)
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+        by formenos.hmeau.com with smtp (Exim 4.94.2 #2 (Debian))
+        id 1pBHTm-00CPNM-VQ; Fri, 30 Dec 2022 23:39:32 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Fri, 30 Dec 2022 23:39:30 +0800
+Date:   Fri, 30 Dec 2022 23:39:30 +0800
+From:   Herbert Xu <herbert@gondor.apana.org.au>
+To:     David Laight <David.Laight@aculab.com>
+Cc:     'Roberto Sassu' <roberto.sassu@huaweicloud.com>,
+        "dhowells@redhat.com" <dhowells@redhat.com>,
+        "davem@davemloft.net" <davem@davemloft.net>,
+        "zohar@linux.ibm.com" <zohar@linux.ibm.com>,
+        "dmitry.kasatkin@gmail.com" <dmitry.kasatkin@gmail.com>,
+        "paul@paul-moore.com" <paul@paul-moore.com>,
+        "jmorris@namei.org" <jmorris@namei.org>,
+        "serge@hallyn.com" <serge@hallyn.com>,
+        "ebiggers@kernel.org" <ebiggers@kernel.org>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "keyrings@vger.kernel.org" <keyrings@vger.kernel.org>,
+        "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v5 1/2] lib/mpi: Fix buffer overrun when SG is too long
+Message-ID: <Y68GMsGKROsgDbcs@gondor.apana.org.au>
+References: <20221227142740.2807136-1-roberto.sassu@huaweicloud.com>
+ <20221227142740.2807136-2-roberto.sassu@huaweicloud.com>
+ <6949ced7c1014488b2d00ff26eba6b6b@AcuMS.aculab.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.1
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6949ced7c1014488b2d00ff26eba6b6b@AcuMS.aculab.com>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since commit 07ec77a1d4e8 ("sched: Allow task CPU affinity to be
-restricted on asymmetric systems"), the setting and clearing of
-user_cpus_ptr are done under pi_lock for arm64 architecture. However,
-dup_user_cpus_ptr() accesses user_cpus_ptr without any lock
-protection. Since sched_setaffinity() can be invoked from another
-process, the process being modified may be undergoing fork() at
-the same time.  When racing with the clearing of user_cpus_ptr in
-__set_cpus_allowed_ptr_locked(), it can lead to user-after-free and
-possibly double-free in arm64 kernel.
+On Fri, Dec 30, 2022 at 01:35:07PM +0000, David Laight wrote:
+>
+> miter.length is size_t (unsigned long on 64bit) and nbytes unsigned int.
 
-Commit 8f9ea86fdf99 ("sched: Always preserve the user requested
-cpumask") fixes this problem as user_cpus_ptr, once set, will never
-be cleared in a task's lifetime. However, this bug was re-introduced
-in commit 851a723e45d1 ("sched: Always clear user_cpus_ptr in
-do_set_cpus_allowed()") which allows the clearing of user_cpus_ptr in
-do_set_cpus_allowed(). This time, it will affect all arches.
+miter.length is bounded by sg->length which is unsigned int.
 
-Fix this bug by always clearing the user_cpus_ptr of the newly
-cloned/forked task before the copying process starts and check the
-user_cpus_ptr state of the source task under pi_lock.
-
-Note to stable, this patch won't be applicable to stable releases.
-Just copy the new dup_user_cpus_ptr() function over.
-
-Fixes: 07ec77a1d4e8 ("sched: Allow task CPU affinity to be restricted on asymmetric systems")
-Fixes: 851a723e45d1 ("sched: Always clear user_cpus_ptr in do_set_cpus_allowed()")
-CC: stable@vger.kernel.org
-Reported-by: David Wang 王标 <wangbiao3@xiaomi.com>
-Signed-off-by: Waiman Long <longman@redhat.com>
----
- kernel/sched/core.c | 34 +++++++++++++++++++++++++++++-----
- 1 file changed, 29 insertions(+), 5 deletions(-)
-
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 25b582b6ee5f..b93d030b9fd5 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -2612,19 +2612,43 @@ void do_set_cpus_allowed(struct task_struct *p, const struct cpumask *new_mask)
- int dup_user_cpus_ptr(struct task_struct *dst, struct task_struct *src,
- 		      int node)
- {
-+	cpumask_t *user_mask;
- 	unsigned long flags;
- 
--	if (!src->user_cpus_ptr)
-+	/*
-+	 * Always clear dst->user_cpus_ptr first as their user_cpus_ptr's
-+	 * may differ by now due to racing.
-+	 */
-+	dst->user_cpus_ptr = NULL;
-+
-+	/*
-+	 * This check is racy and losing the race is a valid situation.
-+	 * It is not worth the extra overhead of taking the pi_lock on
-+	 * every fork/clone.
-+	 */
-+	if (data_race(!src->user_cpus_ptr))
- 		return 0;
- 
--	dst->user_cpus_ptr = kmalloc_node(cpumask_size(), GFP_KERNEL, node);
--	if (!dst->user_cpus_ptr)
-+	user_mask = kmalloc_node(cpumask_size(), GFP_KERNEL, node);
-+	if (!user_mask)
- 		return -ENOMEM;
- 
--	/* Use pi_lock to protect content of user_cpus_ptr */
-+	/*
-+	 * Use pi_lock to protect content of user_cpus_ptr
-+	 *
-+	 * Though unlikely, user_cpus_ptr can be reset to NULL by a concurrent
-+	 * do_set_cpus_allowed().
-+	 */
- 	raw_spin_lock_irqsave(&src->pi_lock, flags);
--	cpumask_copy(dst->user_cpus_ptr, src->user_cpus_ptr);
-+	if (src->user_cpus_ptr) {
-+		swap(dst->user_cpus_ptr, user_mask);
-+		cpumask_copy(dst->user_cpus_ptr, src->user_cpus_ptr);
-+	}
- 	raw_spin_unlock_irqrestore(&src->pi_lock, flags);
-+
-+	if (unlikely(user_mask))
-+		kfree(user_mask);
-+
- 	return 0;
- }
- 
+Cheers,
 -- 
-2.31.1
-
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
