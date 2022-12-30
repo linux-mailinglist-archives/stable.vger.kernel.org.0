@@ -2,100 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BEFF65950C
-	for <lists+stable@lfdr.de>; Fri, 30 Dec 2022 06:35:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B06D865955A
+	for <lists+stable@lfdr.de>; Fri, 30 Dec 2022 07:18:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234465AbiL3Ff4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Dec 2022 00:35:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53930 "EHLO
+        id S234427AbiL3GSl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Dec 2022 01:18:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234454AbiL3Ffy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Dec 2022 00:35:54 -0500
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C8B32707
-        for <stable@vger.kernel.org>; Thu, 29 Dec 2022 21:35:49 -0800 (PST)
-Received: by mail-pl1-x62b.google.com with SMTP id s7so20906274plk.5
-        for <stable@vger.kernel.org>; Thu, 29 Dec 2022 21:35:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=heitbaum.com; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=/ODk49GpDxZuuliFxoD6df4iLQLl2k/kbKceWdXGuHE=;
-        b=eaaEYESO/KNWKpsKq0KRFNppqNRawyOutNV+7UhIfKLShVE9poRySfAeYp3/CWxVfL
-         QPUAP7o19bYO2NQKwf7vC7ULJXFKEGDOXNR5+1T3eZt8wwOT8x8YGp3+TiU3go4BimAF
-         smnqPp1wLHCYuLSMChqnRTN+/hCwtoFKt24PE=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/ODk49GpDxZuuliFxoD6df4iLQLl2k/kbKceWdXGuHE=;
-        b=5P/uwOW7uPYqhB5o3WpbVRxIfGO7UlSszc/zdVbp17g4k9QkPduHIeAuUEAsjPaHX/
-         X5p1R6eZaJvz5AaZRv4ST9ow7w1owgnlWEfMGkMy5DJz+54RieVuHyHIiQkkPaxeJ7oR
-         J5mEkRVpNhIsXsDKPhyPMCGu/nvI52UXUNmEF/Y6y9+zRvjAztoAMiLbplXMVe50bm5q
-         gIY4m/vZEo5HrgB6Kqzw8TS/6KEx1MXwxQgdxw10X1baU7IMixrEMyxG9f4L/mL6aPI3
-         lBlubxaGnpX2F51edcHepYzYsrBIec7045+2ZLRChLe6/psa6DhlDLY7PIbdaoRIbkIU
-         a4hg==
-X-Gm-Message-State: AFqh2krMr7KPYmYFCn5JuZ0gt1BguZTnuhj4Wu/nhol5WDFYfo3+/hle
-        emxUSSDMmJvMYUeDt5+y/471Eg==
-X-Google-Smtp-Source: AMrXdXvHxYrkb6oA/LY+xgb7wVy1uGetD21x1eEnvFN0CTBJ7y3zBy2MqFZV3qLpI4w4Wy3d8fFG+g==
-X-Received: by 2002:a05:6a20:7da3:b0:ad:d982:4538 with SMTP id v35-20020a056a207da300b000add9824538mr48131281pzj.55.1672378548717;
-        Thu, 29 Dec 2022 21:35:48 -0800 (PST)
-Received: from 9137d54f73fc (lma3293270.lnk.telstra.net. [60.231.90.117])
-        by smtp.gmail.com with ESMTPSA id v12-20020a655c4c000000b00478e7f87f3bsm11691781pgr.67.2022.12.29.21.35.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Dec 2022 21:35:48 -0800 (PST)
-Date:   Fri, 30 Dec 2022 05:35:30 +0000
-From:   Rudi Heitbaum <rudi@heitbaum.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.1 0000/1146] 6.1.2-rc1 review
-Message-ID: <20221230053530.GA9348@9137d54f73fc>
-References: <20221228144330.180012208@linuxfoundation.org>
+        with ESMTP id S234412AbiL3GSl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Dec 2022 01:18:41 -0500
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F083AFAEB;
+        Thu, 29 Dec 2022 22:18:37 -0800 (PST)
+Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.55])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4Njw5n1KKjz16LwK;
+        Fri, 30 Dec 2022 14:17:17 +0800 (CST)
+Received: from [10.67.110.173] (10.67.110.173) by
+ dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.34; Fri, 30 Dec 2022 14:18:35 +0800
+Message-ID: <80260e5c-51c9-ec97-c546-ddde0c302e62@huawei.com>
+Date:   Fri, 30 Dec 2022 14:18:35 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.2
+Subject: Re: [PATCH 2/2] ima: Handle -ESTALE returned by
+ ima_filter_rule_match()
+Content-Language: en-US
+To:     Mimi Zohar <zohar@linux.ibm.com>,
+        Greg KH <gregkh@linuxfoundation.org>
+CC:     <stable@vger.kernel.org>, <paul@paul-moore.com>,
+        <linux-integrity@vger.kernel.org>, <luhuaxin1@huawei.com>
+References: <20221227014729.4799-1-guozihua@huawei.com>
+ <20221227014729.4799-3-guozihua@huawei.com> <Y6qgqO/LJ/wHUk5x@kroah.com>
+ <d65e2d46bf41e3d58c0fa18bd274faf20dadb523.camel@linux.ibm.com>
+From:   "Guozihua (Scott)" <guozihua@huawei.com>
+In-Reply-To: <d65e2d46bf41e3d58c0fa18bd274faf20dadb523.camel@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.67.110.173]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ dggpemm500024.china.huawei.com (7.185.36.203)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-5.3 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 28, 2022 at 03:25:39PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.1.2 release.
-> There are 1146 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+Hi Greg and Mimi.
 
-Hi Greg,
+Fall sick for a couple days.
 
-6.1.2-rc1 tested.
+On 2022/12/27 19:56, Mimi Zohar wrote:
+> On Tue, 2022-12-27 at 08:37 +0100, Greg KH wrote:
+>> On Tue, Dec 27, 2022 at 09:47:29AM +0800, GUO Zihua wrote:
+>>> [ Upstream commit c7423dbdbc9ecef7fff5239d144cad4b9887f4de ]
+>>
+>> For obvious reasons we can not only take this patch (from 6.2-rc1) into
+>> 4.19.y as that would cause people who upgrade from 4.19.y to a newer
+>> stable kernel to have a regression.
+>>
+>> Please submit backports for all stable kernels if you wish to see this
+>> in older ones to prevent problems like this from happening.
+> 
+> Sasha has already queued the original commit and the dependencies for
+> the 6.1, 6.0, and 5.15 stable kernels.  Those kernels all had the
+> call_lsm_notifier() to call_blocking_lsm_notifier() change.  Prior to
+> 5.3, the change to the blocking notifier would need to be backported as
+> well.  This version of the backport still needs to be reviewed.
+Indeed the current solution needs further testing and review. One of the
+concern raised by Huaxin is a possible UAF caused by the call to free
+rule in update_rule. Will it be possible to backport also the change
+which turn call_lsm_notifier() into call_blocking_lsm_notifier()?
+> 
+> thanks,
+> 
+> Mimi
+> 
+>>
+>> But also, why are you still on 4.19.y?  What is wrong with 5.4.y at this
+>> point in time?  If we dropped support for 4.19.y in January, what would
+>> that cause to happen for your systems?
+Well it's all about backward compatibility. We still got some products
+using the 4.19.y LTS kernel and we would still needs to provide support
+for this version of the kernel. If 4.19.y got EOL or EOS in January next
+year, our company surely would develop corresponding plans to handle
+that change.
+>>
+>> thanks,
+>>
+>> greg k-h
+>>
+> 
 
-Run tested on:
-- Intel Alder Lake x86_64 (nuc12 i7-1260P)
-- Tanix TX6 - Allwinner H6
+-- 
+Best
+GUO Zihua
 
-In addition - build tested for:
-- Allwinner A64
-- Allwinner H3
-- Allwinner H5
-- NXP iMX6
-- NXP iMX8
-- Qualcomm Dragonboard
-- Rockchip RK3288
-- Rockchip RK3328
-- Rockchip RK3399pro
-- Samsung Exynos
-
-Tested-by: Rudi Heitbaum <rudi@heitbaum.com>
---
-Rudi
