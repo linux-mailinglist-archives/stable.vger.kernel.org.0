@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 296F1659ACB
-	for <lists+stable@lfdr.de>; Fri, 30 Dec 2022 18:04:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A117659ACF
+	for <lists+stable@lfdr.de>; Fri, 30 Dec 2022 18:07:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235172AbiL3REq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Dec 2022 12:04:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56062 "EHLO
+        id S235247AbiL3RHr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Dec 2022 12:07:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231406AbiL3REq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Dec 2022 12:04:46 -0500
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17D736577
-        for <stable@vger.kernel.org>; Fri, 30 Dec 2022 09:04:45 -0800 (PST)
-Received: by mail-pl1-x62d.google.com with SMTP id m4so22433618pls.4
-        for <stable@vger.kernel.org>; Fri, 30 Dec 2022 09:04:45 -0800 (PST)
+        with ESMTP id S235130AbiL3RHq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Dec 2022 12:07:46 -0500
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54E9313F7A
+        for <stable@vger.kernel.org>; Fri, 30 Dec 2022 09:07:45 -0800 (PST)
+Received: by mail-pf1-x433.google.com with SMTP id x26so8567900pfq.10
+        for <stable@vger.kernel.org>; Fri, 30 Dec 2022 09:07:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=sladewatkins.net; s=googled;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=Rp8DP41XrSw0rokxDPlHiL2vJVa6DK6lhh3jR60QHzQ=;
-        b=jQCEnGalnxhHOck1mpzCJTxyEOCEGMM0VObMvYaUwQc2WXxbmcxUI5KtICtKtBGnl5
-         g7fyRVxFBJ+z9pjQZE6R9hiN2jSDc8G7vqObk/UDfqKKYnry4EYpkNudJSczMIJYbQGW
-         pnqkBL+bWSkZSOsEVUmbf4c4QodAjzr8OgJGzLmBradO2skjYwSOv3cWngR0knKEeWok
-         hSoSyEjWF+20dxo3ZdfNhaDBytq2A6G3SttD4KlLZd8D0FaBXicsFioM7RlTX37F9x12
-         6UEF48zrn7hR1O086VTgp7fjZn8av6gvfn/NFNYUkId2XNiC+ocU1rXn3UYxa3idug57
-         /Fiw==
+        bh=3620dnlzLPDYDwJfxZUNq69cyA3CsvU2Mk22dUrg5ro=;
+        b=Jq55x8gsEAG57CDEijJ905bb1zAl0AJPwF2Ce+V0wOhzYjHpaD1ZAoIveu43y7129z
+         GA5VfjbOZTAnrRrYBqwdBxdwl1bSgC6IUjuDXXFvuEf/gWXP3PHdmU29dR8F4drTugpC
+         VuK66mAQFy8UQlhQ64sbCWeiesWp77/2ipgZ+uxZoc2+V6Q/zWTQlgMk0bLiKbFT5xCP
+         xRYo84WuBx+u7EdYWJo3xteNFiJjMnN7WI2qDbIUYJUgSFb3vIcEhpSUkB/m7ipssufw
+         3WB1VSUutjYDVfbsF0UtKglAulV/qGVuVecTjJKaMTHq9m82Q6ubFW9hzhPA7/4QXwet
+         CMhw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=Rp8DP41XrSw0rokxDPlHiL2vJVa6DK6lhh3jR60QHzQ=;
-        b=vMT1XiilSsUdZe2AUg9h1blAQjjc609k/3GnIwZAWvPNzUbL/2CVX2OtHw0Rx2Ir5y
-         tVKDjIT2O3wagkVM5Yp4HTdIZ276ap5rdVew5q5vxSSpiDYfLpwu0e6K22O/jOGyikNZ
-         Wkdmhc2iL3Cnt1NFLQR0gLIRQl4kFOCCuS5zkeVnB5CdH8xISqIHLBmZR6FnfXFrkhTW
-         ikgbepF0Azrm+rld10H0kxyqP4QHGoEBN3vZXmepts12p8g16ARDPusBR3rYHbes7aJW
-         aLOG26eo3iaEDF5Y1xl3B3NV0OtHhvjXS2KSSOKgh6kXO6lDmpDJV+spr5jsQcH3qZ80
-         p1QA==
-X-Gm-Message-State: AFqh2ko+pL7qQh8C1Mtn60yv5bY3Osdd+f+0ccYQ6N2D904DjTorg3K9
-        k3ju7TiO+i37wr8SnU5Ix7PX9nJAuidEV0FGajjeTQ==
-X-Google-Smtp-Source: AMrXdXtX6SgWkB8eYBoy55qpzn+bUv9TBTVEu1B6SElDTvzpS2nx6LNeZAYQfbA4yR9RNC/dBQ2cDlWs6+44t/eY99Q=
-X-Received: by 2002:a17:90a:af91:b0:219:536b:41ef with SMTP id
- w17-20020a17090aaf9100b00219536b41efmr2903859pjq.71.1672419884549; Fri, 30
- Dec 2022 09:04:44 -0800 (PST)
+        bh=3620dnlzLPDYDwJfxZUNq69cyA3CsvU2Mk22dUrg5ro=;
+        b=TeKKneUaTrYHb5IsQ9RuxX86sgaSmIOqxYG+6qhcACMX71h0t6JLwk5RLmm6wnbJL7
+         nlIQTXGd3zdAhaAOdsHKiH4DSai6xf7zJy65vcInUNakjwsJpQ9yP6EigtzJXUuKk3fX
+         H4dmJUE7hO2QsibLtyAipr1uFUpW+wBqMywL9u4/RvTWngBXg2jodzCTG3rutqjpga2p
+         gUesOW0xUvZvfmXnVOJxRMoBH7cM/ZCzUGWb3diXBe976q8OxN9WApfVdhz7OO163xr6
+         RNE8NewSL4ipec2m49zHo+F/fWg2EY/CbFao+NZfVrUa9e59wkTrl8QjtkZR9wEPPd9u
+         mQ0A==
+X-Gm-Message-State: AFqh2kpE4z+uhA8eA7BSYUHarYW15lAj01QQSlFvqKeM+w/xdssCKB6O
+        ffsE+GDEyetXmB9TieaUKRuvEnPvl8j4ujAAJAyOcA==
+X-Google-Smtp-Source: AMrXdXtSAyzbSBZuKm8FlmMoiULn24O7nbtAHpbFYhAwM3N+RFY0Cc9g1PNF98IadyaN8TMoxLf0Raa/bAm+FuCSmrM=
+X-Received: by 2002:aa7:8887:0:b0:57f:fc4d:f773 with SMTP id
+ z7-20020aa78887000000b0057ffc4df773mr2011406pfe.3.1672420064853; Fri, 30 Dec
+ 2022 09:07:44 -0800 (PST)
 MIME-Version: 1.0
-References: <20221230094107.317705320@linuxfoundation.org>
-In-Reply-To: <20221230094107.317705320@linuxfoundation.org>
+References: <20221230094059.698032393@linuxfoundation.org>
+In-Reply-To: <20221230094059.698032393@linuxfoundation.org>
 From:   Slade Watkins <srw@sladewatkins.net>
-Date:   Fri, 30 Dec 2022 12:04:33 -0500
-Message-ID: <CA+pv=HMf6-d38AJLm4_gO2NOW9SAPJO5uBq59ga+SVFsexOQ1A@mail.gmail.com>
-Subject: Re: [PATCH 6.1 0000/1140] 6.1.2-rc2 review
+Date:   Fri, 30 Dec 2022 12:07:34 -0500
+Message-ID: <CA+pv=HNdA=c7W+J5PbKruqph1Y4LBJ-VcV93rJTwiahjKhgX9w@mail.gmail.com>
+Subject: Re: [PATCH 6.0 0000/1066] 6.0.16-rc2 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
         linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
@@ -73,8 +73,8 @@ X-Mailing-List: stable@vger.kernel.org
 On Fri, Dec 30, 2022 at 4:49 AM Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 6.1.2 release.
-> There are 1140 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 6.0.16 release.
+> There are 1066 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
