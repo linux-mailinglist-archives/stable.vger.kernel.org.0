@@ -2,52 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CA74659693
-	for <lists+stable@lfdr.de>; Fri, 30 Dec 2022 10:13:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E775A65969A
+	for <lists+stable@lfdr.de>; Fri, 30 Dec 2022 10:15:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234536AbiL3JNe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Dec 2022 04:13:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56342 "EHLO
+        id S234534AbiL3JPq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Dec 2022 04:15:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234534AbiL3JNc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Dec 2022 04:13:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D07618692
-        for <stable@vger.kernel.org>; Fri, 30 Dec 2022 01:13:31 -0800 (PST)
+        with ESMTP id S234410AbiL3JPp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Dec 2022 04:15:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD443384
+        for <stable@vger.kernel.org>; Fri, 30 Dec 2022 01:15:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1432261A6A
-        for <stable@vger.kernel.org>; Fri, 30 Dec 2022 09:13:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 246DFC433EF;
-        Fri, 30 Dec 2022 09:13:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6EE7BB81B8D
+        for <stable@vger.kernel.org>; Fri, 30 Dec 2022 09:15:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACE52C433EF;
+        Fri, 30 Dec 2022 09:15:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672391610;
-        bh=9Ekj92sUMRHtTg8IYszSI09n7I4PuwXjweegdaPvvr4=;
+        s=korg; t=1672391741;
+        bh=BXHST6oJdELxRy9pLqNJ3XHH0A1M/4Hj9g4PvQ6Ef0A=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=DtqeJhVTypzKq7grO37qbbggLoq8NNvc3rSWOIFerlyUGxHTsAVwFx5Qn4RNdikRY
-         tZQMtNZVMze6YgBeEkSaxIkVYEeAgIqVYyWciP43OA8mhKLwlXXeP7Lx5szBDY3H4k
-         G0E8KE1ga0kiar9Jm4Ogg6vji6M+ZiMFbQKwvrkc=
-Date:   Fri, 30 Dec 2022 10:13:27 +0100
+        b=im+nL03/Lx02u9KH/CiH+MIp3KDMmLLX/GOASnEVFOPqtMOzmgkJX8Rs/ed2vvC+J
+         OP8TxiyyEoB9CDclqXxzpY7J2ZcGOfoPEJqmXpn06OGIFTJA2WHrG/BZKZaqntnrBv
+         QWHsVT9tW5qa0p3qdbTMKg5UgSzzAVes1KZl+awI=
+Date:   Fri, 30 Dec 2022 10:15:38 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Thorsten Leemhuis <regressions@leemhuis.info>
-Cc:     Vlastimil Babka <vbabka@suse.cz>,
-        Holger =?iso-8859-1?Q?Hoffst=E4tte?= 
-        <holger@applied-asynchrony.com>, stable@vger.kernel.org,
-        Jiri Slaby <jslaby@suse.cz>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>
-Subject: Re: [PATCH 6.1 0000/1146] 6.1.2-rc1 review
-Message-ID: <Y66rt1YahFBSyFKF@kroah.com>
-References: <20221228144330.180012208@linuxfoundation.org>
- <2bf086f8-aa9d-b576-ba8b-1fcfbc9a4ff1@applied-asynchrony.com>
- <Y6xkpmqxRQwDyLAb@kroah.com>
- <d5534922-0b33-268d-cfad-c175ff4f676e@suse.cz>
- <e8d819e0-10c4-89c0-6b13-d1ceb01da0fc@leemhuis.info>
+To:     Peter Rosin <peda@axentia.se>
+Cc:     Alvin =?utf-8?Q?=C5=A0ipraga?= <ALSI@bang-olufsen.dk>,
+        Marek Vasut <marex@denx.de>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "patches@lists.linux.dev" <patches@lists.linux.dev>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.15 456/731] extcon: usbc-tusb320: Update state on probe
+ even if no IRQ pending
+Message-ID: <Y66sOhyNvhvYROSL@kroah.com>
+References: <20221228144256.536395940@linuxfoundation.org>
+ <20221228144309.770876879@linuxfoundation.org>
+ <20221228154501.tinymudo2j3kzyii@bang-olufsen.dk>
+ <a3b6d80d-cc1a-be21-9842-d9362bc372e6@axentia.se>
+ <44c25160-0cab-1a41-0551-57c8efc5f058@axentia.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <e8d819e0-10c4-89c0-6b13-d1ceb01da0fc@leemhuis.info>
+In-Reply-To: <44c25160-0cab-1a41-0551-57c8efc5f058@axentia.se>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -57,50 +59,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 29, 2022 at 02:04:53PM +0100, Thorsten Leemhuis wrote:
-> On 28.12.22 19:57, Vlastimil Babka wrote:
-> > On 12/28/22 16:45, Greg Kroah-Hartman wrote:
-> >> On Wed, Dec 28, 2022 at 04:02:57PM +0100, Holger Hoffst�tte wrote:
-> >>> On 2022-12-28 15:25, Greg Kroah-Hartman wrote:
-> >>>> This is the start of the stable review cycle for the 6.1.2 release.
-> >>>> There are 1146 patches in this series, all will be posted as a response
-> >>>> to this one.  If anyone has any issues with these being applied, please
-> >>>> let me know.
-> >>>
-> >>> I know this is already a large set of updates, but it would be great if
-> >>> commit 6f12be792fde994ed934168f93c2a0d2a0cf0bc5 ("mm, mremap: fix mremap()
-> >>> expanding vma with addr inside vma") could be added as well; it applies and
-> >>> works fine on top of 6.1.1.
-> >>> This fixes quite a few annoying mmap-related out-of-memory failures.
-> >>
-> >> It's set up for future releases.  If this was such a big issue for
-> >> 6.1-final, why wasn't it sent to Linus before 6.2-rc1?
+On Thu, Dec 29, 2022 at 01:09:13AM +0100, Peter Rosin wrote:
+> 2022-12-28 at 22:04, Peter Rosin wrote:
+> > Hi!
 > > 
-> > Thorsten did question its upstreaming speed elsewhere. But it actually
-> > is in 6.2-rc1. Andrew sent the PR on 22th and Linus merged on 23th [1].
-> > I didn't try to accelerate it to stable as IIRC people already pointed
-> > it out and you acknowledged it's on your radar, and it was a tracked
-> > regression. Sucks that it didn't make it to 6.1.2.
+> > 2022-12-28 at 16:45, Alvin Šipraga wrote:
+> >> On Wed, Dec 28, 2022 at 03:39:23PM +0100, Greg Kroah-Hartman wrote:
+> >>> From: Marek Vasut <marex@denx.de>
+> >>>
+> >>> [ Upstream commit 581c848b610dbf3fe1ed4d85fd53d0743c61faba ]
+> >>>
+> >>> Currently this driver triggers extcon and typec state update in its
+> >>> probe function, to read out current state reported by the chip and
+> >>> report the correct state to upper layers. This synchronization is
+> >>> performed correctly, but only in case the chip indicates a pending
+> >>> interrupt in reg09 register.
+> >>>
+> >>> This fails to cover the situation where all interrupts reported by
+> >>> the chip were already handled by Linux before reboot, then the system
+> >>> rebooted, and then Linux starts again. In this case, the TUSB320 no
+> >>> longer reports any interrupts in reg09, and the state update does not
+> >>> perform any update as it depends on that interrupt indication.
+> >>>
+> >>> Fix this by turning tusb320_irq_handler() into a thin wrapper around
+> >>> tusb320_state_update_handler(), where the later now contains the bulk
+> >>> of the code of tusb320_irq_handler(), but adds new function parameter
+> >>> "force_update". The "force_update" parameter can be used by the probe
+> >>> function to assure that the state synchronization is always performed,
+> >>> independent of the interrupt indicated in reg09. The interrupt handler
+> >>> tusb320_irq_handler() callback uses force_update=false to avoid state
+> >>> updates on potential spurious interrupts and retain current behavior.
+> >>>
+> >>> Fixes: 06bc4ca115cdd ("extcon: Add driver for TI TUSB320")
+> >>> Signed-off-by: Marek Vasut <marex@denx.de>
+> >>> Reviewed-by: Alvin Šipraga <alsi@bang-olufsen.dk>
+> >>> Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+> >>> Link: https://lore.kernel.org/r/20221120141509.81012-1-marex@denx.de
+> >>> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> >>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> >>> ---
+> >>
+> >> Is the Fixes: tag here actually wrong? There was a regression report here:
+> >>
+> >> https://lore.kernel.org/all/fd0f2d56-495e-6fdd-d1e8-ff40b558101e@axentia.se/
+> >>
+> >> which this patch fixed. But according to the report, it was a regression
+> >> introduced by Marek's recent addition of typec support. Since that new
+> > 
+> > The fixes tag is correct here. What is wrong is that this patch does not fix
+> > the above reported regression which was instead fixed by
+> > 341fd15e2e18 ("extcon: usbc-tusb320: Call the Type-C IRQ handler only if a port is registered")
+> > 
+> > However, this patch still fixes a problem so it should be considered for stable.
+> > 
+> > From only looking at this patch, it looks easy to backport to kernels that do
+> > not have
+> > bf7571c00dca ("extcon: usbc-tusb320: Add USB TYPE-C support")
+> > and its followup fix.
+> > 
+> > But I have of course not tried, so maybe I'm wrong...
 > 
-> Yup. I've been thinking somewhat what I could or should do to ensure
-> things work more smoothly when similar situations arise in the future;
-> ideally without me stepping on maintainer's toes too much. ;)
+> Sorry for the reply to self, but here's a backport for v5.15
 > 
-> Currently I consider doing the following two things:
-> 
-> (1) if I notice something that looks like an important regression fix,
-> reply with a "how fast do you think this fix should process through the
-> ranks" inquiry to the developer. With such information I'd feel way more
-> comfortable sending a "Linus, could you maybe pick this up directly"
-> after some time in case the maintainer leaves the patch longer in -next.
-> 
-> (2) once Linus merged the fix, send a quick mail to Greg/the stable team
-> asking them to immediately queue it for the next release (in case
-> problems show up it can still be de-queued).
-> 
-> Does that sound sane? Or anyone any better idea?
+> Signed-off-by: Peter Rosin <peda@axentia.se>
 
-Sounds sane to me!
+Can you send this as a new thread with the proper header and subject
+line so that we can apply it correctly?
+
+Right now it's burried down in this thread...
 
 thanks,
 
