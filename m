@@ -2,119 +2,241 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0124165A34F
-	for <lists+stable@lfdr.de>; Sat, 31 Dec 2022 10:10:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03F0865A350
+	for <lists+stable@lfdr.de>; Sat, 31 Dec 2022 10:12:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229834AbiLaJKP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Dec 2022 04:10:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53212 "EHLO
+        id S231655AbiLaJMt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Dec 2022 04:12:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229523AbiLaJKN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 31 Dec 2022 04:10:13 -0500
-Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 519852DC3
-        for <stable@vger.kernel.org>; Sat, 31 Dec 2022 01:10:08 -0800 (PST)
-Received: by mail-wm1-x336.google.com with SMTP id m8-20020a05600c3b0800b003d96f801c48so14740461wms.0
-        for <stable@vger.kernel.org>; Sat, 31 Dec 2022 01:10:08 -0800 (PST)
+        with ESMTP id S231648AbiLaJMs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 31 Dec 2022 04:12:48 -0500
+Received: from mail-vk1-xa29.google.com (mail-vk1-xa29.google.com [IPv6:2607:f8b0:4864:20::a29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C75CEB1F3
+        for <stable@vger.kernel.org>; Sat, 31 Dec 2022 01:12:47 -0800 (PST)
+Received: by mail-vk1-xa29.google.com with SMTP id t2so1206858vkk.9
+        for <stable@vger.kernel.org>; Sat, 31 Dec 2022 01:12:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:to:from:subject:message-id:from:to:cc:subject:date
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=nHtqSom/NPOqpnu1/5uZxJR7SBzKstlNHb36iHfhgqc=;
-        b=X0Wh78GqGD1abjYCFlc7xPkYBcRs4mocIevt8rZ/77iKiGh7Z0Tb5jN8jDmef0ANCV
-         hCvDYCMGbFdPT+sY5v8jf2CHFoMSdsjQiSOFdsfOHFLO/ag8C6NSkUiOEIlConE5s0mb
-         bBnkYFYhGEEayhhJcUc9vBJX1/xQZFIyv/Yx9F0UUrUfxXlU9A/v/adePwATtO+1TFZR
-         4BicbiJAa1YNRfRlBmVqARpH0TogryVQ1tKUQN+f+gObSdnkKRYVGG8Nhml7uIUSfd5L
-         4QOsou9zomURD6Ff0N+hnFRT/7hg0jU+QCzUy6dAm1Gg9+djdckEymAR26O2yZ9wRh0q
-         hcJg==
+        bh=e7nZRxEKSVk0taYN2kEmqLsK8D/a7ZjrzRfmuGsGVgo=;
+        b=BCG98/thMeSUuI8QudtVR9vY3JQGMQf+poWtQgCqt/vkbqnBJqCAtDnMq/uMIJn8RO
+         ZhzEFiWHgtPNATlh52XgAlCTPrkTB1Gcg/jn2Yx20iRN5OWa7AtjQ7riuMnH1vUO9P4r
+         Z7wNQLi9dDy+o9TxKvtKl32v4l3ZJejLvE3ZPojCA3MzsdkymeQ6F47twuNBtWTbC0BI
+         CJLznK+oHuXQydVqNISGQNaZk6NjL4kEmElCv45/WJS4EMEcr4iwrJ4gyJApbkCmc0ij
+         hv6Ustkl6L87RsVnqqVjGCD3nM2KWOMGJesqWK/w5VsHWtkFMOk+HUO9wePKxELC54vD
+         sM5A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:to:from:subject:message-id:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=nHtqSom/NPOqpnu1/5uZxJR7SBzKstlNHb36iHfhgqc=;
-        b=nlV21j9rcjMtuH/9D6lB0MZjkByB+NwfoRSo1/V+O1WMj0W+fvda5LXALJTx6HRyxB
-         CoOKQ6hhr748x0ExeCQgIodaFlpswfnMIyGg716e876v0VPm7y9T1URWyTxLo3s4VmXv
-         FJuJ7I0WBBWGNhTX1p1OPX5FBJ14aJa67SrvQc3AOLkGoUeUXNZMDdSGeUImnlcQBrXR
-         xlnrrnTu0i4/9VGFEDXUyXxEPvCFcz+UhMUqsLVme6MGQdEgBxikfMKJdI2/VoOBFxIt
-         OAC7fVsJLTEmxqjVZizV1hBJ60TUI0D42xKicVrUHLiUkFPGO+3tIlkHpb83khFCgYrK
-         noWg==
-X-Gm-Message-State: AFqh2ko78Gp0ckhdBKkFPnEhd+5wF6rYlmonwNyKtTy/BQRdCePa+xFr
-        dPaDxVlC6dxosTFHRW6IGL0=
-X-Google-Smtp-Source: AMrXdXuXg5VEUORyhBhbpA+ZUWW9aW0vf//YsYqly/wtdOBZD/gfzzCb19f/xCtg2Ivrum4yri8jKQ==
-X-Received: by 2002:a05:600c:4f48:b0:3d6:8570:1239 with SMTP id m8-20020a05600c4f4800b003d685701239mr30589229wmq.16.1672477806779;
-        Sat, 31 Dec 2022 01:10:06 -0800 (PST)
-Received: from ?IPv6:2a02:168:6806:0:70ad:9f34:9d41:ef2c? ([2a02:168:6806:0:70ad:9f34:9d41:ef2c])
-        by smtp.gmail.com with ESMTPSA id h9-20020a05600c314900b003d99469ece1sm13397264wmo.24.2022.12.31.01.10.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 31 Dec 2022 01:10:06 -0800 (PST)
-Message-ID: <e9ee0609520238d28d94ee8b66e20ac0c6069caa.camel@gmail.com>
-Subject: Re: [PATCH 6.1 0000/1140] 6.1.2-rc2 review
-From:   Klaus Kudielka <klaus.kudielka@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Date:   Sat, 31 Dec 2022 10:10:05 +0100
-In-Reply-To: <20221230094107.317705320@linuxfoundation.org>
-References: <20221230094107.317705320@linuxfoundation.org>
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=e7nZRxEKSVk0taYN2kEmqLsK8D/a7ZjrzRfmuGsGVgo=;
+        b=7S8qryZhl+FqNiALGs6j20J/XqPOfeDol8/oP9mqiV0ZfmK9Fqc12QXlCsg87vdk3v
+         kzWMVa23k/KbXN4O0faHJ8WMpwIXpnJ3zdV0BJgVhng5xTxUUoO37gkDe0vjjyVBmqcZ
+         0JhIoLrpDm0Ec3hklPZsztsTmA/h8OVONyuyJ/8bcMSf7HV7Isa5e8zH1howynzOTe8s
+         bG8vARDzgg9Di4DH3FRsrCBpsLTRpxJ5v3jaUwrng8CHgS/x9hOVA0dxWlLYoNXLVcUA
+         BIVKIFpTMA4RrEfVrz9bKOHsrbVc7GANHw/9GMSgt3t/lG/UPB89nxb/PdKXDYpGiUHA
+         Uomw==
+X-Gm-Message-State: AFqh2koWdJwhR5QVavgpsajDfeiqIoyKBYpm7l4XtMnHq22ejxBuM34m
+        aE8oCoUcXZP93LMjgMcfEGm1xjMdDSpoop4OZxbmAQ==
+X-Google-Smtp-Source: AMrXdXuZl5Fg9dS/lm6Xwp0v0J1CunPxyffU28ZabuI7HLyOGnaBDj5/d+WeKrmMhhPp+Is1KyQw/S1VtfVD4avzeBM=
+X-Received: by 2002:a1f:3215:0:b0:3d5:86ff:6638 with SMTP id
+ y21-20020a1f3215000000b003d586ff6638mr1125362vky.30.1672477966697; Sat, 31
+ Dec 2022 01:12:46 -0800 (PST)
+MIME-Version: 1.0
+References: <20221230094059.698032393@linuxfoundation.org>
+In-Reply-To: <20221230094059.698032393@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Sat, 31 Dec 2022 14:42:35 +0530
+Message-ID: <CA+G9fYv8nE=1TZUFopiG9msoBExkkcGWyLTokiO79-JQFwMUNg@mail.gmail.com>
+Subject: Re: [PATCH 6.0 0000/1066] 6.0.16-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.2-1 
-MIME-Version: 1.0
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2022-12-30 at 10:49 +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.1.2 release.
-> There are 1140 patches in this series, all will be posted as a response
-> to this one.=C2=A0 If anyone has any issues with these being applied, ple=
-ase
+On Fri, 30 Dec 2022 at 15:19, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 6.0.16 release.
+> There are 1066 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
 > let me know.
->=20
+>
 > Responses should be made by Sun, 01 Jan 2023 09:38:41 +0000.
 > Anything received after that time might be too late.
->=20
+>
 > The whole patch series can be found in one patch at:
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0https://www.kernel.org/pu=
-b/linux/kernel/v6.x/stable-review/patch-6.1.2-rc2.gz
+>         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-=
+6.0.16-rc2.gz
 > or in the git tree and branch at:
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0git://git.kernel.org/pub/=
-scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-6.0.y
 > and the diffstat can be found below.
->=20
+>
 > thanks,
->=20
+>
 > greg k-h
->=20
->=20
 
-Hi Greg,
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-I'm concerned about backporting those two commits to *any* stable kernel ri=
-ght now:
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-> Pali Roh=C3=A1r <pali@kernel.org>
-> =C2=A0=C2=A0=C2=A0 ARM: dts: armada-39x: Fix compatible string for gpios
-[ Upstream commit d10886a4e6f85ee18d47a1066a52168461370ded ]
+## Build
+* kernel: 6.0.16-rc2
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-6.0.y
+* git commit: f54b936f8ec726a772a7c0ca5c77583bd0f90b7e
+* git describe: v6.0.15-1067-gf54b936f8ec7
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.0.y/build/v6.0.1=
+5-1067-gf54b936f8ec7
 
->=20
-> Pali Roh=C3=A1r <pali@kernel.org>
-> =C2=A0=C2=A0=C2=A0 ARM: dts: armada-38x: Fix compatible string for gpios
-[ Upstream commit c4de4667f15d04ef5920bacf41e514ec7d1ef03d ]
+## Test Regressions (compared to v6.0.14-29-g65f3ab07fb24)
 
-The latter one breaks my Turris Omnia (Armada 385) pretty badly, and I gues=
-s we will end
-up with similar problems on Armada 39x boards.
+## Metric Regressions (compared to v6.0.14-29-g65f3ab07fb24)
 
-Link: https://lore.kernel.org/r/f24474e70c1a4e9692bd596ef6d97ceda9511245.ca=
-mel@gmail.com/
+## Test Fixes (compared to v6.0.14-29-g65f3ab07fb24)
 
-Thanks, Klaus
+## Metric Fixes (compared to v6.0.14-29-g65f3ab07fb24)
 
+## Test result summary
+total: 147899, pass: 131296, fail: 2681, skip: 13616, xfail: 306
+
+## Build Summary
+* arc: 5 total, 5 passed, 0 failed
+* arm: 151 total, 146 passed, 5 failed
+* arm64: 49 total, 47 passed, 2 failed
+* i386: 39 total, 36 passed, 3 failed
+* mips: 30 total, 28 passed, 2 failed
+* parisc: 8 total, 8 passed, 0 failed
+* powerpc: 38 total, 32 passed, 6 failed
+* riscv: 16 total, 14 passed, 2 failed
+* s390: 16 total, 14 passed, 2 failed
+* sh: 14 total, 12 passed, 2 failed
+* sparc: 8 total, 8 passed, 0 failed
+* x86_64: 42 total, 39 passed, 3 failed
+
+## Test suites summary
+* boot
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers-dma-buf
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-filesystems-binderfs
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-net-forwarding
+* kselftest-net-mptcp
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ip
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
