@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD03B65A6C8
-	for <lists+stable@lfdr.de>; Sat, 31 Dec 2022 21:08:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8BEA65A6C5
+	for <lists+stable@lfdr.de>; Sat, 31 Dec 2022 21:08:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235851AbiLaUIj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Dec 2022 15:08:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35512 "EHLO
+        id S235999AbiLaUIK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Dec 2022 15:08:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236019AbiLaUIA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 31 Dec 2022 15:08:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 002D21180C;
-        Sat, 31 Dec 2022 12:06:47 -0800 (PST)
+        with ESMTP id S229684AbiLaUHl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 31 Dec 2022 15:07:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5A455FD3;
+        Sat, 31 Dec 2022 12:06:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 35FC260C28;
-        Sat, 31 Dec 2022 20:06:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE7F5C433F0;
-        Sat, 31 Dec 2022 20:06:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2CB75B8090C;
+        Sat, 31 Dec 2022 20:06:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27852C433F0;
+        Sat, 31 Dec 2022 20:06:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672517179;
-        bh=N/jVfDNU1O6nNZIo0aAmILMlmj2UEOKAqJzf22iqBqs=;
+        s=k20201202; t=1672517184;
+        bh=TY5NK1qBT2eMr+FBpOmmadlYnAQpRq4kzyvVqAWGzP8=;
         h=From:To:Cc:Subject:Date:From;
-        b=WIghN6NxL2lthpdVrDJGkEJKPasIfJ6sWZod9ByvoxupN0NNmlJRY8pwUOpVJZsGD
-         Mm7Xv6f1xc7i4VrGhEXRV1czp8HdqolzJgLcXjNwbxY9fsQ34eWexUM++oMusrwvIy
-         whZxLqRJIIiXjPpFOOmlXDdH0uXG0HZAoD9bGWdw7mDqObDyjrUjebrtALRVfTx3Ww
-         VbFU7l8S0vqkfNpXJsu2dCjW1m3g9v84MV8bhW1lE0rsRGc58/PwbjuMapCLCF4/Rs
-         4IRFYaODMZh0FV7vLa6dqXH5wScNB966Ealn+VbInNLEqwLdMri6l2mc60/MVL/BzC
-         N5ujUJyLofGyA==
+        b=UI4lnkoHIvhGzTgiPpzPE+EosvB4judTmigLJ1yXGY+MlrlVcL0TtAZZTw2PFZ8Ug
+         abd8qKdK5NUiFs5RpPj5/g15lqrjv9B0qaA9S7Pk7mxc0Nhk6Jfs10KHneDgykJmNz
+         VuuBT+Fsvg0Lb+MnUhoRZ8qQPl9dRktyFafSoQYpvTNOOr21ULDtccejamz60ZSino
+         z+rJ7R9DHFX1yCYFB+kUvDEcgMy+eg1QveZwd0IPE1vW8c4Pa0LyCZBO1gmjj+oZGc
+         3YTYgZu9vfwqlIxa4xTQrEQ6Qo7VP7wwsjWnM3Y4G6gMMGzi8IC7hA0vSsMwJpkqzv
+         GPgNHtGQx+EIg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hans de Goede <hdegoede@redhat.com>,
@@ -40,11 +40,11 @@ Cc:     Hans de Goede <hdegoede@redhat.com>,
         liam.r.girdwood@linux.intel.com, peter.ujfalusi@linux.intel.com,
         yung-chuan.liao@linux.intel.com, ranjani.sridharan@linux.intel.com,
         kai.vehmanen@linux.intel.com, perex@perex.cz, tiwai@suse.com,
-        ckeepax@opensource.cirrus.com, akihiko.odaki@gmail.com,
+        akihiko.odaki@gmail.com, ckeepax@opensource.cirrus.com,
         oder_chiou@realtek.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4] ASoC: Intel: bytcr_rt5640: Add quirk for the Advantech MICA-071 tablet
-Date:   Sat, 31 Dec 2022 15:06:04 -0500
-Message-Id: <20221231200606.1748940-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19] ASoC: Intel: bytcr_rt5640: Add quirk for the Advantech MICA-071 tablet
+Date:   Sat, 31 Dec 2022 15:06:20 -0500
+Message-Id: <20221231200621.1748969-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
 X-stable: review
@@ -84,10 +84,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 15 insertions(+)
 
 diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index 7830d014d924..6a8edb0a559d 100644
+index c4d19b88d17d..2001bc774c64 100644
 --- a/sound/soc/intel/boards/bytcr_rt5640.c
 +++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -428,6 +428,21 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
+@@ -437,6 +437,21 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
  					BYT_RT5640_SSP0_AIF1 |
  					BYT_RT5640_MCLK_EN),
  	},
