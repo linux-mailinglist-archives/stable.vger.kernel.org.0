@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2594165A6A6
-	for <lists+stable@lfdr.de>; Sat, 31 Dec 2022 21:05:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 138A765A6AC
+	for <lists+stable@lfdr.de>; Sat, 31 Dec 2022 21:05:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235942AbiLaUFs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Dec 2022 15:05:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34052 "EHLO
+        id S235927AbiLaUFt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Dec 2022 15:05:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235878AbiLaUFc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 31 Dec 2022 15:05:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 565807667;
-        Sat, 31 Dec 2022 12:05:32 -0800 (PST)
+        with ESMTP id S235900AbiLaUFk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 31 Dec 2022 15:05:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A854A1A0;
+        Sat, 31 Dec 2022 12:05:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E68F560A6F;
-        Sat, 31 Dec 2022 20:05:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CA5BC433F0;
-        Sat, 31 Dec 2022 20:05:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D6E49B80906;
+        Sat, 31 Dec 2022 20:05:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9EE6C433D2;
+        Sat, 31 Dec 2022 20:05:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672517131;
-        bh=aLbKv6XLfTue2wCV/nY8BTSu4/Ky1k+5ZDJqu7uYoi4=;
+        s=k20201202; t=1672517136;
+        bh=nbEQCC/a/+NsXj6d7pAHo1OtVx4lNUjq9z845PL8KLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/twockbHYMTuopaWAuD0qOeTcipwY7pnN06B27WbeUOOlJzt5HeSkImrzaefrAWa
-         1T/SWN2UyxpRFXgI7CGhrPxP5nAmDZ8M6MWemrGQ1Z4+UpkZgS7rpISOvX1Dx3EDLv
-         bcyH1dt0rw3yAxzr32YlKr9kpx9vtDK5mqHHGt7ozIpal7vQRyy+zUWPqv5dir+IC8
-         Ddxxi2jo6o4/zjW+g0zEB1hNiJIhYEvnet79pkwZdNGa/AZ7vIOS5hHI2z7htYVZI4
-         3TfC3hjOmJIx3P4ECwsaT5mB4+jCUTbYK6jHJ6PIvSOPsNpWG+yTz5/9qfcwVVqgNY
-         2BxTkuRDCouEA==
+        b=XIYJ1XhnrhflgRMfxmD/e/9im96567mbddgFDNBYEE2ohnUE43ga2bCoUDMTnG9fP
+         0CIMGcaEjapfoBItehBwFupyGx6ZlAMCLpzdOl9UnhttWdQjQ7Nt85DqGBd/F6onea
+         tx4K4nYKm9sLBUdL0SV58uokT0PFxa9zLYnqpAgLATXCP3LQ+haIzqgj1DchsS3tBe
+         C/+M2l9/GfRGubAtpeVM4XWTyimGrQn3Z+lTOyxc+zg7Ti1xQwwZWQdhaP8xEjc6Ku
+         wdykZpnNm9c9kIAYQ7BFrkpzQZw66LCOxM+3xTLio+0vSM6vE470FfH59AbnULXjZH
+         gpEobjdGQXndw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+Cc:     YC Hung <yc.hung@mediatek.com>,
+        Curtis Malainey <cujomalainey@chromium.org>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, cezary.rojewski@intel.com,
-        liam.r.girdwood@linux.intel.com, peter.ujfalusi@linux.intel.com,
-        yung-chuan.liao@linux.intel.com, ranjani.sridharan@linux.intel.com,
-        kai.vehmanen@linux.intel.com, perex@perex.cz, tiwai@suse.com,
-        ckeepax@opensource.cirrus.com, akihiko.odaki@gmail.com,
-        oder_chiou@realtek.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 6.0 3/7] ASoC: Intel: bytcr_rt5640: Add quirk for the Advantech MICA-071 tablet
-Date:   Sat, 31 Dec 2022 15:04:58 -0500
-Message-Id: <20221231200502.1748784-3-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        pierre-louis.bossart@linux.intel.com, lgirdwood@gmail.com,
+        peter.ujfalusi@linux.intel.com, yung-chuan.liao@linux.intel.com,
+        ranjani.sridharan@linux.intel.com, daniel.baluta@nxp.com,
+        perex@perex.cz, tiwai@suse.com, matthias.bgg@gmail.com,
+        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 6.0 4/7] ASoC: SOF: mediatek: initialize panic_info to zero
+Date:   Sat, 31 Dec 2022 15:04:59 -0500
+Message-Id: <20221231200502.1748784-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221231200502.1748784-1-sashal@kernel.org>
 References: <20221231200502.1748784-1-sashal@kernel.org>
@@ -61,56 +63,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: YC Hung <yc.hung@mediatek.com>
 
-[ Upstream commit a1dec9d70b6ad97087b60b81d2492134a84208c6 ]
+[ Upstream commit 7bd220f2ba9014b78f0304178103393554b8c4fe ]
 
-The Advantech MICA-071 tablet deviates from the defaults for
-a non CR Bay Trail based tablet in several ways:
+Coverity spotted that panic_info is not initialized to zero in
+mtk_adsp_dump. Using uninitialized value panic_info.linenum when
+calling snd_sof_get_status. Fix this coverity by initializing
+panic_info struct as zero.
 
-1. It uses an analog MIC on IN3 rather then using DMIC1
-2. It only has 1 speaker
-3. It needs the OVCD current threshold to be set to 1500uA instead of
-   the default 2000uA to reliable differentiate between headphones vs
-   headsets
-
-Add a quirk with these settings for this tablet.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20221213123246.11226-1-hdegoede@redhat.com
+Signed-off-by: YC Hung <yc.hung@mediatek.com>
+Reviewed-by: Curtis Malainey <cujomalainey@chromium.org>
+Link: https://lore.kernel.org/r/20221213115617.25086-1-yc.hung@mediatek.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/bytcr_rt5640.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ sound/soc/sof/mediatek/mtk-adsp-common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index fb9d9e271845..ddd2625bed90 100644
---- a/sound/soc/intel/boards/bytcr_rt5640.c
-+++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -570,6 +570,21 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
- 					BYT_RT5640_SSP0_AIF1 |
- 					BYT_RT5640_MCLK_EN),
- 	},
-+	{
-+		/* Advantech MICA-071 */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Advantech"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "MICA-071"),
-+		},
-+		/* OVCD Th = 1500uA to reliable detect head-phones vs -set */
-+		.driver_data = (void *)(BYT_RT5640_IN3_MAP |
-+					BYT_RT5640_JD_SRC_JD2_IN4N |
-+					BYT_RT5640_OVCD_TH_1500UA |
-+					BYT_RT5640_OVCD_SF_0P75 |
-+					BYT_RT5640_MONO_SPEAKER |
-+					BYT_RT5640_DIFF_MIC |
-+					BYT_RT5640_MCLK_EN),
-+	},
- 	{
- 		.matches = {
- 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ARCHOS"),
+diff --git a/sound/soc/sof/mediatek/mtk-adsp-common.c b/sound/soc/sof/mediatek/mtk-adsp-common.c
+index 1e0769c668a7..de8dbe27cd0d 100644
+--- a/sound/soc/sof/mediatek/mtk-adsp-common.c
++++ b/sound/soc/sof/mediatek/mtk-adsp-common.c
+@@ -60,7 +60,7 @@ void mtk_adsp_dump(struct snd_sof_dev *sdev, u32 flags)
+ {
+ 	char *level = (flags & SOF_DBG_DUMP_OPTIONAL) ? KERN_DEBUG : KERN_ERR;
+ 	struct sof_ipc_dsp_oops_xtensa xoops;
+-	struct sof_ipc_panic_info panic_info;
++	struct sof_ipc_panic_info panic_info = {};
+ 	u32 stack[MTK_ADSP_STACK_DUMP_SIZE];
+ 	u32 status;
+ 
 -- 
 2.35.1
 
