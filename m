@@ -2,69 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FD9E65A2AD
-	for <lists+stable@lfdr.de>; Sat, 31 Dec 2022 05:12:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 013AF65A2CB
+	for <lists+stable@lfdr.de>; Sat, 31 Dec 2022 06:52:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231514AbiLaEMb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Dec 2022 23:12:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45096 "EHLO
+        id S229560AbiLaFwH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Dec 2022 00:52:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231301AbiLaEMV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Dec 2022 23:12:21 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FDBF140B7
-        for <stable@vger.kernel.org>; Fri, 30 Dec 2022 20:11:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1672459894;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=SQesEpyQ/TOk4+yr8stV7fGWHioPa/8NhDL6gLzIvW8=;
-        b=WuAH10XTPT3n1uMGkXhf3lrQpiHZZx3qq/3MPAsy0wO8zzZ52HVetvIincFLrZBgSFoXxd
-        3jja9ypwdKLGV0/oQgg4iXIR/Qplu9Hb/Gcr938F/0zpkOrRfEJv4MxtJJMsR/FIHbWP4H
-        4qTQ4UJz2DMscuLHRDZXmzCXMHBG6yc=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-325-Vp0ft221P5K_uDtK9pMJXQ-1; Fri, 30 Dec 2022 23:11:28 -0500
-X-MC-Unique: Vp0ft221P5K_uDtK9pMJXQ-1
-Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id CF9EF3C0DDB7;
-        Sat, 31 Dec 2022 04:11:27 +0000 (UTC)
-Received: from llong.com (unknown [10.22.32.204])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 23755492B00;
-        Sat, 31 Dec 2022 04:11:27 +0000 (UTC)
-From:   Waiman Long <longman@redhat.com>
-To:     Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Valentin Schneider <vschneid@redhat.com>
-Cc:     Phil Auld <pauld@redhat.com>,
-        Wenjie Li <wenjieli@qti.qualcomm.com>,
-        =?UTF-8?q?David=20Wang=20=E7=8E=8B=E6=A0=87?= 
-        <wangbiao3@xiaomi.com>, Quentin Perret <qperret@google.com>,
-        Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org,
-        Waiman Long <longman@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH v6 1/2] sched: Fix use-after-free bug in dup_user_cpus_ptr()
-Date:   Fri, 30 Dec 2022 23:11:19 -0500
-Message-Id: <20221231041120.440785-2-longman@redhat.com>
-In-Reply-To: <20221231041120.440785-1-longman@redhat.com>
-References: <20221231041120.440785-1-longman@redhat.com>
+        with ESMTP id S229527AbiLaFwH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 31 Dec 2022 00:52:07 -0500
+Received: from mail-oi1-x235.google.com (mail-oi1-x235.google.com [IPv6:2607:f8b0:4864:20::235])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43C5F13E8D;
+        Fri, 30 Dec 2022 21:52:06 -0800 (PST)
+Received: by mail-oi1-x235.google.com with SMTP id r11so20867036oie.13;
+        Fri, 30 Dec 2022 21:52:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=NVipoNjby+BOws8FLX/AuDw7QSwId0oY3eFy8ssadWI=;
+        b=Eodyx5tiVTgtD0iNxx8DYyUGkHEntoWu1TG1qrjaBUm+kuFF6/s1zfxpkLRP55sGyH
+         zeJjGoc50wi67Sp2edBB8Xhg9xIpZ5eEoFJonjGY+xKFFspl+/gpAtQRpo6i2J4xUr1y
+         BeOlGKbCn6t4NkYEGcI/LiticrnM7TYHvUSax5K2vBL8CUs8LeeH1oD4SCeio5XRYiqX
+         cFE2i0u7O1d2dH1PRfv2/bw8Jv5vPWD8Pb+XslWZtpFHQgghZ8pegJYbxvjJrXZPf+ke
+         L9AkfbxYZWnn2fbd4rOvrstKGDEe4psvGw6CTyIAg39rszhNRyNvBHoMbHj6xyvCL4P4
+         ulqA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=NVipoNjby+BOws8FLX/AuDw7QSwId0oY3eFy8ssadWI=;
+        b=yfjd3vk4bJu9Y2TUGo/DPs7RBjmaY/ozbuy6fhkihOZn3i2t6/NJ6FSLJT9WPw2KpG
+         qwJ6WaMLpVaA+B7oeKf3oUG8xuF5qtmGGjDA5ccap+GMGXV9PaBDQdikAANkXk7IgcId
+         WsxjmeQSlfgcgGV3ZFt8xQfFkEGvLNnCL3ae4f8if+4tz8iziJ2jqpHfz+GnREaDoxMb
+         39aI4U2PTkExkqhn9SAOZACJYjCqCjf8z7p4JwCpQtHo1XtG1l/7uzJVT92FPsa2/dUJ
+         at54eaxi/4TPDAFfyBrp4+PEbafkhKX6nHqoLDybYne3PbMNzPz/g9OT7FcZVEPXQtZh
+         O7Xg==
+X-Gm-Message-State: AFqh2kpLyS6yOJ0jovnrbjpc04a2SrxI/yAT4hDBF5Q7hMUjcL0MZMJ4
+        +BDVP4nYzGfajKb/LJ6NW64=
+X-Google-Smtp-Source: AMrXdXtyY8bch1tU7KCYxUTZMycyXm3sZrdzNi/A9dT2d64rPBgLOwCeg3fUd5Ot7Wr6FfCcnQjRgw==
+X-Received: by 2002:a05:6808:208e:b0:360:d179:97b4 with SMTP id s14-20020a056808208e00b00360d17997b4mr19372178oiw.35.1672465925515;
+        Fri, 30 Dec 2022 21:52:05 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id j9-20020a056808056900b0034d9042758fsm9883340oig.24.2022.12.30.21.52.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Dec 2022 21:52:04 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Fri, 30 Dec 2022 21:52:03 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Conor Dooley <conor@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 6.0 0000/1066] 6.0.16-rc2 review
+Message-ID: <20221231055203.GA2926213@roeck-us.net>
+References: <20221230094059.698032393@linuxfoundation.org>
+ <Y699qYnUYUwFuQ/E@spud>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.10
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Y699qYnUYUwFuQ/E@spud>
+X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -72,92 +79,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since commit 07ec77a1d4e8 ("sched: Allow task CPU affinity to be
-restricted on asymmetric systems"), the setting and clearing of
-user_cpus_ptr are done under pi_lock for arm64 architecture. However,
-dup_user_cpus_ptr() accesses user_cpus_ptr without any lock
-protection. Since sched_setaffinity() can be invoked from another
-process, the process being modified may be undergoing fork() at
-the same time.  When racing with the clearing of user_cpus_ptr in
-__set_cpus_allowed_ptr_locked(), it can lead to user-after-free and
-possibly double-free in arm64 kernel.
+On Sat, Dec 31, 2022 at 12:09:13AM +0000, Conor Dooley wrote:
+> Hey Greg,
+> 
+> On Fri, Dec 30, 2022 at 10:49:23AM +0100, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 6.0.16 release.
+> > There are 1066 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Sun, 01 Jan 2023 09:38:41 +0000.
+> > Anything received after that time might be too late.
+> 
+> > Paulo Alcantara <pc@cjr.nz>
+> >     cifs: improve symlink handling for smb2+
+> 
+> This patch here appears to fail allmodconfig + LLVM on RISC-V:
+> ../fs/cifs/smb2inode.c:419:4: error: variable 'idata' is uninitialized when used here [-Werror,-Wuninitialized]
+>                         idata->symlink_target = kstrdup(cfile->symlink_target, GFP_KERNEL);
+>                         ^~~~~
+> ../fs/cifs/smb2inode.c:76:35: note: initialize the variable 'idata' to silence this warning
+>         struct cifs_open_info_data *idata;
+>                                          ^
+>                                           = NULL
+> 1 error generated.
 
-Commit 8f9ea86fdf99 ("sched: Always preserve the user requested
-cpumask") fixes this problem as user_cpus_ptr, once set, will never
-be cleared in a task's lifetime. However, this bug was re-introduced
-in commit 851a723e45d1 ("sched: Always clear user_cpus_ptr in
-do_set_cpus_allowed()") which allows the clearing of user_cpus_ptr in
-do_set_cpus_allowed(). This time, it will affect all arches.
+Fixed with upstream commit 69ccafdd35cdf ("cifs: fix uninitialised var in
+smb2_compound_op()").
 
-Fix this bug by always clearing the user_cpus_ptr of the newly
-cloned/forked task before the copying process starts and check the
-user_cpus_ptr state of the source task under pi_lock.
+Guenter
 
-Note to stable, this patch won't be applicable to stable releases.
-Just copy the new dup_user_cpus_ptr() function over.
+> 
+> It looks like this was reported as a smatch error on Christmas Day:
+> https://lore.kernel.org/all/202212250020.fyWQFNzF-lkp@intel.com/
+> 
+> Given the day in question, missing that report seems pretty
+> understandable :)
+> 
+> I tried to see if this had been reported already against the patches
+> themselves, rather than Sasha's queue, but given the size of the patchset
+> I may have missed it. Apologies for the noise if I have.
+> 
+> Thanks,
+> Conor.
+> 
 
-Fixes: 07ec77a1d4e8 ("sched: Allow task CPU affinity to be restricted on asymmetric systems")
-Fixes: 851a723e45d1 ("sched: Always clear user_cpus_ptr in do_set_cpus_allowed()")
-CC: stable@vger.kernel.org
-Reported-by: David Wang 王标 <wangbiao3@xiaomi.com>
-Signed-off-by: Waiman Long <longman@redhat.com>
----
- kernel/sched/core.c | 34 +++++++++++++++++++++++++++++-----
- 1 file changed, 29 insertions(+), 5 deletions(-)
-
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 25b582b6ee5f..b93d030b9fd5 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -2612,19 +2612,43 @@ void do_set_cpus_allowed(struct task_struct *p, const struct cpumask *new_mask)
- int dup_user_cpus_ptr(struct task_struct *dst, struct task_struct *src,
- 		      int node)
- {
-+	cpumask_t *user_mask;
- 	unsigned long flags;
- 
--	if (!src->user_cpus_ptr)
-+	/*
-+	 * Always clear dst->user_cpus_ptr first as their user_cpus_ptr's
-+	 * may differ by now due to racing.
-+	 */
-+	dst->user_cpus_ptr = NULL;
-+
-+	/*
-+	 * This check is racy and losing the race is a valid situation.
-+	 * It is not worth the extra overhead of taking the pi_lock on
-+	 * every fork/clone.
-+	 */
-+	if (data_race(!src->user_cpus_ptr))
- 		return 0;
- 
--	dst->user_cpus_ptr = kmalloc_node(cpumask_size(), GFP_KERNEL, node);
--	if (!dst->user_cpus_ptr)
-+	user_mask = kmalloc_node(cpumask_size(), GFP_KERNEL, node);
-+	if (!user_mask)
- 		return -ENOMEM;
- 
--	/* Use pi_lock to protect content of user_cpus_ptr */
-+	/*
-+	 * Use pi_lock to protect content of user_cpus_ptr
-+	 *
-+	 * Though unlikely, user_cpus_ptr can be reset to NULL by a concurrent
-+	 * do_set_cpus_allowed().
-+	 */
- 	raw_spin_lock_irqsave(&src->pi_lock, flags);
--	cpumask_copy(dst->user_cpus_ptr, src->user_cpus_ptr);
-+	if (src->user_cpus_ptr) {
-+		swap(dst->user_cpus_ptr, user_mask);
-+		cpumask_copy(dst->user_cpus_ptr, src->user_cpus_ptr);
-+	}
- 	raw_spin_unlock_irqrestore(&src->pi_lock, flags);
-+
-+	if (unlikely(user_mask))
-+		kfree(user_mask);
-+
- 	return 0;
- }
- 
--- 
-2.31.1
 
