@@ -2,72 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B8CE65A33E
-	for <lists+stable@lfdr.de>; Sat, 31 Dec 2022 09:32:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0124165A34F
+	for <lists+stable@lfdr.de>; Sat, 31 Dec 2022 10:10:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229551AbiLaIb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 31 Dec 2022 03:31:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49300 "EHLO
+        id S229834AbiLaJKP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 31 Dec 2022 04:10:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229523AbiLaIbz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 31 Dec 2022 03:31:55 -0500
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF4AA2660;
-        Sat, 31 Dec 2022 00:31:54 -0800 (PST)
-Received: by mail-pj1-x1032.google.com with SMTP id p4so24564498pjk.2;
-        Sat, 31 Dec 2022 00:31:54 -0800 (PST)
+        with ESMTP id S229523AbiLaJKN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 31 Dec 2022 04:10:13 -0500
+Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 519852DC3
+        for <stable@vger.kernel.org>; Sat, 31 Dec 2022 01:10:08 -0800 (PST)
+Received: by mail-wm1-x336.google.com with SMTP id m8-20020a05600c3b0800b003d96f801c48so14740461wms.0
+        for <stable@vger.kernel.org>; Sat, 31 Dec 2022 01:10:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Qyj2rgBFpnRPFUlJLTEsD7ZQxIggwzsrs3Z/jAozoGs=;
-        b=YQP0nrh5V+KeSIJ68OIdNF/0SiC4Jmh4QZmhuUwcXtSfQzl0dXBn142QhkQ9r7tdeQ
-         yyFY87dvKVIBDnSXHSyLHug55mxB0yDMiRwS+Ol5q5yoU4st2DuN0O7U9GD8gGfF/p5H
-         /78N+v6KGSmdeTDnOYY1plBpToQw+EWYPQwBke43LRzUnrrLoApVH30MPkCbKdXTb4Y5
-         sYl3gpcpZp/0smVEeAx99G9RYPTV0vrD3vQYMzleyAOKZDFvHjtYO++Ay03EafCtCBwQ
-         qjR+qRa8BXI2SFGYO+RAsipP+zqR0/3dHrlxZ79R6km38zjW98NadPzYGUd7RfAViYgP
-         qBQg==
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:to:from:subject:message-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=nHtqSom/NPOqpnu1/5uZxJR7SBzKstlNHb36iHfhgqc=;
+        b=X0Wh78GqGD1abjYCFlc7xPkYBcRs4mocIevt8rZ/77iKiGh7Z0Tb5jN8jDmef0ANCV
+         hCvDYCMGbFdPT+sY5v8jf2CHFoMSdsjQiSOFdsfOHFLO/ag8C6NSkUiOEIlConE5s0mb
+         bBnkYFYhGEEayhhJcUc9vBJX1/xQZFIyv/Yx9F0UUrUfxXlU9A/v/adePwATtO+1TFZR
+         4BicbiJAa1YNRfRlBmVqARpH0TogryVQ1tKUQN+f+gObSdnkKRYVGG8Nhml7uIUSfd5L
+         4QOsou9zomURD6Ff0N+hnFRT/7hg0jU+QCzUy6dAm1Gg9+djdckEymAR26O2yZ9wRh0q
+         hcJg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Qyj2rgBFpnRPFUlJLTEsD7ZQxIggwzsrs3Z/jAozoGs=;
-        b=e3/fM6vv/dsBA1SvjFXOA6HQgWdv8R3/JqnKr0Rjhz2U9QXlNuynMX5LtBgf+SjB6I
-         nyf8/WfOgdTjZt8x1I5mqp96yozZHThM1n1WP1oYsPHyT+H4S7qVl5XrNNYLhnkrtUbF
-         u/ptS/Ya9yweF4rT6diyjQ/kKlgonxeTIg4oY8QZEPjV6pRoWq+yLhj2+nUr1i6JaUQ5
-         EDbMsHdmi6D5CmqIJ9kz087aPdEsWUdLe2v0FkbhJG7nPV2GpAgfxV1IkNwBfJafYyVO
-         Z0tfCuXl3j8WSgDhf3GVrozuLoPQDJ0L7AqANQbpj5hoS6u2KL5buPgrG0hH1PwcCfDE
-         OOkA==
-X-Gm-Message-State: AFqh2kojAdFvr1f4jnWFbMQ5FcIAEmJS/iHLCxrWATgExWzvx+FXyW+D
-        fN6X+u08loVX5PrHf796dPM=
-X-Google-Smtp-Source: AMrXdXtOHN4azErC+YEw2kfd3lU2BAPDkYn89mJl4iSoprjWXvTA3BwXBhJEJTVclwPiKT5amDnAdQ==
-X-Received: by 2002:a17:902:d3cc:b0:192:9141:ace5 with SMTP id w12-20020a170902d3cc00b001929141ace5mr14868542plb.13.1672475514218;
-        Sat, 31 Dec 2022 00:31:54 -0800 (PST)
-Received: from debian.me (subs28-116-206-12-54.three.co.id. [116.206.12.54])
-        by smtp.gmail.com with ESMTPSA id e11-20020a170902784b00b0017d97d13b18sm16272758pln.65.2022.12.31.00.31.53
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:to:from:subject:message-id:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=nHtqSom/NPOqpnu1/5uZxJR7SBzKstlNHb36iHfhgqc=;
+        b=nlV21j9rcjMtuH/9D6lB0MZjkByB+NwfoRSo1/V+O1WMj0W+fvda5LXALJTx6HRyxB
+         CoOKQ6hhr748x0ExeCQgIodaFlpswfnMIyGg716e876v0VPm7y9T1URWyTxLo3s4VmXv
+         FJuJ7I0WBBWGNhTX1p1OPX5FBJ14aJa67SrvQc3AOLkGoUeUXNZMDdSGeUImnlcQBrXR
+         xlnrrnTu0i4/9VGFEDXUyXxEPvCFcz+UhMUqsLVme6MGQdEgBxikfMKJdI2/VoOBFxIt
+         OAC7fVsJLTEmxqjVZizV1hBJ60TUI0D42xKicVrUHLiUkFPGO+3tIlkHpb83khFCgYrK
+         noWg==
+X-Gm-Message-State: AFqh2ko78Gp0ckhdBKkFPnEhd+5wF6rYlmonwNyKtTy/BQRdCePa+xFr
+        dPaDxVlC6dxosTFHRW6IGL0=
+X-Google-Smtp-Source: AMrXdXuXg5VEUORyhBhbpA+ZUWW9aW0vf//YsYqly/wtdOBZD/gfzzCb19f/xCtg2Ivrum4yri8jKQ==
+X-Received: by 2002:a05:600c:4f48:b0:3d6:8570:1239 with SMTP id m8-20020a05600c4f4800b003d685701239mr30589229wmq.16.1672477806779;
+        Sat, 31 Dec 2022 01:10:06 -0800 (PST)
+Received: from ?IPv6:2a02:168:6806:0:70ad:9f34:9d41:ef2c? ([2a02:168:6806:0:70ad:9f34:9d41:ef2c])
+        by smtp.gmail.com with ESMTPSA id h9-20020a05600c314900b003d99469ece1sm13397264wmo.24.2022.12.31.01.10.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 31 Dec 2022 00:31:53 -0800 (PST)
-Received: by debian.me (Postfix, from userid 1000)
-        id 6C6151017FB; Sat, 31 Dec 2022 15:31:48 +0700 (WIB)
-Date:   Sat, 31 Dec 2022 15:31:48 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
+        Sat, 31 Dec 2022 01:10:06 -0800 (PST)
+Message-ID: <e9ee0609520238d28d94ee8b66e20ac0c6069caa.camel@gmail.com>
+Subject: Re: [PATCH 6.1 0000/1140] 6.1.2-rc2 review
+From:   Klaus Kudielka <klaus.kudielka@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.1 0000/1140] 6.1.2-rc2 review
-Message-ID: <Y6/zdJ722IxFptkB@debian.me>
-References: <20221230094107.317705320@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="djV721w+vT9VwHqn"
-Content-Disposition: inline
+Date:   Sat, 31 Dec 2022 10:10:05 +0100
 In-Reply-To: <20221230094107.317705320@linuxfoundation.org>
+References: <20221230094107.317705320@linuxfoundation.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.46.2-1 
+MIME-Version: 1.0
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
@@ -78,36 +71,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
---djV721w+vT9VwHqn
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Dec 30, 2022 at 10:49:32AM +0100, Greg Kroah-Hartman wrote:
+On Fri, 2022-12-30 at 10:49 +0100, Greg Kroah-Hartman wrote:
 > This is the start of the stable review cycle for the 6.1.2 release.
 > There are 1140 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
+> to this one.=C2=A0 If anyone has any issues with these being applied, ple=
+ase
 > let me know.
 >=20
+> Responses should be made by Sun, 01 Jan 2023 09:38:41 +0000.
+> Anything received after that time might be too late.
+>=20
+> The whole patch series can be found in one patch at:
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0https://www.kernel.org/pu=
+b/linux/kernel/v6.x/stable-review/patch-6.1.2-rc2.gz
+> or in the git tree and branch at:
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0git://git.kernel.org/pub/=
+scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
+> and the diffstat can be found below.
+>=20
+> thanks,
+>=20
+> greg k-h
+>=20
+>=20
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.2.0).
+Hi Greg,
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+I'm concerned about backporting those two commits to *any* stable kernel ri=
+ght now:
 
---=20
-An old man doll... just what I always wanted! - Clara
+> Pali Roh=C3=A1r <pali@kernel.org>
+> =C2=A0=C2=A0=C2=A0 ARM: dts: armada-39x: Fix compatible string for gpios
+[ Upstream commit d10886a4e6f85ee18d47a1066a52168461370ded ]
 
---djV721w+vT9VwHqn
-Content-Type: application/pgp-signature; name="signature.asc"
+>=20
+> Pali Roh=C3=A1r <pali@kernel.org>
+> =C2=A0=C2=A0=C2=A0 ARM: dts: armada-38x: Fix compatible string for gpios
+[ Upstream commit c4de4667f15d04ef5920bacf41e514ec7d1ef03d ]
 
------BEGIN PGP SIGNATURE-----
+The latter one breaks my Turris Omnia (Armada 385) pretty badly, and I gues=
+s we will end
+up with similar problems on Armada 39x boards.
 
-iHUEARYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY6/zbAAKCRD2uYlJVVFO
-o5WaAP4lJgxhIHBXpTKQTc8hbvRoFqWRaniEzbD1cUKdMkwOGAD9FpY4v6iKmJgg
-xjrsMCGEigSsg5YF0tDEkBLyEfjhkwQ=
-=cKJS
------END PGP SIGNATURE-----
+Link: https://lore.kernel.org/r/f24474e70c1a4e9692bd596ef6d97ceda9511245.ca=
+mel@gmail.com/
 
---djV721w+vT9VwHqn--
+Thanks, Klaus
+
