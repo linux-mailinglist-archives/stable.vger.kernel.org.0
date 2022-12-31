@@ -2,95 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94FD6659CAF
-	for <lists+stable@lfdr.de>; Fri, 30 Dec 2022 23:21:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CFA1659F38
+	for <lists+stable@lfdr.de>; Sat, 31 Dec 2022 01:09:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229536AbiL3WVm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Dec 2022 17:21:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50598 "EHLO
+        id S235856AbiLaAJY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Dec 2022 19:09:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229519AbiL3WVk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Dec 2022 17:21:40 -0500
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C23871D0CF
-        for <stable@vger.kernel.org>; Fri, 30 Dec 2022 14:21:39 -0800 (PST)
-Received: by mail-ed1-x534.google.com with SMTP id b88so24735439edf.6
-        for <stable@vger.kernel.org>; Fri, 30 Dec 2022 14:21:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=hle+TDATQIU1Askkn4DbGJTqJ4zXSQMnec43tQ4/jZM=;
-        b=pQjylaZeRgk7uiDrvcyHFI7v06Vkc4qYEz1sL4qhHWKyOG7j3/B4mlriifLexhP5i+
-         7yOyTJsn5HAVPenSBmL0iCVKR1nz7/T441J2DXRAqECS0k2qh2ORq5kxz6nBBLTZVjPp
-         xHTztE1E/QrZpd/dz/LBALd98yiUpQK6OkuaNfYyYXfD58eRk+WJLBo8yIj2LCXqgbz0
-         8Jxw9NXkH0F3GoHYgtzIHgzBMnImtrFzXlD7dmylHROXvkxDXpUFqoQdg6Ma7bn0DLEH
-         CjKDAm+YPD8Nu0q6iXWp+n+8AYghzBtEZNUBhsATebbyQQo1PXT8gaNxcAeZccu+Qgpa
-         eNMw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=hle+TDATQIU1Askkn4DbGJTqJ4zXSQMnec43tQ4/jZM=;
-        b=GO4CAY4LrCWkwIu7qQnAQ6tB9pbTsu9IePBw94C/BrvKKJ/Kgj4OeBmKHhfkkQZKLH
-         WgUeXmu6PVj4MmsmFkDjn/oIMOTlBCJle7CQgOpQMC71pR0P2VdeXLCzFXqkBIj6TtbH
-         qaLQHWCPAlBAjNqgtU5P0EKeOS7JlyNjpREtUYFzbPYk4iMXvVwUiWsmoZNiH0PgzQmk
-         btI9EBN+nBBXWGYy3nrrpIbyCQ/9CpYmosBbn9SHsXrGnzMeA2GNwith9sodgdKyN40Z
-         o8zMvq+3uEbXb4FeWVc/mO45wn8IT5rnFAMRCIo12RvyPf1QdiR662AfLEnBmFazim/+
-         hBRQ==
-X-Gm-Message-State: AFqh2kqTD2tdARPRMMphzZH5LgD4dMJBy6Ht0mPzUr+BJ1VTS3T5vtni
-        DD5KgM1T3nrqKu7JTT+eCSm603tbRhn/AhMFUXkzHIl+lTM=
-X-Google-Smtp-Source: AMrXdXtnCvYktMIZ6BdXm6xSI9y64WwtIfegEr0xSAYsPnxcqa8ZUnuA9r0eLzQ7O6CH3C06/d39LkAOSlUxyS36xbE=
-X-Received: by 2002:a50:ea81:0:b0:45c:a651:8849 with SMTP id
- d1-20020a50ea81000000b0045ca6518849mr3712707edo.209.1672438898126; Fri, 30
- Dec 2022 14:21:38 -0800 (PST)
+        with ESMTP id S235791AbiLaAJV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Dec 2022 19:09:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 957721E3C3;
+        Fri, 30 Dec 2022 16:09:20 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 38FE761CD5;
+        Sat, 31 Dec 2022 00:09:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7033AC433D2;
+        Sat, 31 Dec 2022 00:09:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1672445359;
+        bh=aKmFnAcijWU3fCBHUiyU7joPGR9QOBad1kj7gvkGXI4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=P0jQ43E/CSNMY8IOnBP1w3PImVKUbBc75efGRNqICxfSDgdrRru+T67fkQK7jORqx
+         EvDLLYrLhG9PRuV6lRIFtPLsUeMY66TUbeMsS9OaY7CMI6vvXYpWrwLCXsRjZ8DVij
+         0/Ah+ahOxYXJCbw5lKf5Cqd8RymelhTbrEXA5j4EgJRQf4DQG6HHiU/rJ3kyd3RkhP
+         iKtc4EY1zKe2XzhXjtEjoX8X4Jg0kwA3752dByQHYoenIfR/sSClWPT4qDJMvsbbFE
+         6T3PqdbU1+QIgK7bcKx/VyP90SDjSPhdcz9UAt20d3ZNII0jtmwjREnt7UcvY6qAlZ
+         pJV3SW/gx6mUQ==
+Date:   Sat, 31 Dec 2022 00:09:13 +0000
+From:   Conor Dooley <conor@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 6.0 0000/1066] 6.0.16-rc2 review
+Message-ID: <Y699qYnUYUwFuQ/E@spud>
+References: <20221230094059.698032393@linuxfoundation.org>
 MIME-Version: 1.0
-References: <20221230215942.3241955-1-zenczykowski@gmail.com> <Y69fx1KpwWivqLp0@181616e551cc>
-In-Reply-To: <Y69fx1KpwWivqLp0@181616e551cc>
-From:   =?UTF-8?Q?Maciej_=C5=BBenczykowski?= <zenczykowski@gmail.com>
-Date:   Fri, 30 Dec 2022 14:21:26 -0800
-Message-ID: <CAHo-Ooxx2qF0i-34H3mCMB99_Uf1ifnw2ivs9z4AHkbSPXsY9Q@mail.gmail.com>
-Subject: Re: [PATCH] usb: storage: de-quirk Seagate Expansion Portable Drive
- SRD00F1 [0bc2:2320]
-To:     kernel test robot <lkp@intel.com>
-Cc:     stable@vger.kernel.org, oe-kbuild-all@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="8Bd/gRRSpmcEZlL3"
+Content-Disposition: inline
+In-Reply-To: <20221230094059.698032393@linuxfoundation.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Mr. Robot,
 
-your rule matching logic appears to be incorrectly implemented.
+--8Bd/gRRSpmcEZlL3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Regards,
+Hey Greg,
 
-A human.
+On Fri, Dec 30, 2022 at 10:49:23AM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.0.16 release.
+> There are 1066 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>=20
+> Responses should be made by Sun, 01 Jan 2023 09:38:41 +0000.
+> Anything received after that time might be too late.
 
-On Fri, Dec 30, 2022 at 2:02 PM kernel test robot <lkp@intel.com> wrote:
->
-> Hi,
->
-> Thanks for your patch.
->
-> FYI: kernel test robot notices the stable kernel rule is not satisfied.
->
-> Rule: 'Cc: stable@vger.kernel.org' or 'commit <sha1> upstream.'
-> Subject: [PATCH] usb: storage: de-quirk Seagate Expansion Portable Drive SRD00F1 [0bc2:2320]
-> Link: https://lore.kernel.org/stable/20221230215942.3241955-1-zenczykowski%40gmail.com
->
-> The check is based on https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
->
-> --
-> 0-DAY CI Kernel Test Service
-> https://github.com/intel/lkp-tests
->
->
->
+> Paulo Alcantara <pc@cjr.nz>
+>     cifs: improve symlink handling for smb2+
+
+This patch here appears to fail allmodconfig + LLVM on RISC-V:
+=2E./fs/cifs/smb2inode.c:419:4: error: variable 'idata' is uninitialized wh=
+en used here [-Werror,-Wuninitialized]
+                        idata->symlink_target =3D kstrdup(cfile->symlink_ta=
+rget, GFP_KERNEL);
+                        ^~~~~
+=2E./fs/cifs/smb2inode.c:76:35: note: initialize the variable 'idata' to si=
+lence this warning
+        struct cifs_open_info_data *idata;
+                                         ^
+                                          =3D NULL
+1 error generated.
+
+It looks like this was reported as a smatch error on Christmas Day:
+https://lore.kernel.org/all/202212250020.fyWQFNzF-lkp@intel.com/
+
+Given the day in question, missing that report seems pretty
+understandable :)
+
+I tried to see if this had been reported already against the patches
+themselves, rather than Sasha's queue, but given the size of the patchset
+I may have missed it. Apologies for the noise if I have.
+
+Thanks,
+Conor.
+
+
+--8Bd/gRRSpmcEZlL3
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCY699qQAKCRB4tDGHoIJi
+0paOAQCTmedZoh1+06/NOWEA1Hern5DrQe424AMrKRmmpPYmZQD9FlwYf0A+G9px
+PPypEXD+MdlrRbvu9teidCSsgMtemwo=
+=pE9H
+-----END PGP SIGNATURE-----
+
+--8Bd/gRRSpmcEZlL3--
