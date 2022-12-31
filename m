@@ -2,112 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CF8B65A29C
-	for <lists+stable@lfdr.de>; Sat, 31 Dec 2022 04:48:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FD9E65A2AD
+	for <lists+stable@lfdr.de>; Sat, 31 Dec 2022 05:12:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229681AbiLaDsM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Dec 2022 22:48:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41684 "EHLO
+        id S231514AbiLaEMb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Dec 2022 23:12:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229514AbiLaDsL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Dec 2022 22:48:11 -0500
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4493EB85D;
-        Fri, 30 Dec 2022 19:48:11 -0800 (PST)
-Received: by mail-pj1-x1033.google.com with SMTP id n12so11265915pjp.1;
-        Fri, 30 Dec 2022 19:48:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Spjm14Do/Jp5yV7SFep7Vpr7Viq6o6tOkiCvcqVQTjM=;
-        b=U9eQxnBx0aalJbgTHWjBiAcAJeeOd7F59KOJa+fCZM8+o0pNgJ48IHR20zw7pZiMQI
-         i+/33fFHYFjP4mHb8gc2wMFW76o0qfWpL+HkfWBa2lpx+k7kxTKAeiwtUkGwS/+DebaK
-         rTeSp9Q5SCFKgXX2HlCOrSGgYbjQ59NoxFiQlIelHVc3CDk7tK/75jSOTk4mVm2OnpnL
-         wazZi/KIIbM+mZDyHAVUQ3A4LoZ9olYO/602LfwqggdHgJEcrogOWbxl3t5WO3JUTibB
-         ntEnQJWze10k4KjNxlkJJ44XTcveVVGuHFxob4i+bSMSs6BrvGFiPEEmI+lRoUjPGcgs
-         xlWw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Spjm14Do/Jp5yV7SFep7Vpr7Viq6o6tOkiCvcqVQTjM=;
-        b=M6NP/8kGzaZihYp66oZFtpxFA6Tmrz1dnskJNJ2RrMqSJJIIhSNAXR3rMl/wP1aYrU
-         TqPmogiqxdYDmKzXWAiLjpPwHgyemx8HXdMARSwDmdw2ot7m0jFVCneyuilP0h97lWCv
-         b3w986cvUjKQt4NPWARuNB/kOgQ+xjRIGVdscNqbf26VsEylYWg/timy4l2Q1isXNEmz
-         VpXTvtj56vA9EiBZNos8RUkdv23CgAXBGWqBXg2bHZEVS+M2i2vzAsFcIKlAwoWHDOb5
-         Pniy596L8FE/ZDfm8vbhLZ+uMaxohvI5VjKp4vAlnB2ZHnkNvNaG/XlWrbQVfzoB6peg
-         o29w==
-X-Gm-Message-State: AFqh2kor3YCCygGZIXkQb07wSmIv8kQc+ACsjuJDY/1C7VePbAiFyJ1f
-        g2QiDj2M+zzGKLuRmNBF/wY=
-X-Google-Smtp-Source: AMrXdXtPiEuwumaS5Bvm2Lw0FFyCy7tWSwCvwiSWT9zvvr5FGh+TdVX19EPByy/vFRPx4ylaKUKBPg==
-X-Received: by 2002:a05:6a20:c745:b0:9d:efc0:85 with SMTP id hj5-20020a056a20c74500b0009defc00085mr34127819pzb.45.1672458490783;
-        Fri, 30 Dec 2022 19:48:10 -0800 (PST)
-Received: from debian.me (subs03-180-214-233-72.three.co.id. [180.214.233.72])
-        by smtp.gmail.com with ESMTPSA id h4-20020a056a00000400b005821c109cebsm712143pfk.199.2022.12.30.19.48.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Dec 2022 19:48:08 -0800 (PST)
-Received: by debian.me (Postfix, from userid 1000)
-        id B7CE5104465; Sat, 31 Dec 2022 10:48:06 +0700 (WIB)
-Date:   Sat, 31 Dec 2022 10:48:06 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 5.15 000/731] 5.15.86-rc2 review
-Message-ID: <Y6+w9gYWpk/TXYC8@debian.me>
-References: <20221230094021.575121238@linuxfoundation.org>
+        with ESMTP id S231301AbiLaEMV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Dec 2022 23:12:21 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FDBF140B7
+        for <stable@vger.kernel.org>; Fri, 30 Dec 2022 20:11:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1672459894;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=SQesEpyQ/TOk4+yr8stV7fGWHioPa/8NhDL6gLzIvW8=;
+        b=WuAH10XTPT3n1uMGkXhf3lrQpiHZZx3qq/3MPAsy0wO8zzZ52HVetvIincFLrZBgSFoXxd
+        3jja9ypwdKLGV0/oQgg4iXIR/Qplu9Hb/Gcr938F/0zpkOrRfEJv4MxtJJMsR/FIHbWP4H
+        4qTQ4UJz2DMscuLHRDZXmzCXMHBG6yc=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-325-Vp0ft221P5K_uDtK9pMJXQ-1; Fri, 30 Dec 2022 23:11:28 -0500
+X-MC-Unique: Vp0ft221P5K_uDtK9pMJXQ-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id CF9EF3C0DDB7;
+        Sat, 31 Dec 2022 04:11:27 +0000 (UTC)
+Received: from llong.com (unknown [10.22.32.204])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 23755492B00;
+        Sat, 31 Dec 2022 04:11:27 +0000 (UTC)
+From:   Waiman Long <longman@redhat.com>
+To:     Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Valentin Schneider <vschneid@redhat.com>
+Cc:     Phil Auld <pauld@redhat.com>,
+        Wenjie Li <wenjieli@qti.qualcomm.com>,
+        =?UTF-8?q?David=20Wang=20=E7=8E=8B=E6=A0=87?= 
+        <wangbiao3@xiaomi.com>, Quentin Perret <qperret@google.com>,
+        Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org,
+        Waiman Long <longman@redhat.com>, stable@vger.kernel.org
+Subject: [PATCH v6 1/2] sched: Fix use-after-free bug in dup_user_cpus_ptr()
+Date:   Fri, 30 Dec 2022 23:11:19 -0500
+Message-Id: <20221231041120.440785-2-longman@redhat.com>
+In-Reply-To: <20221231041120.440785-1-longman@redhat.com>
+References: <20221231041120.440785-1-longman@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="xHUjXrYOrP0biQR9"
-Content-Disposition: inline
-In-Reply-To: <20221230094021.575121238@linuxfoundation.org>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.10
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Since commit 07ec77a1d4e8 ("sched: Allow task CPU affinity to be
+restricted on asymmetric systems"), the setting and clearing of
+user_cpus_ptr are done under pi_lock for arm64 architecture. However,
+dup_user_cpus_ptr() accesses user_cpus_ptr without any lock
+protection. Since sched_setaffinity() can be invoked from another
+process, the process being modified may be undergoing fork() at
+the same time.  When racing with the clearing of user_cpus_ptr in
+__set_cpus_allowed_ptr_locked(), it can lead to user-after-free and
+possibly double-free in arm64 kernel.
 
---xHUjXrYOrP0biQR9
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Commit 8f9ea86fdf99 ("sched: Always preserve the user requested
+cpumask") fixes this problem as user_cpus_ptr, once set, will never
+be cleared in a task's lifetime. However, this bug was re-introduced
+in commit 851a723e45d1 ("sched: Always clear user_cpus_ptr in
+do_set_cpus_allowed()") which allows the clearing of user_cpus_ptr in
+do_set_cpus_allowed(). This time, it will affect all arches.
 
-On Fri, Dec 30, 2022 at 10:49:11AM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.86 release.
-> There are 731 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
+Fix this bug by always clearing the user_cpus_ptr of the newly
+cloned/forked task before the copying process starts and check the
+user_cpus_ptr state of the source task under pi_lock.
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.2.0).
+Note to stable, this patch won't be applicable to stable releases.
+Just copy the new dup_user_cpus_ptr() function over.
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+Fixes: 07ec77a1d4e8 ("sched: Allow task CPU affinity to be restricted on asymmetric systems")
+Fixes: 851a723e45d1 ("sched: Always clear user_cpus_ptr in do_set_cpus_allowed()")
+CC: stable@vger.kernel.org
+Reported-by: David Wang 王标 <wangbiao3@xiaomi.com>
+Signed-off-by: Waiman Long <longman@redhat.com>
+---
+ kernel/sched/core.c | 34 +++++++++++++++++++++++++++++-----
+ 1 file changed, 29 insertions(+), 5 deletions(-)
 
---=20
-An old man doll... just what I always wanted! - Clara
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 25b582b6ee5f..b93d030b9fd5 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -2612,19 +2612,43 @@ void do_set_cpus_allowed(struct task_struct *p, const struct cpumask *new_mask)
+ int dup_user_cpus_ptr(struct task_struct *dst, struct task_struct *src,
+ 		      int node)
+ {
++	cpumask_t *user_mask;
+ 	unsigned long flags;
+ 
+-	if (!src->user_cpus_ptr)
++	/*
++	 * Always clear dst->user_cpus_ptr first as their user_cpus_ptr's
++	 * may differ by now due to racing.
++	 */
++	dst->user_cpus_ptr = NULL;
++
++	/*
++	 * This check is racy and losing the race is a valid situation.
++	 * It is not worth the extra overhead of taking the pi_lock on
++	 * every fork/clone.
++	 */
++	if (data_race(!src->user_cpus_ptr))
+ 		return 0;
+ 
+-	dst->user_cpus_ptr = kmalloc_node(cpumask_size(), GFP_KERNEL, node);
+-	if (!dst->user_cpus_ptr)
++	user_mask = kmalloc_node(cpumask_size(), GFP_KERNEL, node);
++	if (!user_mask)
+ 		return -ENOMEM;
+ 
+-	/* Use pi_lock to protect content of user_cpus_ptr */
++	/*
++	 * Use pi_lock to protect content of user_cpus_ptr
++	 *
++	 * Though unlikely, user_cpus_ptr can be reset to NULL by a concurrent
++	 * do_set_cpus_allowed().
++	 */
+ 	raw_spin_lock_irqsave(&src->pi_lock, flags);
+-	cpumask_copy(dst->user_cpus_ptr, src->user_cpus_ptr);
++	if (src->user_cpus_ptr) {
++		swap(dst->user_cpus_ptr, user_mask);
++		cpumask_copy(dst->user_cpus_ptr, src->user_cpus_ptr);
++	}
+ 	raw_spin_unlock_irqrestore(&src->pi_lock, flags);
++
++	if (unlikely(user_mask))
++		kfree(user_mask);
++
+ 	return 0;
+ }
+ 
+-- 
+2.31.1
 
---xHUjXrYOrP0biQR9
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEARYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY6+w9gAKCRD2uYlJVVFO
-o2reAQD2kNB/IbQ1m4FsMqibHCMZ3/hbH+ZeMLy4MbDEKtZ1XgEAtovRBnwjLq9o
-CjUQ4hvGJHbPtKafn8jS4C2SSL/OwQc=
-=H2bP
------END PGP SIGNATURE-----
-
---xHUjXrYOrP0biQR9--
