@@ -2,140 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E82965AACD
-	for <lists+stable@lfdr.de>; Sun,  1 Jan 2023 18:35:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4087065AAFC
+	for <lists+stable@lfdr.de>; Sun,  1 Jan 2023 19:33:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229635AbjAARfB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 Jan 2023 12:35:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51404 "EHLO
+        id S230301AbjAASdY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 Jan 2023 13:33:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229447AbjAARfA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 1 Jan 2023 12:35:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B56A22AF7;
-        Sun,  1 Jan 2023 09:34:59 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA35DB80B26;
-        Sun,  1 Jan 2023 17:34:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D138C433EF;
-        Sun,  1 Jan 2023 17:34:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672594496;
-        bh=0/el2/T4xzlbCGvHgu+q4C1W53UanMaCbjlDHFu8n6U=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=V00Iw1yW7RG+TP19hINITpmArgkSsJkF3hIkQaSADgYnbGt2VhBz7oZEOk+lzDgZE
-         MlUz0G1ZWH/yZTpi+ysh6eD/ynvq7QViTHKxc9+rSX/4qekX1nvK4Bpof6zK80KC3z
-         OEY0mjAT3zkuluJXCnCY/08bL+KsCkIicZsbjj/IigbYO749qH/zUb0SwNMplMKXGT
-         IUuy72OqnZlhggOYrxbMVW/xIoAR3yy0fpepzGDcYFf4mv/Wd5ZfzmgFLrEcLJgrnw
-         ehaHgbhx152A3HqAzXEZf4ivT5eCeAjnzbTCJWP7PhGCmu7WNrEACuWJ1a+ToXIE2H
-         puNOtQy41RFuw==
-Date:   Sun, 1 Jan 2023 12:34:54 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Andre Przywara <andre.przywara@arm.com>
-Cc:     Samuel Holland <samuel@sholland.org>, stable@vger.kernel.org,
-        Vinod Koul <vkoul@kernel.org>, kishon@kernel.org,
-        wens@csie.org, jernej.skrabec@gmail.com,
-        wsa+renesas@sang-engineering.com, linux-phy@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.10 1/7] phy: sun4i-usb: Add support for the
- H616 USB PHY
-Message-ID: <Y7HEPphR2cZePsBz@sashalap>
-References: <20221227203512.1214527-1-sashal@kernel.org>
- <530561e9-9ef8-7c8c-8e73-838c86a92266@sholland.org>
- <20221227222330.5ebdf780@slackpad.lan>
+        with ESMTP id S231343AbjAASdX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 Jan 2023 13:33:23 -0500
+Received: from wout1-smtp.messagingengine.com (wout1-smtp.messagingengine.com [64.147.123.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD5E726E4;
+        Sun,  1 Jan 2023 10:33:21 -0800 (PST)
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id AD1FB320039A;
+        Sun,  1 Jan 2023 13:33:20 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute2.internal (MEProxy); Sun, 01 Jan 2023 13:33:21 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
+        cc:cc:content-transfer-encoding:date:date:from:from:in-reply-to
+        :in-reply-to:message-id:mime-version:references:reply-to:sender
+        :subject:subject:to:to; s=fm3; t=1672598000; x=1672684400; bh=Bc
+        rNw+w4SNGHCE4lx9Q7z+Zcv9oKolCWuuHkfZmCA7w=; b=vIIeS466ptQuOHMydg
+        7+zt+zhwPQTGDtQHXGc9usTB8nIXqFaguDCPX543aOJlLFFcEBO2CM9wx6o07mVF
+        FuIrsiVecs9RegpKtHGCz6zEaCVQGDr7PbI6OuMVpq78iJ+5VoByKApOnVIANXbV
+        arNpT1xxF1+WOOMwGKTAXWiCmBJSiImbLUPa3egcH+fW5TedFxWsw7n8qQ2Wrzto
+        lLtnu88TlQDPIfts5Kn2tWc+HTt9DBC2oX6FTMZdMx/n4Df5m9C0XqQaD/dQtBXv
+        obGCzIppON567mN20UZkaNnQDcS0bQuxB9yFcsYVwObdP4ISN49Ezinpa7mbM+4R
+        Z/2g==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm2; t=1672598000; x=1672684400; bh=BcrNw+w4SNGHC
+        E4lx9Q7z+Zcv9oKolCWuuHkfZmCA7w=; b=JTk2uFeou2tfXoKp6XM7d+lV8OikV
+        4wirUf5qLap69gsp49CJuYnJ8VLcWcCMV+f2k6AtibiKr9nI/Xw8S9N1KII/xqOZ
+        nn/txguuYokG4nKsRofw1cepDfNMna16DEJ6ToNQFqg8BppvoPs4JxahPJXAF16O
+        vIa/TNbAtXMjxg7XkFJeYpvksJfplDLJzvJvLA3hyo6DIcdAUHpXWmGKOy0RgnPH
+        1dDjn6b8AMe0iXSHvBdfZz2E0LIuDWgE+8k51A5rLXriFSW3bEo10MDV5bXBGZ/9
+        NKllMIB0rRrxzsSBJM8yrfEEveOHZMXuI0Lxn8fzyN6sp33Y8rbG12kaA==
+X-ME-Sender: <xms:8NGxYxek_BwzywUKk4-Br8yaGHM4kc8y3lyUAMCccSChAAwFKuiCSA>
+    <xme:8NGxY_OjKNLCldJnnmyrsFH4fH4kkbBsVwTI6VOmxnK8YcO3KUBInuDjU0R4OfHgO
+    WEcViT8YOmShYdLhQ>
+X-ME-Received: <xmr:8NGxY6h4_tPbN8wZpUwVGCgS_Y7cZdLi919XXGMh3DzxbruGuqOJ10Dv9CLMlfyccr9s34PbX6XoqlLNA3zm4th3yhg2ZL01b_KheYCYAuiRXkswzgF1vbv7T7B7f1XAjPod2A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrjedtgdduudduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhephffvvefufffkofgjfhgggfestdekredtredttdenucfhrhhomhepufgrmhhu
+    vghlucfjohhllhgrnhguuceoshgrmhhuvghlsehshhholhhlrghnugdrohhrgheqnecugg
+    ftrfgrthhtvghrnhepudekteeuudehtdelteevgfduvddvjefhfedulefgudevgeeghefg
+    udefiedtveetnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrh
+    homhepshgrmhhuvghlsehshhholhhlrghnugdrohhrgh
+X-ME-Proxy: <xmx:8NGxY6-7gxOMvUEq5XV9WwSSnyLB3UUqtypnJAJDxXB2P4s9Q2JfZA>
+    <xmx:8NGxY9vnTa0aYsTb1l8kbidLP20j8xkdhdSCATuy-94IsC7p7cbVpA>
+    <xmx:8NGxY5EWRfE4Kt7bCRlUZfm6cD_DO0-hWpfSRmWI4uILSSnM74y8ng>
+    <xmx:8NGxYzDbXLQt6bL2Z4XcxObCgKoolHJz4WwXDhrS9K8nDKYg_6ROoA>
+Feedback-ID: i0ad843c9:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
+ 1 Jan 2023 13:33:19 -0500 (EST)
+From:   Samuel Holland <samuel@sholland.org>
+To:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>
+Cc:     Samuel Holland <samuel@sholland.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-sunxi@lists.linux.dev, stable@vger.kernel.org,
+        Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH v2 1/2] nvmem: sunxi_sid: Always use 32-bit MMIO reads
+Date:   Sun,  1 Jan 2023 12:33:15 -0600
+Message-Id: <20230101183316.43642-2-samuel@sholland.org>
+X-Mailer: git-send-email 2.37.4
+In-Reply-To: <20230101183316.43642-1-samuel@sholland.org>
+References: <20230101183316.43642-1-samuel@sholland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20221227222330.5ebdf780@slackpad.lan>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 27, 2022 at 10:23:30PM +0000, Andre Przywara wrote:
->On Tue, 27 Dec 2022 15:58:16 -0600
->Samuel Holland <samuel@sholland.org> wrote:
->
->> Hi Sasha,
->>
->> On 12/27/22 14:35, Sasha Levin wrote:
->> > From: Andre Przywara <andre.przywara@arm.com>
->> >
->> > [ Upstream commit 0f607406525d25019dd9c498bcc0b42734fc59d5 ]
->> >
->> > The USB PHY used in the Allwinner H616 SoC inherits some traits from its
->> > various predecessors: it has four full PHYs like the H3, needs some
->> > extra bits to be set like the H6, and puts SIDDQ on a different bit like
->> > the A100. Plus it needs this weird PHY2 quirk.
->> >
->> > Name all those properties in a new config struct and assign a new
->> > compatible name to it.
->> >
->> > Signed-off-by: Andre Przywara <andre.przywara@arm.com>
->> > Reviewed-by: Samuel Holland <samuel@sholland.org>
->> > Link: https://lore.kernel.org/r/20221031111358.3387297-5-andre.przywara@arm.com
->> > Signed-off-by: Vinod Koul <vkoul@kernel.org>
->> > Signed-off-by: Sasha Levin <sashal@kernel.org>
->> > ---
->> >  drivers/phy/allwinner/phy-sun4i-usb.c | 12 ++++++++++++
->> >  1 file changed, 12 insertions(+)
->> >
->> > diff --git a/drivers/phy/allwinner/phy-sun4i-usb.c b/drivers/phy/allwinner/phy-sun4i-usb.c
->> > index 651d5e2a25ce..230987e55ece 100644
->> > --- a/drivers/phy/allwinner/phy-sun4i-usb.c
->> > +++ b/drivers/phy/allwinner/phy-sun4i-usb.c
->> > @@ -974,6 +974,17 @@ static const struct sun4i_usb_phy_cfg sun50i_h6_cfg = {
->> >  	.missing_phys = BIT(1) | BIT(2),
->> >  };
->> >
->> > +static const struct sun4i_usb_phy_cfg sun50i_h616_cfg = {
->> > +	.num_phys = 4,
->> > +	.type = sun50i_h6_phy,
->> > +	.disc_thresh = 3,
->> > +	.phyctl_offset = REG_PHYCTL_A33,
->> > +	.dedicated_clocks = true,
->> > +	.phy0_dual_route = true,
->> > +	.hci_phy_ctl_clear = PHY_CTL_SIDDQ,
->> > +	.needs_phy2_siddq = true,
->>
->> This will fail to compile without b45c6d80325b ("phy: sun4i-usb:
->> Introduce port2 SIDDQ quirk"). However, like Andre mentioned in
->> reference to the devicetree updates[1], we were not expecting any of
->> these patches to be backported. Since you already dropped the DT
->> portion, there is no need to bother with these two patches either.
->
->Well, definitely not for 5.4 and 5.10, since the essential pinctrl and
->clock patches for the H616 were only added in 5.12, so there is no
->point in having USB support.
->
->I don't know how useful it is for 6.0, but having both patches in 6.1
->would make some sense, since it's an LTS kernel. The H616 SoC became
->usable in 6.0, with the USB patches being delayed back then. And it's
->only those two that are missing from enabling USB support, IIRC.
->The DT part is not really relevant, since you can always use U-Boot's
->DT (recommended) or the DT from any newer kernel.
->
->So from an user's perspective, it would be very helpful to just have:
->- [PATCH AUTOSEL 6.1 12/28]
->- [PATCH AUTOSEL 6.1 13/28]
->Personally I would support this, since it makes all H616 based devices
->much more usable with next year's distribution kernels.
->
->I don't know if this fulfils the stable kernel rules, though, since
->strictly speaking they don't fix anything, but add (USB) support to a
->new SoC. Then again they are little risk, since most of the code is
->guarded by H616 filters, so wouldn't be used by other SoCs.
+The SID SRAM on at least some SoCs (A64 and D1) returns different values
+when read with bus cycles narrower than 32 bits. This is not immediately
+obvious, because memcpy_fromio() uses word-size accesses as long as
+enough data is being copied.
 
-Quirks and new device ids are accepted in the stable trees. I'll leave
-those two patches on 6.1. Thanks!
+The vendor driver always uses 32-bit MMIO reads, so do the same here.
+This is faster than the register-based method, which is currently used
+as a workaround on A64. And it fixes the values returned on D1, where
+the SRAM method was being used.
 
+The special case for the last word is needed to maintain .word_size == 1
+for sysfs ABI compatibility, as noted previously in commit de2a3eaea552
+("nvmem: sunxi_sid: Optimize register read-out method").
+
+Cc: stable@vger.kernel.org
+Fixes: 07ae4fde9efa ("nvmem: sunxi_sid: Add support for D1 variant")
+Tested-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+---
+
+(no changes since v1)
+
+ drivers/nvmem/sunxi_sid.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/nvmem/sunxi_sid.c b/drivers/nvmem/sunxi_sid.c
+index 5750e1f4bcdb..92dfe4cb10e3 100644
+--- a/drivers/nvmem/sunxi_sid.c
++++ b/drivers/nvmem/sunxi_sid.c
+@@ -41,8 +41,21 @@ static int sunxi_sid_read(void *context, unsigned int offset,
+ 			  void *val, size_t bytes)
+ {
+ 	struct sunxi_sid *sid = context;
++	u32 word;
++
++	/* .stride = 4 so offset is guaranteed to be aligned */
++	__ioread32_copy(val, sid->base + sid->value_offset + offset, bytes / 4);
+ 
+-	memcpy_fromio(val, sid->base + sid->value_offset + offset, bytes);
++	val += round_down(bytes, 4);
++	offset += round_down(bytes, 4);
++	bytes = bytes % 4;
++
++	if (!bytes)
++		return 0;
++
++	/* Handle any trailing bytes */
++	word = readl_relaxed(sid->base + sid->value_offset + offset);
++	memcpy(val, &word, bytes);
+ 
+ 	return 0;
+ }
 -- 
-Thanks,
-Sasha
+2.37.4
+
