@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80BD865B0CC
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:28:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22A0365B124
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:30:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236071AbjABL2e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:28:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45954 "EHLO
+        id S236148AbjABLa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:30:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232719AbjABL1u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:27:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76CD36360
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:26:43 -0800 (PST)
+        with ESMTP id S236147AbjABLaA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:30:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4DFB6364
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:29:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1016860F21
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:26:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 239EBC433D2;
-        Mon,  2 Jan 2023 11:26:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5BC7FB80D1C
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:29:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B495C433D2;
+        Mon,  2 Jan 2023 11:29:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658802;
-        bh=P4KDS1+0IVrYWVKae1eSTEcsh8RQayNAI42PZ3RQB64=;
+        s=korg; t=1672658983;
+        bh=0wY3rcBMiKqya1495ZaBY5wlc8cLBa4SQUoFWG6M7h8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iQNcrd+i0mwADdMgVvktGIvQLmrRmuBow2njCxqTL322xBhRCFBzUxF7U9uUN7YnZ
-         oaDBVra7/0NNpvDZyYrdG1xbfMOmD/UXW8UB4cDMHzmngaxLu7y+tfeZ5p/7DKgCzb
-         cGvJeX5nUMwWjggWhCYOc7IH541VqusqqnVeoHmo=
+        b=A3I8UMbm9PAjSCSZMeG/ix1+BiPznnohqbgl/TgE005XFKmnY3xzHDWESjNWMAn0Q
+         ILzRVjAPVxnSWvh3lJW0Hxy3PlMKJZPcWmfBaVTZawx6Duvwc8iF0U1DRpgkIjlwXd
+         YEKd/h9F842kt1bJAjGKCDieBqzbXqgk1mZfgkVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Luca Stefani <luca@osomprivacy.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 6.1 48/71] pstore: Properly assign mem_type property
-Date:   Mon,  2 Jan 2023 12:22:13 +0100
-Message-Id: <20230102110553.506556370@linuxfoundation.org>
+        patches@lists.linux.dev, Nathan Lynch <nathanl@linux.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 41/74] powerpc/rtas: avoid device tree lookups in rtas_os_term()
+Date:   Mon,  2 Jan 2023 12:22:14 +0100
+Message-Id: <20230102110553.859954996@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
-References: <20230102110551.509937186@linuxfoundation.org>
+In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
+References: <20230102110552.061937047@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,42 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Stefani <luca@osomprivacy.com>
+From: Nathan Lynch <nathanl@linux.ibm.com>
 
-commit beca3e311a49cd3c55a056096531737d7afa4361 upstream.
+[ Upstream commit ed2213bfb192ab51f09f12e9b49b5d482c6493f3 ]
 
-If mem-type is specified in the device tree
-it would end up overriding the record_size
-field instead of populating mem_type.
+rtas_os_term() is called during panic. Its behavior depends on a couple
+of conditions in the /rtas node of the device tree, the traversal of
+which entails locking and local IRQ state changes. If the kernel panics
+while devtree_lock is held, rtas_os_term() as currently written could
+hang.
 
-As record_size is currently parsed after the
-improper assignment with default size 0 it
-continued to work as expected regardless of the
-value found in the device tree.
+Instead of discovering the relevant characteristics at panic time,
+cache them in file-static variables at boot. Note the lookup for
+"ibm,extended-os-term" is converted to of_property_read_bool() since it
+is a boolean property, not an RTAS function token.
 
-Simply changing the target field of the struct
-is enough to get mem-type working as expected.
-
-Fixes: 9d843e8fafc7 ("pstore: Add mem_type property DT parsing support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Luca Stefani <luca@osomprivacy.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221222131049.286288-1-luca@osomprivacy.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
+[mpe: Incorporate suggested change from Nick]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20221118150751.469393-4-nathanl@linux.ibm.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/pstore/ram.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/kernel/rtas.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
---- a/fs/pstore/ram.c
-+++ b/fs/pstore/ram.c
-@@ -670,7 +670,7 @@ static int ramoops_parse_dt(struct platf
- 		field = value;						\
- 	}
+diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
+index 0b8a858aa847..082b0c9e0c8a 100644
+--- a/arch/powerpc/kernel/rtas.c
++++ b/arch/powerpc/kernel/rtas.c
+@@ -875,6 +875,7 @@ void __noreturn rtas_halt(void)
  
--	parse_u32("mem-type", pdata->record_size, pdata->mem_type);
-+	parse_u32("mem-type", pdata->mem_type, pdata->mem_type);
- 	parse_u32("record-size", pdata->record_size, 0);
- 	parse_u32("console-size", pdata->console_size, 0);
- 	parse_u32("ftrace-size", pdata->ftrace_size, 0);
+ /* Must be in the RMO region, so we place it here */
+ static char rtas_os_term_buf[2048];
++static s32 ibm_os_term_token = RTAS_UNKNOWN_SERVICE;
+ 
+ void rtas_os_term(char *str)
+ {
+@@ -886,14 +887,13 @@ void rtas_os_term(char *str)
+ 	 * this property may terminate the partition which we want to avoid
+ 	 * since it interferes with panic_timeout.
+ 	 */
+-	if (RTAS_UNKNOWN_SERVICE == rtas_token("ibm,os-term") ||
+-	    RTAS_UNKNOWN_SERVICE == rtas_token("ibm,extended-os-term"))
++	if (ibm_os_term_token == RTAS_UNKNOWN_SERVICE)
+ 		return;
+ 
+ 	snprintf(rtas_os_term_buf, 2048, "OS panic: %s", str);
+ 
+ 	do {
+-		status = rtas_call(rtas_token("ibm,os-term"), 1, 1, NULL,
++		status = rtas_call(ibm_os_term_token, 1, 1, NULL,
+ 				   __pa(rtas_os_term_buf));
+ 	} while (rtas_busy_delay(status));
+ 
+@@ -1255,6 +1255,13 @@ void __init rtas_initialize(void)
+ 	no_entry = of_property_read_u32(rtas.dev, "linux,rtas-entry", &entry);
+ 	rtas.entry = no_entry ? rtas.base : entry;
+ 
++	/*
++	 * Discover these now to avoid device tree lookups in the
++	 * panic path.
++	 */
++	if (of_property_read_bool(rtas.dev, "ibm,extended-os-term"))
++		ibm_os_term_token = rtas_token("ibm,os-term");
++
+ 	/* If RTAS was found, allocate the RMO buffer for it and look for
+ 	 * the stop-self token if any
+ 	 */
+-- 
+2.35.1
+
 
 
