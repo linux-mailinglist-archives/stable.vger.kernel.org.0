@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CDEF65AF9E
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 11:35:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D32FA65AF9F
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 11:35:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231706AbjABKfU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 05:35:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46114 "EHLO
+        id S232207AbjABKfV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 05:35:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232414AbjABKfE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 05:35:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8853C2DEE
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 02:34:50 -0800 (PST)
+        with ESMTP id S232453AbjABKfH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 05:35:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 318792DF0
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 02:34:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3C4BAB80CBB
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 10:34:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89B43C433EF;
-        Mon,  2 Jan 2023 10:34:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7551960F23
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 10:34:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DAE4C433EF;
+        Mon,  2 Jan 2023 10:34:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672655687;
-        bh=+TLddKuuMKvf9tw6j9Hvo8NOe+RX1jsnfhuAB3eNGYE=;
+        s=korg; t=1672655693;
+        bh=ajXXm+hGfuWxFAeTn2alr6NCUk7vS0Wb0PA3lOSgSvk=;
         h=Subject:To:Cc:From:Date:From;
-        b=aj7qGNs0W5I6wUlIDMtanZFwawGwApVd2VwU44zFBn7lgjubWFmxedj4/suMPZlWi
-         z9ZBk+B+4kczuzuJwQ2SYgt/tDz5MFQ5bGrBJRtu+gCESYW2N5ztzoPJnydt4nHGsG
-         HaI66gZR+jAcQXhIeRPqu6DIdTSzsLVDyJI+ebcY=
-Subject: FAILED: patch "[PATCH] rtmutex: Add acquire semantics for rtmutex lock acquisition" failed to apply to 5.15-stable tree
+        b=BcKTXNkJKTD5amgOpZxllVkEpeSmNbi8aPXErlSC6yH15IGq3Ay+wm00WSry6ze3H
+         1dD19m9AAUgKrLjxosNIa6dzY0qvDPl7RRjNfqkz8ND+aP6lgazSyYVAXHAXWnKH5x
+         8FGswJJUMcdOcA8Yme1jMsQYuzM4+I0O8O3GBFAE=
+Subject: FAILED: patch "[PATCH] rtmutex: Add acquire semantics for rtmutex lock acquisition" failed to apply to 5.10-stable tree
 To:     mgorman@techsingularity.net, jack@suse.cz, tglx@linutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 02 Jan 2023 11:34:44 +0100
-Message-ID: <167265568418742@kroah.com>
+Date:   Mon, 02 Jan 2023 11:34:47 +0100
+Message-ID: <1672655687713@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -58,6 +58,22 @@ Possible dependencies:
 ee042be16cb4 ("locking: Apply contention tracepoints in the slow path")
 d257cc8cb8d5 ("locking/rwsem: Make handoff bit handling more consistent")
 7cdacc5f52d6 ("locking/rwsem: Disable preemption for spinning region")
+616be87eac9f ("locking/rwbase: Extract __rwbase_write_trylock()")
+add461325ec5 ("locking/rtmutex: Extend the rtmutex core to support ww_mutex")
+1c143c4b65da ("locking/rtmutex: Provide the spin/rwlock core lock function")
+e17ba59b7e8e ("locking/rtmutex: Guard regular sleeping locks specific functions")
+7980aa397cc0 ("locking/rtmutex: Use rt_mutex_wake_q_head")
+c014ef69b3ac ("locking/rtmutex: Add wake_state to rt_mutex_waiter")
+42254105dfe8 ("locking/rwsem: Add rtmutex based R/W semaphore implementation")
+943f0edb754f ("locking/rt: Add base code for RT rw_semaphore and rwlock")
+ebbdc41e90ff ("locking/rtmutex: Provide rt_mutex_slowlock_locked()")
+830e6acc8a1c ("locking/rtmutex: Split out the inner parts of 'struct rtmutex'")
+531ae4b06a73 ("locking/rtmutex: Split API from implementation")
+785159301bed ("locking/rtmutex: Convert macros to inlines")
+b41cda037655 ("locking/rtmutex: Set proper wait context for lockdep")
+2f064a59a11f ("sched: Change task_struct::state")
+d6c23bb3a2ad ("sched: Add get_current_state()")
+b03fbd4ff24c ("sched: Introduce task_is_running()")
 
 thanks,
 
