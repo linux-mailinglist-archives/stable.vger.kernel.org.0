@@ -2,298 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E76465AFA2
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 11:35:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB39965AFAC
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 11:39:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232230AbjABKfg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 05:35:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46230 "EHLO
+        id S232276AbjABKjl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 05:39:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232535AbjABKfL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 05:35:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42849113C
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 02:35:10 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S229707AbjABKjh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 05:39:37 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 038791D0;
+        Mon,  2 Jan 2023 02:39:36 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C80CB60ECA
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 10:35:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8EB1C433F1;
-        Mon,  2 Jan 2023 10:35:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672655709;
-        bh=nnkNutdUr/QOKFRmdH0EerUmLKkQ3TllKA6pL3vYpkY=;
-        h=Subject:To:Cc:From:Date:From;
-        b=UtWMXUoSiqI/wRRqTNZqsDH/UbYh223r7KhNSPy+961vBfGkVooXmJpiJAGzYwUWr
-         jNv7ipV9dloVJPA4l3moOvn9JxfVSi0DHy5ED1Vd8wO0Z8wz4AVr0Dj1a9px1s0ZKW
-         Yk3HrTkKWBkMmvHUrTV07S5S6LJ7VhN1D7u2fXP0=
-Subject: FAILED: patch "[PATCH] rtmutex: Add acquire semantics for rtmutex lock acquisition" failed to apply to 4.9-stable tree
-To:     mgorman@techsingularity.net, jack@suse.cz, tglx@linutronix.de
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 02 Jan 2023 11:34:59 +0100
-Message-ID: <167265569910213@kroah.com>
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 6936B205F5;
+        Mon,  2 Jan 2023 10:39:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1672655975; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=9xe2eMFnILH/jDMx9pAFzxHyWx3I3CkIiF3DU9xLhJ8=;
+        b=0TVeymCcyKqOOeieQacnsxkc9lkFjJHsY0Bx+WH8TpER8kYx6pSvC3p95SUxNqBmRJXXZu
+        oEDQh+trA1qBRrZPcdeQ/yBTOvyd1Jd8mP0/ivtD4rN64oLaPW6fL65YsdvIr0kAcV8ns5
+        Ax0WsI+B+EeBeOWoLo8F6TaJLo9nAus=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1672655975;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=9xe2eMFnILH/jDMx9pAFzxHyWx3I3CkIiF3DU9xLhJ8=;
+        b=WsrHznqV/LCPAzulNABvB/gmrJzHu2rHQcOoBbLOw1q/9xrgv/YG3zOFUhtVwZhbL4Rh4E
+        j0zynpfNBY+XZ6Bw==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 3F2F013427;
+        Mon,  2 Jan 2023 10:39:35 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id wIbCDme0smP3WgAAMHmgww
+        (envelope-from <vbabka@suse.cz>); Mon, 02 Jan 2023 10:39:35 +0000
+From:   Vlastimil Babka <vbabka@suse.cz>
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>
+Cc:     x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        patches@lists.linux.dev, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>,
+        Baoquan He <bhe@redhat.com>, Dave Young <dyoung@redhat.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] x86/kexec: fix double vfree of image->elf_headers
+Date:   Mon,  2 Jan 2023 11:39:17 +0100
+Message-Id: <20230102103917.20987-1-vbabka@suse.cz>
+X-Mailer: git-send-email 2.39.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-3.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_SOFTFAIL autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+An investigation of a "Trying to vfree() nonexistent vm area" bug
+occurring in arch_kimage_file_post_load_cleanup() doing a
+vfree(image->elf_headers) in our 5.14-based kernel yielded the following
+double vfree() scenario, also present in mainline:
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+SYSCALL_DEFINE5(kexec_file_load)
+  kimage_file_alloc_init()
+    kimage_file_prepare_segments()
+      arch_kexec_kernel_image_probe()
+        kexec_image_load_default()
+          kexec_bzImage64_ops.load()
+            bzImage64_load()
+              crash_load_segments()
+                prepare_elf_headers(image, &kbuf.buffer, &kbuf.bufsz);
+                image->elf_headers = kbuf.buffer;
+		ret = kexec_add_buffer(&kbuf);
+		if (ret) vfree((void *)image->elf_headers); // first vfree()
+      if (ret) kimage_file_post_load_cleanup()
+        vfree(image->elf_headers);                          // second vfree()
 
-Possible dependencies:
+AFAICS the scenario is possible since v5.19 commit b3e34a47f989
+("x86/kexec: fix memory leak of elf header buffer") that was marked for
+stable and also was backported to our kernel.
 
-1c0908d8e441 ("rtmutex: Add acquire semantics for rtmutex lock acquisition slow path")
-ee042be16cb4 ("locking: Apply contention tracepoints in the slow path")
-d257cc8cb8d5 ("locking/rwsem: Make handoff bit handling more consistent")
-7cdacc5f52d6 ("locking/rwsem: Disable preemption for spinning region")
-616be87eac9f ("locking/rwbase: Extract __rwbase_write_trylock()")
-add461325ec5 ("locking/rtmutex: Extend the rtmutex core to support ww_mutex")
-1c143c4b65da ("locking/rtmutex: Provide the spin/rwlock core lock function")
-e17ba59b7e8e ("locking/rtmutex: Guard regular sleeping locks specific functions")
-7980aa397cc0 ("locking/rtmutex: Use rt_mutex_wake_q_head")
-c014ef69b3ac ("locking/rtmutex: Add wake_state to rt_mutex_waiter")
-42254105dfe8 ("locking/rwsem: Add rtmutex based R/W semaphore implementation")
-943f0edb754f ("locking/rt: Add base code for RT rw_semaphore and rwlock")
-ebbdc41e90ff ("locking/rtmutex: Provide rt_mutex_slowlock_locked()")
-830e6acc8a1c ("locking/rtmutex: Split out the inner parts of 'struct rtmutex'")
-531ae4b06a73 ("locking/rtmutex: Split API from implementation")
-785159301bed ("locking/rtmutex: Convert macros to inlines")
-b41cda037655 ("locking/rtmutex: Set proper wait context for lockdep")
-2f064a59a11f ("sched: Change task_struct::state")
-d6c23bb3a2ad ("sched: Add get_current_state()")
-b03fbd4ff24c ("sched: Introduce task_is_running()")
+Fix the problem by setting the pointer to NULL after the first vfree().
+Also set elf_headers_sz to 0, as kimage_file_post_load_cleanup() does.
 
-thanks,
+Fixes: b3e34a47f989 ("x86/kexec: fix memory leak of elf header buffer")
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Dave Young <dyoung@redhat.com>
+Cc: <stable@vger.kernel.org>
+---
+ arch/x86/kernel/crash.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 1c0908d8e441631f5b8ba433523cf39339ee2ba0 Mon Sep 17 00:00:00 2001
-From: Mel Gorman <mgorman@techsingularity.net>
-Date: Fri, 2 Dec 2022 10:02:23 +0000
-Subject: [PATCH] rtmutex: Add acquire semantics for rtmutex lock acquisition
- slow path
-
-Jan Kara reported the following bug triggering on 6.0.5-rt14 running dbench
-on XFS on arm64.
-
- kernel BUG at fs/inode.c:625!
- Internal error: Oops - BUG: 0 [#1] PREEMPT_RT SMP
- CPU: 11 PID: 6611 Comm: dbench Tainted: G            E   6.0.0-rt14-rt+ #1
- pc : clear_inode+0xa0/0xc0
- lr : clear_inode+0x38/0xc0
- Call trace:
-  clear_inode+0xa0/0xc0
-  evict+0x160/0x180
-  iput+0x154/0x240
-  do_unlinkat+0x184/0x300
-  __arm64_sys_unlinkat+0x48/0xc0
-  el0_svc_common.constprop.4+0xe4/0x2c0
-  do_el0_svc+0xac/0x100
-  el0_svc+0x78/0x200
-  el0t_64_sync_handler+0x9c/0xc0
-  el0t_64_sync+0x19c/0x1a0
-
-It also affects 6.1-rc7-rt5 and affects a preempt-rt fork of 5.14 so this
-is likely a bug that existed forever and only became visible when ARM
-support was added to preempt-rt. The same problem does not occur on x86-64
-and he also reported that converting sb->s_inode_wblist_lock to
-raw_spinlock_t makes the problem disappear indicating that the RT spinlock
-variant is the problem.
-
-Which in turn means that RT mutexes on ARM64 and any other weakly ordered
-architecture are affected by this independent of RT.
-
-Will Deacon observed:
-
-  "I'd be more inclined to be suspicious of the slowpath tbh, as we need to
-   make sure that we have acquire semantics on all paths where the lock can
-   be taken. Looking at the rtmutex code, this really isn't obvious to me
-   -- for example, try_to_take_rt_mutex() appears to be able to return via
-   the 'takeit' label without acquire semantics and it looks like we might
-   be relying on the caller's subsequent _unlock_ of the wait_lock for
-   ordering, but that will give us release semantics which aren't correct."
-
-Sebastian Andrzej Siewior prototyped a fix that does work based on that
-comment but it was a little bit overkill and added some fences that should
-not be necessary.
-
-The lock owner is updated with an IRQ-safe raw spinlock held, but the
-spin_unlock does not provide acquire semantics which are needed when
-acquiring a mutex.
-
-Adds the necessary acquire semantics for lock owner updates in the slow path
-acquisition and the waiter bit logic.
-
-It successfully completed 10 iterations of the dbench workload while the
-vanilla kernel fails on the first iteration.
-
-[ bigeasy@linutronix.de: Initial prototype fix ]
-
-Fixes: 700318d1d7b38 ("locking/rtmutex: Use acquire/release semantics")
-Fixes: 23f78d4a03c5 ("[PATCH] pi-futex: rt mutex core")
-Reported-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221202100223.6mevpbl7i6x5udfd@techsingularity.net
-
-diff --git a/kernel/locking/rtmutex.c b/kernel/locking/rtmutex.c
-index 7779ee8abc2a..010cf4e6d0b8 100644
---- a/kernel/locking/rtmutex.c
-+++ b/kernel/locking/rtmutex.c
-@@ -89,15 +89,31 @@ static inline int __ww_mutex_check_kill(struct rt_mutex *lock,
-  * set this bit before looking at the lock.
-  */
- 
--static __always_inline void
--rt_mutex_set_owner(struct rt_mutex_base *lock, struct task_struct *owner)
-+static __always_inline struct task_struct *
-+rt_mutex_owner_encode(struct rt_mutex_base *lock, struct task_struct *owner)
- {
- 	unsigned long val = (unsigned long)owner;
- 
- 	if (rt_mutex_has_waiters(lock))
- 		val |= RT_MUTEX_HAS_WAITERS;
- 
--	WRITE_ONCE(lock->owner, (struct task_struct *)val);
-+	return (struct task_struct *)val;
-+}
-+
-+static __always_inline void
-+rt_mutex_set_owner(struct rt_mutex_base *lock, struct task_struct *owner)
-+{
-+	/*
-+	 * lock->wait_lock is held but explicit acquire semantics are needed
-+	 * for a new lock owner so WRITE_ONCE is insufficient.
-+	 */
-+	xchg_acquire(&lock->owner, rt_mutex_owner_encode(lock, owner));
-+}
-+
-+static __always_inline void rt_mutex_clear_owner(struct rt_mutex_base *lock)
-+{
-+	/* lock->wait_lock is held so the unlock provides release semantics. */
-+	WRITE_ONCE(lock->owner, rt_mutex_owner_encode(lock, NULL));
- }
- 
- static __always_inline void clear_rt_mutex_waiters(struct rt_mutex_base *lock)
-@@ -106,7 +122,8 @@ static __always_inline void clear_rt_mutex_waiters(struct rt_mutex_base *lock)
- 			((unsigned long)lock->owner & ~RT_MUTEX_HAS_WAITERS);
- }
- 
--static __always_inline void fixup_rt_mutex_waiters(struct rt_mutex_base *lock)
-+static __always_inline void
-+fixup_rt_mutex_waiters(struct rt_mutex_base *lock, bool acquire_lock)
- {
- 	unsigned long owner, *p = (unsigned long *) &lock->owner;
- 
-@@ -172,8 +189,21 @@ static __always_inline void fixup_rt_mutex_waiters(struct rt_mutex_base *lock)
- 	 * still set.
- 	 */
- 	owner = READ_ONCE(*p);
--	if (owner & RT_MUTEX_HAS_WAITERS)
--		WRITE_ONCE(*p, owner & ~RT_MUTEX_HAS_WAITERS);
-+	if (owner & RT_MUTEX_HAS_WAITERS) {
-+		/*
-+		 * See rt_mutex_set_owner() and rt_mutex_clear_owner() on
-+		 * why xchg_acquire() is used for updating owner for
-+		 * locking and WRITE_ONCE() for unlocking.
-+		 *
-+		 * WRITE_ONCE() would work for the acquire case too, but
-+		 * in case that the lock acquisition failed it might
-+		 * force other lockers into the slow path unnecessarily.
-+		 */
-+		if (acquire_lock)
-+			xchg_acquire(p, owner & ~RT_MUTEX_HAS_WAITERS);
-+		else
-+			WRITE_ONCE(*p, owner & ~RT_MUTEX_HAS_WAITERS);
-+	}
- }
- 
- /*
-@@ -208,6 +238,13 @@ static __always_inline void mark_rt_mutex_waiters(struct rt_mutex_base *lock)
- 		owner = *p;
- 	} while (cmpxchg_relaxed(p, owner,
- 				 owner | RT_MUTEX_HAS_WAITERS) != owner);
-+
-+	/*
-+	 * The cmpxchg loop above is relaxed to avoid back-to-back ACQUIRE
-+	 * operations in the event of contention. Ensure the successful
-+	 * cmpxchg is visible.
-+	 */
-+	smp_mb__after_atomic();
- }
- 
- /*
-@@ -1243,7 +1280,7 @@ static int __sched __rt_mutex_slowtrylock(struct rt_mutex_base *lock)
- 	 * try_to_take_rt_mutex() sets the lock waiters bit
- 	 * unconditionally. Clean this up.
- 	 */
--	fixup_rt_mutex_waiters(lock);
-+	fixup_rt_mutex_waiters(lock, true);
- 
- 	return ret;
- }
-@@ -1604,7 +1641,7 @@ static int __sched __rt_mutex_slowlock(struct rt_mutex_base *lock,
- 	 * try_to_take_rt_mutex() sets the waiter bit
- 	 * unconditionally. We might have to fix that up.
- 	 */
--	fixup_rt_mutex_waiters(lock);
-+	fixup_rt_mutex_waiters(lock, true);
- 
- 	trace_contention_end(lock, ret);
- 
-@@ -1719,7 +1756,7 @@ static void __sched rtlock_slowlock_locked(struct rt_mutex_base *lock)
- 	 * try_to_take_rt_mutex() sets the waiter bit unconditionally.
- 	 * We might have to fix that up:
- 	 */
--	fixup_rt_mutex_waiters(lock);
-+	fixup_rt_mutex_waiters(lock, true);
- 	debug_rt_mutex_free_waiter(&waiter);
- 
- 	trace_contention_end(lock, 0);
-diff --git a/kernel/locking/rtmutex_api.c b/kernel/locking/rtmutex_api.c
-index 900220941caa..cb9fdff76a8a 100644
---- a/kernel/locking/rtmutex_api.c
-+++ b/kernel/locking/rtmutex_api.c
-@@ -267,7 +267,7 @@ void __sched rt_mutex_init_proxy_locked(struct rt_mutex_base *lock,
- void __sched rt_mutex_proxy_unlock(struct rt_mutex_base *lock)
- {
- 	debug_rt_mutex_proxy_unlock(lock);
--	rt_mutex_set_owner(lock, NULL);
-+	rt_mutex_clear_owner(lock);
- }
- 
- /**
-@@ -382,7 +382,7 @@ int __sched rt_mutex_wait_proxy_lock(struct rt_mutex_base *lock,
- 	 * try_to_take_rt_mutex() sets the waiter bit unconditionally. We might
- 	 * have to fix that up.
- 	 */
--	fixup_rt_mutex_waiters(lock);
-+	fixup_rt_mutex_waiters(lock, true);
- 	raw_spin_unlock_irq(&lock->wait_lock);
- 
- 	return ret;
-@@ -438,7 +438,7 @@ bool __sched rt_mutex_cleanup_proxy_lock(struct rt_mutex_base *lock,
- 	 * try_to_take_rt_mutex() sets the waiter bit unconditionally. We might
- 	 * have to fix that up.
- 	 */
--	fixup_rt_mutex_waiters(lock);
-+	fixup_rt_mutex_waiters(lock, false);
- 
- 	raw_spin_unlock_irq(&lock->wait_lock);
- 
+diff --git a/arch/x86/kernel/crash.c b/arch/x86/kernel/crash.c
+index 9730c88530fc..0d651c05a49e 100644
+--- a/arch/x86/kernel/crash.c
++++ b/arch/x86/kernel/crash.c
+@@ -403,6 +403,8 @@ int crash_load_segments(struct kimage *image)
+ 	ret = kexec_add_buffer(&kbuf);
+ 	if (ret) {
+ 		vfree((void *)image->elf_headers);
++		image->elf_headers = NULL;
++		image->elf_headers_sz = 0;
+ 		return ret;
+ 	}
+ 	image->elf_load_addr = kbuf.mem;
+-- 
+2.39.0
 
