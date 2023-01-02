@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8BB565B10D
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:30:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70BDD65B0C0
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:27:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236099AbjABL36 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:29:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50404 "EHLO
+        id S232263AbjABL1y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:27:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236126AbjABL32 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:29:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E83155F61
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:28:58 -0800 (PST)
+        with ESMTP id S232791AbjABL1S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:27:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6009A6477
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:26:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8783A60F37
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:28:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95432C433EF;
-        Mon,  2 Jan 2023 11:28:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EEC0B60F37
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:26:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1042EC433EF;
+        Mon,  2 Jan 2023 11:26:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658937;
-        bh=lasleWUw7vzBpGUvHnIfMOkjVTi4DEd7O+vWu2gOH94=;
+        s=korg; t=1672658771;
+        bh=G1ionXDaPtgg288RrhvFcOJak9FZg0RxZCNVRLPN71E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=df+2g6DNUS23MhFlgKdv9C+Saqo1oGEQQH3gqUsj7J4hftsCU5B3/DEq0YZWOgXK4
-         pX5zZG4zmdK68nZ9pfPPI8jVwVkuM5YtHWWh+0hXowGEXJM4X/24WdhByhsq0YVDA8
-         dd6cbRgHeQd/lgjeugRM0uP6ygyntAAzzxbWhCL8=
+        b=J/F+nZblZ5dph3fjgbOmWxDIjjXqx7GiiPld9FdCM3MHNaFdmQrMOi8g9CKTfiqDS
+         IBeT2+9I4pXKvvL4fS/f6phNzOyu3zhWWNQEVpe0Lt0szGYoEi8rFa1NwOTVwvkrD9
+         R4fC40K8GdMTWYspNILZSPEo/meVqz9NeL0Cr8Dk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 6.0 56/74] binfmt: Fix error return code in load_elf_fdpic_binary()
+        patches@lists.linux.dev, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 6.1 64/71] f2fs: allow to read node block after shutdown
 Date:   Mon,  2 Jan 2023 12:22:29 +0100
-Message-Id: <20230102110554.488816763@linuxfoundation.org>
+Message-Id: <20230102110554.172564790@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
-References: <20230102110552.061937047@linuxfoundation.org>
+In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
+References: <20230102110551.509937186@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,36 +52,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-commit e7f703ff2507f4e9f496da96cd4b78fd3026120c upstream.
+commit e6ecb142429183cef4835f31d4134050ae660032 upstream.
 
-Fix to return a negative error code from create_elf_fdpic_tables()
-instead of 0.
+If block address is still alive, we should give a valid node block even after
+shutdown. Otherwise, we can see zero data when reading out a file.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Cc: stable@vger.kernel.org
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/1669945261-30271-1-git-send-email-wangyufen@huawei.com
+Fixes: 83a3bfdb5a8a ("f2fs: indicate shutdown f2fs to allow unmount successfully")
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/binfmt_elf_fdpic.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/f2fs/node.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/fs/binfmt_elf_fdpic.c
-+++ b/fs/binfmt_elf_fdpic.c
-@@ -434,8 +434,9 @@ static int load_elf_fdpic_binary(struct
- 	current->mm->start_stack = current->mm->start_brk + stack_size;
- #endif
+--- a/fs/f2fs/node.c
++++ b/fs/f2fs/node.c
+@@ -1360,8 +1360,7 @@ static int read_node_page(struct page *p
+ 		return err;
  
--	if (create_elf_fdpic_tables(bprm, current->mm,
--				    &exec_params, &interp_params) < 0)
-+	retval = create_elf_fdpic_tables(bprm, current->mm, &exec_params,
-+					 &interp_params);
-+	if (retval < 0)
- 		goto error;
- 
- 	kdebug("- start_code  %lx", current->mm->start_code);
+ 	/* NEW_ADDR can be seen, after cp_error drops some dirty node pages */
+-	if (unlikely(ni.blk_addr == NULL_ADDR || ni.blk_addr == NEW_ADDR) ||
+-			is_sbi_flag_set(sbi, SBI_IS_SHUTDOWN)) {
++	if (unlikely(ni.blk_addr == NULL_ADDR || ni.blk_addr == NEW_ADDR)) {
+ 		ClearPageUptodate(page);
+ 		return -ENOENT;
+ 	}
 
 
