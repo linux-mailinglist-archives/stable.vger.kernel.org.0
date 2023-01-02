@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58DC465B0C3
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:28:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5BD165B115
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:30:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232919AbjABL17 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:27:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46040 "EHLO
+        id S236086AbjABLaI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:30:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232930AbjABL1X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:27:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 886D96547
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:26:20 -0800 (PST)
+        with ESMTP id S236135AbjABL3f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:29:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ABC46445
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:29:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A86B660F59
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:26:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1462C433EF;
-        Mon,  2 Jan 2023 11:26:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EEFC360F21
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:29:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12216C433EF;
+        Mon,  2 Jan 2023 11:29:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658779;
-        bh=CflFW6C0H8V0pmwSh+WVf5fe1NQuHWhUGwX19oH5Vf8=;
+        s=korg; t=1672658948;
+        bh=V8JDEOHxZYVaGl2463GBfoBZjYbsHwH465h8fIzUM6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=brUV1YfB9ongaCAIKSQumPzAP73/kteb/Hjep4ck4dxJb3k+DpuvJXbj3hBDF0czl
-         95zlMThf/IS1vNejIiPMND27hHdwmhIqFux3E8dnNDJfDzz15m6PYVJ5/R7TOCoixp
-         QcNX7ZVSbSgm2BUfh5vKORfp3rTWDdwdPPkF5HBE=
+        b=ZhznYxnFfE7qc4Iw1qB8KbR27QN6R4qDfhe/M592YkC1WWuvDgg1Pd+YgT28gkIVC
+         ixH34cQZFfN0GHxVyLszgB6pBNDvuHz77A6PcQynVPKIRVbx0qn/WPNuy3DSOmKTVM
+         WQ/zH2yP8cXAJV12Z2cfFrrOA4BPTYYWOpXxPf64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hanjun Guo <guohanjun@huawei.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 6.1 67/71] tpm: acpi: Call acpi_put_table() to fix memory leak
-Date:   Mon,  2 Jan 2023 12:22:32 +0100
-Message-Id: <20230102110554.297780383@linuxfoundation.org>
+        patches@lists.linux.dev, Artem Egorkine <arteme@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 6.0 60/74] ALSA: line6: fix stack overflow in line6_midi_transmit
+Date:   Mon,  2 Jan 2023 12:22:33 +0100
+Message-Id: <20230102110554.660113039@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
-References: <20230102110551.509937186@linuxfoundation.org>
+In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
+References: <20230102110552.061937047@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,72 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hanjun Guo <guohanjun@huawei.com>
+From: Artem Egorkine <arteme@gmail.com>
 
-commit 8740a12ca2e2959531ad253bac99ada338b33d80 upstream.
+commit b8800d324abb50160560c636bfafe2c81001b66c upstream.
 
-The start and length of the event log area are obtained from
-TPM2 or TCPA table, so we call acpi_get_table() to get the
-ACPI information, but the acpi_get_table() should be coupled with
-acpi_put_table() to release the ACPI memory, add the acpi_put_table()
-properly to fix the memory leak.
+Correctly calculate available space including the size of the chunk
+buffer. This fixes a buffer overflow when multiple MIDI sysex
+messages are sent to a PODxt device.
 
-While we are at it, remove the redundant empty line at the
-end of the tpm_read_log_acpi().
-
-Fixes: 0bfb23746052 ("tpm: Move eventlog files to a subdirectory")
-Fixes: 85467f63a05c ("tpm: Add support for event log pointer found in TPM2 ACPI table")
-Cc: stable@vger.kernel.org
-Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Artem Egorkine <arteme@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20221225105728.1153989-2-arteme@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/eventlog/acpi.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ sound/usb/line6/midi.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/char/tpm/eventlog/acpi.c
-+++ b/drivers/char/tpm/eventlog/acpi.c
-@@ -90,16 +90,21 @@ int tpm_read_log_acpi(struct tpm_chip *c
- 			return -ENODEV;
+--- a/sound/usb/line6/midi.c
++++ b/sound/usb/line6/midi.c
+@@ -44,7 +44,8 @@ static void line6_midi_transmit(struct s
+ 	int req, done;
  
- 		if (tbl->header.length <
--				sizeof(*tbl) + sizeof(struct acpi_tpm2_phy))
-+				sizeof(*tbl) + sizeof(struct acpi_tpm2_phy)) {
-+			acpi_put_table((struct acpi_table_header *)tbl);
- 			return -ENODEV;
-+		}
+ 	for (;;) {
+-		req = min(line6_midibuf_bytes_free(mb), line6->max_packet_size);
++		req = min3(line6_midibuf_bytes_free(mb), line6->max_packet_size,
++			   LINE6_FALLBACK_MAXPACKETSIZE);
+ 		done = snd_rawmidi_transmit_peek(substream, chunk, req);
  
- 		tpm2_phy = (void *)tbl + sizeof(*tbl);
- 		len = tpm2_phy->log_area_minimum_length;
- 
- 		start = tpm2_phy->log_area_start_address;
--		if (!start || !len)
-+		if (!start || !len) {
-+			acpi_put_table((struct acpi_table_header *)tbl);
- 			return -ENODEV;
-+		}
- 
-+		acpi_put_table((struct acpi_table_header *)tbl);
- 		format = EFI_TCG2_EVENT_LOG_FORMAT_TCG_2;
- 	} else {
- 		/* Find TCPA entry in RSDT (ACPI_LOGICAL_ADDRESSING) */
-@@ -120,8 +125,10 @@ int tpm_read_log_acpi(struct tpm_chip *c
- 			break;
- 		}
- 
-+		acpi_put_table((struct acpi_table_header *)buff);
- 		format = EFI_TCG2_EVENT_LOG_FORMAT_TCG_1_2;
- 	}
-+
- 	if (!len) {
- 		dev_warn(&chip->dev, "%s: TCPA log area empty\n", __func__);
- 		return -EIO;
-@@ -156,5 +163,4 @@ err:
- 	kfree(log->bios_event_log);
- 	log->bios_event_log = NULL;
- 	return ret;
--
- }
+ 		if (done == 0)
 
 
