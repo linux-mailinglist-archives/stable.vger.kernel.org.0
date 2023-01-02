@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB88065B12A
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:30:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8769765B12D
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:31:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232829AbjABLay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:30:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50220 "EHLO
+        id S232925AbjABLa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:30:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232952AbjABLaG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:30:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCD8564D0
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:29:51 -0800 (PST)
+        with ESMTP id S236105AbjABLaI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:30:08 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A48B6EE
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:29:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59E0A60F21
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:29:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6983DC433EF;
-        Mon,  2 Jan 2023 11:29:50 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id F237FCE0E1D
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:29:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB10AC433EF;
+        Mon,  2 Jan 2023 11:29:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658990;
-        bh=KCXNKdNnGCvwv7UhPIhQEaaJqCNCvCLh8bS2TEuILeM=;
+        s=korg; t=1672658993;
+        bh=CflFW6C0H8V0pmwSh+WVf5fe1NQuHWhUGwX19oH5Vf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jx81BfsFn1maEeJkMZLNM64RLP1ylCM7ii/WLVlNjV74hKrWbFrRp1pJxN/B66UjY
-         4YP9v5bmW4vFamaRNJQpp7t8Umal5X9lD9LDj+njz6pxgFpgUV1IFp4uTGauA+W2wL
-         O0rZ7xgcnUiyBkcKjJR0xro9QO6y1NwZcgH6Pjck=
+        b=S50jx84UdiQkOiXTOxY9npWvBjWgKeBN1nJSpbVIZ591oWlpQ1oTMU4L44p4KEMH+
+         PuvxxJN44Yr203tB9J0GoQeLddXplXSBWMy4aNrtskd1g22gQes4q5J1WgD8HcHkr2
+         +ESk6I2J8C0PjdH+LoV00t1KpB3UkZzx7Kw7mWCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Deren Wu <deren.wu@mediatek.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 6.0 69/74] mmc: vub300: fix warning - do not call blocking ops when !TASK_RUNNING
-Date:   Mon,  2 Jan 2023 12:22:42 +0100
-Message-Id: <20230102110555.046167937@linuxfoundation.org>
+        patches@lists.linux.dev, Hanjun Guo <guohanjun@huawei.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Subject: [PATCH 6.0 70/74] tpm: acpi: Call acpi_put_table() to fix memory leak
+Date:   Mon,  2 Jan 2023 12:22:43 +0100
+Message-Id: <20230102110555.078689077@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
 References: <20230102110552.061937047@linuxfoundation.org>
@@ -52,64 +52,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Deren Wu <deren.wu@mediatek.com>
+From: Hanjun Guo <guohanjun@huawei.com>
 
-commit 4a44cd249604e29e7b90ae796d7692f5773dd348 upstream.
+commit 8740a12ca2e2959531ad253bac99ada338b33d80 upstream.
 
-vub300_enable_sdio_irq() works with mutex and need TASK_RUNNING here.
-Ensure that we mark current as TASK_RUNNING for sleepable context.
+The start and length of the event log area are obtained from
+TPM2 or TCPA table, so we call acpi_get_table() to get the
+ACPI information, but the acpi_get_table() should be coupled with
+acpi_put_table() to release the ACPI memory, add the acpi_put_table()
+properly to fix the memory leak.
 
-[   77.554641] do not call blocking ops when !TASK_RUNNING; state=1 set at [<ffffffff92a72c1d>] sdio_irq_thread+0x17d/0x5b0
-[   77.554652] WARNING: CPU: 2 PID: 1983 at kernel/sched/core.c:9813 __might_sleep+0x116/0x160
-[   77.554905] CPU: 2 PID: 1983 Comm: ksdioirqd/mmc1 Tainted: G           OE      6.1.0-rc5 #1
-[   77.554910] Hardware name: Intel(R) Client Systems NUC8i7BEH/NUC8BEB, BIOS BECFL357.86A.0081.2020.0504.1834 05/04/2020
-[   77.554912] RIP: 0010:__might_sleep+0x116/0x160
-[   77.554920] RSP: 0018:ffff888107b7fdb8 EFLAGS: 00010282
-[   77.554923] RAX: 0000000000000000 RBX: ffff888118c1b740 RCX: 0000000000000000
-[   77.554926] RDX: 0000000000000001 RSI: 0000000000000004 RDI: ffffed1020f6ffa9
-[   77.554928] RBP: ffff888107b7fde0 R08: 0000000000000001 R09: ffffed1043ea60ba
-[   77.554930] R10: ffff88821f5305cb R11: ffffed1043ea60b9 R12: ffffffff93aa3a60
-[   77.554932] R13: 000000000000011b R14: 7fffffffffffffff R15: ffffffffc0558660
-[   77.554934] FS:  0000000000000000(0000) GS:ffff88821f500000(0000) knlGS:0000000000000000
-[   77.554937] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   77.554939] CR2: 00007f8a44010d68 CR3: 000000024421a003 CR4: 00000000003706e0
-[   77.554942] Call Trace:
-[   77.554944]  <TASK>
-[   77.554952]  mutex_lock+0x78/0xf0
-[   77.554973]  vub300_enable_sdio_irq+0x103/0x3c0 [vub300]
-[   77.554981]  sdio_irq_thread+0x25c/0x5b0
-[   77.555006]  kthread+0x2b8/0x370
-[   77.555017]  ret_from_fork+0x1f/0x30
-[   77.555023]  </TASK>
-[   77.555025] ---[ end trace 0000000000000000 ]---
+While we are at it, remove the redundant empty line at the
+end of the tpm_read_log_acpi().
 
-Fixes: 88095e7b473a ("mmc: Add new VUB300 USB-to-SD/SDIO/MMC driver")
-Signed-off-by: Deren Wu <deren.wu@mediatek.com>
+Fixes: 0bfb23746052 ("tpm: Move eventlog files to a subdirectory")
+Fixes: 85467f63a05c ("tpm: Add support for event log pointer found in TPM2 ACPI table")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/87dc45b122d26d63c80532976813c9365d7160b3.1670140888.git.deren.wu@mediatek.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/vub300.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/char/tpm/eventlog/acpi.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/mmc/host/vub300.c
-+++ b/drivers/mmc/host/vub300.c
-@@ -2049,6 +2049,7 @@ static void vub300_enable_sdio_irq(struc
- 		return;
- 	kref_get(&vub300->kref);
- 	if (enable) {
-+		set_current_state(TASK_RUNNING);
- 		mutex_lock(&vub300->irq_mutex);
- 		if (vub300->irqs_queued) {
- 			vub300->irqs_queued -= 1;
-@@ -2064,6 +2065,7 @@ static void vub300_enable_sdio_irq(struc
- 			vub300_queue_poll_work(vub300, 0);
- 		}
- 		mutex_unlock(&vub300->irq_mutex);
-+		set_current_state(TASK_INTERRUPTIBLE);
+--- a/drivers/char/tpm/eventlog/acpi.c
++++ b/drivers/char/tpm/eventlog/acpi.c
+@@ -90,16 +90,21 @@ int tpm_read_log_acpi(struct tpm_chip *c
+ 			return -ENODEV;
+ 
+ 		if (tbl->header.length <
+-				sizeof(*tbl) + sizeof(struct acpi_tpm2_phy))
++				sizeof(*tbl) + sizeof(struct acpi_tpm2_phy)) {
++			acpi_put_table((struct acpi_table_header *)tbl);
+ 			return -ENODEV;
++		}
+ 
+ 		tpm2_phy = (void *)tbl + sizeof(*tbl);
+ 		len = tpm2_phy->log_area_minimum_length;
+ 
+ 		start = tpm2_phy->log_area_start_address;
+-		if (!start || !len)
++		if (!start || !len) {
++			acpi_put_table((struct acpi_table_header *)tbl);
+ 			return -ENODEV;
++		}
+ 
++		acpi_put_table((struct acpi_table_header *)tbl);
+ 		format = EFI_TCG2_EVENT_LOG_FORMAT_TCG_2;
  	} else {
- 		vub300->irq_enabled = 0;
+ 		/* Find TCPA entry in RSDT (ACPI_LOGICAL_ADDRESSING) */
+@@ -120,8 +125,10 @@ int tpm_read_log_acpi(struct tpm_chip *c
+ 			break;
+ 		}
+ 
++		acpi_put_table((struct acpi_table_header *)buff);
+ 		format = EFI_TCG2_EVENT_LOG_FORMAT_TCG_1_2;
  	}
++
+ 	if (!len) {
+ 		dev_warn(&chip->dev, "%s: TCPA log area empty\n", __func__);
+ 		return -EIO;
+@@ -156,5 +163,4 @@ err:
+ 	kfree(log->bios_event_log);
+ 	log->bios_event_log = NULL;
+ 	return ret;
+-
+ }
 
 
