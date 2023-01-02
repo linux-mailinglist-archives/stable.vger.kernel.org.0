@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5BD165B115
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:30:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21A0865B0C4
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:28:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236086AbjABLaI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:30:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49876 "EHLO
+        id S232940AbjABL2D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:28:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236135AbjABL3f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:29:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ABC46445
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:29:09 -0800 (PST)
+        with ESMTP id S232954AbjABL1Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:27:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6005864E9
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:26:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EEFC360F21
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:29:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12216C433EF;
-        Mon,  2 Jan 2023 11:29:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EE9860F37
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:26:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58895C433EF;
+        Mon,  2 Jan 2023 11:26:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658948;
-        bh=V8JDEOHxZYVaGl2463GBfoBZjYbsHwH465h8fIzUM6Q=;
+        s=korg; t=1672658781;
+        bh=c3VF0qu2U6pgL0vMGGsUgEruu4nCzsA2Fbd0aMKbZcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZhznYxnFfE7qc4Iw1qB8KbR27QN6R4qDfhe/M592YkC1WWuvDgg1Pd+YgT28gkIVC
-         ixH34cQZFfN0GHxVyLszgB6pBNDvuHz77A6PcQynVPKIRVbx0qn/WPNuy3DSOmKTVM
-         WQ/zH2yP8cXAJV12Z2cfFrrOA4BPTYYWOpXxPf64=
+        b=MdcR6A2G6TRwNdAUK03sHTI/erKqQAKI/F/vRmEQ4herYB+zjSvePldEcFyhKs1F6
+         XekKzlb74+nIwgBp8TabAKit6Chfj0nAIarXHk2bTdn+HjclNZmBnPi8iw5r0597IJ
+         IAPVWqIvt8aUpVwSgU5G5GutW+jXOFUjGWDEmhUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Artem Egorkine <arteme@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 6.0 60/74] ALSA: line6: fix stack overflow in line6_midi_transmit
+        patches@lists.linux.dev, Hanjun Guo <guohanjun@huawei.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Subject: [PATCH 6.1 68/71] tpm: tpm_crb: Add the missed acpi_put_table() to fix memory leak
 Date:   Mon,  2 Jan 2023 12:22:33 +0100
-Message-Id: <20230102110554.660113039@linuxfoundation.org>
+Message-Id: <20230102110554.336704961@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
-References: <20230102110552.061937047@linuxfoundation.org>
+In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
+References: <20230102110551.509937186@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +52,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Artem Egorkine <arteme@gmail.com>
+From: Hanjun Guo <guohanjun@huawei.com>
 
-commit b8800d324abb50160560c636bfafe2c81001b66c upstream.
+commit 37e90c374dd11cf4919c51e847c6d6ced0abc555 upstream.
 
-Correctly calculate available space including the size of the chunk
-buffer. This fixes a buffer overflow when multiple MIDI sysex
-messages are sent to a PODxt device.
+In crb_acpi_add(), we get the TPM2 table to retrieve information
+like start method, and then assign them to the priv data, so the
+TPM2 table is not used after the init, should be freed, call
+acpi_put_table() to fix the memory leak.
 
-Signed-off-by: Artem Egorkine <arteme@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221225105728.1153989-2-arteme@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 30fc8d138e91 ("tpm: TPM 2.0 CRB Interface")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/line6/midi.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/char/tpm/tpm_crb.c |   29 ++++++++++++++++++++---------
+ 1 file changed, 20 insertions(+), 9 deletions(-)
 
---- a/sound/usb/line6/midi.c
-+++ b/sound/usb/line6/midi.c
-@@ -44,7 +44,8 @@ static void line6_midi_transmit(struct s
- 	int req, done;
+--- a/drivers/char/tpm/tpm_crb.c
++++ b/drivers/char/tpm/tpm_crb.c
+@@ -676,12 +676,16 @@ static int crb_acpi_add(struct acpi_devi
  
- 	for (;;) {
--		req = min(line6_midibuf_bytes_free(mb), line6->max_packet_size);
-+		req = min3(line6_midibuf_bytes_free(mb), line6->max_packet_size,
-+			   LINE6_FALLBACK_MAXPACKETSIZE);
- 		done = snd_rawmidi_transmit_peek(substream, chunk, req);
+ 	/* Should the FIFO driver handle this? */
+ 	sm = buf->start_method;
+-	if (sm == ACPI_TPM2_MEMORY_MAPPED)
+-		return -ENODEV;
++	if (sm == ACPI_TPM2_MEMORY_MAPPED) {
++		rc = -ENODEV;
++		goto out;
++	}
  
- 		if (done == 0)
+ 	priv = devm_kzalloc(dev, sizeof(struct crb_priv), GFP_KERNEL);
+-	if (!priv)
+-		return -ENOMEM;
++	if (!priv) {
++		rc = -ENOMEM;
++		goto out;
++	}
+ 
+ 	if (sm == ACPI_TPM2_COMMAND_BUFFER_WITH_ARM_SMC) {
+ 		if (buf->header.length < (sizeof(*buf) + sizeof(*crb_smc))) {
+@@ -689,7 +693,8 @@ static int crb_acpi_add(struct acpi_devi
+ 				FW_BUG "TPM2 ACPI table has wrong size %u for start method type %d\n",
+ 				buf->header.length,
+ 				ACPI_TPM2_COMMAND_BUFFER_WITH_ARM_SMC);
+-			return -EINVAL;
++			rc = -EINVAL;
++			goto out;
+ 		}
+ 		crb_smc = ACPI_ADD_PTR(struct tpm2_crb_smc, buf, sizeof(*buf));
+ 		priv->smc_func_id = crb_smc->smc_func_id;
+@@ -700,17 +705,23 @@ static int crb_acpi_add(struct acpi_devi
+ 
+ 	rc = crb_map_io(device, priv, buf);
+ 	if (rc)
+-		return rc;
++		goto out;
+ 
+ 	chip = tpmm_chip_alloc(dev, &tpm_crb);
+-	if (IS_ERR(chip))
+-		return PTR_ERR(chip);
++	if (IS_ERR(chip)) {
++		rc = PTR_ERR(chip);
++		goto out;
++	}
+ 
+ 	dev_set_drvdata(&chip->dev, priv);
+ 	chip->acpi_dev_handle = device->handle;
+ 	chip->flags = TPM_CHIP_FLAG_TPM2;
+ 
+-	return tpm_chip_register(chip);
++	rc = tpm_chip_register(chip);
++
++out:
++	acpi_put_table((struct acpi_table_header *)buf);
++	return rc;
+ }
+ 
+ static int crb_acpi_remove(struct acpi_device *device)
 
 
