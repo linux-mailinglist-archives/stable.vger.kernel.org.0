@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F31E765B09D
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:27:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CB0365B0E0
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:28:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229621AbjABL1K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:27:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46036 "EHLO
+        id S232634AbjABL25 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:28:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232856AbjABL0I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:26:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7337563AF
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:24:50 -0800 (PST)
+        with ESMTP id S232528AbjABL2V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:28:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B72AEE
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:27:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 296E8B80D15
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:24:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 940E1C433D2;
-        Mon,  2 Jan 2023 11:24:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 345A460F55
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:27:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 444D9C433D2;
+        Mon,  2 Jan 2023 11:27:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658687;
-        bh=qeWTeD/XppDAMiiK9eXDs2xY/co0C3oVOYqMqTPGd3Q=;
+        s=korg; t=1672658854;
+        bh=R0xzDaJAIYhuOOYsXD73fbY4k7O8EkfwaraLfqDWu+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wrxc1xliSPr2W8wmnsm+xZsGE4CYNUMXVWKtAZa6XpcpsSU/9p5YstSgHoDIHsv3T
-         U/TydimAZfN41RhkIDH4/xpKU0usp8F7lJW4CWX81a+UrnkRCGie4CJcubtuQOY5Az
-         aFqhzNVabgGOLMoH/pRwR/g+meXpBKbRGcS7c2YE=
+        b=H/Z7sKZjtoYsQAWUw5e/KVPV7IAfmHtrVOCW8vwIIlHI32rVQrYOnEQmpYW72Ao/8
+         4ze1+VvsrOzicgjSifmliyXflpz/PkAXh66rHYpB8LurYkSN06yxZIalYqxTtEu1nu
+         g60WuBQWLkCBnFiVPGxPaEUuJ6sbnsQqN/jpM2z0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yin Xiujiang <yinxiujiang@kylinos.cn>,
+        patches@lists.linux.dev, edward lo <edward.lo@ambergroup.io>,
         Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 32/71] fs/ntfs3: Fix slab-out-of-bounds in r_page
+Subject: [PATCH 6.0 24/74] fs/ntfs3: Add overflow check for attribute size
 Date:   Mon,  2 Jan 2023 12:21:57 +0100
-Message-Id: <20230102110552.794133287@linuxfoundation.org>
+Message-Id: <20230102110553.098711528@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
-References: <20230102110551.509937186@linuxfoundation.org>
+In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
+References: <20230102110552.061937047@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,97 +53,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yin Xiujiang <yinxiujiang@kylinos.cn>
+From: edward lo <edward.lo@ambergroup.io>
 
-[ Upstream commit ecfbd57cf9c5ca225184ae266ce44ae473792132 ]
+[ Upstream commit e19c6277652efba203af4ecd8eed4bd30a0054c9 ]
 
-When PAGE_SIZE is 64K, if read_log_page is called by log_read_rst for
-the first time, the size of *buffer would be equal to
-DefaultLogPageSize(4K).But for *buffer operations like memcpy,
-if the memory area size(n) which being assigned to buffer is larger
-than 4K (log->page_size(64K) or bytes(64K-page_off)), it will cause
-an out of boundary error.
- Call trace:
-  [...]
-  kasan_report+0x44/0x130
-  check_memory_region+0xf8/0x1a0
-  memcpy+0xc8/0x100
-  ntfs_read_run_nb+0x20c/0x460
-  read_log_page+0xd0/0x1f4
-  log_read_rst+0x110/0x75c
-  log_replay+0x1e8/0x4aa0
-  ntfs_loadlog_and_replay+0x290/0x2d0
-  ntfs_fill_super+0x508/0xec0
-  get_tree_bdev+0x1fc/0x34c
-  [...]
+The offset addition could overflow and pass the used size check given an
+attribute with very large size (e.g., 0xffffff7f) while parsing MFT
+attributes. This could lead to out-of-bound memory R/W if we try to
+access the next attribute derived by Add2Ptr(attr, asize)
 
-Fix this by setting variable r_page to NULL in log_read_rst.
+[   32.963847] BUG: unable to handle page fault for address: ffff956a83c76067
+[   32.964301] #PF: supervisor read access in kernel mode
+[   32.964526] #PF: error_code(0x0000) - not-present page
+[   32.964893] PGD 4dc01067 P4D 4dc01067 PUD 0
+[   32.965316] Oops: 0000 [#1] PREEMPT SMP NOPTI
+[   32.965727] CPU: 0 PID: 243 Comm: mount Not tainted 5.19.0+ #6
+[   32.966050] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+[   32.966628] RIP: 0010:mi_enum_attr+0x44/0x110
+[   32.967239] Code: 89 f0 48 29 c8 48 89 c1 39 c7 0f 86 94 00 00 00 8b 56 04 83 fa 17 0f 86 88 00 00 00 89 d0 01 ca 48 01 f0 8d 4a 08 39 f9a
+[   32.968101] RSP: 0018:ffffba15c06a7c38 EFLAGS: 00000283
+[   32.968364] RAX: ffff956a83c76067 RBX: ffff956983c76050 RCX: 000000000000006f
+[   32.968651] RDX: 0000000000000067 RSI: ffff956983c760e8 RDI: 00000000000001c8
+[   32.968963] RBP: ffffba15c06a7c38 R08: 0000000000000064 R09: 00000000ffffff7f
+[   32.969249] R10: 0000000000000007 R11: ffff956983c760e8 R12: ffff95698225e000
+[   32.969870] R13: 0000000000000000 R14: ffffba15c06a7cd8 R15: ffff95698225e170
+[   32.970655] FS:  00007fdab8189e40(0000) GS:ffff9569fdc00000(0000) knlGS:0000000000000000
+[   32.971098] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   32.971378] CR2: ffff956a83c76067 CR3: 0000000002c58000 CR4: 00000000000006f0
+[   32.972098] Call Trace:
+[   32.972842]  <TASK>
+[   32.973341]  ni_enum_attr_ex+0xda/0xf0
+[   32.974087]  ntfs_iget5+0x1db/0xde0
+[   32.974386]  ? slab_post_alloc_hook+0x53/0x270
+[   32.974778]  ? ntfs_fill_super+0x4c7/0x12a0
+[   32.975115]  ntfs_fill_super+0x5d6/0x12a0
+[   32.975336]  get_tree_bdev+0x175/0x270
+[   32.975709]  ? put_ntfs+0x150/0x150
+[   32.975956]  ntfs_fs_get_tree+0x15/0x20
+[   32.976191]  vfs_get_tree+0x2a/0xc0
+[   32.976374]  ? capable+0x19/0x20
+[   32.976572]  path_mount+0x484/0xaa0
+[   32.977025]  ? putname+0x57/0x70
+[   32.977380]  do_mount+0x80/0xa0
+[   32.977555]  __x64_sys_mount+0x8b/0xe0
+[   32.978105]  do_syscall_64+0x3b/0x90
+[   32.978830]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[   32.979311] RIP: 0033:0x7fdab72e948a
+[   32.980015] Code: 48 8b 0d 11 fa 2a 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 008
+[   32.981251] RSP: 002b:00007ffd15b87588 EFLAGS: 00000206 ORIG_RAX: 00000000000000a5
+[   32.981832] RAX: ffffffffffffffda RBX: 0000557de0aaf060 RCX: 00007fdab72e948a
+[   32.982234] RDX: 0000557de0aaf260 RSI: 0000557de0aaf2e0 RDI: 0000557de0ab7ce0
+[   32.982714] RBP: 0000000000000000 R08: 0000557de0aaf280 R09: 0000000000000020
+[   32.983046] R10: 00000000c0ed0000 R11: 0000000000000206 R12: 0000557de0ab7ce0
+[   32.983494] R13: 0000557de0aaf260 R14: 0000000000000000 R15: 00000000ffffffff
+[   32.984094]  </TASK>
+[   32.984352] Modules linked in:
+[   32.984753] CR2: ffff956a83c76067
+[   32.985911] ---[ end trace 0000000000000000 ]---
+[   32.986555] RIP: 0010:mi_enum_attr+0x44/0x110
+[   32.987217] Code: 89 f0 48 29 c8 48 89 c1 39 c7 0f 86 94 00 00 00 8b 56 04 83 fa 17 0f 86 88 00 00 00 89 d0 01 ca 48 01 f0 8d 4a 08 39 f9a
+[   32.988232] RSP: 0018:ffffba15c06a7c38 EFLAGS: 00000283
+[   32.988532] RAX: ffff956a83c76067 RBX: ffff956983c76050 RCX: 000000000000006f
+[   32.988916] RDX: 0000000000000067 RSI: ffff956983c760e8 RDI: 00000000000001c8
+[   32.989356] RBP: ffffba15c06a7c38 R08: 0000000000000064 R09: 00000000ffffff7f
+[   32.989994] R10: 0000000000000007 R11: ffff956983c760e8 R12: ffff95698225e000
+[   32.990415] R13: 0000000000000000 R14: ffffba15c06a7cd8 R15: ffff95698225e170
+[   32.991011] FS:  00007fdab8189e40(0000) GS:ffff9569fdc00000(0000) knlGS:0000000000000000
+[   32.991524] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   32.991936] CR2: ffff956a83c76067 CR3: 0000000002c58000 CR4: 00000000000006f0
 
-Signed-off-by: Yin Xiujiang <yinxiujiang@kylinos.cn>
+This patch adds an overflow check
+
+Signed-off-by: edward lo <edward.lo@ambergroup.io>
 Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/fslog.c | 26 ++------------------------
- 1 file changed, 2 insertions(+), 24 deletions(-)
+ fs/ntfs3/record.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/fs/ntfs3/fslog.c b/fs/ntfs3/fslog.c
-index a85f5411aa74..c662d2a51907 100644
---- a/fs/ntfs3/fslog.c
-+++ b/fs/ntfs3/fslog.c
-@@ -1132,7 +1132,7 @@ static int read_log_page(struct ntfs_log *log, u32 vbo,
- 		return -EINVAL;
- 
- 	if (!*buffer) {
--		to_free = kmalloc(bytes, GFP_NOFS);
-+		to_free = kmalloc(log->page_size, GFP_NOFS);
- 		if (!to_free)
- 			return -ENOMEM;
- 		*buffer = to_free;
-@@ -1180,10 +1180,7 @@ static int log_read_rst(struct ntfs_log *log, u32 l_size, bool first,
- 			struct restart_info *info)
- {
- 	u32 skip, vbo;
--	struct RESTART_HDR *r_page = kmalloc(DefaultLogPageSize, GFP_NOFS);
--
--	if (!r_page)
--		return -ENOMEM;
-+	struct RESTART_HDR *r_page = NULL;
- 
- 	/* Determine which restart area we are looking for. */
- 	if (first) {
-@@ -1197,7 +1194,6 @@ static int log_read_rst(struct ntfs_log *log, u32 l_size, bool first,
- 	/* Loop continuously until we succeed. */
- 	for (; vbo < l_size; vbo = 2 * vbo + skip, skip = 0) {
- 		bool usa_error;
--		u32 sys_page_size;
- 		bool brst, bchk;
- 		struct RESTART_AREA *ra;
- 
-@@ -1251,24 +1247,6 @@ static int log_read_rst(struct ntfs_log *log, u32 l_size, bool first,
- 			goto check_result;
+diff --git a/fs/ntfs3/record.c b/fs/ntfs3/record.c
+index 7d2fac5ee215..9f81944441ae 100644
+--- a/fs/ntfs3/record.c
++++ b/fs/ntfs3/record.c
+@@ -220,6 +220,11 @@ struct ATTRIB *mi_enum_attr(struct mft_inode *mi, struct ATTRIB *attr)
+ 			return NULL;
  		}
  
--		/* Read the entire restart area. */
--		sys_page_size = le32_to_cpu(r_page->sys_page_size);
--		if (DefaultLogPageSize != sys_page_size) {
--			kfree(r_page);
--			r_page = kzalloc(sys_page_size, GFP_NOFS);
--			if (!r_page)
--				return -ENOMEM;
--
--			if (read_log_page(log, vbo,
--					  (struct RECORD_PAGE_HDR **)&r_page,
--					  &usa_error)) {
--				/* Ignore any errors. */
--				kfree(r_page);
--				r_page = NULL;
--				continue;
--			}
--		}
--
- 		if (is_client_area_valid(r_page, usa_error)) {
- 			info->valid_page = true;
- 			ra = Add2Ptr(r_page, le16_to_cpu(r_page->ra_off));
++		if (off + asize < off) {
++			/* overflow check */
++			return NULL;
++		}
++
+ 		attr = Add2Ptr(attr, asize);
+ 		off += asize;
+ 	}
 -- 
 2.35.1
 
