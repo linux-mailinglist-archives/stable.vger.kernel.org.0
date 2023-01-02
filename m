@@ -2,124 +2,282 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DE5565AF8C
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 11:28:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CDEF65AF9E
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 11:35:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229707AbjABK2q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 05:28:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43770 "EHLO
+        id S231706AbjABKfU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 05:35:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232453AbjABK2m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 05:28:42 -0500
-Received: from out1-smtp.messagingengine.com (out1-smtp.messagingengine.com [66.111.4.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE8411027;
-        Mon,  2 Jan 2023 02:28:40 -0800 (PST)
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
-        by mailout.nyi.internal (Postfix) with ESMTP id 5BA2A5C0159;
-        Mon,  2 Jan 2023 05:28:38 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 02 Jan 2023 05:28:38 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm2; t=1672655318; x=1672741718; bh=ipZXv8yRhK
-        ZofvGCU1oHV2J3KqF43Zgo5kJ7nwHtRMc=; b=kQXkva8oxxbRAEiIloZjO3uk81
-        dnTXr8q7G58VCyjd/Zau9m+LfWN8bfEkUXJ+bFm2/OFQ+KAr1dQDmuLMxtXiHEkC
-        G3FT3LDZokJVBCRz68o+HcwrLGU35rV0k7nQwX+rroX7XRUymCOQMksCRpe7iVK3
-        FPbJSRJwVznmo3p5PwKlHmo4tq1yLY2Bd6rUZbayi+WFK+BBp8m4Yg7yUkluvX7b
-        DQGpe1AQFZPwE0OspTNd39r20GDEeTJRjidYzAPxglBpy+GmNPhNm/yCgfyqh5xW
-        gxZMyLCU80ZRBErkAnMVtS+NT5i05YcchXWtgwQa66VsdNEOoqb1JVpNWWUg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm2; t=1672655318; x=1672741718; bh=ipZXv8yRhKZofvGCU1oHV2J3KqF4
-        3Zgo5kJ7nwHtRMc=; b=Ixc8JFT6byBxNkl/njDvcqd5WY2RThkZxXZ8Scd60oXW
-        s80BWqS1eajVNFlhpPJ9uLNurww/DQrkIP87Ho06dwpdMObyN/h9DC6Vrq1Nx6zX
-        CPIL1vaPZAGlfRZWuIAZZwqpuZDbSnCsKTeZawlIscJaJeqPY3aoGiPoTAk9jNLw
-        9z8m6gOR2mudv5FfZe4enIlB1GJfCY28HUbQVZqUZdmOxtUuz0dV7uU1J7H8HOGx
-        bxVAjmp8ErdneVx0adGXccA/VqM1Nz2u2vGppU4sz4AkEcI1sC5l92n+FOxFJlhg
-        1u0Z/6qIg0uEmyLDPLJjGQjZIwaN4Bst4FV2RcNW4g==
-X-ME-Sender: <xms:1rGyY8XOuoxt9kIP06arDk3ls1d1rLA7p4oWJq8Lyk1BzjnhkCPgRA>
-    <xme:1rGyYwkk4Xwu6uS_8R36mQDxpss-nV-VzhbP6yhDjWWm7V1pbgs7H__5Zob0ReD6K
-    PE7KABNKlOHyw>
-X-ME-Received: <xmr:1rGyYwbG6G-t_rmpXPweM4x59TBBS-ygEPXIMjGiJoVBNagjXE_XZrVTpqwLKarPU_OuuFKNKHt17SqGaYCqCSOJhaJGG9abxQTMD7yxlUzZ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrjedvgdduiecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeegheeuhe
-    fgtdeluddtleekfeegjeetgeeikeehfeduieffvddufeefleevtddtvdenucffohhmrghi
-    nhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:1rGyY7Ugcc7YR7SfNCkF535dqbcLPByedCaKJMo_PUvjUm5ez2lLrQ>
-    <xmx:1rGyY2lPreJ20hCUQmqFqcCbhL8yxY3Hpx2x91mwRDSjBU7T_f1RrA>
-    <xmx:1rGyYwfC1fx5iD6mc0FJAPI9vvya7u_uE0ufBmHQN4oTSYpoqmi5sg>
-    <xmx:1rGyY7-5mIqWe2Ncy-ymOryvowo-Xq9qXnVlTIzJQEvnUv-8I5CP6g>
-Feedback-ID: i787e41f1:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 2 Jan 2023 05:28:37 -0500 (EST)
-Date:   Mon, 2 Jan 2023 11:28:35 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Marc Zyngier <maz@kernel.org>
-Cc:     Sasha Levin <sashal@kernel.org>, stable <stable@vger.kernel.org>,
-        stable-commits@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: Re: Patch "powerpc/msi: Fix deassociation of MSI descriptors" has
- been added to the 4.9-stable tree
-Message-ID: <Y7Kx0xTFluvKDrCB@kroah.com>
-References: <20230102033733.1838845-1-sashal@kernel.org>
- <868rilb6lj.wl-maz@kernel.org>
+        with ESMTP id S232414AbjABKfE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 05:35:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8853C2DEE
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 02:34:50 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3C4BAB80CBB
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 10:34:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89B43C433EF;
+        Mon,  2 Jan 2023 10:34:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1672655687;
+        bh=+TLddKuuMKvf9tw6j9Hvo8NOe+RX1jsnfhuAB3eNGYE=;
+        h=Subject:To:Cc:From:Date:From;
+        b=aj7qGNs0W5I6wUlIDMtanZFwawGwApVd2VwU44zFBn7lgjubWFmxedj4/suMPZlWi
+         z9ZBk+B+4kczuzuJwQ2SYgt/tDz5MFQ5bGrBJRtu+gCESYW2N5ztzoPJnydt4nHGsG
+         HaI66gZR+jAcQXhIeRPqu6DIdTSzsLVDyJI+ebcY=
+Subject: FAILED: patch "[PATCH] rtmutex: Add acquire semantics for rtmutex lock acquisition" failed to apply to 5.15-stable tree
+To:     mgorman@techsingularity.net, jack@suse.cz, tglx@linutronix.de
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 02 Jan 2023 11:34:44 +0100
+Message-ID: <167265568418742@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <868rilb6lj.wl-maz@kernel.org>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 02, 2023 at 09:58:48AM +0000, Marc Zyngier wrote:
-> On Mon, 02 Jan 2023 03:37:32 +0000,
-> Sasha Levin <sashal@kernel.org> wrote:
-> > 
-> > This is a note to let you know that I've just added the patch titled
-> > 
-> >     powerpc/msi: Fix deassociation of MSI descriptors
-> > 
-> > to the 4.9-stable tree which can be found at:
-> >     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> > 
-> > The filename of the patch is:
-> >      powerpc-msi-fix-deassociation-of-msi-descriptors.patch
-> > and it can be found in the queue-4.9 subdirectory.
-> > 
-> > If you, or anyone else, feels it should not be added to the stable tree,
-> > please let <stable@vger.kernel.org> know about it.
-> >
-> > 
-> > 
-> > commit 760aa3717faf046c8d5bdc27c226179d192b7ddf
-> > Author: Marc Zyngier <maz@kernel.org>
-> > Date:   Sat Dec 17 10:46:44 2022 +0000
-> > 
-> >     powerpc/msi: Fix deassociation of MSI descriptors
-> >     
-> >     [ Upstream commit 4545c6a3d6ba71747eaa984c338ddd745e56e23f ]
-> 
-> 
-> Again[1], please drop this from all stable branches, as it has no
-> purpose before 6.2. If I wanted it backported, I would have earmarked
-> it as a stable candidate.
 
-Now dropped from all branches, thanks.
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+Possible dependencies:
+
+1c0908d8e441 ("rtmutex: Add acquire semantics for rtmutex lock acquisition slow path")
+ee042be16cb4 ("locking: Apply contention tracepoints in the slow path")
+d257cc8cb8d5 ("locking/rwsem: Make handoff bit handling more consistent")
+7cdacc5f52d6 ("locking/rwsem: Disable preemption for spinning region")
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 1c0908d8e441631f5b8ba433523cf39339ee2ba0 Mon Sep 17 00:00:00 2001
+From: Mel Gorman <mgorman@techsingularity.net>
+Date: Fri, 2 Dec 2022 10:02:23 +0000
+Subject: [PATCH] rtmutex: Add acquire semantics for rtmutex lock acquisition
+ slow path
+
+Jan Kara reported the following bug triggering on 6.0.5-rt14 running dbench
+on XFS on arm64.
+
+ kernel BUG at fs/inode.c:625!
+ Internal error: Oops - BUG: 0 [#1] PREEMPT_RT SMP
+ CPU: 11 PID: 6611 Comm: dbench Tainted: G            E   6.0.0-rt14-rt+ #1
+ pc : clear_inode+0xa0/0xc0
+ lr : clear_inode+0x38/0xc0
+ Call trace:
+  clear_inode+0xa0/0xc0
+  evict+0x160/0x180
+  iput+0x154/0x240
+  do_unlinkat+0x184/0x300
+  __arm64_sys_unlinkat+0x48/0xc0
+  el0_svc_common.constprop.4+0xe4/0x2c0
+  do_el0_svc+0xac/0x100
+  el0_svc+0x78/0x200
+  el0t_64_sync_handler+0x9c/0xc0
+  el0t_64_sync+0x19c/0x1a0
+
+It also affects 6.1-rc7-rt5 and affects a preempt-rt fork of 5.14 so this
+is likely a bug that existed forever and only became visible when ARM
+support was added to preempt-rt. The same problem does not occur on x86-64
+and he also reported that converting sb->s_inode_wblist_lock to
+raw_spinlock_t makes the problem disappear indicating that the RT spinlock
+variant is the problem.
+
+Which in turn means that RT mutexes on ARM64 and any other weakly ordered
+architecture are affected by this independent of RT.
+
+Will Deacon observed:
+
+  "I'd be more inclined to be suspicious of the slowpath tbh, as we need to
+   make sure that we have acquire semantics on all paths where the lock can
+   be taken. Looking at the rtmutex code, this really isn't obvious to me
+   -- for example, try_to_take_rt_mutex() appears to be able to return via
+   the 'takeit' label without acquire semantics and it looks like we might
+   be relying on the caller's subsequent _unlock_ of the wait_lock for
+   ordering, but that will give us release semantics which aren't correct."
+
+Sebastian Andrzej Siewior prototyped a fix that does work based on that
+comment but it was a little bit overkill and added some fences that should
+not be necessary.
+
+The lock owner is updated with an IRQ-safe raw spinlock held, but the
+spin_unlock does not provide acquire semantics which are needed when
+acquiring a mutex.
+
+Adds the necessary acquire semantics for lock owner updates in the slow path
+acquisition and the waiter bit logic.
+
+It successfully completed 10 iterations of the dbench workload while the
+vanilla kernel fails on the first iteration.
+
+[ bigeasy@linutronix.de: Initial prototype fix ]
+
+Fixes: 700318d1d7b38 ("locking/rtmutex: Use acquire/release semantics")
+Fixes: 23f78d4a03c5 ("[PATCH] pi-futex: rt mutex core")
+Reported-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221202100223.6mevpbl7i6x5udfd@techsingularity.net
+
+diff --git a/kernel/locking/rtmutex.c b/kernel/locking/rtmutex.c
+index 7779ee8abc2a..010cf4e6d0b8 100644
+--- a/kernel/locking/rtmutex.c
++++ b/kernel/locking/rtmutex.c
+@@ -89,15 +89,31 @@ static inline int __ww_mutex_check_kill(struct rt_mutex *lock,
+  * set this bit before looking at the lock.
+  */
+ 
+-static __always_inline void
+-rt_mutex_set_owner(struct rt_mutex_base *lock, struct task_struct *owner)
++static __always_inline struct task_struct *
++rt_mutex_owner_encode(struct rt_mutex_base *lock, struct task_struct *owner)
+ {
+ 	unsigned long val = (unsigned long)owner;
+ 
+ 	if (rt_mutex_has_waiters(lock))
+ 		val |= RT_MUTEX_HAS_WAITERS;
+ 
+-	WRITE_ONCE(lock->owner, (struct task_struct *)val);
++	return (struct task_struct *)val;
++}
++
++static __always_inline void
++rt_mutex_set_owner(struct rt_mutex_base *lock, struct task_struct *owner)
++{
++	/*
++	 * lock->wait_lock is held but explicit acquire semantics are needed
++	 * for a new lock owner so WRITE_ONCE is insufficient.
++	 */
++	xchg_acquire(&lock->owner, rt_mutex_owner_encode(lock, owner));
++}
++
++static __always_inline void rt_mutex_clear_owner(struct rt_mutex_base *lock)
++{
++	/* lock->wait_lock is held so the unlock provides release semantics. */
++	WRITE_ONCE(lock->owner, rt_mutex_owner_encode(lock, NULL));
+ }
+ 
+ static __always_inline void clear_rt_mutex_waiters(struct rt_mutex_base *lock)
+@@ -106,7 +122,8 @@ static __always_inline void clear_rt_mutex_waiters(struct rt_mutex_base *lock)
+ 			((unsigned long)lock->owner & ~RT_MUTEX_HAS_WAITERS);
+ }
+ 
+-static __always_inline void fixup_rt_mutex_waiters(struct rt_mutex_base *lock)
++static __always_inline void
++fixup_rt_mutex_waiters(struct rt_mutex_base *lock, bool acquire_lock)
+ {
+ 	unsigned long owner, *p = (unsigned long *) &lock->owner;
+ 
+@@ -172,8 +189,21 @@ static __always_inline void fixup_rt_mutex_waiters(struct rt_mutex_base *lock)
+ 	 * still set.
+ 	 */
+ 	owner = READ_ONCE(*p);
+-	if (owner & RT_MUTEX_HAS_WAITERS)
+-		WRITE_ONCE(*p, owner & ~RT_MUTEX_HAS_WAITERS);
++	if (owner & RT_MUTEX_HAS_WAITERS) {
++		/*
++		 * See rt_mutex_set_owner() and rt_mutex_clear_owner() on
++		 * why xchg_acquire() is used for updating owner for
++		 * locking and WRITE_ONCE() for unlocking.
++		 *
++		 * WRITE_ONCE() would work for the acquire case too, but
++		 * in case that the lock acquisition failed it might
++		 * force other lockers into the slow path unnecessarily.
++		 */
++		if (acquire_lock)
++			xchg_acquire(p, owner & ~RT_MUTEX_HAS_WAITERS);
++		else
++			WRITE_ONCE(*p, owner & ~RT_MUTEX_HAS_WAITERS);
++	}
+ }
+ 
+ /*
+@@ -208,6 +238,13 @@ static __always_inline void mark_rt_mutex_waiters(struct rt_mutex_base *lock)
+ 		owner = *p;
+ 	} while (cmpxchg_relaxed(p, owner,
+ 				 owner | RT_MUTEX_HAS_WAITERS) != owner);
++
++	/*
++	 * The cmpxchg loop above is relaxed to avoid back-to-back ACQUIRE
++	 * operations in the event of contention. Ensure the successful
++	 * cmpxchg is visible.
++	 */
++	smp_mb__after_atomic();
+ }
+ 
+ /*
+@@ -1243,7 +1280,7 @@ static int __sched __rt_mutex_slowtrylock(struct rt_mutex_base *lock)
+ 	 * try_to_take_rt_mutex() sets the lock waiters bit
+ 	 * unconditionally. Clean this up.
+ 	 */
+-	fixup_rt_mutex_waiters(lock);
++	fixup_rt_mutex_waiters(lock, true);
+ 
+ 	return ret;
+ }
+@@ -1604,7 +1641,7 @@ static int __sched __rt_mutex_slowlock(struct rt_mutex_base *lock,
+ 	 * try_to_take_rt_mutex() sets the waiter bit
+ 	 * unconditionally. We might have to fix that up.
+ 	 */
+-	fixup_rt_mutex_waiters(lock);
++	fixup_rt_mutex_waiters(lock, true);
+ 
+ 	trace_contention_end(lock, ret);
+ 
+@@ -1719,7 +1756,7 @@ static void __sched rtlock_slowlock_locked(struct rt_mutex_base *lock)
+ 	 * try_to_take_rt_mutex() sets the waiter bit unconditionally.
+ 	 * We might have to fix that up:
+ 	 */
+-	fixup_rt_mutex_waiters(lock);
++	fixup_rt_mutex_waiters(lock, true);
+ 	debug_rt_mutex_free_waiter(&waiter);
+ 
+ 	trace_contention_end(lock, 0);
+diff --git a/kernel/locking/rtmutex_api.c b/kernel/locking/rtmutex_api.c
+index 900220941caa..cb9fdff76a8a 100644
+--- a/kernel/locking/rtmutex_api.c
++++ b/kernel/locking/rtmutex_api.c
+@@ -267,7 +267,7 @@ void __sched rt_mutex_init_proxy_locked(struct rt_mutex_base *lock,
+ void __sched rt_mutex_proxy_unlock(struct rt_mutex_base *lock)
+ {
+ 	debug_rt_mutex_proxy_unlock(lock);
+-	rt_mutex_set_owner(lock, NULL);
++	rt_mutex_clear_owner(lock);
+ }
+ 
+ /**
+@@ -382,7 +382,7 @@ int __sched rt_mutex_wait_proxy_lock(struct rt_mutex_base *lock,
+ 	 * try_to_take_rt_mutex() sets the waiter bit unconditionally. We might
+ 	 * have to fix that up.
+ 	 */
+-	fixup_rt_mutex_waiters(lock);
++	fixup_rt_mutex_waiters(lock, true);
+ 	raw_spin_unlock_irq(&lock->wait_lock);
+ 
+ 	return ret;
+@@ -438,7 +438,7 @@ bool __sched rt_mutex_cleanup_proxy_lock(struct rt_mutex_base *lock,
+ 	 * try_to_take_rt_mutex() sets the waiter bit unconditionally. We might
+ 	 * have to fix that up.
+ 	 */
+-	fixup_rt_mutex_waiters(lock);
++	fixup_rt_mutex_waiters(lock, false);
+ 
+ 	raw_spin_unlock_irq(&lock->wait_lock);
+ 
+
