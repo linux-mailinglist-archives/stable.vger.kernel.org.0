@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7672465B0B3
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:27:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0880F65B0FB
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:29:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235914AbjABL1b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:27:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45646 "EHLO
+        id S232885AbjABL3p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:29:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235993AbjABL06 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:26:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2AA863C2
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:25:43 -0800 (PST)
+        with ESMTP id S233020AbjABL3M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:29:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 476B5655A
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:28:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E5D160F49
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:25:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55440C433EF;
-        Mon,  2 Jan 2023 11:25:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D57BB60F5B
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:28:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E98B1C433D2;
+        Mon,  2 Jan 2023 11:28:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658742;
-        bh=qmgfQ9jAp7+N6zmG3v5IxLnG4vR6DuzquIepYQXwkRU=;
+        s=korg; t=1672658909;
+        bh=HcNlw0sV985CkL9RCLbDX+ViHmJfJ7nheAEoEtu/r8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SOvIxIVP1vTNCLYxZDHPPTrHpcOlnoHmZFbiTIanYcPeJ4Z4IKlasrx0fbBtJnZqy
-         6EEO1Sv2n/rCiTfv/Uo02PqZrn8W2I562LPK8T8bOBypybsHFdJfwgHoIc6HP3Eyd3
-         64hKK0lveSo0qc09dTeDUn7Qo+Sln+1Pi8jCXAC0=
+        b=JK2kVSsVjeN4WZ4QmWTfxLA2jkH9hmPh+6fRMpzjVD/pme94kzUQLuhElkAaT0koL
+         eLb7PR1c5AX+TvnELXqdDaCX0oYK5Ly2mVZhYTZLgKuyZ/HwivZYxxSavyJ2YyBbvL
+         b/eZfj7k59ymRTM0/FBL73CdF1jHa0ZKHMeay+6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Zhang Tianci <zhangtianci.1997@bytedance.com>,
-        Jiachen Zhang <zhangjiachen.jaycee@bytedance.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 6.1 54/71] ovl: Use ovl mounters fsuid and fsgid in ovl_link()
+        Terry Junge <linuxhid@cosmicgizmosystems.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 46/74] HID: plantronics: Additional PIDs for double volume key presses quirk
 Date:   Mon,  2 Jan 2023 12:22:19 +0100
-Message-Id: <20230102110553.758530779@linuxfoundation.org>
+Message-Id: <20230102110554.057781800@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
-References: <20230102110551.509937186@linuxfoundation.org>
+In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
+References: <20230102110552.061937047@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,117 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Tianci <zhangtianci.1997@bytedance.com>
+From: Terry Junge <linuxhid@cosmicgizmosystems.com>
 
-commit 5b0db51215e895a361bc63132caa7cca36a53d6a upstream.
+[ Upstream commit 3d57f36c89d8ba32b2c312f397a37fd1a2dc7cfc ]
 
-There is a wrong case of link() on overlay:
-  $ mkdir /lower /fuse /merge
-  $ mount -t fuse /fuse
-  $ mkdir /fuse/upper /fuse/work
-  $ mount -t overlay /merge -o lowerdir=/lower,upperdir=/fuse/upper,\
-    workdir=work
-  $ touch /merge/file
-  $ chown bin.bin /merge/file // the file's caller becomes "bin"
-  $ ln /merge/file /merge/lnkfile
+I no longer work for Plantronics (aka Poly, aka HP) and do not have
+access to the headsets in order to test. However, as noted by Maxim,
+the other 32xx models that share the same base code set as the 3220
+would need the same quirk. This patch adds the PIDs for the rest of
+the Blackwire 32XX product family that require the quirk.
 
-Then we will get an error(EACCES) because fuse daemon checks the link()'s
-caller is "bin", it denied this request.
+Plantronics Blackwire 3210 Series (047f:c055)
+Plantronics Blackwire 3215 Series (047f:c057)
+Plantronics Blackwire 3225 Series (047f:c058)
 
-In the changing history of ovl_link(), there are two key commits:
+Quote from previous patch by Maxim Mikityanskiy
+Plantronics Blackwire 3220 Series (047f:c056) sends HID reports twice
+for each volume key press. This patch adds a quirk to hid-plantronics
+for this product ID, which will ignore the second volume key press if
+it happens within 5 ms from the last one that was handled.
 
-The first is commit bb0d2b8ad296 ("ovl: fix sgid on directory") which
-overrides the cred's fsuid/fsgid using the new inode. The new inode's
-owner is initialized by inode_init_owner(), and inode->fsuid is
-assigned to the current user. So the override fsuid becomes the
-current user. We know link() is actually modifying the directory, so
-the caller must have the MAY_WRITE permission on the directory. The
-current caller may should have this permission. This is acceptable
-to use the caller's fsuid.
+The patch was tested on the mentioned model only, it shouldn't affect
+other models, however, this quirk might be needed for them too.
+Auto-repeat (when a key is held pressed) is not affected, because the
+rate is about 3 times per second, which is far less frequent than once
+in 5 ms.
+End quote
 
-The second is commit 51f7e52dc943 ("ovl: share inode for hard link")
-which removed the inode creation in ovl_link(). This commit move
-inode_init_owner() into ovl_create_object(), so the ovl_link() just
-give the old inode to ovl_create_or_link(). Then the override fsuid
-becomes the old inode's fsuid, neither the caller nor the overlay's
-mounter! So this is incorrect.
-
-Fix this bug by using ovl mounter's fsuid/fsgid to do underlying
-fs's link().
-
-Link: https://lore.kernel.org/all/20220817102952.xnvesg3a7rbv576x@wittgenstein/T
-Link: https://lore.kernel.org/lkml/20220825130552.29587-1-zhangtianci.1997@bytedance.com/t
-Signed-off-by: Zhang Tianci <zhangtianci.1997@bytedance.com>
-Signed-off-by: Jiachen Zhang <zhangjiachen.jaycee@bytedance.com>
-Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Fixes: 51f7e52dc943 ("ovl: share inode for hard link")
-Cc: <stable@vger.kernel.org> # v4.8
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Terry Junge <linuxhid@cosmicgizmosystems.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/overlayfs/dir.c |   46 ++++++++++++++++++++++++++++++----------------
- 1 file changed, 30 insertions(+), 16 deletions(-)
+ drivers/hid/hid-ids.h         | 3 +++
+ drivers/hid/hid-plantronics.c | 9 +++++++++
+ 2 files changed, 12 insertions(+)
 
---- a/fs/overlayfs/dir.c
-+++ b/fs/overlayfs/dir.c
-@@ -592,28 +592,42 @@ static int ovl_create_or_link(struct den
- 			goto out_revert_creds;
- 	}
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 86e754b9400f..5680543e97fd 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -995,7 +995,10 @@
+ #define USB_DEVICE_ID_ORTEK_IHOME_IMAC_A210S	0x8003
  
--	err = -ENOMEM;
--	override_cred = prepare_creds();
--	if (override_cred) {
-+	if (!attr->hardlink) {
-+		err = -ENOMEM;
-+		override_cred = prepare_creds();
-+		if (!override_cred)
-+			goto out_revert_creds;
-+		/*
-+		 * In the creation cases(create, mkdir, mknod, symlink),
-+		 * ovl should transfer current's fs{u,g}id to underlying
-+		 * fs. Because underlying fs want to initialize its new
-+		 * inode owner using current's fs{u,g}id. And in this
-+		 * case, the @inode is a new inode that is initialized
-+		 * in inode_init_owner() to current's fs{u,g}id. So use
-+		 * the inode's i_{u,g}id to override the cred's fs{u,g}id.
-+		 *
-+		 * But in the other hardlink case, ovl_link() does not
-+		 * create a new inode, so just use the ovl mounter's
-+		 * fs{u,g}id.
-+		 */
- 		override_cred->fsuid = inode->i_uid;
- 		override_cred->fsgid = inode->i_gid;
--		if (!attr->hardlink) {
--			err = security_dentry_create_files_as(dentry,
--					attr->mode, &dentry->d_name, old_cred,
--					override_cred);
--			if (err) {
--				put_cred(override_cred);
--				goto out_revert_creds;
--			}
-+		err = security_dentry_create_files_as(dentry,
-+				attr->mode, &dentry->d_name, old_cred,
-+				override_cred);
-+		if (err) {
-+			put_cred(override_cred);
-+			goto out_revert_creds;
- 		}
- 		put_cred(override_creds(override_cred));
- 		put_cred(override_cred);
--
--		if (!ovl_dentry_is_whiteout(dentry))
--			err = ovl_create_upper(dentry, inode, attr);
--		else
--			err = ovl_create_over_whiteout(dentry, inode, attr);
- 	}
-+
-+	if (!ovl_dentry_is_whiteout(dentry))
-+		err = ovl_create_upper(dentry, inode, attr);
-+	else
-+		err = ovl_create_over_whiteout(dentry, inode, attr);
-+
- out_revert_creds:
- 	revert_creds(old_cred);
- 	return err;
+ #define USB_VENDOR_ID_PLANTRONICS	0x047f
++#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3210_SERIES	0xc055
+ #define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES	0xc056
++#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3215_SERIES	0xc057
++#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3225_SERIES	0xc058
+ 
+ #define USB_VENDOR_ID_PANASONIC		0x04da
+ #define USB_DEVICE_ID_PANABOARD_UBT780	0x1044
+diff --git a/drivers/hid/hid-plantronics.c b/drivers/hid/hid-plantronics.c
+index e81b7cec2d12..3d414ae194ac 100644
+--- a/drivers/hid/hid-plantronics.c
++++ b/drivers/hid/hid-plantronics.c
+@@ -198,9 +198,18 @@ static int plantronics_probe(struct hid_device *hdev,
+ }
+ 
+ static const struct hid_device_id plantronics_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
++					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3210_SERIES),
++		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
+ 					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES),
+ 		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
++					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3215_SERIES),
++		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
++					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3225_SERIES),
++		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS, HID_ANY_ID) },
+ 	{ }
+ };
+-- 
+2.35.1
+
 
 
