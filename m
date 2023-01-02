@@ -2,44 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58F0D65B0B0
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:27:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F67365B0F4
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:29:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233010AbjABL11 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:27:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45626 "EHLO
+        id S236102AbjABL3g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:29:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235970AbjABL04 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:26:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C09D76458
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:25:35 -0800 (PST)
+        with ESMTP id S232902AbjABL3H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:29:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E0E8654A;
+        Mon,  2 Jan 2023 03:28:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E47F60F54
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:25:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75309C433D2;
-        Mon,  2 Jan 2023 11:25:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1AC2B80D1A;
+        Mon,  2 Jan 2023 11:28:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 034BCC433EF;
+        Mon,  2 Jan 2023 11:28:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658734;
-        bh=KARuFOCbrAtg12Jo2kQpnf9kB8gMkJWKfghoyxl1sPI=;
+        s=korg; t=1672658901;
+        bh=ox2BEnfMPBNYHHyGMIa+nrsHjfNFzw5LZfghfX3ovzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hAQhNjHBtt/uVES7UTUtaRVEruGaLBwI4+JHPqrvIfe4nxE6jR2i/1pEbcT7mcbBi
-         JrVsM/qSi92uxKgN7qxrwXYnV6xF45dCKKZMQjVAL5bc+WT2KWW+MtCL1NG1C+nNvD
-         kdGbhHVa0AOHkvRwzt/JIZ5gT9QZgVuXB51BRpaA=
+        b=aA7ufc4CGoDf4XAusn83U2T3sywNIsWhQ25CnkSIDtjy/YFt7puBtNmRuYxvxyQ1V
+         KAAG16d8h0aEz4tbYh72Qzn25jshVleqfrg9kG3st6+X8AMM4XYocXwwNXoCOHERUl
+         LdGfJo/ZBbKB0SHXt6/UMmz6YWhzA+P/gP3sv1c4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 6.1 51/71] ACPI: x86: s2idle: Force AMD GUID/_REV 2 on HP Elitebook 865
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Daniel Palmer <daniel@thingy.jp>,
+        Romain Perier <romain.perier@gmail.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 43/74] rtc: msc313: Fix function prototype mismatch in msc313_rtc_probe()
 Date:   Mon,  2 Jan 2023 12:22:16 +0100
-Message-Id: <20230102110553.629403211@linuxfoundation.org>
+Message-Id: <20230102110553.937027358@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
-References: <20230102110551.509937186@linuxfoundation.org>
+In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
+References: <20230102110552.061937047@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,67 +59,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 3ea45390e9c0d35805ef8357ace55594fd4233d0 upstream.
+[ Upstream commit 21b8a1dd56a163825e5749b303858fb902ebf198 ]
 
-HP Elitebook 865 supports both the AMD GUID w/ _REV 2 and Microsoft
-GUID with _REV 0. Both have very similar code but the AMD GUID
-has a special workaround that is specific to a problem with
-spurious wakeups on systems with Qualcomm WLAN.
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed.
 
-This is believed to be a bug in the Qualcomm WLAN F/W (it doesn't
-affect any other WLAN H/W). If this WLAN firmware is fixed this
-quirk can be dropped.
+msc313_rtc_probe() was passing clk_disable_unprepare() directly, which
+did not have matching prototypes for devm_add_action_or_reset()'s
+callback argument. Refactor to use devm_clk_get_enabled() instead.
 
-Cc: stable@vger.kernel.org # 6.1
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This was found as a result of Clang's new -Wcast-function-type-strict
+flag, which is more sensitive than the simpler -Wcast-function-type,
+which only checks for type width mismatches.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/lkml/202211041527.HD8TLSE1-lkp@intel.com
+Suggested-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: Daniel Palmer <daniel@thingy.jp>
+Cc: Romain Perier <romain.perier@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-rtc@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Daniel Palmer <daniel@thingy.jp>
+Tested-by: Daniel Palmer <daniel@thingy.jp>
+Link: https://lore.kernel.org/r/20221202184525.gonna.423-kees@kernel.org
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/x86/s2idle.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/rtc/rtc-msc313.c | 12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
-diff --git a/drivers/acpi/x86/s2idle.c b/drivers/acpi/x86/s2idle.c
-index 5350c73564b6..422415cb14f4 100644
---- a/drivers/acpi/x86/s2idle.c
-+++ b/drivers/acpi/x86/s2idle.c
-@@ -401,6 +401,13 @@ static const struct acpi_device_id amd_hid_ids[] = {
- 	{}
- };
+diff --git a/drivers/rtc/rtc-msc313.c b/drivers/rtc/rtc-msc313.c
+index f3fde013c4b8..8d7737e0e2e0 100644
+--- a/drivers/rtc/rtc-msc313.c
++++ b/drivers/rtc/rtc-msc313.c
+@@ -212,22 +212,12 @@ static int msc313_rtc_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
  
-+static int lps0_prefer_amd(const struct dmi_system_id *id)
-+{
-+	pr_debug("Using AMD GUID w/ _REV 2.\n");
-+	rev_id = 2;
-+	return 0;
-+}
-+
- static int lps0_prefer_microsoft(const struct dmi_system_id *id)
- {
- 	pr_debug("Preferring Microsoft GUID.\n");
-@@ -462,6 +469,19 @@ static const struct dmi_system_id s2idle_dmi_table[] __initconst = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "ROG Flow X16 GV601"),
- 		},
- 	},
-+	{
-+		/*
-+		 * AMD Rembrandt based HP EliteBook 835/845/865 G9
-+		 * Contains specialized AML in AMD/_REV 2 path to avoid
-+		 * triggering a bug in Qualcomm WLAN firmware. This may be
-+		 * removed in the future if that firmware is fixed.
-+		 */
-+		.callback = lps0_prefer_amd,
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "HP"),
-+			DMI_MATCH(DMI_BOARD_NAME, "8990"),
-+		},
-+	},
- 	{}
- };
+-	clk = devm_clk_get(dev, NULL);
++	clk = devm_clk_get_enabled(dev, NULL);
+ 	if (IS_ERR(clk)) {
+ 		dev_err(dev, "No input reference clock\n");
+ 		return PTR_ERR(clk);
+ 	}
  
+-	ret = clk_prepare_enable(clk);
+-	if (ret) {
+-		dev_err(dev, "Failed to enable the reference clock, %d\n", ret);
+-		return ret;
+-	}
+-
+-	ret = devm_add_action_or_reset(dev, (void (*) (void *))clk_disable_unprepare, clk);
+-	if (ret)
+-		return ret;
+-
+ 	rate = clk_get_rate(clk);
+ 	writew(rate & 0xFFFF, priv->rtc_base + REG_RTC_FREQ_CW_L);
+ 	writew((rate >> 16) & 0xFFFF, priv->rtc_base + REG_RTC_FREQ_CW_H);
 -- 
-2.39.0
+2.35.1
 
 
 
