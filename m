@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33E2D65B12F
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:31:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCDE265B12E
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:31:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235640AbjABLbA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:31:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50310 "EHLO
+        id S232954AbjABLa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:30:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232902AbjABLaJ (ORCPT
+        with ESMTP id S235640AbjABLaJ (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:30:09 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6391D257
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:29:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2030BE55
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:30:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 21D31B80D1C
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:29:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88127C433D2;
-        Mon,  2 Jan 2023 11:29:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BEE86B80D14
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:29:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 214B3C433D2;
+        Mon,  2 Jan 2023 11:29:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658995;
-        bh=c3VF0qu2U6pgL0vMGGsUgEruu4nCzsA2Fbd0aMKbZcs=;
+        s=korg; t=1672658998;
+        bh=rR5I3FobV4jxanNDkf+PcZg4d6yiIHdwFwIxHst+Dhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zwj/96zIN7QlA1x38/eyRvgVFgvxb9fQ1OBFn1Q33Hs92hB1L0UXoWNFZq1EMSbLH
-         TXWp35zR7IH7L/a//tJrkILNSn9aVAFDkK7g3Vfb1JVkMhuEhZLi6W6/cdOrAmth43
-         EYFc0m3dlX011AvQ9Ffk/H0uM7aOMILwSgWnJC2w=
+        b=XkBF9BfYZ125BgYAZ/iBnuegB4TzdJMtt1tMdShneFg6yPxs1ONOzc5Vcm9aOy9MZ
+         EH2/xQibV44qAFM4v9R3OAMmG0UWHQkRzXWKYcWZD50g6g1wqNqCVf8zQkUUeOL1Do
+         2aDRyjWLs5Z3C1KiR078ibiHvQhHPDVESgYdsdeI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Hanjun Guo <guohanjun@huawei.com>,
         Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 6.0 71/74] tpm: tpm_crb: Add the missed acpi_put_table() to fix memory leak
-Date:   Mon,  2 Jan 2023 12:22:44 +0100
-Message-Id: <20230102110555.119133771@linuxfoundation.org>
+Subject: [PATCH 6.0 72/74] tpm: tpm_tis: Add the missed acpi_put_table() to fix memory leak
+Date:   Mon,  2 Jan 2023 12:22:45 +0100
+Message-Id: <20230102110555.155136132@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
 References: <20230102110552.061937047@linuxfoundation.org>
@@ -54,83 +54,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hanjun Guo <guohanjun@huawei.com>
 
-commit 37e90c374dd11cf4919c51e847c6d6ced0abc555 upstream.
+commit db9622f762104459ff87ecdf885cc42c18053fd9 upstream.
 
-In crb_acpi_add(), we get the TPM2 table to retrieve information
-like start method, and then assign them to the priv data, so the
-TPM2 table is not used after the init, should be freed, call
-acpi_put_table() to fix the memory leak.
+In check_acpi_tpm2(), we get the TPM2 table just to make
+sure the table is there, not used after the init, so the
+acpi_put_table() should be added to release the ACPI memory.
 
-Fixes: 30fc8d138e91 ("tpm: TPM 2.0 CRB Interface")
+Fixes: 4cb586a188d4 ("tpm_tis: Consolidate the platform and acpi probe flow")
 Cc: stable@vger.kernel.org
 Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm_crb.c |   29 ++++++++++++++++++++---------
- 1 file changed, 20 insertions(+), 9 deletions(-)
+ drivers/char/tpm/tpm_tis.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/char/tpm/tpm_crb.c
-+++ b/drivers/char/tpm/tpm_crb.c
-@@ -676,12 +676,16 @@ static int crb_acpi_add(struct acpi_devi
+--- a/drivers/char/tpm/tpm_tis.c
++++ b/drivers/char/tpm/tpm_tis.c
+@@ -125,6 +125,7 @@ static int check_acpi_tpm2(struct device
+ 	const struct acpi_device_id *aid = acpi_match_device(tpm_acpi_tbl, dev);
+ 	struct acpi_table_tpm2 *tbl;
+ 	acpi_status st;
++	int ret = 0;
  
- 	/* Should the FIFO driver handle this? */
- 	sm = buf->start_method;
--	if (sm == ACPI_TPM2_MEMORY_MAPPED)
+ 	if (!aid || aid->driver_data != DEVICE_IS_TPM2)
+ 		return 0;
+@@ -132,8 +133,7 @@ static int check_acpi_tpm2(struct device
+ 	/* If the ACPI TPM2 signature is matched then a global ACPI_SIG_TPM2
+ 	 * table is mandatory
+ 	 */
+-	st =
+-	    acpi_get_table(ACPI_SIG_TPM2, 1, (struct acpi_table_header **)&tbl);
++	st = acpi_get_table(ACPI_SIG_TPM2, 1, (struct acpi_table_header **)&tbl);
+ 	if (ACPI_FAILURE(st) || tbl->header.length < sizeof(*tbl)) {
+ 		dev_err(dev, FW_BUG "failed to get TPM2 ACPI table\n");
+ 		return -EINVAL;
+@@ -141,9 +141,10 @@ static int check_acpi_tpm2(struct device
+ 
+ 	/* The tpm2_crb driver handles this device */
+ 	if (tbl->start_method != ACPI_TPM2_MEMORY_MAPPED)
 -		return -ENODEV;
-+	if (sm == ACPI_TPM2_MEMORY_MAPPED) {
-+		rc = -ENODEV;
-+		goto out;
-+	}
++		ret = -ENODEV;
  
- 	priv = devm_kzalloc(dev, sizeof(struct crb_priv), GFP_KERNEL);
--	if (!priv)
--		return -ENOMEM;
-+	if (!priv) {
-+		rc = -ENOMEM;
-+		goto out;
-+	}
- 
- 	if (sm == ACPI_TPM2_COMMAND_BUFFER_WITH_ARM_SMC) {
- 		if (buf->header.length < (sizeof(*buf) + sizeof(*crb_smc))) {
-@@ -689,7 +693,8 @@ static int crb_acpi_add(struct acpi_devi
- 				FW_BUG "TPM2 ACPI table has wrong size %u for start method type %d\n",
- 				buf->header.length,
- 				ACPI_TPM2_COMMAND_BUFFER_WITH_ARM_SMC);
--			return -EINVAL;
-+			rc = -EINVAL;
-+			goto out;
- 		}
- 		crb_smc = ACPI_ADD_PTR(struct tpm2_crb_smc, buf, sizeof(*buf));
- 		priv->smc_func_id = crb_smc->smc_func_id;
-@@ -700,17 +705,23 @@ static int crb_acpi_add(struct acpi_devi
- 
- 	rc = crb_map_io(device, priv, buf);
- 	if (rc)
--		return rc;
-+		goto out;
- 
- 	chip = tpmm_chip_alloc(dev, &tpm_crb);
--	if (IS_ERR(chip))
--		return PTR_ERR(chip);
-+	if (IS_ERR(chip)) {
-+		rc = PTR_ERR(chip);
-+		goto out;
-+	}
- 
- 	dev_set_drvdata(&chip->dev, priv);
- 	chip->acpi_dev_handle = device->handle;
- 	chip->flags = TPM_CHIP_FLAG_TPM2;
- 
--	return tpm_chip_register(chip);
-+	rc = tpm_chip_register(chip);
-+
-+out:
-+	acpi_put_table((struct acpi_table_header *)buf);
-+	return rc;
+-	return 0;
++	acpi_put_table((struct acpi_table_header *)tbl);
++	return ret;
  }
- 
- static int crb_acpi_remove(struct acpi_device *device)
+ #else
+ static int check_acpi_tpm2(struct device *dev)
 
 
