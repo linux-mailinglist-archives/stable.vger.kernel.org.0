@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CCE065B0EC
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:29:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8906265B089
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:24:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232839AbjABL33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:29:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49992 "EHLO
+        id S232784AbjABLY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:24:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236069AbjABL3B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:29:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E46BA64D9
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:28:10 -0800 (PST)
+        with ESMTP id S232936AbjABLYF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:24:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CB255FAB
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:24:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FD07B80D1D
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:28:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0EA0C433D2;
-        Mon,  2 Jan 2023 11:28:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0318760F57
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:24:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17ABAC433D2;
+        Mon,  2 Jan 2023 11:24:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658888;
-        bh=4wlo2/Dd5CujuiBkCvx8MyiqreDK3NPxFRAy+CFsC7w=;
+        s=korg; t=1672658643;
+        bh=R0xzDaJAIYhuOOYsXD73fbY4k7O8EkfwaraLfqDWu+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lsnx26Gv3EiNtBX30rsLOHp9YJFV28deQLtcR081hXQ5oOTPCENC0hyN99FKDqhZu
-         SBKc4FHiIS7QEQq+J9JmCaK/p2VFKY6zG5yOsJUbo39LUMTOnnYT4rJ1V09c0SqrDw
-         wlBkp83h6KeVinP7XhORmp4PaJLBTERZs1hykuNc=
+        b=L7YEHSc0OSLyuZGENvxoEW6my1XwqYkvaKqTfamN3ulEsTjiXBd/5v1Z+bVsUpZ4M
+         eVurMS8PzOnsGIfqai5aUUbOSUHfAPHYqw9b/ymVcnzMKkTKD0payzfTi7G4t96XcH
+         vCYI0YACNxxk69wWkm+l0gq+73s26CZ57buOLzZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Andreas Herrmann <aherrmann@suse.de>,
-        Tejun Heo <tj@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+        patches@lists.linux.dev, edward lo <edward.lo@ambergroup.io>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 07/74] blk-throttle: pass a gendisk to blk_throtl_init and blk_throtl_exit
-Date:   Mon,  2 Jan 2023 12:21:40 +0100
-Message-Id: <20230102110552.361250389@linuxfoundation.org>
+Subject: [PATCH 6.1 16/71] fs/ntfs3: Add overflow check for attribute size
+Date:   Mon,  2 Jan 2023 12:21:41 +0100
+Message-Id: <20230102110552.133670007@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
-References: <20230102110552.061937047@linuxfoundation.org>
+In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
+References: <20230102110551.509937186@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,107 +53,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: edward lo <edward.lo@ambergroup.io>
 
-[ Upstream commit e13793bae65919cd3e6a7827f8d30f4dbb8584ee ]
+[ Upstream commit e19c6277652efba203af4ecd8eed4bd30a0054c9 ]
 
-Pass the gendisk to blk_throtl_init and blk_throtl_exit as part of moving
-the blk-cgroup infrastructure to be gendisk based.
+The offset addition could overflow and pass the used size check given an
+attribute with very large size (e.g., 0xffffff7f) while parsing MFT
+attributes. This could lead to out-of-bound memory R/W if we try to
+access the next attribute derived by Add2Ptr(attr, asize)
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Andreas Herrmann <aherrmann@suse.de>
-Acked-by: Tejun Heo <tj@kernel.org>
-Link: https://lore.kernel.org/r/20220921180501.1539876-13-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Stable-dep-of: 813e693023ba ("blk-iolatency: Fix memory leak on add_disk() failures")
+[   32.963847] BUG: unable to handle page fault for address: ffff956a83c76067
+[   32.964301] #PF: supervisor read access in kernel mode
+[   32.964526] #PF: error_code(0x0000) - not-present page
+[   32.964893] PGD 4dc01067 P4D 4dc01067 PUD 0
+[   32.965316] Oops: 0000 [#1] PREEMPT SMP NOPTI
+[   32.965727] CPU: 0 PID: 243 Comm: mount Not tainted 5.19.0+ #6
+[   32.966050] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+[   32.966628] RIP: 0010:mi_enum_attr+0x44/0x110
+[   32.967239] Code: 89 f0 48 29 c8 48 89 c1 39 c7 0f 86 94 00 00 00 8b 56 04 83 fa 17 0f 86 88 00 00 00 89 d0 01 ca 48 01 f0 8d 4a 08 39 f9a
+[   32.968101] RSP: 0018:ffffba15c06a7c38 EFLAGS: 00000283
+[   32.968364] RAX: ffff956a83c76067 RBX: ffff956983c76050 RCX: 000000000000006f
+[   32.968651] RDX: 0000000000000067 RSI: ffff956983c760e8 RDI: 00000000000001c8
+[   32.968963] RBP: ffffba15c06a7c38 R08: 0000000000000064 R09: 00000000ffffff7f
+[   32.969249] R10: 0000000000000007 R11: ffff956983c760e8 R12: ffff95698225e000
+[   32.969870] R13: 0000000000000000 R14: ffffba15c06a7cd8 R15: ffff95698225e170
+[   32.970655] FS:  00007fdab8189e40(0000) GS:ffff9569fdc00000(0000) knlGS:0000000000000000
+[   32.971098] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   32.971378] CR2: ffff956a83c76067 CR3: 0000000002c58000 CR4: 00000000000006f0
+[   32.972098] Call Trace:
+[   32.972842]  <TASK>
+[   32.973341]  ni_enum_attr_ex+0xda/0xf0
+[   32.974087]  ntfs_iget5+0x1db/0xde0
+[   32.974386]  ? slab_post_alloc_hook+0x53/0x270
+[   32.974778]  ? ntfs_fill_super+0x4c7/0x12a0
+[   32.975115]  ntfs_fill_super+0x5d6/0x12a0
+[   32.975336]  get_tree_bdev+0x175/0x270
+[   32.975709]  ? put_ntfs+0x150/0x150
+[   32.975956]  ntfs_fs_get_tree+0x15/0x20
+[   32.976191]  vfs_get_tree+0x2a/0xc0
+[   32.976374]  ? capable+0x19/0x20
+[   32.976572]  path_mount+0x484/0xaa0
+[   32.977025]  ? putname+0x57/0x70
+[   32.977380]  do_mount+0x80/0xa0
+[   32.977555]  __x64_sys_mount+0x8b/0xe0
+[   32.978105]  do_syscall_64+0x3b/0x90
+[   32.978830]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[   32.979311] RIP: 0033:0x7fdab72e948a
+[   32.980015] Code: 48 8b 0d 11 fa 2a 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 008
+[   32.981251] RSP: 002b:00007ffd15b87588 EFLAGS: 00000206 ORIG_RAX: 00000000000000a5
+[   32.981832] RAX: ffffffffffffffda RBX: 0000557de0aaf060 RCX: 00007fdab72e948a
+[   32.982234] RDX: 0000557de0aaf260 RSI: 0000557de0aaf2e0 RDI: 0000557de0ab7ce0
+[   32.982714] RBP: 0000000000000000 R08: 0000557de0aaf280 R09: 0000000000000020
+[   32.983046] R10: 00000000c0ed0000 R11: 0000000000000206 R12: 0000557de0ab7ce0
+[   32.983494] R13: 0000557de0aaf260 R14: 0000000000000000 R15: 00000000ffffffff
+[   32.984094]  </TASK>
+[   32.984352] Modules linked in:
+[   32.984753] CR2: ffff956a83c76067
+[   32.985911] ---[ end trace 0000000000000000 ]---
+[   32.986555] RIP: 0010:mi_enum_attr+0x44/0x110
+[   32.987217] Code: 89 f0 48 29 c8 48 89 c1 39 c7 0f 86 94 00 00 00 8b 56 04 83 fa 17 0f 86 88 00 00 00 89 d0 01 ca 48 01 f0 8d 4a 08 39 f9a
+[   32.988232] RSP: 0018:ffffba15c06a7c38 EFLAGS: 00000283
+[   32.988532] RAX: ffff956a83c76067 RBX: ffff956983c76050 RCX: 000000000000006f
+[   32.988916] RDX: 0000000000000067 RSI: ffff956983c760e8 RDI: 00000000000001c8
+[   32.989356] RBP: ffffba15c06a7c38 R08: 0000000000000064 R09: 00000000ffffff7f
+[   32.989994] R10: 0000000000000007 R11: ffff956983c760e8 R12: ffff95698225e000
+[   32.990415] R13: 0000000000000000 R14: ffffba15c06a7cd8 R15: ffff95698225e170
+[   32.991011] FS:  00007fdab8189e40(0000) GS:ffff9569fdc00000(0000) knlGS:0000000000000000
+[   32.991524] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   32.991936] CR2: ffff956a83c76067 CR3: 0000000002c58000 CR4: 00000000000006f0
+
+This patch adds an overflow check
+
+Signed-off-by: edward lo <edward.lo@ambergroup.io>
+Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-cgroup.c   | 6 +++---
- block/blk-throttle.c | 7 +++++--
- block/blk-throttle.h | 8 ++++----
- 3 files changed, 12 insertions(+), 9 deletions(-)
+ fs/ntfs3/record.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
-index 4943f36d8a84..afe802e1180f 100644
---- a/block/blk-cgroup.c
-+++ b/block/blk-cgroup.c
-@@ -1277,7 +1277,7 @@ int blkcg_init_disk(struct gendisk *disk)
- 	if (ret)
- 		goto err_destroy_all;
+diff --git a/fs/ntfs3/record.c b/fs/ntfs3/record.c
+index 7d2fac5ee215..9f81944441ae 100644
+--- a/fs/ntfs3/record.c
++++ b/fs/ntfs3/record.c
+@@ -220,6 +220,11 @@ struct ATTRIB *mi_enum_attr(struct mft_inode *mi, struct ATTRIB *attr)
+ 			return NULL;
+ 		}
  
--	ret = blk_throtl_init(q);
-+	ret = blk_throtl_init(disk);
- 	if (ret)
- 		goto err_ioprio_exit;
- 
-@@ -1288,7 +1288,7 @@ int blkcg_init_disk(struct gendisk *disk)
- 	return 0;
- 
- err_throtl_exit:
--	blk_throtl_exit(q);
-+	blk_throtl_exit(disk);
- err_ioprio_exit:
- 	blk_ioprio_exit(q);
- err_destroy_all:
-@@ -1304,7 +1304,7 @@ int blkcg_init_disk(struct gendisk *disk)
- void blkcg_exit_disk(struct gendisk *disk)
- {
- 	blkg_destroy_all(disk->queue);
--	blk_throtl_exit(disk->queue);
-+	blk_throtl_exit(disk);
- }
- 
- static void blkcg_bind(struct cgroup_subsys_state *root_css)
-diff --git a/block/blk-throttle.c b/block/blk-throttle.c
-index 35cf744ea9d1..f84a6ed440c9 100644
---- a/block/blk-throttle.c
-+++ b/block/blk-throttle.c
-@@ -2276,8 +2276,9 @@ void blk_throtl_bio_endio(struct bio *bio)
- }
- #endif
- 
--int blk_throtl_init(struct request_queue *q)
-+int blk_throtl_init(struct gendisk *disk)
- {
-+	struct request_queue *q = disk->queue;
- 	struct throtl_data *td;
- 	int ret;
- 
-@@ -2319,8 +2320,10 @@ int blk_throtl_init(struct request_queue *q)
- 	return ret;
- }
- 
--void blk_throtl_exit(struct request_queue *q)
-+void blk_throtl_exit(struct gendisk *disk)
- {
-+	struct request_queue *q = disk->queue;
++		if (off + asize < off) {
++			/* overflow check */
++			return NULL;
++		}
 +
- 	BUG_ON(!q->td);
- 	del_timer_sync(&q->td->service_queue.pending_timer);
- 	throtl_shutdown_wq(q);
-diff --git a/block/blk-throttle.h b/block/blk-throttle.h
-index ee7299e6dea9..e8c2b3d4a18b 100644
---- a/block/blk-throttle.h
-+++ b/block/blk-throttle.h
-@@ -159,14 +159,14 @@ static inline struct throtl_grp *blkg_to_tg(struct blkcg_gq *blkg)
-  * Internal throttling interface
-  */
- #ifndef CONFIG_BLK_DEV_THROTTLING
--static inline int blk_throtl_init(struct request_queue *q) { return 0; }
--static inline void blk_throtl_exit(struct request_queue *q) { }
-+static inline int blk_throtl_init(struct gendisk *disk) { return 0; }
-+static inline void blk_throtl_exit(struct gendisk *disk) { }
- static inline void blk_throtl_register_queue(struct request_queue *q) { }
- static inline bool blk_throtl_bio(struct bio *bio) { return false; }
- static inline void blk_throtl_cancel_bios(struct request_queue *q) { }
- #else /* CONFIG_BLK_DEV_THROTTLING */
--int blk_throtl_init(struct request_queue *q);
--void blk_throtl_exit(struct request_queue *q);
-+int blk_throtl_init(struct gendisk *disk);
-+void blk_throtl_exit(struct gendisk *disk);
- void blk_throtl_register_queue(struct request_queue *q);
- bool __blk_throtl_bio(struct bio *bio);
- void blk_throtl_cancel_bios(struct request_queue *q);
+ 		attr = Add2Ptr(attr, asize);
+ 		off += asize;
+ 	}
 -- 
 2.35.1
 
