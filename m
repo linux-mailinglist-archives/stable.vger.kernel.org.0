@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6E1465B020
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 11:57:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16FAD65B021
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 11:57:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232801AbjABK46 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 05:56:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58822 "EHLO
+        id S232036AbjABK47 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 05:56:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232835AbjABK43 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 05:56:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2B871123
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 02:55:16 -0800 (PST)
+        with ESMTP id S232866AbjABK4b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 05:56:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5D6E60EE
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 02:55:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9AC8CB80D06
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 10:55:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE7B6C433F0;
-        Mon,  2 Jan 2023 10:55:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 88C6AB80D08
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 10:55:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB6AFC433D2;
+        Mon,  2 Jan 2023 10:55:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672656914;
-        bh=Habv4ibJoS00gz1Qk+ifqlnHvrMZ1clsY3Qjo0Z0DxQ=;
+        s=korg; t=1672656942;
+        bh=YOnTgbXt6kO0nd8B2R0vs8V8bdd77fG1jvk67O+w0r8=;
         h=Subject:To:Cc:From:Date:From;
-        b=N8lfKwGyMxbBrEHff45ZqJdpXQ7RBxEcebuawSdPWwdKHpPsYIoMVCaEZMPZdd0Si
-         Ea5egCLCy8j7YPBtHBdKG4Rlu5Sf+n1BglYcg0HRhAX6x5dardWXrC6piJ2tcjOJiS
-         KyTmavQh3t6na/aA++UCu1d4W1IPch2cEE2qSjDk=
-Subject: FAILED: patch "[PATCH] f2fs: allow to read node block after shutdown" failed to apply to 5.4-stable tree
-To:     jaegeuk@kernel.org, chao@kernel.org
+        b=XkrZMAzQle/oWSBM9U+Yu0f0Gj0sg/4jssrNSiln3eqzAPnvsGmfo/LzbIlzrrvHL
+         TdUqenMDE/hzsUjpMqPqltrf60GDYVglSxY8JZF7Wf7KsRSiRAwFGKEmCZ8xU9IOUu
+         wCmJz2V66VTXiK4mk9hP65jb+a45wxiU0bjgtzVk=
+Subject: FAILED: patch "[PATCH] block: Do not reread partition table on exclusively open" failed to apply to 5.15-stable tree
+To:     jack@suse.cz, axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 02 Jan 2023 11:55:03 +0100
-Message-ID: <1672656903124130@kroah.com>
+Date:   Mon, 02 Jan 2023 11:55:39 +0100
+Message-ID: <1672656939245181@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,15 +47,33 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-e6ecb1424291 ("f2fs: allow to read node block after shutdown")
-b7ec2061737f ("f2fs: do not submit NEW_ADDR to read node block")
+36369f46e917 ("block: Do not reread partition table on exclusively open device")
+704b914f15fb ("blk-mq: move srcu from blk_mq_hw_ctx to request_queue")
+2a904d00855f ("blk-mq: remove hctx_lock and hctx_unlock")
+1e9c23034d7b ("blk-mq: move more plug handling from blk_mq_submit_bio into blk_add_rq_to_plug")
+0c5bcc92d94a ("blk-mq: simplify the plug handling in blk_mq_submit_bio")
+e16e506ccd67 ("block: merge disk_scan_partitions and blkdev_reread_part")
+95febeb61bf8 ("block: fix missing queue put in error path")
+b637108a4022 ("blk-mq: fix filesystem I/O request allocation")
+b131f2011115 ("blk-mq: rename blk_attempt_bio_merge")
+9ef4d0209cba ("blk-mq: add one API for waiting until quiesce is done")
+900e08075202 ("block: move queue enter logic into blk_mq_submit_bio()")
+c98cb5bbdab1 ("block: make bio_queue_enter() fast-path available inline")
+71539717c105 ("block: split request allocation components into helpers")
+a1cb65377e70 ("blk-mq: only try to run plug merge if request has same queue with incoming bio")
+781dd830ec4f ("block: move RQF_ELV setting into allocators")
+a2247f19ee1c ("block: Add independent access ranges support")
+e94f68527a35 ("block: kill extra rcu lock/unlock in queue enter")
+179ae84f7ef5 ("block: clean up blk_mq_submit_bio() merging")
+a214b949d8e3 ("blk-mq: only flush requests from the plug in blk_mq_submit_bio")
+1497a51a3287 ("block: don't bloat enter_queue with percpu_ref")
 
 thanks,
 
@@ -63,31 +81,120 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e6ecb142429183cef4835f31d4134050ae660032 Mon Sep 17 00:00:00 2001
-From: Jaegeuk Kim <jaegeuk@kernel.org>
-Date: Tue, 8 Nov 2022 17:59:34 -0800
-Subject: [PATCH] f2fs: allow to read node block after shutdown
+From 36369f46e91785688a5f39d7a5590e3f07981316 Mon Sep 17 00:00:00 2001
+From: Jan Kara <jack@suse.cz>
+Date: Wed, 30 Nov 2022 18:56:53 +0100
+Subject: [PATCH] block: Do not reread partition table on exclusively open
+ device
 
-If block address is still alive, we should give a valid node block even after
-shutdown. Otherwise, we can see zero data when reading out a file.
+Since commit 10c70d95c0f2 ("block: remove the bd_openers checks in
+blk_drop_partitions") we allow rereading of partition table although
+there are users of the block device. This has an undesirable consequence
+that e.g. if sda and sdb are assembled to a RAID1 device md0 with
+partitions, BLKRRPART ioctl on sda will rescan partition table and
+create sda1 device. This partition device under a raid device confuses
+some programs (such as libstorage-ng used for initial partitioning for
+distribution installation) leading to failures.
+
+Fix the problem refusing to rescan partitions if there is another user
+that has the block device exclusively open.
 
 Cc: stable@vger.kernel.org
-Fixes: 83a3bfdb5a8a ("f2fs: indicate shutdown f2fs to allow unmount successfully")
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Link: https://lore.kernel.org/all/20221130135344.2ul4cyfstfs3znxg@quack3
+Fixes: 10c70d95c0f2 ("block: remove the bd_openers checks in blk_drop_partitions")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20221130175653.24299-1-jack@suse.cz
+[axboe: fold in followup fix]
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
-index 983572f23896..b9ee5a1176a0 100644
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -1360,8 +1360,7 @@ static int read_node_page(struct page *page, blk_opf_t op_flags)
- 		return err;
+diff --git a/block/blk.h b/block/blk.h
+index a8ac9803fcb3..8900001946c7 100644
+--- a/block/blk.h
++++ b/block/blk.h
+@@ -426,7 +426,7 @@ int bio_add_hw_page(struct request_queue *q, struct bio *bio,
  
- 	/* NEW_ADDR can be seen, after cp_error drops some dirty node pages */
--	if (unlikely(ni.blk_addr == NULL_ADDR || ni.blk_addr == NEW_ADDR) ||
--			is_sbi_flag_set(sbi, SBI_IS_SHUTDOWN)) {
-+	if (unlikely(ni.blk_addr == NULL_ADDR || ni.blk_addr == NEW_ADDR)) {
- 		ClearPageUptodate(page);
- 		return -ENOENT;
+ struct request_queue *blk_alloc_queue(int node_id);
+ 
+-int disk_scan_partitions(struct gendisk *disk, fmode_t mode);
++int disk_scan_partitions(struct gendisk *disk, fmode_t mode, void *owner);
+ 
+ int disk_alloc_events(struct gendisk *disk);
+ void disk_add_events(struct gendisk *disk);
+diff --git a/block/genhd.c b/block/genhd.c
+index 075d8da284f5..52d71a94a809 100644
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -356,7 +356,7 @@ void disk_uevent(struct gendisk *disk, enum kobject_action action)
+ }
+ EXPORT_SYMBOL_GPL(disk_uevent);
+ 
+-int disk_scan_partitions(struct gendisk *disk, fmode_t mode)
++int disk_scan_partitions(struct gendisk *disk, fmode_t mode, void *owner)
+ {
+ 	struct block_device *bdev;
+ 
+@@ -366,6 +366,9 @@ int disk_scan_partitions(struct gendisk *disk, fmode_t mode)
+ 		return -EINVAL;
+ 	if (disk->open_partitions)
+ 		return -EBUSY;
++	/* Someone else has bdev exclusively open? */
++	if (disk->part0->bd_holder && disk->part0->bd_holder != owner)
++		return -EBUSY;
+ 
+ 	set_bit(GD_NEED_PART_SCAN, &disk->state);
+ 	bdev = blkdev_get_by_dev(disk_devt(disk), mode, NULL);
+@@ -495,7 +498,7 @@ int __must_check device_add_disk(struct device *parent, struct gendisk *disk,
+ 
+ 		bdev_add(disk->part0, ddev->devt);
+ 		if (get_capacity(disk))
+-			disk_scan_partitions(disk, FMODE_READ);
++			disk_scan_partitions(disk, FMODE_READ, NULL);
+ 
+ 		/*
+ 		 * Announce the disk and partitions after all partitions are
+diff --git a/block/ioctl.c b/block/ioctl.c
+index 60121e89052b..96617512982e 100644
+--- a/block/ioctl.c
++++ b/block/ioctl.c
+@@ -467,9 +467,10 @@ static int blkdev_bszset(struct block_device *bdev, fmode_t mode,
+  * user space. Note the separate arg/argp parameters that are needed
+  * to deal with the compat_ptr() conversion.
+  */
+-static int blkdev_common_ioctl(struct block_device *bdev, fmode_t mode,
+-				unsigned cmd, unsigned long arg, void __user *argp)
++static int blkdev_common_ioctl(struct file *file, fmode_t mode, unsigned cmd,
++			       unsigned long arg, void __user *argp)
+ {
++	struct block_device *bdev = I_BDEV(file->f_mapping->host);
+ 	unsigned int max_sectors;
+ 
+ 	switch (cmd) {
+@@ -527,7 +528,8 @@ static int blkdev_common_ioctl(struct block_device *bdev, fmode_t mode,
+ 			return -EACCES;
+ 		if (bdev_is_partition(bdev))
+ 			return -EINVAL;
+-		return disk_scan_partitions(bdev->bd_disk, mode & ~FMODE_EXCL);
++		return disk_scan_partitions(bdev->bd_disk, mode & ~FMODE_EXCL,
++					    file);
+ 	case BLKTRACESTART:
+ 	case BLKTRACESTOP:
+ 	case BLKTRACETEARDOWN:
+@@ -605,7 +607,7 @@ long blkdev_ioctl(struct file *file, unsigned cmd, unsigned long arg)
+ 		break;
  	}
+ 
+-	ret = blkdev_common_ioctl(bdev, mode, cmd, arg, argp);
++	ret = blkdev_common_ioctl(file, mode, cmd, arg, argp);
+ 	if (ret != -ENOIOCTLCMD)
+ 		return ret;
+ 
+@@ -674,7 +676,7 @@ long compat_blkdev_ioctl(struct file *file, unsigned cmd, unsigned long arg)
+ 		break;
+ 	}
+ 
+-	ret = blkdev_common_ioctl(bdev, mode, cmd, arg, argp);
++	ret = blkdev_common_ioctl(file, mode, cmd, arg, argp);
+ 	if (ret == -ENOIOCTLCMD && disk->fops->compat_ioctl)
+ 		ret = disk->fops->compat_ioctl(bdev, mode, cmd, arg);
+ 
 
