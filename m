@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F9A365B0E3
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:29:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 109A865B0E4
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:29:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236081AbjABL3C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:29:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45624 "EHLO
+        id S236082AbjABL3D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:29:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232791AbjABL2h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:28:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE4A46415
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:27:44 -0800 (PST)
+        with ESMTP id S230196AbjABL2k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:28:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 952CF642C
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:27:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9990BB80D1C
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:27:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F30F9C433EF;
-        Mon,  2 Jan 2023 11:27:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 46AADB80CA9
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:27:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84C91C433EF;
+        Mon,  2 Jan 2023 11:27:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658862;
-        bh=2/sFbHrCj3NlH5vF336h/jLVbSPWzPw+XeJo6x2lkzU=;
+        s=korg; t=1672658864;
+        bh=Ave0BWR58ucrW6IBabMhHfJ3XoGXNCRHFJsTB6yzjno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fPtpL8AeXAbVLd98PTLr+nfNSqMTl16nTR6qR1W96qvF9IfHjsp3DIijXMX3i6p0W
-         6jXfJKN8iLvbpaqi1VfbzbeBlPBx/Tj+HlbA4BWhfL3l4DRsgvXogmDrcB6zWGokar
-         72TtKyPRKLS6QOeCnahxY2Rs/r3Pu7upl4EXiRJ8=
+        b=x2wREjTzVTHPzZQY9jiJJCSEYHQfzoFUlG0t4A18ces5sHJa0Aq0KQZeWQ402vpRL
+         iTrwR8PqBLv9aUcaUgv4c7ei1XQaanZAV16hpVpupxklpCpPWCCXMiCfWleI/dbBPo
+         kT9h1i6OlMfFdxOxo2W3dvSALy4bFmdocgHK71WI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+9d67170b20e8f94351c8@syzkaller.appspotmail.com,
-        Shigeru Yoshida <syoshida@redhat.com>,
+        patches@lists.linux.dev, Edward Lo <edward.lo@ambergroup.io>,
         Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 27/74] fs/ntfs3: Fix memory leak on ntfs_fill_super() error path
-Date:   Mon,  2 Jan 2023 12:22:00 +0100
-Message-Id: <20230102110553.228063969@linuxfoundation.org>
+Subject: [PATCH 6.0 28/74] fs/ntfs3: Add null pointer check for inode operations
+Date:   Mon,  2 Jan 2023 12:22:01 +0100
+Message-Id: <20230102110553.268891748@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
 References: <20230102110552.061937047@linuxfoundation.org>
@@ -55,48 +53,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shigeru Yoshida <syoshida@redhat.com>
+From: Edward Lo <edward.lo@ambergroup.io>
 
-[ Upstream commit 51e76a232f8c037f1d9e9922edc25b003d5f3414 ]
+[ Upstream commit c1ca8ef0262b25493631ecbd9cb8c9893e1481a1 ]
 
-syzbot reported kmemleak as below:
+This adds a sanity check for the i_op pointer of the inode which is
+returned after reading Root directory MFT record. We should check the
+i_op is valid before trying to create the root dentry, otherwise we may
+encounter a NPD while mounting a image with a funny Root directory MFT
+record.
 
-BUG: memory leak
-unreferenced object 0xffff8880122f1540 (size 32):
-  comm "a.out", pid 6664, jiffies 4294939771 (age 25.500s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 ed ff ed ff 00 00 00 00  ................
-  backtrace:
-    [<ffffffff81b16052>] ntfs_init_fs_context+0x22/0x1c0
-    [<ffffffff8164aaa7>] alloc_fs_context+0x217/0x430
-    [<ffffffff81626dd4>] path_mount+0x704/0x1080
-    [<ffffffff81627e7c>] __x64_sys_mount+0x18c/0x1d0
-    [<ffffffff84593e14>] do_syscall_64+0x34/0xb0
-    [<ffffffff84600087>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[  114.484325] BUG: kernel NULL pointer dereference, address: 0000000000000008
+[  114.484811] #PF: supervisor read access in kernel mode
+[  114.485084] #PF: error_code(0x0000) - not-present page
+[  114.485606] PGD 0 P4D 0
+[  114.485975] Oops: 0000 [#1] PREEMPT SMP KASAN NOPTI
+[  114.486570] CPU: 0 PID: 237 Comm: mount Tainted: G    B              6.0.0-rc4 #28
+[  114.486977] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+[  114.488169] RIP: 0010:d_flags_for_inode+0xe0/0x110
+[  114.488816] Code: 24 f7 ff 49 83 3e 00 74 41 41 83 cd 02 66 44 89 6b 02 eb 92 48 8d 7b 20 e8 6d 24 f7 ff 4c 8b 73 20 49 8d 7e 08 e8 60 241
+[  114.490326] RSP: 0018:ffff8880065e7aa8 EFLAGS: 00000296
+[  114.490695] RAX: 0000000000000001 RBX: ffff888008ccd750 RCX: ffffffff84af2aea
+[  114.490986] RDX: 0000000000000001 RSI: 0000000000000008 RDI: ffffffff87abd020
+[  114.491364] RBP: ffff8880065e7ac8 R08: 0000000000000001 R09: fffffbfff0f57a05
+[  114.491675] R10: ffffffff87abd027 R11: fffffbfff0f57a04 R12: 0000000000000000
+[  114.491954] R13: 0000000000000008 R14: 0000000000000000 R15: ffff888008ccd750
+[  114.492397] FS:  00007fdc8a627e40(0000) GS:ffff888058200000(0000) knlGS:0000000000000000
+[  114.492797] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  114.493150] CR2: 0000000000000008 CR3: 00000000013ba000 CR4: 00000000000006f0
+[  114.493671] Call Trace:
+[  114.493890]  <TASK>
+[  114.494075]  __d_instantiate+0x24/0x1c0
+[  114.494505]  d_instantiate.part.0+0x35/0x50
+[  114.494754]  d_make_root+0x53/0x80
+[  114.494998]  ntfs_fill_super+0x1232/0x1b50
+[  114.495260]  ? put_ntfs+0x1d0/0x1d0
+[  114.495499]  ? vsprintf+0x20/0x20
+[  114.495723]  ? set_blocksize+0x95/0x150
+[  114.495964]  get_tree_bdev+0x232/0x370
+[  114.496272]  ? put_ntfs+0x1d0/0x1d0
+[  114.496502]  ntfs_fs_get_tree+0x15/0x20
+[  114.496859]  vfs_get_tree+0x4c/0x130
+[  114.497099]  path_mount+0x654/0xfe0
+[  114.497507]  ? putname+0x80/0xa0
+[  114.497933]  ? finish_automount+0x2e0/0x2e0
+[  114.498362]  ? putname+0x80/0xa0
+[  114.498571]  ? kmem_cache_free+0x1c4/0x440
+[  114.498819]  ? putname+0x80/0xa0
+[  114.499069]  do_mount+0xd6/0xf0
+[  114.499343]  ? path_mount+0xfe0/0xfe0
+[  114.499683]  ? __kasan_check_write+0x14/0x20
+[  114.500133]  __x64_sys_mount+0xca/0x110
+[  114.500592]  do_syscall_64+0x3b/0x90
+[  114.500930]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[  114.501294] RIP: 0033:0x7fdc898e948a
+[  114.501542] Code: 48 8b 0d 11 fa 2a 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 008
+[  114.502716] RSP: 002b:00007ffd793e58f8 EFLAGS: 00000202 ORIG_RAX: 00000000000000a5
+[  114.503175] RAX: ffffffffffffffda RBX: 0000564b2228f060 RCX: 00007fdc898e948a
+[  114.503588] RDX: 0000564b2228f260 RSI: 0000564b2228f2e0 RDI: 0000564b22297ce0
+[  114.504925] RBP: 0000000000000000 R08: 0000564b2228f280 R09: 0000000000000020
+[  114.505484] R10: 00000000c0ed0000 R11: 0000000000000202 R12: 0000564b22297ce0
+[  114.505823] R13: 0000564b2228f260 R14: 0000000000000000 R15: 00000000ffffffff
+[  114.506562]  </TASK>
+[  114.506887] Modules linked in:
+[  114.507648] CR2: 0000000000000008
+[  114.508884] ---[ end trace 0000000000000000 ]---
+[  114.509675] RIP: 0010:d_flags_for_inode+0xe0/0x110
+[  114.510140] Code: 24 f7 ff 49 83 3e 00 74 41 41 83 cd 02 66 44 89 6b 02 eb 92 48 8d 7b 20 e8 6d 24 f7 ff 4c 8b 73 20 49 8d 7e 08 e8 60 241
+[  114.511762] RSP: 0018:ffff8880065e7aa8 EFLAGS: 00000296
+[  114.512401] RAX: 0000000000000001 RBX: ffff888008ccd750 RCX: ffffffff84af2aea
+[  114.513103] RDX: 0000000000000001 RSI: 0000000000000008 RDI: ffffffff87abd020
+[  114.513512] RBP: ffff8880065e7ac8 R08: 0000000000000001 R09: fffffbfff0f57a05
+[  114.513831] R10: ffffffff87abd027 R11: fffffbfff0f57a04 R12: 0000000000000000
+[  114.514757] R13: 0000000000000008 R14: 0000000000000000 R15: ffff888008ccd750
+[  114.515411] FS:  00007fdc8a627e40(0000) GS:ffff888058200000(0000) knlGS:0000000000000000
+[  114.515794] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  114.516208] CR2: 0000000000000008 CR3: 00000000013ba000 CR4: 00000000000006f0
 
-This patch fixes this issue by freeing mount options on error path of
-ntfs_fill_super().
-
-Reported-by: syzbot+9d67170b20e8f94351c8@syzkaller.appspotmail.com
-Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Signed-off-by: Edward Lo <edward.lo@ambergroup.io>
 Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/super.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/ntfs3/super.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/fs/ntfs3/super.c b/fs/ntfs3/super.c
-index a0cea3b7526e..170682c2bf67 100644
+index 170682c2bf67..94f9e4b775a7 100644
 --- a/fs/ntfs3/super.c
 +++ b/fs/ntfs3/super.c
-@@ -1281,6 +1281,7 @@ static int ntfs_fill_super(struct super_block *sb, struct fs_context *fc)
- 	 * Free resources here.
- 	 * ntfs_fs_free will be called with fc->s_fs_info = NULL
- 	 */
-+	put_mount_options(sbi->options);
- 	put_ntfs(sbi);
- 	sb->s_fs_info = NULL;
+@@ -1260,9 +1260,9 @@ static int ntfs_fill_super(struct super_block *sb, struct fs_context *fc)
+ 	ref.low = cpu_to_le32(MFT_REC_ROOT);
+ 	ref.seq = cpu_to_le16(MFT_REC_ROOT);
+ 	inode = ntfs_iget5(sb, &ref, &NAME_ROOT);
+-	if (IS_ERR(inode)) {
++	if (IS_ERR(inode) || !inode->i_op) {
+ 		ntfs_err(sb, "Failed to load root.");
+-		err = PTR_ERR(inode);
++		err = IS_ERR(inode) ? PTR_ERR(inode) : -EINVAL;
+ 		goto out;
+ 	}
  
 -- 
 2.35.1
