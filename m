@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BFFF65B013
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 11:54:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B512265B012
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 11:54:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232842AbjABKy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 05:54:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51554 "EHLO
+        id S232786AbjABKyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 05:54:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232854AbjABKyL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 05:54:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26CA76569
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 02:52:57 -0800 (PST)
+        with ESMTP id S232791AbjABKyH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 05:54:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0091765A6
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 02:52:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD17660DF0
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 10:52:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1F05C433D2;
-        Mon,  2 Jan 2023 10:52:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA245B80CCA
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 10:52:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F9CBC433EF;
+        Mon,  2 Jan 2023 10:52:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672656767;
-        bh=3xZAeqn6pWW2ymgM009ejnK1sWYhdyg1qbC96AQQwNM=;
+        s=korg; t=1672656770;
+        bh=4eiZLyqF0HDiDPLnyRc66VTDcdlQpbC92gSySFjZVT8=;
         h=Subject:To:Cc:From:Date:From;
-        b=dmJjju5jIKiVAAnzZdntXscLfjRU7vUkZ6AohUZ+oP6u5NoDle122YjBzbNp6hNfh
-         coljs+7mV+bIhNS5dpUCXawrSD1lG/9COlyfxHuGvaztpALfnP4BsX2Ks5Au7ckoC4
-         T52M4+sreD58xGTtgUDEA7jeOgg+oU6Bn1Mf1Rqc=
-Subject: FAILED: patch "[PATCH] ALSA: hda/realtek: Apply dual codec fixup for Dell Latitude" failed to apply to 6.1-stable tree
+        b=oEdH6w978wRu/mYzfEjytGzeOPorTti3fv5+Mn2n+onbYiKMbPhr0EubQ6VUu5fRi
+         HnguAzsPYirKUExGBExkW7oJFbfq32BeZ+mb95DVyo+kmrTkowcOgJ6CskKnbpQ4XY
+         svpmnvHhQnPOg3K2xaU8G1SEZ9Sy9opfj3BTJ/f0=
+Subject: FAILED: patch "[PATCH] ALSA: hda/realtek: Apply dual codec fixup for Dell Latitude" failed to apply to 6.0-stable tree
 To:     chris.chiu@canonical.com, stable@vger.kernel.org, tiwai@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 02 Jan 2023 11:52:44 +0100
-Message-ID: <1672656764155218@kroah.com>
+Date:   Mon, 02 Jan 2023 11:52:45 +0100
+Message-ID: <167265676516211@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
