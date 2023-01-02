@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B261565B0D5
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:28:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45D2065B090
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:26:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232903AbjABL2m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:28:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46066 "EHLO
+        id S232819AbjABLZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:25:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232740AbjABL17 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:27:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C35596339
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:27:08 -0800 (PST)
+        with ESMTP id S232603AbjABLZV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:25:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B52364E8
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:24:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7730DB80D13
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:27:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAD07C433D2;
-        Mon,  2 Jan 2023 11:27:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BCD3560F57
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:24:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D26BFC433EF;
+        Mon,  2 Jan 2023 11:24:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658826;
-        bh=fsspzV8k+e7z6w6UrR/mBf/vzMpuXsMDC4eAprfOQ/Q=;
+        s=korg; t=1672658659;
+        bh=mu54Xusiy5/W9RAjGszJFENqdsjPf3EFwtWsBKZipx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1b4MDr2U24+IYgPpbp8ZWxTwa8OKTKAWN9zuD2pd0Kb4haJyVGrBI4Q/GKubo4mB0
-         TTdh5UIVoCc4x/nWXuVgL5V9g+HB5Yrq6DQtuMvZspvAOU41pQ5eukW8p3WXIvM4Co
-         MBzqH5RNnRqqkB1RInWzN52SFUTw74PIJPuLU6zI=
+        b=tVPnbn1uvBdeLniAFovbgIh0g0K3I2LvQgkSayls6hwLkwWL3AgaxE25cxQl52Khc
+         gmA59NnRHFUiDHvO7vrLvPm4P+sSDp9PLc2YBsYl5G69mh2Fk2xNGb7DgMSGKdVeSb
+         lDopAMvT6SpfT+EcUdM6PVTZIoe5uJP9C8WtV47E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Keith Busch <kbusch@kernel.org>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 14/74] nvme-pci: fix page size checks
+        patches@lists.linux.dev, Edward Lo <edward.lo@ambergroup.io>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 22/71] fs/ntfs3: Validate buffer length while parsing index
 Date:   Mon,  2 Jan 2023 12:21:47 +0100
-Message-Id: <20230102110552.645725306@linuxfoundation.org>
+Message-Id: <20230102110552.375325609@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
-References: <20230102110552.061937047@linuxfoundation.org>
+In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
+References: <20230102110551.509937186@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,61 +53,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <kbusch@kernel.org>
+From: Edward Lo <edward.lo@ambergroup.io>
 
-[ Upstream commit 841734234a28fd5cd0889b84bd4d93a0988fa11e ]
+[ Upstream commit 4d42ecda239cc13738d6fd84d098a32e67b368b9 ]
 
-The size allocated out of the dma pool is at most NVME_CTRL_PAGE_SIZE,
-which may be smaller than the PAGE_SIZE.
+indx_read is called when we have some NTFS directory operations that
+need more information from the index buffers. This adds a sanity check
+to make sure the returned index buffer length is legit, or we may have
+some out-of-bound memory accesses.
 
-Fixes: c61b82c7b7134 ("nvme-pci: fix PRP pool size")
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+[  560.897595] BUG: KASAN: slab-out-of-bounds in hdr_find_e.isra.0+0x10c/0x320
+[  560.898321] Read of size 2 at addr ffff888009497238 by task exp/245
+[  560.898760]
+[  560.899129] CPU: 0 PID: 245 Comm: exp Not tainted 6.0.0-rc6 #37
+[  560.899505] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+[  560.900170] Call Trace:
+[  560.900407]  <TASK>
+[  560.900732]  dump_stack_lvl+0x49/0x63
+[  560.901108]  print_report.cold+0xf5/0x689
+[  560.901395]  ? hdr_find_e.isra.0+0x10c/0x320
+[  560.901716]  kasan_report+0xa7/0x130
+[  560.901950]  ? hdr_find_e.isra.0+0x10c/0x320
+[  560.902208]  __asan_load2+0x68/0x90
+[  560.902427]  hdr_find_e.isra.0+0x10c/0x320
+[  560.902846]  ? cmp_uints+0xe0/0xe0
+[  560.903363]  ? cmp_sdh+0x90/0x90
+[  560.903883]  ? ntfs_bread_run+0x190/0x190
+[  560.904196]  ? rwsem_down_read_slowpath+0x750/0x750
+[  560.904969]  ? ntfs_fix_post_read+0xe0/0x130
+[  560.905259]  ? __kasan_check_write+0x14/0x20
+[  560.905599]  ? up_read+0x1a/0x90
+[  560.905853]  ? indx_read+0x22c/0x380
+[  560.906096]  indx_find+0x2ef/0x470
+[  560.906352]  ? indx_find_buffer+0x2d0/0x2d0
+[  560.906692]  ? __kasan_kmalloc+0x88/0xb0
+[  560.906977]  dir_search_u+0x196/0x2f0
+[  560.907220]  ? ntfs_nls_to_utf16+0x450/0x450
+[  560.907464]  ? __kasan_check_write+0x14/0x20
+[  560.907747]  ? mutex_lock+0x8f/0xe0
+[  560.907970]  ? __mutex_lock_slowpath+0x20/0x20
+[  560.908214]  ? kmem_cache_alloc+0x143/0x4b0
+[  560.908459]  ntfs_lookup+0xe0/0x100
+[  560.908788]  __lookup_slow+0x116/0x220
+[  560.909050]  ? lookup_fast+0x1b0/0x1b0
+[  560.909309]  ? lookup_fast+0x13f/0x1b0
+[  560.909601]  walk_component+0x187/0x230
+[  560.909944]  link_path_walk.part.0+0x3f0/0x660
+[  560.910285]  ? handle_lookup_down+0x90/0x90
+[  560.910618]  ? path_init+0x642/0x6e0
+[  560.911084]  ? percpu_counter_add_batch+0x6e/0xf0
+[  560.912559]  ? __alloc_file+0x114/0x170
+[  560.913008]  path_openat+0x19c/0x1d10
+[  560.913419]  ? getname_flags+0x73/0x2b0
+[  560.913815]  ? kasan_save_stack+0x3a/0x50
+[  560.914125]  ? kasan_save_stack+0x26/0x50
+[  560.914542]  ? __kasan_slab_alloc+0x6d/0x90
+[  560.914924]  ? kmem_cache_alloc+0x143/0x4b0
+[  560.915339]  ? getname_flags+0x73/0x2b0
+[  560.915647]  ? getname+0x12/0x20
+[  560.916114]  ? __x64_sys_open+0x4c/0x60
+[  560.916460]  ? path_lookupat.isra.0+0x230/0x230
+[  560.916867]  ? __isolate_free_page+0x2e0/0x2e0
+[  560.917194]  do_filp_open+0x15c/0x1f0
+[  560.917448]  ? may_open_dev+0x60/0x60
+[  560.917696]  ? expand_files+0xa4/0x3a0
+[  560.917923]  ? __kasan_check_write+0x14/0x20
+[  560.918185]  ? _raw_spin_lock+0x88/0xdb
+[  560.918409]  ? _raw_spin_lock_irqsave+0x100/0x100
+[  560.918783]  ? _find_next_bit+0x4a/0x130
+[  560.919026]  ? _raw_spin_unlock+0x19/0x40
+[  560.919276]  ? alloc_fd+0x14b/0x2d0
+[  560.919635]  do_sys_openat2+0x32a/0x4b0
+[  560.920035]  ? file_open_root+0x230/0x230
+[  560.920336]  ? __rcu_read_unlock+0x5b/0x280
+[  560.920813]  do_sys_open+0x99/0xf0
+[  560.921208]  ? filp_open+0x60/0x60
+[  560.921482]  ? exit_to_user_mode_prepare+0x49/0x180
+[  560.921867]  __x64_sys_open+0x4c/0x60
+[  560.922128]  do_syscall_64+0x3b/0x90
+[  560.922369]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[  560.923030] RIP: 0033:0x7f7dff2e4469
+[  560.923681] Code: 00 f3 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 088
+[  560.924451] RSP: 002b:00007ffd41a210b8 EFLAGS: 00000206 ORIG_RAX: 0000000000000002
+[  560.925168] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f7dff2e4469
+[  560.925655] RDX: 0000000000000000 RSI: 0000000000000002 RDI: 00007ffd41a211f0
+[  560.926085] RBP: 00007ffd41a252a0 R08: 00007f7dff60fba0 R09: 00007ffd41a25388
+[  560.926405] R10: 0000000000400b80 R11: 0000000000000206 R12: 00000000004004e0
+[  560.926867] R13: 00007ffd41a25380 R14: 0000000000000000 R15: 0000000000000000
+[  560.927241]  </TASK>
+[  560.927491]
+[  560.927755] Allocated by task 245:
+[  560.928409]  kasan_save_stack+0x26/0x50
+[  560.929271]  __kasan_kmalloc+0x88/0xb0
+[  560.929778]  __kmalloc+0x192/0x320
+[  560.930023]  indx_read+0x249/0x380
+[  560.930224]  indx_find+0x2a2/0x470
+[  560.930695]  dir_search_u+0x196/0x2f0
+[  560.930892]  ntfs_lookup+0xe0/0x100
+[  560.931115]  __lookup_slow+0x116/0x220
+[  560.931323]  walk_component+0x187/0x230
+[  560.931570]  link_path_walk.part.0+0x3f0/0x660
+[  560.931791]  path_openat+0x19c/0x1d10
+[  560.932008]  do_filp_open+0x15c/0x1f0
+[  560.932226]  do_sys_openat2+0x32a/0x4b0
+[  560.932413]  do_sys_open+0x99/0xf0
+[  560.932709]  __x64_sys_open+0x4c/0x60
+[  560.933417]  do_syscall_64+0x3b/0x90
+[  560.933776]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[  560.934235]
+[  560.934486] The buggy address belongs to the object at ffff888009497000
+[  560.934486]  which belongs to the cache kmalloc-512 of size 512
+[  560.935239] The buggy address is located 56 bytes to the right of
+[  560.935239]  512-byte region [ffff888009497000, ffff888009497200)
+[  560.936153]
+[  560.937326] The buggy address belongs to the physical page:
+[  560.938228] page:0000000062a3dfae refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x9496
+[  560.939616] head:0000000062a3dfae order:1 compound_mapcount:0 compound_pincount:0
+[  560.940219] flags: 0xfffffc0010200(slab|head|node=0|zone=1|lastcpupid=0x1fffff)
+[  560.942702] raw: 000fffffc0010200 ffffea0000164f80 dead000000000005 ffff888001041c80
+[  560.943932] raw: 0000000000000000 0000000080080008 00000001ffffffff 0000000000000000
+[  560.944568] page dumped because: kasan: bad access detected
+[  560.945735]
+[  560.946112] Memory state around the buggy address:
+[  560.946870]  ffff888009497100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  560.947242]  ffff888009497180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  560.947611] >ffff888009497200: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  560.947915]                                         ^
+[  560.948249]  ffff888009497280: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  560.948687]  ffff888009497300: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+
+Signed-off-by: Edward Lo <edward.lo@ambergroup.io>
+Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/ntfs3/index.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index b128e2e36b68..529b424ef9b2 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -35,7 +35,7 @@
- #define SQ_SIZE(q)	((q)->q_depth << (q)->sqes)
- #define CQ_SIZE(q)	((q)->q_depth * sizeof(struct nvme_completion))
- 
--#define SGES_PER_PAGE	(PAGE_SIZE / sizeof(struct nvme_sgl_desc))
-+#define SGES_PER_PAGE	(NVME_CTRL_PAGE_SIZE / sizeof(struct nvme_sgl_desc))
- 
- /*
-  * These can be higher, but we need to ensure that any command doesn't
-@@ -380,7 +380,7 @@ static int nvme_pci_npages_prp(void)
- {
- 	unsigned max_bytes = (NVME_MAX_KB_SZ * 1024) + NVME_CTRL_PAGE_SIZE;
- 	unsigned nprps = DIV_ROUND_UP(max_bytes, NVME_CTRL_PAGE_SIZE);
--	return DIV_ROUND_UP(8 * nprps, PAGE_SIZE - 8);
-+	return DIV_ROUND_UP(8 * nprps, NVME_CTRL_PAGE_SIZE - 8);
- }
- 
- /*
-@@ -390,7 +390,7 @@ static int nvme_pci_npages_prp(void)
- static int nvme_pci_npages_sgl(void)
- {
- 	return DIV_ROUND_UP(NVME_MAX_SEGS * sizeof(struct nvme_sgl_desc),
--			PAGE_SIZE);
-+			NVME_CTRL_PAGE_SIZE);
- }
- 
- static size_t nvme_pci_iod_alloc_size(void)
-@@ -721,7 +721,7 @@ static void nvme_pci_sgl_set_seg(struct nvme_sgl_desc *sge,
- 		sge->length = cpu_to_le32(entries * sizeof(*sge));
- 		sge->type = NVME_SGL_FMT_LAST_SEG_DESC << 4;
- 	} else {
--		sge->length = cpu_to_le32(PAGE_SIZE);
-+		sge->length = cpu_to_le32(NVME_CTRL_PAGE_SIZE);
- 		sge->type = NVME_SGL_FMT_SEG_DESC << 4;
+diff --git a/fs/ntfs3/index.c b/fs/ntfs3/index.c
+index 440328147e7e..c27b4fe57513 100644
+--- a/fs/ntfs3/index.c
++++ b/fs/ntfs3/index.c
+@@ -1017,6 +1017,12 @@ int indx_read(struct ntfs_index *indx, struct ntfs_inode *ni, CLST vbn,
+ 		err = 0;
  	}
- }
+ 
++	/* check for index header length */
++	if (offsetof(struct INDEX_BUFFER, ihdr) + ib->ihdr.used > bytes) {
++		err = -EINVAL;
++		goto out;
++	}
++
+ 	in->index = ib;
+ 	*node = in;
+ 
 -- 
 2.35.1
 
