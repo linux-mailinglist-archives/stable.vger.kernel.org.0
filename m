@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61A0665B000
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 11:52:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61C4E65B002
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 11:52:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233051AbjABKwU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 05:52:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51928 "EHLO
+        id S232573AbjABKwV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 05:52:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232760AbjABKvi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 05:51:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B27B962EC
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 02:51:30 -0800 (PST)
+        with ESMTP id S232793AbjABKvo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 05:51:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5068562E6
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 02:51:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F01D60DEF
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 10:51:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66977C433EF;
-        Mon,  2 Jan 2023 10:51:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E161C60F2C
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 10:51:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01769C433EF;
+        Mon,  2 Jan 2023 10:51:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672656689;
-        bh=7ySnPvd8G4D/yIXgJGu+z6dLm8I5dISzTRVCwvwBs5I=;
+        s=korg; t=1672656699;
+        bh=rkZUzOXWQRWd2pKqF556twbXGKvZgeTJ0vjV7pHZdUU=;
         h=Subject:To:Cc:From:Date:From;
-        b=jp6VoNgrB+xvta94c/XXgpbo+ORGuiTgDKeSyFUwCHWroWlzP3beY9JGtqiIkD5ZN
-         E+AbZRJ+z2K4anxDLseQ2gV1XDE3gCetCoeYXEY36kqbZUlcj8neQoo66u3JxC99IK
-         pzGfPHaYI0t+3A4lJtpqa7Ix2NL+bIKQj6Y/2ufM=
-Subject: FAILED: patch "[PATCH] ovl: Use ovl mounter's fsuid and fsgid in ovl_link()" failed to apply to 4.14-stable tree
+        b=zmBtBWnAIh6kbn6+R//GDnz/iDx4llQMA1D+xiHfllyG35l/S2mWDT7YzlIkPk6UW
+         tfSYEFIy8ay/HUD+znBUXh7Kt9InNWIGIJ0d4ZSLJipmnYSbXseL/YasvsqSZtwAgI
+         JHy1Y53OfaiOaU3Fod+kZ3M5raesfdcuyfkejLYI=
+Subject: FAILED: patch "[PATCH] ovl: Use ovl mounter's fsuid and fsgid in ovl_link()" failed to apply to 4.9-stable tree
 To:     zhangtianci.1997@bytedance.com, brauner@kernel.org,
         mszeredi@redhat.com, stable@vger.kernel.org,
         zhangjiachen.jaycee@bytedance.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 02 Jan 2023 11:51:27 +0100
-Message-ID: <167265668737122@kroah.com>
+Date:   Mon, 02 Jan 2023 11:51:28 +0100
+Message-ID: <167265668811921@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -63,6 +63,19 @@ e7dd0e71348c ("ovl: whiteout index when union nlink drops to zero")
 016b720f5558 ("ovl: index directories on copy up for NFS export")
 fbd2d2074bde ("ovl: index all non-dir on copy up for NFS export")
 24b33ee104ec ("ovl: create ovl_need_index() helper")
+9f4ec904dbd4 ("ovl: fix dput() of ERR_PTR in ovl_cleanup_index()")
+ea3dad18dc5f ("ovl: mark parent impure on ovl_link()")
+f4439de11828 ("ovl: mark parent impure and restore timestamp on ovl_link_up()")
+caf70cb2ba5d ("ovl: cleanup orphan index entries")
+5f8415d6b87e ("ovl: persistent overlay inode nlink for indexed inodes")
+59be09712ab9 ("ovl: implement index dir copy up")
+fd210b7d67ee ("ovl: move copy up lock out")
+a6fb235a448b ("ovl: rearrange copy up")
+23f0ab13eaa6 ("ovl: use struct copy_up_ctx as function argument")
+7ab8b1763fd8 ("ovl: base tmpfile in workdir too")
+02209d10709c ("ovl: factor out ovl_copy_up_inode() helper")
+7d90b853f932 ("ovl: extract helper to get temp file in copy up")
+15932c415b3e ("ovl: defer upper dir lock to tempfile link")
 
 thanks,
 
