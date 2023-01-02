@@ -2,121 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB39965AFAC
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 11:39:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 609A965AFF9
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 11:52:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232276AbjABKjl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 05:39:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47422 "EHLO
+        id S232766AbjABKvk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 05:51:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229707AbjABKjh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 05:39:37 -0500
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 038791D0;
-        Mon,  2 Jan 2023 02:39:36 -0800 (PST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        with ESMTP id S232615AbjABKvO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 05:51:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3BF6C78
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 02:50:55 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 6936B205F5;
-        Mon,  2 Jan 2023 10:39:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1672655975; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=9xe2eMFnILH/jDMx9pAFzxHyWx3I3CkIiF3DU9xLhJ8=;
-        b=0TVeymCcyKqOOeieQacnsxkc9lkFjJHsY0Bx+WH8TpER8kYx6pSvC3p95SUxNqBmRJXXZu
-        oEDQh+trA1qBRrZPcdeQ/yBTOvyd1Jd8mP0/ivtD4rN64oLaPW6fL65YsdvIr0kAcV8ns5
-        Ax0WsI+B+EeBeOWoLo8F6TaJLo9nAus=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1672655975;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=9xe2eMFnILH/jDMx9pAFzxHyWx3I3CkIiF3DU9xLhJ8=;
-        b=WsrHznqV/LCPAzulNABvB/gmrJzHu2rHQcOoBbLOw1q/9xrgv/YG3zOFUhtVwZhbL4Rh4E
-        j0zynpfNBY+XZ6Bw==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 3F2F013427;
-        Mon,  2 Jan 2023 10:39:35 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id wIbCDme0smP3WgAAMHmgww
-        (envelope-from <vbabka@suse.cz>); Mon, 02 Jan 2023 10:39:35 +0000
-From:   Vlastimil Babka <vbabka@suse.cz>
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>
-Cc:     x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        patches@lists.linux.dev, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>,
-        Baoquan He <bhe@redhat.com>, Dave Young <dyoung@redhat.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] x86/kexec: fix double vfree of image->elf_headers
-Date:   Mon,  2 Jan 2023 11:39:17 +0100
-Message-Id: <20230102103917.20987-1-vbabka@suse.cz>
-X-Mailer: git-send-email 2.39.0
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53C05B80D0A
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 10:50:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1D7BC433F1;
+        Mon,  2 Jan 2023 10:50:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1672656653;
+        bh=Oy/BJnxLv80/OZ/dUnjiFf3h1eFgbsooQROQ5vglCRU=;
+        h=Subject:To:Cc:From:Date:From;
+        b=EKkIe7dr6Hd1aloVFW5ESroUh+F+HvwFYbkj+fNKycjzIjpmfSjC/vlf1qumipZoK
+         CX0xHbaBKemMIRAZxUARe5Tp/Kk8uUVOLS3PRuAbQwF9Rnit+rDBRcqAXKnwRFFGo9
+         na1xK0xno3WnkashQ4J2jFsaeMouZ++FvAqLY0Ws=
+Subject: FAILED: patch "[PATCH] binfmt: Fix error return code in load_elf_fdpic_binary()" failed to apply to 5.4-stable tree
+To:     wangyufen@huawei.com, keescook@chromium.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 02 Jan 2023 11:50:50 +0100
+Message-ID: <167265665059122@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-3.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_SOFTFAIL autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-An investigation of a "Trying to vfree() nonexistent vm area" bug
-occurring in arch_kimage_file_post_load_cleanup() doing a
-vfree(image->elf_headers) in our 5.14-based kernel yielded the following
-double vfree() scenario, also present in mainline:
 
-SYSCALL_DEFINE5(kexec_file_load)
-  kimage_file_alloc_init()
-    kimage_file_prepare_segments()
-      arch_kexec_kernel_image_probe()
-        kexec_image_load_default()
-          kexec_bzImage64_ops.load()
-            bzImage64_load()
-              crash_load_segments()
-                prepare_elf_headers(image, &kbuf.buffer, &kbuf.bufsz);
-                image->elf_headers = kbuf.buffer;
-		ret = kexec_add_buffer(&kbuf);
-		if (ret) vfree((void *)image->elf_headers); // first vfree()
-      if (ret) kimage_file_post_load_cleanup()
-        vfree(image->elf_headers);                          // second vfree()
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-AFAICS the scenario is possible since v5.19 commit b3e34a47f989
-("x86/kexec: fix memory leak of elf header buffer") that was marked for
-stable and also was backported to our kernel.
+Possible dependencies:
 
-Fix the problem by setting the pointer to NULL after the first vfree().
-Also set elf_headers_sz to 0, as kimage_file_post_load_cleanup() does.
+e7f703ff2507 ("binfmt: Fix error return code in load_elf_fdpic_binary()")
+e7f7785449a1 ("binfmt: Move install_exec_creds after setup_new_exec to match binfmt_elf")
 
-Fixes: b3e34a47f989 ("x86/kexec: fix memory leak of elf header buffer")
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Dave Young <dyoung@redhat.com>
-Cc: <stable@vger.kernel.org>
----
- arch/x86/kernel/crash.c | 2 ++
- 1 file changed, 2 insertions(+)
+thanks,
 
-diff --git a/arch/x86/kernel/crash.c b/arch/x86/kernel/crash.c
-index 9730c88530fc..0d651c05a49e 100644
---- a/arch/x86/kernel/crash.c
-+++ b/arch/x86/kernel/crash.c
-@@ -403,6 +403,8 @@ int crash_load_segments(struct kimage *image)
- 	ret = kexec_add_buffer(&kbuf);
- 	if (ret) {
- 		vfree((void *)image->elf_headers);
-+		image->elf_headers = NULL;
-+		image->elf_headers_sz = 0;
- 		return ret;
- 	}
- 	image->elf_load_addr = kbuf.mem;
--- 
-2.39.0
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From e7f703ff2507f4e9f496da96cd4b78fd3026120c Mon Sep 17 00:00:00 2001
+From: Wang Yufen <wangyufen@huawei.com>
+Date: Fri, 2 Dec 2022 09:41:01 +0800
+Subject: [PATCH] binfmt: Fix error return code in load_elf_fdpic_binary()
+
+Fix to return a negative error code from create_elf_fdpic_tables()
+instead of 0.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/1669945261-30271-1-git-send-email-wangyufen@huawei.com
+
+diff --git a/fs/binfmt_elf_fdpic.c b/fs/binfmt_elf_fdpic.c
+index e90c1192dec6..096e3520a0b1 100644
+--- a/fs/binfmt_elf_fdpic.c
++++ b/fs/binfmt_elf_fdpic.c
+@@ -434,8 +434,9 @@ static int load_elf_fdpic_binary(struct linux_binprm *bprm)
+ 	current->mm->start_stack = current->mm->start_brk + stack_size;
+ #endif
+ 
+-	if (create_elf_fdpic_tables(bprm, current->mm,
+-				    &exec_params, &interp_params) < 0)
++	retval = create_elf_fdpic_tables(bprm, current->mm, &exec_params,
++					 &interp_params);
++	if (retval < 0)
+ 		goto error;
+ 
+ 	kdebug("- start_code  %lx", current->mm->start_code);
 
