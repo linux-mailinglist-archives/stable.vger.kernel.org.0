@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 109A865B0E4
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:29:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7762C65B0A3
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:27:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236082AbjABL3D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:29:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45626 "EHLO
+        id S232427AbjABL1N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:27:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230196AbjABL2k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:28:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 952CF642C
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:27:47 -0800 (PST)
+        with ESMTP id S232719AbjABL0l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:26:41 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3378C65C1
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:25:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 46AADB80CA9
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:27:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84C91C433EF;
-        Mon,  2 Jan 2023 11:27:44 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9DF60CE0E53
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:25:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90844C433D2;
+        Mon,  2 Jan 2023 11:25:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658864;
-        bh=Ave0BWR58ucrW6IBabMhHfJ3XoGXNCRHFJsTB6yzjno=;
+        s=korg; t=1672658700;
+        bh=Kraf/OT5O6w4THWZm4s+uGYWNQ7eLa839LN0Hk+iSmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x2wREjTzVTHPzZQY9jiJJCSEYHQfzoFUlG0t4A18ces5sHJa0Aq0KQZeWQ402vpRL
-         iTrwR8PqBLv9aUcaUgv4c7ei1XQaanZAV16hpVpupxklpCpPWCCXMiCfWleI/dbBPo
-         kT9h1i6OlMfFdxOxo2W3dvSALy4bFmdocgHK71WI=
+        b=rQNxHlisK/0jpyLQ59JrPT8qRhGHxsCeCXx0Fj07CnphYFFQ/xddBqqt7lheuAlfd
+         tXEatmVZrvpB1Q7zc/BAjAvzG+d4kTYzCfbwOt6JzcL5qk+75UEB0deP/ZbstedJR7
+         INgUBX/zzI3eTpKtYQnfw5LeitY32JK8pgdpG0yU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Edward Lo <edward.lo@ambergroup.io>,
-        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        patches@lists.linux.dev, Nathan Lynch <nathanl@linux.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 28/74] fs/ntfs3: Add null pointer check for inode operations
+Subject: [PATCH 6.1 36/71] powerpc/rtas: avoid scheduling in rtas_os_term()
 Date:   Mon,  2 Jan 2023 12:22:01 +0100
-Message-Id: <20230102110553.268891748@linuxfoundation.org>
+Message-Id: <20230102110552.985017572@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
-References: <20230102110552.061937047@linuxfoundation.org>
+In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
+References: <20230102110551.509937186@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,106 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edward Lo <edward.lo@ambergroup.io>
+From: Nathan Lynch <nathanl@linux.ibm.com>
 
-[ Upstream commit c1ca8ef0262b25493631ecbd9cb8c9893e1481a1 ]
+[ Upstream commit 6c606e57eecc37d6b36d732b1ff7e55b7dc32dd4 ]
 
-This adds a sanity check for the i_op pointer of the inode which is
-returned after reading Root directory MFT record. We should check the
-i_op is valid before trying to create the root dentry, otherwise we may
-encounter a NPD while mounting a image with a funny Root directory MFT
-record.
+It's unsafe to use rtas_busy_delay() to handle a busy status from
+the ibm,os-term RTAS function in rtas_os_term():
 
-[  114.484325] BUG: kernel NULL pointer dereference, address: 0000000000000008
-[  114.484811] #PF: supervisor read access in kernel mode
-[  114.485084] #PF: error_code(0x0000) - not-present page
-[  114.485606] PGD 0 P4D 0
-[  114.485975] Oops: 0000 [#1] PREEMPT SMP KASAN NOPTI
-[  114.486570] CPU: 0 PID: 237 Comm: mount Tainted: G    B              6.0.0-rc4 #28
-[  114.486977] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-[  114.488169] RIP: 0010:d_flags_for_inode+0xe0/0x110
-[  114.488816] Code: 24 f7 ff 49 83 3e 00 74 41 41 83 cd 02 66 44 89 6b 02 eb 92 48 8d 7b 20 e8 6d 24 f7 ff 4c 8b 73 20 49 8d 7e 08 e8 60 241
-[  114.490326] RSP: 0018:ffff8880065e7aa8 EFLAGS: 00000296
-[  114.490695] RAX: 0000000000000001 RBX: ffff888008ccd750 RCX: ffffffff84af2aea
-[  114.490986] RDX: 0000000000000001 RSI: 0000000000000008 RDI: ffffffff87abd020
-[  114.491364] RBP: ffff8880065e7ac8 R08: 0000000000000001 R09: fffffbfff0f57a05
-[  114.491675] R10: ffffffff87abd027 R11: fffffbfff0f57a04 R12: 0000000000000000
-[  114.491954] R13: 0000000000000008 R14: 0000000000000000 R15: ffff888008ccd750
-[  114.492397] FS:  00007fdc8a627e40(0000) GS:ffff888058200000(0000) knlGS:0000000000000000
-[  114.492797] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  114.493150] CR2: 0000000000000008 CR3: 00000000013ba000 CR4: 00000000000006f0
-[  114.493671] Call Trace:
-[  114.493890]  <TASK>
-[  114.494075]  __d_instantiate+0x24/0x1c0
-[  114.494505]  d_instantiate.part.0+0x35/0x50
-[  114.494754]  d_make_root+0x53/0x80
-[  114.494998]  ntfs_fill_super+0x1232/0x1b50
-[  114.495260]  ? put_ntfs+0x1d0/0x1d0
-[  114.495499]  ? vsprintf+0x20/0x20
-[  114.495723]  ? set_blocksize+0x95/0x150
-[  114.495964]  get_tree_bdev+0x232/0x370
-[  114.496272]  ? put_ntfs+0x1d0/0x1d0
-[  114.496502]  ntfs_fs_get_tree+0x15/0x20
-[  114.496859]  vfs_get_tree+0x4c/0x130
-[  114.497099]  path_mount+0x654/0xfe0
-[  114.497507]  ? putname+0x80/0xa0
-[  114.497933]  ? finish_automount+0x2e0/0x2e0
-[  114.498362]  ? putname+0x80/0xa0
-[  114.498571]  ? kmem_cache_free+0x1c4/0x440
-[  114.498819]  ? putname+0x80/0xa0
-[  114.499069]  do_mount+0xd6/0xf0
-[  114.499343]  ? path_mount+0xfe0/0xfe0
-[  114.499683]  ? __kasan_check_write+0x14/0x20
-[  114.500133]  __x64_sys_mount+0xca/0x110
-[  114.500592]  do_syscall_64+0x3b/0x90
-[  114.500930]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[  114.501294] RIP: 0033:0x7fdc898e948a
-[  114.501542] Code: 48 8b 0d 11 fa 2a 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 008
-[  114.502716] RSP: 002b:00007ffd793e58f8 EFLAGS: 00000202 ORIG_RAX: 00000000000000a5
-[  114.503175] RAX: ffffffffffffffda RBX: 0000564b2228f060 RCX: 00007fdc898e948a
-[  114.503588] RDX: 0000564b2228f260 RSI: 0000564b2228f2e0 RDI: 0000564b22297ce0
-[  114.504925] RBP: 0000000000000000 R08: 0000564b2228f280 R09: 0000000000000020
-[  114.505484] R10: 00000000c0ed0000 R11: 0000000000000202 R12: 0000564b22297ce0
-[  114.505823] R13: 0000564b2228f260 R14: 0000000000000000 R15: 00000000ffffffff
-[  114.506562]  </TASK>
-[  114.506887] Modules linked in:
-[  114.507648] CR2: 0000000000000008
-[  114.508884] ---[ end trace 0000000000000000 ]---
-[  114.509675] RIP: 0010:d_flags_for_inode+0xe0/0x110
-[  114.510140] Code: 24 f7 ff 49 83 3e 00 74 41 41 83 cd 02 66 44 89 6b 02 eb 92 48 8d 7b 20 e8 6d 24 f7 ff 4c 8b 73 20 49 8d 7e 08 e8 60 241
-[  114.511762] RSP: 0018:ffff8880065e7aa8 EFLAGS: 00000296
-[  114.512401] RAX: 0000000000000001 RBX: ffff888008ccd750 RCX: ffffffff84af2aea
-[  114.513103] RDX: 0000000000000001 RSI: 0000000000000008 RDI: ffffffff87abd020
-[  114.513512] RBP: ffff8880065e7ac8 R08: 0000000000000001 R09: fffffbfff0f57a05
-[  114.513831] R10: ffffffff87abd027 R11: fffffbfff0f57a04 R12: 0000000000000000
-[  114.514757] R13: 0000000000000008 R14: 0000000000000000 R15: ffff888008ccd750
-[  114.515411] FS:  00007fdc8a627e40(0000) GS:ffff888058200000(0000) knlGS:0000000000000000
-[  114.515794] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  114.516208] CR2: 0000000000000008 CR3: 00000000013ba000 CR4: 00000000000006f0
+Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
+BUG: sleeping function called from invalid context at arch/powerpc/kernel/rtas.c:618
+in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 1, name: swapper/0
+preempt_count: 2, expected: 0
+CPU: 7 PID: 1 Comm: swapper/0 Tainted: G      D            6.0.0-rc5-02182-gf8553a572277-dirty #9
+Call Trace:
+[c000000007b8f000] [c000000001337110] dump_stack_lvl+0xb4/0x110 (unreliable)
+[c000000007b8f040] [c0000000002440e4] __might_resched+0x394/0x3c0
+[c000000007b8f0e0] [c00000000004f680] rtas_busy_delay+0x120/0x1b0
+[c000000007b8f100] [c000000000052d04] rtas_os_term+0xb8/0xf4
+[c000000007b8f180] [c0000000001150fc] pseries_panic+0x50/0x68
+[c000000007b8f1f0] [c000000000036354] ppc_panic_platform_handler+0x34/0x50
+[c000000007b8f210] [c0000000002303c4] notifier_call_chain+0xd4/0x1c0
+[c000000007b8f2b0] [c0000000002306cc] atomic_notifier_call_chain+0xac/0x1c0
+[c000000007b8f2f0] [c0000000001d62b8] panic+0x228/0x4d0
+[c000000007b8f390] [c0000000001e573c] do_exit+0x140c/0x1420
+[c000000007b8f480] [c0000000001e586c] make_task_dead+0xdc/0x200
 
-Signed-off-by: Edward Lo <edward.lo@ambergroup.io>
-Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+Use rtas_busy_delay_time() instead, which signals without side effects
+whether to attempt the ibm,os-term RTAS call again.
+
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20221118150751.469393-5-nathanl@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/super.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/rtas.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ntfs3/super.c b/fs/ntfs3/super.c
-index 170682c2bf67..94f9e4b775a7 100644
---- a/fs/ntfs3/super.c
-+++ b/fs/ntfs3/super.c
-@@ -1260,9 +1260,9 @@ static int ntfs_fill_super(struct super_block *sb, struct fs_context *fc)
- 	ref.low = cpu_to_le32(MFT_REC_ROOT);
- 	ref.seq = cpu_to_le16(MFT_REC_ROOT);
- 	inode = ntfs_iget5(sb, &ref, &NAME_ROOT);
--	if (IS_ERR(inode)) {
-+	if (IS_ERR(inode) || !inode->i_op) {
- 		ntfs_err(sb, "Failed to load root.");
--		err = PTR_ERR(inode);
-+		err = IS_ERR(inode) ? PTR_ERR(inode) : -EINVAL;
- 		goto out;
- 	}
+diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
+index 6b5f49c9ad79..767ab166933b 100644
+--- a/arch/powerpc/kernel/rtas.c
++++ b/arch/powerpc/kernel/rtas.c
+@@ -906,10 +906,15 @@ void rtas_os_term(char *str)
  
+ 	snprintf(rtas_os_term_buf, 2048, "OS panic: %s", str);
+ 
++	/*
++	 * Keep calling as long as RTAS returns a "try again" status,
++	 * but don't use rtas_busy_delay(), which potentially
++	 * schedules.
++	 */
+ 	do {
+ 		status = rtas_call(ibm_os_term_token, 1, 1, NULL,
+ 				   __pa(rtas_os_term_buf));
+-	} while (rtas_busy_delay(status));
++	} while (rtas_busy_delay_time(status));
+ 
+ 	if (status != 0)
+ 		printk(KERN_EMERG "ibm,os-term call failed %d\n", status);
 -- 
 2.35.1
 
