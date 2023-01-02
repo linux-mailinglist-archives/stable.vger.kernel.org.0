@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB8E165B0E6
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:29:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11AB065B0A6
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:27:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236085AbjABL3H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:29:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45646 "EHLO
+        id S232202AbjABL1R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:27:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232885AbjABL2l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:28:41 -0500
+        with ESMTP id S232791AbjABL0m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:26:42 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 248B46448
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:27:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DD0065D2
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:25:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B40A60F21
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:27:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E0C2C433D2;
-        Mon,  2 Jan 2023 11:27:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BFAE260F54
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:25:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D222EC433D2;
+        Mon,  2 Jan 2023 11:25:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658872;
-        bh=mu54Xusiy5/W9RAjGszJFENqdsjPf3EFwtWsBKZipx8=;
+        s=korg; t=1672658706;
+        bh=5ESaYueSwS0c6WXjWuORuylx//yXLV5QlYjDpSx3YQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jiPQUb1wE3PbJfq6m+RNCbZ9S+mZ3g41OWeNEEf534MsDFnOJd8h2znTofDmhVVSZ
-         lRdUlNYqN30j2q3srD/6WlhJ991mYKajnO6L7fiOD3vGun6v6H8ti44QFqV/ajPfib
-         l+2ocj7M74UsIyC3vhuRlq4FcWtErzijISn+TKoQ=
+        b=paJ7jaunRViA7SAynQkPrd/SqTHP9ZkQipTTwUc6I8zKX64adIkkZmg8rCqV4mk5j
+         WZigLQDAtTlgQeLPk+CKH8YO44PiUTCzN8tdaYxathdB/6fXw/spFFEB+uEPQi5XC5
+         zkWUSn+uzQnYR+T5vAFWkwIisnL4Ca0LIc3Q2w98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Edward Lo <edward.lo@ambergroup.io>,
-        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        patches@lists.linux.dev, Xingyuan Mo <hdthky0@gmail.com>,
+        Dai Ngo <dai.ngo@oracle.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 30/74] fs/ntfs3: Validate buffer length while parsing index
+Subject: [PATCH 6.1 38/71] NFSD: fix use-after-free in __nfs42_ssc_open()
 Date:   Mon,  2 Jan 2023 12:22:03 +0100
-Message-Id: <20230102110553.365906105@linuxfoundation.org>
+Message-Id: <20230102110553.067559977@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
-References: <20230102110552.061937047@linuxfoundation.org>
+In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
+References: <20230102110551.509937186@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,158 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edward Lo <edward.lo@ambergroup.io>
+From: Dai Ngo <dai.ngo@oracle.com>
 
-[ Upstream commit 4d42ecda239cc13738d6fd84d098a32e67b368b9 ]
+[ Upstream commit 75333d48f92256a0dec91dbf07835e804fc411c0 ]
 
-indx_read is called when we have some NTFS directory operations that
-need more information from the index buffers. This adds a sanity check
-to make sure the returned index buffer length is legit, or we may have
-some out-of-bound memory accesses.
+Problem caused by source's vfsmount being unmounted but remains
+on the delayed unmount list. This happens when nfs42_ssc_open()
+return errors.
 
-[  560.897595] BUG: KASAN: slab-out-of-bounds in hdr_find_e.isra.0+0x10c/0x320
-[  560.898321] Read of size 2 at addr ffff888009497238 by task exp/245
-[  560.898760]
-[  560.899129] CPU: 0 PID: 245 Comm: exp Not tainted 6.0.0-rc6 #37
-[  560.899505] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-[  560.900170] Call Trace:
-[  560.900407]  <TASK>
-[  560.900732]  dump_stack_lvl+0x49/0x63
-[  560.901108]  print_report.cold+0xf5/0x689
-[  560.901395]  ? hdr_find_e.isra.0+0x10c/0x320
-[  560.901716]  kasan_report+0xa7/0x130
-[  560.901950]  ? hdr_find_e.isra.0+0x10c/0x320
-[  560.902208]  __asan_load2+0x68/0x90
-[  560.902427]  hdr_find_e.isra.0+0x10c/0x320
-[  560.902846]  ? cmp_uints+0xe0/0xe0
-[  560.903363]  ? cmp_sdh+0x90/0x90
-[  560.903883]  ? ntfs_bread_run+0x190/0x190
-[  560.904196]  ? rwsem_down_read_slowpath+0x750/0x750
-[  560.904969]  ? ntfs_fix_post_read+0xe0/0x130
-[  560.905259]  ? __kasan_check_write+0x14/0x20
-[  560.905599]  ? up_read+0x1a/0x90
-[  560.905853]  ? indx_read+0x22c/0x380
-[  560.906096]  indx_find+0x2ef/0x470
-[  560.906352]  ? indx_find_buffer+0x2d0/0x2d0
-[  560.906692]  ? __kasan_kmalloc+0x88/0xb0
-[  560.906977]  dir_search_u+0x196/0x2f0
-[  560.907220]  ? ntfs_nls_to_utf16+0x450/0x450
-[  560.907464]  ? __kasan_check_write+0x14/0x20
-[  560.907747]  ? mutex_lock+0x8f/0xe0
-[  560.907970]  ? __mutex_lock_slowpath+0x20/0x20
-[  560.908214]  ? kmem_cache_alloc+0x143/0x4b0
-[  560.908459]  ntfs_lookup+0xe0/0x100
-[  560.908788]  __lookup_slow+0x116/0x220
-[  560.909050]  ? lookup_fast+0x1b0/0x1b0
-[  560.909309]  ? lookup_fast+0x13f/0x1b0
-[  560.909601]  walk_component+0x187/0x230
-[  560.909944]  link_path_walk.part.0+0x3f0/0x660
-[  560.910285]  ? handle_lookup_down+0x90/0x90
-[  560.910618]  ? path_init+0x642/0x6e0
-[  560.911084]  ? percpu_counter_add_batch+0x6e/0xf0
-[  560.912559]  ? __alloc_file+0x114/0x170
-[  560.913008]  path_openat+0x19c/0x1d10
-[  560.913419]  ? getname_flags+0x73/0x2b0
-[  560.913815]  ? kasan_save_stack+0x3a/0x50
-[  560.914125]  ? kasan_save_stack+0x26/0x50
-[  560.914542]  ? __kasan_slab_alloc+0x6d/0x90
-[  560.914924]  ? kmem_cache_alloc+0x143/0x4b0
-[  560.915339]  ? getname_flags+0x73/0x2b0
-[  560.915647]  ? getname+0x12/0x20
-[  560.916114]  ? __x64_sys_open+0x4c/0x60
-[  560.916460]  ? path_lookupat.isra.0+0x230/0x230
-[  560.916867]  ? __isolate_free_page+0x2e0/0x2e0
-[  560.917194]  do_filp_open+0x15c/0x1f0
-[  560.917448]  ? may_open_dev+0x60/0x60
-[  560.917696]  ? expand_files+0xa4/0x3a0
-[  560.917923]  ? __kasan_check_write+0x14/0x20
-[  560.918185]  ? _raw_spin_lock+0x88/0xdb
-[  560.918409]  ? _raw_spin_lock_irqsave+0x100/0x100
-[  560.918783]  ? _find_next_bit+0x4a/0x130
-[  560.919026]  ? _raw_spin_unlock+0x19/0x40
-[  560.919276]  ? alloc_fd+0x14b/0x2d0
-[  560.919635]  do_sys_openat2+0x32a/0x4b0
-[  560.920035]  ? file_open_root+0x230/0x230
-[  560.920336]  ? __rcu_read_unlock+0x5b/0x280
-[  560.920813]  do_sys_open+0x99/0xf0
-[  560.921208]  ? filp_open+0x60/0x60
-[  560.921482]  ? exit_to_user_mode_prepare+0x49/0x180
-[  560.921867]  __x64_sys_open+0x4c/0x60
-[  560.922128]  do_syscall_64+0x3b/0x90
-[  560.922369]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[  560.923030] RIP: 0033:0x7f7dff2e4469
-[  560.923681] Code: 00 f3 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 088
-[  560.924451] RSP: 002b:00007ffd41a210b8 EFLAGS: 00000206 ORIG_RAX: 0000000000000002
-[  560.925168] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f7dff2e4469
-[  560.925655] RDX: 0000000000000000 RSI: 0000000000000002 RDI: 00007ffd41a211f0
-[  560.926085] RBP: 00007ffd41a252a0 R08: 00007f7dff60fba0 R09: 00007ffd41a25388
-[  560.926405] R10: 0000000000400b80 R11: 0000000000000206 R12: 00000000004004e0
-[  560.926867] R13: 00007ffd41a25380 R14: 0000000000000000 R15: 0000000000000000
-[  560.927241]  </TASK>
-[  560.927491]
-[  560.927755] Allocated by task 245:
-[  560.928409]  kasan_save_stack+0x26/0x50
-[  560.929271]  __kasan_kmalloc+0x88/0xb0
-[  560.929778]  __kmalloc+0x192/0x320
-[  560.930023]  indx_read+0x249/0x380
-[  560.930224]  indx_find+0x2a2/0x470
-[  560.930695]  dir_search_u+0x196/0x2f0
-[  560.930892]  ntfs_lookup+0xe0/0x100
-[  560.931115]  __lookup_slow+0x116/0x220
-[  560.931323]  walk_component+0x187/0x230
-[  560.931570]  link_path_walk.part.0+0x3f0/0x660
-[  560.931791]  path_openat+0x19c/0x1d10
-[  560.932008]  do_filp_open+0x15c/0x1f0
-[  560.932226]  do_sys_openat2+0x32a/0x4b0
-[  560.932413]  do_sys_open+0x99/0xf0
-[  560.932709]  __x64_sys_open+0x4c/0x60
-[  560.933417]  do_syscall_64+0x3b/0x90
-[  560.933776]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[  560.934235]
-[  560.934486] The buggy address belongs to the object at ffff888009497000
-[  560.934486]  which belongs to the cache kmalloc-512 of size 512
-[  560.935239] The buggy address is located 56 bytes to the right of
-[  560.935239]  512-byte region [ffff888009497000, ffff888009497200)
-[  560.936153]
-[  560.937326] The buggy address belongs to the physical page:
-[  560.938228] page:0000000062a3dfae refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x9496
-[  560.939616] head:0000000062a3dfae order:1 compound_mapcount:0 compound_pincount:0
-[  560.940219] flags: 0xfffffc0010200(slab|head|node=0|zone=1|lastcpupid=0x1fffff)
-[  560.942702] raw: 000fffffc0010200 ffffea0000164f80 dead000000000005 ffff888001041c80
-[  560.943932] raw: 0000000000000000 0000000080080008 00000001ffffffff 0000000000000000
-[  560.944568] page dumped because: kasan: bad access detected
-[  560.945735]
-[  560.946112] Memory state around the buggy address:
-[  560.946870]  ffff888009497100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[  560.947242]  ffff888009497180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[  560.947611] >ffff888009497200: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[  560.947915]                                         ^
-[  560.948249]  ffff888009497280: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[  560.948687]  ffff888009497300: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+Fixed by removing nfsd4_interssc_connect(), leave the vfsmount
+for the laundromat to unmount when idle time expires.
 
-Signed-off-by: Edward Lo <edward.lo@ambergroup.io>
-Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+We don't need to call nfs_do_sb_deactive when nfs42_ssc_open
+return errors since the file was not opened so nfs_server->active
+was not incremented. Same as in nfsd4_copy, if we fail to
+launch nfsd4_do_async_copy thread then there's no need to
+call nfs_do_sb_deactive
+
+Reported-by: Xingyuan Mo <hdthky0@gmail.com>
+Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
+Tested-by: Xingyuan Mo <hdthky0@gmail.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/index.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/nfsd/nfs4proc.c | 20 +++++---------------
+ 1 file changed, 5 insertions(+), 15 deletions(-)
 
-diff --git a/fs/ntfs3/index.c b/fs/ntfs3/index.c
-index 440328147e7e..c27b4fe57513 100644
---- a/fs/ntfs3/index.c
-+++ b/fs/ntfs3/index.c
-@@ -1017,6 +1017,12 @@ int indx_read(struct ntfs_index *indx, struct ntfs_inode *ni, CLST vbn,
- 		err = 0;
- 	}
+diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
+index 32fe7cbfb28b..34d1cd5883fb 100644
+--- a/fs/nfsd/nfs4proc.c
++++ b/fs/nfsd/nfs4proc.c
+@@ -1465,13 +1465,6 @@ nfsd4_interssc_connect(struct nl4_server *nss, struct svc_rqst *rqstp,
+ 	return status;
+ }
  
-+	/* check for index header length */
-+	if (offsetof(struct INDEX_BUFFER, ihdr) + ib->ihdr.used > bytes) {
-+		err = -EINVAL;
-+		goto out;
-+	}
-+
- 	in->index = ib;
- 	*node = in;
+-static void
+-nfsd4_interssc_disconnect(struct vfsmount *ss_mnt)
+-{
+-	nfs_do_sb_deactive(ss_mnt->mnt_sb);
+-	mntput(ss_mnt);
+-}
+-
+ /*
+  * Verify COPY destination stateid.
+  *
+@@ -1574,11 +1567,6 @@ nfsd4_cleanup_inter_ssc(struct vfsmount *ss_mnt, struct file *filp,
+ {
+ }
+ 
+-static void
+-nfsd4_interssc_disconnect(struct vfsmount *ss_mnt)
+-{
+-}
+-
+ static struct file *nfs42_ssc_open(struct vfsmount *ss_mnt,
+ 				   struct nfs_fh *src_fh,
+ 				   nfs4_stateid *stateid)
+@@ -1774,7 +1762,7 @@ static int nfsd4_do_async_copy(void *data)
+ 			default:
+ 				nfserr = nfserr_offload_denied;
+ 			}
+-			nfsd4_interssc_disconnect(copy->ss_mnt);
++			/* ss_mnt will be unmounted by the laundromat */
+ 			goto do_callback;
+ 		}
+ 		nfserr = nfsd4_do_copy(copy, filp, copy->nf_dst->nf_file,
+@@ -1855,8 +1843,10 @@ nfsd4_copy(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
+ 	if (async_copy)
+ 		cleanup_async_copy(async_copy);
+ 	status = nfserrno(-ENOMEM);
+-	if (nfsd4_ssc_is_inter(copy))
+-		nfsd4_interssc_disconnect(copy->ss_mnt);
++	/*
++	 * source's vfsmount of inter-copy will be unmounted
++	 * by the laundromat
++	 */
+ 	goto out;
+ }
  
 -- 
 2.35.1
