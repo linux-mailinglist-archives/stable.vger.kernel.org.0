@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBF9665B11C
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:30:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86A9765B11D
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:30:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236117AbjABLaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:30:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50352 "EHLO
+        id S232735AbjABLaR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:30:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236014AbjABL3z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:29:55 -0500
+        with ESMTP id S236098AbjABL35 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:29:57 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17F176441
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:29:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B938F647A
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:29:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3B72B80D15
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:29:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35539C433EF;
-        Mon,  2 Jan 2023 11:29:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 671B8B80D14
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:29:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B59B6C433D2;
+        Mon,  2 Jan 2023 11:29:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658964;
-        bh=SvOpJB1gru9mYZiYRxV85skxJrpq+QzlSEFuCdJfLM4=;
+        s=korg; t=1672658967;
+        bh=hAvx3q6cfyAeR6U5A9L964J/ewWmzYN0oRYGFofXeKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XUguPnrMKnKdT3YoDrqweQ34agOhMpY5KQ3uM46BFG2q+Td47H1ZIGSxxu/UgwXLy
-         cWGsWUrEw6Qk0jM5hObg9TkvfpXns4OTIf+RWTmbg/Wa2SXK7rNpHnG0QCy/ox7Dc5
-         pZ0mpv1EoT++r/zfXoJaUE84fYka8qlkuOpq0wRc=
+        b=DHjk9fmK4c8UxqKok6WwSAnF65r4Ntk7JjRr6qucFSfZ4Si+sb81qhG8YJg/Sgyt3
+         2h6r2BMXzJJR08ggxq5Di6iIovRJJzn0Z0TYFuYswSZS+l1HBLPJx+ROG2k2KzZwzn
+         lL+QxXKx/yJzhLkquz83r2+RMNBxg8uzGZgZGoys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        NARIBAYASHI Akira <a.naribayashi@fujitsu.com>,
-        David Rientjes <rientjes@google.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.0 65/74] mm, compaction: fix fast_isolate_around() to stay within boundaries
-Date:   Mon,  2 Jan 2023 12:22:38 +0100
-Message-Id: <20230102110554.874419393@linuxfoundation.org>
+        patches@lists.linux.dev, Pavel Machek <pavel@denx.de>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 6.0 66/74] f2fs: should put a page when checking the summary info
+Date:   Mon,  2 Jan 2023 12:22:39 +0100
+Message-Id: <20230102110554.912034910@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
 References: <20230102110552.061937047@linuxfoundation.org>
@@ -56,114 +52,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NARIBAYASHI Akira <a.naribayashi@fujitsu.com>
+From: Pavel Machek <pavel@denx.de>
 
-commit be21b32afe470c5ae98e27e49201158a47032942 upstream.
+commit c3db3c2fd9992c08f49aa93752d3c103c3a4f6aa upstream.
 
-Depending on the memory configuration, isolate_freepages_block() may scan
-pages out of the target range and causes panic.
+The commit introduces another bug.
 
-Panic can occur on systems with multiple zones in a single pageblock.
-
-The reason it is rare is that it only happens in special
-configurations.  Depending on how many similar systems there are, it
-may be a good idea to fix this problem for older kernels as well.
-
-The problem is that pfn as argument of fast_isolate_around() could be out
-of the target range.  Therefore we should consider the case where pfn <
-start_pfn, and also the case where end_pfn < pfn.
-
-This problem should have been addressd by the commit 6e2b7044c199 ("mm,
-compaction: make fast_isolate_freepages() stay within zone") but there was
-an oversight.
-
- Case1: pfn < start_pfn
-
-  <at memory compaction for node Y>
-  |  node X's zone  | node Y's zone
-  +-----------------+------------------------------...
-   pageblock    ^   ^     ^
-  +-----------+-----------+-----------+-----------+...
-                ^   ^     ^
-                ^   ^      end_pfn
-                ^    start_pfn = cc->zone->zone_start_pfn
-                 pfn
-                <---------> scanned range by "Scan After"
-
- Case2: end_pfn < pfn
-
-  <at memory compaction for node X>
-  |  node X's zone  | node Y's zone
-  +-----------------+------------------------------...
-   pageblock  ^     ^   ^
-  +-----------+-----------+-----------+-----------+...
-              ^     ^   ^
-              ^     ^    pfn
-              ^      end_pfn
-               start_pfn
-              <---------> scanned range by "Scan Before"
-
-It seems that there is no good reason to skip nr_isolated pages just after
-given pfn.  So let perform simple scan from start to end instead of
-dividing the scan into "Before" and "After".
-
-Link: https://lkml.kernel.org/r/20221026112438.236336-1-a.naribayashi@fujitsu.com
-Fixes: 6e2b7044c199 ("mm, compaction: make fast_isolate_freepages() stay within zone").
-Signed-off-by: NARIBAYASHI Akira <a.naribayashi@fujitsu.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: c6ad7fd16657e ("f2fs: fix to do sanity check on summary info")
+Signed-off-by: Pavel Machek <pavel@denx.de>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/compaction.c |   18 +++++-------------
- 1 file changed, 5 insertions(+), 13 deletions(-)
+ fs/f2fs/gc.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/mm/compaction.c
-+++ b/mm/compaction.c
-@@ -1346,7 +1346,7 @@ move_freelist_tail(struct list_head *fre
- }
- 
- static void
--fast_isolate_around(struct compact_control *cc, unsigned long pfn, unsigned long nr_isolated)
-+fast_isolate_around(struct compact_control *cc, unsigned long pfn)
- {
- 	unsigned long start_pfn, end_pfn;
- 	struct page *page;
-@@ -1367,21 +1367,13 @@ fast_isolate_around(struct compact_contr
- 	if (!page)
- 		return;
- 
--	/* Scan before */
--	if (start_pfn != pfn) {
--		isolate_freepages_block(cc, &start_pfn, pfn, &cc->freepages, 1, false);
--		if (cc->nr_freepages >= cc->nr_migratepages)
--			return;
--	}
--
--	/* Scan after */
--	start_pfn = pfn + nr_isolated;
--	if (start_pfn < end_pfn)
--		isolate_freepages_block(cc, &start_pfn, end_pfn, &cc->freepages, 1, false);
-+	isolate_freepages_block(cc, &start_pfn, end_pfn, &cc->freepages, 1, false);
- 
- 	/* Skip this pageblock in the future as it's full or nearly full */
- 	if (cc->nr_freepages < cc->nr_migratepages)
- 		set_pageblock_skip(page);
-+
-+	return;
- }
- 
- /* Search orders in round-robin fashion */
-@@ -1558,7 +1550,7 @@ fast_isolate_freepages(struct compact_co
- 		return cc->free_pfn;
- 
- 	low_pfn = page_to_pfn(page);
--	fast_isolate_around(cc, low_pfn, nr_isolated);
-+	fast_isolate_around(cc, low_pfn);
- 	return low_pfn;
- }
+--- a/fs/f2fs/gc.c
++++ b/fs/f2fs/gc.c
+@@ -1109,6 +1109,7 @@ static bool is_alive(struct f2fs_sb_info
+ 	if (ofs_in_node >= max_addrs) {
+ 		f2fs_err(sbi, "Inconsistent ofs_in_node:%u in summary, ino:%u, nid:%u, max:%u",
+ 			ofs_in_node, dni->ino, dni->nid, max_addrs);
++		f2fs_put_page(node_page, 1);
+ 		return false;
+ 	}
  
 
 
