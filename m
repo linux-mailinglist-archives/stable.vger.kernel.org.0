@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7582065B106
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:29:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5882565B0BD
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:27:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236116AbjABL34 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:29:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50352 "EHLO
+        id S232849AbjABL1v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:27:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236121AbjABL3Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:29:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFAFE65A1
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:28:53 -0800 (PST)
+        with ESMTP id S232726AbjABL1Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:27:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E9866475
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:26:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4178960E83
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:28:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A7B6C433EF;
-        Mon,  2 Jan 2023 11:28:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CEED660F37
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:26:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE3C3C433EF;
+        Mon,  2 Jan 2023 11:26:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658932;
-        bh=GIolATIKk840jQEdXy1XAO1iPCjtDBumvx+yGs4YaP0=;
+        s=korg; t=1672658766;
+        bh=cXmDPyK7JMTGxITyRrLQqPpFRTOgdhmQLMnM01QkaMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GdiE2uUd1vBfmNaMEmmKgmR47ANR7xK7vg3ixcBiS22qTjeRRAIGJ9VA1S9JhABRm
-         vYJQE0ecjVUhAXFBRg578L3eHREuMH8xjVgftzof1BI0PUcv/1o5REKMqIHzwrjWGS
-         JPIbEiPcm0tJfunN/jTp99JGmusSn+4NsttzraHk=
+        b=rcW9L6T/mHTrAtvKG4uUMitgBLMt3AJBUBx2dZsO/KsVP7uKETgSExwu01aauXE6d
+         Z7olEWL4UWsk8VIHYv2+c2xheiLfcta+hKKnp47jGdcuN6JtNGlDXurxJIa450QqLA
+         Fj/oj0hRWtdowDaXDzo4oINiG6NZ39QlA/gdvEIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 6.0 54/74] eventfd: provide a eventfd_signal_mask() helper
+        patches@lists.linux.dev,
+        NARIBAYASHI Akira <a.naribayashi@fujitsu.com>,
+        David Rientjes <rientjes@google.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.1 62/71] mm, compaction: fix fast_isolate_around() to stay within boundaries
 Date:   Mon,  2 Jan 2023 12:22:27 +0100
-Message-Id: <20230102110554.407060232@linuxfoundation.org>
+Message-Id: <20230102110554.093038100@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
-References: <20230102110552.061937047@linuxfoundation.org>
+In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
+References: <20230102110551.509937186@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,120 +56,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: NARIBAYASHI Akira <a.naribayashi@fujitsu.com>
 
-commit 03e02acda8e267a8183e1e0ed289ff1ef9cd7ed8 upstream.
+commit be21b32afe470c5ae98e27e49201158a47032942 upstream.
 
-This is identical to eventfd_signal(), but it allows the caller to pass
-in a mask to be used for the poll wakeup key. The use case is avoiding
-repeated multishot triggers if we have a dependency between eventfd and
-io_uring.
+Depending on the memory configuration, isolate_freepages_block() may scan
+pages out of the target range and causes panic.
 
-If we setup an eventfd context and register that as the io_uring eventfd,
-and at the same time queue a multishot poll request for the eventfd
-context, then any CQE posted will repeatedly trigger the multishot request
-until it terminates when the CQ ring overflows.
+Panic can occur on systems with multiple zones in a single pageblock.
 
-In preparation for io_uring detecting this circular dependency, add the
-mentioned helper so that io_uring can pass in EPOLL_URING as part of the
-poll wakeup key.
+The reason it is rare is that it only happens in special
+configurations.  Depending on how many similar systems there are, it
+may be a good idea to fix this problem for older kernels as well.
 
-Cc: stable@vger.kernel.org # 6.0
-[axboe: fold in !CONFIG_EVENTFD fix from Zhang Qilong]
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+The problem is that pfn as argument of fast_isolate_around() could be out
+of the target range.  Therefore we should consider the case where pfn <
+start_pfn, and also the case where end_pfn < pfn.
+
+This problem should have been addressd by the commit 6e2b7044c199 ("mm,
+compaction: make fast_isolate_freepages() stay within zone") but there was
+an oversight.
+
+ Case1: pfn < start_pfn
+
+  <at memory compaction for node Y>
+  |  node X's zone  | node Y's zone
+  +-----------------+------------------------------...
+   pageblock    ^   ^     ^
+  +-----------+-----------+-----------+-----------+...
+                ^   ^     ^
+                ^   ^      end_pfn
+                ^    start_pfn = cc->zone->zone_start_pfn
+                 pfn
+                <---------> scanned range by "Scan After"
+
+ Case2: end_pfn < pfn
+
+  <at memory compaction for node X>
+  |  node X's zone  | node Y's zone
+  +-----------------+------------------------------...
+   pageblock  ^     ^   ^
+  +-----------+-----------+-----------+-----------+...
+              ^     ^   ^
+              ^     ^    pfn
+              ^      end_pfn
+               start_pfn
+              <---------> scanned range by "Scan Before"
+
+It seems that there is no good reason to skip nr_isolated pages just after
+given pfn.  So let perform simple scan from start to end instead of
+dividing the scan into "Before" and "After".
+
+Link: https://lkml.kernel.org/r/20221026112438.236336-1-a.naribayashi@fujitsu.com
+Fixes: 6e2b7044c199 ("mm, compaction: make fast_isolate_freepages() stay within zone").
+Signed-off-by: NARIBAYASHI Akira <a.naribayashi@fujitsu.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/eventfd.c            | 37 +++++++++++++++++++++----------------
- include/linux/eventfd.h |  7 +++++++
- 2 files changed, 28 insertions(+), 16 deletions(-)
+ mm/compaction.c |   18 +++++-------------
+ 1 file changed, 5 insertions(+), 13 deletions(-)
 
-diff --git a/fs/eventfd.c b/fs/eventfd.c
-index c0ffee99ad23..249ca6c0b784 100644
---- a/fs/eventfd.c
-+++ b/fs/eventfd.c
-@@ -43,21 +43,7 @@ struct eventfd_ctx {
- 	int id;
- };
- 
--/**
-- * eventfd_signal - Adds @n to the eventfd counter.
-- * @ctx: [in] Pointer to the eventfd context.
-- * @n: [in] Value of the counter to be added to the eventfd internal counter.
-- *          The value cannot be negative.
-- *
-- * This function is supposed to be called by the kernel in paths that do not
-- * allow sleeping. In this function we allow the counter to reach the ULLONG_MAX
-- * value, and we signal this as overflow condition by returning a EPOLLERR
-- * to poll(2).
-- *
-- * Returns the amount by which the counter was incremented.  This will be less
-- * than @n if the counter has overflowed.
-- */
--__u64 eventfd_signal(struct eventfd_ctx *ctx, __u64 n)
-+__u64 eventfd_signal_mask(struct eventfd_ctx *ctx, __u64 n, unsigned mask)
- {
- 	unsigned long flags;
- 
-@@ -78,12 +64,31 @@ __u64 eventfd_signal(struct eventfd_ctx *ctx, __u64 n)
- 		n = ULLONG_MAX - ctx->count;
- 	ctx->count += n;
- 	if (waitqueue_active(&ctx->wqh))
--		wake_up_locked_poll(&ctx->wqh, EPOLLIN);
-+		wake_up_locked_poll(&ctx->wqh, EPOLLIN | mask);
- 	current->in_eventfd = 0;
- 	spin_unlock_irqrestore(&ctx->wqh.lock, flags);
- 
- 	return n;
- }
-+
-+/**
-+ * eventfd_signal - Adds @n to the eventfd counter.
-+ * @ctx: [in] Pointer to the eventfd context.
-+ * @n: [in] Value of the counter to be added to the eventfd internal counter.
-+ *          The value cannot be negative.
-+ *
-+ * This function is supposed to be called by the kernel in paths that do not
-+ * allow sleeping. In this function we allow the counter to reach the ULLONG_MAX
-+ * value, and we signal this as overflow condition by returning a EPOLLERR
-+ * to poll(2).
-+ *
-+ * Returns the amount by which the counter was incremented.  This will be less
-+ * than @n if the counter has overflowed.
-+ */
-+__u64 eventfd_signal(struct eventfd_ctx *ctx, __u64 n)
-+{
-+	return eventfd_signal_mask(ctx, n, 0);
-+}
- EXPORT_SYMBOL_GPL(eventfd_signal);
- 
- static void eventfd_free_ctx(struct eventfd_ctx *ctx)
-diff --git a/include/linux/eventfd.h b/include/linux/eventfd.h
-index 30eb30d6909b..786824f58d3d 100644
---- a/include/linux/eventfd.h
-+++ b/include/linux/eventfd.h
-@@ -40,6 +40,7 @@ struct file *eventfd_fget(int fd);
- struct eventfd_ctx *eventfd_ctx_fdget(int fd);
- struct eventfd_ctx *eventfd_ctx_fileget(struct file *file);
- __u64 eventfd_signal(struct eventfd_ctx *ctx, __u64 n);
-+__u64 eventfd_signal_mask(struct eventfd_ctx *ctx, __u64 n, unsigned mask);
- int eventfd_ctx_remove_wait_queue(struct eventfd_ctx *ctx, wait_queue_entry_t *wait,
- 				  __u64 *cnt);
- void eventfd_ctx_do_read(struct eventfd_ctx *ctx, __u64 *cnt);
-@@ -66,6 +67,12 @@ static inline int eventfd_signal(struct eventfd_ctx *ctx, int n)
- 	return -ENOSYS;
+--- a/mm/compaction.c
++++ b/mm/compaction.c
+@@ -1344,7 +1344,7 @@ move_freelist_tail(struct list_head *fre
  }
  
-+static inline int eventfd_signal_mask(struct eventfd_ctx *ctx, __u64 n,
-+				      unsigned mask)
-+{
-+	return -ENOSYS;
-+}
-+
- static inline void eventfd_ctx_put(struct eventfd_ctx *ctx)
+ static void
+-fast_isolate_around(struct compact_control *cc, unsigned long pfn, unsigned long nr_isolated)
++fast_isolate_around(struct compact_control *cc, unsigned long pfn)
  {
+ 	unsigned long start_pfn, end_pfn;
+ 	struct page *page;
+@@ -1365,21 +1365,13 @@ fast_isolate_around(struct compact_contr
+ 	if (!page)
+ 		return;
  
--- 
-2.39.0
-
+-	/* Scan before */
+-	if (start_pfn != pfn) {
+-		isolate_freepages_block(cc, &start_pfn, pfn, &cc->freepages, 1, false);
+-		if (cc->nr_freepages >= cc->nr_migratepages)
+-			return;
+-	}
+-
+-	/* Scan after */
+-	start_pfn = pfn + nr_isolated;
+-	if (start_pfn < end_pfn)
+-		isolate_freepages_block(cc, &start_pfn, end_pfn, &cc->freepages, 1, false);
++	isolate_freepages_block(cc, &start_pfn, end_pfn, &cc->freepages, 1, false);
+ 
+ 	/* Skip this pageblock in the future as it's full or nearly full */
+ 	if (cc->nr_freepages < cc->nr_migratepages)
+ 		set_pageblock_skip(page);
++
++	return;
+ }
+ 
+ /* Search orders in round-robin fashion */
+@@ -1556,7 +1548,7 @@ fast_isolate_freepages(struct compact_co
+ 		return cc->free_pfn;
+ 
+ 	low_pfn = page_to_pfn(page);
+-	fast_isolate_around(cc, low_pfn, nr_isolated);
++	fast_isolate_around(cc, low_pfn);
+ 	return low_pfn;
+ }
+ 
 
 
