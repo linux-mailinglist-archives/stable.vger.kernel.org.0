@@ -2,259 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D575A65B389
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 15:48:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47CD765B391
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 15:49:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236221AbjABOsO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 09:48:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39480 "EHLO
+        id S231716AbjABOs6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 09:48:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236218AbjABOsM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 09:48:12 -0500
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 284F664C3
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 06:48:11 -0800 (PST)
-Received: by mail-ej1-x62c.google.com with SMTP id ud5so67010001ejc.4
-        for <stable@vger.kernel.org>; Mon, 02 Jan 2023 06:48:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=+okEzV2zBdHwNj7DEszLP2mtdrLQi0h+BSkRAR7jQxw=;
-        b=jr6GEGlL94jU9hne/o9BdhUQYxbLmYpuFwXfDalZ88hYQ7Rx+t/AUWgckvpQ7Flugg
-         gnVca1In/VusgpJJEQjHD1UjEhz3aqK59p6fJ5QoGcp6+7lB6N/TAjX46tB53l8/kK1L
-         Lm3c85y4+eVK9CmEhV1fnZB9bqAoLefUNPbts=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=+okEzV2zBdHwNj7DEszLP2mtdrLQi0h+BSkRAR7jQxw=;
-        b=leB/djRgHyzCnQmrfxlgTvAdx+z9qXde6NR6pAEn7XlpHtymEW//ySINu4X8T7NvL5
-         OmOoKDfZZoynUk1424oV/bXJpGY+jhVhm9Hbix6z64uPjpy5F/QPtw3P6lQqMRU3R7Fh
-         j8/Aqfn3G8eVhgA7BBVXRfdtVe8zzHzI0ekdG+6q217HPft0YYf+d/Nkn7tjy9FL+rGH
-         3W9qTNcO3/Rj/1z0YHrJYEgYcBVs4qNTXIu6IlHESkdghfK0aby6u+exp1l/O6DJOQZI
-         BZppuHkKrx+B5GIai672Jdd8GzM1E+nlYHXJrHpQE6zs/ItxwskES7h9lUG4y8xClklr
-         NCZg==
-X-Gm-Message-State: AFqh2kqWocwQw9FY9mLJBU+9ylwOW9N9RXa+m0sh0uTz0fIV/EQaBRsO
-        RE4fnfLpgUPqMNgOPwuAPH5i6g==
-X-Google-Smtp-Source: AMrXdXvU6QFKesPnUhP8MEnmUGjftcZTE+4Kg1zLMf09kow3Ss7mrQ8yIgUiqNqzbKfpCHK2l9KQGw==
-X-Received: by 2002:a17:907:8312:b0:7fc:3fef:ab86 with SMTP id mq18-20020a170907831200b007fc3fefab86mr29857890ejc.71.1672670889731;
-        Mon, 02 Jan 2023 06:48:09 -0800 (PST)
-Received: from alco.roam.corp.google.com ([2620:0:1059:10:6ef6:ea10:76ec:977f])
-        by smtp.gmail.com with ESMTPSA id k3-20020a17090632c300b00781dbdb292asm13064795ejk.155.2023.01.02.06.48.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Jan 2023 06:48:09 -0800 (PST)
-From:   Ricardo Ribalda <ribalda@chromium.org>
-Date:   Mon, 02 Jan 2023 15:48:01 +0100
-Subject: [PATCH v6] media: uvcvideo: Fix race condition with usb_kill_urb
+        with ESMTP id S232942AbjABOss (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 09:48:48 -0500
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.21])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C84966465;
+        Mon,  2 Jan 2023 06:48:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.de; s=s31663417;
+        t=1672670903; bh=cUUTc8Fvgowvs3kRn4xQ5Ko18CAYd2NLfEAuO5+9Il0=;
+        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
+        b=sD1gBsVq08UZG71PKBLJYyt449w8RFoLAtADqA7lKzYYXIiP4q1IrLsA5nsx/puCh
+         PbP1yLh92PZwboVF6SaxJ7E8Z8XfthrzMjOyHyKrShzBin83Pw1HHow18vG8r4NTZy
+         wwRq7pVdKlZMMHb/+CbolLS51iG0mTestS/4NWMMs4AZHVffTQrA9wtfCzMM0lqOcT
+         BEUCVlutiiFB2krRoHQJuTKTEWQhksOw/IMNR02m2b4TV70Yxr/W9ulk0zT7wNLWm4
+         jthcfUy3hDU+57pjRq8sAWQAYlTt9SQdB7D4QDQskV4H4+jcRQCFflgApd6EDXNomR
+         pHT/4H+IRSLDg==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from [192.168.20.60] ([92.116.130.137]) by mail.gmx.net (mrgmx104
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1MN5if-1pVG2U07HB-00J0eB; Mon, 02
+ Jan 2023 15:48:23 +0100
+Message-ID: <17a2982e-f4e8-f8bd-db8f-dd14bf27b4e7@gmx.de>
+Date:   Mon, 2 Jan 2023 15:48:21 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20221212-uvc-race-v6-0-2a662f8de011@chromium.org>
-To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Max Staudt <mstaudt@google.com>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>
-Cc:     Yunke Cao <yunkec@chromium.org>, linux-kernel@vger.kernel.org,
-        linux-media@vger.kernel.org, stable@vger.kernel.org,
-        Ricardo Ribalda <ribalda@chromium.org>
-X-Mailer: b4 0.11.0-dev-696ae
-X-Developer-Signature: v=1; a=openpgp-sha256; l=5952; i=ribalda@chromium.org;
- h=from:subject:message-id; bh=OlBUT0d0UDR2+oDUQbmPwKuQ+fnKJ1FL06u1EsfTbt8=;
- b=owEBbQKS/ZANAwAKAdE30T7POsSIAcsmYgBjsu6ick7OJ1WRu4rYZaD1P3Xj9qmSGYqV/7icskpq
- t+TImPKJAjMEAAEKAB0WIQREDzjr+/4oCDLSsx7RN9E+zzrEiAUCY7LuogAKCRDRN9E+zzrEiEMiD/
- 93msrnCV2Ux9hqvFn3RKES7xI+hZLJCiuw1Y9XBxrP4p6CzOjicG8ZEL5rLwB6lPfh3Ipe+T2bWESv
- OHdn12VvQ3ydnaibggh1ZBJh9FyHRyrQFoWOyy0TufwQE8d5nmwLgCHOew0dnTBa+zszwAwZcWjYOK
- tFgrw8J8mqRalRUV4JZQDdLSvjn/MVjv5hZ00iWQK8pXhrmgMkrkgScrNkBC9tngDLC9JZBeFkuyzd
- dB/ZSo0ItexKTspXMvJ25TPAkCplKvCCjc1LzMQBJYpNKKBQQ4R76+sXhjaf+D7JvqGVBsBkBV8Q9Y
- KnxKp31V8twHhhbQQOvcJiLWXp24gZOsP1CK9X8xBFTfEh1Zx4nUcIKE3eeP0ohA87d3nnVjvfc2X6
- ncJWKHZ3yq1MN2fHDIzN4L5b2EcQmMJsoO2gy3Ach/d/ItODlt0rI8up5rWuG4N2lwyBUWAib4uQZq
- eVfc96dpe0hbv2qlPS2WIw6OaERLeP831Z01NwId8S/Wj5fP7p7HgVjam1HswZutlv0q7vjTm5y7ri
- 4fceDwrlplf3gexCa7KXeie4Xqs2w95uGf+TBU91bUglNXq2MdrSbnNYyjtb7TwcU67O8vxVW0OM2Q
- EN0no2ac3JcmqZpwUbTE9kmLk0aNXeB5I9MAks4Z80rSShxE1AgN2bJcKhXw==
-X-Developer-Key: i=ribalda@chromium.org; a=openpgp;
- fpr=9EC3BB66E2FC129A6F90B39556A0D81F9F782DA9
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+Subject: Re: [PATCH] matroxfb: G200eW: Increase max memory from 1 MB to 16 MB
+Content-Language: en-US
+To:     Paul Menzel <pmenzel@molgen.mpg.de>, "Z. Liu" <liuzx@knownsec.com>
+Cc:     it+linux-fbdev@molgen.mpg.de, Rich Felker <dalias@libc.org>,
+        stable@vger.kernel.org, linux-fbdev@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+References: <20230102135731.6487-1-pmenzel@molgen.mpg.de>
+From:   Helge Deller <deller@gmx.de>
+In-Reply-To: <20230102135731.6487-1-pmenzel@molgen.mpg.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:8eWfw4Opnqkzxf+1Ev79iySp2RH8FDZc46AiwNc3lV8sHnsUFte
+ xLvNG2vJLuvr5TD3q2zUoVnuIq62vEur8NRiJq7o4pib6toIMrTia5S6gTslmF9e9CS4Kkj
+ HoI5n5TbXYIczVViYf5cM7e/w7ekz6GH2UW0641AnDFWTzy5+QEwQ/R+2lpRDKrnXP9YFlS
+ 0mt/7r2YOVGS30eLPCKhA==
+UI-OutboundReport: notjunk:1;M01:P0:z6gzU0P4Vkk=;dQYG9VM4sTyZ0ppmp5CCsi7GSut
+ GDuitMne9sLdvy5EKVAwni+274uOK1jvMkCfssSsjpDCpi6YHvBXUoFGQVaT/QEYP0IFyGGae
+ Fh2UXq9hv2FXUFokyhxP6OmbELq6G5IotwKXCHszdU9o9zrR+Cu/USPuaftynrVEA+LdpOv8M
+ QrFtSHKUF4Bz7ZmAZiVBE581Yn8P/0Nf2khlAu8lP283SeeCXrljHkYKsiV9deECUZSnYQAXG
+ Pz0UzlJoFKLGMO/LaQQ8AfYCgn7M0UFSlDDC2AtS/u4NNjHmMkXoi88YALov9VEiqwhTmMygb
+ 0zj6knzAXWC35VkDnS0e7hFbF5f0Wlw1HwFDxsJLDMTYvuVu+VVlJkzaIDvxQW5/d5g4m60EP
+ WNJKvPath2U1ux8m9zvBPgQOxrJA1G15KG994xSAMX1orJ6sKFjyKmbTV8k+wpEvfdFyB0K94
+ 8V4R6bm9MXAB6RGQ3KJhgVnrxCr4xlTXefRxwCQzTD+iZ9pI4Jp/xbCMmEBNcNZvu8TQzp+ZM
+ rtsJ75tShkzjvJ6HJkMhe3wjTG+vWnnVYGy086+iR4b6un5nu1OtPeCILB2fg/i8NJodIKAaV
+ YJRACTjwiQr9wfgm5Swh1tFo6Sauv4oLp4HV5cAsOREDkXrHX4mZZ6ZoObWM1gBWlKGV9xAcY
+ VXIbLv+y6y88/8E5+c6V5qsdSf7bNgPqkTsOJxAmx229irjZxSXI0nascGN/ceffp//chH/pZ
+ ck0vA7oYg6L6AZeGp47MPzBy30LRRs2dg0t7TXyqwFeBzFKDD6tdJ4Ix+4Uxa4hcyzBysdZSh
+ kEsw1UzKOOhcVCD/5W2hR7pwVVO79jBs5hxciNYe1zTMdGXV18cQYWDhJkGycY/4FMGguvYDa
+ HGQwEcdA3cISEpcezc1sE1IW2VoGozI7w93+vS0VYCV31i/DC1QaEsCWDBgR4MVjQy/j0JNsm
+ 0cvPRuBttroAuvFizkPwr2NbmPY=
+X-Spam-Status: No, score=-5.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-usb_kill_urb warranties that all the handlers are finished when it
-returns, but does not protect against threads that might be handling
-asynchronously the urb.
+On 1/2/23 14:57, Paul Menzel wrote:
+> Commit 62d89a7d49af ("video: fbdev: matroxfb: set maxvram of vbG200eW to
+> the same as vbG200 to avoid black screen") accidently decreases the
+> maximum memory size for the Matrox G200eW (102b:0532) from 8 MB to 1 MB
+> by missing one zero. This caused the driver initialization to fail with
+> the messages below, as the minimum required VRAM size is 2 MB:
+>
+>       [    9.436420] matroxfb: Matrox MGA-G200eW (PCI) detected
+>       [    9.444502] matroxfb: cannot determine memory size
+>       [    9.449316] matroxfb: probe of 0000:0a:03.0 failed with error -=
+1
+>
+> So, add the missing 0 to make it the intended 16 MB. Successfully tested=
+ on
+> the Dell PowerEdge R910/0KYD3D, BIOS 2.10.0 08/29/2013, that the warning=
+ is
+> gone.
+>
+> While at it, add a leading 0 to the maxdisplayable entry, so it=E2=80=99=
+s aligned
+> properly. The value could probably also be increased from 8 MB to 16 MB,=
+ as
+> the G200 uses the same values, but I have not checked any datasheet.
+>
+> Note, matroxfb is obsolete and superseded by the maintained DRM driver
+> mga200, which is used by default on most systems where both drivers are
+> available. Therefore, on most systems it was only a cosmetic issue.
+>
+> Fixes: 62d89a7d49af ("video: fbdev: matroxfb: set maxvram of vbG200eW to=
+ the same as vbG200 to avoid black screen")
+> Link: https://lore.kernel.org/linux-fbdev/972999d3-b75d-5680-fcef-6e6905=
+c52ac5@suse.de/T/#mb6953a9995ebd18acc8552f99d6db39787aec775
+> Cc: it+linux-fbdev@molgen.mpg.de
+> Cc: Z. Liu <liuzx@knownsec.com>
+> Cc: Rich Felker <dalias@libc.org>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Paul Menzel <pmenzel@molgen.mpg.de>
 
-For UVC, the function uvc_ctrl_status_event_async() takes care of
-control changes asynchronously.
+applied this v1 version to the fbdev git tree.
+Thanks!
+Helge
 
- If the code is executed in the following order:
 
-CPU 0					CPU 1
-===== 					=====
-uvc_status_complete()
-					uvc_status_stop()
-uvc_ctrl_status_event_work()
-					uvc_status_start() -> FAIL
+> ---
+>   drivers/video/fbdev/matrox/matroxfb_base.c | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/video/fbdev/matrox/matroxfb_base.c b/drivers/video/=
+fbdev/matrox/matroxfb_base.c
+> index 0d3cee7ae7268..a043a737ea9f7 100644
+> --- a/drivers/video/fbdev/matrox/matroxfb_base.c
+> +++ b/drivers/video/fbdev/matrox/matroxfb_base.c
+> @@ -1378,8 +1378,8 @@ static struct video_board vbG200 =3D {
+>   	.lowlevel =3D &matrox_G100
+>   };
+>   static struct video_board vbG200eW =3D {
+> -	.maxvram =3D 0x100000,
+> -	.maxdisplayable =3D 0x800000,
+> +	.maxvram =3D 0x1000000,
+> +	.maxdisplayable =3D 0x0800000,
+>   	.accelID =3D FB_ACCEL_MATROX_MGAG200,
+>   	.lowlevel =3D &matrox_G100
+>   };
 
-Then uvc_status_start will keep failing and this error will be shown:
-
-<4>[    5.540139] URB 0000000000000000 submitted while active
-drivers/usb/core/urb.c:378 usb_submit_urb+0x4c3/0x528
-
-Let's improve the current situation, by not re-submiting the urb if
-we are stopping the status event. Also process the queued work
-(if any) during stop.
-
-CPU 0					CPU 1
-===== 					=====
-uvc_status_complete()
-					uvc_status_stop()
-					uvc_status_start()
-uvc_ctrl_status_event_work() -> FAIL
-
-Hopefully, with the usb layer protection this should be enough to cover
-all the cases.
-
-Cc: stable@vger.kernel.org
-Fixes: e5225c820c05 ("media: uvcvideo: Send a control event when a Control Change interrupt arrives")
-Reviewed-by: Yunke Cao <yunkec@chromium.org>
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
----
-uvc: Fix race condition on uvc
-
-Make sure that all the async work is finished when we stop the status urb.
-
-To: Yunke Cao <yunkec@chromium.org>
-To: Sergey Senozhatsky <senozhatsky@chromium.org>
-To: Max Staudt <mstaudt@google.com>
-To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: linux-media@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
----
-Changes in v6:
-- Improve comments. (Thanks Laurent).
-- Use true/false instead of 1/0 (Thanks Laurent).
-- Link to v5: https://lore.kernel.org/r/20221212-uvc-race-v5-0-3db3933d1608@chromium.org
-
-Changes in v5:
-- atomic_t do not impose barriers, use smp_mb() instead. (Thanks Laurent)
-- Add an extra cancel_work_sync().
-- Link to v4: https://lore.kernel.org/r/20221212-uvc-race-v4-0-38d7075b03f5@chromium.org
-
-Changes in v4:
-- Replace bool with atomic_t to avoid compiler reordering.
-- First complete the async work and then kill the urb to avoid race (Thanks Laurent!)
-- Link to v3: https://lore.kernel.org/r/20221212-uvc-race-v3-0-954efc752c9a@chromium.org
-
-Changes in v3:
-- Remove the patch for dev->status, makes more sense in another series, and makes
-  the zero day less nervous.
-- Update reviewed-by (thanks Yunke!).
-- Link to v2: https://lore.kernel.org/r/20221212-uvc-race-v2-0-54496cc3b8ab@chromium.org
-
-Changes in v2:
-- Add a patch for not kalloc dev->status
-- Redo the logic mechanism, so it also works with suspend (Thanks Yunke!)
-- Link to v1: https://lore.kernel.org/r/20221212-uvc-race-v1-0-c52e1783c31d@chromium.org
----
- drivers/media/usb/uvc/uvc_ctrl.c   |  3 +++
- drivers/media/usb/uvc/uvc_status.c | 40 ++++++++++++++++++++++++++++++++++++++
- drivers/media/usb/uvc/uvcvideo.h   |  1 +
- 3 files changed, 44 insertions(+)
-
-diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
-index c95a2229f4fa..5160facc8e20 100644
---- a/drivers/media/usb/uvc/uvc_ctrl.c
-+++ b/drivers/media/usb/uvc/uvc_ctrl.c
-@@ -1442,6 +1442,9 @@ static void uvc_ctrl_status_event_work(struct work_struct *work)
- 
- 	uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
- 
-+	if (dev->flush_status)
-+		return;
-+
- 	/* Resubmit the URB. */
- 	w->urb->interval = dev->int_ep->desc.bInterval;
- 	ret = usb_submit_urb(w->urb, GFP_KERNEL);
-diff --git a/drivers/media/usb/uvc/uvc_status.c b/drivers/media/usb/uvc/uvc_status.c
-index 7518ffce22ed..e457889345a3 100644
---- a/drivers/media/usb/uvc/uvc_status.c
-+++ b/drivers/media/usb/uvc/uvc_status.c
-@@ -6,6 +6,7 @@
-  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
-  */
- 
-+#include <asm/barrier.h>
- #include <linux/kernel.h>
- #include <linux/input.h>
- #include <linux/slab.h>
-@@ -309,5 +310,44 @@ int uvc_status_start(struct uvc_device *dev, gfp_t flags)
- 
- void uvc_status_stop(struct uvc_device *dev)
- {
-+	struct uvc_ctrl_work *w = &dev->async_ctrl;
-+
-+	/* Prevent the asynchronous control handler from requeing the URB */
-+	dev->flush_status = true;
-+
-+	/*
-+	 * The barrier is needed so the flush_status change is visible to other
-+	 * CPUs running the asynchronous handler before usb_kill_urb() is
-+	 * called below.
-+	 */
-+	smp_mb();
-+
-+	/* If there is any status event on the queue, process it. */
-+	if (cancel_work_sync(&w->work))
-+		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
-+
-+	/* Kill the urb. */
- 	usb_kill_urb(dev->int_urb);
-+
-+	/*
-+	 * The URB completion handler may have queued asynchronous work. This
-+	 * won't resubmit the URB as flush_status is set, but it needs to be
-+	 * cancelled before returning or it could then race with a future
-+	 * uvc_status_start() call.
-+	 */
-+	if (cancel_work_sync(&w->work))
-+		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
-+
-+	/*
-+	 * From this point, there are no events on the queue and the status URB
-+	 * is dead, this is, no events will be queued until uvc_status_start()
-+	 * is called.
-+	 */
-+	dev->flush_status = false;
-+
-+	/*
-+	 * Write to memory the value of flush_status before uvc_status_start()
-+	 * is called again.
-+	 */
-+	smp_mb();
- }
-diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
-index df93db259312..6a9b72d6789e 100644
---- a/drivers/media/usb/uvc/uvcvideo.h
-+++ b/drivers/media/usb/uvc/uvcvideo.h
-@@ -560,6 +560,7 @@ struct uvc_device {
- 	struct usb_host_endpoint *int_ep;
- 	struct urb *int_urb;
- 	u8 *status;
-+	bool flush_status;
- 	struct input_dev *input;
- 	char input_phys[64];
- 
-
----
-base-commit: 0ec5a38bf8499f403f81cb81a0e3a60887d1993c
-change-id: 20221212-uvc-race-09276ea68bf8
-
-Best regards,
--- 
-Ricardo Ribalda <ribalda@chromium.org>
