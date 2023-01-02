@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBD5265B116
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:30:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00B0A65B0C2
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:27:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232821AbjABLaE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:30:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50192 "EHLO
+        id S232884AbjABL14 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:27:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232954AbjABL3e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:29:34 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91AF1642F
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:29:06 -0800 (PST)
+        with ESMTP id S232889AbjABL1V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:27:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 335CC64D6
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:26:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DFD1ACE0E1D
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:29:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEC37C433EF;
-        Mon,  2 Jan 2023 11:29:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25F8D60F49
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:26:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30157C433EF;
+        Mon,  2 Jan 2023 11:26:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658943;
-        bh=brgNw/t9C+5VCrcvkooNJ83yLfbdV95Y/k4DoRWcK6s=;
+        s=korg; t=1672658776;
+        bh=KCXNKdNnGCvwv7UhPIhQEaaJqCNCvCLh8bS2TEuILeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2stFDLTim5KDOVtJ/8p3VlQUnTIN718QGCKHQkMH1nnvunzP8HUw8NsWNuHYptfUF
-         Gw0vWjBvgZDRVwfmAYctlBT9WFLZv1MDJw8aDczjSe4lGZFRSIGkpvgtXOYF4XaNEj
-         1n9pJ61aFfeDrL+rOHSreDmuS7Anf2fAmyfdr7tg=
+        b=vdhOsXb3YWG9gwHPyRhg3qbJqh3MRwe/aCQf1qK5tqvKDxnsz8xNdWCN6ISwM05ot
+         Elpw2jJcEKKsgt1LEaYF08CQCjRAW9S2FY0yAGei8nLIT1bPhxUDUzuYWhT4/W0T1F
+         G8ASDwMq99nKoq2w3eQ++kxn3oZeIDLbAwyXnG68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pierre Labastie <pierre.labastie@neuf.fr>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 6.0 58/74] ovl: update ->f_iocb_flags when ovl_change_flags() modifies ->f_flags
+        patches@lists.linux.dev, Deren Wu <deren.wu@mediatek.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 6.1 66/71] mmc: vub300: fix warning - do not call blocking ops when !TASK_RUNNING
 Date:   Mon,  2 Jan 2023 12:22:31 +0100
-Message-Id: <20230102110554.574408722@linuxfoundation.org>
+Message-Id: <20230102110554.260266675@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
-References: <20230102110552.061937047@linuxfoundation.org>
+In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
+References: <20230102110551.509937186@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +52,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Deren Wu <deren.wu@mediatek.com>
 
-commit 456b59e757b0c558df550764a4fd5ae6877e93f8 upstream.
+commit 4a44cd249604e29e7b90ae796d7692f5773dd348 upstream.
 
-ovl_change_flags() is an open-coded variant of fs/fcntl.c:setfl() and it
-got missed by commit 164f4064ca81 ("keep iocb_flags() result cached in
-struct file"); the same change applies there.
+vub300_enable_sdio_irq() works with mutex and need TASK_RUNNING here.
+Ensure that we mark current as TASK_RUNNING for sleepable context.
 
-Reported-by: Pierre Labastie <pierre.labastie@neuf.fr>
-Fixes: 164f4064ca81 ("keep iocb_flags() result cached in struct file")
-Cc: <stable@vger.kernel.org> # v6.0
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216738
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+[   77.554641] do not call blocking ops when !TASK_RUNNING; state=1 set at [<ffffffff92a72c1d>] sdio_irq_thread+0x17d/0x5b0
+[   77.554652] WARNING: CPU: 2 PID: 1983 at kernel/sched/core.c:9813 __might_sleep+0x116/0x160
+[   77.554905] CPU: 2 PID: 1983 Comm: ksdioirqd/mmc1 Tainted: G           OE      6.1.0-rc5 #1
+[   77.554910] Hardware name: Intel(R) Client Systems NUC8i7BEH/NUC8BEB, BIOS BECFL357.86A.0081.2020.0504.1834 05/04/2020
+[   77.554912] RIP: 0010:__might_sleep+0x116/0x160
+[   77.554920] RSP: 0018:ffff888107b7fdb8 EFLAGS: 00010282
+[   77.554923] RAX: 0000000000000000 RBX: ffff888118c1b740 RCX: 0000000000000000
+[   77.554926] RDX: 0000000000000001 RSI: 0000000000000004 RDI: ffffed1020f6ffa9
+[   77.554928] RBP: ffff888107b7fde0 R08: 0000000000000001 R09: ffffed1043ea60ba
+[   77.554930] R10: ffff88821f5305cb R11: ffffed1043ea60b9 R12: ffffffff93aa3a60
+[   77.554932] R13: 000000000000011b R14: 7fffffffffffffff R15: ffffffffc0558660
+[   77.554934] FS:  0000000000000000(0000) GS:ffff88821f500000(0000) knlGS:0000000000000000
+[   77.554937] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   77.554939] CR2: 00007f8a44010d68 CR3: 000000024421a003 CR4: 00000000003706e0
+[   77.554942] Call Trace:
+[   77.554944]  <TASK>
+[   77.554952]  mutex_lock+0x78/0xf0
+[   77.554973]  vub300_enable_sdio_irq+0x103/0x3c0 [vub300]
+[   77.554981]  sdio_irq_thread+0x25c/0x5b0
+[   77.555006]  kthread+0x2b8/0x370
+[   77.555017]  ret_from_fork+0x1f/0x30
+[   77.555023]  </TASK>
+[   77.555025] ---[ end trace 0000000000000000 ]---
+
+Fixes: 88095e7b473a ("mmc: Add new VUB300 USB-to-SD/SDIO/MMC driver")
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/87dc45b122d26d63c80532976813c9365d7160b3.1670140888.git.deren.wu@mediatek.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/overlayfs/file.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mmc/host/vub300.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/overlayfs/file.c b/fs/overlayfs/file.c
-index a1a22f58ba18..dd688a842b0b 100644
---- a/fs/overlayfs/file.c
-+++ b/fs/overlayfs/file.c
-@@ -96,6 +96,7 @@ static int ovl_change_flags(struct file *file, unsigned int flags)
- 
- 	spin_lock(&file->f_lock);
- 	file->f_flags = (file->f_flags & ~OVL_SETFL_MASK) | flags;
-+	file->f_iocb_flags = iocb_flags(file);
- 	spin_unlock(&file->f_lock);
- 
- 	return 0;
--- 
-2.39.0
-
+--- a/drivers/mmc/host/vub300.c
++++ b/drivers/mmc/host/vub300.c
+@@ -2049,6 +2049,7 @@ static void vub300_enable_sdio_irq(struc
+ 		return;
+ 	kref_get(&vub300->kref);
+ 	if (enable) {
++		set_current_state(TASK_RUNNING);
+ 		mutex_lock(&vub300->irq_mutex);
+ 		if (vub300->irqs_queued) {
+ 			vub300->irqs_queued -= 1;
+@@ -2064,6 +2065,7 @@ static void vub300_enable_sdio_irq(struc
+ 			vub300_queue_poll_work(vub300, 0);
+ 		}
+ 		mutex_unlock(&vub300->irq_mutex);
++		set_current_state(TASK_INTERRUPTIBLE);
+ 	} else {
+ 		vub300->irq_enabled = 0;
+ 	}
 
 
