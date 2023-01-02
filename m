@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 593D265B04C
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:10:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EE6265B04D
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:10:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230062AbjABLKy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:10:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52114 "EHLO
+        id S231706AbjABLKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:10:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232526AbjABKvR (ORCPT
+        with ESMTP id S232527AbjABKvR (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 05:51:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A7D325FD
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A0A725F4
         for <stable@vger.kernel.org>; Mon,  2 Jan 2023 02:51:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 06A7C60DEF
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 10:51:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1928BC433D2;
-        Mon,  2 Jan 2023 10:51:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FC0160F25
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 10:51:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9404C433D2;
+        Mon,  2 Jan 2023 10:51:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672656664;
-        bh=ee2puze15g528fV1JJtXCrTkmhQ7jL8/E9CSthi+sRw=;
+        s=korg; t=1672656667;
+        bh=be2U4LxZreIeJzFfYn8MDVMIXbs6l0ZyNLqtEUPO8i0=;
         h=Subject:To:Cc:From:Date:From;
-        b=ZrfI0gMW6UqW1V9apOo0ZVjjz6xUO1F7I7tUGZH1c/PVaUbqkUnueB+jlczIMshJz
-         oYD6UViVPXDQL5c1vtFynYLJAmxK9Z3Mk4BC66oT1FUcLZBtu1lv3japDA29zuUbpg
-         JOUGHKINLkqtY9R7cWabCZWSR1UUgHhp4YL9zvQI=
-Subject: FAILED: patch "[PATCH] binfmt: Fix error return code in load_elf_fdpic_binary()" failed to apply to 4.19-stable tree
+        b=X2B1c8T4T6aIddx0qpo/xCWWetmjosLhePICLJVwpgCV+rMFkz3AkRfCzaVYxP/Dz
+         fOICmRvE/YnjpMereGwzveBrPp9EhVjO3hbKylj9sJKQq5B+jzJuKuyLoIjjSvmYGW
+         TKUV/uZVqGYuN4Jr0XW8JeXk01zq9DCcJuXQ1sN8=
+Subject: FAILED: patch "[PATCH] binfmt: Fix error return code in load_elf_fdpic_binary()" failed to apply to 4.9-stable tree
 To:     wangyufen@huawei.com, keescook@chromium.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 02 Jan 2023 11:50:51 +0100
-Message-ID: <1672656651254222@kroah.com>
+Date:   Mon, 02 Jan 2023 11:50:52 +0100
+Message-ID: <1672656652179157@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
