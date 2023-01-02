@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6345865B0DD
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:28:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89A4A65B09A
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:26:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236065AbjABL2w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:28:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45788 "EHLO
+        id S232955AbjABL0p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:26:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235993AbjABL2O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:28:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D997163C6
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:27:27 -0800 (PST)
+        with ESMTP id S230196AbjABLZ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:25:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0894A65AB
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:24:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 765F260F59
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:27:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84C59C433D2;
-        Mon,  2 Jan 2023 11:27:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B19360F2A
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:24:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B06AFC433D2;
+        Mon,  2 Jan 2023 11:24:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658846;
-        bh=NvJ84lrIoZUzJ8dsDCCQSGQW3Y7//eEfkb+UL/R/Ekc=;
+        s=korg; t=1672658680;
+        bh=lqalO2Uiy8+4yvtSRJmmBdkYOsev+8tvNCRwd58LTGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KS23fT4um6jxrTyd35XS7mb8hBuJO6i6/lcI9LIVohsCWzppWQ7RSFeMFS+Hw0v3w
-         Du9OACrShXCkQkGiEm7kX5wIUl1HwUkIpd2qxFvQHZkP5IJSi7UanxteNiXskZ5xxA
-         j5Fa6QKGRmI+v7LWyoyypZbtL4m5F8nYKKbglUBg=
+        b=d8W8/Js87s/nnxnjarz9/cbGye05k1G1X5ZjRwHBhpLltq4fJSdQ+6DiUXV++A8Ix
+         ivsXRE47USF1Pjpu0PDW8vb/RbYcxXFQq0XpPhFW5W5RiWzwTEyJQHXLysP8AyEVXv
+         llwXcAnM/sC4ClaV0vIVgyNLz8eqn9NYL5iHnrOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Kanchan Joshi <joshi.k@samsung.com>,
+        patches@lists.linux.dev,
+        syzot <syzbot+fa4648a5446460b7b963@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 21/74] nvme: fix the NVME_CMD_EFFECTS_CSE_MASK definition
+Subject: [PATCH 6.1 29/71] fs/ntfs3: Use __GFP_NOWARN allocation at wnd_init()
 Date:   Mon,  2 Jan 2023 12:21:54 +0100
-Message-Id: <20230102110552.969632346@linuxfoundation.org>
+Message-Id: <20230102110552.663848924@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
-References: <20230102110552.061937047@linuxfoundation.org>
+In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
+References: <20230102110551.509937186@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit 685e6311637e46f3212439ce2789f8a300e5050f ]
+[ Upstream commit 0d0f659bf713662fabed973f9996b8f23c59ca51 ]
 
-3 << 16 does not generate the correct mask for bits 16, 17 and 18.
-Use the GENMASK macro to generate the correct mask instead.
+syzbot is reporting too large allocation at wnd_init() [1], for a crafted
+filesystem can become wnd->nwnd close to UINT_MAX. Add __GFP_NOWARN in
+order to avoid too large allocation warning, than exhausting memory by
+using kvcalloc().
 
-Fixes: 84fef62d135b ("nvme: check admin passthru command effects")
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Kanchan Joshi <joshi.k@samsung.com>
+Link: https://syzkaller.appspot.com/bug?extid=fa4648a5446460b7b963 [1]
+Reported-by: syzot <syzbot+fa4648a5446460b7b963@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/nvme.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/ntfs3/bitmap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/nvme.h b/include/linux/nvme.h
-index ae53d74f3696..e2dbb9755cca 100644
---- a/include/linux/nvme.h
-+++ b/include/linux/nvme.h
-@@ -7,6 +7,7 @@
- #ifndef _LINUX_NVME_H
- #define _LINUX_NVME_H
+diff --git a/fs/ntfs3/bitmap.c b/fs/ntfs3/bitmap.c
+index 1930640be31a..45f95c1cb258 100644
+--- a/fs/ntfs3/bitmap.c
++++ b/fs/ntfs3/bitmap.c
+@@ -661,7 +661,7 @@ int wnd_init(struct wnd_bitmap *wnd, struct super_block *sb, size_t nbits)
+ 	if (!wnd->bits_last)
+ 		wnd->bits_last = wbits;
  
-+#include <linux/bits.h>
- #include <linux/types.h>
- #include <linux/uuid.h>
- 
-@@ -639,7 +640,7 @@ enum {
- 	NVME_CMD_EFFECTS_NCC		= 1 << 2,
- 	NVME_CMD_EFFECTS_NIC		= 1 << 3,
- 	NVME_CMD_EFFECTS_CCC		= 1 << 4,
--	NVME_CMD_EFFECTS_CSE_MASK	= 3 << 16,
-+	NVME_CMD_EFFECTS_CSE_MASK	= GENMASK(18, 16),
- 	NVME_CMD_EFFECTS_UUID_SEL	= 1 << 19,
- };
+-	wnd->free_bits = kcalloc(wnd->nwnd, sizeof(u16), GFP_NOFS);
++	wnd->free_bits = kcalloc(wnd->nwnd, sizeof(u16), GFP_NOFS | __GFP_NOWARN);
+ 	if (!wnd->free_bits)
+ 		return -ENOMEM;
  
 -- 
 2.35.1
