@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D045865B0D2
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:28:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B17AD65B08D
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:25:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232877AbjABL2j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:28:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45976 "EHLO
+        id S232905AbjABLZg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:25:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232603AbjABL1x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:27:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F215560C5
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:27:00 -0800 (PST)
+        with ESMTP id S232909AbjABLYw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:24:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E410644C
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:24:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ABDB5B80D15
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:26:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC032C433EF;
-        Mon,  2 Jan 2023 11:26:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B916E60F57
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:24:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCBF4C433EF;
+        Mon,  2 Jan 2023 11:24:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658818;
-        bh=jhGHPPiCg8PuuPbx27YsQpFMkeaCpoT/eez0u9GB/Jc=;
+        s=korg; t=1672658651;
+        bh=2/sFbHrCj3NlH5vF336h/jLVbSPWzPw+XeJo6x2lkzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oxfm26sKJjVIzqdGXFGBT/NbWIm+90JOmbRyBYReKncvrYjFVQC+X8KA/rdbHM0D9
-         2FDBkWXVOHU4pXD3AJzru8b5MJ7SRd9nhduWruxZVWaYYuntQ1Kt42DQdRdIOtSTp/
-         ybgF1cUXJ8hrg2PzB58v6DRNiGDc+ubB0vU1BJYU=
+        b=iqULU/5xZ5HcGHmkrGs5nQ698WPvom7QlU+dB2O/Wyw55mjEORh/QQlZ3XWzo5QGC
+         wDCSo72KTMI8bMbp1lNuFzF9W21WWOct/jS5v/QFvoovrOmGM0JzzBEx49srym+6sy
+         sYL8CbmXAwodKggMpHJjvajvwNAR1fY4E6STwI5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>,
+        patches@lists.linux.dev,
+        syzbot+9d67170b20e8f94351c8@syzkaller.appspotmail.com,
+        Shigeru Yoshida <syoshida@redhat.com>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 11/74] cifs: dont leak -ENOMEM in smb2_open_file()
+Subject: [PATCH 6.1 19/71] fs/ntfs3: Fix memory leak on ntfs_fill_super() error path
 Date:   Mon,  2 Jan 2023 12:21:44 +0100
-Message-Id: <20230102110552.525903229@linuxfoundation.org>
+Message-Id: <20230102110552.256198796@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
-References: <20230102110552.061937047@linuxfoundation.org>
+In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
+References: <20230102110551.509937186@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara <pc@cjr.nz>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-[ Upstream commit f60ffa662d1427cfd31fe9d895c3566ac50bfe52 ]
+[ Upstream commit 51e76a232f8c037f1d9e9922edc25b003d5f3414 ]
 
-A NULL error response might be a valid case where smb2_reconnect()
-failed to reconnect the session and tcon due to a disconnected server
-prior to issuing the I/O operation, so don't leak -ENOMEM to userspace
-on such occasions.
+syzbot reported kmemleak as below:
 
-Fixes: 76894f3e2f71 ("cifs: improve symlink handling for smb2+")
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+BUG: memory leak
+unreferenced object 0xffff8880122f1540 (size 32):
+  comm "a.out", pid 6664, jiffies 4294939771 (age 25.500s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 ed ff ed ff 00 00 00 00  ................
+  backtrace:
+    [<ffffffff81b16052>] ntfs_init_fs_context+0x22/0x1c0
+    [<ffffffff8164aaa7>] alloc_fs_context+0x217/0x430
+    [<ffffffff81626dd4>] path_mount+0x704/0x1080
+    [<ffffffff81627e7c>] __x64_sys_mount+0x18c/0x1d0
+    [<ffffffff84593e14>] do_syscall_64+0x34/0xb0
+    [<ffffffff84600087>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+This patch fixes this issue by freeing mount options on error path of
+ntfs_fill_super().
+
+Reported-by: syzbot+9d67170b20e8f94351c8@syzkaller.appspotmail.com
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2file.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/ntfs3/super.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/cifs/smb2file.c b/fs/cifs/smb2file.c
-index ffbd9a99fc12..ba6cc50af390 100644
---- a/fs/cifs/smb2file.c
-+++ b/fs/cifs/smb2file.c
-@@ -122,8 +122,8 @@ int smb2_open_file(const unsigned int xid, struct cifs_open_parms *oparms, __u32
- 		struct smb2_hdr *hdr = err_iov.iov_base;
+diff --git a/fs/ntfs3/super.c b/fs/ntfs3/super.c
+index a0cea3b7526e..170682c2bf67 100644
+--- a/fs/ntfs3/super.c
++++ b/fs/ntfs3/super.c
+@@ -1281,6 +1281,7 @@ static int ntfs_fill_super(struct super_block *sb, struct fs_context *fc)
+ 	 * Free resources here.
+ 	 * ntfs_fs_free will be called with fc->s_fs_info = NULL
+ 	 */
++	put_mount_options(sbi->options);
+ 	put_ntfs(sbi);
+ 	sb->s_fs_info = NULL;
  
- 		if (unlikely(!err_iov.iov_base || err_buftype == CIFS_NO_BUFFER))
--			rc = -ENOMEM;
--		else if (hdr->Status == STATUS_STOPPED_ON_SYMLINK) {
-+			goto out;
-+		if (hdr->Status == STATUS_STOPPED_ON_SYMLINK) {
- 			rc = smb2_parse_symlink_response(oparms->cifs_sb, &err_iov,
- 							 &data->symlink_target);
- 			if (!rc) {
 -- 
 2.35.1
 
