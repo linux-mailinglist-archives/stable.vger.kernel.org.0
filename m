@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B6CA65B114
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:30:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58DC465B0C3
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:28:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232056AbjABLaE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:30:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50206 "EHLO
+        id S232919AbjABL17 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:27:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232952AbjABL3e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:29:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E05B6400
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:29:08 -0800 (PST)
+        with ESMTP id S232930AbjABL1X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:27:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 886D96547
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:26:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 05CB3B80D15
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:29:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7305AC433EF;
-        Mon,  2 Jan 2023 11:29:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A86B660F59
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:26:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1462C433EF;
+        Mon,  2 Jan 2023 11:26:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658945;
-        bh=4GSJIjkhwecQAX1OwnPl0Ywo7HTJUiFNDgajxNdv1u8=;
+        s=korg; t=1672658779;
+        bh=CflFW6C0H8V0pmwSh+WVf5fe1NQuHWhUGwX19oH5Vf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2r+vU4oVkIp1wurNvmNtBeIHXBs6IkAoJoBkzy2EOuiY/34NhIgm0p9uufZNUgPMK
-         BEoBMVZd0/rM1RmItEEQ0Ac/jYaVozmpWRm0r8CzNq9u+yhfz7M99qSXHl9Iuk06H+
-         gAR4qKp3uIdULGlPeq/uvUmojn/ZKxmO3llSW1yU=
+        b=brUV1YfB9ongaCAIKSQumPzAP73/kteb/Hjep4ck4dxJb3k+DpuvJXbj3hBDF0czl
+         95zlMThf/IS1vNejIiPMND27hHdwmhIqFux3E8dnNDJfDzz15m6PYVJ5/R7TOCoixp
+         QcNX7ZVSbSgm2BUfh5vKORfp3rTWDdwdPPkF5HBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Artem Egorkine <arteme@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 6.0 59/74] ALSA: line6: correct midi status byte when receiving data from podxt
+        patches@lists.linux.dev, Hanjun Guo <guohanjun@huawei.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Subject: [PATCH 6.1 67/71] tpm: acpi: Call acpi_put_table() to fix memory leak
 Date:   Mon,  2 Jan 2023 12:22:32 +0100
-Message-Id: <20230102110554.614809648@linuxfoundation.org>
+Message-Id: <20230102110554.297780383@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
-References: <20230102110552.061937047@linuxfoundation.org>
+In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
+References: <20230102110551.509937186@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,145 +52,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Artem Egorkine <arteme@gmail.com>
+From: Hanjun Guo <guohanjun@huawei.com>
 
-commit 8508fa2e7472f673edbeedf1b1d2b7a6bb898ecc upstream.
+commit 8740a12ca2e2959531ad253bac99ada338b33d80 upstream.
 
-A PODxt device sends 0xb2, 0xc2 or 0xf2 as a status byte for MIDI
-messages over USB that should otherwise have a 0xb0, 0xc0 or 0xf0
-status byte. This is usually corrected by the driver on other OSes.
+The start and length of the event log area are obtained from
+TPM2 or TCPA table, so we call acpi_get_table() to get the
+ACPI information, but the acpi_get_table() should be coupled with
+acpi_put_table() to release the ACPI memory, add the acpi_put_table()
+properly to fix the memory leak.
 
-This fixes MIDI sysex messages sent by PODxt.
+While we are at it, remove the redundant empty line at the
+end of the tpm_read_log_acpi().
 
-[ tiwai: fixed white spaces ]
-
-Signed-off-by: Artem Egorkine <arteme@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221225105728.1153989-1-arteme@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 0bfb23746052 ("tpm: Move eventlog files to a subdirectory")
+Fixes: 85467f63a05c ("tpm: Add support for event log pointer found in TPM2 ACPI table")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/line6/driver.c  |    3 ++-
- sound/usb/line6/midi.c    |    3 ++-
- sound/usb/line6/midibuf.c |   25 +++++++++++++++++--------
- sound/usb/line6/midibuf.h |    5 ++++-
- sound/usb/line6/pod.c     |    3 ++-
- 5 files changed, 27 insertions(+), 12 deletions(-)
+ drivers/char/tpm/eventlog/acpi.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/sound/usb/line6/driver.c
-+++ b/sound/usb/line6/driver.c
-@@ -304,7 +304,8 @@ static void line6_data_received(struct u
- 		for (;;) {
- 			done =
- 				line6_midibuf_read(mb, line6->buffer_message,
--						LINE6_MIDI_MESSAGE_MAXLEN);
-+						   LINE6_MIDI_MESSAGE_MAXLEN,
-+						   LINE6_MIDIBUF_READ_RX);
+--- a/drivers/char/tpm/eventlog/acpi.c
++++ b/drivers/char/tpm/eventlog/acpi.c
+@@ -90,16 +90,21 @@ int tpm_read_log_acpi(struct tpm_chip *c
+ 			return -ENODEV;
  
- 			if (done <= 0)
- 				break;
---- a/sound/usb/line6/midi.c
-+++ b/sound/usb/line6/midi.c
-@@ -56,7 +56,8 @@ static void line6_midi_transmit(struct s
- 
- 	for (;;) {
- 		done = line6_midibuf_read(mb, chunk,
--					  LINE6_FALLBACK_MAXPACKETSIZE);
-+					  LINE6_FALLBACK_MAXPACKETSIZE,
-+					  LINE6_MIDIBUF_READ_TX);
- 
- 		if (done == 0)
- 			break;
---- a/sound/usb/line6/midibuf.c
-+++ b/sound/usb/line6/midibuf.c
-@@ -9,6 +9,7 @@
- 
- #include "midibuf.h"
- 
-+
- static int midibuf_message_length(unsigned char code)
- {
- 	int message_length;
-@@ -20,12 +21,7 @@ static int midibuf_message_length(unsign
- 
- 		message_length = length[(code >> 4) - 8];
- 	} else {
--		/*
--		   Note that according to the MIDI specification 0xf2 is
--		   the "Song Position Pointer", but this is used by Line 6
--		   to send sysex messages to the host.
--		 */
--		static const int length[] = { -1, 2, -1, 2, -1, -1, 1, 1, 1, 1,
-+		static const int length[] = { -1, 2, 2, 2, -1, -1, 1, 1, 1, -1,
- 			1, 1, 1, -1, 1, 1
- 		};
- 		message_length = length[code & 0x0f];
-@@ -125,7 +121,7 @@ int line6_midibuf_write(struct midi_buff
- }
- 
- int line6_midibuf_read(struct midi_buffer *this, unsigned char *data,
--		       int length)
-+		       int length, int read_type)
- {
- 	int bytes_used;
- 	int length1, length2;
-@@ -148,9 +144,22 @@ int line6_midibuf_read(struct midi_buffe
- 
- 	length1 = this->size - this->pos_read;
- 
--	/* check MIDI command length */
- 	command = this->buf[this->pos_read];
-+	/*
-+	   PODxt always has status byte lower nibble set to 0010,
-+	   when it means to send 0000, so we correct if here so
-+	   that control/program changes come on channel 1 and
-+	   sysex message status byte is correct
-+	 */
-+	if (read_type == LINE6_MIDIBUF_READ_RX) {
-+		if (command == 0xb2 || command == 0xc2 || command == 0xf2) {
-+			unsigned char fixed = command & 0xf0;
-+			this->buf[this->pos_read] = fixed;
-+			command = fixed;
+ 		if (tbl->header.length <
+-				sizeof(*tbl) + sizeof(struct acpi_tpm2_phy))
++				sizeof(*tbl) + sizeof(struct acpi_tpm2_phy)) {
++			acpi_put_table((struct acpi_table_header *)tbl);
+ 			return -ENODEV;
 +		}
-+	}
  
-+	/* check MIDI command length */
- 	if (command & 0x80) {
- 		midi_length = midibuf_message_length(command);
- 		this->command_prev = command;
---- a/sound/usb/line6/midibuf.h
-+++ b/sound/usb/line6/midibuf.h
-@@ -8,6 +8,9 @@
- #ifndef MIDIBUF_H
- #define MIDIBUF_H
+ 		tpm2_phy = (void *)tbl + sizeof(*tbl);
+ 		len = tpm2_phy->log_area_minimum_length;
  
-+#define LINE6_MIDIBUF_READ_TX 0
-+#define LINE6_MIDIBUF_READ_RX 1
+ 		start = tpm2_phy->log_area_start_address;
+-		if (!start || !len)
++		if (!start || !len) {
++			acpi_put_table((struct acpi_table_header *)tbl);
+ 			return -ENODEV;
++		}
+ 
++		acpi_put_table((struct acpi_table_header *)tbl);
+ 		format = EFI_TCG2_EVENT_LOG_FORMAT_TCG_2;
+ 	} else {
+ 		/* Find TCPA entry in RSDT (ACPI_LOGICAL_ADDRESSING) */
+@@ -120,8 +125,10 @@ int tpm_read_log_acpi(struct tpm_chip *c
+ 			break;
+ 		}
+ 
++		acpi_put_table((struct acpi_table_header *)buff);
+ 		format = EFI_TCG2_EVENT_LOG_FORMAT_TCG_1_2;
+ 	}
 +
- struct midi_buffer {
- 	unsigned char *buf;
- 	int size;
-@@ -23,7 +26,7 @@ extern void line6_midibuf_destroy(struct
- extern int line6_midibuf_ignore(struct midi_buffer *mb, int length);
- extern int line6_midibuf_init(struct midi_buffer *mb, int size, int split);
- extern int line6_midibuf_read(struct midi_buffer *mb, unsigned char *data,
--			      int length);
-+			      int length, int read_type);
- extern void line6_midibuf_reset(struct midi_buffer *mb);
- extern int line6_midibuf_write(struct midi_buffer *mb, unsigned char *data,
- 			       int length);
---- a/sound/usb/line6/pod.c
-+++ b/sound/usb/line6/pod.c
-@@ -159,8 +159,9 @@ static struct line6_pcm_properties pod_p
- 	.bytes_per_channel = 3 /* SNDRV_PCM_FMTBIT_S24_3LE */
- };
- 
-+
- static const char pod_version_header[] = {
--	0xf2, 0x7e, 0x7f, 0x06, 0x02
-+	0xf0, 0x7e, 0x7f, 0x06, 0x02
- };
- 
- static char *pod_alloc_sysex_buffer(struct usb_line6_pod *pod, int code,
+ 	if (!len) {
+ 		dev_warn(&chip->dev, "%s: TCPA log area empty\n", __func__);
+ 		return -EIO;
+@@ -156,5 +163,4 @@ err:
+ 	kfree(log->bios_event_log);
+ 	log->bios_event_log = NULL;
+ 	return ret;
+-
+ }
 
 
