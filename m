@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F7A365B130
+	by mail.lfdr.de (Postfix) with ESMTP id D4CA265B131
 	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:31:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235957AbjABLbC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:31:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49946 "EHLO
+        id S232378AbjABLbD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:31:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236059AbjABLaM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:30:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14CC563C6
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:30:02 -0800 (PST)
+        with ESMTP id S236160AbjABLaS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:30:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8973763DC
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:30:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C8CC60F21
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:30:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF9B2C433D2;
-        Mon,  2 Jan 2023 11:30:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D7043B80D14
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:30:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50C04C43396;
+        Mon,  2 Jan 2023 11:30:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672659001;
-        bh=ixkTEoZYXLplN/kAqZ/0V186PgLAbaGyyxUyYO/bPD4=;
+        s=korg; t=1672659003;
+        bh=lFd0EV29iKZDDLDqXWbMV8D6+pQyitgP/uqWRvgNBGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X89p5gJxKp76VJO9K8dVLDjj71g0VX7WpGI0H9pJnhcQXdNIElWOA3YWlLwXYQJsV
-         YkmtzI8uXveKd3rTSoCdVjWiAX6sM5wMxcoeFMlyovc6TooZiI9Z6z+WUft+pyigui
-         IsGaJkHV+PN0j12Na4IzgAbneUMBsBCIudOB08Ew=
+        b=DArD/APPt2I7cpEW8v5W4UbRerFJ7sRWYXnhoi/kzqIpQrNEcrE73Z9JNkNSObucj
+         8DpSogEDNo3uEVtNrPow15XRRvD1pnaEAvgdlsRg0n+DNKdMxCmrjKFXeT9jYtTWTQ
+         mVfuhJUrHIlITRr4wvGcdlLCVgL/YMoHGqR8x2ps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chuck Lever <chuck.lever@oracle.com>,
-        Jeff Layton <jlayton@kernel.org>
-Subject: [PATCH 6.0 73/74] SUNRPC: Dont leak netobj memory when gss_read_proxy_verf() fails
-Date:   Mon,  2 Jan 2023 12:22:46 +0100
-Message-Id: <20230102110555.203913025@linuxfoundation.org>
+        patches@lists.linux.dev, Marco Elver <elver@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>
+Subject: [PATCH 6.0 74/74] kcsan: Instrument memcpy/memset/memmove with newer Clang
+Date:   Mon,  2 Jan 2023 12:22:47 +0100
+Message-Id: <20230102110555.233324012@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
 References: <20230102110552.061937047@linuxfoundation.org>
@@ -52,46 +52,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Marco Elver <elver@google.com>
 
-commit da522b5fe1a5f8b7c20a0023e87b52a150e53bf5 upstream.
+commit 7c201739beef1a586d806463f1465429cdce34c5 upstream.
 
-Fixes: 030d794bf498 ("SUNRPC: Use gssproxy upcall for server RPCGSS authentication.")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
+With Clang version 16+, -fsanitize=thread will turn
+memcpy/memset/memmove calls in instrumented functions into
+__tsan_memcpy/__tsan_memset/__tsan_memmove calls respectively.
+
+Add these functions to the core KCSAN runtime, so that we (a) catch data
+races with mem* functions, and (b) won't run into linker errors with
+such newer compilers.
+
+Cc: stable@vger.kernel.org # v5.10+
+Signed-off-by: Marco Elver <elver@google.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/auth_gss/svcauth_gss.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ kernel/kcsan/core.c |   50 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 50 insertions(+)
 
---- a/net/sunrpc/auth_gss/svcauth_gss.c
-+++ b/net/sunrpc/auth_gss/svcauth_gss.c
-@@ -1162,18 +1162,23 @@ static int gss_read_proxy_verf(struct sv
- 		return res;
+--- a/kernel/kcsan/core.c
++++ b/kernel/kcsan/core.c
+@@ -14,10 +14,12 @@
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+ #include <linux/list.h>
++#include <linux/minmax.h>
+ #include <linux/moduleparam.h>
+ #include <linux/percpu.h>
+ #include <linux/preempt.h>
+ #include <linux/sched.h>
++#include <linux/string.h>
+ #include <linux/uaccess.h>
  
- 	inlen = svc_getnl(argv);
--	if (inlen > (argv->iov_len + rqstp->rq_arg.page_len))
-+	if (inlen > (argv->iov_len + rqstp->rq_arg.page_len)) {
-+		kfree(in_handle->data);
- 		return SVC_DENIED;
-+	}
- 
- 	pages = DIV_ROUND_UP(inlen, PAGE_SIZE);
- 	in_token->pages = kcalloc(pages, sizeof(struct page *), GFP_KERNEL);
--	if (!in_token->pages)
-+	if (!in_token->pages) {
-+		kfree(in_handle->data);
- 		return SVC_DENIED;
-+	}
- 	in_token->page_base = 0;
- 	in_token->page_len = inlen;
- 	for (i = 0; i < pages; i++) {
- 		in_token->pages[i] = alloc_page(GFP_KERNEL);
- 		if (!in_token->pages[i]) {
-+			kfree(in_handle->data);
- 			gss_free_in_token_pages(in_token);
- 			return SVC_DENIED;
- 		}
+ #include "encoding.h"
+@@ -1308,3 +1310,51 @@ noinline void __tsan_atomic_signal_fence
+ 	}
+ }
+ EXPORT_SYMBOL(__tsan_atomic_signal_fence);
++
++#ifdef __HAVE_ARCH_MEMSET
++void *__tsan_memset(void *s, int c, size_t count);
++noinline void *__tsan_memset(void *s, int c, size_t count)
++{
++	/*
++	 * Instead of not setting up watchpoints where accessed size is greater
++	 * than MAX_ENCODABLE_SIZE, truncate checked size to MAX_ENCODABLE_SIZE.
++	 */
++	size_t check_len = min_t(size_t, count, MAX_ENCODABLE_SIZE);
++
++	check_access(s, check_len, KCSAN_ACCESS_WRITE, _RET_IP_);
++	return memset(s, c, count);
++}
++#else
++void *__tsan_memset(void *s, int c, size_t count) __alias(memset);
++#endif
++EXPORT_SYMBOL(__tsan_memset);
++
++#ifdef __HAVE_ARCH_MEMMOVE
++void *__tsan_memmove(void *dst, const void *src, size_t len);
++noinline void *__tsan_memmove(void *dst, const void *src, size_t len)
++{
++	size_t check_len = min_t(size_t, len, MAX_ENCODABLE_SIZE);
++
++	check_access(dst, check_len, KCSAN_ACCESS_WRITE, _RET_IP_);
++	check_access(src, check_len, 0, _RET_IP_);
++	return memmove(dst, src, len);
++}
++#else
++void *__tsan_memmove(void *dst, const void *src, size_t len) __alias(memmove);
++#endif
++EXPORT_SYMBOL(__tsan_memmove);
++
++#ifdef __HAVE_ARCH_MEMCPY
++void *__tsan_memcpy(void *dst, const void *src, size_t len);
++noinline void *__tsan_memcpy(void *dst, const void *src, size_t len)
++{
++	size_t check_len = min_t(size_t, len, MAX_ENCODABLE_SIZE);
++
++	check_access(dst, check_len, KCSAN_ACCESS_WRITE, _RET_IP_);
++	check_access(src, check_len, 0, _RET_IP_);
++	return memcpy(dst, src, len);
++}
++#else
++void *__tsan_memcpy(void *dst, const void *src, size_t len) __alias(memcpy);
++#endif
++EXPORT_SYMBOL(__tsan_memcpy);
 
 
