@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7844565B0B6
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:27:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15D2A65B101
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:29:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235959AbjABL1d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:27:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46124 "EHLO
+        id S235711AbjABL3r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:29:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236022AbjABL1B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:27:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E13BEB77
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:25:48 -0800 (PST)
+        with ESMTP id S236107AbjABL3N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:29:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D1F52620
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:28:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 80FB860F37
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:25:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 946A4C433EF;
-        Mon,  2 Jan 2023 11:25:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B85F4B80D1A
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:28:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 345A1C433D2;
+        Mon,  2 Jan 2023 11:28:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658747;
-        bh=4GSJIjkhwecQAX1OwnPl0Ywo7HTJUiFNDgajxNdv1u8=;
+        s=korg; t=1672658914;
+        bh=6jeyAYwb6wJwpbOI9L8YlEuhm7BWD1bw7/7XRTOae2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dkPzwyPZ9oN7gv5xOI9gCMsU53tf63UHudbBePFL2RSjZc0x0Z+AYMp0s/l46xsk5
-         /6PNJqXTcPWKuYt7ocezqn1HtWuwfZPtrPZVEteOVRK3d1LY+0DYNEhaRbqmxS++5/
-         E+yd/ZwrF+dqNkyoCcP4EH5vrpjXn8Hl2p7Jm7i8=
+        b=noNbsfDS5PvAeEPBCg1w5qLMiNBPclueja+tXc7yIQDHZ/d5KIGUvzaLJsjaaZDzX
+         bP8U2NkLXE8T7+mzIuJPhMGiUV9Krm94FaPE3DIpu9L/L3vVEHmLzZINHIIPlpmITi
+         /9/FFXr1RzYyS09ELK2wyAeTy6Q3tFfRS+FO5rmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Artem Egorkine <arteme@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 6.1 56/71] ALSA: line6: correct midi status byte when receiving data from podxt
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 6.0 48/74] rtmutex: Add acquire semantics for rtmutex lock acquisition slow path
 Date:   Mon,  2 Jan 2023 12:22:21 +0100
-Message-Id: <20230102110553.845772433@linuxfoundation.org>
+Message-Id: <20230102110554.140526437@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
-References: <20230102110551.509937186@linuxfoundation.org>
+In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
+References: <20230102110552.061937047@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,145 +53,219 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Artem Egorkine <arteme@gmail.com>
+From: Mel Gorman <mgorman@techsingularity.net>
 
-commit 8508fa2e7472f673edbeedf1b1d2b7a6bb898ecc upstream.
+commit 1c0908d8e441631f5b8ba433523cf39339ee2ba0 upstream.
 
-A PODxt device sends 0xb2, 0xc2 or 0xf2 as a status byte for MIDI
-messages over USB that should otherwise have a 0xb0, 0xc0 or 0xf0
-status byte. This is usually corrected by the driver on other OSes.
+Jan Kara reported the following bug triggering on 6.0.5-rt14 running dbench
+on XFS on arm64.
 
-This fixes MIDI sysex messages sent by PODxt.
+ kernel BUG at fs/inode.c:625!
+ Internal error: Oops - BUG: 0 [#1] PREEMPT_RT SMP
+ CPU: 11 PID: 6611 Comm: dbench Tainted: G            E   6.0.0-rt14-rt+ #1
+ pc : clear_inode+0xa0/0xc0
+ lr : clear_inode+0x38/0xc0
+ Call trace:
+  clear_inode+0xa0/0xc0
+  evict+0x160/0x180
+  iput+0x154/0x240
+  do_unlinkat+0x184/0x300
+  __arm64_sys_unlinkat+0x48/0xc0
+  el0_svc_common.constprop.4+0xe4/0x2c0
+  do_el0_svc+0xac/0x100
+  el0_svc+0x78/0x200
+  el0t_64_sync_handler+0x9c/0xc0
+  el0t_64_sync+0x19c/0x1a0
 
-[ tiwai: fixed white spaces ]
+It also affects 6.1-rc7-rt5 and affects a preempt-rt fork of 5.14 so this
+is likely a bug that existed forever and only became visible when ARM
+support was added to preempt-rt. The same problem does not occur on x86-64
+and he also reported that converting sb->s_inode_wblist_lock to
+raw_spinlock_t makes the problem disappear indicating that the RT spinlock
+variant is the problem.
 
-Signed-off-by: Artem Egorkine <arteme@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221225105728.1153989-1-arteme@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Which in turn means that RT mutexes on ARM64 and any other weakly ordered
+architecture are affected by this independent of RT.
+
+Will Deacon observed:
+
+  "I'd be more inclined to be suspicious of the slowpath tbh, as we need to
+   make sure that we have acquire semantics on all paths where the lock can
+   be taken. Looking at the rtmutex code, this really isn't obvious to me
+   -- for example, try_to_take_rt_mutex() appears to be able to return via
+   the 'takeit' label without acquire semantics and it looks like we might
+   be relying on the caller's subsequent _unlock_ of the wait_lock for
+   ordering, but that will give us release semantics which aren't correct."
+
+Sebastian Andrzej Siewior prototyped a fix that does work based on that
+comment but it was a little bit overkill and added some fences that should
+not be necessary.
+
+The lock owner is updated with an IRQ-safe raw spinlock held, but the
+spin_unlock does not provide acquire semantics which are needed when
+acquiring a mutex.
+
+Adds the necessary acquire semantics for lock owner updates in the slow path
+acquisition and the waiter bit logic.
+
+It successfully completed 10 iterations of the dbench workload while the
+vanilla kernel fails on the first iteration.
+
+[ bigeasy@linutronix.de: Initial prototype fix ]
+
+Fixes: 700318d1d7b38 ("locking/rtmutex: Use acquire/release semantics")
+Fixes: 23f78d4a03c5 ("[PATCH] pi-futex: rt mutex core")
+Reported-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221202100223.6mevpbl7i6x5udfd@techsingularity.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/line6/driver.c  |    3 ++-
- sound/usb/line6/midi.c    |    3 ++-
- sound/usb/line6/midibuf.c |   25 +++++++++++++++++--------
- sound/usb/line6/midibuf.h |    5 ++++-
- sound/usb/line6/pod.c     |    3 ++-
- 5 files changed, 27 insertions(+), 12 deletions(-)
+ kernel/locking/rtmutex.c     |   55 +++++++++++++++++++++++++++++++++++--------
+ kernel/locking/rtmutex_api.c |    6 ++--
+ 2 files changed, 49 insertions(+), 12 deletions(-)
 
---- a/sound/usb/line6/driver.c
-+++ b/sound/usb/line6/driver.c
-@@ -304,7 +304,8 @@ static void line6_data_received(struct u
- 		for (;;) {
- 			done =
- 				line6_midibuf_read(mb, line6->buffer_message,
--						LINE6_MIDI_MESSAGE_MAXLEN);
-+						   LINE6_MIDI_MESSAGE_MAXLEN,
-+						   LINE6_MIDIBUF_READ_RX);
+--- a/kernel/locking/rtmutex.c
++++ b/kernel/locking/rtmutex.c
+@@ -89,15 +89,31 @@ static inline int __ww_mutex_check_kill(
+  * set this bit before looking at the lock.
+  */
  
- 			if (done <= 0)
- 				break;
---- a/sound/usb/line6/midi.c
-+++ b/sound/usb/line6/midi.c
-@@ -56,7 +56,8 @@ static void line6_midi_transmit(struct s
- 
- 	for (;;) {
- 		done = line6_midibuf_read(mb, chunk,
--					  LINE6_FALLBACK_MAXPACKETSIZE);
-+					  LINE6_FALLBACK_MAXPACKETSIZE,
-+					  LINE6_MIDIBUF_READ_TX);
- 
- 		if (done == 0)
- 			break;
---- a/sound/usb/line6/midibuf.c
-+++ b/sound/usb/line6/midibuf.c
-@@ -9,6 +9,7 @@
- 
- #include "midibuf.h"
- 
-+
- static int midibuf_message_length(unsigned char code)
+-static __always_inline void
+-rt_mutex_set_owner(struct rt_mutex_base *lock, struct task_struct *owner)
++static __always_inline struct task_struct *
++rt_mutex_owner_encode(struct rt_mutex_base *lock, struct task_struct *owner)
  {
- 	int message_length;
-@@ -20,12 +21,7 @@ static int midibuf_message_length(unsign
+ 	unsigned long val = (unsigned long)owner;
  
- 		message_length = length[(code >> 4) - 8];
- 	} else {
--		/*
--		   Note that according to the MIDI specification 0xf2 is
--		   the "Song Position Pointer", but this is used by Line 6
--		   to send sysex messages to the host.
--		 */
--		static const int length[] = { -1, 2, -1, 2, -1, -1, 1, 1, 1, 1,
-+		static const int length[] = { -1, 2, 2, 2, -1, -1, 1, 1, 1, -1,
- 			1, 1, 1, -1, 1, 1
- 		};
- 		message_length = length[code & 0x0f];
-@@ -125,7 +121,7 @@ int line6_midibuf_write(struct midi_buff
+ 	if (rt_mutex_has_waiters(lock))
+ 		val |= RT_MUTEX_HAS_WAITERS;
+ 
+-	WRITE_ONCE(lock->owner, (struct task_struct *)val);
++	return (struct task_struct *)val;
++}
++
++static __always_inline void
++rt_mutex_set_owner(struct rt_mutex_base *lock, struct task_struct *owner)
++{
++	/*
++	 * lock->wait_lock is held but explicit acquire semantics are needed
++	 * for a new lock owner so WRITE_ONCE is insufficient.
++	 */
++	xchg_acquire(&lock->owner, rt_mutex_owner_encode(lock, owner));
++}
++
++static __always_inline void rt_mutex_clear_owner(struct rt_mutex_base *lock)
++{
++	/* lock->wait_lock is held so the unlock provides release semantics. */
++	WRITE_ONCE(lock->owner, rt_mutex_owner_encode(lock, NULL));
  }
  
- int line6_midibuf_read(struct midi_buffer *this, unsigned char *data,
--		       int length)
-+		       int length, int read_type)
+ static __always_inline void clear_rt_mutex_waiters(struct rt_mutex_base *lock)
+@@ -106,7 +122,8 @@ static __always_inline void clear_rt_mut
+ 			((unsigned long)lock->owner & ~RT_MUTEX_HAS_WAITERS);
+ }
+ 
+-static __always_inline void fixup_rt_mutex_waiters(struct rt_mutex_base *lock)
++static __always_inline void
++fixup_rt_mutex_waiters(struct rt_mutex_base *lock, bool acquire_lock)
  {
- 	int bytes_used;
- 	int length1, length2;
-@@ -148,9 +144,22 @@ int line6_midibuf_read(struct midi_buffe
+ 	unsigned long owner, *p = (unsigned long *) &lock->owner;
  
- 	length1 = this->size - this->pos_read;
- 
--	/* check MIDI command length */
- 	command = this->buf[this->pos_read];
-+	/*
-+	   PODxt always has status byte lower nibble set to 0010,
-+	   when it means to send 0000, so we correct if here so
-+	   that control/program changes come on channel 1 and
-+	   sysex message status byte is correct
-+	 */
-+	if (read_type == LINE6_MIDIBUF_READ_RX) {
-+		if (command == 0xb2 || command == 0xc2 || command == 0xf2) {
-+			unsigned char fixed = command & 0xf0;
-+			this->buf[this->pos_read] = fixed;
-+			command = fixed;
-+		}
+@@ -172,8 +189,21 @@ static __always_inline void fixup_rt_mut
+ 	 * still set.
+ 	 */
+ 	owner = READ_ONCE(*p);
+-	if (owner & RT_MUTEX_HAS_WAITERS)
+-		WRITE_ONCE(*p, owner & ~RT_MUTEX_HAS_WAITERS);
++	if (owner & RT_MUTEX_HAS_WAITERS) {
++		/*
++		 * See rt_mutex_set_owner() and rt_mutex_clear_owner() on
++		 * why xchg_acquire() is used for updating owner for
++		 * locking and WRITE_ONCE() for unlocking.
++		 *
++		 * WRITE_ONCE() would work for the acquire case too, but
++		 * in case that the lock acquisition failed it might
++		 * force other lockers into the slow path unnecessarily.
++		 */
++		if (acquire_lock)
++			xchg_acquire(p, owner & ~RT_MUTEX_HAS_WAITERS);
++		else
++			WRITE_ONCE(*p, owner & ~RT_MUTEX_HAS_WAITERS);
 +	}
+ }
  
-+	/* check MIDI command length */
- 	if (command & 0x80) {
- 		midi_length = midibuf_message_length(command);
- 		this->command_prev = command;
---- a/sound/usb/line6/midibuf.h
-+++ b/sound/usb/line6/midibuf.h
-@@ -8,6 +8,9 @@
- #ifndef MIDIBUF_H
- #define MIDIBUF_H
- 
-+#define LINE6_MIDIBUF_READ_TX 0
-+#define LINE6_MIDIBUF_READ_RX 1
+ /*
+@@ -208,6 +238,13 @@ static __always_inline void mark_rt_mute
+ 		owner = *p;
+ 	} while (cmpxchg_relaxed(p, owner,
+ 				 owner | RT_MUTEX_HAS_WAITERS) != owner);
 +
- struct midi_buffer {
- 	unsigned char *buf;
- 	int size;
-@@ -23,7 +26,7 @@ extern void line6_midibuf_destroy(struct
- extern int line6_midibuf_ignore(struct midi_buffer *mb, int length);
- extern int line6_midibuf_init(struct midi_buffer *mb, int size, int split);
- extern int line6_midibuf_read(struct midi_buffer *mb, unsigned char *data,
--			      int length);
-+			      int length, int read_type);
- extern void line6_midibuf_reset(struct midi_buffer *mb);
- extern int line6_midibuf_write(struct midi_buffer *mb, unsigned char *data,
- 			       int length);
---- a/sound/usb/line6/pod.c
-+++ b/sound/usb/line6/pod.c
-@@ -159,8 +159,9 @@ static struct line6_pcm_properties pod_p
- 	.bytes_per_channel = 3 /* SNDRV_PCM_FMTBIT_S24_3LE */
- };
++	/*
++	 * The cmpxchg loop above is relaxed to avoid back-to-back ACQUIRE
++	 * operations in the event of contention. Ensure the successful
++	 * cmpxchg is visible.
++	 */
++	smp_mb__after_atomic();
+ }
  
-+
- static const char pod_version_header[] = {
--	0xf2, 0x7e, 0x7f, 0x06, 0x02
-+	0xf0, 0x7e, 0x7f, 0x06, 0x02
- };
+ /*
+@@ -1243,7 +1280,7 @@ static int __sched __rt_mutex_slowtryloc
+ 	 * try_to_take_rt_mutex() sets the lock waiters bit
+ 	 * unconditionally. Clean this up.
+ 	 */
+-	fixup_rt_mutex_waiters(lock);
++	fixup_rt_mutex_waiters(lock, true);
  
- static char *pod_alloc_sysex_buffer(struct usb_line6_pod *pod, int code,
+ 	return ret;
+ }
+@@ -1604,7 +1641,7 @@ static int __sched __rt_mutex_slowlock(s
+ 	 * try_to_take_rt_mutex() sets the waiter bit
+ 	 * unconditionally. We might have to fix that up.
+ 	 */
+-	fixup_rt_mutex_waiters(lock);
++	fixup_rt_mutex_waiters(lock, true);
+ 
+ 	trace_contention_end(lock, ret);
+ 
+@@ -1719,7 +1756,7 @@ static void __sched rtlock_slowlock_lock
+ 	 * try_to_take_rt_mutex() sets the waiter bit unconditionally.
+ 	 * We might have to fix that up:
+ 	 */
+-	fixup_rt_mutex_waiters(lock);
++	fixup_rt_mutex_waiters(lock, true);
+ 	debug_rt_mutex_free_waiter(&waiter);
+ 
+ 	trace_contention_end(lock, 0);
+--- a/kernel/locking/rtmutex_api.c
++++ b/kernel/locking/rtmutex_api.c
+@@ -267,7 +267,7 @@ void __sched rt_mutex_init_proxy_locked(
+ void __sched rt_mutex_proxy_unlock(struct rt_mutex_base *lock)
+ {
+ 	debug_rt_mutex_proxy_unlock(lock);
+-	rt_mutex_set_owner(lock, NULL);
++	rt_mutex_clear_owner(lock);
+ }
+ 
+ /**
+@@ -382,7 +382,7 @@ int __sched rt_mutex_wait_proxy_lock(str
+ 	 * try_to_take_rt_mutex() sets the waiter bit unconditionally. We might
+ 	 * have to fix that up.
+ 	 */
+-	fixup_rt_mutex_waiters(lock);
++	fixup_rt_mutex_waiters(lock, true);
+ 	raw_spin_unlock_irq(&lock->wait_lock);
+ 
+ 	return ret;
+@@ -438,7 +438,7 @@ bool __sched rt_mutex_cleanup_proxy_lock
+ 	 * try_to_take_rt_mutex() sets the waiter bit unconditionally. We might
+ 	 * have to fix that up.
+ 	 */
+-	fixup_rt_mutex_waiters(lock);
++	fixup_rt_mutex_waiters(lock, false);
+ 
+ 	raw_spin_unlock_irq(&lock->wait_lock);
+ 
 
 
