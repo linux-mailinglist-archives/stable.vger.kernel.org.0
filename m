@@ -2,46 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED34B65B119
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:30:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2B4465B0C9
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:28:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236084AbjABLaM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:30:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49946 "EHLO
+        id S232418AbjABL2T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:28:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236109AbjABL3y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:29:54 -0500
+        with ESMTP id S232528AbjABL1p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:27:45 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EA9C6454
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:29:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9C8D6579
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:26:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C27360E83
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:29:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0734FC433D2;
-        Mon,  2 Jan 2023 11:29:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5021760F37
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:26:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38904C433EF;
+        Mon,  2 Jan 2023 11:26:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658956;
-        bh=eyeVpSgs7yyNN4VmDie4YgP3ASJGu3G+9zEUJiQqs5M=;
+        s=korg; t=1672658794;
+        bh=j3ygAldGkVobDH01L/jEwkGRfD7dKnJthO/qOn8RfCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L1vsgR8aulcDi9A14ymAS7rynYqabj2oYh7tQJz+sBSdqQkimuGM+EnyR8n92uj9w
-         KDfPGqnOOtYOwKeMaG9BPrven43NXaJ1Xk1nzawpy0rPccD65CZbz1kzJQ6i3kCXS2
-         PsGb7DD7RVpMCea2rB/YaKhwaNoir8PDfqU6He10=
+        b=yrg65s4x42G6TafpU2hS7xvgRxk/lqyJP/w+0Bm5kZW/Pp5E2lrVNmkMN1X1BdXaP
+         nqk4AQN2X19rIa/H9BE6P/vduVKTjWA3cklG11dbhYvSeHbkC+HX4ieVXkIy9OFRV3
+         a2N0AjP8rG8bTOjHa2l1UEIyYQqSwxk+CNPqkoDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzot <syzbot+33f3faaa0c08744f7d40@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 36/74] fs/ntfs3: Use __GFP_NOWARN allocation at ntfs_fill_super()
-Date:   Mon,  2 Jan 2023 12:22:09 +0100
-Message-Id: <20230102110553.635406796@linuxfoundation.org>
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        "Huang, Ying" <ying.huang@intel.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Feng Tang <feng.tang@intel.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Andi Kleen <ak@linux.intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.1 45/71] mm/mempolicy: fix memory leak in set_mempolicy_home_node system call
+Date:   Mon,  2 Jan 2023 12:22:10 +0100
+Message-Id: <20230102110553.382035738@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
-References: <20230102110552.061937047@linuxfoundation.org>
+In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
+References: <20230102110551.509937186@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +66,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-[ Upstream commit 59bfd7a483da36bd202532a3d9ea1f14f3bf3aaf ]
+commit 38ce7c9bdfc228c14d7621ba36d3eebedd9d4f76 upstream.
 
-syzbot is reporting too large allocation at ntfs_fill_super() [1], for a
-crafted filesystem can contain bogus inode->i_size. Add __GFP_NOWARN in
-order to avoid too large allocation warning, than exhausting memory by
-using kvmalloc().
+When encountering any vma in the range with policy other than MPOL_BIND or
+MPOL_PREFERRED_MANY, an error is returned without issuing a mpol_put on
+the policy just allocated with mpol_dup().
 
-Link: https://syzkaller.appspot.com/bug?extid=33f3faaa0c08744f7d40 [1]
-Reported-by: syzot <syzbot+33f3faaa0c08744f7d40@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This allows arbitrary users to leak kernel memory.
+
+Link: https://lkml.kernel.org/r/20221215194621.202816-1-mathieu.desnoyers@efficios.com
+Fixes: c6018b4b2549 ("mm/mempolicy: add set_mempolicy_home_node syscall")
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
+Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Feng Tang <feng.tang@intel.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Huang Ying <ying.huang@intel.com>
+Cc: <stable@vger.kernel.org>	[5.17+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ntfs3/super.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/mempolicy.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/ntfs3/super.c b/fs/ntfs3/super.c
-index 94f9e4b775a7..8e2fe0f69203 100644
---- a/fs/ntfs3/super.c
-+++ b/fs/ntfs3/super.c
-@@ -1141,7 +1141,7 @@ static int ntfs_fill_super(struct super_block *sb, struct fs_context *fc)
- 		goto put_inode_out;
- 	}
- 	bytes = inode->i_size;
--	sbi->def_table = t = kmalloc(bytes, GFP_NOFS);
-+	sbi->def_table = t = kmalloc(bytes, GFP_NOFS | __GFP_NOWARN);
- 	if (!t) {
- 		err = -ENOMEM;
- 		goto put_inode_out;
--- 
-2.35.1
-
+--- a/mm/mempolicy.c
++++ b/mm/mempolicy.c
+@@ -1540,6 +1540,7 @@ SYSCALL_DEFINE4(set_mempolicy_home_node,
+ 		 * the home node for vmas we already updated before.
+ 		 */
+ 		if (new->mode != MPOL_BIND && new->mode != MPOL_PREFERRED_MANY) {
++			mpol_put(new);
+ 			err = -EOPNOTSUPP;
+ 			break;
+ 		}
 
 
