@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EB7965B0CF
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:28:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58F0D65B0B0
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:27:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232736AbjABL2h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:28:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45964 "EHLO
+        id S233010AbjABL11 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:27:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232726AbjABL1w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:27:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 956075FE5
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:26:48 -0800 (PST)
+        with ESMTP id S235970AbjABL04 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:26:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C09D76458
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:25:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3029860E83
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:26:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48EE1C433D2;
-        Mon,  2 Jan 2023 11:26:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E47F60F54
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:25:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75309C433D2;
+        Mon,  2 Jan 2023 11:25:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658807;
-        bh=sbWwmlGYyKtTs34QAJHSuif4uQB664H318m0WBRkP5c=;
+        s=korg; t=1672658734;
+        bh=KARuFOCbrAtg12Jo2kQpnf9kB8gMkJWKfghoyxl1sPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aySTzc83lrCRlYZY8YKqXOO7pOfPxOWH3s97V0uWuYUHRhXcodrk3aLoXUlhROVwC
-         DfgK0HUhMiK4WmwaZgJR1nUTA4k+9KhURrIBXjdQA59RsAN3qxHhotCqzI2vKTwESb
-         bQ4/n7e2SlyuGdjbl90bwr1V7DGcM5Sbdv0aKMg4=
+        b=hAQhNjHBtt/uVES7UTUtaRVEruGaLBwI4+JHPqrvIfe4nxE6jR2i/1pEbcT7mcbBi
+         JrVsM/qSi92uxKgN7qxrwXYnV6xF45dCKKZMQjVAL5bc+WT2KWW+MtCL1NG1C+nNvD
+         kdGbhHVa0AOHkvRwzt/JIZ5gT9QZgVuXB51BRpaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Aditya Garg <gargaditya08@live.com>,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 50/71] hfsplus: fix bug causing custom uid and gid being unable to be assigned with mount
-Date:   Mon,  2 Jan 2023 12:22:15 +0100
-Message-Id: <20230102110553.586730752@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 6.1 51/71] ACPI: x86: s2idle: Force AMD GUID/_REV 2 on HP Elitebook 865
+Date:   Mon,  2 Jan 2023 12:22:16 +0100
+Message-Id: <20230102110553.629403211@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
 References: <20230102110551.509937186@linuxfoundation.org>
@@ -53,71 +53,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Garg <gargaditya08@live.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-commit 9f2b5debc07073e6dfdd774e3594d0224b991927 upstream.
+commit 3ea45390e9c0d35805ef8357ace55594fd4233d0 upstream.
 
-Despite specifying UID and GID in mount command, the specified UID and GID
-were not being assigned. This patch fixes this issue.
+HP Elitebook 865 supports both the AMD GUID w/ _REV 2 and Microsoft
+GUID with _REV 0. Both have very similar code but the AMD GUID
+has a special workaround that is specific to a problem with
+spurious wakeups on systems with Qualcomm WLAN.
 
-Link: https://lkml.kernel.org/r/C0264BF5-059C-45CF-B8DA-3A3BD2C803A2@live.com
-Signed-off-by: Aditya Garg <gargaditya08@live.com>
-Reviewed-by: Viacheslav Dubeyko <slava@dubeyko.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+This is believed to be a bug in the Qualcomm WLAN F/W (it doesn't
+affect any other WLAN H/W). If this WLAN firmware is fixed this
+quirk can be dropped.
+
+Cc: stable@vger.kernel.org # 6.1
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/hfsplus/hfsplus_fs.h |    2 ++
- fs/hfsplus/inode.c      |    4 ++--
- fs/hfsplus/options.c    |    4 ++++
- 3 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/acpi/x86/s2idle.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
---- a/fs/hfsplus/hfsplus_fs.h
-+++ b/fs/hfsplus/hfsplus_fs.h
-@@ -198,6 +198,8 @@ struct hfsplus_sb_info {
- #define HFSPLUS_SB_HFSX		3
- #define HFSPLUS_SB_CASEFOLD	4
- #define HFSPLUS_SB_NOBARRIER	5
-+#define HFSPLUS_SB_UID		6
-+#define HFSPLUS_SB_GID		7
+diff --git a/drivers/acpi/x86/s2idle.c b/drivers/acpi/x86/s2idle.c
+index 5350c73564b6..422415cb14f4 100644
+--- a/drivers/acpi/x86/s2idle.c
++++ b/drivers/acpi/x86/s2idle.c
+@@ -401,6 +401,13 @@ static const struct acpi_device_id amd_hid_ids[] = {
+ 	{}
+ };
  
- static inline struct hfsplus_sb_info *HFSPLUS_SB(struct super_block *sb)
++static int lps0_prefer_amd(const struct dmi_system_id *id)
++{
++	pr_debug("Using AMD GUID w/ _REV 2.\n");
++	rev_id = 2;
++	return 0;
++}
++
+ static int lps0_prefer_microsoft(const struct dmi_system_id *id)
  {
---- a/fs/hfsplus/inode.c
-+++ b/fs/hfsplus/inode.c
-@@ -192,11 +192,11 @@ static void hfsplus_get_perms(struct ino
- 	mode = be16_to_cpu(perms->mode);
+ 	pr_debug("Preferring Microsoft GUID.\n");
+@@ -462,6 +469,19 @@ static const struct dmi_system_id s2idle_dmi_table[] __initconst = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "ROG Flow X16 GV601"),
+ 		},
+ 	},
++	{
++		/*
++		 * AMD Rembrandt based HP EliteBook 835/845/865 G9
++		 * Contains specialized AML in AMD/_REV 2 path to avoid
++		 * triggering a bug in Qualcomm WLAN firmware. This may be
++		 * removed in the future if that firmware is fixed.
++		 */
++		.callback = lps0_prefer_amd,
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "HP"),
++			DMI_MATCH(DMI_BOARD_NAME, "8990"),
++		},
++	},
+ 	{}
+ };
  
- 	i_uid_write(inode, be32_to_cpu(perms->owner));
--	if (!i_uid_read(inode) && !mode)
-+	if ((test_bit(HFSPLUS_SB_UID, &sbi->flags)) || (!i_uid_read(inode) && !mode))
- 		inode->i_uid = sbi->uid;
- 
- 	i_gid_write(inode, be32_to_cpu(perms->group));
--	if (!i_gid_read(inode) && !mode)
-+	if ((test_bit(HFSPLUS_SB_GID, &sbi->flags)) || (!i_gid_read(inode) && !mode))
- 		inode->i_gid = sbi->gid;
- 
- 	if (dir) {
---- a/fs/hfsplus/options.c
-+++ b/fs/hfsplus/options.c
-@@ -140,6 +140,8 @@ int hfsplus_parse_options(char *input, s
- 			if (!uid_valid(sbi->uid)) {
- 				pr_err("invalid uid specified\n");
- 				return 0;
-+			} else {
-+				set_bit(HFSPLUS_SB_UID, &sbi->flags);
- 			}
- 			break;
- 		case opt_gid:
-@@ -151,6 +153,8 @@ int hfsplus_parse_options(char *input, s
- 			if (!gid_valid(sbi->gid)) {
- 				pr_err("invalid gid specified\n");
- 				return 0;
-+			} else {
-+				set_bit(HFSPLUS_SB_GID, &sbi->flags);
- 			}
- 			break;
- 		case opt_part:
+-- 
+2.39.0
+
 
 
