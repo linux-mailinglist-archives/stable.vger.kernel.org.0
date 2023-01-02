@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D663F65B014
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 11:54:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AB2065B015
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 11:54:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232977AbjABKys (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 05:54:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53398 "EHLO
+        id S232540AbjABKyt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 05:54:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232896AbjABKyR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 05:54:17 -0500
+        with ESMTP id S232901AbjABKyS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 05:54:18 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 724C465B3
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 02:53:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 492F8630D
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 02:53:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 94A3960F2D
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 10:52:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE1F7C433F0;
-        Mon,  2 Jan 2023 10:52:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 359E860F2C
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 10:52:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 482F8C433EF;
+        Mon,  2 Jan 2023 10:52:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672656773;
-        bh=UBd7JjlDFNINawTerTFrCj0yw6mFFNMisvszroDIZT4=;
+        s=korg; t=1672656775;
+        bh=1sSU1ZkUUC5TKVv4oELWpXdpXnUA39ACf8d06X7Ul6g=;
         h=Subject:To:Cc:From:Date:From;
-        b=0lR5FOXqgEh/mu9suzpvsza7QINNwicUQdvTGvMCykPEcPlOu68rLpP3XFf7e5iif
-         BXleS59z2UbuJ/bQrdOZIfwGuSN2332JVI30CgXe83A2yjDkgU31JT5f1w9bPO2zOs
-         z9h6KbdcTx6McR9MFRb+iEHxhGLcuk8kRUdkPIZk=
-Subject: FAILED: patch "[PATCH] ALSA: hda/realtek: Apply dual codec fixup for Dell Latitude" failed to apply to 5.10-stable tree
+        b=SoELkxUQOJtVB7sy0b5x2yTGyRA0iGxriR6HDjlR10s2NYYLqWa3573D/Y34yopfU
+         iLxjadlNvFlGOv/DF+6Nm3Saib2MBFByp/BWsqllzyJ6jS2CvR+C99rluqd+h7mS1H
+         sPpQPtmsJgqOBeznf3LhRWoWRZK76sv7/hG6SE5o=
+Subject: FAILED: patch "[PATCH] ALSA: hda/realtek: Apply dual codec fixup for Dell Latitude" failed to apply to 5.15-stable tree
 To:     chris.chiu@canonical.com, stable@vger.kernel.org, tiwai@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 02 Jan 2023 11:52:46 +0100
-Message-ID: <1672656766189240@kroah.com>
+Message-ID: <1672656766458@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
