@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C71DE65B0D3
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:28:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C04D365B08E
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:25:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232603AbjABL2k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:28:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45558 "EHLO
+        id S232949AbjABLZr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:25:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232835AbjABL1z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:27:55 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4033A55B8
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:27:04 -0800 (PST)
+        with ESMTP id S232528AbjABLZO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:25:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CADB464CB
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:24:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AC086CE0E4D
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:27:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FA54C433EF;
-        Mon,  2 Jan 2023 11:27:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6011A60E76
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:24:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 755B5C433EF;
+        Mon,  2 Jan 2023 11:24:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658821;
-        bh=LFcNYpLyI29e/cvimqjo2FIsGXTD9Fj8wyk2araQHQ8=;
+        s=korg; t=1672658653;
+        bh=Ave0BWR58ucrW6IBabMhHfJ3XoGXNCRHFJsTB6yzjno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Geg9sYMqWuPvRHq4lkhyxt55b4dW0kZMJe2dZBIGc3NbeXIxmHRa5RynSAl3/Ors3
-         d6CR8K36Wr6RjhsM7ZDkZyvTp0/nQBStVcWxfkDtfEJM5BfSBdFlxFiCnpDT3fzFi0
-         COEaqxwuR8Gjp5a5K6Y3ce5oY4xEPs8Gee6LYm1I=
+        b=NwXX998M6bI8DBX7Tr1wJdseCHFkwoUD00NRqx8hGZOhD0w+5r8FXZYGuqp4l2QVZ
+         D720ePASKqySUHTRC0XNTfqv2KP4RVCdsunhdS5X/qN4UVkcLfikFmzkgvFomJ4hWd
+         Ar+l7cPcFDToWQqzCJCapR7/96AeWwpJwjVjUI4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Guenter Roeck <linux@roeck-us.net>,
-        Klaus Jensen <k.jensen@samsung.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 12/74] nvme-pci: fix doorbell buffer value endianness
+        patches@lists.linux.dev, Edward Lo <edward.lo@ambergroup.io>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 20/71] fs/ntfs3: Add null pointer check for inode operations
 Date:   Mon,  2 Jan 2023 12:21:45 +0100
-Message-Id: <20230102110552.562892632@linuxfoundation.org>
+Message-Id: <20230102110552.297208023@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
-References: <20230102110552.061937047@linuxfoundation.org>
+In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
+References: <20230102110551.509937186@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,96 +53,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Klaus Jensen <k.jensen@samsung.com>
+From: Edward Lo <edward.lo@ambergroup.io>
 
-[ Upstream commit b5f96cb719d8ba220b565ddd3ba4ac0d8bcfb130 ]
+[ Upstream commit c1ca8ef0262b25493631ecbd9cb8c9893e1481a1 ]
 
-When using shadow doorbells, the event index and the doorbell values are
-written to host memory. Prior to this patch, the values written would
-erroneously be written in host endianness. This causes trouble on
-big-endian platforms. Fix this by adding missing endian conversions.
+This adds a sanity check for the i_op pointer of the inode which is
+returned after reading Root directory MFT record. We should check the
+i_op is valid before trying to create the root dentry, otherwise we may
+encounter a NPD while mounting a image with a funny Root directory MFT
+record.
 
-This issue was noticed by Guenter while testing various big-endian
-platforms under QEMU[1]. A similar fix required for hw/nvme in QEMU is
-up for review as well[2].
+[  114.484325] BUG: kernel NULL pointer dereference, address: 0000000000000008
+[  114.484811] #PF: supervisor read access in kernel mode
+[  114.485084] #PF: error_code(0x0000) - not-present page
+[  114.485606] PGD 0 P4D 0
+[  114.485975] Oops: 0000 [#1] PREEMPT SMP KASAN NOPTI
+[  114.486570] CPU: 0 PID: 237 Comm: mount Tainted: G    B              6.0.0-rc4 #28
+[  114.486977] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+[  114.488169] RIP: 0010:d_flags_for_inode+0xe0/0x110
+[  114.488816] Code: 24 f7 ff 49 83 3e 00 74 41 41 83 cd 02 66 44 89 6b 02 eb 92 48 8d 7b 20 e8 6d 24 f7 ff 4c 8b 73 20 49 8d 7e 08 e8 60 241
+[  114.490326] RSP: 0018:ffff8880065e7aa8 EFLAGS: 00000296
+[  114.490695] RAX: 0000000000000001 RBX: ffff888008ccd750 RCX: ffffffff84af2aea
+[  114.490986] RDX: 0000000000000001 RSI: 0000000000000008 RDI: ffffffff87abd020
+[  114.491364] RBP: ffff8880065e7ac8 R08: 0000000000000001 R09: fffffbfff0f57a05
+[  114.491675] R10: ffffffff87abd027 R11: fffffbfff0f57a04 R12: 0000000000000000
+[  114.491954] R13: 0000000000000008 R14: 0000000000000000 R15: ffff888008ccd750
+[  114.492397] FS:  00007fdc8a627e40(0000) GS:ffff888058200000(0000) knlGS:0000000000000000
+[  114.492797] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  114.493150] CR2: 0000000000000008 CR3: 00000000013ba000 CR4: 00000000000006f0
+[  114.493671] Call Trace:
+[  114.493890]  <TASK>
+[  114.494075]  __d_instantiate+0x24/0x1c0
+[  114.494505]  d_instantiate.part.0+0x35/0x50
+[  114.494754]  d_make_root+0x53/0x80
+[  114.494998]  ntfs_fill_super+0x1232/0x1b50
+[  114.495260]  ? put_ntfs+0x1d0/0x1d0
+[  114.495499]  ? vsprintf+0x20/0x20
+[  114.495723]  ? set_blocksize+0x95/0x150
+[  114.495964]  get_tree_bdev+0x232/0x370
+[  114.496272]  ? put_ntfs+0x1d0/0x1d0
+[  114.496502]  ntfs_fs_get_tree+0x15/0x20
+[  114.496859]  vfs_get_tree+0x4c/0x130
+[  114.497099]  path_mount+0x654/0xfe0
+[  114.497507]  ? putname+0x80/0xa0
+[  114.497933]  ? finish_automount+0x2e0/0x2e0
+[  114.498362]  ? putname+0x80/0xa0
+[  114.498571]  ? kmem_cache_free+0x1c4/0x440
+[  114.498819]  ? putname+0x80/0xa0
+[  114.499069]  do_mount+0xd6/0xf0
+[  114.499343]  ? path_mount+0xfe0/0xfe0
+[  114.499683]  ? __kasan_check_write+0x14/0x20
+[  114.500133]  __x64_sys_mount+0xca/0x110
+[  114.500592]  do_syscall_64+0x3b/0x90
+[  114.500930]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[  114.501294] RIP: 0033:0x7fdc898e948a
+[  114.501542] Code: 48 8b 0d 11 fa 2a 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 008
+[  114.502716] RSP: 002b:00007ffd793e58f8 EFLAGS: 00000202 ORIG_RAX: 00000000000000a5
+[  114.503175] RAX: ffffffffffffffda RBX: 0000564b2228f060 RCX: 00007fdc898e948a
+[  114.503588] RDX: 0000564b2228f260 RSI: 0000564b2228f2e0 RDI: 0000564b22297ce0
+[  114.504925] RBP: 0000000000000000 R08: 0000564b2228f280 R09: 0000000000000020
+[  114.505484] R10: 00000000c0ed0000 R11: 0000000000000202 R12: 0000564b22297ce0
+[  114.505823] R13: 0000564b2228f260 R14: 0000000000000000 R15: 00000000ffffffff
+[  114.506562]  </TASK>
+[  114.506887] Modules linked in:
+[  114.507648] CR2: 0000000000000008
+[  114.508884] ---[ end trace 0000000000000000 ]---
+[  114.509675] RIP: 0010:d_flags_for_inode+0xe0/0x110
+[  114.510140] Code: 24 f7 ff 49 83 3e 00 74 41 41 83 cd 02 66 44 89 6b 02 eb 92 48 8d 7b 20 e8 6d 24 f7 ff 4c 8b 73 20 49 8d 7e 08 e8 60 241
+[  114.511762] RSP: 0018:ffff8880065e7aa8 EFLAGS: 00000296
+[  114.512401] RAX: 0000000000000001 RBX: ffff888008ccd750 RCX: ffffffff84af2aea
+[  114.513103] RDX: 0000000000000001 RSI: 0000000000000008 RDI: ffffffff87abd020
+[  114.513512] RBP: ffff8880065e7ac8 R08: 0000000000000001 R09: fffffbfff0f57a05
+[  114.513831] R10: ffffffff87abd027 R11: fffffbfff0f57a04 R12: 0000000000000000
+[  114.514757] R13: 0000000000000008 R14: 0000000000000000 R15: ffff888008ccd750
+[  114.515411] FS:  00007fdc8a627e40(0000) GS:ffff888058200000(0000) knlGS:0000000000000000
+[  114.515794] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  114.516208] CR2: 0000000000000008 CR3: 00000000013ba000 CR4: 00000000000006f0
 
-  [1]: https://lore.kernel.org/qemu-devel/20221209110022.GA3396194@roeck-us.net/
-  [2]: https://lore.kernel.org/qemu-devel/20221212114409.34972-4-its@irrelevant.dk/
-
-Fixes: f9f38e33389c ("nvme: improve performance for virtual NVMe devices")
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Klaus Jensen <k.jensen@samsung.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Edward Lo <edward.lo@ambergroup.io>
+Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 25 +++++++++++++------------
- 1 file changed, 13 insertions(+), 12 deletions(-)
+ fs/ntfs3/super.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 6867620bcc98..0b97e8ce13e4 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -144,9 +144,9 @@ struct nvme_dev {
- 	mempool_t *iod_mempool;
- 
- 	/* shadow doorbell buffer support: */
--	u32 *dbbuf_dbs;
-+	__le32 *dbbuf_dbs;
- 	dma_addr_t dbbuf_dbs_dma_addr;
--	u32 *dbbuf_eis;
-+	__le32 *dbbuf_eis;
- 	dma_addr_t dbbuf_eis_dma_addr;
- 
- 	/* host memory buffer support: */
-@@ -210,10 +210,10 @@ struct nvme_queue {
- #define NVMEQ_SQ_CMB		1
- #define NVMEQ_DELETE_ERROR	2
- #define NVMEQ_POLLED		3
--	u32 *dbbuf_sq_db;
--	u32 *dbbuf_cq_db;
--	u32 *dbbuf_sq_ei;
--	u32 *dbbuf_cq_ei;
-+	__le32 *dbbuf_sq_db;
-+	__le32 *dbbuf_cq_db;
-+	__le32 *dbbuf_sq_ei;
-+	__le32 *dbbuf_cq_ei;
- 	struct completion delete_done;
- };
- 
-@@ -340,11 +340,11 @@ static inline int nvme_dbbuf_need_event(u16 event_idx, u16 new_idx, u16 old)
- }
- 
- /* Update dbbuf and return true if an MMIO is required */
--static bool nvme_dbbuf_update_and_check_event(u16 value, u32 *dbbuf_db,
--					      volatile u32 *dbbuf_ei)
-+static bool nvme_dbbuf_update_and_check_event(u16 value, __le32 *dbbuf_db,
-+					      volatile __le32 *dbbuf_ei)
- {
- 	if (dbbuf_db) {
--		u16 old_value;
-+		u16 old_value, event_idx;
- 
- 		/*
- 		 * Ensure that the queue is written before updating
-@@ -352,8 +352,8 @@ static bool nvme_dbbuf_update_and_check_event(u16 value, u32 *dbbuf_db,
- 		 */
- 		wmb();
- 
--		old_value = *dbbuf_db;
--		*dbbuf_db = value;
-+		old_value = le32_to_cpu(*dbbuf_db);
-+		*dbbuf_db = cpu_to_le32(value);
- 
- 		/*
- 		 * Ensure that the doorbell is updated before reading the event
-@@ -363,7 +363,8 @@ static bool nvme_dbbuf_update_and_check_event(u16 value, u32 *dbbuf_db,
- 		 */
- 		mb();
- 
--		if (!nvme_dbbuf_need_event(*dbbuf_ei, value, old_value))
-+		event_idx = le32_to_cpu(*dbbuf_ei);
-+		if (!nvme_dbbuf_need_event(event_idx, value, old_value))
- 			return false;
+diff --git a/fs/ntfs3/super.c b/fs/ntfs3/super.c
+index 170682c2bf67..94f9e4b775a7 100644
+--- a/fs/ntfs3/super.c
++++ b/fs/ntfs3/super.c
+@@ -1260,9 +1260,9 @@ static int ntfs_fill_super(struct super_block *sb, struct fs_context *fc)
+ 	ref.low = cpu_to_le32(MFT_REC_ROOT);
+ 	ref.seq = cpu_to_le16(MFT_REC_ROOT);
+ 	inode = ntfs_iget5(sb, &ref, &NAME_ROOT);
+-	if (IS_ERR(inode)) {
++	if (IS_ERR(inode) || !inode->i_op) {
+ 		ntfs_err(sb, "Failed to load root.");
+-		err = PTR_ERR(inode);
++		err = IS_ERR(inode) ? PTR_ERR(inode) : -EINVAL;
+ 		goto out;
  	}
  
 -- 
