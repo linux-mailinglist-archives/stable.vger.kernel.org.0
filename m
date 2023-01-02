@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D32FA65AF9F
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 11:35:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2985665AFA0
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 11:35:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232207AbjABKfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 05:35:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45668 "EHLO
+        id S230253AbjABKfW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 05:35:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232453AbjABKfH (ORCPT
+        with ESMTP id S232464AbjABKfH (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 05:35:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 318792DF0
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 02:34:54 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4ED4114E
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 02:34:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7551960F23
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 10:34:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DAE4C433EF;
-        Mon,  2 Jan 2023 10:34:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3DB37B80CC4
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 10:34:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0C87C433D2;
+        Mon,  2 Jan 2023 10:34:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672655693;
-        bh=ajXXm+hGfuWxFAeTn2alr6NCUk7vS0Wb0PA3lOSgSvk=;
+        s=korg; t=1672655697;
+        bh=yVkAHIypEe87lO7qxIXurKXKuqRv9JFk0hEZ042S4mU=;
         h=Subject:To:Cc:From:Date:From;
-        b=BcKTXNkJKTD5amgOpZxllVkEpeSmNbi8aPXErlSC6yH15IGq3Ay+wm00WSry6ze3H
-         1dD19m9AAUgKrLjxosNIa6dzY0qvDPl7RRjNfqkz8ND+aP6lgazSyYVAXHAXWnKH5x
-         8FGswJJUMcdOcA8Yme1jMsQYuzM4+I0O8O3GBFAE=
-Subject: FAILED: patch "[PATCH] rtmutex: Add acquire semantics for rtmutex lock acquisition" failed to apply to 5.10-stable tree
+        b=ibG0sde3pL+8S9KE5l/C8kiv+TKfXjuk9b8YujFSt85Ca0FP9V/QNskM5FOBbkdU+
+         vdpjTUBGbw8tOEb5e0XmnOehvkmHJTv/8WT6ik5TvCF+HnDm6JpsE0Yypi9wgSdKiF
+         aCA943AL7vSjSLYVKA8Oc9VA751U0CcvABoK4cbI=
+Subject: FAILED: patch "[PATCH] rtmutex: Add acquire semantics for rtmutex lock acquisition" failed to apply to 5.4-stable tree
 To:     mgorman@techsingularity.net, jack@suse.cz, tglx@linutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 02 Jan 2023 11:34:47 +0100
-Message-ID: <1672655687713@kroah.com>
+Date:   Mon, 02 Jan 2023 11:34:50 +0100
+Message-ID: <1672655690211158@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
