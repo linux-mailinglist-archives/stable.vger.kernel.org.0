@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42CC965B099
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:26:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F9FD65B0DC
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:28:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232795AbjABL0l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:26:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45850 "EHLO
+        id S235972AbjABL2v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:28:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232791AbjABLZz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:25:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AABB65AA
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:24:40 -0800 (PST)
+        with ESMTP id S235976AbjABL2M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:28:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 561A4636D
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:27:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CD38BB80D19
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:24:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21109C433D2;
-        Mon,  2 Jan 2023 11:24:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DA13A60E83
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:27:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED9BBC433EF;
+        Mon,  2 Jan 2023 11:27:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658677;
-        bh=DoZgocSswo2oFd5OrhlfE+vmBGIwJURjPYMLTpkZIJM=;
+        s=korg; t=1672658844;
+        bh=xmz3MSaOh1aUKqtBIYoxVBPBlYS3hSIA0AYj1qiCt6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iRSv0EGSzmCIpOhLrDitl6FMDjTLsOI186TNvjBcKGLzZcNEfG634N9+O78o/hQ21
-         mD1mu5uSsL30j+i8rJyTm9mpNamljkjovMtSOZ26wnj8mxG12RDXrFJrH7DWtXdIWu
-         SRUe0ww7gw8wEZxZfpCRr4H2fj2qsL4i14WzZHCI=
+        b=SAWTatzo6rhWB/m/9D7chIDm+jXlgii6k/N6V/LOx8+QNFeoNzL1uo647z+ACm0nm
+         E0nSUJ4ymBgDyI1mCJZE/9t3aawjlYCdi9EOt6j0Yb04A7yMRNGOEyW3l7U/G5/Hmg
+         yYg6gzt/OxrT0aKtvrId8RQ3f1jDZjagasG5+KUE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Edward Lo <edward.lo@ambergroup.io>,
-        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        patches@lists.linux.dev, Adam Vodopjan <grozzly@protonmail.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 28/71] fs/ntfs3: Validate index root when initialize NTFS security
+Subject: [PATCH 6.0 20/74] ata: ahci: Fix PCS quirk application for suspend
 Date:   Mon,  2 Jan 2023 12:21:53 +0100
-Message-Id: <20230102110552.627958637@linuxfoundation.org>
+Message-Id: <20230102110552.921212898@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
-References: <20230102110551.509937186@linuxfoundation.org>
+In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
+References: <20230102110552.061937047@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,133 +53,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edward Lo <edward.lo@ambergroup.io>
+From: Adam Vodopjan <grozzly@protonmail.com>
 
-[ Upstream commit bfcdbae0523bd95eb75a739ffb6221a37109881e ]
+[ Upstream commit 37e14e4f3715428b809e4df9a9958baa64c77d51 ]
 
-This enhances the sanity check for $SDH and $SII while initializing NTFS
-security, guarantees these index root are legit.
+Since kernel 5.3.4 my laptop (ICH8M controller) does not see Kingston
+SV300S37A60G SSD disk connected into a SATA connector on wake from
+suspend.  The problem was introduced in c312ef176399 ("libata/ahci: Drop
+PCS quirk for Denverton and beyond"): the quirk is not applied on wake
+from suspend as it originally was.
 
-[  162.459513] BUG: KASAN: use-after-free in hdr_find_e.isra.0+0x10c/0x320
-[  162.460176] Read of size 2 at addr ffff8880037bca99 by task mount/243
-[  162.460851]
-[  162.461252] CPU: 0 PID: 243 Comm: mount Not tainted 6.0.0-rc7 #42
-[  162.461744] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-[  162.462609] Call Trace:
-[  162.462954]  <TASK>
-[  162.463276]  dump_stack_lvl+0x49/0x63
-[  162.463822]  print_report.cold+0xf5/0x689
-[  162.464608]  ? unwind_get_return_address+0x3a/0x60
-[  162.465766]  ? hdr_find_e.isra.0+0x10c/0x320
-[  162.466975]  kasan_report+0xa7/0x130
-[  162.467506]  ? _raw_spin_lock_irq+0xc0/0xf0
-[  162.467998]  ? hdr_find_e.isra.0+0x10c/0x320
-[  162.468536]  __asan_load2+0x68/0x90
-[  162.468923]  hdr_find_e.isra.0+0x10c/0x320
-[  162.469282]  ? cmp_uints+0xe0/0xe0
-[  162.469557]  ? cmp_sdh+0x90/0x90
-[  162.469864]  ? ni_find_attr+0x214/0x300
-[  162.470217]  ? ni_load_mi+0x80/0x80
-[  162.470479]  ? entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[  162.470931]  ? ntfs_bread_run+0x190/0x190
-[  162.471307]  ? indx_get_root+0xe4/0x190
-[  162.471556]  ? indx_get_root+0x140/0x190
-[  162.471833]  ? indx_init+0x1e0/0x1e0
-[  162.472069]  ? fnd_clear+0x115/0x140
-[  162.472363]  ? _raw_spin_lock_irqsave+0x100/0x100
-[  162.472731]  indx_find+0x184/0x470
-[  162.473461]  ? sysvec_apic_timer_interrupt+0x57/0xc0
-[  162.474429]  ? indx_find_buffer+0x2d0/0x2d0
-[  162.474704]  ? do_syscall_64+0x3b/0x90
-[  162.474962]  dir_search_u+0x196/0x2f0
-[  162.475381]  ? ntfs_nls_to_utf16+0x450/0x450
-[  162.475661]  ? ntfs_security_init+0x3d6/0x440
-[  162.475906]  ? is_sd_valid+0x180/0x180
-[  162.476191]  ntfs_extend_init+0x13f/0x2c0
-[  162.476496]  ? ntfs_fix_post_read+0x130/0x130
-[  162.476861]  ? iput.part.0+0x286/0x320
-[  162.477325]  ntfs_fill_super+0x11e0/0x1b50
-[  162.477709]  ? put_ntfs+0x1d0/0x1d0
-[  162.477970]  ? vsprintf+0x20/0x20
-[  162.478258]  ? set_blocksize+0x95/0x150
-[  162.478538]  get_tree_bdev+0x232/0x370
-[  162.478789]  ? put_ntfs+0x1d0/0x1d0
-[  162.479038]  ntfs_fs_get_tree+0x15/0x20
-[  162.479374]  vfs_get_tree+0x4c/0x130
-[  162.479729]  path_mount+0x654/0xfe0
-[  162.480124]  ? putname+0x80/0xa0
-[  162.480484]  ? finish_automount+0x2e0/0x2e0
-[  162.480894]  ? putname+0x80/0xa0
-[  162.481467]  ? kmem_cache_free+0x1c4/0x440
-[  162.482280]  ? putname+0x80/0xa0
-[  162.482714]  do_mount+0xd6/0xf0
-[  162.483264]  ? path_mount+0xfe0/0xfe0
-[  162.484782]  ? __kasan_check_write+0x14/0x20
-[  162.485593]  __x64_sys_mount+0xca/0x110
-[  162.486024]  do_syscall_64+0x3b/0x90
-[  162.486543]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[  162.487141] RIP: 0033:0x7f9d374e948a
-[  162.488324] Code: 48 8b 0d 11 fa 2a 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 008
-[  162.489728] RSP: 002b:00007ffe30e73d18 EFLAGS: 00000206 ORIG_RAX: 00000000000000a5
-[  162.490971] RAX: ffffffffffffffda RBX: 0000561cdb43a060 RCX: 00007f9d374e948a
-[  162.491669] RDX: 0000561cdb43a260 RSI: 0000561cdb43a2e0 RDI: 0000561cdb442af0
-[  162.492050] RBP: 0000000000000000 R08: 0000561cdb43a280 R09: 0000000000000020
-[  162.492459] R10: 00000000c0ed0000 R11: 0000000000000206 R12: 0000561cdb442af0
-[  162.493183] R13: 0000561cdb43a260 R14: 0000000000000000 R15: 00000000ffffffff
-[  162.493644]  </TASK>
-[  162.493908]
-[  162.494214] The buggy address belongs to the physical page:
-[  162.494761] page:000000003e38a3d5 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x37bc
-[  162.496064] flags: 0xfffffc0000000(node=0|zone=1|lastcpupid=0x1fffff)
-[  162.497278] raw: 000fffffc0000000 ffffea00000df1c8 ffffea00000df008 0000000000000000
-[  162.498928] raw: 0000000000000000 0000000000240000 00000000ffffffff 0000000000000000
-[  162.500542] page dumped because: kasan: bad access detected
-[  162.501057]
-[  162.501242] Memory state around the buggy address:
-[  162.502230]  ffff8880037bc980: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-[  162.502977]  ffff8880037bca00: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-[  162.503522] >ffff8880037bca80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-[  162.503963]                             ^
-[  162.504370]  ffff8880037bcb00: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-[  162.504766]  ffff8880037bcb80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+It is worth to mention the commit contained another bug: the quirk is
+not applied at all to controllers which require it. The fix commit
+09d6ac8dc51a ("libata/ahci: Fix PCS quirk application") landed in 5.3.8.
+So testing my patch anywhere between commits c312ef176399 and
+09d6ac8dc51a is pointless.
 
-Signed-off-by: Edward Lo <edward.lo@ambergroup.io>
-Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+Not all disks trigger the problem. For example nothing bad happens with
+Western Digital WD5000LPCX HDD.
+
+Test hardware:
+- Acer 5920G with ICH8M SATA controller
+- sda: some SATA HDD connnected into the DVD drive IDE port with a
+  SATA-IDE caddy. It is a boot disk
+- sdb: Kingston SV300S37A60G SSD connected into the only SATA port
+
+Sample "dmesg --notime | grep -E '^(sd |ata)'" output on wake:
+
+sd 0:0:0:0: [sda] Starting disk
+sd 2:0:0:0: [sdb] Starting disk
+ata4: SATA link down (SStatus 4 SControl 300)
+ata3: SATA link down (SStatus 4 SControl 300)
+ata1.00: ACPI cmd ef/03:0c:00:00:00:a0 (SET FEATURES) filtered out
+ata1.00: ACPI cmd ef/03:42:00:00:00:a0 (SET FEATURES) filtered out
+ata1: FORCE: cable set to 80c
+ata5: SATA link down (SStatus 0 SControl 300)
+ata3: SATA link down (SStatus 4 SControl 300)
+ata3: SATA link down (SStatus 4 SControl 300)
+ata3.00: disabled
+sd 2:0:0:0: rejecting I/O to offline device
+ata3.00: detaching (SCSI 2:0:0:0)
+sd 2:0:0:0: [sdb] Start/Stop Unit failed: Result: hostbyte=DID_NO_CONNECT
+	driverbyte=DRIVER_OK
+sd 2:0:0:0: [sdb] Synchronizing SCSI cache
+sd 2:0:0:0: [sdb] Synchronize Cache(10) failed: Result:
+	hostbyte=DID_BAD_TARGET driverbyte=DRIVER_OK
+sd 2:0:0:0: [sdb] Stopping disk
+sd 2:0:0:0: [sdb] Start/Stop Unit failed: Result: hostbyte=DID_BAD_TARGET
+	driverbyte=DRIVER_OK
+
+Commit c312ef176399 dropped ahci_pci_reset_controller() which internally
+calls ahci_reset_controller() and applies the PCS quirk if needed after
+that. It was called each time a reset was required instead of just
+ahci_reset_controller(). This patch puts the function back in place.
+
+Fixes: c312ef176399 ("libata/ahci: Drop PCS quirk for Denverton and beyond")
+Signed-off-by: Adam Vodopjan <grozzly@protonmail.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/fsntfs.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/ata/ahci.c | 32 +++++++++++++++++++++++---------
+ 1 file changed, 23 insertions(+), 9 deletions(-)
 
-diff --git a/fs/ntfs3/fsntfs.c b/fs/ntfs3/fsntfs.c
-index 4ed15f64b17f..b6e22bcb929b 100644
---- a/fs/ntfs3/fsntfs.c
-+++ b/fs/ntfs3/fsntfs.c
-@@ -1849,9 +1849,10 @@ int ntfs_security_init(struct ntfs_sb_info *sbi)
- 		goto out;
- 	}
+diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
+index c1eca72b4575..28d8c56cb4dd 100644
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -84,6 +84,7 @@ enum board_ids {
+ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent);
+ static void ahci_remove_one(struct pci_dev *dev);
+ static void ahci_shutdown_one(struct pci_dev *dev);
++static void ahci_intel_pcs_quirk(struct pci_dev *pdev, struct ahci_host_priv *hpriv);
+ static int ahci_vt8251_hardreset(struct ata_link *link, unsigned int *class,
+ 				 unsigned long deadline);
+ static int ahci_avn_hardreset(struct ata_link *link, unsigned int *class,
+@@ -677,6 +678,25 @@ static void ahci_pci_save_initial_config(struct pci_dev *pdev,
+ 	ahci_save_initial_config(&pdev->dev, hpriv);
+ }
  
--	root_sdh = resident_data(attr);
-+	root_sdh = resident_data_ex(attr, sizeof(struct INDEX_ROOT));
- 	if (root_sdh->type != ATTR_ZERO ||
--	    root_sdh->rule != NTFS_COLLATION_TYPE_SECURITY_HASH) {
-+	    root_sdh->rule != NTFS_COLLATION_TYPE_SECURITY_HASH ||
-+	    offsetof(struct INDEX_ROOT, ihdr) + root_sdh->ihdr.used > attr->res.data_size) {
- 		err = -EINVAL;
- 		goto out;
- 	}
-@@ -1867,9 +1868,10 @@ int ntfs_security_init(struct ntfs_sb_info *sbi)
- 		goto out;
- 	}
++static int ahci_pci_reset_controller(struct ata_host *host)
++{
++	struct pci_dev *pdev = to_pci_dev(host->dev);
++	struct ahci_host_priv *hpriv = host->private_data;
++	int rc;
++
++	rc = ahci_reset_controller(host);
++	if (rc)
++		return rc;
++
++	/*
++	 * If platform firmware failed to enable ports, try to enable
++	 * them here.
++	 */
++	ahci_intel_pcs_quirk(pdev, hpriv);
++
++	return 0;
++}
++
+ static void ahci_pci_init_controller(struct ata_host *host)
+ {
+ 	struct ahci_host_priv *hpriv = host->private_data;
+@@ -871,7 +891,7 @@ static int ahci_pci_device_runtime_resume(struct device *dev)
+ 	struct ata_host *host = pci_get_drvdata(pdev);
+ 	int rc;
  
--	root_sii = resident_data(attr);
-+	root_sii = resident_data_ex(attr, sizeof(struct INDEX_ROOT));
- 	if (root_sii->type != ATTR_ZERO ||
--	    root_sii->rule != NTFS_COLLATION_TYPE_UINT) {
-+	    root_sii->rule != NTFS_COLLATION_TYPE_UINT ||
-+	    offsetof(struct INDEX_ROOT, ihdr) + root_sii->ihdr.used > attr->res.data_size) {
- 		err = -EINVAL;
- 		goto out;
- 	}
+-	rc = ahci_reset_controller(host);
++	rc = ahci_pci_reset_controller(host);
+ 	if (rc)
+ 		return rc;
+ 	ahci_pci_init_controller(host);
+@@ -907,7 +927,7 @@ static int ahci_pci_device_resume(struct device *dev)
+ 		ahci_mcp89_apple_enable(pdev);
+ 
+ 	if (pdev->dev.power.power_state.event == PM_EVENT_SUSPEND) {
+-		rc = ahci_reset_controller(host);
++		rc = ahci_pci_reset_controller(host);
+ 		if (rc)
+ 			return rc;
+ 
+@@ -1788,12 +1808,6 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	/* save initial config */
+ 	ahci_pci_save_initial_config(pdev, hpriv);
+ 
+-	/*
+-	 * If platform firmware failed to enable ports, try to enable
+-	 * them here.
+-	 */
+-	ahci_intel_pcs_quirk(pdev, hpriv);
+-
+ 	/* prepare host */
+ 	if (hpriv->cap & HOST_CAP_NCQ) {
+ 		pi.flags |= ATA_FLAG_NCQ;
+@@ -1903,7 +1917,7 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	if (rc)
+ 		return rc;
+ 
+-	rc = ahci_reset_controller(host);
++	rc = ahci_pci_reset_controller(host);
+ 	if (rc)
+ 		return rc;
+ 
 -- 
 2.35.1
 
