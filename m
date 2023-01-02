@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8F1865B09C
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:27:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F31E765B09D
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:27:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232526AbjABL1J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:27:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45558 "EHLO
+        id S229621AbjABL1K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:27:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233004AbjABL0H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:26:07 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 887792620
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:24:48 -0800 (PST)
+        with ESMTP id S232856AbjABL0I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:26:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7337563AF
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:24:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0DD1DCE0E1D
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:24:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1964C433EF;
-        Mon,  2 Jan 2023 11:24:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 296E8B80D15
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:24:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 940E1C433D2;
+        Mon,  2 Jan 2023 11:24:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658685;
-        bh=5coy2AkHf0gVJ0ubfvUi/qaEtWUDktNUB6z9Ia7EXUo=;
+        s=korg; t=1672658687;
+        bh=qeWTeD/XppDAMiiK9eXDs2xY/co0C3oVOYqMqTPGd3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LY3zp3BwVFCEGStFIrY6RPcaR4Hsvg7UE7TABgtRLDl4RFzlY1jzIFRa1PqnsRBF+
-         jMWV02KHXHjPNCHi4KaJIske3ZMnLIucGSNj0+lG/hUQTwFBSA0yl7TnquVtxE01J7
-         28FZsAImXfif31PtTj63EJWT+zHJTSVjTMp22kxY=
+        b=wrxc1xliSPr2W8wmnsm+xZsGE4CYNUMXVWKtAZa6XpcpsSU/9p5YstSgHoDIHsv3T
+         U/TydimAZfN41RhkIDH4/xpKU0usp8F7lJW4CWX81a+UrnkRCGie4CJcubtuQOY5Az
+         aFqhzNVabgGOLMoH/pRwR/g+meXpBKbRGcS7c2YE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <dan.carpenter@oracle.com>,
+        patches@lists.linux.dev, Yin Xiujiang <yinxiujiang@kylinos.cn>,
         Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 31/71] fs/ntfs3: Delete duplicate condition in ntfs_read_mft()
-Date:   Mon,  2 Jan 2023 12:21:56 +0100
-Message-Id: <20230102110552.738786955@linuxfoundation.org>
+Subject: [PATCH 6.1 32/71] fs/ntfs3: Fix slab-out-of-bounds in r_page
+Date:   Mon,  2 Jan 2023 12:21:57 +0100
+Message-Id: <20230102110552.794133287@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
 References: <20230102110551.509937186@linuxfoundation.org>
@@ -53,42 +53,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Yin Xiujiang <yinxiujiang@kylinos.cn>
 
-[ Upstream commit 658015167a8432b88f5d032e9d85d8fd50e5bf2c ]
+[ Upstream commit ecfbd57cf9c5ca225184ae266ce44ae473792132 ]
 
-There were two patches which addressed the same bug and added the same
-condition:
+When PAGE_SIZE is 64K, if read_log_page is called by log_read_rst for
+the first time, the size of *buffer would be equal to
+DefaultLogPageSize(4K).But for *buffer operations like memcpy,
+if the memory area size(n) which being assigned to buffer is larger
+than 4K (log->page_size(64K) or bytes(64K-page_off)), it will cause
+an out of boundary error.
+ Call trace:
+  [...]
+  kasan_report+0x44/0x130
+  check_memory_region+0xf8/0x1a0
+  memcpy+0xc8/0x100
+  ntfs_read_run_nb+0x20c/0x460
+  read_log_page+0xd0/0x1f4
+  log_read_rst+0x110/0x75c
+  log_replay+0x1e8/0x4aa0
+  ntfs_loadlog_and_replay+0x290/0x2d0
+  ntfs_fill_super+0x508/0xec0
+  get_tree_bdev+0x1fc/0x34c
+  [...]
 
-commit 6db620863f85 ("fs/ntfs3: Validate data run offset")
-commit 887bfc546097 ("fs/ntfs3: Fix slab-out-of-bounds read in run_unpack")
+Fix this by setting variable r_page to NULL in log_read_rst.
 
-Delete one condition.
-
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Yin Xiujiang <yinxiujiang@kylinos.cn>
 Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/inode.c | 6 ------
- 1 file changed, 6 deletions(-)
+ fs/ntfs3/fslog.c | 26 ++------------------------
+ 1 file changed, 2 insertions(+), 24 deletions(-)
 
-diff --git a/fs/ntfs3/inode.c b/fs/ntfs3/inode.c
-index d98d047c778c..e352aa37330c 100644
---- a/fs/ntfs3/inode.c
-+++ b/fs/ntfs3/inode.c
-@@ -374,12 +374,6 @@ static struct inode *ntfs_read_mft(struct inode *inode,
+diff --git a/fs/ntfs3/fslog.c b/fs/ntfs3/fslog.c
+index a85f5411aa74..c662d2a51907 100644
+--- a/fs/ntfs3/fslog.c
++++ b/fs/ntfs3/fslog.c
+@@ -1132,7 +1132,7 @@ static int read_log_page(struct ntfs_log *log, u32 vbo,
+ 		return -EINVAL;
  
- 	t64 = le64_to_cpu(attr->nres.svcn);
- 
--	/* offset to packed runs is out-of-bounds */
--	if (roff > asize) {
--		err = -EINVAL;
--		goto out;
--	}
+ 	if (!*buffer) {
+-		to_free = kmalloc(bytes, GFP_NOFS);
++		to_free = kmalloc(log->page_size, GFP_NOFS);
+ 		if (!to_free)
+ 			return -ENOMEM;
+ 		*buffer = to_free;
+@@ -1180,10 +1180,7 @@ static int log_read_rst(struct ntfs_log *log, u32 l_size, bool first,
+ 			struct restart_info *info)
+ {
+ 	u32 skip, vbo;
+-	struct RESTART_HDR *r_page = kmalloc(DefaultLogPageSize, GFP_NOFS);
 -
- 	err = run_unpack_ex(run, sbi, ino, t64, le64_to_cpu(attr->nres.evcn),
- 			    t64, Add2Ptr(attr, roff), asize - roff);
- 	if (err < 0)
+-	if (!r_page)
+-		return -ENOMEM;
++	struct RESTART_HDR *r_page = NULL;
+ 
+ 	/* Determine which restart area we are looking for. */
+ 	if (first) {
+@@ -1197,7 +1194,6 @@ static int log_read_rst(struct ntfs_log *log, u32 l_size, bool first,
+ 	/* Loop continuously until we succeed. */
+ 	for (; vbo < l_size; vbo = 2 * vbo + skip, skip = 0) {
+ 		bool usa_error;
+-		u32 sys_page_size;
+ 		bool brst, bchk;
+ 		struct RESTART_AREA *ra;
+ 
+@@ -1251,24 +1247,6 @@ static int log_read_rst(struct ntfs_log *log, u32 l_size, bool first,
+ 			goto check_result;
+ 		}
+ 
+-		/* Read the entire restart area. */
+-		sys_page_size = le32_to_cpu(r_page->sys_page_size);
+-		if (DefaultLogPageSize != sys_page_size) {
+-			kfree(r_page);
+-			r_page = kzalloc(sys_page_size, GFP_NOFS);
+-			if (!r_page)
+-				return -ENOMEM;
+-
+-			if (read_log_page(log, vbo,
+-					  (struct RECORD_PAGE_HDR **)&r_page,
+-					  &usa_error)) {
+-				/* Ignore any errors. */
+-				kfree(r_page);
+-				r_page = NULL;
+-				continue;
+-			}
+-		}
+-
+ 		if (is_client_area_valid(r_page, usa_error)) {
+ 			info->valid_page = true;
+ 			ra = Add2Ptr(r_page, le16_to_cpu(r_page->ra_off));
 -- 
 2.35.1
 
