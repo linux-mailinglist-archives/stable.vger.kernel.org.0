@@ -2,142 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4CA265B131
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:31:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80E0665B095
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:26:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232378AbjABLbD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:31:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50010 "EHLO
+        id S233018AbjABL0R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:26:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236160AbjABLaS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:30:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8973763DC
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:30:06 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S232752AbjABLZh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:25:37 -0500
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42CA4657D;
+        Mon,  2 Jan 2023 03:24:31 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D7043B80D14
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:30:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50C04C43396;
-        Mon,  2 Jan 2023 11:30:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672659003;
-        bh=lFd0EV29iKZDDLDqXWbMV8D6+pQyitgP/uqWRvgNBGg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DArD/APPt2I7cpEW8v5W4UbRerFJ7sRWYXnhoi/kzqIpQrNEcrE73Z9JNkNSObucj
-         8DpSogEDNo3uEVtNrPow15XRRvD1pnaEAvgdlsRg0n+DNKdMxCmrjKFXeT9jYtTWTQ
-         mVfuhJUrHIlITRr4wvGcdlLCVgL/YMoHGqR8x2ps=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marco Elver <elver@google.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>
-Subject: [PATCH 6.0 74/74] kcsan: Instrument memcpy/memset/memmove with newer Clang
-Date:   Mon,  2 Jan 2023 12:22:47 +0100
-Message-Id: <20230102110555.233324012@linuxfoundation.org>
-X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
-References: <20230102110552.061937047@linuxfoundation.org>
-User-Agent: quilt/0.67
+        by smtp-out1.suse.de (Postfix) with ESMTPS id DCF5D2256F;
+        Mon,  2 Jan 2023 11:24:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1672658669; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=zBBA2nzNlNZSsvXhqPF5ZZXmCuwF1QaNQRQ7CORp228=;
+        b=W+MNNtWOV2kZ3FIcdAAT9QOD4LZEnFG5CFXuF3hZd1Y1eVmqAAVMO/VRayl7Z+4qhhNfD8
+        q4X09/cdkwSAp9J3g9lhmO3rJGO3qQDIkjOFrWxltxawKTAASUepMvFCJYXLXRoBQbG2lz
+        7R1UOTRaB3ZRcf0gjxXn/kyrrBHAFU8=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1672658669;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=zBBA2nzNlNZSsvXhqPF5ZZXmCuwF1QaNQRQ7CORp228=;
+        b=sl92HB9JIQWiy9kLRPLV1wr2nNBaENBgI88KKooa8T8gNUHfnt76oiOZQD4eH7rLUeZ3zo
+        YZ/rDaJ2pCWz05Ag==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id AD36E13427;
+        Mon,  2 Jan 2023 11:24:29 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id fYyMKe2+smNRbwAAMHmgww
+        (envelope-from <vbabka@suse.cz>); Mon, 02 Jan 2023 11:24:29 +0000
+Message-ID: <d6e965ca-a568-5193-20a0-19b1c9b42ca2@suse.cz>
+Date:   Mon, 2 Jan 2023 12:24:29 +0100
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.1
+Subject: Re: [PATCH] x86/kexec: fix double vfree of image->elf_headers
+Content-Language: en-US
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>
+Cc:     x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        patches@lists.linux.dev, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, Baoquan He <bhe@redhat.com>,
+        Dave Young <dyoung@redhat.com>, stable@vger.kernel.org
+References: <20230102103917.20987-1-vbabka@suse.cz>
+From:   Vlastimil Babka <vbabka@suse.cz>
+In-Reply-To: <20230102103917.20987-1-vbabka@suse.cz>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_SOFTFAIL autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+On 1/2/23 11:39, Vlastimil Babka wrote:
+> An investigation of a "Trying to vfree() nonexistent vm area" bug
+> occurring in arch_kimage_file_post_load_cleanup() doing a
+> vfree(image->elf_headers) in our 5.14-based kernel yielded the following
+> double vfree() scenario, also present in mainline:
+> 
+> SYSCALL_DEFINE5(kexec_file_load)
+>   kimage_file_alloc_init()
+>     kimage_file_prepare_segments()
+>       arch_kexec_kernel_image_probe()
+>         kexec_image_load_default()
+>           kexec_bzImage64_ops.load()
+>             bzImage64_load()
+>               crash_load_segments()
+>                 prepare_elf_headers(image, &kbuf.buffer, &kbuf.bufsz);
+>                 image->elf_headers = kbuf.buffer;
+> 		ret = kexec_add_buffer(&kbuf);
+> 		if (ret) vfree((void *)image->elf_headers); // first vfree()
+>       if (ret) kimage_file_post_load_cleanup()
+>         vfree(image->elf_headers);                          // second vfree()
+> 
+> AFAICS the scenario is possible since v5.19 commit b3e34a47f989
+> ("x86/kexec: fix memory leak of elf header buffer") that was marked for
+> stable and also was backported to our kernel.
+> 
+> Fix the problem by setting the pointer to NULL after the first vfree().
+> Also set elf_headers_sz to 0, as kimage_file_post_load_cleanup() does.
+> 
+> Fixes: b3e34a47f989 ("x86/kexec: fix memory leak of elf header buffer")
+> Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+> Cc: Baoquan He <bhe@redhat.com>
+> Cc: Dave Young <dyoung@redhat.com>
+> Cc: <stable@vger.kernel.org>
 
-commit 7c201739beef1a586d806463f1465429cdce34c5 upstream.
+Takashi told me he sent a slightly different fix already in November:
+https://lore.kernel.org/all/20221122115122.13937-1-tiwai@suse.de/
 
-With Clang version 16+, -fsanitize=thread will turn
-memcpy/memset/memmove calls in instrumented functions into
-__tsan_memcpy/__tsan_memset/__tsan_memmove calls respectively.
+Seems it wasn't picked up? You might pick his then, as Baoquan acked it, and
+it's removing code, not adding it.
 
-Add these functions to the core KCSAN runtime, so that we (a) catch data
-races with mem* functions, and (b) won't run into linker errors with
-such newer compilers.
-
-Cc: stable@vger.kernel.org # v5.10+
-Signed-off-by: Marco Elver <elver@google.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- kernel/kcsan/core.c |   50 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 50 insertions(+)
-
---- a/kernel/kcsan/core.c
-+++ b/kernel/kcsan/core.c
-@@ -14,10 +14,12 @@
- #include <linux/init.h>
- #include <linux/kernel.h>
- #include <linux/list.h>
-+#include <linux/minmax.h>
- #include <linux/moduleparam.h>
- #include <linux/percpu.h>
- #include <linux/preempt.h>
- #include <linux/sched.h>
-+#include <linux/string.h>
- #include <linux/uaccess.h>
- 
- #include "encoding.h"
-@@ -1308,3 +1310,51 @@ noinline void __tsan_atomic_signal_fence
- 	}
- }
- EXPORT_SYMBOL(__tsan_atomic_signal_fence);
-+
-+#ifdef __HAVE_ARCH_MEMSET
-+void *__tsan_memset(void *s, int c, size_t count);
-+noinline void *__tsan_memset(void *s, int c, size_t count)
-+{
-+	/*
-+	 * Instead of not setting up watchpoints where accessed size is greater
-+	 * than MAX_ENCODABLE_SIZE, truncate checked size to MAX_ENCODABLE_SIZE.
-+	 */
-+	size_t check_len = min_t(size_t, count, MAX_ENCODABLE_SIZE);
-+
-+	check_access(s, check_len, KCSAN_ACCESS_WRITE, _RET_IP_);
-+	return memset(s, c, count);
-+}
-+#else
-+void *__tsan_memset(void *s, int c, size_t count) __alias(memset);
-+#endif
-+EXPORT_SYMBOL(__tsan_memset);
-+
-+#ifdef __HAVE_ARCH_MEMMOVE
-+void *__tsan_memmove(void *dst, const void *src, size_t len);
-+noinline void *__tsan_memmove(void *dst, const void *src, size_t len)
-+{
-+	size_t check_len = min_t(size_t, len, MAX_ENCODABLE_SIZE);
-+
-+	check_access(dst, check_len, KCSAN_ACCESS_WRITE, _RET_IP_);
-+	check_access(src, check_len, 0, _RET_IP_);
-+	return memmove(dst, src, len);
-+}
-+#else
-+void *__tsan_memmove(void *dst, const void *src, size_t len) __alias(memmove);
-+#endif
-+EXPORT_SYMBOL(__tsan_memmove);
-+
-+#ifdef __HAVE_ARCH_MEMCPY
-+void *__tsan_memcpy(void *dst, const void *src, size_t len);
-+noinline void *__tsan_memcpy(void *dst, const void *src, size_t len)
-+{
-+	size_t check_len = min_t(size_t, len, MAX_ENCODABLE_SIZE);
-+
-+	check_access(dst, check_len, KCSAN_ACCESS_WRITE, _RET_IP_);
-+	check_access(src, check_len, 0, _RET_IP_);
-+	return memcpy(dst, src, len);
-+}
-+#else
-+void *__tsan_memcpy(void *dst, const void *src, size_t len) __alias(memcpy);
-+#endif
-+EXPORT_SYMBOL(__tsan_memcpy);
-
+> ---
+>  arch/x86/kernel/crash.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/arch/x86/kernel/crash.c b/arch/x86/kernel/crash.c
+> index 9730c88530fc..0d651c05a49e 100644
+> --- a/arch/x86/kernel/crash.c
+> +++ b/arch/x86/kernel/crash.c
+> @@ -403,6 +403,8 @@ int crash_load_segments(struct kimage *image)
+>  	ret = kexec_add_buffer(&kbuf);
+>  	if (ret) {
+>  		vfree((void *)image->elf_headers);
+> +		image->elf_headers = NULL;
+> +		image->elf_headers_sz = 0;
+>  		return ret;
+>  	}
+>  	image->elf_load_addr = kbuf.mem;
 
