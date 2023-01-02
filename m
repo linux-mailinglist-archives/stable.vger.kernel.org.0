@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97FD465B019
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 11:54:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91A0465B01B
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 11:56:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232760AbjABKy5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 05:54:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51522 "EHLO
+        id S232758AbjABK4q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 05:56:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232791AbjABKy0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 05:54:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44E3A7659
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 02:53:13 -0800 (PST)
+        with ESMTP id S232682AbjABK41 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 05:56:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0D40B81
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 02:55:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B4D18B80CD9
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 10:53:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10899C433D2;
-        Mon,  2 Jan 2023 10:53:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CD6260F2E
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 10:55:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C6B0C433EF;
+        Mon,  2 Jan 2023 10:55:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672656786;
-        bh=u+2T19h4qSBqKfddYeXFMVkXxb6VZ3PORSZbBZakY68=;
+        s=korg; t=1672656905;
+        bh=N858pdq8woUCE9e4gqk7YmfeRywGx8KwnNgYsr7kl9Y=;
         h=Subject:To:Cc:From:Date:From;
-        b=qh1hatFoLuv5rVggEMfMsC7xoz/ZVQtWB7Jl0/Wa8JXw9uj4sxoD6ifwamjFVdJOI
-         /cQSPiS5bnGvmuN+4/6AE0I4fIMqHLqmO903ANJLG1x5bnCxoJN/u2ZrPt7jn/hNfH
-         V2QQ7OkzLqYdoZIC+j1op4DWjfvCObmHHL+FPVPU=
-Subject: FAILED: patch "[PATCH] ALSA: hda/realtek: Apply dual codec fixup for Dell Latitude" failed to apply to 4.9-stable tree
-To:     chris.chiu@canonical.com, stable@vger.kernel.org, tiwai@suse.de
+        b=pm9i8VXLjTeJeuAp63v1MWQCzPmLFZXvby/TsmMMfej8WSZByd1w8qHrN7u9HpyGE
+         cFuxCovMRTXyUWTohyWmooc8L1Gr9DRP57cjrq9ZbnW5zuRJHjANsWEE3QPH0CG4wk
+         vMEJKwe7qKYyLkjT/eYB26NjOP86cgvWsaRxSdDk=
+Subject: FAILED: patch "[PATCH] f2fs: allow to read node block after shutdown" failed to apply to 5.10-stable tree
+To:     jaegeuk@kernel.org, chao@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 02 Jan 2023 11:52:50 +0100
-Message-ID: <1672656770229187@kroah.com>
+Date:   Mon, 02 Jan 2023 11:55:02 +0100
+Message-ID: <167265690293238@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,30 +47,15 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-a4517c4f3423 ("ALSA: hda/realtek: Apply dual codec fixup for Dell Latitude laptops")
-2912cdda734d ("ALSA: patch_realtek: Fix Dell Inspiron Plus 16")
-bdc9b7396f7d ("ALSA: hda/realtek: Enable 4-speaker output Dell Precision 5570 laptop")
-3790a3d6dbbc ("ALSA: hda/realtek: Add quirk for Lenovo Yoga9 14IAP7")
-1e24881d8b2a ("ALSA: hda: cs35l41: Support CLSA0101")
-f81ee579c089 ("ALSA: hda: cs35l41: Use the CS35L41 HDA internal define")
-63f4b99f0089 ("ALSA: hda: cs35l41: Support Speaker ID for laptops")
-bb6eb621f522 ("ALSA: hda: cs35l41: Support multiple load paths for firmware")
-eef375960210 ("ALSA: hda: cs35l41: Support reading subsystem id from ACPI")
-e99f3c7e3250 ("ALSA: hda: cs35l41: Save Subsystem ID inside CS35L41 Driver")
-2e81e1fffd53 ("ALSA: hda: cs35l41: Add initial DSP support and firmware loading")
-22d5cbd273a2 ("ALSA: hda: cs35l41: Save codec object inside component struct")
-33c1f401939c ("ALSA: hda: cs35l41: Consolidate selections under SND_HDA_SCODEC_CS35L41")
-642999365da3 ("ALSA: hda: cs35l41: Fix comments wrt serial-multi-instantiate reference")
-85743a847cae ("ALSA: hda/realtek: Fix for quirk to enable speaker output on the Lenovo Yoga DuetITL 2021")
-15dad62f4bdb ("ALSA: hda/realtek: Enable 4-speaker output for Dell XPS 15 9520 laptop")
-1212fa1b482e ("Merge branch 'for-linus' into for-next")
+e6ecb1424291 ("f2fs: allow to read node block after shutdown")
+b7ec2061737f ("f2fs: do not submit NEW_ADDR to read node block")
 
 thanks,
 
@@ -78,63 +63,31 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a4517c4f3423c7c448f2c359218f97c1173523a1 Mon Sep 17 00:00:00 2001
-From: Chris Chiu <chris.chiu@canonical.com>
-Date: Mon, 26 Dec 2022 19:43:03 +0800
-Subject: [PATCH] ALSA: hda/realtek: Apply dual codec fixup for Dell Latitude
- laptops
+From e6ecb142429183cef4835f31d4134050ae660032 Mon Sep 17 00:00:00 2001
+From: Jaegeuk Kim <jaegeuk@kernel.org>
+Date: Tue, 8 Nov 2022 17:59:34 -0800
+Subject: [PATCH] f2fs: allow to read node block after shutdown
 
-The Dell Latiture 3340/3440/3540 laptops with Realtek ALC3204 have
-dual codecs and need the ALC1220_FIXUP_GB_DUAL_CODECS to fix the
-conflicts of Master controls. The existing headset mic fixup for
-Dell is also required to enable the jack sense and the headset mic.
+If block address is still alive, we should give a valid node block even after
+shutdown. Otherwise, we can see zero data when reading out a file.
 
-Introduce a new fixup to fix the dual codec and headset mic issues
-for particular Dell laptops since other old Dell laptops with the
-same codec configuration are already well handled by the fixup in
-alc269_fallback_pin_fixup_tbl[].
+Cc: stable@vger.kernel.org
+Fixes: 83a3bfdb5a8a ("f2fs: indicate shutdown f2fs to allow unmount successfully")
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 
-Signed-off-by: Chris Chiu <chris.chiu@canonical.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221226114303.4027500-1-chris.chiu@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index e443d88f627f..3794b522c222 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -7175,6 +7175,7 @@ enum {
- 	ALC287_FIXUP_YOGA9_14IAP7_BASS_SPK,
- 	ALC287_FIXUP_YOGA9_14IAP7_BASS_SPK_PIN,
- 	ALC295_FIXUP_DELL_INSPIRON_TOP_SPEAKERS,
-+	ALC236_FIXUP_DELL_DUAL_CODECS,
- };
+diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
+index 983572f23896..b9ee5a1176a0 100644
+--- a/fs/f2fs/node.c
++++ b/fs/f2fs/node.c
+@@ -1360,8 +1360,7 @@ static int read_node_page(struct page *page, blk_opf_t op_flags)
+ 		return err;
  
- /* A special fixup for Lenovo C940 and Yoga Duet 7;
-@@ -9130,6 +9131,12 @@ static const struct hda_fixup alc269_fixups[] = {
- 		.chained = true,
- 		.chain_id = ALC269_FIXUP_DELL4_MIC_NO_PRESENCE,
- 	},
-+	[ALC236_FIXUP_DELL_DUAL_CODECS] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.func = alc1220_fixup_gb_dual_codecs,
-+		.chained = true,
-+		.chain_id = ALC255_FIXUP_DELL1_MIC_NO_PRESENCE,
-+	},
- };
- 
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -9232,6 +9239,12 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x1028, 0x0b1a, "Dell Precision 5570", ALC289_FIXUP_DUAL_SPK),
- 	SND_PCI_QUIRK(0x1028, 0x0b37, "Dell Inspiron 16 Plus 7620 2-in-1", ALC295_FIXUP_DELL_INSPIRON_TOP_SPEAKERS),
- 	SND_PCI_QUIRK(0x1028, 0x0b71, "Dell Inspiron 16 Plus 7620", ALC295_FIXUP_DELL_INSPIRON_TOP_SPEAKERS),
-+	SND_PCI_QUIRK(0x1028, 0x0c19, "Dell Precision 3340", ALC236_FIXUP_DELL_DUAL_CODECS),
-+	SND_PCI_QUIRK(0x1028, 0x0c1a, "Dell Precision 3340", ALC236_FIXUP_DELL_DUAL_CODECS),
-+	SND_PCI_QUIRK(0x1028, 0x0c1b, "Dell Precision 3440", ALC236_FIXUP_DELL_DUAL_CODECS),
-+	SND_PCI_QUIRK(0x1028, 0x0c1c, "Dell Precision 3540", ALC236_FIXUP_DELL_DUAL_CODECS),
-+	SND_PCI_QUIRK(0x1028, 0x0c1d, "Dell Precision 3440", ALC236_FIXUP_DELL_DUAL_CODECS),
-+	SND_PCI_QUIRK(0x1028, 0x0c1e, "Dell Precision 3540", ALC236_FIXUP_DELL_DUAL_CODECS),
- 	SND_PCI_QUIRK(0x1028, 0x164a, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x164b, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x1586, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC2),
+ 	/* NEW_ADDR can be seen, after cp_error drops some dirty node pages */
+-	if (unlikely(ni.blk_addr == NULL_ADDR || ni.blk_addr == NEW_ADDR) ||
+-			is_sbi_flag_set(sbi, SBI_IS_SHUTDOWN)) {
++	if (unlikely(ni.blk_addr == NULL_ADDR || ni.blk_addr == NEW_ADDR)) {
+ 		ClearPageUptodate(page);
+ 		return -ENOENT;
+ 	}
 
