@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AD1D65B102
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:29:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39EEB65B0BA
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:27:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236056AbjABL3w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:29:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50324 "EHLO
+        id S236008AbjABL1h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:27:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236115AbjABL3W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:29:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5443634C
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:28:45 -0800 (PST)
+        with ESMTP id S236065AbjABL1H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:27:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A50CB641D
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:26:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7531A60F55
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:28:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 899FCC433EF;
-        Mon,  2 Jan 2023 11:28:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D0D2DB80D1B
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:25:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 253B1C433EF;
+        Mon,  2 Jan 2023 11:25:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672658924;
-        bh=sbWwmlGYyKtTs34QAJHSuif4uQB664H318m0WBRkP5c=;
+        s=korg; t=1672658758;
+        bh=28HnGYvLUBH0VcEp2wUB5MgJsMx54LSkc1ou7ocB4qw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2cmbvYKrDG8r89gMGpI3cM+rntel1MkG3PDoMoEeHigJXTd3ZsBYvvH8td8jw5r6E
-         EadI51K+TzNJpF7YTjBqVF78mmPeMmQZSNA8sN+5o499XL5itoH0pAuE77IiPTZoYx
-         BORy0ZFx/GVitDyOSCCSC5qLudS4dmE3/xIzb/N0=
+        b=aiPPfqSfuYDRw5KFTWBzWALWdzCt6dSnqJkbhIkpLWk/AbtH3Ru3Fj+WE0RkvcgTx
+         qvb+QIBxOb3c77h9gQWbrxaYSHqEvZAzmaDoHBl0As5dWxN5oU79kmfMEbb498RZUx
+         adebQV2edQBKq8C9AaiksnPsjkqj8D55He0f9PJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Aditya Garg <gargaditya08@live.com>,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.0 52/74] hfsplus: fix bug causing custom uid and gid being unable to be assigned with mount
+        patches@lists.linux.dev, ChiYuan Huang <cy_huang@richtek.com>,
+        Lee Jones <lee@kernel.org>
+Subject: [PATCH 6.1 60/71] mfd: mt6360: Add bounds checking in Regmap read/write call-backs
 Date:   Mon,  2 Jan 2023 12:22:25 +0100
-Message-Id: <20230102110554.324885147@linuxfoundation.org>
+Message-Id: <20230102110554.012122885@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
-References: <20230102110552.061937047@linuxfoundation.org>
+In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
+References: <20230102110551.509937186@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +52,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Garg <gargaditya08@live.com>
+From: ChiYuan Huang <cy_huang@richtek.com>
 
-commit 9f2b5debc07073e6dfdd774e3594d0224b991927 upstream.
+commit 5f4f94e9f26cca6514474b307b59348b8485e711 upstream.
 
-Despite specifying UID and GID in mount command, the specified UID and GID
-were not being assigned. This patch fixes this issue.
+Fix the potential risk of OOB read if bank index is over the maximum.
 
-Link: https://lkml.kernel.org/r/C0264BF5-059C-45CF-B8DA-3A3BD2C803A2@live.com
-Signed-off-by: Aditya Garg <gargaditya08@live.com>
-Reviewed-by: Viacheslav Dubeyko <slava@dubeyko.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Refer to the discussion list for the experiment result on mt6370.
+https://lore.kernel.org/all/20220914013345.GA5802@cyhuang-hp-elitebook-840-g3.rt/
+If not to check the bound, there is the same issue on mt6360.
+
+Cc: stable@vger.kernel.org
+Fixes: 3b0850440a06c (mfd: mt6360: Merge different sub-devices I2C read/write)
+Signed-off-by: ChiYuan Huang <cy_huang@richtek.com>
+Signed-off-by: Lee Jones <lee@kernel.org>
+Link: https://lore.kernel.org/r/1664416817-31590-1-git-send-email-u0084500@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/hfsplus/hfsplus_fs.h |    2 ++
- fs/hfsplus/inode.c      |    4 ++--
- fs/hfsplus/options.c    |    4 ++++
- 3 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/mfd/mt6360-core.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/fs/hfsplus/hfsplus_fs.h
-+++ b/fs/hfsplus/hfsplus_fs.h
-@@ -198,6 +198,8 @@ struct hfsplus_sb_info {
- #define HFSPLUS_SB_HFSX		3
- #define HFSPLUS_SB_CASEFOLD	4
- #define HFSPLUS_SB_NOBARRIER	5
-+#define HFSPLUS_SB_UID		6
-+#define HFSPLUS_SB_GID		7
+--- a/drivers/mfd/mt6360-core.c
++++ b/drivers/mfd/mt6360-core.c
+@@ -402,7 +402,7 @@ static int mt6360_regmap_read(void *cont
+ 	struct mt6360_ddata *ddata = context;
+ 	u8 bank = *(u8 *)reg;
+ 	u8 reg_addr = *(u8 *)(reg + 1);
+-	struct i2c_client *i2c = ddata->i2c[bank];
++	struct i2c_client *i2c;
+ 	bool crc_needed = false;
+ 	u8 *buf;
+ 	int buf_len = MT6360_ALLOC_READ_SIZE(val_size);
+@@ -410,6 +410,11 @@ static int mt6360_regmap_read(void *cont
+ 	u8 crc;
+ 	int ret;
  
- static inline struct hfsplus_sb_info *HFSPLUS_SB(struct super_block *sb)
- {
---- a/fs/hfsplus/inode.c
-+++ b/fs/hfsplus/inode.c
-@@ -192,11 +192,11 @@ static void hfsplus_get_perms(struct ino
- 	mode = be16_to_cpu(perms->mode);
++	if (bank >= MT6360_SLAVE_MAX)
++		return -EINVAL;
++
++	i2c = ddata->i2c[bank];
++
+ 	if (bank == MT6360_SLAVE_PMIC || bank == MT6360_SLAVE_LDO) {
+ 		crc_needed = true;
+ 		ret = mt6360_xlate_pmicldo_addr(&reg_addr, val_size);
+@@ -453,13 +458,18 @@ static int mt6360_regmap_write(void *con
+ 	struct mt6360_ddata *ddata = context;
+ 	u8 bank = *(u8 *)val;
+ 	u8 reg_addr = *(u8 *)(val + 1);
+-	struct i2c_client *i2c = ddata->i2c[bank];
++	struct i2c_client *i2c;
+ 	bool crc_needed = false;
+ 	u8 *buf;
+ 	int buf_len = MT6360_ALLOC_WRITE_SIZE(val_size);
+ 	int write_size = val_size - MT6360_REGMAP_REG_BYTE_SIZE;
+ 	int ret;
  
- 	i_uid_write(inode, be32_to_cpu(perms->owner));
--	if (!i_uid_read(inode) && !mode)
-+	if ((test_bit(HFSPLUS_SB_UID, &sbi->flags)) || (!i_uid_read(inode) && !mode))
- 		inode->i_uid = sbi->uid;
- 
- 	i_gid_write(inode, be32_to_cpu(perms->group));
--	if (!i_gid_read(inode) && !mode)
-+	if ((test_bit(HFSPLUS_SB_GID, &sbi->flags)) || (!i_gid_read(inode) && !mode))
- 		inode->i_gid = sbi->gid;
- 
- 	if (dir) {
---- a/fs/hfsplus/options.c
-+++ b/fs/hfsplus/options.c
-@@ -140,6 +140,8 @@ int hfsplus_parse_options(char *input, s
- 			if (!uid_valid(sbi->uid)) {
- 				pr_err("invalid uid specified\n");
- 				return 0;
-+			} else {
-+				set_bit(HFSPLUS_SB_UID, &sbi->flags);
- 			}
- 			break;
- 		case opt_gid:
-@@ -151,6 +153,8 @@ int hfsplus_parse_options(char *input, s
- 			if (!gid_valid(sbi->gid)) {
- 				pr_err("invalid gid specified\n");
- 				return 0;
-+			} else {
-+				set_bit(HFSPLUS_SB_GID, &sbi->flags);
- 			}
- 			break;
- 		case opt_part:
++	if (bank >= MT6360_SLAVE_MAX)
++		return -EINVAL;
++
++	i2c = ddata->i2c[bank];
++
+ 	if (bank == MT6360_SLAVE_PMIC || bank == MT6360_SLAVE_LDO) {
+ 		crc_needed = true;
+ 		ret = mt6360_xlate_pmicldo_addr(&reg_addr, val_size - MT6360_REGMAP_REG_BYTE_SIZE);
 
 
