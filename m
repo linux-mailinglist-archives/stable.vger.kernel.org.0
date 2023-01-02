@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 508F965B132
-	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:31:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB88065B12A
+	for <lists+stable@lfdr.de>; Mon,  2 Jan 2023 12:30:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235952AbjABLbD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Jan 2023 06:31:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51278 "EHLO
+        id S232829AbjABLay (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Jan 2023 06:30:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236161AbjABLaS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:30:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50A5C64D6
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:30:07 -0800 (PST)
+        with ESMTP id S232952AbjABLaG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Jan 2023 06:30:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCD8564D0
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 03:29:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E1E8A60F21
-        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:30:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01233C433EF;
-        Mon,  2 Jan 2023 11:30:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 59E0A60F21
+        for <stable@vger.kernel.org>; Mon,  2 Jan 2023 11:29:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6983DC433EF;
+        Mon,  2 Jan 2023 11:29:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672659006;
-        bh=hVP9hppalFoxEyMc/MrU3ur0YK6Vixt6XX7v7RUcVO4=;
+        s=korg; t=1672658990;
+        bh=KCXNKdNnGCvwv7UhPIhQEaaJqCNCvCLh8bS2TEuILeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M6H+IbR0c/3qQdBxCARJaO2hu/0rVgAdiVpGEckp1k0tyEiiHpuAfjhmO/ktEniCE
-         ASVtj2I8r1HbvkW4erpUZ+3hplVGOHNUtydlsd8ZThznBAutpiphR7DksgGBBe3O07
-         UOJOKxZbIs58I3WYmZbJU94TALuZ1/WdGVCyKBY0=
+        b=jx81BfsFn1maEeJkMZLNM64RLP1ylCM7ii/WLVlNjV74hKrWbFrRp1pJxN/B66UjY
+         4YP9v5bmW4vFamaRNJQpp7t8Umal5X9lD9LDj+njz6pxgFpgUV1IFp4uTGauA+W2wL
+         O0rZ7xgcnUiyBkcKjJR0xro9QO6y1NwZcgH6Pjck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 6.0 68/74] block: Do not reread partition table on exclusively open device
-Date:   Mon,  2 Jan 2023 12:22:41 +0100
-Message-Id: <20230102110554.997273585@linuxfoundation.org>
+        patches@lists.linux.dev, Deren Wu <deren.wu@mediatek.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 6.0 69/74] mmc: vub300: fix warning - do not call blocking ops when !TASK_RUNNING
+Date:   Mon,  2 Jan 2023 12:22:42 +0100
+Message-Id: <20230102110555.046167937@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
 References: <20230102110552.061937047@linuxfoundation.org>
@@ -52,119 +52,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Deren Wu <deren.wu@mediatek.com>
 
-commit 36369f46e91785688a5f39d7a5590e3f07981316 upstream.
+commit 4a44cd249604e29e7b90ae796d7692f5773dd348 upstream.
 
-Since commit 10c70d95c0f2 ("block: remove the bd_openers checks in
-blk_drop_partitions") we allow rereading of partition table although
-there are users of the block device. This has an undesirable consequence
-that e.g. if sda and sdb are assembled to a RAID1 device md0 with
-partitions, BLKRRPART ioctl on sda will rescan partition table and
-create sda1 device. This partition device under a raid device confuses
-some programs (such as libstorage-ng used for initial partitioning for
-distribution installation) leading to failures.
+vub300_enable_sdio_irq() works with mutex and need TASK_RUNNING here.
+Ensure that we mark current as TASK_RUNNING for sleepable context.
 
-Fix the problem refusing to rescan partitions if there is another user
-that has the block device exclusively open.
+[   77.554641] do not call blocking ops when !TASK_RUNNING; state=1 set at [<ffffffff92a72c1d>] sdio_irq_thread+0x17d/0x5b0
+[   77.554652] WARNING: CPU: 2 PID: 1983 at kernel/sched/core.c:9813 __might_sleep+0x116/0x160
+[   77.554905] CPU: 2 PID: 1983 Comm: ksdioirqd/mmc1 Tainted: G           OE      6.1.0-rc5 #1
+[   77.554910] Hardware name: Intel(R) Client Systems NUC8i7BEH/NUC8BEB, BIOS BECFL357.86A.0081.2020.0504.1834 05/04/2020
+[   77.554912] RIP: 0010:__might_sleep+0x116/0x160
+[   77.554920] RSP: 0018:ffff888107b7fdb8 EFLAGS: 00010282
+[   77.554923] RAX: 0000000000000000 RBX: ffff888118c1b740 RCX: 0000000000000000
+[   77.554926] RDX: 0000000000000001 RSI: 0000000000000004 RDI: ffffed1020f6ffa9
+[   77.554928] RBP: ffff888107b7fde0 R08: 0000000000000001 R09: ffffed1043ea60ba
+[   77.554930] R10: ffff88821f5305cb R11: ffffed1043ea60b9 R12: ffffffff93aa3a60
+[   77.554932] R13: 000000000000011b R14: 7fffffffffffffff R15: ffffffffc0558660
+[   77.554934] FS:  0000000000000000(0000) GS:ffff88821f500000(0000) knlGS:0000000000000000
+[   77.554937] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   77.554939] CR2: 00007f8a44010d68 CR3: 000000024421a003 CR4: 00000000003706e0
+[   77.554942] Call Trace:
+[   77.554944]  <TASK>
+[   77.554952]  mutex_lock+0x78/0xf0
+[   77.554973]  vub300_enable_sdio_irq+0x103/0x3c0 [vub300]
+[   77.554981]  sdio_irq_thread+0x25c/0x5b0
+[   77.555006]  kthread+0x2b8/0x370
+[   77.555017]  ret_from_fork+0x1f/0x30
+[   77.555023]  </TASK>
+[   77.555025] ---[ end trace 0000000000000000 ]---
 
+Fixes: 88095e7b473a ("mmc: Add new VUB300 USB-to-SD/SDIO/MMC driver")
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/all/20221130135344.2ul4cyfstfs3znxg@quack3
-Fixes: 10c70d95c0f2 ("block: remove the bd_openers checks in blk_drop_partitions")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221130175653.24299-1-jack@suse.cz
-[axboe: fold in followup fix]
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lore.kernel.org/r/87dc45b122d26d63c80532976813c9365d7160b3.1670140888.git.deren.wu@mediatek.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk.h   |    2 +-
- block/genhd.c |    7 +++++--
- block/ioctl.c |   12 +++++++-----
- 3 files changed, 13 insertions(+), 8 deletions(-)
+ drivers/mmc/host/vub300.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/block/blk.h
-+++ b/block/blk.h
-@@ -429,7 +429,7 @@ static inline struct kmem_cache *blk_get
- }
- struct request_queue *blk_alloc_queue(int node_id, bool alloc_srcu);
- 
--int disk_scan_partitions(struct gendisk *disk, fmode_t mode);
-+int disk_scan_partitions(struct gendisk *disk, fmode_t mode, void *owner);
- 
- int disk_alloc_events(struct gendisk *disk);
- void disk_add_events(struct gendisk *disk);
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -356,7 +356,7 @@ void disk_uevent(struct gendisk *disk, e
- }
- EXPORT_SYMBOL_GPL(disk_uevent);
- 
--int disk_scan_partitions(struct gendisk *disk, fmode_t mode)
-+int disk_scan_partitions(struct gendisk *disk, fmode_t mode, void *owner)
- {
- 	struct block_device *bdev;
- 
-@@ -366,6 +366,9 @@ int disk_scan_partitions(struct gendisk
- 		return -EINVAL;
- 	if (disk->open_partitions)
- 		return -EBUSY;
-+	/* Someone else has bdev exclusively open? */
-+	if (disk->part0->bd_holder && disk->part0->bd_holder != owner)
-+		return -EBUSY;
- 
- 	set_bit(GD_NEED_PART_SCAN, &disk->state);
- 	bdev = blkdev_get_by_dev(disk_devt(disk), mode, NULL);
-@@ -499,7 +502,7 @@ int __must_check device_add_disk(struct
- 
- 		bdev_add(disk->part0, ddev->devt);
- 		if (get_capacity(disk))
--			disk_scan_partitions(disk, FMODE_READ);
-+			disk_scan_partitions(disk, FMODE_READ, NULL);
- 
- 		/*
- 		 * Announce the disk and partitions after all partitions are
---- a/block/ioctl.c
-+++ b/block/ioctl.c
-@@ -467,9 +467,10 @@ static int blkdev_bszset(struct block_de
-  * user space. Note the separate arg/argp parameters that are needed
-  * to deal with the compat_ptr() conversion.
-  */
--static int blkdev_common_ioctl(struct block_device *bdev, fmode_t mode,
--				unsigned cmd, unsigned long arg, void __user *argp)
-+static int blkdev_common_ioctl(struct file *file, fmode_t mode, unsigned cmd,
-+			       unsigned long arg, void __user *argp)
- {
-+	struct block_device *bdev = I_BDEV(file->f_mapping->host);
- 	unsigned int max_sectors;
- 
- 	switch (cmd) {
-@@ -527,7 +528,8 @@ static int blkdev_common_ioctl(struct bl
- 			return -EACCES;
- 		if (bdev_is_partition(bdev))
- 			return -EINVAL;
--		return disk_scan_partitions(bdev->bd_disk, mode & ~FMODE_EXCL);
-+		return disk_scan_partitions(bdev->bd_disk, mode & ~FMODE_EXCL,
-+					    file);
- 	case BLKTRACESTART:
- 	case BLKTRACESTOP:
- 	case BLKTRACETEARDOWN:
-@@ -605,7 +607,7 @@ long blkdev_ioctl(struct file *file, uns
- 		break;
+--- a/drivers/mmc/host/vub300.c
++++ b/drivers/mmc/host/vub300.c
+@@ -2049,6 +2049,7 @@ static void vub300_enable_sdio_irq(struc
+ 		return;
+ 	kref_get(&vub300->kref);
+ 	if (enable) {
++		set_current_state(TASK_RUNNING);
+ 		mutex_lock(&vub300->irq_mutex);
+ 		if (vub300->irqs_queued) {
+ 			vub300->irqs_queued -= 1;
+@@ -2064,6 +2065,7 @@ static void vub300_enable_sdio_irq(struc
+ 			vub300_queue_poll_work(vub300, 0);
+ 		}
+ 		mutex_unlock(&vub300->irq_mutex);
++		set_current_state(TASK_INTERRUPTIBLE);
+ 	} else {
+ 		vub300->irq_enabled = 0;
  	}
- 
--	ret = blkdev_common_ioctl(bdev, mode, cmd, arg, argp);
-+	ret = blkdev_common_ioctl(file, mode, cmd, arg, argp);
- 	if (ret != -ENOIOCTLCMD)
- 		return ret;
- 
-@@ -674,7 +676,7 @@ long compat_blkdev_ioctl(struct file *fi
- 		break;
- 	}
- 
--	ret = blkdev_common_ioctl(bdev, mode, cmd, arg, argp);
-+	ret = blkdev_common_ioctl(file, mode, cmd, arg, argp);
- 	if (ret == -ENOIOCTLCMD && disk->fops->compat_ioctl)
- 		ret = disk->fops->compat_ioctl(bdev, mode, cmd, arg);
- 
 
 
