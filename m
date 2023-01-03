@@ -2,68 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82D9D65C540
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 18:43:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F96165C5A7
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 19:04:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238288AbjACRm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 12:42:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42632 "EHLO
+        id S238646AbjACSEc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 13:04:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238089AbjACRm0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 12:42:26 -0500
-Received: from mail-il1-x12b.google.com (mail-il1-x12b.google.com [IPv6:2607:f8b0:4864:20::12b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4348AE1C
-        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 09:42:25 -0800 (PST)
-Received: by mail-il1-x12b.google.com with SMTP id g2so15194230ila.4
-        for <stable@vger.kernel.org>; Tue, 03 Jan 2023 09:42:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=SPDvhZ0E+hOADgQrqmkwdgK1yPO4Xou1kXlnqFtt01g=;
-        b=EAge6w5ZGRKB9REw8JTGWI3X+y6NFbFLA4CE16oprx2LDBAocRw7kt+gIOO8EwJ8Xh
-         Nu7M7XBLVpM+Cy2lG0rwHZyToFl76QRABNZe+cWQhJZWLQJXAwDky/V1pBvlz7Qqjiti
-         72Mw4YvDaD59xF9DkPjKArKfamDrpeKUc3MlQ=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=SPDvhZ0E+hOADgQrqmkwdgK1yPO4Xou1kXlnqFtt01g=;
-        b=aslOvwZEp7S+vXTi4FoxoteGZhwLp+PT5E9JdnkgThseQx585w3SGFWONnM4YmZRrr
-         w0HBl7VWZOID7UjB3xEfz43DlisLZ2e5gN3IpIPYarRBNa6LRV73NzkpRVRTmZndffSi
-         rmT4gW+RSwxz78Dg0t8n7dyxUNCRyqYUHcZWcRLznYW2a+r2EAu/7WkZCye4hsuv1/pF
-         yKp8W7dsjEc30sT7z3vmRYXIuk9VSsLgiG3oGkGb+q5/MOAefANTFXtjAWjKCTGkux0N
-         uch0x7TrFB7zRZy2RDrh4XhbYPi4xu3n9fcuyzMrISaedJfvlmkFw485F5TSfzQr0Mpb
-         439w==
-X-Gm-Message-State: AFqh2kpbCcmjEBnwpX95hjkQF1Ok9LvhwmHRCgeEBYpswNRwFArwXaIg
-        YyYLNtytzJhXFdPoIeU8W/gpLw==
-X-Google-Smtp-Source: AMrXdXtVUcQIUZ2ljG4DSCmHOTMpzAcdwG1RqxZf8Z/PZEZhTzawDTPwIzAj5OqvwAYwVmdelSeFIg==
-X-Received: by 2002:a92:d10f:0:b0:305:dee9:bcc6 with SMTP id a15-20020a92d10f000000b00305dee9bcc6mr27345476ilb.17.1672767744507;
-        Tue, 03 Jan 2023 09:42:24 -0800 (PST)
-Received: from localhost (30.23.70.34.bc.googleusercontent.com. [34.70.23.30])
-        by smtp.gmail.com with UTF8SMTPSA id g14-20020a056e021a2e00b00304ae88ebebsm9792396ile.88.2023.01.03.09.42.24
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 Jan 2023 09:42:24 -0800 (PST)
-Date:   Tue, 3 Jan 2023 17:42:23 +0000
-From:   Matthias Kaehlcke <mka@chromium.org>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-        Stefan Wahren <stefan.wahren@i2se.com>, stable@vger.kernel.org,
-        Douglas Anderson <dianders@chromium.org>,
-        Ravi Chandra Sadineni <ravisadineni@chromium.org>
-Subject: Re: [PATCH v2 1/2] usb: misc: onboard_usb_hub: Don't create platform
- devices for DT nodes without 'vdd-supply'
-Message-ID: <Y7Ro/1idORXbhCnu@google.com>
-References: <20221222022605.v2.1.If5e7ec83b1782e4dffa6ea759416a27326c8231d@changeid>
- <Y6W00vQm3jfLflUJ@hovoldconsulting.com>
+        with ESMTP id S238648AbjACSER (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 13:04:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45BAE13F01;
+        Tue,  3 Jan 2023 10:04:07 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A0A3B81076;
+        Tue,  3 Jan 2023 18:04:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF4AFC433D2;
+        Tue,  3 Jan 2023 18:04:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1672769044;
+        bh=CAmWTEbYb6d94H3u+jMGJnp6y/APdybj4ueVDKzwgrE=;
+        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+        b=mSrTCw2Cfjo15/d2U+HaUdVAV/nnT1FdNztJ5rAtXXR6oMAZ6CMegikL0WYTsaYty
+         HGv+2hFM+9H9RReXNkr4ldStXnUsB/6DMNyGhkmkpBBJTrmfM4GIkw1H/a/NRvCaND
+         KVyOlSklgHfWnBGHEHqODE4O1BkwcB63bSnbaz7fgG3A+QQEYiLmPj0X3JFdJ45NHK
+         LywebzvimhJabrybJKBTRH5tHb4FzVwBLdO+vPTdQrvQ+o/I1NZliwdg3qWUBk6Jzn
+         cx/0FLst320Ijd4F6QaOAdyUgJUEwDJEeqIcgbK3KJ0dpU2xiO3j25wrR6N28nvdkL
+         6LRKF0GqCtWPw==
+Received: by paulmck-ThinkPad-P17-Gen-1.home (Postfix, from userid 1000)
+        id 5D7BD5C04EE; Tue,  3 Jan 2023 10:04:04 -0800 (PST)
+Date:   Tue, 3 Jan 2023 10:04:04 -0800
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     Davidlohr Bueso <dave@stgolabs.net>
+Cc:     "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        linux-kernel@vger.kernel.org,
+        Frederic Weisbecker <fweisbec@gmail.com>,
+        Zhouyi Zhou <zhouzhouyi@gmail.com>, stable@vger.kernel.org,
+        Josh Triplett <josh@joshtriplett.org>
+Subject: Re: [PATCH] torture: Fix hang during kthread shutdown phase
+Message-ID: <20230103180404.GA4028633@paulmck-ThinkPad-P17-Gen-1>
+Reply-To: paulmck@kernel.org
+References: <20230101061555.278129-1-joel@joelfernandes.org>
+ <20230102164310.2olg7xhwwhzmzg24@offworld>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Y6W00vQm3jfLflUJ@hovoldconsulting.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+In-Reply-To: <20230102164310.2olg7xhwwhzmzg24@offworld>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,90 +59,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 23, 2022 at 03:01:54PM +0100, Johan Hovold wrote:
-> On Thu, Dec 22, 2022 at 02:26:44AM +0000, Matthias Kaehlcke wrote:
-> > The primary task of the onboard_usb_hub driver is to control the
-> > power of an onboard USB hub. The driver gets the regulator from the
-> > device tree property "vdd-supply" of the hub's DT node. Some boards
-> > have device tree nodes for USB hubs supported by this driver, but
-> > don't specify a "vdd-supply". This is not an error per se, it just
-> > means that the onboard hub driver can't be used for these hubs, so
-> > don't create platform devices for such nodes.
-> > 
-> > This change doesn't completely fix the reported regression. It
-> > should fix it for the RPi 3 B Plus and boards with similar hub
-> > configurations (compatible DT nodes without "vdd-supply"), boards
-> > that actually use the onboard hub driver could still be impacted
-> > by the race conditions discussed in that thread. Not creating the
-> > platform devices for nodes without "vdd-supply" is the right
-> > thing to do, independently from the race condition, which will
-> > be fixed in future patch.
-> > 
-> > Fixes: 8bc063641ceb ("usb: misc: Add onboard_usb_hub driver")
-> > Link: https://lore.kernel.org/r/d04bcc45-3471-4417-b30b-5cf9880d785d@i2se.com/
-> > Reported-by: Stefan Wahren <stefan.wahren@i2se.com>
-> > Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
-> > ---
-> > 
-> > Changes in v2:
-> > - don't create platform devices when "vdd-supply" is missing,
-> >   rather than returning an error from _find_onboard_hub()
-> > - check for "vdd-supply" not "vdd" (Johan)
+On Mon, Jan 02, 2023 at 08:43:10AM -0800, Davidlohr Bueso wrote:
+> On Sun, 01 Jan 2023, Joel Fernandes (Google) wrote:
 > 
-> Please try to remember to CC people providing feedback on your patches.
-
-Ack
-
-> > - updated subject and commit message
-> > - added 'Link' tag (regzbot)
+> > During shutdown of rcutorture, the shutdown thread in
+> > rcu_torture_cleanup() calls torture_cleanup_begin() which sets fullstop
+> > to FULLSTOP_RMMOD. This is enough to cause the rcutorture threads for
+> > readers and fakewriters to breakout of their main while loop and start
+> > shutting down.
 > > 
-> >  drivers/usb/misc/onboard_usb_hub_pdevs.c | 13 +++++++++++++
-> >  1 file changed, 13 insertions(+)
+> > Once out of their main loop, they then call torture_kthread_stopping()
+> > which in turn waits for kthread_stop() to be called, however
+> > rcu_torture_cleanup() has not even called kthread_stop() on those
+> > threads yet, it does that a bit later.  However, before it gets a chance
+> > to do so, torture_kthread_stopping() calls
+> > schedule_timeout_interruptible(1) in a tight loop. Tracing confirmed
+> > this makes the timer softirq constantly execute timer callbacks, while
+> > never returning back to the softirq exit path and is essentially "locked
+> > up" because of that. If the softirq preempts the shutdown thread,
+> > kthread_stop() may never be called.
 > > 
-> > diff --git a/drivers/usb/misc/onboard_usb_hub_pdevs.c b/drivers/usb/misc/onboard_usb_hub_pdevs.c
-> > index ed22a18f4ab7..8cea53b0907e 100644
-> > --- a/drivers/usb/misc/onboard_usb_hub_pdevs.c
-> > +++ b/drivers/usb/misc/onboard_usb_hub_pdevs.c
-> > @@ -101,6 +101,19 @@ void onboard_hub_create_pdevs(struct usb_device *parent_hub, struct list_head *p
-> >  			}
-> >  		}
-> >  
-> > +		/*
-> > +		 * The primary task of the onboard_usb_hub driver is to control
-> > +		 * the power of an USB onboard hub. Some boards have device tree
-> > +		 * nodes for USB hubs supported by this driver, but don't
-> > +		 * specify a "vdd-supply", which is needed by the driver. This is
-> > +		 * not a DT error per se, it just means that the onboard hub
-> > +		 * driver can't be used with these nodes, so don't create a
-> > +		 * a platform device for such a node.
-> > +		 */
-> > +		if (!of_get_property(np, "vdd-supply", NULL) &&
-> > +		    !of_get_property(npc, "vdd-supply", NULL))
-> > +			goto node_put;
+> > This commit improves the situation dramatically, by increasing timeout
+> > passed to schedule_timeout_interruptible() 1/20th of a second. This
+> > causes the timer softirq to not lock up a CPU and everything works fine.
+> > Testing has shown 100 runs of TREE07 passing reliably, which was not the
+> > case before because of RCU stalls.
+> > 
+> > Cc: Paul McKenney <paulmck@kernel.org>
+> > Cc: Frederic Weisbecker <fweisbec@gmail.com>
+> > Cc: Zhouyi Zhou <zhouzhouyi@gmail.com>
+> > Cc: <stable@vger.kernel.org> # 6.0.x
+> > Signed-off-by: Joel Fernandes (Google) <joel@joelfernandes.org>
 > 
-> So as I mentioned elsewhere, this doesn't look right. It is the
-> responsibility of the platform driver to manage its resources and it may
-> not even need a supply.
-> 
-> I see now that you have already matched on the compatible property above
-> so that you only create the platform device for the devices that (may)
-> need it.
-> 
-> It seems the assumptions that this driver was written under needs to be
-> revisited.
+> Reviewed-by: Davidlohr Bueso <dave@stgolabs.net>
 
-The assumption was that the driver should always be used when the DT has
-nodes with the supported compatible strings. It turns out that is not
-entirely correct, in rare cases (like the RPi 3 B Plus) the nodes weren't
-added with the onboard_hub driver in mind and may lack DT properties that
-are needed by the driver.
+Queued for further review and testing, thank you all!
 
-I see essentially two possible ways of dealing with DT nodes that don't
-have all the information to make the onboard_hub driver do something useful:
+One thing still puzzles me.  Assuming HZ=1000 and given 16 CPUs, each
+timer hander must have consumed many tens of microseconds in order
+to keep the system busy, which seems a bit longer than it should be.
+Or am I underestimating the number of tasks involved?
 
-1) don't instantiate the driver when certain DT properties don't exist (the
-   approach of this patch)
-
-2) instantiate the driver regardless. Not ideal, but such DTs should be
-   relatively rare (+ CONFIG_USB_ONBOARD_HUB needs to be enabled for
-   instantiation to happen), so maybe it's not a big deal
+							Thanx, Paul
