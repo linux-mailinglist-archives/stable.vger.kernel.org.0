@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4379165C680
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 19:41:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89F1D65C682
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 19:41:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237912AbjACSk7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 13:40:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49976 "EHLO
+        id S238215AbjACSlA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 13:41:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238278AbjACSk0 (ORCPT
+        with ESMTP id S238286AbjACSk0 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 13:40:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D575013F53;
-        Tue,  3 Jan 2023 10:40:09 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C411613F0D;
+        Tue,  3 Jan 2023 10:40:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 731F5614C6;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 60D01614DF;
+        Tue,  3 Jan 2023 18:40:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50144C433D2;
         Tue,  3 Jan 2023 18:40:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7751C433EF;
-        Tue,  3 Jan 2023 18:40:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672771208;
-        bh=IP+4s/k+bzBJn3D5iiaZOX/SeDn5Z15NhHYYtopFoxU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Fr8gcQ2T7ANzKfAwYa/wkJ5JvkfCFvGkJzvISAQA6UgK0zT2pvsC1Q+RxLQrhJNP2
-         hCPnokygcpxX5oSYTbbuL9iusG16lzblAC0DeDGEIZq2gC3D3Y8RPAxcbvfYVOA5cC
-         lTEZQ6X6CS9ds/GDz52Zc/JCEudzof4X68l/esUYUpM8J6QRu23qtN+eJpcbxJkihQ
-         4mZx0jI0JGIjrdA0mFBMsUyeAA3avIyodWW6hpxJBa9z5xxQ146+hZ1KFP5rk4PFBg
-         RJ1esFfekBRvwi17UJ9zBL72Slj5iacseo+w+3TFRl3g6mXdYdCE8zLxzWu2X6oG5e
-         5xSWdCnqPpZZw==
+        s=k20201202; t=1672771209;
+        bh=SuXAXhT2fhjZ69w/wKz2aFnvt+axUQVNB97E49ci9/I=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=iQo2UbI0R5TfVch6Len3om4gehk3xxRHmtfW4xFecF3adZ6goZa9wF1U/LxHpoFFR
+         bMzEJEvARt/V6NHGvKU5+kD1RqeQCh8iIITMgdVm8b1U77EY6JB9U3+d2U+mmUpB2g
+         dwszNVMIzeBWjk5GeYzd+RETI7+yNR4HmXQkk+R24X4R1njMdeM2+NrNdwQh4cIxML
+         FejuiuoFlwkJOyjdjbn6+BHNkAy5q4gpolO+XFpyz428kn+Wl/Lm5svKv2fdC+0Fds
+         itsj2qR6iz2+y2cinaaXfagxSsaRUNqBi2IPWrrVDrkSpAI2Txh35ZbbkLyoPPlTkg
+         Dy16s7x+uS1jA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yanjun Zhang <zhangyanjun@cestc.cn>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
-        axboe@fb.com, sagi@grimberg.me, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 6.0 1/4] nvme: fix multipath crash caused by flush request when blktrace is enabled
-Date:   Tue,  3 Jan 2023 13:39:52 -0500
-Message-Id: <20230103183956.2022789-1-sashal@kernel.org>
+Cc:     Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        io-uring@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 2/4] io_uring: check for valid register opcode earlier
+Date:   Tue,  3 Jan 2023 13:39:53 -0500
+Message-Id: <20230103183956.2022789-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20230103183956.2022789-1-sashal@kernel.org>
+References: <20230103183956.2022789-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -54,78 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yanjun Zhang <zhangyanjun@cestc.cn>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 3659fb5ac29a5e6102bebe494ac789fd47fb78f4 ]
+[ Upstream commit 343190841a1f22b96996d9f8cfab902a4d1bfd0e ]
 
-The flush request initialized by blk_kick_flush has NULL bio,
-and it may be dealt with nvme_end_req during io completion.
-When blktrace is enabled, nvme_trace_bio_complete with multipath
-activated trying to access NULL pointer bio from flush request
-results in the following crash:
+We only check the register opcode value inside the restricted ring
+section, move it into the main io_uring_register() function instead
+and check it up front.
 
-[ 2517.831677] BUG: kernel NULL pointer dereference, address: 000000000000001a
-[ 2517.835213] #PF: supervisor read access in kernel mode
-[ 2517.838724] #PF: error_code(0x0000) - not-present page
-[ 2517.842222] PGD 7b2d51067 P4D 0
-[ 2517.845684] Oops: 0000 [#1] SMP NOPTI
-[ 2517.849125] CPU: 2 PID: 732 Comm: kworker/2:1H Kdump: loaded Tainted: G S                5.15.67-0.cl9.x86_64 #1
-[ 2517.852723] Hardware name: XFUSION 2288H V6/BC13MBSBC, BIOS 1.13 07/27/2022
-[ 2517.856358] Workqueue: nvme_tcp_wq nvme_tcp_io_work [nvme_tcp]
-[ 2517.859993] RIP: 0010:blk_add_trace_bio_complete+0x6/0x30
-[ 2517.863628] Code: 1f 44 00 00 48 8b 46 08 31 c9 ba 04 00 10 00 48 8b 80 50 03 00 00 48 8b 78 50 e9 e5 fe ff ff 0f 1f 44 00 00 41 54 49 89 f4 55 <0f> b6 7a 1a 48 89 d5 e8 3e 1c 2b 00 48 89 ee 4c 89 e7 5d 89 c1 ba
-[ 2517.871269] RSP: 0018:ff7f6a008d9dbcd0 EFLAGS: 00010286
-[ 2517.875081] RAX: ff3d5b4be00b1d50 RBX: 0000000002040002 RCX: ff3d5b0a270f2000
-[ 2517.878966] RDX: 0000000000000000 RSI: ff3d5b0b021fb9f8 RDI: 0000000000000000
-[ 2517.882849] RBP: ff3d5b0b96a6fa00 R08: 0000000000000001 R09: 0000000000000000
-[ 2517.886718] R10: 000000000000000c R11: 000000000000000c R12: ff3d5b0b021fb9f8
-[ 2517.890575] R13: 0000000002000000 R14: ff3d5b0b021fb1b0 R15: 0000000000000018
-[ 2517.894434] FS:  0000000000000000(0000) GS:ff3d5b42bfc80000(0000) knlGS:0000000000000000
-[ 2517.898299] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 2517.902157] CR2: 000000000000001a CR3: 00000004f023e005 CR4: 0000000000771ee0
-[ 2517.906053] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[ 2517.909930] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[ 2517.913761] PKRU: 55555554
-[ 2517.917558] Call Trace:
-[ 2517.921294]  <TASK>
-[ 2517.924982]  nvme_complete_rq+0x1c3/0x1e0 [nvme_core]
-[ 2517.928715]  nvme_tcp_recv_pdu+0x4d7/0x540 [nvme_tcp]
-[ 2517.932442]  nvme_tcp_recv_skb+0x4f/0x240 [nvme_tcp]
-[ 2517.936137]  ? nvme_tcp_recv_pdu+0x540/0x540 [nvme_tcp]
-[ 2517.939830]  tcp_read_sock+0x9c/0x260
-[ 2517.943486]  nvme_tcp_try_recv+0x65/0xa0 [nvme_tcp]
-[ 2517.947173]  nvme_tcp_io_work+0x64/0x90 [nvme_tcp]
-[ 2517.950834]  process_one_work+0x1e8/0x390
-[ 2517.954473]  worker_thread+0x53/0x3c0
-[ 2517.958069]  ? process_one_work+0x390/0x390
-[ 2517.961655]  kthread+0x10c/0x130
-[ 2517.965211]  ? set_kthread_struct+0x40/0x40
-[ 2517.968760]  ret_from_fork+0x1f/0x30
-[ 2517.972285]  </TASK>
-
-To avoid this situation, add a NULL check for req->bio before
-calling trace_block_bio_complete.
-
-Signed-off-by: Yanjun Zhang <zhangyanjun@cestc.cn>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/nvme.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ io_uring/io_uring.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
-index 70555022cb44..35352206b5de 100644
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -872,7 +872,7 @@ static inline void nvme_trace_bio_complete(struct request *req)
- {
- 	struct nvme_ns *ns = req->q->queuedata;
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index 1b6c25dc3f0c..739fe533f2ad 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -3725,8 +3725,6 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
+ 		return -EEXIST;
  
--	if (req->cmd_flags & REQ_NVME_MPATH)
-+	if ((req->cmd_flags & REQ_NVME_MPATH) && req->bio)
- 		trace_block_bio_complete(ns->head->disk->queue, req->bio);
- }
+ 	if (ctx->restricted) {
+-		if (opcode >= IORING_REGISTER_LAST)
+-			return -EINVAL;
+ 		opcode = array_index_nospec(opcode, IORING_REGISTER_LAST);
+ 		if (!test_bit(opcode, ctx->restrictions.register_op))
+ 			return -EACCES;
+@@ -3882,6 +3880,9 @@ SYSCALL_DEFINE4(io_uring_register, unsigned int, fd, unsigned int, opcode,
+ 	long ret = -EBADF;
+ 	struct fd f;
  
++	if (opcode >= IORING_REGISTER_LAST)
++		return -EINVAL;
++
+ 	f = fdget(fd);
+ 	if (!f.file)
+ 		return -EBADF;
 -- 
 2.35.1
 
