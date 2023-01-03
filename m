@@ -2,104 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B44365CA17
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 00:00:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B32A265CA47
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 00:21:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233455AbjACXAj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 18:00:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35026 "EHLO
+        id S230504AbjACXVr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 18:21:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229685AbjACXAi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 18:00:38 -0500
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E37B713F57;
-        Tue,  3 Jan 2023 15:00:35 -0800 (PST)
-Received: by mail-ed1-x52d.google.com with SMTP id z11so30232657ede.1;
-        Tue, 03 Jan 2023 15:00:35 -0800 (PST)
+        with ESMTP id S230233AbjACXVq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 18:21:46 -0500
+Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53FB313D0A
+        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 15:21:46 -0800 (PST)
+Received: by mail-io1-xd42.google.com with SMTP id n63so17361978iod.7
+        for <stable@vger.kernel.org>; Tue, 03 Jan 2023 15:21:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
+        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=7t0cKhaIlP1FC/fSvNTaDmX7GdHTbT3PBblRW/MDDSU=;
-        b=fff3Ylyj6mA8CkFJXoYpmgV68j1IhsciHYHzS2YZKdF4MncvQXqjo+5O+cV++IxS3c
-         EXbi1XpeITKKAoeV8nNNaLygVxiP0tlKbZ6BUHQYXJJzyxgHAhzM2tkaEnuNKc2B/vhz
-         HyM4rpqSpUmCEBaKq9ABZBvIfHnGsEJw0AeuRJtXoCV7Q6mvLNLlyPpQXqt4/cPFcvqR
-         s/B0ZSlhPx/BBUno3LbMyACAoelXq789M+fOjU+bwHamyY0NQxTSe5YHpBuJXYlZXyyp
-         JONtdSh+8Q2blCH8b3yIzJSeeWOF5Ru4zX+exlN7Kwxqk6AB51u7PkyHQqh+PHDv+jQv
-         MxwA==
+        bh=q3Vk8EpiGjXnHF6YekaZg/U6Ld4mrMRuJRWQz+va2YU=;
+        b=LVUxLEFEiViZ6BSCDiS/FOy4amsaQNhUpo6v2VJBNKRNkRua5V81kTAK/+icfWghqt
+         ZIkL6Y0S97OcXPvO+1bjDvb/ov+8DrQWz9VK1KMlr+XTQVaBluPxjoHh94EoCcH0Vuhj
+         2gRGeUiebG0JENCORMOLpzgMq2TPznCuMUihPAP1mR5wxQpHFo4UmvT68CEtSEhZwrgS
+         ekGsalWPcJrmij4YSp89HkvYfKdyYqfyTYYOBFsWwVivdfGcT3Mfe2OlqFMsdDC5tyJF
+         CUeyalCqMtgJloptPe1fBqBVIL+fMCtaE+/mBlF7UfIqOOe8ZqgVfqcW0A/oDJser8LM
+         ITKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
+        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=7t0cKhaIlP1FC/fSvNTaDmX7GdHTbT3PBblRW/MDDSU=;
-        b=pcMAUq78sLcEcfKtjEkN9xGPjLXqJ/HFJJLXGNIrJGskpSK2aQt8PoVjLpiGw5laY2
-         CqZMqtZhTGgRmiX0SZrGr8un+s8N+XzbxLY2MUCGamJ8P5fRpTYvZyUutuiBnou45/OI
-         8X5KWFHaevhgSAu3lQvExVaCT8eyqTEx3df/tsYczKVM5sF/hSF5lNbyJ4ZytypS/VhT
-         v2D4IgKwDlkskL3LiCUvjq8B5HnMisljS3vPT2aG4ySPXpArWH/Hew5f8O/BvTsLWP3y
-         AYRrc0F9WuGbCDGlqKQzZBZF6eD0yZybrJKQe3gRtsnGEvuYwvy3H0Gd0bchELsfPpSx
-         gkBA==
-X-Gm-Message-State: AFqh2kqHlcJ/vy4YZlOi5WCY0g3POsdgHLWJX7HGIaUjCCAJWr0XHs6v
-        2a1LibI3ou2yM/JZIIGw9unXIt7z6UlfuSv9TJFZ3DVg
-X-Google-Smtp-Source: AMrXdXtL+LrfDkGxeFJwcG6Ini1fZxJpmMYUjU+MKgEHTzJz5ibDhYKUiTE5BFKHQ9nrTplK9cTZgigpsV2gr87sH9s=
-X-Received: by 2002:aa7:ccd3:0:b0:467:b88c:f3af with SMTP id
- y19-20020aa7ccd3000000b00467b88cf3afmr4554700edt.24.1672786834397; Tue, 03
- Jan 2023 15:00:34 -0800 (PST)
+        bh=q3Vk8EpiGjXnHF6YekaZg/U6Ld4mrMRuJRWQz+va2YU=;
+        b=oftnaUERzTvSwaSC2MeEPEbYHfmEx/bn1H7ZiLWw8pbiE08xHlm7uJq2/CD9XrjYwC
+         777EOX+qn3jDMr2PPrSzOk0fyaDN6yF1y2OlasvKQzLwQRbT7762z/wI/eol/BpqjdpI
+         tg7AWnRv/2qbeQAI88KDcYsrqV1WDHQWcDZWwXGZ89uPYoANdYCbhIgzGA6LZ6uPL53z
+         J0bEzB4fbl2Ue6pRGtkLQqG4Ah7hS++8l3aEbYom9FMZOP8mz1jTHmuDkuJEpAiGMVI/
+         O+Vv3JiumB5A5e+12rTpGEAZGNuxsHqsCko/s/AEW2OIPVTbVXyylFyg1rjxvg/KQ7Sm
+         EsMQ==
+X-Gm-Message-State: AFqh2kozxaVrNmpCi9i+ePpNeq+ZVgWaejE1/x2xiiDhTKN4qXSVkNMr
+        YNMC3IkEUi3KL2DQg1LDnrdqMa3r1Ejy62Cnv5Y=
+X-Google-Smtp-Source: AMrXdXtvppkGO9J5r4KIcUkOgVxIxcR1lTD2WioCVupIJHegmVjBoQalWeC3sejYUtgcJjLTYah9IG5cWp8e3V95K2E=
+X-Received: by 2002:a02:cd90:0:b0:375:3be7:2908 with SMTP id
+ l16-20020a02cd90000000b003753be72908mr4345499jap.275.1672788105692; Tue, 03
+ Jan 2023 15:21:45 -0800 (PST)
 MIME-Version: 1.0
-References: <20230102110552.061937047@linuxfoundation.org> <Y7QFW7O0xqSYTzyl@debian>
-In-Reply-To: <Y7QFW7O0xqSYTzyl@debian>
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Date:   Tue, 3 Jan 2023 22:59:58 +0000
-Message-ID: <CADVatmPJrRsKTNyzWYeU10k+3eycd1bXTnwAaF7KKOR+h6mwYw@mail.gmail.com>
-Subject: Re: [PATCH 6.0 00/74] 6.0.17-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "David S. Miller" <davem@davemloft.net>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, srw@sladewatkins.net,
-        rwarsow@gmx.de
+Received: by 2002:a4f:3b55:0:0:0:0:0 with HTTP; Tue, 3 Jan 2023 15:21:44 -0800 (PST)
+Reply-To: michellefanilly0@gmail.com
+From:   Michelle family <nguessanhenriette02@gmail.com>
+Date:   Wed, 4 Jan 2023 00:21:44 +0100
+Message-ID: <CAMm817mOoV8c-v-wGPMUu2gfZJyx10jnPJVVWMc+OTtt+XZNFg@mail.gmail.com>
+Subject: Senhorita Michelle
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=4.8 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM autolearn=no
         autolearn_force=no version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 3 Jan 2023 at 10:37, Sudip Mukherjee (Codethink)
-<sudipm.mukherjee@gmail.com> wrote:
->
-> Hi Greg,
->
-> On Mon, Jan 02, 2023 at 12:21:33PM +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 6.0.17 release.
-> > There are 74 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Wed, 04 Jan 2023 11:05:34 +0000.
-> > Anything received after that time might be too late.
->
-
-<snip>
-
->
-> mips: Booted on ci20 board. VNC server did not start, will try a bisect
-> later tonight.
-
-bisect pointed to 2575eebf1bd2 ("net: Return errno in
-sk->sk_prot->get_port().") introduced in v6.0.16
-Reverting it on top of v6.0.16 and 6.0.17-rc1 fixed the problem.
-
-This is also in v6.1.y but the issue is not seen there, and I am
-trying to figure out why.
-
-
--- 
-Regards
-Sudip
+PROCURANDO SUA AJUDA
+sincero e honesto como voc=C3=AA, que possa me ajudar neste momento de
+necessidade, durante a crise civil e pol=C3=ADtica em nosso pa=C3=ADs, meus=
+ pais
+e minhas tr=C3=AAs irm=C3=A3s foram envenenados pela crueldade. Felizmente =
+para
+mim, eu estava na escola quando essa trag=C3=A9dia aconteceu com minha
+fam=C3=ADlia. Por falar nisso. No momento, ainda estou aqui no pa=C3=ADs, m=
+as
+muito inseguro para mim. Estou vivendo com muito medo e escravid=C3=A3o.
+Pretendo deixar este pa=C3=ADs o mais r=C3=A1pido poss=C3=ADvel, mas apenas=
+ uma coisa
+me atrapalhou. Meu falecido pai depositou uma quantia em dinheiro de
+3,2 milh=C3=B5es de euros em uma das principais institui=C3=A7=C3=B5es da E=
+uropa para
+transferir
+Infelizmente, por=C3=A9m, ele n=C3=A3o concluiu a transa=C3=A7=C3=A3o at=C3=
+=A9 morrer
+repentinamente. 45% pela ajuda e assist=C3=AAncia, porque acho est=C3=BApid=
+o
+tentar confiar em um total desconhecido que nunca conheci antes. Estou
+instintivamente convencido de que voc=C3=AA =C3=A9 uma pessoa honesta e tem=
+ a
+capacidade de lidar com essa transa=C3=A7=C3=A3o comigo. Quando estiver pro=
+nto,
+vou encontr=C3=A1-lo e passar o resto da minha vida em seu pa=C3=ADs. Estou=
+ com
+medo aqui porque os inimigos dos meus pais, tios e parentes ruins
+est=C3=A3o atr=C3=A1s de mim. Por favor, deixe-me saber o que voc=C3=AA ach=
+a da minha
+proposta para voc=C3=AA.
+Miss Michelle
