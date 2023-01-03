@@ -2,168 +2,177 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7021865C4D1
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 18:13:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6881165C4DE
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 18:15:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238337AbjACRNi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 12:13:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53770 "EHLO
+        id S233681AbjACRPO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 12:15:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238420AbjACRMq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 12:12:46 -0500
-Received: from mail-io1-xd35.google.com (mail-io1-xd35.google.com [IPv6:2607:f8b0:4864:20::d35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14CE4E0D
-        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 09:12:26 -0800 (PST)
-Received: by mail-io1-xd35.google.com with SMTP id i83so16876521ioa.11
-        for <stable@vger.kernel.org>; Tue, 03 Jan 2023 09:12:26 -0800 (PST)
+        with ESMTP id S238653AbjACRO3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 12:14:29 -0500
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 335A611153
+        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 09:14:09 -0800 (PST)
+Received: by mail-wm1-x329.google.com with SMTP id p1-20020a05600c1d8100b003d8c9b191e0so23960685wms.4
+        for <stable@vger.kernel.org>; Tue, 03 Jan 2023 09:14:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=em3Ufd1K4FFk6wUY+M7YROP86iN6cIDpfsX/6JZ8LMs=;
-        b=IxtRL1xI/M7DHv6CuM2XNgJ63pduHqi4eG8on4E2MOZfzDFgtSQ7zMJJJBh990hFZh
-         WAkVgsQn71Z2e1DpUiHQwLMpfiHRniYn3qeCgE4Dw+j7gyxO7wsTBc19pQcUTmhVrx2d
-         /tz4xiyHI9iTo95NWoWI3W3QryAVA5l3HhbbA=
+        d=google.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ITgQzMynVIkKiwlnE3jok4WksO57xaG3uyluozaCD+Q=;
+        b=ilgmHvU0t2b18nT0FIALMSbaKGo47U9xmgSAlFcQIevk+Ekm4zpvhSWfw2bKTo53LH
+         iuDr87EXgE8Da9ftLlQQGqhm3TZ7g3f7Rijn/oiFsTmaLpvB3NVYCWCwO7rx8mFQ4xO9
+         W/Md/2f/JNi9WMyeW/h+7/66XU7IVVjdNd7FUg5GKODkXJ5eoh5LVfmgo4zG2nq096qp
+         zp8flxPpNYmR8q/jB+78ida6kshxvtWZZfBxuJygmeksMoPgG008hZ9YLFfXj+pTfLm0
+         6DyU6frJ8dRmrmcq/n6mVbRIfA6c2XYUt1Sli77Lb1skcOHjC9Rnv1qcgzpuhLHq5OnF
+         QgOg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=em3Ufd1K4FFk6wUY+M7YROP86iN6cIDpfsX/6JZ8LMs=;
-        b=RkOiBzUTcsl0Dz5IPTCA3qNem3586hEc5ZzUschqIW0q/CKEaBbcJbac+Y9zFVEvGx
-         vX6s5lSs1IWn1BL8OQ9PUrvAc1iwEzdZOyky041OwKqhSQh2w6r5Euyf6h0Iwdu+gZid
-         oF4V74WjjiG8coq7rp6vWfEE3EEOc0NJquodA1Zh/3Lkd5B63ec87nu2oXxzR0hdSMwO
-         GnU4w+YQTQtgJ1rTiL9WMGs4waCLNKE2sfyZlwtf3bcI9MmbVC2jqTduQUacAfuAEATk
-         4l1uNpuUzVQdqNMxF20yp640Glu17jjjrE2ioTQQ41MMvbNKh70NytIfv4bCagRbI9UF
-         CU0Q==
-X-Gm-Message-State: AFqh2krw/RusPZj/zRkK+hvIlqTZDQkA52TfvYL4c1DiCu8AEZWsOWOJ
-        YIcpj1SukzuwwXowry26btWjgA==
-X-Google-Smtp-Source: AMrXdXtO9WUhdiUZPUG/gevDvi+yxjJQcLLm7WRVJWiMFvJt5PBubVlHOmNols6A6ArtSfWGZcVXRQ==
-X-Received: by 2002:a5e:8d1a:0:b0:6e3:21fd:6783 with SMTP id m26-20020a5e8d1a000000b006e321fd6783mr27731823ioj.2.1672765945209;
-        Tue, 03 Jan 2023 09:12:25 -0800 (PST)
-Received: from localhost (30.23.70.34.bc.googleusercontent.com. [34.70.23.30])
-        by smtp.gmail.com with UTF8SMTPSA id x6-20020a056602160600b006e00556dc9esm11407972iow.16.2023.01.03.09.12.24
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 Jan 2023 09:12:24 -0800 (PST)
-Date:   Tue, 3 Jan 2023 17:12:24 +0000
-From:   Matthias Kaehlcke <mka@chromium.org>
-To:     Doug Anderson <dianders@chromium.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-        Stefan Wahren <stefan.wahren@i2se.com>, stable@vger.kernel.org,
-        Ravi Chandra Sadineni <ravisadineni@chromium.org>,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Icenowy Zheng <uwu@icenowy.me>
-Subject: Re: [PATCH v2 1/2] usb: misc: onboard_usb_hub: Don't create platform
- devices for DT nodes without 'vdd-supply'
-Message-ID: <Y7Rh+EkKKN5Gu8sz@google.com>
-References: <20221222022605.v2.1.If5e7ec83b1782e4dffa6ea759416a27326c8231d@changeid>
- <CAD=FV=XNxZ3iDYAAqKWqDVLihJ63Du4L7kDdKO55avR9nghc5A@mail.gmail.com>
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ITgQzMynVIkKiwlnE3jok4WksO57xaG3uyluozaCD+Q=;
+        b=GySOgL3AX8d4R07ZBlEmz+0q9QnB7Bdvfg2hon5LzuOvxtz3apRYxwioUsNjI1wudc
+         qvZ7h8Hq6ECmraWi9wsU2W429DU5CDMQ8enaoPpG8SM9j3jFEwoFM7LST7d5CwVRYZF8
+         d4ivITbNwAaFVNfWzdAdmgfdmd586hNrEXfzOdtehalMM4VfZnCoBNuX1/+KLE5sM4mN
+         JepVKEsBB5RCaAbvuyjOxcTIGwaTRf1dTOEFNTx6jGNaJskGxGb64esjKbgCzE4AMlsH
+         UrTlkeLaFTqQ6UPMsu4XkUJU0BzjhAo+jqi8crSNYXh3v6kEnI6LMyIQHcoDDXaAy2LJ
+         cVLw==
+X-Gm-Message-State: AFqh2kqBc5LqOzXQCk2vuWtwRZnrzlP5Uw+9yXobCo/BtrwqJc+xHObB
+        2pyRWxKIxi+0b2Dcwi9Ya43ORaYqPt93Yc1X
+X-Google-Smtp-Source: AMrXdXus6vhUbdOmZiwq6VMQxmYAohC1dSRn+23e8AFhoeLWWzI87BF4d8fN2BzdNpTPxuKO3eJQcw==
+X-Received: by 2002:a05:600c:3d8c:b0:3d0:7ee4:a69b with SMTP id bi12-20020a05600c3d8c00b003d07ee4a69bmr3856490wmb.2.1672766047637;
+        Tue, 03 Jan 2023 09:14:07 -0800 (PST)
+Received: from localhost ([2a00:79e0:9d:4:1ad8:6267:8f:ab55])
+        by smtp.gmail.com with ESMTPSA id r9-20020a05600c35c900b003d6b71c0c92sm64903975wmq.45.2023.01.03.09.14.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Jan 2023 09:14:06 -0800 (PST)
+From:   Jann Horn <jannh@google.com>
+To:     stable@vger.kernel.org
+Subject: [PATCH v3 stable 4.19 1/2] mm/khugepaged: fix GUP-fast interaction by sending IPI
+Date:   Tue,  3 Jan 2023 18:13:56 +0100
+Message-Id: <20230103171357.286343-1-jannh@google.com>
+X-Mailer: git-send-email 2.39.0.314.g84b9a713c41-goog
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <CAD=FV=XNxZ3iDYAAqKWqDVLihJ63Du4L7kDdKO55avR9nghc5A@mail.gmail.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 22, 2022 at 11:26:26AM -0800, Doug Anderson wrote:
-> Hi,
-> 
-> On Wed, Dec 21, 2022 at 6:26 PM Matthias Kaehlcke <mka@chromium.org> wrote:
-> >
-> > The primary task of the onboard_usb_hub driver is to control the
-> > power of an onboard USB hub. The driver gets the regulator from the
-> > device tree property "vdd-supply" of the hub's DT node. Some boards
-> > have device tree nodes for USB hubs supported by this driver, but
-> > don't specify a "vdd-supply". This is not an error per se, it just
-> > means that the onboard hub driver can't be used for these hubs, so
-> > don't create platform devices for such nodes.
-> >
-> > This change doesn't completely fix the reported regression. It
-> > should fix it for the RPi 3 B Plus and boards with similar hub
-> > configurations (compatible DT nodes without "vdd-supply"), boards
-> > that actually use the onboard hub driver could still be impacted
-> > by the race conditions discussed in that thread. Not creating the
-> > platform devices for nodes without "vdd-supply" is the right
-> > thing to do, independently from the race condition, which will
-> > be fixed in future patch.
-> >
-> > Fixes: 8bc063641ceb ("usb: misc: Add onboard_usb_hub driver")
-> > Link: https://lore.kernel.org/r/d04bcc45-3471-4417-b30b-5cf9880d785d@i2se.com/
-> > Reported-by: Stefan Wahren <stefan.wahren@i2se.com>
-> > Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
-> > ---
-> >
-> > Changes in v2:
-> > - don't create platform devices when "vdd-supply" is missing,
-> >   rather than returning an error from _find_onboard_hub()
-> > - check for "vdd-supply" not "vdd" (Johan)
-> > - updated subject and commit message
-> > - added 'Link' tag (regzbot)
-> >
-> >  drivers/usb/misc/onboard_usb_hub_pdevs.c | 13 +++++++++++++
-> >  1 file changed, 13 insertions(+)
-> 
-> I'm a tad bit skeptical.
-> 
-> It somehow feels a bit too much like "inside knowledge" to add this
-> here. I guess the "onboard_usb_hub_pdevs.c" is already pretty
-> entangled with "onboard_usb_hub.c", but I'd rather the "pdevs" file
-> keep the absolute minimum amount of stuff in it and all of the details
-> be in the other file.
-> 
-> If this was the only issue though, I'd be tempted to let it slide. As
-> it is, I'm kinda worried that your patch will break Alexander Stein,
-> who should have been CCed (I've CCed him now) or Icenowy Zheng (also
-> CCed now). I believe those folks are using the USB hub driver
-> primarily to drive a reset GPIO. Looking at the example in the
-> bindings for one of them (genesys,gl850g.yaml), I even see that the
-> reset-gpio is specified but not a vdd-supply. I think you'll break
-> that?
+Since commit 70cbc3cc78a99 ("mm: gup: fix the fast GUP race against THP
+collapse"), the lockless_pages_from_mm() fastpath rechecks the pmd_t to
+ensure that the page table was not removed by khugepaged in between.
 
-Thanks for pointing that out. My assumption was that the regulator is
-needed for the driver to do anything useful, but you are right, the
-reset GPIO alone could be used in combination with an always-on regulator
-to 'switch the hub on and off'.
+However, lockless_pages_from_mm() still requires that the page table is
+not concurrently freed.  Fix it by sending IPIs (if the architecture uses
+semi-RCU-style page table freeing) before freeing/reusing page tables.
 
-> In general, it feels like it should actually be fine to create the USB
-> hub driver even if vdd isn't supplied. Sure, it won't do a lot, but it
-> shouldn't actively hurt anything. You'll just be turning off and on
-> bogus regulators and burning a few CPU cycles. I guess the problem is
-> some race condition that you talk about in the commit message. I'd
-> rather see that fixed...
+Link: https://lkml.kernel.org/r/20221129154730.2274278-2-jannh@google.com
+Link: https://lkml.kernel.org/r/20221128180252.1684965-2-jannh@google.com
+Link: https://lkml.kernel.org/r/20221125213714.4115729-2-jannh@google.com
+Fixes: ba76149f47d8 ("thp: khugepaged")
+Signed-off-by: Jann Horn <jannh@google.com>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+[manual backport: two of the three places in khugepaged that can free
+ptes were refactored into a common helper between 5.15 and 6.0;
+TLB flushing was refactored between 5.4 and 5.10;
+TLB flushing was refactored between 4.19 and 5.4;
+pmd collapse for PTE-mapped THP was only added in 5.4;
+ugly hack needed in <=4.19 for s390 and arm]
+Signed-off-by: Jann Horn <jannh@google.com>
+---
+ include/asm-generic/tlb.h |  6 ++++++
+ mm/khugepaged.c           | 15 +++++++++++++++
+ mm/memory.c               |  5 +++++
+ 3 files changed, 26 insertions(+)
 
-Yes, the race conditions needs to be fixed as well, I didn't have enough
-time to write and test a patch before taking a longer break for the
-holidays, so I only sent out this (supposed) partial mitigation.
+diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
+index db72ad39853b..737f5cb0dc84 100644
+--- a/include/asm-generic/tlb.h
++++ b/include/asm-generic/tlb.h
+@@ -61,6 +61,12 @@ struct mmu_table_batch {
+ extern void tlb_table_flush(struct mmu_gather *tlb);
+ extern void tlb_remove_table(struct mmu_gather *tlb, void *table);
+ 
++void tlb_remove_table_sync_one(void);
++
++#else
++
++static inline void tlb_remove_table_sync_one(void) { }
++
+ #endif
+ 
+ /*
+diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+index 5dd14ef2e1de..0a4cace1cfc4 100644
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -23,6 +23,19 @@
+ #include <asm/pgalloc.h>
+ #include "internal.h"
+ 
++/* gross hack for <=4.19 stable */
++#if defined(CONFIG_S390) || defined(CONFIG_ARM)
++static void tlb_remove_table_smp_sync(void *arg)
++{
++        /* Simply deliver the interrupt */
++}
++
++static void tlb_remove_table_sync_one(void)
++{
++        smp_call_function(tlb_remove_table_smp_sync, NULL, 1);
++}
++#endif
++
+ enum scan_result {
+ 	SCAN_FAIL,
+ 	SCAN_SUCCEED,
+@@ -1045,6 +1058,7 @@ static void collapse_huge_page(struct mm_struct *mm,
+ 	_pmd = pmdp_collapse_flush(vma, address, pmd);
+ 	spin_unlock(pmd_ptl);
+ 	mmu_notifier_invalidate_range_end(mm, mmun_start, mmun_end);
++	tlb_remove_table_sync_one();
+ 
+ 	spin_lock(pte_ptl);
+ 	isolated = __collapse_huge_page_isolate(vma, address, pte);
+@@ -1294,6 +1308,7 @@ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
+ 				_pmd = pmdp_collapse_flush(vma, addr, pmd);
+ 				spin_unlock(ptl);
+ 				mm_dec_nr_ptes(mm);
++				tlb_remove_table_sync_one();
+ 				pte_free(mm, pmd_pgtable(_pmd));
+ 			}
+ 			up_write(&mm->mmap_sem);
+diff --git a/mm/memory.c b/mm/memory.c
+index 800834cff4e6..b80ce6b3c8f4 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -362,6 +362,11 @@ static void tlb_remove_table_smp_sync(void *arg)
+ 	/* Simply deliver the interrupt */
+ }
+ 
++void tlb_remove_table_sync_one(void)
++{
++	smp_call_function(tlb_remove_table_smp_sync, NULL, 1);
++}
++
+ static void tlb_remove_table_one(void *table)
+ {
+ 	/*
 
-> That being said, if we want to be more efficient and not burn CPU cycles
-> and memory in Stefan Wahren's case, maybe the USB hub driver itself could
-> return a canonical error value from its probe when it detects that it has
-> no useful job and then "onboard_usb_hub_pdevs" could just silently bail
-> out?
+base-commit: c1ccef20f08e192228a2056808113b453d18c094
+-- 
+2.39.0.314.g84b9a713c41-goog
 
-_probe() could return an error, however onboard_hub_create_pdevs() can't
-rely on that, since the actual onboard_hub driver might not have been
-loaded yet when the function is called.
-
-It would be nice not to instantiate the pdev and onboard_hub USB instances
-if the DT node has neither a 'vdd-supply' nor 'reset-gpios'. If we aren't
-ok with doing that in onboard_hub_create_pdevs() then at least the 'raw'
-platform device would be created. onboard_hub_probe() could still
-bail if both properties are absent, _find_onboard_hub() would have to
-check it again to avoid the deferred probing 'loop' for the USB instances.
-
-Alternatively we could 'just' fix the race condition involving the 'attach
-work' and the onboard_hub driver is fully instantiated even on (certain)
-boards where it does nothing. It's relatively rare that USB hub nodes are
-specified in the DT (unless the intention is to use this driver) and
-CONFIG_USB_ONBOARD_HUB needs to be set for the instances to be created,
-so maybe creating the useless instances is not such a big deal.
