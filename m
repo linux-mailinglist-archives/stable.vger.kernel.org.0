@@ -2,88 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2929465C2D3
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 16:16:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46F3765C2DB
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 16:18:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230337AbjACPPe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 10:15:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44752 "EHLO
+        id S237742AbjACPSo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 10:18:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237560AbjACPPe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 10:15:34 -0500
-Received: from mail-oa1-x34.google.com (mail-oa1-x34.google.com [IPv6:2001:4860:4864:20::34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5001101D6
-        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 07:15:33 -0800 (PST)
-Received: by mail-oa1-x34.google.com with SMTP id 586e51a60fabf-14455716674so37053609fac.7
-        for <stable@vger.kernel.org>; Tue, 03 Jan 2023 07:15:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ralston.id.au; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=6mpKJos/FPMtqgzKryfkykw/TumKk6Lc1MADv4VNDaw=;
-        b=JpRf7WA8CR1VvL1u9d7F0pRpDV7B/2mtiBVwj/uQ0vvHj51xLPBBHZbcmZ4FhLc53e
-         7MTRjmhjlpBEDDMygvniKGDlSK7EAeThLiVnzoHmLMiFBvVDG35zBj1ZPNrInrrEJEd4
-         aUv8/wdm1CjSSywI58kB+2yx49Vsuc4aIPo2w=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=6mpKJos/FPMtqgzKryfkykw/TumKk6Lc1MADv4VNDaw=;
-        b=e1YqlU8fR2mD7kb9ON44nDgPHZW+vbDLiBGz1Bmgth3mvdcVweCt9YQRizPMOUsRjU
-         ZW8k6Qc+1HwWVPC/KkZdqDn9ai8tGNoXO7LUMtWSX2Hy61790zh7JBfGsboa55Ntp13a
-         ddi6l03S9sn+efN9N+CxVioyHWSD6Asr/xgeFM3YRvur3FiYomFOpzyogfvzfOThcfGC
-         PZsspPf0h3fOSN/daqTg700vc2/OkRM9YYVo6wpL4ZSMgK49vspplTTrYw+BpgvtLiH9
-         pmQ3IGrp1mKAUj9i946GnhwMenVOxRiKcfcpo1xFNfjMssGqmyu90J+RX/KuNw5n4Udj
-         HUmg==
-X-Gm-Message-State: AFqh2kqo6TWLZjzLx8jV8ruumbIhUOCOXGAlnq177St+Lq6HkKj9Y7Yw
-        7QGu9QWdOlvPqTllfGl6U/Sgdkua+Bvicsr4b9GkwA==
-X-Google-Smtp-Source: AMrXdXv3dQDnfdNBNw+MQp56Vjvne/Kn7e1ltujbhspbCMkGntbNdh9QTHMnc3OVzHwx4LzFX2C+gndhklK2kW3cefI=
-X-Received: by 2002:a05:687c:189:b0:14f:a2ed:988f with SMTP id
- yo9-20020a05687c018900b0014fa2ed988fmr2110159oab.220.1672758933004; Tue, 03
- Jan 2023 07:15:33 -0800 (PST)
+        with ESMTP id S237560AbjACPSn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 10:18:43 -0500
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74EC6117D;
+        Tue,  3 Jan 2023 07:18:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=w7EptUE+1pYwLJrjAPt57i48t7KkBjKC/pDt3vwzoQA=; b=xAteWS2AfpTJiQU/+/VqjzldDu
+        ErFYqC04p8VjZCcLR4VsOPeOtJiqPfZfDVe1zC9u3V1hSck1T5ZHL/ZGBmJaxClyJA22H/Rwfg18+
+        o1fm4/FQ7ddyn5nVu26ST/YAQKzSj124PFGjji7EQSZ+l3eTldqOlk1NKcgk6yVwlsIQmJeF4e2Sw
+        6AvpAqr5TrX3pJtCnw1ugMID7cGFKxwf7fiZEET8F4G8Iel3YoyRAfuwx7zkjy+T++i52o2BxR2Fo
+        hMJKnLyAhQVwLhLK7o1B6XOE27qu5bCl76ij2kFxzC/mKE1Q2IjNYqeNKesT8v2IWuZ1JrOYdkNlh
+        Xle/xEqg==;
+Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:35938)
+        by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <linux@armlinux.org.uk>)
+        id 1pCj3n-0005UJ-9n; Tue, 03 Jan 2023 15:18:38 +0000
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
+        (envelope-from <linux@shell.armlinux.org.uk>)
+        id 1pCj3l-0002AP-Rw; Tue, 03 Jan 2023 15:18:37 +0000
+Date:   Tue, 3 Jan 2023 15:18:37 +0000
+From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
+To:     Hector Martin <marcan@marcan.st>
+Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Sven Peter <sven@svenpeter.dev>,
+        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+        asahi@lists.linux.dev, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Eric Curtin <ecurtin@redhat.com>
+Subject: Re: [PATCH v2] nvmem: core: Fix race in nvmem_register()
+Message-ID: <Y7RHTXZ60zuExeMA@shell.armlinux.org.uk>
+References: <20230103114427.1825-1-marcan@marcan.st>
+ <ff77ba1c-8b67-4697-d713-0392d3b1d77a@linaro.org>
+ <95a4cfde-490f-d26d-163e-7ab1400e7380@marcan.st>
+ <b118af4c-e4cc-c50b-59aa-d768f1ec69ff@linaro.org>
+ <b98e313d-8875-056b-4b64-bb7528f2670a@marcan.st>
 MIME-Version: 1.0
-References: <CAC2975JXkS1A5Tj9b02G_sy25ZWN-ys+tc9wmkoS=qPgKCogSg@mail.gmail.com>
- <bf646395-1231-92f6-7c5a-5b7765596358@leemhuis.info> <87zgb0q7x4.wl-tiwai@suse.de>
- <CAC2975K24Gt3rGieAToHjb7FEHv84aqiRSQx7EOuR2Q7KByUXw@mail.gmail.com>
- <87sfgrrb5f.wl-tiwai@suse.de> <CAC2975+cUqiFC0LO-D-fi0swH+x=_FMuG+==mhg6HH4pc_YDRA@mail.gmail.com>
- <87bknfr6rd.wl-tiwai@suse.de>
-In-Reply-To: <87bknfr6rd.wl-tiwai@suse.de>
-From:   Michael Ralston <michael@ralston.id.au>
-Date:   Wed, 4 Jan 2023 02:14:57 +1100
-Message-ID: <CAC2975+CP0WKmXouX_8TffT1+VpU3EuOzyGHMv+VsAOBjCyhnA@mail.gmail.com>
-Subject: Re: USB-Audio regression on behringer UMC404HD
-To:     Takashi Iwai <tiwai@suse.de>
-Cc:     Thorsten Leemhuis <regressions@leemhuis.info>,
-        alsa-devel@alsa-project.org, regressions@lists.linux.dev,
-        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b98e313d-8875-056b-4b64-bb7528f2670a@marcan.st>
+Sender: Russell King (Oracle) <linux@armlinux.org.uk>
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 4 Jan 2023 at 02:13, Takashi Iwai <tiwai@suse.de> wrote:
->
-> That's weird.  Is snd_usb_audio driver bound with the device at all?
-> That is, does it appear in /proc/asound/cards?
->
+On Tue, Jan 03, 2023 at 11:56:21PM +0900, Hector Martin wrote:
+> On 03/01/2023 23.22, Srinivas Kandagatla wrote:
+> >>>>    drivers/nvmem/core.c | 32 +++++++++++++++++---------------
+> >>>>    1 file changed, 17 insertions(+), 15 deletions(-)
+> >>>>
+> >>>> diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+> >>>> index 321d7d63e068..606f428d6292 100644
+> >>>> --- a/drivers/nvmem/core.c
+> >>>> +++ b/drivers/nvmem/core.c
+> >>>> @@ -822,11 +822,8 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+> >>>>    		break;
+> >>>>    	}
+> >>>>
+> >>>> -	if (rval) {
+> >>>> -		ida_free(&nvmem_ida, nvmem->id);
+> >>>> -		kfree(nvmem);
+> >>>> -		return ERR_PTR(rval);
+> >>>> -	}
+> >>>> +	if (rval)
+> >>>> +		goto err_gpiod_put;
+> >>>
+> >>> Why was gpiod changes added to this patch, that should be a separate
+> >>> patch/discussion, as this is not relevant to the issue that you are
+> >>> reporting.
+> >>
+> >> Because freeing the device also does a gpiod_put in the destructor, so
+> > This are clearly untested, And I dont want this to be in the middle to 
+> > fix to the issue you are hitting.
+> 
+> I somehow doubt you tested any of these error paths either. Nobody tests
+> initialization error paths. That's why there was a gpio leak here to
+> begin with.
 
-Yes, it's there.
+Sadly, this is one of the biggest problems with error paths, they get
+very little proper testing - and in most cases we're reliant on
+reviewers spotting errors. That's why we much prefer the devm_* stuff,
+but even that can be error-prone.
 
-0 [V49            ]: USB-Audio - V49
-                     Alesis V49 at usb-0000:08:00.1-3, full speed
-1 [NVidia         ]: HDA-Intel - HDA NVidia
-                     HDA NVidia at 0xfc080000 irq 154
-2 [U192k          ]: USB-Audio - UMC404HD 192k
-                     BEHRINGER UMC404HD 192k at usb-0000:08:00.1-4, high speed
-3 [Generic        ]: HDA-Intel - HD-Audio Generic
-                     HD-Audio Generic at 0xfca00000 irq 156
+> > We should always be careful about untested changes, in this case gpiod 
+> > has some conditions to check before doing a put. So the patch is 
+> > incorrect as it is.
+> 
+> Then the existing code is also incorrect as it is, because the device
+> release callback is doing the same gpiod_put() already. I just moved it
+> out since we are now registering the device later.
 
---
-Michael
+At the point where this change is being made (checking rval after
+dev_set_name()) the struct device has not been initialised, so the
+release callback will not be called. nvmem->wp_gpio will be leaked.
+
+However, there may be bigger problems with wp_gpio - related to where
+it can come from and what we do with it.
+
+nvmem->wp_gpio has two sources - one of them is gpiod_get_optional(),
+and we need to call gpiod_put() on that to drop the reference that
+_this_ code acquired. The other is config->wp_gpio - we don't own
+that reference, yet we call gpiod_put() on it. I'm not sure whether
+config->wp_gpio is actually used anywhere - my grepping so far has
+not found any users, but maybe Srivinas knows better.
+
+Hence, sorting out the leak of wp_gpio needs more discussion, and it
+would not be right to delay merging the fix for the very real race
+that people hit today resulting in stuff not working while we try
+to work out how wp_gpio should be handled.
+
+So... always fix one problem in one patch. Sometimes a fix is not as
+obvious as one may first think.
+
+-- 
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
