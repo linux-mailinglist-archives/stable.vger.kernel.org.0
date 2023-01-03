@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87A0065BBBD
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 09:15:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FCD965BBCC
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 09:16:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230139AbjACIPc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 03:15:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40466 "EHLO
+        id S236994AbjACIQA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 03:16:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237011AbjACIP3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 03:15:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B5DEDFAA
-        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 00:15:13 -0800 (PST)
+        with ESMTP id S237022AbjACIPa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 03:15:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 682D2DFC4;
+        Tue,  3 Jan 2023 00:15:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0923A611CF
-        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 08:15:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFC33C433D2;
-        Tue,  3 Jan 2023 08:15:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 043AB611FB;
+        Tue,  3 Jan 2023 08:15:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08914C433D2;
+        Tue,  3 Jan 2023 08:15:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672733712;
-        bh=aqT0K3Yhg1Khi8nfpCkMU2vySz60QhXWT201+JJD1Lc=;
+        s=korg; t=1672733715;
+        bh=hBZ23nNFAh0pqQ9pVR84PsOwqHuYespvPzJBOkAIulQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JPZqJcHhZVeZ54LcuaQq0jDngouSU5SY3G4ug/A7flNUa4bjzTEdgCyFXyTkSigad
-         XdagqrM/HSssdS0avbwY4RJ1fJuRWB4By4XUlIrGCgM9zWhgcNxTSRSOKw+9snsTsx
-         3YvicFDs2RzoY+LOL/ZCBhqgyVfzY4T/6vWGVXHo=
+        b=rETrIIitqOj6Sf8rebJ2wBiKf0hGztS8tTf8hFyh2QV9jKfRoKpREiRF1FGW1TYMG
+         9H6CYvv6AbHyS9B4iC8lHmh5/wo+wGSoO8rXlbMM6Hr1JTo5vCrvf02xX9jo2QmiUo
+         eBxvKjiJPa8ExARuVI2/nCrazLwl7f1dz6xZ9jYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Al Viro <viro@zeniv.linux.org.uk>,
-        Jens Axboe <axboe@kernel.dk>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.10 08/63] tools headers UAPI: Sync openat2.h with the kernel sources
-Date:   Tue,  3 Jan 2023 09:13:38 +0100
-Message-Id: <20230103081309.064401565@linuxfoundation.org>
+        patches@lists.linux.dev, netdev@vger.kernel.org,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 09/63] net: provide __sys_shutdown_sock() that takes a socket
+Date:   Tue,  3 Jan 2023 09:13:39 +0100
+Message-Id: <20230103081309.123931742@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230103081308.548338576@linuxfoundation.org>
 References: <20230103081308.548338576@linuxfoundation.org>
@@ -53,39 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 1e61463cfcd0b3e7a19ba36b8a98c64ebaac5c6e ]
+[ Upstream commit b713c195d59332277a31a59c91f755e53b5b302b ]
 
-To pick the changes in:
+No functional changes in this patch, needed to provide io_uring support
+for shutdown(2).
 
-  99668f618062816c ("fs: expose LOOKUP_CACHED through openat2() RESOLVE_CACHED")
-
-That don't result in any change in tooling, only silences this perf
-build warning:
-
-  Warning: Kernel ABI header at 'tools/include/uapi/linux/openat2.h' differs from latest version at 'include/uapi/linux/openat2.h'
-  diff -u tools/include/uapi/linux/openat2.h include/uapi/linux/openat2.h
-
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: netdev@vger.kernel.org
+Cc: David S. Miller <davem@davemloft.net>
+Acked-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/include/uapi/linux/openat2.h |    4 ++++
- 1 file changed, 4 insertions(+)
+ include/linux/socket.h |    1 +
+ net/socket.c           |   15 ++++++++++++---
+ 2 files changed, 13 insertions(+), 3 deletions(-)
 
---- a/tools/include/uapi/linux/openat2.h
-+++ b/tools/include/uapi/linux/openat2.h
-@@ -35,5 +35,9 @@ struct open_how {
- #define RESOLVE_IN_ROOT		0x10 /* Make all jumps to "/" and ".."
- 					be scoped inside the dirfd
- 					(similar to chroot(2)). */
-+#define RESOLVE_CACHED		0x20 /* Only complete if resolution can be
-+					completed through cached lookup. May
-+					return -EAGAIN if that's not
-+					possible. */
+--- a/include/linux/socket.h
++++ b/include/linux/socket.h
+@@ -436,5 +436,6 @@ extern int __sys_getpeername(int fd, str
+ 			     int __user *usockaddr_len);
+ extern int __sys_socketpair(int family, int type, int protocol,
+ 			    int __user *usockvec);
++extern int __sys_shutdown_sock(struct socket *sock, int how);
+ extern int __sys_shutdown(int fd, int how);
+ #endif /* _LINUX_SOCKET_H */
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -2181,6 +2181,17 @@ SYSCALL_DEFINE5(getsockopt, int, fd, int
+  *	Shutdown a socket.
+  */
  
- #endif /* _UAPI_LINUX_OPENAT2_H */
++int __sys_shutdown_sock(struct socket *sock, int how)
++{
++	int err;
++
++	err = security_socket_shutdown(sock, how);
++	if (!err)
++		err = sock->ops->shutdown(sock, how);
++
++	return err;
++}
++
+ int __sys_shutdown(int fd, int how)
+ {
+ 	int err, fput_needed;
+@@ -2188,9 +2199,7 @@ int __sys_shutdown(int fd, int how)
+ 
+ 	sock = sockfd_lookup_light(fd, &err, &fput_needed);
+ 	if (sock != NULL) {
+-		err = security_socket_shutdown(sock, how);
+-		if (!err)
+-			err = sock->ops->shutdown(sock, how);
++		err = __sys_shutdown_sock(sock, how);
+ 		fput_light(sock->file, fput_needed);
+ 	}
+ 	return err;
 
 
