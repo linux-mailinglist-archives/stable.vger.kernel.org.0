@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A85D565C66E
+	by mail.lfdr.de (Postfix) with ESMTP id 5DD8365C66D
 	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 19:40:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238413AbjACSkE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 13:40:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49618 "EHLO
+        id S238330AbjACSkD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 13:40:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238073AbjACSj7 (ORCPT
+        with ESMTP id S234022AbjACSj7 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 13:39:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D620013DE8;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A03FB13D4C;
         Tue,  3 Jan 2023 10:39:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8FD40B80EBF;
-        Tue,  3 Jan 2023 18:39:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 694E8C433D2;
-        Tue,  3 Jan 2023 18:39:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F6AD614F0;
+        Tue,  3 Jan 2023 18:39:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A637BC43398;
+        Tue,  3 Jan 2023 18:39:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672771188;
-        bh=1sB5EN2qD8GrQKjdJZrnAalkGApHEBaqO3LLSQoUEKU=;
+        s=k20201202; t=1672771189;
+        bh=imEYwgAC/dH8lSJZo74E+eAnfm3WoSPBrWYHOX4C0rg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IsJSq2HFa5H6ZfeLCecWgA8G5yupVMD38GACWcFBMLrCV7+HlNpv0ukGJClydJ3LQ
-         YZOtKapLat11oSzVpyDY+25jLQyuvu4jtjt/xga+7yk6X/DLPDeV8Jvtirwbp4bPia
-         QD/mRrwwVIPIhhaLTlXWqHa5QIlE43HV+GzQkpWyxre6xzYGscZIc6htaehsBde6Dt
-         59pf4o5vIrS6VbR6OVwq8gXsGFn6yGQbauQLnNZ4ukIwrR8sCm+eVE3JRsu6NDOlFV
-         5nyjTiPykGvC31TKz0wD5dLRrRaYGJADWLgGvzonC/Nhe12arphZcnZJFSOFIj6HMH
-         VlWB5veT6x6vA==
+        b=OQu2wC/XigJEjEHBpl/0pReM6VgeNw+TvvMJq5dMqGmXoibQSw5pmzSsIK7j1lmYq
+         TUk3W6hCbGEh0jUhxrQeadpXc/3THwrAYfkQbRF4Ek2ZHWF5Ak4sfzU++Efcp5tuR8
+         grtdnWqWdZQdSWXn5HojGxZE/IAEuBgiA20u3fG89UXbBrqsyghuW59Vl1Hcvcb4ZK
+         mBgIf+R082N2NldScD3YPztO6E1fWyT9FfFPxKJh+7H4fvaQ4L/81DKgm9lxMTahxA
+         rdLLQNgiiA4GsnRaSoj/KkYlZOkgxqNfc/wByamILb6y3jzYnfiKidBJajInJPApgU
+         1wVHE1YfhWe/Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Mario Limonciello <mario.limonciello@amd.com>,
         Hans de Goede <hdegoede@redhat.com>,
         "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
-        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
-        alexander.deucher@amd.com, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
-        roman.li@amd.com, aurabindo.pillai@amd.com, mdaenzer@redhat.com,
-        Jerry.Zuo@amd.com, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.1 04/10] drm/amd/display: Report to ACPI video if no panels were found
-Date:   Tue,  3 Jan 2023 13:39:28 -0500
-Message-Id: <20230103183934.2022663-4-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 05/10] ACPI: video: Don't enable fallback path for creating ACPI backlight by default
+Date:   Tue,  3 Jan 2023 13:39:29 -0500
+Message-Id: <20230103183934.2022663-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20230103183934.2022663-1-sashal@kernel.org>
 References: <20230103183934.2022663-1-sashal@kernel.org>
@@ -64,44 +59,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit c573e240609ff781a0246c0c8c8351abd0475287 ]
+[ Upstream commit 5aa9d943e9b6bf6e6023645cbe7ce7d5ed84baf4 ]
 
-On desktop APUs amdgpu doesn't create a native backlight device
-as no eDP panels are found.  However if the BIOS has reported
-backlight control methods in the ACPI tables then an acpi_video0
-backlight device will be made 8 seconds after boot.
+The ACPI video detection code has a module parameter
+`register_backlight_delay` which is currently configured to 8 seconds.
+This means that if after 8 seconds of booting no native driver has created
+a backlight device then the code will attempt to make an ACPI video
+backlight device.
 
-This has manifested in a power slider on a number of desktop APUs
-ranging from Ryzen 5000 through Ryzen 7000 on various motherboard
-manufacturers. To avoid this, report to the acpi video detection
-that the system does not have any panel connected in the native
-driver.
+This was intended as a safety mechanism with the backlight overhaul that
+occurred in kernel 6.1, but as it doesn't appear necesssary set it to be
+disabled by default.
 
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=1783786
-Reported-by: Hans de Goede <hdegoede@redhat.com>
+Suggested-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
 Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/acpi/acpi_video.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 512c32327eb1..b73f61ac5dd5 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -4371,6 +4371,10 @@ static int amdgpu_dm_initialize_drm_device(struct amdgpu_device *adev)
- 		amdgpu_set_panel_orientation(&aconnector->base);
- 	}
+diff --git a/drivers/acpi/acpi_video.c b/drivers/acpi/acpi_video.c
+index f64fdb029090..0c79f463fbfd 100644
+--- a/drivers/acpi/acpi_video.c
++++ b/drivers/acpi/acpi_video.c
+@@ -70,11 +70,7 @@ module_param(device_id_scheme, bool, 0444);
+ static int only_lcd = -1;
+ module_param(only_lcd, int, 0444);
  
-+	/* If we didn't find a panel, notify the acpi video detection */
-+	if (dm->adev->flags & AMD_IS_APU && dm->num_of_edps == 0)
-+		acpi_video_report_nolcd();
-+
- 	/* Software is initialized. Now we can register interrupt handlers. */
- 	switch (adev->asic_type) {
- #if defined(CONFIG_DRM_AMD_DC_SI)
+-/*
+- * Display probing is known to take up to 5 seconds, so delay the fallback
+- * backlight registration by 5 seconds + 3 seconds for some extra margin.
+- */
+-static int register_backlight_delay = 8;
++static int register_backlight_delay;
+ module_param(register_backlight_delay, int, 0444);
+ MODULE_PARM_DESC(register_backlight_delay,
+ 	"Delay in seconds before doing fallback (non GPU driver triggered) "
 -- 
 2.35.1
 
