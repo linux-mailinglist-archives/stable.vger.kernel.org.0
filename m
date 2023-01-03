@@ -2,90 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DB9965BCA0
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 10:00:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66A3A65BCCD
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 10:08:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236794AbjACJAa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 04:00:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34822 "EHLO
+        id S237046AbjACJIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 04:08:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237021AbjACJAU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 04:00:20 -0500
-Received: from progateway7-pub.mail.pro1.eigbox.com (gproxy5-pub.mail.unifiedlayer.com [67.222.38.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 775FBDFD6
-        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 01:00:19 -0800 (PST)
-Received: from cmgw14.mail.unifiedlayer.com (unknown [10.0.90.129])
-        by progateway7.mail.pro1.eigbox.com (Postfix) with ESMTP id EBB73100455AF
-        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 09:00:05 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id Cd9Rp8QIovQh4Cd9Rp9eTP; Tue, 03 Jan 2023 09:00:05 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=I/Kg+Psg c=1 sm=1 tr=0 ts=63b3ee95
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=RvmDmJFTN0MA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:In-Reply-To:From:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=vE4MKPzicF6eR68Lvz9p63INS0oax3kRnD7n2dKi1UU=; b=UonnN+B7//Lc5jQeRQ15pvX/rg
-        RcLeCgQ3oJBNL6/ErS1hdG143RK/XZCX0IEn3qEjXLHHzEv36QDDJLv4Pk0CBwh2/D+g46mavWQlh
-        k2uzaUdbpoKWIxS6/fJbYCeCMCrSaNJtH2z16JBEp+jAkXM0frxFb/LMqQ+0ReIxn//+YQ0qivp6+
-        Ip66geAl5nVpUcSKxqpLoR73ytLAJJFckfM7GJe+4qBxG/2YwN12kfbV5jzzPItc8PLmvK4ZfMXy0
-        p4bpibumnBUwnmUlVsRiUrrxhkyTzyoHPkHiWnIcRdXk84fVGIr2hDBt7sr6vJx9GawUWLzHDURn+
-        30/tSgHw==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:39128 helo=[10.0.1.47])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1pCd8u-003vRH-Sy;
-        Tue, 03 Jan 2023 01:59:32 -0700
-Subject: Re: [PATCH 6.1 00/71] 6.1.3-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-References: <20230102110551.509937186@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-In-Reply-To: <20230102110551.509937186@linuxfoundation.org>
-Message-ID: <c6ebdb01-8b76-adf6-76cc-94cfd87c1cae@w6rz.net>
-Date:   Tue, 3 Jan 2023 00:59:28 -0800
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S237048AbjACJH7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 04:07:59 -0500
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CEDDE038
+        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 01:07:44 -0800 (PST)
+Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1pCdGo-0004iD-ON; Tue, 03 Jan 2023 10:07:42 +0100
+Message-ID: <bf646395-1231-92f6-7c5a-5b7765596358@leemhuis.info>
+Date:   Tue, 3 Jan 2023 10:07:42 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1pCd8u-003vRH-Sy
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.47]) [73.162.232.9]:39128
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 2
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-5.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+Subject: Re: USB-Audio regression on behringer UMC404HD
+Content-Language: en-US, de-DE
+To:     Michael Ralston <michael@ralston.id.au>,
+        alsa-devel@alsa-project.org, regressions@lists.linux.dev,
+        stable@vger.kernel.org
+References: <CAC2975JXkS1A5Tj9b02G_sy25ZWN-ys+tc9wmkoS=qPgKCogSg@mail.gmail.com>
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+Cc:     Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>
+In-Reply-To: <CAC2975JXkS1A5Tj9b02G_sy25ZWN-ys+tc9wmkoS=qPgKCogSg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1672736864;f8052871;
+X-HE-SMSGID: 1pCdGo-0004iD-ON
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -93,26 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/2/23 3:21 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.1.3 release.
-> There are 71 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 04 Jan 2023 11:05:34 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.3-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+[TLDR: I'm adding this report to the list of tracked Linux kernel
+regressions; all text you find below is based on a few templates
+paragraphs you might have encountered already already in similar form.
+See link in footer if these mails annoy you.]
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+[CCing alsa maintainers]
 
-Tested-by: Ron Economos <re@w6rz.net>
+On 02.01.23 18:29, Michael Ralston wrote:
+> I'm currently experiencing a regression with the audio on my Behringer
+> U-Phoria UMC404HD.
+> 
+> Alsa info is at:
+> http://alsa-project.org/db/?f=f453b8cd0248fb5fdfa38e1b770e774102f66135
+> 
+> I get no audio in or out for this device with kernel versions 6.1.1 and 6.1.2.
+> 
+> The versions I have tried that work correctly include 5.15.86 LTS,
+> 5.19.12, and 6.0.13–16.
+> 
+> When I run this on 6.1.1, it will just hang until I ctrl+c:
+> aplay -D plughw:1,0 /usr/share/sounds/alsa/Front_Center.wav
+> 
+> I've run strace on that command, and its output is at:
+> https://pastebin.com/WaxJpTMe
+> 
+> Nothing out of the ordinary occurs when aplay is run, according to the
+> kernel logs.
+> 
+> Please let me know how I can provide additional debugging information
+> if necessary.
 
+Thanks for the report. To be sure the issue doesn't fall through the
+cracks unnoticed, I'm adding it to regzbot, the Linux kernel regression
+tracking bot:
+
+#regzbot ^introduced v6.0..v6.1
+#regzbot title alsa: usb: audio stopped working
+#regzbot ignore-activity
+
+This isn't a regression? This issue or a fix for it are already
+discussed somewhere else? It was fixed already? You want to clarify when
+the regression started to happen? Or point out I got the title or
+something else totally wrong? Then just reply and tell me -- ideally
+while also telling regzbot about it, as explained by the page listed in
+the footer of this mail.
+
+Reminder for developers: When fixing the issue, add 'Link:' tags
+pointing to the report (see page linked in footer for details).
+
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+--
+Everything you wanna know about Linux kernel regression tracking:
+https://linux-regtracking.leemhuis.info/about/#tldr
+If I did something stupid, please tell me, as explained on that page.
