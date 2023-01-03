@@ -2,129 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC49B65BDD1
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 11:15:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FB0065BDF5
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 11:25:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232990AbjACKPX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 05:15:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46554 "EHLO
+        id S232345AbjACKYm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 05:24:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237194AbjACKPR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 05:15:17 -0500
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41C6AEE32;
-        Tue,  3 Jan 2023 02:15:16 -0800 (PST)
-Received: by mail-ed1-x52e.google.com with SMTP id z11so27296602ede.1;
-        Tue, 03 Jan 2023 02:15:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=dg4Iem/pwcu+hGrCWyFWcE0w0rA2DwqUcHLBcyuPeUc=;
-        b=mjSbDBWx33CYMdnRAunBxjnUpsQB8NQEfdMQgMgMOMnsSL2cUgoBYVoV1sYAg2p0Zp
-         50bdUMAQBKLBJKw+RQJGTYGVqDzPzYZoE6hNmGb1i5zXPIqLNykLk0p2pGnXFlik/t2C
-         grRyHKq4PBadLvD2l5ItwXVsIA7HCKuk/+WfMEbq9F2aNiw017v28VGfTtFG/2AijMda
-         veJ+wuzLKcZk3E2ifzeaHUw7UfbUh+7nT4Zs3CJDmhcZ4JEJ4e2YINxHe0YL51HMrGSZ
-         OByncrEr9GdapTEhGBNp8zuujYcX/U+gUYtkegXnSM1hjbSRkh4T4NVSekJxNWP8fRt8
-         fBhw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=dg4Iem/pwcu+hGrCWyFWcE0w0rA2DwqUcHLBcyuPeUc=;
-        b=IUlLfedL7C0J+Ub8kXU3zO2fRgUn51mRDPChP+ECmuIkiCYJnfUb69vWNmVjszanCK
-         HQqK2ofNJeKXRqsEsYvG5Au3HcXbHU75o8s+fojAhf6VTb4rXpiYliShoFrE1SsgiSeK
-         wCWUEf8gBsHcCpDagaJjUHVo1I+XSwBEx8Rf0hrSg7vtRUZj1QbCl7iay0tQ79izaAP3
-         aH6mQ69fHJMt5P54EZTJ0xxQu7kBsJoH9157qdHyjDpsnsB/Ak1ZCYRZAt5e388uam4I
-         aMt1goYnU5AAu7ePiRCJhluPCYkSVDqhBHtczfBuVN3S0a1BWoa8MKTEr4VFyvQxTmTO
-         iViQ==
-X-Gm-Message-State: AFqh2ko/c/nbVsUakQ4teEIXZmYFNEEgLmOBql+KVFcq/aLKNp7KUKYG
-        bWkg0TvyZn9qWh9ADUU2amAWDN3Dlag=
-X-Google-Smtp-Source: AMrXdXvGHahoAqytki6ZL5OVZWOTmKsQ+1eCtyz/+vLkr9dsT6hcqNhYr+klb25nfwe/d8ifvVVIMw==
-X-Received: by 2002:a05:6402:d5c:b0:461:68e4:15cc with SMTP id ec28-20020a0564020d5c00b0046168e415ccmr34746439edb.9.1672740914735;
-        Tue, 03 Jan 2023 02:15:14 -0800 (PST)
-Received: from gmail.com (1F2EF380.nat.pool.telekom.hu. [31.46.243.128])
-        by smtp.gmail.com with ESMTPSA id r7-20020a170906280700b007b27aefc578sm13853448ejc.126.2023.01.03.02.15.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Jan 2023 02:15:14 -0800 (PST)
-Sender: Ingo Molnar <mingo.kernel.org@gmail.com>
-Date:   Tue, 3 Jan 2023 11:15:12 +0100
-From:   Ingo Molnar <mingo@kernel.org>
-To:     Vlastimil Babka <vbabka@suse.cz>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, patches@lists.linux.dev,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Baoquan He <bhe@redhat.com>, Dave Young <dyoung@redhat.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] x86/kexec: fix double vfree of image->elf_headers
-Message-ID: <Y7QAMIu6j6Y6m8vV@gmail.com>
-References: <20230102103917.20987-1-vbabka@suse.cz>
- <d6e965ca-a568-5193-20a0-19b1c9b42ca2@suse.cz>
+        with ESMTP id S230478AbjACKYl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 05:24:41 -0500
+Received: from forward500c.mail.yandex.net (forward500c.mail.yandex.net [178.154.239.208])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D476CF597;
+        Tue,  3 Jan 2023 02:24:38 -0800 (PST)
+Received: from myt6-65ee53fe8ed8.qloud-c.yandex.net (myt6-65ee53fe8ed8.qloud-c.yandex.net [IPv6:2a02:6b8:c12:1d8e:0:640:65ee:53fe])
+        by forward500c.mail.yandex.net (Yandex) with ESMTP id 91D055EB13;
+        Tue,  3 Jan 2023 13:24:28 +0300 (MSK)
+Received: by myt6-65ee53fe8ed8.qloud-c.yandex.net (smtp/Yandex) with ESMTPSA id ROTZMa0ZMGk1-Nd5t1DAM;
+        Tue, 03 Jan 2023 13:24:28 +0300
+X-Yandex-Fwd: 1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=skif-web.ru; s=mail; t=1672741468;
+        bh=Htu8XEzBUxxl6I2Gtq9JSZxi+WwMB2ca8r0VPmnTRUw=;
+        h=Message-ID:Subject:References:To:From:In-Reply-To:Cc:Date;
+        b=kQ157ioro3rrM9veYvSdWGEbX1HSxsVNLE5wsR8kQgX4gSUXfFwdHI5d8j5dDRWzh
+         Sl6PH00T+L2gj/EddRXuUKzkFwoLuMdTyxDtKZ7WI3EcGjRyPgsnuIxL4AHwA5NDbH
+         Cp5LH/A8P3axuoZw88JfvVVmHusuXB8R9XQERs08=
+Authentication-Results: myt6-65ee53fe8ed8.qloud-c.yandex.net; dkim=pass header.i=@skif-web.ru
+Date:   Tue, 3 Jan 2023 13:24:26 +0300
+From:   Alexey Lukyachuk <skif@skif-web.ru>
+To:     Jani Nikula <jani.nikula@linux.intel.com>
+Cc:     Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        Daniel Vetter <daniel@ffwll.ch>,
+        David Airlie <airlied@gmail.com>
+Subject: Re: [Intel-gfx] [PATCH v2] drm/i915: dell wyse 3040 shutdown fix
+Message-ID: <20230103132426.0c6d144f@alexey-Swift-SF314-42>
+In-Reply-To: <87a630ylg5.fsf@intel.com>
+References: <20221225184413.146916-1-skif@skif-web.ru>
+        <20221225185507.149677-1-skif@skif-web.ru>
+        <Y6sfvUJmrb73AeJh@intel.com>
+        <20221227204003.6b0abe65@alexey-Swift-SF314-42>
+        <20230102165649.2b8e69e3@alexey-Swift-SF314-42>
+        <87a630ylg5.fsf@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d6e965ca-a568-5193-20a0-19b1c9b42ca2@suse.cz>
-X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NO_DNS_FOR_FROM,SPF_HELO_NONE,
+        T_SPF_PERMERROR autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, 03 Jan 2023 12:14:02 +0200
+Jani Nikula <jani.nikula@linux.intel.com> wrote:
 
-* Vlastimil Babka <vbabka@suse.cz> wrote:
-
-> On 1/2/23 11:39, Vlastimil Babka wrote:
-> > An investigation of a "Trying to vfree() nonexistent vm area" bug
-> > occurring in arch_kimage_file_post_load_cleanup() doing a
-> > vfree(image->elf_headers) in our 5.14-based kernel yielded the following
-> > double vfree() scenario, also present in mainline:
-> > 
-> > SYSCALL_DEFINE5(kexec_file_load)
-> >   kimage_file_alloc_init()
-> >     kimage_file_prepare_segments()
-> >       arch_kexec_kernel_image_probe()
-> >         kexec_image_load_default()
-> >           kexec_bzImage64_ops.load()
-> >             bzImage64_load()
-> >               crash_load_segments()
-> >                 prepare_elf_headers(image, &kbuf.buffer, &kbuf.bufsz);
-> >                 image->elf_headers = kbuf.buffer;
-> > 		ret = kexec_add_buffer(&kbuf);
-> > 		if (ret) vfree((void *)image->elf_headers); // first vfree()
-> >       if (ret) kimage_file_post_load_cleanup()
-> >         vfree(image->elf_headers);                          // second vfree()
-> > 
-> > AFAICS the scenario is possible since v5.19 commit b3e34a47f989
-> > ("x86/kexec: fix memory leak of elf header buffer") that was marked for
-> > stable and also was backported to our kernel.
-> > 
-> > Fix the problem by setting the pointer to NULL after the first vfree().
-> > Also set elf_headers_sz to 0, as kimage_file_post_load_cleanup() does.
-> > 
-> > Fixes: b3e34a47f989 ("x86/kexec: fix memory leak of elf header buffer")
-> > Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-> > Cc: Baoquan He <bhe@redhat.com>
-> > Cc: Dave Young <dyoung@redhat.com>
-> > Cc: <stable@vger.kernel.org>
+> On Mon, 02 Jan 2023, Alexey Lukyachuk <skif@skif-web.ru> wrote:
+> > Regarding to your question about fdo gitlab, I went to do it.
 > 
-> Takashi told me he sent a slightly different fix already in November:
-> https://lore.kernel.org/all/20221122115122.13937-1-tiwai@suse.de/
+> What's the URL for the issue?
 > 
-> Seems it wasn't picked up? You might pick his then, as Baoquan acked it, and
-> it's removing code, not adding it.
+> BR,
+> Jani.
+> 
 
-Thanks, indeed we missed that fix - Boris picked up that version in 
-tip:x86/urgent, via:
+I have not submited issue in bug tracker because I found solution in git.
+("Before filing the bug, please try to reproduce your issue with the 
+latest kernel. Use the latest drm-tip branch from 
+http://cgit.freedesktop.org/drm-tip and build as instructed on 
+our Build Guide.")
 
-   d00dd2f2645d ("x86/kexec: Fix double-free of elf header buffer")
-
-	Ingo
+Should I do it?
