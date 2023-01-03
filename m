@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D47BC65BBC7
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 09:15:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAC4965BBD8
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 09:16:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237015AbjACIPt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 03:15:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40386 "EHLO
+        id S237004AbjACIQL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 03:16:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236992AbjACIPa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 03:15:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D21C5DF89
-        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 00:15:23 -0800 (PST)
+        with ESMTP id S237026AbjACIP5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 03:15:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07149278
+        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 00:15:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2930AB80E49
-        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 08:15:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82A28C433EF;
-        Tue,  3 Jan 2023 08:15:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9FA2B80E56
+        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 08:15:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B1B1C433D2;
+        Tue,  3 Jan 2023 08:15:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672733720;
-        bh=IDrKzpD1fxvyoT0AmoVcnuK9z+5K3Sm4S4ew/GbJU3I=;
+        s=korg; t=1672733753;
+        bh=NinGCVOC9xKRlCNOLVMTHzJOhxCFZn+947TRj4iAUdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zfQwekgqjAsSz6kDoRMMyLss+B2TredPQ9ZWQbLf9PBD+OwYtImGDZwfnbFuIupKX
-         Fgc9b2Jmi0PGaxcQ8oMQ1O8TxRVmvdfKvPAFhzz+F+yfwSZmYAMSJNXypRFrmKycrx
-         6fBZCw0k3jlPtBcfdjO6QtzlvUH3+0tU0QNN3XYg=
+        b=uVehDNE27QpJvgV9V3YEsR9T1Pt2sxozXsPlYCFq9/TkTAJi3SvVx0VhfWXtLtgHQ
+         Kp8/1JP4zPmwMjfxNZy51rqCaEFVZogKNjSqGnK9yOdJYlxwkBVV7st531r6e0o7iv
+         quUOdDjd1Nt2CSGEmDFP5XrrGynMvzWTtLjdF0CE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5.10 13/63] file: Rename __close_fd_get_file close_fd_get_file
-Date:   Tue,  3 Jan 2023 09:13:43 +0100
-Message-Id: <20230103081309.357832365@linuxfoundation.org>
+        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 14/63] fs: provide locked helper variant of close_fd_get_file()
+Date:   Tue,  3 Jan 2023 09:13:44 +0100
+Message-Id: <20230103081309.418857619@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230103081308.548338576@linuxfoundation.org>
 References: <20230103081308.548338576@linuxfoundation.org>
@@ -52,80 +51,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Eric W. Biederman" <ebiederm@xmission.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 9fe83c43e71cdb8e5b9520bcb98706a2b3c680c8 ]
+[ Upstream commit 53dec2ea74f2ef360e8455439be96a780baa6097 ]
 
-The function close_fd_get_file is explicitly a variant of
-__close_fd[1].  Now that __close_fd has been renamed close_fd, rename
-close_fd_get_file to be consistent with close_fd.
+Assumes current->files->file_lock is already held on invocation. Helps
+the caller check the file before removing the fd, if it needs to.
 
-When __alloc_fd, __close_fd and __fd_install were introduced the
-double underscore indicated that the function took a struct
-files_struct parameter.  The function __close_fd_get_file never has so
-the naming has always been inconsistent.  This just cleans things up
-so there are not any lingering mentions or references __close_fd left
-in the code.
-
-[1] 80cd795630d6 ("binder: fix use-after-free due to ksys_close() during fdget()")
-Link: https://lkml.kernel.org/r/20201120231441.29911-23-ebiederm@xmission.com
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/android/binder.c |    2 +-
- fs/file.c                |    4 ++--
- fs/io_uring.c            |    2 +-
- include/linux/fdtable.h  |    2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ fs/file.c     |   36 +++++++++++++++++++++++++-----------
+ fs/internal.h |    1 +
+ 2 files changed, 26 insertions(+), 11 deletions(-)
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -2255,7 +2255,7 @@ static void binder_deferred_fd_close(int
- 	if (!twcb)
- 		return;
- 	init_task_work(&twcb->twork, binder_do_fd_close);
--	__close_fd_get_file(fd, &twcb->file);
-+	close_fd_get_file(fd, &twcb->file);
- 	if (twcb->file) {
- 		filp_close(twcb->file, current->files);
- 		task_work_add(current, &twcb->twork, TWA_RESUME);
 --- a/fs/file.c
 +++ b/fs/file.c
-@@ -780,11 +780,11 @@ int __close_range(unsigned fd, unsigned
+@@ -22,6 +22,8 @@
+ #include <linux/close_range.h>
+ #include <net/sock.h>
+ 
++#include "internal.h"
++
+ unsigned int sysctl_nr_open __read_mostly = 1024*1024;
+ unsigned int sysctl_nr_open_min = BITS_PER_LONG;
+ /* our min() is unusable in constant expressions ;-/ */
+@@ -780,36 +782,48 @@ int __close_range(unsigned fd, unsigned
  }
  
  /*
-- * variant of __close_fd that gets a ref on the file for later fput.
-+ * variant of close_fd that gets a ref on the file for later fput.
-  * The caller must ensure that filp_close() called on the file, and then
-  * an fput().
+- * variant of close_fd that gets a ref on the file for later fput.
+- * The caller must ensure that filp_close() called on the file, and then
+- * an fput().
++ * See close_fd_get_file() below, this variant assumes current->files->file_lock
++ * is held.
   */
--int __close_fd_get_file(unsigned int fd, struct file **res)
-+int close_fd_get_file(unsigned int fd, struct file **res)
+-int close_fd_get_file(unsigned int fd, struct file **res)
++int __close_fd_get_file(unsigned int fd, struct file **res)
  {
  	struct files_struct *files = current->files;
  	struct file *file;
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4270,7 +4270,7 @@ static int io_close(struct io_kiocb *req
+ 	struct fdtable *fdt;
  
- 	/* might be already done during nonblock submission */
- 	if (!close->put_file) {
--		ret = __close_fd_get_file(close->fd, &close->put_file);
-+		ret = close_fd_get_file(close->fd, &close->put_file);
- 		if (ret < 0)
- 			return (ret == -ENOENT) ? -EBADF : ret;
- 	}
---- a/include/linux/fdtable.h
-+++ b/include/linux/fdtable.h
-@@ -123,7 +123,7 @@ extern void __fd_install(struct files_st
- extern int __close_fd(struct files_struct *files,
- 		      unsigned int fd);
- extern int __close_range(unsigned int fd, unsigned int max_fd, unsigned int flags);
--extern int __close_fd_get_file(unsigned int fd, struct file **res);
-+extern int close_fd_get_file(unsigned int fd, struct file **res);
- extern int unshare_fd(unsigned long unshare_flags, unsigned int max_fds,
- 		      struct files_struct **new_fdp);
+-	spin_lock(&files->file_lock);
+ 	fdt = files_fdtable(files);
+ 	if (fd >= fdt->max_fds)
+-		goto out_unlock;
++		goto out_err;
+ 	file = fdt->fd[fd];
+ 	if (!file)
+-		goto out_unlock;
++		goto out_err;
+ 	rcu_assign_pointer(fdt->fd[fd], NULL);
+ 	__put_unused_fd(files, fd);
+-	spin_unlock(&files->file_lock);
+ 	get_file(file);
+ 	*res = file;
+ 	return 0;
+-
+-out_unlock:
+-	spin_unlock(&files->file_lock);
++out_err:
+ 	*res = NULL;
+ 	return -ENOENT;
+ }
  
++/*
++ * variant of close_fd that gets a ref on the file for later fput.
++ * The caller must ensure that filp_close() called on the file, and then
++ * an fput().
++ */
++int close_fd_get_file(unsigned int fd, struct file **res)
++{
++	struct files_struct *files = current->files;
++	int ret;
++
++	spin_lock(&files->file_lock);
++	ret = __close_fd_get_file(fd, res);
++	spin_unlock(&files->file_lock);
++
++	return ret;
++}
++
+ void do_close_on_exec(struct files_struct *files)
+ {
+ 	unsigned i;
+--- a/fs/internal.h
++++ b/fs/internal.h
+@@ -134,6 +134,7 @@ extern struct file *do_file_open_root(st
+ 		const char *, const struct open_flags *);
+ extern struct open_how build_open_how(int flags, umode_t mode);
+ extern int build_open_flags(const struct open_how *how, struct open_flags *op);
++extern int __close_fd_get_file(unsigned int fd, struct file **res);
+ 
+ long do_sys_ftruncate(unsigned int fd, loff_t length, int small);
+ int chmod_common(const struct path *path, umode_t mode);
 
 
