@@ -2,126 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB90765C6C1
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 19:51:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F7EB65C6D4
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 19:59:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238522AbjACSvK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 13:51:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33120 "EHLO
+        id S230397AbjACS7o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 13:59:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238750AbjACSvB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 13:51:01 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32BAA1147;
-        Tue,  3 Jan 2023 10:50:59 -0800 (PST)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 303HKaCT008304;
-        Tue, 3 Jan 2023 18:50:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=dxz8E5dWDzfZ3hObw18n1zT2NyCgsodgeS4Pk5qI9hI=;
- b=RrU7ujVUAIOf9MTW+lw98VVCw5g1CSP+VGKNElNeIMeCZslzoFLLGQ1ja7Af1z8wIE/q
- RQPcYiqc+l9T97z2kT7TPK1Oy8Lat8H6q1tSWZIQ8Liy2Pj8532k6+GRGcTa/7Gkb1tC
- Ul3XYtk/mvEK0vzZLzdr1Z2OZ1BR9Jz4gZYCfJnwXvnLJH1+usKyTlLMBoAOCmmc015V
- g4JdYpkYT2aZgORkb86M7aZw6gfMuiKVqnk8Y8R5+IWdYrm19N+vb2QJGStRjFb2WHbW
- EZ2oGXHIYjM+1tOrDHPb92L7tl3mHl+9zQhIR9WfgJoGdxmzMsBhF5n3mBwK9pM3GYdi NQ== 
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3mvmb7s127-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 Jan 2023 18:50:52 +0000
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 303Hjtlh007492;
-        Tue, 3 Jan 2023 18:50:51 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([9.208.130.97])
-        by ppma01dal.us.ibm.com (PPS) with ESMTPS id 3mtcq8858e-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 Jan 2023 18:50:51 +0000
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-        by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 303Iooq518940354
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 3 Jan 2023 18:50:50 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EE0C25805D;
-        Tue,  3 Jan 2023 18:50:49 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4344E58058;
-        Tue,  3 Jan 2023 18:50:49 +0000 (GMT)
-Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.32.150])
-        by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Tue,  3 Jan 2023 18:50:49 +0000 (GMT)
-Message-ID: <a93e895499a32160298b19636ab3157c541aee88.camel@linux.ibm.com>
-Subject: Re: [PATCH v2 1/2] ima: use the lsm policy update notifier
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     GUO Zihua <guozihua@huawei.com>, stable@vger.kernel.org,
-        gregkh@linuxfoundation.org
-Cc:     paul@paul-moore.com, linux-integrity@vger.kernel.org,
-        luhuaxin1@huawei.com
-Date:   Tue, 03 Jan 2023 13:50:48 -0500
-In-Reply-To: <20230103022011.15741-2-guozihua@huawei.com>
-References: <20230103022011.15741-1-guozihua@huawei.com>
-         <20230103022011.15741-2-guozihua@huawei.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 3Z5oC4-iKIj95jnj3mncKoZYSQslXPWu
-X-Proofpoint-GUID: 3Z5oC4-iKIj95jnj3mncKoZYSQslXPWu
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S238760AbjACS72 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 13:59:28 -0500
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7685F11473;
+        Tue,  3 Jan 2023 10:59:28 -0800 (PST)
+Received: by mail-pl1-x62c.google.com with SMTP id jl4so27332142plb.8;
+        Tue, 03 Jan 2023 10:59:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=Jx76/1qwXkqVtZ8WWT7wUJXezQVggNO/8OW6AUwyjMA=;
+        b=BxQMADJFAau6seEuwJ0tNqYrllJiRiRxCcYxkJHKE4QLFxmyvgp70j+Nwj8+7SIKQW
+         RoeutIKxN539xK64Dsba4z9O/kv1OSYzJ/nQ4Rpk/k+J92ri8NBjcs4GxeW4Gbm9ftJy
+         CHBT+SZYdVluwCJ1TKETaOtBE8FPVqvcTbn+HJ+Rl6LoIuyzeEE7AufGkOqj7EBHsEC5
+         ylEPyiUuvYlGl+Tf20I/3DvGWivoHFrFLoTli7W1zSAtzjpJQLTW/SE/wjucnxuT8yRw
+         L7zBC2Y+6+QklqO+MQ6JT0P5Q5vWVYK4OwCoDABydsu1lSZZ33er/6sCez33vxB59jlY
+         NoJg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Jx76/1qwXkqVtZ8WWT7wUJXezQVggNO/8OW6AUwyjMA=;
+        b=IfUoC65VoEIKSrUk4CmmrYlmKI/qbJLj54F6qU/5OG/gVaaTZDZZhfRhrj4DhdBYX9
+         NyNnnGKyHzLvzZepHpNKSy1a6T/rIo+vCk3WnSDq6m5U9Ju5YV+CMgXePBUc5lS2pQAR
+         sgm0+tJ6BvCS2V8UsUE0HDHVkl3lbuIhmM96EopQZc4n3AWmtgm77IbqtoSjUf5IMopX
+         f7vNp+TI1j/YYjhCFmNPL+g5mZ5fdv6ANJSaIJiNCbSlyjag+Y3b5L2ALix40ssa4TGe
+         S0gafSNf3voLsbbeDg0zfYp/v4qHneUux683FgLGhQinZ60Wylv7CDzdXU1ovSRQ/sgf
+         Nxrw==
+X-Gm-Message-State: AFqh2ko7J48iSrqDX1bb66yA6L7Mu4SXn/6Oilczvv47mGumhVA6hLeE
+        dlmGaIUZKLMhaT7mPyWuOPiXVu1wp/3S+q+K6yc=
+X-Google-Smtp-Source: AMrXdXvu/j0jmA7+ISM9cNRq7iszIsefcF15r6xRSMLq70F8LTW/DsCyEPgQuOn4WtfbnIAGepMvNjKhlZngso3VREM=
+X-Received: by 2002:a17:903:22cc:b0:189:e81a:1520 with SMTP id
+ y12-20020a17090322cc00b00189e81a1520mr2865801plg.48.1672772367982; Tue, 03
+ Jan 2023 10:59:27 -0800 (PST)
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2023-01-03_07,2023-01-03_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
- mlxlogscore=876 malwarescore=0 bulkscore=0 lowpriorityscore=0
- priorityscore=1501 clxscore=1015 mlxscore=0 spamscore=0 adultscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301030159
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+References: <20230103081308.548338576@linuxfoundation.org>
+In-Reply-To: <20230103081308.548338576@linuxfoundation.org>
+From:   Allen Pais <stable.kernel.dev@gmail.com>
+Date:   Tue, 3 Jan 2023 10:59:17 -0800
+Message-ID: <CAJq+SaAQWarJebJBmRv8Kwa6hkqg7rKBKyLZphcXo096PO8mKg@mail.gmail.com>
+Subject: Re: [PATCH 5.10 00/63] 5.10.162-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2023-01-03 at 10:20 +0800, GUO Zihua wrote:
-> From: Janne Karhunen <janne.karhunen@gmail.com>
-> 
-> [ Upstream commit b169424551930a9325f700f502802f4d515194e5 ]
-> 
-> This patch is backported to resolve the issue of IMA ignoreing LSM part of
-> an LSM based rule. As the LSM notifier chain was an atomic notifier
-> chain, we'll not be able to call synchronize_rcu() within our notifier
-> handling function. Instead, we call the call_rcu() function to resolve
-> the freeing issue. To do that, we would needs to include a rcu_head
-> member in our rule, as well as wrap the call to ima_lsm_free_rule() into
-> a rcu_callback_t type callback function.
-> 
-> Original patch message is as follows:
-> 
-> commit b169424551930a9325f700f502802f4d515194e5
-> Author: Janne Karhunen <janne.karhunen@gmail.com>
-> Date:   Fri Jun 14 15:20:15 2019 +0300
-> 
->   Don't do lazy policy updates while running the rule matching,
->   run the updates as they happen.
-> 
->   Depends on commit f242064c5df3 ("LSM: switch to blocking policy update
->                                   notifiers")
-> 
->   Signed-off-by: Janne Karhunen <janne.karhunen@gmail.com>
->   Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
-> 
-> Cc: stable@vger.kernel.org #4.19.y
-> Signed-off-by: GUO Zihua <guozihua@huawei.com>
+> This is the start of the stable review cycle for the 5.10.162 release.
+> There are 63 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 05 Jan 2023 08:12:47 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.162-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
 
-There was quite a bit of discussion regarding converting the atomic
-notifier to blocking, but this backport doesn't make that change.
+Compiled and booted on my x86_64 and ARM64 test systems. No errors or
+regressions.
 
-Refer to 
-https://lore.kernel.org/linux-integrity/CAHC9VhS=GsEVUmxtiV64o8G6i2nJpkzxzpyTADgN-vhV8pzZbg@mail.gmail.com/
+Tested-by: Allen Pais <apais@linux.microsoft.com>
 
-Mimi
-
+Thanks.
