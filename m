@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DB8265C684
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 19:41:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B61A165C68B
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 19:41:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233455AbjACSlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 13:41:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49900 "EHLO
+        id S238328AbjACSlN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 13:41:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238441AbjACSk2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 13:40:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD73A13F92;
+        with ESMTP id S238360AbjACSk1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 13:40:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78D2B1180D;
         Tue,  3 Jan 2023 10:40:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7E99CB80EBF;
-        Tue,  3 Jan 2023 18:40:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A4B3C433F2;
-        Tue,  3 Jan 2023 18:40:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 16725614DF;
+        Tue,  3 Jan 2023 18:40:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93CD2C433EF;
+        Tue,  3 Jan 2023 18:40:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672771211;
-        bh=3iJDEg26w5JXxeO2spyA4n8QeKcUd/6tuQpHV6WNuig=;
+        s=k20201202; t=1672771212;
+        bh=124vP880Sh+1mZ3HL7f14EB8racDxeisiaWDZsM5ejg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wto7t6R7yPqo609aa5lzZx6R1F+hEKgafSqfs4jF7wrc6pBCcbHYbtby/AH88fNCC
-         uctvD9PCWey2o3mnjikpmOwLaRoNmThbO4xgMp7HuZh3eMBfUruNRxGoMMandHaiMz
-         ZUl2zQYzAVun8SVEPMzlkYr7IsVhej8fd8ykgrADSr+7Ebq4satC1DO7Cr6275P7vr
-         yarUDtCJ+VSxRj3fa4j9CLZPNel7UhyMtvzqwiFF4w2pBv+tVomkvI8zDMLHBDcFQ8
-         Q20H0jB7sNHP4ALU4hQcO6gV3OsjQKUDU78rImvyiSTdpLRGiGT6/QkC18tSxIoIvM
-         vUg0kxqFIsY6Q==
+        b=JyrT7l4o7X0/HajmWXxGf/HSHevrSbr0nZ1u48KLlyt+FDgWO4uhXBSzlkmNYRHNf
+         zPSAF+pOPrqz5//bPhrlK/9H1Rf1KtETM+9xeANspDJp2qIoWl8HeRSwmYSOUp7Q+S
+         PLcB3l0uS+D2hoFlR1UdzNSlZWEuAZDCY9onxwucuvFxipGv7NWrzMuWrH508SFivO
+         poZH8CoMkg3tqTDohrEXpsJAHWHPCMY16NhatRL46laDcdq1kYomC9mpZSO5IiUFM1
+         0SzsI0BPr8YZxIVrETqk538IFo6tG1hyIHSdZjBtyz0kaJbNeQ9goL1DygNTxH5e5a
+         JTB2VP/++EA1w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Christoph Hellwig <hch@lst.de>, Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
         Kanchan Joshi <joshi.k@samsung.com>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 6.0 3/4] nvmet: use NVME_CMD_EFFECTS_CSUPP instead of open coding it
-Date:   Tue,  3 Jan 2023 13:39:54 -0500
-Message-Id: <20230103183956.2022789-3-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, axboe@fb.com,
+        sagi@grimberg.me, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 6.0 4/4] nvme: also return I/O command effects from nvme_command_effects
+Date:   Tue,  3 Jan 2023 13:39:55 -0500
+Message-Id: <20230103183956.2022789-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20230103183956.2022789-1-sashal@kernel.org>
 References: <20230103183956.2022789-1-sashal@kernel.org>
@@ -59,71 +58,77 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 61f37154c599cf9f2f84dcbd9be842f8645a7099 ]
+[ Upstream commit 831ed60c2aca2d7c517b2da22897a90224a97d27 ]
 
-Use NVME_CMD_EFFECTS_CSUPP instead of open coding it and assign a
-single value to multiple array entries instead of repeated assignments.
+To be able to use the Commands Supported and Effects Log for allowing
+unprivileged passtrough, it needs to be corretly reported for I/O
+commands as well.  Return the I/O command effects from
+nvme_command_effects, and also add a default list of effects for the
+NVM command set.  For other command sets, the Commands Supported and
+Effects log is required to be present already.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
 Reviewed-by: Kanchan Joshi <joshi.k@samsung.com>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/admin-cmd.c | 35 ++++++++++++++++++---------------
- 1 file changed, 19 insertions(+), 16 deletions(-)
+ drivers/nvme/host/core.c | 32 ++++++++++++++++++++++++++------
+ 1 file changed, 26 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/nvme/target/admin-cmd.c b/drivers/nvme/target/admin-cmd.c
-index fc8a957fad0a..4aaa27cc8d2b 100644
---- a/drivers/nvme/target/admin-cmd.c
-+++ b/drivers/nvme/target/admin-cmd.c
-@@ -164,26 +164,29 @@ static void nvmet_execute_get_log_page_smart(struct nvmet_req *req)
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 3582a28a1dce..f06bae83e8ee 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -1069,6 +1069,18 @@ static u32 nvme_known_admin_effects(u8 opcode)
+ 	return 0;
+ }
  
- static void nvmet_get_cmd_effects_nvm(struct nvme_effects_log *log)
- {
--	log->acs[nvme_admin_get_log_page]	= cpu_to_le32(1 << 0);
--	log->acs[nvme_admin_identify]		= cpu_to_le32(1 << 0);
--	log->acs[nvme_admin_abort_cmd]		= cpu_to_le32(1 << 0);
--	log->acs[nvme_admin_set_features]	= cpu_to_le32(1 << 0);
--	log->acs[nvme_admin_get_features]	= cpu_to_le32(1 << 0);
--	log->acs[nvme_admin_async_event]	= cpu_to_le32(1 << 0);
--	log->acs[nvme_admin_keep_alive]		= cpu_to_le32(1 << 0);
--
--	log->iocs[nvme_cmd_read]		= cpu_to_le32(1 << 0);
--	log->iocs[nvme_cmd_write]		= cpu_to_le32(1 << 0);
--	log->iocs[nvme_cmd_flush]		= cpu_to_le32(1 << 0);
--	log->iocs[nvme_cmd_dsm]			= cpu_to_le32(1 << 0);
--	log->iocs[nvme_cmd_write_zeroes]	= cpu_to_le32(1 << 0);
-+	log->acs[nvme_admin_get_log_page] =
-+	log->acs[nvme_admin_identify] =
-+	log->acs[nvme_admin_abort_cmd] =
-+	log->acs[nvme_admin_set_features] =
-+	log->acs[nvme_admin_get_features] =
-+	log->acs[nvme_admin_async_event] =
-+	log->acs[nvme_admin_keep_alive] =
-+		cpu_to_le32(NVME_CMD_EFFECTS_CSUPP);
++static u32 nvme_known_nvm_effects(u8 opcode)
++{
++	switch (opcode) {
++	case nvme_cmd_write:
++	case nvme_cmd_write_zeroes:
++	case nvme_cmd_write_uncor:
++		 return NVME_CMD_EFFECTS_LBCC;
++	default:
++		return 0;
++	}
++}
 +
-+	log->iocs[nvme_cmd_read] =
-+	log->iocs[nvme_cmd_write] =
-+	log->iocs[nvme_cmd_flush] =
-+	log->iocs[nvme_cmd_dsm]	=
-+	log->iocs[nvme_cmd_write_zeroes] =
-+		cpu_to_le32(NVME_CMD_EFFECTS_CSUPP);
- }
- 
- static void nvmet_get_cmd_effects_zns(struct nvme_effects_log *log)
+ u32 nvme_command_effects(struct nvme_ctrl *ctrl, struct nvme_ns *ns, u8 opcode)
  {
--	log->iocs[nvme_cmd_zone_append]		= cpu_to_le32(1 << 0);
--	log->iocs[nvme_cmd_zone_mgmt_send]	= cpu_to_le32(1 << 0);
--	log->iocs[nvme_cmd_zone_mgmt_recv]	= cpu_to_le32(1 << 0);
-+	log->iocs[nvme_cmd_zone_append] =
-+	log->iocs[nvme_cmd_zone_mgmt_send] =
-+	log->iocs[nvme_cmd_zone_mgmt_recv] =
-+		cpu_to_le32(NVME_CMD_EFFECTS_CSUPP);
- }
+ 	u32 effects = 0;
+@@ -1076,16 +1088,24 @@ u32 nvme_command_effects(struct nvme_ctrl *ctrl, struct nvme_ns *ns, u8 opcode)
+ 	if (ns) {
+ 		if (ns->head->effects)
+ 			effects = le32_to_cpu(ns->head->effects->iocs[opcode]);
++		if (ns->head->ids.csi == NVME_CAP_CSS_NVM)
++			effects |= nvme_known_nvm_effects(opcode);
+ 		if (effects & ~(NVME_CMD_EFFECTS_CSUPP | NVME_CMD_EFFECTS_LBCC))
+ 			dev_warn_once(ctrl->device,
+-				"IO command:%02x has unhandled effects:%08x\n",
++				"IO command:%02x has unusual effects:%08x\n",
+ 				opcode, effects);
+-		return 0;
+-	}
  
- static void nvmet_execute_get_log_cmd_effects_ns(struct nvmet_req *req)
+-	if (ctrl->effects)
+-		effects = le32_to_cpu(ctrl->effects->acs[opcode]);
+-	effects |= nvme_known_admin_effects(opcode);
++		/*
++		 * NVME_CMD_EFFECTS_CSE_MASK causes a freeze all I/O queues,
++		 * which would deadlock when done on an I/O command.  Note that
++		 * We already warn about an unusual effect above.
++		 */
++		effects &= ~NVME_CMD_EFFECTS_CSE_MASK;
++	} else {
++		if (ctrl->effects)
++			effects = le32_to_cpu(ctrl->effects->acs[opcode]);
++		effects |= nvme_known_admin_effects(opcode);
++	}
+ 
+ 	return effects;
+ }
 -- 
 2.35.1
 
