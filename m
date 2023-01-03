@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D90BB65BBB8
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 09:15:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E1B665BBB2
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 09:15:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232838AbjACIPG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 03:15:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40140 "EHLO
+        id S236917AbjACIP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 03:15:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236992AbjACIPF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 03:15:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1AA2DF94
-        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 00:15:04 -0800 (PST)
+        with ESMTP id S232924AbjACIPQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 03:15:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38E44DF3C
+        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 00:15:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D6FB611CF
-        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 08:15:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FE2BC433D2;
-        Tue,  3 Jan 2023 08:15:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E06D4B80E49
+        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 08:15:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59DA5C433D2;
+        Tue,  3 Jan 2023 08:15:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672733703;
-        bh=XpAGoLewnm7MeVeyKWencPk7gX+0WahjPFWDLbjShzc=;
+        s=korg; t=1672733706;
+        bh=9G4Pv9Gt39/6SAjBBLxJSaHaXDOBFavoT07Za35EAVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1IO7DG7dZVk7VjCZRNBdY5EY+livmvRbHj6P1hQ3nw/i0PFGTYhIaanHFFQXni92w
-         pW6ien7mXbkiHYGGTD/SIsu3qvKfJGIf0/Lb4GkB+okknAE6TMt5iCe/KqPrC/6yII
-         pflSOPDS9+NPSzg+s9fH94ryfigFxhDO1YcwtLjg=
+        b=ZADW0zGLSUnbtYiHhQvmCp0tgVq0Oi9Q1gAM9acG3RfFlsUWex1N/1+90x701KF4a
+         ljQUPcAkt4JiOUv28MmEu3xkJQvt+Xx/Di+utf4/kWNxH2RVOMw/8tIkjlvQVYV8uY
+         zXibq1x0LKMOZqJhCzSo7LD5yTZL0PNLqTRa1Emw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
+        patches@lists.linux.dev,
+        syzbot+c88a7030da47945a3cc3@syzkaller.appspotmail.com,
+        Christian Brauner <christian.brauner@ubuntu.com>,
         Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 5.10 05/63] fix handling of nd->depth on LOOKUP_CACHED failures in try_to_unlazy*
-Date:   Tue,  3 Jan 2023 09:13:35 +0100
-Message-Id: <20230103081308.881654061@linuxfoundation.org>
+Subject: [PATCH 5.10 06/63] Make sure nd->path.mnt and nd->path.dentry are always valid pointers
+Date:   Tue,  3 Jan 2023 09:13:36 +0100
+Message-Id: <20230103081308.942805751@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230103081308.548338576@linuxfoundation.org>
 References: <20230103081308.548338576@linuxfoundation.org>
@@ -54,62 +56,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit eacd9aa8cedeb412842c7b339adbaa0477fdd5ad ]
+[ Upstream commit 7d01ef7585c07afaf487759a48486228cd065726 ]
 
-After switching to non-RCU mode, we want nd->depth to match the number
-of entries in nd->stack[] that need eventual path_put().
-legitimize_links() takes care of that on failures; unfortunately,
-failure exits added for LOOKUP_CACHED do not.
+Initialize them in set_nameidata() and make sure that terminate_walk() clears them
+once the pointers become potentially invalid (i.e. we leave RCU mode or drop them
+in non-RCU one).  Currently we have "path_init() always initializes them and nobody
+accesses them outside of path_init()/terminate_walk() segments", which is asking
+for trouble.
 
-We could add the logics for that into those failure exits, both in
-try_to_unlazy() and in try_to_unlazy_next(), but since both checks
-are immediately followed by legitimize_links() and there's no calls
-of legitimize_links() other than those two...  It's easier to
-move the check (and required handling of nd->depth on failure) into
-legitimize_links() itself.
+With that change we would have nd->path.{mnt,dentry}
+	1) always valid - NULL or pointing to currently allocated objects.
+	2) non-NULL while we are successfully walking
+	3) NULL when we are not walking at all
+	4) contributing to refcounts whenever non-NULL outside of RCU mode.
 
-[caught by Jens: ... and since we are zeroing ->depth here, we need
-to do drop_links() first]
-
-Fixes: 6c6ec2b0a3e0 "fs: add support for LOOKUP_CACHED"
-Tested-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 6c6ec2b0a3e0 ("fs: add support for LOOKUP_CACHED")
+Reported-by: syzbot+c88a7030da47945a3cc3@syzkaller.appspotmail.com
+Tested-by: Christian Brauner <christian.brauner@ubuntu.com>
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/namei.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ fs/namei.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 --- a/fs/namei.c
 +++ b/fs/namei.c
-@@ -630,6 +630,11 @@ static inline bool legitimize_path(struc
- static bool legitimize_links(struct nameidata *nd)
- {
- 	int i;
-+	if (unlikely(nd->flags & LOOKUP_CACHED)) {
-+		drop_links(nd);
-+		nd->depth = 0;
-+		return false;
-+	}
- 	for (i = 0; i < nd->depth; i++) {
- 		struct saved *last = nd->stack + i;
- 		if (unlikely(!legitimize_path(nd, &last->link, last->seq))) {
-@@ -686,8 +691,6 @@ static bool try_to_unlazy(struct nameida
- 	BUG_ON(!(nd->flags & LOOKUP_RCU));
+@@ -529,6 +529,8 @@ static void set_nameidata(struct nameida
+ 	p->stack = p->internal;
+ 	p->dfd = dfd;
+ 	p->name = name;
++	p->path.mnt = NULL;
++	p->path.dentry = NULL;
+ 	p->total_link_count = old ? old->total_link_count : 0;
+ 	p->saved = old;
+ 	current->nameidata = p;
+@@ -602,6 +604,8 @@ static void terminate_walk(struct nameid
+ 		rcu_read_unlock();
+ 	}
+ 	nd->depth = 0;
++	nd->path.mnt = NULL;
++	nd->path.dentry = NULL;
+ }
  
- 	nd->flags &= ~LOOKUP_RCU;
--	if (nd->flags & LOOKUP_CACHED)
--		goto out1;
- 	if (unlikely(!legitimize_links(nd)))
- 		goto out1;
- 	if (unlikely(!legitimize_path(nd, &nd->path, nd->seq)))
-@@ -724,8 +727,6 @@ static bool try_to_unlazy_next(struct na
- 	BUG_ON(!(nd->flags & LOOKUP_RCU));
+ /* path_put is needed afterwards regardless of success or failure */
+@@ -2243,8 +2247,6 @@ static const char *path_init(struct name
+ 	}
  
- 	nd->flags &= ~LOOKUP_RCU;
--	if (nd->flags & LOOKUP_CACHED)
--		goto out2;
- 	if (unlikely(!legitimize_links(nd)))
- 		goto out2;
- 	if (unlikely(!legitimize_mnt(nd->path.mnt, nd->m_seq)))
+ 	nd->root.mnt = NULL;
+-	nd->path.mnt = NULL;
+-	nd->path.dentry = NULL;
+ 
+ 	/* Absolute pathname -- fetch the root (LOOKUP_IN_ROOT uses nd->dfd). */
+ 	if (*s == '/' && !(flags & LOOKUP_IN_ROOT)) {
 
 
