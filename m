@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30A3365BBB9
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 09:15:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87A0065BBBD
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 09:15:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236793AbjACIPa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 03:15:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40480 "EHLO
+        id S230139AbjACIPc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 03:15:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237004AbjACIPW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 03:15:22 -0500
+        with ESMTP id S237011AbjACIP3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 03:15:29 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B7C7DE86
-        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 00:15:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B5DEDFAA
+        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 00:15:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DF850611F3
-        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 08:15:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1654C433D2;
-        Tue,  3 Jan 2023 08:15:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0923A611CF
+        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 08:15:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFC33C433D2;
+        Tue,  3 Jan 2023 08:15:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672733709;
-        bh=zHbGUamkF3+tVfJYq766+p207MhUgTPfux6jcmaZ27Q=;
+        s=korg; t=1672733712;
+        bh=aqT0K3Yhg1Khi8nfpCkMU2vySz60QhXWT201+JJD1Lc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y+tOoveA8GCRLNf7DF/1bUOPj/ZYOO5joWYwc0pRRegnTtSC/cea8gTuqnGsxSe/n
-         Y798AcVZDfLj0Ac2ErdLETlVZYj4tWQRdF45YEgW48d7DasE1MNkpQjdvysdPmBH7S
-         swJ80Il4It08VFXN0J2+ZGHAM7Xt4nPHKQCo3avg=
+        b=JPZqJcHhZVeZ54LcuaQq0jDngouSU5SY3G4ug/A7flNUa4bjzTEdgCyFXyTkSigad
+         XdagqrM/HSssdS0avbwY4RJ1fJuRWB4By4XUlIrGCgM9zWhgcNxTSRSOKw+9snsTsx
+         3YvicFDs2RzoY+LOL/ZCBhqgyVfzY4T/6vWGVXHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Al Viro <viro@zeniv.linux.org.uk>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 07/63] fs: expose LOOKUP_CACHED through openat2() RESOLVE_CACHED
-Date:   Tue,  3 Jan 2023 09:13:37 +0100
-Message-Id: <20230103081309.004611226@linuxfoundation.org>
+        Jens Axboe <axboe@kernel.dk>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.10 08/63] tools headers UAPI: Sync openat2.h with the kernel sources
+Date:   Tue,  3 Jan 2023 09:13:38 +0100
+Message-Id: <20230103081309.064401565@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230103081308.548338576@linuxfoundation.org>
 References: <20230103081308.548338576@linuxfoundation.org>
@@ -52,56 +53,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit 99668f618062816ca7ba639b007eb145b9d3d41e ]
+[ Upstream commit 1e61463cfcd0b3e7a19ba36b8a98c64ebaac5c6e ]
 
-Now that we support non-blocking path resolution internally, expose it
-via openat2() in the struct open_how ->resolve flags. This allows
-applications using openat2() to limit path resolution to the extent that
-it is already cached.
+To pick the changes in:
 
-If the lookup cannot be satisfied in a non-blocking manner, openat2(2)
-will return -1/-EAGAIN.
+  99668f618062816c ("fs: expose LOOKUP_CACHED through openat2() RESOLVE_CACHED")
+
+That don't result in any change in tooling, only silences this perf
+build warning:
+
+  Warning: Kernel ABI header at 'tools/include/uapi/linux/openat2.h' differs from latest version at 'include/uapi/linux/openat2.h'
+  diff -u tools/include/uapi/linux/openat2.h include/uapi/linux/openat2.h
 
 Cc: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/open.c                    |    6 ++++++
- include/linux/fcntl.h        |    2 +-
- include/uapi/linux/openat2.h |    4 ++++
- 3 files changed, 11 insertions(+), 1 deletion(-)
+ tools/include/uapi/linux/openat2.h |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/fs/open.c
-+++ b/fs/open.c
-@@ -1099,6 +1099,12 @@ inline int build_open_flags(const struct
- 		lookup_flags |= LOOKUP_BENEATH;
- 	if (how->resolve & RESOLVE_IN_ROOT)
- 		lookup_flags |= LOOKUP_IN_ROOT;
-+	if (how->resolve & RESOLVE_CACHED) {
-+		/* Don't bother even trying for create/truncate/tmpfile open */
-+		if (flags & (O_TRUNC | O_CREAT | O_TMPFILE))
-+			return -EAGAIN;
-+		lookup_flags |= LOOKUP_CACHED;
-+	}
- 
- 	op->lookup_flags = lookup_flags;
- 	return 0;
---- a/include/linux/fcntl.h
-+++ b/include/linux/fcntl.h
-@@ -19,7 +19,7 @@
- /* List of all valid flags for the how->resolve argument: */
- #define VALID_RESOLVE_FLAGS \
- 	(RESOLVE_NO_XDEV | RESOLVE_NO_MAGICLINKS | RESOLVE_NO_SYMLINKS | \
--	 RESOLVE_BENEATH | RESOLVE_IN_ROOT)
-+	 RESOLVE_BENEATH | RESOLVE_IN_ROOT | RESOLVE_CACHED)
- 
- /* List of all open_how "versions". */
- #define OPEN_HOW_SIZE_VER0	24 /* sizeof first published struct */
---- a/include/uapi/linux/openat2.h
-+++ b/include/uapi/linux/openat2.h
+--- a/tools/include/uapi/linux/openat2.h
++++ b/tools/include/uapi/linux/openat2.h
 @@ -35,5 +35,9 @@ struct open_how {
  #define RESOLVE_IN_ROOT		0x10 /* Make all jumps to "/" and ".."
  					be scoped inside the dirfd
