@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC08A65BD53
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 10:41:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAFEF65BD68
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 10:48:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233134AbjACJlq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 04:41:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58726 "EHLO
+        id S236965AbjACJsE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 04:48:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232970AbjACJlo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 04:41:44 -0500
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E4162D2;
-        Tue,  3 Jan 2023 01:41:43 -0800 (PST)
+        with ESMTP id S237269AbjACJrg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 04:47:36 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD9D9E0DE;
+        Tue,  3 Jan 2023 01:47:34 -0800 (PST)
 Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 176253824A;
-        Tue,  3 Jan 2023 09:41:42 +0000 (UTC)
+        by smtp-out2.suse.de (Postfix) with ESMTP id 8CE4B60FD9;
+        Tue,  3 Jan 2023 09:47:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1672738902; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1672739253; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=INe1fRfDJG3P7PcSGiSjhLagJ0XMpmhGUZjZv1725PQ=;
-        b=DyhqLbWcmkJ8E4l+8lrj+YTGgJHJxZ+gwmkvvc7cJqIc481jWHw6QFzlER7icrSxINhysN
-        WGF+kmr/GGDDMCBofEIbnTIdii8KNbAN4EgH39qeb22mI1Px3/Gl5FqQbvrYLdt9/NENk0
-        gxkaPnS1zbKplJ3LZMFimW73X75tWM0=
+        bh=BIjLUFfj0kB7Uqvi4/DO1Qulkdn4TEAXOU07en8R1ls=;
+        b=nfuiFEuCP+s1hNMRLkKfGesRW61uLaudomobb0gnncuknFrCJ/hSrY7Sqm9iRWABGRNGE+
+        OpQ0BYe8Ie3LnCThnK1bM5eatlH5KjKN50gkxGjcmudmvxajarKkqrqwuGYeIgOZeeNz4i
+        2LmN6ZDSmgD2k8p+09JXzhlh4uI99To=
 Received: from suse.cz (unknown [10.100.201.202])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 9DA752C141;
-        Tue,  3 Jan 2023 09:41:41 +0000 (UTC)
-Date:   Tue, 3 Jan 2023 10:41:39 +0100
+        by relay2.suse.de (Postfix) with ESMTPS id 709872C141;
+        Tue,  3 Jan 2023 09:47:33 +0000 (UTC)
+Date:   Tue, 3 Jan 2023 10:47:31 +0100
 From:   Petr Mladek <pmladek@suse.com>
 To:     John Ogness <john.ogness@linutronix.de>
 Cc:     Sergey Senozhatsky <senozhatsky@chromium.org>,
@@ -41,7 +41,7 @@ Cc:     Sergey Senozhatsky <senozhatsky@chromium.org>,
         Jonathan Corbet <corbet@lwn.net>, kexec@lists.infradead.org,
         linux-doc@vger.kernel.org, stable@vger.kernel.org
 Subject: Re: [PATCH] docs: gdbmacros: print newest record
-Message-ID: <Y7P4UwjRQG8Tov1D@alley>
+Message-ID: <Y7P5s+Zm+3s6g65A@alley>
 References: <20221229134339.197627-1-john.ogness@linutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -69,9 +69,8 @@ On Thu 2022-12-29 14:49:39, John Ogness wrote:
 > Cc: stable@vger.kernel.org
 > Signed-off-by: John Ogness <john.ogness@linutronix.de>
 
-Great catch!
-
-Reviewed-by: Petr Mladek <pmladek@suse.com>
+JFYI, the patch has been committed into printk/linux.git,
+branch for-6.3.
 
 Best Regards,
 Petr
