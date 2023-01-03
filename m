@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DD8365C66D
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 19:40:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF98365C670
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 19:40:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238330AbjACSkD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 13:40:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49600 "EHLO
+        id S238463AbjACSkF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 13:40:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234022AbjACSj7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 13:39:59 -0500
+        with ESMTP id S238138AbjACSkA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 13:40:00 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A03FB13D4C;
-        Tue,  3 Jan 2023 10:39:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C8B313EA7;
+        Tue,  3 Jan 2023 10:39:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F6AD614F0;
-        Tue,  3 Jan 2023 18:39:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A637BC43398;
-        Tue,  3 Jan 2023 18:39:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 38FAD614E3;
+        Tue,  3 Jan 2023 18:39:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D826FC433F1;
+        Tue,  3 Jan 2023 18:39:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672771189;
-        bh=imEYwgAC/dH8lSJZo74E+eAnfm3WoSPBrWYHOX4C0rg=;
+        s=k20201202; t=1672771190;
+        bh=I9Rh/SZX3YTnclAjYVPhj0Dc88rt5FKaiQgfc9H6olY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OQu2wC/XigJEjEHBpl/0pReM6VgeNw+TvvMJq5dMqGmXoibQSw5pmzSsIK7j1lmYq
-         TUk3W6hCbGEh0jUhxrQeadpXc/3THwrAYfkQbRF4Ek2ZHWF5Ak4sfzU++Efcp5tuR8
-         grtdnWqWdZQdSWXn5HojGxZE/IAEuBgiA20u3fG89UXbBrqsyghuW59Vl1Hcvcb4ZK
-         mBgIf+R082N2NldScD3YPztO6E1fWyT9FfFPxKJh+7H4fvaQ4L/81DKgm9lxMTahxA
-         rdLLQNgiiA4GsnRaSoj/KkYlZOkgxqNfc/wByamILb6y3jzYnfiKidBJajInJPApgU
-         1wVHE1YfhWe/Q==
+        b=NSzLTtSEXBnw02kl4FTlRZ1ktBdr7w/6m9O9IbSGiOpOQlm/jN2XC2vsPQ+t5JoQv
+         5PFMmco1TUiYW+CxtEZaKwbf/0l01SXMkRgeRu5tF8BXOGV0zTNQ3zxpT1mnXA2DA8
+         mXHqnh8jZUPHE1yBDoPNlTdu7cZbyqg7ejREGUqfOShLHF+ftAi3OAJK2SuyIHr00V
+         Wr5dCFX2dhg/7Fw7dYzda8evzU4zO8KJrQwsvw936cesIEw6ZP0tN4sd+0Npmoh4W7
+         3AS+Yrnu2zxhWzmoxtiuCg86ml0eSVOGZYAZyRRLLUXujTQDN/iOHFoFtWuo659rpC
+         TD4WHH2qt8Qrg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mario Limonciello <mario.limonciello@amd.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+Cc:     Erik Schumacher <ofenfisch@googlemail.com>,
         "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
         linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 05/10] ACPI: video: Don't enable fallback path for creating ACPI backlight by default
-Date:   Tue,  3 Jan 2023 13:39:29 -0500
-Message-Id: <20230103183934.2022663-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 06/10] ACPI: resource: do IRQ override on XMG Core 15
+Date:   Tue,  3 Jan 2023 13:39:30 -0500
+Message-Id: <20230103183934.2022663-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20230103183934.2022663-1-sashal@kernel.org>
 References: <20230103183934.2022663-1-sashal@kernel.org>
@@ -57,46 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Erik Schumacher <ofenfisch@googlemail.com>
 
-[ Upstream commit 5aa9d943e9b6bf6e6023645cbe7ce7d5ed84baf4 ]
+[ Upstream commit 7592b79ba4a91350b38469e05238308bcfe1019b ]
 
-The ACPI video detection code has a module parameter
-`register_backlight_delay` which is currently configured to 8 seconds.
-This means that if after 8 seconds of booting no native driver has created
-a backlight device then the code will attempt to make an ACPI video
-backlight device.
+The Schenker XMG CORE 15 (M22) is Ryzen-6 based and needs IRQ overriding
+for the keyboard to work. Adding an entry for this laptop to the
+override_table makes the internal keyboard functional again.
 
-This was intended as a safety mechanism with the backlight overhaul that
-occurred in kernel 6.1, but as it doesn't appear necesssary set it to be
-disabled by default.
-
-Suggested-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Erik Schumacher <ofenfisch@googlemail.com>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpi_video.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/acpi/resource.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/acpi/acpi_video.c b/drivers/acpi/acpi_video.c
-index f64fdb029090..0c79f463fbfd 100644
---- a/drivers/acpi/acpi_video.c
-+++ b/drivers/acpi/acpi_video.c
-@@ -70,11 +70,7 @@ module_param(device_id_scheme, bool, 0444);
- static int only_lcd = -1;
- module_param(only_lcd, int, 0444);
+diff --git a/drivers/acpi/resource.c b/drivers/acpi/resource.c
+index f27914aedbd5..037d1aa10357 100644
+--- a/drivers/acpi/resource.c
++++ b/drivers/acpi/resource.c
+@@ -446,6 +446,17 @@ static const struct dmi_system_id lenovo_82ra[] = {
+ 	{ }
+ };
  
--/*
-- * Display probing is known to take up to 5 seconds, so delay the fallback
-- * backlight registration by 5 seconds + 3 seconds for some extra margin.
-- */
--static int register_backlight_delay = 8;
-+static int register_backlight_delay;
- module_param(register_backlight_delay, int, 0444);
- MODULE_PARM_DESC(register_backlight_delay,
- 	"Delay in seconds before doing fallback (non GPU driver triggered) "
++static const struct dmi_system_id schenker_gm_rg[] = {
++	{
++		.ident = "XMG CORE 15 (M22)",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
++			DMI_MATCH(DMI_BOARD_NAME, "GMxRGxx"),
++		},
++	},
++	{ }
++};
++
+ struct irq_override_cmp {
+ 	const struct dmi_system_id *system;
+ 	unsigned char irq;
+@@ -460,6 +471,7 @@ static const struct irq_override_cmp override_table[] = {
+ 	{ asus_laptop, 1, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW, 0, false },
+ 	{ lenovo_82ra, 6, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW, 0, true },
+ 	{ lenovo_82ra, 10, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW, 0, true },
++	{ schenker_gm_rg, 1, ACPI_EDGE_SENSITIVE, ACPI_ACTIVE_LOW, 1, true },
+ };
+ 
+ static bool acpi_dev_irq_override(u32 gsi, u8 triggering, u8 polarity,
 -- 
 2.35.1
 
