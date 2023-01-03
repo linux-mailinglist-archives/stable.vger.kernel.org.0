@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A09065BC02
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 09:18:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36CA765BBF4
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 09:18:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237046AbjACISN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 03:18:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41918 "EHLO
+        id S237076AbjACISP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 03:18:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237150AbjACIRt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 03:17:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 223A7E019;
-        Tue,  3 Jan 2023 00:17:23 -0800 (PST)
+        with ESMTP id S237075AbjACIRw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 03:17:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09239E032
+        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 00:17:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B7015611FB;
-        Tue,  3 Jan 2023 08:17:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD8DDC433F0;
-        Tue,  3 Jan 2023 08:17:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 99DAD611DD
+        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 08:17:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF53BC433F0;
+        Tue,  3 Jan 2023 08:17:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672733842;
-        bh=NSeTGuu9jxbF8jrNYEFoO8mXqWTUINIqDZm/DcWDZh0=;
+        s=korg; t=1672733845;
+        bh=8FhpJ1opUkwD3NDoYK3bwMKQdrS+jBXp72HMkufLcLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2c0I3ASKGQrdJxl5qkRmFEkHAjkSpQcUD35TXr5NShzcqc7Q6QS0dr9WZJhWtsD2S
-         ak1ao9t8+0nSPORBNrbmh0AoyknkVTP7rnsoTJkShOkK68diqU3bS53nhB+AQ3P7ho
-         HFUWZ2o630kGZRHa4q3xB6AEJL7KFfQXdVP5ks/U=
+        b=GBT1NBdLTsuDur/9/tBgkERkRNVdrDS5oVweAjtePOLl1kBZvk+8KJtyputhk4BJY
+         7vd9g8Ulws1iED6wNF5pnf2e236U/ytQeoUmdSlGxFtq9Kb77Msi7BPiUigHguAaF0
+         mfaRCH7YHHJruWzkHkRa6Tr73GIw6HyABvpAHp08=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, sparclinux@vger.kernel.org,
+        patches@lists.linux.dev, Sergei Trofimovich <slyich@gmail.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 40/63] sparc: add support for TIF_NOTIFY_SIGNAL
-Date:   Tue,  3 Jan 2023 09:14:10 +0100
-Message-Id: <20230103081310.985156291@linuxfoundation.org>
+Subject: [PATCH 5.10 41/63] ia64: dont call handle_signal() unless theres actually a signal queued
+Date:   Tue,  3 Jan 2023 09:14:11 +0100
+Message-Id: <20230103081311.050303537@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230103081308.548338576@linuxfoundation.org>
 References: <20230103081308.548338576@linuxfoundation.org>
@@ -54,94 +55,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit f50a7052f5e70ee7a6a5e2ed08660994dc3df2a5 ]
+[ Upstream commit f5f4fc4649ae542b1a25670b17aaf3cbb6187acc ]
 
-Wire up TIF_NOTIFY_SIGNAL handling for sparc.
+Sergei and John both reported that ia64 failed to boot in 5.11, and it
+was related to signals. Turns out the ia64 signal handling is a bit odd,
+it doesn't check the return value of get_signal() for whether there's a
+signal to deliver or not. With the introduction of TIF_NOTIFY_SIGNAL,
+then task_work could trigger it.
 
-Cc: sparclinux@vger.kernel.org
+Fix it by only calling handle_signal() if we actually have a real signal
+to deliver. This brings it in line with all other archs, too.
+
+Fixes: b269c229b0e8 ("ia64: add support for TIF_NOTIFY_SIGNAL")
+Reported-by: Sergei Trofimovich <slyich@gmail.com>
+Reported-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Tested-by: Sergei Trofimovich <slyich@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/sparc/include/asm/thread_info_32.h |    4 +++-
- arch/sparc/include/asm/thread_info_64.h |    6 ++++--
- arch/sparc/kernel/signal_32.c           |    2 +-
- arch/sparc/kernel/signal_64.c           |    2 +-
- 4 files changed, 9 insertions(+), 5 deletions(-)
+ arch/ia64/kernel/signal.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/sparc/include/asm/thread_info_32.h
-+++ b/arch/sparc/include/asm/thread_info_32.h
-@@ -104,6 +104,7 @@ register struct thread_info *current_thr
- #define TIF_SIGPENDING		2	/* signal pending */
- #define TIF_NEED_RESCHED	3	/* rescheduling necessary */
- #define TIF_RESTORE_SIGMASK	4	/* restore signal mask in do_signal() */
-+#define TIF_NOTIFY_SIGNAL	5	/* signal notifications exist */
- #define TIF_USEDFPU		8	/* FPU was used by this task
- 					 * this quantum (SMP) */
- #define TIF_POLLING_NRFLAG	9	/* true if poll_idle() is polling
-@@ -115,11 +116,12 @@ register struct thread_info *current_thr
- #define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
- #define _TIF_SIGPENDING		(1<<TIF_SIGPENDING)
- #define _TIF_NEED_RESCHED	(1<<TIF_NEED_RESCHED)
-+#define _TIF_NOTIFY_SIGNAL	(1<<TIF_NOTIFY_SIGNAL)
- #define _TIF_USEDFPU		(1<<TIF_USEDFPU)
- #define _TIF_POLLING_NRFLAG	(1<<TIF_POLLING_NRFLAG)
+--- a/arch/ia64/kernel/signal.c
++++ b/arch/ia64/kernel/signal.c
+@@ -341,7 +341,8 @@ ia64_do_signal (struct sigscratch *scr,
+ 	 * need to push through a forced SIGSEGV.
+ 	 */
+ 	while (1) {
+-		get_signal(&ksig);
++		if (!get_signal(&ksig))
++			break;
  
- #define _TIF_DO_NOTIFY_RESUME_MASK	(_TIF_NOTIFY_RESUME | \
--					 _TIF_SIGPENDING)
-+					 _TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL)
- 
- #define is_32bit_task()	(1)
- 
---- a/arch/sparc/include/asm/thread_info_64.h
-+++ b/arch/sparc/include/asm/thread_info_64.h
-@@ -180,7 +180,7 @@ extern struct thread_info *current_threa
- #define TIF_NOTIFY_RESUME	1	/* callback before returning to user */
- #define TIF_SIGPENDING		2	/* signal pending */
- #define TIF_NEED_RESCHED	3	/* rescheduling necessary */
--/* flag bit 4 is available */
-+#define TIF_NOTIFY_SIGNAL	4	/* signal notifications exist */
- #define TIF_UNALIGNED		5	/* allowed to do unaligned accesses */
- #define TIF_UPROBE		6	/* breakpointed or singlestepped */
- #define TIF_32BIT		7	/* 32-bit binary */
-@@ -200,6 +200,7 @@ extern struct thread_info *current_threa
- #define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
- #define _TIF_SIGPENDING		(1<<TIF_SIGPENDING)
- #define _TIF_NEED_RESCHED	(1<<TIF_NEED_RESCHED)
-+#define _TIF_NOTIFY_SIGNAL	(1<<TIF_NOTIFY_SIGNAL)
- #define _TIF_UNALIGNED		(1<<TIF_UNALIGNED)
- #define _TIF_UPROBE		(1<<TIF_UPROBE)
- #define _TIF_32BIT		(1<<TIF_32BIT)
-@@ -213,7 +214,8 @@ extern struct thread_info *current_threa
- 				 _TIF_DO_NOTIFY_RESUME_MASK | \
- 				 _TIF_NEED_RESCHED)
- #define _TIF_DO_NOTIFY_RESUME_MASK	(_TIF_NOTIFY_RESUME | \
--					 _TIF_SIGPENDING | _TIF_UPROBE)
-+					 _TIF_SIGPENDING | _TIF_UPROBE | \
-+					 _TIF_NOTIFY_SIGNAL)
- 
- #define is_32bit_task()	(test_thread_flag(TIF_32BIT))
- 
---- a/arch/sparc/kernel/signal_32.c
-+++ b/arch/sparc/kernel/signal_32.c
-@@ -521,7 +521,7 @@ static void do_signal(struct pt_regs *re
- void do_notify_resume(struct pt_regs *regs, unsigned long orig_i0,
- 		      unsigned long thread_info_flags)
- {
--	if (thread_info_flags & _TIF_SIGPENDING)
-+	if (thread_info_flags & (_TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL))
- 		do_signal(regs, orig_i0);
- 	if (thread_info_flags & _TIF_NOTIFY_RESUME)
- 		tracehook_notify_resume(regs);
---- a/arch/sparc/kernel/signal_64.c
-+++ b/arch/sparc/kernel/signal_64.c
-@@ -549,7 +549,7 @@ void do_notify_resume(struct pt_regs *re
- 	user_exit();
- 	if (thread_info_flags & _TIF_UPROBE)
- 		uprobe_notify_resume(regs);
--	if (thread_info_flags & _TIF_SIGPENDING)
-+	if (thread_info_flags & (_TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL))
- 		do_signal(regs, orig_i0);
- 	if (thread_info_flags & _TIF_NOTIFY_RESUME)
- 		tracehook_notify_resume(regs);
+ 		/*
+ 		 * get_signal() may have run a debugger (via notify_parent())
 
 
