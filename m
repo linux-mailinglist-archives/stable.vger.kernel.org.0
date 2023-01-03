@@ -2,130 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44CEF65C691
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 19:41:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C55465C69E
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 19:46:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229735AbjACSlk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 13:41:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51538 "EHLO
+        id S233577AbjACSpx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 13:45:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233512AbjACSk5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 13:40:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBE581402E;
-        Tue,  3 Jan 2023 10:40:24 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A79FAB810AC;
-        Tue,  3 Jan 2023 18:40:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75027C433D2;
-        Tue,  3 Jan 2023 18:40:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672771222;
-        bh=OnJhvt64/8j4ZtxMuuT8R9oxhga6S4rTiUHEMYErTzs=;
-        h=From:To:Cc:Subject:Date:From;
-        b=RNZqup27sK2QnW6sc5gL9wkzoRqB/rJES1nYv5WekAlo4W8ALWsIG8aGAenZEbuuG
-         uYaUlG4QtinRY/sIqyw+lMdJhf+s5mWHtB8c9r4vXQxqp9dUilCObtpDQRQ+aVmYwz
-         FG3p2ZbMz5h6mWTrainVqTeBRUwZYwinIAqoOwuJS3iAdsOGQp4d9YCyYW4Hf/ddCR
-         nHHFObMfY/lUUhkE5BWBr9qCeKLqo35Cx9cTRtF0ana39FlEh69ktsRE6P/IoyRiBw
-         +NPynK9cuFqcvDyhJN9clasqSETETd/jWI3sprrMPF1lk/OW/HYBRb3gJDckZHTn1R
-         pIssWGjpuf+Dw==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yanjun Zhang <zhangyanjun@cestc.cn>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
-        axboe@fb.com, sagi@grimberg.me, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10] nvme: fix multipath crash caused by flush request when blktrace is enabled
-Date:   Tue,  3 Jan 2023 13:40:19 -0500
-Message-Id: <20230103184019.2022907-1-sashal@kernel.org>
-X-Mailer: git-send-email 2.35.1
-MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
+        with ESMTP id S238574AbjACSpT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 13:45:19 -0500
+Received: from mx0b-0064b401.pphosted.com (mx0b-0064b401.pphosted.com [205.220.178.238])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F09381056E;
+        Tue,  3 Jan 2023 10:43:51 -0800 (PST)
+Received: from pps.filterd (m0250811.ppops.net [127.0.0.1])
+        by mx0a-0064b401.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 303IJnNx015607;
+        Tue, 3 Jan 2023 18:43:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to : cc :
+ subject : date : message-id : content-transfer-encoding : content-type :
+ mime-version; s=PPS06212021;
+ bh=wje1NDMN8Sx/Z1AJQylCF5ecxLBPrRp3mjqNchoCiNg=;
+ b=AfGP99MI2Qp74dzXSAGsWKWykcmWu/w7IWy8lAh34DTzbb02uKWrN5tU1uKZL4IqMx+S
+ hndfgkMY4P9JmeyJoF8ng3UAC+UHC2mv3TYaTAs6Evjm/xNfyN1/PyKCuS1QF87vHKjt
+ JB1dI7P3FnPHYB7WyOUISHPU+m2R7v2cy6rMPQOaW0+7z9KxevYwf3U+uFOdo3/MqK/O
+ olDqBCKWCPwZfBoilf2k5wK2Yg1ulnqq6a91b+2p5RRjiCJ2nVj75XFqORUawGmmSn9s
+ HeM3lNhAfgHVtpZfIY/s2dEnU+/PWwL46z3YEbFGk0xQV1FURfILMH/wOD2c7j1+KLfm 4g== 
+Received: from nam10-mw2-obe.outbound.protection.outlook.com (mail-mw2nam10lp2104.outbound.protection.outlook.com [104.47.55.104])
+        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3mtaa2hvcr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 03 Jan 2023 18:43:23 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=DO7IMeVBGhsCuUp4h3uAuBNUIxtWLg2H9+YJ+EKXAPkJAGuJAcFepeVOVTxShG1rbPGoVjGUTVbDHRFBKxP2UWvlqvwmIUXTE4K80ptXD7Iqr9SXHFup/WRuWa7J2kZeQ0Qn4ue103Uxs5LWM0ZYjXGtkjV9QhoyljsCHDtsPESMlPmMrdiXFadOVK+r550rsfCDyZrZV2GfuHB2YSJjoPmPqSO4nN0kxGNXO+9ctHznvVIjupQbmoBip6AvWhA8MJoufslGOZDPYzh6V/vKtfbrZ1I++KUXlpwGBO6qMG7KK8vv5VhP+h+VUL13ZOORvC/OH/q1PwROs3xY+EL+4w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=wje1NDMN8Sx/Z1AJQylCF5ecxLBPrRp3mjqNchoCiNg=;
+ b=EE4JEAgcaQhVvKi2EDgLv89OvzrnmHCTIDWA15U6SeGXrPm2PNuIgb8qlZrIG5R+wL+Ee78QsAPeK7+6Ki8oYyF6KxMd58Y8CtUWgp30uuxOiMp5xi0/IOuS+rGxz34ADdvmLCIL2CSwdtWVA3Yt6dnbbaw8Sf2SLhKlQWyi5tz+MEoRHYrsI7shy9+1fp82PilC6g3h4kQT0jqvKi6FcG7xTviedPJoD7PKGFIZhWZMUq+tdR7NDRJ5oAW5VL3VgLZXN4meUds99XgPCeU4Zmz1qL/4WvRM4KZm4d3i0oVrW6Iqgi/nVsGBSkLxLhutoCopfi60ZeECpIEtGulPTw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=windriver.com; dmarc=pass action=none
+ header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
+Received: from PH0PR11MB4952.namprd11.prod.outlook.com (2603:10b6:510:40::15)
+ by DS0PR11MB6352.namprd11.prod.outlook.com (2603:10b6:8:cb::5) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5944.19; Tue, 3 Jan 2023 18:43:21 +0000
+Received: from PH0PR11MB4952.namprd11.prod.outlook.com
+ ([fe80::52f4:f398:b983:2380]) by PH0PR11MB4952.namprd11.prod.outlook.com
+ ([fe80::52f4:f398:b983:2380%7]) with mapi id 15.20.5944.019; Tue, 3 Jan 2023
+ 18:43:21 +0000
+From:   Dragos-Marian Panait <dragos.panait@windriver.com>
+To:     stable@vger.kernel.org
+Cc:     Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Oded Gabbay <oded.gabbay@gmail.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        David Zhou <David1.Zhou@amd.com>,
+        David Airlie <airlied@linux.ie>,
+        dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 4.19 0/1] drm/amdkfd: Check for null pointer after calling kmemdup
+Date:   Tue,  3 Jan 2023 20:43:07 +0200
+Message-Id: <20230103184308.511448-1-dragos.panait@windriver.com>
+X-Mailer: git-send-email 2.34.1
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-ClientProxiedBy: VI1PR07CA0295.eurprd07.prod.outlook.com
+ (2603:10a6:800:130::23) To PH0PR11MB4952.namprd11.prod.outlook.com
+ (2603:10b6:510:40::15)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH0PR11MB4952:EE_|DS0PR11MB6352:EE_
+X-MS-Office365-Filtering-Correlation-Id: 4977ca77-26e9-4baa-5a66-08daedba6332
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: MfHITHCNcv3szdo0C6yyd4OYlo7q/cgXZK8B+6IfeLMX5oXQ7R3c5r3HDDILL09QTW8354gJyACDb3mFwyjtR0ofrL+M3O9YqerRlcd4OUBrUPxXJnUCnSI7UbJIxMQtL61VjnJYeJTVsoBqdJXS6HKO2TlWDF/Z8faOtO+bcx/ojPZqJmPoWUZQ8rYfYQ2iXCKKIC7nRVu88JTE9qvE2dS8r1s93GvoBzvIismJar7h7ACRS52iVRd4OYWyqxwIAYgmGaBkPzXZJYrHCepmw/noI0eW3SF9ObYailZs7sJXHaxJ1pBloDmm3byfHNaCjBVaseTt4gD/gMFW3lH/G3xASM6jlrmrkm7GVXM633tN7ho9hiygjyqFiPGbEk/zQoD3iE0QPJbGQu7xuTYqrUlWkhPMO27Z6r2N+K/8C49invrZ12Spm0WYYysZv7/JsQUyxMU/NwDWUl3FpUR7q79wJMczEubVb9BCBDxesOiRfVwTZubm/Fhs7W2WsM4ljpKkP40oxxS+gOu7KDAQiUtzTzOluVaPna5bZmr4z4XzfO1eHNrh4+HpWYUNEMZ9hOz89E411K3NhhRSl1Xex6uNcfxz0iy15bhPWsk4XLNlQepjQWBAy6/vjloXuBQzkkPrfM4B+hxGsa+RLZX2ypsZEdmJRSpQ2G79UgH3Fk2uKogk2zXVA7IG+/0y0CnhaDWe1nMdZ9xjgGW+/Hxmnyg5souZCoTZFPSzzxzjeji5RXWLCkhG0ZWXuEp9CwdO
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR11MB4952.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(346002)(136003)(366004)(39850400004)(396003)(376002)(451199015)(66556008)(66476007)(4326008)(66946007)(8676002)(7416002)(41300700001)(6916009)(54906003)(5660300002)(4744005)(8936002)(2906002)(316002)(36756003)(52116002)(6506007)(966005)(6666004)(478600001)(186003)(1076003)(26005)(2616005)(6512007)(6486002)(86362001)(38350700002)(38100700002)(22166006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?nKd1S0KiDlo8/kVn4yPnvoMZqulzrrf5pWlgI2qWfqYB4777wObynx3fttV1?=
+ =?us-ascii?Q?0PDhN8AnXem3NejUpaVZIlrOO6zCEQ5RkpzvGGgs47HtT1H+oZo7yICLw4hw?=
+ =?us-ascii?Q?ioLqu8QYSjNah33IcF+e73SQwcNnvAi9B49n7l369YJNYkbptdhiKWgkKRZ8?=
+ =?us-ascii?Q?tH5dy3plnbwEgMBHpF17SMP0cAMJVZAQkkMryy0FCMUSTI+MsKkdTnf4gdrN?=
+ =?us-ascii?Q?lRnpGDQ3Ofn/NMwySGgvDeX4CKL+nC3VoyuRKBMAhuMD9IzZtwUdB5WOh1HK?=
+ =?us-ascii?Q?BoLpWrhx3mnFxsds5H0Rtp9j/81OELsVXwvkGtGGVSNPakSd/5uZg/lfg+pB?=
+ =?us-ascii?Q?QWrMykpRftt8r4tCB9KKfivfKKXzTJjDt9w5JWOhPgLUCh2b41wN258zWMD9?=
+ =?us-ascii?Q?6iBSVyOhjiderAupG5uZ7XhjlbpzfMYsQJe6Hbxt7KjSKEDbJtYQLhWwL7WJ?=
+ =?us-ascii?Q?6jfwqaQTnr/eoQArItPzuVFWyABs1GUsbqmAhr2x4fnKnstNj8jh9p8vOiYu?=
+ =?us-ascii?Q?DGd5jy24YLmkjGTFVP33KcSdDUodFmu4fedfGy8elNQWJbzteOP7tIgyzt7y?=
+ =?us-ascii?Q?1JhsC4zCXpCDG2MIHyT+jBnNlV0s/WkSxLpjta96/7E8/mboOyT185QlLGZh?=
+ =?us-ascii?Q?syLzjlgAemO1ueOvXagW900beqRewzFBaXY78f4BGJTFrQvejp0TZO86F8Sa?=
+ =?us-ascii?Q?abaZc5r+NZPa8R7dnjzgGpeQOQQDky0TGchcTWdR/KuDHtn2P+5m6k2YsloN?=
+ =?us-ascii?Q?ZSxzb9f959dMRX900xUe1ri9Ojdp9bKf5kEe5crE2M2w0bjm4xpNTXjiEDL+?=
+ =?us-ascii?Q?ocx3k/f+jzPeueC2ChAc5kAdbt1u7nq+EFjSXy9Biq4oWU6sLYtgWrgFOXul?=
+ =?us-ascii?Q?I/pmFHSs+v1knZNienz8L394XR05DLPC3PuH8ev2zFcodx8fYzgBIlKx7nJW?=
+ =?us-ascii?Q?erfYR3KzRinkNMigNumrB1x3dpwWEFkb6v7Bheqyaz9DvV7fXtg5RTf0hfIH?=
+ =?us-ascii?Q?EZxeNxdBRK+fL7m6AcdtacFr4A0Yef+U7OkgzDo08Eq1RCQSUhQpuLQ3zYxB?=
+ =?us-ascii?Q?l2UOM+EMw7JurWGjydiNLSMqZPk8SUILF8KKuReUT2vmkHXhH06/5rm68Z4M?=
+ =?us-ascii?Q?YwrEDTOtUdkHmIRcXw9GfEi4LVk1kvFznLxX10iwdKxCGk5JitiHbOXoy49o?=
+ =?us-ascii?Q?n99irwZSkDowFnyOmtv01Mw55Uc+2Zr5aupz+Pdl1dcnbhuv219oBavBu/Nr?=
+ =?us-ascii?Q?CpRX1Q858Em+bJ/15H07CNW5vUI/UM/xtaD/luTDZC8m/RbqraqEoFkEXqHX?=
+ =?us-ascii?Q?WC4buadvA4TvqKeoYCMXv3rc71/L3sPgj61F1WYXt9lOI5DLmH+tq0L9r5ac?=
+ =?us-ascii?Q?NY+lfnheKCXgDXSVjjBcr/ginPpZz7ecg3w1bIY0LFGrFUUy3sK922ToODNN?=
+ =?us-ascii?Q?Om0H1ozACML1WBQNYkfCcTdcrkhdCmCVCclnwZ7k/7nU6rXHz5ZEp5e36AUD?=
+ =?us-ascii?Q?Z1TUhzQwfk5+2kTwY/RL5QRyNDL55taVVNoOdy+gS9WhE4GBhEZJiNe94nnW?=
+ =?us-ascii?Q?9p2aGPQQ8CDnK4ZJ8396g04xU+NPLEq2rCU6tz1HPGrLX1an72xtXFb+0Q7f?=
+ =?us-ascii?Q?fA=3D=3D?=
+X-OriginatorOrg: windriver.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4977ca77-26e9-4baa-5a66-08daedba6332
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR11MB4952.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Jan 2023 18:43:21.3258
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Hdp3/BgSCU46wHsYzkoCqU7KvTNS36tDctrJv/hZ8wfpPTPwUcdngfeGExt+bHZr71eP+qy9hRAkQXefz01hA/WWFaBl+QDmOzPUEYT46EM=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR11MB6352
+X-Proofpoint-ORIG-GUID: 8XDpUqJ2ql_dbFkTcJSd-373clOiJ--n
+X-Proofpoint-GUID: 8XDpUqJ2ql_dbFkTcJSd-373clOiJ--n
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2023-01-03_07,2023-01-03_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 malwarescore=0
+ bulkscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0
+ phishscore=0 mlxlogscore=643 impostorscore=0 spamscore=0 mlxscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301030160
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yanjun Zhang <zhangyanjun@cestc.cn>
+The following commit is needed to fix CVE-2022-3108:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=abfaf0eee97925905e742aa3b0b72e04a918fa9e
 
-[ Upstream commit 3659fb5ac29a5e6102bebe494ac789fd47fb78f4 ]
+Jiasheng Jiang (1):
+  drm/amdkfd: Check for null pointer after calling kmemdup
 
-The flush request initialized by blk_kick_flush has NULL bio,
-and it may be dealt with nvme_end_req during io completion.
-When blktrace is enabled, nvme_trace_bio_complete with multipath
-activated trying to access NULL pointer bio from flush request
-results in the following crash:
+ drivers/gpu/drm/amd/amdkfd/kfd_crat.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-[ 2517.831677] BUG: kernel NULL pointer dereference, address: 000000000000001a
-[ 2517.835213] #PF: supervisor read access in kernel mode
-[ 2517.838724] #PF: error_code(0x0000) - not-present page
-[ 2517.842222] PGD 7b2d51067 P4D 0
-[ 2517.845684] Oops: 0000 [#1] SMP NOPTI
-[ 2517.849125] CPU: 2 PID: 732 Comm: kworker/2:1H Kdump: loaded Tainted: G S                5.15.67-0.cl9.x86_64 #1
-[ 2517.852723] Hardware name: XFUSION 2288H V6/BC13MBSBC, BIOS 1.13 07/27/2022
-[ 2517.856358] Workqueue: nvme_tcp_wq nvme_tcp_io_work [nvme_tcp]
-[ 2517.859993] RIP: 0010:blk_add_trace_bio_complete+0x6/0x30
-[ 2517.863628] Code: 1f 44 00 00 48 8b 46 08 31 c9 ba 04 00 10 00 48 8b 80 50 03 00 00 48 8b 78 50 e9 e5 fe ff ff 0f 1f 44 00 00 41 54 49 89 f4 55 <0f> b6 7a 1a 48 89 d5 e8 3e 1c 2b 00 48 89 ee 4c 89 e7 5d 89 c1 ba
-[ 2517.871269] RSP: 0018:ff7f6a008d9dbcd0 EFLAGS: 00010286
-[ 2517.875081] RAX: ff3d5b4be00b1d50 RBX: 0000000002040002 RCX: ff3d5b0a270f2000
-[ 2517.878966] RDX: 0000000000000000 RSI: ff3d5b0b021fb9f8 RDI: 0000000000000000
-[ 2517.882849] RBP: ff3d5b0b96a6fa00 R08: 0000000000000001 R09: 0000000000000000
-[ 2517.886718] R10: 000000000000000c R11: 000000000000000c R12: ff3d5b0b021fb9f8
-[ 2517.890575] R13: 0000000002000000 R14: ff3d5b0b021fb1b0 R15: 0000000000000018
-[ 2517.894434] FS:  0000000000000000(0000) GS:ff3d5b42bfc80000(0000) knlGS:0000000000000000
-[ 2517.898299] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 2517.902157] CR2: 000000000000001a CR3: 00000004f023e005 CR4: 0000000000771ee0
-[ 2517.906053] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[ 2517.909930] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[ 2517.913761] PKRU: 55555554
-[ 2517.917558] Call Trace:
-[ 2517.921294]  <TASK>
-[ 2517.924982]  nvme_complete_rq+0x1c3/0x1e0 [nvme_core]
-[ 2517.928715]  nvme_tcp_recv_pdu+0x4d7/0x540 [nvme_tcp]
-[ 2517.932442]  nvme_tcp_recv_skb+0x4f/0x240 [nvme_tcp]
-[ 2517.936137]  ? nvme_tcp_recv_pdu+0x540/0x540 [nvme_tcp]
-[ 2517.939830]  tcp_read_sock+0x9c/0x260
-[ 2517.943486]  nvme_tcp_try_recv+0x65/0xa0 [nvme_tcp]
-[ 2517.947173]  nvme_tcp_io_work+0x64/0x90 [nvme_tcp]
-[ 2517.950834]  process_one_work+0x1e8/0x390
-[ 2517.954473]  worker_thread+0x53/0x3c0
-[ 2517.958069]  ? process_one_work+0x390/0x390
-[ 2517.961655]  kthread+0x10c/0x130
-[ 2517.965211]  ? set_kthread_struct+0x40/0x40
-[ 2517.968760]  ret_from_fork+0x1f/0x30
-[ 2517.972285]  </TASK>
 
-To avoid this situation, add a NULL check for req->bio before
-calling trace_block_bio_complete.
-
-Signed-off-by: Yanjun Zhang <zhangyanjun@cestc.cn>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/nvme/host/nvme.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
-index 86336496c65c..c3e4d9b6f9c0 100644
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -749,7 +749,7 @@ static inline void nvme_trace_bio_complete(struct request *req,
- {
- 	struct nvme_ns *ns = req->q->queuedata;
- 
--	if (req->cmd_flags & REQ_NVME_MPATH)
-+	if ((req->cmd_flags & REQ_NVME_MPATH) && req->bio)
- 		trace_block_bio_complete(ns->head->disk->queue, req->bio);
- }
- 
+base-commit: c652c812211c7a427d16be1d3f904eb02eb4265f
 -- 
-2.35.1
+2.38.1
 
