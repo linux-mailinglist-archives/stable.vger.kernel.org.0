@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3A4A65BBBC
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 09:15:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D90BB65BBB8
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 09:15:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236995AbjACIPH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 03:15:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40136 "EHLO
+        id S232838AbjACIPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 03:15:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236972AbjACIPF (ORCPT
+        with ESMTP id S236992AbjACIPF (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 03:15:05 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41FD1DF85
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1AA2DF94
         for <stable@vger.kernel.org>; Tue,  3 Jan 2023 00:15:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8B7CBCE0FE8
-        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 08:15:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 608C6C433D2;
-        Tue,  3 Jan 2023 08:15:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D6FB611CF
+        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 08:15:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FE2BC433D2;
+        Tue,  3 Jan 2023 08:15:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672733700;
-        bh=S2YwlKiHHuyCFJGS/ymJNKJ+MvKMUE0WxqOys/uYsnM=;
+        s=korg; t=1672733703;
+        bh=XpAGoLewnm7MeVeyKWencPk7gX+0WahjPFWDLbjShzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xtmVKLn12QRjjzP5lIZaK1eenGBPmu1oqE6IlWI/idNWKvzIIztpvYY8XgTjD6MHm
-         8G8qhZraxFtDzLDVq3ohF88blOraY4H01tIE4UdUXKY6J+nYA5T9b8eQz4RxSnaQcI
-         fSZvcfqMQX+wyGkeF8pUOhj9344vZJ7VSLuXIYVY=
+        b=1IO7DG7dZVk7VjCZRNBdY5EY+livmvRbHj6P1hQ3nw/i0PFGTYhIaanHFFQXni92w
+         pW6ien7mXbkiHYGGTD/SIsu3qvKfJGIf0/Lb4GkB+okknAE6TMt5iCe/KqPrC/6yII
+         pflSOPDS9+NPSzg+s9fH94ryfigFxhDO1YcwtLjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Al Viro <viro@zeniv.linux.org.uk>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 04/63] fs: add support for LOOKUP_CACHED
-Date:   Tue,  3 Jan 2023 09:13:34 +0100
-Message-Id: <20230103081308.820048429@linuxfoundation.org>
+        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.10 05/63] fix handling of nd->depth on LOOKUP_CACHED failures in try_to_unlazy*
+Date:   Tue,  3 Jan 2023 09:13:35 +0100
+Message-Id: <20230103081308.881654061@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230103081308.548338576@linuxfoundation.org>
 References: <20230103081308.548338576@linuxfoundation.org>
@@ -52,76 +52,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 6c6ec2b0a3e0381d886d531bd1471dfdb1509237 ]
+[ Upstream commit eacd9aa8cedeb412842c7b339adbaa0477fdd5ad ]
 
-io_uring always punts opens to async context, since there's no control
-over whether the lookup blocks or not. Add LOOKUP_CACHED to support
-just doing the fast RCU based lookups, which we know will not block. If
-we can do a cached path resolution of the filename, then we don't have
-to always punt lookups for a worker.
+After switching to non-RCU mode, we want nd->depth to match the number
+of entries in nd->stack[] that need eventual path_put().
+legitimize_links() takes care of that on failures; unfortunately,
+failure exits added for LOOKUP_CACHED do not.
 
-During path resolution, we always do LOOKUP_RCU first. If that fails and
-we terminate LOOKUP_RCU, then fail a LOOKUP_CACHED attempt as well.
+We could add the logics for that into those failure exits, both in
+try_to_unlazy() and in try_to_unlazy_next(), but since both checks
+are immediately followed by legitimize_links() and there's no calls
+of legitimize_links() other than those two...  It's easier to
+move the check (and required handling of nd->depth on failure) into
+legitimize_links() itself.
 
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[caught by Jens: ... and since we are zeroing ->depth here, we need
+to do drop_links() first]
+
+Fixes: 6c6ec2b0a3e0 "fs: add support for LOOKUP_CACHED"
+Tested-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/namei.c            |    9 +++++++++
- include/linux/namei.h |    1 +
- 2 files changed, 10 insertions(+)
+ fs/namei.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
 --- a/fs/namei.c
 +++ b/fs/namei.c
-@@ -686,6 +686,8 @@ static bool try_to_unlazy(struct nameida
+@@ -630,6 +630,11 @@ static inline bool legitimize_path(struc
+ static bool legitimize_links(struct nameidata *nd)
+ {
+ 	int i;
++	if (unlikely(nd->flags & LOOKUP_CACHED)) {
++		drop_links(nd);
++		nd->depth = 0;
++		return false;
++	}
+ 	for (i = 0; i < nd->depth; i++) {
+ 		struct saved *last = nd->stack + i;
+ 		if (unlikely(!legitimize_path(nd, &last->link, last->seq))) {
+@@ -686,8 +691,6 @@ static bool try_to_unlazy(struct nameida
  	BUG_ON(!(nd->flags & LOOKUP_RCU));
  
  	nd->flags &= ~LOOKUP_RCU;
-+	if (nd->flags & LOOKUP_CACHED)
-+		goto out1;
+-	if (nd->flags & LOOKUP_CACHED)
+-		goto out1;
  	if (unlikely(!legitimize_links(nd)))
  		goto out1;
  	if (unlikely(!legitimize_path(nd, &nd->path, nd->seq)))
-@@ -722,6 +724,8 @@ static bool try_to_unlazy_next(struct na
+@@ -724,8 +727,6 @@ static bool try_to_unlazy_next(struct na
  	BUG_ON(!(nd->flags & LOOKUP_RCU));
  
  	nd->flags &= ~LOOKUP_RCU;
-+	if (nd->flags & LOOKUP_CACHED)
-+		goto out2;
+-	if (nd->flags & LOOKUP_CACHED)
+-		goto out2;
  	if (unlikely(!legitimize_links(nd)))
  		goto out2;
  	if (unlikely(!legitimize_mnt(nd->path.mnt, nd->m_seq)))
-@@ -792,6 +796,7 @@ static int complete_walk(struct nameidat
- 		 */
- 		if (!(nd->flags & (LOOKUP_ROOT | LOOKUP_IS_SCOPED)))
- 			nd->root.mnt = NULL;
-+		nd->flags &= ~LOOKUP_CACHED;
- 		if (!try_to_unlazy(nd))
- 			return -ECHILD;
- 	}
-@@ -2204,6 +2209,10 @@ static const char *path_init(struct name
- 	int error;
- 	const char *s = nd->name->name;
- 
-+	/* LOOKUP_CACHED requires RCU, ask caller to retry */
-+	if ((flags & (LOOKUP_RCU | LOOKUP_CACHED)) == LOOKUP_CACHED)
-+		return ERR_PTR(-EAGAIN);
-+
- 	if (!*s)
- 		flags &= ~LOOKUP_RCU;
- 	if (flags & LOOKUP_RCU)
---- a/include/linux/namei.h
-+++ b/include/linux/namei.h
-@@ -46,6 +46,7 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LA
- #define LOOKUP_NO_XDEV		0x040000 /* No mountpoint crossing. */
- #define LOOKUP_BENEATH		0x080000 /* No escaping from starting point. */
- #define LOOKUP_IN_ROOT		0x100000 /* Treat dirfd as fs root. */
-+#define LOOKUP_CACHED		0x200000 /* Only do cached lookup */
- /* LOOKUP_* flags which do scope-related checks based on the dirfd. */
- #define LOOKUP_IS_SCOPED (LOOKUP_BENEATH | LOOKUP_IN_ROOT)
- 
 
 
