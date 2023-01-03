@@ -2,114 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65BCC65BE49
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 11:38:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 130BE65BF50
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 12:46:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233232AbjACKh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 05:37:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33812 "EHLO
+        id S233276AbjACLpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 06:45:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237509AbjACKhU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 05:37:20 -0500
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0A6B232;
-        Tue,  3 Jan 2023 02:37:18 -0800 (PST)
-Received: by mail-wm1-x330.google.com with SMTP id b24-20020a05600c4a9800b003d21efdd61dso22751527wmp.3;
-        Tue, 03 Jan 2023 02:37:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=mUIViT8791qts+nexw/1+egrl+ZnCa7TzReiRjS06ww=;
-        b=GnDQ5l2G2OTnTgTh4hH030GOYlThjBkEOy8nGBFa0TEVdsjCykbjSP4IE91yJr0/mK
-         dedCmMUvSvIqFqszD1ypz7QgwScD+hgKTQmJdVDgQnU2Thv1Y/4kqrcSI9+BDdML4+YI
-         kfme0UPVWRH1CSkeOaxZcOCYuI6RWEB1nlJt/k3znarKHDHMq7wzrJYrYVb/EABkMBF9
-         5nOFMSnZzG+x5onPULD/mzTS3dXZdkvvfqAhTS19eRMZBDuQ/exHNlLZMvuSx7+D89Cl
-         07YaaqbK0tDk89vZ9aSnMg+vLn8xuBPHJWWPAUZ2PASLOsKktpznElDSVESUiEh10MBE
-         /yKg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=mUIViT8791qts+nexw/1+egrl+ZnCa7TzReiRjS06ww=;
-        b=7OdJeXIYI50n1ccbHy1PSqJoUuDVSAE1CXhNVyfOW+4+bd+8eNkMpFMSGVO3tkbQ3G
-         +VR48AcTQbhgXk/vJMPyAugMBCRghfZvwiBQd6OkbKOHMgVv2nJ9UKM1Vlso61KONVCn
-         xJPQgjJZR04huCDDx/wOk4nuVUO9LKlKGSysV8pMMMN9uJsh2gXY26O/iNp6e4GNOKIF
-         zb2tKLhQ4GCet68w3eipC5L06pYriSGoQreqki3o5UFJZmS6MUaln+2+/VjJrapMqLAB
-         UhdcHINoGpkqQT0sTnUfqZLuwk8VfXO/WmUVxpggGYh5aE5C0NlmEgypWF98Hc6X6Ksq
-         A5JQ==
-X-Gm-Message-State: AFqh2kqaWudX8jn7EcEEjTQOcu72ivaL6bkuMy/HKSeRCSlIehMfvSvP
-        qUqrTufp4974awQQtdFDE3Q=
-X-Google-Smtp-Source: AMrXdXv0IheT4f3sV3DIZkz22C9Fyt1o3xyEVBlqHUqDDLM+HPntFeYFdO94wriA8UsbktxlOdYGWg==
-X-Received: by 2002:a05:600c:1ca3:b0:3d3:591a:bfda with SMTP id k35-20020a05600c1ca300b003d3591abfdamr33959996wms.27.1672742237317;
-        Tue, 03 Jan 2023 02:37:17 -0800 (PST)
-Received: from debian ([2a10:d582:3bb:0:63f8:f640:f53e:dd47])
-        by smtp.gmail.com with ESMTPSA id k31-20020a05600c1c9f00b003d22528decesm50587836wms.43.2023.01.03.02.37.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Jan 2023 02:37:17 -0800 (PST)
-Date:   Tue, 3 Jan 2023 10:37:15 +0000
-From:   "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, srw@sladewatkins.net,
-        rwarsow@gmx.de
-Subject: Re: [PATCH 6.0 00/74] 6.0.17-rc1 review
-Message-ID: <Y7QFW7O0xqSYTzyl@debian>
-References: <20230102110552.061937047@linuxfoundation.org>
+        with ESMTP id S237411AbjACLo5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 06:44:57 -0500
+Received: from mail.marcansoft.com (marcansoft.com [212.63.210.85])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20062625D;
+        Tue,  3 Jan 2023 03:44:54 -0800 (PST)
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: sendonly@marcansoft.com)
+        by mail.marcansoft.com (Postfix) with ESMTPSA id 5731241F72;
+        Tue,  3 Jan 2023 11:44:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=marcan.st; s=default;
+        t=1672746292; bh=wOgcEgG9+pZDSbBKY1gb2vXCECwZ3HDBdpb7Vw0TlGs=;
+        h=From:To:Cc:Subject:Date;
+        b=obvVnoOOwOgqZwleUIuXZh9Vut/Qr8xCsjjEGEDUK7cgkhzG/0tkJewmuk8VkWCYe
+         EwODwQrvmpRpqnz6xHlxkTym6m+P+2IFzxV28IKhexwbIYipjnQNaQa0kpExRCR08+
+         /w0XNFrsj/NzBwHRpnUGVHufxSJM1xtkcmyXK4En8C/kLtfPhk+QIrNSvnWlTw5ei1
+         4EXD2bnSDVniVAowOk4X7e2j+6sb/uV0aZmOujrssMN8LyYcuyDk+bJbKwJ3IYpWPY
+         Hki9fHU0f+0M9ZpdX5UEFLDvMr1Juh3ezFBYDjNi4wQMpdt3Rqh41RhbzRmeQuBSxh
+         9NUNLXKZf7uuQ==
+From:   Hector Martin <marcan@marcan.st>
+To:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc:     Sven Peter <sven@svenpeter.dev>,
+        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+        asahi@lists.linux.dev, linux-kernel@vger.kernel.org,
+        Hector Martin <marcan@marcan.st>, stable@vger.kernel.org,
+        Eric Curtin <ecurtin@redhat.com>
+Subject: [PATCH v2] nvmem: core: Fix race in nvmem_register()
+Date:   Tue,  3 Jan 2023 20:44:28 +0900
+Message-Id: <20230103114427.1825-1-marcan@marcan.st>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+nvmem_register() currently registers the device before adding the nvmem
+cells, which creates a race window where consumers may find the nvmem
+device (and not get PROBE_DEFERred), but then fail to find the cells and
+error out.
 
-On Mon, Jan 02, 2023 at 12:21:33PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.17 release.
-> There are 74 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 04 Jan 2023 11:05:34 +0000.
-> Anything received after that time might be too late.
+Move device registration to the end of nvmem_register(), to close the
+race.
 
-Build test (gcc version 12.2.1 20221127):
-mips: 52 configs -> no failure
-arm: 100 configs -> no failure
-arm64: 3 configs -> no failure
-x86_64: 4 configs -> no failure
-alpha allmodconfig -> no failure
-csky allmodconfig -> no failure
-powerpc allmodconfig -> no failure
-riscv allmodconfig -> no failure
-s390 allmodconfig -> no failure
-xtensa allmodconfig -> no failure
+Observed when the stars line up on Apple Silicon machines with the (not
+yet upstream, but trivial) spmi nvmem driver and the macsmc-rtc client:
 
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression. [1]
-arm64: Booted on rpi4b (4GB model). No regression. [2]
+[    0.487375] macsmc-rtc macsmc-rtc: error -ENOENT: Failed to get rtc_offset NVMEM cell
 
-mips: Booted on ci20 board. VNC server did not start, will try a bisect
-later tonight.
+Fixes: eace75cfdcf7 ("nvmem: Add a simple NVMEM framework for nvmem providers")
+Cc: stable@vger.kernel.org
+Reviewed-by: Eric Curtin <ecurtin@redhat.com>
+Signed-off-by: Hector Martin <marcan@marcan.st>
+---
+ drivers/nvmem/core.c | 32 +++++++++++++++++---------------
+ 1 file changed, 17 insertions(+), 15 deletions(-)
 
-[1]. https://openqa.qa.codethink.co.uk/tests/2541
-[2]. https://openqa.qa.codethink.co.uk/tests/2545
+diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+index 321d7d63e068..606f428d6292 100644
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -822,11 +822,8 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ 		break;
+ 	}
 
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+-	if (rval) {
+-		ida_free(&nvmem_ida, nvmem->id);
+-		kfree(nvmem);
+-		return ERR_PTR(rval);
+-	}
++	if (rval)
++		goto err_gpiod_put;
 
--- 
-Regards
-Sudip
+ 	nvmem->read_only = device_property_present(config->dev, "read-only") ||
+ 			   config->read_only || !nvmem->reg_write;
+@@ -837,20 +834,16 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+
+ 	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
+
+-	rval = device_register(&nvmem->dev);
+-	if (rval)
+-		goto err_put_device;
+-
+ 	if (nvmem->nkeepout) {
+ 		rval = nvmem_validate_keepouts(nvmem);
+ 		if (rval)
+-			goto err_device_del;
++			goto err_gpiod_put;
+ 	}
+
+ 	if (config->compat) {
+ 		rval = nvmem_sysfs_setup_compat(nvmem, config);
+ 		if (rval)
+-			goto err_device_del;
++			goto err_gpiod_put;
+ 	}
+
+ 	if (config->cells) {
+@@ -867,6 +860,15 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ 	if (rval)
+ 		goto err_remove_cells;
+
++	rval = device_register(&nvmem->dev);
++	if (rval) {
++		nvmem_device_remove_all_cells(nvmem);
++		if (config->compat)
++			nvmem_sysfs_remove_compat(nvmem, config);
++		put_device(&nvmem->dev);
++		return ERR_PTR(rval);
++	}
++
+ 	blocking_notifier_call_chain(&nvmem_notifier, NVMEM_ADD, nvmem);
+
+ 	return nvmem;
+@@ -876,10 +878,10 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ err_teardown_compat:
+ 	if (config->compat)
+ 		nvmem_sysfs_remove_compat(nvmem, config);
+-err_device_del:
+-	device_del(&nvmem->dev);
+-err_put_device:
+-	put_device(&nvmem->dev);
++err_gpiod_put:
++	gpiod_put(nvmem->wp_gpio);
++	ida_free(&nvmem_ida, nvmem->id);
++	kfree(nvmem);
+
+ 	return ERR_PTR(rval);
+ }
+--
+2.35.1
+
