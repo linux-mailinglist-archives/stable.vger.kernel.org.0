@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04F4F65BBB7
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 09:15:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93F3B65BBF2
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 09:18:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236997AbjACIPC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 03:15:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40012 "EHLO
+        id S237053AbjACIQq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 03:16:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236972AbjACIPA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 03:15:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20285DF47
-        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 00:14:54 -0800 (PST)
+        with ESMTP id S237027AbjACIQa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 03:16:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19445D74
+        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 00:16:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D7E10B80E49
-        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 08:14:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C372C433EF;
-        Tue,  3 Jan 2023 08:14:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA592611F0
+        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 08:16:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADA62C433D2;
+        Tue,  3 Jan 2023 08:16:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672733691;
-        bh=cvRm7o9B1QSPX1e+Zrk8vy7BHM1Br2gkNpATpkyE3Gg=;
+        s=korg; t=1672733788;
+        bh=aBm3ApcZI9UFeIsD9Lq0LSq5qH09kJkU4tFJlLuRHpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lIYjBEgqKbRfcwqFfxUrezUawBOFYeUE2hwDCpkqv5EMyLo9LRqhBtkL2HlpsULJy
-         dKVy63m4bVBqzmQ8AfizCKueamqQzkQY4pWc8SbedcUwbQGJL+dXEFa9Fdtiq+4IVn
-         izI9lGYuKmx6vpG7bWO29uJV3g7Hjjw/UR1bjQJk=
+        b=1PSUeWtQURN0tykpalR6b8ogwqES6+ivs1KSjxyfhcGO9GMjyft1w6wOEhwu/qLQp
+         MjgAkA/WzR27g+2WQo7WwpL6pMKAYoIlA5SCQgz7mtfeS7GXAx0pjOzbyKtyaVsk9Y
+         euCyK8UP5UfdQJqfFp/6xo7JCbmqt5KLsJSwiJuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Oleg Nesterov <oleg@redhat.com>
-Subject: [PATCH 5.10 11/63] signal: Add task_sigpending() helper
-Date:   Tue,  3 Jan 2023 09:13:41 +0100
-Message-Id: <20230103081309.240467560@linuxfoundation.org>
+        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 12/63] fs: make do_renameat2() take struct filename
+Date:   Tue,  3 Jan 2023 09:13:42 +0100
+Message-Id: <20230103081309.296158854@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230103081308.548338576@linuxfoundation.org>
 References: <20230103081308.548338576@linuxfoundation.org>
@@ -55,106 +53,132 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 5c251e9dc0e127bac6fc5b8e6696363d2e35f515 ]
+[ Upstream commit e886663cfd029b64a1d8da7efae7014526d884e9 ]
 
-This is in preparation for maintaining signal_pending() as the decider of
-whether or not a schedule() loop should be broken, or continue sleeping.
-This is different than the core signal use cases, which really need to know
-whether an actual signal is pending or not. task_sigpending() returns
-non-zero if TIF_SIGPENDING is set.
+Pass in the struct filename pointers instead of the user string, and
+update the three callers to do the same.
 
-Only core kernel use cases should care about the distinction between
-the two, make sure those use the task_sigpending() helper.
+This behaves like do_unlinkat(), which also takes a filename struct and
+puts it when it is done. Converting callers is then trivial.
 
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Oleg Nesterov <oleg@redhat.com>
-Link: https://lore.kernel.org/r/20201026203230.386348-2-axboe@kernel.dk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/sched/signal.h |    9 +++++++--
- kernel/events/uprobes.c      |    2 +-
- kernel/signal.c              |    8 ++++----
- 3 files changed, 12 insertions(+), 7 deletions(-)
+ fs/internal.h |    2 ++
+ fs/namei.c    |   40 ++++++++++++++++++++++------------------
+ 2 files changed, 24 insertions(+), 18 deletions(-)
 
---- a/include/linux/sched/signal.h
-+++ b/include/linux/sched/signal.h
-@@ -354,11 +354,16 @@ static inline int restart_syscall(void)
- 	return -ERESTARTNOINTR;
+--- a/fs/internal.h
++++ b/fs/internal.h
+@@ -77,6 +77,8 @@ extern int vfs_path_lookup(struct dentry
+ long do_rmdir(int dfd, struct filename *name);
+ long do_unlinkat(int dfd, struct filename *name);
+ int may_linkat(struct path *link);
++int do_renameat2(int olddfd, struct filename *oldname, int newdfd,
++		 struct filename *newname, unsigned int flags);
+ 
+ /*
+  * namespace.c
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -4353,8 +4353,8 @@ out:
+ }
+ EXPORT_SYMBOL(vfs_rename);
+ 
+-static int do_renameat2(int olddfd, const char __user *oldname, int newdfd,
+-			const char __user *newname, unsigned int flags)
++int do_renameat2(int olddfd, struct filename *from, int newdfd,
++		 struct filename *to, unsigned int flags)
+ {
+ 	struct dentry *old_dentry, *new_dentry;
+ 	struct dentry *trap;
+@@ -4362,32 +4362,30 @@ static int do_renameat2(int olddfd, cons
+ 	struct qstr old_last, new_last;
+ 	int old_type, new_type;
+ 	struct inode *delegated_inode = NULL;
+-	struct filename *from;
+-	struct filename *to;
+ 	unsigned int lookup_flags = 0, target_flags = LOOKUP_RENAME_TARGET;
+ 	bool should_retry = false;
+-	int error;
++	int error = -EINVAL;
+ 
+ 	if (flags & ~(RENAME_NOREPLACE | RENAME_EXCHANGE | RENAME_WHITEOUT))
+-		return -EINVAL;
++		goto put_both;
+ 
+ 	if ((flags & (RENAME_NOREPLACE | RENAME_WHITEOUT)) &&
+ 	    (flags & RENAME_EXCHANGE))
+-		return -EINVAL;
++		goto put_both;
+ 
+ 	if (flags & RENAME_EXCHANGE)
+ 		target_flags = 0;
+ 
+ retry:
+-	from = filename_parentat(olddfd, getname(oldname), lookup_flags,
+-				&old_path, &old_last, &old_type);
++	from = filename_parentat(olddfd, from, lookup_flags, &old_path,
++					&old_last, &old_type);
+ 	if (IS_ERR(from)) {
+ 		error = PTR_ERR(from);
+-		goto exit;
++		goto put_new;
+ 	}
+ 
+-	to = filename_parentat(newdfd, getname(newname), lookup_flags,
+-				&new_path, &new_last, &new_type);
++	to = filename_parentat(newdfd, to, lookup_flags, &new_path, &new_last,
++				&new_type);
+ 	if (IS_ERR(to)) {
+ 		error = PTR_ERR(to);
+ 		goto exit1;
+@@ -4480,34 +4478,40 @@ exit2:
+ 	if (retry_estale(error, lookup_flags))
+ 		should_retry = true;
+ 	path_put(&new_path);
+-	putname(to);
+ exit1:
+ 	path_put(&old_path);
+-	putname(from);
+ 	if (should_retry) {
+ 		should_retry = false;
+ 		lookup_flags |= LOOKUP_REVAL;
+ 		goto retry;
+ 	}
+-exit:
++put_both:
++	if (!IS_ERR(from))
++		putname(from);
++put_new:
++	if (!IS_ERR(to))
++		putname(to);
+ 	return error;
  }
  
--static inline int signal_pending(struct task_struct *p)
-+static inline int task_sigpending(struct task_struct *p)
+ SYSCALL_DEFINE5(renameat2, int, olddfd, const char __user *, oldname,
+ 		int, newdfd, const char __user *, newname, unsigned int, flags)
  {
- 	return unlikely(test_tsk_thread_flag(p,TIF_SIGPENDING));
+-	return do_renameat2(olddfd, oldname, newdfd, newname, flags);
++	return do_renameat2(olddfd, getname(oldname), newdfd, getname(newname),
++				flags);
  }
  
-+static inline int signal_pending(struct task_struct *p)
-+{
-+	return task_sigpending(p);
-+}
-+
- static inline int __fatal_signal_pending(struct task_struct *p)
+ SYSCALL_DEFINE4(renameat, int, olddfd, const char __user *, oldname,
+ 		int, newdfd, const char __user *, newname)
  {
- 	return unlikely(sigismember(&p->pending.signal, SIGKILL));
-@@ -366,7 +371,7 @@ static inline int __fatal_signal_pending
- 
- static inline int fatal_signal_pending(struct task_struct *p)
- {
--	return signal_pending(p) && __fatal_signal_pending(p);
-+	return task_sigpending(p) && __fatal_signal_pending(p);
+-	return do_renameat2(olddfd, oldname, newdfd, newname, 0);
++	return do_renameat2(olddfd, getname(oldname), newdfd, getname(newname),
++				0);
  }
  
- static inline int signal_pending_state(long state, struct task_struct *p)
---- a/kernel/events/uprobes.c
-+++ b/kernel/events/uprobes.c
-@@ -1973,7 +1973,7 @@ bool uprobe_deny_signal(void)
- 
- 	WARN_ON_ONCE(utask->state != UTASK_SSTEP);
- 
--	if (signal_pending(t)) {
-+	if (task_sigpending(t)) {
- 		spin_lock_irq(&t->sighand->siglock);
- 		clear_tsk_thread_flag(t, TIF_SIGPENDING);
- 		spin_unlock_irq(&t->sighand->siglock);
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -984,7 +984,7 @@ static inline bool wants_signal(int sig,
- 	if (task_is_stopped_or_traced(p))
- 		return false;
- 
--	return task_curr(p) || !signal_pending(p);
-+	return task_curr(p) || !task_sigpending(p);
+ SYSCALL_DEFINE2(rename, const char __user *, oldname, const char __user *, newname)
+ {
+-	return do_renameat2(AT_FDCWD, oldname, AT_FDCWD, newname, 0);
++	return do_renameat2(AT_FDCWD, getname(oldname), AT_FDCWD,
++				getname(newname), 0);
  }
  
- static void complete_signal(int sig, struct task_struct *p, enum pid_type type)
-@@ -2813,7 +2813,7 @@ static void retarget_shared_pending(stru
- 		/* Remove the signals this thread can handle. */
- 		sigandsets(&retarget, &retarget, &t->blocked);
- 
--		if (!signal_pending(t))
-+		if (!task_sigpending(t))
- 			signal_wake_up(t, 0);
- 
- 		if (sigisemptyset(&retarget))
-@@ -2847,7 +2847,7 @@ void exit_signals(struct task_struct *ts
- 
- 	cgroup_threadgroup_change_end(tsk);
- 
--	if (!signal_pending(tsk))
-+	if (!task_sigpending(tsk))
- 		goto out;
- 
- 	unblocked = tsk->blocked;
-@@ -2891,7 +2891,7 @@ long do_no_restart_syscall(struct restar
- 
- static void __set_task_blocked(struct task_struct *tsk, const sigset_t *newset)
- {
--	if (signal_pending(tsk) && !thread_group_empty(tsk)) {
-+	if (task_sigpending(tsk) && !thread_group_empty(tsk)) {
- 		sigset_t newblocked;
- 		/* A set of now blocked but previously unblocked signals. */
- 		sigandnsets(&newblocked, newset, &current->blocked);
+ int readlink_copy(char __user *buffer, int buflen, const char *link)
 
 
