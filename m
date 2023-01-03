@@ -2,95 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C630265C0BA
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 14:25:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD03265C0FB
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 14:39:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233316AbjACNXv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 08:23:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60898 "EHLO
+        id S230272AbjACNi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 08:38:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230323AbjACNXt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 08:23:49 -0500
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 063C82D3;
-        Tue,  3 Jan 2023 05:23:49 -0800 (PST)
-Received: by mail-pf1-x431.google.com with SMTP id c9so15646585pfj.5;
-        Tue, 03 Jan 2023 05:23:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=eRPbEtbfmVz3R4J2b3g8fPSK88ox6UwjS+JxggJkrJ8=;
-        b=KUNrBJ8qgTtpxHggAF37pOGTy1xAk1l8qzxGh8PqT30cB+oDcgxK7p0qw5wFthAZJy
-         WNECZVVmtaDG7lfMvz4dnifINz4uIROcPTUdwiBjUHj+0zbKDTJWwazaRlWvKQ9Rc6k2
-         QdRgfNsEhWbAqZQ+O9zbRwcW9d+akWQXBKH97XxoxBEFEW7AMLFNx4IvP+/c43VeG7EY
-         Or12AFBbXyYPMUwRtZZockd/mjVHLX/gjHah0Pp2lB3Bt9R9nM4nhyS2PCfJwEzclGip
-         tVd9TvBzcETSfTSLksCnvMAxYtxcGwlZMqCvEBOARTbT8pQReZ8uTYpYT9SCpLb6vtDU
-         T9ww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=eRPbEtbfmVz3R4J2b3g8fPSK88ox6UwjS+JxggJkrJ8=;
-        b=xvd0N6On/7DQ/ykQiTcCr2EIw1NhX2nB6JCGiFwdt2EI5PYyUjCZygFsMkvzVT3nwF
-         o2buUFdd/4VCExjGz1o+oyaSxrgQmdK/8rV+xfq05MeZXIJchDWBbFRhhJzWD4QBWUwa
-         Gnqdq+xlnvdiu04tK2q9bv39cqueQnCwf7tUVYwDyuaqiK8uJQqCBXLgysdOLxCnw9A0
-         ayI/L56VVxtTTsMA8U4yLaoYTz+uVHqkkEx+LHkxuVU5yYquGlCGKCAEgyDTS2PSbVd8
-         +pKR83BGKSa6yOSp1QsYM5JVcPpQEiGVntpkX1U3b6V0cxxqyu1C3c0YweK2n667wWH7
-         sJBw==
-X-Gm-Message-State: AFqh2konKJvw26S7acj/YBnKkpX1dAY8jM5a7J/9qysrYQySTnAAhONk
-        K365ohTmV3oNoMQWk/vljC/BTnoU6Qf0ZwDMwn0=
-X-Google-Smtp-Source: AMrXdXvQ1a7h1n0kUst8FBUP4hP5eedIcCGLIn+U4wzph2MFJI5+aVrxQc4vjKolG2hZZB6iVxWg2mCCajiQLwqhuu8=
-X-Received: by 2002:a63:1e57:0:b0:487:faef:be12 with SMTP id
- p23-20020a631e57000000b00487faefbe12mr1869675pgm.333.1672752228560; Tue, 03
- Jan 2023 05:23:48 -0800 (PST)
-MIME-Version: 1.0
-References: <20230102110552.061937047@linuxfoundation.org>
-In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
-From:   Allen Pais <stable.kernel.dev@gmail.com>
-Date:   Tue, 3 Jan 2023 05:23:37 -0800
-Message-ID: <CAJq+SaDrGuOk47sbSY=XGPDdD7Dx2uTNznK95FOkM38-73+iDw@mail.gmail.com>
-Subject: Re: [PATCH 6.0 00/74] 6.0.17-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S231432AbjACNiW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 08:38:22 -0500
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 033E911151
+        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 05:38:22 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id B8E123E8D6;
+        Tue,  3 Jan 2023 13:38:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1672753100; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=JsZuJuQCWL7ajqM1JqulymYp3Fvr9UXaBrzfd/UU2cs=;
+        b=p7FURL7X6W22X1hO2uWoBObuCdXdp+8KbMthSMBObCPtTdg9ByEMYGIlYyx0NWightmhsq
+        AqAOp0r1g8TeCNFFnoJXvI7WXSksCnFOP7TMTFvBz2+ckELoNWR3XMUSX74EqOIiAu3lhE
+        eCnxKsMjYQ3Rg3Z6bXBofe59g0s8T78=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1672753100;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=JsZuJuQCWL7ajqM1JqulymYp3Fvr9UXaBrzfd/UU2cs=;
+        b=A+i8VDhhDceE6MnkGVkUxmPRRHFwLzmk4JwmSwO2A26xSMH4J1FjtZ56OeWo7MG3UliQnW
+        YPeLyx3nOoF4OoBg==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 9548C1390C;
+        Tue,  3 Jan 2023 13:38:20 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id V2DOI8wvtGOMLAAAMHmgww
+        (envelope-from <tiwai@suse.de>); Tue, 03 Jan 2023 13:38:20 +0000
+Date:   Tue, 03 Jan 2023 14:38:20 +0100
+Message-ID: <87sfgrrb5f.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     Michael Ralston <michael@ralston.id.au>
+Cc:     Thorsten Leemhuis <regressions@leemhuis.info>,
+        alsa-devel@alsa-project.org, regressions@lists.linux.dev,
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>
+Subject: Re: USB-Audio regression on behringer UMC404HD
+In-Reply-To: <CAC2975K24Gt3rGieAToHjb7FEHv84aqiRSQx7EOuR2Q7KByUXw@mail.gmail.com>
+References: <CAC2975JXkS1A5Tj9b02G_sy25ZWN-ys+tc9wmkoS=qPgKCogSg@mail.gmail.com>
+        <bf646395-1231-92f6-7c5a-5b7765596358@leemhuis.info>
+        <87zgb0q7x4.wl-tiwai@suse.de>
+        <CAC2975K24Gt3rGieAToHjb7FEHv84aqiRSQx7EOuR2Q7KByUXw@mail.gmail.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/27.2 Mule/6.0
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> This is the start of the stable review cycle for the 6.0.17 release.
-> There are 74 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 04 Jan 2023 11:05:34 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.17-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Tue, 03 Jan 2023 14:10:46 +0100,
+Michael Ralston wrote:
+> 
+> Working, 6.0.16-lqx1
+> https://hastebin.com/omoqasiqek.apache
+> 
+> Not working, 6.1.1-arch1-1.1
+> https://hastebin.com/itasefinaz.apache
+> 
+> I built the working kernel myself with patched sources. Let me know if
+> you'd like me to run a test with any particular kernel build or
+> version.
 
-Compiled and booted on my x86_64 and ARM64 test systems. No errors or
-regressions.
+Thanks, that's helpful.
 
-Tested-by: Allen Pais <apais@linux.microsoft.com>
+Could you try to revert the commit
+9902b303b5ade208b58f0dd38a09831813582211
+    ALSA: usb-audio: Avoid unnecessary interface change at EP close
+as a blind shot?
 
-Thanks.
+Also, there has been a series of fixes for other issues, and it might
+be worth to try as well:
+  https://lore.kernel.org/r/20230102170759.29610-1-tiwai@suse.de
+
+
+Takashi
