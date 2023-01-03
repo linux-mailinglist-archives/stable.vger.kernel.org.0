@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DABE65BBE5
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 09:18:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD25D65BC01
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 09:18:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237039AbjACIRK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 03:17:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41228 "EHLO
+        id S237138AbjACIRL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 03:17:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237036AbjACIQv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 03:16:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36200CE;
-        Tue,  3 Jan 2023 00:16:50 -0800 (PST)
+        with ESMTP id S237093AbjACIQz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 03:16:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB4AADFAE
+        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 00:16:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C04D9611DD;
-        Tue,  3 Jan 2023 08:16:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE8ADC433EF;
-        Tue,  3 Jan 2023 08:16:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6983FB80E58
+        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 08:16:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC58BC433EF;
+        Tue,  3 Jan 2023 08:16:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672733809;
-        bh=EpLhCWcqwMe4gW6gv72vpfBmFvGXGY9dktuYNMABuRQ=;
+        s=korg; t=1672733812;
+        bh=kYk+CyHTvusWeRE6FLerTNoyU3SGGs/7IyQp6NFH9i8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YiDasIj3KCQau6n2sIxSYglxpvyxi3BZz32QnyQeGBKOFxxKVnZUJOM0HaVlWtcxV
-         Gx6c5Ajmj0fvZSnTjSZkKmPMbptrTuwU2hR+pQoz9rVOFLxGwLyY6hteW+OIcJEN08
-         uj0jv8GybQ6TiulotAMWlBMBdMZpxa1Qk5cKuSMI=
+        b=RiXwxyHwsamHXCHVyz4rNLdsYyptQMl/zvVUqXhfZgboL+aZvLJFJzEcSQJxYkhlP
+         0d3Wr1zajgnW/7IGcJq6qsrPRGhuLPNO6hnRnHto7vcYsN1QsFikWrNlKzbPS5+/Fj
+         7O05/O+NB3dk0XkTyRXpQwkjtJDXVZGqvLgqZUrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stefan Metzmacher <metze@samba.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Andy Lutomirski <luto@kernel.org>,
-        linux-kernel@vger.kernel.org, io-uring@vger.kernel.org,
-        x86@kernel.org, Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.10 51/63] x86/process: setup io_threads more like normal user space threads
-Date:   Tue,  3 Jan 2023 09:14:21 +0100
-Message-Id: <20230103081311.654083836@linuxfoundation.org>
+        patches@lists.linux.dev,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Oleg Nesterov <oleg@redhat.com>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 52/63] kernel: stop masking signals in create_io_thread()
+Date:   Tue,  3 Jan 2023 09:14:22 +0100
+Message-Id: <20230103081311.715297433@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230103081308.548338576@linuxfoundation.org>
 References: <20230103081308.548338576@linuxfoundation.org>
@@ -56,94 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Metzmacher <metze@samba.org>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 50b7b6f29de3e18e9d6c09641256a0296361cfee ]
+[ Upstream commit b16b3855d89fba640996fefdd3a113c0aa0e380d ]
 
-As io_threads are fully set up USER threads it's clearer to separate the
-code path from the KTHREAD logic.
+This is racy - move the blocking into when the task is created and
+we're marking it as PF_IO_WORKER anyway. The IO threads are now
+prepared to handle signals like SIGSTOP as well, so clear that from
+the mask to allow proper stopping of IO threads.
 
-The only remaining difference to user space threads is that io_threads
-never return to user space again. Instead they loop within the given
-worker function.
-
-The fact that they never return to user space means they don't have an
-user space thread stack. In order to indicate that to tools like gdb we
-reset the stack and instruction pointers to 0.
-
-This allows gdb attach to user space processes using io-uring, which like
-means that they have io_threads, without printing worrying message like
-this:
-
-  warning: Selected architecture i386:x86-64 is not compatible with reported target architecture i386
-
-  warning: Architecture rejected target-supplied description
-
-The output will be something like this:
-
-  (gdb) info threads
-    Id   Target Id                  Frame
-  * 1    LWP 4863 "io_uring-cp-for" syscall () at ../sysdeps/unix/sysv/linux/x86_64/syscall.S:38
-    2    LWP 4864 "iou-mgr-4863"    0x0000000000000000 in ?? ()
-    3    LWP 4865 "iou-wrk-4863"    0x0000000000000000 in ?? ()
-  (gdb) thread 3
-  [Switching to thread 3 (LWP 4865)]
-  #0  0x0000000000000000 in ?? ()
-  (gdb) bt
-  #0  0x0000000000000000 in ?? ()
-  Backtrace stopped: Cannot access memory at address 0x0
-
-Fixes: 4727dc20e042 ("arch: setup PF_IO_WORKER threads like PF_KTHREAD")
-Link: https://lore.kernel.org/io-uring/044d0bad-6888-a211-e1d3-159a4aeed52d@polymtl.ca/T/#m1bbf5727e3d4e839603f6ec7ed79c7eebfba6267
-Signed-off-by: Stefan Metzmacher <metze@samba.org>
-cc: Linus Torvalds <torvalds@linux-foundation.org>
-cc: Jens Axboe <axboe@kernel.dk>
-cc: Andy Lutomirski <luto@kernel.org>
-cc: linux-kernel@vger.kernel.org
-cc: io-uring@vger.kernel.org
-cc: x86@kernel.org
-Link: https://lore.kernel.org/r/20210505110310.237537-1-metze@samba.org
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Reported-by: Oleg Nesterov <oleg@redhat.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/process.c |   19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ kernel/fork.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/arch/x86/kernel/process.c
-+++ b/arch/x86/kernel/process.c
-@@ -162,7 +162,7 @@ int copy_thread(unsigned long clone_flag
- #endif
- 
- 	/* Kernel thread ? */
--	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
-+	if (unlikely(p->flags & PF_KTHREAD)) {
- 		memset(childregs, 0, sizeof(struct pt_regs));
- 		kthread_frame_init(frame, sp, arg);
- 		return 0;
-@@ -178,6 +178,23 @@ int copy_thread(unsigned long clone_flag
- 	task_user_gs(p) = get_user_gs(current_pt_regs());
- #endif
- 
-+	if (unlikely(p->flags & PF_IO_WORKER)) {
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -1949,8 +1949,14 @@ static __latent_entropy struct task_stru
+ 	p = dup_task_struct(current, node);
+ 	if (!p)
+ 		goto fork_out;
+-	if (args->io_thread)
++	if (args->io_thread) {
 +		/*
-+		 * An IO thread is a user space thread, but it doesn't
-+		 * return to ret_after_fork().
-+		 *
-+		 * In order to indicate that to tools like gdb,
-+		 * we reset the stack and instruction pointers.
-+		 *
-+		 * It does the same kernel frame setup to return to a kernel
-+		 * function that a kernel thread does.
++		 * Mark us an IO worker, and block any signal that isn't
++		 * fatal or STOP
 +		 */
-+		childregs->sp = 0;
-+		childregs->ip = 0;
-+		kthread_frame_init(frame, sp, arg);
-+		return 0;
+ 		p->flags |= PF_IO_WORKER;
++		siginitsetinv(&p->blocked, sigmask(SIGKILL)|sigmask(SIGSTOP));
 +	}
-+
- 	/* Set a new TLS for the child thread? */
- 	if (clone_flags & CLONE_SETTLS)
- 		ret = set_new_tls(p, tls);
+ 
+ 	/*
+ 	 * This _must_ happen before we call free_task(), i.e. before we jump
+@@ -2435,14 +2441,8 @@ struct task_struct *create_io_thread(int
+ 		.stack_size	= (unsigned long)arg,
+ 		.io_thread	= 1,
+ 	};
+-	struct task_struct *tsk;
+ 
+-	tsk = copy_process(NULL, 0, node, &args);
+-	if (!IS_ERR(tsk)) {
+-		sigfillset(&tsk->blocked);
+-		sigdelsetmask(&tsk->blocked, sigmask(SIGKILL));
+-	}
+-	return tsk;
++	return copy_process(NULL, 0, node, &args);
+ }
+ 
+ /*
 
 
