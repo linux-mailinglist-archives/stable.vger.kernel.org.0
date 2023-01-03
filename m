@@ -2,164 +2,214 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29B2465C30A
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 16:33:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 792C865C34C
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 16:51:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237884AbjACPdl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 10:33:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52134 "EHLO
+        id S233259AbjACPux (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 10:50:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237892AbjACPdk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 10:33:40 -0500
-Received: from mail.marcansoft.com (marcansoft.com [212.63.210.85])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1471011C0A;
-        Tue,  3 Jan 2023 07:33:39 -0800 (PST)
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (No client certificate requested)
-        (Authenticated sender: marcan@marcan.st)
-        by mail.marcansoft.com (Postfix) with ESMTPSA id 47E7641DF4;
-        Tue,  3 Jan 2023 15:33:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=marcan.st; s=default;
-        t=1672760017; bh=Cfjad1f4bMHiStflEproBmzMrnqAIcpfSbdhxfxcGFw=;
-        h=Date:To:Cc:References:From:Subject:In-Reply-To;
-        b=iuX9XmiIXyPtwb1i6zlDMi9aiAfYcZByMkS78kNY1+hWkP3WqiFHgRhvHhaOImFeW
-         toMfl29Qcz1XmFPuRUKeHcq8ewI4JBmpnw32ODfXyhcq3IaDkY8zusTywUaaTxUoyt
-         moWuw9afzWcVouz8TuQ1KPMj6GOZpxF3IEkH8nw8oGtKeh2lByexuvDm0br4wnKK+r
-         ghDchTFu3IHqk6Hu9BHRlESoL8ty2avW6NVBfjsKTjkHLYEoF8RbJ6065D2tgP5iRg
-         eHTSOnUAQlkFGD+9ddemxhevEo/XyrI4XIEAcrHXk6eFEuVsyKatZKql7UTRnaNj98
-         DqE3WwQ2Hu+yg==
-Message-ID: <03514845-dfd6-a117-83c8-ab3abc402229@marcan.st>
-Date:   Wed, 4 Jan 2023 00:33:33 +0900
+        with ESMTP id S233316AbjACPul (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 10:50:41 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0BA312633
+        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 07:49:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1672760994;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=WC94+qRtcsQoAZV6EJBwTDdUsyIqcyvTkPy2eHYVDF8=;
+        b=Dsw+a1skJrczJSjugB4GFPkVku1KQU+pKKtHoH8KoPlUobI7sRzGiWLORGW//f1JBwGbGh
+        2j0ZsbqAF1iwbQCnVmDi7Z3YdwBIex4InD+PZsovaqcenjusr+JQKmr4rRA8n03XTSEnXO
+        D5mJlX7dtfLNXRc7IhLo+gPf1Lib6Jo=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-376-37VsZtozNn6Oaw2n9c2t2Q-1; Tue, 03 Jan 2023 10:49:53 -0500
+X-MC-Unique: 37VsZtozNn6Oaw2n9c2t2Q-1
+Received: by mail-wm1-f70.google.com with SMTP id bd6-20020a05600c1f0600b003d96f7f2396so17185966wmb.3
+        for <stable@vger.kernel.org>; Tue, 03 Jan 2023 07:49:53 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:content-disposition:mime-version
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=WC94+qRtcsQoAZV6EJBwTDdUsyIqcyvTkPy2eHYVDF8=;
+        b=d4U7ZOYvkP6dslfNjh4/W2EDz4mOohAf1KtqND9nqxtDhCEzHXrow5RfPyiBT5rlA/
+         ejsl4S44AXjxUtIIx5msvKtMx1kxa52M5AHeiya72tJU1Ds+7+RiRRkthzNog6onHyeF
+         z8kV+V3qQSWw1bypk44IQwTd2rcM6sUopNuD2Hzs2hhTWT7zyyuxTJxXao/QkW/uk6vh
+         KS2GGAIps1qdGQ9aLn7embrC8Uk/1C03zDiPlk08cmnWgH6WG68FB1r40lO42zFE+bR/
+         MBLAJqaZxKJA2kXcdlfmKX5OxR+FyUcNyU+zoWetQP+8rGdqdX4tzTApCbOrDwDhNHb5
+         5iSA==
+X-Gm-Message-State: AFqh2kpwtGb1YMJwMms3b/q1utENUHBn9T33ZATmmIsdQaPE3D3vxWkL
+        aqsrhFWd3ok5qt0C5qy0lXzn80aqiCBW5p2/hAFn1K6UZvm1mHXir0zBXFwzFjwEVHjnyKkmrI3
+        wuyCOHP/x1UXKahia
+X-Received: by 2002:a05:600c:4fcf:b0:3d1:d396:1ade with SMTP id o15-20020a05600c4fcf00b003d1d3961ademr31416059wmq.9.1672760992124;
+        Tue, 03 Jan 2023 07:49:52 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXvBokw4ntbihohzRlAT/7Kd2Eqgl7eiuIEN+Pul08FB9XjA5yr3GOYK70ZuUvwnVXP0KlLXRw==
+X-Received: by 2002:a05:600c:4fcf:b0:3d1:d396:1ade with SMTP id o15-20020a05600c4fcf00b003d1d3961ademr31416049wmq.9.1672760991925;
+        Tue, 03 Jan 2023 07:49:51 -0800 (PST)
+Received: from redhat.com ([2.52.151.85])
+        by smtp.gmail.com with ESMTPSA id r10-20020a05600c458a00b003d9a86a13bfsm15382532wmo.28.2023.01.03.07.49.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Jan 2023 07:49:51 -0800 (PST)
+Date:   Tue, 3 Jan 2023 10:49:46 -0500
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        angus.chen@jaguarmicro.com, colin.i.king@gmail.com,
+        dave@stgolabs.net, dengshaomin@cdjrlc.com, dmitry.fomichev@wdc.com,
+        elic@nvidia.com, eperezma@redhat.com, gautam.dawar@xilinx.com,
+        harshit.m.mogalapalli@oracle.com, jasowang@redhat.com,
+        lulu@redhat.com, mst@redhat.com, pizhenwei@bytedance.com,
+        rafaelmendsr@gmail.com, ricardo.canuelo@collabora.com,
+        ruanjinjie@huawei.com, set_pte_at@outlook.com, sgarzare@redhat.com,
+        shaoqin.huang@intel.com, si-wei.liu@oracle.com,
+        stable@vger.kernel.org, sunnanyong@huawei.com,
+        wangjianli@cdjrlc.com, wangrong68@huawei.com,
+        weiyongjun1@huawei.com, yuancan@huawei.com
+Subject: [GIT PULL v2] virtio,vhost,vdpa: fixes, cleanups
+Message-ID: <20230103104946-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Content-Language: en-US
-To:     "Russell King (Oracle)" <linux@armlinux.org.uk>
-Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Sven Peter <sven@svenpeter.dev>,
-        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
-        asahi@lists.linux.dev, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Eric Curtin <ecurtin@redhat.com>
-References: <20230103114427.1825-1-marcan@marcan.st>
- <ff77ba1c-8b67-4697-d713-0392d3b1d77a@linaro.org>
- <95a4cfde-490f-d26d-163e-7ab1400e7380@marcan.st>
- <b118af4c-e4cc-c50b-59aa-d768f1ec69ff@linaro.org>
- <b98e313d-8875-056b-4b64-bb7528f2670a@marcan.st>
- <Y7RHTXZ60zuExeMA@shell.armlinux.org.uk>
-From:   Hector Martin <marcan@marcan.st>
-Subject: Re: [PATCH v2] nvmem: core: Fix race in nvmem_register()
-In-Reply-To: <Y7RHTXZ60zuExeMA@shell.armlinux.org.uk>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Mutt-Fcc: =sent
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 04/01/2023 00.18, Russell King (Oracle) wrote:
-> On Tue, Jan 03, 2023 at 11:56:21PM +0900, Hector Martin wrote:
->> On 03/01/2023 23.22, Srinivas Kandagatla wrote:
->>>>>>    drivers/nvmem/core.c | 32 +++++++++++++++++---------------
->>>>>>    1 file changed, 17 insertions(+), 15 deletions(-)
->>>>>>
->>>>>> diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
->>>>>> index 321d7d63e068..606f428d6292 100644
->>>>>> --- a/drivers/nvmem/core.c
->>>>>> +++ b/drivers/nvmem/core.c
->>>>>> @@ -822,11 +822,8 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
->>>>>>    		break;
->>>>>>    	}
->>>>>>
->>>>>> -	if (rval) {
->>>>>> -		ida_free(&nvmem_ida, nvmem->id);
->>>>>> -		kfree(nvmem);
->>>>>> -		return ERR_PTR(rval);
->>>>>> -	}
->>>>>> +	if (rval)
->>>>>> +		goto err_gpiod_put;
->>>>>
->>>>> Why was gpiod changes added to this patch, that should be a separate
->>>>> patch/discussion, as this is not relevant to the issue that you are
->>>>> reporting.
->>>>
->>>> Because freeing the device also does a gpiod_put in the destructor, so
->>> This are clearly untested, And I dont want this to be in the middle to 
->>> fix to the issue you are hitting.
->>
->> I somehow doubt you tested any of these error paths either. Nobody tests
->> initialization error paths. That's why there was a gpio leak here to
->> begin with.
-> 
-> Sadly, this is one of the biggest problems with error paths, they get
-> very little proper testing - and in most cases we're reliant on
-> reviewers spotting errors. That's why we much prefer the devm_* stuff,
-> but even that can be error-prone.
-> 
->>> We should always be careful about untested changes, in this case gpiod 
->>> has some conditions to check before doing a put. So the patch is 
->>> incorrect as it is.
->>
->> Then the existing code is also incorrect as it is, because the device
->> release callback is doing the same gpiod_put() already. I just moved it
->> out since we are now registering the device later.
-> 
-> At the point where this change is being made (checking rval after
-> dev_set_name()) the struct device has not been initialised, so the
-> release callback will not be called. nvmem->wp_gpio will be leaked.
+These fixes have been in next, though not as these commits.
 
-But later in the code where device_put() was being called would will be,
-and that callback is calling gpiod_put() unconditionally, which is why I
-am doing the same after moving the device registration later.
+I'd like to apologize again to contributors for missing the merge
+window with new features. These by necessity have been pushed out
+to the next merge window. This pull only has bugfixes.
 
-Is this wrong? Well,
+I put automation in place to help prevent missing merge window
+in the future.
 
-> However, there may be bigger problems with wp_gpio - related to where
-> it can come from and what we do with it.
-> 
-> nvmem->wp_gpio has two sources - one of them is gpiod_get_optional(),
-> and we need to call gpiod_put() on that to drop the reference that
-> _this_ code acquired. The other is config->wp_gpio - we don't own
-> that reference, yet we call gpiod_put() on it. I'm not sure whether
-> config->wp_gpio is actually used anywhere - my grepping so far has
-> not found any users, but maybe Srivinas knows better.
+The following changes since commit 1b929c02afd37871d5afb9d498426f83432e71c2:
 
-... then yes, it's wrong, and the original code is already broken too. I
-merely moved functionality around in the other cases *except* the one
-case after dev_set_name(), where I swapped one bug out for calling other
-buggy code derived from existing buggy code. ¯\_(ツ)_/¯
+  Linux 6.2-rc1 (2022-12-25 13:41:39 -0800)
 
-> Hence, sorting out the leak of wp_gpio needs more discussion, and it
-> would not be right to delay merging the fix for the very real race
-> that people hit today resulting in stuff not working while we try
-> to work out how wp_gpio should be handled.
+are available in the Git repository at:
 
-> So... always fix one problem in one patch. Sometimes a fix is not as
-> obvious as one may first think.
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-Sure, but you do realize the issue here, right? This, coupled with the
-kernel development model (and *especially* the impolite discourse that
-often goes along with it from maintainers) incentivizes doing the
-minimum amount of work to fix the minimum amount of bugs that actually
-affect people. I couldn't care less about the gpiod leak fix, it doesn't
-affect me, but I noticed and thought I could fix it. Turns out it's more
-complicated than that because the existing code is even more broken than
-I thought, sure - but I have no incentive to start that conversation nor
-fix all this now. Now I just know next time I touch nvmem code I won't
-bother pointing out any bugs I notice by accident, because clearly the
-discussion likely to follow is more mental overhead than I'm willing to
-spend on something that doesn't affect me. When bugs don't noticeably
-break people and fixing them is too much effort, nobody will.
+for you to fetch changes up to a26116c1e74028914f281851488546c91cbae57d:
 
-While if my change had been merged as-is, we'd have at least fixed one
-common case bug and reduced two related bugs to one class of bug (the
-unconditional gpiod_put()) which is still a strict improvement. And then
-someone can point out the incorrect puts when the GPIO isn't owned and
-fix that later if they want.
+  virtio_blk: Fix signedness bug in virtblk_prep_rq() (2022-12-28 05:28:11 -0500)
 
-- Hector
+----------------------------------------------------------------
+virtio,vhost,vdpa: fixes, cleanups
+
+mostly fixes all over the place, a couple of cleanups.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Angus Chen (2):
+      virtio_pci: modify ENOENT to EINVAL
+      virtio_blk: use UINT_MAX instead of -1U
+
+Cindy Lu (2):
+      vhost_vdpa: fix the crash in unmap a large memory
+      vdpa_sim_net: should not drop the multicast/broadcast packet
+
+Colin Ian King (1):
+      RDMA/mlx5: remove variable i
+
+Davidlohr Bueso (2):
+      tools/virtio: remove stray characters
+      tools/virtio: remove smp_read_barrier_depends()
+
+Dawei Li (1):
+      virtio: Implementing attribute show with sysfs_emit
+
+Dmitry Fomichev (1):
+      virtio-blk: use a helper to handle request queuing errors
+
+Eli Cohen (5):
+      vdpa/mlx5: Fix rule forwarding VLAN to TIR
+      vdpa/mlx5: Return error on vlan ctrl commands if not supported
+      vdpa/mlx5: Fix wrong mac address deletion
+      vdpa/mlx5: Avoid using reslock in event_handler
+      vdpa/mlx5: Avoid overwriting CVQ iotlb
+
+Harshit Mogalapalli (1):
+      vduse: Validate vq_num in vduse_validate_config()
+
+Jason Wang (2):
+      vdpa: conditionally fill max max queue pair for stats
+      vdpasim: fix memory leak when freeing IOTLBs
+
+Rafael Mendonca (1):
+      virtio_blk: Fix signedness bug in virtblk_prep_rq()
+
+Ricardo Cañuelo (1):
+      tools/virtio: initialize spinlocks in vring_test.c
+
+Rong Wang (1):
+      vdpa/vp_vdpa: fix kfree a wrong pointer in vp_vdpa_remove
+
+Shaomin Deng (1):
+      tools: Delete the unneeded semicolon after curly braces
+
+Shaoqin Huang (2):
+      virtio_pci: use helper function is_power_of_2()
+      virtio_ring: use helper function is_power_of_2()
+
+Si-Wei Liu (1):
+      vdpa: merge functionally duplicated dev_features attributes
+
+Stefano Garzarella (4):
+      vringh: fix range used in iotlb_translate()
+      vhost: fix range used in translate_desc()
+      vhost-vdpa: fix an iotlb memory leak
+      vdpa_sim: fix vringh initialization in vdpasim_queue_ready()
+
+Wei Yongjun (1):
+      virtio-crypto: fix memory leak in virtio_crypto_alg_skcipher_close_session()
+
+Yuan Can (1):
+      vhost/vsock: Fix error handling in vhost_vsock_init()
+
+ruanjinjie (1):
+      vdpa_sim: fix possible memory leak in vdpasim_net_init() and vdpasim_blk_init()
+
+wangjianli (1):
+      tools/virtio: Variable type completion
+
+ drivers/block/virtio_blk.c                         | 35 +++++-----
+ .../crypto/virtio/virtio_crypto_skcipher_algs.c    |  3 +-
+ drivers/vdpa/mlx5/core/mlx5_vdpa.h                 |  5 +-
+ drivers/vdpa/mlx5/core/mr.c                        | 46 +++++++------
+ drivers/vdpa/mlx5/net/mlx5_vnet.c                  | 78 +++++++---------------
+ drivers/vdpa/vdpa.c                                | 11 ++-
+ drivers/vdpa/vdpa_sim/vdpa_sim.c                   |  7 +-
+ drivers/vdpa/vdpa_sim/vdpa_sim_blk.c               |  4 +-
+ drivers/vdpa/vdpa_sim/vdpa_sim_net.c               |  7 +-
+ drivers/vdpa/vdpa_user/vduse_dev.c                 |  3 +
+ drivers/vdpa/virtio_pci/vp_vdpa.c                  |  2 +-
+ drivers/vhost/vdpa.c                               | 52 +++++++++------
+ drivers/vhost/vhost.c                              |  4 +-
+ drivers/vhost/vringh.c                             |  5 +-
+ drivers/vhost/vsock.c                              |  9 ++-
+ drivers/virtio/virtio.c                            | 12 ++--
+ drivers/virtio/virtio_pci_modern.c                 |  4 +-
+ drivers/virtio/virtio_ring.c                       |  2 +-
+ include/uapi/linux/vdpa.h                          |  4 +-
+ tools/virtio/ringtest/main.h                       | 37 +++++-----
+ tools/virtio/virtio-trace/trace-agent-ctl.c        |  2 +-
+ tools/virtio/virtio_test.c                         |  2 +-
+ tools/virtio/vringh_test.c                         |  2 +
+ 23 files changed, 173 insertions(+), 163 deletions(-)
+
