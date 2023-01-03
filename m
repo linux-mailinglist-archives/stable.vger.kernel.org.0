@@ -2,237 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A7B865C5E7
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 19:17:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7574565C60C
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 19:24:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238200AbjACSRN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 13:17:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38470 "EHLO
+        id S233780AbjACSYb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 13:24:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238810AbjACSRM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 13:17:12 -0500
-Received: from mail-vs1-xe2b.google.com (mail-vs1-xe2b.google.com [IPv6:2607:f8b0:4864:20::e2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E27F10FD1
-        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 10:17:09 -0800 (PST)
-Received: by mail-vs1-xe2b.google.com with SMTP id i10so10938014vsr.12
-        for <stable@vger.kernel.org>; Tue, 03 Jan 2023 10:17:09 -0800 (PST)
+        with ESMTP id S238823AbjACSY0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 13:24:26 -0500
+Received: from mail-qt1-x830.google.com (mail-qt1-x830.google.com [IPv6:2607:f8b0:4864:20::830])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71F7B13D34
+        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 10:24:25 -0800 (PST)
+Received: by mail-qt1-x830.google.com with SMTP id j16so25199721qtv.4
+        for <stable@vger.kernel.org>; Tue, 03 Jan 2023 10:24:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=tOBzKrHIZiNhQCC3SGZiV+P8BTy8Nspc63LhdG+gCbc=;
-        b=TeKjETEb372iD79Ac+Wof6L+xeTA6p5FCrxhJMgxLzPAbJvdkDZuetOMB3DuqKh7hk
-         hh0AtEkahdi1UCFFMwMeoGLzWjjYzsC1wKbC7SJUGPGdmjh2AdLeEujdeZlMXeU3IO00
-         ozIKB4tPTrM45wn+tTq6IhfxOGzE6AnIAcWIM/Ap9h3MUECP7lAu1XmEJCqtuDhB8SHa
-         cHYV0I9fuRRkiKGCZajESwrd41zB9T7sqoYm09kEr9nL4H5LHuJRyfenzIMZ542M4iyd
-         NjQFbpI4V1Vra5PB6ncdTyxFfN8jsk058OtVEglgFSG7B+/6qADgpYizfhwom05M6BD4
-         o9nQ==
+        d=joelfernandes.org; s=google;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=gyzUkUkRXrWbqnLogkn/YRgVffpdv0ujzVAsh7a/y2U=;
+        b=PeHOAO+KzAkwqiZ5CIjYlPexV4+nLZ+6gAwssCwloHRSHxpFDT34fBE7TkPvC2+Zjm
+         T5XFy06pckwsXDQ12aOxAR2xOZAAFXCxFa9lEeFtPvnzrnVJe2yVd/gRHmbnCvJ8Gs2q
+         n5ePob1ghM++0Gd6+hwa73lRqWY+rsP3+Ptb4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=tOBzKrHIZiNhQCC3SGZiV+P8BTy8Nspc63LhdG+gCbc=;
-        b=r7qPERo0GAFI+g1j7lVwLHNxx1HLzYNYX+GPLpzwMbG91Qu1z8cExVRQnXfhkOZovP
-         d7/0xH/u5+LeBfUvRwiTouWPPlXmvvOwZa+NUnbB6uMguO3XVHpRrmr0wGAmCB1b3kdW
-         WTIHWdcMtzNGTPQCg/6CzjDZ8kH1mbG4XwAx0zSjG/KO2YYIz3nBluzcRDTgxdBL4xmM
-         2bBMaP0kfZWgk8FUw3WThMa4n46tZVrYCl38Cx3gR+QSm2Bkmm4O9j1Jg4r9dpBEgviT
-         yhb1OuqLZqjGlJchVeeRAqFtgGAdBEMhzpt3L6E9ByPq45ZMujes3AZtiPFes9pp+qu6
-         nhTQ==
-X-Gm-Message-State: AFqh2kqNTxD+d8kqVf0iAmHlju5+ns5J6Hk65N9qxjav487geQb/pYUH
-        ip9okPwes/BCFYDH2ZHaTN9Cr7eQcTdvirIhgBOM3A==
-X-Google-Smtp-Source: AMrXdXt0sTPrcVgkVIhWyI5jbkVfigkIYOKIynaMGTeeVh0TksKHIXC6nC1bY4tPkjJPqQjg9Veh8w2ZQ7guuIaNhz8=
-X-Received: by 2002:a67:ec94:0:b0:3b5:32d0:edcc with SMTP id
- h20-20020a67ec94000000b003b532d0edccmr4938819vsp.24.1672769828471; Tue, 03
- Jan 2023 10:17:08 -0800 (PST)
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=gyzUkUkRXrWbqnLogkn/YRgVffpdv0ujzVAsh7a/y2U=;
+        b=Bejzl7dg3Mm/FBcmPT/s0afK1DlZP9VVsYCNyy9pBjXUb3nkqKBn8b9hz7jZv7d9rX
+         rB/i/sAoEKIahCIF6bAd+YvxTBAUcsc3zvV7arLF+F6U/8rcx1+mpueqLhpz9+ajabFZ
+         FEkfuZQe5HbYMN1owLVX068uKTXeN/ZX+cdk9povF6RDQsnsXQFSGBQBfWdiBM0Ifkzt
+         LA+kWIjiWYli4OPrCW21nZOCnBip9M47MRzJjI5PEHv/YhX0tdCiduBWmmxHniB+kpLj
+         EAb+zWb7O4ctLvL0dFyak1dnT7R2ZgBwUXrLhzcQ5ryWwGGw19KPfoMUvEnHX2gCalvL
+         vkRA==
+X-Gm-Message-State: AFqh2ko98T1iPgxtzh2Z6NKnM1f6PGp1QqYLs8xbRqG8zALOwm/yX5xu
+        +nXAeqHiGix54xpMXaxZCh03rvLii4qoCYOj
+X-Google-Smtp-Source: AMrXdXul9oA+pYoIrGwSof8bvXuSYPQIF8PvW/t01f3pc3Rc3QgzAMbTE3o+cWaad98PHcO+FNiRFA==
+X-Received: by 2002:ac8:534c:0:b0:3a9:8183:6a04 with SMTP id d12-20020ac8534c000000b003a981836a04mr72845793qto.54.1672770264535;
+        Tue, 03 Jan 2023 10:24:24 -0800 (PST)
+Received: from localhost (228.221.150.34.bc.googleusercontent.com. [34.150.221.228])
+        by smtp.gmail.com with ESMTPSA id u2-20020ac80502000000b003a81eef14efsm19111867qtg.45.2023.01.03.10.24.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Jan 2023 10:24:23 -0800 (PST)
+Date:   Tue, 3 Jan 2023 18:24:23 +0000
+From:   Joel Fernandes <joel@joelfernandes.org>
+To:     "Paul E. McKenney" <paulmck@kernel.org>
+Cc:     Davidlohr Bueso <dave@stgolabs.net>, linux-kernel@vger.kernel.org,
+        Frederic Weisbecker <fweisbec@gmail.com>,
+        Zhouyi Zhou <zhouzhouyi@gmail.com>, stable@vger.kernel.org,
+        Josh Triplett <josh@joshtriplett.org>, rcu@vger.kernel.org
+Subject: Re: [PATCH] torture: Fix hang during kthread shutdown phase
+Message-ID: <Y7Ry1yTT/mltqSUI@google.com>
+References: <20230101061555.278129-1-joel@joelfernandes.org>
+ <20230102164310.2olg7xhwwhzmzg24@offworld>
+ <20230103180404.GA4028633@paulmck-ThinkPad-P17-Gen-1>
 MIME-Version: 1.0
-References: <20230103081308.548338576@linuxfoundation.org>
-In-Reply-To: <20230103081308.548338576@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 3 Jan 2023 23:46:57 +0530
-Message-ID: <CA+G9fYte94MoVjMBQ=37r9Wrg1C1VmTVZ7eWik3xKmu02_554w@mail.gmail.com>
-Subject: Re: [PATCH 5.10 00/63] 5.10.162-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20230103180404.GA4028633@paulmck-ThinkPad-P17-Gen-1>
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,WEIRD_PORT autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 3 Jan 2023 at 13:45, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.10.162 release.
-> There are 63 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 05 Jan 2023 08:12:47 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.10.162-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.10.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Tue, Jan 03, 2023 at 10:04:04AM -0800, Paul E. McKenney wrote:
+> On Mon, Jan 02, 2023 at 08:43:10AM -0800, Davidlohr Bueso wrote:
+> > On Sun, 01 Jan 2023, Joel Fernandes (Google) wrote:
+> > 
+> > > During shutdown of rcutorture, the shutdown thread in
+> > > rcu_torture_cleanup() calls torture_cleanup_begin() which sets fullstop
+> > > to FULLSTOP_RMMOD. This is enough to cause the rcutorture threads for
+> > > readers and fakewriters to breakout of their main while loop and start
+> > > shutting down.
+> > > 
+> > > Once out of their main loop, they then call torture_kthread_stopping()
+> > > which in turn waits for kthread_stop() to be called, however
+> > > rcu_torture_cleanup() has not even called kthread_stop() on those
+> > > threads yet, it does that a bit later.  However, before it gets a chance
+> > > to do so, torture_kthread_stopping() calls
+> > > schedule_timeout_interruptible(1) in a tight loop. Tracing confirmed
+> > > this makes the timer softirq constantly execute timer callbacks, while
+> > > never returning back to the softirq exit path and is essentially "locked
+> > > up" because of that. If the softirq preempts the shutdown thread,
+> > > kthread_stop() may never be called.
+> > > 
+> > > This commit improves the situation dramatically, by increasing timeout
+> > > passed to schedule_timeout_interruptible() 1/20th of a second. This
+> > > causes the timer softirq to not lock up a CPU and everything works fine.
+> > > Testing has shown 100 runs of TREE07 passing reliably, which was not the
+> > > case before because of RCU stalls.
+> > > 
+> > > Cc: Paul McKenney <paulmck@kernel.org>
+> > > Cc: Frederic Weisbecker <fweisbec@gmail.com>
+> > > Cc: Zhouyi Zhou <zhouzhouyi@gmail.com>
+> > > Cc: <stable@vger.kernel.org> # 6.0.x
+> > > Signed-off-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+> > 
+> > Reviewed-by: Davidlohr Bueso <dave@stgolabs.net>
+> 
+> Queued for further review and testing, thank you all!
+> 
+> One thing still puzzles me.  Assuming HZ=1000 and given 16 CPUs, each
+> timer hander must have consumed many tens of microseconds in order
+> to keep the system busy, which seems a bit longer than it should be.
+> Or am I underestimating the number of tasks involved?
 
+Here are the traces between successive calls to process_timeout() which is the timer callback handler:
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+[ 1320.444210]   <idle>-0         0dNs.. 314229620us : __run_timers: Calling timerfn 5: process_timeout
+[ 1320.444215]   <idle>-0         0dNs.. 314229620us : sched_waking: comm=rcu_torture_fak pid=145 prio=139 target_cpu=008
+[ 1320.463393]   <idle>-0         7d.... 314229655us : sched_switch: prev_comm=swapper/7 prev_pid=0 prev_prio=120 prev_state=R ==> next_comm=rcu_torture_wri next_pid=144 next_prio=120
+[ 1320.478870] rcu_tort-144       7d.... 314229658us : sched_switch: prev_comm=rcu_torture_wri prev_pid=144 prev_prio=120 prev_state=D ==> next_comm=swapper/7 next_pid=0 next_prio=120
+[ 1320.494324]   <idle>-0         0dNs.. 314229738us : __run_timers: Calling timerfn 6: process_timeout
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+It appears the time delta in the above occurrence is 118 micro seconds
+between 2 timer callbacks. It does appear to be doing a cross-CPU wake up.
+Maybe that adds to the long time?
 
-## Build
-* kernel: 5.10.162-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.10.y
-* git commit: c5bc645ae6f96d3949dcf1f0fb0a7c243fb525d1
-* git describe: v5.10.161-64-gc5bc645ae6f9
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
-.161-64-gc5bc645ae6f9
+Here are the full logs with traces (in case it helps, search for "=D" for the
+D-state sched_switch event before the "panic now" trace happens):
+http://box.joelfernandes.org:9080/job/rcutorture_stable/job/linux-6.0.y/26/artifact/tools/testing/selftests/rcutorture/res/2022.12.31-23.04.42/TREE07.2/console.log
 
-## Test Regressions (compared to v5.10.160-19-gbc32b2c55e20)
+thanks,
 
-## Metric Regressions (compared to v5.10.160-19-gbc32b2c55e20)
+ - Joel
 
-## Test Fixes (compared to v5.10.160-19-gbc32b2c55e20)
-
-## Metric Fixes (compared to v5.10.160-19-gbc32b2c55e20)
-
-## Test result summary
-total: 138327, pass: 116359, fail: 3491, skip: 18160, xfail: 317
-
-## Build Summary
-* arc: 5 total, 5 passed, 0 failed
-* arm: 151 total, 148 passed, 3 failed
-* arm64: 49 total, 46 passed, 3 failed
-* i386: 39 total, 37 passed, 2 failed
-* mips: 31 total, 29 passed, 2 failed
-* parisc: 8 total, 8 passed, 0 failed
-* powerpc: 32 total, 25 passed, 7 failed
-* riscv: 16 total, 14 passed, 2 failed
-* s390: 16 total, 16 passed, 0 failed
-* sh: 14 total, 12 passed, 2 failed
-* sparc: 8 total, 8 passed, 0 failed
-* x86_64: 42 total, 40 passed, 2 failed
-
-## Test suites summary
-* boot
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers-dma-buf
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-filesystems-binderfs
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-net-forwarding
-* kselftest-net-mptcp
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
