@@ -2,48 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F24B265BC09
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 09:18:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C362F65BC49
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 09:34:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237153AbjACISj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 03:18:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41678 "EHLO
+        id S236915AbjACIeN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 03:34:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237158AbjACISU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 03:18:20 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4DE0DF9F
-        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 00:17:54 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 21FACCE0CEF
-        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 08:17:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3DDEC433EF;
-        Tue,  3 Jan 2023 08:17:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672733871;
-        bh=ihi5dK572bB8B+u5OYM4yU4Oi1ttT6unGgWTVLAI3qc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qA27O+OqIJeBU7YxHvMfymAznq7lRNA5amT30vikOd0pISjSzljevIk+0LeHoZY2R
-         hAC6QWt3uIHECwJw8LXGfIH2X1UXPcb4MqDrhIvgAnicjvHNFTb4qgeFQ1PKeLpjuJ
-         c7YOKnlgm5dN+rPNAXUavqdlYpian5afa6X2P5v4=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 63/63] io_uring: pass in EPOLL_URING_WAKE for eventfd signaling and wakeups
-Date:   Tue,  3 Jan 2023 09:14:33 +0100
-Message-Id: <20230103081312.413447786@linuxfoundation.org>
-X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230103081308.548338576@linuxfoundation.org>
-References: <20230103081308.548338576@linuxfoundation.org>
-User-Agent: quilt/0.67
+        with ESMTP id S233145AbjACIeL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 03:34:11 -0500
+Received: from mail-vs1-xe33.google.com (mail-vs1-xe33.google.com [IPv6:2607:f8b0:4864:20::e33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14399DF85
+        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 00:34:10 -0800 (PST)
+Received: by mail-vs1-xe33.google.com with SMTP id p30so25425281vsr.1
+        for <stable@vger.kernel.org>; Tue, 03 Jan 2023 00:34:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=D0LRzaF4/eAHl8TOiwxl4NBIKM++7t47+klDG5YxwLE=;
+        b=fnT59MiryMAYp0O8jmgcwbPbaobGE32AFR+KpPHkGFbsJ8FkMuDJsg/AFohviUbq9+
+         8TsUmScZMvFqdccMQI+A7HIiPyl4o+wyvBbAgxq2s37iJZRVNLPHjc4LMoAixKDnlEYA
+         2Qo8Z9uXG0lJiGQ1GEw10CcYpzcSRtSEBnbx8qJIjLYz46wTYIneUUHBCSCbSKdO9Cyx
+         /yzqXlLP+kdE0lF4/zfiYQxyHsPQ87APfo2vKxQJ3jSCGWzVjwkcIN6xlcVeokmCyPOc
+         JE3SvNH2+jiCaY1XiKiEDolPadoIkrz/LX7bW6rlL2SjptuAf5GJdvfkheFFLVibR/Xl
+         MPCQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=D0LRzaF4/eAHl8TOiwxl4NBIKM++7t47+klDG5YxwLE=;
+        b=RYi/eZxd+UAIWi0BN/q7k/CRPbASVl472Z3ZnEjwUH4R+i0OS+Xx5KBG58OExoPZQX
+         ftJACWwwj6sZ+GQ6w5HX7eWtKG8tZsSiB1XDG29wBpfr1xNeQYg5k1M4JQBIoG7lO1RV
+         YzNKVjja62c6X8kNKtZR67VygcRhdf3K4gcO9wBg8rH1hLt7y8BFqd3e2MazmeVMWJ8C
+         qNAncdTkRIdzTTM0EbQqOXEqJnUgGiZKnrkwan9Q/kMOv7EPJiET3TGqyXD3Sb/aWIoo
+         EFIIF7Spz4pcOoFXOkRKFzbj/Yt1qVqV1aRxg3FjqaxLbgIIkLS8wVChR4OCVUty8Z94
+         yQcg==
+X-Gm-Message-State: AFqh2kpXu42rmRnDaqMhQ259Ss1U+VAa2cajQQmEiMHuBHsYYUV8d2rm
+        v+CF+s2yUphxdfKEYTN3kK2DDqSJik+LF+D6bDJgQA==
+X-Google-Smtp-Source: AMrXdXuciQboi6XVi++eNEEmorcFjhwmSXVig2GCgBHpcRFA34Dd6NWZp0egXm/aJE33u2Po7Mh+CoF5UHCKLKTcXzA=
+X-Received: by 2002:a67:ec94:0:b0:3b5:32d0:edcc with SMTP id
+ h20-20020a67ec94000000b003b532d0edccmr4702598vsp.24.1672734848954; Tue, 03
+ Jan 2023 00:34:08 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+References: <20230102110552.061937047@linuxfoundation.org>
+In-Reply-To: <20230102110552.061937047@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 3 Jan 2023 14:03:57 +0530
+Message-ID: <CA+G9fYvEOcOrPROaDWXpuuyNFh1apk_-hiRZpZbFQJYXR4Hu4Q@mail.gmail.com>
+Subject: Re: [PATCH 6.0 00/74] 6.0.17-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -51,82 +71,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+On Mon, 2 Jan 2023 at 16:58, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 6.0.17 release.
+> There are 74 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 04 Jan 2023 11:05:34 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-=
+6.0.17-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-6.0.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-[ Upstream commit 4464853277d0ccdb9914608dd1332f0fa2f9846f ]
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Pass in EPOLL_URING_WAKE when signaling eventfd or doing poll related
-wakups, so that we can check for a circular event dependency between
-eventfd and epoll. If this flag is set when our wakeup handlers are
-called, then we know we have a dependency that needs to terminate
-multishot requests.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-eventfd and epoll are the only such possible dependencies.
+## Build
+* kernel: 6.0.17-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-6.0.y
+* git commit: 9c0ac88985a8f62726941213c92ff8eddf500f72
+* git describe: v6.0.16-75-g9c0ac88985a8
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.0.y/build/v6.0.1=
+6-75-g9c0ac88985a8
 
-Cc: stable@vger.kernel.org # 6.0
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- io_uring/io_uring.c |   27 ++++++++++++++++++++-------
- 1 file changed, 20 insertions(+), 7 deletions(-)
+## Test Regressions (compared to v6.0.15-1067-gf54b936f8ec7)
 
---- a/io_uring/io_uring.c
-+++ b/io_uring/io_uring.c
-@@ -1626,13 +1626,15 @@ static void io_cqring_ev_posted(struct i
- 	 * wake as many waiters as we need to.
- 	 */
- 	if (wq_has_sleeper(&ctx->cq_wait))
--		wake_up_all(&ctx->cq_wait);
-+		__wake_up(&ctx->cq_wait, TASK_NORMAL, 0,
-+				poll_to_key(EPOLL_URING_WAKE | EPOLLIN));
- 	if (ctx->sq_data && waitqueue_active(&ctx->sq_data->wait))
- 		wake_up(&ctx->sq_data->wait);
- 	if (io_should_trigger_evfd(ctx))
--		eventfd_signal(ctx->cq_ev_fd, 1);
-+		eventfd_signal_mask(ctx->cq_ev_fd, 1, EPOLL_URING_WAKE);
- 	if (waitqueue_active(&ctx->poll_wait))
--		wake_up_interruptible(&ctx->poll_wait);
-+		__wake_up(&ctx->poll_wait, TASK_INTERRUPTIBLE, 0,
-+				poll_to_key(EPOLL_URING_WAKE | EPOLLIN));
- }
- 
- static void io_cqring_ev_posted_iopoll(struct io_ring_ctx *ctx)
-@@ -1642,12 +1644,14 @@ static void io_cqring_ev_posted_iopoll(s
- 
- 	if (ctx->flags & IORING_SETUP_SQPOLL) {
- 		if (waitqueue_active(&ctx->cq_wait))
--			wake_up_all(&ctx->cq_wait);
-+			__wake_up(&ctx->cq_wait, TASK_NORMAL, 0,
-+				  poll_to_key(EPOLL_URING_WAKE | EPOLLIN));
- 	}
- 	if (io_should_trigger_evfd(ctx))
--		eventfd_signal(ctx->cq_ev_fd, 1);
-+		eventfd_signal_mask(ctx->cq_ev_fd, 1, EPOLL_URING_WAKE);
- 	if (waitqueue_active(&ctx->poll_wait))
--		wake_up_interruptible(&ctx->poll_wait);
-+		__wake_up(&ctx->poll_wait, TASK_INTERRUPTIBLE, 0,
-+				poll_to_key(EPOLL_URING_WAKE | EPOLLIN));
- }
- 
- /* Returns true if there are no backlogged entries after the flush */
-@@ -5477,8 +5481,17 @@ static int io_poll_wake(struct wait_queu
- 	if (mask && !(mask & poll->events))
- 		return 0;
- 
--	if (io_poll_get_ownership(req))
-+	if (io_poll_get_ownership(req)) {
-+		/*
-+		 * If we trigger a multishot poll off our own wakeup path,
-+		 * disable multishot as there is a circular dependency between
-+		 * CQ posting and triggering the event.
-+		 */
-+		if (mask & EPOLL_URING_WAKE)
-+			poll->events |= EPOLLONESHOT;
-+
- 		__io_poll_execute(req, mask);
-+	}
- 	return 1;
- }
- 
+## Metric Regressions (compared to v6.0.15-1067-gf54b936f8ec7)
 
+## Test Fixes (compared to v6.0.15-1067-gf54b936f8ec7)
 
+## Metric Fixes (compared to v6.0.15-1067-gf54b936f8ec7)
+
+## Test result summary
+total: 143234, pass: 127347, fail: 2737, skip: 12854, xfail: 296
+
+## Build Summary
+* arc: 5 total, 5 passed, 0 failed
+* arm: 151 total, 146 passed, 5 failed
+* arm64: 49 total, 49 passed, 0 failed
+* i386: 39 total, 36 passed, 3 failed
+* mips: 30 total, 28 passed, 2 failed
+* parisc: 8 total, 8 passed, 0 failed
+* powerpc: 38 total, 32 passed, 6 failed
+* riscv: 16 total, 16 passed, 0 failed
+* s390: 16 total, 16 passed, 0 failed
+* sh: 14 total, 12 passed, 2 failed
+* sparc: 8 total, 8 passed, 0 failed
+* x86_64: 42 total, 41 passed, 1 failed
+
+## Test suites summary
+* boot
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers-dma-buf
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-filesystems-binderfs
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-net-forwarding
+* kselftest-net-mptcp
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
