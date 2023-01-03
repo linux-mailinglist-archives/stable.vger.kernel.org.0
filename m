@@ -2,46 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 738C165C668
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 19:40:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A85D565C66E
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 19:40:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233770AbjACSjr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 13:39:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49504 "EHLO
+        id S238413AbjACSkE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 13:40:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233929AbjACSjn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 13:39:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DABB211156;
-        Tue,  3 Jan 2023 10:39:42 -0800 (PST)
+        with ESMTP id S238073AbjACSj7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 13:39:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D620013DE8;
+        Tue,  3 Jan 2023 10:39:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90228B810AB;
-        Tue,  3 Jan 2023 18:39:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4857CC433F2;
-        Tue,  3 Jan 2023 18:39:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8FD40B80EBF;
+        Tue,  3 Jan 2023 18:39:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 694E8C433D2;
+        Tue,  3 Jan 2023 18:39:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672771180;
-        bh=Nh+PE6b0zozXPBpBs8UrxaUxKujKyhLS05XtQAqHiw8=;
+        s=k20201202; t=1672771188;
+        bh=1sB5EN2qD8GrQKjdJZrnAalkGApHEBaqO3LLSQoUEKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pnbm9d5RhBTq5rfcX6PjvDjPAXMbKGJAxDQHmlFvrS0mqy4h4DkYKgoMdTPf+6jjt
-         lQKCcm4uZCy6Heuup1kPsTt+YIofiwNG+eQZvDhNxHilaRcTkiXVaEAarssP5DAcCm
-         26TrX5JT0j9771ihOKvIcUvRRm+szrHDzVrGkf2GXQb5NnlHwHyncwjGMV8Dz2u2Ck
-         hSm6JL4uAXmJpGpOscZLJFycYMfB4zHXMIYPpKTzv6ur22OpC3x+6xBUmX0sar56i4
-         Pm5MM7bceZbc/3Zj6y1wcfbKTa5JqmKDcia4wpNjX68KZreHO6fDfFv/GibuLYrVhr
-         Nhl2d3SpFRZtw==
+        b=IsJSq2HFa5H6ZfeLCecWgA8G5yupVMD38GACWcFBMLrCV7+HlNpv0ukGJClydJ3LQ
+         YZOtKapLat11oSzVpyDY+25jLQyuvu4jtjt/xga+7yk6X/DLPDeV8Jvtirwbp4bPia
+         QD/mRrwwVIPIhhaLTlXWqHa5QIlE43HV+GzQkpWyxre6xzYGscZIc6htaehsBde6Dt
+         59pf4o5vIrS6VbR6OVwq8gXsGFn6yGQbauQLnNZ4ukIwrR8sCm+eVE3JRsu6NDOlFV
+         5nyjTiPykGvC31TKz0wD5dLRrRaYGJADWLgGvzonC/Nhe12arphZcnZJFSOFIj6HMH
+         VlWB5veT6x6vA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Mario Limonciello <mario.limonciello@amd.com>,
         Hans de Goede <hdegoede@redhat.com>,
         "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        robert.moore@intel.com, linux-acpi@vger.kernel.org,
-        devel@acpica.org
-Subject: [PATCH AUTOSEL 6.1 03/10] ACPI: video: Allow GPU drivers to report no panels
-Date:   Tue,  3 Jan 2023 13:39:27 -0500
-Message-Id: <20230103183934.2022663-3-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
+        alexander.deucher@amd.com, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
+        roman.li@amd.com, aurabindo.pillai@amd.com, mdaenzer@redhat.com,
+        Jerry.Zuo@amd.com, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 6.1 04/10] drm/amd/display: Report to ACPI video if no panels were found
+Date:   Tue,  3 Jan 2023 13:39:28 -0500
+Message-Id: <20230103183934.2022663-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20230103183934.2022663-1-sashal@kernel.org>
 References: <20230103183934.2022663-1-sashal@kernel.org>
@@ -60,70 +64,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 00a734104af7d878f1252d49eff9298785c6cbdc ]
+[ Upstream commit c573e240609ff781a0246c0c8c8351abd0475287 ]
 
-The current logic for the ACPI backlight detection will create
-a backlight device if no native or vendor drivers have created
-8 seconds after the system has booted if the ACPI tables
-included backlight control methods.
+On desktop APUs amdgpu doesn't create a native backlight device
+as no eDP panels are found.  However if the BIOS has reported
+backlight control methods in the ACPI tables then an acpi_video0
+backlight device will be made 8 seconds after boot.
 
-If the GPU drivers have loaded, they may be able to report whether
-any LCD panels were found.  Allow using this information to factor
-in whether to enable the fallback logic for making an acpi_video0
-backlight device.
+This has manifested in a power slider on a number of desktop APUs
+ranging from Ryzen 5000 through Ryzen 7000 on various motherboard
+manufacturers. To avoid this, report to the acpi video detection
+that the system does not have any panel connected in the native
+driver.
 
-Suggested-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=1783786
+Reported-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
 Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpi_video.c | 11 +++++++++++
- include/acpi/video.h      |  2 ++
- 2 files changed, 13 insertions(+)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/acpi/acpi_video.c b/drivers/acpi/acpi_video.c
-index 32953646caeb..f64fdb029090 100644
---- a/drivers/acpi/acpi_video.c
-+++ b/drivers/acpi/acpi_video.c
-@@ -2178,6 +2178,17 @@ static bool should_check_lcd_flag(void)
- 	return false;
- }
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 512c32327eb1..b73f61ac5dd5 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -4371,6 +4371,10 @@ static int amdgpu_dm_initialize_drm_device(struct amdgpu_device *adev)
+ 		amdgpu_set_panel_orientation(&aconnector->base);
+ 	}
  
-+/*
-+ * At least one graphics driver has reported that no LCD is connected
-+ * via the native interface. cancel the registration for fallback acpi_video0.
-+ * If another driver still deems this necessary, it can explicitly register it.
-+ */
-+void acpi_video_report_nolcd(void)
-+{
-+	cancel_delayed_work(&video_bus_register_backlight_work);
-+}
-+EXPORT_SYMBOL(acpi_video_report_nolcd);
++	/* If we didn't find a panel, notify the acpi video detection */
++	if (dm->adev->flags & AMD_IS_APU && dm->num_of_edps == 0)
++		acpi_video_report_nolcd();
 +
- int acpi_video_register(void)
- {
- 	int ret = 0;
-diff --git a/include/acpi/video.h b/include/acpi/video.h
-index a275c35e5249..8ed9bec03e53 100644
---- a/include/acpi/video.h
-+++ b/include/acpi/video.h
-@@ -53,6 +53,7 @@ enum acpi_backlight_type {
- };
- 
- #if IS_ENABLED(CONFIG_ACPI_VIDEO)
-+extern void acpi_video_report_nolcd(void);
- extern int acpi_video_register(void);
- extern void acpi_video_unregister(void);
- extern void acpi_video_register_backlight(void);
-@@ -69,6 +70,7 @@ extern int acpi_video_get_levels(struct acpi_device *device,
- 				 struct acpi_video_device_brightness **dev_br,
- 				 int *pmax_level);
- #else
-+static inline void acpi_video_report_nolcd(void) { return; };
- static inline int acpi_video_register(void) { return -ENODEV; }
- static inline void acpi_video_unregister(void) { return; }
- static inline void acpi_video_register_backlight(void) { return; }
+ 	/* Software is initialized. Now we can register interrupt handlers. */
+ 	switch (adev->asic_type) {
+ #if defined(CONFIG_DRM_AMD_DC_SI)
 -- 
 2.35.1
 
