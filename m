@@ -2,134 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD96B65C295
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 15:58:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2FF065C2B3
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 16:07:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233237AbjACO5B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 09:57:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33114 "EHLO
+        id S237564AbjACPGI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 10:06:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238149AbjACO4f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 09:56:35 -0500
-Received: from mail.marcansoft.com (marcansoft.com [212.63.210.85])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E478012752;
-        Tue,  3 Jan 2023 06:56:27 -0800 (PST)
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: marcan@marcan.st)
-        by mail.marcansoft.com (Postfix) with ESMTPSA id EE5F741DF4;
-        Tue,  3 Jan 2023 14:56:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=marcan.st; s=default;
-        t=1672757786; bh=JxObLc/qm6ouCvba+ko/0VFoVj+NMIFZ8pHIBxM2D20=;
-        h=Date:To:Cc:References:From:Subject:In-Reply-To;
-        b=Y9Lw3GuNhDYbSLECBkDfYelRfYNUeIPCzNUZlNTewWRean55tCrPsG0VK8rVtUaon
-         GNt+PB+NFYVPSxe1+/t9TqPMjB71waj3JK0CegQtx4ialHrep6CJt5YKhLhN41iePC
-         f7AaJQ3QoejXCDvLVw7hqlxAtt2QgLAtiBgp4m4aDAPIYofip8A0FqsqMQHejc+MEU
-         3ZKxYI74o79FA8JrP0giWA/DDtBCeZ3UW+25Ecd/VAwUqiarT4XWIQes4Vf2fL1INL
-         MEAqz4lyBcrBtEwsqj+x7flQvaNu5Ya8nHPN+S9YBob6Zs1zPeB9Ens7CcPbTeshwT
-         wwdGCUHHK51zw==
-Message-ID: <b98e313d-8875-056b-4b64-bb7528f2670a@marcan.st>
-Date:   Tue, 3 Jan 2023 23:56:21 +0900
+        with ESMTP id S238070AbjACPF6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 10:05:58 -0500
+Received: from mail-oa1-x33.google.com (mail-oa1-x33.google.com [IPv6:2001:4860:4864:20::33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 000F610B51
+        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 07:05:55 -0800 (PST)
+Received: by mail-oa1-x33.google.com with SMTP id 586e51a60fabf-12c8312131fso37049042fac.4
+        for <stable@vger.kernel.org>; Tue, 03 Jan 2023 07:05:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ralston.id.au; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ln3Hpxj04whwiUwy38KPHvXsJPvtlkVMO14jhU5Bin8=;
+        b=jbszDPxzVNpLIap5ukIi81Ulb4x816IiBtHv+NmuSI5aUvrk96T7sfkGGtc/K08duO
+         O6awQPQiJQsqvt8/R0i3rhF9kea9HKjVhk0LjVC1gjrdPL3+WcBsCSOAD2W8i/Rxjnu3
+         YXVr13F+O3Fr8Lxtjcka7BtJz1eJuxgYCUOFA=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Ln3Hpxj04whwiUwy38KPHvXsJPvtlkVMO14jhU5Bin8=;
+        b=XXWOp/qzXX2N4KhG0nlfN6gyVLUQQhfa9Qq0LWxPa7jxBN0UGpqEsMrZP1iDFWAOlB
+         Fr6t2febHsMCTjUmMNFWVJcC5RdnTRPWujruVolEd0Qd+vb4lHzd0L7VaOMGiAPmHdNr
+         YNTKE0SyTJyUrs+kTYJdd65yi7NvNfecVlK/oDjdg5wRe/NTY/hdQWoz9gUNGXrV3mSR
+         uB8XZ4LF7Og7kYOAbM///VIS1a2F/8gpSPvz2jLz4cc2yg9JERNHtiG1Bm3PhveiLQYU
+         MKQu0dQr36xd+9WbOtdjP+Lxck5MpDjTNOIKuXvuXhysidQnG9H0MaWfzZwQ2YFGxpiR
+         4QTA==
+X-Gm-Message-State: AFqh2kqcljD8zcKA6YKXmYSXksUnvpVgy/yEh+vfOSR35xaoKUPijQpO
+        DX99KmXfJzz5A8k5X4YdcEaLIM7cM4UBiA4330WSrg==
+X-Google-Smtp-Source: AMrXdXs7QoifFER29bfCAsB0Fub0McfhgnzUfkpUj9BvtbBuATd0zwtbAYjNm79RajNWkejZ1HwbX8j3KBol1iYbJp4=
+X-Received: by 2002:a05:687c:189:b0:14f:a2ed:988f with SMTP id
+ yo9-20020a05687c018900b0014fa2ed988fmr2107981oab.220.1672758355026; Tue, 03
+ Jan 2023 07:05:55 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Content-Language: en-US
-To:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Cc:     Sven Peter <sven@svenpeter.dev>,
-        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
-        asahi@lists.linux.dev, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Eric Curtin <ecurtin@redhat.com>,
-        "Russell King (Oracle)" <linux@armlinux.org.uk>
-References: <20230103114427.1825-1-marcan@marcan.st>
- <ff77ba1c-8b67-4697-d713-0392d3b1d77a@linaro.org>
- <95a4cfde-490f-d26d-163e-7ab1400e7380@marcan.st>
- <b118af4c-e4cc-c50b-59aa-d768f1ec69ff@linaro.org>
-From:   Hector Martin <marcan@marcan.st>
-Subject: Re: [PATCH v2] nvmem: core: Fix race in nvmem_register()
-In-Reply-To: <b118af4c-e4cc-c50b-59aa-d768f1ec69ff@linaro.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+References: <CAC2975JXkS1A5Tj9b02G_sy25ZWN-ys+tc9wmkoS=qPgKCogSg@mail.gmail.com>
+ <bf646395-1231-92f6-7c5a-5b7765596358@leemhuis.info> <87zgb0q7x4.wl-tiwai@suse.de>
+ <CAC2975K24Gt3rGieAToHjb7FEHv84aqiRSQx7EOuR2Q7KByUXw@mail.gmail.com> <87sfgrrb5f.wl-tiwai@suse.de>
+In-Reply-To: <87sfgrrb5f.wl-tiwai@suse.de>
+From:   Michael Ralston <michael@ralston.id.au>
+Date:   Wed, 4 Jan 2023 02:05:18 +1100
+Message-ID: <CAC2975+cUqiFC0LO-D-fi0swH+x=_FMuG+==mhg6HH4pc_YDRA@mail.gmail.com>
+Subject: Re: USB-Audio regression on behringer UMC404HD
+To:     Takashi Iwai <tiwai@suse.de>
+Cc:     Thorsten Leemhuis <regressions@leemhuis.info>,
+        alsa-devel@alsa-project.org, regressions@lists.linux.dev,
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 03/01/2023 23.22, Srinivas Kandagatla wrote:
->>>>    drivers/nvmem/core.c | 32 +++++++++++++++++---------------
->>>>    1 file changed, 17 insertions(+), 15 deletions(-)
->>>>
->>>> diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
->>>> index 321d7d63e068..606f428d6292 100644
->>>> --- a/drivers/nvmem/core.c
->>>> +++ b/drivers/nvmem/core.c
->>>> @@ -822,11 +822,8 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
->>>>    		break;
->>>>    	}
->>>>
->>>> -	if (rval) {
->>>> -		ida_free(&nvmem_ida, nvmem->id);
->>>> -		kfree(nvmem);
->>>> -		return ERR_PTR(rval);
->>>> -	}
->>>> +	if (rval)
->>>> +		goto err_gpiod_put;
->>>
->>> Why was gpiod changes added to this patch, that should be a separate
->>> patch/discussion, as this is not relevant to the issue that you are
->>> reporting.
->>
->> Because freeing the device also does a gpiod_put in the destructor, so
-> This are clearly untested, And I dont want this to be in the middle to 
-> fix to the issue you are hitting.
+On Wed, 4 Jan 2023 at 00:38, Takashi Iwai <tiwai@suse.de> wrote:
+>
+> Thanks; that's helpful.
+>
+> Could you try to revert the commit
+> 9902b303b5ade208b58f0dd38a09831813582211
+>     ALSA: usb-audio: Avoid unnecessary interface change at EP close
+as a blind shot?
+>
+> Also, there has been a series of fixes for other issues, and it might
+> be worth to try as well:
+>   https://lore.kernel.org/r/20230102170759.29610-1-tiwai@suse.de
+>
 
-I somehow doubt you tested any of these error paths either. Nobody tests
-initialization error paths. That's why there was a gpio leak here to
-begin with.
+I built 3 kernels: one with the reverted commit, one with the patches
+you linked, and one with both. These builds were based on 6.1.2.
 
-> We should always be careful about untested changes, in this case gpiod 
-> has some conditions to check before doing a put. So the patch is 
-> incorrect as it is.
+None of them worked. Also, even though I continued to boot with
+snd_usb_audio.dyndbg=+p, none of the kernel logs showed the debug
+messages that the other versions did. I'm baffled why this is.
 
-Then the existing code is also incorrect as it is, because the device
-release callback is doing the same gpiod_put() already. I just moved it
-out since we are now registering the device later.
+I did notice that the order that the detected sound devices appeared
+in alsa was varying. That's probably not relevant though.
 
-> These are not stupid nit picks your v1/v2 patches introduced memory 
-> leaks and regressions so i will not be picking up any patches that fall 
-> in that area.
+Links to logs:
 
-v1 certainly had issues which you rightly pointed out. Now with v2 you
-are nitpicking that I merged two codepaths that belong together, and
-fixed a corner case bug in the process. If there is an actual problem,
-please point it out. "Lol why did you fix this other bug that naturally
-falls into the influence of the changes being made" is not constructive.
+Revert only
+https://hastebin.com/avinasiruj.apache
 
->> found a bug, I fixed it, I then fixed the issues you pointed out, and I
->> don't have the time nor energy to fight over this kind of nonsense next.
-> 
-> I think its worth reading ./Documentation/process/submitting-patches.rst
+New patches only
+https://hastebin.com/aqepesokam.apache
 
-Oh I've read it alright. You're not the first maintainer to have me lose
-more faith in the kernel development process, this isn't my first rodeo
-(hint: check MAINTAINERS, I'm also a maintainer). And I know it doesn't
-have to be like this because other maintainers that are actually
-reasonable and nice to work with do exist.
+Both
+https://hastebin.com/igilaqujus.apache
 
-I'm going to note that right now this core subsystem code is broken in
-the *success path*, while all the arguments here are about the *error
-path*. In other words, there is a negligible change that any
-mistakes/regressions I'm making here would actually impact people, while
-the status quo is that the code is actively breaking people's systems.
-
-So, are you going to actually point out the supposed regressions with v2
-so we can actually fix this bug, or should I just drop this submission
-and keep it in my downstream tree and you can continue to get bug
-reports about this race condition?
-
-- Hector
+--
+Michael
