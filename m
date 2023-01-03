@@ -2,158 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DD4665C301
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 16:32:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29B2465C30A
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 16:33:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237758AbjACPb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 10:31:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51274 "EHLO
+        id S237884AbjACPdl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 10:33:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237922AbjACPbv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 10:31:51 -0500
-Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F18DB1055B
-        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 07:31:49 -0800 (PST)
-Received: by mail-oi1-x229.google.com with SMTP id h185so4835625oif.5
-        for <stable@vger.kernel.org>; Tue, 03 Jan 2023 07:31:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ralston.id.au; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=lTt2HVuMFa2TLmTHW8vOAw3rFh8HzfGuBaR9NVmmAtM=;
-        b=Fc6VGYbiL286Tp2aTPQ1Y4uy6LqcwL0sIPrVQvzVTfOG7G1huEiiKzAg3cTJAoyCPm
-         fCHjO88ck0ApBg592ZP+eHdcqwWR1OLNOIfCwUu8pyOmz9Kp1H+vzmG20/Itr/jlq7sx
-         yZHIYIREV1AoTOLSMt+owH2v8OetsWHuLKcOo=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=lTt2HVuMFa2TLmTHW8vOAw3rFh8HzfGuBaR9NVmmAtM=;
-        b=oSoXrUlomZXC11qY93OjpZ2gT2nrThC7CF7zcww5IMb+QkOGKCgpM8/xppAcGyD7/D
-         X48GcX4jYqJ0nxwqD1cYsYmo1RswwcoNv+aWFNc4SzVbShCs0lxoWUp0rLEMFtpMCQmx
-         JMoY5By8NSJ7EztMdWUT5t7fJw8pmgTlhqEdFVOMCY+2OC4oMy3FFFD3x6fTxW0MKYfb
-         rODM+fVSuRlVZfdBwUQZG1N8O7ob0sLxdNe8olOVQ0irlsQFE8o8HfISsYvsU4raZI1u
-         Fz2oEmQfWxJhpDEjW/gFWaR0hToW8MCNX5TQnnWMywcepAEpaIyKFbfFWz5UXqjzLWUc
-         ZYdw==
-X-Gm-Message-State: AFqh2krzfdaIZs2ggEhLBA5SPQ5R+2UxW9yhoWoRlFjbJON9DSKve2Ee
-        UDekc3CfBtfLU4T8TSL+nhDGIPgJz929AueuIt+rag==
-X-Google-Smtp-Source: AMrXdXugs7NnramkR5sSAo5zuOcfLDjrPK+0AmLNkuGRdZrUMmNgwV8uOgj669JUpvxLzg9XHbXkAGPI1+/F9sE2mMA=
-X-Received: by 2002:a05:6808:609:b0:35c:dee:db96 with SMTP id
- y9-20020a056808060900b0035c0deedb96mr3117471oih.235.1672759909221; Tue, 03
- Jan 2023 07:31:49 -0800 (PST)
+        with ESMTP id S237892AbjACPdk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 10:33:40 -0500
+Received: from mail.marcansoft.com (marcansoft.com [212.63.210.85])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1471011C0A;
+        Tue,  3 Jan 2023 07:33:39 -0800 (PST)
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits))
+        (No client certificate requested)
+        (Authenticated sender: marcan@marcan.st)
+        by mail.marcansoft.com (Postfix) with ESMTPSA id 47E7641DF4;
+        Tue,  3 Jan 2023 15:33:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=marcan.st; s=default;
+        t=1672760017; bh=Cfjad1f4bMHiStflEproBmzMrnqAIcpfSbdhxfxcGFw=;
+        h=Date:To:Cc:References:From:Subject:In-Reply-To;
+        b=iuX9XmiIXyPtwb1i6zlDMi9aiAfYcZByMkS78kNY1+hWkP3WqiFHgRhvHhaOImFeW
+         toMfl29Qcz1XmFPuRUKeHcq8ewI4JBmpnw32ODfXyhcq3IaDkY8zusTywUaaTxUoyt
+         moWuw9afzWcVouz8TuQ1KPMj6GOZpxF3IEkH8nw8oGtKeh2lByexuvDm0br4wnKK+r
+         ghDchTFu3IHqk6Hu9BHRlESoL8ty2avW6NVBfjsKTjkHLYEoF8RbJ6065D2tgP5iRg
+         eHTSOnUAQlkFGD+9ddemxhevEo/XyrI4XIEAcrHXk6eFEuVsyKatZKql7UTRnaNj98
+         DqE3WwQ2Hu+yg==
+Message-ID: <03514845-dfd6-a117-83c8-ab3abc402229@marcan.st>
+Date:   Wed, 4 Jan 2023 00:33:33 +0900
 MIME-Version: 1.0
-References: <CAC2975JXkS1A5Tj9b02G_sy25ZWN-ys+tc9wmkoS=qPgKCogSg@mail.gmail.com>
- <bf646395-1231-92f6-7c5a-5b7765596358@leemhuis.info> <87zgb0q7x4.wl-tiwai@suse.de>
- <CAC2975K24Gt3rGieAToHjb7FEHv84aqiRSQx7EOuR2Q7KByUXw@mail.gmail.com>
- <87sfgrrb5f.wl-tiwai@suse.de> <CAC2975+cUqiFC0LO-D-fi0swH+x=_FMuG+==mhg6HH4pc_YDRA@mail.gmail.com>
- <87bknfr6rd.wl-tiwai@suse.de> <CAC2975+CP0WKmXouX_8TffT1+VpU3EuOzyGHMv+VsAOBjCyhnA@mail.gmail.com>
- <878rijr6dz.wl-tiwai@suse.de>
-In-Reply-To: <878rijr6dz.wl-tiwai@suse.de>
-From:   Michael Ralston <michael@ralston.id.au>
-Date:   Wed, 4 Jan 2023 02:31:13 +1100
-Message-ID: <CAC2975+Ybz2-jyJAwAUEu5S1XKfp0B-p4s-gAsMPfZdD61uNfQ@mail.gmail.com>
-Subject: Re: USB-Audio regression on behringer UMC404HD
-To:     Takashi Iwai <tiwai@suse.de>
-Cc:     Thorsten Leemhuis <regressions@leemhuis.info>,
-        alsa-devel@alsa-project.org, regressions@lists.linux.dev,
-        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Content-Language: en-US
+To:     "Russell King (Oracle)" <linux@armlinux.org.uk>
+Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Sven Peter <sven@svenpeter.dev>,
+        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+        asahi@lists.linux.dev, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Eric Curtin <ecurtin@redhat.com>
+References: <20230103114427.1825-1-marcan@marcan.st>
+ <ff77ba1c-8b67-4697-d713-0392d3b1d77a@linaro.org>
+ <95a4cfde-490f-d26d-163e-7ab1400e7380@marcan.st>
+ <b118af4c-e4cc-c50b-59aa-d768f1ec69ff@linaro.org>
+ <b98e313d-8875-056b-4b64-bb7528f2670a@marcan.st>
+ <Y7RHTXZ60zuExeMA@shell.armlinux.org.uk>
+From:   Hector Martin <marcan@marcan.st>
+Subject: Re: [PATCH v2] nvmem: core: Fix race in nvmem_register()
+In-Reply-To: <Y7RHTXZ60zuExeMA@shell.armlinux.org.uk>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-5.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 4 Jan 2023 at 02:21, Takashi Iwai <tiwai@suse.de> wrote:
->
-> Hrm...  Try to reload snd_usb_audio module with the dyndbg=+p option,
-> e.g.
->
->   # modprobe -r snd-usb-audio
->   # modprobe snd_usb_audio dyndbg=+p
->
-> Or you can try to put your own debug printk(); we need to make sure
-> whether it's really the right code you're testing at first.
->
+On 04/01/2023 00.18, Russell King (Oracle) wrote:
+> On Tue, Jan 03, 2023 at 11:56:21PM +0900, Hector Martin wrote:
+>> On 03/01/2023 23.22, Srinivas Kandagatla wrote:
+>>>>>>    drivers/nvmem/core.c | 32 +++++++++++++++++---------------
+>>>>>>    1 file changed, 17 insertions(+), 15 deletions(-)
+>>>>>>
+>>>>>> diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+>>>>>> index 321d7d63e068..606f428d6292 100644
+>>>>>> --- a/drivers/nvmem/core.c
+>>>>>> +++ b/drivers/nvmem/core.c
+>>>>>> @@ -822,11 +822,8 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+>>>>>>    		break;
+>>>>>>    	}
+>>>>>>
+>>>>>> -	if (rval) {
+>>>>>> -		ida_free(&nvmem_ida, nvmem->id);
+>>>>>> -		kfree(nvmem);
+>>>>>> -		return ERR_PTR(rval);
+>>>>>> -	}
+>>>>>> +	if (rval)
+>>>>>> +		goto err_gpiod_put;
+>>>>>
+>>>>> Why was gpiod changes added to this patch, that should be a separate
+>>>>> patch/discussion, as this is not relevant to the issue that you are
+>>>>> reporting.
+>>>>
+>>>> Because freeing the device also does a gpiod_put in the destructor, so
+>>> This are clearly untested, And I dont want this to be in the middle to 
+>>> fix to the issue you are hitting.
+>>
+>> I somehow doubt you tested any of these error paths either. Nobody tests
+>> initialization error paths. That's why there was a gpio leak here to
+>> begin with.
+> 
+> Sadly, this is one of the biggest problems with error paths, they get
+> very little proper testing - and in most cases we're reliant on
+> reviewers spotting errors. That's why we much prefer the devm_* stuff,
+> but even that can be error-prone.
+> 
+>>> We should always be careful about untested changes, in this case gpiod 
+>>> has some conditions to check before doing a put. So the patch is 
+>>> incorrect as it is.
+>>
+>> Then the existing code is also incorrect as it is, because the device
+>> release callback is doing the same gpiod_put() already. I just moved it
+>> out since we are now registering the device later.
+> 
+> At the point where this change is being made (checking rval after
+> dev_set_name()) the struct device has not been initialised, so the
+> release callback will not be called. nvmem->wp_gpio will be leaked.
 
-Ok, it looks like it was ignoring the kernel command line for some
-reason. modprobing it with the option brought up debug messages again.
+But later in the code where device_put() was being called would will be,
+and that callback is calling gpiod_put() unconditionally, which is why I
+am doing the same after moving the device registration later.
 
-I'm still running kernel 6.1.2 vanilla with the revert and the patches.
+Is this wrong? Well,
 
-aplay hung again when I ran it, the kernel was stuck on:
-Jan 04 02:25:59 leatherback kernel: usb 1-4: 1:1 Start Playback PCM
+> However, there may be bigger problems with wp_gpio - related to where
+> it can come from and what we do with it.
+> 
+> nvmem->wp_gpio has two sources - one of them is gpiod_get_optional(),
+> and we need to call gpiod_put() on that to drop the reference that
+> _this_ code acquired. The other is config->wp_gpio - we don't own
+> that reference, yet we call gpiod_put() on it. I'm not sure whether
+> config->wp_gpio is actually used anywhere - my grepping so far has
+> not found any users, but maybe Srivinas knows better.
 
-and didn't output another line until I ctrl+c aplay.
+... then yes, it's wrong, and the original code is already broken too. I
+merely moved functionality around in the other cases *except* the one
+case after dev_set_name(), where I swapped one bug out for calling other
+buggy code derived from existing buggy code. ¯\_(ツ)_/¯
 
-Jan 04 02:25:27 leatherback kernel: mc: Linux media interface: v0.10
-Jan 04 02:25:27 leatherback kernel: usb 1-3: Found last interface = 1
-Jan 04 02:25:27 leatherback kernel: usb 1-4: Set quirk_flags 0x20010
-for device 1397:0509
-Jan 04 02:25:27 leatherback kernel: usb 1-4: Found last interface = 4
-Jan 04 02:25:27 leatherback kernel: usb 1-4: 1:1: added playback
-implicit_fb sync_ep 88, iface 2:1
-Jan 04 02:25:27 leatherback kernel: usb 1-4: 1:1: add audio endpoint 0x8
-Jan 04 02:25:27 leatherback kernel: usb 1-4: Creating new data endpoint #8
-Jan 04 02:25:27 leatherback kernel: usb 1-4: Creating new data endpoint #88
-Jan 04 02:25:27 leatherback kernel: usb 1-4: 2:1: add audio endpoint 0x88
-Jan 04 02:25:27 leatherback kernel: usb 1-4: [10] FU [PCM Playback
-Switch] ch = 4, val = 0/1/1
-Jan 04 02:25:27 leatherback kernel: usb 1-4: [10] FU [PCM Playback
-Switch] ch = 1, val = 0/1/1
-Jan 04 02:25:27 leatherback kernel: usb 1-4: [10] FU [PCM Playback
-Volume] ch = 4, val = -32512/0/256
-Jan 04 02:25:27 leatherback kernel: usb 1-4: [10] FU [PCM Playback
-Volume] ch = 1, val = -32512/0/256
-Jan 04 02:25:27 leatherback kernel: usb 1-4: [11] FU [Mic Capture
-Switch] ch = 4, val = 0/1/1
-Jan 04 02:25:27 leatherback kernel: usb 1-4: [11] FU [Mic Capture
-Switch] ch = 1, val = 0/1/1
-Jan 04 02:25:27 leatherback kernel: usb 1-4: [11] FU [Mic Capture
-Volume] ch = 4, val = -32512/0/256
-Jan 04 02:25:27 leatherback kernel: usb 1-4: [11] FU [Mic Capture
-Volume] ch = 1, val = -32512/0/256
-Jan 04 02:25:27 leatherback kernel: usbcore: registered new interface
-driver snd-usb-audio
-Jan 04 02:25:59 leatherback kernel: usb 1-4: Open EP 0x8, iface=1:1, idx=0
-Jan 04 02:25:59 leatherback kernel: usb 1-4:   channels=4, rate=48000,
-format=S32_LE, period_bytes=96000, periods=4, implicit_fb=1
-Jan 04 02:25:59 leatherback kernel: usb 1-4: Open EP 0x88, iface=2:1, idx=0
-Jan 04 02:25:59 leatherback kernel: usb 1-4:   channels=4, rate=48000,
-format=S32_LE, period_bytes=96000, periods=4, implicit_fb=0
-Jan 04 02:25:59 leatherback kernel: usb 1-4: Setting params for data
-EP 0x88, pipe 0x40580
-Jan 04 02:25:59 leatherback kernel: usb 1-4: Set up 12 URBS, ret=0
-Jan 04 02:25:59 leatherback kernel: usb 1-4: Setting params for data
-EP 0x8, pipe 0x40500
-Jan 04 02:25:59 leatherback kernel: usb 1-4: Set up 12 URBS, ret=0
-Jan 04 02:25:59 leatherback kernel: usb 1-4: Setting usb interface 2:0
-for EP 0x88
-Jan 04 02:25:59 leatherback kernel: usb 1-4: 2:1 Set sample rate 48000, clock 40
-Jan 04 02:25:59 leatherback kernel: usb 1-4: Setting usb interface 2:1
-for EP 0x88
-Jan 04 02:25:59 leatherback kernel: usb 1-4: Setting usb interface 1:0
-for EP 0x8
-Jan 04 02:25:59 leatherback kernel: usb 1-4: Setting usb interface 1:1
-for EP 0x8
-Jan 04 02:25:59 leatherback kernel: usb 1-4: Starting data EP 0x8 (running 0)
-Jan 04 02:25:59 leatherback kernel: usb 1-4: 12 URBs submitted for EP 0x8
-Jan 04 02:25:59 leatherback kernel: usb 1-4: Starting data EP 0x88 (running 0)
-Jan 04 02:25:59 leatherback kernel: usb 1-4: 12 URBs submitted for EP 0x88
-Jan 04 02:25:59 leatherback kernel: usb 1-4: 1:1 Start Playback PCM
-Jan 04 02:26:20 leatherback kernel: usb 1-4: Stopping data EP 0x88 (running 1)
-Jan 04 02:26:20 leatherback kernel: usb 1-4: Stopping data EP 0x8 (running 1)
-Jan 04 02:26:20 leatherback kernel: usb 1-4: 1:1 Stop Playback PCM
-Jan 04 02:26:20 leatherback kernel: usb 1-4: Closing EP 0x8 (count 1)
-Jan 04 02:26:20 leatherback kernel: usb 1-4: Setting usb interface 1:0
-for EP 0x8
-Jan 04 02:26:20 leatherback kernel: usb 1-4: EP 0x8 closed
-Jan 04 02:26:20 leatherback kernel: usb 1-4: Closing EP 0x88 (count 1)
-Jan 04 02:26:20 leatherback kernel: usb 1-4: Setting usb interface 2:0
-for EP 0x88
-Jan 04 02:26:20 leatherback kernel: usb 1-4: EP 0x88 closed
+> Hence, sorting out the leak of wp_gpio needs more discussion, and it
+> would not be right to delay merging the fix for the very real race
+> that people hit today resulting in stuff not working while we try
+> to work out how wp_gpio should be handled.
+
+> So... always fix one problem in one patch. Sometimes a fix is not as
+> obvious as one may first think.
+
+Sure, but you do realize the issue here, right? This, coupled with the
+kernel development model (and *especially* the impolite discourse that
+often goes along with it from maintainers) incentivizes doing the
+minimum amount of work to fix the minimum amount of bugs that actually
+affect people. I couldn't care less about the gpiod leak fix, it doesn't
+affect me, but I noticed and thought I could fix it. Turns out it's more
+complicated than that because the existing code is even more broken than
+I thought, sure - but I have no incentive to start that conversation nor
+fix all this now. Now I just know next time I touch nvmem code I won't
+bother pointing out any bugs I notice by accident, because clearly the
+discussion likely to follow is more mental overhead than I'm willing to
+spend on something that doesn't affect me. When bugs don't noticeably
+break people and fixing them is too much effort, nobody will.
+
+While if my change had been merged as-is, we'd have at least fixed one
+common case bug and reduced two related bugs to one class of bug (the
+unconditional gpiod_put()) which is still a strict improvement. And then
+someone can point out the incorrect puts when the GPIO isn't owned and
+fix that later if they want.
+
+- Hector
