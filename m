@@ -2,38 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD12B65BD6B
-	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 10:48:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC08A65BD53
+	for <lists+stable@lfdr.de>; Tue,  3 Jan 2023 10:41:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236812AbjACJsA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 04:48:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33278 "EHLO
+        id S233134AbjACJlq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 04:41:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237278AbjACJrm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 04:47:42 -0500
-X-Greylist: delayed 479 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 03 Jan 2023 01:47:39 PST
-Received: from outbound-smtp25.blacknight.com (outbound-smtp25.blacknight.com [81.17.249.193])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8DA9E0DE
-        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 01:47:39 -0800 (PST)
-Received: from mail.blacknight.com (pemlinmail05.blacknight.ie [81.17.254.26])
-        by outbound-smtp25.blacknight.com (Postfix) with ESMTPS id 30700CAC7C
-        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 09:39:39 +0000 (GMT)
-Received: (qmail 10971 invoked from network); 3 Jan 2023 09:39:39 -0000
-Received: from unknown (HELO techsingularity.net) (mgorman@techsingularity.net@[84.203.198.246])
-  by 81.17.254.9 with ESMTPSA (AES256-SHA encrypted, authenticated); 3 Jan 2023 09:39:38 -0000
-Date:   Tue, 3 Jan 2023 09:39:37 +0000
-From:   Mel Gorman <mgorman@techsingularity.net>
-To:     gregkh@linuxfoundation.org
-Cc:     jack@suse.cz, tglx@linutronix.de, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] rtmutex: Add acquire semantics for
- rtmutex lock acquisition" failed to apply to 5.15-stable tree
-Message-ID: <20230103093937.enoobqqkdoumdmcc@techsingularity.net>
-References: <167265568418742@kroah.com>
+        with ESMTP id S232970AbjACJlo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 04:41:44 -0500
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E4162D2;
+        Tue,  3 Jan 2023 01:41:43 -0800 (PST)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 176253824A;
+        Tue,  3 Jan 2023 09:41:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1672738902; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=INe1fRfDJG3P7PcSGiSjhLagJ0XMpmhGUZjZv1725PQ=;
+        b=DyhqLbWcmkJ8E4l+8lrj+YTGgJHJxZ+gwmkvvc7cJqIc481jWHw6QFzlER7icrSxINhysN
+        WGF+kmr/GGDDMCBofEIbnTIdii8KNbAN4EgH39qeb22mI1Px3/Gl5FqQbvrYLdt9/NENk0
+        gxkaPnS1zbKplJ3LZMFimW73X75tWM0=
+Received: from suse.cz (unknown [10.100.201.202])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 9DA752C141;
+        Tue,  3 Jan 2023 09:41:41 +0000 (UTC)
+Date:   Tue, 3 Jan 2023 10:41:39 +0100
+From:   Petr Mladek <pmladek@suse.com>
+To:     John Ogness <john.ogness@linutronix.de>
+Cc:     Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        linux-kernel@vger.kernel.org, Baoquan He <bhe@redhat.com>,
+        Vivek Goyal <vgoyal@redhat.com>,
+        Dave Young <dyoung@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kexec@lists.infradead.org,
+        linux-doc@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] docs: gdbmacros: print newest record
+Message-ID: <Y7P4UwjRQG8Tov1D@alley>
+References: <20221229134339.197627-1-john.ogness@linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <167265568418742@kroah.com>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+In-Reply-To: <20221229134339.197627-1-john.ogness@linutronix.de>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -41,33 +56,22 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 02, 2023 at 11:34:44AM +0100, gregkh@linuxfoundation.org wrote:
+On Thu 2022-12-29 14:49:39, John Ogness wrote:
+> @head_id points to the newest record, but the printing loop
+> exits when it increments to this value (before printing).
 > 
-> The patch below does not apply to the 5.15-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+> Exit the printing loop after the newest record has been printed.
 > 
-> Possible dependencies:
+> The python-based function in scripts/gdb/linux/dmesg.py already
+> does this correctly.
 > 
-> 1c0908d8e441 ("rtmutex: Add acquire semantics for rtmutex lock acquisition slow path")
-> ee042be16cb4 ("locking: Apply contention tracepoints in the slow path")
-> d257cc8cb8d5 ("locking/rwsem: Make handoff bit handling more consistent")
-> 7cdacc5f52d6 ("locking/rwsem: Disable preemption for spinning region")
-> 
-> thanks,
-> 
-> greg k-h
-> 
+> Fixes: e60768311af8 ("scripts/gdb: update for lockless printk ringbuffer")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: John Ogness <john.ogness@linutronix.de>
 
-Hi Greg,
+Great catch!
 
-I don't plan to backport this to -stable. It's PREEMPT_RT-specific so
-anyone how needs it are managing their own OOT patches. The prerequisites
-are not -stable material so ideally anyone backporting would be functionally
-verifying their target workloads still works ok and meets deadlines. Normal
-users of stable kernels are not impacted by the bug this patch fixes.
+Reviewed-by: Petr Mladek <pmladek@suse.com>
 
--- 
-Mel Gorman
-SUSE Labs
+Best Regards,
+Petr
