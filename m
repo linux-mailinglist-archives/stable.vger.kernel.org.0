@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9772065D5BF
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:34:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16F0C65D5C1
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:34:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239517AbjADOdf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:33:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55146 "EHLO
+        id S239456AbjADOeD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:34:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239625AbjADOdb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:33:31 -0500
+        with ESMTP id S239516AbjADOdf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:33:35 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FF5C7665
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:33:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F9A237525
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:33:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B3F756175F
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:33:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C97A5C433EF;
-        Wed,  4 Jan 2023 14:33:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DFE836175F
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:33:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3968C433EF;
+        Wed,  4 Jan 2023 14:33:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672842809;
-        bh=Ra2/IVmyABZBgpLYp/AvqcQwMrj3/2qouNF10A9FGL8=;
+        s=korg; t=1672842812;
+        bh=gLvVfw34sOsqqZyqCzI4r5dDoWvdiq+40X4uvoULk80=;
         h=Subject:To:Cc:From:Date:From;
-        b=P6SPWG+9RJKrR5SWrvpTNgsf5h7uNehBAM1ikMTE2JUfhjDTz3hnTHPGnadi3G+gK
-         ffK2CAWxM8TDXUI1XxLYh27xAWGOj5J2MQ3AdIDFyBS969cLZQwP8OFNLhH9GOWfGz
-         u7Jlt/+6hG3ErfCN7fo+DQJmyiJZIh75jDhiZin8=
-Subject: FAILED: patch "[PATCH] iommu/amd: Fix ill-formed ivrs_ioapic, ivrs_hpet and" failed to apply to 4.19-stable tree
+        b=KI4yUQjC/CYJVvWYuayVS4L7IP8Wi9Q+TyT0YArHdqa3TqUpURIq8gw9DkcohyuoU
+         Jo+C4pn6N4hBxQDRaMemTYw2w7JXKCWgquQnjf0f3hmHXnNxVIevHzwCfJc1WG0tz8
+         gsJ2f4izA1aLIfBClUG/mabSiqklLd+usLgx1moE=
+Subject: FAILED: patch "[PATCH] iommu/amd: Fix ill-formed ivrs_ioapic, ivrs_hpet and" failed to apply to 4.14-stable tree
 To:     kim.phillips@amd.com, jroedel@suse.de,
         suravee.suthikulpanit@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:33:20 +0100
-Message-ID: <167284280021538@kroah.com>
+Date:   Wed, 04 Jan 2023 15:33:21 +0100
+Message-ID: <1672842801102105@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
