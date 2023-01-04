@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46E9D65D990
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76CBE65D92D
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:22:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239853AbjADQ0R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:26:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46254 "EHLO
+        id S239717AbjADQWW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:22:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239757AbjADQZk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:25:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92FCC1C136
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:25:39 -0800 (PST)
+        with ESMTP id S240020AbjADQWL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:22:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E186F140B5
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:22:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4D294B81731
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:25:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A393FC433EF;
-        Wed,  4 Jan 2023 16:25:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D2AFB817BF
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:22:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D499CC433D2;
+        Wed,  4 Jan 2023 16:22:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849537;
-        bh=r9gpkwUQ4GAZnNuMWhHpqcOJjhZ41GYTe9WsgUmaTT0=;
+        s=korg; t=1672849328;
+        bh=nlUhkipnWJlGvxlQnVzGIT5NpikZ5PBb2UEBcPbAbZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wMXiFGRGucQhWQxf/qqc7EUju7D6BOLeN8IJvA0fGeIuAUXw1fMi5bYu8EzDqVD4/
-         fSj6LJTha1YsNcZlV6nH1iabHJBiW5EzbRGA91H09MlNlKdqYeMM8r/s5bT3u+KL8u
-         LsfZSbLVf/AkE4pv07a3bR7aKDnXmqTsGu44JCHM=
+        b=QBOUbtS1Tncj+PI3i0Lw0duqws6OSMOvUw6Z99kKW+bwwPRa6jQ1grJiQC9xoU92Z
+         YUtFf+fw9cGwmDYif6L+h0VhP8XVH/dBse4v+gRbcI+9L/CZeqZPrvevn3/FInSlfJ
+         BnCHKZqXwccyDE+KIjTgOSNd2iH858eNsXR2r5EA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
-        Jason Yan <yanaijie@huawei.com>, Jan Kara <jack@suse.cz>,
+        patches@lists.linux.dev,
+        syzbot+05a0f0ccab4a25626e38@syzkaller.appspotmail.com,
+        Ye Bin <yebin10@huawei.com>, Eric Whitney <enwlinux@gmail.com>,
         Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 6.0 138/177] ext4: add EXT4_IGET_BAD flag to prevent unexpected bad inode
+Subject: [PATCH 6.1 171/207] ext4: fix reserved cluster accounting in __es_remove_extent()
 Date:   Wed,  4 Jan 2023 17:07:09 +0100
-Message-Id: <20230104160511.829741228@linuxfoundation.org>
+Message-Id: <20230104160517.296797563@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,72 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Ye Bin <yebin10@huawei.com>
 
-commit 63b1e9bccb71fe7d7e3ddc9877dbdc85e5d2d023 upstream.
+commit 1da18e38cb97e9521e93d63034521a9649524f64 upstream.
 
-There are many places that will get unhappy (and crash) when ext4_iget()
-returns a bad inode. However, if iget the boot loader inode, allows a bad
-inode to be returned, because the inode may not be initialized. This
-mechanism can be used to bypass some checks and cause panic. To solve this
-problem, we add a special iget flag EXT4_IGET_BAD. Only with this flag
-we'd be returning bad inode from ext4_iget(), otherwise we always return
-the error code if the inode is bad inode.(suggested by Jan Kara)
+When bigalloc is enabled, reserved cluster accounting for delayed
+allocation is handled in extent_status.c.  With a corrupted file
+system, it's possible for this accounting to be incorrect,
+dsicovered by Syzbot:
 
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jason Yan <yanaijie@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221026042310.3839669-4-libaokun1@huawei.com
+EXT4-fs error (device loop0): ext4_validate_block_bitmap:398: comm rep:
+	bg 0: block 5: invalid block bitmap
+EXT4-fs (loop0): Delayed block allocation failed for inode 18 at logical
+	offset 0 with max blocks 32 with error 28
+EXT4-fs (loop0): This should not happen!! Data will be lost
+
+EXT4-fs (loop0): Total free blocks count 0
+EXT4-fs (loop0): Free/Dirty block details
+EXT4-fs (loop0): free_blocks=0
+EXT4-fs (loop0): dirty_blocks=32
+EXT4-fs (loop0): Block reservation details
+EXT4-fs (loop0): i_reserved_data_blocks=2
+EXT4-fs (loop0): Inode 18 (00000000845cd634):
+	i_reserved_data_blocks (1) not cleared!
+
+Above issue happens as follows:
+Assume:
+sbi->s_cluster_ratio = 16
+Step1:
+Insert delay block [0, 31] -> ei->i_reserved_data_blocks=2
+Step2:
+ext4_writepages
+  mpage_map_and_submit_extent -> return failed
+  mpage_release_unused_pages -> to release [0, 30]
+    ext4_es_remove_extent -> remove lblk=0 end=30
+      __es_remove_extent -> len1=0 len2=31-30=1
+ __es_remove_extent:
+ ...
+ if (len2 > 0) {
+  ...
+	  if (len1 > 0) {
+		  ...
+	  } else {
+		es->es_lblk = end + 1;
+		es->es_len = len2;
+		...
+	  }
+  	if (count_reserved)
+		count_rsvd(inode, lblk, ...);
+	goto out; -> will return but didn't calculate 'reserved'
+ ...
+Step3:
+ext4_destroy_inode -> trigger "i_reserved_data_blocks (1) not cleared!"
+
+To solve above issue if 'len2>0' call 'get_rsvd()' before goto out.
+
+Reported-by: syzbot+05a0f0ccab4a25626e38@syzkaller.appspotmail.com
+Fixes: 8fcc3a580651 ("ext4: rework reserved cluster accounting when invalidating pages")
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Eric Whitney <enwlinux@gmail.com>
+Link: https://lore.kernel.org/r/20221208033426.1832460-2-yebin@huaweicloud.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/ext4.h  |    3 ++-
- fs/ext4/inode.c |    8 +++++++-
- fs/ext4/ioctl.c |    3 ++-
- 3 files changed, 11 insertions(+), 3 deletions(-)
+ fs/ext4/extents_status.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -2964,7 +2964,8 @@ int do_journal_get_write_access(handle_t
- typedef enum {
- 	EXT4_IGET_NORMAL =	0,
- 	EXT4_IGET_SPECIAL =	0x0001, /* OK to iget a system inode */
--	EXT4_IGET_HANDLE = 	0x0002	/* Inode # is from a handle */
-+	EXT4_IGET_HANDLE = 	0x0002,	/* Inode # is from a handle */
-+	EXT4_IGET_BAD =		0x0004  /* Allow to iget a bad inode */
- } ext4_iget_flags;
+--- a/fs/ext4/extents_status.c
++++ b/fs/ext4/extents_status.c
+@@ -1371,7 +1371,7 @@ retry:
+ 		if (count_reserved)
+ 			count_rsvd(inode, lblk, orig_es.es_len - len1 - len2,
+ 				   &orig_es, &rc);
+-		goto out;
++		goto out_get_reserved;
+ 	}
  
- extern struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -5053,8 +5053,14 @@ struct inode *__ext4_iget(struct super_b
- 	if (IS_CASEFOLDED(inode) && !ext4_has_feature_casefold(inode->i_sb))
- 		ext4_error_inode(inode, function, line, 0,
- 				 "casefold flag without casefold feature");
--	brelse(iloc.bh);
-+	if (is_bad_inode(inode) && !(flags & EXT4_IGET_BAD)) {
-+		ext4_error_inode(inode, function, line, 0,
-+				 "bad inode without EXT4_IGET_BAD flag");
-+		ret = -EUCLEAN;
-+		goto bad_inode;
-+	}
+ 	if (len1 > 0) {
+@@ -1413,6 +1413,7 @@ retry:
+ 		}
+ 	}
  
-+	brelse(iloc.bh);
- 	unlock_new_inode(inode);
- 	return inode;
- 
---- a/fs/ext4/ioctl.c
-+++ b/fs/ext4/ioctl.c
-@@ -374,7 +374,8 @@ static long swap_inode_boot_loader(struc
- 	blkcnt_t blocks;
- 	unsigned short bytes;
- 
--	inode_bl = ext4_iget(sb, EXT4_BOOT_LOADER_INO, EXT4_IGET_SPECIAL);
-+	inode_bl = ext4_iget(sb, EXT4_BOOT_LOADER_INO,
-+			EXT4_IGET_SPECIAL | EXT4_IGET_BAD);
- 	if (IS_ERR(inode_bl))
- 		return PTR_ERR(inode_bl);
- 	ei_bl = EXT4_I(inode_bl);
++out_get_reserved:
+ 	if (count_reserved)
+ 		*reserved = get_rsvd(inode, end, es, &rc);
+ out:
 
 
