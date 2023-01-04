@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F7B765D5E2
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:37:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A94C665D5E6
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:37:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231130AbjADOhT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:37:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57588 "EHLO
+        id S235184AbjADOh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:37:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237542AbjADOhQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:37:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5E7DE7E
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:37:15 -0800 (PST)
+        with ESMTP id S239184AbjADOh1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:37:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CC5DE7E
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:37:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5DA4BB8166B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:37:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C38ADC433F0;
-        Wed,  4 Jan 2023 14:37:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DE27D6175D
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:37:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7DCBC433F0;
+        Wed,  4 Jan 2023 14:37:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672843033;
-        bh=50PWr/NIxnc71/NjznbROl89vgotgUCH1SitKMuaxqE=;
+        s=korg; t=1672843046;
+        bh=ZglTiezfGvwg1N+8RABfdalfXKdwOG7c+6q1a660blc=;
         h=Subject:To:Cc:From:Date:From;
-        b=kF+bvOEFQnUC6rVrxxh3IXDUUwSPhfC3rPigXHemFqh8F0WNXUGwfrKPO4LEDUxZo
-         zBw2l91elmRLBXMrEaOUoeDUbyfNb1QgfPoQuHLQ5ifBvUpehHh5k8Dud6jgF5y+EU
-         6x7Zo8h5YU4ISWE3Kj9vT1+zH6/ajVKJleCnu/zc=
-Subject: FAILED: patch "[PATCH] drm/amd/dc/dce120: Fix audio register mapping, stop" failed to apply to 6.0-stable tree
-To:     lyude@redhat.com, alexander.deucher@amd.com
+        b=NeS0aWldf5ORXnKyc9aTtQ+RDMvkEye4qNGIxsIFEvzfnX4UmCKOCmgvrnZA61RTt
+         L8zfCKdmKIV0Q/55O4bZI44DTaXx5BZhBVVjFkABFvYfieZDxM4j0C7AV6nTjC51c+
+         V6CPZo80ED9kUhKKhJfJoyf+AX4m2CI8MGcc24Qc=
+Subject: FAILED: patch "[PATCH] drm/amdgpu: always register an MMU notifier for userptr" failed to apply to 6.1-stable tree
+To:     christian.koenig@amd.com, Felix.Kuehling@amd.com,
+        alexander.deucher@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:37:02 +0100
-Message-ID: <167284302214062@kroah.com>
+Date:   Wed, 04 Jan 2023 15:37:12 +0100
+Message-ID: <167284303217266@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -47,14 +48,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-6110a80f31b7 ("drm/amd/dc/dce120: Fix audio register mapping, stop triggering KASAN")
+631945e04e1e ("drm/amdgpu: always register an MMU notifier for userptr")
 
 thanks,
 
@@ -62,42 +63,40 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6110a80f31b74773a28394259695513e0ac38406 Mon Sep 17 00:00:00 2001
-From: Lyude Paul <lyude@redhat.com>
-Date: Mon, 14 Nov 2022 17:20:45 -0500
-Subject: [PATCH] drm/amd/dc/dce120: Fix audio register mapping, stop
- triggering KASAN
+From 631945e04e1e243a503089f4487cad797476e8ca Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
+Date: Wed, 9 Nov 2022 12:14:44 +0100
+Subject: [PATCH] drm/amdgpu: always register an MMU notifier for userptr
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-There's been a very long running bug that seems to have been neglected for
-a while, where amdgpu consistently triggers a KASAN error at start:
+Since switching to HMM we always need that because we no longer grab
+references to the pages.
 
-  BUG: KASAN: global-out-of-bounds in read_indirect_azalia_reg+0x1d4/0x2a0 [amdgpu]
-  Read of size 4 at addr ffffffffc2274b28 by task modprobe/1889
-
-After digging through amd's rather creative method for accessing registers,
-I eventually discovered the problem likely has to do with the fact that on
-my dce120 GPU there are supposedly 7 sets of audio registers. But we only
-define a register mapping for 6 sets.
-
-So, fix this and fix the KASAN warning finally.
-
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Cc: stable@vger.kernel.org
+Signed-off-by: Christian König <christian.koenig@amd.com>
 Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Acked-by: Felix Kuehling <Felix.Kuehling@amd.com>
+CC: stable@vger.kernel.org
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dce120/dce120_resource.c b/drivers/gpu/drm/amd/display/dc/dce120/dce120_resource.c
-index 1b70b78e2fa1..af631085e88c 100644
---- a/drivers/gpu/drm/amd/display/dc/dce120/dce120_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce120/dce120_resource.c
-@@ -359,7 +359,8 @@ static const struct dce_audio_registers audio_regs[] = {
- 	audio_regs(2),
- 	audio_regs(3),
- 	audio_regs(4),
--	audio_regs(5)
-+	audio_regs(5),
-+	audio_regs(6),
- };
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
+index 8ef31d687ef3..111484ceb47d 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
+@@ -413,11 +413,9 @@ int amdgpu_gem_userptr_ioctl(struct drm_device *dev, void *data,
+ 	if (r)
+ 		goto release_object;
  
- #define DCE120_AUD_COMMON_MASK_SH_LIST(mask_sh)\
+-	if (args->flags & AMDGPU_GEM_USERPTR_REGISTER) {
+-		r = amdgpu_mn_register(bo, args->addr);
+-		if (r)
+-			goto release_object;
+-	}
++	r = amdgpu_mn_register(bo, args->addr);
++	if (r)
++		goto release_object;
+ 
+ 	if (args->flags & AMDGPU_GEM_USERPTR_VALIDATE) {
+ 		r = amdgpu_ttm_tt_get_user_pages(bo, bo->tbo.ttm->pages);
 
