@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3154465D382
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:59:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9E8F65D381
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:59:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229679AbjADM5w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 07:57:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38678 "EHLO
+        id S237524AbjADM6H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 07:58:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229499AbjADM5u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:57:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7439BEE12
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 04:57:49 -0800 (PST)
+        with ESMTP id S234029AbjADM6C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:58:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ACED12745
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 04:58:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C395B81630
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 12:57:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89DB2C433F0;
-        Wed,  4 Jan 2023 12:57:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3622EB81640
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 12:57:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D813C433D2;
+        Wed,  4 Jan 2023 12:57:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672837066;
-        bh=DIrUhqGKMPIbMy6qeFu9e/9LsNTpEbqssHLeUlyGZkg=;
+        s=korg; t=1672837077;
+        bh=VYIjQb7OaaF72sQ+G1+Ljq96uweEx8b24MOMAVv1HWw=;
         h=Subject:To:Cc:From:Date:From;
-        b=Y/QtflocATi18d1nT4+Qx97RknO/0j6VorqnRLwF7jmZZD+3a5V96yMm4/blVWUJn
-         H2ZXNPBubiA5YbZaRq+aia4M0w76zOvN+smW5mq+ECL8xOI3pZVbmfqGeL2K8vqM5c
-         ElPPLW1ixDl6VTamu9zx+hXFZ1p0YIl6yF4p0+YQ=
-Subject: FAILED: patch "[PATCH] x86/MCE/AMD: Clear DFR errors found in THR handler" failed to apply to 5.10-stable tree
+        b=Q1uNVzhD9B1VP1LBF1JlEk0Xu/+VMKA6xVryPFBDFN+d5aVtLKHCUPSozVxGVQLgD
+         1f/HHl7eKPyH83fdLAsN6KpxqMD77xrWzhcKtJO1s3Te9hkq7gh/QYkkoysi/r2bwT
+         n3I92wympvEET/PYdTIhGrpy67q8AuJj3t424oAc=
+Subject: FAILED: patch "[PATCH] x86/MCE/AMD: Clear DFR errors found in THR handler" failed to apply to 5.4-stable tree
 To:     yazen.ghannam@amd.com, bp@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 13:57:43 +0100
-Message-ID: <1672837063224186@kroah.com>
+Date:   Wed, 04 Jan 2023 13:57:54 +0100
+Message-ID: <1672837074136141@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -56,6 +56,8 @@ Possible dependencies:
 
 bc1b705b0eee ("x86/MCE/AMD: Clear DFR errors found in THR handler")
 8121b8f947be ("x86/mce: Get rid of msr_ops")
+c9bf318f77b3 ("x86/mce/amd: Init thresholding machinery only on relevant vendors")
+6e5cf31fbe65 ("x86/mce/amd: Publish the bank pointer only after setup has succeeded")
 
 thanks,
 
