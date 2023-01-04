@@ -2,77 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78A0065D184
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 12:35:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B800265D1F3
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 12:59:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230423AbjADLem (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 06:34:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52068 "EHLO
+        id S239142AbjADL7G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 06:59:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234615AbjADLek (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 06:34:40 -0500
-Received: from mail-io1-f71.google.com (mail-io1-f71.google.com [209.85.166.71])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1A401B9ED
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 03:34:38 -0800 (PST)
-Received: by mail-io1-f71.google.com with SMTP id s22-20020a6bdc16000000b006e2d7c78010so9611705ioc.21
-        for <stable@vger.kernel.org>; Wed, 04 Jan 2023 03:34:38 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=V5gRBWvCrC4ivORDLYanYAKruxMNDrxF3nhXlCgZ6d4=;
-        b=A8VwhD+ky32Nqlgjn7gBbrt33JiWtFN4ApRJrrBDzi/kisMwmkA+NU1z208+CO8vQg
-         kXUOPAEnltMg/jniB++eRzLAt4WWGlK8orVC8cWHn2cxeD8eBgGnHjzZE2Lns4l4yRfr
-         ciUzUooql7o5sHmqoK52i9bem6HrkSUzwmOckDxmmPRItTof8lVCOcqvxrR3r+RVtd9S
-         qdrDZ3jX9tr1sMJJfoC7+fb29DBuKWaUQm3l1OXPlcf1Dh1ZNKCAmqxcxYn4BOreqjdy
-         52whUlXn9xiaGfMjyOYZEliZOCfxgqgFM3xIYkvNXqtasAdAzarL3y7V9mh9KQ0o99Yj
-         Oh6w==
-X-Gm-Message-State: AFqh2koyZMG6s+DCSiREA6lX0C1dEYJZz/Rl0WSYN1ihV5SaLUms2C+M
-        KHnRAUi6z2gf5ZmI1z3ALQoMo7ZXn5EqJ+fD4L+pD9rQcKDW
-X-Google-Smtp-Source: AMrXdXtYnU0n+7Mz66+jF3YyEbOSXpsWchRQh4OWWMAkTgA+jN6H8D5b4L843NTdw6V/0AriGfmSejO1PiEbK7VCcfnaujakKtak
+        with ESMTP id S239116AbjADL7B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 06:59:01 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 493391EC5E;
+        Wed,  4 Jan 2023 03:59:00 -0800 (PST)
+Date:   Wed, 04 Jan 2023 11:58:57 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1672833538;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+        bh=+n2ZcuHyYQSIvPOuKhwvmkaHaWyKOGj/JfAklwx+MxU=;
+        b=Xbz8Grh+urUwKujbRtQx5LM4M/FBOoc4fw9A5cav8F0RZU5/NOLvMbS+XZhAG8XxqsCTmv
+        yEj6lx1A1U9YmrOlDRr152+RG9UpEAm+BeZEuA2Csrp+NnthIHHA5hPQBUz8fi62jn2yMi
+        zqjBM6Si57Rs98yuFNdoXA4Tg7uWeB2r3biYG8jU3CF9BxKX3ggl3UpAGRIOo8oJGxYOcb
+        RERO6kLlQhVqdUGxunhGGIrx356+N5W23QbNWA6dvBHXZ7XsvR30H2ZbSXKMEatpkSXftD
+        nUbVyTNGAqA9n6aVILjyXX5JKZkPZkCvwe3YA8rW0A+KPTcCdNLc7/PhKNA5Lw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1672833538;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+        bh=+n2ZcuHyYQSIvPOuKhwvmkaHaWyKOGj/JfAklwx+MxU=;
+        b=JAHylUUA7jd66QVeVdn/gYui89nlgS18uubG3jOSVL4goX9RqpNispLQiMeFHrbvDI8RfP
+        fVtVzuBEiOxZ/jBQ==
+From:   "tip-bot2 for Rodrigo Branco" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/bugs: Flush IBP in ib_prctl_set()
+Cc:     Rodrigo Branco <bsdaemon@google.com>,
+        "Borislav Petkov (AMD)" <bp@alien8.de>,
+        Ingo Molnar <mingo@kernel.org>, <stable@vger.kernel.org>,
+        x86@kernel.org, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-X-Received: by 2002:a02:c728:0:b0:399:6200:63dc with SMTP id
- h8-20020a02c728000000b00399620063dcmr4409365jao.194.1672832078148; Wed, 04
- Jan 2023 03:34:38 -0800 (PST)
-Date:   Wed, 04 Jan 2023 03:34:38 -0800
-In-Reply-To: <0000000000006c411605e2f127e5@google.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000c97b2a05f16e91c5@google.com>
-Subject: Re: kernel BUG in ext4_free_blocks (2)
-From:   syzbot <syzbot+15cd994e273307bf5cfa@syzkaller.appspotmail.com>
-To:     adilger.kernel@dilger.ca, gregkh@linuxfoundation.org,
-        lczerner@redhat.com, lee@kernel.org, linux-ext4@vger.kernel.org,
-        linux-kernel@vger.kernel.org, nogikh@google.com, sashal@kernel.org,
-        stable@vger.kernel.org, syzkaller-android-bugs@googlegroups.com,
-        tadeusz.struk@linaro.org, tytso@mit.edu
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=0.9 required=5.0 tests=BAYES_00,FROM_LOCAL_HEX,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
-        SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-        version=3.4.6
+Message-ID: <167283353750.4906.14334038214138785293.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This bug is marked as fixed by commit:
-ext4: block range must be validated before use in ext4_mb_clear_bb()
+The following commit has been merged into the x86/urgent branch of tip:
 
-But I can't find it in the tested trees[1] for more than 90 days.
-Is it a correct commit? Please update it by replying:
+Commit-ID:     a664ec9158eeddd75121d39c9a0758016097fa96
+Gitweb:        https://git.kernel.org/tip/a664ec9158eeddd75121d39c9a0758016097fa96
+Author:        Rodrigo Branco <bsdaemon@google.com>
+AuthorDate:    Tue, 03 Jan 2023 14:17:51 -06:00
+Committer:     Ingo Molnar <mingo@kernel.org>
+CommitterDate: Wed, 04 Jan 2023 11:25:32 +01:00
 
-#syz fix: exact-commit-title
+x86/bugs: Flush IBP in ib_prctl_set()
 
-Until then the bug is still considered open and new crashes with
-the same signature are ignored.
+We missed the window between the TIF flag update and the next reschedule.
 
-Kernel: Android 5.10
-Dashboard link: https://syzkaller.appspot.com/bug?extid=15cd994e273307bf5cfa
-
+Signed-off-by: Rodrigo Branco <bsdaemon@google.com>
+Reviewed-by: Borislav Petkov (AMD) <bp@alien8.de>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: <stable@vger.kernel.org>
 ---
-[1] I expect the commit to be present in:
+ arch/x86/kernel/cpu/bugs.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-1. android12-5.10-lts branch of
-https://android.googlesource.com/kernel/common
+diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
+index d970ddb..bca0bd8 100644
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -1981,6 +1981,8 @@ static int ib_prctl_set(struct task_struct *task, unsigned long ctrl)
+ 		if (ctrl == PR_SPEC_FORCE_DISABLE)
+ 			task_set_spec_ib_force_disable(task);
+ 		task_update_spec_tif(task);
++		if (task == current)
++			indirect_branch_prediction_barrier();
+ 		break;
+ 	default:
+ 		return -ERANGE;
