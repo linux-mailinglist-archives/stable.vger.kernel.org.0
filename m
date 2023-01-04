@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9499265D87A
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:15:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88A1A65D8CD
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:18:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233514AbjADQPb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:15:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37892 "EHLO
+        id S239926AbjADQSa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:18:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239920AbjADQO5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:14:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 467434434D
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:14:26 -0800 (PST)
+        with ESMTP id S239958AbjADQSU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:18:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A079E41D54
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:18:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D42FA6178F
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:14:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C83BEC433D2;
-        Wed,  4 Jan 2023 16:14:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B4CC617A7
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:18:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CEDFC433EF;
+        Wed,  4 Jan 2023 16:18:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848865;
-        bh=P0DsRR+qOuRIsm9pp0ju7fLpTXoDxMV7V7HvYaGQR1U=;
+        s=korg; t=1672849098;
+        bh=FPkcEypsfjMdI/mc7/1vbjpu8SN1fPpgAwJ0Tfp+sPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YIEE+RodKsrz+bAi3ghX66baSf9CVDgQx7OBQ57V/zLGwunG1UhjN3sJDELPeGVcu
-         qY4On6APHlMAwOi0zvLDY/kZ3zED1x9XlxDXDj3wXTPG/KQTxDgUx3pENLTGlqF8lx
-         J5vEXoys0kbtQ0wMqj8omwIGAPDnd9I4cK3wkvCM=
+        b=Eltu4gFXuTlFVpH6TTWfNNBuZbEAGMiXz5j4aCGrZaY7SJ4w3tJsPOXD9X8XeijPX
+         ws70le/smmyaWemb0oCQPvQTr2UvL5Zl7/0UbMOYacU4zhAm+Z78ykJnr2NGOblqhm
+         26nDyDnzU7CMh9lMUOGCLQ2Sj5RbfQ1I+erM69s4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
-        Yang Jihong <yangjihong1@huawei.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.1 096/207] tracing: Fix infinite loop in tracing_read_pipe on overflowed print_trace_line
+        patches@lists.linux.dev, Ashok Raj <ashok.raj@intel.com>,
+        "Borislav Petkov (AMD)" <bp@alien8.de>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 6.0 063/177] x86/microcode/intel: Do not retry microcode reloading on the APs
 Date:   Wed,  4 Jan 2023 17:05:54 +0100
-Message-Id: <20230104160514.966262860@linuxfoundation.org>
+Message-Id: <20230104160509.565755129@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Jihong <yangjihong1@huawei.com>
+From: Ashok Raj <ashok.raj@intel.com>
 
-commit c1ac03af6ed45d05786c219d102f37eb44880f28 upstream.
+commit be1b670f61443aa5d0d01782e9b8ea0ee825d018 upstream.
 
-print_trace_line may overflow seq_file buffer. If the event is not
-consumed, the while loop keeps peeking this event, causing a infinite loop.
+The retries in load_ucode_intel_ap() were in place to support systems
+with mixed steppings. Mixed steppings are no longer supported and there is
+only one microcode image at a time. Any retries will simply reattempt to
+apply the same image over and over without making progress.
 
-Link: https://lkml.kernel.org/r/20221129113009.182425-1-yangjihong1@huawei.com
+  [ bp: Zap the circumstantial reasoning from the commit message. ]
 
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Fixes: 06b8534cb728 ("x86/microcode: Rework microcode loading")
+Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
-Fixes: 088b1e427dbba ("ftrace: pipe fixes")
-Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Link: https://lore.kernel.org/r/20221129210832.107850-3-ashok.raj@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.c |   15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ arch/x86/kernel/cpu/microcode/intel.c |    8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -6797,7 +6797,20 @@ waitagain:
+--- a/arch/x86/kernel/cpu/microcode/intel.c
++++ b/arch/x86/kernel/cpu/microcode/intel.c
+@@ -621,7 +621,6 @@ void load_ucode_intel_ap(void)
+ 	else
+ 		iup = &intel_ucode_patch;
  
- 		ret = print_trace_line(iter);
- 		if (ret == TRACE_TYPE_PARTIAL_LINE) {
--			/* don't print partial lines */
-+			/*
-+			 * If one print_trace_line() fills entire trace_seq in one shot,
-+			 * trace_seq_to_user() will returns -EBUSY because save_len == 0,
-+			 * In this case, we need to consume it, otherwise, loop will peek
-+			 * this event next time, resulting in an infinite loop.
-+			 */
-+			if (save_len == 0) {
-+				iter->seq.full = 0;
-+				trace_seq_puts(&iter->seq, "[LINE TOO BIG]\n");
-+				trace_consume(iter);
-+				break;
-+			}
-+
-+			/* In other cases, don't print partial lines */
- 			iter->seq.seq.len = save_len;
- 			break;
- 		}
+-reget:
+ 	if (!*iup) {
+ 		patch = __load_ucode_intel(&uci);
+ 		if (!patch)
+@@ -632,12 +631,7 @@ reget:
+ 
+ 	uci.mc = *iup;
+ 
+-	if (apply_microcode_early(&uci, true)) {
+-		/* Mixed-silicon system? Try to refetch the proper patch: */
+-		*iup = NULL;
+-
+-		goto reget;
+-	}
++	apply_microcode_early(&uci, true);
+ }
+ 
+ static struct microcode_intel *find_patch(struct ucode_cpu_info *uci)
 
 
