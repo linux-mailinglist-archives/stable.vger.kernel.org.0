@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67A4465D99D
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5D7A65D9A4
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235006AbjADQ0d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:26:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50668 "EHLO
+        id S239781AbjADQ0i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:26:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239689AbjADQ0R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:26:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCAC011A27
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:26:16 -0800 (PST)
+        with ESMTP id S239786AbjADQ0h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:26:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DAA518682
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:26:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B927B81722
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:26:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C2F1C433D2;
-        Wed,  4 Jan 2023 16:26:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BCB8961798
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:26:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEDE0C433F0;
+        Wed,  4 Jan 2023 16:26:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849574;
-        bh=TuhTPwIYu1257aBk7QcadP3//fuKc7XG7FRq2/tMhGA=;
+        s=korg; t=1672849595;
+        bh=kyvDALrT3kR0B+zDk6UomMTacXx8fzfw8uZ0p/eJIow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oxbjmVUxjp0aCaMHXC4oGLLU8Butp87Dyhh1I5yyxNSqVI+fd/NNuPkESsgKm4Eud
-         u4ytZpIdGgegxaIJ7tU8rjpTnF2CrydDDyW3rba2pY8LNJ0hjlSVjfmwrqtxIbM08W
-         qn/6Vf4lfdw7u8deB6gkn3di7CadaRYEDdlbJlTU=
+        b=o61BAsoMn6lfwKqSrYZCfcKbgdNfcuaWkUnu1VYaOZPUnkXgjhS7w1cKNQQjgapz2
+         yhAyOj32MIaJzh6YKfhwC2sBpS+/UlBcYLmRsoU5d4dPkk1sjhVlwhiv8XQKOt61rj
+         HIkp6aoiIhRWzPNv45kLeljf/NahAXKxe0Upa1z8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
-        "Darrick J. Wong" <djwong@kernel.org>, Jan Kara <jack@suse.cz>,
-        stable@kernel.org, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 6.1 188/207] ext4: fix bad checksum after online resize
-Date:   Wed,  4 Jan 2023 17:07:26 +0100
-Message-Id: <20230104160517.849095222@linuxfoundation.org>
+        Jan Kara <jack@suse.cz>, stable@kernel.org,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 6.0 156/177] ext4: fix corruption when online resizing a 1K bigalloc fs
+Date:   Wed,  4 Jan 2023 17:07:27 +0100
+Message-Id: <20230104160512.390010609@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +55,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Baokun Li <libaokun1@huawei.com>
 
-commit a408f33e895e455f16cf964cb5cd4979b658db7b upstream.
+commit 0aeaa2559d6d53358fca3e3fce73807367adca74 upstream.
 
-When online resizing is performed twice consecutively, the error message
-"Superblock checksum does not match superblock" is displayed for the
-second time. Here's the reproducer:
+When a backup superblock is updated in update_backups(), the primary
+superblock's offset in the group (that is, sbi->s_sbh->b_blocknr) is used
+as the backup superblock's offset in its group. However, when the block
+size is 1K and bigalloc is enabled, the two offsets are not equal. This
+causes the backup group descriptors to be overwritten by the superblock
+in update_backups(). Moreover, if meta_bg is enabled, the file system will
+be corrupted because this feature uses backup group descriptors.
 
-	mkfs.ext4 -F /dev/sdb 100M
-	mount /dev/sdb /tmp/test
-	resize2fs /dev/sdb 5G
-	resize2fs /dev/sdb 6G
+To solve this issue, we use a more accurate ext4_group_first_block_no() as
+the offset of the backup superblock in its group.
 
-To solve this issue, we moved the update of the checksum after the
-es->s_overhead_clusters is updated.
-
-Fixes: 026d0d27c488 ("ext4: reduce computation of overhead during resize")
-Fixes: de394a86658f ("ext4: update s_overhead_clusters in the superblock during an on-line resize")
+Fixes: d77147ff443b ("ext4: add support for online resizing with bigalloc")
 Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
 Reviewed-by: Jan Kara <jack@suse.cz>
 Cc: stable@kernel.org
-Link: https://lore.kernel.org/r/20221117040341.1380702-2-libaokun1@huawei.com
+Link: https://lore.kernel.org/r/20221117040341.1380702-4-libaokun1@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/resize.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/ext4/resize.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 --- a/fs/ext4/resize.c
 +++ b/fs/ext4/resize.c
-@@ -1476,8 +1476,6 @@ static void ext4_update_super(struct sup
- 	 * active. */
- 	ext4_r_blocks_count_set(es, ext4_r_blocks_count(es) +
- 				reserved_blocks);
--	ext4_superblock_csum_set(sb);
--	unlock_buffer(sbi->s_sbh);
+@@ -1596,8 +1596,8 @@ exit_journal:
+ 		int meta_bg = ext4_has_feature_meta_bg(sb);
+ 		sector_t old_gdb = 0;
  
- 	/* Update the free space counts */
- 	percpu_counter_add(&sbi->s_freeclusters_counter,
-@@ -1513,6 +1511,8 @@ static void ext4_update_super(struct sup
- 		ext4_calculate_overhead(sb);
- 	es->s_overhead_clusters = cpu_to_le32(sbi->s_overhead);
+-		update_backups(sb, sbi->s_sbh->b_blocknr, (char *)es,
+-			       sizeof(struct ext4_super_block), 0);
++		update_backups(sb, ext4_group_first_block_no(sb, 0),
++			       (char *)es, sizeof(struct ext4_super_block), 0);
+ 		for (; gdb_num <= gdb_num_end; gdb_num++) {
+ 			struct buffer_head *gdb_bh;
  
-+	ext4_superblock_csum_set(sb);
-+	unlock_buffer(sbi->s_sbh);
- 	if (test_opt(sb, DEBUG))
- 		printk(KERN_DEBUG "EXT4-fs: added group %u:"
- 		       "%llu blocks(%llu free %llu reserved)\n", flex_gd->count,
+@@ -1808,7 +1808,7 @@ errout:
+ 		if (test_opt(sb, DEBUG))
+ 			printk(KERN_DEBUG "EXT4-fs: extended group to %llu "
+ 			       "blocks\n", ext4_blocks_count(es));
+-		update_backups(sb, EXT4_SB(sb)->s_sbh->b_blocknr,
++		update_backups(sb, ext4_group_first_block_no(sb, 0),
+ 			       (char *)es, sizeof(struct ext4_super_block), 0);
+ 	}
+ 	return err;
 
 
