@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88EFE65D56F
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:19:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0229465D570
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:19:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236070AbjADOTc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:19:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44350 "EHLO
+        id S236367AbjADOTd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:19:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239246AbjADOTR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:19:17 -0500
+        with ESMTP id S239358AbjADOTT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:19:19 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 477BF1DDF1
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:19:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44AC31DDF1
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:19:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B7FB061426
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:19:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B41F9C433D2;
-        Wed,  4 Jan 2023 14:19:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C75A66172D
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:19:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7045C433D2;
+        Wed,  4 Jan 2023 14:19:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672841954;
-        bh=l+wtiRUsJcMovre8hlhuOOrpF0Z2mDQxwOxx4/MvaC0=;
+        s=korg; t=1672841957;
+        bh=KNVBlWKoHRGMDcmLXKU6B0tt7+EYu1EDTqDUVtEg4TY=;
         h=Subject:To:Cc:From:Date:From;
-        b=EbUoHqZm8sGdsXHdeiNP/UafmwM09yZW4nYnzm9IkbjhInhTmpi6cxI94eqVmAuoz
-         UyRBngqOlx8e9QoJ8loQ824+PEHGt8sPe3vf5rRjQruzIqoE9tjwyWm77SZ5zO4NQp
-         NW1M8O8mELpuGG2C2adWMXsHHna7GXNa1mVr/o94=
-Subject: FAILED: patch "[PATCH] drm/amdgpu/mst: Stop ignoring error codes and deadlocking" failed to apply to 5.15-stable tree
+        b=F/3ZrTXpys/STANDH3hu5lHmfwkZOR9na/DprwZdWqi5rjKvWND2NysWPy0rfkYv1
+         auv6qrZ9Kt1ClHzeBA0rZgc8p5Wm8bqS4AZuaOmcYnSPsP9T7tRjbDaeLEiQ8QRLkp
+         SRtjI1GK3XNIV190au0OarwWw0AnFBlPzq31s4PY=
+Subject: FAILED: patch "[PATCH] drm/amdgpu/mst: Stop ignoring error codes and deadlocking" failed to apply to 5.10-stable tree
 To:     lyude@redhat.com, Wayne.Lin@amd.com, alexander.deucher@amd.com,
         harry.wentland@amd.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:19:06 +0100
-Message-ID: <16728419466174@kroah.com>
+Date:   Wed, 04 Jan 2023 15:19:08 +0100
+Message-ID: <167284194817661@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
