@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CD9765D929
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:22:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E1BF65D985
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239638AbjADQWU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:22:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45568 "EHLO
+        id S239872AbjADQ0I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:26:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239979AbjADQWD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:22:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9750C756
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:22:01 -0800 (PST)
+        with ESMTP id S239347AbjADQZQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:25:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D73053F137
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:24:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 877E7B817B8
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:22:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8A32C433EF;
-        Wed,  4 Jan 2023 16:21:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 730C661798
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:24:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F915C433F0;
+        Wed,  4 Jan 2023 16:24:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849319;
-        bh=wiAIjIg6fyEs03sUJS9d08v2ut1gRznqaNxm/J16Kq8=;
+        s=korg; t=1672849479;
+        bh=5dC3nqAyJWDTjXZ9KBsC2wLZQkUsc5xPMLJIaUBAO0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hZ9ffdrzttkO/vaCHCN8rdeq7p3fj1tBt4a04pTZgRybqLDlxIVpKTOzJPBup/zIX
-         Ka1jH54M6kzwwSer22U7r7UoAnw3BU2QF5axXM3UQryEYvNuP590twekx4rFWUtlzs
-         CIcFP4srW34hLdk5gKerns302m+CRGeR6TPa5JRQ=
+        b=BaLbyVGyIvlJ5TQZOM03jHjH9lkVlMkOwDhjjNe9fX8XigY312fo9dVkqGr7JGNqn
+         eP70hJSXw7LaAgUjXMAJOdf3tUxMyFK8A0iwimQd6qSP4Mwe8NajKnfc0ZrzmQ8ztb
+         uRpx8UK7srIncu14rBVHa+CPUUwSU1bsENyLVtK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable@kernel.org,
-        Zhang Yi <yi.zhang@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 6.1 161/207] ext4: silence the warning when evicting inode with dioread_nolock
-Date:   Wed,  4 Jan 2023 17:06:59 +0100
-Message-Id: <20230104160516.990584588@linuxfoundation.org>
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Paul Cercueil <paul@crapouillou.net>
+Subject: [PATCH 6.0 129/177] drm/ingenic: Fix missing platform_driver_unregister() call in ingenic_drm_init()
+Date:   Wed,  4 Jan 2023 17:07:00 +0100
+Message-Id: <20230104160511.557026264@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,93 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yi <yi.zhang@huawei.com>
+From: Yuan Can <yuancan@huawei.com>
 
-commit bc12ac98ea2e1b70adc6478c8b473a0003b659d3 upstream.
+commit 47078311b8efebdefd5b3b2f87e2b02b14f49c66 upstream.
 
-When evicting an inode with default dioread_nolock, it could be raced by
-the unwritten extents converting kworker after writeback some new
-allocated dirty blocks. It convert unwritten extents to written, the
-extents could be merged to upper level and free extent blocks, so it
-could mark the inode dirty again even this inode has been marked
-I_FREEING. But the inode->i_io_list check and warning in
-ext4_evict_inode() missing this corner case. Fortunately,
-ext4_evict_inode() will wait all extents converting finished before this
-check, so it will not lead to inode use-after-free problem, every thing
-is OK besides this warning. The WARN_ON_ONCE was originally designed
-for finding inode use-after-free issues in advance, but if we add
-current dioread_nolock case in, it will become not quite useful, so fix
-this warning by just remove this check.
+A problem about modprobe ingenic-drm failed is triggered with the following
+log given:
 
- ======
- WARNING: CPU: 7 PID: 1092 at fs/ext4/inode.c:227
- ext4_evict_inode+0x875/0xc60
- ...
- RIP: 0010:ext4_evict_inode+0x875/0xc60
- ...
- Call Trace:
-  <TASK>
-  evict+0x11c/0x2b0
-  iput+0x236/0x3a0
-  do_unlinkat+0x1b4/0x490
-  __x64_sys_unlinkat+0x4c/0xb0
-  do_syscall_64+0x3b/0x90
-  entry_SYSCALL_64_after_hwframe+0x46/0xb0
- RIP: 0033:0x7fa933c1115b
- ======
+ [  303.561088] Error: Driver 'ingenic-ipu' is already registered, aborting...
+ modprobe: ERROR: could not insert 'ingenic_drm': Device or resource busy
 
-rm                          kworker
-                            ext4_end_io_end()
-vfs_unlink()
- ext4_unlink()
-                             ext4_convert_unwritten_io_end_vec()
-                              ext4_convert_unwritten_extents()
-                               ext4_map_blocks()
-                                ext4_ext_map_blocks()
-                                 ext4_ext_try_to_merge_up()
-                                  __mark_inode_dirty()
-                                   check !I_FREEING
-                                   locked_inode_to_wb_and_lock_list()
- iput()
-  iput_final()
-   evict()
-    ext4_evict_inode()
-     truncate_inode_pages_final() //wait release io_end
-                                    inode_io_list_move_locked()
-                             ext4_release_io_end()
-     trigger WARN_ON_ONCE()
+The reason is that ingenic_drm_init() returns platform_driver_register()
+directly without checking its return value, if platform_driver_register()
+failed, it returns without unregistering ingenic_ipu_driver_ptr, resulting
+the ingenic-drm can never be installed later.
+A simple call graph is shown as below:
 
-Cc: stable@kernel.org
-Fixes: ceff86fddae8 ("ext4: Avoid freeing inodes on dirty list")
-Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220629112647.4141034-1-yi.zhang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+ ingenic_drm_init()
+   platform_driver_register() # ingenic_ipu_driver_ptr are registered
+   platform_driver_register()
+     driver_register()
+       bus_add_driver()
+         priv = kzalloc(...) # OOM happened
+   # return without unregister ingenic_ipu_driver_ptr
+
+Fixing this problem by checking the return value of
+platform_driver_register() and do platform_unregister_drivers() if
+error happened.
+
+Fixes: fc1acf317b01 ("drm/ingenic: Add support for the IPU")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221104064512.8569-1-yuancan@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/ingenic/ingenic-drm-drv.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -222,13 +222,13 @@ void ext4_evict_inode(struct inode *inod
+--- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
++++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+@@ -1601,7 +1601,11 @@ static int ingenic_drm_init(void)
+ 			return err;
+ 	}
  
- 	/*
- 	 * For inodes with journalled data, transaction commit could have
--	 * dirtied the inode. Flush worker is ignoring it because of I_FREEING
--	 * flag but we still need to remove the inode from the writeback lists.
-+	 * dirtied the inode. And for inodes with dioread_nolock, unwritten
-+	 * extents converting worker could merge extents and also have dirtied
-+	 * the inode. Flush worker is ignoring it because of I_FREEING flag but
-+	 * we still need to remove the inode from the writeback lists.
- 	 */
--	if (!list_empty_careful(&inode->i_io_list)) {
--		WARN_ON_ONCE(!ext4_should_journal_data(inode));
-+	if (!list_empty_careful(&inode->i_io_list))
- 		inode_io_list_del(inode);
--	}
+-	return platform_driver_register(&ingenic_drm_driver);
++	err = platform_driver_register(&ingenic_drm_driver);
++	if (IS_ENABLED(CONFIG_DRM_INGENIC_IPU) && err)
++		platform_driver_unregister(ingenic_ipu_driver_ptr);
++
++	return err;
+ }
+ module_init(ingenic_drm_init);
  
- 	/*
- 	 * Protect us against freezing - iput() caller didn't have to have any
 
 
