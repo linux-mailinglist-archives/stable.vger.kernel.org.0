@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5D7A65D9A4
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 120AF65D99F
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239781AbjADQ0i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:26:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50800 "EHLO
+        id S239604AbjADQ0e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:26:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239786AbjADQ0h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:26:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DAA518682
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:26:36 -0800 (PST)
+        with ESMTP id S239761AbjADQ0X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:26:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAF3212AEB
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:26:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BCB8961798
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:26:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEDE0C433F0;
-        Wed,  4 Jan 2023 16:26:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6C51BB817B7
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:26:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A523DC433D2;
+        Wed,  4 Jan 2023 16:26:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849595;
-        bh=kyvDALrT3kR0B+zDk6UomMTacXx8fzfw8uZ0p/eJIow=;
+        s=korg; t=1672849580;
+        bh=GoVuUgJ2ENhXRFw6IMSLxyn28rUPaVlTS8SnQa47TaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o61BAsoMn6lfwKqSrYZCfcKbgdNfcuaWkUnu1VYaOZPUnkXgjhS7w1cKNQQjgapz2
-         yhAyOj32MIaJzh6YKfhwC2sBpS+/UlBcYLmRsoU5d4dPkk1sjhVlwhiv8XQKOt61rj
-         HIkp6aoiIhRWzPNv45kLeljf/NahAXKxe0Upa1z8=
+        b=DKDpxpEcFklZmZ0h6HUvXqbe84sJHyLkY5Pp1EbFZ2F1xt9Q1bWfD9GDLqrWJrX9w
+         EgaQQAfBhhnRU9SeXyVtCY1yiOIJefDBPKC89PpIH0IlLSIOKRMbSmo7ZvYNerOVHl
+         YG8G8W6m9WGMCDRnM85nCzddMcPnn30Pk0LhUuxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
-        Jan Kara <jack@suse.cz>, stable@kernel.org,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 6.0 156/177] ext4: fix corruption when online resizing a 1K bigalloc fs
+        patches@lists.linux.dev, "Darrick J. Wong" <djwong@kernel.org>,
+        Catherine Hoang <catherine.hoang@oracle.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 6.1 189/207] ext4: dont return EINVAL from GETFSUUID when reporting UUID length
 Date:   Wed,  4 Jan 2023 17:07:27 +0100
-Message-Id: <20230104160512.390010609@linuxfoundation.org>
+Message-Id: <20230104160517.879095727@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Darrick J. Wong <djwong@kernel.org>
 
-commit 0aeaa2559d6d53358fca3e3fce73807367adca74 upstream.
+commit b76abb5157468756163fe7e3431c9fe32cba57ca upstream.
 
-When a backup superblock is updated in update_backups(), the primary
-superblock's offset in the group (that is, sbi->s_sbh->b_blocknr) is used
-as the backup superblock's offset in its group. However, when the block
-size is 1K and bigalloc is enabled, the two offsets are not equal. This
-causes the backup group descriptors to be overwritten by the superblock
-in update_backups(). Moreover, if meta_bg is enabled, the file system will
-be corrupted because this feature uses backup group descriptors.
+If userspace calls this ioctl with fsu_length (the length of the
+fsuuid.fsu_uuid array) set to zero, ext4 copies the desired uuid length
+out to userspace.  The kernel call returned a result from a valid input,
+so the return value here should be zero, not EINVAL.
 
-To solve this issue, we use a more accurate ext4_group_first_block_no() as
-the offset of the backup superblock in its group.
+While we're at it, fix the copy_to_user call to make it clear that we're
+only copying out fsu_len.
 
-Fixes: d77147ff443b ("ext4: add support for online resizing with bigalloc")
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: stable@kernel.org
-Link: https://lore.kernel.org/r/20221117040341.1380702-4-libaokun1@huawei.com
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Catherine Hoang <catherine.hoang@oracle.com>
+Link: https://lore.kernel.org/r/166811138914.327006.9241306894437166566.stgit@magnolia
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/resize.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/ext4/ioctl.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/resize.c
-+++ b/fs/ext4/resize.c
-@@ -1596,8 +1596,8 @@ exit_journal:
- 		int meta_bg = ext4_has_feature_meta_bg(sb);
- 		sector_t old_gdb = 0;
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -1154,9 +1154,10 @@ static int ext4_ioctl_getuuid(struct ext
  
--		update_backups(sb, sbi->s_sbh->b_blocknr, (char *)es,
--			       sizeof(struct ext4_super_block), 0);
-+		update_backups(sb, ext4_group_first_block_no(sb, 0),
-+			       (char *)es, sizeof(struct ext4_super_block), 0);
- 		for (; gdb_num <= gdb_num_end; gdb_num++) {
- 			struct buffer_head *gdb_bh;
- 
-@@ -1808,7 +1808,7 @@ errout:
- 		if (test_opt(sb, DEBUG))
- 			printk(KERN_DEBUG "EXT4-fs: extended group to %llu "
- 			       "blocks\n", ext4_blocks_count(es));
--		update_backups(sb, EXT4_SB(sb)->s_sbh->b_blocknr,
-+		update_backups(sb, ext4_group_first_block_no(sb, 0),
- 			       (char *)es, sizeof(struct ext4_super_block), 0);
+ 	if (fsuuid.fsu_len == 0) {
+ 		fsuuid.fsu_len = UUID_SIZE;
+-		if (copy_to_user(ufsuuid, &fsuuid, sizeof(fsuuid.fsu_len)))
++		if (copy_to_user(&ufsuuid->fsu_len, &fsuuid.fsu_len,
++					sizeof(fsuuid.fsu_len)))
+ 			return -EFAULT;
+-		return -EINVAL;
++		return 0;
  	}
- 	return err;
+ 
+ 	if (fsuuid.fsu_len < UUID_SIZE || fsuuid.fsu_flags != 0)
 
 
