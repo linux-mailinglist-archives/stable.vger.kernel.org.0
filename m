@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DE0A65D881
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:15:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80BE465D82F
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:12:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239900AbjADQPl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:15:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37824 "EHLO
+        id S239663AbjADQMW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:12:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239903AbjADQPZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:15:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 634D73D9C9
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:14:46 -0800 (PST)
+        with ESMTP id S239934AbjADQLm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:11:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91481FF0
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:11:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1EED1B81732
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:14:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DB20C433D2;
-        Wed,  4 Jan 2023 16:14:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 222696179A
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:11:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13DDFC433EF;
+        Wed,  4 Jan 2023 16:11:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848883;
-        bh=ahfXqPknj3AbBXkHGlCLemgISg0/eYlBQlOfNKMa9vg=;
+        s=korg; t=1672848680;
+        bh=ZRfaL7B1q+besPeKnB4ITfS7CBQQvTa5vhZwqwqJgVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tFpEr54w8C08l1XldzCjVWViF3H8Tz8CgaIiwR8n/zx7806qMFy88eHMZNGkZG7Y9
-         XW3XxEAAEn+YvkrQaLQKySvFIg9agUzRCzzx1rJ5uiZjGtDppr2vsQkpafZmvFcKNG
-         eKq4x9+vXX5j9VGzROQL/C/rJVchtn45+CcjmcmQ=
+        b=s/7jAU/NxYfdcGwgvq5tv7beyYb+DTM1UnL0uLjjIv70mnBDQhTBevcXvgHo30syP
+         pCScJhlC3X7hQ7+bg8XGFQOO1Omp3T8QpcDyXrCBSqEbhwg1Au850W8FjQPH21Xss6
+         SXTv6rsaicToc1MqOOOv3PQtYs7+puN85SpOAK2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chanwoo Choi <cwchoi00@gmail.com>,
-        MyungJoo Ham <myungjoo.ham@samsung.com>,
-        Kant Fan <kant@allwinnertech.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>
-Subject: [PATCH 6.0 029/177] PM/devfreq: governor: Add a private governor_data for governor
+        patches@lists.linux.dev,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 6.1 062/207] mptcp: netlink: fix some error return code
 Date:   Wed,  4 Jan 2023 17:05:20 +0100
-Message-Id: <20230104160508.548844023@linuxfoundation.org>
+Message-Id: <20230104160513.889246031@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,144 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kant Fan <kant@allwinnertech.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit 5fdded8448924e3631d466eea499b11606c43640 upstream.
+commit e0fe1123ab2b07d2cd5475660bd0b4e6993ffaa7 upstream.
 
-The member void *data in the structure devfreq can be overwrite
-by governor_userspace. For example:
-1. The device driver assigned the devfreq governor to simple_ondemand
-by the function devfreq_add_device() and init the devfreq member
-void *data to a pointer of a static structure devfreq_simple_ondemand_data
-by the function devfreq_add_device().
-2. The user changed the devfreq governor to userspace by the command
-"echo userspace > /sys/class/devfreq/.../governor".
-3. The governor userspace alloced a dynamic memory for the struct
-userspace_data and assigend the member void *data of devfreq to
-this memory by the function userspace_init().
-4. The user changed the devfreq governor back to simple_ondemand
-by the command "echo simple_ondemand > /sys/class/devfreq/.../governor".
-5. The governor userspace exited and assigned the member void *data
-in the structure devfreq to NULL by the function userspace_exit().
-6. The governor simple_ondemand fetched the static information of
-devfreq_simple_ondemand_data in the function
-devfreq_simple_ondemand_func() but the member void *data of devfreq was
-assigned to NULL by the function userspace_exit().
-7. The information of upthreshold and downdifferential is lost
-and the governor simple_ondemand can't work correctly.
+Fix to return negative error code -EINVAL from some error handling
+case instead of 0, as done elsewhere in those functions.
 
-The member void *data in the structure devfreq is designed for
-a static pointer used in a governor and inited by the function
-devfreq_add_device(). This patch add an element named governor_data
-in the devfreq structure which can be used by a governor(E.g userspace)
-who want to assign a private data to do some private things.
-
-Fixes: ce26c5bb9569 ("PM / devfreq: Add basic governors")
-Cc: stable@vger.kernel.org # 5.10+
-Reviewed-by: Chanwoo Choi <cwchoi00@gmail.com>
-Acked-by: MyungJoo Ham <myungjoo.ham@samsung.com>
-Signed-off-by: Kant Fan <kant@allwinnertech.com>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Fixes: 9ab4807c84a4 ("mptcp: netlink: Add MPTCP_PM_CMD_ANNOUNCE")
+Fixes: 702c2f646d42 ("mptcp: netlink: allow userspace-driven subflow establishment")
+Cc: stable@vger.kernel.org
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/devfreq/devfreq.c            |    6 ++----
- drivers/devfreq/governor_userspace.c |   12 ++++++------
- include/linux/devfreq.h              |    7 ++++---
- 3 files changed, 12 insertions(+), 13 deletions(-)
+ net/mptcp/pm_userspace.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/devfreq/devfreq.c
-+++ b/drivers/devfreq/devfreq.c
-@@ -776,8 +776,7 @@ static void remove_sysfs_files(struct de
-  * @dev:	the device to add devfreq feature.
-  * @profile:	device-specific profile to run devfreq.
-  * @governor_name:	name of the policy to choose frequency.
-- * @data:	private data for the governor. The devfreq framework does not
-- *		touch this value.
-+ * @data:	devfreq driver pass to governors, governor should not change it.
-  */
- struct devfreq *devfreq_add_device(struct device *dev,
- 				   struct devfreq_dev_profile *profile,
-@@ -1011,8 +1010,7 @@ static void devm_devfreq_dev_release(str
-  * @dev:	the device to add devfreq feature.
-  * @profile:	device-specific profile to run devfreq.
-  * @governor_name:	name of the policy to choose frequency.
-- * @data:	private data for the governor. The devfreq framework does not
-- *		touch this value.
-+ * @data:	 devfreq driver pass to governors, governor should not change it.
-  *
-  * This function manages automatically the memory of devfreq device using device
-  * resource management and simplify the free operation for memory of devfreq
---- a/drivers/devfreq/governor_userspace.c
-+++ b/drivers/devfreq/governor_userspace.c
-@@ -21,7 +21,7 @@ struct userspace_data {
+--- a/net/mptcp/pm_userspace.c
++++ b/net/mptcp/pm_userspace.c
+@@ -156,6 +156,7 @@ int mptcp_nl_cmd_announce(struct sk_buff
  
- static int devfreq_userspace_func(struct devfreq *df, unsigned long *freq)
- {
--	struct userspace_data *data = df->data;
-+	struct userspace_data *data = df->governor_data;
- 
- 	if (data->valid)
- 		*freq = data->user_frequency;
-@@ -40,7 +40,7 @@ static ssize_t set_freq_store(struct dev
- 	int err = 0;
- 
- 	mutex_lock(&devfreq->lock);
--	data = devfreq->data;
-+	data = devfreq->governor_data;
- 
- 	sscanf(buf, "%lu", &wanted);
- 	data->user_frequency = wanted;
-@@ -60,7 +60,7 @@ static ssize_t set_freq_show(struct devi
- 	int err = 0;
- 
- 	mutex_lock(&devfreq->lock);
--	data = devfreq->data;
-+	data = devfreq->governor_data;
- 
- 	if (data->valid)
- 		err = sprintf(buf, "%lu\n", data->user_frequency);
-@@ -91,7 +91,7 @@ static int userspace_init(struct devfreq
- 		goto out;
+ 	if (addr_val.addr.id == 0 || !(addr_val.flags & MPTCP_PM_ADDR_FLAG_SIGNAL)) {
+ 		GENL_SET_ERR_MSG(info, "invalid addr id or flags");
++		err = -EINVAL;
+ 		goto announce_err;
  	}
- 	data->valid = false;
--	devfreq->data = data;
-+	devfreq->governor_data = data;
  
- 	err = sysfs_create_group(&devfreq->dev.kobj, &dev_attr_group);
- out:
-@@ -107,8 +107,8 @@ static void userspace_exit(struct devfre
- 	if (devfreq->dev.kobj.sd)
- 		sysfs_remove_group(&devfreq->dev.kobj, &dev_attr_group);
+@@ -282,6 +283,7 @@ int mptcp_nl_cmd_sf_create(struct sk_buf
  
--	kfree(devfreq->data);
--	devfreq->data = NULL;
-+	kfree(devfreq->governor_data);
-+	devfreq->governor_data = NULL;
- }
+ 	if (addr_l.id == 0) {
+ 		NL_SET_ERR_MSG_ATTR(info->extack, laddr, "missing local addr id");
++		err = -EINVAL;
+ 		goto create_err;
+ 	}
  
- static int devfreq_userspace_handler(struct devfreq *devfreq,
---- a/include/linux/devfreq.h
-+++ b/include/linux/devfreq.h
-@@ -152,8 +152,8 @@ struct devfreq_stats {
-  * @max_state:		count of entry present in the frequency table.
-  * @previous_freq:	previously configured frequency value.
-  * @last_status:	devfreq user device info, performance statistics
-- * @data:	Private data of the governor. The devfreq framework does not
-- *		touch this.
-+ * @data:	devfreq driver pass to governors, governor should not change it.
-+ * @governor_data:	private data for governors, devfreq core doesn't touch it.
-  * @user_min_freq_req:	PM QoS minimum frequency request from user (via sysfs)
-  * @user_max_freq_req:	PM QoS maximum frequency request from user (via sysfs)
-  * @scaling_min_freq:	Limit minimum frequency requested by OPP interface
-@@ -193,7 +193,8 @@ struct devfreq {
- 	unsigned long previous_freq;
- 	struct devfreq_dev_status last_status;
+@@ -395,11 +397,13 @@ int mptcp_nl_cmd_sf_destroy(struct sk_bu
  
--	void *data; /* private data for governors */
-+	void *data;
-+	void *governor_data;
+ 	if (addr_l.family != addr_r.family) {
+ 		GENL_SET_ERR_MSG(info, "address families do not match");
++		err = -EINVAL;
+ 		goto destroy_err;
+ 	}
  
- 	struct dev_pm_qos_request user_min_freq_req;
- 	struct dev_pm_qos_request user_max_freq_req;
+ 	if (!addr_l.port || !addr_r.port) {
+ 		GENL_SET_ERR_MSG(info, "missing local or remote port");
++		err = -EINVAL;
+ 		goto destroy_err;
+ 	}
+ 
 
 
