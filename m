@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC27665D6A4
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:56:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38D3265D6A5
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:56:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229845AbjADO4a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231220AbjADO4a (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 4 Jan 2023 09:56:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45088 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239422AbjADO4F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:56:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68C6F19288
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:56:04 -0800 (PST)
+        with ESMTP id S239460AbjADO4K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:56:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF495FACC
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:56:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 06B056137A
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:56:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDD4DC433F2;
-        Wed,  4 Jan 2023 14:56:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 909A7B8169C
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:56:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3C6BC433D2;
+        Wed,  4 Jan 2023 14:56:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672844163;
-        bh=/h2CH2Uglau/MDRahEr7W4NEtUlYcmWDf3UHd3QB9ts=;
+        s=korg; t=1672844166;
+        bh=L/c3ELo7Ky2poQXx1CZFXtSE5Cx/sGehSK5kRAVr6cQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=XUZ8iDY6E06swViaLNaqHK0Zx+tXjzRojhQXH+VTJ6c3H/s8APwGP97De1Kl+hv/F
-         R2njje7Hh6clOaFGAiEAMLpGsj6STZ4MbYsP3X3N2lqsL0kGgkKmkRjweGVuE3vV54
-         3jB0MyPDxJp6RsbDTRksPmEFeWAf6rFdHFSPle1c=
-Subject: FAILED: patch "[PATCH] ext4: correct inconsistent error msg in nojournal mode" failed to apply to 5.15-stable tree
+        b=V3+pi/soX/a8WIL5VCw43lpGZ710Lar/4rK0Vk2Deydog6QsuSQ9zDfWx16mG0jaL
+         lDu0vSyQSWdqwEi0IToYc74ICuZ8I8BzfrM2EiILVe9Xd/OzYYqBtiGuVkfJHSOrUF
+         osVnh8i0/qnnhfG5YPjKJg2Mc8A990HPmesKN6y4=
+Subject: FAILED: patch "[PATCH] ext4: correct inconsistent error msg in nojournal mode" failed to apply to 5.10-stable tree
 To:     libaokun1@huawei.com, jack@suse.cz, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:54:39 +0100
-Message-ID: <167284407930130@kroah.com>
+Date:   Wed, 04 Jan 2023 15:54:40 +0100
+Message-ID: <167284408079164@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
