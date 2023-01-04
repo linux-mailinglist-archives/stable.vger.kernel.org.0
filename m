@@ -2,49 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E7E165D9BE
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:28:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E667165D992
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239805AbjADQ2i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:28:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51468 "EHLO
+        id S239921AbjADQ0T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:26:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239978AbjADQ2A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:28:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A9A043A02
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:27:30 -0800 (PST)
+        with ESMTP id S239785AbjADQZq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:25:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EFB41C107
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:25:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B8B2FB817B0
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:27:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8B10C433D2;
-        Wed,  4 Jan 2023 16:27:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 48D98B81733
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:25:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ADF2C433D2;
+        Wed,  4 Jan 2023 16:25:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849647;
-        bh=jrjfi5nfcpLhh5t4AUV0O4yH+ut+mriY1/lz0HpYKls=;
+        s=korg; t=1672849543;
+        bh=Cp4Xey+5WpKc028XxyYs27sWKy+hn7eJfH7Ol3j+gxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=liWwjsx4hsm7AYzU/4Z5ET2MzZc6BnpKWCLPDD1OCOjTZXEEXMpi+L+Kj5p2gK4P4
-         QbUbLSdrHY/p2e1Ry6KnsOeFT/VwKAOVtCNQpPfvbPPpF+J3pqPM3vVoyG1pLSiloz
-         C/AnmcSy2mnUyKaaiHn6/mb+57GAZIVGjgznkRYE=
+        b=LwTMfelwMS+L8CZf4zP61Mgc6WuFv48zTioL2tQRtuCJ8cXruUExcEVRoTvsocbtX
+         9G0gTz/IPv0Hi09IL/pCi23qtNEU0FNg/z++44xMTY4nw9BeLQUa69FGf46/uQoLrk
+         ngss9jHKnDmoCYlLWRCSTDuPRRkeawNUfygUQL2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Matthew Auld <matthew.auld@intel.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Mani Milani <mani@chromium.org>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 6.0 172/177] drm/i915: improve the catch-all evict to handle lock contention
+        patches@lists.linux.dev, Evan Quan <evan.quan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.1 205/207] drm/amd/pm: add missing SMU13.0.7 mm_dpm feature mapping
 Date:   Wed,  4 Jan 2023 17:07:43 +0100
-Message-Id: <20230104160512.887648574@linuxfoundation.org>
+Message-Id: <20230104160518.422651048@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,275 +52,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Auld <matthew.auld@intel.com>
+From: Evan Quan <evan.quan@amd.com>
 
-commit 3f882f2d4f689627c1566c2c92087bc3ff734953 upstream.
+commit e0607c10ebf551a654c3577fc74b4bf5533e1cea upstream.
 
-The catch-all evict can fail due to object lock contention, since it
-only goes as far as trylocking the object, due to us already holding the
-vm->mutex. Doing a full object lock here can deadlock, since the
-vm->mutex is always our inner lock. Add another execbuf pass which drops
-the vm->mutex and then tries to grab the object will the full lock,
-before then retrying the eviction. This should be good enough for now to
-fix the immediate regression with userspace seeing -ENOSPC from execbuf
-due to contended object locks during GTT eviction.
+Without this, the pp_dpm_vclk and pp_dpm_dclk outputs are not with
+correct data.
 
-v2 (Mani)
-  - Also revamp the docs for the different passes.
-
-Testcase: igt@gem_ppgtt@shrink-vs-evict-*
-Fixes: 7e00897be8bf ("drm/i915: Add object locking to i915_gem_evict_for_node and i915_gem_evict_something, v2.")
-Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Cc: Andrzej Hajda <andrzej.hajda@intel.com>
-Cc: Mani Milani <mani@chromium.org>
-Cc: <stable@vger.kernel.org> # v5.18+
-Reviewed-by: Mani Milani <mani@chromium.org>
-Tested-by: Mani Milani <mani@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221216113456.414183-1-matthew.auld@intel.com
-(cherry picked from commit 801fa7a81f6da533cc5442fc40e32c72b76cd42a)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 6.0.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c  |   59 +++++++++++++++++++-----
- drivers/gpu/drm/i915/gem/i915_gem_mman.c        |    2 
- drivers/gpu/drm/i915/i915_gem_evict.c           |   37 ++++++++++-----
- drivers/gpu/drm/i915/i915_gem_evict.h           |    4 +
- drivers/gpu/drm/i915/i915_vma.c                 |    2 
- drivers/gpu/drm/i915/selftests/i915_gem_evict.c |    4 -
- 6 files changed, 82 insertions(+), 26 deletions(-)
+ drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-@@ -729,32 +729,69 @@ static int eb_reserve(struct i915_execbu
- 	bool unpinned;
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
+@@ -189,6 +189,8 @@ static struct cmn2asic_mapping smu_v13_0
+ 	FEA_MAP(MEM_TEMP_READ),
+ 	FEA_MAP(ATHUB_MMHUB_PG),
+ 	FEA_MAP(SOC_PCC),
++	[SMU_FEATURE_DPM_VCLK_BIT] = {1, FEATURE_MM_DPM_BIT},
++	[SMU_FEATURE_DPM_DCLK_BIT] = {1, FEATURE_MM_DPM_BIT},
+ };
  
- 	/*
--	 * Attempt to pin all of the buffers into the GTT.
--	 * This is done in 2 phases:
-+	 * We have one more buffers that we couldn't bind, which could be due to
-+	 * various reasons. To resolve this we have 4 passes, with every next
-+	 * level turning the screws tighter:
- 	 *
--	 * 1. Unbind all objects that do not match the GTT constraints for
--	 *    the execbuffer (fenceable, mappable, alignment etc).
--	 * 2. Bind new objects.
-+	 * 0. Unbind all objects that do not match the GTT constraints for the
-+	 * execbuffer (fenceable, mappable, alignment etc). Bind all new
-+	 * objects.  This avoids unnecessary unbinding of later objects in order
-+	 * to make room for the earlier objects *unless* we need to defragment.
- 	 *
--	 * This avoid unnecessary unbinding of later objects in order to make
--	 * room for the earlier objects *unless* we need to defragment.
-+	 * 1. Reorder the buffers, where objects with the most restrictive
-+	 * placement requirements go first (ignoring fixed location buffers for
-+	 * now).  For example, objects needing the mappable aperture (the first
-+	 * 256M of GTT), should go first vs objects that can be placed just
-+	 * about anywhere. Repeat the previous pass.
- 	 *
--	 * Defragmenting is skipped if all objects are pinned at a fixed location.
-+	 * 2. Consider buffers that are pinned at a fixed location. Also try to
-+	 * evict the entire VM this time, leaving only objects that we were
-+	 * unable to lock. Try again to bind the buffers. (still using the new
-+	 * buffer order).
-+	 *
-+	 * 3. We likely have object lock contention for one or more stubborn
-+	 * objects in the VM, for which we need to evict to make forward
-+	 * progress (perhaps we are fighting the shrinker?). When evicting the
-+	 * VM this time around, anything that we can't lock we now track using
-+	 * the busy_bo, using the full lock (after dropping the vm->mutex to
-+	 * prevent deadlocks), instead of trylock. We then continue to evict the
-+	 * VM, this time with the stubborn object locked, which we can now
-+	 * hopefully unbind (if still bound in the VM). Repeat until the VM is
-+	 * evicted. Finally we should be able bind everything.
- 	 */
--	for (pass = 0; pass <= 2; pass++) {
-+	for (pass = 0; pass <= 3; pass++) {
- 		int pin_flags = PIN_USER | PIN_VALIDATE;
- 
- 		if (pass == 0)
- 			pin_flags |= PIN_NONBLOCK;
- 
- 		if (pass >= 1)
--			unpinned = eb_unbind(eb, pass == 2);
-+			unpinned = eb_unbind(eb, pass >= 2);
- 
- 		if (pass == 2) {
- 			err = mutex_lock_interruptible(&eb->context->vm->mutex);
- 			if (!err) {
--				err = i915_gem_evict_vm(eb->context->vm, &eb->ww);
-+				err = i915_gem_evict_vm(eb->context->vm, &eb->ww, NULL);
-+				mutex_unlock(&eb->context->vm->mutex);
-+			}
-+			if (err)
-+				return err;
-+		}
-+
-+		if (pass == 3) {
-+retry:
-+			err = mutex_lock_interruptible(&eb->context->vm->mutex);
-+			if (!err) {
-+				struct drm_i915_gem_object *busy_bo = NULL;
-+
-+				err = i915_gem_evict_vm(eb->context->vm, &eb->ww, &busy_bo);
- 				mutex_unlock(&eb->context->vm->mutex);
-+				if (err && busy_bo) {
-+					err = i915_gem_object_lock(busy_bo, &eb->ww);
-+					i915_gem_object_put(busy_bo);
-+					if (!err)
-+						goto retry;
-+				}
- 			}
- 			if (err)
- 				return err;
---- a/drivers/gpu/drm/i915/gem/i915_gem_mman.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_mman.c
-@@ -369,7 +369,7 @@ retry:
- 		if (vma == ERR_PTR(-ENOSPC)) {
- 			ret = mutex_lock_interruptible(&ggtt->vm.mutex);
- 			if (!ret) {
--				ret = i915_gem_evict_vm(&ggtt->vm, &ww);
-+				ret = i915_gem_evict_vm(&ggtt->vm, &ww, NULL);
- 				mutex_unlock(&ggtt->vm.mutex);
- 			}
- 			if (ret)
---- a/drivers/gpu/drm/i915/i915_gem_evict.c
-+++ b/drivers/gpu/drm/i915/i915_gem_evict.c
-@@ -416,6 +416,11 @@ int i915_gem_evict_for_node(struct i915_
-  * @vm: Address space to cleanse
-  * @ww: An optional struct i915_gem_ww_ctx. If not NULL, i915_gem_evict_vm
-  * will be able to evict vma's locked by the ww as well.
-+ * @busy_bo: Optional pointer to struct drm_i915_gem_object. If not NULL, then
-+ * in the event i915_gem_evict_vm() is unable to trylock an object for eviction,
-+ * then @busy_bo will point to it. -EBUSY is also returned. The caller must drop
-+ * the vm->mutex, before trying again to acquire the contended lock. The caller
-+ * also owns a reference to the object.
-  *
-  * This function evicts all vmas from a vm.
-  *
-@@ -425,7 +430,8 @@ int i915_gem_evict_for_node(struct i915_
-  * To clarify: This is for freeing up virtual address space, not for freeing
-  * memory in e.g. the shrinker.
-  */
--int i915_gem_evict_vm(struct i915_address_space *vm, struct i915_gem_ww_ctx *ww)
-+int i915_gem_evict_vm(struct i915_address_space *vm, struct i915_gem_ww_ctx *ww,
-+		      struct drm_i915_gem_object **busy_bo)
- {
- 	int ret = 0;
- 
-@@ -457,15 +463,22 @@ int i915_gem_evict_vm(struct i915_addres
- 			 * the resv is shared among multiple objects, we still
- 			 * need the object ref.
- 			 */
--			if (dying_vma(vma) ||
-+			if (!i915_gem_object_get_rcu(vma->obj) ||
- 			    (ww && (dma_resv_locking_ctx(vma->obj->base.resv) == &ww->ctx))) {
- 				__i915_vma_pin(vma);
- 				list_add(&vma->evict_link, &locked_eviction_list);
- 				continue;
- 			}
- 
--			if (!i915_gem_object_trylock(vma->obj, ww))
-+			if (!i915_gem_object_trylock(vma->obj, ww)) {
-+				if (busy_bo) {
-+					*busy_bo = vma->obj; /* holds ref */
-+					ret = -EBUSY;
-+					break;
-+				}
-+				i915_gem_object_put(vma->obj);
- 				continue;
-+			}
- 
- 			__i915_vma_pin(vma);
- 			list_add(&vma->evict_link, &eviction_list);
-@@ -473,25 +486,29 @@ int i915_gem_evict_vm(struct i915_addres
- 		if (list_empty(&eviction_list) && list_empty(&locked_eviction_list))
- 			break;
- 
--		ret = 0;
- 		/* Unbind locked objects first, before unlocking the eviction_list */
- 		list_for_each_entry_safe(vma, vn, &locked_eviction_list, evict_link) {
- 			__i915_vma_unpin(vma);
- 
--			if (ret == 0)
-+			if (ret == 0) {
- 				ret = __i915_vma_unbind(vma);
--			if (ret != -EINTR) /* "Get me out of here!" */
--				ret = 0;
-+				if (ret != -EINTR) /* "Get me out of here!" */
-+					ret = 0;
-+			}
-+			if (!dying_vma(vma))
-+				i915_gem_object_put(vma->obj);
- 		}
- 
- 		list_for_each_entry_safe(vma, vn, &eviction_list, evict_link) {
- 			__i915_vma_unpin(vma);
--			if (ret == 0)
-+			if (ret == 0) {
- 				ret = __i915_vma_unbind(vma);
--			if (ret != -EINTR) /* "Get me out of here!" */
--				ret = 0;
-+				if (ret != -EINTR) /* "Get me out of here!" */
-+					ret = 0;
-+			}
- 
- 			i915_gem_object_unlock(vma->obj);
-+			i915_gem_object_put(vma->obj);
- 		}
- 	} while (ret == 0);
- 
---- a/drivers/gpu/drm/i915/i915_gem_evict.h
-+++ b/drivers/gpu/drm/i915/i915_gem_evict.h
-@@ -11,6 +11,7 @@
- struct drm_mm_node;
- struct i915_address_space;
- struct i915_gem_ww_ctx;
-+struct drm_i915_gem_object;
- 
- int __must_check i915_gem_evict_something(struct i915_address_space *vm,
- 					  struct i915_gem_ww_ctx *ww,
-@@ -23,6 +24,7 @@ int __must_check i915_gem_evict_for_node
- 					 struct drm_mm_node *node,
- 					 unsigned int flags);
- int i915_gem_evict_vm(struct i915_address_space *vm,
--		      struct i915_gem_ww_ctx *ww);
-+		      struct i915_gem_ww_ctx *ww,
-+		      struct drm_i915_gem_object **busy_bo);
- 
- #endif /* __I915_GEM_EVICT_H__ */
---- a/drivers/gpu/drm/i915/i915_vma.c
-+++ b/drivers/gpu/drm/i915/i915_vma.c
-@@ -1569,7 +1569,7 @@ static int __i915_ggtt_pin(struct i915_v
- 			 * locked objects when called from execbuf when pinning
- 			 * is removed. This would probably regress badly.
- 			 */
--			i915_gem_evict_vm(vm, NULL);
-+			i915_gem_evict_vm(vm, NULL, NULL);
- 			mutex_unlock(&vm->mutex);
- 		}
- 	} while (1);
---- a/drivers/gpu/drm/i915/selftests/i915_gem_evict.c
-+++ b/drivers/gpu/drm/i915/selftests/i915_gem_evict.c
-@@ -344,7 +344,7 @@ static int igt_evict_vm(void *arg)
- 
- 	/* Everything is pinned, nothing should happen */
- 	mutex_lock(&ggtt->vm.mutex);
--	err = i915_gem_evict_vm(&ggtt->vm, NULL);
-+	err = i915_gem_evict_vm(&ggtt->vm, NULL, NULL);
- 	mutex_unlock(&ggtt->vm.mutex);
- 	if (err) {
- 		pr_err("i915_gem_evict_vm on a full GGTT returned err=%d]\n",
-@@ -356,7 +356,7 @@ static int igt_evict_vm(void *arg)
- 
- 	for_i915_gem_ww(&ww, err, false) {
- 		mutex_lock(&ggtt->vm.mutex);
--		err = i915_gem_evict_vm(&ggtt->vm, &ww);
-+		err = i915_gem_evict_vm(&ggtt->vm, &ww, NULL);
- 		mutex_unlock(&ggtt->vm.mutex);
- 	}
- 
+ static struct cmn2asic_mapping smu_v13_0_7_table_map[SMU_TABLE_COUNT] = {
 
 
