@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8158465D98A
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7C6D65D926
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:22:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239894AbjADQ0M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:26:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48278 "EHLO
+        id S239490AbjADQWS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:22:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240031AbjADQZW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:25:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF01433D52
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:25:21 -0800 (PST)
+        with ESMTP id S239794AbjADQVs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:21:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06AC9DF00
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:21:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A4F60B81733
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:25:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8596C433D2;
-        Wed,  4 Jan 2023 16:25:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 989CC6177F
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:21:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C004C433D2;
+        Wed,  4 Jan 2023 16:21:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849519;
-        bh=ksgXcK1NaxphJYJtafeiAOuNITTClBgyX0yxEtDAZWY=;
+        s=korg; t=1672849307;
+        bh=r9gpkwUQ4GAZnNuMWhHpqcOJjhZ41GYTe9WsgUmaTT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BG5oJGLFDE8y3a7JHYtJbZVhBsxTSf3tJNI8UwbmFXqR/Zew/HPVR2FtRRctvlQOM
-         XQUR9Cos3v4fXbhypQ412c1HFIUzNB76w5d+GCSnE9UUBZiwz+BQvH2FBhqprYBjkv
-         6CuhFvQWsWGR8JXHF+H0C5eCPY4e4XLmYDx+Cv4w=
+        b=xOeKU+AVOAbveVJL3B2c9WbWFLEnf39L2QmcNHgI+MDPfoZC/ebbn+uEYEe53h4rw
+         pEca684CLizgxbhIB6+0n80qWXFm8D96qVYNphwUbb/EZU4tL/wbAohSHeS806ITjF
+         HyCGRm69sgj+fUT5mgFtb811+rzza1KuDqwR5fgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Biggers <ebiggers@kernel.org>,
-        syzbot+9767be679ef5016b6082@syzkaller.appspotmail.com,
-        Alexander Potapenko <glider@google.com>,
-        Eric Biggers <ebiggers@google.com>,
+        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
+        Jason Yan <yanaijie@huawei.com>, Jan Kara <jack@suse.cz>,
         Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 6.0 135/177] fs: ext4: initialize fsdata in pagecache_write()
+Subject: [PATCH 6.1 168/207] ext4: add EXT4_IGET_BAD flag to prevent unexpected bad inode
 Date:   Wed,  4 Jan 2023 17:07:06 +0100
-Message-Id: <20230104160511.739737676@linuxfoundation.org>
+Message-Id: <20230104160517.202840181@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +53,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Potapenko <glider@google.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit 956510c0c7439e90b8103aaeaf4da92878c622f0 upstream.
+commit 63b1e9bccb71fe7d7e3ddc9877dbdc85e5d2d023 upstream.
 
-When aops->write_begin() does not initialize fsdata, KMSAN reports
-an error passing the latter to aops->write_end().
+There are many places that will get unhappy (and crash) when ext4_iget()
+returns a bad inode. However, if iget the boot loader inode, allows a bad
+inode to be returned, because the inode may not be initialized. This
+mechanism can be used to bypass some checks and cause panic. To solve this
+problem, we add a special iget flag EXT4_IGET_BAD. Only with this flag
+we'd be returning bad inode from ext4_iget(), otherwise we always return
+the error code if the inode is bad inode.(suggested by Jan Kara)
 
-Fix this by unconditionally initializing fsdata.
-
-Cc: Eric Biggers <ebiggers@kernel.org>
-Fixes: c93d8f885809 ("ext4: add basic fs-verity support")
-Reported-by: syzbot+9767be679ef5016b6082@syzkaller.appspotmail.com
-Signed-off-by: Alexander Potapenko <glider@google.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20221121112134.407362-1-glider@google.com
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20221026042310.3839669-4-libaokun1@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/verity.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/ext4.h  |    3 ++-
+ fs/ext4/inode.c |    8 +++++++-
+ fs/ext4/ioctl.c |    3 ++-
+ 3 files changed, 11 insertions(+), 3 deletions(-)
 
---- a/fs/ext4/verity.c
-+++ b/fs/ext4/verity.c
-@@ -79,7 +79,7 @@ static int pagecache_write(struct inode
- 		size_t n = min_t(size_t, count,
- 				 PAGE_SIZE - offset_in_page(pos));
- 		struct page *page;
--		void *fsdata;
-+		void *fsdata = NULL;
- 		int res;
+--- a/fs/ext4/ext4.h
++++ b/fs/ext4/ext4.h
+@@ -2964,7 +2964,8 @@ int do_journal_get_write_access(handle_t
+ typedef enum {
+ 	EXT4_IGET_NORMAL =	0,
+ 	EXT4_IGET_SPECIAL =	0x0001, /* OK to iget a system inode */
+-	EXT4_IGET_HANDLE = 	0x0002	/* Inode # is from a handle */
++	EXT4_IGET_HANDLE = 	0x0002,	/* Inode # is from a handle */
++	EXT4_IGET_BAD =		0x0004  /* Allow to iget a bad inode */
+ } ext4_iget_flags;
  
- 		res = aops->write_begin(NULL, mapping, pos, n, &page, &fsdata);
+ extern struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -5053,8 +5053,14 @@ struct inode *__ext4_iget(struct super_b
+ 	if (IS_CASEFOLDED(inode) && !ext4_has_feature_casefold(inode->i_sb))
+ 		ext4_error_inode(inode, function, line, 0,
+ 				 "casefold flag without casefold feature");
+-	brelse(iloc.bh);
++	if (is_bad_inode(inode) && !(flags & EXT4_IGET_BAD)) {
++		ext4_error_inode(inode, function, line, 0,
++				 "bad inode without EXT4_IGET_BAD flag");
++		ret = -EUCLEAN;
++		goto bad_inode;
++	}
+ 
++	brelse(iloc.bh);
+ 	unlock_new_inode(inode);
+ 	return inode;
+ 
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -374,7 +374,8 @@ static long swap_inode_boot_loader(struc
+ 	blkcnt_t blocks;
+ 	unsigned short bytes;
+ 
+-	inode_bl = ext4_iget(sb, EXT4_BOOT_LOADER_INO, EXT4_IGET_SPECIAL);
++	inode_bl = ext4_iget(sb, EXT4_BOOT_LOADER_INO,
++			EXT4_IGET_SPECIAL | EXT4_IGET_BAD);
+ 	if (IS_ERR(inode_bl))
+ 		return PTR_ERR(inode_bl);
+ 	ei_bl = EXT4_I(inode_bl);
 
 
