@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 719A565D593
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:27:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFE6E65D594
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:27:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233970AbjADO1V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:27:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50564 "EHLO
+        id S230095AbjADO1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:27:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238920AbjADO1U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:27:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AFB612AE1
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:27:18 -0800 (PST)
+        with ESMTP id S237559AbjADO1W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:27:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63CD0235
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:27:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 298F761426
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:27:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A66EC433D2;
-        Wed,  4 Jan 2023 14:27:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 00BF36174E
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:27:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 137D8C433D2;
+        Wed,  4 Jan 2023 14:27:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672842437;
-        bh=/HxqltR0xbTo7m3oJxV6eAwHuZGIl0cK9PB/G54Ls54=;
+        s=korg; t=1672842440;
+        bh=qF742liNRd6vhKk6fZe2JosTyOHXyuVaEGfhDhcf4M0=;
         h=Subject:To:Cc:From:Date:From;
-        b=WuYx0LCa9mgK750ccfnq9YvIwQeqLlQRwZZtYkDQQsYINeSyVSt+lovBilHAsOhtE
-         HQNTUzWTHJyc9qGrsog6PLUDl5Ox/sm9UekMuLN4R8oWkeP5xjwoDztAnNXtd5ioIp
-         wIK4PQng6WmHWIjRV7gj+eiYZnBqB9+WoBZAUYC4=
-Subject: FAILED: patch "[PATCH] md/bitmap: Fix bitmap chunk size overflow issues" failed to apply to 4.14-stable tree
+        b=CK8a3zS4Aq32bLfEZsjIa/05zZ92UUOJAzLD40FrwL54d1jRv21I3kFaYJb/6CaK0
+         svDiLgSfxY2Evn84aHMLHJ4JcQ/zfss6ASazof9LkivWp+4Mwc4hk+sNj3ouVwPPSZ
+         V/zEPfwkqk5WclyCMsd78Jz0Xd1kRnEnYIn0l76U=
+Subject: FAILED: patch "[PATCH] md/bitmap: Fix bitmap chunk size overflow issues" failed to apply to 4.9-stable tree
 To:     florian-ewald.mueller@ionos.com, jinpu.wang@ionos.com,
         song@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:24:35 +0100
-Message-ID: <167284227514559@kroah.com>
+Date:   Wed, 04 Jan 2023 15:24:36 +0100
+Message-ID: <167284227613832@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -56,6 +56,9 @@ id to <stable@vger.kernel.org>.
 Possible dependencies:
 
 455521119079 ("md/bitmap: Fix bitmap chunk size overflow issues")
+935fe0983e09 ("md: rename some drivers/md/ files to have an "md-" prefix")
+3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
+8b4822de59d5 ("Merge tag 'md/4.12-rc2' of git://git.kernel.org/pub/scm/linux/kernel/git/shli/md")
 
 thanks,
 
