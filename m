@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F254E65D927
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:22:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FA2165D98D
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239571AbjADQWT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:22:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45532 "EHLO
+        id S239281AbjADQ0P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:26:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235103AbjADQV4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:21:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A72F38FFA
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:21:55 -0800 (PST)
+        with ESMTP id S235136AbjADQZ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:25:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5D7433D5F
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:25:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5FFB9B817AE
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:21:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0D93C433D2;
-        Wed,  4 Jan 2023 16:21:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F38DB81731
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:25:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E301DC43392;
+        Wed,  4 Jan 2023 16:25:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849313;
-        bh=Adclq7yCdQB5nIFF5+XnMrZ4mjGroIzu73omyPZmx5g=;
+        s=korg; t=1672849525;
+        bh=/M814mfgd3JY4C+bjGTnTZWqUkfm651ilV6Em7l/7Uc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GhXgrprd483h8UZiOKcpnBGQPzgRBM3oauKdz8xEh2aTw5Ieux82G7QbIqxCmCBNU
-         kv+NCvVrWsTrEffrujUH9zDVk2z40V2siUTgK9ifzdmlmm/vFgTNE2jkXSxM6QSWE7
-         cBCq8IewoRduFcPYdbbl6IE2utEzx+zE8dvKnVTE=
+        b=0sJrTAnYnnDzTMV5betGIvfaruxscq5ToavGIeIWfty3Jdi7F1+gIMYqLAjxa/m3n
+         yBhzQPfDwLfLh+TzzoZ1YJQhdYU4VUQT/3DQTXqjOVLg6D2SjR/XEiVP79PimbEb2w
+         DrbnWt03d9zkJcRmQQh85Zld0RW7Z/bb3GjPl0fc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
-        Jason Yan <yanaijie@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 6.1 169/207] ext4: add helper to check quota inums
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 6.0 136/177] ext4: fix use-after-free in ext4_orphan_cleanup
 Date:   Wed,  4 Jan 2023 17:07:07 +0100
-Message-Id: <20230104160517.237462958@linuxfoundation.org>
+Message-Id: <20230104160511.770436044@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,76 +55,73 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Baokun Li <libaokun1@huawei.com>
 
-commit 07342ec259df2a35d6a34aebce010567a80a0e15 upstream.
+commit a71248b1accb2b42e4980afef4fa4a27fa0e36f5 upstream.
 
-Before quota is enabled, a check on the preset quota inums in
-ext4_super_block is added to prevent wrong quota inodes from being loaded.
-In addition, when the quota fails to be enabled, the quota type and quota
-inum are printed to facilitate fault locating.
+I caught a issue as follows:
+==================================================================
+ BUG: KASAN: use-after-free in __list_add_valid+0x28/0x1a0
+ Read of size 8 at addr ffff88814b13f378 by task mount/710
+
+ CPU: 1 PID: 710 Comm: mount Not tainted 6.1.0-rc3-next #370
+ Call Trace:
+  <TASK>
+  dump_stack_lvl+0x73/0x9f
+  print_report+0x25d/0x759
+  kasan_report+0xc0/0x120
+  __asan_load8+0x99/0x140
+  __list_add_valid+0x28/0x1a0
+  ext4_orphan_cleanup+0x564/0x9d0 [ext4]
+  __ext4_fill_super+0x48e2/0x5300 [ext4]
+  ext4_fill_super+0x19f/0x3a0 [ext4]
+  get_tree_bdev+0x27b/0x450
+  ext4_get_tree+0x19/0x30 [ext4]
+  vfs_get_tree+0x49/0x150
+  path_mount+0xaae/0x1350
+  do_mount+0xe2/0x110
+  __x64_sys_mount+0xf0/0x190
+  do_syscall_64+0x35/0x80
+  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+  </TASK>
+ [...]
+==================================================================
+
+Above issue may happen as follows:
+-------------------------------------
+ext4_fill_super
+  ext4_orphan_cleanup
+   --- loop1: assume last_orphan is 12 ---
+    list_add(&EXT4_I(inode)->i_orphan, &EXT4_SB(sb)->s_orphan)
+    ext4_truncate --> return 0
+      ext4_inode_attach_jinode --> return -ENOMEM
+    iput(inode) --> free inode<12>
+   --- loop2: last_orphan is still 12 ---
+    list_add(&EXT4_I(inode)->i_orphan, &EXT4_SB(sb)->s_orphan);
+    // use inode<12> and trigger UAF
+
+To solve this issue, we need to propagate the return value of
+ext4_inode_attach_jinode() appropriately.
 
 Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jason Yan <yanaijie@huawei.com>
 Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221026042310.3839669-3-libaokun1@huawei.com
+Link: https://lore.kernel.org/r/20221102080633.1630225-1-libaokun1@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |   28 +++++++++++++++++++++++++---
- 1 file changed, 25 insertions(+), 3 deletions(-)
+ fs/ext4/inode.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -6887,6 +6887,20 @@ static int ext4_quota_on(struct super_bl
- 	return err;
- }
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -4225,7 +4225,8 @@ int ext4_truncate(struct inode *inode)
  
-+static inline bool ext4_check_quota_inum(int type, unsigned long qf_inum)
-+{
-+	switch (type) {
-+	case USRQUOTA:
-+		return qf_inum == EXT4_USR_QUOTA_INO;
-+	case GRPQUOTA:
-+		return qf_inum == EXT4_GRP_QUOTA_INO;
-+	case PRJQUOTA:
-+		return qf_inum >= EXT4_GOOD_OLD_FIRST_INO;
-+	default:
-+		BUG();
-+	}
-+}
-+
- static int ext4_quota_enable(struct super_block *sb, int type, int format_id,
- 			     unsigned int flags)
- {
-@@ -6903,9 +6917,16 @@ static int ext4_quota_enable(struct supe
- 	if (!qf_inums[type])
- 		return -EPERM;
- 
-+	if (!ext4_check_quota_inum(type, qf_inums[type])) {
-+		ext4_error(sb, "Bad quota inum: %lu, type: %d",
-+				qf_inums[type], type);
-+		return -EUCLEAN;
-+	}
-+
- 	qf_inode = ext4_iget(sb, qf_inums[type], EXT4_IGET_SPECIAL);
- 	if (IS_ERR(qf_inode)) {
--		ext4_error(sb, "Bad quota inode # %lu", qf_inums[type]);
-+		ext4_error(sb, "Bad quota inode: %lu, type: %d",
-+				qf_inums[type], type);
- 		return PTR_ERR(qf_inode);
+ 	/* If we zero-out tail of the page, we have to create jinode for jbd2 */
+ 	if (inode->i_size & (inode->i_sb->s_blocksize - 1)) {
+-		if (ext4_inode_attach_jinode(inode) < 0)
++		err = ext4_inode_attach_jinode(inode);
++		if (err)
+ 			goto out_trace;
  	}
- 
-@@ -6944,8 +6965,9 @@ int ext4_enable_quotas(struct super_bloc
- 			if (err) {
- 				ext4_warning(sb,
- 					"Failed to enable quota tracking "
--					"(type=%d, err=%d). Please run "
--					"e2fsck to fix.", type, err);
-+					"(type=%d, err=%d, ino=%lu). "
-+					"Please run e2fsck to fix.", type,
-+					err, qf_inums[type]);
- 				for (type--; type >= 0; type--) {
- 					struct inode *inode;
  
 
 
