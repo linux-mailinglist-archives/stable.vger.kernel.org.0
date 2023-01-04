@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 473B265D8AF
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:17:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 120E265D905
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:21:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239451AbjADQRP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:17:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37920 "EHLO
+        id S239766AbjADQU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:20:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239980AbjADQQ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:16:59 -0500
+        with ESMTP id S240029AbjADQUl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:20:41 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4BCB391
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:16:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62CF944360
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:20:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6FE75B81714
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:16:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8312C433D2;
-        Wed,  4 Jan 2023 16:16:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 20986B81722
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:20:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F1BCC433EF;
+        Wed,  4 Jan 2023 16:20:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849015;
-        bh=kDLBUV+Ye7w3eLOQ3Co93J5anMhbj5TxHng32TQWiYg=;
+        s=korg; t=1672849237;
+        bh=zrfU231GJK/axSv6kEzBi+LS+JM7t34THONAJX0/JrM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kt6tHknp3wfXodx1z4xUukG0eQAuVfFjvjeDEk/mGA55S7DTfuSeTU/WFWcOYl39R
-         8p5n/l2MmmVVas/ENJomuh8BJNQ0EVeQLv45LjCIIkUUYwW+0wmPgLNCv9fBI8xKda
-         LDdSzMkP0Zmj2fG7c7cYPhmF1+4afSahDbdfKo6g=
+        b=wjQc6KJWCpmn65bVfIGPbm9n1PARG13RxGQQqNHlFXeYAfDU88JRh0M1Wkwf8omFU
+         Cqy7y+dSbCYynUu4iR6EkI1SIcYN3ql0lWbWBeCD28nmZOlGT/+b1heibLevrC14Jq
+         UYKP53tD7W27aXo9MpaLpKCT/HZhNOR0bD5bpM9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable@kernel.org,
-        Jiaming Li <lijiaming30@huawei.com>,
-        Huaxin Lu <luhuaxin1@huawei.com>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 6.1 120/207] ima: Fix a potential NULL pointer access in ima_restore_measurement_list
+        patches@lists.linux.dev, Yang Wang <KevinYang.Wang@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.0 087/177] drm/amdgpu: fix mmhub register base coding error
 Date:   Wed,  4 Jan 2023 17:06:18 +0100
-Message-Id: <20230104160515.708481194@linuxfoundation.org>
+Message-Id: <20230104160510.282788013@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +54,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huaxin Lu <luhuaxin1@huawei.com>
+From: Yang Wang <KevinYang.Wang@amd.com>
 
-commit 11220db412edae8dba58853238f53258268bdb88 upstream.
+commit 347fafe0eb46df941965c355c77ce480e4d49f1f upstream.
 
-In restore_template_fmt, when kstrdup fails, a non-NULL value will still be
-returned, which causes a NULL pointer access in template_desc_init_fields.
+fix MMHUB register base coding error.
 
-Fixes: c7d09367702e ("ima: support restoring multiple template formats")
-Cc: stable@kernel.org
-Co-developed-by: Jiaming Li <lijiaming30@huawei.com>
-Signed-off-by: Jiaming Li <lijiaming30@huawei.com>
-Signed-off-by: Huaxin Lu <luhuaxin1@huawei.com>
-Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Fixes: ec6837591f992 ("drm/amdgpu/gmc10: program the smallK fragment size")
+
+Signed-off-by: Yang Wang <KevinYang.Wang@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/integrity/ima/ima_template.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/mmhub_v2_0.c   |    2 +-
+ drivers/gpu/drm/amd/amdgpu/mmhub_v2_3.c   |    2 +-
+ drivers/gpu/drm/amd/amdgpu/mmhub_v3_0.c   |    2 +-
+ drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_1.c |    2 +-
+ drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_2.c |    2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/security/integrity/ima/ima_template.c
-+++ b/security/integrity/ima/ima_template.c
-@@ -340,8 +340,11 @@ static struct ima_template_desc *restore
+--- a/drivers/gpu/drm/amd/amdgpu/mmhub_v2_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v2_0.c
+@@ -319,7 +319,7 @@ static void mmhub_v2_0_init_cache_regs(s
  
- 	template_desc->name = "";
- 	template_desc->fmt = kstrdup(template_name, GFP_KERNEL);
--	if (!template_desc->fmt)
-+	if (!template_desc->fmt) {
-+		kfree(template_desc);
-+		template_desc = NULL;
- 		goto out;
-+	}
+ 	tmp = mmMMVM_L2_CNTL5_DEFAULT;
+ 	tmp = REG_SET_FIELD(tmp, MMVM_L2_CNTL5, L2_CACHE_SMALLK_FRAGMENT_SIZE, 0);
+-	WREG32_SOC15(GC, 0, mmMMVM_L2_CNTL5, tmp);
++	WREG32_SOC15(MMHUB, 0, mmMMVM_L2_CNTL5, tmp);
+ }
  
- 	spin_lock(&template_list);
- 	list_add_tail_rcu(&template_desc->list, &defined_templates);
+ static void mmhub_v2_0_enable_system_domain(struct amdgpu_device *adev)
+--- a/drivers/gpu/drm/amd/amdgpu/mmhub_v2_3.c
++++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v2_3.c
+@@ -243,7 +243,7 @@ static void mmhub_v2_3_init_cache_regs(s
+ 
+ 	tmp = mmMMVM_L2_CNTL5_DEFAULT;
+ 	tmp = REG_SET_FIELD(tmp, MMVM_L2_CNTL5, L2_CACHE_SMALLK_FRAGMENT_SIZE, 0);
+-	WREG32_SOC15(GC, 0, mmMMVM_L2_CNTL5, tmp);
++	WREG32_SOC15(MMHUB, 0, mmMMVM_L2_CNTL5, tmp);
+ }
+ 
+ static void mmhub_v2_3_enable_system_domain(struct amdgpu_device *adev)
+--- a/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0.c
+@@ -275,7 +275,7 @@ static void mmhub_v3_0_init_cache_regs(s
+ 
+ 	tmp = regMMVM_L2_CNTL5_DEFAULT;
+ 	tmp = REG_SET_FIELD(tmp, MMVM_L2_CNTL5, L2_CACHE_SMALLK_FRAGMENT_SIZE, 0);
+-	WREG32_SOC15(GC, 0, regMMVM_L2_CNTL5, tmp);
++	WREG32_SOC15(MMHUB, 0, regMMVM_L2_CNTL5, tmp);
+ }
+ 
+ static void mmhub_v3_0_enable_system_domain(struct amdgpu_device *adev)
+--- a/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_1.c
++++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_1.c
+@@ -269,7 +269,7 @@ static void mmhub_v3_0_1_init_cache_regs
+ 
+ 	tmp = regMMVM_L2_CNTL5_DEFAULT;
+ 	tmp = REG_SET_FIELD(tmp, MMVM_L2_CNTL5, L2_CACHE_SMALLK_FRAGMENT_SIZE, 0);
+-	WREG32_SOC15(GC, 0, regMMVM_L2_CNTL5, tmp);
++	WREG32_SOC15(MMHUB, 0, regMMVM_L2_CNTL5, tmp);
+ }
+ 
+ static void mmhub_v3_0_1_enable_system_domain(struct amdgpu_device *adev)
+--- a/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_2.c
++++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_2.c
+@@ -268,7 +268,7 @@ static void mmhub_v3_0_2_init_cache_regs
+ 
+ 	tmp = regMMVM_L2_CNTL5_DEFAULT;
+ 	tmp = REG_SET_FIELD(tmp, MMVM_L2_CNTL5, L2_CACHE_SMALLK_FRAGMENT_SIZE, 0);
+-	WREG32_SOC15(GC, 0, regMMVM_L2_CNTL5, tmp);
++	WREG32_SOC15(MMHUB, 0, regMMVM_L2_CNTL5, tmp);
+ }
+ 
+ static void mmhub_v3_0_2_enable_system_domain(struct amdgpu_device *adev)
 
 
