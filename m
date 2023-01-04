@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 126CC65D8C8
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:18:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC2C465D920
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:22:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239936AbjADQSN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:18:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41610 "EHLO
+        id S235020AbjADQWP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:22:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239901AbjADQSJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:18:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B8D037535
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:18:06 -0800 (PST)
+        with ESMTP id S239617AbjADQVf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:21:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94257A45E
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:21:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF4EAB817AE
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:18:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B0A5C433EF;
-        Wed,  4 Jan 2023 16:18:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4A523B81733
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:21:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B070CC433D2;
+        Wed,  4 Jan 2023 16:21:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849083;
-        bh=N50cOfFxgAGh/igrfdLHnO1oXjCQ9T8lToz0ZfB+JaI=;
+        s=korg; t=1672849292;
+        bh=WxSrhrpqyDeqQwktNFOhI4EkwNUo4eNlp4LP9pd2r+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ntDarCTvHh8ojFVjvhoWdMqHN34SKzSjG4Lfk+cdz19/KI0v0GtKrUNjyjabDtg1j
-         l9xbrKgapM0gcBqMkxpDdItT97ESJTNJYwjGH/RGe+Rgfv3etU++23JYf7ZYOuD4L5
-         4TxTmNI/yfmYMd4/79qnI7FBXRPrJ2HqDGiU2rWo=
+        b=ZcX6MXh3wE93Iw69xV99pe0GSCZH4znC9SxNyiXSHcFhP4ygRAuoistDJbyrdNJWJ
+         JYVltV1+YoSF/fG01wuHDfMvxti9QfUoeaCXne/UQXC8oJjgEV92+t9cR18mT3aNK+
+         p2xyWIP7ggWaFyl4oY58YhQ1y0YwJcslR84dt9ko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Huafei <lihuafei1@huawei.com>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 6.1 130/207] RISC-V: kexec: Fix memory leak of elf header buffer
-Date:   Wed,  4 Jan 2023 17:06:28 +0100
-Message-Id: <20230104160516.040685305@linuxfoundation.org>
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        Corey Minyard <cminyard@mvista.com>
+Subject: [PATCH 6.0 098/177] ipmi: fix use after free in _ipmi_destroy_user()
+Date:   Wed,  4 Jan 2023 17:06:29 +0100
+Message-Id: <20230104160510.604935743@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +52,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Huafei <lihuafei1@huawei.com>
+From: Dan Carpenter <error27@gmail.com>
 
-commit cbc32023ddbdf4baa3d9dc513a2184a84080a5a2 upstream.
+commit a92ce570c81dc0feaeb12a429b4bc65686d17967 upstream.
 
-This is reported by kmemleak detector:
+The intf_free() function frees the "intf" pointer so we cannot
+dereference it again on the next line.
 
-unreferenced object 0xff2000000403d000 (size 4096):
-  comm "kexec", pid 146, jiffies 4294900633 (age 64.792s)
-  hex dump (first 32 bytes):
-    7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00  .ELF............
-    04 00 f3 00 01 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000566ca97c>] kmemleak_vmalloc+0x3c/0xbe
-    [<00000000979283d8>] __vmalloc_node_range+0x3ac/0x560
-    [<00000000b4b3712a>] __vmalloc_node+0x56/0x62
-    [<00000000854f75e2>] vzalloc+0x2c/0x34
-    [<00000000e9a00db9>] crash_prepare_elf64_headers+0x80/0x30c
-    [<0000000067e8bf48>] elf_kexec_load+0x3e8/0x4ec
-    [<0000000036548e09>] kexec_image_load_default+0x40/0x4c
-    [<0000000079fbe1b4>] sys_kexec_file_load+0x1c4/0x322
-    [<0000000040c62c03>] ret_from_syscall+0x0/0x2
-
-In elf_kexec_load(), a buffer is allocated via vzalloc() to store elf
-headers.  While it's not freed back to system when kdump kernel is
-reloaded or unloaded, or when image->elf_header is successfully set and
-then fails to load kdump kernel for some reason. Fix it by freeing the
-buffer in arch_kimage_file_post_load_cleanup().
-
-Fixes: 8acea455fafa ("RISC-V: Support for kexec_file on panic")
-Signed-off-by: Li Huafei <lihuafei1@huawei.com>
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-Link: https://lore.kernel.org/r/20221104095658.141222-2-lihuafei1@huawei.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Fixes: cbb79863fc31 ("ipmi: Don't allow device module unload when in use")
+Signed-off-by: Dan Carpenter <error27@gmail.com>
+Message-Id: <Y3M8xa1drZv4CToE@kili>
+Cc: <stable@vger.kernel.org> # 5.5+
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kernel/elf_kexec.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/char/ipmi/ipmi_msghandler.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/riscv/kernel/elf_kexec.c
-+++ b/arch/riscv/kernel/elf_kexec.c
-@@ -26,6 +26,10 @@ int arch_kimage_file_post_load_cleanup(s
- 	kvfree(image->arch.fdt);
- 	image->arch.fdt = NULL;
+--- a/drivers/char/ipmi/ipmi_msghandler.c
++++ b/drivers/char/ipmi/ipmi_msghandler.c
+@@ -1336,6 +1336,7 @@ static void _ipmi_destroy_user(struct ip
+ 	unsigned long    flags;
+ 	struct cmd_rcvr  *rcvr;
+ 	struct cmd_rcvr  *rcvrs = NULL;
++	struct module    *owner;
  
-+	vfree(image->elf_headers);
-+	image->elf_headers = NULL;
-+	image->elf_headers_sz = 0;
-+
- 	return kexec_image_post_load_cleanup_default(image);
+ 	if (!acquire_ipmi_user(user, &i)) {
+ 		/*
+@@ -1398,8 +1399,9 @@ static void _ipmi_destroy_user(struct ip
+ 		kfree(rcvr);
+ 	}
+ 
++	owner = intf->owner;
+ 	kref_put(&intf->refcount, intf_free);
+-	module_put(intf->owner);
++	module_put(owner);
  }
  
+ int ipmi_destroy_user(struct ipmi_user *user)
 
 
