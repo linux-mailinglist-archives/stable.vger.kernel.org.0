@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B52C65D966
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:25:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F2AD65D8C6
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:18:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229505AbjADQZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:25:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48050 "EHLO
+        id S239862AbjADQSG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:18:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240070AbjADQYm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:24:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0455233D43
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:23:50 -0800 (PST)
+        with ESMTP id S239897AbjADQSC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:18:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E19E3AAB4
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:18:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E7A48617A6
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:23:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05F8DC433D2;
-        Wed,  4 Jan 2023 16:23:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A0AFB817AE
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:17:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4757BC433EF;
+        Wed,  4 Jan 2023 16:17:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849428;
-        bh=b2H1e4Xf5kjwfchfQ9lboRyiDbyhZfS1rgqHrqxDT+0=;
+        s=korg; t=1672849077;
+        bh=aIv8rPttAvRaqF4jQcjIWVmTppUsBhvUmRnG4goKeAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P+hDPKqy2idlFh8QFQNVIkpMJXTb5+26m3Hgy+q4oKuhiFO458W78XUM4Br/jrKtn
-         r33/dbwPg0gF0QAGjdwK8oTW3ocn71boOk5Bi/cKA1UcKhCJzMZRO0ebm2wfm6rjrv
-         uRelB45z510uFiYhydqavalWdzKC0RUcxjFXVZ/A=
+        b=SlK/CwTLXVKAA6Gc17UtvuCKnKeuP4dnwEmt+sMuwSaDf0CU4vZ3XMNTJXa1QUeyt
+         Tei3s9nNmq/oYhIs8892WlAC6+sFlHBy5Qn7f5ErTSw/yMdfrbDb78HwckJzgopM3u
+         9eQF4ZJQRMmvBuUf7ON4F4yAm7D9zyaXAIH3w29Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>
-Subject: [PATCH 6.0 096/177] mtd: spi-nor: Check for zero erase size in spi_nor_find_best_erase_type()
+        patches@lists.linux.dev, Conor Dooley <conor.dooley@microchip.com>,
+        kernel test robot <lkp@intel.com>,
+        Guo Ren <guoren@kernel.org>,
+        Guo Ren <guoren@linux.alibaba.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 6.1 129/207] riscv: Fixup compile error with !MMU
 Date:   Wed,  4 Jan 2023 17:06:27 +0100
-Message-Id: <20230104160510.546063486@linuxfoundation.org>
+Message-Id: <20230104160516.010691480@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-commit 2ebc336be08160debfe27f87660cf550d710f3e9 upstream.
+commit c528ef0888b75f673f7d48022de8d31d5b451e8c upstream.
 
-Erase can be zeroed in spi_nor_parse_4bait() or
-spi_nor_init_non_uniform_erase_map(). In practice it happened with
-mt25qu256a, which supports 4K, 32K, 64K erases with 3b address commands,
-but only 4K and 64K erase with 4b address commands.
+Current nommu_virt_defconfig can't compile:
 
-Fixes: dc92843159a7 ("mtd: spi-nor: fix erase_type array to indicate current map conf")
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+In file included from
+arch/riscv/kernel/crash_core.c:3:
+arch/riscv/kernel/crash_core.c:
+In function 'arch_crash_save_vmcoreinfo':
+arch/riscv/kernel/crash_core.c:8:27:
+error: 'VA_BITS' undeclared (first use in this function)
+    8 |         VMCOREINFO_NUMBER(VA_BITS);
+      |                           ^~~~~~~
+
+Add MMU dependency for KEXEC_FILE.
+
+Fixes: 6261586e0c91 ("RISC-V: Add kexec_file support")
+Reported-by: Conor Dooley <conor.dooley@microchip.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Guo Ren <guoren@kernel.org>
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Tested-by: Conor Dooley <conor.dooley@microchip.com>
+Link: https://lore.kernel.org/r/20221207091112.2258674-1-guoren@kernel.org
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20211119081412.29732-1-alexander.sverdlin@nokia.com
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/spi-nor/core.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/riscv/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mtd/spi-nor/core.c
-+++ b/drivers/mtd/spi-nor/core.c
-@@ -1184,6 +1184,8 @@ spi_nor_find_best_erase_type(const struc
- 			continue;
- 
- 		erase = &map->erase_type[i];
-+		if (!erase->size)
-+			continue;
- 
- 		/* Alignment is not mandatory for overlaid regions */
- 		if (region->offset & SNOR_OVERLAID_REGION &&
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -502,7 +502,7 @@ config KEXEC_FILE
+ 	select KEXEC_CORE
+ 	select KEXEC_ELF
+ 	select HAVE_IMA_KEXEC if IMA
+-	depends on 64BIT
++	depends on 64BIT && MMU
+ 	help
+ 	  This is new version of kexec system call. This system call is
+ 	  file based and takes file descriptors as system call argument
 
 
