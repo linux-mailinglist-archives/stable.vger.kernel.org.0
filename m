@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1811E65D329
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:53:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29FE065D32A
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:53:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232648AbjADMxU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 07:53:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34944 "EHLO
+        id S232195AbjADMxY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 07:53:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232324AbjADMxS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:53:18 -0500
+        with ESMTP id S232324AbjADMxW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:53:22 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55833E0C7
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 04:53:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAAF41CFD2
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 04:53:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 671A86142A
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 12:53:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78CDEC433EF;
-        Wed,  4 Jan 2023 12:53:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 86F6F6137C
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 12:53:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 852A1C433EF;
+        Wed,  4 Jan 2023 12:53:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672836796;
-        bh=G9LpMkJuao4v0Rzi4kfCopjuMpdQIU7GUjTtr2eGebs=;
+        s=korg; t=1672836800;
+        bh=GsDwAY/8QmrTvAt23EulD1b40aJY4DJsrByQvuq8N/Y=;
         h=Subject:To:Cc:From:Date:From;
-        b=XMEHzVWPyWWk6ccljG/umA3vgbXIdOUIz9T6hMXCiUnGIQ4lju8wI7FeIa+d+Ue3+
-         slg4Vns1gtnzQWNDhmRzBkyB0zGzjAl+ZI98TQsraw9v/zAe4PDnLccVGIqJ+lJ3gE
-         FJdX3favdlN2LzZEf8zmwfzJ1B689Sw7GhtL1tSE=
-Subject: FAILED: patch "[PATCH] btrfs: fix extent map use-after-free when handling missing" failed to apply to 4.9-stable tree
-To:     void0red@gmail.com, 1527030098@qq.com, dsterba@suse.com
+        b=lqKGlV6RWJbXAQLF5xxfO8eaFskBAzSJB/ADERwLzpIVk+MHz5BmcK0/g6MhV+IdJ
+         eTXeR6GQlGm24PNFp4HaVAFb2VfQnpeM8s+sss3z/Kdxuu5RyoIcg6CeU8Fw9fJ27f
+         aipepaUMSEGABlyezBfBUhHYRGruBVUE7htJZ3I8=
+Subject: FAILED: patch "[PATCH] btrfs: fix resolving backrefs for inline extent followed by" failed to apply to 4.19-stable tree
+To:     boris@bur.io, dsterba@suse.com, wqu@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 13:52:54 +0100
-Message-ID: <167283677420222@kroah.com>
+Date:   Wed, 04 Jan 2023 13:53:16 +0100
+Message-ID: <16728367967194@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,33 +47,15 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-1742e1c90c3d ("btrfs: fix extent map use-after-free when handling missing device in read_one_chunk")
-ff37c89f94be ("btrfs: move missing device handling in a dedicate function")
-562d7b1512f7 ("btrfs: handle device lookup with btrfs_dev_lookup_args")
-1a9fd4172d5c ("btrfs: fix typos in comments")
-e9306ad4ef5c ("btrfs: more graceful errors/warnings on 32bit systems when reaching limits")
-bc03f39ec3c1 ("btrfs: use a bit to track the existence of tree mod log users")
-406808ab2f0b ("btrfs: use booleans where appropriate for the tree mod log functions")
-f3a84ccd28d0 ("btrfs: move the tree mod log code into its own file")
-dbcc7d57bffc ("btrfs: fix race when cloning extent buffer during rewind of an old root")
-cac06d843f25 ("btrfs: introduce the skeleton of btrfs_subpage structure")
-2f96e40212d4 ("btrfs: fix possible free space tree corruption with online conversion")
-1aaac38c83a2 ("btrfs: don't allow tree block to cross page boundary for subpage support")
-948462294577 ("btrfs: keep sb cache_generation consistent with space_cache")
-8b228324a8ce ("btrfs: clear free space tree on ro->rw remount")
-8cd2908846d1 ("btrfs: clear oneshot options on mount and remount")
-5011139a4718 ("btrfs: create free space tree on ro->rw remount")
-8f1c21d7490f ("btrfs: start orphan cleanup on ro->rw remount")
-44c0ca211a4d ("btrfs: lift read-write mount setup from mount and remount")
-5297199a8bca ("btrfs: remove inode number cache feature")
-ec7d6dfd73b2 ("btrfs: move btrfs_find_highest_objectid/btrfs_find_free_objectid to disk-io.c")
+560840afc3e6 ("btrfs: fix resolving backrefs for inline extent followed by prealloc")
+7ac8b88ee668 ("btrfs: backref, only collect file extent items matching backref offset")
 
 thanks,
 
@@ -81,40 +63,90 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1742e1c90c3da344f3bb9b1f1309b3f47482756a Mon Sep 17 00:00:00 2001
-From: void0red <void0red@gmail.com>
-Date: Wed, 23 Nov 2022 22:39:45 +0800
-Subject: [PATCH] btrfs: fix extent map use-after-free when handling missing
- device in read_one_chunk
+From 560840afc3e63bbe5d9c5ef6b2ecf8f3589adff6 Mon Sep 17 00:00:00 2001
+From: Boris Burkov <boris@bur.io>
+Date: Wed, 14 Dec 2022 15:05:08 -0800
+Subject: [PATCH] btrfs: fix resolving backrefs for inline extent followed by
+ prealloc
 
-Store the error code before freeing the extent_map. Though it's
-reference counted structure, in that function it's the first and last
-allocation so this would lead to a potential use-after-free.
+If a file consists of an inline extent followed by a regular or prealloc
+extent, then a legitimate attempt to resolve a logical address in the
+non-inline region will result in add_all_parents reading the invalid
+offset field of the inline extent. If the inline extent item is placed
+in the leaf eb s.t. it is the first item, attempting to access the
+offset field will not only be meaningless, it will go past the end of
+the eb and cause this panic:
 
-The error can happen eg. when chunk is stored on a missing device and
-the degraded mount option is missing.
+  [17.626048] BTRFS warning (device dm-2): bad eb member end: ptr 0x3fd4 start 30834688 member offset 16377 size 8
+  [17.631693] general protection fault, probably for non-canonical address 0x5088000000000: 0000 [#1] SMP PTI
+  [17.635041] CPU: 2 PID: 1267 Comm: btrfs Not tainted 5.12.0-07246-g75175d5adc74-dirty #199
+  [17.637969] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+  [17.641995] RIP: 0010:btrfs_get_64+0xe7/0x110
+  [17.649890] RSP: 0018:ffffc90001f73a08 EFLAGS: 00010202
+  [17.651652] RAX: 0000000000000001 RBX: ffff88810c42d000 RCX: 0000000000000000
+  [17.653921] RDX: 0005088000000000 RSI: ffffc90001f73a0f RDI: 0000000000000001
+  [17.656174] RBP: 0000000000000ff9 R08: 0000000000000007 R09: c0000000fffeffff
+  [17.658441] R10: ffffc90001f73790 R11: ffffc90001f73788 R12: ffff888106afe918
+  [17.661070] R13: 0000000000003fd4 R14: 0000000000003f6f R15: cdcdcdcdcdcdcdcd
+  [17.663617] FS:  00007f64e7627d80(0000) GS:ffff888237c80000(0000) knlGS:0000000000000000
+  [17.666525] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [17.668664] CR2: 000055d4a39152e8 CR3: 000000010c596002 CR4: 0000000000770ee0
+  [17.671253] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  [17.673634] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  [17.676034] PKRU: 55555554
+  [17.677004] Call Trace:
+  [17.677877]  add_all_parents+0x276/0x480
+  [17.679325]  find_parent_nodes+0xfae/0x1590
+  [17.680771]  btrfs_find_all_leafs+0x5e/0xa0
+  [17.682217]  iterate_extent_inodes+0xce/0x260
+  [17.683809]  ? btrfs_inode_flags_to_xflags+0x50/0x50
+  [17.685597]  ? iterate_inodes_from_logical+0xa1/0xd0
+  [17.687404]  iterate_inodes_from_logical+0xa1/0xd0
+  [17.689121]  ? btrfs_inode_flags_to_xflags+0x50/0x50
+  [17.691010]  btrfs_ioctl_logical_to_ino+0x131/0x190
+  [17.692946]  btrfs_ioctl+0x104a/0x2f60
+  [17.694384]  ? selinux_file_ioctl+0x182/0x220
+  [17.695995]  ? __x64_sys_ioctl+0x84/0xc0
+  [17.697394]  __x64_sys_ioctl+0x84/0xc0
+  [17.698697]  do_syscall_64+0x33/0x40
+  [17.700017]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+  [17.701753] RIP: 0033:0x7f64e72761b7
+  [17.709355] RSP: 002b:00007ffefb067f58 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+  [17.712088] RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007f64e72761b7
+  [17.714667] RDX: 00007ffefb067fb0 RSI: 00000000c0389424 RDI: 0000000000000003
+  [17.717386] RBP: 00007ffefb06d188 R08: 000055d4a390d2b0 R09: 00007f64e7340a60
+  [17.719938] R10: 0000000000000231 R11: 0000000000000246 R12: 0000000000000001
+  [17.722383] R13: 0000000000000000 R14: 00000000c0389424 R15: 000055d4a38fd2a0
+  [17.724839] Modules linked in:
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=216721
-Reported-by: eriri <1527030098@qq.com>
-Fixes: adfb69af7d8c ("btrfs: add_missing_dev() should return the actual error")
+Fix the bug by detecting the inline extent item in add_all_parents and
+skipping to the next extent item.
+
 CC: stable@vger.kernel.org # 4.9+
-Signed-off-by: void0red <void0red@gmail.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Boris Burkov <boris@bur.io>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index acab20f2863d..aa25fa335d3e 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -6976,8 +6976,9 @@ static int read_one_chunk(struct btrfs_key *key, struct extent_buffer *leaf,
- 			map->stripes[i].dev = handle_missing_device(fs_info,
- 								    devid, uuid);
- 			if (IS_ERR(map->stripes[i].dev)) {
-+				ret = PTR_ERR(map->stripes[i].dev);
- 				free_extent_map(em);
--				return PTR_ERR(map->stripes[i].dev);
-+				return ret;
- 			}
+diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
+index 21c92c74bf71..46851511b661 100644
+--- a/fs/btrfs/backref.c
++++ b/fs/btrfs/backref.c
+@@ -484,6 +484,7 @@ static int add_all_parents(struct btrfs_backref_walk_ctx *ctx,
+ 	u64 wanted_disk_byte = ref->wanted_disk_byte;
+ 	u64 count = 0;
+ 	u64 data_offset;
++	u8 type;
+ 
+ 	if (level != 0) {
+ 		eb = path->nodes[level];
+@@ -538,6 +539,9 @@ static int add_all_parents(struct btrfs_backref_walk_ctx *ctx,
+ 			continue;
  		}
+ 		fi = btrfs_item_ptr(eb, slot, struct btrfs_file_extent_item);
++		type = btrfs_file_extent_type(eb, fi);
++		if (type == BTRFS_FILE_EXTENT_INLINE)
++			goto next;
+ 		disk_byte = btrfs_file_extent_disk_bytenr(eb, fi);
+ 		data_offset = btrfs_file_extent_offset(eb, fi);
  
 
