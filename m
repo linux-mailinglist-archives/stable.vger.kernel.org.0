@@ -2,91 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED6F965D2CD
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:35:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F4BA65D2E3
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:38:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234944AbjADMft (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 07:35:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54930 "EHLO
+        id S234986AbjADMiq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 07:38:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239191AbjADMfo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:35:44 -0500
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98ED21AD90;
-        Wed,  4 Jan 2023 04:35:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1672835741; x=1704371741;
-  h=date:from:to:cc:subject:in-reply-to:message-id:
-   references:mime-version;
-  bh=rkt4l1r96Awe0yuVnI/8AUblpAdT+5P6KOwt66+7u6c=;
-  b=jkh+gXfOAF3MwivD5vCCy8STVKUuJpI+1GiEneh487zqJLxwMMZ9XL0I
-   Jku4Hu0mpTtKBaRhTLuIhyJGVUGZdkBkuGgof4s5g4PK1ghSqrhmAoc9+
-   5h8BUKJcPMTCrc0eZ3XzSpBGXkTZC1JRZQE21B90yk6R0xxcvOTp+irtA
-   Gsazsu/gciplF3Y1VyoJ6yaPL+Wpvu7yleF2YyPH+jVwXY7ewmyNdle1b
-   LTh/tGUYBFAL3nYzOALqq5eh+gEtoQh6j5j5hx3tKoxvEf8UNTH9P3nio
-   6MOGIJls+VId6T4QYvvAbtzLggqao8p8r3nw8aSaz651RAy/q0lVkroW2
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10579"; a="384214959"
-X-IronPort-AV: E=Sophos;i="5.96,299,1665471600"; 
-   d="scan'208";a="384214959"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jan 2023 04:35:41 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10579"; a="779195620"
-X-IronPort-AV: E=Sophos;i="5.96,299,1665471600"; 
-   d="scan'208";a="779195620"
-Received: from eliteleevi.tm.intel.com ([10.237.54.20])
-  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jan 2023 04:35:37 -0800
-Date:   Wed, 4 Jan 2023 14:34:55 +0200 (EET)
-From:   Kai Vehmanen <kai.vehmanen@linux.intel.com>
-X-X-Sender: kvehmane@eliteleevi.tm.intel.com
-To:     Sasha Levin <sashal@kernel.org>
-cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Ricardo Ribalda <ribalda@chromium.org>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        =?ISO-8859-15?Q?P=E9ter_Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>, lgirdwood@gmail.com,
-        yung-chuan.liao@linux.intel.com, daniel.baluta@nxp.com,
-        Jaroslav Kysela <perex@perex.cz>, tiwai@suse.com,
-        sound-open-firmware@alsa-project.org,
-        Alsa-devel <alsa-devel@alsa-project.org>
-Subject: Re: [PATCH AUTOSEL 6.1 1/7] ASoC: SOF: Revert: "core: unregister
- clients and machine drivers in .shutdown"
-In-Reply-To: <20221231200439.1748686-1-sashal@kernel.org>
-Message-ID: <alpine.DEB.2.22.394.2301041427580.3532114@eliteleevi.tm.intel.com>
-References: <20221231200439.1748686-1-sashal@kernel.org>
-User-Agent: Alpine 2.22 (DEB 394 2020-01-19)
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7 02160 Espoo
+        with ESMTP id S239296AbjADMiL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:38:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 797EB37391;
+        Wed,  4 Jan 2023 04:38:10 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF724B81629;
+        Wed,  4 Jan 2023 12:38:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EF75C433D2;
+        Wed,  4 Jan 2023 12:38:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1672835887;
+        bh=mZ1yQV6qgagBCn4KzMBLklPWpB3lKrVvtA6CvGf8SBM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=naslG5MxxmqKLIV+Z1H4AwcExPULYIym7Tj3pANslk7YZhnjKN/uFiFBP2jYgQeTe
+         FK6XHtkX4T7ZMaBYh7pInU/Ulfg/1y4PoXx9aAHVzjf+CBzOzdzrLV60H37eZR8XvW
+         bbOlmwUOqCqrX0tzT8U/8Pl6t8KNohme6DjLXg2o=
+Date:   Wed, 4 Jan 2023 13:38:04 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Dragos-Marian Panait <dragos.panait@windriver.com>
+Cc:     stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Oded Gabbay <oded.gabbay@gmail.com>,
+        Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+        David Zhou <David1.Zhou@amd.com>,
+        David Airlie <airlied@linux.ie>,
+        dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4.19 0/1] drm/amdkfd: Check for null pointer after
+ calling kmemdup
+Message-ID: <Y7VzLI/GhGtne+78@kroah.com>
+References: <20230103184308.511448-1-dragos.panait@windriver.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230103184308.511448-1-dragos.panait@windriver.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Tue, Jan 03, 2023 at 08:43:07PM +0200, Dragos-Marian Panait wrote:
+> The following commit is needed to fix CVE-2022-3108:
 
-On Sat, 31 Dec 2022, Sasha Levin wrote:
+That's a funny cve, given that you can not ever trigger it in a system,
+right?  Why was a CVE allocated for that?
 
-> From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-> 
-> [ Upstream commit 44fda61d2bcfb74a942df93959e083a4e8eff75f ]
-> 
-> The unregister machine drivers call is not safe to do when
-> kexec is used. Kexec-lite gets blocked with following backtrace:
+{sigh}
 
-this should be picked together with commit 2aa2a5ead0e ("ASoC: SOF: Intel: 
-pci-tgl: unblock S5 entry if DMA stop has failed"), to not bring back old 
-bugs (system failures to enter S5 on shutdown). The revert patch 
-unfortunately fails to mention this dependency.
-
-If I'm too late with my reply, I can send the second patch separately to 
-stable.
-
-Br, Kai
