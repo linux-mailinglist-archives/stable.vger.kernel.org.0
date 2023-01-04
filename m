@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A94C665D5E6
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:37:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33A4465D5E5
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:37:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235184AbjADOh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:37:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57812 "EHLO
+        id S235113AbjADOhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:37:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239184AbjADOh1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:37:27 -0500
+        with ESMTP id S229845AbjADOhY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:37:24 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CC5DE7E
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:37:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E27426E1
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:37:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE27D6175D
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:37:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7DCBC433F0;
-        Wed,  4 Jan 2023 14:37:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD6C161763
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:37:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD05CC433D2;
+        Wed,  4 Jan 2023 14:37:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672843046;
-        bh=ZglTiezfGvwg1N+8RABfdalfXKdwOG7c+6q1a660blc=;
+        s=korg; t=1672843043;
+        bh=DASTPqVkIyhfB4adtdnhNqEkueNUpmnbyVrX6jg53u8=;
         h=Subject:To:Cc:From:Date:From;
-        b=NeS0aWldf5ORXnKyc9aTtQ+RDMvkEye4qNGIxsIFEvzfnX4UmCKOCmgvrnZA61RTt
-         L8zfCKdmKIV0Q/55O4bZI44DTaXx5BZhBVVjFkABFvYfieZDxM4j0C7AV6nTjC51c+
-         V6CPZo80ED9kUhKKhJfJoyf+AX4m2CI8MGcc24Qc=
-Subject: FAILED: patch "[PATCH] drm/amdgpu: always register an MMU notifier for userptr" failed to apply to 6.1-stable tree
+        b=fAO2jxzXqE2B+JAf5jVyk+m2/3DgVQe2/JA8OnPY7QUjYb7FPHZf7/rt54wA/sXau
+         cUiv7FxmxxUcj2W+ZXgPLEj35zchgTPvnl5+vv9AYj0llSe5WoBDoxFq0GwoR8ZxTD
+         YJsDZLXYUZ2gnZ4hUnkgipyIrSfHuZXOrTBkICvs=
+Subject: FAILED: patch "[PATCH] drm/amdgpu: always register an MMU notifier for userptr" failed to apply to 6.0-stable tree
 To:     christian.koenig@amd.com, Felix.Kuehling@amd.com,
         alexander.deucher@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 04 Jan 2023 15:37:12 +0100
-Message-ID: <167284303217266@kroah.com>
+Message-ID: <1672843032204123@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
