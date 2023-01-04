@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DCF165D7F1
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:09:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F3AA65D7F3
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:09:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239843AbjADQJI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:09:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59500 "EHLO
+        id S239560AbjADQJL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:09:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239844AbjADQIt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:08:49 -0500
+        with ESMTP id S239851AbjADQI4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:08:56 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A870E1BEA1
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:08:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 206AC3E0FC
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:08:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 406136179A
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:08:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3359FC433EF;
-        Wed,  4 Jan 2023 16:08:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B20EB6179B
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:08:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4B25C433F0;
+        Wed,  4 Jan 2023 16:08:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848525;
-        bh=YBDoitX4F0A6gQFe56jbY7V95X6BzrcqhBBjUQLDT/A=;
+        s=korg; t=1672848528;
+        bh=r8Wy8rSoS4qvnvZzPMfJOSopQypRSVPJ5uA5CQSiK14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Snzmtg+wuxUxON3uoPLXgg1ycwn0vhGB1NzaCPbXQfku7uUHkmcjDkMsnDcF27V2P
-         deoSeFYepktD88ywmheTwj80l8InTjXe3pQiNeb6/Eg5FW432r7K0QdF1E2+3s5Ph7
-         71o0yA609aK2cVZQS5CFv03gdbQEMKfu8yiUYBVE=
+        b=YDIPKa7qGiO+yPkKK3vUD55PzO9ThLRjwDYyMcZOAQS248Q+8srPXB1/hwtl0Caqg
+         3Gci629Qv1i9wlkfA00RWPV7I/ejwc5BfIEzGbQwDUNKc2pKZJr05fMiZO5UxobEuC
+         uVAcWc38dJjHhWxuMIr+d9viAbC3aT7jGUIPV2fc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Alexander Antonov <alexander.antonov@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Kan Liang <kan.liang@linux.intel.com>
-Subject: [PATCH 6.1 013/207] perf/x86/intel/uncore: Clear attr_update properly
-Date:   Wed,  4 Jan 2023 17:04:31 +0100
-Message-Id: <20230104160512.336549358@linuxfoundation.org>
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>
+Subject: [PATCH 6.1 014/207] arm64: dts: qcom: sdm845-db845c: correct SPI2 pins drive strength
+Date:   Wed,  4 Jan 2023 17:04:32 +0100
+Message-Id: <20230104160512.365614699@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
 References: <20230104160511.905925875@linuxfoundation.org>
@@ -54,61 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Antonov <alexander.antonov@linux.intel.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-commit 6532783310e2b2f50dc13f46c49aa6546cb6e7a3 upstream.
+commit 9905370560d9c29adc15f4937c5a0c0dac05f0b4 upstream.
 
-Current clear_attr_update procedure in pmu_set_mapping() sets attr_update
-field in NULL that is not correct because intel_uncore_type pmu types can
-contain several groups in attr_update field. For example, SPR platform
-already has uncore_alias_group to update and then UPI topology group will
-be added in next patches.
+The pin configuration (done with generic pin controller helpers and
+as expressed by bindings) requires children nodes with either:
+1. "pins" property and the actual configuration,
+2. another set of nodes with above point.
 
-Fix current behavior and clear attr_update group related to mapping only.
+The qup_spi2_default pin configuration uses alreaady the second method
+with a "pinmux" child, so configure drive-strength similarly in
+"pinconf".  Otherwise the PIN drive strength would not be applied.
 
-Fixes: bb42b3d39781 ("perf/x86/intel/uncore: Expose an Uncore unit to IIO PMON mapping")
-Signed-off-by: Alexander Antonov <alexander.antonov@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221117122833.3103580-4-alexander.antonov@linux.intel.com
+Fixes: 8d23a0040475 ("arm64: dts: qcom: db845c: add Low speed expansion i2c and spi nodes")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221010114417.29859-2-krzysztof.kozlowski@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/intel/uncore_snbep.c |   17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/sdm845-db845c.dts |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -3804,6 +3804,21 @@ static const struct attribute_group *skx
- 	NULL,
+--- a/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
++++ b/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
+@@ -1123,7 +1123,10 @@
+ 
+ /* PINCTRL - additions to nodes defined in sdm845.dtsi */
+ &qup_spi2_default {
+-	drive-strength = <16>;
++	pinconf {
++		pins = "gpio27", "gpio28", "gpio29", "gpio30";
++		drive-strength = <16>;
++	};
  };
  
-+static void pmu_clear_mapping_attr(const struct attribute_group **groups,
-+				   struct attribute_group *ag)
-+{
-+	int i;
-+
-+	for (i = 0; groups[i]; i++) {
-+		if (groups[i] == ag) {
-+			for (i++; groups[i]; i++)
-+				groups[i - 1] = groups[i];
-+			groups[i - 1] = NULL;
-+			break;
-+		}
-+	}
-+}
-+
- static int
- pmu_iio_set_mapping(struct intel_uncore_type *type, struct attribute_group *ag)
- {
-@@ -3852,7 +3867,7 @@ clear_attrs:
- clear_topology:
- 	kfree(type->topology);
- clear_attr_update:
--	type->attr_update = NULL;
-+	pmu_clear_mapping_attr(type->attr_update, ag);
- 	return ret;
- }
- 
+ &qup_uart3_default{
 
 
