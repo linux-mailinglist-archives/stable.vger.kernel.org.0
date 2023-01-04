@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 298D465D52A
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:11:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 801EC65D52B
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:12:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239549AbjADOLo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:11:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34954 "EHLO
+        id S230225AbjADOMT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:12:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239594AbjADOLa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:11:30 -0500
+        with ESMTP id S239652AbjADOLf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:11:35 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 929B91E3C8
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:10:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DED8244372
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:10:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 880E36172D
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:10:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97DF0C433EF;
-        Wed,  4 Jan 2023 14:10:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D0166173E
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:10:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CB33C433EF;
+        Wed,  4 Jan 2023 14:10:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672841410;
-        bh=zU3ChEniQXx9Nhjg4VPmKC6FizlFJNQ3YNu0v0SS9ls=;
+        s=korg; t=1672841424;
+        bh=8wgY6GFcQpyE6NCvtzPi4x5w+Q+bHMsPVlRe0JJh99Y=;
         h=Subject:To:Cc:From:Date:From;
-        b=0o+rOVn2B1CO5dgMRHcCYb78HnXw1f3dnSZcrn7jzAsibN6uAmgSxuWh/ObCUpxt3
-         AA917GGqrR9xi/meOEYJJpsk2XWSj3j7KyX0wBX2xoAUxeigOf4uS9m/eBlaJg6pVV
-         9LESNr8WS1rpwAASZTkuqTAce5Wc1ztW/tiCNnZ0=
-Subject: FAILED: patch "[PATCH] tracing/hist: Fix wrong return value in parse_action_params()" failed to apply to 4.19-stable tree
-To:     zhengyejian1@huawei.com, mhiramat@kernel.org, rostedt@goodmis.org,
-        zanussi@kernel.org
+        b=PdhO4asYn2bJYkMjVtZ4xFv3ffo1ZfcDnj3kp4yLwrJc+r4tqb0ZJaRjp40NwIr8+
+         5UtfN+wNsU6KjrHRLRPFzMPpTDvlWyUWykR9TiTxgTdjg7/DrimNUbT0vnhnv0iZQv
+         UpUQoEIhVEjq/O12vnfy7SOMP7UIqh3mDluWplaE=
+Subject: FAILED: patch "[PATCH] tracing/probes: Handle system names with hyphens" failed to apply to 5.10-stable tree
+To:     rostedt@goodmis.org, mhiramat@kernel.org, rafaelmendsr@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:10:06 +0100
-Message-ID: <1672841406148243@kroah.com>
+Date:   Wed, 04 Jan 2023 15:10:21 +0100
+Message-ID: <167284142136157@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,33 +47,18 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-2cc6a528882d ("tracing/hist: Fix wrong return value in parse_action_params()")
-d0cd871ba0d6 ("tracing: Have histogram code pass around trace_array for error handling")
-d566c5e9d1ba ("tracing: Use tracing error_log with hist triggers")
-a1a05bb40e22 ("tracing: Save the last hist command's associated event name")
-e91eefd731d9 ("tracing: Add alternative synthetic event trace action syntax")
-dff81f559285 ("tracing: Add hist trigger onchange() handler")
-a3785b7eca8f ("tracing: Add hist trigger snapshot() action")
-466f4528fbc6 ("tracing: Generalize hist trigger onmax and save action")
-c3e49506a0f4 ("tracing: Split up onmatch action data")
-5032b3818913 ("tracing: Make hist trigger Documentation better reflect actions/handlers")
-7d18a10c3167 ("tracing: Refactor hist trigger action code")
-036876fa5620 ("tracing: Have the historgram use the result of str_has_prefix() for len of prefix")
-754481e6954c ("tracing: Use str_has_prefix() helper for histogram code")
-05ddb25cb314 ("tracing: Add hist trigger comments for variable-related fields")
-de40f033d4e8 ("tracing: Remove open-coding of hist trigger var_ref management")
-2f31ed9308cc ("tracing: Change strlen to sizeof for hist trigger static strings")
-6801f0d5ca00 ("tracing: Remove unnecessary hist trigger struct field")
-0e2b81f7b52a ("tracing: Remove unneeded synth_event_mutex")
-7bbab38d07f3 ("tracing: Use dyn_event framework for synthetic events")
-faacb361f271 ("tracing: Simplify creation and deletion of synthetic events")
+575b76cb8855 ("tracing/probes: Handle system names with hyphens")
+7491e2c44278 ("tracing: Add a probe that attaches to trace events")
+007517a01995 ("tracing/probe: Change traceprobe_set_print_fmt() to take a type")
+bc87cf0a08d4 ("trace: Add a generic function to read/write u64 values from tracefs")
+d262271d0483 ("tracing/dynevent: Delegate parsing to create function")
 
 thanks,
 
@@ -82,33 +66,84 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2cc6a528882d0e0ccbc1bca5f95b8c963cedac54 Mon Sep 17 00:00:00 2001
-From: Zheng Yejian <zhengyejian1@huawei.com>
-Date: Wed, 7 Dec 2022 11:46:35 +0800
-Subject: [PATCH] tracing/hist: Fix wrong return value in parse_action_params()
+From 575b76cb885532aae13a9d979fd476bb2b156cb9 Mon Sep 17 00:00:00 2001
+From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Date: Tue, 22 Nov 2022 12:23:45 -0500
+Subject: [PATCH] tracing/probes: Handle system names with hyphens
 
-When number of synth fields is more than SYNTH_FIELDS_MAX,
-parse_action_params() should return -EINVAL.
+When creating probe names, a check is done to make sure it matches basic C
+standard variable naming standards. Basically, starts with alphabetic or
+underline, and then the rest of the characters have alpha-numeric or
+underline in them.
 
-Link: https://lore.kernel.org/linux-trace-kernel/20221207034635.2253990-1-zhengyejian1@huawei.com
+But system names do not have any true naming conventions, as they are
+created by the TRACE_SYSTEM macro and nothing tests to see what they are.
+The "xhci-hcd" trace events has a '-' in the system name. When trying to
+attach a eprobe to one of these trace points, it fails because the system
+name does not follow the variable naming convention because of the
+hyphen, and the eprobe checks fail on this.
 
-Cc: <mhiramat@kernel.org>
-Cc: <zanussi@kernel.org>
+Allow hyphens in the system name so that eprobes can attach to the
+"xhci-hcd" trace events.
+
+Link: https://lore.kernel.org/all/Y3eJ8GiGnEvVd8%2FN@macondo/
+Link: https://lore.kernel.org/linux-trace-kernel/20221122122345.160f5077@gandalf.local.home
+
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
 Cc: stable@vger.kernel.org
-Fixes: c282a386a397 ("tracing: Add 'onmatch' hist trigger action support")
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+Fixes: 5b7a96220900e ("tracing/probe: Check event/group naming rule at parsing")
+Reported-by: Rafael Mendonca <rafaelmendsr@gmail.com>
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
-index a0cd118af527..b4ad86c22b43 100644
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -3609,6 +3609,7 @@ static int parse_action_params(struct trace_array *tr, char *params,
- 	while (params) {
- 		if (data->n_params >= SYNTH_FIELDS_MAX) {
- 			hist_err(tr, HIST_ERR_TOO_MANY_PARAMS, 0);
-+			ret = -EINVAL;
- 			goto out;
- 		}
+diff --git a/kernel/trace/trace.h b/kernel/trace/trace.h
+index 48643f07bc01..8f37ff032b4f 100644
+--- a/kernel/trace/trace.h
++++ b/kernel/trace/trace.h
+@@ -1954,17 +1954,30 @@ static __always_inline void trace_iterator_reset(struct trace_iterator *iter)
+ }
  
+ /* Check the name is good for event/group/fields */
+-static inline bool is_good_name(const char *name)
++static inline bool __is_good_name(const char *name, bool hash_ok)
+ {
+-	if (!isalpha(*name) && *name != '_')
++	if (!isalpha(*name) && *name != '_' && (!hash_ok || *name != '-'))
+ 		return false;
+ 	while (*++name != '\0') {
+-		if (!isalpha(*name) && !isdigit(*name) && *name != '_')
++		if (!isalpha(*name) && !isdigit(*name) && *name != '_' &&
++		    (!hash_ok || *name != '-'))
+ 			return false;
+ 	}
+ 	return true;
+ }
+ 
++/* Check the name is good for event/group/fields */
++static inline bool is_good_name(const char *name)
++{
++	return __is_good_name(name, false);
++}
++
++/* Check the name is good for system */
++static inline bool is_good_system_name(const char *name)
++{
++	return __is_good_name(name, true);
++}
++
+ /* Convert certain expected symbols into '_' when generating event names */
+ static inline void sanitize_event_name(char *name)
+ {
+diff --git a/kernel/trace/trace_probe.c b/kernel/trace/trace_probe.c
+index 36dff277de46..bb2f95d7175c 100644
+--- a/kernel/trace/trace_probe.c
++++ b/kernel/trace/trace_probe.c
+@@ -246,7 +246,7 @@ int traceprobe_parse_event_name(const char **pevent, const char **pgroup,
+ 			return -EINVAL;
+ 		}
+ 		strlcpy(buf, event, slash - event + 1);
+-		if (!is_good_name(buf)) {
++		if (!is_good_system_name(buf)) {
+ 			trace_probe_log_err(offset, BAD_GROUP_NAME);
+ 			return -EINVAL;
+ 		}
 
