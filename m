@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E39D765D884
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:15:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 065AF65D886
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:15:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239864AbjADQPp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:15:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37876 "EHLO
+        id S235044AbjADQPt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:15:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239694AbjADQP3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:15:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B28593750C
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:14:55 -0800 (PST)
+        with ESMTP id S239873AbjADQPc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:15:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57F7E41D6E
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:15:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59ED8B81731
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:14:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A16CC433D2;
-        Wed,  4 Jan 2023 16:14:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E8ADF6179F
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:14:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF04DC433EF;
+        Wed,  4 Jan 2023 16:14:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848893;
-        bh=sDwQr0Wn1l01rcLgMrwtjowdjVfEvBNikKRTBJ+29/4=;
+        s=korg; t=1672848899;
+        bh=0useKWpyImj+WHY1FQveRtjKY2RsJ9XqUU9nAGf6Ni8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zl/Y5L2UorGl49ec98KkHxbK4EuVxQPrVRZgQBA+j9kiSXHTslg8lNzRL+ser/HT8
-         RgU4Xr1v3g4rFYvWEruSuEa+nhlIaFsdyGKQXrSgVKrkdSPocA0Cb5eoYUexjEik36
-         XLQNFNMgWskNmhvV91FcNK7LUuZkCk1p35yYWZN8=
+        b=HLi7JPP1PX8WfXMZMsDaj8DUhUmM/BM2oE1P4Vpy6IDAxOmUMNAQr/6fbMiayRuhL
+         2QjUwc84qkx2lUKU34xT1mDn3j3vwE7ZYozwmBEJgo4T00srSpHRwRMP6++5wfY85O
+         ujvikckTqpbfIdFrCQC02JAvq6jbaw+XKD53KKa8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 6.1 100/207] ARM: 9256/1: NWFPE: avoid compiler-generated __aeabi_uldivmod
-Date:   Wed,  4 Jan 2023 17:05:58 +0100
-Message-Id: <20230104160515.087138892@linuxfoundation.org>
+        patches@lists.linux.dev, Wenwen Wang <wenwen@cs.uga.edu>,
+        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 6.1 101/207] media: dvb-core: Fix double free in dvb_register_device()
+Date:   Wed,  4 Jan 2023 17:05:59 +0100
+Message-Id: <20230104160515.116292303@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
 References: <20230104160511.905925875@linuxfoundation.org>
@@ -54,60 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
 
-commit 3220022038b9a3845eea762af85f1c5694b9f861 upstream.
+commit 6b0d0477fce747d4137aa65856318b55fba72198 upstream.
 
-clang-15's ability to elide loops completely became more aggressive when
-it can deduce how a variable is being updated in a loop. Counting down
-one variable by an increment of another can be replaced by a modulo
-operation.
+In function dvb_register_device() -> dvb_register_media_device() ->
+dvb_create_media_entity(), dvb->entity is allocated and initialized. If
+the initialization fails, it frees the dvb->entity, and return an error
+code. The caller takes the error code and handles the error by calling
+dvb_media_device_free(), which unregisters the entity and frees the
+field again if it is not NULL. As dvb->entity may not NULLed in
+dvb_create_media_entity() when the allocation of dvbdev->pad fails, a
+double free may occur. This may also cause an Use After free in
+media_device_unregister_entity().
 
-For 64b variables on 32b ARM EABI targets, this can result in the
-compiler generating calls to __aeabi_uldivmod, which it does for a do
-while loop in float64_rem().
+Fix this by storing NULL to dvb->entity when it is freed.
 
-For the kernel, we'd generally prefer that developers not open code 64b
-division via binary / operators and instead use the more explicit
-helpers from div64.h. On arm-linux-gnuabi targets, failure to do so can
-result in linkage failures due to undefined references to
-__aeabi_uldivmod().
-
-While developers can avoid open coding divisions on 64b variables, the
-compiler doesn't know that the Linux kernel has a partial implementation
-of a compiler runtime (--rtlib) to enforce this convention.
-
-It's also undecidable for the compiler whether the code in question
-would be faster to execute the loop vs elide it and do the 64b division.
-
-While I actively avoid using the internal -mllvm command line flags, I
-think we get better code than using barrier() here, which will force
-reloads+spills in the loop for all toolchains.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1666
-
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
+Link: https://lore.kernel.org/linux-media/20220426052921.2088416-1-keitasuzuki.park@sslab.ics.keio.ac.jp
+Fixes: fcd5ce4b3936 ("media: dvb-core: fix a memory leak bug")
 Cc: stable@vger.kernel.org
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Cc: Wenwen Wang <wenwen@cs.uga.edu>
+Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/nwfpe/Makefile |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/media/dvb-core/dvbdev.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm/nwfpe/Makefile
-+++ b/arch/arm/nwfpe/Makefile
-@@ -11,3 +11,9 @@ nwfpe-y				+= fpa11.o fpa11_cpdo.o fpa11
- 				   entry.o
- 
- nwfpe-$(CONFIG_FPE_NWFPE_XP)	+= extended_cpdo.o
-+
-+# Try really hard to avoid generating calls to __aeabi_uldivmod() from
-+# float64_rem() due to loop elision.
-+ifdef CONFIG_CC_IS_CLANG
-+CFLAGS_softfloat.o	+= -mllvm -replexitval=never
-+endif
+--- a/drivers/media/dvb-core/dvbdev.c
++++ b/drivers/media/dvb-core/dvbdev.c
+@@ -335,6 +335,7 @@ static int dvb_create_media_entity(struc
+ 				       GFP_KERNEL);
+ 		if (!dvbdev->pads) {
+ 			kfree(dvbdev->entity);
++			dvbdev->entity = NULL;
+ 			return -ENOMEM;
+ 		}
+ 	}
 
 
