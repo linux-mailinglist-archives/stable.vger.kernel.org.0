@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2446365D6F0
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:12:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D3C265D6CC
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:03:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239822AbjADOlt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:41:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60654 "EHLO
+        id S234797AbjADPDh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 10:03:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239690AbjADOlK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:41:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3021C1EEFB
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:41:06 -0800 (PST)
+        with ESMTP id S239520AbjADPDU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:03:20 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16FDE1AA01
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:03:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A43406174F
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:41:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94E45C433D2;
-        Wed,  4 Jan 2023 14:41:04 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 65DACCE16F9
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 15:03:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40373C433F2;
+        Wed,  4 Jan 2023 15:03:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672843265;
-        bh=RpMXE92/cuFyTAeILRKYg2VcM81RVpeFQiK1I3DunVA=;
+        s=korg; t=1672844593;
+        bh=0dV86kmtMGv6b8ag1bRZFM3WsxaEgsckI3ksbtvC4K8=;
         h=Subject:To:Cc:From:Date:From;
-        b=BPugrEQb4UF2M5W+DBPVmYSQvR484ywWFn0HC86UCCZLeSO3SYBxiV5APQSTK1eZl
-         /ISMIeCXIXY55Pb838dsjf3NPD9YfqNE/w3D43bq4MNZRO/RVieQMaqEjgoa6P874s
-         pXdUL60XKdNainZ6Z4ziAVZt0F0vqlYsQHEbIczw=
-Subject: FAILED: patch "[PATCH] drm/i915/gem: Flush contexts on driver release" failed to apply to 6.1-stable tree
-To:     janusz.krzysztofik@linux.intel.com, andi.shyti@linux.intel.com,
-        chris@chris-wilson.co.uk
+        b=ZavZAAtveBxehMA8PUUtSStXwVrGJFNLk7N085BXymjdb7FqRT3ZNA2qrS59SngCc
+         AFma9rkfeMw3/+kUvPOZCG82eYFQ/m2XpBEoG5+dZpi2T9UHurDVoOY8XDpvt938X+
+         kWV/r0RQQ/JVsp902xb/VZv/9N0L1tB7PfRB/DtQ=
+Subject: FAILED: patch "[PATCH] ext4: fix unaligned memory access in ext4_fc_reserve_space()" failed to apply to 5.15-stable tree
+To:     ebiggers@google.com, stable@vger.kernel.org, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:41:02 +0100
-Message-ID: <167284326214310@kroah.com>
+Date:   Wed, 04 Jan 2023 16:03:10 +0100
+Message-ID: <1672844590226207@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,14 +47,21 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-1cec34442408 ("drm/i915/gem: Flush contexts on driver release")
+8415ce07ecf0 ("ext4: fix unaligned memory access in ext4_fc_reserve_space()")
+594bc43b4103 ("ext4: fix leaking uninitialized memory in fast-commit journal")
+fdc2a3c75dd8 ("ext4: introduce EXT4_FC_TAG_BASE_LEN helper")
+ccbf8eeb39f2 ("ext4: fix miss release buffer head in ext4_fc_write_inode")
+4978c659e7b5 ("ext4: use ext4_debug() instead of jbd_debug()")
+d9bf099cb980 ("ext4: add commit_tid info in jbd debug log")
+0915e464cb27 ("ext4: simplify updating of fast commit stats")
+7bbbe241ec7c ("ext4: drop ineligible txn start stop APIs")
 
 thanks,
 
@@ -63,44 +69,97 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1cec34442408a77ba5396b19725fed2c398005c3 Mon Sep 17 00:00:00 2001
-From: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-Date: Fri, 16 Sep 2022 11:24:02 +0200
-Subject: [PATCH] drm/i915/gem: Flush contexts on driver release
+From 8415ce07ecf0cc25efdd5db264a7133716e503cf Mon Sep 17 00:00:00 2001
+From: Eric Biggers <ebiggers@google.com>
+Date: Sun, 6 Nov 2022 14:48:39 -0800
+Subject: [PATCH] ext4: fix unaligned memory access in ext4_fc_reserve_space()
 
-Due to i915_perf assuming that it can use the i915_gem_context reference
-to protect its i915->gem.contexts.list iteration, we need to defer removal
-of the context from the list until last reference to the context is put.
-However, there is a risk of triggering kernel warning on contexts list not
-empty at driver release time if we deleagate that task to a worker for
-i915_gem_context_release_work(), unless that work is flushed first.
-Unfortunately, it is not flushed on driver release.  Fix it.
+As is done elsewhere in the file, build the struct ext4_fc_tl on the
+stack and memcpy() it into the buffer, rather than directly writing it
+to a potentially-unaligned location in the buffer.
 
-Instead of additionally calling flush_workqueue(), either directly or via
-a new dedicated wrapper around it, replace last call to
-i915_gem_drain_freed_objects() with existing i915_gem_drain_workqueue()
-that performs both tasks.
+Fixes: aa75f4d3daae ("ext4: main fast-commit commit path")
+Cc: <stable@vger.kernel.org> # v5.10+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20221106224841.279231-6-ebiggers@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 
-Fixes: 75eefd82581f ("drm/i915: Release i915_gem_context from a worker")
-Suggested-by: Chris Wilson <chris@chris-wilson.co.uk>
-Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
-Cc: stable@kernel.org # v5.16+
-Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220916092403.201355-2-janusz.krzysztofik@linux.intel.com
-
-diff --git a/drivers/gpu/drm/i915/i915_gem.c b/drivers/gpu/drm/i915/i915_gem.c
-index be7fede6cd6f..4539431a3c3e 100644
---- a/drivers/gpu/drm/i915/i915_gem.c
-+++ b/drivers/gpu/drm/i915/i915_gem.c
-@@ -1214,7 +1214,8 @@ void i915_gem_driver_release(struct drm_i915_private *dev_priv)
- 		intel_uc_cleanup_firmwares(&gt->uc);
+diff --git a/fs/ext4/fast_commit.c b/fs/ext4/fast_commit.c
+index d5ad4b2b235d..892fa7c7a768 100644
+--- a/fs/ext4/fast_commit.c
++++ b/fs/ext4/fast_commit.c
+@@ -675,6 +675,15 @@ static void ext4_fc_submit_bh(struct super_block *sb, bool is_tail)
+ 
+ /* Ext4 commit path routines */
+ 
++/* memcpy to fc reserved space and update CRC */
++static void *ext4_fc_memcpy(struct super_block *sb, void *dst, const void *src,
++				int len, u32 *crc)
++{
++	if (crc)
++		*crc = ext4_chksum(EXT4_SB(sb), *crc, src, len);
++	return memcpy(dst, src, len);
++}
++
+ /* memzero and update CRC */
+ static void *ext4_fc_memzero(struct super_block *sb, void *dst, int len,
+ 				u32 *crc)
+@@ -700,12 +709,13 @@ static void *ext4_fc_memzero(struct super_block *sb, void *dst, int len,
+  */
+ static u8 *ext4_fc_reserve_space(struct super_block *sb, int len, u32 *crc)
+ {
+-	struct ext4_fc_tl *tl;
++	struct ext4_fc_tl tl;
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	struct buffer_head *bh;
+ 	int bsize = sbi->s_journal->j_blocksize;
+ 	int ret, off = sbi->s_fc_bytes % bsize;
+ 	int pad_len;
++	u8 *dst;
+ 
+ 	/*
+ 	 * After allocating len, we should have space at least for a 0 byte
+@@ -729,16 +739,18 @@ static u8 *ext4_fc_reserve_space(struct super_block *sb, int len, u32 *crc)
+ 		return sbi->s_fc_bh->b_data + off;
  	}
+ 	/* Need to add PAD tag */
+-	tl = (struct ext4_fc_tl *)(sbi->s_fc_bh->b_data + off);
+-	tl->fc_tag = cpu_to_le16(EXT4_FC_TAG_PAD);
++	dst = sbi->s_fc_bh->b_data + off;
++	tl.fc_tag = cpu_to_le16(EXT4_FC_TAG_PAD);
+ 	pad_len = bsize - off - 1 - EXT4_FC_TAG_BASE_LEN;
+-	tl->fc_len = cpu_to_le16(pad_len);
+-	if (crc)
+-		*crc = ext4_chksum(sbi, *crc, tl, EXT4_FC_TAG_BASE_LEN);
+-	if (pad_len > 0)
+-		ext4_fc_memzero(sb, tl + 1, pad_len, crc);
++	tl.fc_len = cpu_to_le16(pad_len);
++	ext4_fc_memcpy(sb, dst, &tl, EXT4_FC_TAG_BASE_LEN, crc);
++	dst += EXT4_FC_TAG_BASE_LEN;
++	if (pad_len > 0) {
++		ext4_fc_memzero(sb, dst, pad_len, crc);
++		dst += pad_len;
++	}
+ 	/* Don't leak uninitialized memory in the unused last byte. */
+-	*((u8 *)(tl + 1) + pad_len) = 0;
++	*dst = 0;
  
--	i915_gem_drain_freed_objects(dev_priv);
-+	/* Flush any outstanding work, including i915_gem_context.release_work. */
-+	i915_gem_drain_workqueue(dev_priv);
+ 	ext4_fc_submit_bh(sb, false);
  
- 	drm_WARN_ON(&dev_priv->drm, !list_empty(&dev_priv->gem.contexts.list));
+@@ -750,15 +762,6 @@ static u8 *ext4_fc_reserve_space(struct super_block *sb, int len, u32 *crc)
+ 	return sbi->s_fc_bh->b_data;
  }
+ 
+-/* memcpy to fc reserved space and update CRC */
+-static void *ext4_fc_memcpy(struct super_block *sb, void *dst, const void *src,
+-				int len, u32 *crc)
+-{
+-	if (crc)
+-		*crc = ext4_chksum(EXT4_SB(sb), *crc, src, len);
+-	return memcpy(dst, src, len);
+-}
+-
+ /*
+  * Complete a fast commit by writing tail tag.
+  *
 
