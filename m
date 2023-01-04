@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD2D765D8EB
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:20:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7618165D8D0
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:18:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239964AbjADQTp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:19:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43322 "EHLO
+        id S239929AbjADQSk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:18:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239970AbjADQTl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:19:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DA66CD2
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:19:40 -0800 (PST)
+        with ESMTP id S239950AbjADQS3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:18:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FECD3D9D3
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:18:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB96CB817AC
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:19:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 214CDC433EF;
-        Wed,  4 Jan 2023 16:19:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C93A617A7
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:18:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E1CCC433EF;
+        Wed,  4 Jan 2023 16:18:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849177;
-        bh=0useKWpyImj+WHY1FQveRtjKY2RsJ9XqUU9nAGf6Ni8=;
+        s=korg; t=1672849107;
+        bh=97HiME8cGgVtB8O4l7xmcpEse3tiNYZQ8uavi8nhiko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O6ZxIFdlkdksR+NHeGa/tNVnFAYqbtngQm598fGp1XoxD/aZMlo8amcQV6Nx/671V
-         rGjTbJyFobjq7av7/9gx9zT+3aOFFpdOXG+EE+nQuPB9iACITETU+Qf+DR/IxXsUCZ
-         5vC6GG+Xjc4S3jABE25+h69qgNVAs0FrkAajFEVg=
+        b=g/091ecc0FSGIPWd4WIBMOzPBp2+PWrdzOWRSNTDUktloma0UYjJdhXRD1L+RFAE/
+         Ejv7A/DefLR+mAJ6plC++24E2e2wVSGZdu1UfRf1gWYMW/AUg7DXDwSrp2wjzjAGeC
+         pikWcEIRnA61UXrxUQ/ORglu0XufTZZN/Y/1Ip9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wenwen Wang <wenwen@cs.uga.edu>,
-        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 6.0 078/177] media: dvb-core: Fix double free in dvb_register_device()
-Date:   Wed,  4 Jan 2023 17:06:09 +0100
-Message-Id: <20230104160510.017565116@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 6.1 112/207] block: mq-deadline: Do not break sequential write streams to zoned HDDs
+Date:   Wed,  4 Jan 2023 17:06:10 +0100
+Message-Id: <20230104160515.446704757@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +54,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-commit 6b0d0477fce747d4137aa65856318b55fba72198 upstream.
+commit 015d02f48537cf2d1a65eeac50717566f9db6eec upstream.
 
-In function dvb_register_device() -> dvb_register_media_device() ->
-dvb_create_media_entity(), dvb->entity is allocated and initialized. If
-the initialization fails, it frees the dvb->entity, and return an error
-code. The caller takes the error code and handles the error by calling
-dvb_media_device_free(), which unregisters the entity and frees the
-field again if it is not NULL. As dvb->entity may not NULLed in
-dvb_create_media_entity() when the allocation of dvbdev->pad fails, a
-double free may occur. This may also cause an Use After free in
-media_device_unregister_entity().
+mq-deadline ensures an in order dispatching of write requests to zoned
+block devices using a per zone lock (a bit). This implies that for any
+purely sequential write workload, the drive is exercised most of the
+time at a maximum queue depth of one.
 
-Fix this by storing NULL to dvb->entity when it is freed.
+However, when such sequential write workload crosses a zone boundary
+(when sequentially writing multiple contiguous zones), zone write
+locking may prevent the last write to one zone to be issued (as the
+previous write is still being executed) but allow the first write to the
+following zone to be issued (as that zone is not yet being writen and
+not locked). This result in an out of order delivery of the sequential
+write commands to the device every time a zone boundary is crossed.
 
-Link: https://lore.kernel.org/linux-media/20220426052921.2088416-1-keitasuzuki.park@sslab.ics.keio.ac.jp
-Fixes: fcd5ce4b3936 ("media: dvb-core: fix a memory leak bug")
-Cc: stable@vger.kernel.org
-Cc: Wenwen Wang <wenwen@cs.uga.edu>
-Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+While such behavior does not break the sequential write constraint of
+zoned block devices (and does not generate any write error), some zoned
+hard-disks react badly to seeing these out of order writes, resulting in
+lower write throughput.
+
+This problem can be addressed by always dispatching the first request
+of a stream of sequential write requests, regardless of the zones
+targeted by these sequential writes. To do so, the function
+deadline_skip_seq_writes() is introduced and used in
+deadline_next_request() to select the next write command to issue if the
+target device is an HDD (blk_queue_nonrot() being false).
+deadline_fifo_request() is modified using the new
+deadline_earlier_request() and deadline_is_seq_write() helpers to ignore
+requests in the fifo list that have a preceding request in lba order
+that is sequential.
+
+With this fix, a sequential write workload executed with the following
+fio command:
+
+fio  --name=seq-write --filename=/dev/sda --zonemode=zbd --direct=1 \
+     --size=68719476736  --ioengine=libaio --iodepth=32 --rw=write \
+     --bs=65536
+
+results in an increase from 225 MB/s to 250 MB/s of the write throughput
+of an SMR HDD (11% increase).
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Link: https://lore.kernel.org/r/20221124021208.242541-3-damien.lemoal@opensource.wdc.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/dvb-core/dvbdev.c |    1 +
- 1 file changed, 1 insertion(+)
+ block/mq-deadline.c |   66 ++++++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 62 insertions(+), 4 deletions(-)
 
---- a/drivers/media/dvb-core/dvbdev.c
-+++ b/drivers/media/dvb-core/dvbdev.c
-@@ -335,6 +335,7 @@ static int dvb_create_media_entity(struc
- 				       GFP_KERNEL);
- 		if (!dvbdev->pads) {
- 			kfree(dvbdev->entity);
-+			dvbdev->entity = NULL;
- 			return -ENOMEM;
- 		}
+--- a/block/mq-deadline.c
++++ b/block/mq-deadline.c
+@@ -131,6 +131,20 @@ static u8 dd_rq_ioclass(struct request *
+ }
+ 
+ /*
++ * get the request before `rq' in sector-sorted order
++ */
++static inline struct request *
++deadline_earlier_request(struct request *rq)
++{
++	struct rb_node *node = rb_prev(&rq->rb_node);
++
++	if (node)
++		return rb_entry_rq(node);
++
++	return NULL;
++}
++
++/*
+  * get the request after `rq' in sector-sorted order
+  */
+ static inline struct request *
+@@ -278,6 +292,39 @@ static inline int deadline_check_fifo(st
+ }
+ 
+ /*
++ * Check if rq has a sequential request preceding it.
++ */
++static bool deadline_is_seq_writes(struct deadline_data *dd, struct request *rq)
++{
++	struct request *prev = deadline_earlier_request(rq);
++
++	if (!prev)
++		return false;
++
++	return blk_rq_pos(prev) + blk_rq_sectors(prev) == blk_rq_pos(rq);
++}
++
++/*
++ * Skip all write requests that are sequential from @rq, even if we cross
++ * a zone boundary.
++ */
++static struct request *deadline_skip_seq_writes(struct deadline_data *dd,
++						struct request *rq)
++{
++	sector_t pos = blk_rq_pos(rq);
++	sector_t skipped_sectors = 0;
++
++	while (rq) {
++		if (blk_rq_pos(rq) != pos + skipped_sectors)
++			break;
++		skipped_sectors += blk_rq_sectors(rq);
++		rq = deadline_latter_request(rq);
++	}
++
++	return rq;
++}
++
++/*
+  * For the specified data direction, return the next request to
+  * dispatch using arrival ordered lists.
+  */
+@@ -297,11 +344,16 @@ deadline_fifo_request(struct deadline_da
+ 
+ 	/*
+ 	 * Look for a write request that can be dispatched, that is one with
+-	 * an unlocked target zone.
++	 * an unlocked target zone. For some HDDs, breaking a sequential
++	 * write stream can lead to lower throughput, so make sure to preserve
++	 * sequential write streams, even if that stream crosses into the next
++	 * zones and these zones are unlocked.
+ 	 */
+ 	spin_lock_irqsave(&dd->zone_lock, flags);
+ 	list_for_each_entry(rq, &per_prio->fifo_list[DD_WRITE], queuelist) {
+-		if (blk_req_can_dispatch_to_zone(rq))
++		if (blk_req_can_dispatch_to_zone(rq) &&
++		    (blk_queue_nonrot(rq->q) ||
++		     !deadline_is_seq_writes(dd, rq)))
+ 			goto out;
  	}
+ 	rq = NULL;
+@@ -331,13 +383,19 @@ deadline_next_request(struct deadline_da
+ 
+ 	/*
+ 	 * Look for a write request that can be dispatched, that is one with
+-	 * an unlocked target zone.
++	 * an unlocked target zone. For some HDDs, breaking a sequential
++	 * write stream can lead to lower throughput, so make sure to preserve
++	 * sequential write streams, even if that stream crosses into the next
++	 * zones and these zones are unlocked.
+ 	 */
+ 	spin_lock_irqsave(&dd->zone_lock, flags);
+ 	while (rq) {
+ 		if (blk_req_can_dispatch_to_zone(rq))
+ 			break;
+-		rq = deadline_latter_request(rq);
++		if (blk_queue_nonrot(rq->q))
++			rq = deadline_latter_request(rq);
++		else
++			rq = deadline_skip_seq_writes(dd, rq);
+ 	}
+ 	spin_unlock_irqrestore(&dd->zone_lock, flags);
+ 
 
 
