@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09EDD65D8D9
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:19:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA43D65D8E5
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:19:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239941AbjADQTD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:19:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42594 "EHLO
+        id S239959AbjADQTd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:19:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239975AbjADQS5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:18:57 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8615C17049
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:18:52 -0800 (PST)
+        with ESMTP id S239961AbjADQTX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:19:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 357445FBB
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:19:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D5A08CE1849
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:18:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACA01C433D2;
-        Wed,  4 Jan 2023 16:18:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C027B6177F
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:19:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCE60C433EF;
+        Wed,  4 Jan 2023 16:19:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849129;
-        bh=66h0ahMfWUG4UiOA/SnThe4rUc9VPGxQ/L8JgSjEe74=;
+        s=korg; t=1672849162;
+        bh=4x9zNj55MCuC4oCyBfGV0ldAKg1d0aX/GpzQV7yNcsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HU2fiMRjVQ8niK6V0+IPOcgdwiN9R9I6/cIdOV6WdBulBowbAE77SY+syH3sXgAS0
-         0z6PHVcgchNU1ap6yOQyDWFQvp+7aq23OiHMJSqYfbU+p1PIwrqbu1PlNKeAw+APFj
-         1Yqb1yRPPFc0L5ogHULxEUpJAvvftWmlhz0t7ymg=
+        b=IouhJwZJuVXO0zJREiKIumhe9WEFpgQjVRQdBHw5IweJ/yM8HSnlskoyw2c1XUvtx
+         eoxPvFoiR7u5YBPPTzdkdWNE2mxpoB8OqyWryf2GhAtOfQLSjmFI6LQoY0LbRBYwFi
+         mXtezg1QYqG2ybjfJPPo+luJIORsdst2AlDXlDnM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ian Abbott <abbotti@mev.co.uk>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 6.1 109/207] rtc: ds1347: fix value written to century register
+        patches@lists.linux.dev, Macpaul Lin <macpaul.lin@mediatek.com>,
+        Miles Chen <miles.chen@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>
+Subject: [PATCH 6.0 076/177] arm64: dts: mediatek: mt8195-demo: fix the memory size of node secmon
 Date:   Wed,  4 Jan 2023 17:06:07 +0100
-Message-Id: <20230104160515.357822706@linuxfoundation.org>
+Message-Id: <20230104160509.956320358@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Macpaul Lin <macpaul.lin@mediatek.com>
 
-commit 4dfe05bdc1ade79b943d4979a2e2a8b5ef68fbb5 upstream.
+commit e4a4175201014c0222f6bab1895a17b3d1b92f08 upstream.
 
-In `ds1347_set_time()`, the wrong value is being written to the
-`DS1347_CENTURY_REG` register.  It needs to be converted to BCD.  Fix
-it.
+The size of device tree node secmon (bl31_secmon_reserved) was
+incorrect. It should be increased to 2MiB (0x200000).
 
-Fixes: 147dae76dbb9 ("rtc: ds1347: handle century register")
-Cc: <stable@vger.kernel.org> # v5.5+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20221027163249.447416-1-abbotti@mev.co.uk
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+The origin setting will cause some abnormal behavior due to
+trusted-firmware-a and related firmware didn't load correctly.
+The incorrect behavior may vary because of different software stacks.
+For example, it will cause build error in some Yocto project because
+it will check if there was enough memory to load trusted-firmware-a
+to the reserved memory.
+
+When mt8195-demo.dts sent to the upstream, at that time the size of
+BL31 was small. Because supported functions and modules in BL31 are
+basic sets when the board was under early development stage.
+
+Now BL31 includes more firmwares of coprocessors and maturer functions
+so the size has grown bigger in real applications. According to the value
+reported by customers, we think reserved 2MiB for BL31 might be enough
+for maybe the following 2 or 3 years.
+
+Cc: stable@vger.kernel.org      # v5.19
+Fixes: 6147314aeedc ("arm64: dts: mediatek: Add device-tree for MT8195 Demo board")
+Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
+Reviewed-by: Miles Chen <miles.chen@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221111095540.28881-1-macpaul.lin@mediatek.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rtc/rtc-ds1347.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/mediatek/mt8195-demo.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/rtc/rtc-ds1347.c
-+++ b/drivers/rtc/rtc-ds1347.c
-@@ -112,7 +112,7 @@ static int ds1347_set_time(struct device
- 		return err;
+diff --git a/arch/arm64/boot/dts/mediatek/mt8195-demo.dts b/arch/arm64/boot/dts/mediatek/mt8195-demo.dts
+index 4fbd99eb496a..dec85d254838 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8195-demo.dts
++++ b/arch/arm64/boot/dts/mediatek/mt8195-demo.dts
+@@ -56,10 +56,10 @@ reserved-memory {
+ 		#size-cells = <2>;
+ 		ranges;
  
- 	century = (dt->tm_year / 100) + 19;
--	err = regmap_write(map, DS1347_CENTURY_REG, century);
-+	err = regmap_write(map, DS1347_CENTURY_REG, bin2bcd(century));
- 	if (err)
- 		return err;
+-		/* 192 KiB reserved for ARM Trusted Firmware (BL31) */
++		/* 2 MiB reserved for ARM Trusted Firmware (BL31) */
+ 		bl31_secmon_reserved: secmon@54600000 {
+ 			no-map;
+-			reg = <0 0x54600000 0x0 0x30000>;
++			reg = <0 0x54600000 0x0 0x200000>;
+ 		};
  
+ 		/* 12 MiB reserved for OP-TEE (BL32)
+-- 
+2.39.0
+
 
 
