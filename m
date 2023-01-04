@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CD0965D82B
+	by mail.lfdr.de (Postfix) with ESMTP id D620665D82D
 	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:12:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235267AbjADQMR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237663AbjADQMR (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 4 Jan 2023 11:12:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34186 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239813AbjADQLa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:11:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF310BC9C
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:11:06 -0800 (PST)
+        with ESMTP id S239885AbjADQLd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:11:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65DEEB1EC
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:11:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F34661799
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:11:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52328C433EF;
-        Wed,  4 Jan 2023 16:11:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0AE82B81722
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:11:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E7E6C433F1;
+        Wed,  4 Jan 2023 16:11:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848665;
-        bh=/SGjc/bqFrhn/0ujg6yy2wv+klspnHA1uquejMVB/zQ=;
+        s=korg; t=1672848668;
+        bh=VOTvp+4qMnS4pIXR2TLEide2mul8kp9d7DnWzB0oKc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fYkG1h0n89EOUoUeXZy4v1JUrj+7FUg+ZPH/Ks6Bc6uIJkOuZWTJhg1jzrb6lwzdp
-         7Gwoe4C26qCAhr1myj3siDNXeQKY8MAj1qoH8X1DsifqwH2Cs9a5tlH0AxMBhRoUwy
-         JvYSHkaTLrRJ6kvtHbW944mLR8WT4TeQ8A5VbNmY=
+        b=1vor1Khr9orunz+ALQK/zRzDkDu8OIkIKOYvjlnoVFVfvyKGj+CX+xQNvOJpO/zJh
+         SVGDYRRqWCwc5l+3+BO1AIZwzXuTNEqPn8zGWNpkcDgrTnEMc6N4pIZHKA2Ok9tdUt
+         gz4KSeAsD8fQTDChCmppuipX/Jj6Nx+AUtUDavIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrew Cooper <andrew.cooper3@citrix.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 6.1 026/207] x86/fpu/xstate: Fix XSTATE_WARN_ON() to emit relevant diagnostics
-Date:   Wed,  4 Jan 2023 17:04:44 +0100
-Message-Id: <20230104160512.744464096@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Steev Klimaszewski <steev@kali.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <andersson@kernel.org>
+Subject: [PATCH 6.1 027/207] arm64: dts: qcom: sdm850-lenovo-yoga-c630: correct I2C12 pins drive strength
+Date:   Wed,  4 Jan 2023 17:04:45 +0100
+Message-Id: <20230104160512.777793043@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
 References: <20230104160511.905925875@linuxfoundation.org>
@@ -52,69 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Cooper <andrew.cooper3@citrix.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-commit 48280042f2c6e3ac2cfb1d8b752ab4a7e0baea24 upstream.
+commit fd49776d8f458bba5499384131eddc0b8bcaf50c upstream.
 
-"XSAVE consistency problem" has been reported under Xen, but that's the extent
-of my divination skills.
+The pin configuration (done with generic pin controller helpers and
+as expressed by bindings) requires children nodes with either:
+1. "pins" property and the actual configuration,
+2. another set of nodes with above point.
 
-Modify XSTATE_WARN_ON() to force the caller to provide relevant diagnostic
-information, and modify each caller suitably.
+The qup_i2c12_default pin configuration used second method - with a
+"pinmux" child.
 
-For check_xstate_against_struct(), this removes a double WARN() where one will
-do perfectly fine.
-
-CC stable as this has been wonky debugging for 7 years and it is good to
-have there too.
-
-Signed-off-by: Andrew Cooper <andrew.cooper3@citrix.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
+Fixes: 44acee207844 ("arm64: dts: qcom: Add Lenovo Yoga C630")
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220810221909.12768-1-andrew.cooper3@citrix.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Tested-by: Steev Klimaszewski <steev@kali.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20220930192039.240486-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/fpu/xstate.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/fpu/xstate.c
-+++ b/arch/x86/kernel/fpu/xstate.c
-@@ -440,8 +440,8 @@ static void __init __xstate_dump_leaves(
- 	}
- }
+--- a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
++++ b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
+@@ -487,8 +487,10 @@
+ };
  
--#define XSTATE_WARN_ON(x) do {							\
--	if (WARN_ONCE(x, "XSAVE consistency problem, dumping leaves")) {	\
-+#define XSTATE_WARN_ON(x, fmt, ...) do {					\
-+	if (WARN_ONCE(x, "XSAVE consistency problem: " fmt, ##__VA_ARGS__)) {	\
- 		__xstate_dump_leaves();						\
- 	}									\
- } while (0)
-@@ -554,8 +554,7 @@ static bool __init check_xstate_against_
- 	    (nr >= XFEATURE_MAX) ||
- 	    (nr == XFEATURE_PT_UNIMPLEMENTED_SO_FAR) ||
- 	    ((nr >= XFEATURE_RSRVD_COMP_11) && (nr <= XFEATURE_RSRVD_COMP_16))) {
--		WARN_ONCE(1, "no structure for xstate: %d\n", nr);
--		XSTATE_WARN_ON(1);
-+		XSTATE_WARN_ON(1, "No structure for xstate: %d\n", nr);
- 		return false;
- 	}
- 	return true;
-@@ -598,12 +597,13 @@ static bool __init paranoid_xstate_size_
- 		 * XSAVES.
- 		 */
- 		if (!xsaves && xfeature_is_supervisor(i)) {
--			XSTATE_WARN_ON(1);
-+			XSTATE_WARN_ON(1, "Got supervisor feature %d, but XSAVES not advertised\n", i);
- 			return false;
- 		}
- 	}
- 	size = xstate_calculate_size(fpu_kernel_cfg.max_features, compacted);
--	XSTATE_WARN_ON(size != kernel_size);
-+	XSTATE_WARN_ON(size != kernel_size,
-+		       "size %u != kernel_size %u\n", size, kernel_size);
- 	return size == kernel_size;
- }
+ &qup_i2c12_default {
+-	drive-strength = <2>;
+-	bias-disable;
++	pinmux {
++		drive-strength = <2>;
++		bias-disable;
++	};
+ };
  
+ &qup_uart6_default {
 
 
