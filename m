@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 148CD65D670
+	by mail.lfdr.de (Postfix) with ESMTP id 6046E65D671
 	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:45:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229769AbjADOpl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:45:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36412 "EHLO
+        id S229845AbjADOpm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:45:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239561AbjADOpS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:45:18 -0500
+        with ESMTP id S239694AbjADOpX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:45:23 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 117C83752F
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:45:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E697C3752F
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:45:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BCF00B81699
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:45:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C922C433F1;
-        Wed,  4 Jan 2023 14:45:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A124AB81673
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:45:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F941C433EF;
+        Wed,  4 Jan 2023 14:45:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672843514;
-        bh=NsEC7GGatUpY5c06g/dwevlE720nA9a1M3jxvaTadHU=;
+        s=korg; t=1672843519;
+        bh=ireEdrL+5g9J0k4t2L6LUb1Iw0oJ7sVFGbKolv6+l9U=;
         h=Subject:To:Cc:From:Date:From;
-        b=ZJc4sVz13+PgP4i/0ItWM2GV1yL32qrt5a6L55bfJP5diL0VHLBj4sxMwe3mYy6F2
-         Otx5CnRxSWit3jzVLecFDYxb0UyJiijXWXJiB8bz8W9TWpKgXrWC6wTpG2tXyyVMzt
-         R4RXsJx2AXpFQPPu1vojkxXrgrdDmXoNWUI69LPE=
-Subject: FAILED: patch "[PATCH] drm/i915: Fix watermark calculations for DG2 CCS+CC modifier" failed to apply to 6.1-stable tree
+        b=Vls2SN9dVSsLi+MYnrgsmeCewcBoZHmHLRT1BudRbDZlxjxfCd+/Tu4zFaDOebGyK
+         EoHMv8lH7d2unWxb8MfWoxZ9yy4uo0hbaBRghYIqLWpQloiG3O6FUyrNJ7kUFBffC7
+         694lGh06W9BkICSj6iNWONQGFrNx+rDyaYM7nPNQ=
+Subject: FAILED: patch "[PATCH] drm/i915: Fix watermark calculations for DG2 CCS+CC modifier" failed to apply to 6.0-stable tree
 To:     ville.syrjala@linux.intel.com, juhapekka.heikkila@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:45:11 +0100
-Message-ID: <1672843511169215@kroah.com>
+Date:   Wed, 04 Jan 2023 15:45:12 +0100
+Message-ID: <16728435121332@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,6 +59,21 @@ f25d9f81a8e0 ("drm/i915: Fix watermark calculations for DG2 CCS modifiers")
 a627455bbe50 ("drm/i915: Fix watermark calculations for gen12+ CCS+CC modifier")
 91c9651425fe ("drm/i915: Fix watermark calculations for gen12+ MC CCS modifier")
 a89a96a58611 ("drm/i915: Fix watermark calculations for gen12+ RC CCS modifier")
+42a0d256496f ("drm/i915: Extract skl_watermark.c")
+55544b2811a6 ("drm/i915: Split intel_read_wm_latency() into per-platform versions")
+b7d1559038b6 ("drm/i915: move dbuf under display sub-struct")
+90b87cf24304 ("drm/i915: move mipi_mmio_base to display.dsi")
+d51309b4e9aa ("drm/i915: move and group cdclk under display.cdclk")
+f0acaf9d6912 ("drm/i915: move and group max_bw and bw_obj under display.bw")
+c3704f1938e7 ("drm/i915: move and group sagv under display.sagv")
+a30a6fe9e56c ("drm/i915: move wm to display.wm")
+b3d81dafdc48 ("drm/i915: move and group fbdev under display.fbdev")
+36d225f365e7 ("drm/i915: move dpll under display.dpll")
+4be1c12c880e ("drm/i915: move and split audio under display.audio and display.funcs")
+6c77055aa674 ("drm/i915: move dmc to display.dmc")
+12dc50823845 ("drm/i915: move and group pps members under display.pps")
+203eb5a98edb ("drm/i915: move and group gmbus members under display.gmbus")
+34dc3cc5017f ("drm/i915: move color_funcs to display.funcs")
 
 thanks,
 
