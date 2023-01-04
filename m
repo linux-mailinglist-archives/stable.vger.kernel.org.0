@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A316365D600
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:39:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75B6765D609
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:39:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239068AbjADOjL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:39:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58650 "EHLO
+        id S239587AbjADOjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:39:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235246AbjADOjK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:39:10 -0500
+        with ESMTP id S239445AbjADOjQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:39:16 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D1D2E7E
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:39:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A660F6416
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:39:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3580161738
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:39:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BDE1C433EF;
-        Wed,  4 Jan 2023 14:39:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4362661748
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:39:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50518C433F0;
+        Wed,  4 Jan 2023 14:39:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672843148;
-        bh=fIxnYbLv6YcZShgEb77+bL2aFrL8hKrMGUk9e7HtOTs=;
+        s=korg; t=1672843154;
+        bh=QfJpQJm0WKUqCu1hGsMhHizxdPUgT5WFM+gs74pp7gQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=qqqi2UOxiUUBRl5dBh/AHVSUz1hzu76OF18VyDpbyUD//IjSqn+xPpDr3cqfRxb/V
-         t49F9C4+uoBTR3L9OZD8/xlNYW/27AHpJBT/77aQ2F8+HJdD1xB4ka50ITkGcZ8N5c
-         oqe93xDIZFrk3R2/OvOKn3BzmNTo2cF3G4gpwaB0=
-Subject: FAILED: patch "[PATCH] drm/i915: Fix negative value passed as remaining time" failed to apply to 6.1-stable tree
+        b=jhP4XCqm9r2f9gvxzJ1U/g5vtLsOrWzu3Rp8vm48TXplQziQmC+MkuTF8SzJXpmVE
+         AyxZjlywS0cUBKvvjdqx+GrXytCMrXklwz6ZbWH8k0Qj8QKTHq9QpR14ed9NNYH3Xy
+         NRmiikd1ceN9fPhcWDNTBLWs+haSgSvy0BlJPwrM=
+Subject: FAILED: patch "[PATCH] drm/i915: Fix negative value passed as remaining time" failed to apply to 6.0-stable tree
 To:     janusz.krzysztofik@linux.intel.com, andrzej.hajda@intel.com,
         rodrigo.vivi@intel.com, tvrtko.ursulin@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:38:59 +0100
-Message-ID: <167284313916817@kroah.com>
+Date:   Wed, 04 Jan 2023 15:39:06 +0100
+Message-ID: <167284314622566@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
