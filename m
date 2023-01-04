@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7773765D8A0
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:16:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7833565D8B8
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:17:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239939AbjADQQi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:16:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38088 "EHLO
+        id S239749AbjADQRa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:17:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239948AbjADQQQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:16:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC4103C383
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:16:12 -0800 (PST)
+        with ESMTP id S239841AbjADQRX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:17:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45C45BC86
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:17:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8085CB8172B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:16:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC793C433EF;
-        Wed,  4 Jan 2023 16:16:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D737761798
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:17:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3DE5C433EF;
+        Wed,  4 Jan 2023 16:17:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848970;
-        bh=zrfU231GJK/axSv6kEzBi+LS+JM7t34THONAJX0/JrM=;
+        s=korg; t=1672849041;
+        bh=PvaCj3owL+92YPNXzW/5fYNFlyDOCueZa/eCuRjmF14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L1M/Sj3YL1Vui2pxLl2C6v77rMiaXoU6ZzcSvlrrUtUSDA4BKmzi2TMW0fO5ZVXRq
-         bBu1y2QcBdXWJGze5qte3Hg+aVzeiKz0NOvPOdBQlrLWYRgYe8lCUuGIdm9Ld+aPVH
-         HI7EJjPCFfTT365qVhwDRnfSONB6aKFtax+Kj3ys=
+        b=QY77fuF2B0iq/bo/B2h+EIOFQigK3SX3a8CKtaElfEfnRUWjcFQ3LdBanEQ84tJS6
+         SUkpyMJDO1bZKD7TSRMWJKGYuM+upgSPnJ0KtzXP87Kha/U/IeyAsZlRfZO3MDz89g
+         jD7hdNHUfyD5auPEhF+dKuHWyCaAFhNC3oj6r88k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Wang <KevinYang.Wang@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.1 110/207] drm/amdgpu: fix mmhub register base coding error
-Date:   Wed,  4 Jan 2023 17:06:08 +0100
-Message-Id: <20230104160515.388707543@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 6.1 111/207] block: mq-deadline: Fix dd_finish_request() for zoned devices
+Date:   Wed,  4 Jan 2023 17:06:09 +0100
+Message-Id: <20230104160515.418004222@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
 References: <20230104160511.905925875@linuxfoundation.org>
@@ -54,82 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Wang <KevinYang.Wang@amd.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-commit 347fafe0eb46df941965c355c77ce480e4d49f1f upstream.
+commit 2820e5d0820ac4daedff1272616a53d9c7682fd2 upstream.
 
-fix MMHUB register base coding error.
+dd_finish_request() tests if the per prio fifo_list is not empty to
+determine if request dispatching must be restarted for handling blocked
+write requests to zoned devices with a call to
+blk_mq_sched_mark_restart_hctx(). While simple, this implementation has
+2 problems:
 
-Fixes: ec6837591f992 ("drm/amdgpu/gmc10: program the smallK fragment size")
+1) Only the priority level of the completed request is considered.
+   However, writes to a zone may be blocked due to other writes to the
+   same zone using a different priority level. While this is unlikely to
+   happen in practice, as writing a zone with different IO priorirites
+   does not make sense, nothing in the code prevents this from
+   happening.
+2) The use of list_empty() is dangerous as dd_finish_request() does not
+   take dd->lock and may run concurrently with the insert and dispatch
+   code.
 
-Signed-off-by: Yang Wang <KevinYang.Wang@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Fix these 2 problems by testing the write fifo list of all priority
+levels using the new helper dd_has_write_work(), and by testing each
+fifo list using list_empty_careful().
+
+Fixes: c807ab520fc3 ("block/mq-deadline: Add I/O priority support")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Link: https://lore.kernel.org/r/20221124021208.242541-2-damien.lemoal@opensource.wdc.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/mmhub_v2_0.c   |    2 +-
- drivers/gpu/drm/amd/amdgpu/mmhub_v2_3.c   |    2 +-
- drivers/gpu/drm/amd/amdgpu/mmhub_v3_0.c   |    2 +-
- drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_1.c |    2 +-
- drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_2.c |    2 +-
- 5 files changed, 5 insertions(+), 5 deletions(-)
+ block/mq-deadline.c |   17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/mmhub_v2_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v2_0.c
-@@ -319,7 +319,7 @@ static void mmhub_v2_0_init_cache_regs(s
- 
- 	tmp = mmMMVM_L2_CNTL5_DEFAULT;
- 	tmp = REG_SET_FIELD(tmp, MMVM_L2_CNTL5, L2_CACHE_SMALLK_FRAGMENT_SIZE, 0);
--	WREG32_SOC15(GC, 0, mmMMVM_L2_CNTL5, tmp);
-+	WREG32_SOC15(MMHUB, 0, mmMMVM_L2_CNTL5, tmp);
+--- a/block/mq-deadline.c
++++ b/block/mq-deadline.c
+@@ -789,6 +789,18 @@ static void dd_prepare_request(struct re
+ 	rq->elv.priv[0] = NULL;
  }
  
- static void mmhub_v2_0_enable_system_domain(struct amdgpu_device *adev)
---- a/drivers/gpu/drm/amd/amdgpu/mmhub_v2_3.c
-+++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v2_3.c
-@@ -243,7 +243,7 @@ static void mmhub_v2_3_init_cache_regs(s
++static bool dd_has_write_work(struct blk_mq_hw_ctx *hctx)
++{
++	struct deadline_data *dd = hctx->queue->elevator->elevator_data;
++	enum dd_prio p;
++
++	for (p = 0; p <= DD_PRIO_MAX; p++)
++		if (!list_empty_careful(&dd->per_prio[p].fifo_list[DD_WRITE]))
++			return true;
++
++	return false;
++}
++
+ /*
+  * Callback from inside blk_mq_free_request().
+  *
+@@ -828,9 +840,10 @@ static void dd_finish_request(struct req
  
- 	tmp = mmMMVM_L2_CNTL5_DEFAULT;
- 	tmp = REG_SET_FIELD(tmp, MMVM_L2_CNTL5, L2_CACHE_SMALLK_FRAGMENT_SIZE, 0);
--	WREG32_SOC15(GC, 0, mmMMVM_L2_CNTL5, tmp);
-+	WREG32_SOC15(MMHUB, 0, mmMMVM_L2_CNTL5, tmp);
+ 		spin_lock_irqsave(&dd->zone_lock, flags);
+ 		blk_req_zone_write_unlock(rq);
+-		if (!list_empty(&per_prio->fifo_list[DD_WRITE]))
+-			blk_mq_sched_mark_restart_hctx(rq->mq_hctx);
+ 		spin_unlock_irqrestore(&dd->zone_lock, flags);
++
++		if (dd_has_write_work(rq->mq_hctx))
++			blk_mq_sched_mark_restart_hctx(rq->mq_hctx);
+ 	}
  }
  
- static void mmhub_v2_3_enable_system_domain(struct amdgpu_device *adev)
---- a/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0.c
-@@ -275,7 +275,7 @@ static void mmhub_v3_0_init_cache_regs(s
- 
- 	tmp = regMMVM_L2_CNTL5_DEFAULT;
- 	tmp = REG_SET_FIELD(tmp, MMVM_L2_CNTL5, L2_CACHE_SMALLK_FRAGMENT_SIZE, 0);
--	WREG32_SOC15(GC, 0, regMMVM_L2_CNTL5, tmp);
-+	WREG32_SOC15(MMHUB, 0, regMMVM_L2_CNTL5, tmp);
- }
- 
- static void mmhub_v3_0_enable_system_domain(struct amdgpu_device *adev)
---- a/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_1.c
-+++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_1.c
-@@ -269,7 +269,7 @@ static void mmhub_v3_0_1_init_cache_regs
- 
- 	tmp = regMMVM_L2_CNTL5_DEFAULT;
- 	tmp = REG_SET_FIELD(tmp, MMVM_L2_CNTL5, L2_CACHE_SMALLK_FRAGMENT_SIZE, 0);
--	WREG32_SOC15(GC, 0, regMMVM_L2_CNTL5, tmp);
-+	WREG32_SOC15(MMHUB, 0, regMMVM_L2_CNTL5, tmp);
- }
- 
- static void mmhub_v3_0_1_enable_system_domain(struct amdgpu_device *adev)
---- a/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_2.c
-+++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_2.c
-@@ -268,7 +268,7 @@ static void mmhub_v3_0_2_init_cache_regs
- 
- 	tmp = regMMVM_L2_CNTL5_DEFAULT;
- 	tmp = REG_SET_FIELD(tmp, MMVM_L2_CNTL5, L2_CACHE_SMALLK_FRAGMENT_SIZE, 0);
--	WREG32_SOC15(GC, 0, regMMVM_L2_CNTL5, tmp);
-+	WREG32_SOC15(MMHUB, 0, regMMVM_L2_CNTL5, tmp);
- }
- 
- static void mmhub_v3_0_2_enable_system_domain(struct amdgpu_device *adev)
 
 
