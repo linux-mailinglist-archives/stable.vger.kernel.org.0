@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 030F565D90E
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:22:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F73665D970
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:25:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239264AbjADQVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:21:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44978 "EHLO
+        id S239774AbjADQZl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:25:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239965AbjADQVE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:21:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B1A1DF00
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:21:00 -0800 (PST)
+        with ESMTP id S239939AbjADQZN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:25:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A33933D77
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:24:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 337116179B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:21:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27EABC433EF;
-        Wed,  4 Jan 2023 16:20:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 28260B81733
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:24:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A0C0C433EF;
+        Wed,  4 Jan 2023 16:24:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849259;
-        bh=RKeG6pAXImq9qcj+T4tzTpmu5OGLr1tJpPPZeeygvbk=;
+        s=korg; t=1672849458;
+        bh=4va3wUPT7zPa6x4wl2Tqwhgq8MSGnS3eFl2QX7utxqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HxQJDla2M+r+/eP7NkPmRBiAfO6docKpQu3EKLZMjX/rXExBjJjZiVpKaWP7yJJQY
-         oc4RiYNSHPDQd51naiPoQFCWJzIGXIrjrPCOnfhv3b+5K1XuesvhMcK284b97mz8/G
-         I5vjiBgtGsysOIGziXj0uN1B/75gKMlt6BFFMvuc=
+        b=EBk6UHZeTphxOFskTSO4X9z0GiSTEAMJ95GcKQBnEeT05/36HzaD+EensdWWjWG8h
+         BCI/i3mzg4yKUM1jH1BK0LIQqo9/4KS3JlrdMT65nQ9zoKJIA3/U96d/vq1ItWEnLU
+         x9KKE4LCg/ltM70PjlcscoWs5Ykx2twUKp9gOllE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lucas Stach <l.stach@pengutronix.de>,
-        =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
-Subject: [PATCH 6.1 159/207] drm/etnaviv: reap idle mapping if it doesnt match the softpin address
+        patches@lists.linux.dev, Zack Rusin <zackr@vmware.com>,
+        Michael Banack <banackm@vmware.com>,
+        Martin Krastev <krastevm@vmware.com>
+Subject: [PATCH 6.0 126/177] drm/vmwgfx: Validate the box size for the snooped cursor
 Date:   Wed,  4 Jan 2023 17:06:57 +0100
-Message-Id: <20230104160516.925891208@linuxfoundation.org>
+Message-Id: <20230104160511.464668820@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,44 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Zack Rusin <zackr@vmware.com>
 
-commit 332f847212e43d584019a8264895f25cf92aa647 upstream.
+commit 4cf949c7fafe21e085a4ee386bb2dade9067316e upstream.
 
-When a idle BO, which is held open by another process, gets freed by
-userspace and subsequently referenced again by e.g. importing it again,
-userspace may assign a different softpin VA than the last time around.
-As the kernel GEM object still exists, we likely have a idle mapping
-with the old VA still cached, if it hasn't been reaped in the meantime.
+Invalid userspace dma surface copies could potentially overflow
+the memcpy from the surface to the snooped image leading to crashes.
+To fix it the dimensions of the copybox have to be validated
+against the expected size of the snooped cursor.
 
-As the context matches, we then simply try to resurrect this mapping by
-increasing the refcount. As the VA in this mapping does not match the
-new softpin address, we consequently fail the otherwise valid submit.
-Instead of failing, reap the idle mapping.
-
-Cc: stable@vger.kernel.org # 5.19
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Guido Günther <agx@sigxcpu.org>
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Fixes: 2ac863719e51 ("vmwgfx: Snoop DMA transfers with non-covering sizes")
+Cc: <stable@vger.kernel.org> # v3.2+
+Reviewed-by: Michael Banack <banackm@vmware.com>
+Reviewed-by: Martin Krastev <krastevm@vmware.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221026031936.1004280-1-zack@kde.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/etnaviv/etnaviv_gem.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/etnaviv/etnaviv_gem.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gem.c
-@@ -258,7 +258,12 @@ struct etnaviv_vram_mapping *etnaviv_gem
- 		if (mapping->use == 0) {
- 			mutex_lock(&mmu_context->lock);
- 			if (mapping->context == mmu_context)
--				mapping->use += 1;
-+				if (va && mapping->iova != va) {
-+					etnaviv_iommu_reap_mapping(mapping);
-+					mapping = NULL;
-+				} else {
-+					mapping->use += 1;
-+				}
- 			else
- 				mapping = NULL;
- 			mutex_unlock(&mmu_context->lock);
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
+@@ -309,7 +309,8 @@ void vmw_kms_cursor_snoop(struct vmw_sur
+ 	if (cmd->dma.guest.ptr.offset % PAGE_SIZE ||
+ 	    box->x != 0    || box->y != 0    || box->z != 0    ||
+ 	    box->srcx != 0 || box->srcy != 0 || box->srcz != 0 ||
+-	    box->d != 1    || box_count != 1) {
++	    box->d != 1    || box_count != 1 ||
++	    box->w > 64 || box->h > 64) {
+ 		/* TODO handle none page aligned offsets */
+ 		/* TODO handle more dst & src != 0 */
+ 		/* TODO handle more then one copy */
 
 
