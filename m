@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3905065D960
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:25:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D4B865D963
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:25:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239671AbjADQZA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:25:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46252 "EHLO
+        id S239760AbjADQZB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:25:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240029AbjADQYe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:24:34 -0500
+        with ESMTP id S240043AbjADQYh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:24:37 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98C8A3D1CC
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:23:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F13B3D1DE
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:23:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 218B9617AF
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:23:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18410C433EF;
-        Wed,  4 Jan 2023 16:23:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2580D617A9
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:23:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22880C433D2;
+        Wed,  4 Jan 2023 16:23:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849410;
-        bh=micRtym3x5TtlFIQ+/X4E1LzJPUSH0P+PkAWPlxQOPo=;
+        s=korg; t=1672849416;
+        bh=7ktn5HAXB/jRgTYt6YfgA0BoMXWfLTYgjJN5ujsvieE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qYjfaPOQZPLyaqOTy1VQxlVZHz9oT/WQbcA2ba+l8dZ1Id580B46x+QCU+5rbWgxQ
-         D6a7oYP7MrDAQ9GdGVdSZYdyiinahHibzkJ1Wl/lMVwz7iTVWs6WirtOhPJfbPZRSq
-         JnYms+5sXwbfhsBcHrxZVlOgj9AcBcKTE38dSERY=
+        b=2EwkUt43W1SW2EghvNntMI7vLvmRfEVqDl1sZ3R/NeDGBla+IZhIX48SgrmjyrLM3
+         sVYhYkAsUwT+5bL6iIZhy6UpcYi1G6icPMtPg//jgF8ks73MkgxYjy+TUkIBFmaF72
+         I+XbG8USi9bOS7uBDU+jPZuDFZJa6HWMLwDMhrTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Hua <hucool.lihua@huawei.com>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
-Subject: [PATCH 6.0 116/177] test_kprobes: Fix implicit declaration error of test_kprobes
-Date:   Wed,  4 Jan 2023 17:06:47 +0100
-Message-Id: <20230104160511.155173495@linuxfoundation.org>
+        patches@lists.linux.dev, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Peng Fan <peng.fan@nxp.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: [PATCH 6.0 117/177] remoteproc: imx_dsp_rproc: Add mutex protection for workqueue
+Date:   Wed,  4 Jan 2023 17:06:48 +0100
+Message-Id: <20230104160511.184630423@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
 References: <20230104160507.635888536@linuxfoundation.org>
@@ -52,45 +53,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Hua <hucool.lihua@huawei.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-commit 63a4dc0a0bb0e9bfeb2c88ccda81abdde4cdd6b8 upstream.
+commit 47e6ab07018edebf94ce873cf50a05ec76ff2dde upstream.
 
-If KPROBES_SANITY_TEST and ARCH_CORRECT_STACKTRACE_ON_KRETPROBE is enabled, but
-STACKTRACE is not set. Build failed as below:
+The workqueue may execute late even after remoteproc is stopped or
+stopping, some resources (rpmsg device and endpoint) have been
+released in rproc_stop_subdevices(), then rproc_vq_interrupt()
+accessing these resources will cause kennel dump.
 
-lib/test_kprobes.c: In function ‘stacktrace_return_handler’:
-lib/test_kprobes.c:228:8: error: implicit declaration of function ‘stack_trace_save’; did you mean ‘stacktrace_driver’? [-Werror=implicit-function-declaration]
-  ret = stack_trace_save(stack_buf, STACK_BUF_SIZE, 0);
-        ^~~~~~~~~~~~~~~~
-        stacktrace_driver
-cc1: all warnings being treated as errors
-scripts/Makefile.build:250: recipe for target 'lib/test_kprobes.o' failed
-make[2]: *** [lib/test_kprobes.o] Error 1
+Call trace:
+ virtqueue_add_split+0x1ac/0x560
+ virtqueue_add_inbuf+0x4c/0x60
+ rpmsg_recv_done+0x15c/0x294
+ vring_interrupt+0x6c/0xa4
+ rproc_vq_interrupt+0x30/0x50
+ imx_dsp_rproc_vq_work+0x24/0x40 [imx_dsp_rproc]
+ process_one_work+0x1d0/0x354
+ worker_thread+0x13c/0x470
+ kthread+0x154/0x160
+ ret_from_fork+0x10/0x20
 
-To fix this error, Select STACKTRACE if ARCH_CORRECT_STACKTRACE_ON_KRETPROBE is enabled.
+Add mutex protection in imx_dsp_rproc_vq_work(), if the state is
+not running, then just skip calling rproc_vq_interrupt().
 
-Link: https://lore.kernel.org/all/20221121030620.63181-1-hucool.lihua@huawei.com/
+Also the flush workqueue operation can't be added in rproc stop
+for the same reason. The call sequence is
 
-Fixes: 1f6d3a8f5e39 ("kprobes: Add a test case for stacktrace from kretprobe handler")
-Cc: stable@vger.kernel.org
-Signed-off-by: Li Hua <hucool.lihua@huawei.com>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+rproc_shutdown
+-> rproc_stop
+   ->rproc_stop_subdevices
+   ->rproc->ops->stop()
+     ->imx_dsp_rproc_stop
+       ->flush_work
+         -> rproc_vq_interrupt
+
+The resource needed by rproc_vq_interrupt has been released in
+rproc_stop_subdevices, so flush_work is not safe to be called in
+imx_dsp_rproc_stop.
+
+Fixes: ec0e5549f358 ("remoteproc: imx_dsp_rproc: Add remoteproc driver for DSP on i.MX")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Reviewed-by: Peng Fan <peng.fan@nxp.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1664524216-19949-1-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/Kconfig.debug |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/remoteproc/imx_dsp_rproc.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -2080,6 +2080,7 @@ config TEST_MIN_HEAP
- config TEST_SORT
- 	tristate "Array-based sort test" if !KUNIT_ALL_TESTS
- 	depends on KUNIT
-+	select STACKTRACE if ARCH_CORRECT_STACKTRACE_ON_KRETPROBE
- 	default KUNIT_ALL_TESTS
- 	help
- 	  This option enables the self-test function of 'sort()' at boot,
+--- a/drivers/remoteproc/imx_dsp_rproc.c
++++ b/drivers/remoteproc/imx_dsp_rproc.c
+@@ -347,9 +347,6 @@ static int imx_dsp_rproc_stop(struct rpr
+ 	struct device *dev = rproc->dev.parent;
+ 	int ret = 0;
+ 
+-	/* Make sure work is finished */
+-	flush_work(&priv->rproc_work);
+-
+ 	if (rproc->state == RPROC_CRASHED) {
+ 		priv->flags &= ~REMOTE_IS_READY;
+ 		return 0;
+@@ -432,9 +429,18 @@ static void imx_dsp_rproc_vq_work(struct
+ {
+ 	struct imx_dsp_rproc *priv = container_of(work, struct imx_dsp_rproc,
+ 						  rproc_work);
++	struct rproc *rproc = priv->rproc;
++
++	mutex_lock(&rproc->lock);
++
++	if (rproc->state != RPROC_RUNNING)
++		goto unlock_mutex;
+ 
+ 	rproc_vq_interrupt(priv->rproc, 0);
+ 	rproc_vq_interrupt(priv->rproc, 1);
++
++unlock_mutex:
++	mutex_unlock(&rproc->lock);
+ }
+ 
+ /**
 
 
