@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68BF065D560
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:18:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A66D65D561
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:18:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230341AbjADOR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:17:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43660 "EHLO
+        id S234896AbjADOSB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:18:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234470AbjADORz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:17:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05E6DBCAB
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:17:54 -0800 (PST)
+        with ESMTP id S233269AbjADOR5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:17:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 797DADFE1
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:17:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AFC8EB81662
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:17:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09E73C433D2;
-        Wed,  4 Jan 2023 14:17:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14D5261426
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:17:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07662C433EF;
+        Wed,  4 Jan 2023 14:17:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672841871;
-        bh=YB+TrrjykjT84jnMTwfW2aUPLHQRhql8jdaJyD/PfrA=;
+        s=korg; t=1672841875;
+        bh=WmS4jFmLAn56mc4DxcuXYSVhmti9wB2R8/CGEaX49aA=;
         h=Subject:To:Cc:From:Date:From;
-        b=gPA/uD9JgS1tCthlvwsh5Cm+6pwwczzPetYOJxGYop5VFJFvejMbPDzhuoj5N75NW
-         VUV7dtA7KalWpxvup104qoVBKLnmXUjQ335R9MoslTycSadVF8u9zj03ocCHn5cL0O
-         dH9ZeVZL4wS9Xg0XKdwLb24R9MMvamzbPcA8wvpk=
-Subject: FAILED: patch "[PATCH] drm/amdgpu: fix mmhub register base coding error" failed to apply to 5.15-stable tree
+        b=rAGHXl8loYWKz9xrAe+rqBeA1CClp9aFPdzklZ1m//W0O6e+TQK6KT6tVmgyUVlHc
+         HhnhEQQTwYZGB9HJaXvZPMNs7xkF9knvHLLEDuGycl5E19jcEO/4lJdzAErMW3v6qu
+         LxmdDV3LWgKGIouw/3moFgKA/gENRF7ks8q8LM4M=
+Subject: FAILED: patch "[PATCH] drm/amdgpu: fix mmhub register base coding error" failed to apply to 5.10-stable tree
 To:     KevinYang.Wang@amd.com, Hawking.Zhang@amd.com,
         alexander.deucher@amd.com, christian.koenig@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 04 Jan 2023 15:17:48 +0100
-Message-ID: <16728418688652@kroah.com>
+Message-ID: <167284186813525@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,6 +67,12 @@ f40fc1916ce8 ("drm/amdgpu: split mmhub v3_0_2 callbacks from mmhub v3_0")
 640ae42efb82 ("drm/amdgpu: Updated RAS infrastructure")
 3771449bc80f ("drm/amdgpu: Update RAS trigger error block support")
 a0a2f7bb2209 ("drm/amd/amdgpu: add mpio to ras block")
+3907c492184e ("drm/amdgpu: Add driver infrastructure for MCA RAS")
+893cf382c040 ("drm/amd/amdgpu: remove unnecessary RAS context field")
+198fbe15ce53 ("drm/amdgpu: fix the doorbell missing when in CGPG issue for renoir.")
+00e3a289d9e2 ("drm/amdgpu: add new helper for handling EEPROM i2c transfers")
+5a2ec861b8ae ("drm/amd/amdgpu/gfx_v9_4_2: Mark functions called by reference as static")
+9a91e5e0af5e ("Merge tag 'amd-drm-next-5.14-2021-05-21' of https://gitlab.freedesktop.org/agd5f/linux into drm-next")
 
 thanks,
 
