@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5333865D564
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:18:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4E3665D565
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:18:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234797AbjADOSV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:18:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43990 "EHLO
+        id S234813AbjADOS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:18:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234813AbjADOSU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:18:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15797BCAB
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:18:19 -0800 (PST)
+        with ESMTP id S234719AbjADOS1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:18:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2BE517424
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:18:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C5A60B81662
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:18:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F3BBC433EF;
-        Wed,  4 Jan 2023 14:18:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 61C016172D
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:18:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C3A4C433EF;
+        Wed,  4 Jan 2023 14:18:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672841896;
-        bh=AoyJzKs05qhRH+46Dq9gg7wYjsFUgYPK0wPCocWAoXA=;
+        s=korg; t=1672841905;
+        bh=sqeD+3KtOF2imnOVKXzxrl+6mCUpiUpO9JFeGih1iLM=;
         h=Subject:To:Cc:From:Date:From;
-        b=mm/twh9w/z35dYyyZgFvmAMbxaBzqvdDY46RS0Tw0YPZKQ+n+qod7QiW36+KmILj3
-         FkjIZySRx0HaDQwCr2iapAuGcvZ+vbK4/UiqPZNKpLN2ImjKMCVT6iUGTBy6xvkz1z
-         FqthzleC0B5go+WqwAzpqr77YdBJ4IZiPr04gLpA=
-Subject: FAILED: patch "[PATCH] drm/amdgpu/sdma_v4_0: turn off SDMA ring buffer in the s2idle" failed to apply to 5.15-stable tree
-To:     Prike.Liang@amd.com, alexander.deucher@amd.com,
-        mario.limonciello@amd.com
+        b=L9/Na9tj3JEHvlrLuvDcJ0Qjaj3KZvHAcdPOvWztenw9E0Mp7/Ya94nqjrK9G3y5E
+         FgL116kEJjRquJagaMCAhCDnKEVZtft5f563/8yXjNJRjrAK3c7UqoBUKZM4tj/5qw
+         NXbRcEYd8j3esS3c0pIgSGezr4rOJikNA6Ht/emE=
+Subject: FAILED: patch "[PATCH] drm/amdgpu/psp: don't free PSP buffers on suspend" failed to apply to 6.1-stable tree
+To:     alexander.deucher@amd.com, christian.koenig@amd.com,
+        gpiccoli@igalia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:18:03 +0100
-Message-ID: <16728418835398@kroah.com>
+Date:   Wed, 04 Jan 2023 15:18:23 +0100
+Message-ID: <1672841903777@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -48,15 +48,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-b35a2a12901c ("drm/amdgpu/sdma_v4_0: turn off SDMA ring buffer in the s2idle suspend")
-f3986e86b2d8 ("drm/amdgpu: skipping SDMA hw_init and hw_fini for S0ix.")
+96e1a88fafe6 ("drm/amdgpu/psp: don't free PSP buffers on suspend")
 
 thanks,
 
@@ -64,93 +63,77 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b35a2a12901cd230309750777e3744fa0526543d Mon Sep 17 00:00:00 2001
-From: Prike Liang <Prike.Liang@amd.com>
-Date: Thu, 1 Dec 2022 11:17:31 +0800
-Subject: [PATCH] drm/amdgpu/sdma_v4_0: turn off SDMA ring buffer in the s2idle
- suspend
+From 96e1a88fafe6a9afd371fadc0c7de41b883aaec9 Mon Sep 17 00:00:00 2001
+From: Alex Deucher <alexander.deucher@amd.com>
+Date: Wed, 16 Nov 2022 11:26:53 -0500
+Subject: [PATCH] drm/amdgpu/psp: don't free PSP buffers on suspend
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-In the SDMA s0ix save process requires to turn off SDMA ring buffer for
-avoiding the SDMA in-flight request, otherwise will suffer from SDMA page
-fault which causes by page request from in-flight SDMA ring accessing at
-SDMA restore phase.
+We can reuse the same buffers on resume.
 
-Link: https://gitlab.freedesktop.org/drm/amd/-/issues/2248
-Cc: stable@vger.kernel.org # 6.0,5.15+
-Fixes: f8f4e2a51834 ("drm/amdgpu: skipping SDMA hw_init and hw_fini for S0ix.")
-Signed-off-by: Prike Liang <Prike.Liang@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Tested-by: Mario Limonciello <mario.limonciello@amd.com>
+v2: squash in S4 fix from Shikai
+
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2213
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Tested-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
-index 1122bd4eae98..4d780e4430e7 100644
---- a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
-@@ -907,13 +907,13 @@ static void sdma_v4_0_ring_emit_fence(struct amdgpu_ring *ring, u64 addr, u64 se
- 
- 
- /**
-- * sdma_v4_0_gfx_stop - stop the gfx async dma engines
-+ * sdma_v4_0_gfx_enable - enable the gfx async dma engines
-  *
-  * @adev: amdgpu_device pointer
-- *
-- * Stop the gfx async dma ring buffers (VEGA10).
-+ * @enable: enable SDMA RB/IB
-+ * control the gfx async dma ring buffers (VEGA10).
-  */
--static void sdma_v4_0_gfx_stop(struct amdgpu_device *adev)
-+static void sdma_v4_0_gfx_enable(struct amdgpu_device *adev, bool enable)
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+index 98dbf4e5aae9..1a3aa0eae591 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+@@ -198,6 +198,7 @@ void psp_ta_free_shared_buf(struct ta_mem_context *mem_ctx)
  {
- 	u32 rb_cntl, ib_cntl;
- 	int i;
-@@ -922,10 +922,10 @@ static void sdma_v4_0_gfx_stop(struct amdgpu_device *adev)
+ 	amdgpu_bo_free_kernel(&mem_ctx->shared_bo, &mem_ctx->shared_mc_addr,
+ 			      &mem_ctx->shared_buf);
++	mem_ctx->shared_bo = NULL;
+ }
  
- 	for (i = 0; i < adev->sdma.num_instances; i++) {
- 		rb_cntl = RREG32_SDMA(i, mmSDMA0_GFX_RB_CNTL);
--		rb_cntl = REG_SET_FIELD(rb_cntl, SDMA0_GFX_RB_CNTL, RB_ENABLE, 0);
-+		rb_cntl = REG_SET_FIELD(rb_cntl, SDMA0_GFX_RB_CNTL, RB_ENABLE, enable ? 1 : 0);
- 		WREG32_SDMA(i, mmSDMA0_GFX_RB_CNTL, rb_cntl);
- 		ib_cntl = RREG32_SDMA(i, mmSDMA0_GFX_IB_CNTL);
--		ib_cntl = REG_SET_FIELD(ib_cntl, SDMA0_GFX_IB_CNTL, IB_ENABLE, 0);
-+		ib_cntl = REG_SET_FIELD(ib_cntl, SDMA0_GFX_IB_CNTL, IB_ENABLE, enable ? 1 : 0);
- 		WREG32_SDMA(i, mmSDMA0_GFX_IB_CNTL, ib_cntl);
+ static void psp_free_shared_bufs(struct psp_context *psp)
+@@ -208,6 +209,7 @@ static void psp_free_shared_bufs(struct psp_context *psp)
+ 	/* free TMR memory buffer */
+ 	pptr = amdgpu_sriov_vf(psp->adev) ? &tmr_buf : NULL;
+ 	amdgpu_bo_free_kernel(&psp->tmr_bo, &psp->tmr_mc_addr, pptr);
++	psp->tmr_bo = NULL;
+ 
+ 	/* free xgmi shared memory */
+ 	psp_ta_free_shared_buf(&psp->xgmi_context.context.mem_context);
+@@ -769,7 +771,7 @@ static int psp_load_toc(struct psp_context *psp,
+ /* Set up Trusted Memory Region */
+ static int psp_tmr_init(struct psp_context *psp)
+ {
+-	int ret;
++	int ret = 0;
+ 	int tmr_size;
+ 	void *tmr_buf;
+ 	void **pptr;
+@@ -796,10 +798,12 @@ static int psp_tmr_init(struct psp_context *psp)
+ 		}
  	}
- }
-@@ -1044,7 +1044,7 @@ static void sdma_v4_0_enable(struct amdgpu_device *adev, bool enable)
- 	int i;
  
- 	if (!enable) {
--		sdma_v4_0_gfx_stop(adev);
-+		sdma_v4_0_gfx_enable(adev, enable);
- 		sdma_v4_0_rlc_stop(adev);
- 		if (adev->sdma.has_page_queue)
- 			sdma_v4_0_page_stop(adev);
-@@ -1960,8 +1960,10 @@ static int sdma_v4_0_suspend(void *handle)
- 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
- 
- 	/* SMU saves SDMA state for us */
--	if (adev->in_s0ix)
-+	if (adev->in_s0ix) {
-+		sdma_v4_0_gfx_enable(adev, false);
- 		return 0;
+-	pptr = amdgpu_sriov_vf(psp->adev) ? &tmr_buf : NULL;
+-	ret = amdgpu_bo_create_kernel(psp->adev, tmr_size, PSP_TMR_ALIGNMENT,
+-				      AMDGPU_GEM_DOMAIN_VRAM,
+-				      &psp->tmr_bo, &psp->tmr_mc_addr, pptr);
++	if (!psp->tmr_bo) {
++		pptr = amdgpu_sriov_vf(psp->adev) ? &tmr_buf : NULL;
++		ret = amdgpu_bo_create_kernel(psp->adev, tmr_size, PSP_TMR_ALIGNMENT,
++					      AMDGPU_GEM_DOMAIN_VRAM,
++					      &psp->tmr_bo, &psp->tmr_mc_addr, pptr);
 +	}
  
- 	return sdma_v4_0_hw_fini(adev);
+ 	return ret;
  }
-@@ -1971,8 +1973,12 @@ static int sdma_v4_0_resume(void *handle)
- 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+@@ -2727,8 +2731,6 @@ static int psp_suspend(void *handle)
+ 	}
  
- 	/* SMU restores SDMA state for us */
--	if (adev->in_s0ix)
-+	if (adev->in_s0ix) {
-+		sdma_v4_0_enable(adev, true);
-+		sdma_v4_0_gfx_enable(adev, true);
-+		amdgpu_ttm_set_buffer_funcs_status(adev, true);
- 		return 0;
-+	}
- 
- 	return sdma_v4_0_hw_init(adev);
+ out:
+-	psp_free_shared_bufs(psp);
+-
+ 	return ret;
  }
+ 
 
