@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAD0F65D618
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:40:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2FDF65D61B
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:40:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239408AbjADOkV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:40:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59514 "EHLO
+        id S234370AbjADOkm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:40:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239657AbjADOjy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:39:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 839503AAAA
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:39:49 -0800 (PST)
+        with ESMTP id S239725AbjADOkC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:40:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC3ABDF29
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:39:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EC4C61763
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:39:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CB8EC433D2;
-        Wed,  4 Jan 2023 14:39:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A0DA4B81662
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:39:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12C81C433EF;
+        Wed,  4 Jan 2023 14:39:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672843188;
-        bh=+VPxOBHeKAs9v+TjF5QFbcyt9LmaVakVhzMZRUKLhWk=;
+        s=korg; t=1672843191;
+        bh=GlpPpm0QtcC6SLlfs6SEpY6rodp80+YHJQTLSV90JZ4=;
         h=Subject:To:Cc:From:Date:From;
-        b=tfL1tU/edaNO05w3CzRf9WdmSvlwQ7pS2STsrgNPIswhcKvyleRgQyt5DKQgbJChH
-         iago3mlvx+vc5yvUTYndoQcE9mh8ZMY3FRu1Vshgg715bSR0ssM6ZmD1HNbCuKriZU
-         dwZ+oJSnh93tcPdntzUOPcDzD7XCQU0vxH+AMszY=
-Subject: FAILED: patch "[PATCH] drm/i915/sdvo: Setup DDC fully before output init" failed to apply to 6.0-stable tree
+        b=DisqOTDcr1jFacstFcMbSfRZ+6J5NNLmVuEbMM7q41oXLEgUc2vEEkI8TqDN3ps3C
+         /nxWbab1Bw51wkFKlKP1mGXN/2dduOLEFwPkjaRiWOtmcIdGG5NUuoqUTRKz0oAjra
+         N0GdEo5Moy5r7r5E/xyloTCy6tJbps4BEbrPtgR0=
+Subject: FAILED: patch "[PATCH] drm/i915/sdvo: Setup DDC fully before output init" failed to apply to 5.15-stable tree
 To:     ville.syrjala@linux.intel.com, jani.nikula@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:39:41 +0100
-Message-ID: <167284318118211@kroah.com>
+Date:   Wed, 04 Jan 2023 15:39:42 +0100
+Message-ID: <167284318221412@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
