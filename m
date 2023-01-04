@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79DF965D6A9
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:57:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CB4F65D6AB
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:57:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235267AbjADO4d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:56:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45320 "EHLO
+        id S236020AbjADO4e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:56:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239526AbjADO4X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:56:23 -0500
+        with ESMTP id S239533AbjADO4Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:56:25 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CFF2BF49
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:56:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50195FACC
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:56:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB3EC6137A
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:56:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBE94C433F0;
-        Wed,  4 Jan 2023 14:56:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E135861758
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:56:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3E26C433D2;
+        Wed,  4 Jan 2023 14:56:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672844181;
-        bh=qa+lC2RasvE+A8ZMEchwj5sTJrEtXHjbCgeDEk9ZeaM=;
+        s=korg; t=1672844184;
+        bh=gFweX0ORFgrSd7w33oQiIs/TW+GT9VykIJg1qVDLB0I=;
         h=Subject:To:Cc:From:Date:From;
-        b=DJmjTooirUuQiQQ9aTvGVfUeFtUmx/A9EEtPP+m84hiymPMXmtbWVbC6N3k7DnzF7
-         KgNyb06Z90LQ0ABr+MkjruPg1t4a6HSE1wGcV4CCtOf7zgqe7uB6ZsT1YUPtc2KvCq
-         CZSWDwn0h0VT71XZ9CZb5oRJ2ep2IgbCfrvINLn0=
-Subject: FAILED: patch "[PATCH] fs: ext4: initialize fsdata in pagecache_write()" failed to apply to 5.10-stable tree
+        b=IbQLgapugXUrJszB6ILDYWJ3Trzu57/lpUILo02ldT8n0sN1UgGtyP+pN00rPEuUT
+         4UeKCQeeYgSAedTEtq55Z9ut3FSus8TlqFYRj1tIVEZlH0WBZIKqdXxiKUP0SpekAl
+         Bnby5PCRdZss4n6itJcbf8AjmH5Wo0WnF/Xxif5Q=
+Subject: FAILED: patch "[PATCH] fs: ext4: initialize fsdata in pagecache_write()" failed to apply to 5.4-stable tree
 To:     glider@google.com, ebiggers@google.com, ebiggers@kernel.org,
         tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:55:02 +0100
-Message-ID: <1672844102105235@kroah.com>
+Date:   Wed, 04 Jan 2023 15:55:03 +0100
+Message-ID: <167284410396148@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
