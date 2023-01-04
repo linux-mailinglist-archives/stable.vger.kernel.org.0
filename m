@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F49465D60C
+	by mail.lfdr.de (Postfix) with ESMTP id 92BFF65D60D
 	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:39:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239639AbjADOjg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:39:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58728 "EHLO
+        id S239649AbjADOjh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:39:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239573AbjADOjY (ORCPT
+        with ESMTP id S239574AbjADOjY (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:39:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D6C11A231
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:39:20 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8DF538AF0
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:39:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01F06B81339
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:39:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F48EC433EF;
-        Wed,  4 Jan 2023 14:39:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 65BF461762
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:39:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5988AC433D2;
+        Wed,  4 Jan 2023 14:39:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672843157;
-        bh=QCd1BKYCn6suN7GLqUFdwTWUz4q70lyARSjl5vJAPy0=;
+        s=korg; t=1672843160;
+        bh=czUnCH//dxYutzlaalC4ByyBxmMZIuwRrTC9jtpeXt4=;
         h=Subject:To:Cc:From:Date:From;
-        b=EGUdLPIjlTDikzTxc1vMMhUEtLUP1VkBpwtugcp2MOiCxTWsacK0H2ZSSYs5hjKeu
-         r2tn+j1OfZvIAhvHK2rihRELUQKJJHZhirDy410DoF8gYDtULi7WbJKlBfdhuvamn9
-         EwPO2o3OMIMoJYtv/XMX82zd2oFXQkPK/w1dMWzQ=
-Subject: FAILED: patch "[PATCH] drm/i915: Fix negative value passed as remaining time" failed to apply to 5.15-stable tree
+        b=sixFWrtcBzzzdl7a9EkiU9mX5vk8sOSoMnoWeNtHWwKXjz6hFma0/uM6W8UzKU9u2
+         +KA+PPaq56nmbn5wq/+vMK/9Geu9IxMpBs3lS1etawRqh3RRGE7EIMwa+RcA/nKnqJ
+         N+fRZYy4aoqUnul1/hvSctE3fupgu0XwlUZRnyqw=
+Subject: FAILED: patch "[PATCH] drm/i915: Never return 0 if not all requests retired" failed to apply to 6.1-stable tree
 To:     janusz.krzysztofik@linux.intel.com, andrzej.hajda@intel.com,
         rodrigo.vivi@intel.com, tvrtko.ursulin@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:39:07 +0100
-Message-ID: <167284314791250@kroah.com>
+Date:   Wed, 04 Jan 2023 15:39:11 +0100
+Message-ID: <167284315141137@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,14 +48,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-6a5347293992 ("drm/i915: Fix negative value passed as remaining time")
+35aba5f51a39 ("drm/i915: Never return 0 if not all requests retired")
 
 thanks,
 
@@ -63,63 +63,45 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6a5347293992e0412bc748dae11228a7081393fa Mon Sep 17 00:00:00 2001
+From 35aba5f51a39fb95351844ffb14ec02b8970e19f Mon Sep 17 00:00:00 2001
 From: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-Date: Mon, 21 Nov 2022 15:56:54 +0100
-Subject: [PATCH] drm/i915: Fix negative value passed as remaining time
+Date: Mon, 21 Nov 2022 15:56:55 +0100
+Subject: [PATCH] drm/i915: Never return 0 if not all requests retired
 
-Commit b97060a99b01 ("drm/i915/guc: Update intel_gt_wait_for_idle to work
-with GuC") extended the API of intel_gt_retire_requests_timeout() with an
-extra argument 'remaining_timeout', intended for passing back unconsumed
-portion of requested timeout when 0 (success) is returned.  However, when
-request retirement happens to succeed despite an error returned by a call
-to dma_fence_wait_timeout(), that error code (a negative value) is passed
-back instead of remaining time.  If we then pass that negative value
-forward as requested timeout to intel_uc_wait_for_idle(), an explicit BUG
-will be triggered.
+Users of intel_gt_retire_requests_timeout() expect 0 return value on
+success.  However, we have no protection from passing back 0 potentially
+returned by a call to dma_fence_wait_timeout() when it succedes right
+after its timeout has expired.
 
-If request retirement succeeds but an error code is passed back via
-remaininig_timeout, we may have no clue on how much of the initial timeout
-might have been left for spending it on waiting for GuC to become idle.
-OTOH, since all pending requests have been successfully retired, that
-error code has been already ignored by intel_gt_retire_requests_timeout(),
-then we shouldn't fail.
+Replace 0 with -ETIME before potentially using the timeout value as return
+code, so -ETIME is returned if there are still some requests not retired
+after timeout, 0 otherwise.
 
-Assume no more time has been left on error and pass 0 timeout value to
-intel_uc_wait_for_idle() to give it a chance to return success if GuC is
-already idle.
+v3: Use conditional expression, more compact but also better reflecting
+    intention standing behind the change.
 
-v3: Don't fail on any error passed back via remaining_timeout.
+v2: Move the added lines down so flush_submission() is not affected.
 
-v2: Fix the issue on the caller side, not the provider.
-
-Fixes: b97060a99b01 ("drm/i915/guc: Update intel_gt_wait_for_idle to work with GuC")
+Fixes: f33a8a51602c ("drm/i915: Merge wait_for_timelines with retire_request")
 Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-Cc: stable@vger.kernel.org # v5.15+
 Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Cc: stable@vger.kernel.org # v5.5+
 Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221121145655.75141-2-janusz.krzysztofik@linux.intel.com
-(cherry picked from commit f235dbd5b768e238d365fd05d92de5a32abc1c1f)
+Link: https://patchwork.freedesktop.org/patch/msgid/20221121145655.75141-3-janusz.krzysztofik@linux.intel.com
+(cherry picked from commit f301a29f143760ce8d3d6b6a8436d45d3448cde6)
 Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_gt.c b/drivers/gpu/drm/i915/gt/intel_gt.c
-index b5ad9caa5537..7ef0edb2e37c 100644
---- a/drivers/gpu/drm/i915/gt/intel_gt.c
-+++ b/drivers/gpu/drm/i915/gt/intel_gt.c
-@@ -677,8 +677,13 @@ int intel_gt_wait_for_idle(struct intel_gt *gt, long timeout)
- 			return -EINTR;
- 	}
+diff --git a/drivers/gpu/drm/i915/gt/intel_gt_requests.c b/drivers/gpu/drm/i915/gt/intel_gt_requests.c
+index edb881d75630..1dfd01668c79 100644
+--- a/drivers/gpu/drm/i915/gt/intel_gt_requests.c
++++ b/drivers/gpu/drm/i915/gt/intel_gt_requests.c
+@@ -199,7 +199,7 @@ out_active:	spin_lock(&timelines->lock);
+ 	if (remaining_timeout)
+ 		*remaining_timeout = timeout;
  
--	return timeout ? timeout : intel_uc_wait_for_idle(&gt->uc,
--							  remaining_timeout);
-+	if (timeout)
-+		return timeout;
-+
-+	if (remaining_timeout < 0)
-+		remaining_timeout = 0;
-+
-+	return intel_uc_wait_for_idle(&gt->uc, remaining_timeout);
+-	return active_count ? timeout : 0;
++	return active_count ? timeout ?: -ETIME : 0;
  }
  
- int intel_gt_init(struct intel_gt *gt)
+ static void retire_work_handler(struct work_struct *work)
 
