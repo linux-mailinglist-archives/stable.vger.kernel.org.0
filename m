@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A66D65D561
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:18:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BD6A65D562
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:18:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234896AbjADOSB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:18:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43702 "EHLO
+        id S231220AbjADOSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:18:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233269AbjADOR5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:17:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 797DADFE1
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:17:56 -0800 (PST)
+        with ESMTP id S235012AbjADOSH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:18:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E227C17424
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:18:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 14D5261426
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:17:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07662C433EF;
-        Wed,  4 Jan 2023 14:17:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CE746172D
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:18:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EB52C433EF;
+        Wed,  4 Jan 2023 14:18:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672841875;
-        bh=WmS4jFmLAn56mc4DxcuXYSVhmti9wB2R8/CGEaX49aA=;
+        s=korg; t=1672841884;
+        bh=1tvsN8sN+RkachWYBMLM0bw/9tIB6Zln876vg6KPMPA=;
         h=Subject:To:Cc:From:Date:From;
-        b=rAGHXl8loYWKz9xrAe+rqBeA1CClp9aFPdzklZ1m//W0O6e+TQK6KT6tVmgyUVlHc
-         HhnhEQQTwYZGB9HJaXvZPMNs7xkF9knvHLLEDuGycl5E19jcEO/4lJdzAErMW3v6qu
-         LxmdDV3LWgKGIouw/3moFgKA/gENRF7ks8q8LM4M=
-Subject: FAILED: patch "[PATCH] drm/amdgpu: fix mmhub register base coding error" failed to apply to 5.10-stable tree
-To:     KevinYang.Wang@amd.com, Hawking.Zhang@amd.com,
-        alexander.deucher@amd.com, christian.koenig@amd.com
+        b=otvLV5zLHaJ6XfLjkUF2wAvb1FeGwYzIs7MqjTpKtwQ3prLZjtXPg+Nw4EqQaqG4f
+         2+AUxUUWqTToErDK9XD7O8myaV2jwtaoXULSC5q93DU1VtwIGynFH8VlVZiCNo+Lwk
+         lI6wbM8N0wnESxQ54ZlJXfpbpJeusgRgNsPDRWEA=
+Subject: FAILED: patch "[PATCH] drm/amdgpu/sdma_v4_0: turn off SDMA ring buffer in the s2idle" failed to apply to 6.1-stable tree
+To:     Prike.Liang@amd.com, alexander.deucher@amd.com,
+        mario.limonciello@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:17:48 +0100
-Message-ID: <167284186813525@kroah.com>
+Date:   Wed, 04 Jan 2023 15:18:01 +0100
+Message-ID: <1672841881235131@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -48,31 +48,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-347fafe0eb46 ("drm/amdgpu: fix mmhub register base coding error")
-10c4ad3ae025 ("drm/amdgpu: add mmhub v3_0_1 ip block")
-f40fc1916ce8 ("drm/amdgpu: split mmhub v3_0_2 callbacks from mmhub v3_0")
-9fa57397d933 ("drm/amdgpu: add mmhub v3_0_2 ip callback functions")
-1c2014da7785 ("drm/amdgpu: add gmc v11_0 ip block (v3)")
-98a0f8687e31 ("drm/amdgpu: add mmhub v3_0 ip block")
-2279b4e5967f ("drm/amdgpu: add gfxhub v3_0 ip block")
-8b0fb0e967c1 ("drm/amdgpu: Modify gfx block to fit for the unified ras block data and ops")
-9d0cb2c31891 ("drm/amdgpu/gfx9.0: convert to IP version checking")
-640ae42efb82 ("drm/amdgpu: Updated RAS infrastructure")
-3771449bc80f ("drm/amdgpu: Update RAS trigger error block support")
-a0a2f7bb2209 ("drm/amd/amdgpu: add mpio to ras block")
-3907c492184e ("drm/amdgpu: Add driver infrastructure for MCA RAS")
-893cf382c040 ("drm/amd/amdgpu: remove unnecessary RAS context field")
-198fbe15ce53 ("drm/amdgpu: fix the doorbell missing when in CGPG issue for renoir.")
-00e3a289d9e2 ("drm/amdgpu: add new helper for handling EEPROM i2c transfers")
-5a2ec861b8ae ("drm/amd/amdgpu/gfx_v9_4_2: Mark functions called by reference as static")
-9a91e5e0af5e ("Merge tag 'amd-drm-next-5.14-2021-05-21' of https://gitlab.freedesktop.org/agd5f/linux into drm-next")
+b35a2a12901c ("drm/amdgpu/sdma_v4_0: turn off SDMA ring buffer in the s2idle suspend")
 
 thanks,
 
@@ -80,87 +63,93 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 347fafe0eb46df941965c355c77ce480e4d49f1f Mon Sep 17 00:00:00 2001
-From: Yang Wang <KevinYang.Wang@amd.com>
-Date: Mon, 5 Dec 2022 21:16:26 +0800
-Subject: [PATCH] drm/amdgpu: fix mmhub register base coding error
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From b35a2a12901cd230309750777e3744fa0526543d Mon Sep 17 00:00:00 2001
+From: Prike Liang <Prike.Liang@amd.com>
+Date: Thu, 1 Dec 2022 11:17:31 +0800
+Subject: [PATCH] drm/amdgpu/sdma_v4_0: turn off SDMA ring buffer in the s2idle
+ suspend
 
-fix MMHUB register base coding error.
+In the SDMA s0ix save process requires to turn off SDMA ring buffer for
+avoiding the SDMA in-flight request, otherwise will suffer from SDMA page
+fault which causes by page request from in-flight SDMA ring accessing at
+SDMA restore phase.
 
-Fixes: ec6837591f992 ("drm/amdgpu/gmc10: program the smallK fragment size")
-
-Signed-off-by: Yang Wang <KevinYang.Wang@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
+Link: https://gitlab.freedesktop.org/drm/amd/-/issues/2248
+Cc: stable@vger.kernel.org # 6.0,5.15+
+Fixes: f8f4e2a51834 ("drm/amdgpu: skipping SDMA hw_init and hw_fini for S0ix.")
+Signed-off-by: Prike Liang <Prike.Liang@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Tested-by: Mario Limonciello <mario.limonciello@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/mmhub_v2_0.c b/drivers/gpu/drm/amd/amdgpu/mmhub_v2_0.c
-index 998b5d17b271..0e664d0cc8d5 100644
---- a/drivers/gpu/drm/amd/amdgpu/mmhub_v2_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v2_0.c
-@@ -319,7 +319,7 @@ static void mmhub_v2_0_init_cache_regs(struct amdgpu_device *adev)
+diff --git a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
+index 1122bd4eae98..4d780e4430e7 100644
+--- a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
+@@ -907,13 +907,13 @@ static void sdma_v4_0_ring_emit_fence(struct amdgpu_ring *ring, u64 addr, u64 se
  
- 	tmp = mmMMVM_L2_CNTL5_DEFAULT;
- 	tmp = REG_SET_FIELD(tmp, MMVM_L2_CNTL5, L2_CACHE_SMALLK_FRAGMENT_SIZE, 0);
--	WREG32_SOC15(GC, 0, mmMMVM_L2_CNTL5, tmp);
-+	WREG32_SOC15(MMHUB, 0, mmMMVM_L2_CNTL5, tmp);
+ 
+ /**
+- * sdma_v4_0_gfx_stop - stop the gfx async dma engines
++ * sdma_v4_0_gfx_enable - enable the gfx async dma engines
+  *
+  * @adev: amdgpu_device pointer
+- *
+- * Stop the gfx async dma ring buffers (VEGA10).
++ * @enable: enable SDMA RB/IB
++ * control the gfx async dma ring buffers (VEGA10).
+  */
+-static void sdma_v4_0_gfx_stop(struct amdgpu_device *adev)
++static void sdma_v4_0_gfx_enable(struct amdgpu_device *adev, bool enable)
+ {
+ 	u32 rb_cntl, ib_cntl;
+ 	int i;
+@@ -922,10 +922,10 @@ static void sdma_v4_0_gfx_stop(struct amdgpu_device *adev)
+ 
+ 	for (i = 0; i < adev->sdma.num_instances; i++) {
+ 		rb_cntl = RREG32_SDMA(i, mmSDMA0_GFX_RB_CNTL);
+-		rb_cntl = REG_SET_FIELD(rb_cntl, SDMA0_GFX_RB_CNTL, RB_ENABLE, 0);
++		rb_cntl = REG_SET_FIELD(rb_cntl, SDMA0_GFX_RB_CNTL, RB_ENABLE, enable ? 1 : 0);
+ 		WREG32_SDMA(i, mmSDMA0_GFX_RB_CNTL, rb_cntl);
+ 		ib_cntl = RREG32_SDMA(i, mmSDMA0_GFX_IB_CNTL);
+-		ib_cntl = REG_SET_FIELD(ib_cntl, SDMA0_GFX_IB_CNTL, IB_ENABLE, 0);
++		ib_cntl = REG_SET_FIELD(ib_cntl, SDMA0_GFX_IB_CNTL, IB_ENABLE, enable ? 1 : 0);
+ 		WREG32_SDMA(i, mmSDMA0_GFX_IB_CNTL, ib_cntl);
+ 	}
  }
+@@ -1044,7 +1044,7 @@ static void sdma_v4_0_enable(struct amdgpu_device *adev, bool enable)
+ 	int i;
  
- static void mmhub_v2_0_enable_system_domain(struct amdgpu_device *adev)
-diff --git a/drivers/gpu/drm/amd/amdgpu/mmhub_v2_3.c b/drivers/gpu/drm/amd/amdgpu/mmhub_v2_3.c
-index 1b027d069ab4..4638ea7c2eec 100644
---- a/drivers/gpu/drm/amd/amdgpu/mmhub_v2_3.c
-+++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v2_3.c
-@@ -243,7 +243,7 @@ static void mmhub_v2_3_init_cache_regs(struct amdgpu_device *adev)
+ 	if (!enable) {
+-		sdma_v4_0_gfx_stop(adev);
++		sdma_v4_0_gfx_enable(adev, enable);
+ 		sdma_v4_0_rlc_stop(adev);
+ 		if (adev->sdma.has_page_queue)
+ 			sdma_v4_0_page_stop(adev);
+@@ -1960,8 +1960,10 @@ static int sdma_v4_0_suspend(void *handle)
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
  
- 	tmp = mmMMVM_L2_CNTL5_DEFAULT;
- 	tmp = REG_SET_FIELD(tmp, MMVM_L2_CNTL5, L2_CACHE_SMALLK_FRAGMENT_SIZE, 0);
--	WREG32_SOC15(GC, 0, mmMMVM_L2_CNTL5, tmp);
-+	WREG32_SOC15(MMHUB, 0, mmMMVM_L2_CNTL5, tmp);
+ 	/* SMU saves SDMA state for us */
+-	if (adev->in_s0ix)
++	if (adev->in_s0ix) {
++		sdma_v4_0_gfx_enable(adev, false);
+ 		return 0;
++	}
+ 
+ 	return sdma_v4_0_hw_fini(adev);
  }
+@@ -1971,8 +1973,12 @@ static int sdma_v4_0_resume(void *handle)
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
  
- static void mmhub_v2_3_enable_system_domain(struct amdgpu_device *adev)
-diff --git a/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0.c b/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0.c
-index a1d26c4d80b8..16cc82215e2e 100644
---- a/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0.c
-@@ -275,7 +275,7 @@ static void mmhub_v3_0_init_cache_regs(struct amdgpu_device *adev)
+ 	/* SMU restores SDMA state for us */
+-	if (adev->in_s0ix)
++	if (adev->in_s0ix) {
++		sdma_v4_0_enable(adev, true);
++		sdma_v4_0_gfx_enable(adev, true);
++		amdgpu_ttm_set_buffer_funcs_status(adev, true);
+ 		return 0;
++	}
  
- 	tmp = regMMVM_L2_CNTL5_DEFAULT;
- 	tmp = REG_SET_FIELD(tmp, MMVM_L2_CNTL5, L2_CACHE_SMALLK_FRAGMENT_SIZE, 0);
--	WREG32_SOC15(GC, 0, regMMVM_L2_CNTL5, tmp);
-+	WREG32_SOC15(MMHUB, 0, regMMVM_L2_CNTL5, tmp);
+ 	return sdma_v4_0_hw_init(adev);
  }
- 
- static void mmhub_v3_0_enable_system_domain(struct amdgpu_device *adev)
-diff --git a/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_1.c b/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_1.c
-index e8058edc1d10..6bdf2ef0298d 100644
---- a/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_1.c
-+++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_1.c
-@@ -269,7 +269,7 @@ static void mmhub_v3_0_1_init_cache_regs(struct amdgpu_device *adev)
- 
- 	tmp = regMMVM_L2_CNTL5_DEFAULT;
- 	tmp = REG_SET_FIELD(tmp, MMVM_L2_CNTL5, L2_CACHE_SMALLK_FRAGMENT_SIZE, 0);
--	WREG32_SOC15(GC, 0, regMMVM_L2_CNTL5, tmp);
-+	WREG32_SOC15(MMHUB, 0, regMMVM_L2_CNTL5, tmp);
- }
- 
- static void mmhub_v3_0_1_enable_system_domain(struct amdgpu_device *adev)
-diff --git a/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_2.c b/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_2.c
-index 770be0a8f7ce..45465acaa943 100644
---- a/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_2.c
-+++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_2.c
-@@ -268,7 +268,7 @@ static void mmhub_v3_0_2_init_cache_regs(struct amdgpu_device *adev)
- 
- 	tmp = regMMVM_L2_CNTL5_DEFAULT;
- 	tmp = REG_SET_FIELD(tmp, MMVM_L2_CNTL5, L2_CACHE_SMALLK_FRAGMENT_SIZE, 0);
--	WREG32_SOC15(GC, 0, regMMVM_L2_CNTL5, tmp);
-+	WREG32_SOC15(MMHUB, 0, regMMVM_L2_CNTL5, tmp);
- }
- 
- static void mmhub_v3_0_2_enable_system_domain(struct amdgpu_device *adev)
 
