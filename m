@@ -2,205 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B6DB65CEF5
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 10:03:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 313B065CF89
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 10:29:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233967AbjADJCj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 04:02:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57562 "EHLO
+        id S229658AbjADJ3g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 04:29:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238660AbjADJBg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 04:01:36 -0500
-Received: from mx1.tq-group.com (mx1.tq-group.com [93.104.207.81])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BFE4B1E;
-        Wed,  4 Jan 2023 01:00:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tq-group.com; i=@tq-group.com; q=dns/txt; s=key1;
-  t=1672822849; x=1704358849;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=+sboQuLLf8L8vEbmebrmtcbyrXlcTdugHxJikNm8Nas=;
-  b=UchXKTskI8XRyYGWphksix3qJD0sItDJbGlDWZv6vYC0Ar15iQIu/PNY
-   AUUrNEypVt/IFvUr6Dof9RUgF14Y0IEjBK4H5MZdXd4EvVhossxUigGUQ
-   OakS2UWyIJZ4wYCa1PwTkiziVuSzDicrhV52XVYyTpA69GRkMUciyABUF
-   8byFo1b83lyvnZQLp7lfYsHPevkFFC9C2fix58vrVS5RLq/59PQJkrqdC
-   RMjdRwyoZr3BfrhLIfxGWtZjf2zKo0Ba0VXshiddN9lvNG1NXAm2QIX5p
-   FcRnHAam8JACUeSJKuRSaZ28Ha0XSwiIjYjzYE0Xairpalzy6sSs1S3PA
-   g==;
-X-IronPort-AV: E=Sophos;i="5.96,299,1665439200"; 
-   d="scan'208";a="28235618"
-Received: from unknown (HELO tq-pgp-pr1.tq-net.de) ([192.168.6.15])
-  by mx1-pgp.tq-group.com with ESMTP; 04 Jan 2023 10:00:46 +0100
-Received: from mx1.tq-group.com ([192.168.6.7])
-  by tq-pgp-pr1.tq-net.de (PGP Universal service);
-  Wed, 04 Jan 2023 10:00:46 +0100
-X-PGP-Universal: processed;
-        by tq-pgp-pr1.tq-net.de on Wed, 04 Jan 2023 10:00:46 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tq-group.com; i=@tq-group.com; q=dns/txt; s=key1;
-  t=1672822846; x=1704358846;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=+sboQuLLf8L8vEbmebrmtcbyrXlcTdugHxJikNm8Nas=;
-  b=bEOldYHQoFwbGIPMPbW0sb5HKcXfH182EsXQrP6Bw8EF9XFCI7Y77XR6
-   4eDtYxn56+hlLC5dNR5Nyjt/4iwoXrsjYwDAoMXtaFfZWDiBfkwNTuYtY
-   29NkQiXj+asc8iCrzdejPX6+1kgSTvtIJcKygcxE04b6Q7/Zvl46Fp6Th
-   R4y6+/gMVm8Cs6cUBdb2/uuy73zFNEA27tgZybqxe7H6DAB7x7qAl64pY
-   VzlexG5Zlmz1DSEEbcVxFdpL/GonqxcKt1omZPqBPwhc5+tphw+eLmhB8
-   LZ1a3/zHk/83K4DcUVEYIELNHsHoH6hU69GBsEEQjO1X7dgmYIIFSO9Mi
-   g==;
-X-IronPort-AV: E=Sophos;i="5.96,299,1665439200"; 
-   d="scan'208";a="28235617"
-Received: from vtuxmail01.tq-net.de ([10.115.0.20])
-  by mx1.tq-group.com with ESMTP; 04 Jan 2023 10:00:45 +0100
-Received: from steina-w.localnet (unknown [10.123.53.21])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        with ESMTP id S233634AbjADJ3e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 04:29:34 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E818F12D3A
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 01:29:33 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by vtuxmail01.tq-net.de (Postfix) with ESMTPSA id 9DF8D280056;
-        Wed,  4 Jan 2023 10:00:45 +0100 (CET)
-From:   Alexander Stein <alexander.stein@ew.tq-group.com>
-To:     Doug Anderson <dianders@chromium.org>,
-        Matthias Kaehlcke <mka@chromium.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-        Stefan Wahren <stefan.wahren@i2se.com>, stable@vger.kernel.org,
-        Ravi Chandra Sadineni <ravisadineni@chromium.org>,
-        Icenowy Zheng <uwu@icenowy.me>
-Subject: Re: [PATCH v2 1/2] usb: misc: onboard_usb_hub: Don't create platform devices for DT nodes without 'vdd-supply'
-Date:   Wed, 04 Jan 2023 10:00:43 +0100
-Message-ID: <10807929.5MRjnR8RnV@steina-w>
-Organization: TQ-Systems GmbH
-In-Reply-To: <Y7Rh+EkKKN5Gu8sz@google.com>
-References: <20221222022605.v2.1.If5e7ec83b1782e4dffa6ea759416a27326c8231d@changeid> <CAD=FV=XNxZ3iDYAAqKWqDVLihJ63Du4L7kDdKO55avR9nghc5A@mail.gmail.com> <Y7Rh+EkKKN5Gu8sz@google.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 44F744661;
+        Wed,  4 Jan 2023 09:29:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1672824572; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=zLmQmkQw6xubYTIzbi2meMNuyRMOlcASYbgGa0RZR8w=;
+        b=adGwzGh4O41Qplflej3jD60cgOz57shgKr7CpG0p4gzdqj6oJx+G9A4E4IPKX8BU8HpYrB
+        zPbr/JOMlxvKmmYA1h2Q9VHqJgKqvfLKkngig4VlCMuwuK6nkn4fsIJ75/mrjaI3M0+l2W
+        YT/M0slP7I0WrBrNHp9eQ2vqdI4HuP8=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1672824572;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=zLmQmkQw6xubYTIzbi2meMNuyRMOlcASYbgGa0RZR8w=;
+        b=qNcqXbUd1hjSqcOqF3GauoQAWNDgO7Xx+FFdJllkD6w8ovDKXhHWcUTCNrmlIIcyNF+6Ba
+        8iYtmPg7bPME6EBA==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 1A451133D1;
+        Wed,  4 Jan 2023 09:29:32 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id 82RpBfxGtWPCOQAAMHmgww
+        (envelope-from <tiwai@suse.de>); Wed, 04 Jan 2023 09:29:32 +0000
+Date:   Wed, 04 Jan 2023 10:29:31 +0100
+Message-ID: <874jt6ps04.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     waldek andrukiewicz <waldek.andrukiewicz@protonmail.com>
+Cc:     stable@vger.kernel.org, regressions@lists.linux.dev, tiwai@suse.de,
+        Stefan Binding <sbinding@opensource.cirrus.com>,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Lucas Tanure <tanureal@opensource.cirrus.com>
+Subject: Re: i2c-CLSA0100:00-cs35l41-hda.1: System Suspend not supported
+In-Reply-To: <4262e3c4-6169-bbd2-e918-16b06f6994bc@protonmail.com>
+References: <4262e3c4-6169-bbd2-e918-16b06f6994bc@protonmail.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/27.2 Mule/6.0
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Matthias,
+[ adding Cirrus people to Cc ]
 
-Am Dienstag, 3. Januar 2023, 18:12:24 CET schrieb Matthias Kaehlcke:
-> On Thu, Dec 22, 2022 at 11:26:26AM -0800, Doug Anderson wrote:
-> > Hi,
-> > 
-> > On Wed, Dec 21, 2022 at 6:26 PM Matthias Kaehlcke <mka@chromium.org> 
-wrote:
-> > > The primary task of the onboard_usb_hub driver is to control the
-> > > power of an onboard USB hub. The driver gets the regulator from the
-> > > device tree property "vdd-supply" of the hub's DT node. Some boards
-> > > have device tree nodes for USB hubs supported by this driver, but
-> > > don't specify a "vdd-supply". This is not an error per se, it just
-> > > means that the onboard hub driver can't be used for these hubs, so
-> > > don't create platform devices for such nodes.
-> > > 
-> > > This change doesn't completely fix the reported regression. It
-> > > should fix it for the RPi 3 B Plus and boards with similar hub
-> > > configurations (compatible DT nodes without "vdd-supply"), boards
-> > > that actually use the onboard hub driver could still be impacted
-> > > by the race conditions discussed in that thread. Not creating the
-> > > platform devices for nodes without "vdd-supply" is the right
-> > > thing to do, independently from the race condition, which will
-> > > be fixed in future patch.
-> > > 
-> > > Fixes: 8bc063641ceb ("usb: misc: Add onboard_usb_hub driver")
-> > > Link:
-> > > https://lore.kernel.org/r/d04bcc45-3471-4417-b30b-5cf9880d785d@i2se.com
-> > > / Reported-by: Stefan Wahren <stefan.wahren@i2se.com>
-> > > Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
-> > > ---
-> > > 
-> > > Changes in v2:
-> > > - don't create platform devices when "vdd-supply" is missing,
-> > > 
-> > >   rather than returning an error from _find_onboard_hub()
-> > > 
-> > > - check for "vdd-supply" not "vdd" (Johan)
-> > > - updated subject and commit message
-> > > - added 'Link' tag (regzbot)
-> > > 
-> > >  drivers/usb/misc/onboard_usb_hub_pdevs.c | 13 +++++++++++++
-> > >  1 file changed, 13 insertions(+)
-> > 
-> > I'm a tad bit skeptical.
-> > 
-> > It somehow feels a bit too much like "inside knowledge" to add this
-> > here. I guess the "onboard_usb_hub_pdevs.c" is already pretty
-> > entangled with "onboard_usb_hub.c", but I'd rather the "pdevs" file
-> > keep the absolute minimum amount of stuff in it and all of the details
-> > be in the other file.
-> > 
-> > If this was the only issue though, I'd be tempted to let it slide. As
-> > it is, I'm kinda worried that your patch will break Alexander Stein,
-> > who should have been CCed (I've CCed him now) or Icenowy Zheng (also
-> > CCed now). I believe those folks are using the USB hub driver
-> > primarily to drive a reset GPIO. Looking at the example in the
-> > bindings for one of them (genesys,gl850g.yaml), I even see that the
-> > reset-gpio is specified but not a vdd-supply. I think you'll break
-> > that?
+On Tue, 03 Jan 2023 21:39:42 +0100,
+waldek andrukiewicz wrote:
 > 
-> Thanks for pointing that out. My assumption was that the regulator is
-> needed for the driver to do anything useful, but you are right, the
-> reset GPIO alone could be used in combination with an always-on regulator
-> to 'switch the hub on and off'.
+> Hello,
 > 
-> > In general, it feels like it should actually be fine to create the USB
-> > hub driver even if vdd isn't supplied. Sure, it won't do a lot, but it
-> > shouldn't actively hurt anything. You'll just be turning off and on
-> > bogus regulators and burning a few CPU cycles. I guess the problem is
-> > some race condition that you talk about in the commit message. I'd
-> > rather see that fixed...
+> I am running Manjaro, after upgrading from kernel 6.0.15 to 6.1.1 (
+> https://gitlab.manjaro.org/packages/core/linux61) I have noticed that suspend
+> stopped working, what I can see in the logs is the following issue which IMO
+> points to cs35l41
 > 
-> Yes, the race conditions needs to be fixed as well, I didn't have enough
-> time to write and test a patch before taking a longer break for the
-> holidays, so I only sent out this (supposed) partial mitigation.
+> Machine:
+>   Type: Laptop System: LENOVO product: 82N6 v: Legion 7 16ACHg6
 > 
-> > That being said, if we want to be more efficient and not burn CPU cycles
-> > and memory in Stefan Wahren's case, maybe the USB hub driver itself could
-> > return a canonical error value from its probe when it detects that it has
-> > no useful job and then "onboard_usb_hub_pdevs" could just silently bail
-> > out?
+> journalctl output below:
 > 
-> _probe() could return an error, however onboard_hub_create_pdevs() can't
-> rely on that, since the actual onboard_hub driver might not have been
-> loaded yet when the function is called.
-> 
-> It would be nice not to instantiate the pdev and onboard_hub USB instances
-> if the DT node has neither a 'vdd-supply' nor 'reset-gpios'. If we aren't
-> ok with doing that in onboard_hub_create_pdevs() then at least the 'raw'
-> platform device would be created. onboard_hub_probe() could still
-> bail if both properties are absent, _find_onboard_hub() would have to
-> check it again to avoid the deferred probing 'loop' for the USB instances.
+> Jan 02 21:52:54 legion16 systemd[1]: Starting System Suspend...
+> Jan 02 21:52:54 legion16 wpa_supplicant[1193]: wlp4s0: CTRL-EVENT-DSCP-POLICY
+> clear_all
+> Jan 02 21:52:54 legion16 systemd-sleep[2912]: Entering sleep state
+> 'suspend'...
+> Jan 02 21:52:54 legion16 kernel: PM: suspend entry (deep)
+> Jan 02 21:52:54 legion16 kernel: Filesystems sync: 0.008 seconds
+> Jan 02 21:52:54 legion16 wpa_supplicant[1193]: wlp4s0: CTRL-EVENT-DSCP-POLICY
+> clear_all
+> Jan 02 21:52:54 legion16 wpa_supplicant[1193]: nl80211: deinit ifname=wlp4s0
+> disabled_11b_rates=0
+> Jan 02 21:52:54 legion16 plasmashell[1770]: qml: [DEBUG] - onNewData
+> Jan 02 21:52:54 legion16 kernel: Freezing user space processes ... (elapsed
+> 0.002 seconds) done.
+> Jan 02 21:52:54 legion16 kernel: OOM killer disabled.
+> Jan 02 21:52:54 legion16 kernel: Freezing remaining freezable tasks ...
+> (elapsed 0.001 seconds) done.
+> Jan 02 21:52:54 legion16 kernel: printk: Suspending console(s) (use
+> no_console_suspend to debug)
+> Jan 02 21:52:54 legion16 kernel: cs35l41-hda i2c-CLSA0100:00-cs35l41-hda.1:
+> System Suspend not supported
+> Jan 02 21:52:54 legion16 kernel: cs35l41-hda i2c-CLSA0100:00-cs35l41-hda.0:
+> System Suspend not supported
+> Jan 02 21:52:54 legion16 kernel: cs35l41-hda i2c-CLSA0100:00-cs35l41-hda.1:
+> PM: dpm_run_callback(): cs35l41_system_suspend+0x0/0xd0
+> [snd_hda_scodec_cs35l41] returns -22
 
-I'm not really fond of checking for optional features like 'vdd-supply' and 
-'reset-gpios'. This issue will pop up again if some new optional feature is 
-added again, e.g. power-domains.
+Indeed the suspend isn't supported for this chip wrt the specific
+model/config, but it's a bad behavior to block the whole system
+suspend due to that.
 
-> Alternatively we could 'just' fix the race condition involving the 'attach
-> work' and the onboard_hub driver is fully instantiated even on (certain)
-> boards where it does nothing. It's relatively rare that USB hub nodes are
-> specified in the DT (unless the intention is to use this driver) and
-> CONFIG_USB_ONBOARD_HUB needs to be set for the instances to be created,
-> so maybe creating the useless instances is not such a big deal.
-
-IMHO creating a pdev shouldn't harm in any case. It's similar to having a DT 
-node without a corresponding driver enabled or even existing. Also adding USB 
-devices to DT is something which is to be expected. usb-device.yaml exists 
-since 2020 and the txt version since 2016.
-Unfortunately I'm not able to reproduce this issue on a different platform 
-where the same HUB but no reset-gpios is required. I also noticed that 
-onboard-usb-hub raises the error
-> Failed to attach USB driver: -22
-for each hub it is supposed to support.
-
-Best regards,
-Alexander
+Could you try the patch below?
 
 
+Takashi
 
+-- 8< --
+diff --git a/sound/pci/hda/cs35l41_hda.c b/sound/pci/hda/cs35l41_hda.c
+index 91842c0c8c74..6322157c7ea2 100644
+--- a/sound/pci/hda/cs35l41_hda.c
++++ b/sound/pci/hda/cs35l41_hda.c
+@@ -598,8 +598,8 @@ static int cs35l41_system_suspend(struct device *dev)
+ 	dev_dbg(cs35l41->dev, "System Suspend\n");
+ 
+ 	if (cs35l41->hw_cfg.bst_type == CS35L41_EXT_BOOST_NO_VSPK_SWITCH) {
+-		dev_err(cs35l41->dev, "System Suspend not supported\n");
+-		return -EINVAL;
++		dev_err_once(cs35l41->dev, "System Suspend not supported\n");
++		return 0; /* don't block the whole system suspend */
+ 	}
+ 
+ 	ret = pm_runtime_force_suspend(dev);
+@@ -624,8 +624,8 @@ static int cs35l41_system_resume(struct device *dev)
+ 	dev_dbg(cs35l41->dev, "System Resume\n");
+ 
+ 	if (cs35l41->hw_cfg.bst_type == CS35L41_EXT_BOOST_NO_VSPK_SWITCH) {
+-		dev_err(cs35l41->dev, "System Resume not supported\n");
+-		return -EINVAL;
++		dev_err_once(cs35l41->dev, "System Resume not supported\n");
++		return 0; /* don't block the whole system resume */
+ 	}
+ 
+ 	if (cs35l41->reset_gpio) {
+@@ -647,6 +647,15 @@ static int cs35l41_system_resume(struct device *dev)
+ 	return ret;
+ }
+ 
++static int cs35l41_runtime_idle(struct device *dev)
++{
++	struct cs35l41_hda *cs35l41 = dev_get_drvdata(dev);
++
++	if (cs35l41->hw_cfg.bst_type == CS35L41_EXT_BOOST_NO_VSPK_SWITCH)
++		return -EBUSY; /* suspend not supported yet on this model */
++	return 0;
++}
++
+ static int cs35l41_runtime_suspend(struct device *dev)
+ {
+ 	struct cs35l41_hda *cs35l41 = dev_get_drvdata(dev);
+@@ -1536,7 +1545,8 @@ void cs35l41_hda_remove(struct device *dev)
+ EXPORT_SYMBOL_NS_GPL(cs35l41_hda_remove, SND_HDA_SCODEC_CS35L41);
+ 
+ const struct dev_pm_ops cs35l41_hda_pm_ops = {
+-	RUNTIME_PM_OPS(cs35l41_runtime_suspend, cs35l41_runtime_resume, NULL)
++	RUNTIME_PM_OPS(cs35l41_runtime_suspend, cs35l41_runtime_resume,
++		       cs35l41_runtime_idle)
+ 	SYSTEM_SLEEP_PM_OPS(cs35l41_system_suspend, cs35l41_system_resume)
+ };
+ EXPORT_SYMBOL_NS_GPL(cs35l41_hda_pm_ops, SND_HDA_SCODEC_CS35L41);
