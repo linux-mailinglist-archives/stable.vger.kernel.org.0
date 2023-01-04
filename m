@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86CFB65D478
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:39:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E549565D47B
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:39:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239586AbjADNjO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 08:39:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43416 "EHLO
+        id S236983AbjADNjY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 08:39:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239593AbjADNiz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:38:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A356039FAB
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:38:35 -0800 (PST)
+        with ESMTP id S239444AbjADNjD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:39:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C64473AA9B
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:38:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 39D9D61718
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:38:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44F95C433EF;
-        Wed,  4 Jan 2023 13:38:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C74B6173A
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:38:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D77AC433EF;
+        Wed,  4 Jan 2023 13:38:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672839514;
-        bh=4YeEyoSHObZZRwtoIp0AN2cYD5AarniZY8QwtLo9OS8=;
+        s=korg; t=1672839517;
+        bh=tZAnqCxSIJJge6qH0ecooiROY/+UOGNHozolFcnxl3I=;
         h=Subject:To:Cc:From:Date:From;
-        b=0tc0terqSLob4U9QD+VR1Eu96HwW1AHDKi1faXMRWxnyf+WQcvH3n5/tUYBpDub73
-         quCdESKMOgf7ZfiUh+ON56FC9NmyBS+DXwRtogtvzQbi+oGDNvSvR+YQoj4POVHQ4V
-         RYQ3PyS44pRO86SEGccfRzrq9uoTIc+zdCs+aOWc=
-Subject: FAILED: patch "[PATCH] dm thin: Fix ABBA deadlock between shrink_slab and" failed to apply to 4.14-stable tree
+        b=dzdvQRoVopltKcl6hGupOxZ4FoWMlRpIl5ug6CAdZ5x7qbraHN4+rtDWnvIGirgbB
+         OnxRTnRer8n1Za+K7SE3Os15GhPVvpIRjpkh6nXML7JZb/678dw/kstrxfILa3b9hM
+         iE+XRVZILX9caifqm/J4GEdQGhdW2Iqqa3hP663s=
+Subject: FAILED: patch "[PATCH] dm thin: Fix ABBA deadlock between shrink_slab and" failed to apply to 4.9-stable tree
 To:     chengzhihao1@huawei.com, snitzer@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 14:38:28 +0100
-Message-ID: <1672839508205248@kroah.com>
+Date:   Wed, 04 Jan 2023 14:38:31 +0100
+Message-ID: <1672839511162237@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
