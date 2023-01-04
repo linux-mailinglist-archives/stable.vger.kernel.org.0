@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 065AF65D886
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:15:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B88465D902
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:21:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235044AbjADQPt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:15:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37284 "EHLO
+        id S239726AbjADQU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:20:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239873AbjADQPc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:15:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57F7E41D6E
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:15:00 -0800 (PST)
+        with ESMTP id S240019AbjADQUf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:20:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8C214085C
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:20:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E8ADF6179F
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:14:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF04DC433EF;
-        Wed,  4 Jan 2023 16:14:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 85E826177C
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:20:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C619C433F1;
+        Wed,  4 Jan 2023 16:20:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848899;
-        bh=0useKWpyImj+WHY1FQveRtjKY2RsJ9XqUU9nAGf6Ni8=;
+        s=korg; t=1672849232;
+        bh=NpikpQ4WBtG8GmND8ZsT5TXjYWIQWudVDbuWGY39mlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HLi7JPP1PX8WfXMZMsDaj8DUhUmM/BM2oE1P4Vpy6IDAxOmUMNAQr/6fbMiayRuhL
-         2QjUwc84qkx2lUKU34xT1mDn3j3vwE7ZYozwmBEJgo4T00srSpHRwRMP6++5wfY85O
-         ujvikckTqpbfIdFrCQC02JAvq6jbaw+XKD53KKa8=
+        b=uKT2tRm/z+cxxU+qUqBxXpb0+9ZA8NGkLnOPQWJbrP08rpsDBer2i/XIMjadA/zzb
+         +yId/+5CM+nvz5KVone8N6JZMeIIMYKZ7eI5ZU6Br+GkYHzqw7bMXDFTyRgD0MqAbP
+         QvLNh1zUQbKx7YFI/ONmTctN7ThzxXmfWKGYwZzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wenwen Wang <wenwen@cs.uga.edu>,
-        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 6.1 101/207] media: dvb-core: Fix double free in dvb_register_device()
+        patches@lists.linux.dev, Michael Jeanson <mjeanson@efficios.com>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 6.0 068/177] powerpc/ftrace: fix syscall tracing on PPC64_ELF_ABI_V1
 Date:   Wed,  4 Jan 2023 17:05:59 +0100
-Message-Id: <20230104160515.116292303@linuxfoundation.org>
+Message-Id: <20230104160509.719115072@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +53,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+From: Michael Jeanson <mjeanson@efficios.com>
 
-commit 6b0d0477fce747d4137aa65856318b55fba72198 upstream.
+commit ad050d2390fccb22aa3e6f65e11757ce7a5a7ca5 upstream.
 
-In function dvb_register_device() -> dvb_register_media_device() ->
-dvb_create_media_entity(), dvb->entity is allocated and initialized. If
-the initialization fails, it frees the dvb->entity, and return an error
-code. The caller takes the error code and handles the error by calling
-dvb_media_device_free(), which unregisters the entity and frees the
-field again if it is not NULL. As dvb->entity may not NULLed in
-dvb_create_media_entity() when the allocation of dvbdev->pad fails, a
-double free may occur. This may also cause an Use After free in
-media_device_unregister_entity().
+In v5.7 the powerpc syscall entry/exit logic was rewritten in C, on
+PPC64_ELF_ABI_V1 this resulted in the symbols in the syscall table
+changing from their dot prefixed variant to the non-prefixed ones.
 
-Fix this by storing NULL to dvb->entity when it is freed.
+Since ftrace prefixes a dot to the syscall names when matching them to
+build its syscall event list, this resulted in no syscall events being
+available.
 
-Link: https://lore.kernel.org/linux-media/20220426052921.2088416-1-keitasuzuki.park@sslab.ics.keio.ac.jp
-Fixes: fcd5ce4b3936 ("media: dvb-core: fix a memory leak bug")
-Cc: stable@vger.kernel.org
-Cc: Wenwen Wang <wenwen@cs.uga.edu>
-Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Remove the PPC64_ELF_ABI_V1 specific version of
+arch_syscall_match_sym_name to have the same behavior across all powerpc
+variants.
+
+Fixes: 68b34588e202 ("powerpc/64/sycall: Implement syscall entry/exit logic in C")
+Cc: stable@vger.kernel.org # v5.7+
+Signed-off-by: Michael Jeanson <mjeanson@efficios.com>
+Reviewed-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20221201161442.2127231-1-mjeanson@efficios.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/dvb-core/dvbdev.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/include/asm/ftrace.h |   12 ------------
+ 1 file changed, 12 deletions(-)
 
---- a/drivers/media/dvb-core/dvbdev.c
-+++ b/drivers/media/dvb-core/dvbdev.c
-@@ -335,6 +335,7 @@ static int dvb_create_media_entity(struc
- 				       GFP_KERNEL);
- 		if (!dvbdev->pads) {
- 			kfree(dvbdev->entity);
-+			dvbdev->entity = NULL;
- 			return -ENOMEM;
- 		}
- 	}
+--- a/arch/powerpc/include/asm/ftrace.h
++++ b/arch/powerpc/include/asm/ftrace.h
+@@ -64,17 +64,6 @@ void ftrace_graph_func(unsigned long ip,
+  * those.
+  */
+ #define ARCH_HAS_SYSCALL_MATCH_SYM_NAME
+-#ifdef CONFIG_PPC64_ELF_ABI_V1
+-static inline bool arch_syscall_match_sym_name(const char *sym, const char *name)
+-{
+-	/* We need to skip past the initial dot, and the __se_sys alias */
+-	return !strcmp(sym + 1, name) ||
+-		(!strncmp(sym, ".__se_sys", 9) && !strcmp(sym + 6, name)) ||
+-		(!strncmp(sym, ".ppc_", 5) && !strcmp(sym + 5, name + 4)) ||
+-		(!strncmp(sym, ".ppc32_", 7) && !strcmp(sym + 7, name + 4)) ||
+-		(!strncmp(sym, ".ppc64_", 7) && !strcmp(sym + 7, name + 4));
+-}
+-#else
+ static inline bool arch_syscall_match_sym_name(const char *sym, const char *name)
+ {
+ 	return !strcmp(sym, name) ||
+@@ -83,7 +72,6 @@ static inline bool arch_syscall_match_sy
+ 		(!strncmp(sym, "ppc32_", 6) && !strcmp(sym + 6, name + 4)) ||
+ 		(!strncmp(sym, "ppc64_", 6) && !strcmp(sym + 6, name + 4));
+ }
+-#endif /* CONFIG_PPC64_ELF_ABI_V1 */
+ #endif /* CONFIG_FTRACE_SYSCALLS */
+ 
+ #if defined(CONFIG_PPC64) && defined(CONFIG_FUNCTION_TRACER)
+
+
+m_resets		= ARRAY_SIZE(msm8996_usb3phy_reset_l),
++	.vreg_list		= qmp_phy_vreg_l,
++	.num_vregs		= ARRAY_SIZE(qmp_phy_vreg_l),
++	.regs			= qmp_v3_usb3phy_regs_layout,
++
++	.dp_aux_init = qcom_qmp_v3_phy_dp_aux_init,
++	.configure_dp_tx = qcom_qmp_v3_phy_configure_dp_tx,
++	.configure_dp_phy = qcom_qmp_v3_phy_configure_dp_phy,
++	.calibrate_dp_phy = qcom_qmp_v3_dp_phy_calibrate,
++};
++
+ static const struct qmp_phy_combo_cfg sdm845_usb3dpphy_cfg = {
+ 	.usb_cfg                = &sdm845_usb3phy_cfg,
+-	.dp_cfg                 = &sc7180_dpphy_cfg,
++	.dp_cfg                 = &sdm845_dpphy_cfg,
+ };
+ 
+ static const struct qmp_phy_cfg sm8150_usb3phy_cfg = {
 
 
