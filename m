@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C98E65D878
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:15:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C07F665D8CB
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:18:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239743AbjADQP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:15:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37312 "EHLO
+        id S239920AbjADQS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:18:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239909AbjADQOw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:14:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6949B42E3B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:14:21 -0800 (PST)
+        with ESMTP id S239942AbjADQSQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:18:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F7F03D9CC
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:18:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0F256B81732
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:14:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68C76C433EF;
-        Wed,  4 Jan 2023 16:14:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E53DFB8172B
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:18:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32BFBC433EF;
+        Wed,  4 Jan 2023 16:18:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848858;
-        bh=CV18yt6KP10/AOJAnRMpI0N5HtEYXjfWrIE9WgC+1GY=;
+        s=korg; t=1672849092;
+        bh=kOMYvEwWYhhze7hNlLH028+FaICmx+4Iwg9FgWbVFno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rdf9QvFxtCDkkEsQiXXks2RnmwGIoCmgb5o7J75q4olC4wN3/YEZ9fADuuJiBcJqy
-         VwNQABPcmvho9ZTXxfs1M3XiD5KniMtcjD34zMlX3zJmw/UXIV+u7miXT+VuDcUwpc
-         Djd8eACdcLPRZc/XwapQxXONj2JGXsaIIEUZu0xE=
+        b=u5ym8MfBkL5H2NSJ0S/ZpPxH3m/m4fmR7sMuu6y822dXx4Ldb0OmntdBnD/XHBOiA
+         2gvt9q4a5gou+oZuD2+sxfJ6dNFnBHoXcQBknAfd0VmznGghrwTVLYrUsEV70xVCEI
+         b4Gbse5BuFREvEpmPNyRSxhCfiBLZYClUMBeStAw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, mhiramat@kernel.org, zanussi@kernel.org,
-        Zheng Yejian <zhengyejian1@huawei.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.1 095/207] tracing: Fix issue of missing one synthetic field
+        patches@lists.linux.dev, Aaron Lewis <aaronlewis@google.com>,
+        Yu Zhang <yu.c.zhang@linux.intel.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 6.0 062/177] KVM: nVMX: Properly expose ENABLE_USR_WAIT_PAUSE control to L1
 Date:   Wed,  4 Jan 2023 17:05:53 +0100
-Message-Id: <20230104160514.936833201@linuxfoundation.org>
+Message-Id: <20230104160509.536427669@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yejian <zhengyejian1@huawei.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit ff4837f7fe59ff018eca4705a70eca5e0b486b97 upstream.
+commit 31de69f4eea77b28a9724b3fa55aae104fc91fc7 upstream.
 
-The maximum number of synthetic fields supported is defined as
-SYNTH_FIELDS_MAX which value currently is 64, but it actually fails
-when try to generate a synthetic event with 64 fields by executing like:
+Set ENABLE_USR_WAIT_PAUSE in KVM's supported VMX MSR configuration if the
+feature is supported in hardware and enabled in KVM's base, non-nested
+configuration, i.e. expose ENABLE_USR_WAIT_PAUSE to L1 if it's supported.
+This fixes a bug where saving/restoring, i.e. migrating, a vCPU will fail
+if WAITPKG (the associated CPUID feature) is enabled for the vCPU, and
+obviously allows L1 to enable the feature for L2.
 
-  # echo "my_synth_event int v1; int v2; int v3; int v4; int v5; int v6;\
-   int v7; int v8; int v9; int v10; int v11; int v12; int v13; int v14;\
-   int v15; int v16; int v17; int v18; int v19; int v20; int v21; int v22;\
-   int v23; int v24; int v25; int v26; int v27; int v28; int v29; int v30;\
-   int v31; int v32; int v33; int v34; int v35; int v36; int v37; int v38;\
-   int v39; int v40; int v41; int v42; int v43; int v44; int v45; int v46;\
-   int v47; int v48; int v49; int v50; int v51; int v52; int v53; int v54;\
-   int v55; int v56; int v57; int v58; int v59; int v60; int v61; int v62;\
-   int v63; int v64" >> /sys/kernel/tracing/synthetic_events
+KVM already effectively exposes ENABLE_USR_WAIT_PAUSE to L1 by stuffing
+the allowed-1 control ina vCPU's virtual MSR_IA32_VMX_PROCBASED_CTLS2 when
+updating secondary controls in response to KVM_SET_CPUID(2), but (a) that
+depends on flawed code (KVM shouldn't touch VMX MSRs in response to CPUID
+updates) and (b) runs afoul of vmx_restore_control_msr()'s restriction
+that the guest value must be a strict subset of the supported host value.
 
-Correct the field counting to fix it.
+Although no past commit explicitly enabled nested support for WAITPKG,
+doing so is safe and functionally correct from an architectural
+perspective as no additional KVM support is needed to virtualize TPAUSE,
+UMONITOR, and UMWAIT for L2 relative to L1, and KVM already forwards
+VM-Exits to L1 as necessary (commit bf653b78f960, "KVM: vmx: Introduce
+handle_unexpected_vmexit and handle WAITPKG vmexit").
 
-Link: https://lore.kernel.org/linux-trace-kernel/20221207091557.3137904-1-zhengyejian1@huawei.com
+Note, KVM always keeps the hosts MSR_IA32_UMWAIT_CONTROL resident in
+hardware, i.e. always runs both L1 and L2 with the host's power management
+settings for TPAUSE and UMWAIT.  See commit bf09fb6cba4f ("KVM: VMX: Stop
+context switching MSR_IA32_UMWAIT_CONTROL") for more details.
 
-Cc: <mhiramat@kernel.org>
-Cc: <zanussi@kernel.org>
+Fixes: e69e72faa3a0 ("KVM: x86: Add support for user wait instructions")
 Cc: stable@vger.kernel.org
-Fixes: c9e759b1e845 ("tracing: Rework synthetic event command parsing")
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Reported-by: Aaron Lewis <aaronlewis@google.com>
+Reported-by: Yu Zhang <yu.c.zhang@linux.intel.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Message-Id: <20221213062306.667649-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_events_synth.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/vmx/nested.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/trace_events_synth.c
-+++ b/kernel/trace/trace_events_synth.c
-@@ -1282,12 +1282,12 @@ static int __create_synth_event(const ch
- 				goto err_free_arg;
- 			}
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -6685,7 +6685,8 @@ void nested_vmx_setup_ctls_msrs(struct n
+ 		SECONDARY_EXEC_ENABLE_INVPCID |
+ 		SECONDARY_EXEC_RDSEED_EXITING |
+ 		SECONDARY_EXEC_XSAVES |
+-		SECONDARY_EXEC_TSC_SCALING;
++		SECONDARY_EXEC_TSC_SCALING |
++		SECONDARY_EXEC_ENABLE_USR_WAIT_PAUSE;
  
--			fields[n_fields++] = field;
- 			if (n_fields == SYNTH_FIELDS_MAX) {
- 				synth_err(SYNTH_ERR_TOO_MANY_FIELDS, 0);
- 				ret = -EINVAL;
- 				goto err_free_arg;
- 			}
-+			fields[n_fields++] = field;
- 
- 			n_fields_this_loop++;
- 		}
+ 	/*
+ 	 * We can emulate "VMCS shadowing," even if the hardware
 
 
