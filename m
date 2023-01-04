@@ -2,53 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14A3B65D2F0
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:41:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3546365D2F4
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:43:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239233AbjADMla (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 07:41:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58594 "EHLO
+        id S239162AbjADMnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 07:43:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230249AbjADMl3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:41:29 -0500
+        with ESMTP id S234944AbjADMnu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:43:50 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A64417E1A;
-        Wed,  4 Jan 2023 04:41:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16623186CE;
+        Wed,  4 Jan 2023 04:43:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0A70DB81629;
-        Wed,  4 Jan 2023 12:41:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32396C433D2;
-        Wed,  4 Jan 2023 12:41:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B64D1B8162F;
+        Wed,  4 Jan 2023 12:43:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9CEAC433EF;
+        Wed,  4 Jan 2023 12:43:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672836085;
-        bh=TOXTQ60NVRt1UUZ7zJB1nKXUtQdnqTmRrybEAGs47wA=;
+        s=korg; t=1672836226;
+        bh=gKK35ke75uzbLNdiFo+ZUF6+OSLS2q0DB62aiLXqFus=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=eRG5aar/3NtyK6sTqpmMnnO4GuWi0LCInUB6dkAtQXjlLDWjw9LKhNFakYC1j6lTI
-         pUnuDZ1JtTo5R1G93Kb4FbbrqLXbLJFmwzj4eKv1kplm1h8E0pR5vkRAy58xli7oPv
-         H356a3QfNzlrx9nlcPS+2Sr+njyBTFzdwO94oaus=
-Date:   Wed, 4 Jan 2023 13:41:22 +0100
+        b=R/7nfHYE0649pnd56Dza8eBumthC+1bmiU/8A0efpKWDA9tLXbh+bR/ew+v+6yt7S
+         r98T4XdbtBoNszBgq6/jjGeVS955ekatwSuOgQ1l1gBR4yVM8M/H57jlug9U8wYQrd
+         rhqBIzXzaf6LhifUtNuy4PDCFiCNOYwIwU6c2XNs=
+Date:   Wed, 4 Jan 2023 13:43:43 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Dragos-Marian Panait <dragos.panait@windriver.com>
-Cc:     stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Oded Gabbay <oded.gabbay@gmail.com>,
-        Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
-        David Zhou <David1.Zhou@amd.com>,
-        David Airlie <airlied@linux.ie>,
-        dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4.19 1/1] drm/amdkfd: Check for null pointer after
- calling kmemdup
-Message-ID: <Y7Vz8mm0X+1h844b@kroah.com>
-References: <20230103184308.511448-1-dragos.panait@windriver.com>
- <20230103184308.511448-2-dragos.panait@windriver.com>
+To:     Tudor Ambarus <tudor.ambarus@linaro.org>
+Cc:     stable@vger.kernel.org, willemdebruijn.kernel@gmail.com,
+        mst@redhat.com, jasowang@redhat.com, edumazet@google.com,
+        virtualization@lists.linux-foundation.org, davem@davemloft.net,
+        kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org,
+        willemb@google.com, syzkaller@googlegroups.com,
+        liuhangbin@gmail.com, linux-kernel@vger.kernel.org,
+        joneslee@google.com
+Subject: Re: [PATCH 0/2] net/af_packet: Fix kernel BUG in __skb_gso_segment
+Message-ID: <Y7V0f77yhwYplQQz@kroah.com>
+References: <20221222083545.1972489-1-tudor.ambarus@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230103184308.511448-2-dragos.panait@windriver.com>
+In-Reply-To: <20221222083545.1972489-1-tudor.ambarus@linaro.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -58,34 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 03, 2023 at 08:43:08PM +0200, Dragos-Marian Panait wrote:
-> From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+On Thu, Dec 22, 2022 at 10:35:43AM +0200, Tudor Ambarus wrote:
+> The series is intended for stable@vger.kernel.org # 5.4+
 > 
-> [ Upstream commit abfaf0eee97925905e742aa3b0b72e04a918fa9e ]
+> Syzkaller reported the following bug on linux-5.{4, 10, 15}.y:
+> https://syzkaller.appspot.com/bug?id=ce5575575f074c33ff80d104f5baee26f22e95f5
 > 
-> As the possible failure of the allocation, kmemdup() may return NULL
-> pointer.
-> Therefore, it should be better to check the 'props2' in order to prevent
-> the dereference of NULL pointer.
+> The upstream commit that introduces this bug is:
+> 1ed1d5921139 ("net: skip virtio_net_hdr_set_proto if protocol already set")
 > 
-> Fixes: 3a87177eb141 ("drm/amdkfd: Add topology support for dGPUs")
-> Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-> Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-> Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-> Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-> Signed-off-by: Dragos-Marian Panait <dragos.panait@windriver.com>
-> ---
->  drivers/gpu/drm/amd/amdkfd/kfd_crat.c | 3 +++
->  1 file changed, 3 insertions(+)
+> Upstream fixes the bug with the following commits, one of which introduces
+> new support:
+> e9d3f80935b6 ("net/af_packet: make sure to pull mac header")
+> dfed913e8b55 ("net/af_packet: add VLAN support for AF_PACKET SOCK_RAW GSO") 
+> 
+> The additional logic and risk backported seems manageable.
+> 
+> The blammed commit introduces a kernel BUG in __skb_gso_segment for
+> AF_PACKET SOCK_RAW GSO VLAN tagged packets. What happens is that
+> virtio_net_hdr_set_proto() exists early as skb->protocol is already set to
+> ETH_P_ALL. Then in packet_parse_headers() skb->protocol is set to
+> ETH_P_8021AD, but neither the network header position is adjusted, nor the
+> mac header is pulled. Thus when we get to validate the xmit skb and enter
+> skb_mac_gso_segment(), skb->mac_len has value 14, but vlan_depth gets
+> updated to 18 after skb_network_protocol() is called. This causes the
+> BUG_ON from __skb_pull(skb, vlan_depth) to be hit, as the mac header has
+> not been pulled yet.
+> 
+> The fixes from upstream backported cleanly without conflicts. I updated
+> the commit message of the first patch to describe the problem encountered,
+> and added Cc, Fixes, Reported-by and Tested-by tags. For the second patch
+> I just added Cc to stable indicating the versions to be fixed, and added
+> my Tested and Signed-off-by tags.
+> 
+> I tested the patches on linux-5.{4, 10, 15}.y.
+> 
+> Eric Dumazet (1):
+>   net/af_packet: make sure to pull mac header
+> 
+> Hangbin Liu (1):
+>   net/af_packet: add VLAN support for AF_PACKET SOCK_RAW GSO
+> 
+>  net/packet/af_packet.c | 20 +++++++++++++++-----
+>  1 file changed, 15 insertions(+), 5 deletions(-)
 
-For obvious reasons, I can't take a patch for 4.19.y and not newer
-kernel releases, right?
-
-Please provide backports for all kernels if you really need to see this
-merged.  And note, it's not a real bug at all, and given that a CVE was
-allocated for it that makes me want to even more reject it to show the
-whole folly of that mess.
-
-thanks,
+Now queued up, thanks.
 
 greg k-h
