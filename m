@@ -2,43 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64CAE65D66E
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:45:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55D6C65D67F
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:48:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231220AbjADOpn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:45:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36492 "EHLO
+        id S230341AbjADOsY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:48:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239479AbjADOpj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:45:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0676D38AEB
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:45:38 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 98D1A61738
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:45:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FB45C43392;
-        Wed,  4 Jan 2023 14:45:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672843537;
-        bh=Yl6MD5iIRyBwSZ3cQDDy6bjgBltBbgwL3tkWmMIJuik=;
-        h=Subject:To:Cc:From:Date:From;
-        b=FoTy1T1sn6KgwUSzLtkwqsxbMCJ9muCPYRNDY468LZ0KTbt3I/AEqRtIwo4O58jE3
-         D3DNzenNxJR2fTOC+V6vf73ZDDBrpv5uBUT2RIkrfNEZ7qpjQxqT5xu+PiHqn81Qvr
-         RIOQco1QYbqwgXVeDOnTnsNTza0ljGER6GGsqGv8=
-Subject: FAILED: patch "[PATCH] drm/i915: Fix watermark calculations for DG2 CCS modifiers" failed to apply to 6.0-stable tree
-To:     ville.syrjala@linux.intel.com, juhapekka.heikkila@gmail.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:45:25 +0100
-Message-ID: <16728435251940@kroah.com>
+        with ESMTP id S230420AbjADOsJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:48:09 -0500
+Received: from mail-ot1-x331.google.com (mail-ot1-x331.google.com [IPv6:2607:f8b0:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFE5A30B
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:48:06 -0800 (PST)
+Received: by mail-ot1-x331.google.com with SMTP id x44-20020a05683040ac00b006707c74330eso20863287ott.10
+        for <stable@vger.kernel.org>; Wed, 04 Jan 2023 06:48:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ralston.id.au; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=s4IRr68MatcS5enSJ+4EyfBihOdqulU9DD8OJv71rX0=;
+        b=cyVTpqqBgR+DLc3/b4X7pbrsHIhFZ8b9/sb8OvVJZj421M6qv+O/7IAMBY2Y3PasKp
+         e/NFl+Yy9J+l03eMBeZEeMN0tVFqSP0IiC4kWCz+0CZbqM9VflKNLj+rI2TvfccAcAfd
+         0gXxpj0+upTyhKN0znkURqxfLQEWxYp6Kmg64=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=s4IRr68MatcS5enSJ+4EyfBihOdqulU9DD8OJv71rX0=;
+        b=j+VkhQT8Dmr0LbgkaXcnAy144sfIhtgIYYGt1BWUj345+RfayAWdm/kjp/K3yR4661
+         kSFnUDXsf7vlJjQvr9dP71MCxQibTtLcUeicJ+yLRTL03q5tZIYNUovQoYyk0XKhyFUm
+         ESzzMrpVq2hXim5RKBh6jllXHt7sl3ut8lVLYyvTqlolJScivrJYLqzJMEATxY3N0CZ7
+         nLgU1DZsenBdBF7fq5uPGgrnyHI+GriLgiUjEV7prSObxS/J+xiwBqQhFrToJL5tV5zH
+         /NQYGRTR+v/9Qi0a6qocZWrIZllfTwCe22/jTk5PXUvc+J/Bjo/7CW1Qsh2f9yAgW7mR
+         WBFg==
+X-Gm-Message-State: AFqh2kpzjC7Rw0Tmf7RBK/Qcir88fu/Jd544mitr4lbKfxE+8Z6qWbPT
+        clEZsD41HSyyuJybfYCJ6dfYmU6U6x7nzjwn8XHsFg==
+X-Google-Smtp-Source: AMrXdXv73rNorkMl6cG0cOQ7nvMTlCtZinuYWTFUsuzOa7bcFehB5DdMFB01EPykptneOgFz3/6BlqeBf0Gjl0o3V74=
+X-Received: by 2002:a05:6830:1c8:b0:66e:b992:749f with SMTP id
+ r8-20020a05683001c800b0066eb992749fmr2595450ota.52.1672843686199; Wed, 04 Jan
+ 2023 06:48:06 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+References: <CAC2975JXkS1A5Tj9b02G_sy25ZWN-ys+tc9wmkoS=qPgKCogSg@mail.gmail.com>
+ <bf646395-1231-92f6-7c5a-5b7765596358@leemhuis.info> <87zgb0q7x4.wl-tiwai@suse.de>
+ <CAC2975K24Gt3rGieAToHjb7FEHv84aqiRSQx7EOuR2Q7KByUXw@mail.gmail.com>
+ <87sfgrrb5f.wl-tiwai@suse.de> <CAC2975+cUqiFC0LO-D-fi0swH+x=_FMuG+==mhg6HH4pc_YDRA@mail.gmail.com>
+ <87bknfr6rd.wl-tiwai@suse.de> <CAC2975+CP0WKmXouX_8TffT1+VpU3EuOzyGHMv+VsAOBjCyhnA@mail.gmail.com>
+ <878rijr6dz.wl-tiwai@suse.de> <CAC2975+Ybz2-jyJAwAUEu5S1XKfp0B-p4s-gAsMPfZdD61uNfQ@mail.gmail.com>
+ <87zgazppuc.wl-tiwai@suse.de> <CAC2975+476CHDL3YM=uExHu96UB2rodAng9PVYHX+vGnSCppGA@mail.gmail.com>
+ <CAC2975Ja-o6-qCWv2bUkt3ps7BcKvb96rao_De4SGVW1v8uE=A@mail.gmail.com>
+ <CAC2975KFqvTitbJHJZ6a4Tuxsq=nPGvW3vjAAtkQxw=sBgeDqw@mail.gmail.com>
+ <CAC2975Jw63j26DhvDjiLc7dXwaRz=eK0aWNuErQ8dkEn_Gemjg@mail.gmail.com>
+ <87ilhmpvdt.wl-tiwai@suse.de> <CAC2975LFWnK6f05j5my4=ebmhS0bVhigz8VH6cbaUtVT+ADxbA@mail.gmail.com>
+ <87zgaymkcx.wl-tiwai@suse.de>
+In-Reply-To: <87zgaymkcx.wl-tiwai@suse.de>
+From:   Michael Ralston <michael@ralston.id.au>
+Date:   Thu, 5 Jan 2023 01:47:29 +1100
+Message-ID: <CAC2975LK6xuQ_PaD9vk_5Uwi4ZmZa30TZKfstyAhx2tv0YU9xQ@mail.gmail.com>
+Subject: Re: USB-Audio regression on behringer UMC404HD
+To:     Takashi Iwai <tiwai@suse.de>
+Cc:     Thorsten Leemhuis <regressions@leemhuis.info>,
+        alsa-devel@alsa-project.org, regressions@lists.linux.dev,
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -46,84 +75,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, 5 Jan 2023 at 01:42, Takashi Iwai <tiwai@suse.de> wrote:
+fb425e1121ceef2b9d1b3ffccc195d55707
+>
+> Oh, did you test with 6.2-rc?  I checked the reverts only on top of
+> the 6.1.0.  From there, you can revert all mentioned commits cleanly
+> and should build.
+>
 
-The patch below does not apply to the 6.0-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+I was basing everything on 6.1.2
 
-Possible dependencies:
+> In anyway, do I understand correctly that the bug still persists at
+> the revert of the commit 2be79d58645465351af5320eb14c70a94724c5ef, and
+> it's fixed by the revert of ac5e2fb425e1121ceef2b9d1b3ffccc195d55707?
 
-f25d9f81a8e0 ("drm/i915: Fix watermark calculations for DG2 CCS modifiers")
-a627455bbe50 ("drm/i915: Fix watermark calculations for gen12+ CCS+CC modifier")
-91c9651425fe ("drm/i915: Fix watermark calculations for gen12+ MC CCS modifier")
-a89a96a58611 ("drm/i915: Fix watermark calculations for gen12+ RC CCS modifier")
-42a0d256496f ("drm/i915: Extract skl_watermark.c")
-55544b2811a6 ("drm/i915: Split intel_read_wm_latency() into per-platform versions")
-b7d1559038b6 ("drm/i915: move dbuf under display sub-struct")
-90b87cf24304 ("drm/i915: move mipi_mmio_base to display.dsi")
-d51309b4e9aa ("drm/i915: move and group cdclk under display.cdclk")
-f0acaf9d6912 ("drm/i915: move and group max_bw and bw_obj under display.bw")
-c3704f1938e7 ("drm/i915: move and group sagv under display.sagv")
-a30a6fe9e56c ("drm/i915: move wm to display.wm")
-b3d81dafdc48 ("drm/i915: move and group fbdev under display.fbdev")
-36d225f365e7 ("drm/i915: move dpll under display.dpll")
-4be1c12c880e ("drm/i915: move and split audio under display.audio and display.funcs")
-6c77055aa674 ("drm/i915: move dmc to display.dmc")
-12dc50823845 ("drm/i915: move and group pps members under display.pps")
-203eb5a98edb ("drm/i915: move and group gmbus members under display.gmbus")
-34dc3cc5017f ("drm/i915: move color_funcs to display.funcs")
-06a50913d96e ("drm/i915: move fdi_funcs to display.funcs")
+Yes that is correct.
 
-thanks,
+>
+> If so, what happens if you revert only
+> ac5e2fb425e1121ceef2b9d1b3ffccc195d55707?
+>
 
-greg k-h
+I just tested this, and that also fixes the issue.
 
------------------- original commit in Linus's tree ------------------
-
-From f25d9f81a8e09ace4f04106995550bae1f522143 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
-Date: Mon, 3 Oct 2022 14:15:42 +0300
-Subject: [PATCH] drm/i915: Fix watermark calculations for DG2 CCS modifiers
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-Take the DG2 CCS modifiers into account when calculating the
-watermarks. Othwerwise we'll calculate the watermarks thinking these
-tile-4 modifiers are linear.
-
-The rc_surface part is actually a nop since that is not used
-for any glk+ platform.
-
-Cc: stable@vger.kernel.org
-Fixes: 4c3afa72138c ("drm/i915/dg2: Add support for DG2 render and media compression")
-Reviewed-by: Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221003111544.8007-5-ville.syrjala@linux.intel.com
-
-diff --git a/drivers/gpu/drm/i915/display/skl_watermark.c b/drivers/gpu/drm/i915/display/skl_watermark.c
-index 0ff3ece166fe..070357da40e4 100644
---- a/drivers/gpu/drm/i915/display/skl_watermark.c
-+++ b/drivers/gpu/drm/i915/display/skl_watermark.c
-@@ -1713,13 +1713,17 @@ skl_compute_wm_params(const struct intel_crtc_state *crtc_state,
- 		      modifier == I915_FORMAT_MOD_Yf_TILED_CCS ||
- 		      modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS ||
- 		      modifier == I915_FORMAT_MOD_Y_TILED_GEN12_MC_CCS ||
--		      modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS_CC;
-+		      modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS_CC ||
-+		      modifier == I915_FORMAT_MOD_4_TILED_DG2_RC_CCS ||
-+		      modifier == I915_FORMAT_MOD_4_TILED_DG2_MC_CCS;
- 	wp->x_tiled = modifier == I915_FORMAT_MOD_X_TILED;
- 	wp->rc_surface = modifier == I915_FORMAT_MOD_Y_TILED_CCS ||
- 			 modifier == I915_FORMAT_MOD_Yf_TILED_CCS ||
- 			 modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS ||
- 			 modifier == I915_FORMAT_MOD_Y_TILED_GEN12_MC_CCS ||
--			 modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS_CC;
-+			 modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS_CC ||
-+			 modifier == I915_FORMAT_MOD_4_TILED_DG2_RC_CCS ||
-+			 modifier == I915_FORMAT_MOD_4_TILED_DG2_MC_CCS;
- 	wp->is_planar = intel_format_info_is_yuv_semiplanar(format, modifier);
- 
- 	wp->width = width;
-
+--
+Michael
