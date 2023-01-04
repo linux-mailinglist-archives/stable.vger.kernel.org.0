@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F0C665D83E
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:13:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A405865D818
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:11:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233904AbjADQNT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:13:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34698 "EHLO
+        id S239613AbjADQLA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:11:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239467AbjADQMT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:12:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA5B5FF0
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:12:05 -0800 (PST)
+        with ESMTP id S239999AbjADQKO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:10:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 705C31705F
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:10:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80EA5B81731
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:12:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E237BC433EF;
-        Wed,  4 Jan 2023 16:12:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 30E9FB8172C
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:10:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61FABC433EF;
+        Wed,  4 Jan 2023 16:10:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848723;
-        bh=QU6E9a04N1en8MkogseUdwddJuUBtrw3ip3ycxGEiPs=;
+        s=korg; t=1672848608;
+        bh=CQ2dv/B0AOmicQVYC379KnMO1h34F0xUY8aprLNoXfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mvAn57Dpj/gV4vrErp75JJUuUlqy7nv4vc9XlTxZJyjw9VlPwlF25SkC9Ch5Otj9d
-         BO8qlZoxmZr/AzZkh4uBl7R1TA+1X5e13EZuNkvr2N3v67SXUuxkpcnNKXqAkGnbBk
-         K8+76p+kUfb8GL9ASEKb0Ckf/Xve8uS2Xxt/YFfc=
+        b=iPStm2gL5qQY7fiFkcThSy0is5nkH9KXDAz+YZlCg6/gsC9ZFOXtwsp+5RS33W5JV
+         NFHjC/wUq7uJDh+WnZ8iSvGBo0a6DIFRDnalX/boJNvmqKUa7pKOiYUxtmeFqbSJez
+         8AYnBPBTDZ2mQy62lNep3J95BvJN0Mbxl2Ocwm2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>
-Subject: [PATCH 6.0 004/177] arm64: dts: qcom: sc8280xp: fix UFS DMA coherency
-Date:   Wed,  4 Jan 2023 17:04:55 +0100
-Message-Id: <20230104160507.788839543@linuxfoundation.org>
+        patches@lists.linux.dev, linux-fsd@tesla.com,
+        Smitha T Murthy <smitha.t@samsung.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Subject: [PATCH 6.1 038/207] media: s5p-mfc: Fix in register read and write for H264
+Date:   Wed,  4 Jan 2023 17:04:56 +0100
+Message-Id: <20230104160513.112157114@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +53,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Smitha T Murthy <smitha.t@samsung.com>
 
-commit 0953777640354dc459a22369eea488603d225dd9 upstream.
+commit 06710cd5d2436135046898d7e4b9408c8bb99446 upstream.
 
-The SC8280XP UFS controllers are cache coherent and must be marked as
-such in the devicetree to avoid potential data corruption.
+Few of the H264 encoder registers written were not getting reflected
+since the read values were not stored and getting overwritten.
 
-Fixes: 152d1faf1e2f ("arm64: dts: qcom: add SC8280XP platform")
-Cc: stable@vger.kernel.org      # 6.0
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221205100837.29212-3-johan+linaro@kernel.org
+Fixes: 6a9c6f681257 ("[media] s5p-mfc: Add variants to access mfc registers")
+
+Cc: stable@vger.kernel.org
+Cc: linux-fsd@tesla.com
+Signed-off-by: Smitha T Murthy <smitha.t@samsung.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/qcom/sc8280xp.dtsi |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/platform/samsung/s5p-mfc/s5p_mfc_opr_v6.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
-@@ -855,6 +855,7 @@
- 			required-opps = <&rpmhpd_opp_nom>;
+--- a/drivers/media/platform/samsung/s5p-mfc/s5p_mfc_opr_v6.c
++++ b/drivers/media/platform/samsung/s5p-mfc/s5p_mfc_opr_v6.c
+@@ -1060,7 +1060,7 @@ static int s5p_mfc_set_enc_params_h264(s
+ 	}
  
- 			iommus = <&apps_smmu 0xe0 0x0>;
-+			dma-coherent;
+ 	/* aspect ratio VUI */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 5);
+ 	reg |= ((p_h264->vui_sar & 0x1) << 5);
+ 	writel(reg, mfc_regs->e_h264_options);
+@@ -1083,7 +1083,7 @@ static int s5p_mfc_set_enc_params_h264(s
  
- 			clocks = <&gcc GCC_UFS_PHY_AXI_CLK>,
- 				 <&gcc GCC_AGGRE_UFS_PHY_AXI_CLK>,
-@@ -923,6 +924,7 @@
- 			power-domains = <&gcc UFS_CARD_GDSC>;
+ 	/* intra picture period for H.264 open GOP */
+ 	/* control */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 4);
+ 	reg |= ((p_h264->open_gop & 0x1) << 4);
+ 	writel(reg, mfc_regs->e_h264_options);
+@@ -1097,23 +1097,23 @@ static int s5p_mfc_set_enc_params_h264(s
+ 	}
  
- 			iommus = <&apps_smmu 0x4a0 0x0>;
-+			dma-coherent;
+ 	/* 'WEIGHTED_BI_PREDICTION' for B is disable */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x3 << 9);
+ 	writel(reg, mfc_regs->e_h264_options);
  
- 			clocks = <&gcc GCC_UFS_CARD_AXI_CLK>,
- 				 <&gcc GCC_AGGRE_UFS_CARD_AXI_CLK>,
+ 	/* 'CONSTRAINED_INTRA_PRED_ENABLE' is disable */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 14);
+ 	writel(reg, mfc_regs->e_h264_options);
+ 
+ 	/* ASO */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 6);
+ 	reg |= ((p_h264->aso & 0x1) << 6);
+ 	writel(reg, mfc_regs->e_h264_options);
+ 
+ 	/* hier qp enable */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 8);
+ 	reg |= ((p_h264->open_gop & 0x1) << 8);
+ 	writel(reg, mfc_regs->e_h264_options);
+@@ -1134,7 +1134,7 @@ static int s5p_mfc_set_enc_params_h264(s
+ 	writel(reg, mfc_regs->e_h264_num_t_layer);
+ 
+ 	/* frame packing SEI generation */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 25);
+ 	reg |= ((p_h264->sei_frame_packing & 0x1) << 25);
+ 	writel(reg, mfc_regs->e_h264_options);
 
 
