@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A305165D643
+	by mail.lfdr.de (Postfix) with ESMTP id EE5A765D644
 	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:43:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239550AbjADOnl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229461AbjADOnl (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 4 Jan 2023 09:43:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34930 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239539AbjADOnK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:43:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B5C8B2A
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:43:09 -0800 (PST)
+        with ESMTP id S239603AbjADOnL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:43:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE17D6416
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:43:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0A470B81694
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:43:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59DAAC433F2;
-        Wed,  4 Jan 2023 14:43:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BEB661764
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:43:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ABFBC433F2;
+        Wed,  4 Jan 2023 14:43:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672843386;
-        bh=OoOGACQmvSKjECDH1SPBA2Z5jLqQ8poUveAF8HbQlKQ=;
+        s=korg; t=1672843389;
+        bh=MVfJBpYhD0Iqzv01Bdn0Ih4odX9zcy48JcdmHKy3yjY=;
         h=Subject:To:Cc:From:Date:From;
-        b=A6aRqderpdLnL6lzK7zNRrjMwwIGcpA70vWRiVVI2eBmBwYPcMIuTYG/TjL5gaddo
-         BNCXMTKqAMphvvxjGdsYB21M0q7KU1VyHkQ3Nd9fbTkCl0nLC2wmB6YBgMlGtsg5wH
-         3qwo+tGR6wDMP79n4itI0NWW737ECrGujuOfCbqw=
-Subject: FAILED: patch "[PATCH] drm/amdgpu: Remove ATC L2 access for MMHUB 2.1.x" failed to apply to 6.0-stable tree
+        b=h5lJRjMcedavFrDfwwGHQDbKRUz30pVrZSTEitc+TXMtUrRpXUHeb4JearPiMe2sD
+         7V2oTNn7D8XZflXYOwBldoAdbh1PcAGRq7YQP4pLcmnjVWpT+idAp4M1RL8Z9f9FQ7
+         bOpPdIKm6PqehE6UrChz2UjhciIiUDDBOoYpgmrk=
+Subject: FAILED: patch "[PATCH] drm/amdgpu: Remove ATC L2 access for MMHUB 2.1.x" failed to apply to 5.15-stable tree
 To:     lijo.lazar@amd.com, alexander.deucher@amd.com, guchun.chen@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:42:55 +0100
-Message-ID: <16728433751181@kroah.com>
+Date:   Wed, 04 Jan 2023 15:42:56 +0100
+Message-ID: <1672843376131181@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -55,6 +55,25 @@ id to <stable@vger.kernel.org>.
 Possible dependencies:
 
 20293269d817 ("drm/amdgpu: Remove ATC L2 access for MMHUB 2.1.x")
+1d789535a036 ("drm/amdgpu: convert IP version array to include instances")
+5c3720be7d46 ("drm/amdgpu: get VCN and SDMA instances from IP discovery table")
+2cbc6f4259f6 ("drm/amd/display: fix error case handling")
+75a07bcd1d30 ("drm/amdgpu/soc15: convert to IP version checking")
+0b64a5a85229 ("drm/amdgpu/vcn2.5: convert to IP version checking")
+96b8dd4423e7 ("drm/amdgpu/amdgpu_vcn: convert to IP version checking")
+50638f7dbd0b ("drm/amdgpu/pm/amdgpu_smu: convert more IP version checking")
+61b396b91196 ("drm/amdgpu/pm/smu_v13.0: convert IP version checking")
+6b726a0a52cc ("drm/amdgpu/pm/smu_v11.0: update IP version checking")
+1fcc208cd780 ("drm/amdgpu/psp_v13.0: convert to IP version checking")
+e47868ea15cb ("drm/amdgpu/psp_v11.0: convert to IP version checking")
+82d05736c47b ("drm/amdgpu/amdgpu_psp: convert to IP version checking")
+9d0cb2c31891 ("drm/amdgpu/gfx9.0: convert to IP version checking")
+24be2d70048b ("drm/amdgpu/hdp4.0: convert to IP version checking")
+43bf00f21eaf ("drm/amdgpu/sdma4.0: convert to IP version checking")
+559f591dab57 ("drm/amdgpu/display/dm: convert RAVEN to IP version checking")
+d4c6e870bdd2 ("drm/amdgpu: add initial IP discovery support for vega based parts")
+c08182f2483f ("drm/amdgpu/display/dm: convert to IP version checking")
+3e67f4f2e22e ("drm/amdgpu/nv: convert to IP version checking")
 
 thanks,
 
