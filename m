@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F47F65D5E8
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:37:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F413D65D5E9
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:37:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230341AbjADOhg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:37:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57928 "EHLO
+        id S229845AbjADOhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:37:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239119AbjADOhd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:37:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 523AFF032
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:37:32 -0800 (PST)
+        with ESMTP id S239354AbjADOhh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:37:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79AC5B842
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:37:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06A45B8166B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:37:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40707C433D2;
-        Wed,  4 Jan 2023 14:37:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 086F36141B
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:37:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1104AC433F0;
+        Wed,  4 Jan 2023 14:37:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672843049;
-        bh=rcAwTzF/xb/W1YKZwAIb2J98HIvACeSl9CCLM0lLgLc=;
+        s=korg; t=1672843055;
+        bh=IeZzoyBsQuFRDD+pDBIwiO/frWLfWAPAUbRBJxjxy6o=;
         h=Subject:To:Cc:From:Date:From;
-        b=Wp/0hA1QFuA8y9MBK1T7gIz22lR9auxiNTbiMKh72XI+JQx7hlCMd6yxqyZHnXR/A
-         Aaig5Shn+0CXsfFmKW0JFhSQEexHVGLaXvTfYxjL9I/zHFlSNBptfmotMcfNeEI5/F
-         lSPBINtF9Z5wYyIAUZfYw/vdD1Rj4DF6JPqAv+T8=
-Subject: FAILED: patch "[PATCH] drm/amdgpu: fix userptr HMM range handling v2" failed to apply to 6.1-stable tree
+        b=AWFonSob10Ni3SFzD/n2s9EN8hpD2SdOgHD2+PrCaiur9a8TiR8Hrb4lM2ehSmFu/
+         z7OGLhDuH40Nz9LbbGTVBAGKOdFDcDhtmzI5NKyZQ+U0XLhgWnoknBtaceHtV4Nzjx
+         tIma7ffr/BpZ6dGUijeozQ4hc8YDykIUqIZmg9yc=
+Subject: FAILED: patch "[PATCH] drm/amdgpu: fix userptr HMM range handling v2" failed to apply to 6.0-stable tree
 To:     christian.koenig@amd.com, Felix.Kuehling@amd.com,
         alexander.deucher@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:37:26 +0100
-Message-ID: <16728430467123@kroah.com>
+Date:   Wed, 04 Jan 2023 15:37:27 +0100
+Message-ID: <167284304794190@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -56,6 +56,8 @@ id to <stable@vger.kernel.org>.
 Possible dependencies:
 
 fec8fdb54e8f ("drm/amdgpu: fix userptr HMM range handling v2")
+4953b6b22ab9 ("drm/amdgpu: cleanup error handling in amdgpu_cs_parser_bos")
+736ec9fadd7a ("drm/amdgpu: move setting the job resources")
 
 thanks,
 
