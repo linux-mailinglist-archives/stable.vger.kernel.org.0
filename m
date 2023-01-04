@@ -2,45 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6604765DD5E
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 21:06:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1CFC65DD68
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 21:09:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229662AbjADUGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 15:06:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55974 "EHLO
+        id S240058AbjADUJS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 15:09:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235325AbjADUGF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 15:06:05 -0500
-Received: from mail-40131.protonmail.ch (mail-40131.protonmail.ch [185.70.40.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0B81FAE2
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 12:06:03 -0800 (PST)
-Date:   Wed, 04 Jan 2023 20:05:48 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me;
-        s=protonmail3; t=1672862761; x=1673121961;
-        bh=nTNb3+2A3F0vXm3gxoPk4UkBGCvDMUP/Ksj+2KDWSd8=;
-        h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-         Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-         Message-ID:BIMI-Selector;
-        b=UDAq/S+Z/lc71ukStEw/o1u/CgeJmL+vojEKBhEChCW6UwVszI4OWquBYhR0vxZwx
-         063SscOn8R8AjY9hqHn0mhAyF5RJzvhD9zjVGmJH/6THOWUT7XfOD9Zv0SKMmso+Q5
-         MrlP6c7pLmBk9JF+/lcjsMlKxapLFdeiQo4d6148/LcQ/53HelPI1lKUKtR+zjZbXr
-         QtHK6POg3EAQPLm6IzSmEJzcyXk0pEc6Og8W3ytFfYl1uQU8mc6e2hlZdTUKGvUTd4
-         gac2vhEfDVHxPIYgtZEYFCL0Kp8kaPU4dNKxrZkOquBEbK7zDmoeDPK4QOU2PCXkR7
-         xXpRRwMmnZwKg==
-To:     Bagas Sanjaya <bagasdotme@gmail.com>, stable@vger.kernel.org
-From:   Waldek Andrukiewicz <waldek.social@pm.me>
-Cc:     regressions@lists.linux.dev, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: i2c-CLSA0100:00-cs35l41-hda.1: System Suspend not supported
-Message-ID: <f41395de-fb75-ef04-c363-2e216ccf1b0e@pm.me>
-In-Reply-To: <Y7Th/Wu01q7DuAO4@debian.me>
-References: <e6751ac2-34f3-d13f-13db-8174fade8308@pm.me> <Y7Th/Wu01q7DuAO4@debian.me>
-Feedback-ID: 6286898:user:proton
+        with ESMTP id S239949AbjADUJJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 15:09:09 -0500
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23A2211C3A;
+        Wed,  4 Jan 2023 12:09:01 -0800 (PST)
+Received: by mail-pl1-x636.google.com with SMTP id y1so1480471plb.2;
+        Wed, 04 Jan 2023 12:09:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=UMWHrF0/XfOeG1CXIwzjSceGj1ferSMxrkHipfWDqB0=;
+        b=e4YVXucNPMPkk8BQv0XVWpSYCAh5IChMWylGp5stDe2ZlkO1YLf/sQG5KoSDfm7JgO
+         qMTQM82bTjQ7x4+6CsfKGUSh7TiXo6ee6p6wULesgzqGys0Q2/v+nwvb2Zh8L+7MUpfb
+         y8J/ri/OU7+0VdBrgnbcBv6eelz43iCqSJCHqEe/dlGZax6NYq2eM/r/FfVAqVFt5ibW
+         hwuBd4MDfP7SWq/cix/ZIPEYtpfG3LSjlko50EunmdX1+tIOzjUdlmGc96GOqqUhZRwS
+         B0yEJXiPtdpfFuSIPnkHjSqM1XNsNItSeC2SCtKNek/O4fdHPY0tx45GbbMecCYDZt7I
+         ymPg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=UMWHrF0/XfOeG1CXIwzjSceGj1ferSMxrkHipfWDqB0=;
+        b=cggSEfGk58RKYDlCC5VOr4C/FlK64k+/bff96TuwFSfQkKlsAhv1O69edXrfxnOP0j
+         xt2UrucDVqTfn5Yi+zlB1Rxnh6ZVy2tRALQMnYvLJg2kTQJiDPtJjglQsoUdGjiatTUH
+         A4uFvEpjYns1DkbUjFbTZZBh1zuEOAF19RPe8DQqaw7olUFULNniCmo2wig2s4RSDw8q
+         b7+iOLIWCaLJ9CN/bXsOyMerzGOpzWX4bAJeNNOBe62C/pa3UDb2ukLGJHHQ3HhpVVJ9
+         jPrsjSGkWCKlNPmF6PYFQzDv9rhSz6RGIPTxVQFz9lER9/KugYxKb8JPFZXr+T3OTeFr
+         3l5A==
+X-Gm-Message-State: AFqh2kr9sI1yjK9/z3PvAsmfQUfLQz7ATKld4AbSOnypaDJ065rBQs9s
+        b8Pm57k4yDx0rLR4SFGECjA=
+X-Google-Smtp-Source: AMrXdXvZ+bAPgOIV0REbDfAPvqzjHXbJBXtzNNRKMMwm5WRxmgk4RtO8ftfCcp7pGN6LjlLBJKsUNA==
+X-Received: by 2002:a05:6a20:2d1e:b0:af:6f24:b154 with SMTP id g30-20020a056a202d1e00b000af6f24b154mr64018840pzl.60.1672862940560;
+        Wed, 04 Jan 2023 12:09:00 -0800 (PST)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id f8-20020a655908000000b0047829d1b8eesm21073037pgu.31.2023.01.04.12.08.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 04 Jan 2023 12:08:55 -0800 (PST)
+Message-ID: <d725c96e-4b74-d5c1-e25e-1876e8aa40d9@gmail.com>
+Date:   Wed, 4 Jan 2023 12:08:43 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+Subject: Re: [PATCH 6.0 000/177] 6.0.18-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+References: <20230104160507.635888536@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,143 +78,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 1/4/23 08:04, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.0.18 release.
+> There are 177 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 06 Jan 2023 16:04:29 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.18-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-On 04.01.23 03:18, Bagas Sanjaya wrote:
-> On Tue, Jan 03, 2023 at 08:45:05PM +0000, Waldek Andrukiewicz wrote:
->> Hello,
->>
->> I am running Manjaro, after upgrading from kernel 6.0.15 to 6.1.1
->> (https://gitlab.manjaro.org/packages/core/linux61) I have noticed that
->> suspend stopped working, what I can see in the logs is the following
->> issue which IMO points to cs35l41
->>
->> Machine:
->>   =C2=A0 Type: Laptop System: LENOVO product: 82N6 v: Legion 7 16ACHg6
->>
->> journalctl output below:
->>
->> Jan 02 21:52:54 legion16 systemd[1]: Starting System Suspend...
->> Jan 02 21:52:54 legion16 wpa_supplicant[1193]: wlp4s0:
->> CTRL-EVENT-DSCP-POLICY clear_all
->> Jan 02 21:52:54 legion16 systemd-sleep[2912]: Entering sleep state
->> 'suspend'...
->> Jan 02 21:52:54 legion16 kernel: PM: suspend entry (deep)
->> Jan 02 21:52:54 legion16 kernel: Filesystems sync: 0.008 seconds
->> Jan 02 21:52:54 legion16 wpa_supplicant[1193]: wlp4s0:
->> CTRL-EVENT-DSCP-POLICY clear_all
->> Jan 02 21:52:54 legion16 wpa_supplicant[1193]: nl80211: deinit
->> ifname=3Dwlp4s0 disabled_11b_rates=3D0
->> Jan 02 21:52:54 legion16 plasmashell[1770]: qml: [DEBUG] - onNewData
->> Jan 02 21:52:54 legion16 kernel: Freezing user space processes ...
->> (elapsed 0.002 seconds) done.
->> Jan 02 21:52:54 legion16 kernel: OOM killer disabled.
->> Jan 02 21:52:54 legion16 kernel: Freezing remaining freezable tasks ...
->> (elapsed 0.001 seconds) done.
->> Jan 02 21:52:54 legion16 kernel: printk: Suspending console(s) (use
->> no_console_suspend to debug)
->> Jan 02 21:52:54 legion16 kernel: cs35l41-hda
->> i2c-CLSA0100:00-cs35l41-hda.1: System Suspend not supported
->> Jan 02 21:52:54 legion16 kernel: cs35l41-hda
->> i2c-CLSA0100:00-cs35l41-hda.0: System Suspend not supported
->> Jan 02 21:52:54 legion16 kernel: cs35l41-hda
->> i2c-CLSA0100:00-cs35l41-hda.1: PM: dpm_run_callback():
->> cs35l41_system_suspend+0x0/0xd0 [snd_hda_scodec_cs35l41] returns -22
->> Jan 02 21:52:54 legion16 kernel: cs35l41-hda
->> i2c-CLSA0100:00-cs35l41-hda.0: PM: dpm_run_callback():
->> cs35l41_system_suspend+0x0/0xd0 [snd_hda_scodec_cs35l41] returns -22
->> Jan 02 21:52:54 legion16 kernel: cs35l41-hda
->> i2c-CLSA0100:00-cs35l41-hda.1: PM: failed to suspend async: error -22
->> Jan 02 21:52:54 legion16 kernel: cs35l41-hda
->> i2c-CLSA0100:00-cs35l41-hda.0: PM: failed to suspend async: error -22
->> Jan 02 21:52:54 legion16 kernel: PM: Some devices failed to suspend, or
->> early wake event detected
->> Jan 02 21:52:54 legion16 kernel: OOM killer enabled.
->> Jan 02 21:52:54 legion16 kernel: Restarting tasks ... done.
->> Jan 02 21:52:54 legion16 kernel: random: crng reseeded on system resumpt=
-ion
->> Jan 02 21:52:54 legion16 syncthing[1588]: [RBC2R] INFO: Relay listener
->> (dynamic+https://relays.syncthing.net/endpoint) shutting down
->> Jan 02 21:52:54 legion16 syncthing[1588]: [RBC2R] INFO:
->> listenerSupervisor@dynamic+https://relays.syncthing.net/endpoint:
->> service dynamic+https://relays.syncthing.net/endpoint failed: could not
->> find a connectable relay
->> Jan 02 21:52:54 legion16 syncthing[1588]: [RBC2R] INFO: Relay listener
->> (dynamic+https://relays.syncthing.net/endpoint) starting
->> Jan 02 21:52:54 legion16 syncthing[1588]: [RBC2R] INFO: Relay listener
->> (dynamic+https://relays.syncthing.net/endpoint) shutting down
->> Jan 02 21:52:54 legion16 syncthing[1588]: [RBC2R] INFO:
->> listenerSupervisor@dynamic+https://relays.syncthing.net/endpoint:
->> service dynamic+https://relays.syncthing.net/endpoint failed: Get
->> "https://relays.syncthing.net/endpoint": dial tcp: lookup
->> relays.syncthing.net on [::1]:53: read udp [::1]:58193->[::1]:53: read:
->> connection refused
->> Jan 02 21:52:54 legion16 syncthing[1588]: [RBC2R] INFO: Relay listener
->> (dynamic+https://relays.syncthing.net/endpoint) starting
->> Jan 02 21:52:54 legion16 syncthing[1588]: [RBC2R] INFO: Relay listener
->> (dynamic+https://relays.syncthing.net/endpoint) shutting down
->> Jan 02 21:52:54 legion16 syncthing[1588]: [RBC2R] INFO:
->> listenerSupervisor@dynamic+https://relays.syncthing.net/endpoint:
->> service dynamic+https://relays.syncthing.net/endpoint failed: Get
->> "https://relays.syncthing.net/endpoint": dial tcp: lookup
->> relays.syncthing.net on [::1]:53: read udp [::1]:35430->[::1]:53: read:
->> connection refused
->> Jan 02 21:52:55 legion16 bluetoothd[942]: Controller resume with wake
->> event 0x0
->> Jan 02 21:52:55 legion16 kernel: PM: suspend exit
->> Jan 02 21:52:55 legion16 kernel: PM: suspend entry (s2idle)
->> Jan 02 21:52:55 legion16 kernel: Filesystems sync: 0.004 seconds
->> Jan 02 21:52:55 legion16 kernel: Freezing user space processes ...
->> (elapsed 0.001 seconds) done.
->> Jan 02 21:52:55 legion16 kernel: OOM killer disabled.
->> Jan 02 21:52:55 legion16 kernel: Freezing remaining freezable tasks ...
->> (elapsed 0.216 seconds) done.
->> Jan 02 21:52:55 legion16 kernel: printk: Suspending console(s) (use
->> no_console_suspend to debug)
->> Jan 02 21:52:55 legion16 kernel: cs35l41-hda
->> i2c-CLSA0100:00-cs35l41-hda.1: System Suspend not supported
->> Jan 02 21:52:55 legion16 kernel: cs35l41-hda
->> i2c-CLSA0100:00-cs35l41-hda.1: PM: dpm_run_callback():
->> cs35l41_system_suspend+0x0/0xd0 [snd_hda_scodec_cs35l41] returns -22
->> Jan 02 21:52:55 legion16 kernel: cs35l41-hda
->> i2c-CLSA0100:00-cs35l41-hda.1: PM: failed to suspend async: error -22
->> Jan 02 21:52:55 legion16 kernel: PM: Some devices failed to suspend, or
->> early wake event detected
->> Jan 02 21:52:55 legion16 kernel: OOM killer enabled.
->> Jan 02 21:52:55 legion16 plasmashell[1770]: qml: [DEBUG] - onNewData
->> Jan 02 21:52:55 legion16 kernel: Restarting tasks ... done.
->> Jan 02 21:52:55 legion16 kernel: random: crng reseeded on system resumpt=
-ion
->> Jan 02 21:52:55 legion16 systemd-sleep[2912]: Failed to put system to
->> sleep. System resumed again: Invalid argument
->> Jan 02 21:52:55 legion16 kernel: PM: suspend exit
->> Jan 02 21:52:55 legion16 bluetoothd[942]: Controller resume with wake
->> event 0x0
->> Jan 02 21:52:55 legion16 systemd[1]: systemd-suspend.service: Main
->> process exited, code=3Dexited, status=3D1/FAILURE
->> Jan 02 21:52:55 legion16 systemd[1]: systemd-suspend.service: Failed
->> with result 'exit-code'.
->> Jan 02 21:52:55 legion16 systemd[1]: Failed to start System Suspend.
->> Jan 02 21:52:55 legion16 systemd[1]: Dependency failed for Suspend.
->>
->> I have to admit I have not tried 6.1.2 yet but I could not find any
->> changes related to this module (opposite to 6.1 where there was quite a
->> few including suspend - commit dca45efbe3c870a4ad2107fe625109b3765c0fea)=
-.
->>
-> Can you please try building mainline (Linus's tree) and boot from it?
-> If the suspend success in the mainline, can you also bisect to find the
-> culprit?
->
-> In any case, I'm adding this to regzbot:
->
-> #regzbot ^introduced v6.0..v6.1
-> #regzbot title Suspend not supported on Lenovo Legion 7 since v6.1
->
-> Thanks.
->
-I have received a patch from Takashi Iwai and tested it, it helped, I
-can suspend my laptop same as I could with kernels prior to 6.1.
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
+BMIPS_GENERIC:
 
-Thank you.
-
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
 
