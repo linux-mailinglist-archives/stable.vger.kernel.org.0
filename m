@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A9BA65D5B9
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:33:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2522065D5BB
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:33:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239439AbjADOdB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:33:01 -0500
+        id S239489AbjADOdC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:33:02 -0500
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239465AbjADOci (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:32:38 -0500
+        with ESMTP id S239539AbjADOcj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:32:39 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52E8F38AE5
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:32:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 989B8395C2
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:32:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 07F4EB81689
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:32:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DF37C433D2;
-        Wed,  4 Jan 2023 14:32:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 45B81B81677
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:32:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FA34C433EF;
+        Wed,  4 Jan 2023 14:32:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672842747;
-        bh=QIy38OERXtaY+NQM4gTCO3H+uUctfgfcN9MjSNFfGXg=;
+        s=korg; t=1672842751;
+        bh=ie0mm+rB0Z7Y5PH1HfQK5A0twUv20Xq/bJLpLSplCHE=;
         h=Subject:To:Cc:From:Date:From;
-        b=ejDd91lX6uZzSAa/NIc7AptnRKxuQ53PK+vtd38YCUmP/Mfq+7cN0Nv1dwVNRxPNb
-         JtUpvDo8hbzMLTTFAQp3WcfsjVEEbDgW8IBWOV3Z90TKdJm1hObxDQgCkutdc3Dh0R
-         v6+xTUYHwy4oKH4rC5VfKERuZpxwB7DFqY3GKsRI=
-Subject: FAILED: patch "[PATCH] phy: qcom-qmp-combo: fix broken power on" failed to apply to 5.15-stable tree
+        b=xU47xlLOmW/Rzl2QwVMLartMl1N8DtydmcEltGVSTBBn8PMxaJ+6U8guhbIIqwO1Q
+         qMYXpUJ1XsG6yPFVZ9SleBwMMgzNlrbt3WORpeHZegsdggpZwFVl7jrFtXZXCBXkmk
+         X0yJnwIdT48csOD2Nb8mY4SOui81Pf963P3g3d2k=
+Subject: FAILED: patch "[PATCH] phy: qcom-qmp-combo: fix broken power on" failed to apply to 5.10-stable tree
 To:     johan+linaro@kernel.org, dmitry.baryshkov@linaro.org,
         vkoul@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:32:20 +0100
-Message-ID: <16728427408129@kroah.com>
+Date:   Wed, 04 Jan 2023 15:32:21 +0100
+Message-ID: <1672842741103181@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
