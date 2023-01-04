@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43BB665D779
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:46:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E256565D778
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:46:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235142AbjADPqB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239554AbjADPqB (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 4 Jan 2023 10:46:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42608 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239805AbjADPp2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:45:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD75D3750D
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:45:19 -0800 (PST)
+        with ESMTP id S239580AbjADPpb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:45:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 317F9395CB
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:45:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 66F8F61775
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 15:45:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72560C433EF;
-        Wed,  4 Jan 2023 15:45:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97ECCB816B7
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 15:45:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC31CC433EF;
+        Wed,  4 Jan 2023 15:45:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672847118;
-        bh=Ej1/j28zpNVI7iPLGlIFIhIB2fVOuMDQhV1jRWABRaY=;
+        s=korg; t=1672847127;
+        bh=1bHeay0luKnEjUGb4qyl5rIunJDQi4ZD/+X+BE3NQlU=;
         h=Subject:To:Cc:From:Date:From;
-        b=NeQL1uBUcGSl9/hefbe2XbHk6Aejbluctcoz1Ck+60mI4FtsZRJHw8FiAo2MyhbAk
-         LUxWlWZQnmaMulAeJcDUj6LwhKdYdHy50qsvs4wEVTEh/VGxrzw/igurAe3ZzwxcQQ
-         +LMMe/PPhRuy9kJeX5Y++44h4/95RqTCU66kMiqM=
-Subject: FAILED: patch "[PATCH] drm/amd/pm: enable GPO dynamic control support for SMU13.0.0" failed to apply to 6.1-stable tree
+        b=YLBrDtnmVu7IyDejA5rrfTS8LSDUGdsrrSltg3brsZxuzceqKeS9dhcCJ+nrgtG6J
+         b9uSz29Ys0yuhCTSKSTEAkhpWqAzW1Q0S8Z914ysPJSFMV/LoKccPk1YMCXA1wLIZX
+         6fiRf4KPH5N/LD20CUC7LqBdY9McSswhdVzRZ6e0=
+Subject: FAILED: patch "[PATCH] drm/amd/pm: enable GPO dynamic control support for SMU13.0.0" failed to apply to 6.0-stable tree
 To:     evan.quan@amd.com, alexander.deucher@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 16:45:15 +0100
-Message-ID: <16728471152838@kroah.com>
+Date:   Wed, 04 Jan 2023 16:45:16 +0100
+Message-ID: <167284711622417@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -58,6 +58,9 @@ Possible dependencies:
 48aa62f07467 ("drm/amd/pm: Enable bad memory page/channel recording support for smu v13_0_0")
 8ae5a38c8cb3 ("drm/amd/pm: enable runpm support over BACO for SMU13.0.0")
 60cfad329ab8 ("drm/amd/pm: enable mode1 reset on smu_v13_0_10")
+c6863be23179 ("drm/amd/pm: fulfill SMU13.0.0 cstate control interface")
+1ed5a845c7c8 ("drm/amd/pm: Implement GFXOFF's entry count and residency for vangogh")
+672c0218e3e2 ("drm/amdgpu: add mode2 reset for sienna_cichlid")
 
 thanks,
 
