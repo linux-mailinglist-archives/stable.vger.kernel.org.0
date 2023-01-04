@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A47065D972
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:25:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F68865D9AB
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:27:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229582AbjADQZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:25:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48334 "EHLO
+        id S239812AbjADQ1B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:27:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239666AbjADQZO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:25:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42C4C42E35
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:24:24 -0800 (PST)
+        with ESMTP id S239840AbjADQ0w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:26:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 413B233D75
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:26:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F03B0B817B0
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:24:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48838C433D2;
-        Wed,  4 Jan 2023 16:24:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E6758B817B8
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:26:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CFC4C433EF;
+        Wed,  4 Jan 2023 16:26:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849461;
-        bh=+ky/T4rRKQ6CMcI+XRS4OfAEZaD6uWMt99Y/01oJ3NE=;
+        s=korg; t=1672849607;
+        bh=646KULrc+YqY/DoBIgUczkDY3B9fHFZiADHQ5hBDPTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z+beIeImiTJ/hYRMM1yOBP25HwXh7N/katk5M9QUyz1n1oBtU7tuCxKSWs9i28P6R
-         pLOgRUmQ1QNP/geUdE5G//EhRNUds0toFel5ETC7EhdihHbqvGn2daI3REoP5gEF6E
-         o4E1VmCjzSVWHuZF0CtBU6RehGsFVTDHIWishZ7I=
+        b=iDyzpti36asq4f1kI5UCY9vTUIHU8ooMGoEwCi7FE+OvGy5h9RbJHfb4Xtk6UiNRX
+         4yYg858CLUo3jyDloent9ZxeWnXds16z7LMaWDfUck0w8ukQyxWbNk248CkC+u++zR
+         WXmrDIbeRr0N4GnhJi4pICu9+j6vh4fApWCFq/Ig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+4faa160fa96bfba639f8@syzkaller.appspotmail.com,
-        Jun Nie <jun.nie@linaro.org>, Ye Bin <yebin10@huawei.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 6.1 193/207] ext4: fix kernel BUG in ext4_write_inline_data_end()
+        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
+        Jan Kara <jack@suse.cz>, stable@kernel.org,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 6.0 160/177] ext4: fix corrupt backup group descriptors after online resize
 Date:   Wed,  4 Jan 2023 17:07:31 +0100
-Message-Id: <20230104160518.025732476@linuxfoundation.org>
+Message-Id: <20230104160512.520866688@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,107 +53,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit 5c099c4fdc438014d5893629e70a8ba934433ee8 upstream.
+commit 8f49ec603ae3e213bfab2799182724e3abac55a1 upstream.
 
-Syzbot report follow issue:
-------------[ cut here ]------------
-kernel BUG at fs/ext4/inline.c:227!
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN
-CPU: 1 PID: 3629 Comm: syz-executor212 Not tainted 6.1.0-rc5-syzkaller-00018-g59d0d52c30d4 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
-RIP: 0010:ext4_write_inline_data+0x344/0x3e0 fs/ext4/inline.c:227
-RSP: 0018:ffffc90003b3f368 EFLAGS: 00010293
-RAX: 0000000000000000 RBX: ffff8880704e16c0 RCX: 0000000000000000
-RDX: ffff888021763a80 RSI: ffffffff821e31a4 RDI: 0000000000000006
-RBP: 000000000006818e R08: 0000000000000006 R09: 0000000000068199
-R10: 0000000000000079 R11: 0000000000000000 R12: 000000000000000b
-R13: 0000000000068199 R14: ffffc90003b3f408 R15: ffff8880704e1c82
-FS:  000055555723e3c0(0000) GS:ffff8880b9b00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fffe8ac9080 CR3: 0000000079f81000 CR4: 0000000000350ee0
-Call Trace:
- <TASK>
- ext4_write_inline_data_end+0x2a3/0x12f0 fs/ext4/inline.c:768
- ext4_write_end+0x242/0xdd0 fs/ext4/inode.c:1313
- ext4_da_write_end+0x3ed/0xa30 fs/ext4/inode.c:3063
- generic_perform_write+0x316/0x570 mm/filemap.c:3764
- ext4_buffered_write_iter+0x15b/0x460 fs/ext4/file.c:285
- ext4_file_write_iter+0x8bc/0x16e0 fs/ext4/file.c:700
- call_write_iter include/linux/fs.h:2191 [inline]
- do_iter_readv_writev+0x20b/0x3b0 fs/read_write.c:735
- do_iter_write+0x182/0x700 fs/read_write.c:861
- vfs_iter_write+0x74/0xa0 fs/read_write.c:902
- iter_file_splice_write+0x745/0xc90 fs/splice.c:686
- do_splice_from fs/splice.c:764 [inline]
- direct_splice_actor+0x114/0x180 fs/splice.c:931
- splice_direct_to_actor+0x335/0x8a0 fs/splice.c:886
- do_splice_direct+0x1ab/0x280 fs/splice.c:974
- do_sendfile+0xb19/0x1270 fs/read_write.c:1255
- __do_sys_sendfile64 fs/read_write.c:1323 [inline]
- __se_sys_sendfile64 fs/read_write.c:1309 [inline]
- __x64_sys_sendfile64+0x1d0/0x210 fs/read_write.c:1309
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
----[ end trace 0000000000000000 ]---
+In commit 9a8c5b0d0615 ("ext4: update the backup superblock's at the end
+of the online resize"), it is assumed that update_backups() only updates
+backup superblocks, so each b_data is treated as a backupsuper block to
+update its s_block_group_nr and s_checksum. However, update_backups()
+also updates the backup group descriptors, which causes the backup group
+descriptors to be corrupted.
 
-Above issue may happens as follows:
-ext4_da_write_begin
-  ext4_da_write_inline_data_begin
-    ext4_da_convert_inline_data_to_extent
-      ext4_clear_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
-ext4_da_write_end
+The above commit fixes the problem of invalid checksum of the backup
+superblock. The root cause of this problem is that the checksum of
+ext4_update_super() is not set correctly. This problem has been fixed
+in the previous patch ("ext4: fix bad checksum after online resize").
 
-ext4_run_li_request
-  ext4_mb_prefetch
-    ext4_read_block_bitmap_nowait
-      ext4_validate_block_bitmap
-        ext4_mark_group_bitmap_corrupted(sb, block_group, EXT4_GROUP_INFO_BBITMAP_CORRUPT)
-	 percpu_counter_sub(&sbi->s_freeclusters_counter,grp->bb_free);
-	  -> sbi->s_freeclusters_counter become zero
-ext4_da_write_begin
-  if (ext4_nonda_switch(inode->i_sb)) -> As freeclusters_counter is zero will return true
-    *fsdata = (void *)FALL_BACK_TO_NONDELALLOC;
-    ext4_write_begin
-ext4_da_write_end
-  if (write_mode == FALL_BACK_TO_NONDELALLOC)
-    ext4_write_end
-      if (inline_data)
-        ext4_write_inline_data_end
-	  ext4_write_inline_data
-	    BUG_ON(pos + len > EXT4_I(inode)->i_inline_size);
-           -> As inode is already convert to extent, so 'pos + len' > inline_size
-	   -> then trigger BUG.
+However, we do need to set block_group_nr for the backup superblock in
+update_backups(). When a block is in a group that contains a backup
+superblock, and the block is the first block in the group, the block is
+definitely a superblock. We add a helper function that includes setting
+s_block_group_nr and updating checksum, and then call it only when the
+above conditions are met to prevent the backup group descriptors from
+being incorrectly modified.
 
-To solve this issue, instead of checking ext4_has_inline_data() which
-is only cleared after data has been written back, check the
-EXT4_STATE_MAY_INLINE_DATA flag in ext4_write_end().
-
-Fixes: f19d5870cbf7 ("ext4: add normal write support for inline data")
-Reported-by: syzbot+4faa160fa96bfba639f8@syzkaller.appspotmail.com
-Reported-by: Jun Nie <jun.nie@linaro.org>
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Link: https://lore.kernel.org/r/20221206144134.1919987-1-yebin@huaweicloud.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 9a8c5b0d0615 ("ext4: update the backup superblock's at the end of the online resize")
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
 Cc: stable@kernel.org
+Link: https://lore.kernel.org/r/20221117040341.1380702-3-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/ext4/resize.c | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -1315,7 +1315,8 @@ static int ext4_write_end(struct file *f
+diff --git a/fs/ext4/resize.c b/fs/ext4/resize.c
+index 70fef50ab3f9..d460440d6dee 100644
+--- a/fs/ext4/resize.c
++++ b/fs/ext4/resize.c
+@@ -1110,6 +1110,16 @@ static int reserve_backup_gdb(handle_t *handle, struct inode *inode,
+ 	return err;
+ }
  
- 	trace_ext4_write_end(inode, pos, len, copied);
++static inline void ext4_set_block_group_nr(struct super_block *sb, char *data,
++					   ext4_group_t group)
++{
++	struct ext4_super_block *es = (struct ext4_super_block *) data;
++
++	es->s_block_group_nr = cpu_to_le16(group);
++	if (ext4_has_metadata_csum(sb))
++		es->s_checksum = ext4_superblock_csum(sb, es);
++}
++
+ /*
+  * Update the backup copies of the ext4 metadata.  These don't need to be part
+  * of the main resize transaction, because e2fsck will re-write them if there
+@@ -1158,7 +1168,8 @@ static void update_backups(struct super_block *sb, sector_t blk_off, char *data,
+ 	while (group < sbi->s_groups_count) {
+ 		struct buffer_head *bh;
+ 		ext4_fsblk_t backup_block;
+-		struct ext4_super_block *es;
++		int has_super = ext4_bg_has_super(sb, group);
++		ext4_fsblk_t first_block = ext4_group_first_block_no(sb, group);
  
--	if (ext4_has_inline_data(inode))
-+	if (ext4_has_inline_data(inode) &&
-+	    ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA))
- 		return ext4_write_inline_data_end(inode, pos, len, copied, page);
+ 		/* Out of journal space, and can't get more - abort - so sad */
+ 		err = ext4_resize_ensure_credits_batch(handle, 1);
+@@ -1168,8 +1179,7 @@ static void update_backups(struct super_block *sb, sector_t blk_off, char *data,
+ 		if (meta_bg == 0)
+ 			backup_block = ((ext4_fsblk_t)group) * bpg + blk_off;
+ 		else
+-			backup_block = (ext4_group_first_block_no(sb, group) +
+-					ext4_bg_has_super(sb, group));
++			backup_block = first_block + has_super;
  
- 	copied = block_write_end(file, mapping, pos, len, copied, page, fsdata);
+ 		bh = sb_getblk(sb, backup_block);
+ 		if (unlikely(!bh)) {
+@@ -1187,10 +1197,8 @@ static void update_backups(struct super_block *sb, sector_t blk_off, char *data,
+ 		memcpy(bh->b_data, data, size);
+ 		if (rest)
+ 			memset(bh->b_data + size, 0, rest);
+-		es = (struct ext4_super_block *) bh->b_data;
+-		es->s_block_group_nr = cpu_to_le16(group);
+-		if (ext4_has_metadata_csum(sb))
+-			es->s_checksum = ext4_superblock_csum(sb, es);
++		if (has_super && (backup_block == first_block))
++			ext4_set_block_group_nr(sb, bh->b_data, group);
+ 		set_buffer_uptodate(bh);
+ 		unlock_buffer(bh);
+ 		err = ext4_handle_dirty_metadata(handle, NULL, bh);
+-- 
+2.39.0
+
 
 
