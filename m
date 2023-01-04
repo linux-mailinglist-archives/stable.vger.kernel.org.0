@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 965FD65D8F3
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:20:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E39D765D884
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:15:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230383AbjADQUR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:20:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43656 "EHLO
+        id S239864AbjADQPp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:15:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239994AbjADQUC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:20:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55C773AAA2
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:20:01 -0800 (PST)
+        with ESMTP id S239694AbjADQP3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:15:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B28593750C
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:14:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 13EA4B81714
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:20:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 760E9C433D2;
-        Wed,  4 Jan 2023 16:19:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59ED8B81731
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:14:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A16CC433D2;
+        Wed,  4 Jan 2023 16:14:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849198;
-        bh=6jpokDVvcQWx/S1bfOQ9dYOcbxmdbiv1i0vC/4/NjDQ=;
+        s=korg; t=1672848893;
+        bh=sDwQr0Wn1l01rcLgMrwtjowdjVfEvBNikKRTBJ+29/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ENHg749rL3ZCy3U1aROMRVy3iSdsG0jKCh+XRK/wFsXgv0WSTvgJfedRCnw/81G7w
-         yWStTKXh9+9XYMIb3TxZ3lwrkxX/kof+HVVAL2NJza0prkxZwnWpvc6vAJ/ICgdun5
-         pSW9Tg/fJPpFAS8/60mXTS19/kvoB2AvUW0LHRTs=
+        b=Zl/Y5L2UorGl49ec98KkHxbK4EuVxQPrVRZgQBA+j9kiSXHTslg8lNzRL+ser/HT8
+         RgU4Xr1v3g4rFYvWEruSuEa+nhlIaFsdyGKQXrSgVKrkdSPocA0Cb5eoYUexjEik36
+         XLQNFNMgWskNmhvV91FcNK7LUuZkCk1p35yYWZN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rafael Mendonca <rafaelmendsr@gmail.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
-Subject: [PATCH 6.0 067/177] tracing: Fix race where eprobes can be called before the event
+        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 6.1 100/207] ARM: 9256/1: NWFPE: avoid compiler-generated __aeabi_uldivmod
 Date:   Wed,  4 Jan 2023 17:05:58 +0100
-Message-Id: <20230104160509.686116393@linuxfoundation.org>
+Message-Id: <20230104160515.087138892@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit d5f30a7da8ea8e6450250275cec5670cee3c4264 upstream.
+commit 3220022038b9a3845eea762af85f1c5694b9f861 upstream.
 
-The flag that tells the event to call its triggers after reading the event
-is set for eprobes after the eprobe is enabled. This leads to a race where
-the eprobe may be triggered at the beginning of the event where the record
-information is NULL. The eprobe then dereferences the NULL record causing
-a NULL kernel pointer bug.
+clang-15's ability to elide loops completely became more aggressive when
+it can deduce how a variable is being updated in a loop. Counting down
+one variable by an increment of another can be replaced by a modulo
+operation.
 
-Test for a NULL record to keep this from happening.
+For 64b variables on 32b ARM EABI targets, this can result in the
+compiler generating calls to __aeabi_uldivmod, which it does for a do
+while loop in float64_rem().
 
-Link: https://lore.kernel.org/linux-trace-kernel/20221116192552.1066630-1-rafaelmendsr@gmail.com/
-Link: https://lore.kernel.org/all/20221117214249.2addbe10@gandalf.local.home/
+For the kernel, we'd generally prefer that developers not open code 64b
+division via binary / operators and instead use the more explicit
+helpers from div64.h. On arm-linux-gnuabi targets, failure to do so can
+result in linkage failures due to undefined references to
+__aeabi_uldivmod().
 
+While developers can avoid open coding divisions on 64b variables, the
+compiler doesn't know that the Linux kernel has a partial implementation
+of a compiler runtime (--rtlib) to enforce this convention.
+
+It's also undecidable for the compiler whether the code in question
+would be faster to execute the loop vs elide it and do the 64b division.
+
+While I actively avoid using the internal -mllvm command line flags, I
+think we get better code than using barrier() here, which will force
+reloads+spills in the loop for all toolchains.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1666
+
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
 Cc: stable@vger.kernel.org
-Fixes: 7491e2c442781 ("tracing: Add a probe that attaches to trace events")
-Reported-by: Rafael Mendonca <rafaelmendsr@gmail.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_eprobe.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/nwfpe/Makefile |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/kernel/trace/trace_eprobe.c
-+++ b/kernel/trace/trace_eprobe.c
-@@ -563,6 +563,9 @@ static void eprobe_trigger_func(struct e
- 	if (unlikely(!rec))
- 		return;
+--- a/arch/arm/nwfpe/Makefile
++++ b/arch/arm/nwfpe/Makefile
+@@ -11,3 +11,9 @@ nwfpe-y				+= fpa11.o fpa11_cpdo.o fpa11
+ 				   entry.o
  
-+	if (unlikely(!rec))
-+		return;
+ nwfpe-$(CONFIG_FPE_NWFPE_XP)	+= extended_cpdo.o
 +
- 	__eprobe_trace_func(edata, rec);
- }
- 
++# Try really hard to avoid generating calls to __aeabi_uldivmod() from
++# float64_rem() due to loop elision.
++ifdef CONFIG_CC_IS_CLANG
++CFLAGS_softfloat.o	+= -mllvm -replexitval=never
++endif
 
 
