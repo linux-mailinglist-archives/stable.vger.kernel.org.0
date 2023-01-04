@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D6C465D99C
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E90365D900
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:21:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233838AbjADQ0c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:26:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50642 "EHLO
+        id S239485AbjADQUy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:20:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239916AbjADQ0O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:26:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7031013F31
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:26:13 -0800 (PST)
+        with ESMTP id S239976AbjADQU1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:20:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD8CF42E2A
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:20:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1FB58B81733
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:26:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81564C433EF;
-        Wed,  4 Jan 2023 16:26:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B0D9617A6
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:20:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72269C433EF;
+        Wed,  4 Jan 2023 16:20:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849570;
-        bh=2ggg8c2Xye8irSg9Anz7c2jzhmN6TIIeT0IWYrrQExA=;
+        s=korg; t=1672849225;
+        bh=o8GHoLbs3RomkxHAm/b+mr6R6R9tHQaBSYJa3EhyAec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aJOgP7k34prtPyOEyYmXXtxbpf7JFMbYZMdEhP5omN9abYgeYpnFqm4QIxlS/GM5n
-         NTE8RAQz4hgsES81b6IF+s5uOUdKIQXKRMMnBajm1AA8hNLfmJKnLwn3YH1icxnkkW
-         3h+6ph2q7GCDlN/aL3k6aEdFHXmp285f+AEmztBA=
+        b=iYZ4+pUlLjAezixZUHXyRWM0GbODfbFmrJyMiT/iN6wESmC50+sDJwnUcv1pPJ4Je
+         rwRKnzTo+RuCVjiAl/R1kD5Br8doWbByZcgZj36gQWBHxVbRnUyZ41LXK8kUHsypKi
+         Q2AhR25s7r6hTRq6mycW+PTpWRw4AR58nQnbPdAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Helge Deller <deller@gmx.de>
-Subject: [PATCH 6.0 121/177] parisc: Fix locking in pdc_iodc_print() firmware call
+        patches@lists.linux.dev, Zack Rusin <zackr@vmware.com>,
+        Michael Banack <banackm@vmware.com>,
+        Martin Krastev <krastevm@vmware.com>
+Subject: [PATCH 6.1 154/207] drm/vmwgfx: Validate the box size for the snooped cursor
 Date:   Wed,  4 Jan 2023 17:06:52 +0100
-Message-Id: <20230104160511.308769907@linuxfoundation.org>
+Message-Id: <20230104160516.777512483@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,82 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Zack Rusin <zackr@vmware.com>
 
-commit 7236aae5f81f3efbd93d0601e74fc05994bc2580 upstream.
+commit 4cf949c7fafe21e085a4ee386bb2dade9067316e upstream.
 
-Utilize pdc_lock spinlock to protect parallel modifications of the
-iodc_dbuf[] buffer, check length to prevent buffer overflow of
-iodc_dbuf[], drop the iodc_retbuf[] buffer and fix some wrong
-indentings.
+Invalid userspace dma surface copies could potentially overflow
+the memcpy from the surface to the snooped image leading to crashes.
+To fix it the dimensions of the copybox have to be validated
+against the expected size of the snooped cursor.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org> # 6.0+
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Fixes: 2ac863719e51 ("vmwgfx: Snoop DMA transfers with non-covering sizes")
+Cc: <stable@vger.kernel.org> # v3.2+
+Reviewed-by: Michael Banack <banackm@vmware.com>
+Reviewed-by: Martin Krastev <krastevm@vmware.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221026031936.1004280-1-zack@kde.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/kernel/firmware.c | 24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/parisc/kernel/firmware.c b/arch/parisc/kernel/firmware.c
-index 6a7e315bcc2e..a115315d88e6 100644
---- a/arch/parisc/kernel/firmware.c
-+++ b/arch/parisc/kernel/firmware.c
-@@ -1288,9 +1288,8 @@ void pdc_io_reset_devices(void)
- 
- #endif /* defined(BOOTLOADER) */
- 
--/* locked by pdc_console_lock */
--static int __attribute__((aligned(8)))   iodc_retbuf[32];
--static char __attribute__((aligned(64))) iodc_dbuf[4096];
-+/* locked by pdc_lock */
-+static char iodc_dbuf[4096] __page_aligned_bss;
- 
- /**
-  * pdc_iodc_print - Console print using IODC.
-@@ -1307,6 +1306,9 @@ int pdc_iodc_print(const unsigned char *str, unsigned count)
- 	unsigned int i;
- 	unsigned long flags;
- 
-+	count = min_t(unsigned int, count, sizeof(iodc_dbuf));
-+
-+	spin_lock_irqsave(&pdc_lock, flags);
- 	for (i = 0; i < count;) {
- 		switch(str[i]) {
- 		case '\n':
-@@ -1322,12 +1324,11 @@ int pdc_iodc_print(const unsigned char *str, unsigned count)
- 	}
- 
- print:
--        spin_lock_irqsave(&pdc_lock, flags);
--        real32_call(PAGE0->mem_cons.iodc_io,
--                    (unsigned long)PAGE0->mem_cons.hpa, ENTRY_IO_COUT,
--                    PAGE0->mem_cons.spa, __pa(PAGE0->mem_cons.dp.layers),
--                    __pa(iodc_retbuf), 0, __pa(iodc_dbuf), i, 0);
--        spin_unlock_irqrestore(&pdc_lock, flags);
-+	real32_call(PAGE0->mem_cons.iodc_io,
-+		(unsigned long)PAGE0->mem_cons.hpa, ENTRY_IO_COUT,
-+		PAGE0->mem_cons.spa, __pa(PAGE0->mem_cons.dp.layers),
-+		__pa(pdc_result), 0, __pa(iodc_dbuf), i, 0);
-+	spin_unlock_irqrestore(&pdc_lock, flags);
- 
- 	return i;
- }
-@@ -1354,10 +1355,11 @@ int pdc_iodc_getc(void)
- 	real32_call(PAGE0->mem_kbd.iodc_io,
- 		    (unsigned long)PAGE0->mem_kbd.hpa, ENTRY_IO_CIN,
- 		    PAGE0->mem_kbd.spa, __pa(PAGE0->mem_kbd.dp.layers), 
--		    __pa(iodc_retbuf), 0, __pa(iodc_dbuf), 1, 0);
-+		    __pa(pdc_result), 0, __pa(iodc_dbuf), 1, 0);
- 
- 	ch = *iodc_dbuf;
--	status = *iodc_retbuf;
-+	/* like convert_to_wide() but for first return value only: */
-+	status = *(int *)&pdc_result;
- 	spin_unlock_irqrestore(&pdc_lock, flags);
- 
- 	if (status == 0)
--- 
-2.39.0
-
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
+@@ -308,7 +308,8 @@ void vmw_kms_cursor_snoop(struct vmw_sur
+ 	if (cmd->dma.guest.ptr.offset % PAGE_SIZE ||
+ 	    box->x != 0    || box->y != 0    || box->z != 0    ||
+ 	    box->srcx != 0 || box->srcy != 0 || box->srcz != 0 ||
+-	    box->d != 1    || box_count != 1) {
++	    box->d != 1    || box_count != 1 ||
++	    box->w > 64 || box->h > 64) {
+ 		/* TODO handle none page aligned offsets */
+ 		/* TODO handle more dst & src != 0 */
+ 		/* TODO handle more then one copy */
 
 
