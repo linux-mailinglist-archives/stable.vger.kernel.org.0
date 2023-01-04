@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B154B65D7F9
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:10:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C3DF65D7FC
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:10:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231220AbjADQKU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:10:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59870 "EHLO
+        id S239754AbjADQKV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:10:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239801AbjADQJb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:09:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0A053C384
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:09:11 -0800 (PST)
+        with ESMTP id S239823AbjADQJf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:09:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ECDF3C388
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:09:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9E092B8172E
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:09:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04895C433F0;
-        Wed,  4 Jan 2023 16:09:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DFD9C61758
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:09:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EED3BC433F1;
+        Wed,  4 Jan 2023 16:09:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848549;
-        bh=hIuJOjy+6j8o/kIvhaV8Fg6fyu2Too4DxdaKvwkrDO4=;
+        s=korg; t=1672848554;
+        bh=QU6E9a04N1en8MkogseUdwddJuUBtrw3ip3ycxGEiPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=00Ul59l4ck2l+mjmsfGNnOR9m+27a2e2jf0i8ohioTenJC3KACz/4qu1UaiTn1y2r
-         CwzlRy2gBe9M47TPdC9pWst9lhEh7F6JRqWx7LuKSpDKYAb7qKrboKv9+uKX8Em+4f
-         kRKte2RLASSEfC58YlmTiOwDNmEKDAmBkRr5cgC0=
+        b=w/DGanc7FOTSnKK6J8TJK4/GslNvagLQb0hx1XDwLtDoZNrjh/gYc7ind9mXyJOcr
+         2Hg+G9BK6RHIl0/wBMYY7see/1wuUyWkvOGSlbycFUWPJSGyngxc2t5kcW2Bg5YNus
+         fV3gIaRnj1iw5rarlTHLot0yw9sbVWhSKrom0kxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Fan Ni <fan.ni@samsung.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 6.1 004/207] cxl/region: Fix memdev reuse check
-Date:   Wed,  4 Jan 2023 17:04:22 +0100
-Message-Id: <20230104160512.057985569@linuxfoundation.org>
+        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>
+Subject: [PATCH 6.1 005/207] arm64: dts: qcom: sc8280xp: fix UFS DMA coherency
+Date:   Wed,  4 Jan 2023 17:04:23 +0100
+Message-Id: <20230104160512.088705217@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
 References: <20230104160511.905925875@linuxfoundation.org>
@@ -52,40 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fan Ni <fan.ni@samsung.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit f04facfb993de47e2133b2b842d72b97b1c50162 upstream.
+commit 0953777640354dc459a22369eea488603d225dd9 upstream.
 
-Due to a typo, the check of whether or not a memdev has already been
-used as a target for the region (above code piece) will always be
-skipped. Given a memdev with more than one HDM decoder, an interleaved
-region can be created that maps multiple HPAs to the same DPA. According
-to CXL spec 3.0 8.1.3.8.4, "Aliasing (mapping more than one Host
-Physical Address (HPA) to a single Device Physical Address) is
-forbidden."
+The SC8280XP UFS controllers are cache coherent and must be marked as
+such in the devicetree to avoid potential data corruption.
 
-Fix this by using existing iterator for memdev reuse check.
-
-Cc: <stable@vger.kernel.org>
-Fixes: 384e624bb211 ("cxl/region: Attach endpoint decoders")
-Signed-off-by: Fan Ni <fan.ni@samsung.com>
-Link: https://lore.kernel.org/r/20221107212153.745993-1-fan.ni@samsung.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fixes: 152d1faf1e2f ("arm64: dts: qcom: add SC8280XP platform")
+Cc: stable@vger.kernel.org      # 6.0
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221205100837.29212-3-johan+linaro@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cxl/core/region.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/sc8280xp.dtsi |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/cxl/core/region.c
-+++ b/drivers/cxl/core/region.c
-@@ -1226,7 +1226,7 @@ static int cxl_region_attach(struct cxl_
- 		struct cxl_endpoint_decoder *cxled_target;
- 		struct cxl_memdev *cxlmd_target;
+--- a/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
+@@ -855,6 +855,7 @@
+ 			required-opps = <&rpmhpd_opp_nom>;
  
--		cxled_target = p->targets[pos];
-+		cxled_target = p->targets[i];
- 		if (!cxled_target)
- 			continue;
+ 			iommus = <&apps_smmu 0xe0 0x0>;
++			dma-coherent;
  
+ 			clocks = <&gcc GCC_UFS_PHY_AXI_CLK>,
+ 				 <&gcc GCC_AGGRE_UFS_PHY_AXI_CLK>,
+@@ -923,6 +924,7 @@
+ 			power-domains = <&gcc UFS_CARD_GDSC>;
+ 
+ 			iommus = <&apps_smmu 0x4a0 0x0>;
++			dma-coherent;
+ 
+ 			clocks = <&gcc GCC_UFS_CARD_AXI_CLK>,
+ 				 <&gcc GCC_AGGRE_UFS_CARD_AXI_CLK>,
 
 
