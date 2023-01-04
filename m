@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D83C165D812
+	by mail.lfdr.de (Postfix) with ESMTP id 380F465D810
 	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:11:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239418AbjADQKz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:10:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59310 "EHLO
+        id S239880AbjADQKw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:10:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239948AbjADQKE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:10:04 -0500
+        with ESMTP id S239957AbjADQKG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:10:06 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0724A3FA3F
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:09:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59AAD3B90E
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:09:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0773B8172B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:09:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20996C433EF;
-        Wed,  4 Jan 2023 16:09:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B699B8171C
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:09:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31FDFC433F0;
+        Wed,  4 Jan 2023 16:09:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848584;
-        bh=CUwc3TW7fPW6dLhAhrnG5WSaRE9Ls/lIViyVbBw5HFk=;
+        s=korg; t=1672848587;
+        bh=wme1ajKnHr9x60woycRFxX2ffEgpDURTOm80zlSt2V0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=STwK7QuTTyPidByvuU09CEDHvsSxnn3/p06vo6TtxX1nVC0f9GLvSbLQa6skTyRzL
-         OU31ginPvMkf1ZhzJBwQgIe0fopG+xwAhF3nuzdRwjx0NJoTNjQvRmNxAKlI2bgY2y
-         G4BjbhNr+h2izmyr1HDFInIa/kbLMFN3vXulZ1P0=
+        b=fdYCCrwEgAc+9Q2IuldoP7C3BTcaZJMCyPJF0hpfNudIJfQXycLc7dPWaO0IUAmtD
+         LEHup4hAdtdZGJnATgvlyR4Q99JxUnB9K2yFJPZpaduap/7qeYCLw6Q+ayDTlrdOLQ
+         jGCJAeZf3/uiHzjAwFDUdPqkkT/gLN1xRMpud0pY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shuah Khan <skhan@linuxfoundation.org>,
-        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-Subject: [PATCH 6.1 030/207] selftests: Use optional USERCFLAGS and USERLDFLAGS
-Date:   Wed,  4 Jan 2023 17:04:48 +0100
-Message-Id: <20230104160512.872104461@linuxfoundation.org>
+        patches@lists.linux.dev, Yazen Ghannam <yazen.ghannam@amd.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 6.1 031/207] x86/MCE/AMD: Clear DFR errors found in THR handler
+Date:   Wed,  4 Jan 2023 17:04:49 +0100
+Message-Id: <20230104160512.900950875@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
 References: <20230104160511.905925875@linuxfoundation.org>
@@ -52,42 +52,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mickaël Salaün <mic@digikod.net>
+From: Yazen Ghannam <yazen.ghannam@amd.com>
 
-commit de3ee3f63400a23954e7c1ad1cb8c20f29ab6fe3 upstream.
+commit bc1b705b0eee4c645ad8b3bbff3c8a66e9688362 upstream.
 
-This change enables to extend CFLAGS and LDFLAGS from command line, e.g.
-to extend compiler checks: make USERCFLAGS=-Werror USERLDFLAGS=-static
+AMD's MCA Thresholding feature counts errors of all severity levels, not
+just correctable errors. If a deferred error causes the threshold limit
+to be reached (it was the error that caused the overflow), then both a
+deferred error interrupt and a thresholding interrupt will be triggered.
 
-USERCFLAGS and USERLDFLAGS are documented in
-Documentation/kbuild/makefiles.rst and Documentation/kbuild/kbuild.rst
+The order of the interrupts is not guaranteed. If the threshold
+interrupt handler is executed first, then it will clear MCA_STATUS for
+the error. It will not check or clear MCA_DESTAT which also holds a copy
+of the deferred error. When the deferred error interrupt handler runs it
+will not find an error in MCA_STATUS, but it will find the error in
+MCA_DESTAT. This will cause two errors to be logged.
 
-This should be backported (down to 5.10) to improve previous kernel
-versions testing as well.
+Check for deferred errors when handling a threshold interrupt. If a bank
+contains a deferred error, then clear the bank's MCA_DESTAT register.
 
-Cc: Shuah Khan <skhan@linuxfoundation.org>
+Define a new helper function to do the deferred error check and clearing
+of MCA_DESTAT.
+
+  [ bp: Simplify, convert comment to passive voice. ]
+
+Fixes: 37d43acfd79f ("x86/mce/AMD: Redo error logging from APIC LVT interrupt handlers")
+Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Cc: stable@vger.kernel.org
-Signed-off-by: Mickaël Salaün <mic@digikod.net>
-Link: https://lore.kernel.org/r/20220909103901.1503436-1-mic@digikod.net
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220621155943.33623-1-yazen.ghannam@amd.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/lib.mk |    5 +++++
- 1 file changed, 5 insertions(+)
+ arch/x86/kernel/cpu/mce/amd.c |   33 ++++++++++++++++++++-------------
+ 1 file changed, 20 insertions(+), 13 deletions(-)
 
---- a/tools/testing/selftests/lib.mk
-+++ b/tools/testing/selftests/lib.mk
-@@ -123,6 +123,11 @@ endef
- clean:
- 	$(CLEAN)
+--- a/arch/x86/kernel/cpu/mce/amd.c
++++ b/arch/x86/kernel/cpu/mce/amd.c
+@@ -788,6 +788,24 @@ _log_error_bank(unsigned int bank, u32 m
+ 	return status & MCI_STATUS_DEFERRED;
+ }
  
-+# Enables to extend CFLAGS and LDFLAGS from command line, e.g.
-+# make USERCFLAGS=-Werror USERLDFLAGS=-static
-+CFLAGS += $(USERCFLAGS)
-+LDFLAGS += $(USERLDFLAGS)
++static bool _log_error_deferred(unsigned int bank, u32 misc)
++{
++	if (!_log_error_bank(bank, mca_msr_reg(bank, MCA_STATUS),
++			     mca_msr_reg(bank, MCA_ADDR), misc))
++		return false;
 +
- # When make O= with kselftest target from main level
- # the following aren't defined.
- #
++	/*
++	 * Non-SMCA systems don't have MCA_DESTAT/MCA_DEADDR registers.
++	 * Return true here to avoid accessing these registers.
++	 */
++	if (!mce_flags.smca)
++		return true;
++
++	/* Clear MCA_DESTAT if the deferred error was logged from MCA_STATUS. */
++	wrmsrl(MSR_AMD64_SMCA_MCx_DESTAT(bank), 0);
++	return true;
++}
++
+ /*
+  * We have three scenarios for checking for Deferred errors:
+  *
+@@ -799,19 +817,8 @@ _log_error_bank(unsigned int bank, u32 m
+  */
+ static void log_error_deferred(unsigned int bank)
+ {
+-	bool defrd;
+-
+-	defrd = _log_error_bank(bank, mca_msr_reg(bank, MCA_STATUS),
+-				mca_msr_reg(bank, MCA_ADDR), 0);
+-
+-	if (!mce_flags.smca)
+-		return;
+-
+-	/* Clear MCA_DESTAT if we logged the deferred error from MCA_STATUS. */
+-	if (defrd) {
+-		wrmsrl(MSR_AMD64_SMCA_MCx_DESTAT(bank), 0);
++	if (_log_error_deferred(bank, 0))
+ 		return;
+-	}
+ 
+ 	/*
+ 	 * Only deferred errors are logged in MCA_DE{STAT,ADDR} so just check
+@@ -832,7 +839,7 @@ static void amd_deferred_error_interrupt
+ 
+ static void log_error_thresholding(unsigned int bank, u64 misc)
+ {
+-	_log_error_bank(bank, mca_msr_reg(bank, MCA_STATUS), mca_msr_reg(bank, MCA_ADDR), misc);
++	_log_error_deferred(bank, misc);
+ }
+ 
+ static void log_and_reset_block(struct threshold_block *block)
 
 
