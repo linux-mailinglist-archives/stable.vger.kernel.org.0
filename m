@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83F0C65D389
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:59:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C82A665D38D
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:59:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229453AbjADM6R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 07:58:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38884 "EHLO
+        id S234676AbjADM62 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 07:58:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233120AbjADM6N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:58:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D05681208A
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 04:58:11 -0800 (PST)
+        with ESMTP id S234875AbjADM6Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:58:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B27C1DF3F
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 04:58:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7C3C8B81642
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 12:58:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF00AC433D2;
-        Wed,  4 Jan 2023 12:58:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5C506142A
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 12:58:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDC9CC433F0;
+        Wed,  4 Jan 2023 12:58:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672837089;
-        bh=bpwggiVRI2gK5rg48cvGtqveTbcFZtNOsZ/PL8zPeuQ=;
+        s=korg; t=1672837100;
+        bh=yhwsXlkTQLdrJMshyXMOS7iICZ/8NPrxXf1qqVmQhd8=;
         h=Subject:To:Cc:From:Date:From;
-        b=pWhevPjJGZN/1/ghogfGlYVfyOomZOnX45Uj0MlQ8BkUK/D1X1oF76/KIYlVhe8o0
-         eC6IxyU45R8Hk4lTnjfjUCHfkb7aPm5N08YeFd1LjBeQVErPZh2O6Yn5vUhbJMZ4oX
-         +m8l0bLC3tYI/37j7DyOwN6Fi/4Q4Qx5Lf81+8eA=
-Subject: FAILED: patch "[PATCH] x86/MCE/AMD: Clear DFR errors found in THR handler" failed to apply to 4.19-stable tree
+        b=KoVScoSE4jRSBT+cJZ9E2KqiH80QYb5DqnJCQ3bd542kDL2elskjEr9oZqd1XofwM
+         rfgow40hmthHhupf7LqtiuKKTXEjL1TczOMKQNvrjcxo0ZB5eFnj/li6rhirm75rEQ
+         sy/Zca4Zw5yGJXX93B/mePHWK/7wMrBXmyGLf1xE=
+Subject: FAILED: patch "[PATCH] x86/MCE/AMD: Clear DFR errors found in THR handler" failed to apply to 4.14-stable tree
 To:     yazen.ghannam@amd.com, bp@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 13:58:05 +0100
-Message-ID: <167283708515832@kroah.com>
+Date:   Wed, 04 Jan 2023 13:58:16 +0100
+Message-ID: <167283709670123@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,6 +70,7 @@ f19501aa07f1 ("x86/mce: Fix machine_check_poll() tests for error types")
 c95b323dcd35 ("x86/MCE/AMD: Turn off MC4_MISC thresholding on all family 0x15 models")
 21afaf181362 ("x86/mce: Streamline MCE subsystem's naming")
 60c8144afc28 ("x86/MCE/AMD: Fix the thresholding machinery initialization order")
+37a16046800c ("Merge branch 'ras-core-for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip")
 
 thanks,
 
