@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B43B65D871
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:14:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CB8565D85C
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:14:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239715AbjADQOg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:14:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37282 "EHLO
+        id S239246AbjADQNz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:13:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239870AbjADQO1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:14:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 037893FA31
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:14:01 -0800 (PST)
+        with ESMTP id S239923AbjADQNR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:13:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78362632D
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:13:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FEE1617A7
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:14:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8163BC433EF;
-        Wed,  4 Jan 2023 16:13:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 29555B817AC
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:13:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AA12C433EF;
+        Wed,  4 Jan 2023 16:13:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848840;
-        bh=/SGjc/bqFrhn/0ujg6yy2wv+klspnHA1uquejMVB/zQ=;
+        s=korg; t=1672848793;
+        bh=MLqWsvv4z/vdalGPAKjnUi15MeM7CF0nPaJgEgCIVr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VuwqvQLqlyvaXuvebntftqObpZfXru15s2v4r6WYJqRC75h93Fgx5aXk0Kcn7RPMO
-         4XHKiqrDiyJq9MF6ena3el5LeLkZ0XlYJHqG2x0nol1wOo8rBIF4KDceeAsryUxafT
-         jHgmgbFa9GQb8vaeg05q5cMfRbdcDCkfA6IGFcfA=
+        b=KuE2f/FedCIG3KIGEWn9KmCgecJBE4sbxkuj7HuztvMyJAtbA8LR2063JATSlDora
+         gqXS1N4CbiT90zYXzTWTl0ZeLCPD5NrkVx8fns1mvZ/Yl2X9sC6/tkJC6vbXK2tn2M
+         78/zsc8NXVXljbLxdV5WTra45dGmX6pHzM5tCSrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrew Cooper <andrew.cooper3@citrix.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 6.0 023/177] x86/fpu/xstate: Fix XSTATE_WARN_ON() to emit relevant diagnostics
-Date:   Wed,  4 Jan 2023 17:05:14 +0100
-Message-Id: <20230104160508.365931371@linuxfoundation.org>
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 057/207] platform/x86: x86-android-tablets: Add Advantech MICA-071 extra button
+Date:   Wed,  4 Jan 2023 17:05:15 +0100
+Message-Id: <20230104160513.720464353@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,69 +52,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Cooper <andrew.cooper3@citrix.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 48280042f2c6e3ac2cfb1d8b752ab4a7e0baea24 upstream.
+[ Upstream commit b03ae77e7e057f4b3b858f10c840557e71448a91 ]
 
-"XSAVE consistency problem" has been reported under Xen, but that's the extent
-of my divination skills.
+The Advantech MICA-071 is a standard Windows tablet, but it has an extra
+"quick launch" button which is not described in the ACPI tables in anyway.
 
-Modify XSTATE_WARN_ON() to force the caller to provide relevant diagnostic
-information, and modify each caller suitably.
+Use the x86-android-tablets infra to create a gpio-button device for this.
 
-For check_xstate_against_struct(), this removes a double WARN() where one will
-do perfectly fine.
-
-CC stable as this has been wonky debugging for 7 years and it is good to
-have there too.
-
-Signed-off-by: Andrew Cooper <andrew.cooper3@citrix.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220810221909.12768-1-andrew.cooper3@citrix.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20221127221928.123660-1-hdegoede@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/fpu/xstate.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/platform/x86/x86-android-tablets.c | 58 ++++++++++++++++++++++
+ 1 file changed, 58 insertions(+)
 
---- a/arch/x86/kernel/fpu/xstate.c
-+++ b/arch/x86/kernel/fpu/xstate.c
-@@ -440,8 +440,8 @@ static void __init __xstate_dump_leaves(
- 	}
- }
+diff --git a/drivers/platform/x86/x86-android-tablets.c b/drivers/platform/x86/x86-android-tablets.c
+index bbfae1395e18..123a4618db55 100644
+--- a/drivers/platform/x86/x86-android-tablets.c
++++ b/drivers/platform/x86/x86-android-tablets.c
+@@ -265,6 +265,56 @@ static struct gpiod_lookup_table int3496_gpo2_pin22_gpios = {
+ 	},
+ };
  
--#define XSTATE_WARN_ON(x) do {							\
--	if (WARN_ONCE(x, "XSAVE consistency problem, dumping leaves")) {	\
-+#define XSTATE_WARN_ON(x, fmt, ...) do {					\
-+	if (WARN_ONCE(x, "XSAVE consistency problem: " fmt, ##__VA_ARGS__)) {	\
- 		__xstate_dump_leaves();						\
- 	}									\
- } while (0)
-@@ -554,8 +554,7 @@ static bool __init check_xstate_against_
- 	    (nr >= XFEATURE_MAX) ||
- 	    (nr == XFEATURE_PT_UNIMPLEMENTED_SO_FAR) ||
- 	    ((nr >= XFEATURE_RSRVD_COMP_11) && (nr <= XFEATURE_RSRVD_COMP_16))) {
--		WARN_ONCE(1, "no structure for xstate: %d\n", nr);
--		XSTATE_WARN_ON(1);
-+		XSTATE_WARN_ON(1, "No structure for xstate: %d\n", nr);
- 		return false;
- 	}
- 	return true;
-@@ -598,12 +597,13 @@ static bool __init paranoid_xstate_size_
- 		 * XSAVES.
- 		 */
- 		if (!xsaves && xfeature_is_supervisor(i)) {
--			XSTATE_WARN_ON(1);
-+			XSTATE_WARN_ON(1, "Got supervisor feature %d, but XSAVES not advertised\n", i);
- 			return false;
- 		}
- 	}
- 	size = xstate_calculate_size(fpu_kernel_cfg.max_features, compacted);
--	XSTATE_WARN_ON(size != kernel_size);
-+	XSTATE_WARN_ON(size != kernel_size,
-+		       "size %u != kernel_size %u\n", size, kernel_size);
- 	return size == kernel_size;
- }
++/*
++ * Advantech MICA-071
++ * This is a standard Windows tablet, but it has an extra "quick launch" button
++ * which is not described in the ACPI tables in anyway.
++ * Use the x86-android-tablets infra to create a gpio-button device for this.
++ */
++static struct gpio_keys_button advantech_mica_071_button = {
++	.code = KEY_PROG1,
++	/* .gpio gets filled in by advantech_mica_071_init() */
++	.active_low = true,
++	.desc = "prog1_key",
++	.type = EV_KEY,
++	.wakeup = false,
++	.debounce_interval = 50,
++};
++
++static const struct gpio_keys_platform_data advantech_mica_071_button_pdata __initconst = {
++	.buttons = &advantech_mica_071_button,
++	.nbuttons = 1,
++	.name = "prog1_key",
++};
++
++static const struct platform_device_info advantech_mica_071_pdevs[] __initconst = {
++	{
++		.name = "gpio-keys",
++		.id = PLATFORM_DEVID_AUTO,
++		.data = &advantech_mica_071_button_pdata,
++		.size_data = sizeof(advantech_mica_071_button_pdata),
++	},
++};
++
++static int __init advantech_mica_071_init(void)
++{
++	struct gpio_desc *gpiod;
++	int ret;
++
++	ret = x86_android_tablet_get_gpiod("INT33FC:00", 2, &gpiod);
++	if (ret < 0)
++		return ret;
++	advantech_mica_071_button.gpio = desc_to_gpio(gpiod);
++
++	return 0;
++}
++
++static const struct x86_dev_info advantech_mica_071_info __initconst = {
++	.pdev_info = advantech_mica_071_pdevs,
++	.pdev_count = ARRAY_SIZE(advantech_mica_071_pdevs),
++	.init = advantech_mica_071_init,
++};
++
+ /* Asus ME176C and TF103C tablets shared data */
+ static struct gpio_keys_button asus_me176c_tf103c_lid = {
+ 	.code = SW_LID,
+@@ -1385,6 +1435,14 @@ static const struct x86_dev_info xiaomi_mipad2_info __initconst = {
+ };
  
+ static const struct dmi_system_id x86_android_tablet_ids[] __initconst = {
++	{
++		/* Advantech MICA-071 */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Advantech"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "MICA-071"),
++		},
++		.driver_data = (void *)&advantech_mica_071_info,
++	},
+ 	{
+ 		/* Asus MeMO Pad 7 ME176C */
+ 		.matches = {
+-- 
+2.35.1
+
 
 
