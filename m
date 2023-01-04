@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCC6D65D6D6
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:06:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E686265D6D7
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:07:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234797AbjADPGT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 10:06:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51510 "EHLO
+        id S229528AbjADPGt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 10:06:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239317AbjADPF6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:05:58 -0500
+        with ESMTP id S229461AbjADPGs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:06:48 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 006341706B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:05:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCB72EE30
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:06:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 90235615CD
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 15:05:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A924EC43396;
-        Wed,  4 Jan 2023 15:05:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7946961738
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 15:06:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7090CC433F1;
+        Wed,  4 Jan 2023 15:06:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672844756;
-        bh=xrp4gX+3LkG8Bv6wdNShXzK1uyoVceOwreCsPjHPNVQ=;
+        s=korg; t=1672844806;
+        bh=r7RGPQn6P9e4dhbuOn3vgC2KHC1h6NMpjux6iSX6adk=;
         h=Subject:To:Cc:From:Date:From;
-        b=IkYbTWhukuVaKExW6dBKBsGvKQeITJwkKBLGgB8pUOIkTc5Ar2qPr7QkvAwiNFFsO
-         pzB/zdyARto5R6a1kenlPxS+1pVqFUGsuSp+t2GBRHK5YuXahkQcKarJKJB9ZHdalV
-         e5SzQwyvIDYZqhpxACB6/wQB9Dar9j3Fee6CZBPo=
-Subject: FAILED: patch "[PATCH] ext4: don't fail GETFSUUID when the caller provides a long" failed to apply to 4.9-stable tree
+        b=nDA5oYFncXiuJB0klj2OiUwVvXGwP7c3B2Gv1lAbO8hyRSGrXtNBr9Sxrjinn4V8i
+         KFxh+lKpui8euadTF7bCgBMDY+cdrz9d1nWmFVb+3xAZwoP38ykNtr/Y2QbiF6DgII
+         7mc/txeBrzsI0Shr6EHpwXzLuRijPcYLB/DYZ/FE=
+Subject: FAILED: patch "[PATCH] ext4: dont return EINVAL from GETFSUUID when reporting UUID" failed to apply to 5.15-stable tree
 To:     djwong@kernel.org, catherine.hoang@oracle.com, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 16:05:44 +0100
-Message-ID: <16728447441035@kroah.com>
+Date:   Wed, 04 Jan 2023 16:06:43 +0100
+Message-ID: <1672844803112105@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,19 +47,16 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-a7e9d977e031 ("ext4: don't fail GETFSUUID when the caller provides a long buffer")
+b76abb515746 ("ext4: dont return EINVAL from GETFSUUID when reporting UUID length")
 d95efb14c0b8 ("ext4: add ioctls to get/set the ext4 superblock uuid")
 bbc605cdb1e1 ("ext4: implement support for get/set fs label")
-351a0a3fbc35 ("ext4: add ioctl EXT4_IOC_CHECKPOINT")
-4db5c2e6236f ("ext4: convert to fileattr")
-7d6beb71da3c ("Merge tag 'idmapped-mounts-v5.12' of git://git.kernel.org/pub/scm/linux/kernel/git/brauner/linux")
 
 thanks,
 
@@ -67,46 +64,41 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a7e9d977e031fceefe1e7cd69ebd7202d5758b56 Mon Sep 17 00:00:00 2001
+From b76abb5157468756163fe7e3431c9fe32cba57ca Mon Sep 17 00:00:00 2001
 From: "Darrick J. Wong" <djwong@kernel.org>
-Date: Thu, 10 Nov 2022 12:16:34 -0800
-Subject: [PATCH] ext4: don't fail GETFSUUID when the caller provides a long
- buffer
+Date: Thu, 10 Nov 2022 12:16:29 -0800
+Subject: [PATCH] ext4: dont return EINVAL from GETFSUUID when reporting UUID
+ length
 
-If userspace provides a longer UUID buffer than is required, we
-shouldn't fail the call with EINVAL -- rather, we can fill the caller's
-buffer with the bytes we /can/ fill, and update the length field to
-reflect what we copied.  This doesn't break the UAPI since we're
-enabling a case that currently fails, and so far Ted hasn't released a
-version of e2fsprogs that uses the new ext4 ioctl.
+If userspace calls this ioctl with fsu_length (the length of the
+fsuuid.fsu_uuid array) set to zero, ext4 copies the desired uuid length
+out to userspace.  The kernel call returned a result from a valid input,
+so the return value here should be zero, not EINVAL.
+
+While we're at it, fix the copy_to_user call to make it clear that we're
+only copying out fsu_len.
 
 Signed-off-by: Darrick J. Wong <djwong@kernel.org>
 Reviewed-by: Catherine Hoang <catherine.hoang@oracle.com>
-Link: https://lore.kernel.org/r/166811139478.327006.13879198441587445544.stgit@magnolia
+Link: https://lore.kernel.org/r/166811138914.327006.9241306894437166566.stgit@magnolia
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Cc: stable@kernel.org
 
 diff --git a/fs/ext4/ioctl.c b/fs/ext4/ioctl.c
-index beedaebab21c..202953b5db49 100644
+index e5f60057db5b..beedaebab21c 100644
 --- a/fs/ext4/ioctl.c
 +++ b/fs/ext4/ioctl.c
-@@ -1160,14 +1160,16 @@ static int ext4_ioctl_getuuid(struct ext4_sb_info *sbi,
- 		return 0;
+@@ -1154,9 +1154,10 @@ static int ext4_ioctl_getuuid(struct ext4_sb_info *sbi,
+ 
+ 	if (fsuuid.fsu_len == 0) {
+ 		fsuuid.fsu_len = UUID_SIZE;
+-		if (copy_to_user(ufsuuid, &fsuuid, sizeof(fsuuid.fsu_len)))
++		if (copy_to_user(&ufsuuid->fsu_len, &fsuuid.fsu_len,
++					sizeof(fsuuid.fsu_len)))
+ 			return -EFAULT;
+-		return -EINVAL;
++		return 0;
  	}
  
--	if (fsuuid.fsu_len != UUID_SIZE || fsuuid.fsu_flags != 0)
-+	if (fsuuid.fsu_len < UUID_SIZE || fsuuid.fsu_flags != 0)
- 		return -EINVAL;
- 
- 	lock_buffer(sbi->s_sbh);
- 	memcpy(uuid, sbi->s_es->s_uuid, UUID_SIZE);
- 	unlock_buffer(sbi->s_sbh);
- 
--	if (copy_to_user(&ufsuuid->fsu_uuid[0], uuid, UUID_SIZE))
-+	fsuuid.fsu_len = UUID_SIZE;
-+	if (copy_to_user(ufsuuid, &fsuuid, sizeof(fsuuid)) ||
-+	    copy_to_user(&ufsuuid->fsu_uuid[0], uuid, UUID_SIZE))
- 		return -EFAULT;
- 	return 0;
- }
+ 	if (fsuuid.fsu_len != UUID_SIZE || fsuuid.fsu_flags != 0)
 
