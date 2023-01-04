@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C588465D635
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:42:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5590765D636
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:42:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235044AbjADOmI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:42:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33422 "EHLO
+        id S239675AbjADOmL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:42:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239808AbjADOlr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:41:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECA2038AF8
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:41:43 -0800 (PST)
+        with ESMTP id S239825AbjADOlu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:41:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1EF6F7E
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:41:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A85A61746
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:41:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79E1EC433F1;
-        Wed,  4 Jan 2023 14:41:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 515BA61766
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:41:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4613FC433F1;
+        Wed,  4 Jan 2023 14:41:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672843302;
-        bh=41ZfybXvtxezFOP2nkmoJAoHQFynNaUwhJ4mENF/66E=;
+        s=korg; t=1672843305;
+        bh=miEx5sUW4c6Yo2NZmnuLVENN3UHB2j7lLbT/QJiJUps=;
         h=Subject:To:Cc:From:Date:From;
-        b=AOqP8XTKBPZZufL/iBSqguj7eDDzHbaDJS90JvneGKfO5tArulIpUTW0Tw9yrrrQR
-         DOUC/WA6odoViVB6O1rn3znfio6epK+FzafMR7K8EMJ7GTXLG20b+1LI/p7pMwK8oV
-         PcYbtGc9oPIb5N3z5FvjZYChATiiSEW3FNRqKRn0=
-Subject: FAILED: patch "[PATCH] drm/i915/gt: Restrict forced preemption to the active context" failed to apply to 5.15-stable tree
+        b=yzufUdJC7a3ORekF+X7h0XnOIMWstCeAS9EC13gGffT9TiGOgs9ZpnKVPv4p/jiAB
+         J5f0e9WGO5wcCql4iAh0nAAy2yFf3cHxNOg+6LXmzDEqAOuPzNTxZOidNzFmiPAi9x
+         njYJaj40gVRzHDxKkFNg6HlWewBn4qyruyUjfmSQ=
+Subject: FAILED: patch "[PATCH] drm/i915/gt: Restrict forced preemption to the active context" failed to apply to 5.10-stable tree
 To:     chris@chris-wilson.co.uk, andi.shyti@linux.intel.com,
         andrzej.hajda@intel.com, stable@vger.kernel.org,
         tvrtko.ursulin@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:41:34 +0100
-Message-ID: <167284329422230@kroah.com>
+Date:   Wed, 04 Jan 2023 15:41:36 +0100
+Message-ID: <167284329621563@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -57,6 +57,25 @@ id to <stable@vger.kernel.org>.
 Possible dependencies:
 
 107ba1a2c705 ("drm/i915/gt: Restrict forced preemption to the active context")
+3e28d37146db ("drm/i915: Move priolist to new i915_sched_engine object")
+2913fa4d7d42 ("drm/i915/gt: use new tasklet API for execution list")
+eb5c10cbbc2f ("drm/i915: Remove I915_USER_PRIORITY_SHIFT")
+2867ff6ceb25 ("drm/i915: Strip out internal priorities")
+a829f033e966 ("drm/i915: Wedge the GPU if command parser setup fails")
+f99e67f1b929 ("drm/i915/display: Apply interactive priority to explicit flip fences")
+007c45787650 ("drm/i915/guc: stop calling execlists_set_default_submission")
+43aaadc67e6f ("drm/i915/guc: init engine directly in GuC submission mode")
+7e5299cebe91 ("drm/i915/guc: Delete GuC code unused in future patches")
+baa7c2cd99c6 ("drm/i915: Refactor marking a request as EIO")
+751f82b353a6 ("drm/i915/gt: Only disable preemption on gen8 render engines")
+4386b8e5ad71 ("drm/i915/gt: Remove timeslice suppression")
+fe7bcfaeb2b7 ("drm/i915/gt: Refactor heartbeat request construction and submission")
+f81475bb5bb4 ("drm/i915/gt: Resubmit the virtual engine on schedule-out")
+bab0557c8dca ("drm/i915/gt: Remove virtual breadcrumb before transfer")
+6f0726b4807c ("drm/i915/gt: Defer schedule_out until after the next dequeue")
+2efa2c522ab0 ("drm/i915/gt: Decouple inflight virtual engines")
+64b7a3fa7e3e ("drm/i915/gt: Use virtual_engine during execlists_dequeue")
+16f2941ad307 ("drm/i915/gt: Replace direct submit with direct call to tasklet")
 
 thanks,
 
