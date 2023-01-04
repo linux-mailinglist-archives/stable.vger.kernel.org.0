@@ -2,204 +2,269 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7CD565D84E
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:13:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FCB065D8A2
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:16:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239803AbjADQNa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:13:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35304 "EHLO
+        id S239906AbjADQQm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:16:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239841AbjADQMi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:12:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FE72DF26
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:12:36 -0800 (PST)
+        with ESMTP id S239921AbjADQQU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:16:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74943CE3E
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:16:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 36B85B81730
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:12:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A861C433F0;
-        Wed,  4 Jan 2023 16:12:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D61F8617AB
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:16:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D796AC433EF;
+        Wed,  4 Jan 2023 16:16:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848753;
-        bh=Lddamzy84F7IntM5RIIPGNBQKw8rSujVqBAy0ecnios=;
+        s=korg; t=1672848976;
+        bh=8g3hSsBg9tfDjlT1SoR2zboYkQrHgnwWEhgMaf29Bv8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ruWXo76rlP2u2z/AvoJKO0gqzeS5UkvZwDnISjBHspjyNe/UXAcc5KQuQs+brsWYV
-         T1ZTg0tQPt5U90vxfIUfy+poIJEj/9KPY/9OHs2/bQNgJelSPiDPkV8EYqdspVRnPX
-         yERdeFzGol7agvpgr60k5B8butFyqDtQFavGBWgo=
+        b=D+zv2y3MwCW3DMzsJTgJiboFlCLgWJ9d5ANI5mKkGJ6TkQV3AtCfYcTnzKlLao8TL
+         t9MVypoVyYyjEb9oAc4NvbYkCjFHMzCPB6Q9gf/nGb/O4gKvRgSYKJC9pKx+5/Frcs
+         OR+g/LlBej8+iNZ3STPkANHPzeq5gR3TC9P+vENY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, mhiramat@kernel.org, zanussi@kernel.org,
-        Zheng Yejian <zhengyejian1@huawei.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.1 077/207] tracing/hist: Fix out-of-bound write on action_data.var_ref_idx
-Date:   Wed,  4 Jan 2023 17:05:35 +0100
-Message-Id: <20230104160514.385729685@linuxfoundation.org>
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 6.0 045/177] dm thin: Fix ABBA deadlock between shrink_slab and dm_pool_abort_metadata
+Date:   Wed,  4 Jan 2023 17:05:36 +0100
+Message-Id: <20230104160509.013734463@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,WEIRD_PORT autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yejian <zhengyejian1@huawei.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-commit 82470f7d9044842618c847a7166de2b7458157a7 upstream.
+commit 8111964f1b8524c4bb56b02cd9c7a37725ea21fd upstream.
 
-When generate a synthetic event with many params and then create a trace
-action for it [1], kernel panic happened [2].
+Following concurrent processes:
 
-It is because that in trace_action_create() 'data->n_params' is up to
-SYNTH_FIELDS_MAX (current value is 64), and array 'data->var_ref_idx'
-keeps indices into array 'hist_data->var_refs' for each synthetic event
-param, but the length of 'data->var_ref_idx' is TRACING_MAP_VARS_MAX
-(current value is 16), so out-of-bound write happened when 'data->n_params'
-more than 16. In this case, 'data->match_data.event' is overwritten and
-eventually cause the panic.
+          P1(drop cache)                P2(kworker)
+drop_caches_sysctl_handler
+ drop_slab
+  shrink_slab
+   down_read(&shrinker_rwsem)  - LOCK A
+   do_shrink_slab
+    super_cache_scan
+     prune_icache_sb
+      dispose_list
+       evict
+        ext4_evict_inode
+	 ext4_clear_inode
+	  ext4_discard_preallocations
+	   ext4_mb_load_buddy_gfp
+	    ext4_mb_init_cache
+	     ext4_read_block_bitmap_nowait
+	      ext4_read_bh_nowait
+	       submit_bh
+	        dm_submit_bio
+		                 do_worker
+				  process_deferred_bios
+				   commit
+				    metadata_operation_failed
+				     dm_pool_abort_metadata
+				      down_write(&pmd->root_lock) - LOCK B
+		                      __destroy_persistent_data_objects
+				       dm_block_manager_destroy
+				        dm_bufio_client_destroy
+				         unregister_shrinker
+					  down_write(&shrinker_rwsem)
+		 thin_map                            |
+		  dm_thin_find_block                 ↓
+		   down_read(&pmd->root_lock) --> ABBA deadlock
 
-To solve the issue, adjust the length of 'data->var_ref_idx' to be
-SYNTH_FIELDS_MAX and add sanity checks to avoid out-of-bound write.
+, which triggers hung task:
 
-[1]
- # cd /sys/kernel/tracing/
- # echo "my_synth_event int v1; int v2; int v3; int v4; int v5; int v6;\
-int v7; int v8; int v9; int v10; int v11; int v12; int v13; int v14;\
-int v15; int v16; int v17; int v18; int v19; int v20; int v21; int v22;\
-int v23; int v24; int v25; int v26; int v27; int v28; int v29; int v30;\
-int v31; int v32; int v33; int v34; int v35; int v36; int v37; int v38;\
-int v39; int v40; int v41; int v42; int v43; int v44; int v45; int v46;\
-int v47; int v48; int v49; int v50; int v51; int v52; int v53; int v54;\
-int v55; int v56; int v57; int v58; int v59; int v60; int v61; int v62;\
-int v63" >> synthetic_events
- # echo 'hist:keys=pid:ts0=common_timestamp.usecs if comm=="bash"' >> \
-events/sched/sched_waking/trigger
- # echo "hist:keys=next_pid:onmatch(sched.sched_waking).my_synth_event(\
-pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,\
-pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,\
-pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,\
-pid,pid,pid,pid,pid,pid,pid,pid,pid)" >> events/sched/sched_switch/trigger
+[   76.974820] INFO: task kworker/u4:3:63 blocked for more than 15 seconds.
+[   76.976019]       Not tainted 6.1.0-rc4-00011-g8f17dd350364-dirty #910
+[   76.978521] task:kworker/u4:3    state:D stack:0     pid:63    ppid:2
+[   76.978534] Workqueue: dm-thin do_worker
+[   76.978552] Call Trace:
+[   76.978564]  __schedule+0x6ba/0x10f0
+[   76.978582]  schedule+0x9d/0x1e0
+[   76.978588]  rwsem_down_write_slowpath+0x587/0xdf0
+[   76.978600]  down_write+0xec/0x110
+[   76.978607]  unregister_shrinker+0x2c/0xf0
+[   76.978616]  dm_bufio_client_destroy+0x116/0x3d0
+[   76.978625]  dm_block_manager_destroy+0x19/0x40
+[   76.978629]  __destroy_persistent_data_objects+0x5e/0x70
+[   76.978636]  dm_pool_abort_metadata+0x8e/0x100
+[   76.978643]  metadata_operation_failed+0x86/0x110
+[   76.978649]  commit+0x6a/0x230
+[   76.978655]  do_worker+0xc6e/0xd90
+[   76.978702]  process_one_work+0x269/0x630
+[   76.978714]  worker_thread+0x266/0x630
+[   76.978730]  kthread+0x151/0x1b0
+[   76.978772] INFO: task test.sh:2646 blocked for more than 15 seconds.
+[   76.979756]       Not tainted 6.1.0-rc4-00011-g8f17dd350364-dirty #910
+[   76.982111] task:test.sh         state:D stack:0     pid:2646  ppid:2459
+[   76.982128] Call Trace:
+[   76.982139]  __schedule+0x6ba/0x10f0
+[   76.982155]  schedule+0x9d/0x1e0
+[   76.982159]  rwsem_down_read_slowpath+0x4f4/0x910
+[   76.982173]  down_read+0x84/0x170
+[   76.982177]  dm_thin_find_block+0x4c/0xd0
+[   76.982183]  thin_map+0x201/0x3d0
+[   76.982188]  __map_bio+0x5b/0x350
+[   76.982195]  dm_submit_bio+0x2b6/0x930
+[   76.982202]  __submit_bio+0x123/0x2d0
+[   76.982209]  submit_bio_noacct_nocheck+0x101/0x3e0
+[   76.982222]  submit_bio_noacct+0x389/0x770
+[   76.982227]  submit_bio+0x50/0xc0
+[   76.982232]  submit_bh_wbc+0x15e/0x230
+[   76.982238]  submit_bh+0x14/0x20
+[   76.982241]  ext4_read_bh_nowait+0xc5/0x130
+[   76.982247]  ext4_read_block_bitmap_nowait+0x340/0xc60
+[   76.982254]  ext4_mb_init_cache+0x1ce/0xdc0
+[   76.982259]  ext4_mb_load_buddy_gfp+0x987/0xfa0
+[   76.982263]  ext4_discard_preallocations+0x45d/0x830
+[   76.982274]  ext4_clear_inode+0x48/0xf0
+[   76.982280]  ext4_evict_inode+0xcf/0xc70
+[   76.982285]  evict+0x119/0x2b0
+[   76.982290]  dispose_list+0x43/0xa0
+[   76.982294]  prune_icache_sb+0x64/0x90
+[   76.982298]  super_cache_scan+0x155/0x210
+[   76.982303]  do_shrink_slab+0x19e/0x4e0
+[   76.982310]  shrink_slab+0x2bd/0x450
+[   76.982317]  drop_slab+0xcc/0x1a0
+[   76.982323]  drop_caches_sysctl_handler+0xb7/0xe0
+[   76.982327]  proc_sys_call_handler+0x1bc/0x300
+[   76.982331]  proc_sys_write+0x17/0x20
+[   76.982334]  vfs_write+0x3d3/0x570
+[   76.982342]  ksys_write+0x73/0x160
+[   76.982347]  __x64_sys_write+0x1e/0x30
+[   76.982352]  do_syscall_64+0x35/0x80
+[   76.982357]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-[2]
-BUG: unable to handle page fault for address: ffff91c900000000
-PGD 61001067 P4D 61001067 PUD 0
-Oops: 0000 [#1] PREEMPT SMP NOPTI
-CPU: 2 PID: 322 Comm: bash Tainted: G        W          6.1.0-rc8+ #229
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org 04/01/2014
-RIP: 0010:strcmp+0xc/0x30
-Code: 75 f7 31 d2 44 0f b6 04 16 44 88 04 11 48 83 c2 01 45 84 c0 75 ee
-c3 cc cc cc cc 0f 1f 00 31 c0 eb 08 48 83 c0 01 84 d2 74 13 <0f> b6 14
-07 3a 14 06 74 ef 19 c0 83 c8 01 c3 cc cc cc cc 31 c3
-RSP: 0018:ffff9b3b00f53c48 EFLAGS: 00000246
-RAX: 0000000000000000 RBX: ffffffffba958a68 RCX: 0000000000000000
-RDX: 0000000000000010 RSI: ffff91c943d33a90 RDI: ffff91c900000000
-RBP: ffff91c900000000 R08: 00000018d604b529 R09: 0000000000000000
-R10: ffff91c9483eddb1 R11: ffff91ca483eddab R12: ffff91c946171580
-R13: ffff91c9479f0538 R14: ffff91c9457c2848 R15: ffff91c9479f0538
-FS:  00007f1d1cfbe740(0000) GS:ffff91c9bdc80000(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffff91c900000000 CR3: 0000000006316000 CR4: 00000000000006e0
-Call Trace:
- <TASK>
- __find_event_file+0x55/0x90
- action_create+0x76c/0x1060
- event_hist_trigger_parse+0x146d/0x2060
- ? event_trigger_write+0x31/0xd0
- trigger_process_regex+0xbb/0x110
- event_trigger_write+0x6b/0xd0
- vfs_write+0xc8/0x3e0
- ? alloc_fd+0xc0/0x160
- ? preempt_count_add+0x4d/0xa0
- ? preempt_count_add+0x70/0xa0
- ksys_write+0x5f/0xe0
- do_syscall_64+0x3b/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7f1d1d0cf077
-Code: 64 89 02 48 c7 c0 ff ff ff ff eb bb 0f 1f 80 00 00 00 00 f3 0f 1e
-fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 01 00 00 00 0f 05 <48> 3d 00
-f0 ff ff 77 51 c3 48 83 ec 28 48 89 54 24 18 48 89 74
-RSP: 002b:00007ffcebb0e568 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-RAX: ffffffffffffffda RBX: 0000000000000143 RCX: 00007f1d1d0cf077
-RDX: 0000000000000143 RSI: 00005639265aa7e0 RDI: 0000000000000001
-RBP: 00005639265aa7e0 R08: 000000000000000a R09: 0000000000000142
-R10: 000056392639c017 R11: 0000000000000246 R12: 0000000000000143
-R13: 00007f1d1d1ae6a0 R14: 00007f1d1d1aa4a0 R15: 00007f1d1d1a98a0
- </TASK>
-Modules linked in:
-CR2: ffff91c900000000
----[ end trace 0000000000000000 ]---
-RIP: 0010:strcmp+0xc/0x30
-Code: 75 f7 31 d2 44 0f b6 04 16 44 88 04 11 48 83 c2 01 45 84 c0 75 ee
-c3 cc cc cc cc 0f 1f 00 31 c0 eb 08 48 83 c0 01 84 d2 74 13 <0f> b6 14
-07 3a 14 06 74 ef 19 c0 83 c8 01 c3 cc cc cc cc 31 c3
-RSP: 0018:ffff9b3b00f53c48 EFLAGS: 00000246
-RAX: 0000000000000000 RBX: ffffffffba958a68 RCX: 0000000000000000
-RDX: 0000000000000010 RSI: ffff91c943d33a90 RDI: ffff91c900000000
-RBP: ffff91c900000000 R08: 00000018d604b529 R09: 0000000000000000
-R10: ffff91c9483eddb1 R11: ffff91ca483eddab R12: ffff91c946171580
-R13: ffff91c9479f0538 R14: ffff91c9457c2848 R15: ffff91c9479f0538
-FS:  00007f1d1cfbe740(0000) GS:ffff91c9bdc80000(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffff91c900000000 CR3: 0000000006316000 CR4: 00000000000006e0
+Function metadata_operation_failed() is called when operations failed
+on dm pool metadata, dm pool will destroy and recreate metadata. So,
+shrinker will be unregistered and registered, which could down write
+shrinker_rwsem under pmd_write_lock.
 
-Link: https://lore.kernel.org/linux-trace-kernel/20221207035143.2278781-1-zhengyejian1@huawei.com
+Fix it by allocating dm_block_manager before locking pmd->root_lock
+and destroying old dm_block_manager after unlocking pmd->root_lock,
+then old dm_block_manager is replaced with new dm_block_manager under
+pmd->root_lock. So, shrinker register/unregister could be done without
+holding pmd->root_lock.
 
-Cc: <mhiramat@kernel.org>
-Cc: <zanussi@kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: d380dcde9a07 ("tracing: Fix now invalid var_ref_vals assumption in trace action")
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Fetch a reproducer in [Link].
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216676
+Cc: stable@vger.kernel.org #v5.2+
+Fixes: e49e582965b3 ("dm thin: add read only and fail io modes")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_events_hist.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/md/dm-thin-metadata.c |   51 +++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 43 insertions(+), 8 deletions(-)
 
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -617,7 +617,7 @@ struct action_data {
- 	 * event param, and is passed to the synthetic event
- 	 * invocation.
- 	 */
--	unsigned int		var_ref_idx[TRACING_MAP_VARS_MAX];
-+	unsigned int		var_ref_idx[SYNTH_FIELDS_MAX];
- 	struct synth_event	*synth_event;
- 	bool			use_trace_keyword;
- 	char			*synth_event_name;
-@@ -2173,7 +2173,9 @@ static struct hist_field *create_var_ref
- 			return ref_field;
- 		}
+--- a/drivers/md/dm-thin-metadata.c
++++ b/drivers/md/dm-thin-metadata.c
+@@ -776,13 +776,15 @@ static int __create_persistent_data_obje
+ 	return r;
+ }
+ 
+-static void __destroy_persistent_data_objects(struct dm_pool_metadata *pmd)
++static void __destroy_persistent_data_objects(struct dm_pool_metadata *pmd,
++					      bool destroy_bm)
+ {
+ 	dm_sm_destroy(pmd->data_sm);
+ 	dm_sm_destroy(pmd->metadata_sm);
+ 	dm_tm_destroy(pmd->nb_tm);
+ 	dm_tm_destroy(pmd->tm);
+-	dm_block_manager_destroy(pmd->bm);
++	if (destroy_bm)
++		dm_block_manager_destroy(pmd->bm);
+ }
+ 
+ static int __begin_transaction(struct dm_pool_metadata *pmd)
+@@ -989,7 +991,7 @@ int dm_pool_metadata_close(struct dm_poo
  	}
--
-+	/* Sanity check to avoid out-of-bound write on 'hist_data->var_refs' */
-+	if (hist_data->n_var_refs >= TRACING_MAP_VARS_MAX)
-+		return NULL;
- 	ref_field = create_hist_field(var_field->hist_data, NULL, flags, NULL);
- 	if (ref_field) {
- 		if (init_var_ref(ref_field, var_field, system, event_name)) {
-@@ -3922,6 +3924,10 @@ static int trace_action_create(struct hi
+ 	pmd_write_unlock(pmd);
+ 	if (!pmd->fail_io)
+-		__destroy_persistent_data_objects(pmd);
++		__destroy_persistent_data_objects(pmd, true);
  
- 	lockdep_assert_held(&event_mutex);
- 
-+	/* Sanity check to avoid out-of-bound write on 'data->var_ref_idx' */
-+	if (data->n_params > SYNTH_FIELDS_MAX)
-+		return -EINVAL;
+ 	kfree(pmd);
+ 	return 0;
+@@ -1860,19 +1862,52 @@ static void __set_abort_with_changes_fla
+ int dm_pool_abort_metadata(struct dm_pool_metadata *pmd)
+ {
+ 	int r = -EINVAL;
++	struct dm_block_manager *old_bm = NULL, *new_bm = NULL;
 +
- 	if (data->use_trace_keyword)
- 		synth_event_name = data->synth_event_name;
- 	else
++	/* fail_io is double-checked with pmd->root_lock held below */
++	if (unlikely(pmd->fail_io))
++		return r;
++
++	/*
++	 * Replacement block manager (new_bm) is created and old_bm destroyed outside of
++	 * pmd root_lock to avoid ABBA deadlock that would result (due to life-cycle of
++	 * shrinker associated with the block manager's bufio client vs pmd root_lock).
++	 * - must take shrinker_rwsem without holding pmd->root_lock
++	 */
++	new_bm = dm_block_manager_create(pmd->bdev, THIN_METADATA_BLOCK_SIZE << SECTOR_SHIFT,
++					 THIN_MAX_CONCURRENT_LOCKS);
+ 
+ 	pmd_write_lock(pmd);
+-	if (pmd->fail_io)
++	if (pmd->fail_io) {
++		pmd_write_unlock(pmd);
+ 		goto out;
++	}
+ 
+ 	__set_abort_with_changes_flags(pmd);
+-	__destroy_persistent_data_objects(pmd);
+-	r = __create_persistent_data_objects(pmd, false);
++	__destroy_persistent_data_objects(pmd, false);
++	old_bm = pmd->bm;
++	if (IS_ERR(new_bm)) {
++		DMERR("could not create block manager during abort");
++		pmd->bm = NULL;
++		r = PTR_ERR(new_bm);
++		goto out_unlock;
++	}
++
++	pmd->bm = new_bm;
++	r = __open_or_format_metadata(pmd, false);
++	if (r) {
++		pmd->bm = NULL;
++		goto out_unlock;
++	}
++	new_bm = NULL;
++out_unlock:
+ 	if (r)
+ 		pmd->fail_io = true;
+-
+-out:
+ 	pmd_write_unlock(pmd);
++	dm_block_manager_destroy(old_bm);
++out:
++	if (new_bm && !IS_ERR(new_bm))
++		dm_block_manager_destroy(new_bm);
+ 
+ 	return r;
+ }
 
 
