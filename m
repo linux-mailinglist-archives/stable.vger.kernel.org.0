@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E434D65D843
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:13:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AEC165D8C5
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:18:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239416AbjADQNV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:13:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34754 "EHLO
+        id S239834AbjADQSD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:18:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239685AbjADQMW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:12:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 691D0764F
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:12:13 -0800 (PST)
+        with ESMTP id S239924AbjADQR4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:17:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A35741117E
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:17:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 04FCF6179B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:12:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0062DC433EF;
-        Wed,  4 Jan 2023 16:12:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EB47617A9
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:17:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47ED4C433D2;
+        Wed,  4 Jan 2023 16:17:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848732;
-        bh=JJGv0wlS+fGh1ux34YOoC2Y6fy/IDkf1dboYub3X51c=;
+        s=korg; t=1672849074;
+        bh=Yq7MpLk6LgvvMhM4C3az2Lw1+sjwkRU6a5UtCD/uYBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VepWSWw0HSYFMRzFnMPoXIHhhgtYxtcC0aSDApGueJcXyNVKuFreiyKJVXxeKEBUA
-         U1uEGukhl92C8oWqm5hklkg0Ba8g1PXYd3HVc575+Siq7hERx/ItyquEhT114MdjvW
-         7gPSi4Gm6IwZaPZH/De+MdqNH+oLRHAB1uKdMh5k=
+        b=ktGao4K/joEiEmdWyNIyL61C3ccDCsTSARqTuZh5yZKF68Kpg5yBfh4O623MBkeSq
+         9QT5kIwOLGqmr393IGpyTJkCipgBAEqlefZoZTM6O0kN5DoxtK7fQ3YYco0LZn5vmI
+         PlQwMlFa0N95XTb6k9rR4OCs4SufCETW7AaKBJtA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 6.1 074/207] dm cache: set needs_check flag after aborting metadata
+        patches@lists.linux.dev, Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 6.0 041/177] mptcp: remove MPTCP ifdef in TCP SYN cookies
 Date:   Wed,  4 Jan 2023 17:05:32 +0100
-Message-Id: <20230104160514.286676846@linuxfoundation.org>
+Message-Id: <20230104160508.898407168@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,47 +54,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@kernel.org>
+From: Matthieu Baerts <matthieu.baerts@tessares.net>
 
-commit 6b9973861cb2e96dcd0bb0f1baddc5c034207c5c upstream.
+commit 3fff88186f047627bb128d65155f42517f8e448f upstream.
 
-Otherwise the commit that will be aborted will be associated with the
-metadata objects that will be torn down.  Must write needs_check flag
-to metadata with a reset block manager.
+To ease the maintenance, it is often recommended to avoid having #ifdef
+preprocessor conditions.
 
-Found through code-inspection (and compared against dm-thin.c).
+Here the section related to CONFIG_MPTCP was quite short but the next
+commit needs to add more code around. It is then cleaner to move
+specific MPTCP code to functions located in net/mptcp directory.
 
+Now that mptcp_subflow_request_sock_ops structure can be static, it can
+also be marked as "read only after init".
+
+Suggested-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
 Cc: stable@vger.kernel.org
-Fixes: 028ae9f76f29 ("dm cache: add fail io mode and needs_check flag")
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-cache-target.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ include/net/mptcp.h   |   12 ++++++++++--
+ net/ipv4/syncookies.c |    7 +++----
+ net/mptcp/subflow.c   |   12 +++++++++++-
+ 3 files changed, 24 insertions(+), 7 deletions(-)
 
---- a/drivers/md/dm-cache-target.c
-+++ b/drivers/md/dm-cache-target.c
-@@ -907,16 +907,16 @@ static void abort_transaction(struct cac
- 	if (get_cache_mode(cache) >= CM_READ_ONLY)
- 		return;
+--- a/include/net/mptcp.h
++++ b/include/net/mptcp.h
+@@ -97,8 +97,6 @@ struct mptcp_out_options {
+ };
  
--	if (dm_cache_metadata_set_needs_check(cache->cmd)) {
--		DMERR("%s: failed to set 'needs_check' flag in metadata", dev_name);
--		set_cache_mode(cache, CM_FAIL);
--	}
+ #ifdef CONFIG_MPTCP
+-extern struct request_sock_ops mptcp_subflow_request_sock_ops;
 -
- 	DMERR_LIMIT("%s: aborting current metadata transaction", dev_name);
- 	if (dm_cache_metadata_abort(cache->cmd)) {
- 		DMERR("%s: failed to abort metadata transaction", dev_name);
- 		set_cache_mode(cache, CM_FAIL);
- 	}
-+
-+	if (dm_cache_metadata_set_needs_check(cache->cmd)) {
-+		DMERR("%s: failed to set 'needs_check' flag in metadata", dev_name);
-+		set_cache_mode(cache, CM_FAIL);
-+	}
+ void mptcp_init(void);
+ 
+ static inline bool sk_is_mptcp(const struct sock *sk)
+@@ -188,6 +186,9 @@ void mptcp_seq_show(struct seq_file *seq
+ int mptcp_subflow_init_cookie_req(struct request_sock *req,
+ 				  const struct sock *sk_listener,
+ 				  struct sk_buff *skb);
++struct request_sock *mptcp_subflow_reqsk_alloc(const struct request_sock_ops *ops,
++					       struct sock *sk_listener,
++					       bool attach_listener);
+ 
+ __be32 mptcp_get_reset_option(const struct sk_buff *skb);
+ 
+@@ -274,6 +275,13 @@ static inline int mptcp_subflow_init_coo
+ 	return 0; /* TCP fallback */
  }
  
- static void metadata_operation_failed(struct cache *cache, const char *op, int r)
++static inline struct request_sock *mptcp_subflow_reqsk_alloc(const struct request_sock_ops *ops,
++							     struct sock *sk_listener,
++							     bool attach_listener)
++{
++	return NULL;
++}
++
+ static inline __be32 mptcp_reset_option(const struct sk_buff *skb)  { return htonl(0u); }
+ #endif /* CONFIG_MPTCP */
+ 
+--- a/net/ipv4/syncookies.c
++++ b/net/ipv4/syncookies.c
+@@ -288,12 +288,11 @@ struct request_sock *cookie_tcp_reqsk_al
+ 	struct tcp_request_sock *treq;
+ 	struct request_sock *req;
+ 
+-#ifdef CONFIG_MPTCP
+ 	if (sk_is_mptcp(sk))
+-		ops = &mptcp_subflow_request_sock_ops;
+-#endif
++		req = mptcp_subflow_reqsk_alloc(ops, sk, false);
++	else
++		req = inet_reqsk_alloc(ops, sk, false);
+ 
+-	req = inet_reqsk_alloc(ops, sk, false);
+ 	if (!req)
+ 		return NULL;
+ 
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -529,7 +529,7 @@ static int subflow_v6_rebuild_header(str
+ }
+ #endif
+ 
+-struct request_sock_ops mptcp_subflow_request_sock_ops;
++static struct request_sock_ops mptcp_subflow_request_sock_ops __ro_after_init;
+ static struct tcp_request_sock_ops subflow_request_sock_ipv4_ops __ro_after_init;
+ 
+ static int subflow_v4_conn_request(struct sock *sk, struct sk_buff *skb)
+@@ -582,6 +582,16 @@ drop:
+ }
+ #endif
+ 
++struct request_sock *mptcp_subflow_reqsk_alloc(const struct request_sock_ops *ops,
++					       struct sock *sk_listener,
++					       bool attach_listener)
++{
++	ops = &mptcp_subflow_request_sock_ops;
++
++	return inet_reqsk_alloc(ops, sk_listener, attach_listener);
++}
++EXPORT_SYMBOL(mptcp_subflow_reqsk_alloc);
++
+ /* validate hmac received in third ACK */
+ static bool subflow_hmac_valid(const struct request_sock *req,
+ 			       const struct mptcp_options_received *mp_opt)
 
 
