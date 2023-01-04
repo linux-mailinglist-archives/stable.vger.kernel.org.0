@@ -2,112 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBB3465D80B
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:10:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1B9F65D862
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:14:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239854AbjADQK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:10:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60100 "EHLO
+        id S239587AbjADQOB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:14:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239932AbjADQJ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:09:59 -0500
-Received: from mail-io1-xd31.google.com (mail-io1-xd31.google.com [IPv6:2607:f8b0:4864:20::d31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8052140853
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:09:44 -0800 (PST)
-Received: by mail-io1-xd31.google.com with SMTP id h6so18218424iof.9
-        for <stable@vger.kernel.org>; Wed, 04 Jan 2023 08:09:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=NceN64ihHFquTuLGhD5Npe0nXgiqifj2CJk94Zzl6z0=;
-        b=NociWIKXuyQ8xwB3tKzZisCoZQOrmK59v7IkBn4zBEMkLQG2X/rUm5T0yboMfW+26m
-         DOIHblpZ2TGhKukqMJKeHqtvOCQEjFnBhD6xOGlgKv7PTA02GS/JarbtVL6svrDodEUM
-         jWLhF4FLV9kT4LreSgP19QhkyOfba18OCN8p+KlQKRBUq3BQC16ojY/XObu4tFrOL+NK
-         e4K79iWSCpvNx54wP/vfqGLgIWtVARG1n52G0IK3vrAXfHKR6ebkyr0nsNhocPYI7sXQ
-         KSFlN5uNmvIS3ieEF3fcDWedMKHnYAm6kBKnFtXJfBG+hMbYtSS+Egrv4HZNYEtRi+gX
-         LKZg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=NceN64ihHFquTuLGhD5Npe0nXgiqifj2CJk94Zzl6z0=;
-        b=b839nwEN+TMoTF/MF0sq6G6VW0GYtyTTDoIJkXa16RWGjvlIUapTeH6a4Jhcurroj2
-         vlhhT79ceBy7EHkDZ9u2YQ47zqM+DGl3hU80TGlu1zDaRK3jx8CaKwRMeExHyNxfzw8K
-         +RpL0BZWFmk6IgmHXyhaugRBAio5rW92GKl+K+MHeEqZLXDNcbXWfKsampXqh6RT0RM2
-         FyUkuuQZ60j4iu8UZ595rrtd1Xud+302ecyIQSvf0ckMLsO2vTDtqI7pcVynzM68g/6a
-         P59HiurBPDTbZiz2Bp7SykLUwM3/7blHiSDFkxbOEObCd5XYMOnq1MCucorKYSQYhNBW
-         sslA==
-X-Gm-Message-State: AFqh2kr8IUWa7d7Jhh1L0FsODJ5WOjT22ujgCssSKPB7ag9yG9JrEQ0C
-        pzsnkVBnIeygpZB6ijY0tkVftru1RTgAu+eR
-X-Google-Smtp-Source: AMrXdXuAbUuaXYHlaQnr1bXlr6i2H3IR4Kv8gJ4kOtCPepAxuAwlJOy6+WPgC7DcPdBWChQJ8HSBJw==
-X-Received: by 2002:a6b:e812:0:b0:6f3:fed4:aa36 with SMTP id f18-20020a6be812000000b006f3fed4aa36mr5079162ioh.1.1672848583815;
-        Wed, 04 Jan 2023 08:09:43 -0800 (PST)
-Received: from m1max.localdomain ([207.135.234.126])
-        by smtp.gmail.com with ESMTPSA id t24-20020a02b198000000b0038a41eb1ba3sm10955243jah.177.2023.01.04.08.09.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Jan 2023 08:09:43 -0800 (PST)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     linux-block@vger.kernel.org
-Cc:     mikelley@microsoft.com, Jens Axboe <axboe@kernel.dk>,
-        stable@vger.kernel.org
-Subject: [PATCH 2/2] block: don't allow splitting of a REQ_NOWAIT bio
-Date:   Wed,  4 Jan 2023 09:09:38 -0700
-Message-Id: <20230104160938.62636-3-axboe@kernel.dk>
-X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160938.62636-1-axboe@kernel.dk>
-References: <20230104160938.62636-1-axboe@kernel.dk>
+        with ESMTP id S239835AbjADQNb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:13:31 -0500
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9E397E2C;
+        Wed,  4 Jan 2023 08:13:30 -0800 (PST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 1E07E165C;
+        Wed,  4 Jan 2023 08:14:12 -0800 (PST)
+Received: from FVFF77S0Q05N (unknown [10.57.37.146])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id E6AA63F71A;
+        Wed,  4 Jan 2023 08:13:28 -0800 (PST)
+Date:   Wed, 4 Jan 2023 16:13:22 +0000
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     Lee Jones <lee@kernel.org>, stable@vger.kernel.org,
+        linux-efi@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        will@kernel.org, catalin.marinas@arm.com,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH 1/2] arm64: efi: Execute runtime services from a
+ dedicated stack
+Message-ID: <Y7WloqaytMnC8ZIC@FVFF77S0Q05N>
+References: <20221205201210.463781-1-ardb@kernel.org>
+ <20221205201210.463781-2-ardb@kernel.org>
+ <Y7VXg5MCRyAJFmus@google.com>
+ <CAMj1kXEYDHuRmUPvdMVj1H1fLoOKcr+qG6NDpufxwJa57jsWdg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMj1kXEYDHuRmUPvdMVj1H1fLoOKcr+qG6NDpufxwJa57jsWdg@mail.gmail.com>
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If we split a bio marked with REQ_NOWAIT, then we can trigger spurious
-EAGAIN if constituent parts of that split bio end up failing request
-allocations. Parts will complete just fine, but just a single failure
-in one of the chained bios will yield an EAGAIN final result for the
-parent bio.
+On Wed, Jan 04, 2023 at 02:56:19PM +0100, Ard Biesheuvel wrote:
+> On Wed, 4 Jan 2023 at 11:40, Lee Jones <lee@kernel.org> wrote:
+> >
+> > On Mon, 05 Dec 2022, Ard Biesheuvel wrote:
+> >
+> > > With the introduction of PRMT in the ACPI subsystem, the EFI rts
+> > > workqueue is no longer the only caller of efi_call_virt_pointer() in the
+> > > kernel. This means the EFI runtime services lock is no longer sufficient
+> > > to manage concurrent calls into firmware, but also that firmware calls
+> > > may occur that are not marshalled via the workqueue mechanism, but
+> > > originate directly from the caller context.
+> > >
+> > > For added robustness, and to ensure that the runtime services have 8 KiB
+> > > of stack space available as per the EFI spec, introduce a spinlock
+> > > protected EFI runtime stack of 8 KiB, where the spinlock also ensures
+> > > serialization between the EFI rts workqueue (which itself serializes EFI
+> > > runtime calls) and other callers of efi_call_virt_pointer().
+> > >
+> > > While at it, use the stack pivot to avoid reloading the shadow call
+> > > stack pointer from the ordinary stack, as doing so could produce a
+> > > gadget to defeat it.
+> > >
+> > > Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+> > > ---
+> > >  arch/arm64/include/asm/efi.h       |  3 +++
+> > >  arch/arm64/kernel/efi-rt-wrapper.S | 13 +++++++++-
+> > >  arch/arm64/kernel/efi.c            | 25 ++++++++++++++++++++
+> > >  3 files changed, 40 insertions(+), 1 deletion(-)
+> >
+> > Could we have this in Stable please?
+> >
+> > Upstream commit: ff7a167961d1b ("arm64: efi: Execute runtime services from a dedicated stack")
+> >
+> > Ard, do we need Patch 2 as well, or can this be applied on its own?
+> >
+> 
+> Thanks for the reminder.
+> 
+> Only patch #1 is needed. It should be applied to v5.10 and later.
 
-Return EAGAIN early if we end up needing to split such a bio, which
-allows for saner recovery handling.
+Hold on, why did this go into mainline when I had an outstanding comment w.r.t.
+the stack unwinder?
 
-Cc: stable@vger.kernel.org # 5.15+
-Link: https://github.com/axboe/liburing/issues/766
-Reported-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- block/blk-merge.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+From your last reply to me there I was expecting a respin with that fixed.
 
-diff --git a/block/blk-merge.c b/block/blk-merge.c
-index 071c5f8cf0cf..b7c193d67185 100644
---- a/block/blk-merge.c
-+++ b/block/blk-merge.c
-@@ -309,6 +309,16 @@ static struct bio *bio_split_rw(struct bio *bio, const struct queue_limits *lim,
- 	*segs = nsegs;
- 	return NULL;
- split:
-+	/*
-+	 * We can't sanely support splitting for a REQ_NOWAIT bio. End it
-+	 * with EAGAIN if splitting is required and return an error pointer.
-+	 */
-+	if (bio->bi_opf & REQ_NOWAIT) {
-+		bio->bi_status = BLK_STS_AGAIN;
-+		bio_endio(bio);
-+		return ERR_PTR(-EAGAIN);
-+	}
-+
- 	*segs = nsegs;
- 
- 	/*
--- 
-2.39.0
-
+Mark.
