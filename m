@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A410D65D8C7
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:18:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B86CE65D875
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:15:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239813AbjADQSM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:18:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41576 "EHLO
+        id S239891AbjADQPF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:15:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239924AbjADQSG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:18:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 834863C3A1
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:18:03 -0800 (PST)
+        with ESMTP id S239894AbjADQOo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:14:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B05FA42E18
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:14:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 10A12B817AC
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:18:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53956C433F1;
-        Wed,  4 Jan 2023 16:18:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 421036178F
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:14:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 368A9C433EF;
+        Wed,  4 Jan 2023 16:14:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849080;
-        bh=B3AGuw5uSyl7t+tCx0IUq8iDtgx1TgdKumSR09duwTI=;
+        s=korg; t=1672848852;
+        bh=RFA6gCcZeY2oKHryWAvh2vKcmJh2apgAfxkzpNLfKFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DrGM4GJHBsH1UgCBgmSRJ57FC2TM0JxuT8C1td98C7L4FjeaiWcc+5m4Lc77rKNQV
-         yMNuiSWJZHq0ERxpNfINSZiYFUal5nJ+00gpDUTcVfWF9wd3++ibAaqC2mQt2dSsbF
-         +04JaNRAathOmm67htaGZKPj4M/OSyjR4jg8SEJ4=
+        b=isKvTv0bl6UxpNi4hUQE6Pnia/R/VD6V0oldNDo3Ki7kKMSszWtYBXF2lK42IN+Ek
+         DukKpW3G1s6CKF9Lkw2uASPbBrBcluQQXTZzMk6bvMgDomXcdNKZzh7TFQowgNaLnj
+         HzHY9gF0lOSj3YVO6wD5llaRA2Ov4S6I1h2HlQfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Li <ercli@ucdavis.edu>,
-        Sean Christopherson <seanjc@google.com>
-Subject: [PATCH 6.0 060/177] KVM: nVMX: Inject #GP, not #UD, if "generic" VMXON CR0/CR4 check fails
-Date:   Wed,  4 Jan 2023 17:05:51 +0100
-Message-Id: <20230104160509.467552244@linuxfoundation.org>
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Rafael Mendonca <rafaelmendsr@gmail.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 6.1 094/207] tracing/probes: Handle system names with hyphens
+Date:   Wed,  4 Jan 2023 17:05:52 +0100
+Message-Id: <20230104160514.908040337@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,136 +53,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 9cc409325ddd776f6fd6293d5ce93ce1248af6e4 upstream.
+commit 575b76cb885532aae13a9d979fd476bb2b156cb9 upstream.
 
-Inject #GP for if VMXON is attempting with a CR0/CR4 that fails the
-generic "is CRx valid" check, but passes the CR4.VMXE check, and do the
-generic checks _after_ handling the post-VMXON VM-Fail.
+When creating probe names, a check is done to make sure it matches basic C
+standard variable naming standards. Basically, starts with alphabetic or
+underline, and then the rest of the characters have alpha-numeric or
+underline in them.
 
-The CR4.VMXE check, and all other #UD cases, are special pre-conditions
-that are enforced prior to pivoting on the current VMX mode, i.e. occur
-before interception if VMXON is attempted in VMX non-root mode.
+But system names do not have any true naming conventions, as they are
+created by the TRACE_SYSTEM macro and nothing tests to see what they are.
+The "xhci-hcd" trace events has a '-' in the system name. When trying to
+attach a eprobe to one of these trace points, it fails because the system
+name does not follow the variable naming convention because of the
+hyphen, and the eprobe checks fail on this.
 
-All other CR0/CR4 checks generate #GP and effectively have lower priority
-than the post-VMXON check.
+Allow hyphens in the system name so that eprobes can attach to the
+"xhci-hcd" trace events.
 
-Per the SDM:
+Link: https://lore.kernel.org/all/Y3eJ8GiGnEvVd8%2FN@macondo/
+Link: https://lore.kernel.org/linux-trace-kernel/20221122122345.160f5077@gandalf.local.home
 
-    IF (register operand) or (CR0.PE = 0) or (CR4.VMXE = 0) or ...
-        THEN #UD;
-    ELSIF not in VMX operation
-        THEN
-            IF (CPL > 0) or (in A20M mode) or
-            (the values of CR0 and CR4 are not supported in VMX operation)
-                THEN #GP(0);
-    ELSIF in VMX non-root operation
-        THEN VMexit;
-    ELSIF CPL > 0
-        THEN #GP(0);
-    ELSE VMfail("VMXON executed in VMX root operation");
-    FI;
-
-which, if re-written without ELSIF, yields:
-
-    IF (register operand) or (CR0.PE = 0) or (CR4.VMXE = 0) or ...
-        THEN #UD
-
-    IF in VMX non-root operation
-        THEN VMexit;
-
-    IF CPL > 0
-        THEN #GP(0)
-
-    IF in VMX operation
-        THEN VMfail("VMXON executed in VMX root operation");
-
-    IF (in A20M mode) or
-       (the values of CR0 and CR4 are not supported in VMX operation)
-                THEN #GP(0);
-
-Note, KVM unconditionally forwards VMXON VM-Exits that occur in L2 to L1,
-i.e. there is no need to check the vCPU is not in VMX non-root mode.  Add
-a comment to explain why unconditionally forwarding such exits is
-functionally correct.
-
-Reported-by: Eric Li <ercli@ucdavis.edu>
-Fixes: c7d855c2aff2 ("KVM: nVMX: Inject #UD if VMXON is attempted with incompatible CR0/CR4")
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Link: https://lore.kernel.org/r/20221006001956.329314-1-seanjc@google.com
+Fixes: 5b7a96220900e ("tracing/probe: Check event/group naming rule at parsing")
+Reported-by: Rafael Mendonca <rafaelmendsr@gmail.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/nested.c |   44 +++++++++++++++++++++++++++++++++-----------
- 1 file changed, 33 insertions(+), 11 deletions(-)
+ kernel/trace/trace.h       |   19 ++++++++++++++++---
+ kernel/trace/trace_probe.c |    2 +-
+ 2 files changed, 17 insertions(+), 4 deletions(-)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -4953,24 +4953,35 @@ static int handle_vmxon(struct kvm_vcpu
- 		| FEAT_CTL_VMX_ENABLED_OUTSIDE_SMX;
+--- a/kernel/trace/trace.h
++++ b/kernel/trace/trace.h
+@@ -1954,17 +1954,30 @@ static __always_inline void trace_iterat
+ }
  
- 	/*
--	 * Note, KVM cannot rely on hardware to perform the CR0/CR4 #UD checks
--	 * that have higher priority than VM-Exit (see Intel SDM's pseudocode
--	 * for VMXON), as KVM must load valid CR0/CR4 values into hardware while
--	 * running the guest, i.e. KVM needs to check the _guest_ values.
-+	 * Manually check CR4.VMXE checks, KVM must force CR4.VMXE=1 to enter
-+	 * the guest and so cannot rely on hardware to perform the check,
-+	 * which has higher priority than VM-Exit (see Intel SDM's pseudocode
-+	 * for VMXON).
- 	 *
--	 * Rely on hardware for the other two pre-VM-Exit checks, !VM86 and
--	 * !COMPATIBILITY modes.  KVM may run the guest in VM86 to emulate Real
--	 * Mode, but KVM will never take the guest out of those modes.
-+	 * Rely on hardware for the other pre-VM-Exit checks, CR0.PE=1, !VM86
-+	 * and !COMPATIBILITY modes.  For an unrestricted guest, KVM doesn't
-+	 * force any of the relevant guest state.  For a restricted guest, KVM
-+	 * does force CR0.PE=1, but only to also force VM86 in order to emulate
-+	 * Real Mode, and so there's no need to check CR0.PE manually.
- 	 */
--	if (!nested_host_cr0_valid(vcpu, kvm_read_cr0(vcpu)) ||
--	    !nested_host_cr4_valid(vcpu, kvm_read_cr4(vcpu))) {
-+	if (!kvm_read_cr4_bits(vcpu, X86_CR4_VMXE)) {
- 		kvm_queue_exception(vcpu, UD_VECTOR);
- 		return 1;
+ /* Check the name is good for event/group/fields */
+-static inline bool is_good_name(const char *name)
++static inline bool __is_good_name(const char *name, bool hash_ok)
+ {
+-	if (!isalpha(*name) && *name != '_')
++	if (!isalpha(*name) && *name != '_' && (!hash_ok || *name != '-'))
+ 		return false;
+ 	while (*++name != '\0') {
+-		if (!isalpha(*name) && !isdigit(*name) && *name != '_')
++		if (!isalpha(*name) && !isdigit(*name) && *name != '_' &&
++		    (!hash_ok || *name != '-'))
+ 			return false;
  	}
+ 	return true;
+ }
  
- 	/*
--	 * CPL=0 and all other checks that are lower priority than VM-Exit must
--	 * be checked manually.
-+	 * The CPL is checked for "not in VMX operation" and for "in VMX root",
-+	 * and has higher priority than the VM-Fail due to being post-VMXON,
-+	 * i.e. VMXON #GPs outside of VMX non-root if CPL!=0.  In VMX non-root,
-+	 * VMXON causes VM-Exit and KVM unconditionally forwards VMXON VM-Exits
-+	 * from L2 to L1, i.e. there's no need to check for the vCPU being in
-+	 * VMX non-root.
-+	 *
-+	 * Forwarding the VM-Exit unconditionally, i.e. without performing the
-+	 * #UD checks (see above), is functionally ok because KVM doesn't allow
-+	 * L1 to run L2 without CR4.VMXE=0, and because KVM never modifies L2's
-+	 * CR0 or CR4, i.e. it's L2's responsibility to emulate #UDs that are
-+	 * missed by hardware due to shadowing CR0 and/or CR4.
- 	 */
- 	if (vmx_get_cpl(vcpu)) {
- 		kvm_inject_gp(vcpu, 0);
-@@ -4980,6 +4991,17 @@ static int handle_vmxon(struct kvm_vcpu
- 	if (vmx->nested.vmxon)
- 		return nested_vmx_fail(vcpu, VMXERR_VMXON_IN_VMX_ROOT_OPERATION);
- 
-+	/*
-+	 * Invalid CR0/CR4 generates #GP.  These checks are performed if and
-+	 * only if the vCPU isn't already in VMX operation, i.e. effectively
-+	 * have lower priority than the VM-Fail above.
-+	 */
-+	if (!nested_host_cr0_valid(vcpu, kvm_read_cr0(vcpu)) ||
-+	    !nested_host_cr4_valid(vcpu, kvm_read_cr4(vcpu))) {
-+		kvm_inject_gp(vcpu, 0);
-+		return 1;
-+	}
++/* Check the name is good for event/group/fields */
++static inline bool is_good_name(const char *name)
++{
++	return __is_good_name(name, false);
++}
 +
- 	if ((vmx->msr_ia32_feature_control & VMXON_NEEDED_FEATURES)
- 			!= VMXON_NEEDED_FEATURES) {
- 		kvm_inject_gp(vcpu, 0);
++/* Check the name is good for system */
++static inline bool is_good_system_name(const char *name)
++{
++	return __is_good_name(name, true);
++}
++
+ /* Convert certain expected symbols into '_' when generating event names */
+ static inline void sanitize_event_name(char *name)
+ {
+--- a/kernel/trace/trace_probe.c
++++ b/kernel/trace/trace_probe.c
+@@ -246,7 +246,7 @@ int traceprobe_parse_event_name(const ch
+ 			return -EINVAL;
+ 		}
+ 		strlcpy(buf, event, slash - event + 1);
+-		if (!is_good_name(buf)) {
++		if (!is_good_system_name(buf)) {
+ 			trace_probe_log_err(offset, BAD_GROUP_NAME);
+ 			return -EINVAL;
+ 		}
 
 
